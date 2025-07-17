@@ -1,7 +1,7 @@
 import { serve } from 'inngest/next'
-import { inngest, createTask } from '@/lib/inngest'
+import { createTask, inngest } from '@/lib/inngest'
 
-export const maxDuration = 800
+export const maxDuration = 60
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
