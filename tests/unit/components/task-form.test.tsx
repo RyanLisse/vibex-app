@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import NewTaskForm from '@/components/forms/new-task-form'
-import { describe, it, expect, vi } from 'vitest'
 
 // Mock the hooks
 vi.mock('@/hooks/use-github-auth', () => ({
@@ -23,49 +23,81 @@ vi.mock('@/stores/tasks', () => ({
   }),
 }))
 
+vi.mock('@/stores/environments', () => ({
+  useEnvironmentStore: () => ({
+    environments: [
+      {
+        id: 'env-1',
+        name: 'Test Environment',
+        githubRepository: 'test/repo',
+      },
+    ],
+  }),
+}))
+
+vi.mock('@/app/actions/inngest', () => ({
+  createTaskAction: vi.fn(),
+}))
+
+vi.mock('next/link', () => {
+  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
+    return <a href={href}>{children}</a>
+  }
+  return { default: MockLink }
+})
+
 describe('NewTaskForm', () => {
   it('renders form elements correctly', () => {
     render(<NewTaskForm />)
 
     expect(screen.getByPlaceholderText(/describe a task you want to ship/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /create task/i })).toBeInTheDocument()
+    expect(screen.getByText(/ready to ship something new/i)).toBeInTheDocument()
+    // Initially no action buttons are shown
+    expect(screen.queryByRole('button', { name: /code/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /ask/i })).not.toBeInTheDocument()
   })
 
-  it('handles task submission', async () => {
+  it('shows action buttons when text is entered', async () => {
     const user = userEvent.setup()
     render(<NewTaskForm />)
 
-    const input = screen.getByPlaceholderText(/describe your task/i)
-    const submitButton = screen.getByRole('button', { name: /create task/i })
+    const input = screen.getByPlaceholderText(/describe a task you want to ship/i)
 
     await user.type(input, 'Test task description')
-    await user.click(submitButton)
+
+    expect(screen.getByRole('button', { name: /code/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ask/i })).toBeInTheDocument()
+  })
+
+  it('handles task submission with Code button', async () => {
+    const user = userEvent.setup()
+    render(<NewTaskForm />)
+
+    const input = screen.getByPlaceholderText(/describe a task you want to ship/i)
+
+    await user.type(input, 'Test task description')
+
+    const codeButton = screen.getByRole('button', { name: /code/i })
+    await user.click(codeButton)
 
     await waitFor(() => {
       expect(input).toHaveValue('')
     })
   })
 
-  it('validates required fields', async () => {
+  it('handles task submission with Ask button', async () => {
     const user = userEvent.setup()
     render(<NewTaskForm />)
 
-    const submitButton = screen.getByRole('button', { name: /create task/i })
-    await user.click(submitButton)
+    const input = screen.getByPlaceholderText(/describe a task you want to ship/i)
 
-    expect(screen.getByText(/task description is required/i)).toBeInTheDocument()
-  })
+    await user.type(input, 'Test task description')
 
-  it('shows loading state during submission', async () => {
-    const user = userEvent.setup()
-    render(<NewTaskForm />)
+    const askButton = screen.getByRole('button', { name: /ask/i })
+    await user.click(askButton)
 
-    const input = screen.getByPlaceholderText(/describe your task/i)
-    const submitButton = screen.getByRole('button', { name: /create task/i })
-
-    await user.type(input, 'Test task')
-    await user.click(submitButton)
-
-    expect(screen.getByText(/creating task/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(input).toHaveValue('')
+    })
   })
 })
