@@ -224,6 +224,9 @@ export const getFieldError = (
   return Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors
 }
 
-export const hasFieldError = (error: z.ZodFormattedError<unknown> | null, field: string): boolean => {
+export const hasFieldError = (
+  error: z.ZodFormattedError<unknown> | null,
+  field: string
+): boolean => {
   return !!getFieldError(error, field)
 }

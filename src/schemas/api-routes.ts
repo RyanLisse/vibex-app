@@ -1,8 +1,5 @@
 import { z } from 'zod'
-import {
-  IdSchema,
-  PaginationSchema,
-} from '../shared/schemas/validation'
+import { IdSchema, PaginationSchema } from '../shared/schemas/validation'
 
 // GitHub OAuth schemas
 export const GitHubOAuthCallbackSchema = z.object({

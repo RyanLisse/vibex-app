@@ -35,11 +35,33 @@ export default function RootLayout({
             __html: `
               // Global error handler for unhandled promise rejections
               window.addEventListener('unhandledrejection', function(event) {
-                if (event.reason && event.reason.message &&
-                    (event.reason.message.includes('ReadableStream') ||
-                     event.reason.message.includes('cancel'))) {
-                  console.warn('Unhandled stream error prevented:', event.reason.message);
-                  event.preventDefault();
+                if (event.reason && event.reason.message) {
+                  const message = event.reason.message;
+                  if (message.includes('ReadableStream') ||
+                      message.includes('cancel') ||
+                      message.includes('locked stream') ||
+                      message.includes('WebSocket') ||
+                      message.includes('Authentication failed')) {
+                    console.warn('Unhandled stream/connection error prevented:', message);
+                    event.preventDefault();
+                    return;
+                  }
+                }
+                // Log other unhandled rejections for debugging
+                console.warn('Unhandled promise rejection:', event.reason);
+              });
+
+              // Global error handler for general errors
+              window.addEventListener('error', function(event) {
+                if (event.error && event.error.message) {
+                  const message = event.error.message;
+                  if (message.includes('ReadableStream') ||
+                      message.includes('cancel') ||
+                      message.includes('locked stream')) {
+                    console.warn('Stream error handled:', message);
+                    event.preventDefault();
+                    return;
+                  }
                 }
               });
             `,

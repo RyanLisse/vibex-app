@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Validate commit message format
-npx --no-install commitlint --edit "$1"
+# Enforce conventional commit messages
+npx commitlint --edit $1

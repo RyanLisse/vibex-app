@@ -96,6 +96,15 @@ export async function fetchRealtimeSubscriptionToken(): Promise<TaskChannelToken
       return null
     }
 
+    // Validate environment variables format
+    if (
+      !process.env.INNGEST_SIGNING_KEY.startsWith('signkey-') ||
+      process.env.INNGEST_EVENT_KEY.length < 50
+    ) {
+      console.warn('Inngest credentials appear invalid - subscription disabled')
+      return null
+    }
+
     const token = await getSubscriptionToken(getInngestApp(), {
       channel: taskChannel(),
       topics: ['status', 'update', 'control'],
@@ -106,9 +115,25 @@ export async function fetchRealtimeSubscriptionToken(): Promise<TaskChannelToken
       return null
     }
 
+    // Validate token structure
+    if (typeof token !== 'string' && !token.token) {
+      console.warn('Invalid token format received from Inngest')
+      return null
+    }
+
     return token
   } catch (error) {
     console.error('Failed to fetch Inngest subscription token:', error)
+
+    // Log specific error types for debugging
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('403')) {
+        console.error('Inngest authentication failed - check credentials')
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        console.error('Network error connecting to Inngest')
+      }
+    }
+
     // Return null if we can't get a token (e.g., in development without Inngest running)
     return null
   }

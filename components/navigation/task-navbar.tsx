@@ -16,6 +16,7 @@ import { useCallback, useState } from 'react'
 import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from '@/app/actions/inngest'
 import { createPullRequestAction } from '@/app/actions/vibekit'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTaskStore } from '@/stores/tasks'
 
 interface Props {
@@ -117,66 +118,90 @@ export default function TaskNavbar({ id }: Props) {
         {/* Task Control Buttons */}
         {task?.status === 'IN_PROGRESS' && (
           <>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full"
-              onClick={handlePauseTask}
-              disabled={isControllingTask}
-            >
-              {isControllingTask ? (
-                <Loader className="animate-spin size-4" />
-              ) : (
-                <Pause className="size-4" />
-              )}
-              Pause
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="rounded-full"
-              onClick={handleCancelTask}
-              disabled={isControllingTask}
-            >
-              {isControllingTask ? (
-                <Loader className="animate-spin size-4" />
-              ) : (
-                <X className="size-4" />
-              )}
-              Cancel
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full h-8 w-8"
+                  onClick={handlePauseTask}
+                  disabled={isControllingTask}
+                >
+                  {isControllingTask ? (
+                    <Loader className="animate-spin size-4" />
+                  ) : (
+                    <Pause className="size-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Pause Task</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="rounded-full h-8 w-8"
+                  onClick={handleCancelTask}
+                  disabled={isControllingTask}
+                >
+                  {isControllingTask ? (
+                    <Loader className="animate-spin size-4" />
+                  ) : (
+                    <X className="size-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Cancel Task</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         )}
         {task?.status === 'PAUSED' && (
           <>
-            <Button
-              variant="default"
-              size="sm"
-              className="rounded-full"
-              onClick={handleResumeTask}
-              disabled={isControllingTask}
-            >
-              {isControllingTask ? (
-                <Loader className="animate-spin size-4" />
-              ) : (
-                <Play className="size-4" />
-              )}
-              Resume
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="rounded-full"
-              onClick={handleCancelTask}
-              disabled={isControllingTask}
-            >
-              {isControllingTask ? (
-                <Loader className="animate-spin size-4" />
-              ) : (
-                <X className="size-4" />
-              )}
-              Cancel
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  size="icon"
+                  className="rounded-full h-8 w-8"
+                  onClick={handleResumeTask}
+                  disabled={isControllingTask}
+                >
+                  {isControllingTask ? (
+                    <Loader className="animate-spin size-4" />
+                  ) : (
+                    <Play className="size-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Resume Task</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="rounded-full h-8 w-8"
+                  onClick={handleCancelTask}
+                  disabled={isControllingTask}
+                >
+                  {isControllingTask ? (
+                    <Loader className="animate-spin size-4" />
+                  ) : (
+                    <X className="size-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Cancel Task</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         )}
 

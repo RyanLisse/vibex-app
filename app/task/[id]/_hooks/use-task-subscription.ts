@@ -1,6 +1,7 @@
 import { useInngestSubscription } from '@inngest/realtime/hooks'
 import { useEffect, useState } from 'react'
 import { fetchRealtimeSubscriptionToken, type TaskChannelToken } from '@/app/actions/inngest'
+import { debounce, safeAsync } from '@/lib/stream-utils'
 import { useTaskStore } from '@/stores/tasks'
 import type { StreamingMessage } from '../_types/message-types'
 import {
@@ -23,28 +24,39 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
 
   const { latestData, disconnect } = useInngestSubscription({
     refreshToken: async () => {
-      try {
-        const token = await fetchRealtimeSubscriptionToken()
-        if (!token) {
-          console.log('Inngest subscription disabled: No token available')
-          setSubscriptionEnabled(false)
-          return null as unknown as TaskChannelToken
-        }
-        return token
-      } catch (error) {
-        console.error('Failed to refresh Inngest token:', error)
+      const token = await safeAsync(
+        () => fetchRealtimeSubscriptionToken(),
+        null,
+        'Failed to refresh Inngest token:'
+      )
+
+      if (!token) {
+        console.log('Inngest subscription disabled: No token available')
         setSubscriptionEnabled(false)
-        return null as any
+        return null as unknown as TaskChannelToken
       }
+
+      return token
     },
     bufferInterval: 0,
     enabled: subscriptionEnabled,
     onError: (error) => {
       console.error('Inngest subscription error:', error)
-      setSubscriptionEnabled(false)
+      // Don't disable subscription immediately for stream errors
+      if (error?.message?.includes('ReadableStream') || error?.message?.includes('WebSocket')) {
+        console.warn('Stream/WebSocket error, will retry connection')
+      } else {
+        setSubscriptionEnabled(false)
+      }
     },
     onClose: () => {
       console.log('Inngest subscription closed')
+      // Add a small delay before potentially reconnecting
+      setTimeout(() => {
+        if (subscriptionEnabled) {
+          console.log('Attempting to reconnect Inngest subscription')
+        }
+      }, 1000)
     },
   })
 
@@ -75,7 +87,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         const { taskId: dataTaskId, message } = latestData.data
 
         if (dataTaskId === taskId && message && isValidIncomingMessage(message)) {
-        // Handle streaming messages
+          // Handle streaming messages
         if (isStreamingMessage(message)) {
           const streamId = message.data.streamId
 
@@ -143,11 +155,11 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
       setSubscriptionEnabled(false)
       // Properly disconnect the subscription to avoid stream cancellation errors
       if (disconnect) {
-        try {
-          disconnect()
-        } catch (error) {
-          console.warn('Error disconnecting Inngest subscription:', error)
-        }
+        safeAsync(
+          () => disconnect(),
+          undefined,
+          'Error disconnecting Inngest subscription:'
+        )
       }
     }, [disconnect])
 
