@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { expect, userEvent, within } from '@storybook/test'
+import { createMockTask } from '../../tests/fixtures/tasks'
 import { TaskEditForm } from './task-edit-form'
-import { createMockTask } from '../../test/fixtures/tasks'
 
 const meta = {
   title: 'Components/Forms/TaskEditForm',
