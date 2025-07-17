@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useAuthBase } from './use-auth-base'
 
 interface OpenAIAuthStatus {
   authenticated: boolean
@@ -15,81 +16,17 @@ interface OpenAIAuthStatus {
 }
 
 export function useOpenAIAuth() {
-  const [authStatus, setAuthStatus] = useState<OpenAIAuthStatus>({
-    authenticated: false,
-    loading: true,
-  })
-
-  const checkAuthStatus = async () => {
-    try {
-      setAuthStatus((prev) => ({ ...prev, loading: true, error: undefined }))
-      const response = await fetch('/api/auth/openai/status')
-
-      if (!response.ok) {
-        throw new Error('Failed to check auth status')
-      }
-
-      const data = await response.json()
-      setAuthStatus({
-        authenticated: data.authenticated,
-        user: data.user,
-        expires_at: data.expires_at,
-        hasRefreshToken: data.hasRefreshToken,
-        loading: false,
-      })
-    } catch (error) {
-      setAuthStatus({
-        authenticated: false,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      })
+  const baseAuth = useAuthBase<OpenAIAuthStatus>(
+    {
+      statusEndpoint: '/api/auth/openai/status',
+      loginEndpoint: '/api/auth/openai/login',
+      logoutEndpoint: '/api/auth/openai/logout',
+    },
+    {
+      authenticated: false,
+      loading: true,
     }
-  }
-
-  const login = async () => {
-    try {
-      setAuthStatus((prev) => ({ ...prev, loading: true, error: undefined }))
-
-      const response = await fetch('/api/auth/openai/login', {
-        method: 'POST',
-      })
-
-      const data = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || data.message)
-      }
-
-      await checkAuthStatus()
-      return data
-    } catch (error) {
-      setAuthStatus((prev) => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Login failed',
-      }))
-      throw error
-    }
-  }
-
-  const logout = async () => {
-    try {
-      const response = await fetch('/api/auth/openai/logout', {
-        method: 'POST',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to logout')
-      }
-
-      await checkAuthStatus()
-    } catch (error) {
-      setAuthStatus((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Logout failed',
-      }))
-    }
-  }
+  )
 
   const refreshToken = async () => {
     try {
@@ -101,24 +38,16 @@ export function useOpenAIAuth() {
         throw new Error('Failed to refresh token')
       }
 
-      await checkAuthStatus()
+      await baseAuth.refresh()
     } catch (error) {
-      setAuthStatus((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Token refresh failed',
-      }))
+      console.error('Token refresh failed:', error)
     }
   }
 
   useEffect(() => {
-    checkAuthStatus()
-  }, [])
-
-  // Auto-refresh token when it's about to expire
-  useEffect(() => {
-    if (authStatus.authenticated && authStatus.expires_at && authStatus.hasRefreshToken) {
-      const timeUntilExpiry = authStatus.expires_at - Date.now()
-      const refreshTime = Math.max(0, timeUntilExpiry - 60000) // Refresh 1 minute before expiry
+    if (baseAuth.authenticated && baseAuth.expires_at && baseAuth.hasRefreshToken) {
+      const timeUntilExpiry = baseAuth.expires_at - Date.now()
+      const refreshTime = Math.max(0, timeUntilExpiry - 60000)
 
       if (refreshTime > 0) {
         const timeout = setTimeout(() => {
@@ -128,13 +57,10 @@ export function useOpenAIAuth() {
         return () => clearTimeout(timeout)
       }
     }
-  }, [authStatus.authenticated, authStatus.expires_at, authStatus.hasRefreshToken])
+  }, [baseAuth.authenticated, baseAuth.expires_at, baseAuth.hasRefreshToken])
 
   return {
-    ...authStatus,
-    login,
-    logout,
+    ...baseAuth,
     refreshToken,
-    refresh: checkAuthStatus,
   }
 }

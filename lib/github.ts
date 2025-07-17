@@ -130,15 +130,17 @@ export class GitHubAuth {
   }
 
   // Create a pull request
-  async createPullRequest(
-    accessToken: string,
-    owner: string,
-    repo: string,
-    title: string,
-    body: string,
-    head: string,
-    base: string = 'main'
-  ) {
+  async createPullRequest(params: {
+    accessToken: string
+    owner: string
+    repo: string
+    title: string
+    body: string
+    head: string
+    base?: string
+  }) {
+    const { accessToken, owner, repo, title, body, head, base = 'main' } = params
+
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/pulls`, {
       method: 'POST',
       headers: {

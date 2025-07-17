@@ -43,7 +43,6 @@ export function useGitHubUser(): UseGitHubUserReturn {
     setAuthState((prev) => ({ ...prev, ...updates }))
   }, [])
 
-  // Parse and validate user cookie
   const parseUserCookie = useCallback((): GitHubUser | null => {
     try {
       const userCookie = parseCookieValue('github_user')
@@ -55,13 +54,23 @@ export function useGitHubUser(): UseGitHubUserReturn {
     }
   }, [])
 
-  // Validate authentication and update state
+  const setUnauthenticatedState = useCallback(() => {
+    updateAuthState({ isAuthenticated: false, user: null })
+  }, [updateAuthState])
+
+  const setAuthenticatedState = useCallback(
+    (userData: GitHubUser) => {
+      updateAuthState({ isAuthenticated: true, user: userData })
+    },
+    [updateAuthState]
+  )
+
   const validateAuth = useCallback(
     async (signal: AbortSignal): Promise<void> => {
       const userData = parseUserCookie()
 
       if (!userData) {
-        updateAuthState({ isAuthenticated: false, user: null })
+        setUnauthenticatedState()
         return
       }
 
@@ -69,20 +78,19 @@ export function useGitHubUser(): UseGitHubUserReturn {
         const isValid = await checkAuthStatus(signal)
 
         if (isValid) {
-          updateAuthState({ isAuthenticated: true, user: userData })
+          setAuthenticatedState(userData)
         } else {
           clearAuthCookies()
-          updateAuthState({ isAuthenticated: false, user: null })
+          setUnauthenticatedState()
         }
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') return
         throw error
       }
     },
-    [parseUserCookie, updateAuthState]
+    [parseUserCookie, setUnauthenticatedState, setAuthenticatedState]
   )
 
-  // Initial authentication check
   const checkInitialAuth = useCallback(
     async (signal: AbortSignal): Promise<void> => {
       try {
@@ -90,40 +98,30 @@ export function useGitHubUser(): UseGitHubUserReturn {
         await validateAuth(signal)
       } catch (error) {
         console.error('Error checking auth status:', error)
-        updateAuthState({ isAuthenticated: false, user: null })
+        setUnauthenticatedState()
       } finally {
         if (!signal.aborted) {
           updateAuthState({ isLoading: false })
         }
       }
     },
-    [validateAuth, updateAuthState]
+    [validateAuth, updateAuthState, setUnauthenticatedState]
   )
 
-  // Handle authentication success message
   const handleAuthSuccess = useCallback(() => {
     setTimeout(() => {
       const userData = parseUserCookie()
       if (userData) {
-        updateAuthState({
-          user: userData,
-          isAuthenticated: true,
-          isLoading: false,
-        })
+        setAuthenticatedState(userData)
+        updateAuthState({ isLoading: false })
       } else {
-        updateAuthState({
-          isAuthenticated: false,
-          user: null,
-          isLoading: false,
-        })
+        setUnauthenticatedState()
+        updateAuthState({ isLoading: false })
       }
     }, AUTH_SUCCESS_DELAY)
-  }, [parseUserCookie, updateAuthState])
+  }, [parseUserCookie, setAuthenticatedState, setUnauthenticatedState, updateAuthState])
 
-  // Open OAuth popup window
-  const openAuthPopup = useCallback(async (): Promise<Window | null> => {
-    const url = await getAuthUrl()
-
+  const createPopupWindow = useCallback(async (url: string): Promise<Window> => {
     const left = (window.screen.width - POPUP_CONFIG.width) / 2
     const top = (window.screen.height - POPUP_CONFIG.height) / 2
 
@@ -140,7 +138,11 @@ export function useGitHubUser(): UseGitHubUserReturn {
     return popup
   }, [])
 
-  // Monitor popup window status
+  const openAuthPopup = useCallback(async (): Promise<Window | null> => {
+    const url = await getAuthUrl()
+    return createPopupWindow(url)
+  }, [createPopupWindow])
+
   const monitorPopup = useCallback(
     (popup: Window): void => {
       popupCheckInterval.current = setInterval(() => {
@@ -156,7 +158,6 @@ export function useGitHubUser(): UseGitHubUserReturn {
     [updateAuthState]
   )
 
-  // Login handler
   const login = useCallback(async (): Promise<void> => {
     try {
       updateAuthState({ isLoading: true, error: null })
@@ -170,14 +171,10 @@ export function useGitHubUser(): UseGitHubUserReturn {
     }
   }, [openAuthPopup, monitorPopup, updateAuthState])
 
-  // Logout handler
   const logout = useCallback((): void => {
     clearAuthCookies()
-    updateAuthState({
-      isAuthenticated: false,
-      user: null,
-    })
-  }, [updateAuthState])
+    setUnauthenticatedState()
+  }, [setUnauthenticatedState])
 
   // Check authentication status on mount
   useEffect(() => {

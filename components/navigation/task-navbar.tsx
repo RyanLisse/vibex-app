@@ -16,8 +16,8 @@ import { useCallback, useState } from 'react'
 import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from '@/app/actions/inngest'
 import { createPullRequestAction } from '@/app/actions/vibekit'
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTaskStore } from '@/stores/tasks'
+import { TaskControlButton } from './task-control-button'
 
 interface Props {
   id: string
@@ -115,93 +115,40 @@ export default function TaskNavbar({ id }: Props) {
         </div>
       </div>
       <div className="flex items-center gap-x-2">
-        {/* Task Control Buttons */}
         {task?.status === 'IN_PROGRESS' && (
           <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full h-8 w-8"
-                  onClick={handlePauseTask}
-                  disabled={isControllingTask}
-                >
-                  {isControllingTask ? (
-                    <Loader className="animate-spin size-4" />
-                  ) : (
-                    <Pause className="size-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Pause Task</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="rounded-full h-8 w-8"
-                  onClick={handleCancelTask}
-                  disabled={isControllingTask}
-                >
-                  {isControllingTask ? (
-                    <Loader className="animate-spin size-4" />
-                  ) : (
-                    <X className="size-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Cancel Task</p>
-              </TooltipContent>
-            </Tooltip>
+            <TaskControlButton
+              icon={<Pause className="size-4" />}
+              tooltip="Pause Task"
+              onClick={handlePauseTask}
+              isLoading={isControllingTask}
+              variant="outline"
+            />
+            <TaskControlButton
+              icon={<X className="size-4" />}
+              tooltip="Cancel Task"
+              onClick={handleCancelTask}
+              isLoading={isControllingTask}
+              variant="destructive"
+            />
           </>
         )}
         {task?.status === 'PAUSED' && (
           <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="rounded-full h-8 w-8"
-                  onClick={handleResumeTask}
-                  disabled={isControllingTask}
-                >
-                  {isControllingTask ? (
-                    <Loader className="animate-spin size-4" />
-                  ) : (
-                    <Play className="size-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Resume Task</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="rounded-full h-8 w-8"
-                  onClick={handleCancelTask}
-                  disabled={isControllingTask}
-                >
-                  {isControllingTask ? (
-                    <Loader className="animate-spin size-4" />
-                  ) : (
-                    <X className="size-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Cancel Task</p>
-              </TooltipContent>
-            </Tooltip>
+            <TaskControlButton
+              icon={<Play className="size-4" />}
+              tooltip="Resume Task"
+              onClick={handleResumeTask}
+              isLoading={isControllingTask}
+              variant="default"
+            />
+            <TaskControlButton
+              icon={<X className="size-4" />}
+              tooltip="Cancel Task"
+              onClick={handleCancelTask}
+              isLoading={isControllingTask}
+              variant="destructive"
+            />
           </>
         )}
 
