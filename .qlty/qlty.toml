@@ -1,0 +1,41 @@
+[project]
+name = "codex-clone"
+description = "A modern Next.js application with comprehensive testing setup"
+
+[tools]
+# TypeScript/JavaScript
+eslint = { enable = true, config = "eslint.config.mjs" }
+biome = { enable = true, config = "biome.json" }
+typescript = { enable = true, config = "tsconfig.json" }
+
+# Testing
+vitest = { enable = true, config = "vitest.config.ts" }
+playwright = { enable = true, config = "playwright.config.ts" }
+
+# Code quality
+prettier = { enable = false }  # Using Biome instead
+stylelint = { enable = false }  # Using Tailwind
+
+[filters]
+# Ignore files and directories
+ignore = [
+  "node_modules/**",
+  ".next/**",
+  "dist/**",
+  "build/**",
+  "coverage/**",
+  "storybook-static/**",
+  ".storybook/**",
+  "*.config.{js,ts}",
+  "*.setup.{js,ts}",
+]
+
+[reporting]
+format = "json"
+output = ".qlty/reports"
+
+[thresholds]
+# Quality gates
+coverage = 80
+complexity = 10
+maintainability = 60
