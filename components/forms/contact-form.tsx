@@ -15,30 +15,66 @@ interface ContactFormProps {
   className?: string
 }
 
+// Helper functions extracted from component
+const getInitialFormData = (): Partial<ContactForm> => ({
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+  priority: 'medium',
+})
+
+const clearFieldError = (
+  errors: ReturnType<typeof validateSchema>['error'],
+  field: keyof ContactForm
+) => {
+  if (!errors?.fieldErrors) return null
+
+  const newErrors = { ...errors }
+  if (newErrors.fieldErrors) {
+    delete newErrors.fieldErrors[field]
+  }
+  return newErrors
+}
+
+const getInputClassName = (
+  errors: ReturnType<typeof validateSchema>['error'],
+  field: keyof ContactForm
+) => {
+  const baseClasses =
+    'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+  const errorClasses = 'border-red-500 focus:ring-red-500'
+  const normalClasses = 'border-gray-300 focus:border-blue-500'
+
+  return `${baseClasses} ${hasFieldError(errors, field) ? errorClasses : normalClasses}`
+}
+
+const createFieldProps = (
+  field: keyof ContactForm,
+  formData: Partial<ContactForm>,
+  errors: ReturnType<typeof validateSchema>['error'],
+  onInputChange: (field: keyof ContactForm, value: string) => void,
+  onBlur: (field: keyof ContactForm) => void
+) => ({
+  id: field,
+  value: formData[field] || '',
+  hasError: hasFieldError(errors, field),
+  errorMessage: getFieldError(errors, field),
+  className: getInputClassName(errors, field),
+  onChange: (value: string) => onInputChange(field, value),
+  onBlur: () => onBlur(field),
+})
+
 export function ContactForm({ onSubmit, isLoading = false, className = '' }: ContactFormProps) {
-  const [formData, setFormData] = useState<Partial<ContactForm>>({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    priority: 'medium',
-  })
+  const [formData, setFormData] = useState<Partial<ContactForm>>(getInitialFormData())
   const [errors, setErrors] = useState<ReturnType<typeof validateSchema>['error']>(null)
   const [, setTouched] = useState<Record<string, boolean>>({})
 
   const handleInputChange = (field: keyof ContactForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
 
-    // Clear field error when user starts typing
     if (errors && hasFieldError(errors, field)) {
-      setErrors((prev) => {
-        if (!prev) return null
-        const newErrors = { ...prev }
-        if (newErrors.fieldErrors) {
-          delete newErrors.fieldErrors[field]
-        }
-        return newErrors
-      })
+      setErrors((prev) => (prev ? clearFieldError(prev, field) : null))
     }
   }
 
@@ -60,97 +96,54 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
     await onSubmit(result.data)
   }
 
-  const getInputClassName = (field: keyof ContactForm) => {
-    const baseClasses =
-      'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-    const errorClasses = 'border-red-500 focus:ring-red-500'
-    const normalClasses = 'border-gray-300 focus:border-blue-500'
-
-    return `${baseClasses} ${hasFieldError(errors, field) ? errorClasses : normalClasses}`
-  }
-
   const handleClear = () => {
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-      priority: 'medium',
-    })
+    setFormData(getInitialFormData())
     setErrors(null)
     setTouched({})
   }
 
+  const nameProps = createFieldProps('name', formData, errors, handleInputChange, handleBlur)
+  const emailProps = createFieldProps('email', formData, errors, handleInputChange, handleBlur)
+  const subjectProps = createFieldProps('subject', formData, errors, handleInputChange, handleBlur)
+  const priorityProps = createFieldProps(
+    'priority',
+    formData,
+    errors,
+    handleInputChange,
+    handleBlur
+  )
+  const messageProps = createFieldProps('message', formData, errors, handleInputChange, handleBlur)
+
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`} noValidate>
-      <FormField
-        id="name"
-        label="Name"
-        type="text"
-        value={formData.name || ''}
-        placeholder="Enter your full name"
-        hasError={hasFieldError(errors, 'name')}
-        errorMessage={getFieldError(errors, 'name')}
-        className={getInputClassName('name')}
-        onChange={(value) => handleInputChange('name', value)}
-        onBlur={() => handleBlur('name')}
-      />
+      <FormField {...nameProps} label="Name" type="text" placeholder="Enter your full name" />
 
       <FormField
-        id="email"
+        {...emailProps}
         label="Email"
         type="email"
-        value={formData.email || ''}
         placeholder="Enter your email address"
-        hasError={hasFieldError(errors, 'email')}
-        errorMessage={getFieldError(errors, 'email')}
-        className={getInputClassName('email')}
-        onChange={(value) => handleInputChange('email', value)}
-        onBlur={() => handleBlur('email')}
       />
 
-      <FormField
-        id="subject"
-        label="Subject"
-        type="text"
-        value={formData.subject || ''}
-        placeholder="Enter the subject"
-        hasError={hasFieldError(errors, 'subject')}
-        errorMessage={getFieldError(errors, 'subject')}
-        className={getInputClassName('subject')}
-        onChange={(value) => handleInputChange('subject', value)}
-        onBlur={() => handleBlur('subject')}
-      />
+      <FormField {...subjectProps} label="Subject" type="text" placeholder="Enter the subject" />
 
       <FormField
-        id="priority"
+        {...priorityProps}
         label="Priority"
         type="select"
-        value={formData.priority || 'medium'}
         options={[
           { value: 'low', label: 'Low' },
           { value: 'medium', label: 'Medium' },
           { value: 'high', label: 'High' },
         ]}
-        hasError={hasFieldError(errors, 'priority')}
-        errorMessage={getFieldError(errors, 'priority')}
-        className={getInputClassName('priority')}
-        onChange={(value) => handleInputChange('priority', value)}
-        onBlur={() => handleBlur('priority')}
       />
 
       <FormField
-        id="message"
+        {...messageProps}
         label="Message"
         type="textarea"
-        value={formData.message || ''}
         placeholder="Enter your message"
         rows={4}
-        hasError={hasFieldError(errors, 'message')}
-        errorMessage={getFieldError(errors, 'message')}
-        className={getInputClassName('message')}
-        onChange={(value) => handleInputChange('message', value)}
-        onBlur={() => handleBlur('message')}
       />
 
       {errors?.formErrors && errors.formErrors.length > 0 && (

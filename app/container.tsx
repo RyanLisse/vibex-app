@@ -34,7 +34,6 @@ export default function Container({ children }: { children: React.ReactNode }) {
   const { updateTask, getTaskById } = useTaskStore()
   const [subscriptionEnabled, setSubscriptionEnabled] = useState(true)
 
-  // Extract token refresh logic
   const refreshToken = useCallback(async () => {
     try {
       const token = await fetchRealtimeSubscriptionToken()
@@ -51,7 +50,6 @@ export default function Container({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Extract error handling
   const handleError = useCallback((error: unknown) => {
     console.error('Container Inngest subscription error:', error)
     setSubscriptionEnabled(false)

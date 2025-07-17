@@ -16,13 +16,46 @@ import { useTaskStore } from '@/stores/tasks'
 import { createTaskAction } from '@/app/actions/inngest'
 import Link from 'next/link'
 
+// Helper functions for form logic
+const adjustTextareaHeight = (textarea: HTMLTextAreaElement) => {
+  textarea.style.height = '100px'
+  textarea.style.height = Math.max(100, textarea.scrollHeight) + 'px'
+}
+
+const getDefaultBranch = (branches: Array<{ name: string; isDefault?: boolean }>) => {
+  return branches.find((branch) => branch.isDefault)?.name || ''
+}
+
+const getRepositoryFromEnvironment = (
+  environments: Array<{ id: string; githubRepository?: string }>,
+  envId: string
+) => {
+  return environments.find((env) => env.id === envId)?.githubRepository || ''
+}
+
+const createTaskData = (
+  value: string,
+  mode: 'code' | 'ask',
+  selectedBranch: string,
+  environments: Array<{ id: string; githubRepository?: string }>,
+  selectedEnvironment: string
+) => ({
+  title: value,
+  hasChanges: false,
+  description: '',
+  messages: [],
+  status: 'IN_PROGRESS' as const,
+  branch: selectedBranch,
+  sessionId: '',
+  repository: getRepositoryFromEnvironment(environments, selectedEnvironment),
+  mode,
+})
+
 export default function NewTaskForm() {
   const { environments } = useEnvironmentStore()
   const { addTask } = useTaskStore()
   const { branches, fetchBranches } = useGitHubAuth()
-  const [selectedBranch, setSelectedBranch] = useState<string>(
-    branches.find((branch) => branch.isDefault)?.name || ''
-  )
+  const [selectedBranch, setSelectedBranch] = useState<string>(getDefaultBranch(branches))
   const [selectedEnvironment, setSelectedEnvironment] = useState<string>(environments[0]?.id || '')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [value, setValue] = useState('')
@@ -30,35 +63,24 @@ export default function NewTaskForm() {
   const adjustHeight = () => {
     const textarea = textareaRef.current
     if (textarea) {
-      textarea.style.height = '100px' // Reset to min height
-      textarea.style.height = Math.max(100, textarea.scrollHeight) + 'px'
+      adjustTextareaHeight(textarea)
     }
   }
 
   const handleAddTask = async (mode: 'code' | 'ask') => {
-    if (value) {
-      const task = addTask({
-        title: value,
-        hasChanges: false,
-        description: '',
-        messages: [],
-        status: 'IN_PROGRESS',
-        branch: selectedBranch,
-        sessionId: '',
-        repository:
-          environments.find((env) => env.id === selectedEnvironment)?.githubRepository || '',
-        mode,
-      })
-      await createTaskAction({ task })
-      setValue('')
-    }
+    if (!value) return
+
+    const taskData = createTaskData(value, mode, selectedBranch, environments, selectedEnvironment)
+    const task = addTask(taskData)
+    await createTaskAction({ task })
+    setValue('')
   }
 
+  // Effects for initialization and state management
   useEffect(() => {
     adjustHeight()
   }, [value])
 
-  // Set initial environment when environments load
   useEffect(() => {
     if (environments.length > 0 && !selectedEnvironment) {
       setSelectedEnvironment(environments[0].id)
@@ -68,7 +90,6 @@ export default function NewTaskForm() {
   useEffect(() => {
     if (selectedEnvironment) {
       const environment = environments.find((env) => env.id === selectedEnvironment)
-
       if (environment?.githubRepository) {
         fetchBranches(environment.githubRepository)
       }
@@ -77,7 +98,7 @@ export default function NewTaskForm() {
 
   useEffect(() => {
     if (branches.length > 0) {
-      setSelectedBranch(branches.find((branch) => branch.isDefault)?.name || '')
+      setSelectedBranch(getDefaultBranch(branches))
     }
   }, [branches])
 
