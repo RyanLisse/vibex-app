@@ -24,11 +24,10 @@ cd my-app
 # Core dependencies
 bun add zod @browserbasehq/sdk
 
-# Testing frameworks
+# Testing frameworks - Simplified to Vitest + Playwright
 bun add -D vitest @vitejs/plugin-react jsdom
 bun add -D @testing-library/react @testing-library/jest-dom @testing-library/user-event
 bun add -D @playwright/test
-bun add -D @browserbasehq/stagehand
 
 # Storybook
 bunx storybook@latest init
@@ -76,11 +75,13 @@ my-app/
 ├── .vscode/
 │   ├── settings.json
 │   └── extensions.json
-├── e2e/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── e2e/
 │   ├── fixtures/
-│   ├── page-objects/
-│   ├── playwright/
-│   └── stagehand/
+│   ├── helpers/
+│   └── setup.ts
 ├── src/
 │   ├── app/
 │   │   ├── stagehand/
@@ -166,36 +167,57 @@ export default config;
 
 **vitest.config.ts**
 ```typescript
-import { defineConfig, mergeConfig } from 'vitest/config';
-import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'node:path';
+import { resolve } from 'node:path';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    storybookTest({
-      configDir: path.join(__dirname, '.storybook'),
-      storybookScript: 'npm run storybook -- --ci',
-      storybookUrl: 'http://localhost:6006',
-      tags: {
-        include: ['test'],
-        exclude: ['experimental', 'skip-test'],
-      },
-    }),
-  ],
+  plugins: [react()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./tests/setup.ts'],
     globals: true,
+    css: true,
     coverage: {
-      reporter: ['text', 'lcov', 'html'],
-      exclude: ['node_modules/', '.next/', '*.config.*'],
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        '.next/**',
+        'coverage/**',
+        'tests/**',
+        '**/*.d.ts',
+        '**/*.config.{js,ts}',
+        '**/types.ts',
+        '**/.storybook/**',
+        '**/storybook-static/**',
+      ],
+      thresholds: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
+      },
+    },
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': resolve(__dirname, './'),
+      '@/components': resolve(__dirname, './components'),
+      '@/app': resolve(__dirname, './app'),
+      '@/lib': resolve(__dirname, './lib'),
+      '@/hooks': resolve(__dirname, './hooks'),
+      '@/stores': resolve(__dirname, './stores'),
     },
   },
 });
@@ -401,16 +423,17 @@ module.exports = {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest",
+    "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "test-storybook": "vitest --project=storybook",
+    "test:coverage": "vitest --coverage",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "check": "biome check --apply .",
-    "quality:check": "qlty check --sample=10",
-    "quality:fix": "qlty fmt --all",
     "type-check": "tsc --noEmit",
     "commit": "cz",
     "release": "semantic-release",
@@ -1364,71 +1387,158 @@ export const SlugSchema = z.string()
   .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens');
 ```
 
-### Basic Playwright test
+### Integration Test Example
 
-**e2e/playwright/auth.spec.ts**
+**tests/integration/api/github-auth.test.ts**
+```typescript
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { GET } from '@/app/api/auth/github/url/route'
+
+describe('GitHub Auth API Integration Tests', () => {
+  beforeEach(() => {
+    // Setup test environment
+    process.env.GITHUB_CLIENT_ID = 'test_client_id'
+    process.env.GITHUB_CLIENT_SECRET = 'test_client_secret'
+    process.env.NODE_ENV = 'test'
+  })
+
+  afterEach(() => {
+    // Cleanup
+    vi.restoreAllMocks()
+  })
+
+  it('should return GitHub OAuth URL successfully', async () => {
+    const response = await GET()
+
+    expect(response.status).toBe(200)
+
+    const data = await response.json()
+    expect(data).toHaveProperty('url')
+    expect(data.url).toContain('github.com/login/oauth/authorize')
+    expect(data.url).toContain('client_id=test_client_id')
+    expect(data.url).toContain('redirect_uri=')
+    expect(data.url).toContain('scope=repo+user%3Aemail')
+  })
+
+  it('should handle missing environment variables gracefully', async () => {
+    // Remove the environment variable to test error handling
+    delete process.env.GITHUB_CLIENT_ID
+
+    const response = await GET()
+
+    expect(response.status).toBe(500)
+
+    const data = await response.json()
+    expect(data).toHaveProperty('error')
+    expect(data.error).toBe('Failed to generate auth URL')
+  })
+})
+```
+
+### E2E Test Example
+
+**tests/e2e/auth.spec.ts**
 ```typescript
 import { test, expect } from '@playwright/test';
 
 test.describe('Authentication Flow', () => {
   test('should login successfully', async ({ page }) => {
     await page.goto('/login');
-    
+
     await page.fill('[data-testid="email"]', 'user@example.com');
     await page.fill('[data-testid="password"]', 'password123');
     await page.click('[data-testid="login-button"]');
-    
+
     await expect(page).toHaveURL('/dashboard');
     await expect(page.locator('[data-testid="welcome-message"]')).toBeVisible();
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
     await page.goto('/login');
-    
+
     await page.fill('[data-testid="email"]', 'wrong@example.com');
     await page.fill('[data-testid="password"]', 'wrongpassword');
     await page.click('[data-testid="login-button"]');
-    
+
     await expect(page.locator('[data-testid="error-message"]')).toContainText('Invalid credentials');
   });
 });
 ```
 
-### AI-powered testing with Stagehand
+### Test Setup File
 
-**e2e/stagehand/dynamic-content.spec.ts**
+**tests/setup.ts**
 ```typescript
-import { test } from '../fixtures/stagehand';
-import { z } from 'zod';
+import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
+import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 
-test.describe('AI-Powered Dynamic Content Testing', () => {
-  test('should handle complex form interactions', async ({ stagehand }) => {
-    const page = stagehand.page;
-    
-    await page.goto('/contact');
-    
-    // Use natural language to interact
-    await page.act('fill out the contact form with name "John Doe", email "john@example.com", and message "Testing the form"');
-    
-    // Extract and validate form data
-    const formData = await page.extract({
-      instruction: 'extract all form field values',
-      schema: z.object({
-        name: z.string(),
-        email: z.string().email(),
-        message: z.string(),
-      }),
-    });
-    
-    expect(formData.name).toBe('John Doe');
-    expect(formData.email).toBe('john@example.com');
-    
-    await page.act('submit the form');
-    
-    // Verify success
-    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-  });
-});
+// Mock Next.js router
+vi.mock('next/router', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    pathname: '/',
+    query: {},
+    asPath: '/',
+    route: '/',
+  }),
+}))
+
+// Mock Next.js navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+  }),
+  useSearchParams: () => ({
+    get: vi.fn(),
+  }),
+  usePathname: () => '/',
+}))
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+})
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
+// Clean up after each test
+afterEach(() => {
+  cleanup()
+})
+
+// Global test configuration
+beforeAll(() => {
+  // Set up any global test configuration
+})
+
+afterAll(() => {
+  // Clean up any global test setup
+})
 ```
 
 ## CI/CD Pipeline
@@ -1669,10 +1779,10 @@ bun run test:e2e
 
 ### Testing Strategy
 
-1. **Unit Tests**: Test individual functions and components in isolation
-2. **Component Tests**: Test component behavior with Storybook
-3. **Integration Tests**: Test feature slices working together
-4. **E2E Tests**: Test critical user journeys
+1. **Unit Tests**: Test individual functions and components in isolation using Vitest
+2. **Integration Tests**: Test API routes and feature interactions using Vitest
+3. **Component Tests**: Test component behavior with Storybook
+4. **E2E Tests**: Test critical user journeys using Playwright
 
 ### Code Organization
 
@@ -1699,13 +1809,13 @@ bun run test:e2e
 
 This comprehensive setup provides a modern, efficient testing and development environment for Next.js projects. The combination of:
 
+- **Vitest** for fast unit and integration testing with excellent TypeScript support
+- **Playwright** for reliable E2E testing across browsers
 - **Storybook** for component development and testing
-- **Vitest** for fast unit testing
-- **Playwright** and **Stagehand** for E2E testing
-- **Biome.js** and **Qlty CLI** for code quality
+- **Biome.js** for fast code formatting and linting
 - **TDD workflows** for better code design
 - **Git worktrees** for parallel development
 - **Vertical slicing** for better architecture
 - **Conventional commits** and **semantic release** for automated versioning
 
-Creates a robust foundation that promotes high-quality code, efficient collaboration, and faster feature delivery. The integrated CI/CD pipeline ensures that all code meets quality standards before deployment, while the development workflow supports both individual productivity and team collaboration.
+Creates a robust foundation that promotes high-quality code, efficient collaboration, and faster feature delivery. The simplified testing stack (Vitest + Playwright) reduces complexity while maintaining comprehensive test coverage. The integrated CI/CD pipeline ensures that all code meets quality standards before deployment, while the development workflow supports both individual productivity and team collaboration.

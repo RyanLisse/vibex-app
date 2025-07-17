@@ -1,33 +1,9 @@
-import { defineConfig } from 'vitest/config'
+import { resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
-
-// Conditionally load Storybook plugin if available
-const getStorybookPlugin = () => {
-  try {
-    const { storybookTest } = require('@storybook/addon-vitest/vitest-plugin')
-    return storybookTest({
-      configDir: resolve(__dirname, '.storybook'),
-      storybookScript: 'npm run storybook -- --ci',
-      storybookUrl: 'http://localhost:6006',
-      tags: {
-        include: ['test'],
-        exclude: ['experimental', 'skip-test'],
-      },
-    })
-  } catch {
-    // Storybook Vitest plugin not available, continue without it
-    console.log('📚 Storybook-Vitest integration available via separate test-storybook command')
-    return null
-  }
-}
-
-const storybookPlugin = getStorybookPlugin()
-const plugins = [react()]
-if (storybookPlugin) plugins.push(storybookPlugin)
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins,
+  plugins: [react()],
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
