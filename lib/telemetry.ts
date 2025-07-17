@@ -5,7 +5,7 @@ import { TelemetryConfig, TelemetryBackend } from '@/src/types/telemetry'
  */
 export function getTelemetryConfig(): TelemetryConfig {
   const isEnabled = process.env.OTEL_ENABLED === 'true'
-  
+
   if (!isEnabled) {
     return { isEnabled: false }
   }
@@ -15,8 +15,8 @@ export function getTelemetryConfig(): TelemetryConfig {
     endpoint: process.env.OTEL_ENDPOINT,
     serviceName: process.env.OTEL_SERVICE_NAME || 'codex-clone',
     serviceVersion: process.env.OTEL_SERVICE_VERSION || '1.0.0',
-    samplingRatio: process.env.OTEL_SAMPLING_RATIO 
-      ? parseFloat(process.env.OTEL_SAMPLING_RATIO) 
+    samplingRatio: process.env.OTEL_SAMPLING_RATIO
+      ? parseFloat(process.env.OTEL_SAMPLING_RATIO)
       : 1.0,
   }
 
@@ -43,14 +43,17 @@ export function getDefaultEndpoint(backend: TelemetryBackend): string {
     tempo: 'http://localhost:4317',
     otlp: 'http://localhost:4317',
   }
-  
+
   return endpoints[backend]
 }
 
 /**
  * Validate telemetry configuration
  */
-export function validateTelemetryConfig(config: TelemetryConfig): { isValid: boolean; errors: string[] } {
+export function validateTelemetryConfig(config: TelemetryConfig): {
+  isValid: boolean
+  errors: string[]
+} {
   const errors: string[] = []
 
   if (config.isEnabled && !config.endpoint) {
@@ -82,7 +85,7 @@ export function logTelemetryConfig(config: TelemetryConfig): void {
   console.log(`   Service: ${config.serviceName}@${config.serviceVersion}`)
   console.log(`   Endpoint: ${config.endpoint}`)
   console.log(`   Sampling: ${(config.samplingRatio || 1) * 100}%`)
-  
+
   if (config.headers) {
     console.log(`   Headers: ${Object.keys(config.headers).join(', ')}`)
   }

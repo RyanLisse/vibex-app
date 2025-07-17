@@ -40,21 +40,21 @@ export class GitHubAuth {
   constructor() {
     this.clientId = process.env.GITHUB_CLIENT_ID!
     this.clientSecret = process.env.GITHUB_CLIENT_SECRET!
-    
+
     // Allow override via environment variable, otherwise use defaults
     if (process.env.GITHUB_REDIRECT_URI) {
       this.redirectUri = process.env.GITHUB_REDIRECT_URI
     } else if (process.env.NEXT_PUBLIC_APP_URL) {
       // Use the app URL from environment if available
-      this.redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
+      this.redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/github/callback`
     } else if (process.env.NODE_ENV === 'production') {
       // Production default
-      this.redirectUri = 'https://vibex-app.vercel.app/auth/callback'
+      this.redirectUri = 'https://vibex-app.vercel.app/api/auth/github/callback'
     } else {
       // Local development default
-      this.redirectUri = 'http://localhost:3000/auth/callback'
+      this.redirectUri = 'http://localhost:3000/api/auth/github/callback'
     }
-    
+
     // Log the redirect URI for debugging
     if (process.env.NODE_ENV === 'development') {
       console.log('GitHub OAuth redirect URI:', this.redirectUri)

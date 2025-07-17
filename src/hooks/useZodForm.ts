@@ -1,9 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { type FieldValues, type UseFormProps, type UseFormReturn, useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { createSchemaValidator, validateSingleField, validateAllFormFields } from './useZodForm/validation'
+import { createStorageHelpers } from './useZodForm/storage'
+import { createFieldHelpers, getFormErrors, getDirtyFields, getChangedFields } from './useZodForm/fieldHelpers'
+import { useFormState } from './useZodForm/formState'
 
-// Type definitions for better TypeScript support
+// Type definitions
 export type ZodFormData<T extends FieldValues> = T
 export type ZodFormErrors<T extends FieldValues> = Partial<Record<keyof T, string>>
 
@@ -47,8 +51,6 @@ export interface UseZodFormReturn<T extends FieldValues> extends UseFormReturn<T
   // Advanced features
   schema: z.ZodSchema<T>
   validateSchema: (data: unknown) => { success: boolean; data?: T; errors?: ZodFormErrors<T> }
-
-  // Async validation
   validateFieldAsync: (field: keyof T, value: any) => Promise<boolean>
 
   // Form state management
@@ -71,7 +73,7 @@ export function useZodForm<T extends FieldValues>(
     ...formOptions
   } = options
 
-  // Initialize form with Zod resolver
+  // Initialize form
   const form = useForm<T>({
     resolver: zodResolver(schema),
     mode: validateOnChange ? 'onChange' : 'onSubmit',
@@ -79,91 +81,23 @@ export function useZodForm<T extends FieldValues>(
     ...formOptions,
   })
 
-  // Enhanced state management
+  // State
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [initialData, setInitialData] = useState<Partial<T>>({})
 
-  // Computed values
-  const hasErrors = Object.keys(form.formState.errors).length > 0
-  const errorCount = Object.keys(form.formState.errors).length
-  const isValid = form.formState.isValid && !hasErrors
-  const isDirty = form.formState.isDirty
-
-  // Schema validation function
-  const validateSchema = useCallback(
-    (data: unknown) => {
-      try {
-        const result = schema.parse(data)
-        return { success: true, data: result }
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          const errors = error.errors.reduce(
-            (acc, err) => {
-              const field = err.path.join('.') as keyof T
-              acc[field] = err.message
-              return acc
-            },
-            {} as ZodFormErrors<T>
-          )
-          return { success: false, errors }
-        }
-        return { success: false, errors: { general: 'Validation failed' } as ZodFormErrors<T> }
-      }
-    },
-    [schema]
+  // Create helpers
+  const validateSchema = useMemo(() => createSchemaValidator(schema), [schema])
+  const storageHelpers = useMemo(
+    () => createStorageHelpers(form, transformOnLoad, setInitialData),
+    [form, transformOnLoad]
   )
+  const fieldHelpers = useMemo(() => createFieldHelpers(form), [form])
+  const formState = useFormState(form)
 
-  // Field validation helpers
-  const getFieldError = useCallback(
-    (field: keyof T) => {
-      const error = form.formState.errors[field]
-      return error?.message
-    },
-    [form.formState.errors]
-  )
-
-  const hasFieldError = useCallback(
-    (field: keyof T) => {
-      return !!form.formState.errors[field]
-    },
-    [form.formState.errors]
-  )
-
-  const clearFieldError = useCallback(
-    (field: keyof T) => {
-      form.clearErrors(field)
-    },
-    [form]
-  )
-
-  const setFieldError = useCallback(
-    (field: keyof T, error: string) => {
-      form.setError(field, { message: error })
-    },
-    [form]
-  )
-
-  // Async field validation
+  // Validation methods
   const validateField = useCallback(
-    async (field: keyof T): Promise<boolean> => {
-      const value = form.getValues(field)
-      try {
-        // Create a partial schema for the specific field
-        const fieldSchema = schema.pick({ [field]: true } as any)
-        fieldSchema.parse({ [field]: value })
-        form.clearErrors(field)
-        return true
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          const fieldError = error.errors.find((err) => err.path.includes(field as string))
-          if (fieldError) {
-            form.setError(field, { message: fieldError.message })
-          }
-        }
-        return false
-      }
-    },
-    [form, schema]
+    (field: keyof T) => validateSingleField(schema, form, field),
+    [schema, form]
   )
 
   const validateFieldAsync = useCallback(
@@ -172,84 +106,48 @@ export function useZodForm<T extends FieldValues>(
         const fieldSchema = schema.pick({ [field]: true } as any)
         fieldSchema.parse({ [field]: value })
         return true
-      } catch (error) {
+      } catch {
         return false
       }
     },
     [schema]
   )
 
-  const validateAllFields = useCallback(async (): Promise<boolean> => {
-    const data = form.getValues()
-    const result = validateSchema(data)
+  const validateAllFields = useCallback(
+    () => validateAllFormFields(form, validateSchema),
+    [form, validateSchema]
+  )
 
-    if (!result.success && result.errors) {
-      Object.entries(result.errors).forEach(([field, error]) => {
-        form.setError(field as keyof T, { message: error })
-      })
-      return false
-    }
-
-    return true
-  }, [form, validateSchema])
-
-  // Form data helpers
+  // Form data methods
   const getFormData = useCallback(() => {
     const data = form.getValues()
     return transformBeforeSubmit ? transformBeforeSubmit(data) : data
   }, [form, transformBeforeSubmit])
 
-  const getFormErrors = useCallback((): ZodFormErrors<T> => {
-    return Object.entries(form.formState.errors).reduce(
-      (acc, [field, error]) => {
-        acc[field as keyof T] = error?.message || 'Invalid value'
-        return acc
-      },
-      {} as ZodFormErrors<T>
-    )
-  }, [form.formState.errors])
+  const getFormErrorsMemo = useCallback(
+    () => getFormErrors(form),
+    [form]
+  )
 
-  const getDirtyFields = useCallback((): Partial<T> => {
-    const dirtyFields = form.formState.dirtyFields
-    const values = form.getValues()
+  const getDirtyFieldsMemo = useCallback(
+    () => getDirtyFields(form),
+    [form]
+  )
 
-    return Object.keys(dirtyFields).reduce(
-      (acc, field) => {
-        acc[field as keyof T] = values[field as keyof T]
-        return acc
-      },
-      {} as Partial<T>
-    )
-  }, [form])
+  const getChangedFieldsMemo = useCallback(
+    () => getChangedFields(form, initialData),
+    [form, initialData]
+  )
 
-  const getChangedFields = useCallback((): Partial<T> => {
-    const currentValues = form.getValues()
-    const changedFields: Partial<T> = {}
-
-    Object.keys(currentValues).forEach((field) => {
-      const currentValue = currentValues[field as keyof T]
-      const initialValue = initialData[field as keyof T]
-
-      if (currentValue !== initialValue) {
-        changedFields[field as keyof T] = currentValue
-      }
-    })
-
-    return changedFields
-  }, [form, initialData])
-
-  // Enhanced submit handler
+  // Submit handler
   const submitForm = useCallback(async () => {
     if (isSubmitting) return
-
     setIsSubmitting(true)
 
     try {
       const isValid = await validateAllFields()
-
       if (!isValid) {
-        const errors = getFormErrors()
-        onError?.(errors)
+        onError?.(getFormErrorsMemo())
         return
       }
 
@@ -257,14 +155,13 @@ export function useZodForm<T extends FieldValues>(
       await onSubmit?.(data)
     } catch (error) {
       console.error('Form submission error:', error)
-      const errors = { general: 'Submission failed' } as ZodFormErrors<T>
-      onError?.(errors)
+      onError?.({ general: 'Submission failed' } as ZodFormErrors<T>)
     } finally {
       setIsSubmitting(false)
     }
-  }, [isSubmitting, validateAllFields, getFormErrors, onError, getFormData, onSubmit])
+  }, [isSubmitting, validateAllFields, getFormErrorsMemo, onError, getFormData, onSubmit])
 
-  // Enhanced reset handler
+  // Reset handler
   const resetForm = useCallback(
     (data?: Partial<T>) => {
       const resetData = data || initialData
@@ -275,100 +172,50 @@ export function useZodForm<T extends FieldValues>(
     [form, initialData, transformOnLoad]
   )
 
-  // Storage helpers
-  const saveToStorage = useCallback(
-    (key: string) => {
-      try {
-        const data = form.getValues()
-        localStorage.setItem(key, JSON.stringify(data))
-      } catch (error) {
-        console.error('Failed to save form data to storage:', error)
-      }
-    },
-    [form]
-  )
-
-  const loadFromStorage = useCallback(
-    (key: string): boolean => {
-      try {
-        const stored = localStorage.getItem(key)
-        if (stored) {
-          const data = JSON.parse(stored)
-          const transformedData = transformOnLoad ? transformOnLoad(data) : data
-          form.reset(transformedData)
-          setInitialData(transformedData)
-          return true
-        }
-      } catch (error) {
-        console.error('Failed to load form data from storage:', error)
-      }
-      return false
-    },
-    [form, transformOnLoad]
-  )
-
-  const clearStorage = useCallback((key: string) => {
-    try {
-      localStorage.removeItem(key)
-    } catch (error) {
-      console.error('Failed to clear form data from storage:', error)
-    }
-  }, [])
-
-  // Initialize form on mount
+  // Initialize on mount
   useEffect(() => {
     if (validateOnMount) {
       validateAllFields()
     }
 
-    // Store initial data
     const defaultValues = formOptions.defaultValues || {}
     const transformedDefaults = transformOnLoad ? transformOnLoad(defaultValues) : defaultValues
     setInitialData(transformedDefaults)
-  }, [validateOnMount, validateAllFields, formOptions.defaultValues, transformOnLoad])
+  }, []) // Minimal dependencies
 
-  // Return enhanced form object
   return {
     ...form,
-
-    // Enhanced state
+    // State
     isSubmitting,
-    hasErrors,
-    errorCount,
-    isValid,
-    isDirty,
-
-    // Enhanced methods
+    ...formState,
+    // Methods
     submitForm,
     resetForm,
     validateField,
     validateAllFields,
-
     // Field helpers
-    getFieldError,
-    hasFieldError,
-    clearFieldError,
-    setFieldError,
-
+    ...fieldHelpers,
+    getFieldError: fieldHelpers.getError,
+    hasFieldError: fieldHelpers.hasError,
+    clearFieldError: fieldHelpers.clearError,
+    setFieldError: fieldHelpers.setError,
     // Form utilities
     getFormData,
-    getFormErrors,
-    getDirtyFields,
-    getChangedFields,
-
-    // Advanced features
+    getFormErrors: getFormErrorsMemo,
+    getDirtyFields: getDirtyFieldsMemo,
+    getChangedFields: getChangedFieldsMemo,
+    // Advanced
     schema,
     validateSchema,
     validateFieldAsync,
-
     // Storage
-    saveToStorage,
-    loadFromStorage,
-    clearStorage,
+    saveToStorage: storageHelpers.save,
+    loadFromStorage: storageHelpers.load,
+    clearStorage: storageHelpers.clear,
   }
 }
 
-// Utility hooks for common use cases
+// Utility hooks
 export function useZodFormPersistence<T extends FieldValues>(
   form: UseZodFormReturn<T>,
   storageKey: string,
@@ -376,7 +223,6 @@ export function useZodFormPersistence<T extends FieldValues>(
 ) {
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load on mount
   useEffect(() => {
     const loaded = form.loadFromStorage(storageKey)
     setIsLoaded(true)
@@ -385,9 +231,8 @@ export function useZodFormPersistence<T extends FieldValues>(
         form.saveToStorage(storageKey)
       }
     }
-  }, [form, storageKey, autoSave])
+  }, [])
 
-  // Auto-save on changes
   useEffect(() => {
     if (!isLoaded || !autoSave) return
 
@@ -433,7 +278,7 @@ export function useZodFormValidation<T extends FieldValues>(
   return validationState
 }
 
-// Higher-order component for form providers
+// Higher-order component
 export function createZodFormProvider<T extends FieldValues>(schema: z.ZodSchema<T>) {
   return function ZodFormProvider({
     children,
@@ -442,6 +287,6 @@ export function createZodFormProvider<T extends FieldValues>(schema: z.ZodSchema
     children: (form: UseZodFormReturn<T>) => React.ReactNode
   } & UseZodFormOptions<T>) {
     const form = useZodForm({ schema, ...props })
-    return React.createElement(React.Fragment, null, children(form))
+    return children(form)
   }
 }

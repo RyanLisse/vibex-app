@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { FormField } from './form-field'
 import {
   contactFormSchema,
   validateSchema,
@@ -68,119 +69,89 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
     return `${baseClasses} ${hasFieldError(errors, field) ? errorClasses : normalClasses}`
   }
 
+  const handleClear = () => {
+    setFormData({
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+      priority: 'medium',
+    })
+    setErrors(null)
+    setTouched({})
+  }
+
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`} noValidate>
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Name *
-        </label>
-        <input
-          id="name"
-          type="text"
-          value={formData.name || ''}
-          onChange={(e) => handleInputChange('name', e.target.value)}
-          onBlur={() => handleBlur('name')}
-          className={getInputClassName('name')}
-          placeholder="Enter your full name"
-          aria-invalid={hasFieldError(errors, 'name')}
-          aria-describedby={hasFieldError(errors, 'name') ? 'name-error' : undefined}
-        />
-        {hasFieldError(errors, 'name') && (
-          <p id="name-error" className="mt-1 text-sm text-red-600" role="alert">
-            {getFieldError(errors, 'name')}
-          </p>
-        )}
-      </div>
+      <FormField
+        id="name"
+        label="Name"
+        type="text"
+        value={formData.name || ''}
+        placeholder="Enter your full name"
+        hasError={hasFieldError(errors, 'name')}
+        errorMessage={getFieldError(errors, 'name')}
+        className={getInputClassName('name')}
+        onChange={(value) => handleInputChange('name', value)}
+        onBlur={() => handleBlur('name')}
+      />
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-          Email *
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={formData.email || ''}
-          onChange={(e) => handleInputChange('email', e.target.value)}
-          onBlur={() => handleBlur('email')}
-          className={getInputClassName('email')}
-          placeholder="Enter your email address"
-          aria-invalid={hasFieldError(errors, 'email')}
-          aria-describedby={hasFieldError(errors, 'email') ? 'email-error' : undefined}
-        />
-        {hasFieldError(errors, 'email') && (
-          <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
-            {getFieldError(errors, 'email')}
-          </p>
-        )}
-      </div>
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        value={formData.email || ''}
+        placeholder="Enter your email address"
+        hasError={hasFieldError(errors, 'email')}
+        errorMessage={getFieldError(errors, 'email')}
+        className={getInputClassName('email')}
+        onChange={(value) => handleInputChange('email', value)}
+        onBlur={() => handleBlur('email')}
+      />
 
-      <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-          Subject *
-        </label>
-        <input
-          id="subject"
-          type="text"
-          value={formData.subject || ''}
-          onChange={(e) => handleInputChange('subject', e.target.value)}
-          onBlur={() => handleBlur('subject')}
-          className={getInputClassName('subject')}
-          placeholder="Enter the subject"
-          aria-invalid={hasFieldError(errors, 'subject')}
-          aria-describedby={hasFieldError(errors, 'subject') ? 'subject-error' : undefined}
-        />
-        {hasFieldError(errors, 'subject') && (
-          <p id="subject-error" className="mt-1 text-sm text-red-600" role="alert">
-            {getFieldError(errors, 'subject')}
-          </p>
-        )}
-      </div>
+      <FormField
+        id="subject"
+        label="Subject"
+        type="text"
+        value={formData.subject || ''}
+        placeholder="Enter the subject"
+        hasError={hasFieldError(errors, 'subject')}
+        errorMessage={getFieldError(errors, 'subject')}
+        className={getInputClassName('subject')}
+        onChange={(value) => handleInputChange('subject', value)}
+        onBlur={() => handleBlur('subject')}
+      />
 
-      <div>
-        <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
-          Priority *
-        </label>
-        <select
-          id="priority"
-          value={formData.priority || 'medium'}
-          onChange={(e) => handleInputChange('priority', e.target.value)}
-          onBlur={() => handleBlur('priority')}
-          className={getInputClassName('priority')}
-          aria-invalid={hasFieldError(errors, 'priority')}
-          aria-describedby={hasFieldError(errors, 'priority') ? 'priority-error' : undefined}
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-        {hasFieldError(errors, 'priority') && (
-          <p id="priority-error" className="mt-1 text-sm text-red-600" role="alert">
-            {getFieldError(errors, 'priority')}
-          </p>
-        )}
-      </div>
+      <FormField
+        id="priority"
+        label="Priority"
+        type="select"
+        value={formData.priority || 'medium'}
+        options={[
+          { value: 'low', label: 'Low' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'high', label: 'High' },
+        ]}
+        hasError={hasFieldError(errors, 'priority')}
+        errorMessage={getFieldError(errors, 'priority')}
+        className={getInputClassName('priority')}
+        onChange={(value) => handleInputChange('priority', value)}
+        onBlur={() => handleBlur('priority')}
+      />
 
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-          Message *
-        </label>
-        <textarea
-          id="message"
-          value={formData.message || ''}
-          onChange={(e) => handleInputChange('message', e.target.value)}
-          onBlur={() => handleBlur('message')}
-          rows={4}
-          className={getInputClassName('message')}
-          placeholder="Enter your message"
-          aria-invalid={hasFieldError(errors, 'message')}
-          aria-describedby={hasFieldError(errors, 'message') ? 'message-error' : undefined}
-        />
-        {hasFieldError(errors, 'message') && (
-          <p id="message-error" className="mt-1 text-sm text-red-600" role="alert">
-            {getFieldError(errors, 'message')}
-          </p>
-        )}
-      </div>
+      <FormField
+        id="message"
+        label="Message"
+        type="textarea"
+        value={formData.message || ''}
+        placeholder="Enter your message"
+        rows={4}
+        hasError={hasFieldError(errors, 'message')}
+        errorMessage={getFieldError(errors, 'message')}
+        className={getInputClassName('message')}
+        onChange={(value) => handleInputChange('message', value)}
+        onBlur={() => handleBlur('message')}
+      />
 
       {errors?.formErrors && errors.formErrors.length > 0 && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-md">
@@ -194,17 +165,7 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
         <Button
           type="button"
           variant="outline"
-          onClick={() => {
-            setFormData({
-              name: '',
-              email: '',
-              subject: '',
-              message: '',
-              priority: 'medium',
-            })
-            setErrors(null)
-            setTouched({})
-          }}
+          onClick={handleClear}
           disabled={isLoading}
         >
           Clear

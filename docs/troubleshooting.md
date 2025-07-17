@@ -755,11 +755,11 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
 1. **Use Different OAuth Apps for Dev/Prod**:
    
    **For Local Development**:
-   - Create a GitHub OAuth app with callback: `http://localhost:3000/auth/callback`
+   - Create a GitHub OAuth app with callback: `http://localhost:3000/api/auth/github/callback`
    - Use these credentials in `.env.local`
    
    **For Production**:
-   - Create a separate GitHub OAuth app with callback: `https://vibex-app.vercel.app/auth/callback`
+   - Create a separate GitHub OAuth app with callback: `https://vibex-app.vercel.app/api/auth/github/callback`
    - Use these credentials in Vercel environment variables
 
 2. **Configure Environment Variables**:
@@ -770,22 +770,22 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
    GITHUB_CLIENT_SECRET=dev_app_client_secret
    
    # Optional: Force a specific redirect URI
-   # GITHUB_REDIRECT_URI=http://localhost:3000/auth/callback
+   # GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/github/callback
    ```
 
 3. **The Redirect URI Logic**:
    The app automatically determines the redirect URI in this order:
    1. `GITHUB_REDIRECT_URI` if set (override)
-   2. `${NEXT_PUBLIC_APP_URL}/auth/callback` if set
-   3. `https://vibex-app.vercel.app/auth/callback` in production
-   4. `http://localhost:3000/auth/callback` in development
+   2. `${NEXT_PUBLIC_APP_URL}/api/auth/github/callback` if set
+   3. `https://vibex-app.vercel.app/api/auth/github/callback` in production
+   4. `http://localhost:3000/api/auth/github/callback` in development
 
 4. **Update GitHub App Settings**:
    - Go to GitHub Settings > Developer settings > OAuth Apps
    - Create/update your OAuth app
    - Set Authorization callback URL to match your environment:
-     - Local: `http://localhost:3000/auth/callback`
-     - Production: `https://vibex-app.vercel.app/auth/callback`
+     - Local: `http://localhost:3000/api/auth/github/callback`
+     - Production: `https://vibex-app.vercel.app/api/auth/github/callback`
 
 5. **Debug OAuth Flow**:
    ```bash
@@ -798,7 +798,7 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
 
 6. **Common Mistakes**:
    - ❌ Using production OAuth app for local development
-   - ❌ Wrong callback URL format (missing `/auth/callback`)
+   - ❌ Wrong callback URL format (missing `/api/auth/github/callback`)
    - ❌ Quotes in environment variable values
    - ✅ Create separate OAuth apps for each environment
    - ✅ Match callback URLs exactly

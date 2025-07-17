@@ -8,8 +8,8 @@ import { useTaskStore } from '@/stores/tasks'
 export default function Container({ children }: { children: React.ReactNode }) {
   const { updateTask, getTaskById } = useTaskStore()
   const [subscriptionEnabled, setSubscriptionEnabled] = useState(true)
-  
-  const { latestData } = useInngestSubscription({
+
+  const { latestData, disconnect } = useInngestSubscription({
     refreshToken: async () => {
       try {
         const token = await fetchRealtimeSubscriptionToken()
@@ -27,6 +27,13 @@ export default function Container({ children }: { children: React.ReactNode }) {
     },
     bufferInterval: 0,
     enabled: subscriptionEnabled,
+    onError: (error) => {
+      console.error('Container Inngest subscription error:', error)
+      setSubscriptionEnabled(false)
+    },
+    onClose: () => {
+      console.log('Container Inngest subscription closed')
+    },
   })
 
   useEffect(() => {
@@ -93,7 +100,22 @@ export default function Container({ children }: { children: React.ReactNode }) {
         })
       }
     }
-  }, [latestData])
+  }, [latestData, updateTask, getTaskById])
+
+  // Cleanup subscription on unmount
+  useEffect(() => {
+    return () => {
+      setSubscriptionEnabled(false)
+      // Properly disconnect the subscription to avoid stream cancellation errors
+      if (disconnect) {
+        try {
+          disconnect()
+        } catch (error) {
+          console.warn('Error disconnecting Container Inngest subscription:', error)
+        }
+      }
+    }
+  }, [disconnect])
 
   return children
 }

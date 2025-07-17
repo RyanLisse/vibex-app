@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes'
 import './globals.css'
 import './streaming.css'
 
+import { ErrorBoundary } from '@/components/error-boundary'
 import Container from './container'
 
 const geistSans = Geist({
@@ -29,13 +30,30 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Global error handler for unhandled promise rejections
+              window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.message &&
+                    (event.reason.message.includes('ReadableStream') ||
+                     event.reason.message.includes('cancel'))) {
+                  console.warn('Unhandled stream error prevented:', event.reason.message);
+                  event.preventDefault();
+                }
+              });
+            `,
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Container>{children}</Container>
+          <ErrorBoundary>
+            <Container>{children}</Container>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

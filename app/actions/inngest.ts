@@ -1,11 +1,9 @@
 'use server'
+import { getSubscriptionToken, type Realtime } from '@inngest/realtime'
 import { cookies } from 'next/headers'
-import { getSubscriptionToken, Realtime } from '@inngest/realtime'
-
-import { inngest } from '@/lib/inngest'
-import { Task } from '@/stores/tasks'
-import { getInngestApp, taskChannel } from '@/lib/inngest'
+import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
 import { getTelemetryConfig } from '@/lib/telemetry'
+import type { Task } from '@/stores/tasks'
 
 export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update']>
 export type TaskChannelTokenResponse = TaskChannelToken | null
@@ -27,7 +25,7 @@ export const createTaskAction = async ({
   }
 
   const telemetryConfig = getTelemetryConfig()
-  
+
   await inngest.send({
     name: 'clonedex/create.task',
     data: {
@@ -49,7 +47,7 @@ export const createPullRequestAction = async ({ sessionId }: { sessionId?: strin
   }
 
   const telemetryConfig = getTelemetryConfig()
-  
+
   await inngest.send({
     name: 'clonedex/create.pull-request',
     data: {
@@ -62,10 +60,22 @@ export const createPullRequestAction = async ({ sessionId }: { sessionId?: strin
 
 export async function fetchRealtimeSubscriptionToken(): Promise<TaskChannelToken | null> {
   try {
+    // Check if Inngest is properly configured
+    if (!process.env.INNGEST_SIGNING_KEY || !process.env.INNGEST_EVENT_KEY) {
+      console.warn('Inngest not configured - subscription disabled')
+      return null
+    }
+
     const token = await getSubscriptionToken(getInngestApp(), {
       channel: taskChannel(),
       topics: ['status', 'update'],
     })
+
+    if (!token) {
+      console.warn('No subscription token received from Inngest')
+      return null
+    }
+
     return token
   } catch (error) {
     console.error('Failed to fetch Inngest subscription token:', error)

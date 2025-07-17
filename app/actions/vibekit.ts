@@ -14,7 +14,7 @@ export const createPullRequestAction = async ({ task }: { task: Task }) => {
   }
 
   const telemetryConfig = getTelemetryConfig()
-  
+
   const config: VibeKitConfig = {
     agent: {
       type: 'codex',

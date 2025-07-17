@@ -35,7 +35,7 @@ export interface TelemetryConfig {
   samplingRatio?: number
 }
 
-export type TelemetryBackend = 
+export type TelemetryBackend =
   | 'jaeger'
   | 'zipkin'
   | 'datadog'
