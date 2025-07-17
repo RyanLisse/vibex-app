@@ -44,7 +44,7 @@ dev: kill-ports ## Start development server with Inngest
 		echo "🚀 Starting Inngest dev server and Next.js with Bun..."; \
 		bunx concurrently --names "NEXT,INNGEST" --prefix-colors "blue,green" \
 			"INNGEST_DEV=1 bun run dev" \
-			"bunx inngest-cli@latest dev -u http://localhost:3000/api/inngest"; \
+			"npx inngest-cli@latest dev -u http://localhost:3000/api/inngest"; \
 	else \
 		echo "🚀 Starting Inngest dev server and Next.js with npm..."; \
 		npx concurrently --names "NEXT,INNGEST" --prefix-colors "blue,green" \
@@ -63,11 +63,7 @@ dev-next: kill-ports ## Start only Next.js development server
 dev-inngest: ## Start only Inngest dev server
 	@echo "🚀 Starting Inngest dev server..."
 	@echo "ℹ️  Make sure Next.js is running on port 3000 first"
-	@if [ "$(PM)" = "bun" ]; then \
-		bunx inngest-cli@latest dev -u http://localhost:3000/api/inngest; \
-	else \
-		npx inngest-cli@latest dev -u http://localhost:3000/api/inngest; \
-	fi
+	@npx inngest-cli@latest dev -u http://localhost:3000/api/inngest
 
 build: ## Build for production
 	@echo "🏗️  Building for production..."
