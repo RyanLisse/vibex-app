@@ -13,6 +13,7 @@ export function useAutoScroll<T extends HTMLElement>(dependencies: unknown[]) {
         })
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies)
 
   return scrollAreaRef

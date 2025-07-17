@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
+import { JSDOM } from 'jsdom'
 
 // Mock Next.js router
 vi.mock('next/router', () => ({
@@ -62,7 +63,24 @@ afterEach(() => {
 
 // Global test configuration
 beforeAll(() => {
-  // Set up any global test configuration
+  // Set up JSDOM environment
+  const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
+    url: 'http://localhost:3000',
+    pretendToBeVisual: true,
+    resources: 'usable',
+  })
+
+  // Set up global DOM environment
+  global.window = dom.window as any
+  global.document = dom.window.document
+  global.navigator = dom.window.navigator
+  global.location = dom.window.location
+  global.HTMLElement = dom.window.HTMLElement
+  global.Element = dom.window.Element
+  global.Node = dom.window.Node
+  global.Text = dom.window.Text
+  global.Comment = dom.window.Comment
+  global.DocumentFragment = dom.window.DocumentFragment
 })
 
 afterAll(() => {

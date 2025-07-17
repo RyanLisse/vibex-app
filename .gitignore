@@ -86,3 +86,6 @@ hive-mind-prompt-*.txt
 /tmp/
 *.tmp
 *.temp
+
+*storybook.log
+.auth/
