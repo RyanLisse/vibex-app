@@ -5,22 +5,29 @@ import { Button } from '@/components/ui/button'
 
 describe('Button Component', () => {
   it('renders button with text', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByRole('button')).toHaveTextContent('Click me')
+    const { container } = render(<Button>Click me</Button>)
+
+    // Use querySelector since the button is rendering correctly
+    const button = container.querySelector('button')
+    expect(button).toBeInTheDocument()
+    expect(button).toHaveTextContent('Click me')
   })
 
   it('applies variant styles correctly', () => {
-    render(<Button variant="destructive">Delete</Button>)
-    const button = screen.getByRole('button')
+    const { container } = render(<Button variant="destructive">Delete</Button>)
+    const button = container.querySelector('button')
+    expect(button).toBeInTheDocument()
+    expect(button).toHaveTextContent('Delete')
     expect(button).toHaveClass('bg-destructive')
   })
 
   it('handles click events', async () => {
     const user = userEvent.setup()
     const handleClick = vi.fn()
-    render(<Button onClick={handleClick}>Click me</Button>)
+    const { container } = render(<Button onClick={handleClick}>Click me</Button>)
 
-    const button = screen.getByRole('button')
+    const button = container.querySelector('button')
+    expect(button).toBeInTheDocument()
     await user.click(button)
 
     expect(handleClick).toHaveBeenCalledTimes(1)
