@@ -3,10 +3,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "devCommand": "npm run dev",
-  "env": {
-    "GITHUB_CLIENT_ID": "@github_client_id",
-    "GITHUB_CLIENT_SECRET": "@github_client_secret", 
-    "GITHUB_TOKEN": "@github_token"
-  }
+  "devCommand": "npm run dev"
 }
