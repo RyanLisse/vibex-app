@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import NewTaskForm from '@/components/forms/new-task-form'
@@ -48,37 +48,42 @@ vi.mock('next/link', () => {
 
 describe('NewTaskForm', () => {
   it('renders form elements correctly', () => {
-    render(<NewTaskForm />)
+    const { container, getByPlaceholderText, getByText, queryByRole } = render(<NewTaskForm />)
 
-    expect(screen.getByPlaceholderText(/describe a task you want to ship/i)).toBeInTheDocument()
-    expect(screen.getByText(/ready to ship something new/i)).toBeInTheDocument()
+    expect(getByPlaceholderText(/describe a task you want to ship/i)).toBeInTheDocument()
+    expect(getByText(/ready to ship something new/i)).toBeInTheDocument()
     // Initially no action buttons are shown
-    expect(screen.queryByRole('button', { name: /code/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /ask/i })).not.toBeInTheDocument()
+    expect(queryByRole('button', { name: /code/i })).not.toBeInTheDocument()
+    expect(queryByRole('button', { name: /ask/i })).not.toBeInTheDocument()
   })
 
   it('shows action buttons when text is entered', async () => {
-    const user = userEvent.setup()
-    render(<NewTaskForm />)
+    const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
 
-    const input = screen.getByPlaceholderText(/describe a task you want to ship/i)
+    const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
 
-    await user.type(input, 'Test task description')
+    // Use fireEvent to trigger onChange directly
+    fireEvent.change(input, { target: { value: 'Test task description' } })
 
-    expect(screen.getByRole('button', { name: /code/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /ask/i })).toBeInTheDocument()
+    // Wait for buttons to appear after state update
+    const codeButton = await findByText('Code')
+    const askButton = await findByText('Ask')
+
+    expect(codeButton).toBeInTheDocument()
+    expect(askButton).toBeInTheDocument()
   })
 
   it('handles task submission with Code button', async () => {
-    const user = userEvent.setup()
-    render(<NewTaskForm />)
+    const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
 
-    const input = screen.getByPlaceholderText(/describe a task you want to ship/i)
+    const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
 
-    await user.type(input, 'Test task description')
+    // Use fireEvent to trigger onChange
+    fireEvent.change(input, { target: { value: 'Test task description' } })
 
-    const codeButton = screen.getByRole('button', { name: /code/i })
-    await user.click(codeButton)
+    // Wait for button to appear
+    const codeButton = await findByText('Code')
+    fireEvent.click(codeButton)
 
     await waitFor(() => {
       expect(input).toHaveValue('')
@@ -86,15 +91,16 @@ describe('NewTaskForm', () => {
   })
 
   it('handles task submission with Ask button', async () => {
-    const user = userEvent.setup()
-    render(<NewTaskForm />)
+    const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
 
-    const input = screen.getByPlaceholderText(/describe a task you want to ship/i)
+    const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
 
-    await user.type(input, 'Test task description')
+    // Use fireEvent to trigger onChange
+    fireEvent.change(input, { target: { value: 'Test task description' } })
 
-    const askButton = screen.getByRole('button', { name: /ask/i })
-    await user.click(askButton)
+    // Wait for button to appear
+    const askButton = await findByText('Ask')
+    fireEvent.click(askButton)
 
     await waitFor(() => {
       expect(input).toHaveValue('')

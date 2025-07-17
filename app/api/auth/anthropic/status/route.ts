@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { AuthAnthropic } from '@/lib/auth/anthropic'
+import { Auth } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const info = await AuthAnthropic.Auth.get('anthropic')
+    const info = await Auth.get('anthropic')
 
     if (!info) {
       return NextResponse.json({ authenticated: false })

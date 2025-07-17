@@ -5,7 +5,7 @@ import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
 import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/stores/tasks'
 
-export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update']>
+export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update', 'control']>
 export type TaskChannelTokenResponse = TaskChannelToken | null
 
 export const createTaskAction = async ({

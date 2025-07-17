@@ -8,7 +8,7 @@ import { useStatusProcessor } from './use-status-processor'
 
 interface UseTaskSubscriptionProps {
   taskId: string
-  taskMessages?: unknown[]
+  taskMessages?: Array<{ role: 'user' | 'assistant'; type: string; data: Record<string, unknown> }>
 }
 
 export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscriptionProps) {
