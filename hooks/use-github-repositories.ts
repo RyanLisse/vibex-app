@@ -20,7 +20,7 @@ export function useGitHubRepositories(): UseGitHubRepositoriesReturn {
     try {
       setIsLoading(true)
       setError(null)
-      
+
       const repos = await fetchGitHubRepositories()
       setRepositories(repos)
     } catch (error) {

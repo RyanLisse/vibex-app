@@ -17,9 +17,7 @@ export function TaskLoadingState({ statusMessage }: TaskLoadingStateProps) {
         <div className="bg-card border border-border rounded-2xl px-5 py-3 shadow-sm">
           <div className="flex items-center gap-2">
             <Loader className="w-4 h-4 text-muted-foreground animate-spin" />
-            <TextShimmer className="text-sm">
-              {statusMessage || 'Working on task...'}
-            </TextShimmer>
+            <TextShimmer className="text-sm">{statusMessage || 'Working on task...'}</TextShimmer>
           </div>
         </div>
       </div>

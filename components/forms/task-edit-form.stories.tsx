@@ -57,7 +57,7 @@ export const EditMode: Story = {
 
 export const WithError: Story = {
   args: {
-    onSubmit: async (data) => {
+    onSubmit: async (_data) => {
       throw new Error('Failed to submit task')
     },
     onCancel: () => {

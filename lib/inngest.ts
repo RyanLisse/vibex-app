@@ -1,6 +1,6 @@
+import { channel, realtimeMiddleware, topic } from '@inngest/realtime'
+import { VibeKit, type VibeKitConfig } from '@vibe-kit/sdk'
 import { Inngest } from 'inngest'
-import { realtimeMiddleware, channel, topic } from '@inngest/realtime'
-import { VibeKit, VibeKitConfig } from '@vibe-kit/sdk'
 
 // Create a client to send and receive events
 export const inngest = new Inngest({
@@ -15,7 +15,7 @@ export const taskChannel = channel('tasks')
   .addTopic(
     topic('status').type<{
       taskId: string
-      status: 'IN_PROGRESS' | 'DONE' | 'MERGED'
+      status: 'IN_PROGRESS' | 'DONE' | 'MERGED' | 'PAUSED' | 'CANCELLED'
       sessionId: string
     }>()
   )
@@ -23,6 +23,12 @@ export const taskChannel = channel('tasks')
     topic('update').type<{
       taskId: string
       message: Record<string, unknown>
+    }>()
+  )
+  .addTopic(
+    topic('control').type<{
+      taskId: string
+      action: 'pause' | 'resume' | 'cancel'
     }>()
   )
 
@@ -34,11 +40,63 @@ function* chunkText(text: string, chunkSize: number = 10): Generator<string, voi
   }
 }
 
+// Global task control state
+const taskControlState = new Map<string, { isPaused: boolean; isCancelled: boolean }>()
+
+export const taskControl = inngest.createFunction(
+  { id: 'task-control' },
+  { event: 'clonedx/task.control' },
+  async ({ event, publish }) => {
+    const { taskId, action } = event.data
+
+    // Update task control state
+    const currentState = taskControlState.get(taskId) || { isPaused: false, isCancelled: false }
+
+    switch (action) {
+      case 'pause':
+        taskControlState.set(taskId, { ...currentState, isPaused: true })
+        await publish(
+          taskChannel().status({
+            taskId,
+            status: 'PAUSED',
+            sessionId: '',
+          })
+        )
+        break
+      case 'resume':
+        taskControlState.set(taskId, { ...currentState, isPaused: false })
+        await publish(
+          taskChannel().status({
+            taskId,
+            status: 'IN_PROGRESS',
+            sessionId: '',
+          })
+        )
+        break
+      case 'cancel':
+        taskControlState.set(taskId, { ...currentState, isCancelled: true })
+        await publish(
+          taskChannel().status({
+            taskId,
+            status: 'CANCELLED',
+            sessionId: '',
+          })
+        )
+        break
+    }
+
+    return { success: true, action, taskId }
+  }
+)
+
 export const createTask = inngest.createFunction(
   { id: 'create-task' },
   { event: 'clonedex/create.task' },
   async ({ event, step, publish }) => {
     const { task, token, sessionId, prompt } = event.data
+
+    // Initialize task control state
+    taskControlState.set(task.id, { isPaused: false, isCancelled: false })
     const config: VibeKitConfig = {
       agent: {
         type: 'codex',

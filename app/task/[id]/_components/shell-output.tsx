@@ -9,7 +9,7 @@ interface ShellOutputProps {
 
 export function ShellOutput({ command, output }: ShellOutputProps) {
   const commandText = command.slice(1).join(' ')
-  
+
   const parseOutput = () => {
     if (!output) return 'No output'
     try {

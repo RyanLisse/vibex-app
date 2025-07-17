@@ -14,25 +14,29 @@ export async function getAuthUrl() {
 
 export async function fetchGitHubRepositories(signal?: AbortSignal): Promise<GitHubRepository[]> {
   const response = await fetch('/api/auth/github/repositories', { signal })
-  
+
   if (!response.ok) {
     throw new Error('Failed to fetch repositories')
   }
-  
+
   const data = await response.json()
   return data.repositories || []
 }
 
-export async function fetchGitHubBranches(owner: string, repo: string, signal?: AbortSignal): Promise<GitHubBranch[]> {
+export async function fetchGitHubBranches(
+  owner: string,
+  repo: string,
+  signal?: AbortSignal
+): Promise<GitHubBranch[]> {
   const response = await fetch(
     `/api/auth/github/branches?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`,
     { signal }
   )
-  
+
   if (!response.ok) {
     throw new Error('Failed to fetch branches')
   }
-  
+
   const data = await response.json()
   return data.branches || []
 }
@@ -49,10 +53,10 @@ export function clearAuthCookies() {
 
 export function parseRepositoryName(repositoryName: string): { owner: string; repo: string } {
   const [owner, repo] = repositoryName.split('/')
-  
+
   if (!owner || !repo) {
     throw new Error('Repository name must be in format "owner/repo"')
   }
-  
+
   return { owner, repo }
 }

@@ -16,13 +16,13 @@ export default function Container({ children }: { children: React.ReactNode }) {
         if (!token) {
           console.log('Inngest subscription disabled: No token available')
           setSubscriptionEnabled(false)
-          return null as any
+          return null as unknown as TaskChannelToken
         }
         return token
       } catch (error) {
         console.error('Failed to refresh Inngest token:', error)
         setSubscriptionEnabled(false)
-        return null as any
+        return null as unknown as TaskChannelToken
       }
     },
     bufferInterval: 0,

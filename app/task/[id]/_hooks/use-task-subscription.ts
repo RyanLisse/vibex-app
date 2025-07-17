@@ -1,8 +1,8 @@
 import { useInngestSubscription } from '@inngest/realtime/hooks'
 import { useEffect, useState } from 'react'
-import { fetchRealtimeSubscriptionToken } from '@/app/actions/inngest'
+import { fetchRealtimeSubscriptionToken, type TaskChannelToken } from '@/app/actions/inngest'
 import { useTaskStore } from '@/stores/tasks'
-import { IncomingMessage, type StreamingMessage } from '../_types/message-types'
+import type { StreamingMessage } from '../_types/message-types'
 import {
   isCompletedStreamMessage,
   isStreamingMessage,
@@ -15,7 +15,7 @@ interface UseTaskSubscriptionProps {
 }
 
 export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscriptionProps) {
-  const { updateTask } = useTaskStore()
+  const { updateTask, pauseTask, resumeTask, cancelTask } = useTaskStore()
   const [subscriptionEnabled, setSubscriptionEnabled] = useState(true)
   const [streamingMessages, setStreamingMessages] = useState<Map<string, StreamingMessage>>(
     new Map()
@@ -28,7 +28,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         if (!token) {
           console.log('Inngest subscription disabled: No token available')
           setSubscriptionEnabled(false)
-          return null as any
+          return null as unknown as TaskChannelToken
         }
         return token
       } catch (error) {
@@ -49,10 +49,32 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
   })
 
   useEffect(() => {
-    if (latestData?.channel === 'tasks' && latestData.topic === 'update') {
-      const { taskId: dataTaskId, message } = latestData.data
+    if (latestData?.channel === 'tasks') {
+      if (latestData.topic === 'status') {
+        const { taskId: dataTaskId, status } = latestData.data
 
-      if (dataTaskId === taskId && message && isValidIncomingMessage(message)) {
+        if (dataTaskId === taskId) {
+          // Handle status updates (including pause/resume/cancel)
+          switch (status) {
+            case 'PAUSED':
+              pauseTask(taskId)
+              break
+            case 'IN_PROGRESS':
+              resumeTask(taskId)
+              break
+            case 'CANCELLED':
+              cancelTask(taskId)
+              break
+            case 'DONE':
+            case 'MERGED':
+              updateTask(taskId, { status })
+              break
+          }
+        }
+      } else if (latestData.topic === 'update') {
+        const { taskId: dataTaskId, message } = latestData.data
+
+        if (dataTaskId === taskId && message && isValidIncomingMessage(message)) {
         // Handle streaming messages
         if (isStreamingMessage(message)) {
           const streamId = message.data.streamId
@@ -113,10 +135,10 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }
       }
     }
-  }, [latestData, taskId, taskMessages, streamingMessages, updateTask])
+  }, [latestData, taskId, taskMessages, streamingMessages, updateTask, pauseTask, resumeTask, cancelTask])
 
   // Cleanup subscription on unmount
-  useEffect(() => {
+  useEffect(() => 
     return () => {
       setSubscriptionEnabled(false)
       // Properly disconnect the subscription to avoid stream cancellation errors
@@ -127,8 +149,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
           console.warn('Error disconnecting Inngest subscription:', error)
         }
       }
-    }
-  }, [disconnect])
+    }, [disconnect])
 
   return {
     streamingMessages,

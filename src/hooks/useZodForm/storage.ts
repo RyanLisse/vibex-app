@@ -1,6 +1,6 @@
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
 
-export interface StorageHelpers<T extends FieldValues> {
+export interface StorageHelpers {
   save: (key: string) => void
   load: (key: string) => boolean
   clear: (key: string) => void
@@ -10,7 +10,7 @@ export function createStorageHelpers<T extends FieldValues>(
   form: UseFormReturn<T>,
   transformOnLoad?: (data: Partial<T>) => Partial<T>,
   setInitialData?: (data: Partial<T>) => void
-): StorageHelpers<T> {
+): StorageHelpers {
   const save = (key: string) => {
     try {
       const data = form.getValues()

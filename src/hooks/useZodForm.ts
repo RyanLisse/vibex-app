@@ -2,9 +2,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { type FieldValues, type UseFormProps, type UseFormReturn, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { createSchemaValidator, validateSingleField, validateAllFormFields } from './useZodForm/validation'
+import {
+  createSchemaValidator,
+  validateSingleField,
+  validateAllFormFields,
+} from './useZodForm/validation'
 import { createStorageHelpers } from './useZodForm/storage'
-import { createFieldHelpers, getFormErrors, getDirtyFields, getChangedFields } from './useZodForm/fieldHelpers'
+import {
+  createFieldHelpers,
+  getFormErrors,
+  getDirtyFields,
+  getChangedFields,
+} from './useZodForm/fieldHelpers'
 import { useFormState } from './useZodForm/formState'
 
 // Type definitions
@@ -51,7 +60,7 @@ export interface UseZodFormReturn<T extends FieldValues> extends UseFormReturn<T
   // Advanced features
   schema: z.ZodSchema<T>
   validateSchema: (data: unknown) => { success: boolean; data?: T; errors?: ZodFormErrors<T> }
-  validateFieldAsync: (field: keyof T, value: any) => Promise<boolean>
+  validateFieldAsync: (field: keyof T, value: unknown) => Promise<boolean>
 
   // Form state management
   saveToStorage: (key: string) => void
@@ -101,9 +110,9 @@ export function useZodForm<T extends FieldValues>(
   )
 
   const validateFieldAsync = useCallback(
-    async (field: keyof T, value: any): Promise<boolean> => {
+    async (field: keyof T, value: unknown): Promise<boolean> => {
       try {
-        const fieldSchema = schema.pick({ [field]: true } as any)
+        const fieldSchema = schema.pick({ [field]: true } as Record<keyof T, true>)
         fieldSchema.parse({ [field]: value })
         return true
       } catch {
@@ -124,15 +133,9 @@ export function useZodForm<T extends FieldValues>(
     return transformBeforeSubmit ? transformBeforeSubmit(data) : data
   }, [form, transformBeforeSubmit])
 
-  const getFormErrorsMemo = useCallback(
-    () => getFormErrors(form),
-    [form]
-  )
+  const getFormErrorsMemo = useCallback(() => getFormErrors(form), [form])
 
-  const getDirtyFieldsMemo = useCallback(
-    () => getDirtyFields(form),
-    [form]
-  )
+  const getDirtyFieldsMemo = useCallback(() => getDirtyFields(form), [form])
 
   const getChangedFieldsMemo = useCallback(
     () => getChangedFields(form, initialData),
@@ -181,7 +184,7 @@ export function useZodForm<T extends FieldValues>(
     const defaultValues = formOptions.defaultValues || {}
     const transformedDefaults = transformOnLoad ? transformOnLoad(defaultValues) : defaultValues
     setInitialData(transformedDefaults)
-  }, []) // Minimal dependencies
+  }, [validateOnMount, validateAllFields, formOptions.defaultValues, transformOnLoad])
 
   return {
     ...form,
@@ -224,13 +227,14 @@ export function useZodFormPersistence<T extends FieldValues>(
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    const loaded = form.loadFromStorage(storageKey)
+    form.loadFromStorage(storageKey)
     setIsLoaded(true)
     return () => {
       if (autoSave) {
         form.saveToStorage(storageKey)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

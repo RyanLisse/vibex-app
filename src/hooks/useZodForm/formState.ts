@@ -8,13 +8,14 @@ export interface FormState {
   isDirty: boolean
 }
 
-export function useFormState<T extends FieldValues>(
-  form: UseFormReturn<T>
-): FormState {
-  return useMemo(() => ({
-    hasErrors: Object.keys(form.formState.errors).length > 0,
-    errorCount: Object.keys(form.formState.errors).length,
-    isValid: form.formState.isValid && Object.keys(form.formState.errors).length === 0,
-    isDirty: form.formState.isDirty
-  }), [form.formState.errors, form.formState.isValid, form.formState.isDirty])
+export function useFormState<T extends FieldValues>(form: UseFormReturn<T>): FormState {
+  return useMemo(
+    () => ({
+      hasErrors: Object.keys(form.formState.errors).length > 0,
+      errorCount: Object.keys(form.formState.errors).length,
+      isValid: form.formState.isValid && Object.keys(form.formState.errors).length === 0,
+      isDirty: form.formState.isDirty,
+    }),
+    [form.formState.errors, form.formState.isValid, form.formState.isDirty]
+  )
 }

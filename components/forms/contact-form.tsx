@@ -24,7 +24,7 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
     priority: 'medium',
   })
   const [errors, setErrors] = useState<ReturnType<typeof validateSchema>['error']>(null)
-  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [_touched, setTouched] = useState<Record<string, boolean>>({})
 
   const handleInputChange = (field: keyof ContactForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -162,12 +162,7 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
       )}
 
       <div className="flex gap-2 justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleClear}
-          disabled={isLoading}
-        >
+        <Button type="button" variant="outline" onClick={handleClear} disabled={isLoading}>
           Clear
         </Button>
         <Button type="submit" disabled={isLoading} className="min-w-24">

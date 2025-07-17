@@ -6,7 +6,6 @@ import TaskNavbar from '@/components/navigation/task-navbar'
 import MessageInput from './_components/message-input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useTaskStore } from '@/stores/tasks'
-import { cn } from '@/lib/utils'
 
 // Custom hooks
 import { useTaskSubscription } from './_hooks/use-task-subscription'
@@ -25,16 +24,13 @@ export default function TaskClientPage({ id }: Props) {
   const { getTaskById, updateTask } = useTaskStore()
   const task = getTaskById(id)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
-  
+
   const { streamingMessages } = useTaskSubscription({
     taskId: id,
     taskMessages: task?.messages,
   })
-  
-  const chatScrollAreaRef = useAutoScroll<HTMLDivElement>([
-    task?.messages,
-    streamingMessages,
-  ])
+
+  const chatScrollAreaRef = useAutoScroll<HTMLDivElement>([task?.messages, streamingMessages])
 
   // Function to get the output message for a given shell call message
   const getOutputForCall = (callId: string) => {
@@ -49,7 +45,7 @@ export default function TaskClientPage({ id }: Props) {
         hasChanges: false,
       })
     }
-  }, [])
+  }, [task, updateTask])
 
   const renderInitialTaskMessage = () => (
     <div className="flex justify-end animate-in slide-in-from-right duration-300">
@@ -70,16 +66,11 @@ export default function TaskClientPage({ id }: Props) {
     return task?.messages
       .filter(
         (message) =>
-          (message.role === 'assistant' || message.role === 'user') &&
-          message.type === 'message'
+          (message.role === 'assistant' || message.role === 'user') && message.type === 'message'
       )
       .map((message, index) => (
         <ChatMessage
-          key={
-            (message.data as { id?: string })?.id ||
-            `message-${index}-${message.role}` ||
-            index
-          }
+          key={(message.data as { id?: string })?.id || `message-${index}-${message.role}` || index}
           role={message.role}
           text={message.data?.text as string}
           repoUrl={task?.repository ? `https://github.com/${task.repository}` : undefined}

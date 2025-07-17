@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { Button } from './button'
 
@@ -28,7 +28,7 @@ describe('Button Integration Tests', () => {
       render(
         <form onSubmit={handleSubmit}>
           <input name="test" defaultValue="value" />
-          <Button type="button">Don't Submit</Button>
+          <Button type="button">Don&apos;t Submit</Button>
         </form>
       )
 
@@ -123,7 +123,7 @@ describe('Button Integration Tests', () => {
     })
 
     it('works with custom components', async () => {
-      const CustomComponent = ({ children, ...props }: any) => (
+      const CustomComponent = ({ children, ...props }: React.ComponentProps<'div'>) => (
         <div data-testid="custom-component" {...props}>
           {children}
         </div>

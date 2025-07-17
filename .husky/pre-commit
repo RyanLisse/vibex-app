@@ -1,15 +1,41 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-# Format code with Biome
-bun run format
+# Run code quality checks before committing
+echo "🔍 Running pre-commit checks..."
 
-# Run linting with fixes
-bun run lint --fix
+# Format code
+echo "📝 Formatting code..."
+npm run format:check
+if [ $? -ne 0 ]; then
+  echo "❌ Code formatting issues found. Running formatter..."
+  npm run format
+  echo "✅ Code formatted. Please review and stage the changes."
+  exit 1
+fi
 
-# Run type checking
-bun run type-check
+# Run linting
+echo "🔍 Running linter..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Linting errors found. Please fix them before committing."
+  exit 1
+fi
+
+# Type checking
+echo "🔍 Running type checks..."
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript errors found. Please fix them before committing."
+  exit 1
+fi
 
 # Run unit tests
-bun run test:coverage
+echo "🧪 Running unit tests..."
+npm run test:unit
+if [ $? -ne 0 ]; then
+  echo "❌ Unit tests failed. Please fix them before committing."
+  exit 1
+fi
 
-# Stage formatted files
-git add .
+echo "✅ All pre-commit checks passed!"

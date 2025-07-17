@@ -58,6 +58,36 @@ export const createPullRequestAction = async ({ sessionId }: { sessionId?: strin
   })
 }
 
+export async function pauseTaskAction(taskId: string) {
+  await inngest.send({
+    name: 'clonedx/task.control',
+    data: {
+      taskId,
+      action: 'pause',
+    },
+  })
+}
+
+export async function resumeTaskAction(taskId: string) {
+  await inngest.send({
+    name: 'clonedx/task.control',
+    data: {
+      taskId,
+      action: 'resume',
+    },
+  })
+}
+
+export async function cancelTaskAction(taskId: string) {
+  await inngest.send({
+    name: 'clonedx/task.control',
+    data: {
+      taskId,
+      action: 'cancel',
+    },
+  })
+}
+
 export async function fetchRealtimeSubscriptionToken(): Promise<TaskChannelToken | null> {
   try {
     // Check if Inngest is properly configured
@@ -68,7 +98,7 @@ export async function fetchRealtimeSubscriptionToken(): Promise<TaskChannelToken
 
     const token = await getSubscriptionToken(getInngestApp(), {
       channel: taskChannel(),
-      topics: ['status', 'update'],
+      topics: ['status', 'update', 'control'],
     })
 
     if (!token) {

@@ -73,7 +73,7 @@ export default function NewTaskForm() {
         fetchBranches(environment.githubRepository)
       }
     }
-  }, [selectedEnvironment])
+  }, [selectedEnvironment, environments, fetchBranches])
 
   useEffect(() => {
     if (branches.length > 0) {

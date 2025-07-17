@@ -1,9 +1,10 @@
 // stores/useTaskStore.ts
+
+import type { PullRequestResponse } from '@vibe-kit/sdk'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { PullRequestResponse } from '@vibe-kit/sdk'
 
-type TaskStatus = 'IN_PROGRESS' | 'DONE' | 'MERGED'
+type TaskStatus = 'IN_PROGRESS' | 'DONE' | 'MERGED' | 'PAUSED' | 'CANCELLED'
 
 export interface Task {
   id: string
@@ -35,6 +36,9 @@ interface TaskStore {
   removeTask: (id: string) => void
   archiveTask: (id: string) => void
   unarchiveTask: (id: string) => void
+  pauseTask: (id: string) => void
+  resumeTask: (id: string) => void
+  cancelTask: (id: string) => void
   clear: () => void
   getTasks: () => Task[]
   getActiveTasks: () => Task[]
@@ -96,6 +100,48 @@ export const useTaskStore = create<TaskStore>()(
               ? {
                   ...task,
                   isArchived: false,
+                  updatedAt: new Date().toISOString(),
+                }
+              : task
+          ),
+        }))
+      },
+      pauseTask: (id) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id
+              ? {
+                  ...task,
+                  status: 'PAUSED',
+                  statusMessage: 'Task paused',
+                  updatedAt: new Date().toISOString(),
+                }
+              : task
+          ),
+        }))
+      },
+      resumeTask: (id) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id
+              ? {
+                  ...task,
+                  status: 'IN_PROGRESS',
+                  statusMessage: 'Task resumed',
+                  updatedAt: new Date().toISOString(),
+                }
+              : task
+          ),
+        }))
+      },
+      cancelTask: (id) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id
+              ? {
+                  ...task,
+                  status: 'CANCELLED',
+                  statusMessage: 'Task cancelled',
                   updatedAt: new Date().toISOString(),
                 }
               : task

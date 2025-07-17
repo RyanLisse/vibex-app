@@ -119,7 +119,7 @@ describe('Form Schemas', () => {
     })
 
     it('makes newsletter optional', () => {
-      const { newsletter, ...dataWithoutNewsletter } = validData
+      const { newsletter: _, ...dataWithoutNewsletter } = validData
       const result = userRegistrationSchema.safeParse(dataWithoutNewsletter)
       expect(result.success).toBe(true)
     })

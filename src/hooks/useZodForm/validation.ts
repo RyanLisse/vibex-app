@@ -31,7 +31,7 @@ export async function validateSingleField<T extends FieldValues>(
 ): Promise<boolean> {
   const value = form.getValues(field)
   try {
-    const fieldSchema = schema.pick({ [field]: true } as any)
+    const fieldSchema = schema.pick({ [field]: true } as Record<keyof T, true>)
     fieldSchema.parse({ [field]: value })
     form.clearErrors(field)
     return true

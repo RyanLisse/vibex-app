@@ -1,12 +1,22 @@
 'use client'
-import Link from 'next/link'
-import { Archive, ArrowLeft, Dot, GitBranchPlus, GithubIcon, Loader } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import {
+  Archive,
+  ArrowLeft,
+  Dot,
+  GitBranchPlus,
+  GithubIcon,
+  Loader,
+  Pause,
+  Play,
+  X,
+} from 'lucide-react'
+import Link from 'next/link'
 import { useCallback, useState } from 'react'
-
+import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from '@/app/actions/inngest'
+import { createPullRequestAction } from '@/app/actions/vibekit'
 import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/tasks'
-import { createPullRequestAction } from '@/app/actions/vibekit'
 
 interface Props {
   id: string
@@ -14,7 +24,8 @@ interface Props {
 
 export default function TaskNavbar({ id }: Props) {
   const [isCreatingPullRequest, setIsCreatingPullRequest] = useState(false)
-  const { getTaskById, updateTask } = useTaskStore()
+  const [isControllingTask, setIsControllingTask] = useState(false)
+  const { getTaskById, updateTask, pauseTask, resumeTask, cancelTask } = useTaskStore()
   const task = getTaskById(id)
 
   const handleCreatePullRequest = useCallback(async () => {
@@ -38,6 +49,45 @@ export default function TaskNavbar({ id }: Props) {
       isArchived: !task.isArchived,
     })
   }, [task, id, updateTask])
+
+  const handlePauseTask = useCallback(async () => {
+    if (!task) return
+    setIsControllingTask(true)
+    try {
+      await pauseTaskAction(id)
+      pauseTask(id)
+    } catch (error) {
+      console.error('Failed to pause task:', error)
+    } finally {
+      setIsControllingTask(false)
+    }
+  }, [task, id, pauseTask])
+
+  const handleResumeTask = useCallback(async () => {
+    if (!task) return
+    setIsControllingTask(true)
+    try {
+      await resumeTaskAction(id)
+      resumeTask(id)
+    } catch (error) {
+      console.error('Failed to resume task:', error)
+    } finally {
+      setIsControllingTask(false)
+    }
+  }, [task, id, resumeTask])
+
+  const handleCancelTask = useCallback(async () => {
+    if (!task) return
+    setIsControllingTask(true)
+    try {
+      await cancelTaskAction(id)
+      cancelTask(id)
+    } catch (error) {
+      console.error('Failed to cancel task:', error)
+    } finally {
+      setIsControllingTask(false)
+    }
+  }, [task, id, cancelTask])
 
   return (
     <div className="h-14 border-b flex items-center justify-between px-4">
@@ -64,6 +114,72 @@ export default function TaskNavbar({ id }: Props) {
         </div>
       </div>
       <div className="flex items-center gap-x-2">
+        {/* Task Control Buttons */}
+        {task?.status === 'IN_PROGRESS' && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              onClick={handlePauseTask}
+              disabled={isControllingTask}
+            >
+              {isControllingTask ? (
+                <Loader className="animate-spin size-4" />
+              ) : (
+                <Pause className="size-4" />
+              )}
+              Pause
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="rounded-full"
+              onClick={handleCancelTask}
+              disabled={isControllingTask}
+            >
+              {isControllingTask ? (
+                <Loader className="animate-spin size-4" />
+              ) : (
+                <X className="size-4" />
+              )}
+              Cancel
+            </Button>
+          </>
+        )}
+        {task?.status === 'PAUSED' && (
+          <>
+            <Button
+              variant="default"
+              size="sm"
+              className="rounded-full"
+              onClick={handleResumeTask}
+              disabled={isControllingTask}
+            >
+              {isControllingTask ? (
+                <Loader className="animate-spin size-4" />
+              ) : (
+                <Play className="size-4" />
+              )}
+              Resume
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="rounded-full"
+              onClick={handleCancelTask}
+              disabled={isControllingTask}
+            >
+              {isControllingTask ? (
+                <Loader className="animate-spin size-4" />
+              ) : (
+                <X className="size-4" />
+              )}
+              Cancel
+            </Button>
+          </>
+        )}
+
         {task?.isArchived ? (
           <Button variant="outline" className="rounded-full" onClick={handleArchiveTask}>
             <Archive />

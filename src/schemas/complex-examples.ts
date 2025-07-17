@@ -853,7 +853,7 @@ export const validateNestedSchema = <T>(
 
 export const validateConditionalField = (
   field: FormField,
-  formData: Record<string, any>
+  formData: Record<string, unknown>
 ): { show: boolean; required: boolean } => {
   let show = !field.hidden
   let required = field.required
@@ -891,7 +891,7 @@ export const validateConditionalField = (
   return { show, required }
 }
 
-const evaluateCondition = (value: any, operator: string, target: any): boolean => {
+const evaluateCondition = (value: unknown, operator: string, target: unknown): boolean => {
   switch (operator) {
     case 'equals':
       return value === target

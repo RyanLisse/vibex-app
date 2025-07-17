@@ -1,10 +1,7 @@
 import { z } from 'zod'
 import {
-  EmailSchema,
-  PasswordSchema,
   IdSchema,
   PaginationSchema,
-  ApiResponseSchema,
 } from '../shared/schemas/validation'
 
 // GitHub OAuth schemas

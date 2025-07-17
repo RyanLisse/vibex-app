@@ -36,7 +36,9 @@ export function FormField({
     const commonProps = {
       id,
       value,
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => onChange(e.target.value),
+      onChange: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      ) => onChange(e.target.value),
       onBlur,
       className,
       'aria-invalid': hasError,
@@ -55,21 +57,9 @@ export function FormField({
           </select>
         )
       case 'textarea':
-        return (
-          <textarea
-            {...commonProps}
-            rows={rows}
-            placeholder={placeholder}
-          />
-        )
+        return <textarea {...commonProps} rows={rows} placeholder={placeholder} />
       default:
-        return (
-          <input
-            {...commonProps}
-            type={type}
-            placeholder={placeholder}
-          />
-        )
+        return <input {...commonProps} type={type} placeholder={placeholder} />
     }
   }
 
