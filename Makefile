@@ -1,7 +1,26 @@
 # Codex Clone - Development Makefile
 # Common tasks for agent-driven development
 
-.PHONY: help setup dev build test clean quality deploy
+# Common ports used by the application
+DEV_PORT := 3000
+STORYBOOK_PORT := 6006
+E2E_PORT := 3001
+
+# Determine OS and set kill command
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    KILL_CMD := kill -9
+    FIND_PID_CMD = lsof -ti:$(1) || true
+else ifeq ($(UNAME_S),Darwin)
+    KILL_CMD := kill -9
+    FIND_PID_CMD = lsof -ti:$(1) || true
+else
+    # Windows
+    KILL_CMD := taskkill /F /PID
+    FIND_PID_CMD = for /f "tokens=5" %a in ('netstat -aon ^| findstr :$(1) ^| findstr LISTENING') do @echo %a
+endif
+
+.PHONY: help setup dev build test clean quality deploy kill-ports
 
 # Default target
 help: ## Show this help message
@@ -19,7 +38,7 @@ setup: ## Run full project setup
 	@chmod +x SETUP.sh
 	@./SETUP.sh
 
-dev: ## Start development server
+dev: kill-ports ## Start development server
 	@echo "🔧 Starting development server..."
 	@$(PM) run dev
 
@@ -27,19 +46,27 @@ build: ## Build for production
 	@echo "🏗️  Building for production..."
 	@$(PM) run build
 
-test: ## Run all tests
+kill-ports: ## Kill processes on common development ports
+	@echo "🔫 Killing processes on ports $(DEV_PORT), $(STORYBOOK_PORT), $(E2E_PORT)..."
+	@-$(foreach port,$(DEV_PORT) $(STORYBOOK_PORT) $(E2E_PORT),\
+		PIDS=$$($(call FIND_PID_CMD,$(port))); \
+		[ -n "$$PIDS" ] && echo "Killing processes on port $(port): $$PIDS" && $(KILL_CMD) $$PIDS 2>/dev/null || true; \
+	)
+
+# Test targets
+test: kill-ports ## Run all tests
 	@echo "🧪 Running all tests..."
 	@$(PM) run test:all
 
-test-unit: ## Run unit tests only
+test-unit: kill-ports ## Run unit tests only
 	@echo "🔬 Running unit tests..."
 	@$(PM) run test:unit
 
-test-e2e: ## Run E2E tests only
+test-e2e: kill-ports ## Run E2E tests only
 	@echo "🎭 Running E2E tests..."
 	@$(PM) run test:e2e
 
-test-watch: ## Run tests in watch mode
+test-watch: kill-ports ## Run tests in watch mode
 	@echo "👀 Running tests in watch mode..."
 	@$(PM) run test:watch
 
@@ -59,7 +86,7 @@ type-check: ## Check TypeScript types
 	@echo "📝 Checking types..."
 	@$(PM) run type-check
 
-storybook: ## Start Storybook
+storybook: kill-ports ## Start Storybook
 	@echo "📚 Starting Storybook..."
 	@$(PM) run storybook
 
@@ -97,6 +124,15 @@ ci: ## Run CI checks locally
 	@make quality
 	@make test
 	@make build
+
+# Helper function to check if port is in use
+check-port-%:
+	@echo "Checking port $*..."
+	@if [ "$(UNAME_S)" = "Darwin" ] || [ "$(UNAME_S)" = "Linux" ]; then \
+		lsof -i :$* >/dev/null 2>&1 && echo "Port $* is in use" || echo "Port $* is available"; \
+	else \
+		echo "Port check not implemented for Windows"; \
+	fi
 
 # Development helpers
 reset: clean install ## Reset project (clean + install)

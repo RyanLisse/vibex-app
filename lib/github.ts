@@ -42,8 +42,8 @@ export class GitHubAuth {
     this.clientSecret = process.env.GITHUB_CLIENT_SECRET!
     this.redirectUri =
       process.env.NODE_ENV === 'production'
-        ? 'https://vibex-app.vercel.app/api/auth/github/callback'
-        : 'http://localhost:3000/api/auth/github/callback'
+        ? 'https://vibex-app.vercel.app/auth/callback'
+        : 'http://localhost:3000/auth/callback'
   }
 
   // Generate GitHub OAuth URL
