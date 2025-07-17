@@ -150,6 +150,30 @@ export interface MockIDBRequest {
 // Mock IndexedDB data store
 const mockIDBData: Map<string, Map<string, Map<any, any>>> = new Map()
 
+// Helper function to create store operations (add/put)
+const createStoreOperation = (
+  store: Map<string, Map<any, any>>,
+  storeName: string,
+  options?: IDBObjectStoreParameters
+) => {
+  return vi.fn().mockImplementation((value: any, key?: any) => {
+    const storeData = store.get(storeName)!
+    const finalKey = key || (options?.keyPath ? value[options.keyPath as string] : Math.random())
+    storeData.set(finalKey, value)
+
+    const req: MockIDBRequest = {
+      result: finalKey,
+      error: null,
+      readyState: 'done',
+      onsuccess: null,
+      onerror: null,
+    }
+
+    setTimeout(() => req.onsuccess?.(new Event('success')), 0)
+    return req
+  })
+}
+
 // Mock IndexedDB implementation
 export const mockIndexedDB = {
   open: vi.fn().mockImplementation((name: string, version?: number) => {
@@ -184,38 +208,8 @@ export const mockIndexedDB = {
               name: storeName,
               keyPath: options?.keyPath || null,
               indexNames: [],
-              add: vi.fn().mockImplementation((value: any, key?: any) => {
-                const storeData = store.get(storeName)!
-                const finalKey = key || (options?.keyPath ? value[options.keyPath] : Math.random())
-                storeData.set(finalKey, value)
-
-                const req: MockIDBRequest = {
-                  result: finalKey,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
-              put: vi.fn().mockImplementation((value: any, key?: any) => {
-                const storeData = store.get(storeName)!
-                const finalKey = key || (options?.keyPath ? value[options.keyPath] : Math.random())
-                storeData.set(finalKey, value)
-
-                const req: MockIDBRequest = {
-                  result: finalKey,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
+              add: createStoreOperation(store, storeName, options),
+              put: createStoreOperation(store, storeName, options),
               get: vi.fn().mockImplementation((key: any) => {
                 const storeData = store.get(storeName)!
                 const value = storeData.get(key)

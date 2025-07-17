@@ -73,7 +73,7 @@ describe('NewTaskForm', () => {
     expect(askButton).toBeInTheDocument()
   })
 
-  it('handles task submission with Code button', async () => {
+  const testTaskSubmission = async (buttonLabel: 'Code' | 'Ask') => {
     const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
 
     const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
@@ -82,28 +82,19 @@ describe('NewTaskForm', () => {
     fireEvent.change(input, { target: { value: 'Test task description' } })
 
     // Wait for button to appear
-    const codeButton = await findByText('Code')
-    fireEvent.click(codeButton)
+    const button = await findByText(buttonLabel)
+    fireEvent.click(button)
 
     await waitFor(() => {
       expect(input).toHaveValue('')
     })
+  }
+
+  it('handles task submission with Code button', async () => {
+    await testTaskSubmission('Code')
   })
 
   it('handles task submission with Ask button', async () => {
-    const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
-
-    const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
-
-    // Use fireEvent to trigger onChange
-    fireEvent.change(input, { target: { value: 'Test task description' } })
-
-    // Wait for button to appear
-    const askButton = await findByText('Ask')
-    fireEvent.click(askButton)
-
-    await waitFor(() => {
-      expect(input).toHaveValue('')
-    })
+    await testTaskSubmission('Ask')
   })
 })

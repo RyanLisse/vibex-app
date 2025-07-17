@@ -1,19 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/nextjs'
+import type { StoryObj } from '@storybook/nextjs'
 import TaskList from './task-list'
+import { createStorybookMeta } from './stories/story-base'
 
-const meta = {
-  title: 'Components/TaskList',
-  component: TaskList,
-  parameters: {
-    layout: 'fullscreen',
-    docs: {
-      description: {
-        component: 'A component that displays a list of tasks with their statuses.',
-      },
-    },
-  },
-  tags: ['autodocs'],
-} satisfies Meta<typeof TaskList>
+const meta = createStorybookMeta(
+  TaskList,
+  'Components/TaskList',
+  'A component that displays a list of tasks with their statuses.'
+)
 
 export default meta
 type Story = StoryObj<typeof meta>

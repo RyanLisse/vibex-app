@@ -1,19 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/nextjs'
+import type { StoryObj } from '@storybook/nextjs'
 import Navbar from './navbar'
+import { createStorybookMeta } from '../stories/story-base'
 
-const meta = {
-  title: 'Components/Navigation/Navbar',
-  component: Navbar,
-  parameters: {
-    layout: 'fullscreen',
-    docs: {
-      description: {
-        component: 'Main navigation bar component with theme toggle and user menu.',
-      },
-    },
-  },
-  tags: ['autodocs'],
-} satisfies Meta<typeof Navbar>
+const meta = createStorybookMeta(
+  Navbar,
+  'Components/Navigation/Navbar',
+  'Main navigation bar component with theme toggle and user menu.'
+)
 
 export default meta
 type Story = StoryObj<typeof meta>

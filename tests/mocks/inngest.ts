@@ -117,56 +117,67 @@ export const mockInngestClient = {
   cancelRun: vi.fn().mockResolvedValue(undefined),
 }
 
-// Mock step utilities
+// Mock step utilities - extracted handlers
+const createRunHandler = () =>
+  vi.fn().mockImplementation(async (id: string, handler: Function) => {
+    return await handler()
+  })
+
+const createSleepHandler = () =>
+  vi.fn().mockImplementation((duration: string | number) => {
+    const ms =
+      typeof duration === 'string' ? parseInt(duration.replace(/[^\d]/g, '')) * 1000 : duration
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  })
+
+const createSleepUntilHandler = () =>
+  vi.fn().mockImplementation((date: Date | string) => {
+    const targetTime = new Date(date).getTime()
+    const delay = Math.max(0, targetTime - Date.now())
+    return new Promise((resolve) => setTimeout(resolve, delay))
+  })
+
+const createWaitForEventHandler = () =>
+  vi.fn().mockImplementation((eventName: string, options?: { timeout?: string }) => {
+    return new Promise((resolve, reject) => {
+      const timeout = options?.timeout ? parseInt(options.timeout) * 1000 : 30000
+
+      const checkEvent = () => {
+        const event = mockEvents.find((e) => e.name === eventName)
+        if (event) {
+          resolve(event)
+        } else {
+          setTimeout(checkEvent, 100)
+        }
+      }
+
+      checkEvent()
+      setTimeout(() => reject(new Error('Event timeout')), timeout)
+    })
+  })
+
+const createSendEventHandler = () =>
+  vi.fn().mockImplementation((event: Partial<MockEvent>) => {
+    return mockInngestClient.send(event)
+  })
+
+const createInvokeHandler = () =>
+  vi.fn().mockImplementation((functionId: string, data?: any) => {
+    return Promise.resolve({
+      functionId,
+      data,
+      result: `Mock result for ${functionId}`,
+    })
+  })
+
 export const createMockStepContext = (): MockStepContext => ({
   step: {
-    run: vi.fn().mockImplementation(async (id: string, handler: Function) => {
-      return await handler()
-    }),
-
-    sleep: vi.fn().mockImplementation((duration: string | number) => {
-      const ms =
-        typeof duration === 'string' ? parseInt(duration.replace(/[^\d]/g, '')) * 1000 : duration
-      return new Promise((resolve) => setTimeout(resolve, ms))
-    }),
-
-    sleepUntil: vi.fn().mockImplementation((date: Date | string) => {
-      const targetTime = new Date(date).getTime()
-      const delay = Math.max(0, targetTime - Date.now())
-      return new Promise((resolve) => setTimeout(resolve, delay))
-    }),
-
-    waitForEvent: vi
-      .fn()
-      .mockImplementation((eventName: string, options?: { timeout?: string }) => {
-        return new Promise((resolve, reject) => {
-          const timeout = options?.timeout ? parseInt(options.timeout) * 1000 : 30000
-
-          const checkEvent = () => {
-            const event = mockEvents.find((e) => e.name === eventName)
-            if (event) {
-              resolve(event)
-            } else {
-              setTimeout(checkEvent, 100)
-            }
-          }
-
-          checkEvent()
-          setTimeout(() => reject(new Error('Event timeout')), timeout)
-        })
-      }),
-
-    sendEvent: vi.fn().mockImplementation((event: Partial<MockEvent>) => {
-      return mockInngestClient.send(event)
-    }),
-
-    invoke: vi.fn().mockImplementation((functionId: string, data?: any) => {
-      return Promise.resolve({
-        functionId,
-        data,
-        result: `Mock result for ${functionId}`,
-      })
-    }),
+    run: createRunHandler(),
+    sleep: createSleepHandler(),
+    sleepUntil: createSleepUntilHandler(),
+    waitForEvent: createWaitForEventHandler(),
+    sendEvent: createSendEventHandler(),
+    invoke: createInvokeHandler(),
   },
 })
 
