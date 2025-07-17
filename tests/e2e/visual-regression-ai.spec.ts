@@ -25,11 +25,11 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await ensureDirectoryExists(baselineDir)
   })
 
-  test('homepage visual regression with AI analysis', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
+  test('homepage visual regression with AI analysis', async ({
+    page,
+    stagehand,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -38,37 +38,37 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     const viewports = [
       { name: 'mobile', width: 375, height: 667 },
       { name: 'tablet', width: 768, height: 1024 },
-      { name: 'desktop', width: 1440, height: 900 }
+      { name: 'desktop', width: 1440, height: 900 },
     ]
 
     for (const viewport of viewports) {
       await page.setViewportSize(viewport)
       await homePage.goto()
-      
+
       // Take screenshot
       const screenshotPath = path.join(screenshotDir, `homepage-${viewport.name}.png`)
       await page.screenshot({ path: screenshotPath, fullPage: true })
 
       // AI analysis of the visual layout
       const layoutAnalysis = await ai.extract({
-        description: `detailed analysis of the page layout including header, navigation, main content, sidebar, and footer positioning for ${viewport.name} viewport`
+        description: `detailed analysis of the page layout including header, navigation, main content, sidebar, and footer positioning for ${viewport.name} viewport`,
       })
 
       // AI validation of responsive design
       const responsiveCheck = await ai.observe({
-        description: `layout is properly responsive for ${viewport.name} viewport with no overlapping elements or broken styling`
+        description: `layout is properly responsive for ${viewport.name} viewport with no overlapping elements or broken styling`,
       })
       expect(responsiveCheck).toBeTruthy()
 
       // AI color scheme validation
       const colorSchemeValid = await ai.observe({
-        description: 'color scheme is consistent with proper contrast ratios and brand colors'
+        description: 'color scheme is consistent with proper contrast ratios and brand colors',
       })
       expect(colorSchemeValid).toBeTruthy()
 
       // AI typography validation
       const typographyValid = await ai.observe({
-        description: 'typography is properly sized and readable with consistent font hierarchy'
+        description: 'typography is properly sized and readable with consistent font hierarchy',
       })
       expect(typographyValid).toBeTruthy()
 
@@ -76,12 +76,7 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     }
   })
 
-  test('component visual consistency with AI', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('component visual consistency with AI', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -89,49 +84,45 @@ test.describe('AI-Powered Visual Regression Testing', () => {
 
     // AI analysis of button consistency
     const buttonAnalysis = await ai.extract({
-      description: 'all buttons on the page including their colors, sizes, hover states, and styling consistency'
+      description:
+        'all buttons on the page including their colors, sizes, hover states, and styling consistency',
     })
 
     const buttonConsistency = await ai.observe({
-      description: 'all buttons follow consistent design patterns with proper spacing and styling'
+      description: 'all buttons follow consistent design patterns with proper spacing and styling',
     })
     expect(buttonConsistency).toBeTruthy()
 
     // AI analysis of form elements
     const formAnalysis = await ai.extract({
-      description: 'all form elements including inputs, labels, and validation styling'
+      description: 'all form elements including inputs, labels, and validation styling',
     })
 
     const formConsistency = await ai.observe({
-      description: 'form elements are consistently styled with proper alignment and spacing'
+      description: 'form elements are consistently styled with proper alignment and spacing',
     })
     expect(formConsistency).toBeTruthy()
 
     // AI analysis of navigation elements
     const navigationAnalysis = await ai.extract({
-      description: 'navigation menu styling, active states, and hover effects'
+      description: 'navigation menu styling, active states, and hover effects',
     })
 
     const navigationConsistency = await ai.observe({
-      description: 'navigation elements are consistently styled with clear active and hover states'
+      description: 'navigation elements are consistently styled with clear active and hover states',
     })
     expect(navigationConsistency).toBeTruthy()
 
     console.log('Visual consistency analysis:', {
       buttons: buttonAnalysis,
       forms: formAnalysis,
-      navigation: navigationAnalysis
+      navigation: navigationAnalysis,
     })
 
     await takeTimestampedScreenshot(page, 'component-consistency')
   })
 
-  test('dark mode visual regression with AI', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('dark mode visual regression with AI', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -139,9 +130,10 @@ test.describe('AI-Powered Visual Regression Testing', () => {
 
     // Test light mode first
     await takeTimestampedScreenshot(page, 'light-mode')
-    
+
     const lightModeAnalysis = await ai.extract({
-      description: 'current color scheme and theme including background colors, text colors, and component styling'
+      description:
+        'current color scheme and theme including background colors, text colors, and component styling',
     })
 
     // Toggle to dark mode
@@ -153,39 +145,35 @@ test.describe('AI-Powered Visual Regression Testing', () => {
 
     // AI analysis of dark mode
     const darkModeAnalysis = await ai.extract({
-      description: 'dark mode color scheme including background colors, text colors, and component styling'
+      description:
+        'dark mode color scheme including background colors, text colors, and component styling',
     })
 
     // AI validation of dark mode implementation
     const darkModeValid = await ai.observe({
-      description: 'dark mode is properly implemented with appropriate contrast and readability'
+      description: 'dark mode is properly implemented with appropriate contrast and readability',
     })
     expect(darkModeValid).toBeTruthy()
 
     // AI contrast validation
     const contrastValid = await ai.observe({
-      description: 'text has sufficient contrast against background in dark mode'
+      description: 'text has sufficient contrast against background in dark mode',
     })
     expect(contrastValid).toBeTruthy()
 
     // AI component visibility validation
     const componentsVisible = await ai.observe({
-      description: 'all UI components are clearly visible and properly styled in dark mode'
+      description: 'all UI components are clearly visible and properly styled in dark mode',
     })
     expect(componentsVisible).toBeTruthy()
 
     console.log('Theme analysis:', {
       lightMode: lightModeAnalysis,
-      darkMode: darkModeAnalysis
+      darkMode: darkModeAnalysis,
     })
   })
 
-  test('animation and transition visual testing', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('animation and transition visual testing', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -196,7 +184,7 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await page.waitForTimeout(500)
 
     const hoverAnimation = await ai.observe({
-      description: 'button shows smooth hover animation or transition effect'
+      description: 'button shows smooth hover animation or transition effect',
     })
     expect(hoverAnimation).toBeTruthy()
 
@@ -205,25 +193,25 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await page.waitForTimeout(500)
 
     const clickAnimation = await ai.observe({
-      description: 'button shows appropriate click animation or feedback'
+      description: 'button shows appropriate click animation or feedback',
     })
     expect(clickAnimation).toBeTruthy()
 
     // Test loading animations
     if (await ai.observe({ description: 'loading spinner or animation is present' })) {
       const loadingAnimation = await ai.observe({
-        description: 'loading animation is smooth and not flickering'
+        description: 'loading animation is smooth and not flickering',
       })
       expect(loadingAnimation).toBeTruthy()
     }
 
     // Test transition animations
     const transitionAnalysis = await ai.extract({
-      description: 'all page transitions and animations including their duration and smoothness'
+      description: 'all page transitions and animations including their duration and smoothness',
     })
 
     const transitionsSmooth = await ai.observe({
-      description: 'page transitions are smooth without jarring movements or flicker'
+      description: 'page transitions are smooth without jarring movements or flicker',
     })
     expect(transitionsSmooth).toBeTruthy()
 
@@ -231,12 +219,7 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await takeTimestampedScreenshot(page, 'animations-test')
   })
 
-  test('cross-browser visual consistency', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('cross-browser visual consistency', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -246,25 +229,30 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     const browserInfo = await page.evaluate(() => ({
       userAgent: navigator.userAgent,
       vendor: navigator.vendor,
-      name: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
-            navigator.userAgent.includes('Firefox') ? 'Firefox' : 
-            navigator.userAgent.includes('Safari') ? 'Safari' : 'Unknown'
+      name: navigator.userAgent.includes('Chrome')
+        ? 'Chrome'
+        : navigator.userAgent.includes('Firefox')
+          ? 'Firefox'
+          : navigator.userAgent.includes('Safari')
+            ? 'Safari'
+            : 'Unknown',
     }))
 
     // Browser-specific visual analysis
     const browserVisualAnalysis = await ai.extract({
-      description: `visual rendering quality and consistency for ${browserInfo.name} browser including font rendering, layout, and component appearance`
+      description: `visual rendering quality and consistency for ${browserInfo.name} browser including font rendering, layout, and component appearance`,
     })
 
     // Validate browser-specific features
     const browserFeaturesValid = await ai.observe({
-      description: 'all visual features render correctly in current browser with no broken styling'
+      description: 'all visual features render correctly in current browser with no broken styling',
     })
     expect(browserFeaturesValid).toBeTruthy()
 
     // CSS feature support validation
     const cssFeatureSupport = await ai.observe({
-      description: 'CSS features like grid, flexbox, and animations are properly supported and rendered'
+      description:
+        'CSS features like grid, flexbox, and animations are properly supported and rendered',
     })
     expect(cssFeatureSupport).toBeTruthy()
 
@@ -272,12 +260,7 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await takeTimestampedScreenshot(page, `browser-${browserInfo.name.toLowerCase()}`)
   })
 
-  test('form visual states and validation', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('form visual states and validation', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -291,7 +274,8 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await takeTimestampedScreenshot(page, 'form-empty')
 
     const emptyFormAnalysis = await ai.extract({
-      description: 'form appearance in empty state including placeholders, labels, and field styling'
+      description:
+        'form appearance in empty state including placeholders, labels, and field styling',
     })
 
     // Test form with valid input
@@ -299,13 +283,13 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task description field',
-      value: testData.taskDescription
+      value: testData.taskDescription,
     })
 
     await takeTimestampedScreenshot(page, 'form-valid')
 
     const validFormState = await ai.observe({
-      description: 'form fields show valid state styling with proper visual feedback'
+      description: 'form fields show valid state styling with proper visual feedback',
     })
     expect(validFormState).toBeTruthy()
 
@@ -313,7 +297,7 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task description field',
-      value: 'x' // Invalid short input
+      value: 'x', // Invalid short input
     })
     await ai.act({ action: 'click', description: 'submit button' })
     await page.waitForTimeout(500)
@@ -321,32 +305,29 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await takeTimestampedScreenshot(page, 'form-errors')
 
     const errorStateAnalysis = await ai.extract({
-      description: 'form error states including error messages, field highlighting, and validation styling'
+      description:
+        'form error states including error messages, field highlighting, and validation styling',
     })
 
     const errorStateValid = await ai.observe({
-      description: 'form validation errors are clearly visible with appropriate styling and messaging'
+      description:
+        'form validation errors are clearly visible with appropriate styling and messaging',
     })
     expect(errorStateValid).toBeTruthy()
 
     console.log('Form state analysis:', {
       empty: emptyFormAnalysis,
-      errors: errorStateAnalysis
+      errors: errorStateAnalysis,
     })
   })
 
-  test('loading states and skeleton screens', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('loading states and skeleton screens', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
     // Slow down network to see loading states
     await page.route('**/*', async (route) => {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       route.continue()
     })
 
@@ -354,18 +335,19 @@ test.describe('AI-Powered Visual Regression Testing', () => {
 
     // Capture loading state
     const loadingStateVisible = await ai.observe({
-      description: 'loading indicators, skeleton screens, or progress indicators are visible'
+      description: 'loading indicators, skeleton screens, or progress indicators are visible',
     })
 
     if (loadingStateVisible) {
       await takeTimestampedScreenshot(page, 'loading-state')
 
       const loadingAnalysis = await ai.extract({
-        description: 'loading state design including skeleton screens, spinners, and progress indicators'
+        description:
+          'loading state design including skeleton screens, spinners, and progress indicators',
       })
 
       const loadingStateWellDesigned = await ai.observe({
-        description: 'loading state is well-designed with appropriate visual feedback'
+        description: 'loading state is well-designed with appropriate visual feedback',
       })
       expect(loadingStateWellDesigned).toBeTruthy()
 
@@ -380,17 +362,12 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     await takeTimestampedScreenshot(page, 'loaded-state')
 
     const loadedStateValid = await ai.observe({
-      description: 'page content is fully loaded with no loading indicators remaining'
+      description: 'page content is fully loaded with no loading indicators remaining',
     })
     expect(loadedStateValid).toBeTruthy()
   })
 
-  test('visual regression baseline comparison', async ({ 
-    page, 
-    stagehand, 
-    utils, 
-    metrics 
-  }) => {
+  test('visual regression baseline comparison', async ({ page, stagehand, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -403,7 +380,7 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     // Check if baseline exists
     const baselineScreenshot = path.join(baselineDir, 'homepage-baseline.png')
     let baselineExists = false
-    
+
     try {
       await fs.access(baselineScreenshot)
       baselineExists = true
@@ -416,11 +393,12 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     if (baselineExists) {
       // AI-powered visual comparison
       const visualDifferences = await ai.extract({
-        description: 'any visual differences or changes in layout, styling, colors, or content compared to the expected baseline appearance'
+        description:
+          'any visual differences or changes in layout, styling, colors, or content compared to the expected baseline appearance',
       })
 
       const significantChanges = await ai.observe({
-        description: 'there are significant visual changes that would affect user experience'
+        description: 'there are significant visual changes that would affect user experience',
       })
 
       if (significantChanges) {
@@ -431,7 +409,8 @@ test.describe('AI-Powered Visual Regression Testing', () => {
 
       // AI validation of visual consistency
       const visuallyConsistent = await ai.observe({
-        description: 'current page appearance is visually consistent with expected design standards'
+        description:
+          'current page appearance is visually consistent with expected design standards',
       })
       expect(visuallyConsistent).toBeTruthy()
     }
@@ -441,9 +420,9 @@ test.describe('AI-Powered Visual Regression Testing', () => {
     // Log visual testing metrics
     console.log('Visual test metrics:', {
       duration: Date.now() - metrics.startTime,
-      aiAnalyses: metrics.actions.filter(a => a.type === 'extract').length,
-      aiValidations: metrics.actions.filter(a => a.type === 'observe').length,
-      successRate: metrics.actions.filter(a => a.success).length / metrics.actions.length,
+      aiAnalyses: metrics.actions.filter((a) => a.type === 'extract').length,
+      aiValidations: metrics.actions.filter((a) => a.type === 'observe').length,
+      successRate: metrics.actions.filter((a) => a.success).length / metrics.actions.length,
     })
   })
 })

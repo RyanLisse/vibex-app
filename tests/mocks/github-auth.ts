@@ -94,7 +94,7 @@ export const mockGitHubOAuth = {
     const token = `mock-token-${code}`
     mockAuthState.token = token
     mockAuthState.isAuthenticated = true
-    
+
     return Promise.resolve({
       access_token: token,
       token_type: 'bearer',
@@ -105,7 +105,7 @@ export const mockGitHubOAuth = {
   refreshToken: vi.fn().mockImplementation((refreshToken: string) => {
     const newToken = `refreshed-${refreshToken}`
     mockAuthState.token = newToken
-    
+
     return Promise.resolve({
       access_token: newToken,
       token_type: 'bearer',
@@ -118,7 +118,7 @@ export const mockGitHubOAuth = {
     mockAuthState.user = null
     mockAuthState.token = null
     mockAuthState.scopes = []
-    
+
     return Promise.resolve()
   }),
 }
@@ -130,11 +130,11 @@ export const mockGitHubAPI = {
     if (!token && !mockAuthState.isAuthenticated) {
       return Promise.reject(new Error('Unauthorized'))
     }
-    
+
     if (!mockAuthState.user) {
       mockAuthState.user = githubTestDataGenerators.createMockUser()
     }
-    
+
     return Promise.resolve(mockAuthState.user)
   }),
 
@@ -143,15 +143,15 @@ export const mockGitHubAPI = {
     if (!token && !mockAuthState.isAuthenticated) {
       return Promise.reject(new Error('Unauthorized'))
     }
-    
+
     return Promise.resolve(mockRepositories)
   }),
 
   getRepository: vi.fn().mockImplementation((owner: string, repo: string) => {
-    const repository = mockRepositories.find(r => r.full_name === `${owner}/${repo}`)
-    return repository ? 
-      Promise.resolve(repository) : 
-      Promise.reject(new Error('Repository not found'))
+    const repository = mockRepositories.find((r) => r.full_name === `${owner}/${repo}`)
+    return repository
+      ? Promise.resolve(repository)
+      : Promise.reject(new Error('Repository not found'))
   }),
 
   // Branch operations
@@ -163,17 +163,19 @@ export const mockGitHubAPI = {
   getBranch: vi.fn().mockImplementation((owner: string, repo: string, branch: string) => {
     const repoKey = `${owner}/${repo}`
     const branches = mockBranches[repoKey] || []
-    const foundBranch = branches.find(b => b.name === branch)
-    
-    return foundBranch ? 
-      Promise.resolve(foundBranch) : 
-      Promise.reject(new Error('Branch not found'))
+    const foundBranch = branches.find((b) => b.name === branch)
+
+    return foundBranch
+      ? Promise.resolve(foundBranch)
+      : Promise.reject(new Error('Branch not found'))
   }),
 
   // Organization operations
-  getOrganizations: vi.fn().mockResolvedValue([
-    { id: 1, login: 'test-org', avatar_url: 'https://github.com/test-org.png' },
-  ]),
+  getOrganizations: vi
+    .fn()
+    .mockResolvedValue([
+      { id: 1, login: 'test-org', avatar_url: 'https://github.com/test-org.png' },
+    ]),
 
   // Rate limiting
   getRateLimit: vi.fn().mockResolvedValue({
@@ -255,7 +257,10 @@ export const githubTestDataGenerators = {
   }),
 
   // Generate multiple repositories
-  createMockRepositories: (count: number, overrides: Partial<MockGitHubRepository> = {}): MockGitHubRepository[] => {
+  createMockRepositories: (
+    count: number,
+    overrides: Partial<MockGitHubRepository> = {}
+  ): MockGitHubRepository[] => {
     return Array.from({ length: count }, (_, i) => ({
       ...githubTestDataGenerators.createMockRepository(),
       id: i + 1,
@@ -267,7 +272,7 @@ export const githubTestDataGenerators = {
 
   // Generate multiple branches
   createMockBranches: (names: string[]): MockGitHubBranch[] => {
-    return names.map(name => ({
+    return names.map((name) => ({
       ...githubTestDataGenerators.createMockBranch(),
       name,
       commit: {
@@ -295,7 +300,7 @@ export const githubStateUtils = {
   },
 
   // Seed mock data
-  seedData: (data: { 
+  seedData: (data: {
     repositories?: MockGitHubRepository[]
     branches?: Record<string, MockGitHubBranch[]>
     user?: MockGitHubUser
@@ -352,7 +357,7 @@ export const githubStateUtils = {
   // Simulate rate limiting
   simulateRateLimit: () => {
     const rateLimitError = new Error('API rate limit exceeded')
-    Object.keys(mockGitHubAPI).forEach(method => {
+    Object.keys(mockGitHubAPI).forEach((method) => {
       if (typeof mockGitHubAPI[method] === 'function') {
         mockGitHubAPI[method].mockRejectedValueOnce(rateLimitError)
       }
@@ -366,7 +371,7 @@ export const setupGitHubMocks = () => {
     githubOAuth: mockGitHubOAuth,
     githubAPI: mockGitHubAPI,
   }))
-  
+
   vi.mock('@/hooks/use-github-auth', () => ({
     useGitHubAuth: () => ({
       isAuthenticated: mockAuthState.isAuthenticated,
@@ -401,13 +406,13 @@ export const githubTestHelpers = {
 
   // Assert repository exists
   expectRepositoryExists: (fullName: string) => {
-    expect(mockRepositories.some(r => r.full_name === fullName)).toBe(true)
+    expect(mockRepositories.some((r) => r.full_name === fullName)).toBe(true)
   },
 
   // Assert branch exists
   expectBranchExists: (repoFullName: string, branchName: string) => {
     const branches = mockBranches[repoFullName] || []
-    expect(branches.some(b => b.name === branchName)).toBe(true)
+    expect(branches.some((b) => b.name === branchName)).toBe(true)
   },
 
   // Wait for authentication

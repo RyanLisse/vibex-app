@@ -53,8 +53,8 @@ export const mockInngestClient = {
   // Event operations
   send: vi.fn().mockImplementation((event: Partial<MockEvent> | Partial<MockEvent>[]) => {
     const events = Array.isArray(event) ? event : [event]
-    
-    events.forEach(evt => {
+
+    events.forEach((evt) => {
       const mockEvent: MockEvent = {
         id: `evt-${Date.now()}`,
         name: evt.name || 'test.event',
@@ -66,8 +66,8 @@ export const mockInngestClient = {
       }
       mockEvents.push(mockEvent)
     })
-    
-    return Promise.resolve({ ids: events.map(e => e.id || `evt-${Date.now()}`) })
+
+    return Promise.resolve({ ids: events.map((e) => e.id || `evt-${Date.now()}`) })
   }),
 
   // Function creation
@@ -77,21 +77,21 @@ export const mockInngestClient = {
       name: config.name,
       config,
       handler,
-      
+
       // Mock function execution
       run: vi.fn().mockImplementation(async (event: MockEvent, step: MockStepContext) => {
         const startTime = Date.now()
-        
+
         try {
           const result = await handler(event, step)
-          
+
           mockFunctionRuns.push({
             functionId: config.id,
             event,
             result,
             duration: Date.now() - startTime,
           })
-          
+
           return result
         } catch (error) {
           mockFunctionRuns.push({
@@ -104,7 +104,7 @@ export const mockInngestClient = {
         }
       }),
     }
-    
+
     return mockFunction
   }),
 
@@ -123,41 +123,43 @@ export const createMockStepContext = (): MockStepContext => ({
     run: vi.fn().mockImplementation(async (id: string, handler: Function) => {
       return await handler()
     }),
-    
+
     sleep: vi.fn().mockImplementation((duration: string | number) => {
-      const ms = typeof duration === 'string' ? 
-        parseInt(duration.replace(/[^\d]/g, '')) * 1000 : duration
-      return new Promise(resolve => setTimeout(resolve, ms))
+      const ms =
+        typeof duration === 'string' ? parseInt(duration.replace(/[^\d]/g, '')) * 1000 : duration
+      return new Promise((resolve) => setTimeout(resolve, ms))
     }),
-    
+
     sleepUntil: vi.fn().mockImplementation((date: Date | string) => {
       const targetTime = new Date(date).getTime()
       const delay = Math.max(0, targetTime - Date.now())
-      return new Promise(resolve => setTimeout(resolve, delay))
+      return new Promise((resolve) => setTimeout(resolve, delay))
     }),
-    
-    waitForEvent: vi.fn().mockImplementation((eventName: string, options?: { timeout?: string }) => {
-      return new Promise((resolve, reject) => {
-        const timeout = options?.timeout ? parseInt(options.timeout) * 1000 : 30000
-        
-        const checkEvent = () => {
-          const event = mockEvents.find(e => e.name === eventName)
-          if (event) {
-            resolve(event)
-          } else {
-            setTimeout(checkEvent, 100)
+
+    waitForEvent: vi
+      .fn()
+      .mockImplementation((eventName: string, options?: { timeout?: string }) => {
+        return new Promise((resolve, reject) => {
+          const timeout = options?.timeout ? parseInt(options.timeout) * 1000 : 30000
+
+          const checkEvent = () => {
+            const event = mockEvents.find((e) => e.name === eventName)
+            if (event) {
+              resolve(event)
+            } else {
+              setTimeout(checkEvent, 100)
+            }
           }
-        }
-        
-        checkEvent()
-        setTimeout(() => reject(new Error('Event timeout')), timeout)
-      })
-    }),
-    
+
+          checkEvent()
+          setTimeout(() => reject(new Error('Event timeout')), timeout)
+        })
+      }),
+
     sendEvent: vi.fn().mockImplementation((event: Partial<MockEvent>) => {
       return mockInngestClient.send(event)
     }),
-    
+
     invoke: vi.fn().mockImplementation((functionId: string, data?: any) => {
       return Promise.resolve({
         functionId,
@@ -196,7 +198,11 @@ export const inngestTestDataGenerators = {
   }),
 
   // Generate environment events
-  createEnvironmentEvent: (envId: string, action: string, data?: Record<string, any>): MockEvent => ({
+  createEnvironmentEvent: (
+    envId: string,
+    action: string,
+    data?: Record<string, any>
+  ): MockEvent => ({
     id: `evt-${Date.now()}`,
     name: `environment.${action}`,
     data: {
@@ -233,7 +239,7 @@ export const inngestStateUtils = {
   },
 
   // Seed mock data
-  seedData: (data: { events?: MockEvent[], runs?: typeof mockFunctionRuns }) => {
+  seedData: (data: { events?: MockEvent[]; runs?: typeof mockFunctionRuns }) => {
     if (data.events) {
       mockEvents = [...data.events]
     }
@@ -262,7 +268,7 @@ export const inngestStateUtils = {
   waitForEvent: async (eventName: string, timeout: number = 1000) => {
     return new Promise((resolve, reject) => {
       const checkEvent = () => {
-        const event = mockEvents.find(e => e.name === eventName)
+        const event = mockEvents.find((e) => e.name === eventName)
         if (event) {
           resolve(event)
         } else {
@@ -276,17 +282,17 @@ export const inngestStateUtils = {
 
   // Check if function was called
   wasEventSent: (eventName: string): boolean => {
-    return mockEvents.some(e => e.name === eventName)
+    return mockEvents.some((e) => e.name === eventName)
   },
 
   // Get events by name
   getEventsByName: (eventName: string): MockEvent[] => {
-    return mockEvents.filter(e => e.name === eventName)
+    return mockEvents.filter((e) => e.name === eventName)
   },
 
   // Get function runs by ID
   getFunctionRunsById: (functionId: string) => {
-    return mockFunctionRuns.filter(r => r.functionId === functionId)
+    return mockFunctionRuns.filter((r) => r.functionId === functionId)
   },
 }
 
@@ -314,21 +320,18 @@ export const inngestTestHelpers = {
 
   // Assert function was called
   expectFunctionCalled: (functionId: string, eventName?: string) => {
-    const runs = mockFunctionRuns.filter(r => r.functionId === functionId)
+    const runs = mockFunctionRuns.filter((r) => r.functionId === functionId)
     expect(runs.length).toBeGreaterThan(0)
-    
+
     if (eventName) {
-      expect(runs.some(r => r.event.name === eventName)).toBe(true)
+      expect(runs.some((r) => r.event.name === eventName)).toBe(true)
     }
   },
 
   // Assert step was executed
   expectStepRun: (stepId: string) => {
     const stepContext = createMockStepContext()
-    expect(stepContext.step.run).toHaveBeenCalledWith(
-      stepId,
-      expect.any(Function)
-    )
+    expect(stepContext.step.run).toHaveBeenCalledWith(stepId, expect.any(Function))
   },
 
   // Mock step execution

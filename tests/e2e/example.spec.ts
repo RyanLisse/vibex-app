@@ -14,12 +14,12 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     await setupTestEnvironment(page)
   })
 
-  test('should demonstrate AI interactions with natural language', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('should demonstrate AI interactions with natural language', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -41,13 +41,13 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use AI to find and interact with elements
     const hasMainContent = await ai.observe({
-      description: 'page has main content area with proper structure'
+      description: 'page has main content area with proper structure',
     })
     expect(hasMainContent).toBeTruthy()
 
     // Use AI to extract information
     const pageTitle = await ai.extract({
-      description: 'the main page title'
+      description: 'the main page title',
     })
     expect(pageTitle).toBeTruthy()
     console.log('AI extracted page title:', pageTitle)
@@ -57,7 +57,7 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task input field',
-      value: testData.taskDescription
+      value: testData.taskDescription,
     })
 
     // Use AI to submit the form
@@ -66,7 +66,7 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use AI to verify the result
     const taskCreated = await ai.observe({
-      description: `task containing "${testData.taskDescription}" is visible`
+      description: `task containing "${testData.taskDescription}" is visible`,
     })
     expect(taskCreated).toBeTruthy()
 
@@ -74,48 +74,50 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     await takeTimestampedScreenshot(page, 'task-created')
   })
 
-  test('should demonstrate complex AI interactions with metrics', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('should demonstrate complex AI interactions with metrics', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
     await homePage.goto()
 
     // Demonstrate complex AI queries with performance measurement
-    const { result: navigationItems, metrics: navMetrics } = await homePage.measureAction(async () => {
-      return await ai.extract({
-        description: 'all navigation menu items with their text and links'
-      })
-    })
+    const { result: navigationItems, metrics: navMetrics } = await homePage.measureAction(
+      async () => {
+        return await ai.extract({
+          description: 'all navigation menu items with their text and links',
+        })
+      }
+    )
     console.log('Navigation items found:', navigationItems)
     console.log('Navigation extraction took:', navMetrics.duration, 'ms')
 
     // Use AI to understand UI state
     const isDarkMode = await ai.observe({
-      description: 'interface is in dark mode'
+      description: 'interface is in dark mode',
     })
     console.log('Is dark mode active:', isDarkMode)
 
     // Use AI to find specific UI elements
     const hasSearchField = await ai.observe({
-      description: 'search field is present and functional'
+      description: 'search field is present and functional',
     })
     console.log('Has search field:', hasSearchField)
 
     // Use AI to understand button states
     const buttonStates = await ai.extract({
-      description: 'all button states (enabled/disabled) with their purposes'
+      description: 'all button states (enabled/disabled) with their purposes',
     })
     console.log('Button states:', buttonStates)
 
     // Use AI to verify responsive design
     await page.setViewportSize({ width: 375, height: 667 })
     const isMobileOptimized = await ai.observe({
-      description: 'layout is optimized for mobile with proper touch targets'
+      description: 'layout is optimized for mobile with proper touch targets',
     })
     console.log('Is mobile optimized:', isMobileOptimized)
 
@@ -123,12 +125,12 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     await page.setViewportSize({ width: 1280, height: 720 })
   })
 
-  test('should demonstrate AI-powered form validation with structured data', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('should demonstrate AI-powered form validation with structured data', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -154,12 +156,12 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task input field',
-      value: testData.taskDescription
+      value: testData.taskDescription,
     })
 
     // Use AI to verify form is now valid
     const isFormValid = await ai.observe({
-      description: 'form is valid and can be submitted without errors'
+      description: 'form is valid and can be submitted without errors',
     })
     console.log('Is form valid:', isFormValid)
 
@@ -169,17 +171,17 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use AI to verify successful submission
     const submissionSuccess = await ai.observe({
-      description: 'form was successfully submitted with confirmation'
+      description: 'form was successfully submitted with confirmation',
     })
     expect(submissionSuccess).toBeTruthy()
   })
 
-  test('should demonstrate AI-powered accessibility testing', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('should demonstrate AI-powered accessibility testing', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -187,7 +189,7 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use enhanced accessibility validation
     const accessibilityData = await utils.validateAccessibility(stagehand)
-    
+
     expect(accessibilityData.hasAltText).toBeTruthy()
     expect(accessibilityData.hasProperHeadings).toBeTruthy()
     expect(accessibilityData.hasKeyboardNavigation).toBeTruthy()
@@ -199,29 +201,29 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     // Test keyboard navigation with AI verification
     await page.keyboard.press('Tab')
     const firstElementFocused = await ai.observe({
-      description: 'first focusable element has visible focus indicator'
+      description: 'first focusable element has visible focus indicator',
     })
     console.log('First element focused:', firstElementFocused)
 
     await page.keyboard.press('Tab')
     const secondElementFocused = await ai.observe({
-      description: 'second focusable element has visible focus indicator'
+      description: 'second focusable element has visible focus indicator',
     })
     console.log('Second element focused:', secondElementFocused)
 
     // Use AI to check color contrast
     const hasGoodContrast = await ai.observe({
-      description: 'text has sufficient color contrast for accessibility standards'
+      description: 'text has sufficient color contrast for accessibility standards',
     })
     console.log('Has good color contrast:', hasGoodContrast)
   })
 
-  test('should demonstrate AI-powered performance testing with detailed metrics', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('should demonstrate AI-powered performance testing with detailed metrics', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -237,19 +239,19 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use AI to verify page is fully loaded
     const pageFullyLoaded = await ai.observe({
-      description: 'page is completely loaded with all content visible and interactive'
+      description: 'page is completely loaded with all content visible and interactive',
     })
     expect(pageFullyLoaded).toBeTruthy()
 
     // Use AI to check for loading indicators
     const hasLoadingSpinner = await ai.observe({
-      description: 'loading spinner or progress indicator is visible'
+      description: 'loading spinner or progress indicator is visible',
     })
     console.log('Has loading spinner:', hasLoadingSpinner)
 
     // Use AI to verify responsive loading
     await page.setViewportSize({ width: 375, height: 667 })
-    
+
     const mobileLoadMetrics = await utils.measurePerformance(stagehand, async () => {
       await page.reload()
       await homePage.waitForLoad()
@@ -259,12 +261,12 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     expect(mobileLoadMetrics.duration).toBeLessThan(3000) // Mobile should be faster
   })
 
-  test('should demonstrate AI-powered error handling with recovery', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('should demonstrate AI-powered error handling with recovery', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -285,13 +287,13 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use AI to check for error handling
     const errorHandling = await ai.observe({
-      description: 'error message is displayed with appropriate user feedback'
+      description: 'error message is displayed with appropriate user feedback',
     })
     console.log('Has error handling:', errorHandling)
 
     if (errorHandling) {
       const errorDetails = await ai.extract({
-        description: 'error message text and any recovery options provided'
+        description: 'error message text and any recovery options provided',
       })
       console.log('Error details:', errorDetails)
     }
@@ -303,7 +305,7 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
 
     // Use AI to verify page recovered
     const pageRecovered = await ai.observe({
-      description: 'page is working normally with all functionality restored'
+      description: 'page is working normally with all functionality restored',
     })
     expect(pageRecovered).toBeTruthy()
   })
@@ -313,12 +315,16 @@ test.describe('Enhanced AI-Powered E2E Testing', () => {
     console.log('Test metrics:', {
       duration: Date.now() - metrics.startTime,
       aiActions: metrics.actions.length,
-      successRate: metrics.actions.filter(a => a.success).length / metrics.actions.length,
-      averageActionTime: metrics.actions.reduce((sum, a) => sum + a.duration, 0) / metrics.actions.length,
-      actionBreakdown: metrics.actions.reduce((acc, action) => {
-        acc[action.type] = (acc[action.type] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+      successRate: metrics.actions.filter((a) => a.success).length / metrics.actions.length,
+      averageActionTime:
+        metrics.actions.reduce((sum, a) => sum + a.duration, 0) / metrics.actions.length,
+      actionBreakdown: metrics.actions.reduce(
+        (acc, action) => {
+          acc[action.type] = (acc[action.type] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>
+      ),
     })
   })
 })

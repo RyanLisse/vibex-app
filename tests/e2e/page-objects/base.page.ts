@@ -43,12 +43,15 @@ export abstract class BasePage {
   /**
    * Take a screenshot with enhanced options
    */
-  async screenshot(name: string, options: { fullPage?: boolean; quality?: number } = {}): Promise<Buffer> {
+  async screenshot(
+    name: string,
+    options: { fullPage?: boolean; quality?: number } = {}
+  ): Promise<Buffer> {
     const { fullPage = true, quality = 80 } = options
-    return await this.page.screenshot({ 
+    return await this.page.screenshot({
       path: `tests/e2e/screenshots/${name}.png`,
       fullPage,
-      quality
+      quality,
     })
   }
 

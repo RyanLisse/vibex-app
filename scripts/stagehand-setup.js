@@ -29,10 +29,9 @@ class StagehandSetup {
       await this.setupDirectories()
       await this.runValidationTests()
       await this.displayUsageInstructions()
-      
+
       console.log('\n✅ Stagehand AI Testing setup complete!')
       console.log('🚀 You can now run AI-powered tests with: npm run test:e2e')
-      
     } catch (error) {
       console.error('\n❌ Setup failed:', error.message)
       process.exit(1)
@@ -41,27 +40,25 @@ class StagehandSetup {
 
   async checkPrerequisites() {
     console.log('🔍 Checking prerequisites...')
-    
+
     // Check if Node.js version is compatible
     const nodeVersion = process.version
     const majorVersion = parseInt(nodeVersion.split('.')[0].substring(1))
-    
+
     if (majorVersion < 18) {
       throw new Error(`Node.js 18+ required. Current version: ${nodeVersion}`)
     }
-    
+
     // Check if required packages are installed
-    const requiredPackages = [
-      '@browserbasehq/stagehand',
-      '@playwright/test',
-      'zod'
-    ]
-    
-    const packageJson = JSON.parse(await fs.readFile(path.join(this.projectRoot, 'package.json'), 'utf8'))
+    const requiredPackages = ['@browserbasehq/stagehand', '@playwright/test', 'zod']
+
+    const packageJson = JSON.parse(
+      await fs.readFile(path.join(this.projectRoot, 'package.json'), 'utf8')
+    )
     const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies }
-    
-    const missingPackages = requiredPackages.filter(pkg => !allDeps[pkg])
-    
+
+    const missingPackages = requiredPackages.filter((pkg) => !allDeps[pkg])
+
     if (missingPackages.length > 0) {
       console.log('📦 Installing missing packages...')
       try {
@@ -70,13 +67,13 @@ class StagehandSetup {
         throw new Error(`Failed to install packages: ${missingPackages.join(', ')}`)
       }
     }
-    
+
     console.log('✅ Prerequisites check passed')
   }
 
   async setupEnvironment() {
     console.log('\n🔧 Setting up environment...')
-    
+
     // Check if .env exists
     let envExists = false
     try {
@@ -85,7 +82,7 @@ class StagehandSetup {
     } catch {
       // .env doesn't exist
     }
-    
+
     if (!envExists) {
       // Copy from .env.example if it exists
       try {
@@ -108,24 +105,25 @@ BROWSERBASE_PROJECT_ID=your_browserbase_project_id
         console.log('📋 Created minimal .env file')
       }
     }
-    
+
     // Check for required environment variables
     const envContent = await fs.readFile(this.envPath, 'utf8')
-    const hasOpenAI = envContent.includes('OPENAI_API_KEY=') && 
-                     !envContent.includes('OPENAI_API_KEY=your_openai_api_key_here')
-    
+    const hasOpenAI =
+      envContent.includes('OPENAI_API_KEY=') &&
+      !envContent.includes('OPENAI_API_KEY=your_openai_api_key_here')
+
     if (!hasOpenAI) {
       console.log('⚠️  WARNING: OPENAI_API_KEY not configured')
       console.log('   Please set your OpenAI API key in .env file')
       console.log('   Some AI features will not work without it')
     }
-    
+
     console.log('✅ Environment setup complete')
   }
 
   async validateConfiguration() {
     console.log('\n⚙️  Validating configuration...')
-    
+
     // Check if stagehand.config.ts exists
     try {
       await fs.access(this.configPath)
@@ -133,7 +131,7 @@ BROWSERBASE_PROJECT_ID=your_browserbase_project_id
     } catch {
       throw new Error('stagehand.config.ts not found. Please ensure it exists in the project root.')
     }
-    
+
     // Validate configuration syntax
     try {
       const config = require(this.configPath)
@@ -141,7 +139,7 @@ BROWSERBASE_PROJECT_ID=your_browserbase_project_id
     } catch (error) {
       throw new Error(`Configuration validation failed: ${error.message}`)
     }
-    
+
     // Check playwright configuration
     const playwrightConfigPath = path.join(this.projectRoot, 'playwright.config.ts')
     try {
@@ -155,16 +153,16 @@ BROWSERBASE_PROJECT_ID=your_browserbase_project_id
 
   async setupDirectories() {
     console.log('\n📁 Setting up test directories...')
-    
+
     const directories = [
       path.join(this.testDir, 'screenshots'),
       path.join(this.testDir, 'screenshots', 'visual-regression'),
       path.join(this.testDir, 'screenshots', 'baselines'),
       path.join(this.testDir, 'fixtures'),
       path.join(this.testDir, 'page-objects'),
-      path.join(this.testDir, 'helpers')
+      path.join(this.testDir, 'helpers'),
     ]
-    
+
     for (const dir of directories) {
       try {
         await fs.access(dir)
@@ -178,7 +176,7 @@ BROWSERBASE_PROJECT_ID=your_browserbase_project_id
 
   async runValidationTests() {
     console.log('\n🧪 Running validation tests...')
-    
+
     // Create a simple validation test
     const validationTest = `
 import { test, expect } from '@playwright/test'
@@ -194,21 +192,21 @@ test('Stagehand setup validation', async ({ page }) => {
   console.log('✅ Basic Playwright functionality working')
 })
 `
-    
+
     const validationTestPath = path.join(this.testDir, 'validation.spec.ts')
     await fs.writeFile(validationTestPath, validationTest)
-    
+
     try {
       console.log('🔄 Running basic validation test...')
-      execSync('npx playwright test validation.spec.ts', { 
+      execSync('npx playwright test validation.spec.ts', {
         cwd: this.projectRoot,
-        stdio: 'pipe'
+        stdio: 'pipe',
       })
       console.log('✅ Validation test passed')
     } catch (error) {
       console.log('⚠️  Validation test skipped (this is normal during setup)')
     }
-    
+
     // Clean up validation test
     try {
       await fs.unlink(validationTestPath)
@@ -220,31 +218,31 @@ test('Stagehand setup validation', async ({ page }) => {
   async displayUsageInstructions() {
     console.log('\n📖 Usage Instructions')
     console.log('=====================')
-    
+
     console.log('\n1. Configure your OpenAI API key:')
     console.log('   Edit .env file and set OPENAI_API_KEY=your_actual_key')
-    
+
     console.log('\n2. Run AI-powered tests:')
     console.log('   npm run test:e2e                     # Run all E2E tests')
     console.log('   npm run test:e2e:headed              # Run in headed mode')
     console.log('   npm run test:e2e:debug               # Run with debug output')
-    
+
     console.log('\n3. Run specific AI test suites:')
     console.log('   npm run test:e2e ai-powered-advanced.spec.ts')
     console.log('   npm run test:e2e visual-regression-ai.spec.ts')
-    
+
     console.log('\n4. Enable debug output:')
     console.log('   STAGEHAND_DEBUG=true npm run test:e2e')
-    
+
     console.log('\n5. Available test examples:')
     console.log('   - tests/e2e/example.spec.ts              # Basic AI interactions')
     console.log('   - tests/e2e/ai-powered-advanced.spec.ts  # Advanced AI testing')
     console.log('   - tests/e2e/visual-regression-ai.spec.ts # Visual regression testing')
-    
+
     console.log('\n6. Documentation:')
     console.log('   - tests/e2e/STAGEHAND_GUIDE.md         # Comprehensive guide')
     console.log('   - stagehand.config.ts                   # Configuration reference')
-    
+
     console.log('\n🎯 AI Testing Features:')
     console.log('   • Natural language element selection')
     console.log('   • Intelligent form filling and validation')

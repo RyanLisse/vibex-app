@@ -46,7 +46,7 @@ export const mockNotificationAPI = {
       timestamp: new Date(),
     }
     mockNotifications.push(notification)
-    
+
     return {
       title: notification.title,
       body: notification.body,
@@ -76,9 +76,9 @@ export const mockMediaQueryAPI = {
         listeners: new Set(),
       })
     }
-    
+
     const mq = mockMediaQueries.get(query)!
-    
+
     return {
       media: mq.media,
       matches: mq.matches,
@@ -88,16 +88,20 @@ export const mockMediaQueryAPI = {
       removeListener: vi.fn().mockImplementation((listener: (mq: MediaQueryList) => void) => {
         mq.listeners.delete(listener)
       }),
-      addEventListener: vi.fn().mockImplementation((type: string, listener: (mq: MediaQueryList) => void) => {
-        if (type === 'change') {
-          mq.listeners.add(listener)
-        }
-      }),
-      removeEventListener: vi.fn().mockImplementation((type: string, listener: (mq: MediaQueryList) => void) => {
-        if (type === 'change') {
-          mq.listeners.delete(listener)
-        }
-      }),
+      addEventListener: vi
+        .fn()
+        .mockImplementation((type: string, listener: (mq: MediaQueryList) => void) => {
+          if (type === 'change') {
+            mq.listeners.add(listener)
+          }
+        }),
+      removeEventListener: vi
+        .fn()
+        .mockImplementation((type: string, listener: (mq: MediaQueryList) => void) => {
+          if (type === 'change') {
+            mq.listeners.delete(listener)
+          }
+        }),
       dispatchEvent: vi.fn(),
     }
   }),
@@ -121,7 +125,7 @@ export const mockGeolocationAPI = {
 
   watchPosition: vi.fn().mockImplementation((success: Function, error?: Function) => {
     const watchId = Math.random()
-    
+
     if (mockGeolocation) {
       success({
         coords: mockGeolocation,
@@ -133,7 +137,7 @@ export const mockGeolocationAPI = {
         message: 'User denied the request for Geolocation.',
       })
     }
-    
+
     return watchId
   }),
 
@@ -154,7 +158,9 @@ export const mockFileAPI = {
     {
       name: 'test.txt',
       kind: 'file',
-      getFile: vi.fn().mockResolvedValue(new File(['test content'], 'test.txt', { type: 'text/plain' })),
+      getFile: vi
+        .fn()
+        .mockResolvedValue(new File(['test content'], 'test.txt', { type: 'text/plain' })),
     },
   ]),
 
@@ -265,9 +271,11 @@ export const browserAPIUtils = {
   // Notification utilities
   notifications: {
     getAll: () => [...mockNotifications],
-    clear: () => { mockNotifications = [] },
+    clear: () => {
+      mockNotifications = []
+    },
     count: () => mockNotifications.length,
-    findByTitle: (title: string) => mockNotifications.find(n => n.title === title),
+    findByTitle: (title: string) => mockNotifications.find((n) => n.title === title),
     setPermission: (permission: 'granted' | 'denied' | 'default') => {
       mockNotificationAPI.permission = permission
     },
@@ -280,7 +288,7 @@ export const browserAPIUtils = {
       if (mq) {
         mq.matches = matches
         // Trigger listeners
-        mq.listeners.forEach(listener => {
+        mq.listeners.forEach((listener) => {
           listener({ ...mq } as MediaQueryList)
         })
       }
@@ -341,12 +349,12 @@ export const setupBrowserAPIMocks = () => {
   Object.assign(global, {
     Notification: mockNotificationAPI.Notification,
   })
-  
+
   // Media Query API
   Object.assign(global, {
     matchMedia: mockMediaQueryAPI.matchMedia,
   })
-  
+
   // Geolocation API
   Object.assign(global, {
     navigator: {
@@ -354,7 +362,7 @@ export const setupBrowserAPIMocks = () => {
       geolocation: mockGeolocationAPI,
     },
   })
-  
+
   // Clipboard API
   Object.assign(global, {
     navigator: {
@@ -362,14 +370,14 @@ export const setupBrowserAPIMocks = () => {
       clipboard: mockClipboardAPI,
     },
   })
-  
+
   // File System Access API
   Object.assign(global, {
     showOpenFilePicker: mockFileAPI.showOpenFilePicker,
     showSaveFilePicker: mockFileAPI.showSaveFilePicker,
     showDirectoryPicker: mockFileAPI.showDirectoryPicker,
   })
-  
+
   // Web Share API
   Object.assign(global, {
     navigator: {
@@ -378,17 +386,17 @@ export const setupBrowserAPIMocks = () => {
       canShare: mockWebShareAPI.canShare,
     },
   })
-  
+
   // Payment Request API
   Object.assign(global, {
     PaymentRequest: mockPaymentRequestAPI.PaymentRequest,
   })
-  
+
   // Web Workers
   Object.assign(global, {
     Worker: mockWebWorkerAPI.Worker,
   })
-  
+
   // Service Worker
   Object.assign(global, {
     navigator: {
@@ -396,7 +404,7 @@ export const setupBrowserAPIMocks = () => {
       serviceWorker: mockServiceWorkerAPI,
     },
   })
-  
+
   // Battery API
   Object.assign(global, {
     navigator: {
@@ -404,7 +412,7 @@ export const setupBrowserAPIMocks = () => {
       getBattery: mockBatteryAPI.getBattery,
     },
   })
-  
+
   // Network Information API
   Object.assign(global, {
     navigator: {
@@ -438,7 +446,7 @@ export const browserAPITestHelpers = {
 
   // Wait for async operations
   waitForAsync: async (timeout: number = 100) => {
-    return new Promise(resolve => setTimeout(resolve, timeout))
+    return new Promise((resolve) => setTimeout(resolve, timeout))
   },
 }
 

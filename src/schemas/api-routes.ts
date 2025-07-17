@@ -1,5 +1,11 @@
 import { z } from 'zod'
-import { EmailSchema, PasswordSchema, IdSchema, PaginationSchema, ApiResponseSchema } from '../shared/schemas/validation'
+import {
+  EmailSchema,
+  PasswordSchema,
+  IdSchema,
+  PaginationSchema,
+  ApiResponseSchema,
+} from '../shared/schemas/validation'
 
 // GitHub OAuth schemas
 export const GitHubOAuthCallbackSchema = z.object({
@@ -55,11 +61,13 @@ export const GitHubRepositorySchema = z.object({
   updated_at: z.string().datetime(),
   pushed_at: z.string().datetime(),
   owner: GitHubUserSchema,
-  permissions: z.object({
-    admin: z.boolean(),
-    push: z.boolean(),
-    pull: z.boolean(),
-  }).optional(),
+  permissions: z
+    .object({
+      admin: z.boolean(),
+      push: z.boolean(),
+      pull: z.boolean(),
+    })
+    .optional(),
 })
 
 export const GitHubBranchSchema = z.object({
@@ -113,7 +121,11 @@ export const CreateTaskSchema = z.object({
 })
 
 export const UpdateTaskSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters').optional(),
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(200, 'Title must be less than 200 characters')
+    .optional(),
   description: z.string().max(2000, 'Description must be less than 2000 characters').optional(),
   status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
@@ -154,7 +166,11 @@ export const CreateEnvironmentSchema = z.object({
 })
 
 export const UpdateEnvironmentSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters').optional(),
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(100, 'Name must be less than 100 characters')
+    .optional(),
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
   type: z.enum(['development', 'staging', 'production', 'testing']).optional(),
   url: z.string().url('Invalid URL').optional(),
@@ -173,10 +189,12 @@ export const EnvironmentsRequestSchema = z.object({
 export const InngestEventSchema = z.object({
   name: z.string().min(1, 'Event name is required'),
   data: z.record(z.any()).default({}),
-  user: z.object({
-    id: z.string(),
-    email: z.string().email().optional(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().email().optional(),
+    })
+    .optional(),
   ts: z.number().optional(),
   v: z.string().optional(),
 })
@@ -188,14 +206,18 @@ export const InngestFunctionSchema = z.object({
     event: z.string(),
     expression: z.string().optional(),
   }),
-  config: z.object({
-    retries: z.number().min(0).max(10).default(3),
-    timeout: z.string().default('30s'),
-    rateLimit: z.object({
-      limit: z.number().min(1),
-      period: z.string(),
-    }).optional(),
-  }).optional(),
+  config: z
+    .object({
+      retries: z.number().min(0).max(10).default(3),
+      timeout: z.string().default('30s'),
+      rateLimit: z
+        .object({
+          limit: z.number().min(1),
+          period: z.string(),
+        })
+        .optional(),
+    })
+    .optional(),
 })
 
 // Webhook schemas
@@ -217,7 +239,8 @@ export const WebhookResponseSchema = z.object({
 
 // File upload schemas
 export const FileUploadRequestSchema = z.object({
-  file: z.instanceof(File)
+  file: z
+    .instanceof(File)
     .refine((file) => file.size <= 10 * 1024 * 1024, 'File must be smaller than 10MB')
     .refine((file) => {
       const allowedTypes = [
@@ -269,11 +292,13 @@ export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) 
     success: z.literal(true),
     data: dataSchema,
     message: z.string().optional(),
-    meta: z.object({
-      timestamp: z.string().datetime(),
-      version: z.string().optional(),
-      requestId: z.string().optional(),
-    }).optional(),
+    meta: z
+      .object({
+        timestamp: z.string().datetime(),
+        version: z.string().optional(),
+        requestId: z.string().optional(),
+      })
+      .optional(),
   })
 
 export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
@@ -337,7 +362,7 @@ export const validateApiRequest = <T>(schema: z.ZodSchema<T>, data: unknown) => 
         data: null,
         error: {
           message: 'Validation failed',
-          validationErrors: error.errors.map(err => ({
+          validationErrors: error.errors.map((err) => ({
             field: err.path.join('.'),
             message: err.message,
             code: err.code,

@@ -1,16 +1,12 @@
-import type { StorybookConfig } from '@storybook/nextjs';
+import type { StorybookConfig } from '@storybook/nextjs'
 
 const config: StorybookConfig = {
   stories: [
     '../components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
     '../app/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'
+    '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
-  addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-a11y',
-  ],
+  addons: ['@storybook/addon-essentials', '@storybook/addon-interactions', '@storybook/addon-a11y'],
   framework: {
     name: '@storybook/nextjs',
     options: {
@@ -31,6 +27,6 @@ const config: StorybookConfig = {
   docs: {
     autodocs: 'tag',
   },
-};
+}
 
-export default config;
+export default config

@@ -50,7 +50,7 @@ export const routerUtils = {
     routerState.pathname = pathname
     routerState.asPath = pathname
     routerState.route = pathname
-    
+
     if (searchParams) {
       routerState.searchParams = new URLSearchParams(searchParams)
       routerState.query = { ...searchParams }
@@ -66,7 +66,7 @@ export const routerUtils = {
     routerState.route = url.pathname
     routerState.searchParams = new URLSearchParams(url.search)
     routerState.query = Object.fromEntries(url.searchParams)
-    
+
     if (options?.replace) {
       mockRouter.replace(path)
     } else {
@@ -151,7 +151,7 @@ export const mockUseSearchParams = (): ReadonlyURLSearchParams => {
     keys: () => searchParams.keys(),
     values: () => searchParams.values(),
     entries: () => searchParams.entries(),
-    forEach: (callbackfn: (value: string, key: string, parent: URLSearchParams) => void) => 
+    forEach: (callbackfn: (value: string, key: string, parent: URLSearchParams) => void) =>
       searchParams.forEach(callbackfn),
     toString: () => searchParams.toString(),
     size: searchParams.size,
@@ -163,7 +163,7 @@ export const mockUseSearchParams = (): ReadonlyURLSearchParams => {
 export const mockUseParams = () => {
   const pathSegments = routerState.pathname.split('/').filter(Boolean)
   const params: Record<string, string> = {}
-  
+
   // Extract dynamic route parameters (basic implementation)
   pathSegments.forEach((segment, index) => {
     if (segment.startsWith('[') && segment.endsWith(']')) {
@@ -171,7 +171,7 @@ export const mockUseParams = () => {
       params[paramName] = pathSegments[index] || ''
     }
   })
-  
+
   return params
 }
 

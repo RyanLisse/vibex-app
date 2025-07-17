@@ -55,14 +55,14 @@ export const test = base.extend<BaseFixtures>({
         duration: number
         success: boolean
         error?: string
-      }>
+      }>,
     }
     await use(metrics)
-    
+
     // Log final metrics
     const totalDuration = Date.now() - metrics.startTime
     console.log(`Test completed in ${totalDuration}ms with ${metrics.actions.length} AI actions`)
-    
+
     if (process.env.STAGEHAND_DEBUG === 'true') {
       console.log('Action breakdown:', metrics.actions)
     }

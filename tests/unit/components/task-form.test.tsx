@@ -8,12 +8,12 @@ vi.mock('@/hooks/use-github-auth', () => ({
   useGitHubAuth: () => ({
     branches: [
       { name: 'main', isDefault: true },
-      { name: 'feature/test', isDefault: false }
+      { name: 'feature/test', isDefault: false },
     ],
     fetchBranches: vi.fn(),
     isLoading: false,
-    error: null
-  })
+    error: null,
+  }),
 }))
 
 vi.mock('@/stores/tasks', () => ({

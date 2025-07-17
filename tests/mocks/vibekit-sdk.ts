@@ -57,7 +57,7 @@ export const mockVibeKitSDK = {
     }),
 
     get: vi.fn().mockImplementation((id: string) => {
-      const task = mockTasks.find(t => t.id === id)
+      const task = mockTasks.find((t) => t.id === id)
       return task ? Promise.resolve(task) : Promise.reject(new Error('Task not found'))
     }),
 
@@ -66,11 +66,11 @@ export const mockVibeKitSDK = {
     }),
 
     update: vi.fn().mockImplementation((id: string, updates: Partial<MockTask>) => {
-      const taskIndex = mockTasks.findIndex(t => t.id === id)
+      const taskIndex = mockTasks.findIndex((t) => t.id === id)
       if (taskIndex === -1) {
         return Promise.reject(new Error('Task not found'))
       }
-      
+
       mockTasks[taskIndex] = {
         ...mockTasks[taskIndex],
         ...updates,
@@ -80,18 +80,18 @@ export const mockVibeKitSDK = {
     }),
 
     delete: vi.fn().mockImplementation((id: string) => {
-      const taskIndex = mockTasks.findIndex(t => t.id === id)
+      const taskIndex = mockTasks.findIndex((t) => t.id === id)
       if (taskIndex === -1) {
         return Promise.reject(new Error('Task not found'))
       }
-      
+
       mockTasks.splice(taskIndex, 1)
       return Promise.resolve()
     }),
 
     // Message operations
     addMessage: vi.fn().mockImplementation((taskId: string, messageData: Partial<MockMessage>) => {
-      const task = mockTasks.find(t => t.id === taskId)
+      const task = mockTasks.find((t) => t.id === taskId)
       if (!task) {
         return Promise.reject(new Error('Task not found'))
       }
@@ -109,13 +109,15 @@ export const mockVibeKitSDK = {
         task.messages = []
       }
       task.messages.push(message)
-      
+
       return Promise.resolve(message)
     }),
 
     getMessages: vi.fn().mockImplementation((taskId: string) => {
-      const task = mockTasks.find(t => t.id === taskId)
-      return task ? Promise.resolve(task.messages || []) : Promise.reject(new Error('Task not found'))
+      const task = mockTasks.find((t) => t.id === taskId)
+      return task
+        ? Promise.resolve(task.messages || [])
+        : Promise.reject(new Error('Task not found'))
     }),
   },
 
@@ -132,17 +134,17 @@ export const mockVibeKitSDK = {
         ...envData,
       }
       mockEnvironments.push(environment)
-      
+
       // Simulate async creation
       setTimeout(() => {
         environment.status = 'active'
       }, 100)
-      
+
       return Promise.resolve(environment)
     }),
 
     get: vi.fn().mockImplementation((id: string) => {
-      const env = mockEnvironments.find(e => e.id === id)
+      const env = mockEnvironments.find((e) => e.id === id)
       return env ? Promise.resolve(env) : Promise.reject(new Error('Environment not found'))
     }),
 
@@ -151,11 +153,11 @@ export const mockVibeKitSDK = {
     }),
 
     delete: vi.fn().mockImplementation((id: string) => {
-      const envIndex = mockEnvironments.findIndex(e => e.id === id)
+      const envIndex = mockEnvironments.findIndex((e) => e.id === id)
       if (envIndex === -1) {
         return Promise.reject(new Error('Environment not found'))
       }
-      
+
       mockEnvironments.splice(envIndex, 1)
       return Promise.resolve()
     }),
@@ -257,7 +259,7 @@ export const mockStateUtils = {
   },
 
   // Seed mock data
-  seedData: (data: { tasks?: MockTask[], environments?: MockEnvironment[] }) => {
+  seedData: (data: { tasks?: MockTask[]; environments?: MockEnvironment[] }) => {
     if (data.tasks) {
       mockTasks = [...data.tasks]
     }
@@ -286,7 +288,7 @@ export const mockStateUtils = {
     if (mockVibeKitSDK[category] && mockVibeKitSDK[category][operation]) {
       const originalFn = mockVibeKitSDK[category][operation]
       mockVibeKitSDK[category][operation] = vi.fn().mockImplementation(async (...args) => {
-        await new Promise(resolve => setTimeout(resolve, delay))
+        await new Promise((resolve) => setTimeout(resolve, delay))
         return originalFn(...args)
       })
     }
@@ -305,9 +307,7 @@ export const setupVibeKitMocks = () => {
 export const vibeKitTestHelpers = {
   // Assert task creation
   expectTaskCreated: (taskData: Partial<MockTask>) => {
-    expect(mockVibeKitSDK.tasks.create).toHaveBeenCalledWith(
-      expect.objectContaining(taskData)
-    )
+    expect(mockVibeKitSDK.tasks.create).toHaveBeenCalledWith(expect.objectContaining(taskData))
   },
 
   // Assert environment creation
@@ -321,7 +321,7 @@ export const vibeKitTestHelpers = {
   waitForTaskStatus: async (taskId: string, status: MockTask['status'], timeout: number = 1000) => {
     return new Promise((resolve, reject) => {
       const checkStatus = () => {
-        const task = mockTasks.find(t => t.id === taskId)
+        const task = mockTasks.find((t) => t.id === taskId)
         if (task && task.status === status) {
           resolve(task)
         } else {
@@ -334,10 +334,10 @@ export const vibeKitTestHelpers = {
   },
 
   // Get task by ID
-  getTask: (id: string) => mockTasks.find(t => t.id === id),
+  getTask: (id: string) => mockTasks.find((t) => t.id === id),
 
   // Get environment by ID
-  getEnvironment: (id: string) => mockEnvironments.find(e => e.id === id),
+  getEnvironment: (id: string) => mockEnvironments.find((e) => e.id === id),
 }
 
 // Export setup function for easy integration

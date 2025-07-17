@@ -20,12 +20,12 @@ test.describe('Advanced AI-Powered Testing', () => {
     await ensureDirectoryExists('tests/e2e/screenshots')
   })
 
-  test('comprehensive workflow testing with AI validation', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('comprehensive workflow testing with AI validation', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -38,16 +38,16 @@ test.describe('Advanced AI-Powered Testing', () => {
 
     // Use AI to validate page structure
     const pageStructure = await ai.extract({
-      description: 'complete page structure including navigation, main content, and footer'
+      description: 'complete page structure including navigation, main content, and footer',
     })
-    
+
     // Validate using schema
     const structuredData = await utils.extractWithSchema(
       stagehand,
       'page metadata including title, description, and navigation items',
       schemas.PageDataSchema
     )
-    
+
     expect(structuredData.title).toBeTruthy()
     expect(structuredData.headings.length).toBeGreaterThan(0)
 
@@ -59,12 +59,12 @@ test.describe('Advanced AI-Powered Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task description input field',
-      value: testData.taskDescription
+      value: testData.taskDescription,
     })
 
     // Use AI to validate form state
     const formValidation = await ai.observe({
-      description: 'form is valid and ready for submission'
+      description: 'form is valid and ready for submission',
     })
     expect(formValidation).toBeTruthy()
 
@@ -87,37 +87,41 @@ test.describe('Advanced AI-Powered Testing', () => {
     await takeTimestampedScreenshot(page, 'task-details')
 
     // Monitor task progress with AI
-    await retryWithBackoff(async () => {
-      const progressObservation = await ai.observe({
-        description: 'task status has changed from pending to running'
-      })
-      expect(progressObservation).toBeTruthy()
-    }, 5, 2000)
+    await retryWithBackoff(
+      async () => {
+        const progressObservation = await ai.observe({
+          description: 'task status has changed from pending to running',
+        })
+        expect(progressObservation).toBeTruthy()
+      },
+      5,
+      2000
+    )
 
     // Validate task interface completeness
     const taskInterface = await ai.extract({
-      description: 'all interactive elements including buttons, inputs, and status indicators'
+      description: 'all interactive elements including buttons, inputs, and status indicators',
     })
     console.log('Task interface elements:', taskInterface)
 
     await takeTimestampedScreenshot(page, 'workflow-complete')
   })
 
-  test('advanced accessibility testing with AI', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('advanced accessibility testing with AI', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
     await homePage.goto()
-    
+
     // Comprehensive accessibility audit
     const accessibilityData = await utils.validateAccessibility(stagehand)
-    
+
     // Validate each accessibility aspect
     expect(accessibilityData.hasAltText).toBeTruthy()
     expect(accessibilityData.hasProperHeadings).toBeTruthy()
@@ -128,7 +132,7 @@ test.describe('Advanced AI-Powered Testing', () => {
     // Test keyboard navigation flow
     await page.keyboard.press('Tab')
     const firstFocusable = await ai.observe({
-      description: 'first focusable element has focus indicator'
+      description: 'first focusable element has focus indicator',
     })
     expect(firstFocusable).toBeTruthy()
 
@@ -140,31 +144,31 @@ test.describe('Advanced AI-Powered Testing', () => {
 
     // Verify focus is still within the page
     const focusVisible = await ai.observe({
-      description: 'focused element has visible focus indicator'
+      description: 'focused element has visible focus indicator',
     })
     expect(focusVisible).toBeTruthy()
 
     // Test screen reader compatibility
     const ariaLabels = await ai.extract({
-      description: 'all ARIA labels and descriptions on the page'
+      description: 'all ARIA labels and descriptions on the page',
     })
     expect(ariaLabels).toBeTruthy()
 
     // Test color contrast
     const contrastIssues = await ai.extract({
-      description: 'any color contrast issues or violations'
+      description: 'any color contrast issues or violations',
     })
     console.log('Contrast analysis:', contrastIssues)
 
     await takeTimestampedScreenshot(page, 'accessibility-audit')
   })
 
-  test('performance monitoring with AI insights', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('performance monitoring with AI insights', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -180,15 +184,16 @@ test.describe('Advanced AI-Powered Testing', () => {
 
     // AI-powered performance analysis
     const performanceInsights = await ai.extract({
-      description: 'performance indicators including loading states, animations, and responsiveness'
+      description:
+        'performance indicators including loading states, animations, and responsiveness',
     })
     console.log('AI performance insights:', performanceInsights)
 
     // Test responsive performance
     const viewports = [
-      { width: 375, height: 667 },   // Mobile
-      { width: 768, height: 1024 },  // Tablet
-      { width: 1920, height: 1080 }  // Desktop
+      { width: 375, height: 667 }, // Mobile
+      { width: 768, height: 1024 }, // Tablet
+      { width: 1920, height: 1080 }, // Desktop
     ]
 
     for (const viewport of viewports) {
@@ -205,7 +210,7 @@ test.describe('Advanced AI-Powered Testing', () => {
 
       // AI validation of responsive layout
       const isResponsive = await ai.observe({
-        description: 'layout is properly optimized for current viewport size'
+        description: 'layout is properly optimized for current viewport size',
       })
       expect(isResponsive).toBeTruthy()
     }
@@ -213,13 +218,7 @@ test.describe('Advanced AI-Powered Testing', () => {
     await takeTimestampedScreenshot(page, 'performance-test')
   })
 
-  test('advanced form validation with AI', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
-  }) => {
+  test('advanced form validation with AI', async ({ page, stagehand, schemas, utils, metrics }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
 
@@ -231,7 +230,7 @@ test.describe('Advanced AI-Powered Testing', () => {
     await page.waitForTimeout(500)
 
     const validationErrors = await ai.extract({
-      description: 'all form validation error messages'
+      description: 'all form validation error messages',
     })
     expect(validationErrors).toBeTruthy()
 
@@ -239,13 +238,13 @@ test.describe('Advanced AI-Powered Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task description field',
-      value: 'x' // Too short
+      value: 'x', // Too short
     })
     await ai.act({ action: 'click', description: 'submit button' })
     await page.waitForTimeout(500)
 
     const shortInputError = await ai.observe({
-      description: 'validation error about minimum length requirement'
+      description: 'validation error about minimum length requirement',
     })
     expect(shortInputError).toBeTruthy()
 
@@ -254,11 +253,11 @@ test.describe('Advanced AI-Powered Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task description field',
-      value: testData.taskDescription
+      value: testData.taskDescription,
     })
 
     const formValid = await ai.observe({
-      description: 'form is valid with no error messages'
+      description: 'form is valid with no error messages',
     })
     expect(formValid).toBeTruthy()
 
@@ -267,19 +266,19 @@ test.describe('Advanced AI-Powered Testing', () => {
     await page.waitForTimeout(2000)
 
     const submitSuccess = await ai.observe({
-      description: 'form was successfully submitted with confirmation message'
+      description: 'form was successfully submitted with confirmation message',
     })
     expect(submitSuccess).toBeTruthy()
 
     await takeTimestampedScreenshot(page, 'form-validation')
   })
 
-  test('cross-browser compatibility testing with AI', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('cross-browser compatibility testing with AI', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -299,19 +298,19 @@ test.describe('Advanced AI-Powered Testing', () => {
 
     // AI-powered browser compatibility check
     const compatibilityCheck = await ai.extract({
-      description: 'browser compatibility issues or features that may not work correctly'
+      description: 'browser compatibility issues or features that may not work correctly',
     })
     console.log('Compatibility analysis:', compatibilityCheck)
 
     // Test CSS features
     const cssFeatures = await ai.observe({
-      description: 'CSS animations, gradients, and modern features are working correctly'
+      description: 'CSS animations, gradients, and modern features are working correctly',
     })
     expect(cssFeatures).toBeTruthy()
 
     // Test JavaScript features
     const jsFeatures = await ai.observe({
-      description: 'JavaScript interactive features are functioning properly'
+      description: 'JavaScript interactive features are functioning properly',
     })
     expect(jsFeatures).toBeTruthy()
 
@@ -321,19 +320,19 @@ test.describe('Advanced AI-Powered Testing', () => {
     })
 
     const storageWorking = await ai.observe({
-      description: 'local storage functionality is working'
+      description: 'local storage functionality is working',
     })
     expect(storageWorking).toBeTruthy()
 
     await takeTimestampedScreenshot(page, 'browser-compatibility')
   })
 
-  test('error handling and recovery with AI', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('error handling and recovery with AI', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -355,13 +354,13 @@ test.describe('Advanced AI-Powered Testing', () => {
 
     // Check for error handling
     const errorHandling = await ai.observe({
-      description: 'error message or loading state is displayed appropriately'
+      description: 'error message or loading state is displayed appropriately',
     })
     expect(errorHandling).toBeTruthy()
 
     // Extract error details
     const errorDetails = await ai.extract({
-      description: 'error message text and recovery options'
+      description: 'error message text and recovery options',
     })
     console.log('Error handling details:', errorDetails)
 
@@ -372,19 +371,19 @@ test.describe('Advanced AI-Powered Testing', () => {
 
     // Verify recovery
     const recoverySuccess = await ai.observe({
-      description: 'application has recovered and is functioning normally'
+      description: 'application has recovered and is functioning normally',
     })
     expect(recoverySuccess).toBeTruthy()
 
     await takeTimestampedScreenshot(page, 'error-recovery')
   })
 
-  test('multi-step workflow with AI state management', async ({ 
-    page, 
-    stagehand, 
-    schemas, 
-    utils, 
-    metrics 
+  test('multi-step workflow with AI state management', async ({
+    page,
+    stagehand,
+    schemas,
+    utils,
+    metrics,
   }) => {
     const ai = createAIWrapper(stagehand, metrics)
     const homePage = new HomePage(page, stagehand)
@@ -399,18 +398,18 @@ test.describe('Advanced AI-Powered Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'environment name field',
-      value: testData.environmentName
+      value: testData.environmentName,
     })
     await ai.act({
       action: 'fill',
       description: 'environment description field',
-      value: testData.environmentDescription
+      value: testData.environmentDescription,
     })
     await ai.act({ action: 'click', description: 'create environment button' })
 
     // Verify environment creation
     const environmentCreated = await ai.observe({
-      description: 'environment was successfully created and is visible in the list'
+      description: 'environment was successfully created and is visible in the list',
     })
     expect(environmentCreated).toBeTruthy()
 
@@ -422,24 +421,24 @@ test.describe('Advanced AI-Powered Testing', () => {
     await ai.act({
       action: 'fill',
       description: 'task description field',
-      value: testData.taskDescription
+      value: testData.taskDescription,
     })
 
     // Select the created environment
     await ai.act({
       action: 'click',
-      description: 'environment dropdown'
+      description: 'environment dropdown',
     })
     await ai.act({
       action: 'click',
-      description: `option containing "${testData.environmentName}"`
+      description: `option containing "${testData.environmentName}"`,
     })
 
     await ai.act({ action: 'click', description: 'create task button' })
 
     // Verify task creation with environment link
     const taskWithEnvironment = await ai.observe({
-      description: 'task was created and is linked to the selected environment'
+      description: 'task was created and is linked to the selected environment',
     })
     expect(taskWithEnvironment).toBeTruthy()
 
@@ -455,12 +454,16 @@ test.describe('Advanced AI-Powered Testing', () => {
     await takeTimestampedScreenshot(page, 'step3-task-details')
 
     // Monitor progress with AI
-    await retryWithBackoff(async () => {
-      const progressUpdate = await ai.observe({
-        description: 'task is showing progress updates or completion'
-      })
-      expect(progressUpdate).toBeTruthy()
-    }, 10, 3000)
+    await retryWithBackoff(
+      async () => {
+        const progressUpdate = await ai.observe({
+          description: 'task is showing progress updates or completion',
+        })
+        expect(progressUpdate).toBeTruthy()
+      },
+      10,
+      3000
+    )
 
     await takeTimestampedScreenshot(page, 'workflow-complete')
   })
@@ -470,8 +473,9 @@ test.describe('Advanced AI-Powered Testing', () => {
     console.log('Test metrics:', {
       duration: Date.now() - metrics.startTime,
       aiActions: metrics.actions.length,
-      successRate: metrics.actions.filter(a => a.success).length / metrics.actions.length,
-      averageActionTime: metrics.actions.reduce((sum, a) => sum + a.duration, 0) / metrics.actions.length,
+      successRate: metrics.actions.filter((a) => a.success).length / metrics.actions.length,
+      averageActionTime:
+        metrics.actions.reduce((sum, a) => sum + a.duration, 0) / metrics.actions.length,
     })
   })
 })
