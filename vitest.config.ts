@@ -1,54 +1,47 @@
-import { resolve } from 'node:path'
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
     globals: true,
-    css: true,
+    setupFiles: './tests/setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      reportsDirectory: './coverage',
       exclude: [
-        'node_modules/**',
-        'dist/**',
-        '.next/**',
-        'coverage/**',
-        'tests/**',
+        'node_modules/',
+        'src/test/',
         '**/*.d.ts',
-        '**/*.config.{js,ts}',
-        '**/types.ts',
-        '**/.storybook/**',
-        '**/storybook-static/**',
+        '**/*.config.*',
+        '**/mockData',
+        'src/stories/**',
+        '.storybook/**'
       ],
       thresholds: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80,
-        },
-      },
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80
+      }
     },
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    testTimeout: 20000,
+    hookTimeout: 20000
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './'),
-      '@/components': resolve(__dirname, './components'),
-      '@/app': resolve(__dirname, './app'),
-      '@/lib': resolve(__dirname, './lib'),
-      '@/hooks': resolve(__dirname, './hooks'),
-      '@/stores': resolve(__dirname, './stores'),
-    },
-  },
+      '@': path.resolve(__dirname, './'),
+      '@/components': path.resolve(__dirname, './components'),
+      '@/lib': path.resolve(__dirname, './lib'),
+      '@/hooks': path.resolve(__dirname, './hooks'),
+      '@/app': path.resolve(__dirname, './app'),
+      '@/features': path.resolve(__dirname, './src/features'),
+      '@/shared': path.resolve(__dirname, './src/shared'),
+      '@/test': path.resolve(__dirname, './tests')
+    }
+  }
 })

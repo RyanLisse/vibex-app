@@ -111,7 +111,7 @@ const validateToken = (token: unknown): token is TaskChannelToken => {
     return false
   }
 
-  if (typeof token !== 'string' && !token.token) {
+  if (typeof token !== 'string' && !(token as any)?.token) {
     console.warn('Invalid token format received from Inngest')
     return false
   }
