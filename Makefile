@@ -38,9 +38,31 @@ setup: ## Run full project setup
 	@chmod +x SETUP.sh
 	@./SETUP.sh
 
-dev: kill-ports ## Start development server
-	@echo "🔧 Starting development server..."
+dev: kill-ports ## Start development server with Inngest
+	@echo "🔧 Starting development servers..."
+	@if [ "$(PM)" = "bun" ]; then \
+		echo "🚀 Starting Inngest dev server and Next.js with Bun..."; \
+		bunx concurrently --names "NEXT,INNGEST" --prefix-colors "blue,green" \
+			"bun run dev" \
+			"bunx inngest-cli@latest dev"; \
+	else \
+		echo "🚀 Starting Inngest dev server and Next.js with npm..."; \
+		npx concurrently --names "NEXT,INNGEST" --prefix-colors "blue,green" \
+			"npm run dev" \
+			"npx inngest-cli@latest dev"; \
+	fi
+
+dev-next: kill-ports ## Start only Next.js development server
+	@echo "🔧 Starting Next.js development server..."
 	@$(PM) run dev
+
+dev-inngest: ## Start only Inngest dev server
+	@echo "🚀 Starting Inngest dev server..."
+	@if [ "$(PM)" = "bun" ]; then \
+		bunx inngest-cli@latest dev; \
+	else \
+		npx inngest-cli@latest dev; \
+	fi
 
 build: ## Build for production
 	@echo "🏗️  Building for production..."

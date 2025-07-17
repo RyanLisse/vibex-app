@@ -1,16 +1,32 @@
 'use client'
 import { useInngestSubscription } from '@inngest/realtime/hooks'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { fetchRealtimeSubscriptionToken } from '@/app/actions/inngest'
 import { useTaskStore } from '@/stores/tasks'
 
 export default function Container({ children }: { children: React.ReactNode }) {
   const { updateTask, getTaskById } = useTaskStore()
+  const [subscriptionEnabled, setSubscriptionEnabled] = useState(true)
+  
   const { latestData } = useInngestSubscription({
-    refreshToken: fetchRealtimeSubscriptionToken,
+    refreshToken: async () => {
+      try {
+        const token = await fetchRealtimeSubscriptionToken()
+        if (!token) {
+          console.log('Inngest subscription disabled: No token available')
+          setSubscriptionEnabled(false)
+          return null as any
+        }
+        return token
+      } catch (error) {
+        console.error('Failed to refresh Inngest token:', error)
+        setSubscriptionEnabled(false)
+        return null as any
+      }
+    },
     bufferInterval: 0,
-    enabled: true,
+    enabled: subscriptionEnabled,
   })
 
   useEffect(() => {

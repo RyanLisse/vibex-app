@@ -116,7 +116,21 @@ export default function TaskClientPage({ id }: Props) {
   }
 
   const { latestData } = useInngestSubscription({
-    refreshToken: fetchRealtimeSubscriptionToken,
+    refreshToken: async () => {
+      try {
+        const token = await fetchRealtimeSubscriptionToken()
+        if (!token) {
+          console.log('Inngest subscription disabled: No token available')
+          setSubscriptionEnabled(false)
+          return null as any
+        }
+        return token
+      } catch (error) {
+        console.error('Failed to refresh Inngest token:', error)
+        setSubscriptionEnabled(false)
+        return null as any
+      }
+    },
     bufferInterval: 0,
     enabled: subscriptionEnabled,
   })

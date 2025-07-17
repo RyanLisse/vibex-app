@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { VibeKit, VibeKitConfig } from '@vibe-kit/sdk'
 import { Task } from '@/stores/tasks'
+import { getTelemetryConfig } from '@/lib/telemetry'
 
 export const createPullRequestAction = async ({ task }: { task: Task }) => {
   const cookieStore = await cookies()
@@ -12,6 +13,8 @@ export const createPullRequestAction = async ({ task }: { task: Task }) => {
     throw new Error('No GitHub token found. Please authenticate first.')
   }
 
+  const telemetryConfig = getTelemetryConfig()
+  
   const config: VibeKitConfig = {
     agent: {
       type: 'codex',
@@ -29,6 +32,7 @@ export const createPullRequestAction = async ({ task }: { task: Task }) => {
       repository: task.repository,
     },
     sessionId: task.sessionId,
+    telemetry: telemetryConfig.isEnabled ? telemetryConfig : undefined,
   }
 
   const vibekit = new VibeKit(config)

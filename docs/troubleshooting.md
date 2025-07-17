@@ -701,4 +701,106 @@ const debugApiCall = async (url: string, data: any) => {
 - Track API error rates
 - Set up alerts for validation issues
 
-By following this troubleshooting guide, you should be able to quickly identify and resolve most issues related to Zod schemas, form validation, and testing in the codex-clone project.
+### 8. Inngest WebSocket and Real-time Issues
+
+#### Issue: WebSocket connection fails with "HTTP Authentication failed"
+
+**Problem**: Getting repeated WebSocket errors in the console:
+```
+WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' failed: HTTP Authentication failed; no valid credentials available
+```
+
+**Solution**:
+
+1. **Check Inngest Environment Variables**:
+   ```bash
+   # In .env.local - Remove quotes from the values
+   INNGEST_EVENT_KEY=your_event_key_without_quotes
+   INNGEST_SIGNING_KEY=signkey-prod-your_signing_key_without_quotes
+   ```
+
+2. **Verify Inngest Configuration**:
+   - Ensure your Inngest app is properly configured in production
+   - Check that the signing key matches between your local environment and Inngest dashboard
+   - Make sure the Inngest function is deployed and accessible
+
+3. **Test Inngest Connection**:
+   ```typescript
+   // Add logging to debug
+   import { inngest } from '@/lib/inngest'
+   
+   // In your API route
+   console.log('Inngest client ID:', inngest.id)
+   console.log('Event key present:', !!process.env.INNGEST_EVENT_KEY)
+   console.log('Signing key present:', !!process.env.INNGEST_SIGNING_KEY)
+   ```
+
+4. **Alternative: Disable Real-time for Development**:
+   ```typescript
+   // In lib/inngest.ts - temporarily disable realtime
+   export const inngest = new Inngest({
+     id: 'clonedex',
+     // middleware: [realtimeMiddleware()], // Comment out for debugging
+   })
+   ```
+
+### 9. GitHub OAuth Issues
+
+#### Issue: GitHub OAuth redirect URI mismatch
+
+**Problem**: Getting "The redirect_uri is not associated with this application" error.
+
+**Solution**:
+
+1. **Use Different OAuth Apps for Dev/Prod**:
+   
+   **For Local Development**:
+   - Create a GitHub OAuth app with callback: `http://localhost:3000/auth/callback`
+   - Use these credentials in `.env.local`
+   
+   **For Production**:
+   - Create a separate GitHub OAuth app with callback: `https://vibex-app.vercel.app/auth/callback`
+   - Use these credentials in Vercel environment variables
+
+2. **Configure Environment Variables**:
+   ```bash
+   # .env.local (for development)
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   GITHUB_CLIENT_ID=dev_app_client_id
+   GITHUB_CLIENT_SECRET=dev_app_client_secret
+   
+   # Optional: Force a specific redirect URI
+   # GITHUB_REDIRECT_URI=http://localhost:3000/auth/callback
+   ```
+
+3. **The Redirect URI Logic**:
+   The app automatically determines the redirect URI in this order:
+   1. `GITHUB_REDIRECT_URI` if set (override)
+   2. `${NEXT_PUBLIC_APP_URL}/auth/callback` if set
+   3. `https://vibex-app.vercel.app/auth/callback` in production
+   4. `http://localhost:3000/auth/callback` in development
+
+4. **Update GitHub App Settings**:
+   - Go to GitHub Settings > Developer settings > OAuth Apps
+   - Create/update your OAuth app
+   - Set Authorization callback URL to match your environment:
+     - Local: `http://localhost:3000/auth/callback`
+     - Production: `https://vibex-app.vercel.app/auth/callback`
+
+5. **Debug OAuth Flow**:
+   ```bash
+   # Check console output in development
+   # The redirect URI will be logged automatically
+   
+   # Or check the OAuth URL in browser dev tools
+   # Look for: redirect_uri parameter in the GitHub OAuth URL
+   ```
+
+6. **Common Mistakes**:
+   - ❌ Using production OAuth app for local development
+   - ❌ Wrong callback URL format (missing `/auth/callback`)
+   - ❌ Quotes in environment variable values
+   - ✅ Create separate OAuth apps for each environment
+   - ✅ Match callback URLs exactly
+
+By following this troubleshooting guide, you should be able to quickly identify and resolve most issues related to Zod schemas, form validation, testing, real-time features, and authentication in the codex-clone project.

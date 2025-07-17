@@ -5,7 +5,10 @@ import { VibeKit, VibeKitConfig } from '@vibe-kit/sdk'
 // Create a client to send and receive events
 export const inngest = new Inngest({
   id: 'clonedex',
+  eventKey: process.env.INNGEST_EVENT_KEY,
   middleware: [realtimeMiddleware()],
+  // Enable dev mode for local development
+  isDev: process.env.INNGEST_DEV === '1',
 })
 
 export const taskChannel = channel('tasks')
