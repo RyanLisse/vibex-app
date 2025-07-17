@@ -2,6 +2,7 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { JSDOM } from 'jsdom'
+import React from 'react'
 
 // Mock Next.js router
 vi.mock('next/router', () => ({
@@ -25,6 +26,50 @@ vi.mock('next/navigation', () => ({
     get: vi.fn(),
   }),
   usePathname: () => '/',
+}))
+
+// Mock Next.js Link component
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) =>
+    React.createElement('a', { href, ...props }, children),
+}))
+
+// Mock stores
+vi.mock('@/stores/environments', () => ({
+  useEnvironmentStore: () => ({
+    environments: [
+      {
+        id: 'env-1',
+        name: 'Test Environment',
+        githubRepository: 'user/repo',
+        type: 'docker',
+        status: 'active',
+      },
+    ],
+  }),
+}))
+
+vi.mock('@/stores/tasks', () => ({
+  useTaskStore: () => ({
+    addTask: vi.fn(),
+    tasks: [],
+  }),
+}))
+
+// Mock hooks
+vi.mock('@/hooks/use-github-auth', () => ({
+  useGitHubAuth: () => ({
+    branches: [
+      { name: 'main', isDefault: true },
+      { name: 'develop', isDefault: false },
+    ],
+    fetchBranches: vi.fn(),
+  }),
+}))
+
+// Mock actions
+vi.mock('@/app/actions/inngest', () => ({
+  createTaskAction: vi.fn(),
 }))
 
 // Mock window.matchMedia
