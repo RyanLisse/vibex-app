@@ -1,24 +1,24 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { Button } from '@/components/ui/button'
 
 describe('Button Component', () => {
   it('renders button with text', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByRole('button')).toHaveTextContent('Click me')
+    const { getByRole } = render(<Button>Click me</Button>)
+    expect(getByRole('button')).toHaveTextContent('Click me')
   })
 
   it('applies variant styles correctly', () => {
-    render(<Button variant="destructive">Delete</Button>)
-    const button = screen.getByRole('button')
+    const { getByRole } = render(<Button variant="destructive">Delete</Button>)
+    const button = getByRole('button')
     expect(button).toHaveClass('bg-destructive')
   })
 
   it('handles click events', async () => {
     const handleClick = vi.fn()
-    render(<Button onClick={handleClick}>Click me</Button>)
+    const { getByRole } = render(<Button onClick={handleClick}>Click me</Button>)
 
-    const button = screen.getByRole('button')
+    const button = getByRole('button')
     await button.click()
 
     expect(handleClick).toHaveBeenCalledTimes(1)

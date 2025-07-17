@@ -1,5 +1,5 @@
 'use client'
-import { useInngestSubscription } from '@inngest/realtime/hooks'
+import { useInngestSubscription, InngestSubscriptionState } from '@inngest/realtime/hooks'
 import { useEffect, useState, useCallback } from 'react'
 
 import { fetchRealtimeSubscriptionToken, type TaskChannelToken } from '@/app/actions/inngest'
@@ -164,15 +164,27 @@ export default function Container({ children }: { children: React.ReactNode }) {
     [handleGitMessage, handleShellCall, handleShellOutput, handleAssistantMessage]
   )
 
-  const { latestData, disconnect } = useInngestSubscription({
+  const subscription = useInngestSubscription({
     refreshToken,
     bufferInterval: 0,
     enabled: subscriptionEnabled,
-    onError: handleError,
-    onClose: () => {
-      console.log('Container Inngest subscription closed')
-    },
   })
+
+  const { latestData, error, state } = subscription
+
+  // Handle subscription errors
+  useEffect(() => {
+    if (error) {
+      handleError(error)
+    }
+  }, [error, handleError])
+
+  // Handle subscription state changes
+  useEffect(() => {
+    if (state === InngestSubscriptionState.Closed) {
+      console.log('Container Inngest subscription closed')
+    }
+  }, [state])
 
   // Main data processing effect
   useEffect(() => {
@@ -191,16 +203,8 @@ export default function Container({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     return () => {
       setSubscriptionEnabled(false)
-      // Properly disconnect the subscription to avoid stream cancellation errors
-      if (disconnect) {
-        try {
-          disconnect()
-        } catch (error) {
-          console.warn('Error disconnecting Container Inngest subscription:', error)
-        }
-      }
     }
-  }, [disconnect])
+  }, [])
 
   return children
 }

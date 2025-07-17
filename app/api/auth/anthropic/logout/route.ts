@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { AuthAnthropic } from '@/lib/auth/anthropic'
+import { Auth } from '@/lib/auth'
 
 export async function POST() {
   try {
-    await AuthAnthropic.Auth.remove('anthropic')
+    await Auth.remove('anthropic')
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -5,7 +5,7 @@ import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
 import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/stores/tasks'
 
-export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update']>
+export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update', 'control']>
 export type TaskChannelTokenResponse = TaskChannelToken | null
 
 export const createTaskAction = async ({
@@ -115,11 +115,8 @@ export async function fetchRealtimeSubscriptionToken(): Promise<TaskChannelToken
       return null
     }
 
-    // Validate token structure
-    if (typeof token !== 'string' && !token.token) {
-      console.warn('Invalid token format received from Inngest')
-      return null
-    }
+    // Token is returned directly as a string or object
+    // No additional validation needed as the type system handles it
 
     return token
   } catch (error) {

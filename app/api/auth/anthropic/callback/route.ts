@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthAnthropic } from '@/lib/auth/anthropic'
+import { Auth } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     const tokens = await AuthAnthropic.exchange(code, verifier)
 
     // Store tokens securely
-    await AuthAnthropic.Auth.set('anthropic', {
+    await Auth.set('anthropic', {
       type: 'oauth',
       refresh: tokens.refresh,
       access: tokens.access,
