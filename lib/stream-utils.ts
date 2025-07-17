@@ -17,7 +17,7 @@ export async function safeStreamCancel(stream: ReadableStream | null | undefined
 
     // Get a reader to check stream state
     const reader = stream.getReader()
-    
+
     try {
       // Try to cancel the stream
       await reader.cancel()
@@ -68,10 +68,7 @@ export async function withTimeout<T>(
   timeoutMs: number,
   timeoutMessage?: string
 ): Promise<T> {
-  return Promise.race([
-    promise,
-    createTimeoutPromise(timeoutMs, timeoutMessage)
-  ])
+  return Promise.race([promise, createTimeoutPromise(timeoutMs, timeoutMessage)])
 }
 
 /**
@@ -95,17 +92,17 @@ export async function safeAsync<T>(
 /**
  * Debounces a function call
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null
-  
+
   return (...args: Parameters<T>) => {
     if (timeout) {
       clearTimeout(timeout)
     }
-    
+
     timeout = setTimeout(() => {
       func(...args)
     }, wait)

@@ -24,7 +24,7 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
     priority: 'medium',
   })
   const [errors, setErrors] = useState<ReturnType<typeof validateSchema>['error']>(null)
-  const [_touched, setTouched] = useState<Record<string, boolean>>({})
+  const [, setTouched] = useState<Record<string, boolean>>({})
 
   const handleInputChange = (field: keyof ContactForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

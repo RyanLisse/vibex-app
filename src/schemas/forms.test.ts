@@ -119,7 +119,8 @@ describe('Form Schemas', () => {
     })
 
     it('makes newsletter optional', () => {
-      const { newsletter: _, ...dataWithoutNewsletter } = validData
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { newsletter, ...dataWithoutNewsletter } = validData
       const result = userRegistrationSchema.safeParse(dataWithoutNewsletter)
       expect(result.success).toBe(true)
     })

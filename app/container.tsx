@@ -58,93 +58,111 @@ export default function Container({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Extract status update handling
-  const handleStatusUpdate = useCallback((data: StatusData) => {
-    updateTask(data.taskId, {
-      status: data.status,
-      hasChanges: true,
-      sessionId: data.sessionId,
-    })
-  }, [updateTask])
+  const handleStatusUpdate = useCallback(
+    (data: StatusData) => {
+      updateTask(data.taskId, {
+        status: data.status,
+        hasChanges: true,
+        sessionId: data.sessionId,
+      })
+    },
+    [updateTask]
+  )
 
   // Extract git message handling
-  const handleGitMessage = useCallback((data: UpdateData) => {
-    updateTask(data.taskId, {
-      statusMessage: data.message.output as string,
-    })
-  }, [updateTask])
+  const handleGitMessage = useCallback(
+    (data: UpdateData) => {
+      updateTask(data.taskId, {
+        statusMessage: data.message.output as string,
+      })
+    },
+    [updateTask]
+  )
 
   // Extract shell call handling
-  const handleShellCall = useCallback((data: UpdateData) => {
-    const task = getTaskById(data.taskId)
-    const shellData = data.message as { action: { command: string[] } }
-    
-    updateTask(data.taskId, {
-      statusMessage: `Running command ${shellData.action.command.join(' ')}`,
-      messages: [
-        ...(task?.messages || []),
-        {
-          role: 'assistant',
-          type: 'local_shell_call',
-          data: data.message,
-        },
-      ],
-    })
-  }, [getTaskById, updateTask])
+  const handleShellCall = useCallback(
+    (data: UpdateData) => {
+      const task = getTaskById(data.taskId)
+      const shellData = data.message as { action: { command: string[] } }
+
+      updateTask(data.taskId, {
+        statusMessage: `Running command ${shellData.action.command.join(' ')}`,
+        messages: [
+          ...(task?.messages || []),
+          {
+            role: 'assistant',
+            type: 'local_shell_call',
+            data: data.message,
+          },
+        ],
+      })
+    },
+    [getTaskById, updateTask]
+  )
 
   // Extract shell output handling
-  const handleShellOutput = useCallback((data: UpdateData) => {
-    const task = getTaskById(data.taskId)
-    
-    updateTask(data.taskId, {
-      messages: [
-        ...(task?.messages || []),
-        {
-          role: 'assistant',
-          type: 'local_shell_call_output',
-          data: data.message,
-        },
-      ],
-    })
-  }, [getTaskById, updateTask])
+  const handleShellOutput = useCallback(
+    (data: UpdateData) => {
+      const task = getTaskById(data.taskId)
+
+      updateTask(data.taskId, {
+        messages: [
+          ...(task?.messages || []),
+          {
+            role: 'assistant',
+            type: 'local_shell_call_output',
+            data: data.message,
+          },
+        ],
+      })
+    },
+    [getTaskById, updateTask]
+  )
 
   // Extract assistant message handling
-  const handleAssistantMessage = useCallback((data: UpdateData) => {
-    const task = getTaskById(data.taskId)
-    const content = data.message.content as { text: string }[]
-    
-    updateTask(data.taskId, {
-      messages: [
-        ...(task?.messages || []),
-        {
-          role: 'assistant',
-          type: 'message',
-          data: content[0],
-        },
-      ],
-    })
-  }, [getTaskById, updateTask])
+  const handleAssistantMessage = useCallback(
+    (data: UpdateData) => {
+      const task = getTaskById(data.taskId)
+      const content = data.message.content as { text: string }[]
+
+      updateTask(data.taskId, {
+        messages: [
+          ...(task?.messages || []),
+          {
+            role: 'assistant',
+            type: 'message',
+            data: content[0],
+          },
+        ],
+      })
+    },
+    [getTaskById, updateTask]
+  )
 
   // Extract update message handling
-  const handleUpdateMessage = useCallback((data: UpdateData) => {
-    const messageType = data.message.type
-    
-    switch (messageType) {
-      case 'git':
-        handleGitMessage(data)
-        break
-      case 'local_shell_call':
-        handleShellCall(data)
-        break
-      case 'local_shell_call_output':
-        handleShellOutput(data)
-        break
-      case 'message':
-        if (data.message.status === 'completed' && data.message.role === 'assistant') {
-          handleAssistantMessage(data)
-        }
-        break
-    }
-  }, [handleGitMessage, handleShellCall, handleShellOutput, handleAssistantMessage])
+  const handleUpdateMessage = useCallback(
+    (data: UpdateData) => {
+      const messageType = data.message.type
+
+      switch (messageType) {
+        case 'git':
+          handleGitMessage(data)
+          break
+        case 'local_shell_call':
+          handleShellCall(data)
+          break
+        case 'local_shell_call_output':
+          handleShellOutput(data)
+          break
+        case 'message':
+          if (data.message.status === 'completed' && data.message.role === 'assistant') {
+            handleAssistantMessage(data)
+          }
+          break
+      }
+    },
+    [handleGitMessage, handleShellCall, handleShellOutput, handleAssistantMessage]
+  )
 
   const { latestData, disconnect } = useInngestSubscription({
     refreshToken,
@@ -161,7 +179,7 @@ export default function Container({ children }: { children: React.ReactNode }) {
     if (!latestData || latestData.channel !== 'tasks') return
 
     const typedData = latestData as LatestData
-    
+
     if (typedData.topic === 'status') {
       handleStatusUpdate(typedData.data as StatusData)
     } else if (typedData.topic === 'update') {
