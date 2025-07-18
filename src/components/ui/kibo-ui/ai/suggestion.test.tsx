@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { AISuggestion, AISuggestions } from './suggestion'
 
 // Mock dependencies
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, className, onClick, ...props }: any) => (
     <button className={className} onClick={onClick} {...props}>
       {children}
@@ -11,7 +12,7 @@ mock('@/components/ui/button', () => ({
   ),
 }))
 
-mock('@/components/ui/scroll-area', () => ({
+vi.mock('@/components/ui/scroll-area', () => ({
   ScrollArea: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="scroll-area" {...props}>
       {children}
@@ -22,7 +23,7 @@ mock('@/components/ui/scroll-area', () => ({
   ),
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
@@ -94,7 +95,7 @@ describe('AISuggestion', () => {
   })
 
   it('should call onClick with suggestion when clicked', async () => {
-    const handleClick = mock()
+    const handleClick = vi.fn()
     const user = userEvent.setup()
 
     render(<AISuggestion onClick={handleClick} suggestion="Test suggestion" />)

@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { AIReasoning, AIReasoningContent, AIReasoningTrigger } from './reasoning'
 
 // Mock dependencies
-mock('@radix-ui/react-use-controllable-state', () => ({
+vi.mock('@radix-ui/react-use-controllable-state', () => ({
   useControllableState: ({ prop, defaultProp, onChange }: any) => {
     const React = require('react')
     const [state, setState] = React.useState(prop ?? defaultProp)
@@ -23,7 +24,7 @@ mock('@radix-ui/react-use-controllable-state', () => ({
   },
 }))
 
-mock('@/components/ui/collapsible', () => ({
+vi.mock('@/components/ui/collapsible', () => ({
   Collapsible: ({ children, className, open, onOpenChange, ...props }: any) => {
     const handleToggle = () => onOpenChange?.(!open)
     return (
@@ -50,7 +51,7 @@ mock('@/components/ui/collapsible', () => ({
   ),
 }))
 
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   ChevronDownIcon: ({ className }: any) => (
     <span className={className} data-testid="chevron-icon">
       ⌄
@@ -58,11 +59,11 @@ mock('lucide-react', () => ({
   ),
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
-mock('@/src/components/ui/kibo-ui/ai/response', () => ({
+vi.mock('@/src/components/ui/kibo-ui/ai/response', () => ({
   AIResponse: ({ children, className }: any) => (
     <div className={className} data-testid="ai-response">
       {children}
@@ -104,7 +105,7 @@ describe('AIReasoning', () => {
   })
 
   it('should handle controlled open state', async () => {
-    const handleOpenChange = mock()
+    const handleOpenChange = vi.fn()
     const user = userEvent.setup({ delay: null })
 
     const { rerender } = render(

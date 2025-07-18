@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import {
   AIInput,
@@ -15,7 +16,7 @@ import {
 } from './input'
 
 // Mock components
-mock('/components/ui/button', () => ({
+vi.mock('/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, className, size, variant, type, ...props }: any) => (
     <button
       className={className}
@@ -31,7 +32,7 @@ mock('/components/ui/button', () => ({
   ),
 }))
 
-mock('/components/ui/textarea', () => ({
+vi.mock('/components/ui/textarea', () => ({
   Textarea: ({ onChange, onKeyDown, className, placeholder, name, ...props }: any) => (
     <textarea
       className={className}
@@ -44,7 +45,7 @@ mock('/components/ui/textarea', () => ({
   ),
 }))
 
-mock('/components/ui/select', () => ({
+vi.mock('/components/ui/select', () => ({
   Select: ({ children, onValueChange, value, ...props }: any) => (
     <div data-testid="select" data-value={value} {...props}>
       {children}
@@ -68,11 +69,11 @@ mock('/components/ui/select', () => ({
   SelectValue: ({ className, ...props }: any) => <span className={className} {...props} />,
 }))
 
-mock('/lib/utils', () => ({
-  cn: mock((...classes) => classes.filter(Boolean).join(' ')),
+vi.mock('/lib/utils', () => ({
+  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')),
 }))
 
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Loader2Icon: ({ className }: { className?: string }) => (
     <span className={className} data-testid="loader2-icon" />
   ),
@@ -92,11 +93,11 @@ describe('AIInput Components', () => {
     mock.restore()
     // Mock window.addEventListener for resize events
     Object.defineProperty(window, 'addEventListener', {
-      value: mock(),
+      value: vi.fn(),
       writable: true,
     })
     Object.defineProperty(window, 'removeEventListener', {
-      value: mock(),
+      value: vi.fn(),
       writable: true,
     })
   })
@@ -125,7 +126,7 @@ describe('AIInput Components', () => {
     })
 
     it('handles form submission', () => {
-      const handleSubmit = mock((e) => e.preventDefault())
+      const handleSubmit = vi.fn((e) => e.preventDefault())
 
       render(
         <AIInput onSubmit={handleSubmit}>
@@ -155,7 +156,7 @@ describe('AIInput Components', () => {
     })
 
     it('calls onChange when text changes', async () => {
-      const handleChange = mock()
+      const handleChange = vi.fn()
       const user = userEvent.setup()
 
       render(<AIInputTextarea onChange={handleChange} />)
@@ -167,7 +168,7 @@ describe('AIInput Components', () => {
     })
 
     it('submits form on Ctrl+Enter', async () => {
-      const handleSubmit = mock((e) => e.preventDefault())
+      const handleSubmit = vi.fn((e) => e.preventDefault())
 
       render(
         <AIInput onSubmit={handleSubmit}>
@@ -185,7 +186,7 @@ describe('AIInput Components', () => {
     })
 
     it('submits form on Cmd+Enter', async () => {
-      const handleSubmit = mock((e) => e.preventDefault())
+      const handleSubmit = vi.fn((e) => e.preventDefault())
 
       render(
         <AIInput onSubmit={handleSubmit}>
@@ -203,7 +204,7 @@ describe('AIInput Components', () => {
     })
 
     it('does not submit on plain Enter', async () => {
-      const handleSubmit = mock((e) => e.preventDefault())
+      const handleSubmit = vi.fn((e) => e.preventDefault())
 
       render(
         <AIInput onSubmit={handleSubmit}>
@@ -299,7 +300,7 @@ describe('AIInput Components', () => {
     })
 
     it('handles click events', () => {
-      const handleClick = mock()
+      const handleClick = vi.fn()
 
       render(<AIInputButton onClick={handleClick}>Button</AIInputButton>)
 
@@ -471,7 +472,7 @@ describe('AIInput Components', () => {
 
   describe('Integration', () => {
     it('works as complete input component', async () => {
-      const handleSubmit = mock((e) => e.preventDefault())
+      const handleSubmit = vi.fn((e) => e.preventDefault())
       const user = userEvent.setup()
 
       render(
@@ -503,7 +504,7 @@ describe('AIInput Components', () => {
     })
 
     it('handles model selection', () => {
-      const handleValueChange = mock()
+      const handleValueChange = vi.fn()
 
       render(
         <AIInputModelSelect onValueChange={handleValueChange}>

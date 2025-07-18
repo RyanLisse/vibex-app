@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useInngestSubscriptionManagement } from '@/hooks/use-inngest-subscription'
 
 // Mock dependencies
-const mockFetchRealtimeSubscriptionToken = mock()
-const mockUseInngestSubscription = mock()
+const mockFetchRealtimeSubscriptionToken = vi.fn()
+const mockUseInngestSubscription = vi.fn()
 
-mock('@inngest/realtime/hooks', () => ({
+vi.mock('@inngest/realtime/hooks', () => ({
   useInngestSubscription: (config: any) => mockUseInngestSubscription(config),
   InngestSubscriptionState: {
     Closed: 'closed',
@@ -15,7 +16,7 @@ mock('@inngest/realtime/hooks', () => ({
   },
 }))
 
-mock('@/app/actions/inngest', () => ({
+vi.mock('@/app/actions/inngest', () => ({
   fetchRealtimeSubscriptionToken: () => mockFetchRealtimeSubscriptionToken(),
 }))
 

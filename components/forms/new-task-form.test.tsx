@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import NewTaskForm from '@/components/forms/new-task-form'
 
 // Mock the dependencies
-const mockAddTask = mock()
-const mockFetchBranches = mock()
-const mockCreateTaskAction = mock()
+const mockAddTask = vi.fn()
+const mockFetchBranches = vi.fn()
+const mockCreateTaskAction = vi.fn()
 
 const mockEnvironments = [
   { id: 'env1', githubRepository: 'owner/repo1' },
@@ -17,37 +18,37 @@ const mockBranches = [
   { name: 'feature/test', isDefault: false },
 ]
 
-mock('@/stores/environments', () => ({
+vi.mock('@/stores/environments', () => ({
   useEnvironmentStore: () => ({
     environments: mockEnvironments,
   }),
 }))
 
-mock('@/stores/tasks', () => ({
+vi.mock('@/stores/tasks', () => ({
   useTaskStore: () => ({
     addTask: mockAddTask,
   }),
 }))
 
-mock('@/hooks/use-github-auth', () => ({
+vi.mock('@/hooks/use-github-auth', () => ({
   useGitHubAuth: () => ({
     branches: mockBranches,
     fetchBranches: mockFetchBranches,
   }),
 }))
 
-mock('@/app/actions/inngest', () => ({
+vi.mock('@/app/actions/inngest', () => ({
   createTaskAction: mockCreateTaskAction,
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   HardDrive: ({ ...props }: any) => <svg data-testid="hard-drive-icon" {...props} />,
   Split: ({ ...props }: any) => <svg data-testid="split-icon" {...props} />,
 }))
 
 // Mock UI components
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -61,7 +62,7 @@ mock('@/components/ui/button', () => ({
   ),
 }))
 
-mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', () => ({
   Select: ({ children, onValueChange, value, ...props }: any) => (
     <div data-testid="select" data-value={value} {...props}>
       <button data-testid="select-trigger" onClick={() => onValueChange?.('test-value')}>
@@ -92,7 +93,7 @@ mock('@/components/ui/select', () => ({
   ),
 }))
 
-mock('next/link', () => ({
+vi.mock('next/link', () => ({
   default: ({ children, href, passHref, ...props }: any) => (
     <a data-testid="link" href={href} {...props}>
       {children}

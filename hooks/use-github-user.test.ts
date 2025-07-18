@@ -1,16 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useGitHubUser } from '@/hooks/use-github-user'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: mock(),
-  setItem: mock(),
-  removeItem: mock(),
-  clear: mock(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
@@ -76,16 +77,16 @@ describe('useGitHubUser', () => {
     }
 
     // Mock token exchange
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockTokenResponse,
-    } as any)
+    } as unknown)
 
     // Mock user fetch
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserResponse,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -105,11 +106,11 @@ describe('useGitHubUser', () => {
   it('should handle login errors', async () => {
     const mockCode = 'invalid-code'
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 401,
       json: async () => ({ error: 'bad_verification_code' }),
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -174,10 +175,10 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserProfile,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -217,10 +218,10 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUpdatedUser,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -260,10 +261,10 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockOrganizations,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -289,10 +290,10 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewToken,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -333,7 +334,7 @@ describe('useGitHubUser', () => {
 
   it('should handle OAuth redirect', () => {
     window.location = undefined
-    window.location = { href: '' } as any
+    window.location = { href: '' } as unknown as Location
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -353,7 +354,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -372,7 +373,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 403,
       headers: {
@@ -387,7 +388,7 @@ describe('useGitHubUser', () => {
         },
       },
       json: async () => ({ message: 'API rate limit exceeded' }),
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -421,10 +422,10 @@ describe('useGitHubUser', () => {
       })
     )
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockEmails,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubUser())
 

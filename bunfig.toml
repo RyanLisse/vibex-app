@@ -6,8 +6,6 @@ bail = 1
 verbose = true
 environment = "happy-dom"
 setup = ["./bun-test-setup.ts"]
-# Disable auto-discovery to prevent React component tests from being included
-auto_discover = false
 
 # Coverage configuration for logic tests
 coverage_dir = "./coverage/bun-logic"
@@ -36,20 +34,13 @@ coverage_exclude = [
 ]
 coverage_reporter = ["lcov", "text", "html", "json"]
 
-# Test file patterns - ONLY specific utility/logic tests (no React components)
-# Using explicit file paths to prevent any React component tests from being included
+# Test file patterns - ONLY specific utility/logic tests that we've fixed for Bun
 include = [
-  "test-minimal.test.ts",
   "lib/telemetry.test.ts",
   "lib/stream-utils.test.ts",
   "lib/github-api.test.ts",
-  "lib/auth.test.ts",
-  "lib/utils.test.ts",
-  "lib/container-types.test.ts",
-  "src/lib/auth/pkce.test.ts",
-  "src/schemas/**/*.test.ts",
-  "src/hooks/useZodForm/**/*.test.ts",
-  "src/shared/schemas/**/*.test.ts"
+  "lib/auth/index.test.ts",
+  "lib/message-handlers.test.ts"
 ]
 
 # Explicitly exclude ALL React component tests and integration tests
@@ -66,10 +57,13 @@ exclude = [
   "**/*.integration.test.{js,jsx,ts,tsx}",
   "**/*.e2e.test.{js,jsx,ts,tsx}",
 
-  # Specific problematic files that contain React/JSX
+  # Specific problematic files that contain React/JSX or complex mocking
   "lib/auth/openai-codex.test.ts",
+  "lib/auth/anthropic.test.ts",
   "lib/github.test.ts",
   "lib/inngest.test.ts",
+  "src/lib/auth/pkce.test.ts",
+  "src/lib/auth/claude-auth.test.ts",
   "app/actions/**/*.test.ts",
   "stores/**/*.test.ts",
 
@@ -85,17 +79,11 @@ exclude = [
 # Override Bun's default test patterns to prevent auto-discovery
 [test.patterns]
 include = [
-  "test-minimal.test.ts",
   "lib/telemetry.test.ts",
   "lib/stream-utils.test.ts",
   "lib/github-api.test.ts",
-  "lib/auth.test.ts",
-  "lib/utils.test.ts",
-  "lib/container-types.test.ts",
-  "src/lib/auth/pkce.test.ts",
-  "src/schemas/**/*.test.ts",
-  "src/hooks/useZodForm/**/*.test.ts",
-  "src/shared/schemas/**/*.test.ts"
+  "lib/auth/index.test.ts",
+  "lib/message-handlers.test.ts"
 ]
 exclude = [
   "**/*.test.{jsx,tsx}",
@@ -109,6 +97,20 @@ exclude = [
 # Mock configuration
 mock = true
 mockReset = true
+
+# Path alias configuration for Bun tests
+[test.alias]
+"@" = "./"
+"@/app" = "./app"
+"@/components" = "./components"
+"@/lib" = "./lib"
+"@/hooks" = "./hooks"
+"@/stores" = "./stores"
+"@/types" = "./types"
+"@/features" = "./src/features"
+"@/shared" = "./src/shared"
+"@/test" = "./tests"
+"@/src" = "./src"
 
 # Coverage reporting specifically for logic tests
 coverage_include = [

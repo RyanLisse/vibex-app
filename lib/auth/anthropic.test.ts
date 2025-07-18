@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import {
   clearStoredToken,
   exchangeCodeForToken,
@@ -14,36 +15,36 @@ import {
 } from './anthropic'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 // Mock crypto
 const mockCrypto = {
-  getRandomValues: mock((array: Uint8Array) => {
+  getRandomValues: vi.fn((array: Uint8Array) => {
     for (let i = 0; i < array.length; i++) {
       array[i] = Math.floor(Math.random() * 256)
     }
     return array
   }),
   subtle: {
-    digest: mock(),
+    digest: vi.fn(),
   },
 }
 global.crypto = mockCrypto as any
 
 // Mock NextRequest/NextResponse
-mock('next/server', () => ({
+vi.mock('next/server', () => ({
   NextRequest: class {
     constructor(public url: string) {}
     cookies = {
-      get: mock(),
-      set: mock(),
-      delete: mock(),
+      get: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
     }
   },
   NextResponse: class {
     cookies = {
-      set: mock(),
-      delete: mock(),
+      set: vi.fn(),
+      delete: vi.fn(),
     }
   },
 }))
@@ -307,7 +308,7 @@ describe('Anthropic Auth', () => {
         expires_at: Date.now() + 3_600_000,
       }
 
-      request.cookies.get = mock().mockReturnValue({
+      request.cookies.get = vi.fn().mockReturnValue({
         value: JSON.stringify(storedToken),
       })
 

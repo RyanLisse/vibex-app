@@ -1,27 +1,28 @@
 // Mock the CodexAuthenticator class
 const mockCodexAuthenticator = {
-  isAuthenticated: mock(),
-  loadAuthConfig: mock(),
+  isAuthenticated: vi.fn(),
+  loadAuthConfig: vi.fn(),
 }
 
-mock('@/lib/auth/openai-codex', () => ({
-  CodexAuthenticator: mock(() => mockCodexAuthenticator),
+vi.mock('@/lib/auth/openai-codex', () => ({
+  CodexAuthenticator: vi.fn(() => mockCodexAuthenticator),
 }))
 
 // Mock NextResponse
 const mockNextResponse = {
-  json: mock((data, options) => ({
+  json: vi.fn((data, options) => ({
     json: () => Promise.resolve(data),
     status: options?.status || 200,
     ...data,
   })),
 }
 
-mock('next/server', () => ({
+vi.mock('next/server', () => ({
   NextResponse: mockNextResponse,
 }))
 
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { GET } from '@/app/api/auth/openai/status/route'
 
 describe('GET /api/auth/openai/status', () => {

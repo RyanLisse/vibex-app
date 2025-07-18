@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import {
   AIMessage,
   AIMessageAvatar,
@@ -6,7 +7,7 @@ import {
 } from '@/src/components/ui/kibo-ui/ai/message'
 
 // Mock the Avatar components
-mock('@/components/ui/avatar', () => ({
+vi.mock('@/components/ui/avatar', () => ({
   Avatar: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="avatar" {...props}>
       {children}
@@ -23,8 +24,8 @@ mock('@/components/ui/avatar', () => ({
 }))
 
 // Mock the cn utility
-mock('/lib/utils', () => ({
-  cn: mock((...classes) => classes.filter(Boolean).join(' ')),
+vi.mock('/lib/utils', () => ({
+  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')),
 }))
 
 describe('AIMessage Components', () => {

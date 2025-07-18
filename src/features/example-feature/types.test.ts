@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, test } from "bun:test"
+import { vi } from 'vitest'
 import type {
   ExampleFilter,
   ExampleFormData,
@@ -215,11 +216,11 @@ describe('ExampleFilter type', () => {
 
 describe('ExampleStore type', () => {
   it('should create valid ExampleStore with all properties', () => {
-    const mockAddItem = mock()
-    const mockUpdateItem = mock()
-    const mockDeleteItem = mock()
-    const mockSetFilter = mock()
-    const mockFetchItems = mock()
+    const mockAddItem = vi.fn()
+    const mockUpdateItem = vi.fn()
+    const mockDeleteItem = vi.fn()
+    const mockSetFilter = vi.fn()
+    const mockFetchItems = vi.fn()
 
     const store: ExampleStore = {
       items: [],
@@ -269,11 +270,11 @@ describe('ExampleStore type', () => {
       filter: {},
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.items).toEqual(mockItems)
@@ -292,11 +293,11 @@ describe('ExampleStore type', () => {
       filter: mockFilter,
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.filter).toEqual(mockFilter)
@@ -308,11 +309,11 @@ describe('ExampleStore type', () => {
       filter: {},
       isLoading: true,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.isLoading).toBe(true)
@@ -326,22 +327,22 @@ describe('ExampleStore type', () => {
       filter: {},
       isLoading: false,
       error: errorMessage,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.error).toBe(errorMessage)
   })
 
   it('should have properly typed action functions', () => {
-    const mockAddItem = mock().mockResolvedValue(undefined)
-    const mockUpdateItem = mock().mockResolvedValue(undefined)
-    const mockDeleteItem = mock().mockResolvedValue(undefined)
-    const mockSetFilter = mock()
-    const mockFetchItems = mock().mockResolvedValue(undefined)
+    const mockAddItem = vi.fn().mockResolvedValue(undefined)
+    const mockUpdateItem = vi.fn().mockResolvedValue(undefined)
+    const mockDeleteItem = vi.fn().mockResolvedValue(undefined)
+    const mockSetFilter = vi.fn()
+    const mockFetchItems = vi.fn().mockResolvedValue(undefined)
 
     const store: ExampleStore = {
       items: [],
@@ -629,11 +630,11 @@ describe('Type compatibility and relationships', () => {
       filter,
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.items).toEqual(items)
@@ -672,11 +673,11 @@ describe('Type compatibility and relationships', () => {
       filter: filterFromItem,
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(mockStore.items[0].title).toBe(formData.title)
@@ -1028,11 +1029,11 @@ describe('Edge cases and validation', () => {
       filter: {},
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.items).toEqual([])
@@ -1054,11 +1055,11 @@ describe('Edge cases and validation', () => {
       filter: {},
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.items).toHaveLength(1000)
@@ -1080,11 +1081,11 @@ describe('Edge cases and validation', () => {
       filter: { searchTerm: '你好' },
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.items[0].title).toBe('Unicode Test 你好世界')
@@ -1107,11 +1108,11 @@ describe('Edge cases and validation', () => {
       filter: {},
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(store.items[0].createdAt.getFullYear()).toBe(1970)
@@ -1214,11 +1215,11 @@ describe('Edge cases and validation', () => {
       filter: { status: 'pending' },
       isLoading: false,
       error: null,
-      addItem: mock(),
-      updateItem: mock(),
-      deleteItem: mock(),
-      setFilter: mock(),
-      fetchItems: mock(),
+      addItem: vi.fn(),
+      updateItem: vi.fn(),
+      deleteItem: vi.fn(),
+      setFilter: vi.fn(),
+      fetchItems: vi.fn(),
     }
 
     expect(deepReadonlyStore.items[0].title).toBe('Readonly Item')

@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 // Mock Radix UI Tooltip components
-mock('@radix-ui/react-tooltip', () => ({
+vi.mock('@radix-ui/react-tooltip', () => ({
   Provider: ({ children, delayDuration, ...props }: any) => (
     <div data-delay={delayDuration} data-testid="tooltip-provider-primitive" {...props}>
       {children}

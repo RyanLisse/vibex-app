@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { AnthropicAuthCard } from '@/components/auth/anthropic-auth-card'
 
 // Mock the anthropic auth hook
-const mockUseAnthropicAuth = mock()
-mock('@/hooks/use-anthropic-auth', () => ({
+const mockUseAnthropicAuth = vi.fn()
+vi.mock('@/hooks/use-anthropic-auth', () => ({
   useAnthropicAuth: () => mockUseAnthropicAuth(),
 }))
 
 // Mock the auth card base component
-mock('./auth-card-base', () => ({
+vi.mock('./auth-card-base', () => ({
   AuthCardBase: ({
     title,
     description,
@@ -55,7 +56,7 @@ mock('./auth-card-base', () => ({
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
     <svg className={className} data-testid="login-icon" {...props} />
   ),
@@ -65,7 +66,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -80,8 +81,8 @@ mock('@/components/ui/button', () => ({
 }))
 
 describe('AnthropicAuthCard', () => {
-  const mockLogin = mock()
-  const mockLogout = mock()
+  const mockLogin = vi.fn()
+  const mockLogout = vi.fn()
 
   beforeEach(() => {
     mock.restore()

@@ -1,55 +1,56 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { vi } from 'vitest'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 
 // Mock the @google/genai module
 mock.module('@google/genai', () => ({
-  GoogleGenAI: mock(() => ({
-    startChat: mock(),
+  GoogleGenAI: vi.fn(() => ({
+    startChat: vi.fn(),
   })),
-  LiveSession: mock(() => ({
-    connect: mock(),
-    disconnect: mock(),
-    send: mock(),
-    on: mock(),
-    off: mock(),
+  LiveSession: vi.fn(() => ({
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    send: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
   })),
 }))
 
 // Mock fetch for API routes
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('Gemini Audio Integration Tests', () => {
   let _mockGeminiSession: GeminiRealtimeSession
-  let mockSessionAPI: any
+  let mockSessionAPI: unknown
 
   beforeEach(() => {
     mock.restore()
 
     // Mock the session API
     mockSessionAPI = {
-      connect: mock().mockResolvedValue(undefined),
-      disconnect: mock().mockResolvedValue(undefined),
-      send: mock().mockResolvedValue(undefined),
-      on: mock(),
-      off: mock(),
+      connect: vi.fn().mockResolvedValue(undefined),
+      disconnect: vi.fn().mockResolvedValue(undefined),
+      send: vi.fn().mockResolvedValue(undefined),
+      on: vi.fn(),
+      off: vi.fn(),
     }
 
     // Mock fetch responses
-    ;(fetch as any).mockImplementation((url: string | URL) => {
+    ;(fetch as unknown as jest.Mock).mockImplementation((url: string | URL) => {
       const urlString = url.toString()
 
       if (urlString.includes('/api/ai/gemini/session')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve({ sessionId: 'test-session-123' }),
-        } as Response)
+        } as unknown as Response)
       }
 
       return Promise.resolve({
         ok: false,
         status: 404,
         json: () => Promise.resolve({ error: 'Not found' }),
-      } as Response)
+      } as unknown as Response)
     })
   })
 
@@ -75,7 +76,7 @@ describe('Gemini Audio Integration Tests', () => {
       })
 
       // Mock the internal session
-      ;(session as any).session = mockSessionAPI
+      ;(session as unknown as { session: unknown }).session = mockSessionAPI
 
       await session.connect()
 
@@ -88,8 +89,8 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      ;(session as any).session = mockSessionAPI
-      ;(session as any).connected = true
+      ;(session as unknown as { session: unknown }).session = mockSessionAPI
+      ;(session as unknown as { connected: boolean }).connected = true
 
       await session.disconnect()
 
@@ -103,7 +104,7 @@ describe('Gemini Audio Integration Tests', () => {
       })
 
       mockSessionAPI.connect.mockRejectedValue(new Error('Connection failed'))
-      ;(session as any).session = mockSessionAPI
+      ;(session as unknown as { session: unknown }).session = mockSessionAPI
 
       await expect(session.connect()).rejects.toThrow('Connection failed')
     })
@@ -121,8 +122,8 @@ describe('Gemini Audio Integration Tests', () => {
       const mockAudioData = new Uint8Array(mockAudioBuffer)
       mockAudioData.fill(128) // Fill with sample data
 
-      ;(session as any).session = mockSessionAPI
-      ;(session as any).connected = true
+      ;(session as unknown as { session: unknown }).session = mockSessionAPI
+      ;(session as unknown as { connected: boolean }).connected = true
 
       await session.sendAudio(mockAudioData)
 
@@ -186,7 +187,7 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      const messageHandler = mock()
+      const messageHandler = vi.fn()
       session.onMessage(messageHandler)
 
       // Simulate an incoming message
@@ -198,7 +199,7 @@ describe('Gemini Audio Integration Tests', () => {
         },
       }
 
-      ;(session as any).handleMessage(mockMessage)
+      ;(session as unknown as { handleMessage: (msg: unknown) => void }).handleMessage(mockMessage)
 
       expect(messageHandler).toHaveBeenCalledWith(mockMessage)
     })
@@ -222,7 +223,7 @@ describe('Gemini Audio Integration Tests', () => {
         ],
       })
 
-      const toolCallHandler = mock()
+      const toolCallHandler = vi.fn()
       session.onToolCall(toolCallHandler)
 
       // Simulate a tool call
@@ -234,7 +235,7 @@ describe('Gemini Audio Integration Tests', () => {
         },
       }
 
-      ;(session as any).handleMessage(mockToolCall)
+      ;(session as unknown as { handleMessage: (msg: unknown) => void }).handleMessage(mockToolCall)
 
       expect(toolCallHandler).toHaveBeenCalledWith(mockToolCall.data)
     })
@@ -245,7 +246,7 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      const errorHandler = mock()
+      const errorHandler = vi.fn()
       session.onError(errorHandler)
 
       // Simulate an error message
@@ -257,7 +258,7 @@ describe('Gemini Audio Integration Tests', () => {
         },
       }
 
-      ;(session as any).handleMessage(mockError)
+      ;(session as unknown as { handleMessage: (msg: unknown) => void }).handleMessage(mockError)
 
       expect(errorHandler).toHaveBeenCalledWith(mockError.data)
     })
@@ -270,25 +271,37 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      const messageHandler = mock()
-      const errorHandler = mock()
-      const audioHandler = mock()
+      const messageHandler = vi.fn()
+      const errorHandler = vi.fn()
+      const audioHandler = vi.fn()
 
       session.onMessage(messageHandler)
       session.onError(errorHandler)
       session.onAudioResponse(audioHandler)
 
-      expect((session as any).listeners.message).toContain(messageHandler)
-      expect((session as any).listeners.error).toContain(errorHandler)
-      expect((session as any).listeners.audioResponse).toContain(audioHandler)
+      expect(
+        (session as unknown as { listeners: Record<string, unknown[]> }).listeners.message
+      ).toContain(messageHandler)
+      expect(
+        (session as unknown as { listeners: Record<string, unknown[]> }).listeners.error
+      ).toContain(errorHandler)
+      expect(
+        (session as unknown as { listeners: Record<string, unknown[]> }).listeners.audioResponse
+      ).toContain(audioHandler)
 
       session.offMessage(messageHandler)
       session.offError(errorHandler)
       session.offAudioResponse(audioHandler)
 
-      expect((session as any).listeners.message).not.toContain(messageHandler)
-      expect((session as any).listeners.error).not.toContain(errorHandler)
-      expect((session as any).listeners.audioResponse).not.toContain(audioHandler)
+      expect(
+        (session as unknown as { listeners: Record<string, unknown[]> }).listeners.message
+      ).not.toContain(messageHandler)
+      expect(
+        (session as unknown as { listeners: Record<string, unknown[]> }).listeners.error
+      ).not.toContain(errorHandler)
+      expect(
+        (session as unknown as { listeners: Record<string, unknown[]> }).listeners.audioResponse
+      ).not.toContain(audioHandler)
     })
   })
 
@@ -311,11 +324,11 @@ describe('Gemini Audio Integration Tests', () => {
     })
 
     it('should handle API errors', async () => {
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: () => Promise.resolve({ error: 'Internal server error' }),
-      } as Response)
+      } as unknown as Response)
 
       const response = await fetch('/api/ai/gemini/session', {
         method: 'POST',
@@ -355,8 +368,8 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      ;(session as any).session = mockSessionAPI
-      ;(session as any).connected = true
+      ;(session as unknown as { session: unknown }).session = mockSessionAPI
+      ;(session as unknown as { connected: boolean }).connected = true
 
       await session.disconnect()
 

@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import React from 'react'
 import { Label } from '@/components/ui/label'
 
 // Mock Radix UI Label
-mock('@radix-ui/react-label', () => ({
+vi.mock('@radix-ui/react-label', () => ({
   Root: ({ children, className, ...props }: any) => (
     <label className={className} data-testid="label-root" {...props}>
       {children}
@@ -78,7 +79,7 @@ describe('Label', () => {
   })
 
   it('should handle onClick events', () => {
-    const handleClick = mock()
+    const handleClick = vi.fn()
     render(<Label onClick={handleClick}>Clickable Label</Label>)
 
     const label = screen.getByTestId('label-root')

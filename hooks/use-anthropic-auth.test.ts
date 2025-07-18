@@ -1,20 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 import { useAuthBase } from '@/hooks/use-auth-base'
 
 // Mock the base auth hook
-mock('./use-auth-base', () => ({
-  useAuthBase: mock(),
+vi.mock('./use-auth-base', () => ({
+  useAuthBase: vi.fn(),
 }))
 
 describe('useAnthropicAuth', () => {
   const mockBaseAuth = {
     authenticated: false,
     loading: true,
-    login: mock(),
-    logout: mock(),
-    refresh: mock(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
   }
 
   beforeEach(() => {

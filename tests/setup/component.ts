@@ -2,6 +2,9 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 
+// Use fake timers to prevent hanging
+vi.useFakeTimers()
+
 // Store original environment
 const originalEnv = { ...process.env }
 
@@ -9,14 +12,14 @@ const originalEnv = { ...process.env }
 afterEach(() => {
   // Cleanup React components
   cleanup()
-  
+
   // Restore environment variables
   process.env = { ...originalEnv }
-  
+
   // Clear timers and mocks
   vi.clearAllTimers()
   vi.clearAllMocks()
-  
+
   // Reset DOM state
   document.body.innerHTML = ''
   document.head.innerHTML = ''
@@ -27,7 +30,7 @@ beforeEach(() => {
   // Set test environment
   vi.stubEnv('NODE_ENV', 'test')
   vi.stubEnv('VITEST_POOL_ID', '1')
-  
+
   // Set up component test specific environment
   vi.stubEnv('NEXT_PUBLIC_API_URL', 'http://localhost:3000')
   vi.stubEnv('NEXT_PUBLIC_WS_URL', 'ws://localhost:3000')
@@ -63,39 +66,39 @@ vi.mock('next/navigation', () => ({
 // Mock Next.js Image with responsive behavior
 vi.mock('next/image', () => ({
   default: vi.fn(({ src, alt, width, height, priority, ...props }) => {
-    return (
-      <img
-        {...props}
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        loading={priority ? 'eager' : 'lazy'}
-        style={{
-          width: typeof width === 'number' ? `${width}px` : width,
-          height: typeof height === 'number' ? `${height}px` : height,
-          ...props.style,
-        }}
-      />
-    )
+    const imgProps = {
+      ...props,
+      src,
+      alt,
+      width,
+      height,
+      loading: priority ? 'eager' : 'lazy',
+      style: {
+        width: typeof width === 'number' ? `${width}px` : width,
+        height: typeof height === 'number' ? `${height}px` : height,
+        ...props.style,
+      },
+    }
+    // Return a mock element representation
+    return imgProps
   }),
 }))
 
 // Mock Next.js Link with proper behavior
 vi.mock('next/link', () => ({
-  default: vi.fn((href, children, ...props ) => 
-    return (
-      <a
-        {...props}
-        href={href}
-        onClick={(e) => {
-          if (props.onClick) props.onClick(e)
-          // Simulate navigation
-          window.dispatchEvent(new PopStateEvent('popstate'))
-        }
-      >children
-      </a>
-    )
+  default: vi.fn(({ href, children, onClick, ...props }) => {
+    const linkProps = {
+      ...props,
+      href,
+      onClick: (e: Event) => {
+        if (onClick) onClick(e)
+        // Simulate navigation
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      },
+      children,
+    }
+    // Return a mock element representation
+    return linkProps
   }),
 }))
 
@@ -103,19 +106,17 @@ vi.mock('next/link', () => ({
 global.IntersectionObserver = vi.fn().mockImplementation((callback) => {
   const observer = {
     observe: vi.fn((element) => {
-      // Simulate intersection for components
-      setTimeout(() => {
-        callback([
-          {
-            target: element,
-            isIntersecting: true,
-            intersectionRatio: 1,
-            boundingClientRect: element.getBoundingClientRect(),
-            rootBounds: { top: 0, left: 0, bottom: 1000, right: 1000 },
-            time: Date.now(),
-          },
-        ])
-      }, 100)
+      // Simulate intersection for components immediately to prevent hanging
+      callback([
+        {
+          target: element,
+          isIntersecting: true,
+          intersectionRatio: 1,
+          boundingClientRect: element.getBoundingClientRect(),
+          rootBounds: { top: 0, left: 0, bottom: 1000, right: 1000 },
+          time: Date.now(),
+        },
+      ])
     }),
     unobserve: vi.fn(),
     disconnect: vi.fn(),
@@ -129,18 +130,16 @@ global.IntersectionObserver = vi.fn().mockImplementation((callback) => {
 
 global.ResizeObserver = vi.fn().mockImplementation((callback) => ({
   observe: vi.fn((element) => {
-    // Simulate resize for components
-    setTimeout(() => {
-      callback([
-        {
-          target: element,
-          contentRect: { width: 1000, height: 600 },
-          borderBoxSize: [{ inlineSize: 1000, blockSize: 600 }],
-          contentBoxSize: [{ inlineSize: 1000, blockSize: 600 }],
-          devicePixelContentBoxSize: [{ inlineSize: 1000, blockSize: 600 }],
-        },
-      ])
-    }, 100)
+    // Simulate resize for components immediately to prevent hanging
+    callback([
+      {
+        target: element,
+        contentRect: { width: 1000, height: 600 },
+        borderBoxSize: [{ inlineSize: 1000, blockSize: 600 }],
+        contentBoxSize: [{ inlineSize: 1000, blockSize: 600 }],
+        devicePixelContentBoxSize: [{ inlineSize: 1000, blockSize: 600 }],
+      },
+    ])
   }),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
@@ -159,7 +158,7 @@ Object.defineProperty(window, 'matchMedia', {
       if (query.includes('prefers-color-scheme: dark')) return false
       return true
     })()
-    
+
     return {
       matches,
       media: query,
@@ -205,7 +204,7 @@ const localStorageMock = {
     )
   }),
   clear: vi.fn(() => {
-    Object.keys(localStorageData).forEach(key => delete localStorageData[key])
+    Object.keys(localStorageData).forEach((key) => delete localStorageData[key])
   }),
   length: 0,
   key: vi.fn(),
@@ -225,7 +224,7 @@ const sessionStorageMock = {
     delete sessionStorageData[key]
   }),
   clear: vi.fn(() => {
-    Object.keys(sessionStorageData).forEach(key => delete sessionStorageData[key])
+    Object.keys(sessionStorageData).forEach((key) => delete sessionStorageData[key])
   }),
   length: 0,
   key: vi.fn(),
@@ -244,7 +243,7 @@ global.fetch = vi.fn().mockImplementation(async (url, options) => {
     headers: new Headers(),
     url: url as string,
   }
-  
+
   // Handle component-specific API endpoints
   if (url.toString().includes('/api/auth/status')) {
     return Promise.resolve({
@@ -252,26 +251,26 @@ global.fetch = vi.fn().mockImplementation(async (url, options) => {
       json: async () => ({ authenticated: true, user: { id: 'test-user', name: 'Test User' } }),
     })
   }
-  
+
   if (url.toString().includes('/api/tasks/')) {
     return Promise.resolve({
       ...response,
-      json: async () => ({ 
-        id: 'test-task', 
+      json: async () => ({
+        id: 'test-task',
         status: 'pending',
         messages: [],
         createdAt: new Date().toISOString(),
       }),
     })
   }
-  
+
   if (url.toString().includes('/api/inngest/')) {
     return Promise.resolve({
       ...response,
       json: async () => ({ eventId: 'test-event' }),
     })
   }
-  
+
   return Promise.resolve(response)
 })
 
@@ -304,7 +303,7 @@ Object.defineProperty(global, 'crypto', {
 global.WebSocket = vi.fn().mockImplementation((url) => {
   const ws = {
     url,
-    readyState: 1,
+    readyState: 1, // Start as open to prevent hanging
     CONNECTING: 0,
     OPEN: 1,
     CLOSING: 2,
@@ -312,12 +311,10 @@ global.WebSocket = vi.fn().mockImplementation((url) => {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     send: vi.fn((data) => {
-      // Echo messages back for component testing
-      setTimeout(() => {
-        if (ws.onmessage) {
-          ws.onmessage({ data: JSON.stringify({ echo: data }) })
-        }
-      }, 100)
+      // Echo messages back immediately for component testing
+      if (ws.onmessage) {
+        ws.onmessage({ data: JSON.stringify({ echo: data }) })
+      }
     }),
     close: vi.fn(() => {
       ws.readyState = 3
@@ -328,13 +325,10 @@ global.WebSocket = vi.fn().mockImplementation((url) => {
     onerror: null,
     onclose: null,
   }
-  
-  // Simulate connection
-  setTimeout(() => {
-    ws.readyState = 1
-    if (ws.onopen) ws.onopen(new Event('open'))
-  }, 100)
-  
+
+  // Simulate connection immediately
+  if (ws.onopen) ws.onopen(new Event('open'))
+
   return ws
 })
 
@@ -372,11 +366,11 @@ global.URL = class URL {
 
 global.URLSearchParams = class URLSearchParams {
   private params: Record<string, string> = {}
-  
+
   constructor(init?: string | URLSearchParams | Record<string, string>) {
     if (typeof init === 'string') {
       // Parse query string
-      init.split('&').forEach(param => {
+      init.split('&').forEach((param) => {
         const [key, value] = param.split('=')
         if (key) this.params[key] = value || ''
       })
@@ -386,23 +380,23 @@ global.URLSearchParams = class URLSearchParams {
       this.params = { ...init }
     }
   }
-  
+
   get(key: string) {
     return this.params[key] || null
   }
-  
+
   set(key: string, value: string) {
     this.params[key] = value
   }
-  
+
   has(key: string) {
     return key in this.params
   }
-  
+
   delete(key: string) {
     delete this.params[key]
   }
-  
+
   toString() {
     return Object.entries(this.params)
       .map(([key, value]) => `${key}=${value}`)
@@ -419,21 +413,20 @@ beforeEach(() => {
     // Suppress React component warnings in tests
     if (
       typeof message === 'string' &&
-      (message.includes('Warning:') || 
-       message.includes('ReactDOM.render') ||
-       message.includes('act(...)'))
+      (message.includes('Warning:') ||
+        message.includes('ReactDOM.render') ||
+        message.includes('act(...)'))
     ) {
       return
     }
     originalError(message)
   })
-  
+
   console.warn = vi.fn((message) => {
     // Suppress component warnings
     if (
       typeof message === 'string' &&
-      (message.includes('Warning:') ||
-       message.includes('deprecated'))
+      (message.includes('Warning:') || message.includes('deprecated'))
     ) {
       return
     }

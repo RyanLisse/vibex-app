@@ -1,9 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { AuthCardBase } from '@/components/auth/auth-card-base'
 
 // Mock date-fns
-mock('date-fns', () => ({
-  formatDistanceToNow: mock((_date, options) => {
+vi.mock('date-fns', () => ({
+  formatDistanceToNow: vi.fn((_date, options) => {
     if (options?.addSuffix) {
       return 'in 30 minutes'
     }
@@ -12,7 +13,7 @@ mock('date-fns', () => ({
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Shield: ({ className, ...props }: any) => (
     <svg className={className} data-testid="shield-icon" {...props} />
   ),
@@ -31,7 +32,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', () => ({
   Card: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="card" {...props}>
       {children}
@@ -59,7 +60,7 @@ mock('@/components/ui/card', () => ({
   ),
 }))
 
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -73,7 +74,7 @@ mock('@/components/ui/button', () => ({
   ),
 }))
 
-mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, ...props }: any) => (
     <span data-testid="badge" data-variant={variant} {...props}>
       {children}
@@ -82,18 +83,18 @@ mock('@/components/ui/badge', () => ({
 }))
 
 // Mock window.location.reload
-const mockReload = mock()
+const mockReload = vi.fn()
 Object.defineProperty(window, 'location', {
   value: { reload: mockReload },
   writable: true,
 })
 
 describe('AuthCardBase', () => {
-  const mockOnLogout = mock()
-  const mockOnRetry = mock()
+  const mockOnLogout = vi.fn()
+  const mockOnRetry = vi.fn()
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render loading state', () => {

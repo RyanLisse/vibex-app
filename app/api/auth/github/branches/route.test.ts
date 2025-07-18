@@ -1,28 +1,29 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/github/branches/route'
 
 // Mock GitHub auth utilities
-mock('@/lib/github', () => ({
-  GitHubAuth: mock(() => ({
-    fetchBranches: mock(),
+vi.mock('@/lib/github', () => ({
+  GitHubAuth: vi.fn(() => ({
+    fetchBranches: vi.fn(),
   })),
 }))
 
 // Mock NextResponse
-mock('next/server', () => ({
-  NextRequest: mock(),
+vi.mock('next/server', () => ({
+  NextRequest: vi.fn(),
   NextResponse: {
-    json: mock(),
-    redirect: mock(),
+    json: vi.fn(),
+    redirect: vi.fn(),
   },
 }))
 
 // Define mock functions for the test
-const mockGetGitHubAccessToken = mock()
-const mockFetchGitHubBranches = mock()
+const mockGetGitHubAccessToken = vi.fn()
+const mockFetchGitHubBranches = vi.fn()
 
-const mockNextResponse = ((await import('next/server' as any)).NextResponse)
+const mockNextResponse = (await import('next/server' as any)).NextResponse
 
 describe('GET /api/auth/github/branches', () => {
   beforeEach(() => {

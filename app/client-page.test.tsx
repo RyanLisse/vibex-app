@@ -1,16 +1,17 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import ClientPage from '@/app/client-page'
 
 // Mock the imported components
-mock('@/components/navigation/navbar', () => ({
+vi.mock('@/components/navigation/navbar', () => ({
   default: () => <div data-testid="navbar">Mock Navbar</div>,
 }))
 
-mock('@/components/task-list', () => ({
+vi.mock('@/components/task-list', () => ({
   default: () => <div data-testid="task-list">Mock Task List</div>,
 }))
 
-mock('@/components/forms/new-task-form', () => ({
+vi.mock('@/components/forms/new-task-form', () => ({
   default: () => <div data-testid="new-task-form">Mock New Task Form</div>,
 }))
 

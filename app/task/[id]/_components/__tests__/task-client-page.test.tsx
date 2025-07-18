@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import { useAutoScroll } from '@/app/task/[id]/_hooks/use-auto-scroll'
 import { useTaskData } from '@/app/task/[id]/_hooks/use-task-data'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
@@ -6,25 +7,25 @@ import TaskClientPage from '@/app/task/[id]/client-page'
 import { useTaskStore } from '@/stores/tasks'
 
 // Mock the stores and hooks
-mock('@/stores/tasks')
-mock('../../_hooks/use-task-subscription')
-mock('../../_hooks/use-auto-scroll')
-mock('../../_hooks/use-task-data')
-mock('@/components/navigation/task-navbar', () => ({
+vi.mock('@/stores/tasks')
+vi.mock('../../_hooks/use-task-subscription')
+vi.mock('../../_hooks/use-auto-scroll')
+vi.mock('../../_hooks/use-task-data')
+vi.mock('@/components/navigation/task-navbar', () => ({
   default: ({ id }: { id: string }) => <div data-testid="task-navbar">TaskNavbar-{id}</div>,
 }))
-mock('../../_components/message-input', () => ({
+vi.mock('../../_components/message-input', () => ({
   default: ({ task }: { task: any }) => (
     <div data-testid="message-input">MessageInput-{task?.id}</div>
   ),
 }))
-mock('../../_components/chat-messages-panel', () => ({
+vi.mock('../../_components/chat-messages-panel', () => ({
   ChatMessagesPanel: () => <div data-testid="chat-messages-panel">ChatMessagesPanel</div>,
 }))
-mock('../../_components/shell-output-panel', () => ({
+vi.mock('../../_components/shell-output-panel', () => ({
   ShellOutputPanel: () => <div data-testid="shell-output-panel">ShellOutputPanel</div>,
 }))
-mock('../../_components/task-loading-state', () => ({
+vi.mock('../../_components/task-loading-state', () => ({
   TaskLoadingState: () => <div data-testid="task-loading-state">TaskLoadingState</div>,
 }))
 
@@ -69,8 +70,8 @@ const mockTask = {
 const mockStreamingMessages = new Map()
 
 const mockUseTaskStore = {
-  getTaskById: mock(),
-  updateTask: mock(),
+  getTaskById: vi.fn(),
+  updateTask: vi.fn(),
 }
 
 const mockUseTaskSubscription = {

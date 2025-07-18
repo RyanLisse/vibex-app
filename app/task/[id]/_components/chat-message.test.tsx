@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { ChatMessage } from '@/app/task/[id]/_components/chat-message'
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Bot: ({ className, ...props }: any) => (
     <svg className={className} data-testid="bot-icon" {...props} />
   ),
@@ -12,7 +13,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock the Markdown component
-mock('@/components/markdown', () => ({
+vi.mock('@/components/markdown', () => ({
   Markdown: ({ children, repoUrl, branch }: any) => (
     <div data-branch={branch} data-repo-url={repoUrl} data-testid="markdown">
       {children}
@@ -21,14 +22,14 @@ mock('@/components/markdown', () => ({
 }))
 
 // Mock the StreamingIndicator component
-mock('@/components/streaming-indicator', () => ({
+vi.mock('@/components/streaming-indicator', () => ({
   StreamingIndicator: ({ size, variant }: any) => (
     <div data-size={size} data-testid="streaming-indicator" data-variant={variant} />
   ),
 }))
 
 // Mock the utils
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...args: any[]) => args.filter(Boolean).join(' '),
 }))
 

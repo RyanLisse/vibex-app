@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { ClaudeAuthClient } from '@/lib/auth/claude-auth'
 import { useClaudeAuth } from '@/src/hooks/useClaudeAuth'
 
 // Mock ClaudeAuthClient
-mock('@/lib/auth/claude-auth')
+vi.mock('@/lib/auth/claude-auth')
 
 // Mock window.location
 const mockLocation = {
@@ -20,10 +21,10 @@ Object.defineProperty(window, 'location', {
 
 // Mock sessionStorage
 const mockSessionStorage = {
-  getItem: mock(),
-  setItem: mock(),
-  removeItem: mock(),
-  clear: mock(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
 
 Object.defineProperty(window, 'sessionStorage', {
@@ -43,9 +44,9 @@ describe('useClaudeAuth', () => {
   beforeEach(() => {
     mock.restore()
     mockAuthClient = {
-      getAuthorizationUrl: mock(),
-      exchangeCodeForToken: mock(),
-      refreshToken: mock(),
+      getAuthorizationUrl: vi.fn(),
+      exchangeCodeForToken: vi.fn(),
+      refreshToken: vi.fn(),
     }
     MockedClaudeAuthClient.mockImplementation(() => mockAuthClient)
 
@@ -80,7 +81,7 @@ describe('useClaudeAuth', () => {
 
   describe('OAuth callback handling', () => {
     it('should handle successful callback', async () => {
-      const onSuccess = mock()
+      const onSuccess = vi.fn()
       mockLocation.href = 'https://app.example.com/callback?code=auth-code&state=test-state'
       mockLocation.search = '?code=auth-code&state=test-state'
 
@@ -121,7 +122,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle error in callback URL', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       mockLocation.href =
         'https://app.example.com/callback?error=access_denied&error_description=User+denied+access'
       mockLocation.search = '?error=access_denied&error_description=User+denied+access'
@@ -159,7 +160,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle invalid state', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       mockLocation.href = 'https://app.example.com/callback?code=auth-code&state=wrong-state'
       mockLocation.search = '?code=auth-code&state=wrong-state'
 
@@ -262,7 +263,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle errors during login start', () => {
-      const onError = mock()
+      const onError = vi.fn()
       mockAuthClient.getAuthorizationUrl.mockImplementation(() => {
         throw new Error('Failed to generate URL')
       })
@@ -344,7 +345,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle refresh token errors', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       mockAuthClient.refreshToken.mockRejectedValue(new Error('Refresh failed'))
 
       const { result } = renderHook(() =>
@@ -444,7 +445,7 @@ describe('useClaudeAuth', () => {
 
   describe('cleanup', () => {
     it('should not process callback after unmount', async () => {
-      const onSuccess = mock()
+      const onSuccess = vi.fn()
       mockLocation.href = 'https://app.example.com/callback?code=auth-code&state=test-state'
       mockLocation.search = '?code=auth-code&state=test-state'
 

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import type { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import {
@@ -8,8 +9,8 @@ import {
 } from '@/src/hooks/useZodForm/validation'
 
 // Mock react-hook-form
-mock('react-hook-form', () => ({
-  useForm: mock(),
+vi.mock('react-hook-form', () => ({
+  useForm: vi.fn(),
 }))
 
 describe('useZodForm validation utilities', () => {
@@ -154,9 +155,9 @@ describe('useZodForm validation utilities', () => {
 
     beforeEach(() => {
       mockForm = {
-        getValues: mock(),
-        clearErrors: mock(),
-        setError: mock(),
+        getValues: vi.fn(),
+        clearErrors: vi.fn(),
+        setError: vi.fn(),
       } as any
     })
 
@@ -231,8 +232,8 @@ describe('useZodForm validation utilities', () => {
 
     beforeEach(() => {
       mockForm = {
-        getValues: mock(),
-        setError: mock(),
+        getValues: vi.fn(),
+        setError: vi.fn(),
       } as any
 
       const schema = z.object({

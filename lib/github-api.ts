@@ -31,10 +31,13 @@ export class GitHubAPI {
   }
 
   async getRepositories(
-    options: { sort?: string; per_page?: number } = {}
+    options: { sort?: string; per_page?: number; page?: number } = {}
   ): Promise<GitHubRepository[]> {
-    const { sort = 'updated', per_page = 30 } = options
-    const url = `https://api.github.com/user/repos?sort=${sort}&per_page=${per_page}`
+    const { sort = 'updated', per_page = 30, page } = options
+    let url = `https://api.github.com/user/repos?sort=${sort}&per_page=${per_page}`
+    if (page) {
+      url += `&page=${page}`
+    }
     const response = await this.makeRequest(url)
     return response.json()
   }
@@ -126,5 +129,7 @@ export async function revokeToken(token: string): Promise<void> {
   // This is a placeholder implementation
   // In practice, you would revoke the token through the GitHub API
   // or by deleting the associated OAuth app authorization
-  console.warn('GitHub token revocation not implemented - token should be revoked through GitHub settings')
+  console.warn(
+    'GitHub token revocation not implemented - token should be revoked through GitHub settings'
+  )
 }

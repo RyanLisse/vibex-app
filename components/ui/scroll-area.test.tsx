@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import React from 'react'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 // Mock Radix UI ScrollArea components
-mock('@radix-ui/react-scroll-area', () => ({
+vi.mock('@radix-ui/react-scroll-area', () => ({
   Root: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="scroll-area-root-primitive" {...props}>
       {children}

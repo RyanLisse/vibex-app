@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import Home from '@/app/page'
 
 // Mock the ClientPage component
-mock('./client-page', () => ({
+vi.mock('./client-page', () => ({
   default: () => <div data-testid="client-page">Mock Client Page</div>,
 }))
 

@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { OpenAIAuthCard } from '@/components/auth/openai-auth-card'
 
 // Mock the openai auth hook
-const mockUseOpenAIAuth = mock()
-mock('@/hooks/use-openai-auth', () => ({
+const mockUseOpenAIAuth = vi.fn()
+vi.mock('@/hooks/use-openai-auth', () => ({
   useOpenAIAuth: () => mockUseOpenAIAuth(),
 }))
 
 // Mock the auth card base component
-mock('./auth-card-base', () => ({
+vi.mock('./auth-card-base', () => ({
   AuthCardBase: ({
     title,
     description,
@@ -55,7 +56,7 @@ mock('./auth-card-base', () => ({
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
     <svg className={className} data-testid="login-icon" {...props} />
   ),
@@ -65,7 +66,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -80,8 +81,8 @@ mock('@/components/ui/button', () => ({
 }))
 
 describe('OpenAIAuthCard', () => {
-  const mockLogin = mock()
-  const mockLogout = mock()
+  const mockLogin = vi.fn()
+  const mockLogout = vi.fn()
 
   beforeEach(() => {
     mock.restore()

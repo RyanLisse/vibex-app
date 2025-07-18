@@ -13,6 +13,8 @@ export async function register() {
 
   // Optional: Set global telemetry attributes
   if (typeof globalThis !== 'undefined') {
-    ;(globalThis as typeof globalThis & { __OTEL_CONFIG__?: typeof telemetryConfig }).__OTEL_CONFIG__ = telemetryConfig
+    ;(
+      globalThis as typeof globalThis & { __OTEL_CONFIG__?: typeof telemetryConfig }
+    ).__OTEL_CONFIG__ = telemetryConfig
   }
 }

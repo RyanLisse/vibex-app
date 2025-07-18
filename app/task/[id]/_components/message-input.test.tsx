@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { createTaskAction } from '@/app/actions/inngest'
 import MessageInput from '@/app/task/[id]/_components/message-input'
@@ -6,18 +7,18 @@ import type { Task } from '@/stores/tasks'
 import { useTaskStore } from '@/stores/tasks'
 
 // Mock the actions and store
-mock('@/app/actions/inngest', () => ({
-  createTaskAction: mock(),
+vi.mock('@/app/actions/inngest', () => ({
+  createTaskAction: vi.fn(),
 }))
 
-mock('@/stores/tasks', () => ({
-  useTaskStore: mock(),
+vi.mock('@/stores/tasks', () => ({
+  useTaskStore: vi.fn(),
 }))
 
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: mock(() => 'test-uuid-123'),
+    randomUUID: vi.fn(() => 'test-uuid-123'),
   },
 })
 
@@ -38,7 +39,7 @@ describe('MessageInput', () => {
     hasChanges: false,
   }
 
-  const mockUpdateTask = mock()
+  const mockUpdateTask = vi.fn()
   const user = userEvent.setup()
 
   beforeEach(() => {
@@ -46,21 +47,21 @@ describe('MessageInput', () => {
     mocked(useTaskStore).mockReturnValue({
       updateTask: mockUpdateTask,
       tasks: [mockTask],
-      addTask: mock(),
-      setTasks: mock(),
-      removeTask: mock(),
-      archiveTask: mock(),
-      unarchiveTask: mock(),
-      pauseTask: mock(),
-      resumeTask: mock(),
-      cancelTask: mock(),
-      clear: mock(),
-      getTasks: mock(),
-      getActiveTasks: mock(),
-      getArchivedTasks: mock(),
-      getTaskById: mock(),
-      getTasksByStatus: mock(),
-      getTasksBySessionId: mock(),
+      addTask: vi.fn(),
+      setTasks: vi.fn(),
+      removeTask: vi.fn(),
+      archiveTask: vi.fn(),
+      unarchiveTask: vi.fn(),
+      pauseTask: vi.fn(),
+      resumeTask: vi.fn(),
+      cancelTask: vi.fn(),
+      clear: vi.fn(),
+      getTasks: vi.fn(),
+      getActiveTasks: vi.fn(),
+      getArchivedTasks: vi.fn(),
+      getTaskById: vi.fn(),
+      getTasksByStatus: vi.fn(),
+      getTasksBySessionId: vi.fn(),
     })
     mocked(createTaskAction).mockResolvedValue()
   })

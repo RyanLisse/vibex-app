@@ -1,28 +1,29 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 // Mock the POST function since it doesn't exist in the route
-const POST = mock()
+const POST = vi.fn()
 
 // Mock the authentication utilities
-mock('@/lib/auth/openai-codex', () => ({
-  generateAuthUrl: mock(),
-  generateCodeChallenge: mock(),
-  generateCodeVerifier: mock(),
-  generateState: mock(),
+vi.mock('@/lib/auth/openai-codex', () => ({
+  generateAuthUrl: vi.fn(),
+  generateCodeChallenge: vi.fn(),
+  generateCodeVerifier: vi.fn(),
+  generateState: vi.fn(),
 }))
 
 // Mock NextResponse
-mock('next/server', () => ({
-  NextRequest: mock(),
+vi.mock('next/server', () => ({
+  NextRequest: vi.fn(),
   NextResponse: {
-    json: mock(),
-    redirect: mock(),
+    json: vi.fn(),
+    redirect: vi.fn(),
   },
 }))
 
 // Mock environment variables
-mock('@/lib/env', () => ({
+vi.mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_REDIRECT_URI: 'https://app.example.com/auth/openai/callback',
@@ -38,12 +39,12 @@ import {
   generateState,
 } from '@/lib/auth/openai-codex'
 
-const mockGenerateAuthUrl = (generateAuthUrl as any)
-const mockGenerateCodeChallenge = (generateCodeChallenge as any)
-const mockGenerateCodeVerifier = (generateCodeVerifier as any)
-const mockGenerateState = (generateState as any)
+const mockGenerateAuthUrl = generateAuthUrl as any
+const mockGenerateCodeChallenge = generateCodeChallenge as any
+const mockGenerateCodeVerifier = generateCodeVerifier as any
+const mockGenerateState = generateState as any
 
-const mockNextResponse = ((await import('next/server' as any)).NextResponse)
+const mockNextResponse = (await import('next/server' as any)).NextResponse
 
 describe('POST /api/auth/openai/login', () => {
   beforeEach(() => {

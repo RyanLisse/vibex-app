@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useFileUpload } from '@/hooks/use-file-upload'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('useFileUpload', () => {
   beforeEach(() => {
@@ -29,7 +30,7 @@ describe('useFileUpload', () => {
         size: 1024,
       }),
     }
-    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -72,9 +73,9 @@ describe('useFileUpload', () => {
       },
     ]
 
-    ;(fetch as any)
-      .mockResolvedValueOnce(mockResponses[0] as any)
-      .mockResolvedValueOnce(mockResponses[1] as any)
+    ;(fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce(mockResponses[0] as unknown)
+      .mockResolvedValueOnce(mockResponses[1] as unknown)
 
     const { result } = renderHook(() => useFileUpload())
     const files = [
@@ -115,7 +116,7 @@ describe('useFileUpload', () => {
   })
 
   it('should handle upload errors', async () => {
-    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -135,7 +136,7 @@ describe('useFileUpload', () => {
       status: 413,
       statusText: 'Payload Too Large',
     }
-    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -211,7 +212,7 @@ describe('useFileUpload', () => {
         size: 1024,
       }),
     }
-    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -251,9 +252,9 @@ describe('useFileUpload', () => {
       },
     ]
 
-    ;(fetch as any)
-      .mockResolvedValueOnce(mockResponses[0] as any)
-      .mockResolvedValueOnce(mockResponses[1] as any)
+    ;(fetch as unknown as jest.Mock)
+      .mockResolvedValueOnce(mockResponses[0] as unknown)
+      .mockResolvedValueOnce(mockResponses[1] as unknown)
 
     const { result } = renderHook(() => useFileUpload())
     const files = [
@@ -285,7 +286,7 @@ describe('useFileUpload', () => {
         size: 2048,
       }),
     }
-    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
 
@@ -310,7 +311,7 @@ describe('useFileUpload', () => {
         url: 'https://example.com/test.pdf',
       }),
     }
-    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() =>
       useFileUpload({
@@ -343,7 +344,7 @@ describe('useFileUpload', () => {
       ok: true,
       json: async () => ({ id: 'file-123' }),
     }
-    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() =>
       useFileUpload({
@@ -371,7 +372,7 @@ describe('useFileUpload', () => {
     }))
 
     mockResponses.forEach((response) => {
-      ;(fetch as any).mockResolvedValueOnce(response as any)
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(response as any)
     })
 
     const { result } = renderHook(() =>
@@ -393,7 +394,7 @@ describe('useFileUpload', () => {
   })
 
   it('should reset error state', async () => {
-    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' })
@@ -412,7 +413,7 @@ describe('useFileUpload', () => {
   })
 
   it('should handle upload retry', async () => {
-    ;(fetch as any)
+    ;(fetch as unknown as jest.Mock)
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({
         ok: true,

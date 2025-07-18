@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { CodeComponent, Markdown } from '@/components/markdown'
 
 // Mock next-themes
-const mockUseTheme = mock()
-mock('next-themes', () => ({
+const mockUseTheme = vi.fn()
+vi.mock('next-themes', () => ({
   useTheme: () => mockUseTheme(),
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   CopyIcon: ({ className, ...props }: any) => (
     <svg className={className} data-testid="copy-icon" {...props} />
   ),
@@ -18,7 +19,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock react-syntax-highlighter
-mock('react-syntax-highlighter', () => ({
+vi.mock('react-syntax-highlighter', () => ({
   Prism: ({ children, language, style, ...props }: any) => (
     <pre data-language={language} data-testid="syntax-highlighter" {...props}>
       {children}
@@ -26,13 +27,13 @@ mock('react-syntax-highlighter', () => ({
   ),
 }))
 
-mock('react-syntax-highlighter/dist/cjs/styles/prism', () => ({
+vi.mock('react-syntax-highlighter/dist/cjs/styles/prism', () => ({
   oneDark: { background: '#1e1e1e' },
   oneLight: { background: '#fafafa' },
 }))
 
 // Mock UI components
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
       className={className}
@@ -47,13 +48,13 @@ mock('@/components/ui/button', () => ({
   ),
 }))
 
-mock('@/components/ui/separator', () => ({
+vi.mock('@/components/ui/separator', () => ({
   Separator: ({ className, ...props }: any) => (
     <hr className={className} data-testid="separator" {...props} />
   ),
 }))
 
-mock('@/components/ui/table', () => ({
+vi.mock('@/components/ui/table', () => ({
   Table: ({ children, className, ...props }: any) => (
     <table className={className} data-testid="table" {...props}>
       {children}
@@ -91,7 +92,7 @@ mock('@/components/ui/table', () => ({
   ),
 }))
 
-mock('@/components/ui/scroll-area', () => ({
+vi.mock('@/components/ui/scroll-area', () => ({
   ScrollArea: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="scroll-area" {...props}>
       {children}
@@ -102,7 +103,7 @@ mock('@/components/ui/scroll-area', () => ({
   ),
 }))
 
-mock('next/link', () => ({
+vi.mock('next/link', () => ({
   default: ({ children, href, className, ...props }: any) => (
     <a className={className} data-testid="next-link" href={href} {...props}>
       {children}
@@ -111,7 +112,7 @@ mock('next/link', () => ({
 }))
 
 // Mock navigator.clipboard
-const mockWriteText = mock()
+const mockWriteText = vi.fn()
 Object.assign(navigator, {
   clipboard: {
     writeText: mockWriteText,

@@ -1,25 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/anthropic/callback/route'
 
 // Mock the authentication utilities
-mock('@/lib/auth/anthropic', () => ({
+vi.mock('@/lib/auth/anthropic', () => ({
   AuthAnthropic: {
-    exchange: mock(),
+    exchange: vi.fn(),
   },
 }))
 
 // Mock NextResponse
-mock('next/server', () => ({
-  NextRequest: mock(),
+vi.mock('next/server', () => ({
+  NextRequest: vi.fn(),
   NextResponse: {
-    json: mock(),
-    redirect: mock(),
+    json: vi.fn(),
+    redirect: vi.fn(),
   },
 }))
 
 // Mock environment variables
-mock('@/lib/env', () => ({
+vi.mock('@/lib/env', () => ({
   env: {
     ANTHROPIC_CLIENT_ID: 'test-client-id',
     ANTHROPIC_CLIENT_SECRET: 'test-client-secret',
@@ -30,12 +31,12 @@ mock('@/lib/env', () => ({
 }))
 
 // Define mock functions for the test
-const mockExchangeCodeForToken = mock()
-const mockValidateOAuthState = mock()
-const mockSanitizeRedirectUrl = mock()
-const mockHandleAuthError = mock()
+const mockExchangeCodeForToken = vi.fn()
+const mockValidateOAuthState = vi.fn()
+const mockSanitizeRedirectUrl = vi.fn()
+const mockHandleAuthError = vi.fn()
 
-const mockNextResponse = ((await import('next/server' as any)).NextResponse)
+const mockNextResponse = (await import('next/server' as any)).NextResponse
 
 describe('GET /api/auth/anthropic/callback', () => {
   beforeEach(() => {

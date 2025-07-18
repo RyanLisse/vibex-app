@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, test } from "bun:test"
+import { vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { z } from 'zod'
 import {
@@ -9,10 +10,10 @@ import {
 } from './useZodForm'
 
 // Mock react-hook-form
-mock('react-hook-form', () => ({
-  useForm: mock(() => ({
-    register: mock(),
-    handleSubmit: mock((fn) => fn),
+vi.mock('react-hook-form', () => ({
+  useForm: vi.fn(() => ({
+    register: vi.fn(),
+    handleSubmit: vi.fn((fn) => fn),
     formState: {
       errors: {},
       isSubmitting: false,
@@ -21,28 +22,28 @@ mock('react-hook-form', () => ({
       touchedFields: {},
       defaultValues: {},
     },
-    getValues: mock(() => ({})),
-    setValue: mock(),
-    setError: mock(),
-    clearErrors: mock(),
-    reset: mock(),
-    watch: mock(() => ({ unsubscribe: mock() })),
-    trigger: mock(() => Promise.resolve(true)),
+    getValues: vi.fn(() => ({})),
+    setValue: vi.fn(),
+    setError: vi.fn(),
+    clearErrors: vi.fn(),
+    reset: vi.fn(),
+    watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+    trigger: vi.fn(() => Promise.resolve(true)),
     control: {},
   })),
 }))
 
 // Mock @hookform/resolvers/zod
-mock('@hookform/resolvers/zod', () => ({
-  zodResolver: mock(() => mock()),
+vi.mock('@hookform/resolvers/zod', () => ({
+  zodResolver: vi.fn(() => vi.fn()),
 }))
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: mock(),
-  setItem: mock(),
-  removeItem: mock(),
-  clear: mock(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
 
 Object.defineProperty(window, 'localStorage', {
@@ -119,7 +120,7 @@ describe('useZodForm', () => {
 
   describe('form submission', () => {
     it('should handle successful submission', async () => {
-      const onSubmit = mock()
+      const onSubmit = vi.fn()
       const formData = {
         name: 'John Doe',
         email: 'john@example.com',
@@ -127,9 +128,9 @@ describe('useZodForm', () => {
       }
 
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -138,15 +139,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => formData),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        getValues: vi.fn(() => formData),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() =>
         useZodForm({
@@ -163,12 +164,12 @@ describe('useZodForm', () => {
     })
 
     it('should handle submission errors', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       const { useForm } = await import('react-hook-form')
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {
             name: { message: 'Name is required' },
@@ -179,15 +180,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({ name: '', email: '', age: 0 })),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(false)),
+        getValues: vi.fn(() => ({ name: '', email: '', age: 0 })),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(false)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() =>
         useZodForm({
@@ -204,7 +205,7 @@ describe('useZodForm', () => {
     })
 
     it('should prevent double submission', async () => {
-      const onSubmit = mock()
+      const onSubmit = vi.fn()
       const { result } = renderHook(() =>
         useZodForm({
           ...defaultOptions,
@@ -227,16 +228,16 @@ describe('useZodForm', () => {
     })
 
     it('should transform data before submission', async () => {
-      const onSubmit = mock()
-      const transformBeforeSubmit = mock((data) => ({
+      const onSubmit = vi.fn()
+      const transformBeforeSubmit = vi.fn((data) => ({
         ...data,
         name: data.name.toUpperCase(),
       }))
 
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -245,19 +246,19 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({
+        getValues: vi.fn(() => ({
           name: 'john doe',
           email: 'john@example.com',
           age: 25,
         })),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() =>
         useZodForm({
@@ -283,11 +284,11 @@ describe('useZodForm', () => {
   describe('form reset', () => {
     it('should reset to initial values', () => {
       const { useForm } = await import('react-hook-form')
-      const mockReset = mock()
+      const mockReset = vi.fn()
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -296,15 +297,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
         reset: mockReset,
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -317,11 +318,11 @@ describe('useZodForm', () => {
 
     it('should reset with new values', () => {
       const { useForm } = await import('react-hook-form')
-      const mockReset = mock()
+      const mockReset = vi.fn()
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -330,15 +331,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
         reset: mockReset,
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -356,17 +357,17 @@ describe('useZodForm', () => {
     })
 
     it('should apply transformOnLoad when resetting', () => {
-      const transformOnLoad = mock((data) => ({
+      const transformOnLoad = vi.fn((data) => ({
         ...data,
         name: data.name?.trim(),
       }))
 
       const { useForm } = await import('react-hook-form')
-      const mockReset = mock()
+      const mockReset = vi.fn()
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -375,15 +376,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
         reset: mockReset,
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() =>
         useZodForm({
@@ -448,9 +449,9 @@ describe('useZodForm', () => {
   describe('field errors', () => {
     it('should get field error', () => {
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {
             name: { message: 'Name is required' },
@@ -461,15 +462,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -478,9 +479,9 @@ describe('useZodForm', () => {
 
     it('should check if field has error', () => {
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {
             name: { message: 'Name is required' },
@@ -491,15 +492,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -509,11 +510,11 @@ describe('useZodForm', () => {
 
     it('should set field error', () => {
       const { useForm } = await import('react-hook-form')
-      const mockSetError = mock()
+      const mockSetError = vi.fn()
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -522,15 +523,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
         setError: mockSetError,
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -543,11 +544,11 @@ describe('useZodForm', () => {
 
     it('should clear field error', () => {
       const { useForm } = await import('react-hook-form')
-      const mockClearErrors = mock()
+      const mockClearErrors = vi.fn()
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -556,15 +557,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
         clearErrors: mockClearErrors,
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -585,9 +586,9 @@ describe('useZodForm', () => {
       }
 
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -596,15 +597,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => formData),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        getValues: vi.fn(() => formData),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -613,9 +614,9 @@ describe('useZodForm', () => {
 
     it('should get form errors', () => {
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {
             name: { message: 'Name is required' },
@@ -627,15 +628,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        getValues: vi.fn(() => ({})),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -647,9 +648,9 @@ describe('useZodForm', () => {
 
     it('should get dirty fields', () => {
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -661,19 +662,19 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({
+        getValues: vi.fn(() => ({
           name: 'John Doe',
           email: 'john@example.com',
           age: 25,
         })),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -685,9 +686,9 @@ describe('useZodForm', () => {
 
     it('should get changed fields', () => {
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -702,19 +703,19 @@ describe('useZodForm', () => {
             age: 20,
           },
         },
-        getValues: mock(() => ({
+        getValues: vi.fn(() => ({
           name: 'Changed Name',
           email: 'initial@example.com',
           age: 20,
         })),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() =>
         useZodForm({
@@ -767,9 +768,9 @@ describe('useZodForm', () => {
   describe('storage integration', () => {
     it('should save form data to storage', () => {
       const { useForm } = await import('react-hook-form')
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -778,19 +779,19 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({
+        getValues: vi.fn(() => ({
           name: 'John Doe',
           email: 'john@example.com',
           age: 25,
         })),
-        setValue: mock(),
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        setValue: vi.fn(),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -817,11 +818,11 @@ describe('useZodForm', () => {
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(storedData))
 
       const { useForm } = await import('react-hook-form')
-      const mockSetValue = mock()
+      const mockSetValue = vi.fn()
       
-      ;(useForm as any).mockReturnValue({
-        register: mock(),
-        handleSubmit: mock((fn) => fn),
+      ;(useForm as unknown as jest.Mock).mockReturnValue({
+        register: vi.fn(),
+        handleSubmit: vi.fn((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -830,15 +831,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: mock(() => ({})),
+        getValues: vi.fn(() => ({})),
         setValue: mockSetValue,
-        setError: mock(),
-        clearErrors: mock(),
-        reset: mock(),
-        watch: mock(() => ({ unsubscribe: mock() })),
-        trigger: mock(() => Promise.resolve(true)),
+        setError: vi.fn(),
+        clearErrors: vi.fn(),
+        reset: vi.fn(),
+        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+        trigger: vi.fn(() => Promise.resolve(true)),
         control: {},
-      } as any)
+      } as unknown)
 
       const { result } = renderHook(() => useZodForm(defaultOptions))
 
@@ -876,10 +877,10 @@ describe('useZodFormPersistence', () => {
 
   it('should load data on mount', async () => {
     const form = {
-      loadFromStorage: mock(),
-      saveToStorage: mock(),
-      watch: mock(() => ({ unsubscribe: mock() })),
-    } as any
+      loadFromStorage: vi.fn(),
+      saveToStorage: vi.fn(),
+      watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+    } as unknown
 
     renderHook(() => useZodFormPersistence(form, 'test-key'))
 
@@ -890,14 +891,14 @@ describe('useZodFormPersistence', () => {
 
   it('should auto-save when enabled', async () => {
     const form = {
-      loadFromStorage: mock(),
-      saveToStorage: mock(),
-      watch: mock((callback) => {
+      loadFromStorage: vi.fn(),
+      saveToStorage: vi.fn(),
+      watch: vi.fn((callback) => {
         // Simulate form change
         setTimeout(() => callback(), 100)
-        return { unsubscribe: mock() }
+        return { unsubscribe: vi.fn() }
       }),
-    } as any
+    } as unknown
 
     renderHook(() => useZodFormPersistence(form, 'test-key', true))
 
@@ -908,10 +909,10 @@ describe('useZodFormPersistence', () => {
 
   it('should not auto-save when disabled', () => {
     const form = {
-      loadFromStorage: mock(),
-      saveToStorage: mock(),
-      watch: mock(() => ({ unsubscribe: mock() })),
-    } as any
+      loadFromStorage: vi.fn(),
+      saveToStorage: vi.fn(),
+      watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+    } as unknown
 
     renderHook(() => useZodFormPersistence(form, 'test-key', false))
 
@@ -920,11 +921,11 @@ describe('useZodFormPersistence', () => {
 
   it('should clear storage', () => {
     const form = {
-      loadFromStorage: mock(),
-      saveToStorage: mock(),
-      clearStorage: mock(),
-      watch: mock(() => ({ unsubscribe: mock() })),
-    } as any
+      loadFromStorage: vi.fn(),
+      saveToStorage: vi.fn(),
+      clearStorage: vi.fn(),
+      watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+    } as unknown
 
     const { result } = renderHook(() => useZodFormPersistence(form, 'test-key'))
 
@@ -947,10 +948,10 @@ describe('useZodFormValidation', () => {
 
   it('should not validate when realTimeValidation is false', () => {
     const form = {
-      watch: mock(() => ({ unsubscribe: mock() })),
-      validateField: mock(),
-      getFieldError: mock(),
-    } as any
+      watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
+      validateField: vi.fn(),
+      getFieldError: vi.fn(),
+    } as unknown
 
     renderHook(() => useZodFormValidation(form, false))
 
@@ -959,14 +960,14 @@ describe('useZodFormValidation', () => {
 
   it('should validate in real-time when enabled', async () => {
     const form = {
-      watch: mock((callback) => {
+      watch: vi.fn((callback) => {
         // Simulate field change
         setTimeout(() => callback({}, { name: 'email' }), 100)
-        return { unsubscribe: mock() }
+        return { unsubscribe: vi.fn() }
       }),
-      validateField: mock(() => Promise.resolve(true)),
-      getFieldError: mock(() => {}),
-    } as any
+      validateField: vi.fn(() => Promise.resolve(true)),
+      getFieldError: vi.fn(() => {}),
+    } as unknown
 
     const { result } = renderHook(() => useZodFormValidation(form, true))
 
@@ -982,14 +983,14 @@ describe('useZodFormValidation', () => {
 
   it('should track validation errors', async () => {
     const form = {
-      watch: mock((callback) => {
+      watch: vi.fn((callback) => {
         // Simulate field change
         setTimeout(() => callback({}, { name: 'email' }), 100)
-        return { unsubscribe: mock() }
+        return { unsubscribe: vi.fn() }
       }),
-      validateField: mock(() => Promise.resolve(false)),
-      getFieldError: mock(() => 'Invalid email'),
-    } as any
+      validateField: vi.fn(() => Promise.resolve(false)),
+      getFieldError: vi.fn(() => 'Invalid email'),
+    } as unknown
 
     const { result } = renderHook(() => useZodFormValidation(form, true))
 
@@ -1010,11 +1011,11 @@ describe('createZodFormProvider', () => {
   it('should create form provider component', () => {
     const FormProvider = createZodFormProvider(testSchema)
 
-    const childrenMock = mock()
+    const childrenMock = vi.fn()
     childrenMock.mockReturnValue(<div>Form content</div>)
 
     render(
-      <FormProvider onSubmit={mock()}>
+      <FormProvider onSubmit={vi.fn()}>
         {childrenMock}
       </FormProvider>
     )
@@ -1027,10 +1028,10 @@ describe('createZodFormProvider', () => {
 
   it('should pass props to useZodForm', () => {
     const FormProvider = createZodFormProvider(testSchema)
-    const onSubmit = mock()
-    const onError = mock()
+    const onSubmit = vi.fn()
+    const onError = vi.fn()
 
-    const childrenMock = mock()
+    const childrenMock = vi.fn()
     childrenMock.mockReturnValue(<div>Form content</div>)
 
     render(

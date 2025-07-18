@@ -18,8 +18,8 @@ const coverageConfig = {
           lines: 85,
           functions: 85,
           branches: 85,
-          statements: 85
-        }
+          statements: 85,
+        },
       },
       include: [
         'lib/**/*.{js,ts}',
@@ -28,7 +28,7 @@ const coverageConfig = {
         'stores/**/*.{js,ts}',
         'src/hooks/useZodForm/**/*.{js,ts}',
         'src/shared/**/*.{js,ts}',
-        'src/types/**/*.{js,ts}'
+        'src/types/**/*.{js,ts}',
       ],
       exclude: [
         'node_modules/**',
@@ -42,8 +42,8 @@ const coverageConfig = {
         '**/types.ts',
         'components/**',
         'app/**/*.{jsx,tsx}',
-        'src/components/**'
-      ]
+        'src/components/**',
+      ],
     },
 
     // Component tests (Vitest) - Moderate thresholds for React components
@@ -56,15 +56,15 @@ const coverageConfig = {
           lines: 75,
           functions: 75,
           branches: 75,
-          statements: 75
-        }
+          statements: 75,
+        },
       },
       include: [
         'components/**/*.{jsx,tsx}',
         'app/**/*.{jsx,tsx}',
         'hooks/**/*.{jsx,tsx}',
         'src/components/**/*.{jsx,tsx}',
-        'src/hooks/**/*.{jsx,tsx}'
+        'src/hooks/**/*.{jsx,tsx}',
       ],
       exclude: [
         'node_modules/**',
@@ -81,8 +81,8 @@ const coverageConfig = {
         'src/lib/**/*.{js,ts}',
         'stores/**/*.{js,ts}',
         'src/schemas/**/*.{js,ts}',
-        'src/hooks/useZodForm/**/*.{js,ts}'
-      ]
+        'src/hooks/useZodForm/**/*.{js,ts}',
+      ],
     },
 
     // Integration tests (Vitest) - Lower thresholds for complex workflows
@@ -95,15 +95,15 @@ const coverageConfig = {
           lines: 70,
           functions: 70,
           branches: 70,
-          statements: 70
-        }
+          statements: 70,
+        },
       },
       include: [
         'app/api/**/*.{js,ts}',
         'app/actions/**/*.{js,ts}',
         'lib/**/*.{js,ts}',
         'src/lib/**/*.{js,ts}',
-        'tests/integration/**/*.{js,ts}'
+        'tests/integration/**/*.{js,ts}',
       ],
       exclude: [
         'node_modules/**',
@@ -121,9 +121,9 @@ const coverageConfig = {
         'src/lib/**/*.{js,ts}',
         'stores/**/*.{js,ts}',
         'src/schemas/**/*.{js,ts}',
-        'src/hooks/useZodForm/**/*.{js,ts}'
-      ]
-    }
+        'src/hooks/useZodForm/**/*.{js,ts}',
+      ],
+    },
   },
 
   // Merged coverage configuration
@@ -135,11 +135,11 @@ const coverageConfig = {
         lines: 80,
         functions: 80,
         branches: 80,
-        statements: 80
-      }
+        statements: 80,
+      },
     },
     reporters: ['html', 'lcov', 'json', 'text'],
-    summaryFile: './coverage/final-report/summary.json'
+    summaryFile: './coverage/final-report/summary.json',
   },
 
   // Quality gates
@@ -149,22 +149,22 @@ const coverageConfig = {
       lines: 70,
       functions: 70,
       branches: 65,
-      statements: 70
+      statements: 70,
     },
     // Target coverage for production readiness
     target: {
       lines: 80,
       functions: 80,
       branches: 75,
-      statements: 80
+      statements: 80,
     },
     // Excellence thresholds for high-quality code
     excellence: {
       lines: 90,
       functions: 90,
       branches: 85,
-      statements: 90
-    }
+      statements: 90,
+    },
   },
 
   // File pattern overrides for specific coverage requirements
@@ -175,28 +175,25 @@ const coverageConfig = {
         'lib/auth/**/*.{js,ts}',
         'lib/security/**/*.{js,ts}',
         'src/lib/auth/**/*.{js,ts}',
-        'app/api/auth/**/*.{js,ts}'
+        'app/api/auth/**/*.{js,ts}',
       ],
       thresholds: {
         lines: 95,
         functions: 95,
         branches: 90,
-        statements: 95
-      }
+        statements: 95,
+      },
     },
-    
+
     // UI components can have slightly lower coverage
     ui: {
-      patterns: [
-        'components/ui/**/*.{jsx,tsx}',
-        'src/components/ui/**/*.{jsx,tsx}'
-      ],
+      patterns: ['components/ui/**/*.{jsx,tsx}', 'src/components/ui/**/*.{jsx,tsx}'],
       thresholds: {
         lines: 70,
         functions: 70,
         branches: 65,
-        statements: 70
-      }
+        statements: 70,
+      },
     },
 
     // Utility functions should have high coverage
@@ -204,15 +201,15 @@ const coverageConfig = {
       patterns: [
         'lib/utils/**/*.{js,ts}',
         'src/lib/utils/**/*.{js,ts}',
-        'src/shared/utils/**/*.{js,ts}'
+        'src/shared/utils/**/*.{js,ts}',
       ],
       thresholds: {
         lines: 90,
         functions: 90,
         branches: 85,
-        statements: 90
-      }
-    }
+        statements: 90,
+      },
+    },
   },
 
   // Coverage exclusions
@@ -245,22 +242,22 @@ const coverageConfig = {
     'tailwind.config.*',
     'next.config.*',
     'instrumentation.ts',
-    'middleware.ts'
+    'middleware.ts',
   ],
 
   // Coverage merge settings
   merge: {
     // Merge strategy for overlapping files
     strategy: 'union', // 'union' | 'intersection' | 'first-wins'
-    
+
     // Handle conflicts in coverage data
     conflictResolution: 'highest', // 'highest' | 'lowest' | 'average'
-    
+
     // Generate comparison reports
     generateComparison: true,
-    
+
     // Include individual reports in merged output
-    includeIndividualReports: true
+    includeIndividualReports: true,
   },
 
   // Reporting configuration
@@ -270,29 +267,29 @@ const coverageConfig = {
       verbose: true,
       showIndividualFiles: false,
       colorize: true,
-      threshold: 'minimum'
+      threshold: 'minimum',
     },
-    
+
     // HTML report settings
     html: {
       title: 'CodeX Clone Coverage Report',
       outputDir: './coverage/final-report',
       includeSourceMaps: true,
-      showBranchCoverage: true
+      showBranchCoverage: true,
     },
-    
+
     // LCOV report settings
     lcov: {
       outputFile: './coverage/final-report/lcov.info',
-      projectRoot: process.cwd()
+      projectRoot: process.cwd(),
     },
-    
+
     // JSON report settings
     json: {
       outputFile: './coverage/final-report/coverage-final.json',
-      includeRawData: true
-    }
-  }
+      includeRawData: true,
+    },
+  },
 }
 
 // Export configuration
@@ -303,22 +300,26 @@ if (require.main === module) {
   console.log('Coverage Configuration:')
   console.log('='.repeat(60))
   console.log()
-  
+
   console.log('📊 Test Tiers:')
   Object.entries(coverageConfig.tiers).forEach(([key, config]) => {
     console.log(`  ${key}: ${config.name}`)
     console.log(`    Runner: ${config.runner}`)
     console.log(`    Output: ${config.outputDir}`)
-    console.log(`    Thresholds: ${config.thresholds.global.lines}%/${config.thresholds.global.functions}%/${config.thresholds.global.branches}%/${config.thresholds.global.statements}%`)
+    console.log(
+      `    Thresholds: ${config.thresholds.global.lines}%/${config.thresholds.global.functions}%/${config.thresholds.global.branches}%/${config.thresholds.global.statements}%`
+    )
     console.log()
   })
-  
+
   console.log('🎯 Quality Gates:')
   Object.entries(coverageConfig.qualityGates).forEach(([level, thresholds]) => {
-    console.log(`  ${level}: ${thresholds.lines}%/${thresholds.functions}%/${thresholds.branches}%/${thresholds.statements}%`)
+    console.log(
+      `  ${level}: ${thresholds.lines}%/${thresholds.functions}%/${thresholds.branches}%/${thresholds.statements}%`
+    )
   })
   console.log()
-  
+
   console.log('📁 Merged Report: ' + coverageConfig.merged.outputDir)
   console.log('📄 Summary File: ' + coverageConfig.merged.summaryFile)
 }

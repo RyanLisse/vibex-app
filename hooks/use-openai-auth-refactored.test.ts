@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useOpenAIAuthRefactored } from '@/hooks/use-openai-auth-refactored'
 
@@ -12,20 +13,20 @@ const mockUseAuthBase = {
     token: null,
   },
   actions: {
-    login: mock(),
-    logout: mock(),
-    refresh: mock(),
-    checkAuth: mock(),
-    clearError: mock(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
+    checkAuth: vi.fn(),
+    clearError: vi.fn(),
   },
 }
 
-mock('./use-auth-base', () => ({
+vi.mock('./use-auth-base', () => ({
   useAuthBase: () => mockUseAuthBase,
 }))
 
 // Mock environment variables
-mock('@/lib/env', () => ({
+vi.mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_API_URL: 'https://api.openai.com',

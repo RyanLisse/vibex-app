@@ -17,13 +17,13 @@ class CoverageValidator {
     this.results = {
       passed: 0,
       failed: 0,
-      total: 0
+      total: 0,
     }
   }
 
   async validateCoverage() {
     console.log('🔍 Validating coverage reports...')
-    console.log('=' .repeat(60))
+    console.log('='.repeat(60))
 
     try {
       // Validate individual tier reports
@@ -40,7 +40,6 @@ class CoverageValidator {
 
       // Exit with appropriate code
       process.exit(this.errors.length > 0 ? 1 : 0)
-
     } catch (error) {
       console.error('❌ Coverage validation failed:', error.message)
       process.exit(1)
@@ -52,9 +51,9 @@ class CoverageValidator {
 
     for (const [tierName, tierConfig] of Object.entries(coverageConfig.tiers)) {
       console.log(`\n  🔍 Checking ${tierConfig.name}...`)
-      
+
       const reportPath = path.join(tierConfig.outputDir, 'coverage-final.json')
-      
+
       if (!fs.existsSync(reportPath)) {
         this.warnings.push(`${tierName}: Coverage report not found at ${reportPath}`)
         console.log(`    ⚠️  Report not found: ${reportPath}`)
@@ -66,12 +65,16 @@ class CoverageValidator {
         const summary = this.calculateSummary(coverage)
         const thresholds = tierConfig.thresholds.global
 
-        console.log(`    📈 Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`)
-        console.log(`    🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`)
+        console.log(
+          `    📈 Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
+        )
+        console.log(
+          `    🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`
+        )
 
         const passed = this.validateThresholds(summary, thresholds, tierName)
         this.results.total++
-        
+
         if (passed) {
           this.results.passed++
           console.log(`    ✅ ${tierName} coverage validation passed`)
@@ -79,7 +82,6 @@ class CoverageValidator {
           this.results.failed++
           console.log(`    ❌ ${tierName} coverage validation failed`)
         }
-
       } catch (error) {
         this.errors.push(`${tierName}: Failed to parse coverage report - ${error.message}`)
         console.log(`    ❌ Failed to parse coverage report: ${error.message}`)
@@ -91,7 +93,7 @@ class CoverageValidator {
     console.log('\n🔗 Validating merged report...')
 
     const mergedReportPath = path.join(this.coverageDir, 'merged', 'coverage-final.json')
-    
+
     if (!fs.existsSync(mergedReportPath)) {
       this.warnings.push('Merged coverage report not found')
       console.log('  ⚠️  Merged report not found')
@@ -103,12 +105,16 @@ class CoverageValidator {
       const summary = this.calculateSummary(coverage)
       const thresholds = coverageConfig.merged.thresholds.global
 
-      console.log(`  📈 Overall Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`)
-      console.log(`  🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`)
+      console.log(
+        `  📈 Overall Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
+      )
+      console.log(
+        `  🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`
+      )
 
       const passed = this.validateThresholds(summary, thresholds, 'merged')
       this.results.total++
-      
+
       if (passed) {
         this.results.passed++
         console.log('  ✅ Merged coverage validation passed')
@@ -119,7 +125,6 @@ class CoverageValidator {
 
       // Check against quality gates
       this.validateQualityGates(summary)
-
     } catch (error) {
       this.errors.push(`Merged report: Failed to parse coverage report - ${error.message}`)
       console.log(`  ❌ Failed to parse merged coverage report: ${error.message}`)
@@ -132,7 +137,9 @@ class CoverageValidator {
 
     for (const metric of metrics) {
       if (summary[metric].pct < thresholds[metric]) {
-        this.errors.push(`${tierName}: ${metric} coverage ${summary[metric].pct}% below threshold ${thresholds[metric]}%`)
+        this.errors.push(
+          `${tierName}: ${metric} coverage ${summary[metric].pct}% below threshold ${thresholds[metric]}%`
+        )
         passed = false
       }
     }
@@ -199,44 +206,48 @@ class CoverageValidator {
       lines: { total: 0, covered: 0, pct: 0 },
       functions: { total: 0, covered: 0, pct: 0 },
       statements: { total: 0, covered: 0, pct: 0 },
-      branches: { total: 0, covered: 0, pct: 0 }
+      branches: { total: 0, covered: 0, pct: 0 },
     }
-    
+
     for (const fileCoverage of Object.values(coverage)) {
       if (fileCoverage.lines) {
         summary.lines.total += Object.keys(fileCoverage.lines).length
-        summary.lines.covered += Object.values(fileCoverage.lines).filter(v => v > 0).length
+        summary.lines.covered += Object.values(fileCoverage.lines).filter((v) => v > 0).length
       }
-      
+
       if (fileCoverage.functions) {
         summary.functions.total += Object.keys(fileCoverage.functions).length
-        summary.functions.covered += Object.values(fileCoverage.functions).filter(v => v > 0).length
+        summary.functions.covered += Object.values(fileCoverage.functions).filter(
+          (v) => v > 0
+        ).length
       }
-      
+
       if (fileCoverage.statements) {
         summary.statements.total += Object.keys(fileCoverage.statements).length
-        summary.statements.covered += Object.values(fileCoverage.statements).filter(v => v > 0).length
+        summary.statements.covered += Object.values(fileCoverage.statements).filter(
+          (v) => v > 0
+        ).length
       }
-      
+
       if (fileCoverage.branches) {
         summary.branches.total += Object.keys(fileCoverage.branches).length
-        summary.branches.covered += Object.values(fileCoverage.branches).filter(v => v > 0).length
+        summary.branches.covered += Object.values(fileCoverage.branches).filter((v) => v > 0).length
       }
     }
-    
+
     // Calculate percentages
     for (const type of ['lines', 'functions', 'statements', 'branches']) {
       if (summary[type].total > 0) {
         summary[type].pct = Math.round((summary[type].covered / summary[type].total) * 100)
       }
     }
-    
+
     return summary
   }
 
   async generateReport() {
     const reportPath = path.join(this.coverageDir, 'validation-report.json')
-    
+
     const report = {
       timestamp: new Date().toISOString(),
       results: this.results,
@@ -244,8 +255,8 @@ class CoverageValidator {
       warnings: this.warnings,
       configuration: {
         tiers: Object.keys(coverageConfig.tiers).length,
-        qualityGates: coverageConfig.qualityGates
-      }
+        qualityGates: coverageConfig.qualityGates,
+      },
     }
 
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2))
@@ -253,9 +264,9 @@ class CoverageValidator {
   }
 
   printResults() {
-    console.log('\n' + '=' .repeat(60))
+    console.log('\n' + '='.repeat(60))
     console.log('📊 COVERAGE VALIDATION RESULTS')
-    console.log('=' .repeat(60))
+    console.log('='.repeat(60))
 
     console.log(`\n✅ Passed: ${this.results.passed}`)
     console.log(`❌ Failed: ${this.results.failed}`)
@@ -263,16 +274,16 @@ class CoverageValidator {
 
     if (this.warnings.length > 0) {
       console.log(`\n⚠️  Warnings (${this.warnings.length}):`)
-      this.warnings.forEach(warning => console.log(`  - ${warning}`))
+      this.warnings.forEach((warning) => console.log(`  - ${warning}`))
     }
 
     if (this.errors.length > 0) {
       console.log(`\n❌ Errors (${this.errors.length}):`)
-      this.errors.forEach(error => console.log(`  - ${error}`))
+      this.errors.forEach((error) => console.log(`  - ${error}`))
     }
 
-    console.log('\n' + '=' .repeat(60))
-    
+    console.log('\n' + '='.repeat(60))
+
     if (this.errors.length === 0) {
       console.log('🎉 All coverage validations passed!')
     } else {

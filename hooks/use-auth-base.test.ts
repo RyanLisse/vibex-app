@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAuthBase } from '@/hooks/use-auth-base'
 
 // Mock fetch
-const mockFetch = mock()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 // Mock window.location

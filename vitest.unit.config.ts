@@ -8,16 +8,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./tests/setup/component.ts', './vitest.setup.ts'],
-    pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: false,
-        isolate: true,
-        maxThreads: 6,
-        minThreads: 1,
-      },
-    },
+    setupFiles: ['./vitest.setup.components.ts'],
+    // Use child-process isolation to avoid worker_threads issues across runtimes
+    pool: 'forks',
+
     css: true,
     coverage: {
       provider: 'v8',
@@ -117,10 +111,14 @@ export default defineConfig({
       'stores/**/*.test.{js,ts}',
       'src/schemas/**/*.test.{js,ts}',
       'src/hooks/useZodForm/**/*.test.{js,ts}',
+      // Exclude tests that use Bun test syntax
+      'app/actions/inngest.test.ts',
+      'app/actions/vibekit.test.ts',
+      'lib/inngest.test.ts',
     ],
     testTimeout: 15_000,
     hookTimeout: 10_000,
-    teardownTimeout: 5_000,
+    teardownTimeout: 5000,
     isolate: true,
     restoreMocks: true,
     clearMocks: true,

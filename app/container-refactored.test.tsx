@@ -1,21 +1,22 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import React from 'react'
 import Container from '@/app/container'
 
 // Mock the hooks and components
-mock('@/components/providers/realtime-provider', () => ({
+vi.mock('@/components/providers/realtime-provider', () => ({
   RealtimeProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="realtime-provider">{children}</div>
   ),
 }))
 
-mock('@/components/providers/task-message-processor', () => ({
+vi.mock('@/components/providers/task-message-processor', () => ({
   TaskMessageProcessor: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="task-message-processor">{children}</div>
   ),
 }))
 
-mock('@/components/error-boundary', () => ({
+vi.mock('@/components/error-boundary', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="error-boundary">{children}</div>
   ),

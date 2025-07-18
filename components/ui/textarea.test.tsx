@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import React from 'react'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -100,7 +101,7 @@ describe('Textarea', () => {
   })
 
   it('should handle onChange events', () => {
-    const handleChange = mock()
+    const handleChange = vi.fn()
     render(<Textarea data-testid="textarea" onChange={handleChange} />)
 
     const textarea = screen.getByTestId('textarea')
@@ -117,7 +118,7 @@ describe('Textarea', () => {
   })
 
   it('should handle onFocus events', () => {
-    const handleFocus = mock()
+    const handleFocus = vi.fn()
     render(<Textarea data-testid="textarea" onFocus={handleFocus} />)
 
     const textarea = screen.getByTestId('textarea')
@@ -127,7 +128,7 @@ describe('Textarea', () => {
   })
 
   it('should handle onBlur events', () => {
-    const handleBlur = mock()
+    const handleBlur = vi.fn()
     render(<Textarea data-testid="textarea" onBlur={handleBlur} />)
 
     const textarea = screen.getByTestId('textarea')
@@ -137,7 +138,7 @@ describe('Textarea', () => {
   })
 
   it('should handle onKeyDown events', () => {
-    const handleKeyDown = mock()
+    const handleKeyDown = vi.fn()
     render(<Textarea data-testid="textarea" onKeyDown={handleKeyDown} />)
 
     const textarea = screen.getByTestId('textarea')

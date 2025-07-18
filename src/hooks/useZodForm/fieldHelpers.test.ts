@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import type { UseFormReturn } from 'react-hook-form'
 import {
   createFieldHelpers,
@@ -16,9 +17,9 @@ describe('fieldHelpers', () => {
         errors: {},
         dirtyFields: {},
       },
-      clearErrors: mock(),
-      setError: mock(),
-      getValues: mock(),
+      clearErrors: vi.fn(),
+      setError: vi.fn(),
+      getValues: vi.fn(),
     } as any
   })
 

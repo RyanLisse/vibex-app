@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { AnthropicAuthButton } from '@/components/auth/anthropic-auth-button'
 
 // Mock the anthropic auth hook
-const mockUseAnthropicAuth = mock()
-mock('@/hooks/use-anthropic-auth', () => ({
+const mockUseAnthropicAuth = vi.fn()
+vi.mock('@/hooks/use-anthropic-auth', () => ({
   useAnthropicAuth: () => mockUseAnthropicAuth(),
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
     <svg className={className} data-testid="login-icon" {...props} />
   ),
@@ -21,7 +22,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock Button component
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, disabled, ...props }: any) => (
     <button
       data-size={size}
@@ -37,8 +38,8 @@ mock('@/components/ui/button', () => ({
 }))
 
 describe('AnthropicAuthButton', () => {
-  const mockLogin = mock()
-  const mockLogout = mock()
+  const mockLogin = vi.fn()
+  const mockLogout = vi.fn()
 
   beforeEach(() => {
     mock.restore()

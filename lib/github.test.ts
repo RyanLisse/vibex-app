@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { cookies } from 'next/headers'
 import {
   clearGitHubAuth,
@@ -12,18 +13,18 @@ import {
 } from './github'
 
 // Mock dependencies
-mock('next/headers', () => ({
-  cookies: mock(),
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(),
 }))
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('GitHub Authentication', () => {
   const mockCookies = {
-    get: mock(),
-    set: mock(),
-    delete: mock(),
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn(),
   }
 
   const originalEnv = process.env

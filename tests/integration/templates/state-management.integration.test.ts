@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { vi } from 'vitest'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**
@@ -263,10 +264,10 @@ describe('State Management Integration Template', () => {
   describe('Persistence Integration', () => {
     it('should save state to localStorage', () => {
       const mockLocalStorage = {
-        getItem: mock(),
-        setItem: mock(),
-        removeItem: mock(),
-        clear: mock(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
       }
 
       Object.defineProperty(window, 'localStorage', {
@@ -292,10 +293,10 @@ describe('State Management Integration Template', () => {
 
     it('should restore state from localStorage', () => {
       const mockLocalStorage = {
-        getItem: mock(),
-        setItem: mock(),
-        removeItem: mock(),
-        clear: mock(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
       }
 
       const savedState = {
@@ -331,12 +332,12 @@ describe('State Management Integration Template', () => {
 
     it('should handle persistence errors gracefully', () => {
       const mockLocalStorage = {
-        getItem: mock(),
-        setItem: mock().mockImplementation(() => {
+        getItem: vi.fn(),
+        setItem: vi.fn().mockImplementation(() => {
           throw new Error('Storage quota exceeded')
         }),
-        removeItem: mock(),
-        clear: mock(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
       }
 
       Object.defineProperty(window, 'localStorage', {
@@ -370,15 +371,15 @@ describe('State Management Integration Template', () => {
     it('should sync state with WebSocket updates', () => {
       // Mock WebSocket
       const mockWebSocket = {
-        send: mock(),
-        close: mock(),
-        addEventListener: mock(),
-        removeEventListener: mock(),
+        send: vi.fn(),
+        close: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
         readyState: 1,
         onmessage: null,
       }
 
-      global.WebSocket = mock(() => mockWebSocket)
+      global.WebSocket = vi.fn(() => mockWebSocket)
 
       // Set up WebSocket message handler
       const handleWebSocketMessage = (event: MessageEvent) => {
@@ -425,10 +426,10 @@ describe('State Management Integration Template', () => {
 
       // Mock WebSocket with different states
       const mockWebSocket = {
-        send: mock(),
-        close: mock(),
-        addEventListener: mock(),
-        removeEventListener: mock(),
+        send: vi.fn(),
+        close: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
         readyState: 1,
         onopen: null,
         onclose: null,
@@ -436,7 +437,7 @@ describe('State Management Integration Template', () => {
         onmessage: null,
       }
 
-      global.WebSocket = mock(() => mockWebSocket)
+      global.WebSocket = vi.fn(() => mockWebSocket)
 
       // Set up connection state handlers
       const handleConnectionOpen = () => {

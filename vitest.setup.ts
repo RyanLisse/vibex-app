@@ -23,7 +23,10 @@ beforeEach(() => {
   vi.stubEnv('GEMINI_API_KEY', 'test-gemini-api-key')
 
   // Mock timers for consistent test timing
-  vi.useFakeTimers()
+  // Only use fake timers if not running Inngest tests
+  if (!process.env.VITEST_INNGEST_TESTS) {
+    vi.useFakeTimers()
+  }
 })
 
 // Cleanup after each test
@@ -96,12 +99,71 @@ vi.mock('@neondatabase/serverless', () => ({
   })),
 }))
 
-// Mock Inngest client
+// Mock Inngest client and related modules
 vi.mock('inngest', () => ({
   Inngest: vi.fn(() => ({
-    send: vi.fn(),
+    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+    createFunction: vi.fn().mockReturnValue({
+      config: { id: 'test-function' },
+      trigger: { event: 'test.event' },
+      handler: vi.fn(),
+    }),
+  })),
+}))
+
+// Mock Inngest realtime
+vi.mock('@inngest/realtime', () => ({
+  realtimeMiddleware: vi.fn(() => ({ name: 'realtime' })),
+  channel: vi.fn(() => ({
+    name: 'test-channel',
+    addTopic: vi.fn().mockReturnThis(),
+  })),
+  topic: vi.fn(() => ({
+    name: 'test-topic',
+    type: vi.fn().mockReturnThis(),
+  })),
+  getSubscriptionToken: vi.fn().mockResolvedValue('test-token'),
+}))
+
+// Mock the inngest module to prevent hanging
+vi.mock('@/lib/inngest', () => ({
+  inngest: {
+    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+    createFunction: vi.fn().mockReturnValue({
+      config: { id: 'test-function' },
+      trigger: { event: 'test.event' },
+      handler: vi.fn(),
+    }),
+  },
+  taskChannel: vi.fn(() => ({
+    status: vi.fn(),
+    update: vi.fn(),
+    control: vi.fn(),
+  })),
+  taskControl: {
+    config: { id: 'task-control' },
+    trigger: { event: 'clonedx/task.control' },
+    handler: vi.fn(),
+  },
+  createTask: {
+    config: { id: 'create-task' },
+    trigger: { event: 'clonedx/create.task' },
+    handler: vi.fn(),
+  },
+  getInngestApp: vi.fn(() => ({
+    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
     createFunction: vi.fn(),
   })),
+}))
+
+// Mock inngest actions
+vi.mock('@/app/actions/inngest', () => ({
+  createTaskAction: vi.fn().mockResolvedValue(undefined),
+  createPullRequestAction: vi.fn().mockResolvedValue(undefined),
+  fetchRealtimeSubscriptionToken: vi.fn().mockResolvedValue({
+    token: 'test-token',
+    channel: 'tasks',
+  }),
 }))
 
 // Mock external AI services
@@ -118,6 +180,18 @@ vi.mock('openai', () => ({
 vi.mock('@google/genai', () => ({
   GoogleGenAI: vi.fn(() => ({
     startChat: vi.fn(),
+  })),
+}))
+
+// Mock VibeKit SDK to prevent hanging
+vi.mock('@vibe-kit/sdk', () => ({
+  VibeKit: vi.fn(() => ({
+    setSession: vi.fn().mockResolvedValue(undefined),
+    generateCode: vi.fn().mockResolvedValue({
+      stdout: JSON.stringify({ result: 'success' }),
+      sandboxId: 'test-sandbox-id',
+    }),
+    pause: vi.fn().mockResolvedValue(undefined),
   })),
 }))
 
@@ -184,4 +258,80 @@ export const integrationTestHelpers = {
     vi.advanceTimersByTime(ms)
     return integrationTestHelpers.waitForNextTick()
   },
+}
+
+// Mock Inngest modules when running Inngest tests
+if (process.env.VITEST_INNGEST_TESTS) {
+  // Mock the inngest module to avoid side effects
+  vi.mock('@/lib/inngest', () => {
+    const mockInngest = {
+      id: 'clonedex',
+      send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+      createFunction: vi.fn().mockImplementation((config) => ({
+        ...config,
+        handler: vi.fn().mockResolvedValue(undefined),
+      })),
+    }
+
+    return {
+      inngest: mockInngest,
+      taskChannel: vi.fn((taskId: string) => ({
+        status: vi.fn(),
+        update: vi.fn(),
+        control: vi.fn(),
+      })),
+      taskControl: {
+        id: 'task-control',
+        trigger: { event: 'clonedx/task.control' },
+        handler: vi.fn().mockResolvedValue(undefined),
+      },
+      createTask: {
+        id: 'create-task',
+        trigger: { event: 'clonedx/create.task' },
+        handler: vi.fn().mockResolvedValue(undefined),
+      },
+      getInngestApp: vi.fn(() => ({
+        id: typeof window !== 'undefined' ? 'client' : 'server',
+        send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+        createFunction: vi.fn(),
+      })),
+    }
+  })
+
+  // Mock Inngest realtime
+  vi.mock('@inngest/realtime', () => ({
+    realtimeMiddleware: vi.fn(() => ({ name: 'realtime' })),
+    channel: vi.fn(() => ({
+      name: 'test-channel',
+      addTopic: vi.fn().mockReturnThis(),
+    })),
+    topic: vi.fn(() => ({
+      name: 'test-topic',
+      type: vi.fn().mockReturnThis(),
+    })),
+    getSubscriptionToken: vi.fn().mockResolvedValue('test-token'),
+  }))
+
+  // Mock VibeKit SDK
+  vi.mock('@vibe-kit/sdk', () => ({
+    VibeKit: vi.fn().mockImplementation(() => ({
+      setSession: vi.fn().mockResolvedValue(undefined),
+      generateCode: vi.fn().mockResolvedValue({
+        stdout: JSON.stringify({ result: 'success' }),
+        sandboxId: 'test-sandbox-id',
+      }),
+      pause: vi.fn().mockResolvedValue(undefined),
+    })),
+  }))
+
+  // Mock inngest package
+  vi.mock('inngest', () => ({
+    Inngest: vi.fn().mockImplementation(() => ({
+      send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+      createFunction: vi.fn().mockImplementation((config) => ({
+        ...config,
+        handler: vi.fn().mockResolvedValue(undefined),
+      })),
+    })),
+  }))
 }

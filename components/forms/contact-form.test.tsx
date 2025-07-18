@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { ContactForm } from '@/components/forms/contact-form'
 
 describe('ContactForm', () => {
-  const mockOnSubmit = mock()
+  const mockOnSubmit = vi.fn()
   const defaultProps = {
     onSubmit: mockOnSubmit,
   }

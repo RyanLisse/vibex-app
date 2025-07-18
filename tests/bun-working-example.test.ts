@@ -25,7 +25,7 @@ describe('Bun Test Runner - Working Examples', () => {
     it('should test objects and arrays', () => {
       const user = { name: 'John', age: 30 }
       expect(formatUser(user)).toBe('John (30 years old)')
-      
+
       const numbers = [1, 2, 3, 4, 5]
       expect(numbers.length).toBe(5)
       expect(numbers).toEqual([1, 2, 3, 4, 5])
@@ -33,7 +33,7 @@ describe('Bun Test Runner - Working Examples', () => {
 
     it('should test async operations', async () => {
       const asyncAdd = async (a: number, b: number): Promise<number> => {
-        return new Promise(resolve => setTimeout(() => resolve(a + b), 10))
+        return new Promise((resolve) => setTimeout(() => resolve(a + b), 10))
       }
 
       const result = await asyncAdd(5, 7)
@@ -56,7 +56,7 @@ describe('Bun Test Runner - Working Examples', () => {
       const product: Product = {
         id: '1',
         name: 'Test Product',
-        price: 29.99
+        price: 29.99,
       }
 
       expect(product.id).toBe('1')
@@ -97,7 +97,7 @@ describe('Bun Test Runner - Working Examples', () => {
       const div = document.createElement('div')
       div.textContent = 'Hello World'
       div.className = 'test-class'
-      
+
       expect(div.tagName).toBe('DIV')
       expect(div.textContent).toBe('Hello World')
       expect(div.className).toBe('test-class')
@@ -106,7 +106,7 @@ describe('Bun Test Runner - Working Examples', () => {
     it('should handle localStorage', () => {
       localStorage.setItem('testKey', 'testValue')
       expect(localStorage.getItem('testKey')).toBe('testValue')
-      
+
       localStorage.removeItem('testKey')
       expect(localStorage.getItem('testKey')).toBeNull()
     })
@@ -114,7 +114,7 @@ describe('Bun Test Runner - Working Examples', () => {
     it('should handle sessionStorage', () => {
       sessionStorage.setItem('sessionKey', 'sessionValue')
       expect(sessionStorage.getItem('sessionKey')).toBe('sessionValue')
-      
+
       sessionStorage.clear()
       expect(sessionStorage.getItem('sessionKey')).toBeNull()
     })
@@ -122,14 +122,14 @@ describe('Bun Test Runner - Working Examples', () => {
     it('should handle DOM events', () => {
       const button = document.createElement('button')
       let clicked = false
-      
+
       button.addEventListener('click', () => {
         clicked = true
       })
-      
+
       const clickEvent = new (window as any).MouseEvent('click', { bubbles: true })
       button.dispatchEvent(clickEvent)
-      
+
       expect(clicked).toBe(true)
     })
   })
@@ -145,10 +145,10 @@ describe('Bun Test Runner - Working Examples', () => {
       const users = [
         { id: 1, name: 'Alice', active: true },
         { id: 2, name: 'Bob', active: false },
-        { id: 3, name: 'Charlie', active: true }
+        { id: 3, name: 'Charlie', active: true },
       ]
 
-      const activeUsers = users.filter(user => user.active)
+      const activeUsers = users.filter((user) => user.active)
       expect(activeUsers).toHaveLength(2)
       expect(activeUsers[0].name).toBe('Alice')
       expect(activeUsers[1].name).toBe('Charlie')
@@ -157,10 +157,11 @@ describe('Bun Test Runner - Working Examples', () => {
 
   describe('Performance Testing', () => {
     it('should handle concurrent operations', async () => {
-      const promises = Array.from({ length: 10 }, (_, i) => 
-        new Promise(resolve => setTimeout(() => resolve(i), 50))
+      const promises = Array.from(
+        { length: 10 },
+        (_, i) => new Promise((resolve) => setTimeout(() => resolve(i), 50))
       )
-      
+
       const results = await Promise.all(promises)
       expect(results).toHaveLength(10)
       expect(results).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -169,7 +170,7 @@ describe('Bun Test Runner - Working Examples', () => {
     it('should handle large datasets', () => {
       const largeArray = Array.from({ length: 10000 }, (_, i) => i)
       const sum = largeArray.reduce((acc, val) => acc + val, 0)
-      
+
       expect(largeArray).toHaveLength(10000)
       expect(sum).toBe(49995000) // Sum of 0 to 9999
     })

@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { AIResponse } from './response'
 
 // Mock code-block components
-mock('@/components/ui/code-block', () => ({
+vi.mock('@/components/ui/code-block', () => ({
   CodeBlock: ({ children, className, data }: any) => (
     <div
       className={className}
@@ -54,7 +55,7 @@ mock('@/components/ui/code-block', () => ({
   CodeBlockSelectValue: () => <span data-testid="select-value">JavaScript</span>,
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 

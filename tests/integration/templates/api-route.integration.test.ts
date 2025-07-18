@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { vi } from 'vitest'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**

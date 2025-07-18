@@ -115,20 +115,20 @@ export function buildAuthUrl(config: AuthConfig): string {
   url.searchParams.set('client_id', config.clientId)
   url.searchParams.set('redirect_uri', config.redirectUri)
   url.searchParams.set('response_type', 'code')
-  
+
   if (config.scope) {
     url.searchParams.set('scope', config.scope)
   }
-  
+
   if (config.state) {
     url.searchParams.set('state', config.state)
   }
-  
+
   if (config.codeChallenge) {
     url.searchParams.set('code_challenge', config.codeChallenge)
     url.searchParams.set('code_challenge_method', 'S256')
   }
-  
+
   return url.toString()
 }
 
@@ -152,7 +152,7 @@ export async function exchangeCodeForToken(config: TokenExchangeConfig): Promise
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
     body: body.toString(),
   })
@@ -183,7 +183,7 @@ export async function refreshAuthToken(config: TokenRefreshConfig): Promise<Toke
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
     body: body.toString(),
   })
@@ -213,7 +213,7 @@ export async function revokeToken(config: TokenRevokeConfig): Promise<void> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
     body: body.toString(),
   })
@@ -241,7 +241,7 @@ export async function validateToken(config: TokenValidationConfig): Promise<any>
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
     body: body.toString(),
   })
@@ -261,11 +261,11 @@ export function getTokenExpirationTime(token: TokenInfo): number | null {
   if (token.expires_at) {
     return token.expires_at
   }
-  
+
   if (token.expires_in) {
-    return Date.now() + (token.expires_in * 1000)
+    return Date.now() + token.expires_in * 1000
   }
-  
+
   return null
 }
 
@@ -277,7 +277,7 @@ export function isTokenExpired(token: TokenInfo): boolean {
   if (!expirationTime) {
     return false
   }
-  
+
   return Date.now() >= expirationTime
 }
 
@@ -289,8 +289,8 @@ export function isTokenExpiring(token: TokenInfo, thresholdMs: number = 10 * 60 
   if (!expirationTime) {
     return false
   }
-  
-  return Date.now() >= (expirationTime - thresholdMs)
+
+  return Date.now() >= expirationTime - thresholdMs
 }
 
 /**
@@ -302,7 +302,7 @@ export function parseJWT(token: string): any {
     if (parts.length !== 3) {
       throw new Error('Invalid JWT format')
     }
-    
+
     const payload = parts[1]
     const decoded = atob(payload)
     return JSON.parse(decoded)
@@ -317,17 +317,24 @@ export function parseJWT(token: string): any {
 export function sanitizeRedirectUrl(url: string): string {
   try {
     const parsed = new URL(url)
-    
+
     // Allow https and http for localhost only
-    if (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && parsed.hostname === 'localhost')) {
+    if (
+      parsed.protocol !== 'https:' &&
+      !(parsed.protocol === 'http:' && parsed.hostname === 'localhost')
+    ) {
       throw new Error('Invalid redirect URL protocol')
     }
-    
+
     // Block dangerous protocols
-    if (parsed.protocol === 'javascript:' || parsed.protocol === 'data:' || parsed.protocol === 'file:') {
+    if (
+      parsed.protocol === 'javascript:' ||
+      parsed.protocol === 'data:' ||
+      parsed.protocol === 'file:'
+    ) {
       throw new Error('Dangerous redirect URL protocol')
     }
-    
+
     return url
   } catch (error) {
     throw new Error('Invalid redirect URL')
@@ -337,9 +344,13 @@ export function sanitizeRedirectUrl(url: string): string {
 /**
  * Create authorization headers for API requests
  */
-export function createAuthHeaders(token: string, additionalHeaders: Record<string, string> = {}, tokenType: string = 'Bearer'): Record<string, string> {
+export function createAuthHeaders(
+  token: string,
+  additionalHeaders: Record<string, string> = {},
+  tokenType: string = 'Bearer'
+): Record<string, string> {
   return {
-    'Authorization': `${tokenType} ${token}`,
+    Authorization: `${tokenType} ${token}`,
     'Content-Type': 'application/json',
     ...additionalHeaders,
   }
@@ -352,15 +363,15 @@ export function handleAuthError(error: unknown): string {
   if (typeof error === 'string') {
     return error
   }
-  
+
   if (error instanceof Error) {
     return error.message
   }
-  
+
   if (error && typeof error === 'object' && 'error' in error) {
     const authError = error as { error: string; error_description?: string }
     return authError.error_description || `Authentication failed: ${authError.error}`
   }
-  
+
   return 'An authentication error occurred'
 }

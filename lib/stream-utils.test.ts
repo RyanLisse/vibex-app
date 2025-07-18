@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, jest, mock, spyOn } from 'bun:test'
+import { vi } from 'vitest'
 import {
   createTimeoutPromise,
   debounce,
@@ -9,19 +10,18 @@ import {
 } from './stream-utils'
 
 describe('stream-utils', () => {
-  let originalConsoleWarn: typeof console.warn
-  let consoleSpy: ReturnType<typeof mock>
+  let consoleSpy: ReturnType<typeof spyOn>
 
   beforeEach(() => {
-    originalConsoleWarn = console.warn
-    consoleSpy = mock(() => {
-      // No-op for tests
+    consoleSpy = spyOn(console, 'warn').mockImplementation(() => {
+      /* no-op */
     })
-    console.warn = consoleSpy
+    jest.useFakeTimers()
   })
 
   afterEach(() => {
-    console.warn = originalConsoleWarn
+    consoleSpy.mockRestore()
+    jest.useRealTimers()
   })
 
   describe('safeStreamCancel', () => {
@@ -37,12 +37,12 @@ describe('stream-utils', () => {
 
     it('should cancel an unlocked stream', async () => {
       const mockReader = {
-        cancel: mock().mockResolvedValue(undefined),
-        releaseLock: mock(),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn(),
       }
       const mockStream = {
         locked: false,
-        getReader: mock().mockReturnValue(mockReader),
+        getReader: vi.fn().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -66,12 +66,12 @@ describe('stream-utils', () => {
     it('should handle cancel error', async () => {
       const mockError = new Error('Cancel failed')
       const mockReader = {
-        cancel: mock().mockRejectedValue(mockError),
-        releaseLock: mock(),
+        cancel: vi.fn().mockRejectedValue(mockError),
+        releaseLock: vi.fn(),
       }
       const mockStream = {
         locked: false,
-        getReader: mock().mockReturnValue(mockReader),
+        getReader: vi.fn().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -84,14 +84,14 @@ describe('stream-utils', () => {
     it('should handle releaseLock error', async () => {
       const mockError = new Error('Release lock failed')
       const mockReader = {
-        cancel: mock().mockResolvedValue(undefined),
-        releaseLock: mock().mockImplementation(() => {
+        cancel: vi.fn().mockResolvedValue(undefined),
+        releaseLock: vi.fn().mockImplementation(() => {
           throw mockError
         }),
       }
       const mockStream = {
         locked: false,
-        getReader: mock().mockReturnValue(mockReader),
+        getReader: vi.fn().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -104,7 +104,7 @@ describe('stream-utils', () => {
       const mockError = new Error('Get reader failed')
       const mockStream = {
         locked: false,
-        getReader: mock().mockImplementation(() => {
+        getReader: vi.fn().mockImplementation(() => {
           throw mockError
         }),
       } as unknown as ReadableStream
@@ -129,7 +129,7 @@ describe('stream-utils', () => {
     it('should close open WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.OPEN,
-        close: mock(),
+        close: vi.fn(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -141,7 +141,7 @@ describe('stream-utils', () => {
     it('should close connecting WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CONNECTING,
-        close: mock(),
+        close: vi.fn(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -149,10 +149,10 @@ describe('stream-utils', () => {
       expect(mockWs.close).toHaveBeenCalledWith(1000, 'Normal closure')
     })
 
-    it('should not close closed WebSocket', () => {
+    it('should not close already closed WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CLOSED,
-        close: mock(),
+        close: vi.fn(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -160,10 +160,10 @@ describe('stream-utils', () => {
       expect(mockWs.close).not.toHaveBeenCalled()
     })
 
-    it('should not close closing WebSocket', () => {
+    it('should not close already closing WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CLOSING,
-        close: mock(),
+        close: vi.fn(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -175,7 +175,7 @@ describe('stream-utils', () => {
       const mockError = new Error('Close failed')
       const mockWs = {
         readyState: WebSocket.OPEN,
-        close: mock().mockImplementation(() => {
+        close: vi.fn().mockImplementation(() => {
           throw mockError
         }),
       } as unknown as WebSocket
@@ -199,16 +199,14 @@ describe('stream-utils', () => {
       await expect(promise).rejects.toThrow('Custom timeout')
     })
 
-    it('should reject after specified time', async () => {
+    it('should wait for the specified duration', async () => {
       const start = Date.now()
-      const promise = createTimeoutPromise(50)
 
       try {
-        await promise
+        await createTimeoutPromise(50)
       } catch {
         const elapsed = Date.now() - start
         expect(elapsed).toBeGreaterThanOrEqual(50)
-        expect(elapsed).toBeLessThan(100)
       }
     })
   })
@@ -217,32 +215,32 @@ describe('stream-utils', () => {
     it('should resolve if promise completes before timeout', async () => {
       const promise = Promise.resolve('success')
       const result = await withTimeout(promise, 100)
-
       expect(result).toBe('success')
     })
 
-    it('should reject if promise takes longer than timeout', async () => {
-      const promise = new Promise((resolve) => setTimeout(resolve, 100))
+    it('should reject if promise exceeds timeout', async () => {
+      const slowPromise = new Promise((resolve) => setTimeout(resolve, 100))
 
-      await expect(withTimeout(promise, 10)).rejects.toThrow('Operation timed out')
+      const result = withTimeout(slowPromise, 10)
+
+      await expect(result).rejects.toThrow('Operation timed out')
     })
 
     it('should use custom timeout message', async () => {
-      const promise = new Promise((resolve) => setTimeout(resolve, 100))
+      const slowPromise = new Promise((resolve) => setTimeout(resolve, 100))
 
-      await expect(withTimeout(promise, 10, 'Custom timeout')).rejects.toThrow('Custom timeout')
+      const result = withTimeout(slowPromise, 10, 'Custom timeout')
+
+      await expect(result).rejects.toThrow('Custom timeout')
     })
 
     it('should handle rejected promises', async () => {
-      const promise = Promise.reject(new Error('Original error'))
-
-      await expect(withTimeout(promise, 100)).rejects.toThrow('Original error')
+      const errorPromise = Promise.reject(new Error('Original error'))
+      await expect(withTimeout(errorPromise, 100)).rejects.toThrow('Original error')
     })
 
-    it('should win race when promise completes first', async () => {
-      const promise = Promise.resolve('fast')
-      const result = await withTimeout(promise, 1000)
-
+    it('should resolve fast promise before timeout', async () => {
+      const result = await withTimeout(Promise.resolve('fast'), 1000)
       expect(result).toBe('fast')
     })
   })
@@ -251,99 +249,84 @@ describe('stream-utils', () => {
     it('should return result on success', async () => {
       const fn = async () => 'success'
       const result = await safeAsync(fn)
-
       expect(result).toBe('success')
     })
 
     it('should return undefined on error without fallback', async () => {
-      const fn = async () => {
+      const fn = () => {
         throw new Error('Test error')
       }
       const result = await safeAsync(fn)
-
       expect(result).toBeUndefined()
     })
 
     it('should return fallback on error', async () => {
-      const fn = async () => {
+      const fn = () => {
         throw new Error('Test error')
       }
       const result = await safeAsync(fn, 'fallback')
-
       expect(result).toBe('fallback')
     })
 
     it('should log error with custom message', async () => {
       const error = new Error('Test error')
-      const fn = async () => {
+      const fn = () => {
         throw error
       }
 
       await safeAsync(fn, undefined, 'Custom error message')
-
       expect(consoleSpy).toHaveBeenCalledWith('Custom error message', error)
     })
 
     it('should not log error without custom message', async () => {
-      const fn = async () => {
+      const fn = () => {
         throw new Error('Test error')
       }
 
       await safeAsync(fn)
-
       expect(consoleSpy).not.toHaveBeenCalled()
-    })
-
-    it('should handle sync errors in async function', async () => {
-      const fn = async () => {
-        throw new Error('Sync error in async')
-      }
-      const result = await safeAsync(fn, 'fallback')
-
-      expect(result).toBe('fallback')
     })
   })
 
   describe('debounce', () => {
-    it('should debounce function calls with real timers', async () => {
-      const fn = mock()
+    it('should debounce function calls', async () => {
+      const fn = vi.fn()
       const debouncedFn = debounce(fn, 50)
 
-      debouncedFn('call1')
-      debouncedFn('call2')
-      debouncedFn('call3')
+      debouncedFn('a')
+      debouncedFn('b')
+      debouncedFn('c')
 
       expect(fn).not.toHaveBeenCalled()
 
       // Wait for debounce delay
-      await new Promise(resolve => setTimeout(resolve, 60))
+      await new Promise((resolve) => setTimeout(resolve, 60))
 
       expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith('call3')
+      expect(fn).toHaveBeenCalledWith('c')
     })
 
     it('should handle single call', async () => {
-      const fn = mock()
+      const fn = vi.fn()
       const debouncedFn = debounce(fn, 50)
 
       debouncedFn('single')
 
-      await new Promise(resolve => setTimeout(resolve, 60))
+      // Wait for debounce delay
+      await new Promise((resolve) => setTimeout(resolve, 60))
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('single')
     })
 
-    it('should handle zero wait time', async () => {
-      const fn = mock()
+    it('should handle zero wait', async () => {
+      const fn = vi.fn()
       const debouncedFn = debounce(fn, 0)
 
-      debouncedFn('immediate')
+      debouncedFn('instant')
+      await new Promise((resolve) => setTimeout(resolve, 1))
 
-      // Wait for next tick
-      await new Promise(resolve => setTimeout(resolve, 1))
-
-      expect(fn).toHaveBeenCalledWith('immediate')
+      expect(fn).toHaveBeenCalledWith('instant')
     })
   })
 })

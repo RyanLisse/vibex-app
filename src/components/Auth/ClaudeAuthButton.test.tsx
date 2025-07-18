@@ -1,18 +1,19 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { ClaudeAuthButton } from './ClaudeAuthButton'
 
 // Mock the useClaudeAuth hook
-mock('@/hooks/useClaudeAuth', () => ({
-  default: mock(() => ({
-    startLogin: mock(),
+vi.mock('@/hooks/useClaudeAuth', () => ({
+  default: vi.fn(() => ({
+    startLogin: vi.fn(),
     isAuthenticating: false,
     error: null,
   })),
 }))
 
 // Mock the Button component
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, className, variant, ...props }: any) => (
     <button
       className={className}
@@ -27,7 +28,7 @@ mock('@/components/ui/button', () => ({
 }))
 
 // Mock lucide-react icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Loader2: ({ className }: any) => (
     <span className={className} data-testid="loader-icon">
       Loading...
@@ -39,8 +40,8 @@ describe('ClaudeAuthButton', () => {
   const mockProps = {
     clientId: 'test-client-id',
     redirectUri: 'https://example.com/callback',
-    onSuccess: mock(),
-    onError: mock(),
+    onSuccess: vi.fn(),
+    onError: vi.fn(),
   }
 
   beforeEach(() => {
@@ -82,7 +83,7 @@ describe('ClaudeAuthButton', () => {
     it('should show loading state when authenticating', async () => {
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       mocked(useClaudeAuth.default).mockReturnValue({
-        startLogin: mock(),
+        startLogin: vi.fn(),
         isAuthenticating: true,
         error: null,
       })
@@ -105,7 +106,7 @@ describe('ClaudeAuthButton', () => {
 
   describe('user interactions', () => {
     it('should call startLogin when button is clicked', async () => {
-      const mockStartLogin = mock()
+      const mockStartLogin = vi.fn()
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       mocked(useClaudeAuth.default).mockReturnValue({
         startLogin: mockStartLogin,
@@ -122,7 +123,7 @@ describe('ClaudeAuthButton', () => {
     })
 
     it('should not call startLogin when button is disabled', async () => {
-      const mockStartLogin = mock()
+      const mockStartLogin = vi.fn()
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       mocked(useClaudeAuth.default).mockReturnValue({
         startLogin: mockStartLogin,
@@ -144,7 +145,7 @@ describe('ClaudeAuthButton', () => {
       const mockError = new Error('Authentication failed')
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       mocked(useClaudeAuth.default).mockReturnValue({
-        startLogin: mock(),
+        startLogin: vi.fn(),
         isAuthenticating: false,
         error: mockError,
       })
@@ -166,7 +167,7 @@ describe('ClaudeAuthButton', () => {
       const mockError = new Error('Authentication failed')
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       mocked(useClaudeAuth.default).mockReturnValue({
-        startLogin: mock(),
+        startLogin: vi.fn(),
         isAuthenticating: false,
         error: mockError,
       })
@@ -203,7 +204,7 @@ describe('ClaudeAuthButton', () => {
 
       // Initial render
       mockHook.mockReturnValue({
-        startLogin: mock(),
+        startLogin: vi.fn(),
         isAuthenticating: false,
         error: null,
       })
@@ -214,7 +215,7 @@ describe('ClaudeAuthButton', () => {
 
       // Update to authenticating state
       mockHook.mockReturnValue({
-        startLogin: mock(),
+        startLogin: vi.fn(),
         isAuthenticating: true,
         error: null,
       })
@@ -227,7 +228,7 @@ describe('ClaudeAuthButton', () => {
 
   describe('edge cases', () => {
     it('should handle rapid clicks', async () => {
-      const mockStartLogin = mock()
+      const mockStartLogin = vi.fn()
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       mocked(useClaudeAuth.default).mockReturnValue({
         startLogin: mockStartLogin,

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import React from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -117,7 +118,7 @@ describe('Skeleton', () => {
   })
 
   it('should handle onClick events', () => {
-    const handleClick = mock()
+    const handleClick = vi.fn()
     render(<Skeleton data-testid="skeleton" onClick={handleClick} />)
 
     const skeleton = screen.getByTestId('skeleton')

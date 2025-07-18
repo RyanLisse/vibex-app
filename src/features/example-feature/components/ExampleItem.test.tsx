@@ -1,4 +1,5 @@
 import { ExampleItem } from '@/src/features/example-feature/components/ExampleItem'
+import { vi } from 'vitest'
 import type { ExampleItem as ExampleItemType } from '@/src/features/example-feature/types'
 import { render, screen } from '@/test/test-utils'
 
@@ -34,7 +35,7 @@ describe('ExampleItem', () => {
   })
 
   it('should call onEdit when edit button is clicked', async () => {
-    const onEdit = mock()
+    const onEdit = vi.fn()
     const { user } = render(<ExampleItem item={mockItem} onEdit={onEdit} />)
 
     await user.click(screen.getByRole('button', { name: /edit/i }))
@@ -42,7 +43,7 @@ describe('ExampleItem', () => {
   })
 
   it('should call onDelete when delete button is clicked', async () => {
-    const onDelete = mock()
+    const onDelete = vi.fn()
     const { user } = render(<ExampleItem item={mockItem} onDelete={onDelete} />)
 
     await user.click(screen.getByRole('button', { name: /delete/i }))
@@ -50,7 +51,7 @@ describe('ExampleItem', () => {
   })
 
   it('should call onStatusChange when status is changed', async () => {
-    const onStatusChange = mock()
+    const onStatusChange = vi.fn()
     const { user } = render(<ExampleItem item={mockItem} onStatusChange={onStatusChange} />)
 
     const checkbox = screen.getByRole('checkbox')

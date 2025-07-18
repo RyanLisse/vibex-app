@@ -20,11 +20,9 @@ export const createMockFunction = <T extends (...args: any[]) => any>(
   return implementation ? mock(implementation) : mock()
 }
 
-export const createMockObject = <T extends Record<string, any>>(
-  obj: T
-): MockedObject<T> => {
+export const createMockObject = <T extends Record<string, any>>(obj: T): MockedObject<T> => {
   const mockObj = {} as MockedObject<T>
-  
+
   for (const key in obj) {
     if (typeof obj[key] === 'function') {
       mockObj[key] = mock(obj[key]) as any
@@ -32,7 +30,7 @@ export const createMockObject = <T extends Record<string, any>>(
       mockObj[key] = obj[key]
     }
   }
-  
+
   return mockObj
 }
 
@@ -43,7 +41,10 @@ export const createFetchMock = () => {
   return mockFetch
 }
 
-export const mockFetchSuccess = (data: any, options?: { status?: number; headers?: Record<string, string> }) => {
+export const mockFetchSuccess = (
+  data: any,
+  options?: { status?: number; headers?: Record<string, string> }
+) => {
   const mockResponse = {
     ok: true,
     status: options?.status || 200,
@@ -51,8 +52,9 @@ export const mockFetchSuccess = (data: any, options?: { status?: number; headers
     text: mock(async () => JSON.stringify(data)),
     headers: new Headers(options?.headers || {}),
   }
-  
-  ;(global.fetch as any).mockResolvedValue(mockResponse)
+
+  const fetchMock = mock(global.fetch)
+  fetchMock.mockResolvedValue(mockResponse)
   return mockResponse
 }
 
@@ -62,17 +64,23 @@ export const mockFetchError = (error: string | Error, options?: { status?: numbe
     ok: false,
     status: options?.status || 500,
     statusText: errorObj.message,
-    json: mock(async () => { throw errorObj }),
-    text: mock(async () => { throw errorObj }),
+    json: mock(async () => {
+      throw errorObj
+    }),
+    text: mock(async () => {
+      throw errorObj
+    }),
   }
-  
-  ;(global.fetch as any).mockResolvedValue(mockResponse)
+
+  const fetchMock = mock(global.fetch)
+  fetchMock.mockResolvedValue(mockResponse)
   return mockResponse
 }
 
 export const mockFetchRejection = (error: string | Error) => {
   const errorObj = typeof error === 'string' ? new Error(error) : error
-  ;(global.fetch as any).mockRejectedValue(errorObj)
+  const fetchMock = mock(global.fetch)
+  fetchMock.mockRejectedValue(errorObj)
   return errorObj
 }
 
@@ -83,7 +91,7 @@ export const mockNextRouter = () => {
   const mockBack = mock()
   const mockForward = mock()
   const mockRefresh = mock()
-  
+
   const mockRouter = {
     push: mockPush,
     replace: mockReplace,
@@ -100,7 +108,7 @@ export const mockNextRouter = () => {
       emit: mock(),
     },
   }
-  
+
   return { mockRouter, mockPush, mockReplace, mockBack, mockForward, mockRefresh }
 }
 
@@ -108,13 +116,13 @@ export const mockNextCookies = () => {
   const mockGet = mock()
   const mockSet = mock()
   const mockDelete = mock()
-  
+
   const mockCookies = {
     get: mockGet,
     set: mockSet,
     delete: mockDelete,
   }
-  
+
   return { mockCookies, mockGet, mockSet, mockDelete }
 }
 
@@ -122,24 +130,24 @@ export const mockNextCookies = () => {
 export const mockNavigatorClipboard = () => {
   const mockWriteText = mock(() => Promise.resolve())
   const mockReadText = mock(() => Promise.resolve(''))
-  
+
   const mockClipboard = {
     writeText: mockWriteText,
     readText: mockReadText,
   }
-  
+
   Object.defineProperty(navigator, 'clipboard', {
     value: mockClipboard,
     writable: true,
     configurable: true,
   })
-  
+
   return { mockClipboard, mockWriteText, mockReadText }
 }
 
 export const mockLocalStorage = () => {
   const store = new Map<string, string>()
-  
+
   const mockGetItem = mock((key: string) => store.get(key) || null)
   const mockSetItem = mock((key: string, value: string) => {
     store.set(key, value)
@@ -150,7 +158,7 @@ export const mockLocalStorage = () => {
   const mockClear = mock(() => {
     store.clear()
   })
-  
+
   const mockStorage = {
     getItem: mockGetItem,
     setItem: mockSetItem,
@@ -159,13 +167,13 @@ export const mockLocalStorage = () => {
     length: 0,
     key: mock(() => null),
   }
-  
+
   Object.defineProperty(global, 'localStorage', {
     value: mockStorage,
     writable: true,
     configurable: true,
   })
-  
+
   return { mockStorage, mockGetItem, mockSetItem, mockRemoveItem, mockClear }
 }
 
@@ -174,9 +182,7 @@ export const resetAllMocks = () => {
   mock.restore()
 }
 
-export const resetMockFunction = <T extends (...args: any[]) => any>(
-  mockFn: MockedFunction<T>
-) => {
+export const resetMockFunction = <T extends (...args: any[]) => any>(mockFn: MockedFunction<T>) => {
   mockFn.mockClear()
   mockFn.mockReset()
 }
@@ -288,36 +294,36 @@ export const mockTimers = () => {
   const originalSetInterval = global.setInterval
   const originalClearTimeout = global.clearTimeout
   const originalClearInterval = global.clearInterval
-  
-  let timeouts: Map<number, { callback: () => void; delay: number }> = new Map()
-  let intervals: Map<number, { callback: () => void; delay: number }> = new Map()
+
+  const timeouts: Map<number, { callback: () => void; delay: number }> = new Map()
+  const intervals: Map<number, { callback: () => void; delay: number }> = new Map()
   let nextId = 1
-  
+
   const mockSetTimeout = mock((callback: () => void, delay: number) => {
     const id = nextId++
     timeouts.set(id, { callback, delay })
     return id
   })
-  
+
   const mockSetInterval = mock((callback: () => void, delay: number) => {
     const id = nextId++
     intervals.set(id, { callback, delay })
     return id
   })
-  
+
   const mockClearTimeout = mock((id: number) => {
     timeouts.delete(id)
   })
-  
+
   const mockClearInterval = mock((id: number) => {
     intervals.delete(id)
   })
-  
+
   global.setTimeout = mockSetTimeout as any
   global.setInterval = mockSetInterval as any
   global.clearTimeout = mockClearTimeout as any
   global.clearInterval = mockClearInterval as any
-  
+
   const advanceTimers = (ms: number) => {
     for (const [id, { callback, delay }] of timeouts.entries()) {
       if (delay <= ms) {
@@ -326,14 +332,14 @@ export const mockTimers = () => {
       }
     }
   }
-  
+
   const runOnlyPendingTimers = () => {
     for (const [id, { callback }] of timeouts.entries()) {
       callback()
       timeouts.delete(id)
     }
   }
-  
+
   const restoreTimers = () => {
     global.setTimeout = originalSetTimeout
     global.setInterval = originalSetInterval
@@ -342,7 +348,7 @@ export const mockTimers = () => {
     timeouts.clear()
     intervals.clear()
   }
-  
+
   return {
     advanceTimers,
     runOnlyPendingTimers,

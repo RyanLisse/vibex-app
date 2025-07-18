@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import {
   Table,
   TableBody,
@@ -218,7 +219,7 @@ describe('Table Components', () => {
     })
 
     it('should handle onClick events', () => {
-      const handleClick = mock()
+      const handleClick = vi.fn()
       render(
         <table>
           <tbody>

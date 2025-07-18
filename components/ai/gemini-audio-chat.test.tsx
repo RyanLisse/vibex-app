@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { GeminiAudioChat } from '@/components/ai/gemini-audio-chat'
 
 // Mock the hooks
-mock('@/hooks/use-audio-chat-integration', () => ({
-  useAudioChatIntegration: mock(() => ({
+vi.mock('@/hooks/use-audio-chat-integration', () => ({
+  useAudioChatIntegration: vi.fn(() => ({
     isConnected: false,
     isLoading: false,
     connectionError: null,
@@ -18,14 +19,14 @@ mock('@/hooks/use-audio-chat-integration', () => ({
     messageError: null,
     hasError: false,
     primaryError: null,
-    connect: mock(),
-    disconnect: mock(),
-    sendMessage: mock(),
-    startRecording: mock(),
-    stopRecording: mock(),
-    playAudio: mock(),
-    clearMessages: mock(),
-    clearAllErrors: mock(),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    sendMessage: vi.fn(),
+    startRecording: vi.fn(),
+    stopRecording: vi.fn(),
+    playAudio: vi.fn(),
+    clearMessages: vi.fn(),
+    clearAllErrors: vi.fn(),
     scrollAreaRef: { current: null },
   })),
 }))
@@ -40,7 +41,7 @@ describe('GeminiAudioChat', () => {
   })
 
   it('shows loading state', () => {
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: false,
       isLoading: true,
       connectionError: null,
@@ -54,14 +55,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: false,
       primaryError: null,
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 
@@ -75,7 +76,7 @@ describe('GeminiAudioChat', () => {
   })
 
   it('shows connected state', () => {
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: true,
       isLoading: false,
       connectionError: null,
@@ -89,14 +90,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: false,
       primaryError: null,
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 
@@ -111,7 +112,7 @@ describe('GeminiAudioChat', () => {
   })
 
   it('displays error messages', () => {
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: false,
       isLoading: false,
       connectionError: 'Connection failed',
@@ -125,14 +126,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: true,
       primaryError: 'Connection failed',
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 
@@ -147,7 +148,7 @@ describe('GeminiAudioChat', () => {
   })
 
   it('shows recording state', () => {
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: true,
       isLoading: false,
       connectionError: null,
@@ -161,14 +162,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: false,
       primaryError: null,
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 
@@ -199,7 +200,7 @@ describe('GeminiAudioChat', () => {
       },
     ]
 
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: true,
       isLoading: false,
       connectionError: null,
@@ -213,14 +214,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: false,
       primaryError: null,
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 
@@ -236,12 +237,12 @@ describe('GeminiAudioChat', () => {
 
   it('handles user interactions', async () => {
     const user = userEvent.setup()
-    const mockConnect = mock()
-    const mockSendMessage = mock()
-    const mockStartRecording = mock()
-    const mockClearAllErrors = mock()
+    const mockConnect = vi.fn()
+    const mockSendMessage = vi.fn()
+    const mockStartRecording = vi.fn()
+    const mockClearAllErrors = vi.fn()
 
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: false,
       isLoading: false,
       connectionError: null,
@@ -256,12 +257,12 @@ describe('GeminiAudioChat', () => {
       hasError: true,
       primaryError: 'Test error',
       connect: mockConnect,
-      disconnect: mock(),
+      disconnect: vi.fn(),
       sendMessage: mockSendMessage,
       startRecording: mockStartRecording,
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
       clearAllErrors: mockClearAllErrors,
       scrollAreaRef: { current: null },
     }))
@@ -282,9 +283,9 @@ describe('GeminiAudioChat', () => {
   })
 
   it('passes props correctly to integration hook', () => {
-    const mockOnError = mock()
-    const mockOnStateChange = mock()
-    const mockHook = mock(() => ({
+    const mockOnError = vi.fn()
+    const mockOnStateChange = vi.fn()
+    const mockHook = vi.fn(() => ({
       isConnected: false,
       isLoading: false,
       connectionError: null,
@@ -298,14 +299,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: false,
       primaryError: null,
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 
@@ -333,7 +334,7 @@ describe('GeminiAudioChat', () => {
   })
 
   it('memoizes components correctly', () => {
-    const mockHook = mock(() => ({
+    const mockHook = vi.fn(() => ({
       isConnected: false,
       isLoading: false,
       connectionError: null,
@@ -347,14 +348,14 @@ describe('GeminiAudioChat', () => {
       messageError: null,
       hasError: false,
       primaryError: null,
-      connect: mock(),
-      disconnect: mock(),
-      sendMessage: mock(),
-      startRecording: mock(),
-      stopRecording: mock(),
-      playAudio: mock(),
-      clearMessages: mock(),
-      clearAllErrors: mock(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn(),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
+      playAudio: vi.fn(),
+      clearMessages: vi.fn(),
+      clearAllErrors: vi.fn(),
       scrollAreaRef: { current: null },
     }))
 

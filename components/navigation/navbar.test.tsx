@@ -1,15 +1,16 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import Navbar from '@/components/navigation/navbar'
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Dot: ({ className, ...props }: any) => (
     <svg className={className} data-testid="dot-icon" {...props} />
   ),
 }))
 
 // Mock Next.js Link
-mock('next/link', () => ({
+vi.mock('next/link', () => ({
   default: ({ children, href, className, passHref, ...props }: any) => (
     <a className={className} data-testid="link" href={href} {...props}>
       {children}
@@ -18,7 +19,7 @@ mock('next/link', () => ({
 }))
 
 // Mock ThemeToggle component
-mock('@/components/ui/theme-toggle', () => ({
+vi.mock('@/components/ui/theme-toggle', () => ({
   ThemeToggle: () => <div data-testid="theme-toggle">Theme Toggle</div>,
 }))
 

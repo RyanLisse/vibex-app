@@ -1,29 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/openai/callback/route'
 
 // Mock the authentication utilities
-mock('@/lib/auth/openai-codex', () => ({
-  exchangeCodeForToken: mock(),
-  validateOAuthState: mock(),
-  sanitizeRedirectUrl: mock(),
-  handleAuthError: mock(),
+vi.mock('@/lib/auth/openai-codex', () => ({
+  exchangeCodeForToken: vi.fn(),
+  validateOAuthState: vi.fn(),
+  sanitizeRedirectUrl: vi.fn(),
+  handleAuthError: vi.fn(),
 }))
 
 // Mock NextResponse
-mock('next/server', async () => {
+vi.mock('next/server', async () => {
   const actual = await mock.importActual('next/server')
   return {
     ...actual,
     NextResponse: {
-      json: mock(),
-      redirect: mock(),
+      json: vi.fn(),
+      redirect: vi.fn(),
     },
   }
 })
 
 // Mock environment variables
-mock('@/lib/env', () => ({
+vi.mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_CLIENT_SECRET: 'test-client-secret',
@@ -33,13 +34,15 @@ mock('@/lib/env', () => ({
   },
 }))
 
-const mockExchangeCodeForToken = (await import('@/lib/auth/openai-codex') as any).exchangeCodeForToken
-const mockValidateOAuthState = (await import('@/lib/auth/openai-codex') as any).validateOAuthState
-const mockSanitizeRedirectUrl = (await import('@/lib/auth/openai-codex') as any).sanitizeRedirectUrl
-const mockHandleAuthError = (await import('@/lib/auth/openai-codex') as any).handleAuthError
+const mockExchangeCodeForToken = ((await import('@/lib/auth/openai-codex')) as any)
+  .exchangeCodeForToken
+const mockValidateOAuthState = ((await import('@/lib/auth/openai-codex')) as any).validateOAuthState
+const mockSanitizeRedirectUrl = ((await import('@/lib/auth/openai-codex')) as any)
+  .sanitizeRedirectUrl
+const mockHandleAuthError = ((await import('@/lib/auth/openai-codex')) as any).handleAuthError
 
 const { NextResponse } = await import('next/server')
-const mockNextResponse = (NextResponse as any)
+const mockNextResponse = NextResponse as any
 
 describe('GET /api/auth/openai/callback', () => {
   beforeEach(() => {

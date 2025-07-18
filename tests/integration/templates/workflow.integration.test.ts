@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { vi } from 'vitest'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**
@@ -215,10 +216,10 @@ describe('Workflow Integration Template', () => {
     it('should handle WebSocket connection and updates', async () => {
       // Mock WebSocket connection
       const mockWebSocket = {
-        send: mock(),
-        close: mock(),
-        addEventListener: mock(),
-        removeEventListener: mock(),
+        send: vi.fn(),
+        close: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
         readyState: 1,
         onopen: null,
         onmessage: null,
@@ -226,7 +227,7 @@ describe('Workflow Integration Template', () => {
         onerror: null,
       }
 
-      global.WebSocket = mock(() => mockWebSocket)
+      global.WebSocket = vi.fn(() => mockWebSocket)
 
       // Step 1: Subscribe to task updates
       integrationTestHelpers.mockApiResponse('/api/subscribe/task-123', {
@@ -244,7 +245,7 @@ describe('Workflow Integration Template', () => {
       expect(subscriptionData.subscriptionId).toBe('sub-456')
 
       // Step 2: Simulate WebSocket messages
-      const messageHandler = mock()
+      const messageHandler = vi.fn()
 
       if (mockWebSocket.addEventListener) {
         mockWebSocket.addEventListener('message', messageHandler)
@@ -282,10 +283,10 @@ describe('Workflow Integration Template', () => {
     it('should handle connection failures', async () => {
       // Mock WebSocket connection failure
       const mockWebSocket = {
-        send: mock(),
-        close: mock(),
-        addEventListener: mock(),
-        removeEventListener: mock(),
+        send: vi.fn(),
+        close: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
         readyState: 3, // CLOSED
         onopen: null,
         onmessage: null,
@@ -293,7 +294,7 @@ describe('Workflow Integration Template', () => {
         onerror: null,
       }
 
-      global.WebSocket = mock(() => mockWebSocket)
+      global.WebSocket = vi.fn(() => mockWebSocket)
 
       // Simulate connection error
       integrationTestHelpers.mockApiError(

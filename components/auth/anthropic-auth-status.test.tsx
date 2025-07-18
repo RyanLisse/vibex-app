@@ -1,15 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { AnthropicAuthStatus } from '@/components/auth/anthropic-auth-status'
 
 // Mock the anthropic auth hook
-const mockUseAnthropicAuth = mock()
-mock('@/hooks/use-anthropic-auth', () => ({
+const mockUseAnthropicAuth = vi.fn()
+vi.mock('@/hooks/use-anthropic-auth', () => ({
   useAnthropicAuth: () => mockUseAnthropicAuth(),
 }))
 
 // Mock date-fns
-mock('date-fns', () => ({
-  formatDistanceToNow: mock((_date, options) => {
+vi.mock('date-fns', () => ({
+  formatDistanceToNow: vi.fn((_date, options) => {
     if (options?.addSuffix) {
       return 'in 30 minutes'
     }
@@ -18,7 +19,7 @@ mock('date-fns', () => ({
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   CheckCircle: ({ className, ...props }: any) => (
     <svg className={className} data-testid="check-circle-icon" {...props} />
   ),
@@ -37,7 +38,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className, ...props }: any) => (
     <span className={className} data-testid="badge" data-variant={variant} {...props}>
       {children}
@@ -45,7 +46,7 @@ mock('@/components/ui/badge', () => ({
   ),
 }))
 
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
       className={className}
@@ -61,8 +62,8 @@ mock('@/components/ui/button', () => ({
 }))
 
 describe('AnthropicAuthStatus', () => {
-  const mockLogin = mock()
-  const mockLogout = mock()
+  const mockLogin = vi.fn()
+  const mockLogout = vi.fn()
 
   beforeEach(() => {
     mock.restore()

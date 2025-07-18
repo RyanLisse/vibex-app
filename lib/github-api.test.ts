@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { vi } from 'vitest'
 import { GitHubAPI } from '@/lib/github-api'
 
 describe('GitHubAPI', () => {
@@ -8,7 +9,7 @@ describe('GitHubAPI', () => {
 
   beforeEach(() => {
     api = new GitHubAPI(mockToken)
-    fetchMock = mock()
+    fetchMock = vi.fn()
     global.fetch = fetchMock
   })
 

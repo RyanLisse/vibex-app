@@ -1,26 +1,27 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useMessageProcessor } from '@/app/task/[id]/_hooks/use-message-processor'
 import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
 
 // Mock the message guards
-mock('../_utils/message-guards', () => ({
-  isStreamingMessage: mock(),
-  isCompletedStreamMessage: mock(),
-  isValidIncomingMessage: mock(),
+vi.mock('../_utils/message-guards', () => ({
+  isStreamingMessage: vi.fn(),
+  isCompletedStreamMessage: vi.fn(),
+  isValidIncomingMessage: vi.fn(),
 }))
 
 // Mock the task store
-const mockUpdateTask = mock()
+const mockUpdateTask = vi.fn()
 
-mock('@/stores/tasks', () => ({
+vi.mock('@/stores/tasks', () => ({
   useTaskStore: () => ({
     updateTask: mockUpdateTask,
   }),
 }))
 
 // Mock React hooks
-const mockSetStreamingMessages = mock()
+const mockSetStreamingMessages = vi.fn()
 
 const mockMessageGuards = (await import('@/app/task/[id]/_utils/message-guards')) as any
 

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import {
   AIConversation,
   AIConversationContent,
@@ -6,7 +7,7 @@ import {
 } from '@/src/components/ui/kibo-ui/ai/conversation'
 
 // Mock the Button component
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, className, ...props }: any) => (
     <button className={className} onClick={onClick} {...props}>
       {children}
@@ -15,13 +16,13 @@ mock('@/components/ui/button', () => ({
 }))
 
 // Mock the StickToBottom component
-const mockScrollToBottom = mock()
+const mockScrollToBottom = vi.fn()
 const mockStickToBottomContext = {
   isAtBottom: false,
   scrollToBottom: mockScrollToBottom,
 }
 
-mock('use-stick-to-bottom', () => ({
+vi.mock('use-stick-to-bottom', () => ({
   StickToBottom: ({ children, className, ...props }: any) => (
     <div className={className} role="log" {...props}>
       {children}
@@ -31,12 +32,12 @@ mock('use-stick-to-bottom', () => ({
 }))
 
 // Mock the cn utility
-mock('/lib/utils', () => ({
-  cn: mock((...classes) => classes.filter(Boolean).join(' ')),
+vi.mock('/lib/utils', () => ({
+  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')),
 }))
 
 // Mock Lucide icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   ArrowDownIcon: ({ className }: { className: string }) => (
     <span className={className} data-testid="arrow-down-icon" />
   ),
@@ -344,7 +345,7 @@ describe('AIConversation Components', () => {
     it('handles missing scroll context gracefully', () => {
       // Mock missing context
       const originalError = console.error
-      console.error = mock()
+      console.error = vi.fn()
 
       vi.doMock('use-stick-to-bottom', () => ({
         StickToBottom: ({ children, ...props }: any) => <div {...props}>{children}</div>,

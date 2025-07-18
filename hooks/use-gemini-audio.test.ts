@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { UseGeminiAudioOptions } from '@/hooks/use-gemini-audio'
 import { useGeminiAudio } from '@/hooks/use-gemini-audio'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('useGeminiAudio', () => {
   beforeEach(() => {
@@ -73,7 +74,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle connection errors', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       const fetchMock = mock(global.fetch)
       fetchMock.mockResolvedValueOnce({
         ok: false,
@@ -93,7 +94,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle network errors', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       const networkError = new Error('Network error')
       const fetchMock = mock(global.fetch)
       fetchMock.mockRejectedValueOnce(networkError)
@@ -191,7 +192,7 @@ describe('useGeminiAudio', () => {
 
   describe('sendMessage', () => {
     it('should send text message and add to messages', async () => {
-      const onMessage = mock()
+      const onMessage = vi.fn()
       const { result } = renderHook(() => useGeminiAudio({ onMessage }))
 
       // Connect first
@@ -222,7 +223,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should simulate AI response after sending message', async () => {
-      const onMessage = mock()
+      const onMessage = vi.fn()
       const { result } = renderHook(() => useGeminiAudio({ onMessage }))
 
       await act(async () => {
@@ -261,7 +262,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle send message errors', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       const { result } = renderHook(() => useGeminiAudio({ onError }))
 
       await act(async () => {
@@ -285,7 +286,7 @@ describe('useGeminiAudio', () => {
 
   describe('sendAudio', () => {
     it('should send audio blob and add to messages', async () => {
-      const onMessage = mock()
+      const onMessage = vi.fn()
       const { result } = renderHook(() => useGeminiAudio({ onMessage }))
 
       await act(async () => {
@@ -297,11 +298,11 @@ describe('useGeminiAudio', () => {
 
       // Mock FileReader
       const mockFileReader = {
-        readAsDataURL: mock(),
+        readAsDataURL: vi.fn(),
         onloadend: null as any,
         result: base64Audio,
       }
-      global.FileReader = mock().mockImplementation(() => mockFileReader) as any
+      global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any
 
       await act(async () => {
         const promise = result.current.sendAudio(audioBlob)
@@ -332,7 +333,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle audio send errors', async () => {
-      const onError = mock()
+      const onError = vi.fn()
       const { result } = renderHook(() => useGeminiAudio({ onError }))
 
       await act(async () => {
@@ -343,11 +344,11 @@ describe('useGeminiAudio', () => {
       const base64Audio = 'data:audio/webm;base64,YXVkaW8gZGF0YQ=='
 
       const mockFileReader = {
-        readAsDataURL: mock(),
+        readAsDataURL: vi.fn(),
         onloadend: null as any,
         result: base64Audio,
       }
-      global.FileReader = mock().mockImplementation(() => mockFileReader) as any
+      global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any
 
       const fetchMock = mock(global.fetch)
       fetchMock.mockResolvedValueOnce({

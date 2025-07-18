@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useAudioRecorder } from '@/hooks/use-audio-recorder'
 
@@ -38,7 +39,7 @@ class MockMediaRecorder {
 }
 
 // Mock getUserMedia
-const mockGetUserMedia = mock()
+const mockGetUserMedia = vi.fn()
 
 // Setup global mocks
 global.MediaRecorder = MockMediaRecorder as any
@@ -50,14 +51,14 @@ global.navigator = {
 } as any
 
 // Mock URL.createObjectURL
-global.URL.createObjectURL = mock(() => 'blob:mock-url')
-global.URL.revokeObjectURL = mock()
+global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+global.URL.revokeObjectURL = vi.fn()
 
 describe('useAudioRecorder', () => {
   beforeEach(() => {
     mock.restore()
     mockGetUserMedia.mockResolvedValue({
-      getTracks: () => [{ stop: mock() }],
+      getTracks: () => [{ stop: vi.fn() }],
     })
   })
 
@@ -243,7 +244,7 @@ describe('useAudioRecorder', () => {
     const mockAnchor = {
       href: '',
       download: '',
-      click: mock(),
+      click: vi.fn(),
     }
     spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
 
@@ -270,7 +271,7 @@ describe('useAudioRecorder', () => {
     // Mock Audio constructor
     const mockAudio = {
       src: '',
-      addEventListener: mock((event, callback) => {
+      addEventListener: vi.fn((event, callback) => {
         if (event === 'loadedmetadata') {
           mockAudio.duration = 10.5
           callback()
@@ -278,7 +279,7 @@ describe('useAudioRecorder', () => {
       }),
       duration: 0,
     }
-    global.Audio = mock(() => mockAudio) as any
+    global.Audio = vi.fn(() => mockAudio) as any
 
     const { result } = renderHook(() => useAudioRecorder())
 
@@ -347,7 +348,7 @@ describe('useAudioRecorder', () => {
   })
 
   it('should handle stream cleanup on unmount', async () => {
-    const mockStop = mock()
+    const mockStop = vi.fn()
     mockGetUserMedia.mockResolvedValue({
       getTracks: () => [{ stop: mockStop }],
     })
@@ -376,11 +377,11 @@ describe('useAudioRecorder', () => {
 
     // Mock FileReader
     const mockFileReader = {
-      readAsDataURL: mock(),
+      readAsDataURL: vi.fn(),
       onload: null as any,
       result: 'data:audio/webm;base64,mockBase64Data',
     }
-    global.FileReader = mock(() => mockFileReader) as any
+    global.FileReader = vi.fn(() => mockFileReader) as any
 
     const base64Promise = result.current.getAudioBase64()
 

@@ -1,37 +1,38 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription-refactored'
 
 // Mock the dependencies
-mock('@inngest/realtime/hooks', () => ({
-  useInngestSubscription: mock(() => ({
+vi.mock('@inngest/realtime/hooks', () => ({
+  useInngestSubscription: vi.fn(() => ({
     latestData: null,
-    disconnect: mock(),
+    disconnect: vi.fn(),
   })),
 }))
 
-mock('@/lib/stream-utils', () => ({
-  safeAsync: mock(),
+vi.mock('@/lib/stream-utils', () => ({
+  safeAsync: vi.fn(),
 }))
 
-mock('./use-message-processor', () => ({
-  useMessageProcessor: mock(() => ({
-    processMessage: mock(),
+vi.mock('./use-message-processor', () => ({
+  useMessageProcessor: vi.fn(() => ({
+    processMessage: vi.fn(),
   })),
 }))
 
-mock('./use-status-processor', () => ({
-  useStatusProcessor: mock(() => ({
-    processStatusUpdate: mock(),
+vi.mock('./use-status-processor', () => ({
+  useStatusProcessor: vi.fn(() => ({
+    processStatusUpdate: vi.fn(),
   })),
 }))
 
-mock('@/app/actions/inngest', () => ({
-  fetchRealtimeSubscriptionToken: mock(),
+vi.mock('@/app/actions/inngest', () => ({
+  fetchRealtimeSubscriptionToken: vi.fn(),
 }))
 
 // Mock fetch
-const mockFetch = mock()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 describe('useTaskSubscription', () => {
@@ -147,7 +148,7 @@ describe('useTaskSubscription', () => {
   })
 
   it('should properly cleanup on unmount', () => {
-    const mockDisconnect = mock()
+    const mockDisconnect = vi.fn()
     const { useInngestSubscription } = require('@inngest/realtime/hooks')
     useInngestSubscription.mockReturnValue({
       latestData: null,

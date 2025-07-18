@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import * as cryptoModule from 'node:crypto'
 import { generateCodeChallenge, generateCodeVerifier } from '@/src/lib/auth/pkce'
 
 // Mock crypto module
-mock('crypto')
+vi.mock('crypto')
 
 describe('PKCE utilities', () => {
   const mockRandomBytes = cryptoModule.randomBytes as MockedFunction<
@@ -74,8 +75,8 @@ describe('PKCE utilities', () => {
   describe('generateCodeChallenge', () => {
     it('should generate a valid code challenge from verifier', () => {
       const mockHash = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from('hashedvalue')),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from('hashedvalue')),
       }
       mockCreateHash.mockReturnValue(mockHash as any)
 
@@ -90,8 +91,8 @@ describe('PKCE utilities', () => {
 
     it('should properly encode challenge to Base64URL format', () => {
       const mockHash = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from([251, 255, 254])),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from([251, 255, 254])),
       }
       mockCreateHash.mockReturnValue(mockHash as any)
 
@@ -106,8 +107,8 @@ describe('PKCE utilities', () => {
 
     it('should produce consistent challenges for same verifier', () => {
       const mockHash = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from('consistent')),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from('consistent')),
       }
       mockCreateHash.mockReturnValue(mockHash as any)
 
@@ -120,12 +121,12 @@ describe('PKCE utilities', () => {
 
     it('should produce different challenges for different verifiers', () => {
       const mockHash1 = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from('hash1')),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from('hash1')),
       }
       const mockHash2 = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from('hash2')),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from('hash2')),
       }
 
       mockCreateHash.mockReturnValueOnce(mockHash1 as any).mockReturnValueOnce(mockHash2 as any)
@@ -138,8 +139,8 @@ describe('PKCE utilities', () => {
 
     it('should handle empty verifier', () => {
       const mockHash = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from('emptyhash')),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from('emptyhash')),
       }
       mockCreateHash.mockReturnValue(mockHash as any)
 
@@ -159,7 +160,7 @@ describe('PKCE utilities', () => {
 
     it('should handle update errors', () => {
       const mockHash = {
-        update: mock().mockImplementation(() => {
+        update: vi.fn().mockImplementation(() => {
           throw new Error('Update error')
         }),
       }
@@ -178,8 +179,8 @@ describe('PKCE utilities', () => {
 
       testCases.forEach(({ length }) => {
         const mockHash = {
-          update: mock().mockReturnThis(),
-          digest: mock().mockReturnValue(Buffer.alloc(length, 'a')),
+          update: vi.fn().mockReturnThis(),
+          digest: vi.fn().mockReturnValue(Buffer.alloc(length, 'a')),
         }
         mockCreateHash.mockReturnValue(mockHash as any)
 
@@ -199,8 +200,8 @@ describe('PKCE utilities', () => {
 
       // Mock for challenge generation
       const mockHash = {
-        update: mock().mockReturnThis(),
-        digest: mock().mockReturnValue(Buffer.from('challenge-hash')),
+        update: vi.fn().mockReturnThis(),
+        digest: vi.fn().mockReturnValue(Buffer.from('challenge-hash')),
       }
       mockCreateHash.mockReturnValue(mockHash as any)
 

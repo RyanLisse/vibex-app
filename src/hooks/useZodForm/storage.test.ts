@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import type { UseFormReturn } from 'react-hook-form'
 import { createStorageHelpers } from '@/src/hooks/useZodForm/storage'
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: mock(),
-  setItem: mock(),
-  removeItem: mock(),
-  clear: mock(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
 
 Object.defineProperty(window, 'localStorage', {
@@ -17,7 +18,7 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock console
 const mockConsole = {
-  error: mock(),
+  error: vi.fn(),
 }
 mock.stubGlobal('console', mockConsole)
 
@@ -27,8 +28,8 @@ describe('storage helpers', () => {
   beforeEach(() => {
     mock.restore()
     mockForm = {
-      getValues: mock(),
-      reset: mock(),
+      getValues: vi.fn(),
+      reset: vi.fn(),
     } as any
   })
 
@@ -177,7 +178,7 @@ describe('storage helpers', () => {
     it('should call setInitialData if provided', () => {
       const storedData = { name: 'Test' }
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(storedData))
-      const setInitialData = mock()
+      const setInitialData = vi.fn()
 
       const helpers = createStorageHelpers(mockForm, undefined, setInitialData)
       helpers.load('test-form')
@@ -219,7 +220,7 @@ describe('storage helpers', () => {
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(storedData))
 
       const transformer = (data: any) => ({ value: data.value * 2 })
-      const setInitialData = mock()
+      const setInitialData = vi.fn()
 
       const helpers = createStorageHelpers(mockForm, transformer, setInitialData)
       helpers.load('test-form')

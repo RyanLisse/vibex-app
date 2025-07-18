@@ -1,17 +1,18 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import React from 'react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 // Mock next-themes
-const mockSetTheme = mock()
-const mockUseTheme = mock()
+const mockSetTheme = vi.fn()
+const mockUseTheme = vi.fn()
 
-mock('next-themes', () => ({
+vi.mock('next-themes', () => ({
   useTheme: () => mockUseTheme(),
 }))
 
 // Mock Lucide React icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Moon: ({ className, ...props }: any) => (
     <svg className={className} data-testid="moon-icon" {...props} />
   ),
@@ -21,7 +22,7 @@ mock('lucide-react', () => ({
 }))
 
 // Mock Button component
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, disabled, ...props }: any) => (
     <button
       data-size={size}

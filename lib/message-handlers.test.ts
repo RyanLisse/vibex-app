@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import type { StatusData, UpdateData } from '@/lib/container-types'
 import { MessageHandlers } from '@/lib/message-handlers'
 
 describe('MessageHandlers', () => {
-  const mockUpdateTask = mock()
-  const mockGetTaskById = mock()
+  const mockUpdateTask = vi.fn()
+  const mockGetTaskById = vi.fn()
 
   let handlers: MessageHandlers
 

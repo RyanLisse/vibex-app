@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import {
   KanbanBoard,
@@ -11,22 +12,22 @@ import {
 } from './index'
 
 // Mock dependencies
-mock('@dnd-kit/core', () => ({
+vi.mock('@dnd-kit/core', () => ({
   DndContext: ({ children }: any) => <div data-testid="dnd-context">{children}</div>,
   DragOverlay: ({ children }: any) => <div data-testid="drag-overlay">{children}</div>,
   useDroppable: () => ({
     isOver: false,
-    setNodeRef: mock(),
+    setNodeRef: vi.fn(),
   }),
-  useSensor: mock((SensorClass: any) => ({ sensor: SensorClass.name })),
-  useSensors: mock((...sensors: any[]) => sensors),
-  closestCenter: mock(),
+  useSensor: vi.fn((SensorClass: any) => ({ sensor: SensorClass.name })),
+  useSensors: vi.fn((...sensors: any[]) => sensors),
+  closestCenter: vi.fn(),
   KeyboardSensor: { name: 'KeyboardSensor' },
   MouseSensor: { name: 'MouseSensor' },
   TouchSensor: { name: 'TouchSensor' },
 }))
 
-mock('@dnd-kit/sortable', () => ({
+vi.mock('@dnd-kit/sortable', () => ({
   SortableContext: ({ children, items }: any) => (
     <div data-items={items} data-testid="sortable-context">
       {children}
@@ -34,13 +35,13 @@ mock('@dnd-kit/sortable', () => ({
   ),
   useSortable: (options: any) => ({
     attributes: { 'data-sortable-id': options.id },
-    listeners: { onPointerDown: mock() },
-    setNodeRef: mock(),
+    listeners: { onPointerDown: vi.fn() },
+    setNodeRef: vi.fn(),
     transition: 'transform 250ms ease',
     transform: null,
     isDragging: false,
   }),
-  arrayMove: mock((array: any[], from: number, to: number) => {
+  arrayMove: vi.fn((array: any[], from: number, to: number) => {
     const newArray = [...array]
     const [removed] = newArray.splice(from, 1)
     newArray.splice(to, 0, removed)
@@ -48,7 +49,7 @@ mock('@dnd-kit/sortable', () => ({
   }),
 }))
 
-mock('@dnd-kit/utilities', () => ({
+vi.mock('@dnd-kit/utilities', () => ({
   CSS: {
     Transform: {
       toString: (transform: any) => transform ? 'translate3d(0px, 0px, 0px)' : '',
@@ -56,14 +57,14 @@ mock('@dnd-kit/utilities', () => ({
   },
 }))
 
-mock('tunnel-rat', () => ({
+vi.mock('tunnel-rat', () => ({
   default: () => ({
     In: ({ children }: any) => <div data-testid="tunnel-in">{children}</div>,
     Out: () => <div data-testid="tunnel-out" />,
   }),
 }))
 
-mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -71,7 +72,7 @@ mock('@/components/ui/card', () => ({
   ),
 }))
 
-mock('@/components/ui/scroll-area', () => ({
+vi.mock('@/components/ui/scroll-area', () => ({
   ScrollArea: ({ children, className }: any) => (
     <div className={className} data-testid="scroll-area">
       {children}
@@ -82,7 +83,7 @@ mock('@/components/ui/scroll-area', () => ({
   ),
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
@@ -136,7 +137,7 @@ describe('KanbanBoard', () => {
     const { useDroppable } = await import('@dnd-kit/core')
     mocked(useDroppable).mockReturnValue({
       isOver: true,
-      setNodeRef: mock(),
+      setNodeRef: vi.fn(),
     })
 
     render(
@@ -174,7 +175,7 @@ describe('KanbanHeader', () => {
 
   it('should pass through additional props', () => {
     render(
-      <KanbanHeader data-testid="kanban-header" onClick={mock()}>
+      <KanbanHeader data-testid="kanban-header" onClick={vi.fn()}>
         Header
       </KanbanHeader>
     )
@@ -218,8 +219,8 @@ describe('KanbanCard', () => {
     const { useSortable } = await import('@dnd-kit/sortable')
     mocked(useSortable).mockReturnValue({
       attributes: { 'data-sortable-id': 'card-1' },
-      listeners: { onPointerDown: mock() },
-      setNodeRef: mock(),
+      listeners: { onPointerDown: vi.fn() },
+      setNodeRef: vi.fn(),
       transition: 'transform 250ms ease',
       transform: null,
       isDragging: true,
@@ -372,10 +373,10 @@ describe('KanbanProvider', () => {
   })
 
   it('should handle drag events', async () => {
-    const onDragStart = mock()
-    const onDragEnd = mock()
-    const onDragOver = mock()
-    const onDataChange = mock()
+    const onDragStart = vi.fn()
+    const onDragEnd = vi.fn()
+    const onDragOver = vi.fn()
+    const onDataChange = vi.fn()
 
     render(
       <KanbanProvider

@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { ClaudeAuthClient } from '@/src/lib/auth/claude-auth'
 import * as pkce from '@/src/lib/auth/pkce'
 
 // Mock PKCE module
-mock('./pkce')
+vi.mock('./pkce')
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('ClaudeAuthClient', () => {
   let client: ClaudeAuthClient

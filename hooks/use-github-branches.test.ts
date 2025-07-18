@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useGitHubBranches } from '@/hooks/use-github-branches'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 // Mock the auth hook
-mock('./use-github-auth', () => ({
+vi.mock('./use-github-auth', () => ({
   useGitHubAuth: () => ({
     isAuthenticated: true,
     user: { login: 'testuser' },
@@ -55,10 +56,10 @@ describe('useGitHubBranches', () => {
       },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranches,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -73,7 +74,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle fetch errors', async () => {
-    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -111,10 +112,10 @@ describe('useGitHubBranches', () => {
       },
     }
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranchDetails,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -137,10 +138,10 @@ describe('useGitHubBranches', () => {
       },
     }
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewBranch,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -162,10 +163,10 @@ describe('useGitHubBranches', () => {
   })
 
   it('should delete a branch', async () => {
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       status: 204,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -182,13 +183,13 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle protected branch deletion error', async () => {
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 422,
       json: async () => ({
         message: 'Branch is protected',
       }),
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -227,10 +228,10 @@ describe('useGitHubBranches', () => {
       ],
     }
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockComparison,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -254,10 +255,10 @@ describe('useGitHubBranches', () => {
       { name: 'bugfix/login-issue' },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => allBranches,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -279,10 +280,10 @@ describe('useGitHubBranches', () => {
       default_branch: 'main',
     }
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepo,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -307,10 +308,10 @@ describe('useGitHubBranches', () => {
       restrictions: null,
     }
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockProtection,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -358,14 +359,14 @@ describe('useGitHubBranches', () => {
               : null,
         },
         json: async () => mockPage1,
-      } as any)
+      } as unknown)
       .mockResolvedValueOnce({
         ok: true,
         headers: {
           get: () => null,
         },
         json: async () => mockPage2,
-      } as any)
+      } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -387,10 +388,10 @@ describe('useGitHubBranches', () => {
   it('should refresh branches', async () => {
     const mockBranches = [{ name: 'main', commit: { sha: 'abc123' } }]
 
-    ;(fetch as any).mockResolvedValue({
+    ;(fetch as unknown as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockBranches,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -447,10 +448,10 @@ describe('useGitHubBranches', () => {
       { name: 'release/v1.0' },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranches,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubBranches())
 

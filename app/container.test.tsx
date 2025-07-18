@@ -1,13 +1,14 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import Container from '@/app/container'
 
 // Mock the dependencies
-const mockUpdateTask = mock()
-const mockGetTaskById = mock()
-const mockFetchRealtimeSubscriptionToken = mock()
-const mockUseInngestSubscription = mock()
+const mockUpdateTask = vi.fn()
+const mockGetTaskById = vi.fn()
+const mockFetchRealtimeSubscriptionToken = vi.fn()
+const mockUseInngestSubscription = vi.fn()
 
-mock('@inngest/realtime/hooks', () => ({
+vi.mock('@inngest/realtime/hooks', () => ({
   useInngestSubscription: () => mockUseInngestSubscription(),
   InngestSubscriptionState: {
     Closed: 'closed',
@@ -16,28 +17,28 @@ mock('@inngest/realtime/hooks', () => ({
   },
 }))
 
-mock('@/app/actions/inngest', () => ({
+vi.mock('@/app/actions/inngest', () => ({
   fetchRealtimeSubscriptionToken: () => mockFetchRealtimeSubscriptionToken(),
 }))
 
-mock('@/stores/tasks', () => ({
+vi.mock('@/stores/tasks', () => ({
   useTaskStore: () => ({
     updateTask: mockUpdateTask,
     getTaskById: mockGetTaskById,
   }),
 }))
 
-mock('@/hooks/use-inngest-subscription', () => ({
+vi.mock('@/hooks/use-inngest-subscription', () => ({
   useInngestSubscriptionManagement: () => ({
     subscription: mockUseInngestSubscription(),
     subscriptionEnabled: true,
-    refreshToken: mock(),
-    handleError: mock(),
+    refreshToken: vi.fn(),
+    handleError: vi.fn(),
   }),
 }))
 
-mock('@/hooks/use-task-message-processing', () => ({
-  useTaskMessageProcessing: mock(),
+vi.mock('@/hooks/use-task-message-processing', () => ({
+  useTaskMessageProcessing: vi.fn(),
 }))
 
 // Mock console methods

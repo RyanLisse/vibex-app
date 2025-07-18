@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import {
   AITool,
@@ -10,7 +11,7 @@ import {
 } from './tool'
 
 // Mock dependencies
-mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', () => ({
   Badge: ({ children, className, variant }: any) => (
     <span className={className} data-variant={variant}>
       {children}
@@ -18,7 +19,7 @@ mock('@/components/ui/badge', () => ({
   ),
 }))
 
-mock('@/components/ui/collapsible', () => ({
+vi.mock('@/components/ui/collapsible', () => ({
   Collapsible: ({ children, className, ...props }: any) => (
     <div className={className} {...props}>
       {children}
@@ -32,12 +33,12 @@ mock('@/components/ui/collapsible', () => ({
   CollapsibleContent: ({ children, className }: any) => <div className={className}>{children}</div>,
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
 // Mock lucide-react icons
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   CheckCircleIcon: ({ className }: any) => (
     <span className={className} data-testid="check-circle-icon" />
   ),
@@ -171,7 +172,7 @@ describe('AIToolHeader', () => {
 
   describe('interactions', () => {
     it('should handle click events', async () => {
-      const onClick = mock()
+      const onClick = vi.fn()
       const user = userEvent.setup()
 
       render(<AIToolHeader {...defaultProps} onClick={onClick} />)

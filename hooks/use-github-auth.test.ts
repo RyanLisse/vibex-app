@@ -1,18 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 
 // Mock next/navigation
-mock('next/navigation', () => ({
-  useRouter: mock(),
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(),
 }))
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('useGitHubAuth', () => {
-  const mockPush = mock()
+  const mockPush = vi.fn()
   const mockRouter = { push: mockPush }
 
   beforeEach(() => {

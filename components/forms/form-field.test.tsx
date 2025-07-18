@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { FormField } from '@/components/forms/form-field'
 
 describe('FormField', () => {
@@ -9,8 +10,8 @@ describe('FormField', () => {
     value: '',
     className: 'test-class',
     hasError: false,
-    onChange: mock(),
-    onBlur: mock(),
+    onChange: vi.fn(),
+    onBlur: vi.fn(),
   }
 
   afterEach(() => {

@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useGitHubRepositories } from '@/hooks/use-github-repositories'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 // Mock the auth hook
-mock('./use-github-auth', () => ({
+vi.mock('./use-github-auth', () => ({
   useGitHubAuth: () => ({
     isAuthenticated: true,
     user: { login: 'testuser' },
@@ -64,10 +65,10 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -81,7 +82,7 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle fetch errors', async () => {
-    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -137,14 +138,14 @@ describe('useGitHubRepositories', () => {
             name === 'Link' ? '<https://api.github.com/user/repos?page=2>; rel="next"' : null,
         },
         json: async () => mockPage1,
-      } as any)
+      } as unknown)
       .mockResolvedValueOnce({
         ok: true,
         headers: {
           get: () => null,
         },
         json: async () => mockPage2,
-      } as any)
+      } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -192,10 +193,10 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => allRepositories,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -242,10 +243,10 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -282,10 +283,10 @@ describe('useGitHubRepositories', () => {
   it('should refresh repositories', async () => {
     const mockRepositories = [{ id: 1, name: 'repo1' }]
 
-    ;(fetch as any).mockResolvedValue({
+    ;(fetch as unknown as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockRepositories,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -323,7 +324,7 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle API rate limits', async () => {
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 403,
       headers: {
@@ -338,7 +339,7 @@ describe('useGitHubRepositories', () => {
         },
       },
       json: async () => ({ message: 'API rate limit exceeded' }),
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -363,10 +364,10 @@ describe('useGitHubRepositories', () => {
       watchers_count: 20,
     }
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepoDetails,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -388,10 +389,10 @@ describe('useGitHubRepositories', () => {
       { id: 3, name: 'another-public', private: false },
     ]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mixedRepositories,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -422,10 +423,10 @@ describe('useGitHubRepositories', () => {
   it('should cache repository data', async () => {
     const mockRepositories = [{ id: 1, name: 'repo1' }]
 
-    ;(fetch as any).mockResolvedValueOnce({
+    ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
-    } as any)
+    } as unknown)
 
     const { result } = renderHook(() =>
       useGitHubRepositories({

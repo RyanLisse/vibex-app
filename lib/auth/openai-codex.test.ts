@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import {
   exchangeCodexToken,
   generateCodexAuthUrl,
@@ -13,10 +14,10 @@ import {
 } from './openai-codex'
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 // Mock environment variables
-mock('@/lib/env', () => ({
+vi.mock('@/lib/env', () => ({
   env: {
     OPENAI_CODEX_CLIENT_ID: 'test-codex-client-id',
     OPENAI_CODEX_CLIENT_SECRET: 'test-codex-secret',
@@ -88,10 +89,10 @@ describe('OpenAI Codex Auth', () => {
         model_permissions: ['davinci-codex', 'cushman-codex'],
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
-      } as any)
+      } as unknown)
 
       const result = await exchangeCodexToken({
         code: 'test-code',
@@ -115,7 +116,7 @@ describe('OpenAI Codex Auth', () => {
     })
 
     it('should handle token exchange errors with specific Codex error codes', async () => {
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: false,
         status: 400,
         json: async () => ({
@@ -123,7 +124,7 @@ describe('OpenAI Codex Auth', () => {
           error_description: 'The provided authorization code is invalid or expired',
           error_code: 'CODEX_AUTH_001',
         }),
-      } as any)
+      } as unknown)
 
       await expect(
         exchangeCodexToken({
@@ -145,10 +146,10 @@ describe('OpenAI Codex Auth', () => {
         model_permissions: ['davinci-codex', 'cushman-codex', 'ada-codex'],
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRefreshResponse,
-      } as any)
+      } as unknown)
 
       const result = await refreshCodexToken('test-refresh-token')
 
@@ -178,10 +179,10 @@ describe('OpenAI Codex Auth', () => {
         },
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockValidationResponse,
-      } as any)
+      } as unknown)
 
       const result = await validateCodexToken('test-codex-token')
 
@@ -215,10 +216,10 @@ describe('OpenAI Codex Auth', () => {
         },
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUserInfo,
-      } as any)
+      } as unknown)
 
       const result = await getCodexUserInfo('test-codex-token')
 
@@ -238,10 +239,10 @@ describe('OpenAI Codex Auth', () => {
 
   describe('revokeCodexToken', () => {
     it('should revoke a Codex token', async () => {
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      } as any)
+      } as unknown)
 
       await revokeCodexToken('test-codex-token')
 
@@ -258,10 +259,10 @@ describe('OpenAI Codex Auth', () => {
     })
 
     it('should handle revocation with hint', async () => {
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
-      } as any)
+      } as unknown)
 
       await revokeCodexToken('test-refresh-token', 'refresh_token')
 
@@ -403,10 +404,10 @@ describe('OpenAI Codex Auth', () => {
         },
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
-      } as any)
+      } as unknown)
 
       const result = await exchangeCodexToken({
         code: 'test-code',
@@ -417,7 +418,7 @@ describe('OpenAI Codex Auth', () => {
     })
 
     it('should handle rate limit headers in responses', async () => {
-      ;(fetch as any).mockResolvedValueOnce({
+      ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
         ok: true,
         headers: {
           get: (name: string) => {
@@ -430,7 +431,7 @@ describe('OpenAI Codex Auth', () => {
           },
         },
         json: async () => ({ active: true }),
-      } as any)
+      } as unknown)
 
       const result = await validateCodexToken('test-token')
 

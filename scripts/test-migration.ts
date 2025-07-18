@@ -170,10 +170,7 @@ async function ensureDir(dirPath: string): Promise<void> {
  * Find all test files
  */
 async function findTestFiles(): Promise<string[]> {
-  const patterns = [
-    '**/*.test.{ts,tsx,js,jsx}',
-    '**/*.spec.{ts,tsx,js,jsx}',
-  ]
+  const patterns = ['**/*.test.{ts,tsx,js,jsx}', '**/*.spec.{ts,tsx,js,jsx}']
 
   const options = {
     cwd: projectRoot,
@@ -183,7 +180,7 @@ async function findTestFiles(): Promise<string[]> {
       'coverage/**',
       '.next/**',
       'tests/e2e/**', // Keep e2e tests in place
-    ]
+    ],
   }
 
   return await glob(patterns, options)

@@ -1,31 +1,32 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { AnthropicAuthProvider, useAuth } from '@/components/auth/anthropic-auth-provider'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 
 // Mock the useAnthropicAuth hook
 mock.module('@/hooks/use-anthropic-auth', () => ({
-  useAnthropicAuth: mock(),
+  useAnthropicAuth: vi.fn(),
 }))
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('AnthropicAuthProvider', () => {
   const mockAuth = {
     authenticated: false,
     loading: false,
     expires: null,
-    login: mock(),
-    logout: mock(),
-    refresh: mock(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
   }
 
   beforeEach(() => {
     mock.restore()
     ;(useAnthropicAuth as any).mockReturnValue(mockAuth)
     ;(global.fetch as any).mockResolvedValue({
-      json: mock().mockResolvedValue({ access_token: 'test-token' }),
+      json: vi.fn().mockResolvedValue({ access_token: 'test-token' }),
     })
   })
 

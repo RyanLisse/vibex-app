@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { AISource, AISources, AISourcesContent, AISourcesTrigger } from './source'
 
 // Mock dependencies
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   BookIcon: ({ className }: any) => (
     <span className={className} data-testid="book-icon">
       📚
@@ -16,7 +17,7 @@ mock('lucide-react', () => ({
   ),
 }))
 
-mock('@/components/ui/collapsible', () => ({
+vi.mock('@/components/ui/collapsible', () => ({
   Collapsible: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="collapsible" {...props}>
       {children}
@@ -34,7 +35,7 @@ mock('@/components/ui/collapsible', () => ({
   ),
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
@@ -101,7 +102,7 @@ describe('AISourcesTrigger', () => {
 
   it('should be clickable', async () => {
     const user = userEvent.setup()
-    const handleClick = mock()
+    const handleClick = vi.fn()
 
     render(<AISourcesTrigger count={1} onClick={handleClick} />)
 
@@ -192,7 +193,7 @@ describe('AISource', () => {
 
   it('should handle click events', async () => {
     const user = userEvent.setup()
-    const handleClick = mock()
+    const handleClick = vi.fn()
 
     render(<AISource href="https://example.com" onClick={handleClick} title="Test" />)
 

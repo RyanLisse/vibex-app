@@ -1,45 +1,46 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET, POST, PUT } from '@/app/api/inngest/route'
 
 // Mock Inngest
 const mockHandler = {
-  GET: mock(),
-  POST: mock(),
-  PUT: mock(),
+  GET: vi.fn(),
+  POST: vi.fn(),
+  PUT: vi.fn(),
 }
 
-mock('inngest/next', () => ({
-  serve: mock(() => mockHandler),
+vi.mock('inngest/next', () => ({
+  serve: vi.fn(() => mockHandler),
 }))
 
-mock('@/lib/inngest', () => ({
+vi.mock('@/lib/inngest', () => ({
   inngest: {
-    createFunction: mock(),
-    send: mock(),
+    createFunction: vi.fn(),
+    send: vi.fn(),
   },
   createTask: {
     id: 'create-task',
     name: 'Create Task',
     trigger: { event: 'task.created' },
-    handler: mock(),
+    handler: vi.fn(),
   },
   taskControl: {
     id: 'task-control',
     name: 'Task Control',
     trigger: { event: 'task.control' },
-    handler: mock(),
+    handler: vi.fn(),
   },
 }))
 
 // Mock NextResponse
-mock('next/server', async () => {
+vi.mock('next/server', async () => {
   const actual = await mock.importActual('next/server')
   return {
     ...actual,
     NextResponse: {
-      json: mock((data, init) => ({ json: () => Promise.resolve(data), ...init })),
-      text: mock(),
+      json: vi.fn((data, init) => ({ json: () => Promise.resolve(data), ...init })),
+      text: vi.fn(),
     },
   }
 })

@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import {
   CodeBlock,
@@ -18,7 +19,7 @@ import {
 } from './index'
 
 // Mock dependencies
-mock('@radix-ui/react-use-controllable-state', () => ({
+vi.mock('@radix-ui/react-use-controllable-state', () => ({
   useControllableState: ({ prop, defaultProp, onChange }: any) => {
     const React = require('react')
     const [state, setState] = React.useState(prop ?? defaultProp)
@@ -38,19 +39,19 @@ mock('@radix-ui/react-use-controllable-state', () => ({
   },
 }))
 
-mock('shiki', () => ({
-  codeToHtml: mock((code: string) => Promise.resolve(`<pre><code>${code}</code></pre>`)),
+vi.mock('shiki', () => ({
+  codeToHtml: vi.fn((code: string) => Promise.resolve(`<pre><code>${code}</code></pre>`)),
 }))
 
-mock('@shikijs/transformers', () => ({
-  transformerNotationDiff: mock(),
-  transformerNotationErrorLevel: mock(),
-  transformerNotationFocus: mock(),
-  transformerNotationHighlight: mock(),
-  transformerNotationWordHighlight: mock(),
+vi.mock('@shikijs/transformers', () => ({
+  transformerNotationDiff: vi.fn(),
+  transformerNotationErrorLevel: vi.fn(),
+  transformerNotationFocus: vi.fn(),
+  transformerNotationHighlight: vi.fn(),
+  transformerNotationWordHighlight: vi.fn(),
 }))
 
-mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, className, onClick, ...props }: any) => (
     <button className={className} onClick={onClick} {...props}>
       {children}
@@ -58,7 +59,7 @@ mock('@/components/ui/button', () => ({
   ),
 }))
 
-mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', () => ({
   Select: ({ children, value, onValueChange }: any) => (
     <div data-testid="select" data-value={value} onClick={() => onValueChange?.('javascript')}>
       {children}
@@ -86,12 +87,12 @@ mock('@/components/ui/select', () => ({
   ),
 }))
 
-mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
 // Mock icon-pack icons
-mock('@icons-pack/react-simple-icons', () => ({
+vi.mock('@icons-pack/react-simple-icons', () => ({
   SiJavascript: ({ className }: any) => (
     <span className={className} data-testid="js-icon">
       JS
@@ -109,7 +110,7 @@ mock('@icons-pack/react-simple-icons', () => ({
   ),
 }))
 
-mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   CheckIcon: ({ className, size }: any) => (
     <span className={className} data-size={size} data-testid="check-icon">
       ✓
@@ -154,7 +155,7 @@ describe('CodeBlock', () => {
   })
 
   it('should handle controlled value', async () => {
-    const handleValueChange = mock()
+    const handleValueChange = vi.fn()
     const { rerender } = render(
       <CodeBlock data={mockData} onValueChange={handleValueChange} value="javascript">
         <CodeBlockSelect>
@@ -289,7 +290,7 @@ describe('CodeBlockCopyButton', () => {
     vi.useFakeTimers()
     Object.assign(navigator, {
       clipboard: {
-        writeText: mock(() => Promise.resolve()),
+        writeText: vi.fn(() => Promise.resolve()),
       },
     })
   })
@@ -299,7 +300,7 @@ describe('CodeBlockCopyButton', () => {
   })
 
   it('should copy code to clipboard', async () => {
-    const handleCopy = mock()
+    const handleCopy = vi.fn()
     render(
       <CodeBlock data={mockData} value="javascript">
         <CodeBlockCopyButton onCopy={handleCopy} />
@@ -336,7 +337,7 @@ describe('CodeBlockCopyButton', () => {
   })
 
   it('should handle copy errors', async () => {
-    const handleError = mock()
+    const handleError = vi.fn()
     const error = new Error('Copy failed')
     mocked(navigator.clipboard.writeText).mockRejectedValueOnce(error)
 
@@ -354,7 +355,7 @@ describe('CodeBlockCopyButton', () => {
   })
 
   it('should render as child element when asChild is true', async () => {
-    const handleClick = mock()
+    const handleClick = vi.fn()
     render(
       <CodeBlock data={mockData} value="javascript">
         <CodeBlockCopyButton asChild>

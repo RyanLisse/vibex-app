@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import {
   Dialog,
   DialogClose,
@@ -13,7 +14,7 @@ import {
 } from './dialog'
 
 // Mock Radix UI components
-mock('@radix-ui/react-dialog', () => ({
+vi.mock('@radix-ui/react-dialog', () => ({
   Root: ({ children, ...props }: any) => (
     <div data-testid="dialog-root" {...props}>
       {children}

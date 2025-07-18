@@ -1,29 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 // Mock the POST function since it doesn't accept parameters
-const POST = mock()
+const POST = vi.fn()
 
 // Mock the authentication utilities
-mock('@/lib/auth/openai-codex', () => ({
-  clearStoredToken: mock(),
-  revokeToken: mock(),
-  getStoredToken: mock(),
-  clearStoredState: mock(),
-  clearStoredCodeVerifier: mock(),
+vi.mock('@/lib/auth/openai-codex', () => ({
+  clearStoredToken: vi.fn(),
+  revokeToken: vi.fn(),
+  getStoredToken: vi.fn(),
+  clearStoredState: vi.fn(),
+  clearStoredCodeVerifier: vi.fn(),
 }))
 
 // Mock NextResponse
-mock('next/server', () => ({
-  NextRequest: mock(),
+vi.mock('next/server', () => ({
+  NextRequest: vi.fn(),
   NextResponse: {
-    json: mock(),
-    redirect: mock(),
+    json: vi.fn(),
+    redirect: vi.fn(),
   },
 }))
 
 // Mock environment variables
-mock('@/lib/env', () => ({
+vi.mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_CLIENT_SECRET: 'test-client-secret',
@@ -40,13 +41,13 @@ import {
   revokeToken,
 } from '@/lib/auth/openai-codex'
 
-const mockClearStoredToken = (clearStoredToken as any)
-const mockRevokeToken = (revokeToken as any)
-const mockGetStoredToken = (getStoredToken as any)
-const mockClearStoredState = (clearStoredState as any)
-const mockClearStoredCodeVerifier = (clearStoredCodeVerifier as any)
+const mockClearStoredToken = clearStoredToken as unknown as jest.Mock
+const mockRevokeToken = revokeToken as unknown as jest.Mock
+const mockGetStoredToken = getStoredToken as unknown as jest.Mock
+const mockClearStoredState = clearStoredState as unknown as jest.Mock
+const mockClearStoredCodeVerifier = clearStoredCodeVerifier as unknown as jest.Mock
 
-const mockNextResponse = ((await import('next/server' as any)).NextResponse)
+const mockNextResponse = (await import('next/server' as unknown as string)).NextResponse
 
 describe('POST /api/auth/openai/logout', () => {
   beforeEach(() => {
@@ -66,7 +67,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/logout', {
       method: 'POST',
@@ -87,7 +88,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/logout', {
       method: 'POST',
@@ -200,7 +201,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/logout?redirect_uri=javascript%3Aalert(1)',
@@ -259,7 +260,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/logout', {
       method: 'POST',
@@ -316,7 +317,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/logout', {
       method: 'POST',
@@ -341,7 +342,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/logout', {
       method: 'POST',
@@ -396,7 +397,7 @@ describe('POST /api/auth/openai/logout', () => {
     mockClearStoredToken.mockResolvedValue(undefined)
     mockClearStoredState.mockResolvedValue(undefined)
     mockClearStoredCodeVerifier.mockResolvedValue(undefined)
-    mockNextResponse.json.mockReturnValue({ success: true } as any)
+    mockNextResponse.json.mockReturnValue({ success: true } as unknown)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/logout', {
       method: 'POST',

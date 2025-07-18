@@ -1,23 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAuthBase } from '@/hooks/use-auth-base'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
 
 // Mock the base auth hook
-mock('./use-auth-base', () => ({
-  useAuthBase: mock(),
+vi.mock('./use-auth-base', () => ({
+  useAuthBase: vi.fn(),
 }))
 
 // Mock fetch
-global.fetch = mock()
+global.fetch = vi.fn()
 
 describe('useOpenAIAuth', () => {
   const mockBaseAuth = {
     authenticated: false,
     loading: true,
-    login: mock(),
-    logout: mock(),
-    refresh: mock(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    refresh: vi.fn(),
   }
 
   beforeEach(() => {
