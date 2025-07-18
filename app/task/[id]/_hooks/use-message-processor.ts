@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useTaskStore } from '@/stores/tasks'
-import type { StreamingMessage } from '../_types/message-types'
+import type { StreamingMessage, IncomingMessage } from '../_types/message-types'
 import {
   isCompletedStreamMessage,
   isStreamingMessage,
@@ -9,7 +9,7 @@ import {
 
 interface UseMessageProcessorProps {
   taskId: string
-  taskMessages: unknown[]
+  taskMessages: Array<{ role: 'user' | 'assistant'; type: string; data: Record<string, unknown> }>
   streamingMessages: Map<string, StreamingMessage>
   setStreamingMessages: React.Dispatch<React.SetStateAction<Map<string, StreamingMessage>>>
 }
@@ -63,10 +63,10 @@ export function useMessageProcessor({
               ...streamingMessage,
               data: {
                 ...streamingMessage.data,
-                text: message.data.text || streamingMessage.data.text,
+                text: (message.data.text as string) || streamingMessage.data.text,
                 isStreaming: false,
               },
-            },
+            } as { role: 'user' | 'assistant'; type: string; data: Record<string, unknown> },
           ],
         })
 
@@ -83,7 +83,10 @@ export function useMessageProcessor({
   const processRegularMessage = useCallback(
     (message: IncomingMessage) => {
       updateTask(taskId, {
-        messages: [...taskMessages, message],
+        messages: [
+          ...taskMessages,
+          message as { role: 'user' | 'assistant'; type: string; data: Record<string, unknown> },
+        ],
       })
     },
     [taskId, taskMessages, updateTask]

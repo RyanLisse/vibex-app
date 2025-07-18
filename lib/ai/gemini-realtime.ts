@@ -1,10 +1,4 @@
-import {
-  GoogleGenAI,
-  LiveServerMessage,
-  MediaResolution,
-  Modality,
-  Session,
-} from '@google/genai'
+import { GoogleGenAI, LiveServerMessage, MediaResolution, Modality, Session } from '@google/genai'
 import type { FunctionCall, FunctionResponse } from '@google/genai'
 
 export interface GeminiRealtimeConfig {

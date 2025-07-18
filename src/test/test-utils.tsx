@@ -7,23 +7,17 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 
-const customRender = (
-  ui: React.ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => {
+const customRender = (ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
   const user = userEvent.setup()
   const utils = render(ui, { wrapper: AllTheProviders, ...options })
-  
+
   return {
     user,
-    ...utils
+    ...utils,
   }
 }
 
-const customRenderHook = <T,>(
-  hook: () => T,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => {
+const customRenderHook = <T,>(hook: () => T, options?: Omit<RenderOptions, 'wrapper'>) => {
   return renderHook(hook, { wrapper: AllTheProviders, ...options })
 }
 
@@ -32,8 +26,7 @@ export * from '@testing-library/react'
 export { customRender as render, customRenderHook as renderHook }
 
 // Export additional utilities
-export const waitForTimeout = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms))
+export const waitForTimeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // Helper to test async components
 export const waitForLoadingToFinish = async () => {

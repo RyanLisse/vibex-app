@@ -5,27 +5,27 @@ export function filterItems(items: ExampleItem[], filter: ExampleFilter): Exampl
     if (filter.status && item.status !== filter.status) {
       return false
     }
-    
+
     if (filter.priority && item.priority !== filter.priority) {
       return false
     }
-    
+
     if (filter.searchTerm) {
       const searchLower = filter.searchTerm.toLowerCase()
       const titleMatch = item.title.toLowerCase().includes(searchLower)
       const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false
-      
+
       if (!titleMatch && !descriptionMatch) {
         return false
       }
     }
-    
+
     return true
   })
 }
 
 export function sortItems(
-  items: ExampleItem[], 
+  items: ExampleItem[],
   sortBy: 'priority' | 'date' | 'status'
 ): ExampleItem[] {
   return [...items].sort((a, b) => {

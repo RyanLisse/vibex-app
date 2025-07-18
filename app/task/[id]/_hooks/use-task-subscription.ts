@@ -44,7 +44,10 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
 
   const handleError = useCallback((error: unknown) => {
     console.error('Inngest subscription error:', error)
-    if (error?.message?.includes('ReadableStream') || error?.message?.includes('WebSocket')) {
+    if (
+      (error as any)?.message?.includes('ReadableStream') ||
+      (error as any)?.message?.includes('WebSocket')
+    ) {
       console.warn('Stream/WebSocket error, will retry connection')
     } else {
       setSubscriptionEnabled(false)
@@ -60,7 +63,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
     }, 1000)
   }, [subscriptionEnabled])
 
-  const { latestData, disconnect } = useInngestSubscription({
+  const subscriptionResult = useInngestSubscription({
     refreshToken,
     bufferInterval: 0,
     enabled: subscriptionEnabled,
@@ -68,13 +71,16 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
     onClose: handleClose,
   })
 
+  const { latestData } = subscriptionResult
+  const disconnect = (subscriptionResult as any)?.disconnect
+
   useEffect(() => {
     if (latestData?.channel !== 'tasks') return
 
     if (latestData.topic === 'status') {
       processStatusUpdate(latestData.data)
     } else if (latestData.topic === 'update') {
-      const { taskId: dataTaskId, message } = latestData.data
+      const { taskId: dataTaskId, message } = latestData.data as any
       if (dataTaskId === taskId && message) {
         processMessage(message)
       }

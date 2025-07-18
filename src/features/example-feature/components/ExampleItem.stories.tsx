@@ -117,7 +117,8 @@ export const LongTitle: Story = {
       status: 'pending',
       priority: 'medium',
       title: 'This is a very long title that should wrap properly and not break the layout',
-      description: 'This item has a very long title to test how the component handles text wrapping',
+      description:
+        'This item has a very long title to test how the component handles text wrapping',
     },
   },
 }

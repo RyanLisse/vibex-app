@@ -25,7 +25,7 @@ export interface ExampleStore {
   filter: ExampleFilter
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   addItem: (data: ExampleFormData) => Promise<void>
   updateItem: (id: string, data: Partial<ExampleItem>) => Promise<void>

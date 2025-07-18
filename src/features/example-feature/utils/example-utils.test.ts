@@ -62,10 +62,10 @@ describe('example-utils', () => {
     })
 
     it('should apply multiple filters', () => {
-      const result = filterItems(mockItems, { 
-        status: 'pending', 
+      const result = filterItems(mockItems, {
+        status: 'pending',
         priority: 'high',
-        searchTerm: 'task'
+        searchTerm: 'task',
       })
       expect(result).toHaveLength(1)
       expect(result[0].id).toBe('1')

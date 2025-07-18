@@ -10,22 +10,17 @@ interface ExampleItemProps {
   onStatusChange?: (id: string, status: ExampleItemType['status']) => void
 }
 
-export function ExampleItem({ 
-  item, 
-  onEdit, 
-  onDelete, 
-  onStatusChange 
-}: ExampleItemProps) {
+export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleItemProps) {
   const handleStatusToggle = () => {
     const newStatus = item.status === 'completed' ? 'pending' : 'completed'
     onStatusChange?.(item.id, newStatus)
   }
 
   return (
-    <article 
+    <article
       className={cn(
-        "p-4 border rounded-lg bg-white shadow-sm",
-        item.status === 'completed' && "opacity-60"
+        'p-4 border rounded-lg bg-white shadow-sm',
+        item.status === 'completed' && 'opacity-60'
       )}
       data-testid={`example-item-${item.id}`}
     >
@@ -41,41 +36,35 @@ export function ExampleItem({
           >
             {getStatusIcon(item.status)}
           </button>
-          
+
           <div className="flex-1">
-            <h3 
+            <h3
               className={cn(
-                "font-medium text-gray-900",
-                item.status === 'completed' && "line-through"
+                'font-medium text-gray-900',
+                item.status === 'completed' && 'line-through'
               )}
             >
               {item.title}
             </h3>
-            
-            {item.description && (
-              <p className="text-sm text-gray-600 mt-1">
-                {item.description}
-              </p>
-            )}
-            
+
+            {item.description && <p className="text-sm text-gray-600 mt-1">{item.description}</p>}
+
             <div className="flex items-center gap-2 mt-2">
-              <span 
+              <span
                 className={cn(
-                  "text-xs font-medium px-2 py-1 rounded",
+                  'text-xs font-medium px-2 py-1 rounded',
                   getPriorityColor(item.priority),
-                  "bg-gray-100"
+                  'bg-gray-100'
                 )}
               >
                 {item.priority}
               </span>
-              
-              <span className="text-xs text-gray-500">
-                {item.createdAt.toLocaleDateString()}
-              </span>
+
+              <span className="text-xs text-gray-500">{item.createdAt.toLocaleDateString()}</span>
             </div>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           {onEdit && (
             <Button
@@ -87,7 +76,7 @@ export function ExampleItem({
               Edit
             </Button>
           )}
-          
+
           {onDelete && (
             <Button
               variant="outline"

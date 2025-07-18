@@ -11,7 +11,7 @@ afterEach(() => {
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation(query => ({
+    value: vi.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,
@@ -48,10 +48,7 @@ beforeAll(() => {
 const originalError = console.error
 beforeAll(() => {
   console.error = (...args: any[]) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Consider adding an error boundary')
-    ) {
+    if (typeof args[0] === 'string' && args[0].includes('Consider adding an error boundary')) {
       return
     }
     originalError.call(console, ...args)

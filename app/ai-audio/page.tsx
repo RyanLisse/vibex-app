@@ -12,8 +12,8 @@ export default function GeminiAudioPage() {
       <div className="mb-8 text-center">
         <h1 className="mb-4 text-4xl font-bold">Gemini 2.5 Flash Audio Chat</h1>
         <p className="mx-auto max-w-2xl text-muted-foreground">
-          Experience the power of Google&apos;s Gemini 2.5 Flash with native audio support. Have natural
-          conversations using voice or text, with real-time responses.
+          Experience the power of Google&apos;s Gemini 2.5 Flash with native audio support. Have
+          natural conversations using voice or text, with real-time responses.
         </p>
       </div>
 
