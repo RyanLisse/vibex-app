@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
@@ -17,7 +17,7 @@ describe('useGitHubAuth', () => {
 
   beforeEach(() => {
     mock.restore()
-    mocked(useRouter).mockReturnValue(mockRouter as any)
+    ;(useRouter as any).mockReturnValue(mockRouter as any)
     window.location.href = 'http://localhost:3000'
   })
 
@@ -33,7 +33,7 @@ describe('useGitHubAuth', () => {
   describe('login', () => {
     it('should initiate login successfully', async () => {
       const mockAuthUrl = 'https://github.com/oauth/authorize?client_id=test'
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ url: mockAuthUrl }),
       } as Response)
@@ -51,7 +51,7 @@ describe('useGitHubAuth', () => {
     })
 
     it('should handle login error when fetch fails', async () => {
-      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -64,7 +64,7 @@ describe('useGitHubAuth', () => {
     })
 
     it('should handle login error when response is not ok', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         statusText: 'Internal Server Error',
       } as Response)
@@ -83,7 +83,7 @@ describe('useGitHubAuth', () => {
       const promise = new Promise((resolve) => {
         resolvePromise = resolve
       })
-      mocked(fetch).mockReturnValueOnce(promise as any)
+      ;(fetch as any).mockReturnValueOnce(promise as any)
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -107,7 +107,7 @@ describe('useGitHubAuth', () => {
 
   describe('logout', () => {
     it('should logout successfully', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
       } as Response)
 
@@ -125,7 +125,7 @@ describe('useGitHubAuth', () => {
     })
 
     it('should handle logout error', async () => {
-      mocked(fetch).mockRejectedValueOnce(new Error('Logout failed'))
+      ;(fetch as any).mockRejectedValueOnce(new Error('Logout failed'))
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -142,7 +142,7 @@ describe('useGitHubAuth', () => {
       const promise = new Promise((resolve) => {
         resolvePromise = resolve
       })
-      mocked(fetch).mockReturnValueOnce(promise as any)
+      ;(fetch as any).mockReturnValueOnce(promise as any)
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -164,7 +164,7 @@ describe('useGitHubAuth', () => {
   describe('error handling', () => {
     it('should clear error when starting new operation', async () => {
       // First, create an error
-      mocked(fetch).mockRejectedValueOnce(new Error('First error'))
+      ;(fetch as any).mockRejectedValueOnce(new Error('First error'))
       const { result } = renderHook(() => useGitHubAuth())
 
       await act(async () => {
@@ -174,7 +174,7 @@ describe('useGitHubAuth', () => {
       expect(result.current.error).toBe('First error')
 
       // Then try another operation
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ url: 'https://github.com/oauth' }),
       } as Response)

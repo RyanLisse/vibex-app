@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import type { MessageType } from '@/hooks/use-task-message-handler'
 import {
   isStatusData,
   isStatusTopic,
@@ -7,7 +8,6 @@ import {
   isUpdateTopic,
   type LatestData,
 } from '@/lib/container-types'
-import type { MessageType } from '@/hooks/use-task-message-handler'
 
 export interface UseMessageFiltersReturn {
   isValidMessage: (data: LatestData) => boolean

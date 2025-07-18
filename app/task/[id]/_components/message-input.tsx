@@ -3,9 +3,9 @@
 import { Send } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createTaskAction } from '@/app/actions/inngest'
+import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
 import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/tasks'
-import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
 
 /**
  * MessageInput component with improved UX and error handling

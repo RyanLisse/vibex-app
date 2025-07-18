@@ -1,10 +1,10 @@
 import { useInngestSubscription } from '@inngest/realtime/hooks'
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import { fetchRealtimeSubscriptionToken, type TaskChannelToken } from '@/app/actions/inngest'
-import { safeAsync } from '@/lib/stream-utils'
-import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import { useMessageProcessor } from '@/app/task/[id]/_hooks/use-message-processor'
 import { useStatusProcessor } from '@/app/task/[id]/_hooks/use-status-processor'
+import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
+import { safeAsync } from '@/lib/stream-utils'
 
 interface UseTaskSubscriptionProps {
   taskId: string
@@ -215,7 +215,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }, ERROR_RECONNECT_DELAY)
       }
     },
-    [state.enabled, checkInngestAvailability]
+    [checkInngestAvailability]
   )
 
   const handleClose = useCallback(() => {
@@ -236,7 +236,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }
       }, RECONNECT_DELAY)
     }
-  }, [state.enabled, state.lastError, checkInngestAvailability])
+  }, [checkInngestAvailability])
 
   // Memoized subscription configuration to prevent unnecessary re-subscriptions
   const subscriptionConfig = useMemo(

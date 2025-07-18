@@ -1,9 +1,10 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
-import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { AnthropicAuthProvider, useAuth } from '@/components/auth/anthropic-auth-provider'
+import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 
 // Mock the useAnthropicAuth hook
-mock('@/hooks/use-anthropic-auth', () => ({
+mock.module('@/hooks/use-anthropic-auth', () => ({
   useAnthropicAuth: mock(),
 }))
 
@@ -22,10 +23,10 @@ describe('AnthropicAuthProvider', () => {
 
   beforeEach(() => {
     mock.restore()
-    mocked(useAnthropicAuth).mockReturnValue(mockAuth)
-    mocked(fetch).mockResolvedValue({
+    ;(useAnthropicAuth as any).mockReturnValue(mockAuth)
+    ;(global.fetch as any).mockResolvedValue({
       json: mock().mockResolvedValue({ access_token: 'test-token' }),
-    } as any)
+    })
   })
 
   it('should provide auth context to children', () => {
@@ -63,7 +64,7 @@ describe('AnthropicAuthProvider', () => {
       ...mockAuth,
       authenticated: true,
     }
-    mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
+    ;(useAnthropicAuth as any).mockReturnValue(authenticatedAuth)
 
     const TestComponent = () => {
       const auth = useAuth()
@@ -109,7 +110,7 @@ describe('AnthropicAuthProvider', () => {
       authenticated: true,
       expires: futureExpiry,
     }
-    mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
+    ;(useAnthropicAuth as any).mockReturnValue(authenticatedAuth)
 
     const TestComponent = () => {
       useAuth()
@@ -132,8 +133,8 @@ describe('AnthropicAuthProvider', () => {
       ...mockAuth,
       authenticated: true,
     }
-    mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
-    mocked(fetch).mockRejectedValue(new Error('Network error'))
+    ;(useAnthropicAuth as any).mockReturnValue(authenticatedAuth)
+    ;(global.fetch as any).mockRejectedValue(new Error('Network error'))
 
     const TestComponent = () => {
       const auth = useAuth()

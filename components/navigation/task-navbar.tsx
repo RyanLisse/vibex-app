@@ -15,9 +15,9 @@ import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from '@/app/actions/inngest'
 import { createPullRequestAction } from '@/app/actions/vibekit'
+import { TaskControlButton } from '@/components/navigation/task-control-button'
 import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/tasks'
-import { TaskControlButton } from '@/components/navigation/task-control-button'
 
 interface Props {
   id: string

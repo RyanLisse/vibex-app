@@ -1,6 +1,6 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
-import { inngest } from '@/lib/inngest'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { GET } from '@/app/api/test-inngest/route'
+import { inngest } from '@/lib/inngest'
 
 // Mock the inngest client
 mock('@/lib/inngest', () => ({
@@ -23,7 +23,7 @@ describe('GET /api/test-inngest', () => {
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
 
-    mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
+    ;(inngest.send as any).mockResolvedValue({ ids: ['test-id'] } as any)
 
     const response = await GET()
     const data = await response.json()
@@ -51,7 +51,7 @@ describe('GET /api/test-inngest', () => {
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
 
-    mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
+    ;(inngest.send as any).mockResolvedValue({ ids: ['test-id'] } as any)
 
     const response = await GET()
     const data = await response.json()
@@ -63,7 +63,7 @@ describe('GET /api/test-inngest', () => {
   it('should handle missing environment variables', async () => {
     mock.stubEnv('NODE_ENV', 'production')
 
-    mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
+    ;(inngest.send as any).mockResolvedValue({ ids: ['test-id'] } as any)
 
     const response = await GET()
     const data = await response.json()
@@ -82,7 +82,7 @@ describe('GET /api/test-inngest', () => {
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
 
     const error = new Error('Network error')
-    mocked(inngest.send).mockRejectedValue(error)
+    ;(inngest.send as any).mockRejectedValue(error)
 
     const response = await GET()
     const data = await response.json()
@@ -99,7 +99,7 @@ describe('GET /api/test-inngest', () => {
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
 
-    mocked(inngest.send).mockRejectedValue('Unknown error type')
+    ;(inngest.send as any).mockRejectedValue('Unknown error type')
 
     const response = await GET()
     const data = await response.json()
@@ -112,7 +112,7 @@ describe('GET /api/test-inngest', () => {
 
   it('should handle general errors', async () => {
     // Mock inngest.send to throw an error during JSON parsing
-    mocked(inngest.send).mockImplementation(() => {
+    ;(inngest.send as any).mockImplementation(() => {
       throw new Error('Unexpected error')
     })
 
@@ -128,7 +128,7 @@ describe('GET /api/test-inngest', () => {
 
   it('should handle unknown general errors', async () => {
     // Mock inngest.send to throw a non-Error object
-    mocked(inngest.send).mockImplementation(() => {
+    ;(inngest.send as any).mockImplementation(() => {
       throw 'String error'
     })
 
@@ -147,7 +147,7 @@ describe('GET /api/test-inngest', () => {
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
 
-    mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
+    ;(inngest.send as any).mockResolvedValue({ ids: ['test-id'] } as any)
 
     await GET()
 

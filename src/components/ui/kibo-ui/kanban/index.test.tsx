@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
-  KanbanProvider,
   KanbanBoard,
-  KanbanHeader,
-  KanbanCards,
   KanbanCard,
-  type KanbanItemProps,
+  KanbanCards,
   type KanbanColumnProps,
+  KanbanHeader,
+  type KanbanItemProps,
+  KanbanProvider,
 } from './index'
 
 // Mock dependencies
@@ -28,7 +28,7 @@ mock('@dnd-kit/core', () => ({
 
 mock('@dnd-kit/sortable', () => ({
   SortableContext: ({ children, items }: any) => (
-    <div data-testid="sortable-context" data-items={items}>
+    <div data-items={items} data-testid="sortable-context">
       {children}
     </div>
   ),
@@ -78,7 +78,7 @@ mock('@/components/ui/scroll-area', () => ({
     </div>
   ),
   ScrollBar: ({ orientation }: any) => (
-    <div data-testid="scroll-bar" data-orientation={orientation} />
+    <div data-orientation={orientation} data-testid="scroll-bar" />
   ),
 }))
 
@@ -123,7 +123,7 @@ describe('KanbanBoard', () => {
 
   it('should apply custom className', () => {
     render(
-      <KanbanBoard id="board-1" className="custom-board">
+      <KanbanBoard className="custom-board" id="board-1">
         <div>Content</div>
       </KanbanBoard>
     )
@@ -314,7 +314,7 @@ describe('KanbanCards', () => {
     render(
       <KanbanProvider columns={[]} data={testData}>
         {() => (
-          <KanbanCards id="column-1" className="custom-cards">
+          <KanbanCards className="custom-cards" id="column-1">
             {(item) => <div key={item.id}>{item.name}</div>}
           </KanbanCards>
         )}
@@ -362,7 +362,7 @@ describe('KanbanProvider', () => {
 
   it('should apply custom className', () => {
     render(
-      <KanbanProvider columns={testColumns} data={testData} className="custom-provider">
+      <KanbanProvider className="custom-provider" columns={testColumns} data={testData}>
         {(column) => <div key={column.id}>{column.name}</div>}
       </KanbanProvider>
     )
@@ -381,10 +381,10 @@ describe('KanbanProvider', () => {
       <KanbanProvider
         columns={testColumns}
         data={testData}
-        onDragStart={onDragStart}
+        onDataChange={onDataChange}
         onDragEnd={onDragEnd}
         onDragOver={onDragOver}
-        onDataChange={onDataChange}
+        onDragStart={onDragStart}
       >
         {(column) => <div key={column.id}>{column.name}</div>}
       </KanbanProvider>
@@ -438,7 +438,7 @@ describe('Integration', () => {
     render(
       <KanbanProvider columns={columns} data={items}>
         {(column) => (
-          <KanbanBoard key={column.id} id={column.id}>
+          <KanbanBoard id={column.id} key={column.id}>
             <KanbanHeader>{column.name}</KanbanHeader>
             <KanbanCards id={column.id}>
               {(item) => <KanbanCard key={item.id} {...item} />}

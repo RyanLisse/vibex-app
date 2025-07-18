@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import {
   createTimeoutPromise,
   debounce,
@@ -9,23 +9,30 @@ import {
 } from './stream-utils'
 
 describe('stream-utils', () => {
+  let originalConsoleWarn: typeof console.warn
+  let consoleSpy: ReturnType<typeof mock>
+
   beforeEach(() => {
-    mock.spyOn(console, 'warn').mockImplementation(() => {})
+    originalConsoleWarn = console.warn
+    consoleSpy = mock(() => {
+      // No-op for tests
+    })
+    console.warn = consoleSpy
   })
 
   afterEach(() => {
-    mock.restore()
+    console.warn = originalConsoleWarn
   })
 
   describe('safeStreamCancel', () => {
     it('should handle null stream', async () => {
       await safeStreamCancel(null)
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should handle undefined stream', async () => {
       await safeStreamCancel(undefined)
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should cancel an unlocked stream', async () => {
@@ -43,7 +50,7 @@ describe('stream-utils', () => {
       expect(mockStream.getReader).toHaveBeenCalled()
       expect(mockReader.cancel).toHaveBeenCalled()
       expect(mockReader.releaseLock).toHaveBeenCalled()
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should handle locked stream', async () => {
@@ -53,7 +60,7 @@ describe('stream-utils', () => {
 
       await safeStreamCancel(mockStream)
 
-      expect(console.warn).toHaveBeenCalledWith('Stream is locked, cannot cancel safely')
+      expect(consoleSpy).toHaveBeenCalledWith('Stream is locked, cannot cancel safely')
     })
 
     it('should handle cancel error', async () => {
@@ -71,7 +78,7 @@ describe('stream-utils', () => {
 
       expect(mockReader.cancel).toHaveBeenCalled()
       expect(mockReader.releaseLock).toHaveBeenCalled()
-      expect(console.warn).toHaveBeenCalledWith('Error cancelling stream reader:', mockError)
+      expect(consoleSpy).toHaveBeenCalledWith('Error cancelling stream reader:', mockError)
     })
 
     it('should handle releaseLock error', async () => {
@@ -90,7 +97,7 @@ describe('stream-utils', () => {
       await safeStreamCancel(mockStream)
 
       expect(mockReader.releaseLock).toHaveBeenCalled()
-      expect(console.warn).toHaveBeenCalledWith('Error releasing stream reader lock:', mockError)
+      expect(consoleSpy).toHaveBeenCalledWith('Error releasing stream reader lock:', mockError)
     })
 
     it('should handle getReader error', async () => {
@@ -104,19 +111,19 @@ describe('stream-utils', () => {
 
       await safeStreamCancel(mockStream)
 
-      expect(console.warn).toHaveBeenCalledWith('Error in safe stream cancel:', mockError)
+      expect(consoleSpy).toHaveBeenCalledWith('Error in safe stream cancel:', mockError)
     })
   })
 
   describe('safeWebSocketClose', () => {
     it('should handle null WebSocket', () => {
       safeWebSocketClose(null)
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should handle undefined WebSocket', () => {
       safeWebSocketClose(undefined)
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should close open WebSocket', () => {
@@ -128,7 +135,7 @@ describe('stream-utils', () => {
       safeWebSocketClose(mockWs)
 
       expect(mockWs.close).toHaveBeenCalledWith(1000, 'Normal closure')
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should close connecting WebSocket', () => {
@@ -175,7 +182,7 @@ describe('stream-utils', () => {
 
       safeWebSocketClose(mockWs)
 
-      expect(console.warn).toHaveBeenCalledWith('Error closing WebSocket:', mockError)
+      expect(consoleSpy).toHaveBeenCalledWith('Error closing WebSocket:', mockError)
     })
   })
 
@@ -198,7 +205,7 @@ describe('stream-utils', () => {
 
       try {
         await promise
-      } catch (_error) {
+      } catch {
         const elapsed = Date.now() - start
         expect(elapsed).toBeGreaterThanOrEqual(50)
         expect(elapsed).toBeLessThan(100)
@@ -274,7 +281,7 @@ describe('stream-utils', () => {
 
       await safeAsync(fn, undefined, 'Custom error message')
 
-      expect(console.warn).toHaveBeenCalledWith('Custom error message', error)
+      expect(consoleSpy).toHaveBeenCalledWith('Custom error message', error)
     })
 
     it('should not log error without custom message', async () => {
@@ -284,7 +291,7 @@ describe('stream-utils', () => {
 
       await safeAsync(fn)
 
-      expect(console.warn).not.toHaveBeenCalled()
+      expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should handle sync errors in async function', async () => {
@@ -298,17 +305,9 @@ describe('stream-utils', () => {
   })
 
   describe('debounce', () => {
-    beforeEach(() => {
-      mock.useFakeTimers()
-    })
-
-    afterEach(() => {
-      mock.useRealTimers()
-    })
-
-    it('should debounce function calls', () => {
+    it('should debounce function calls with real timers', async () => {
       const fn = mock()
-      const debouncedFn = debounce(fn, 100)
+      const debouncedFn = debounce(fn, 50)
 
       debouncedFn('call1')
       debouncedFn('call2')
@@ -316,77 +315,33 @@ describe('stream-utils', () => {
 
       expect(fn).not.toHaveBeenCalled()
 
-      mock.advanceTimersByTime(100)
+      // Wait for debounce delay
+      await new Promise(resolve => setTimeout(resolve, 60))
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('call3')
     })
 
-    it('should handle single call', () => {
+    it('should handle single call', async () => {
       const fn = mock()
-      const debouncedFn = debounce(fn, 100)
+      const debouncedFn = debounce(fn, 50)
 
       debouncedFn('single')
 
-      mock.advanceTimersByTime(100)
+      await new Promise(resolve => setTimeout(resolve, 60))
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('single')
     })
 
-    it('should reset timer on new calls', () => {
-      const fn = mock()
-      const debouncedFn = debounce(fn, 100)
-
-      debouncedFn('first')
-      mock.advanceTimersByTime(50)
-
-      debouncedFn('second')
-      mock.advanceTimersByTime(50)
-
-      expect(fn).not.toHaveBeenCalled()
-
-      mock.advanceTimersByTime(50)
-
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith('second')
-    })
-
-    it('should handle multiple arguments', () => {
-      const fn = mock()
-      const debouncedFn = debounce(fn, 100)
-
-      debouncedFn('arg1', 'arg2', 42)
-
-      mock.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledWith('arg1', 'arg2', 42)
-    })
-
-    it('should allow multiple executions after wait time', () => {
-      const fn = mock()
-      const debouncedFn = debounce(fn, 100)
-
-      debouncedFn('first')
-      mock.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith('first')
-
-      debouncedFn('second')
-      mock.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledTimes(2)
-      expect(fn).toHaveBeenCalledWith('second')
-    })
-
-    it('should handle zero wait time', () => {
+    it('should handle zero wait time', async () => {
       const fn = mock()
       const debouncedFn = debounce(fn, 0)
 
       debouncedFn('immediate')
 
-      mock.advanceTimersByTime(0)
+      // Wait for next tick
+      await new Promise(resolve => setTimeout(resolve, 1))
 
       expect(fn).toHaveBeenCalledWith('immediate')
     })

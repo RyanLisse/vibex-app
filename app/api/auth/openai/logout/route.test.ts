@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { NextRequest } from 'next/server'
 
 // Mock the POST function since it doesn't accept parameters
@@ -40,13 +40,13 @@ import {
   revokeToken,
 } from '@/lib/auth/openai-codex'
 
-const mockClearStoredToken = mocked(clearStoredToken)
-const mockRevokeToken = mocked(revokeToken)
-const mockGetStoredToken = mocked(getStoredToken)
-const mockClearStoredState = mocked(clearStoredState)
-const mockClearStoredCodeVerifier = mocked(clearStoredCodeVerifier)
+const mockClearStoredToken = (clearStoredToken as any)
+const mockRevokeToken = (revokeToken as any)
+const mockGetStoredToken = (getStoredToken as any)
+const mockClearStoredState = (clearStoredState as any)
+const mockClearStoredCodeVerifier = (clearStoredCodeVerifier as any)
 
-const mockNextResponse = mocked((await import('next/server')).NextResponse)
+const mockNextResponse = ((await import('next/server' as any)).NextResponse)
 
 describe('POST /api/auth/openai/logout', () => {
   beforeEach(() => {

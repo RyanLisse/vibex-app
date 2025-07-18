@@ -1,8 +1,8 @@
 import { memo, useRef } from 'react'
+import { ShellOutput } from '@/app/task/[id]/_components/shell-output'
+import { useShellOutputData } from '@/app/task/[id]/_hooks/use-shell-output-data'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { Task } from '@/stores/tasks'
-import { useShellOutputData } from '@/app/task/[id]/_hooks/use-shell-output-data'
-import { ShellOutput } from '@/app/task/[id]/_components/shell-output'
 
 interface ShellOutputPanelProps {
   shellMessages: Task['messages']

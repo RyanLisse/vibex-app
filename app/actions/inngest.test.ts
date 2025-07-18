@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { getSubscriptionToken } from '@inngest/realtime'
 import { cookies } from 'next/headers'
 import { inngest } from '@/lib/inngest'
@@ -40,7 +40,7 @@ describe('Inngest Actions', () => {
 
   beforeEach(() => {
     mock.restore()
-    mocked(cookies).mockResolvedValue(mockCookies as any)
+    ;(cookies as any).mockResolvedValue(mockCookies as any)
   })
 
   afterEach(() => {
@@ -210,7 +210,7 @@ describe('Inngest Actions', () => {
     it('should return token in development mode', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       const mockToken = { token: 'dev-token-123' } as any
-      mocked(getSubscriptionToken).mockResolvedValue(mockToken)
+      ;(getSubscriptionToken as any).mockResolvedValue(mockToken)
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -222,7 +222,7 @@ describe('Inngest Actions', () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
       process.env.INNGEST_DEV = '1'
       const mockToken = { token: 'dev-token-456' } as any
-      mocked(getSubscriptionToken).mockResolvedValue(mockToken)
+      ;(getSubscriptionToken as any).mockResolvedValue(mockToken)
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -251,7 +251,7 @@ describe('Inngest Actions', () => {
 
     it('should handle getSubscriptionToken errors', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
-      mocked(getSubscriptionToken).mockRejectedValue(new Error('Network error'))
+      ;(getSubscriptionToken as any).mockRejectedValue(new Error('Network error'))
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -260,9 +260,9 @@ describe('Inngest Actions', () => {
 
     it('should handle authentication errors', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
-      mocked(getSubscriptionToken).mockRejectedValue(new Error('401 Unauthorized'))
+      ;(getSubscriptionToken as any).mockRejectedValue(new Error('401 Unauthorized'))
 
-      const consoleSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
       const token = await fetchRealtimeSubscriptionToken()
 
       expect(token).toBeNull()
@@ -275,7 +275,7 @@ describe('Inngest Actions', () => {
 
     it('should handle invalid token format', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
-      mocked(getSubscriptionToken).mockResolvedValue(null as any)
+      ;(getSubscriptionToken as any).mockResolvedValue(null as any)
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -285,7 +285,7 @@ describe('Inngest Actions', () => {
     it('should handle token as string', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       const mockToken = 'string-token-123' as any
-      mocked(getSubscriptionToken).mockResolvedValue(mockToken as any)
+      ;(getSubscriptionToken as any).mockResolvedValue(mockToken as any)
 
       const token = await fetchRealtimeSubscriptionToken()
 

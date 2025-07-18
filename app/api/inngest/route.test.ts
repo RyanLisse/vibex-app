@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { NextRequest } from 'next/server'
 import { GET, POST, PUT } from '@/app/api/inngest/route'
 
@@ -50,7 +50,7 @@ mock.stubEnv('INNGEST_EVENT_KEY', 'test-event-key')
 mock.stubEnv('NODE_ENV', 'test')
 
 const { NextResponse } = await import('next/server')
-const _mockNextResponse = mocked(NextResponse)
+const _mockNextResponse = ;(NextResponse as any)
 
 describe('Inngest API Routes', () => {
   beforeEach(() => {

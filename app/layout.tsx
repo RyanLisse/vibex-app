@@ -4,8 +4,8 @@ import { ThemeProvider } from 'next-themes'
 import './globals.css'
 import './streaming.css'
 
-import { ErrorBoundary } from '@/components/error-boundary'
 import Container from '@/app/container'
+import { ErrorBoundary } from '@/components/error-boundary'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

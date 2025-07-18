@@ -1,7 +1,5 @@
 import { useInngestSubscription } from '@inngest/realtime/hooks'
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
-import { safeAsync } from '@/lib/stream-utils'
-import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import {
   type ConnectionState,
   useConnectionState,
@@ -10,6 +8,8 @@ import { useMessageProcessor } from '@/app/task/[id]/_hooks/use-message-processo
 import { useStatusProcessor } from '@/app/task/[id]/_hooks/use-status-processor'
 import { useStreamingMessages } from '@/app/task/[id]/_hooks/use-streaming-messages'
 import { useSubscriptionConfig } from '@/app/task/[id]/_hooks/use-subscription-config'
+import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
+import { safeAsync } from '@/lib/stream-utils'
 
 interface UseTaskSubscriptionProps {
   taskId: string
@@ -187,7 +187,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }
       })
     }
-  }, [state.enabled, state.lastError, checkInngestAvailability, scheduleRetry, handleStateChange])
+  }, [state.enabled, state.enabled, state.lastError.lastError, checkInngestAvailability, scheduleRetry, handleStateChange])
 
   // Subscription configuration
   const { config } = useSubscriptionConfig({

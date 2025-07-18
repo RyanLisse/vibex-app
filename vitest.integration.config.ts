@@ -1,4 +1,4 @@
-import * as path from 'node:path'
+import path from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -42,7 +42,7 @@ export default defineConfig({
     },
     include: [
       'tests/integration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      '**/*.integration.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+      '**/*.integration.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     exclude: [
       'node_modules',
@@ -54,7 +54,7 @@ export default defineConfig({
       'tests/unit/**',
       'tests/e2e/**',
       '**/*.unit.test.*',
-      '**/*.spec.*'
+      '**/*.spec.*',
     ],
     testTimeout: 30_000,
     hookTimeout: 15_000,

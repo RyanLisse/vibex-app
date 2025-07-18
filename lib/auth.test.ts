@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import {
   buildAuthUrl,
   createAuthHeaders,
@@ -57,6 +57,7 @@ describe('lib/auth', () => {
       }
       return arr
     })
+    mockCrypto.subtle.digest.mockReset()
   })
 
   describe('generateCodeVerifier', () => {

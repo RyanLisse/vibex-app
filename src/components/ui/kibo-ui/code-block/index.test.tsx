@@ -9,12 +9,12 @@ import {
   CodeBlockFiles,
   CodeBlockHeader,
   CodeBlockItem,
+  type CodeBlockProps,
   CodeBlockSelect,
   CodeBlockSelectContent,
   CodeBlockSelectItem,
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,
-  type CodeBlockProps,
 } from './index'
 
 // Mock dependencies
@@ -22,7 +22,7 @@ mock('@radix-ui/react-use-controllable-state', () => ({
   useControllableState: ({ prop, defaultProp, onChange }: any) => {
     const React = require('react')
     const [state, setState] = React.useState(prop ?? defaultProp)
-    
+
     React.useEffect(() => {
       if (prop !== undefined) {
         setState(prop)
@@ -35,7 +35,7 @@ mock('@radix-ui/react-use-controllable-state', () => ({
     }
 
     return [state, setValue]
-  }
+  },
 }))
 
 mock('shiki', () => ({
@@ -79,7 +79,11 @@ mock('@/components/ui/select', () => ({
       {children}
     </button>
   ),
-  SelectValue: (props: any) => <span data-testid="select-value" {...props}>Value</span>,
+  SelectValue: (props: any) => (
+    <span data-testid="select-value" {...props}>
+      Value
+    </span>
+  ),
 }))
 
 mock('@/lib/utils', () => ({
@@ -88,17 +92,33 @@ mock('@/lib/utils', () => ({
 
 // Mock icon-pack icons
 mock('@icons-pack/react-simple-icons', () => ({
-  SiJavascript: ({ className }: any) => <span className={className} data-testid="js-icon">JS</span>,
-  SiTypescript: ({ className }: any) => <span className={className} data-testid="ts-icon">TS</span>,
-  SiPython: ({ className }: any) => <span className={className} data-testid="py-icon">PY</span>,
+  SiJavascript: ({ className }: any) => (
+    <span className={className} data-testid="js-icon">
+      JS
+    </span>
+  ),
+  SiTypescript: ({ className }: any) => (
+    <span className={className} data-testid="ts-icon">
+      TS
+    </span>
+  ),
+  SiPython: ({ className }: any) => (
+    <span className={className} data-testid="py-icon">
+      PY
+    </span>
+  ),
 }))
 
 mock('lucide-react', () => ({
   CheckIcon: ({ className, size }: any) => (
-    <span className={className} data-testid="check-icon" data-size={size}>✓</span>
+    <span className={className} data-size={size} data-testid="check-icon">
+      ✓
+    </span>
   ),
   CopyIcon: ({ className, size }: any) => (
-    <span className={className} data-testid="copy-icon" data-size={size}>📋</span>
+    <span className={className} data-size={size} data-testid="copy-icon">
+      📋
+    </span>
   ),
 }))
 
@@ -127,7 +147,7 @@ describe('CodeBlock', () => {
   })
 
   it('should apply custom className', () => {
-    render(<CodeBlock data={mockData} className="custom-block" />)
+    render(<CodeBlock className="custom-block" data={mockData} />)
 
     const container = document.querySelector('.custom-block')
     expect(container).toBeInTheDocument()
@@ -136,7 +156,7 @@ describe('CodeBlock', () => {
   it('should handle controlled value', async () => {
     const handleValueChange = mock()
     const { rerender } = render(
-      <CodeBlock data={mockData} value="javascript" onValueChange={handleValueChange}>
+      <CodeBlock data={mockData} onValueChange={handleValueChange} value="javascript">
         <CodeBlockSelect>
           <CodeBlockSelectTrigger />
         </CodeBlockSelect>
@@ -151,7 +171,7 @@ describe('CodeBlock', () => {
     expect(handleValueChange).toHaveBeenCalledWith('javascript')
 
     rerender(
-      <CodeBlock data={mockData} value="typescript" onValueChange={handleValueChange}>
+      <CodeBlock data={mockData} onValueChange={handleValueChange} value="typescript">
         <CodeBlockSelect>
           <CodeBlockSelectTrigger />
         </CodeBlockSelect>
@@ -177,7 +197,14 @@ describe('CodeBlockHeader', () => {
     render(<CodeBlockHeader>Content</CodeBlockHeader>)
 
     const header = screen.getByText('Content').parentElement
-    expect(header).toHaveClass('flex', 'flex-row', 'items-center', 'border-b', 'bg-secondary', 'p-1')
+    expect(header).toHaveClass(
+      'flex',
+      'flex-row',
+      'items-center',
+      'border-b',
+      'bg-secondary',
+      'p-1'
+    )
   })
 
   it('should apply custom className', () => {
@@ -192,9 +219,7 @@ describe('CodeBlockFiles', () => {
   it('should render children for each data item', () => {
     render(
       <CodeBlock data={mockData}>
-        <CodeBlockFiles>
-          {(item) => <div key={item.language}>{item.filename}</div>}
-        </CodeBlockFiles>
+        <CodeBlockFiles>{(item) => <div key={item.language}>{item.filename}</div>}</CodeBlockFiles>
       </CodeBlock>
     )
 
@@ -206,9 +231,7 @@ describe('CodeBlockFiles', () => {
   it('should apply default classes', () => {
     render(
       <CodeBlock data={mockData}>
-        <CodeBlockFiles>
-          {(item) => <div key={item.language}>{item.filename}</div>}
-        </CodeBlockFiles>
+        <CodeBlockFiles>{(item) => <div key={item.language}>{item.filename}</div>}</CodeBlockFiles>
       </CodeBlock>
     )
 
@@ -375,7 +398,7 @@ describe('CodeBlockItem', () => {
   it('should not apply line numbers when disabled', () => {
     render(
       <CodeBlock data={mockData} value="javascript">
-        <CodeBlockItem value="javascript" lineNumbers={false}>
+        <CodeBlockItem lineNumbers={false} value="javascript">
           Content
         </CodeBlockItem>
       </CodeBlock>
@@ -388,11 +411,7 @@ describe('CodeBlockItem', () => {
 
 describe('CodeBlockContent', () => {
   it('should render fallback when syntax highlighting is disabled', () => {
-    render(
-      <CodeBlockContent syntaxHighlighting={false}>
-        const code = true;
-      </CodeBlockContent>
-    )
+    render(<CodeBlockContent syntaxHighlighting={false}>const code = true;</CodeBlockContent>)
 
     expect(screen.getByText('const code = true;')).toBeInTheDocument()
   })
@@ -401,11 +420,7 @@ describe('CodeBlockContent', () => {
     const { codeToHtml } = await import('shiki')
     mocked(codeToHtml).mockResolvedValueOnce('<pre><code>highlighted</code></pre>')
 
-    render(
-      <CodeBlockContent language="javascript">
-        console.log("test");
-      </CodeBlockContent>
-    )
+    render(<CodeBlockContent language="javascript">console.log("test");</CodeBlockContent>)
 
     await waitFor(() => {
       const container = document.querySelector('[dangerouslySetInnerHTML]')
@@ -418,11 +433,7 @@ describe('CodeBlockContent', () => {
     const { codeToHtml } = await import('shiki')
     mocked(codeToHtml).mockRejectedValueOnce(new Error('Highlight failed'))
 
-    render(
-      <CodeBlockContent language="javascript">
-        console.log("test");
-      </CodeBlockContent>
-    )
+    render(<CodeBlockContent language="javascript">console.log("test");</CodeBlockContent>)
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalled()
@@ -484,9 +495,7 @@ describe('Integration', () => {
         <CodeBlockBody>
           {(item) => (
             <CodeBlockItem key={item.language} value={item.language}>
-              <CodeBlockContent language={item.language as any}>
-                {item.code}
-              </CodeBlockContent>
+              <CodeBlockContent language={item.language as any}>{item.code}</CodeBlockContent>
             </CodeBlockItem>
           )}
         </CodeBlockBody>

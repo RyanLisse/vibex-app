@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**
  * Integration Test Template for State Management
- * 
+ *
  * This template demonstrates how to test state management integration across:
  * - Store updates from API responses
  * - Cross-store communication
@@ -27,7 +27,7 @@ function createMockStore<T>(initialState: T): MockStore<T> {
     getState: () => state,
     setState: (newState: Partial<T>) => {
       state = { ...state, ...newState }
-      listeners.forEach(listener => listener(state))
+      listeners.forEach((listener) => listener(state))
     },
     subscribe: (listener: (state: T) => void) => {
       listeners.add(listener)
@@ -36,9 +36,9 @@ function createMockStore<T>(initialState: T): MockStore<T> {
     getActions: () => ({
       reset: () => {
         state = initialState
-        listeners.forEach(listener => listener(state))
-      }
-    })
+        listeners.forEach((listener) => listener(state))
+      },
+    }),
   }
 }
 
@@ -48,27 +48,27 @@ describe('State Management Integration Template', () => {
   let uiStore: MockStore<any>
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    
+    mock.restore()
+
     // Initialize mock stores
     taskStore = createMockStore({
       tasks: [],
       loading: false,
       error: null,
-      selectedTask: null
+      selectedTask: null,
     })
 
     authStore = createMockStore({
       user: null,
       authenticated: false,
       loading: false,
-      error: null
+      error: null,
     })
 
     uiStore = createMockStore({
       sidebarOpen: false,
       theme: 'light',
-      notifications: []
+      notifications: [],
     })
   })
 
@@ -77,14 +77,14 @@ describe('State Management Integration Template', () => {
       // Mock API response
       const mockTasks = [
         { id: 1, title: 'Task 1', status: 'pending' },
-        { id: 2, title: 'Task 2', status: 'completed' }
+        { id: 2, title: 'Task 2', status: 'completed' },
       ]
 
       integrationTestHelpers.mockApiResponse('/api/tasks', { tasks: mockTasks })
 
       // Simulate store action that fetches from API
       taskStore.setState({ loading: true })
-      
+
       const response = await fetch('/api/tasks')
       const data = await response.json()
 
@@ -92,7 +92,7 @@ describe('State Management Integration Template', () => {
       taskStore.setState({
         tasks: data.tasks,
         loading: false,
-        error: null
+        error: null,
       })
 
       const state = taskStore.getState()
@@ -120,7 +120,7 @@ describe('State Management Integration Template', () => {
         taskStore.setState({
           loading: false,
           error: error.message,
-          tasks: []
+          tasks: [],
         })
       }
 
@@ -145,21 +145,18 @@ describe('State Management Integration Template', () => {
       authStore.setState({ loading: true })
 
       const [taskResponse, userResponse] = await Promise.all([taskPromise, userPromise])
-      const [taskData, userData] = await Promise.all([
-        taskResponse.json(),
-        userResponse.json()
-      ])
+      const [taskData, userData] = await Promise.all([taskResponse.json(), userResponse.json()])
 
       // Update stores
       taskStore.setState({
         tasks: taskData.tasks,
-        loading: false
+        loading: false,
       })
 
       authStore.setState({
         user: userData.user,
         authenticated: true,
-        loading: false
+        loading: false,
       })
 
       const taskState = taskStore.getState()
@@ -192,7 +189,7 @@ describe('State Management Integration Template', () => {
           // When tasks are loading, show notification
           const notifications = uiStore.getState().notifications
           uiStore.setState({
-            notifications: [...notifications, { type: 'info', message: 'Loading tasks...' }]
+            notifications: [...notifications, { type: 'info', message: 'Loading tasks...' }],
           })
         }
       })
@@ -200,7 +197,7 @@ describe('State Management Integration Template', () => {
       // Simulate user login
       authStore.setState({
         user: { id: 1, name: 'John' },
-        authenticated: true
+        authenticated: true,
       })
 
       expect(stateChanges).toContain('auth:authenticated')
@@ -226,7 +223,7 @@ describe('State Management Integration Template', () => {
       // Simulate logout
       authStore.setState({
         user: null,
-        authenticated: false
+        authenticated: false,
       })
 
       expect(taskStore.getState().tasks).toHaveLength(0)
@@ -240,14 +237,16 @@ describe('State Management Integration Template', () => {
       // Set up potentially problematic subscriptions
       authStore.subscribe(() => {
         updateCount.auth++
-        if (updateCount.auth < 5) { // Prevent infinite test
+        if (updateCount.auth < 5) {
+          // Prevent infinite test
           taskStore.setState({ loading: !taskStore.getState().loading })
         }
       })
 
       taskStore.subscribe(() => {
         updateCount.tasks++
-        if (updateCount.tasks < 5) { // Prevent infinite test
+        if (updateCount.tasks < 5) {
+          // Prevent infinite test
           authStore.setState({ loading: !authStore.getState().loading })
         }
       })
@@ -264,15 +263,15 @@ describe('State Management Integration Template', () => {
   describe('Persistence Integration', () => {
     it('should save state to localStorage', () => {
       const mockLocalStorage = {
-        getItem: vi.fn(),
-        setItem: vi.fn(),
-        removeItem: vi.fn(),
-        clear: vi.fn()
+        getItem: mock(),
+        setItem: mock(),
+        removeItem: mock(),
+        clear: mock(),
       }
 
       Object.defineProperty(window, 'localStorage', {
         value: mockLocalStorage,
-        writable: true
+        writable: true,
       })
 
       // Simulate state persistence
@@ -282,36 +281,33 @@ describe('State Management Integration Template', () => {
 
       const state = {
         tasks: [{ id: 1, title: 'Persisted Task' }],
-        selectedTask: { id: 1, title: 'Persisted Task' }
+        selectedTask: { id: 1, title: 'Persisted Task' },
       }
 
       taskStore.setState(state)
       persistState('taskStore', taskStore.getState())
 
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'taskStore',
-        JSON.stringify(state)
-      )
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('taskStore', JSON.stringify(state))
     })
 
     it('should restore state from localStorage', () => {
       const mockLocalStorage = {
-        getItem: vi.fn(),
-        setItem: vi.fn(),
-        removeItem: vi.fn(),
-        clear: vi.fn()
+        getItem: mock(),
+        setItem: mock(),
+        removeItem: mock(),
+        clear: mock(),
       }
 
       const savedState = {
         tasks: [{ id: 1, title: 'Restored Task' }],
-        selectedTask: { id: 1, title: 'Restored Task' }
+        selectedTask: { id: 1, title: 'Restored Task' },
       }
 
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(savedState))
 
       Object.defineProperty(window, 'localStorage', {
         value: mockLocalStorage,
-        writable: true
+        writable: true,
       })
 
       // Simulate state restoration
@@ -335,17 +331,17 @@ describe('State Management Integration Template', () => {
 
     it('should handle persistence errors gracefully', () => {
       const mockLocalStorage = {
-        getItem: vi.fn(),
-        setItem: vi.fn().mockImplementation(() => {
+        getItem: mock(),
+        setItem: mock().mockImplementation(() => {
           throw new Error('Storage quota exceeded')
         }),
-        removeItem: vi.fn(),
-        clear: vi.fn()
+        removeItem: mock(),
+        clear: mock(),
       }
 
       Object.defineProperty(window, 'localStorage', {
         value: mockLocalStorage,
-        writable: true
+        writable: true,
       })
 
       // Simulate state persistence with error handling
@@ -374,29 +370,28 @@ describe('State Management Integration Template', () => {
     it('should sync state with WebSocket updates', () => {
       // Mock WebSocket
       const mockWebSocket = {
-        send: vi.fn(),
-        close: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
+        send: mock(),
+        close: mock(),
+        addEventListener: mock(),
+        removeEventListener: mock(),
         readyState: 1,
-        onmessage: null
+        onmessage: null,
       }
 
-      global.WebSocket = vi.fn(() => mockWebSocket)
+      global.WebSocket = mock(() => mockWebSocket)
 
       // Set up WebSocket message handler
       const handleWebSocketMessage = (event: MessageEvent) => {
         const data = JSON.parse(event.data)
-        
+
         switch (data.type) {
-          case 'task_updated':
+          case 'task_updated': {
             const tasks = taskStore.getState().tasks
-            const updatedTasks = tasks.map(task =>
-              task.id === data.task.id ? data.task : task
-            )
+            const updatedTasks = tasks.map((task) => (task.id === data.task.id ? data.task : task))
             taskStore.setState({ tasks: updatedTasks })
             break
-          
+          }
+
           case 'user_status_changed':
             authStore.setState({ user: data.user })
             break
@@ -408,16 +403,16 @@ describe('State Management Integration Template', () => {
       // Simulate WebSocket messages
       const taskUpdateMessage = {
         type: 'task_updated',
-        task: { id: 1, title: 'Updated Task', status: 'completed' }
+        task: { id: 1, title: 'Updated Task', status: 'completed' },
       }
 
       taskStore.setState({
-        tasks: [{ id: 1, title: 'Original Task', status: 'pending' }]
+        tasks: [{ id: 1, title: 'Original Task', status: 'pending' }],
       })
 
       // Trigger message handler
       handleWebSocketMessage({
-        data: JSON.stringify(taskUpdateMessage)
+        data: JSON.stringify(taskUpdateMessage),
       } as MessageEvent)
 
       const state = taskStore.getState()
@@ -430,38 +425,38 @@ describe('State Management Integration Template', () => {
 
       // Mock WebSocket with different states
       const mockWebSocket = {
-        send: vi.fn(),
-        close: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
+        send: mock(),
+        close: mock(),
+        addEventListener: mock(),
+        removeEventListener: mock(),
         readyState: 1,
         onopen: null,
         onclose: null,
         onerror: null,
-        onmessage: null
+        onmessage: null,
       }
 
-      global.WebSocket = vi.fn(() => mockWebSocket)
+      global.WebSocket = mock(() => mockWebSocket)
 
       // Set up connection state handlers
       const handleConnectionOpen = () => {
         connectionStates.push('connected')
         uiStore.setState({
-          notifications: [{ type: 'success', message: 'Connected to real-time updates' }]
+          notifications: [{ type: 'success', message: 'Connected to real-time updates' }],
         })
       }
 
       const handleConnectionClose = () => {
         connectionStates.push('disconnected')
         uiStore.setState({
-          notifications: [{ type: 'warning', message: 'Disconnected from real-time updates' }]
+          notifications: [{ type: 'warning', message: 'Disconnected from real-time updates' }],
         })
       }
 
       const handleConnectionError = () => {
         connectionStates.push('error')
         uiStore.setState({
-          notifications: [{ type: 'error', message: 'Connection error' }]
+          notifications: [{ type: 'error', message: 'Connection error' }],
         })
       }
 
@@ -484,13 +479,13 @@ describe('State Management Integration Template', () => {
       const largeTaskList = Array.from({ length: 1000 }, (_, i) => ({
         id: i,
         title: `Task ${i}`,
-        status: 'pending'
+        status: 'pending',
       }))
 
       const startTime = Date.now()
-      
+
       taskStore.setState({ tasks: largeTaskList })
-      
+
       const endTime = Date.now()
       const updateTime = endTime - startTime
 
@@ -510,7 +505,7 @@ describe('State Management Integration Template', () => {
       }
 
       // Cleanup all subscriptions
-      unsubscribeFunctions.forEach(unsubscribe => unsubscribe())
+      unsubscribeFunctions.forEach((unsubscribe) => unsubscribe())
 
       // Verify subscriptions are cleaned up
       // (In real implementation, you'd check internal subscription count)
@@ -529,8 +524,8 @@ describe('State Management Integration Template', () => {
         taskStore.setState({
           tasks: Array.from({ length: i }, (_, j) => ({
             id: j,
-            title: `Task ${j}`
-          }))
+            title: `Task ${j}`,
+          })),
         })
       }
 
@@ -547,7 +542,7 @@ describe('State Management Integration Template', () => {
       taskStore.setState({
         tasks: null, // Invalid state
         loading: 'invalid', // Wrong type
-        error: undefined
+        error: undefined,
       })
 
       // State validation and recovery
@@ -584,12 +579,12 @@ describe('State Management Integration Template', () => {
         tasks: [{ id: 1, title: 'Task 1' }],
         selectedTask: { id: 1, title: 'Task 1' },
         loading: false,
-        error: null
+        error: null,
       })
 
       authStore.setState({
         user: { id: 1, name: 'John' },
-        authenticated: true
+        authenticated: true,
       })
 
       // Reset all stores

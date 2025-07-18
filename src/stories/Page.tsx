@@ -14,8 +14,8 @@ export const Page = ({ user, onLogin, onLogout, onCreateAccount, children }: Pag
   <article className="min-h-screen bg-background">
     <section className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Welcome to Storybook</h1>
-        <p className="text-muted-foreground mt-2">This is a sample page component for Storybook.</p>
+        <h1 className="font-bold text-3xl">Welcome to Storybook</h1>
+        <p className="mt-2 text-muted-foreground">This is a sample page component for Storybook.</p>
       </div>
 
       <div className="space-y-4">
@@ -23,9 +23,9 @@ export const Page = ({ user, onLogin, onLogout, onCreateAccount, children }: Pag
           <>
             <p>You are logged in as {user.name}</p>
             <button
-              type="button"
+              className="rounded bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
               onClick={onLogout}
-              className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90"
+              type="button"
             >
               Log out
             </button>
@@ -33,16 +33,16 @@ export const Page = ({ user, onLogin, onLogout, onCreateAccount, children }: Pag
         ) : (
           <div className="space-x-2">
             <button
-              type="button"
+              className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
               onClick={onLogin}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+              type="button"
             >
               Log in
             </button>
             <button
-              type="button"
+              className="rounded bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/90"
               onClick={onCreateAccount}
-              className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90"
+              type="button"
             >
               Sign up
             </button>

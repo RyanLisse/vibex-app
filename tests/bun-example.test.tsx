@@ -3,19 +3,19 @@
  * Demonstrates Bun test runner configuration and React Testing Library integration
  */
 
-import { describe, it, beforeEach, expect } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'bun:test'
 import { render, screen } from '@testing-library/react'
-import { renderWithProviders, createMockComponent } from './bun-test-utils'
+import { createMockComponent, renderWithProviders } from './bun-test-utils'
 
 // Example React component for testing
-const ExampleComponent = ({ 
-  title = 'Default Title', 
+const ExampleComponent = ({
+  title = 'Default Title',
   onClick,
-  children 
-}: { 
+  children,
+}: {
   title?: string
   onClick?: () => void
-  children?: React.ReactNode 
+  children?: React.ReactNode
 }) => {
   return (
     <div data-testid="example-component">
@@ -38,10 +38,10 @@ describe('Bun Test Configuration', () => {
 
   it('should render a basic React component', () => {
     render(<ExampleComponent title="Test Title" />)
-    
+
     const component = screen.getByTestId('example-component')
     const title = screen.getByTestId('title')
-    
+
     expect(component).toBeTruthy()
     expect(title.textContent).toBe('Test Title')
   })
@@ -52,10 +52,10 @@ describe('Bun Test Configuration', () => {
         <span data-testid="child">Child content</span>
       </ExampleComponent>
     )
-    
+
     const content = screen.getByTestId('content')
     const child = screen.getByTestId('child')
-    
+
     expect(content).toBeTruthy()
     expect(child.textContent).toBe('Child content')
   })
@@ -65,23 +65,21 @@ describe('Bun Test Configuration', () => {
     const handleClick = () => {
       clicked = true
     }
-    
+
     render(<ExampleComponent onClick={handleClick} />)
-    
+
     const button = screen.getByTestId('button')
     button.click()
-    
+
     expect(clicked).toBe(true)
   })
 
   it('should work with custom render function', () => {
-    const { container } = renderWithProviders(
-      <ExampleComponent title="Custom Render" />
-    )
-    
+    const { container } = renderWithProviders(<ExampleComponent title="Custom Render" />)
+
     const wrapper = container.querySelector('[data-testid="test-wrapper"]')
     const title = container.querySelector('[data-testid="title"]')
-    
+
     expect(wrapper).toBeTruthy()
     expect(title?.textContent).toBe('Custom Render')
   })
@@ -89,15 +87,15 @@ describe('Bun Test Configuration', () => {
 
 describe('Mock Component Testing', () => {
   it('should create and test mock components', () => {
-    const MockButton = createMockComponent('Button', { 
-      variant: 'primary' 
+    const MockButton = createMockComponent('Button', {
+      variant: 'primary',
     })
-    
-    const mockComponent = MockButton({ 
+
+    const mockComponent = MockButton({
       children: 'Click me',
-      onClick: () => {} 
+      onClick: () => {},
     })
-    
+
     expect(mockComponent.type).toBe('div')
     expect(mockComponent.props['data-testid']).toBe('mock-button')
     expect(mockComponent.props.variant).toBe('primary')
@@ -132,7 +130,7 @@ describe('Environment and Setup', () => {
 describe('Browser API Mocks', () => {
   it('should have IntersectionObserver mock', () => {
     expect(typeof IntersectionObserver).toBe('function')
-    
+
     const observer = new IntersectionObserver(() => {})
     expect(typeof observer.observe).toBe('function')
     expect(typeof observer.unobserve).toBe('function')
@@ -141,7 +139,7 @@ describe('Browser API Mocks', () => {
 
   it('should have ResizeObserver mock', () => {
     expect(typeof ResizeObserver).toBe('function')
-    
+
     const observer = new ResizeObserver(() => {})
     expect(typeof observer.observe).toBe('function')
     expect(typeof observer.unobserve).toBe('function')
@@ -150,7 +148,7 @@ describe('Browser API Mocks', () => {
 
   it('should have matchMedia mock', () => {
     expect(typeof window.matchMedia).toBe('function')
-    
+
     const mediaQuery = window.matchMedia('(min-width: 768px)')
     expect(typeof mediaQuery.matches).toBe('boolean')
     expect(typeof mediaQuery.addListener).toBe('function')
@@ -162,7 +160,7 @@ describe('Browser API Mocks', () => {
     expect(typeof localStorage.setItem).toBe('function')
     expect(typeof localStorage.removeItem).toBe('function')
     expect(typeof localStorage.clear).toBe('function')
-    
+
     expect(typeof sessionStorage.getItem).toBe('function')
     expect(typeof sessionStorage.setItem).toBe('function')
     expect(typeof sessionStorage.removeItem).toBe('function')
@@ -181,7 +179,7 @@ describe('Storage Testing', () => {
   it('should support localStorage operations', () => {
     localStorage.setItem('test-key', 'test-value')
     expect(localStorage.getItem('test-key')).toBe('test-value')
-    
+
     localStorage.removeItem('test-key')
     expect(localStorage.getItem('test-key')).toBeNull()
   })
@@ -189,7 +187,7 @@ describe('Storage Testing', () => {
   it('should support sessionStorage operations', () => {
     sessionStorage.setItem('session-key', 'session-value')
     expect(sessionStorage.getItem('session-key')).toBe('session-value')
-    
+
     sessionStorage.clear()
     expect(sessionStorage.getItem('session-key')).toBeNull()
   })
@@ -198,19 +196,20 @@ describe('Storage Testing', () => {
 // Performance and timing tests
 describe('Performance and Timing', () => {
   it('should handle async operations', async () => {
-    const promise = new Promise(resolve => {
+    const promise = new Promise((resolve) => {
       setTimeout(() => resolve('resolved'), 100)
     })
-    
+
     const result = await promise
     expect(result).toBe('resolved')
   })
 
   it('should handle concurrent operations', async () => {
-    const promises = Array.from({ length: 5 }, (_, i) => 
-      new Promise(resolve => setTimeout(() => resolve(i), 50))
+    const promises = Array.from(
+      { length: 5 },
+      (_, i) => new Promise((resolve) => setTimeout(() => resolve(i), 50))
     )
-    
+
     const results = await Promise.all(promises)
     expect(results).toEqual([0, 1, 2, 3, 4])
   })

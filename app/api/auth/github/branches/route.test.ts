@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/github/branches/route'
 
@@ -22,7 +22,7 @@ mock('next/server', () => ({
 const mockGetGitHubAccessToken = mock()
 const mockFetchGitHubBranches = mock()
 
-const mockNextResponse = mocked((await import('next/server')).NextResponse)
+const mockNextResponse = ((await import('next/server' as any)).NextResponse)
 
 describe('GET /api/auth/github/branches', () => {
   beforeEach(() => {

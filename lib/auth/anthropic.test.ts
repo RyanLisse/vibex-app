@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import {
   clearStoredToken,
   exchangeCodeForToken,
@@ -135,7 +135,7 @@ describe('Anthropic Auth', () => {
         scope: 'read write',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
       } as any)
@@ -161,7 +161,7 @@ describe('Anthropic Auth', () => {
     })
 
     it('should handle token exchange errors', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 400,
         json: async () => ({ error: 'invalid_grant' }),
@@ -186,7 +186,7 @@ describe('Anthropic Auth', () => {
         expires_in: 3600,
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRefreshResponse,
       } as any)
@@ -214,7 +214,7 @@ describe('Anthropic Auth', () => {
         exp: Math.floor(Date.now() / 1000) + 3600,
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockValidationResponse,
       } as any)
@@ -235,7 +235,7 @@ describe('Anthropic Auth', () => {
     })
 
     it('should handle validation errors', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 401,
       } as any)
@@ -329,7 +329,7 @@ describe('Anthropic Auth', () => {
 
   describe('Error Handling', () => {
     it('should handle network errors during token exchange', async () => {
-      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
       await expect(
         exchangeCodeForToken({
@@ -341,7 +341,7 @@ describe('Anthropic Auth', () => {
     })
 
     it('should handle malformed token response', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ invalid: 'response' }),
       } as any)

@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useAudioRecorder } from '@/hooks/use-audio-recorder'
 
@@ -245,7 +245,7 @@ describe('useAudioRecorder', () => {
       download: '',
       click: mock(),
     }
-    mock.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
+    spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
 
     const { result } = renderHook(() => useAudioRecorder())
 

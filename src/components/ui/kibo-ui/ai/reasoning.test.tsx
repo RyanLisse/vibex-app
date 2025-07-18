@@ -1,13 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AIReasoning, AIReasoningTrigger, AIReasoningContent } from './reasoning'
+import { AIReasoning, AIReasoningContent, AIReasoningTrigger } from './reasoning'
 
 // Mock dependencies
 mock('@radix-ui/react-use-controllable-state', () => ({
   useControllableState: ({ prop, defaultProp, onChange }: any) => {
     const React = require('react')
     const [state, setState] = React.useState(prop ?? defaultProp)
-    
+
     React.useEffect(() => {
       if (prop !== undefined) {
         setState(prop)
@@ -20,17 +20,17 @@ mock('@radix-ui/react-use-controllable-state', () => ({
     }
 
     return [state, setValue]
-  }
+  },
 }))
 
 mock('@/components/ui/collapsible', () => ({
   Collapsible: ({ children, className, open, onOpenChange, ...props }: any) => {
     const handleToggle = () => onOpenChange?.(!open)
     return (
-      <div 
-        className={className} 
-        data-testid="collapsible" 
+      <div
+        className={className}
         data-open={open}
+        data-testid="collapsible"
         onClick={handleToggle}
         {...props}
       >
@@ -52,7 +52,9 @@ mock('@/components/ui/collapsible', () => ({
 
 mock('lucide-react', () => ({
   ChevronDownIcon: ({ className }: any) => (
-    <span className={className} data-testid="chevron-icon">⌄</span>
+    <span className={className} data-testid="chevron-icon">
+      ⌄
+    </span>
   ),
 }))
 
@@ -106,7 +108,7 @@ describe('AIReasoning', () => {
     const user = userEvent.setup({ delay: null })
 
     const { rerender } = render(
-      <AIReasoning open={false} onOpenChange={handleOpenChange}>
+      <AIReasoning onOpenChange={handleOpenChange} open={false}>
         <AIReasoningTrigger />
       </AIReasoning>
     )
@@ -117,7 +119,7 @@ describe('AIReasoning', () => {
     expect(handleOpenChange).toHaveBeenCalledWith(true)
 
     rerender(
-      <AIReasoning open={true} onOpenChange={handleOpenChange}>
+      <AIReasoning onOpenChange={handleOpenChange} open={true}>
         <AIReasoningTrigger />
       </AIReasoning>
     )
@@ -171,13 +173,13 @@ describe('AIReasoning', () => {
 
   it('should not auto-close if defaultOpen is true', async () => {
     const { rerender } = render(
-      <AIReasoning isStreaming={true} defaultOpen={true}>
+      <AIReasoning defaultOpen={true} isStreaming={true}>
         <AIReasoningTrigger />
       </AIReasoning>
     )
 
     rerender(
-      <AIReasoning isStreaming={false} defaultOpen={true}>
+      <AIReasoning defaultOpen={true} isStreaming={false}>
         <AIReasoningTrigger />
       </AIReasoning>
     )
@@ -222,7 +224,7 @@ describe('AIReasoning', () => {
 
   it('should pass through additional props', () => {
     render(
-      <AIReasoning data-testid="ai-reasoning" aria-label="AI reasoning">
+      <AIReasoning aria-label="AI reasoning" data-testid="ai-reasoning">
         Content
       </AIReasoning>
     )

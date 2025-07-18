@@ -1,11 +1,11 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, mock, test } from "bun:test"
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { z } from 'zod'
 import {
+  createZodFormProvider,
   useZodForm,
   useZodFormPersistence,
   useZodFormValidation,
-  createZodFormProvider,
 } from './useZodForm'
 
 // Mock react-hook-form
@@ -127,7 +127,7 @@ describe('useZodForm', () => {
       }
 
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -166,7 +166,7 @@ describe('useZodForm', () => {
       const onError = mock()
       const { useForm } = await import('react-hook-form')
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -234,7 +234,7 @@ describe('useZodForm', () => {
       }))
 
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -285,7 +285,7 @@ describe('useZodForm', () => {
       const { useForm } = await import('react-hook-form')
       const mockReset = mock()
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -319,7 +319,7 @@ describe('useZodForm', () => {
       const { useForm } = await import('react-hook-form')
       const mockReset = mock()
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -364,7 +364,7 @@ describe('useZodForm', () => {
       const { useForm } = await import('react-hook-form')
       const mockReset = mock()
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -448,7 +448,7 @@ describe('useZodForm', () => {
   describe('field errors', () => {
     it('should get field error', () => {
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -478,7 +478,7 @@ describe('useZodForm', () => {
 
     it('should check if field has error', () => {
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -511,7 +511,7 @@ describe('useZodForm', () => {
       const { useForm } = await import('react-hook-form')
       const mockSetError = mock()
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -545,7 +545,7 @@ describe('useZodForm', () => {
       const { useForm } = await import('react-hook-form')
       const mockClearErrors = mock()
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -585,7 +585,7 @@ describe('useZodForm', () => {
       }
 
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -613,7 +613,7 @@ describe('useZodForm', () => {
 
     it('should get form errors', () => {
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -647,7 +647,7 @@ describe('useZodForm', () => {
 
     it('should get dirty fields', () => {
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -685,7 +685,7 @@ describe('useZodForm', () => {
 
     it('should get changed fields', () => {
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -767,7 +767,7 @@ describe('useZodForm', () => {
   describe('storage integration', () => {
     it('should save form data to storage', () => {
       const { useForm } = await import('react-hook-form')
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -819,7 +819,7 @@ describe('useZodForm', () => {
       const { useForm } = await import('react-hook-form')
       const mockSetValue = mock()
       
-      mocked(useForm).mockReturnValue({
+      ;(useForm as any).mockReturnValue({
         register: mock(),
         handleSubmit: mock((fn) => fn),
         formState: {
@@ -965,7 +965,7 @@ describe('useZodFormValidation', () => {
         return { unsubscribe: mock() }
       }),
       validateField: mock(() => Promise.resolve(true)),
-      getFieldError: mock(() => undefined),
+      getFieldError: mock(() => {}),
     } as any
 
     const { result } = renderHook(() => useZodFormValidation(form, true))

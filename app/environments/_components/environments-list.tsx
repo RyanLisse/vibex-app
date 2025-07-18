@@ -3,11 +3,11 @@ import { format } from 'date-fns'
 import { Dot, FolderGit, GithubIcon, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { CreateEnvironmentDialog } from '@/app/environments/_components/create-environment-dialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { useEnvironmentStore } from '@/stores/environments'
-import { CreateEnvironmentDialog } from '@/app/environments/_components/create-environment-dialog'
 
 export default function EnvironmentsList() {
   const { isAuthenticated, login, isLoading } = useGitHubAuth()

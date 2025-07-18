@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useFileUpload } from '@/hooks/use-file-upload'
 
@@ -29,7 +29,7 @@ describe('useFileUpload', () => {
         size: 1024,
       }),
     }
-    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -72,7 +72,7 @@ describe('useFileUpload', () => {
       },
     ]
 
-    mocked(fetch)
+    ;(fetch as any)
       .mockResolvedValueOnce(mockResponses[0] as any)
       .mockResolvedValueOnce(mockResponses[1] as any)
 
@@ -115,7 +115,7 @@ describe('useFileUpload', () => {
   })
 
   it('should handle upload errors', async () => {
-    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -135,7 +135,7 @@ describe('useFileUpload', () => {
       status: 413,
       statusText: 'Payload Too Large',
     }
-    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -211,7 +211,7 @@ describe('useFileUpload', () => {
         size: 1024,
       }),
     }
-    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -251,7 +251,7 @@ describe('useFileUpload', () => {
       },
     ]
 
-    mocked(fetch)
+    ;(fetch as any)
       .mockResolvedValueOnce(mockResponses[0] as any)
       .mockResolvedValueOnce(mockResponses[1] as any)
 
@@ -285,7 +285,7 @@ describe('useFileUpload', () => {
         size: 2048,
       }),
     }
-    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
 
@@ -310,7 +310,7 @@ describe('useFileUpload', () => {
         url: 'https://example.com/test.pdf',
       }),
     }
-    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() =>
       useFileUpload({
@@ -343,7 +343,7 @@ describe('useFileUpload', () => {
       ok: true,
       json: async () => ({ id: 'file-123' }),
     }
-    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    ;(fetch as any).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() =>
       useFileUpload({
@@ -371,7 +371,7 @@ describe('useFileUpload', () => {
     }))
 
     mockResponses.forEach((response) => {
-      mocked(fetch).mockResolvedValueOnce(response as any)
+      ;(fetch as any).mockResolvedValueOnce(response as any)
     })
 
     const { result } = renderHook(() =>
@@ -393,7 +393,7 @@ describe('useFileUpload', () => {
   })
 
   it('should reset error state', async () => {
-    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' })
@@ -412,7 +412,7 @@ describe('useFileUpload', () => {
   })
 
   it('should handle upload retry', async () => {
-    mocked(fetch)
+    ;(fetch as any)
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({
         ok: true,

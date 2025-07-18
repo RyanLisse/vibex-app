@@ -1,13 +1,15 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { VibeKit } from '@vibe-kit/sdk'
 import { cookies } from 'next/headers'
+import { createPullRequestAction } from '@/app/actions/vibekit'
 import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/stores/tasks'
-import { createPullRequestAction } from '@/app/actions/vibekit'
 
 // Mock dependencies
 mock('next/headers', () => ({
-  cookies: mock(),
+  cookies: mock(() => Promise.resolve({
+    get: mock(),
+  })),
 }))
 
 mock('@vibe-kit/sdk', () => ({
@@ -45,8 +47,8 @@ describe('vibekit actions', () => {
 
   beforeEach(() => {
     mock.restore()
-    mocked(cookies).mockResolvedValue(mockCookies as any)
-    mocked(VibeKit).mockImplementation(() => mockVibeKitInstance as any)
+    ;(cookies as any).mockResolvedValue(mockCookies as any)
+    ;(VibeKit as any).mockImplementation(() => mockVibeKitInstance as any)
     process.env.OPENAI_API_KEY = 'test-openai-key'
     process.env.E2B_API_KEY = 'test-e2b-key'
   })
@@ -60,7 +62,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token-123' })
-      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      ;(getTelemetryConfig as any).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue(mockPR)
 
       const result = await createPullRequestAction({ task: mockTask })
@@ -101,7 +103,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token-123' })
-      mocked(getTelemetryConfig).mockReturnValue(telemetryConfig)
+      ;(getTelemetryConfig as any).mockReturnValue(telemetryConfig)
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: mockTask })
@@ -139,7 +141,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      ;(getTelemetryConfig as any).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: customTask })
@@ -160,7 +162,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      ;(getTelemetryConfig as any).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: customTask })
@@ -176,7 +178,7 @@ describe('vibekit actions', () => {
       const error = new Error('Failed to create PR')
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      ;(getTelemetryConfig as any).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockRejectedValue(error)
 
       await expect(createPullRequestAction({ task: mockTask })).rejects.toThrow(
@@ -189,7 +191,7 @@ describe('vibekit actions', () => {
       process.env.E2B_API_KEY = 'custom-e2b-key'
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      ;(getTelemetryConfig as any).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: mockTask })
@@ -218,7 +220,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      ;(getTelemetryConfig as any).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: taskWithoutSession })

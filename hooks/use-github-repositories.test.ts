@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useGitHubRepositories } from '@/hooks/use-github-repositories'
 
@@ -64,7 +64,7 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
     } as any)
@@ -81,7 +81,7 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle fetch errors', async () => {
-    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -129,7 +129,7 @@ describe('useGitHubRepositories', () => {
       default_branch: 'main',
     }))
 
-    mocked(fetch)
+    ;(fetch as any)
       .mockResolvedValueOnce({
         ok: true,
         headers: {
@@ -192,7 +192,7 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => allRepositories,
     } as any)
@@ -242,7 +242,7 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
     } as any)
@@ -282,7 +282,7 @@ describe('useGitHubRepositories', () => {
   it('should refresh repositories', async () => {
     const mockRepositories = [{ id: 1, name: 'repo1' }]
 
-    mocked(fetch).mockResolvedValue({
+    ;(fetch as any).mockResolvedValue({
       ok: true,
       json: async () => mockRepositories,
     } as any)
@@ -323,7 +323,7 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle API rate limits', async () => {
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 403,
       headers: {
@@ -363,7 +363,7 @@ describe('useGitHubRepositories', () => {
       watchers_count: 20,
     }
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepoDetails,
     } as any)
@@ -388,7 +388,7 @@ describe('useGitHubRepositories', () => {
       { id: 3, name: 'another-public', private: false },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mixedRepositories,
     } as any)
@@ -422,7 +422,7 @@ describe('useGitHubRepositories', () => {
   it('should cache repository data', async () => {
     const mockRepositories = [{ id: 1, name: 'repo1' }]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
     } as any)

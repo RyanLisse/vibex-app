@@ -8,8 +8,8 @@
  * 3. Ensuring consistent import paths across the codebase
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
-import { join, relative, dirname } from 'path'
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
+import { dirname, join, relative } from 'path'
 
 interface ImportFix {
   file: string
@@ -138,7 +138,7 @@ class ImportPathFixer {
 
   private fixImportPath(importPath: string, fromFile: string): string {
     // Skip external modules and already correct paths
-    if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
+    if (!(importPath.startsWith('.') || importPath.startsWith('/'))) {
       return importPath
     }
 

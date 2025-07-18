@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/anthropic/callback/route'
 
@@ -35,7 +35,7 @@ const mockValidateOAuthState = mock()
 const mockSanitizeRedirectUrl = mock()
 const mockHandleAuthError = mock()
 
-const mockNextResponse = mocked((await import('next/server')).NextResponse)
+const mockNextResponse = ((await import('next/server' as any)).NextResponse)
 
 describe('GET /api/auth/anthropic/callback', () => {
   beforeEach(() => {

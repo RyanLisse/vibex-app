@@ -1,10 +1,10 @@
 'use client'
 
-import { ErrorBoundary } from '@/components/error-boundary'
-import TaskNavbar from '@/components/navigation/task-navbar'
 import { TaskErrorFallback } from '@/app/task/[id]/_components/task-error-fallback'
 import { TaskLayout } from '@/app/task/[id]/_components/task-layout'
 import { TaskProvider } from '@/app/task/[id]/_providers/task-provider'
+import { ErrorBoundary } from '@/components/error-boundary'
+import TaskNavbar from '@/components/navigation/task-navbar'
 
 interface TaskClientPageProps {
   id: string

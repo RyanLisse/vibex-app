@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { GET } from '@/app/api/auth/github/url/route'
 
 describe('GitHub Auth API Integration Tests', () => {
@@ -11,7 +11,7 @@ describe('GitHub Auth API Integration Tests', () => {
 
   afterEach(() => {
     // Cleanup
-    vi.restoreAllMocks()
+    mock.restore()
   })
 
   it('should return GitHub OAuth URL successfully', async () => {

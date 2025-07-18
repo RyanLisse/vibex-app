@@ -1,7 +1,7 @@
 import { memo } from 'react'
-import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
 import { ChatPanel } from '@/app/task/[id]/_components/chat-panel'
 import { ShellOutputPanel } from '@/app/task/[id]/_components/shell-output-panel'
+import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
 
 /**
  * TaskLayout handles the main layout structure of the task page

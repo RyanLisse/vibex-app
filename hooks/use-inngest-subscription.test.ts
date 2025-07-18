@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useInngestSubscriptionManagement } from '@/hooks/use-inngest-subscription'
 
@@ -19,8 +19,8 @@ mock('@/app/actions/inngest', () => ({
   fetchRealtimeSubscriptionToken: () => mockFetchRealtimeSubscriptionToken(),
 }))
 
-const mockConsoleLog = mock.spyOn(console, 'log').mockImplementation(() => {})
-const mockConsoleError = mock.spyOn(console, 'error').mockImplementation(() => {})
+const mockConsoleLog = spyOn(console, 'log').mockImplementation(() => {})
+const mockConsoleError = spyOn(console, 'error').mockImplementation(() => {})
 
 describe('useInngestSubscriptionManagement', () => {
   beforeEach(() => {

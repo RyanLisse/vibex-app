@@ -1,5 +1,5 @@
-import type { Task } from '@/stores/tasks'
 import type { StreamingMessage, StreamProgress } from '@/app/task/[id]/_types/task-types'
+import type { Task } from '@/stores/tasks'
 
 /**
  * Generates a unique key for a message in the chat

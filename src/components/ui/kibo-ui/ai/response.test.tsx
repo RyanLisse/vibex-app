@@ -4,37 +4,53 @@ import { AIResponse } from './response'
 // Mock code-block components
 mock('@/components/ui/code-block', () => ({
   CodeBlock: ({ children, className, data }: any) => (
-    <div className={className} data-testid="code-block" data-languages={data.map((d: any) => d.language).join(',')}>
+    <div
+      className={className}
+      data-languages={data.map((d: any) => d.language).join(',')}
+      data-testid="code-block"
+    >
       {children}
     </div>
   ),
   CodeBlockBody: ({ children }: any) => <div data-testid="code-block-body">{children}</div>,
   CodeBlockContent: ({ children, language }: any) => (
-    <pre data-testid="code-block-content" data-language={language}>
+    <pre data-language={language} data-testid="code-block-content">
       <code>{children}</code>
     </pre>
   ),
   CodeBlockCopyButton: ({ onCopy, onError }: any) => (
-    <button data-testid="copy-button" onClick={onCopy}>Copy</button>
+    <button data-testid="copy-button" onClick={onCopy}>
+      Copy
+    </button>
   ),
   CodeBlockFilename: ({ children, value }: any) => (
-    <span data-testid="filename" data-value={value}>{children}</span>
+    <span data-testid="filename" data-value={value}>
+      {children}
+    </span>
   ),
   CodeBlockFiles: ({ children }: any) => (
-    <div data-testid="files">{children && children({ language: 'javascript', filename: 'index.js' })}</div>
+    <div data-testid="files">
+      {children && children({ language: 'javascript', filename: 'index.js' })}
+    </div>
   ),
   CodeBlockHeader: ({ children }: any) => <div data-testid="code-block-header">{children}</div>,
   CodeBlockItem: ({ children, value }: any) => (
-    <div data-testid="code-block-item" data-value={value}>{children}</div>
+    <div data-testid="code-block-item" data-value={value}>
+      {children}
+    </div>
   ),
   CodeBlockSelect: ({ children }: any) => <div data-testid="select">{children}</div>,
   CodeBlockSelectContent: ({ children }: any) => (
     <div data-testid="select-content">{children && children({ language: 'javascript' })}</div>
   ),
   CodeBlockSelectItem: ({ children, value }: any) => (
-    <option data-testid="select-item" value={value}>{children}</option>
+    <option data-testid="select-item" value={value}>
+      {children}
+    </option>
   ),
-  CodeBlockSelectTrigger: ({ children }: any) => <button data-testid="select-trigger">{children}</button>,
+  CodeBlockSelectTrigger: ({ children }: any) => (
+    <button data-testid="select-trigger">{children}</button>
+  ),
   CodeBlockSelectValue: () => <span data-testid="select-value">JavaScript</span>,
 }))
 
@@ -125,7 +141,7 @@ describe('AIResponse', () => {
   it('should render code blocks', () => {
     const codeContent = `const hello = "world";
 console.log(hello);`
-    
+
     render(
       <AIResponse>
         {`\`\`\`javascript
@@ -154,7 +170,7 @@ const code = true;
 
   it('should pass through additional props', () => {
     render(
-      <AIResponse data-testid="ai-response" aria-label="AI response">
+      <AIResponse aria-label="AI response" data-testid="ai-response">
         Content
       </AIResponse>
     )
@@ -168,11 +184,7 @@ const code = true;
       p: ({ children }: any) => <p data-testid="custom-paragraph">{children}</p>,
     }
 
-    render(
-      <AIResponse options={{ components: customComponents }}>
-        Test paragraph
-      </AIResponse>
-    )
+    render(<AIResponse options={{ components: customComponents }}>Test paragraph</AIResponse>)
 
     expect(screen.getByTestId('custom-paragraph')).toHaveTextContent('Test paragraph')
   })

@@ -1,12 +1,12 @@
 'use client'
 
 import { memo, useMemo } from 'react'
-import { Card } from '@/components/ui/card'
-import { useAudioChatIntegration } from '@/hooks/use-audio-chat-integration'
 import { ChatHeader } from '@/components/ai/chat-header'
 import { ChatInputArea } from '@/components/ai/chat-input-area'
 import { ChatMessageList } from '@/components/ai/chat-message-list'
 import { ErrorBoundary } from '@/components/ai/error-boundary'
+import { Card } from '@/components/ui/card'
+import { useAudioChatIntegration } from '@/hooks/use-audio-chat-integration'
 
 export interface GeminiAudioChatProps {
   voiceName?: string

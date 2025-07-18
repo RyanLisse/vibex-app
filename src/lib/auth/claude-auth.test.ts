@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { ClaudeAuthClient } from '@/src/lib/auth/claude-auth'
 import * as pkce from '@/src/lib/auth/pkce'
 
@@ -119,7 +119,7 @@ describe('ClaudeAuthClient', () => {
         scope: 'org:create_api_key user:profile',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
       } as Response)
@@ -134,7 +134,7 @@ describe('ClaudeAuthClient', () => {
         body: expect.any(URLSearchParams),
       })
 
-      const callArgs = mocked(fetch).mock.calls[0]
+      const callArgs = ;(fetch as any).mock.calls[0]
       const body = callArgs[1]?.body as URLSearchParams
       expect(body.get('grant_type')).toBe('authorization_code')
       expect(body.get('client_id')).toBe('test-client-id')
@@ -151,7 +151,7 @@ describe('ClaudeAuthClient', () => {
         error_description: 'Invalid authorization code',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 400,
         statusText: 'Bad Request',
@@ -164,13 +164,13 @@ describe('ClaudeAuthClient', () => {
     })
 
     it('should handle network errors', async () => {
-      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
       await expect(client.exchangeCodeForToken('code', 'verifier')).rejects.toThrow('Network error')
     })
 
     it('should handle non-JSON error responses', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
@@ -191,7 +191,7 @@ describe('ClaudeAuthClient', () => {
         tokenUrl: 'https://custom.token.url',
       })
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'token' }),
       } as Response)
@@ -211,7 +211,7 @@ describe('ClaudeAuthClient', () => {
         refresh_token: 'new-refresh-token',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRefreshResponse,
       } as Response)
@@ -226,7 +226,7 @@ describe('ClaudeAuthClient', () => {
         body: expect.any(URLSearchParams),
       })
 
-      const callArgs = mocked(fetch).mock.calls[0]
+      const callArgs = ;(fetch as any).mock.calls[0]
       const body = callArgs[1]?.body as URLSearchParams
       expect(body.get('grant_type')).toBe('refresh_token')
       expect(body.get('client_id')).toBe('test-client-id')
@@ -241,7 +241,7 @@ describe('ClaudeAuthClient', () => {
         error_description: 'Refresh token expired',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
@@ -254,13 +254,13 @@ describe('ClaudeAuthClient', () => {
     })
 
     it('should handle network errors during refresh', async () => {
-      mocked(fetch).mockRejectedValueOnce(new Error('Connection timeout'))
+      ;(fetch as any).mockRejectedValueOnce(new Error('Connection timeout'))
 
       await expect(client.refreshToken('token')).rejects.toThrow('Connection timeout')
     })
 
     it('should handle non-JSON error responses during refresh', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 503,
         statusText: 'Service Unavailable',
@@ -326,7 +326,7 @@ describe('ClaudeAuthClient', () => {
     it('should handle concurrent token exchanges', async () => {
       const responses = [{ access_token: 'token1' }, { access_token: 'token2' }]
 
-      mocked(fetch)
+      ;(fetch as any)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => responses[0],

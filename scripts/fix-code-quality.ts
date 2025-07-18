@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { promises as fs } from 'fs'
-import path from 'path'
 import { Glob } from 'glob'
+import path from 'path'
 
 interface Fix {
   file: string
@@ -22,7 +22,7 @@ async function fixForEachLoops(filePath: string) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    
+
     // Pattern 1: array.forEach(item => {
     const forEachMatch = line.match(/(\s*)(.+)\.forEach\((\w+) => \{/)
     if (forEachMatch) {
@@ -33,10 +33,10 @@ async function fixForEachLoops(filePath: string) {
         file: filePath,
         line: i + 1,
         issue: 'forEach loop',
-        fix: 'for...of loop'
+        fix: 'for...of loop',
       })
     }
-    
+
     // Pattern 2: array.forEach((item) => {
     const forEachMatch2 = line.match(/(\s*)(.+)\.forEach\(\((\w+)\) => \{/)
     if (forEachMatch2) {
@@ -47,10 +47,10 @@ async function fixForEachLoops(filePath: string) {
         file: filePath,
         line: i + 1,
         issue: 'forEach loop',
-        fix: 'for...of loop'
+        fix: 'for...of loop',
       })
     }
-    
+
     // Pattern 3: array.forEach((item, index) => {
     const forEachMatch3 = line.match(/(\s*)(.+)\.forEach\(\((\w+), (\w+)\) => \{/)
     if (forEachMatch3) {
@@ -61,7 +61,7 @@ async function fixForEachLoops(filePath: string) {
         file: filePath,
         line: i + 1,
         issue: 'forEach with index',
-        fix: 'for...of with entries()'
+        fix: 'for...of with entries()',
       })
     }
   }
@@ -81,12 +81,12 @@ async function fixNonNullAssertions(filePath: string) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    
+
     // Pattern: something.get(key)!
     const nonNullMatch = line.match(/(.+)\.get\(([^)]+)\)!/)
     if (nonNullMatch) {
       const [fullMatch, prefix, key] = nonNullMatch
-      
+
       // Check if it's in a variable assignment
       if (line.includes('const ') || line.includes('let ') || line.includes('var ')) {
         // Add a guard clause after
@@ -100,7 +100,7 @@ async function fixNonNullAssertions(filePath: string) {
             file: filePath,
             line: i + 1,
             issue: 'non-null assertion',
-            fix: 'guard clause'
+            fix: 'guard clause',
           })
         }
       } else {
@@ -111,11 +111,11 @@ async function fixNonNullAssertions(filePath: string) {
           file: filePath,
           line: i + 1,
           issue: 'non-null assertion',
-          fix: 'nullish coalescing'
+          fix: 'nullish coalescing',
         })
       }
     }
-    
+
     // Pattern: array[index]!
     const arrayNonNullMatch = line.match(/(\w+)\[(\w+)\]!/)
     if (arrayNonNullMatch) {
@@ -125,7 +125,7 @@ async function fixNonNullAssertions(filePath: string) {
         file: filePath,
         line: i + 1,
         issue: 'non-null assertion on array',
-        fix: 'nullish coalescing'
+        fix: 'nullish coalescing',
       })
     }
   }
@@ -145,7 +145,7 @@ async function fixAnyTypes(filePath: string) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    
+
     // Pattern: : any
     if (line.includes(': any')) {
       // Common patterns and their replacements
@@ -166,7 +166,7 @@ async function fixAnyTypes(filePath: string) {
         { pattern: /\((\w+): any\)/, replacement: '($1: unknown)' },
         { pattern: /\((\w+): any,/, replacement: '($1: unknown,' },
       ]
-      
+
       let lineModified = false
       for (const { pattern, replacement } of replacements) {
         if (pattern.test(line)) {
@@ -176,12 +176,12 @@ async function fixAnyTypes(filePath: string) {
             file: filePath,
             line: i + 1,
             issue: 'any type',
-            fix: 'unknown type'
+            fix: 'unknown type',
           })
           break
         }
       }
-      
+
       if (lineModified) {
         modified = true
       }
@@ -199,16 +199,10 @@ async function main() {
 
   // Find all TypeScript files
   const g = new Glob('**/*.{ts,tsx}', {
-    ignore: [
-      '**/node_modules/**',
-      '**/.next/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/*.d.ts'
-    ],
-    cwd: process.cwd()
+    ignore: ['**/node_modules/**', '**/.next/**', '**/dist/**', '**/build/**', '**/*.d.ts'],
+    cwd: process.cwd(),
   })
-  
+
   const tsFiles = [...g]
 
   console.log(`📁 Found ${tsFiles.length} TypeScript files to check\n`)
@@ -217,12 +211,12 @@ async function main() {
   let processedFiles = 0
   for (const file of tsFiles) {
     const filePath = path.join(process.cwd(), file)
-    
+
     try {
       await fixForEachLoops(filePath)
       await fixNonNullAssertions(filePath)
       await fixAnyTypes(filePath)
-      
+
       processedFiles++
       if (processedFiles % 50 === 0) {
         console.log(`  Processed ${processedFiles} files...`)
@@ -236,30 +230,33 @@ async function main() {
   console.log('\n📊 Fix Summary:')
   console.log(`  Files processed: ${processedFiles}`)
   console.log(`  Total fixes applied: ${fixes.length}`)
-  
+
   if (fixes.length > 0) {
     // Group fixes by type
-    const fixesByType = fixes.reduce((acc, fix) => {
-      acc[fix.issue] = (acc[fix.issue] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-    
+    const fixesByType = fixes.reduce(
+      (acc, fix) => {
+        acc[fix.issue] = (acc[fix.issue] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    )
+
     console.log('\n📈 Fixes by type:')
     for (const [issue, count] of Object.entries(fixesByType)) {
       console.log(`  ${issue}: ${count}`)
     }
-    
+
     // Show first 10 fixes as examples
     console.log('\n📝 Example fixes (first 10):')
-    fixes.slice(0, 10).forEach(fix => {
+    fixes.slice(0, 10).forEach((fix) => {
       console.log(`  ${fix.file}:${fix.line} - ${fix.issue} → ${fix.fix}`)
     })
-    
+
     if (fixes.length > 10) {
       console.log(`  ... and ${fixes.length - 10} more`)
     }
   }
-  
+
   console.log('\n✅ Code quality fixes complete!')
   console.log('💡 Run "bun run type-check" to verify the changes')
 }

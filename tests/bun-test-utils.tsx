@@ -4,30 +4,20 @@
  */
 
 // Note: expect is globally available in bun:test
-import { render, type RenderOptions } from '@testing-library/react'
-import { ReactElement } from 'react'
+import { type RenderOptions, render } from '@testing-library/react'
+import type { ReactElement } from 'react'
 
 // Custom render function with common providers
-export function renderWithProviders(
-  ui: ReactElement,
-  options?: RenderOptions
-) {
+export function renderWithProviders(ui: ReactElement, options?: RenderOptions) {
   const AllProviders = ({ children }: { children: React.ReactNode }) => {
-    return (
-      <div data-testid="test-wrapper">
-        {children}
-      </div>
-    )
+    return <div data-testid="test-wrapper">{children}</div>
   }
 
   return render(ui, { wrapper: AllProviders, ...options })
 }
 
 // Mock component factory for testing
-export const createMockComponent = (
-  displayName: string,
-  props?: Record<string, any>
-) => {
+export const createMockComponent = (displayName: string, props?: Record<string, any>) => {
   const MockComponent = (componentProps: any) => ({
     type: 'div',
     props: {
@@ -36,7 +26,7 @@ export const createMockComponent = (
       ...componentProps,
     },
   })
-  
+
   MockComponent.displayName = displayName
   return MockComponent
 }
@@ -54,7 +44,7 @@ export const waitFor = async (
       await callback()
       return
     } catch (error) {
-      await new Promise(resolve => setTimeout(resolve, interval))
+      await new Promise((resolve) => setTimeout(resolve, interval))
     }
   }
 
@@ -102,12 +92,12 @@ export const simulateInput = (element: any, value: string) => {
     bubbles: true,
     cancelable: true,
   })
-  
+
   // Set value
   if (element.value !== undefined) {
     element.value = value
   }
-  
+
   element.dispatchEvent(event)
 }
 
@@ -144,12 +134,12 @@ export const checkCheckbox = (checkbox: HTMLInputElement) => {
 
 // Time-based testing helpers
 export const advanceTime = (ms: number) => {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export const flushPromises = () => {
-  return new Promise(resolve => setTimeout(resolve, 0))
+  return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 // Re-export commonly used testing utilities
-export { render, screen, fireEvent, waitFor as rtlWaitFor } from '@testing-library/react'
+export { fireEvent, render, screen, waitFor as rtlWaitFor } from '@testing-library/react'

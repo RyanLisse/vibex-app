@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { UseGeminiAudioOptions } from '@/hooks/use-gemini-audio'
 import { useGeminiAudio } from '@/hooks/use-gemini-audio'
@@ -10,7 +10,8 @@ describe('useGeminiAudio', () => {
   beforeEach(() => {
     mock.restore()
     mock.useFakeTimers()
-    ;(global.fetch as any).mockResolvedValue({
+    const fetchMock = mock(global.fetch)
+    fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({}),
     })
@@ -43,7 +44,7 @@ describe('useGeminiAudio', () => {
       expect(result.current.isLoading).toBe(false)
       expect(result.current.error).toBeNull()
 
-      const fetchCall = (global.fetch as any).mock.calls[0]
+      const fetchCall = mock(global.fetch).mock.calls[0]
       expect(fetchCall[0]).toBe('/api/ai/gemini/session')
       expect(fetchCall[1]).toEqual({
         method: 'POST',
@@ -66,14 +67,15 @@ describe('useGeminiAudio', () => {
         await result.current.connect()
       })
 
-      const body = JSON.parse((global.fetch as any).mock.calls[0][1].body)
+      const body = JSON.parse(mock(global.fetch).mock.calls[0][1].body)
       expect(body.voiceName).toBe('en-US-Neural2-A')
       expect(body.tools).toEqual(options.tools)
     })
 
     it('should handle connection errors', async () => {
       const onError = mock()
-      ;(global.fetch as any).mockResolvedValueOnce({
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 500,
       })
@@ -93,7 +95,8 @@ describe('useGeminiAudio', () => {
     it('should handle network errors', async () => {
       const onError = mock()
       const networkError = new Error('Network error')
-      ;(global.fetch as any).mockRejectedValueOnce(networkError)
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockRejectedValueOnce(networkError)
 
       const { result } = renderHook(() => useGeminiAudio({ onError }))
 
@@ -111,7 +114,8 @@ describe('useGeminiAudio', () => {
       const promise = new Promise((resolve) => {
         resolvePromise = resolve
       })
-      ;(global.fetch as any).mockReturnValueOnce(promise)
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockReturnValueOnce(promise)
 
       const { result } = renderHook(() => useGeminiAudio())
 
@@ -146,7 +150,8 @@ describe('useGeminiAudio', () => {
 
       expect(result.current.isConnected).toBe(false)
 
-      const disconnectCall = (global.fetch as any).mock.calls[1]
+      const fetchMock = mock(global.fetch)
+      const disconnectCall = fetchMock.mock.calls[1]
       expect(disconnectCall[0]).toMatch(/\/api\/ai\/gemini\/session\?sessionId=session-/)
       expect(disconnectCall[1]).toEqual({ method: 'DELETE' })
     })
@@ -162,7 +167,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle disconnect errors gracefully', async () => {
-      const consoleErrorSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
       const { result } = renderHook(() => useGeminiAudio())
 
       // Connect first
@@ -171,15 +176,16 @@ describe('useGeminiAudio', () => {
       })
 
       // Mock error on disconnect
-      ;(global.fetch as any).mockRejectedValueOnce(new Error('Disconnect failed'))
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockRejectedValueOnce(new Error('Disconnect failed'))
 
       await act(async () => {
         await result.current.disconnect()
       })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to disconnect:', expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to disconnect:', expect.any(Error))
 
-      consoleErrorSpy.mockRestore()
+      consoleSpy.mockRestore()
     })
   })
 
@@ -207,7 +213,7 @@ describe('useGeminiAudio', () => {
       expect(onMessage).toHaveBeenCalledWith(result.current.messages[0])
 
       // Check API call
-      const sendCall = (global.fetch as any).mock.calls[1]
+      const sendCall = mock(global.fetch).mock.calls[1]
       expect(sendCall[0]).toBe('/api/ai/gemini/audio')
       expect(JSON.parse(sendCall[1].body)).toMatchObject({
         sessionId: expect.stringContaining('session-'),
@@ -262,7 +268,8 @@ describe('useGeminiAudio', () => {
         await result.current.connect()
       })
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 400,
       })
@@ -342,7 +349,8 @@ describe('useGeminiAudio', () => {
       }
       global.FileReader = mock().mockImplementation(() => mockFileReader) as any
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 400,
       })
@@ -388,7 +396,8 @@ describe('useGeminiAudio', () => {
 
       unmount()
 
-      const disconnectCall = (global.fetch as any).mock.calls[1]
+      const fetchMock = mock(global.fetch)
+      const disconnectCall = fetchMock.mock.calls[1]
       expect(disconnectCall[0]).toMatch(/\/api\/ai\/gemini\/session\?sessionId=/)
       expect(disconnectCall[1]).toEqual({ method: 'DELETE' })
     })

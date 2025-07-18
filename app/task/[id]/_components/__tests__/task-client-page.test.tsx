@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import { useTaskStore } from '@/stores/tasks'
 import { useAutoScroll } from '@/app/task/[id]/_hooks/use-auto-scroll'
 import { useTaskData } from '@/app/task/[id]/_hooks/use-task-data'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
 import TaskClientPage from '@/app/task/[id]/client-page'
+import { useTaskStore } from '@/stores/tasks'
 
 // Mock the stores and hooks
 mock('@/stores/tasks')

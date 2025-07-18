@@ -3,7 +3,7 @@
  * Basic test to verify Bun test runner setup
  */
 
-import { describe, it, expect } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 
 describe('Bun Test Runner', () => {
   it('should run basic tests', () => {

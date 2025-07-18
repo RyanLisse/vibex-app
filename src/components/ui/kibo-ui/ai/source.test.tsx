@@ -1,11 +1,19 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AISources, AISourcesTrigger, AISourcesContent, AISource } from './source'
+import { AISource, AISources, AISourcesContent, AISourcesTrigger } from './source'
 
 // Mock dependencies
 mock('lucide-react', () => ({
-  BookIcon: ({ className }: any) => <span className={className} data-testid="book-icon">📚</span>,
-  ChevronDownIcon: ({ className }: any) => <span className={className} data-testid="chevron-icon">⌄</span>,
+  BookIcon: ({ className }: any) => (
+    <span className={className} data-testid="book-icon">
+      📚
+    </span>
+  ),
+  ChevronDownIcon: ({ className }: any) => (
+    <span className={className} data-testid="chevron-icon">
+      ⌄
+    </span>
+  ),
 }))
 
 mock('@/components/ui/collapsible', () => ({
@@ -57,7 +65,7 @@ describe('AISources', () => {
   })
 
   it('should pass through additional props', () => {
-    render(<AISources data-testid="ai-sources" aria-label="AI sources" />)
+    render(<AISources aria-label="AI sources" data-testid="ai-sources" />)
 
     const sources = screen.getByTestId('ai-sources')
     expect(sources).toBeInTheDocument()
@@ -102,13 +110,7 @@ describe('AISourcesTrigger', () => {
   })
 
   it('should pass through additional props', () => {
-    render(
-      <AISourcesTrigger 
-        count={4} 
-        disabled
-        data-custom="test"
-      />
-    )
+    render(<AISourcesTrigger count={4} data-custom="test" disabled />)
 
     const trigger = screen.getByTestId('collapsible-trigger')
     expect(trigger).toBeDisabled()
@@ -144,9 +146,7 @@ describe('AISourcesContent', () => {
   })
 
   it('should pass through additional props', () => {
-    render(
-      <AISourcesContent data-custom="content" aria-expanded="true" />
-    )
+    render(<AISourcesContent aria-expanded="true" data-custom="content" />)
 
     const content = screen.getByTestId('collapsible-content')
     expect(content).toHaveAttribute('data-custom', 'content')
@@ -194,13 +194,7 @@ describe('AISource', () => {
     const user = userEvent.setup()
     const handleClick = mock()
 
-    render(
-      <AISource 
-        href="https://example.com" 
-        title="Test"
-        onClick={handleClick}
-      />
-    )
+    render(<AISource href="https://example.com" onClick={handleClick} title="Test" />)
 
     await user.click(screen.getByRole('link'))
     expect(handleClick).toHaveBeenCalledTimes(1)
@@ -208,12 +202,7 @@ describe('AISource', () => {
 
   it('should pass through additional props', () => {
     render(
-      <AISource 
-        href="#" 
-        title="Test"
-        data-testid="custom-source"
-        aria-label="Custom source"
-      />
+      <AISource aria-label="Custom source" data-testid="custom-source" href="#" title="Test" />
     )
 
     const link = screen.getByTestId('custom-source')

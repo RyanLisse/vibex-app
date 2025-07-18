@@ -1,11 +1,11 @@
 import { memo, Suspense } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useEnhancedAutoScroll } from '@/app/task/[id]/_hooks/use-enhanced-auto-scroll'
-import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
 import { ChatLoadingState } from '@/app/task/[id]/_components/chat-loading-state'
 import { ChatMessagesPanel } from '@/app/task/[id]/_components/chat-messages-panel'
 import { MessageInput } from '@/app/task/[id]/_components/message-input'
 import { TaskLoadingState } from '@/app/task/[id]/_components/task-loading-state'
+import { useEnhancedAutoScroll } from '@/app/task/[id]/_hooks/use-enhanced-auto-scroll'
+import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 /**
  * ChatPanel manages the chat interface layout and state

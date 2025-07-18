@@ -1,9 +1,9 @@
 'use client'
 import { type ReactNode, useCallback, useEffect } from 'react'
+import { useRealtime } from '@/components/providers/realtime-provider'
 import { useMessageFilters } from '@/hooks/use-message-filters'
 import { useTaskMessageHandler } from '@/hooks/use-task-message-handler'
 import type { LatestData } from '@/lib/container-types'
-import { useRealtime } from '@/components/providers/realtime-provider'
 
 interface TaskMessageProcessorProps {
   children: ReactNode

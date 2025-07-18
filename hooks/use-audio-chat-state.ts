@@ -57,7 +57,7 @@ export function useAudioChatState(options: UseAudioChatStateOptions = {}) {
         return newState
       })
     },
-    [options]
+    [options.onStateChange]
   )
 
   // Connection management

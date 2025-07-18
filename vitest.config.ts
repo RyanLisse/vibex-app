@@ -19,8 +19,8 @@ export default defineConfig({
     css: false,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      reportsDirectory: './coverage/integration',
+      reporter: ['text', 'html', 'lcov', 'json'],
+      reportsDirectory: './coverage/vitest-integration',
       exclude: [
         'node_modules/**',
         'dist/**',
@@ -33,6 +33,24 @@ export default defineConfig({
         '**/types.ts',
         '**/.storybook/**',
         '**/storybook-static/**',
+        'scripts/**',
+        'docs/**',
+        'public/**',
+        'playwright-report/**',
+        'test-results/**',
+        // Exclude files covered by other test types
+        'lib/**/*.{js,ts}',
+        'src/lib/**/*.{js,ts}',
+        'stores/**/*.{js,ts}',
+        'src/schemas/**/*.{js,ts}',
+        'src/hooks/useZodForm/**/*.{js,ts}',
+      ],
+      include: [
+        'app/api/**/*.{js,ts}',
+        'app/actions/**/*.{js,ts}',
+        'lib/**/*.{js,ts}',
+        'src/lib/**/*.{js,ts}',
+        'tests/integration/**/*.{js,ts}',
       ],
       thresholds: {
         global: {
@@ -45,7 +63,9 @@ export default defineConfig({
     },
     include: [
       '**/*.integration.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      'tests/integration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+      'tests/integration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'app/api/**/*.test.{js,ts}',
+      'app/actions/**/*.test.{js,ts}',
     ],
     exclude: [
       'node_modules',
@@ -57,7 +77,7 @@ export default defineConfig({
       'tests/unit/**',
       'tests/e2e/**',
       '**/*.unit.test.*',
-      '**/*.spec.*'
+      '**/*.spec.*',
     ],
     testTimeout: 30_000,
     hookTimeout: 15_000,

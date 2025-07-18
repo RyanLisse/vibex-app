@@ -68,3 +68,34 @@ export const Auth = {
     await fs.chmod(filepath, 0o600)
   },
 }
+
+// Re-export auth utility functions for backwards compatibility
+export {
+  generateCodeVerifier,
+  generateCodeChallenge,
+  generateState,
+  validateOAuthState,
+  buildAuthUrl,
+  exchangeCodeForToken,
+  refreshAuthToken,
+  revokeToken,
+  validateToken,
+  getTokenExpirationTime,
+  isTokenExpired,
+  isTokenExpiring,
+  parseJWT,
+  sanitizeRedirectUrl,
+  createAuthHeaders,
+  handleAuthError,
+} from '../auth'
+
+// Re-export types
+export type {
+  AuthConfig,
+  TokenResponse,
+  TokenExchangeConfig,
+  TokenRefreshConfig,
+  TokenRevokeConfig,
+  TokenValidationConfig,
+  TokenInfo,
+} from '../auth'

@@ -1,12 +1,12 @@
 'use client'
 
 import { createContext, type ReactNode, useContext } from 'react'
-import type { Task } from '@/stores/tasks'
-import { useTaskStore } from '@/stores/tasks'
 import { TaskNotFound } from '@/app/task/[id]/_components/task-not-found'
 import { useOptimizedTaskData } from '@/app/task/[id]/_hooks/use-optimized-task-data'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
 import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
+import type { Task } from '@/stores/tasks'
+import { useTaskStore } from '@/stores/tasks'
 
 interface TaskContextValue {
   task: Task

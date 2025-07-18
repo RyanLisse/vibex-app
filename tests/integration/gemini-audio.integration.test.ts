@@ -1,41 +1,41 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 
 // Mock the @google/genai module
-vi.mock('@google/genai', () => ({
-  GoogleGenAI: vi.fn(() => ({
-    startChat: vi.fn(),
+mock.module('@google/genai', () => ({
+  GoogleGenAI: mock(() => ({
+    startChat: mock(),
   })),
-  LiveSession: vi.fn(() => ({
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    send: vi.fn(),
-    on: vi.fn(),
-    off: vi.fn(),
+  LiveSession: mock(() => ({
+    connect: mock(),
+    disconnect: mock(),
+    send: mock(),
+    on: mock(),
+    off: mock(),
   })),
 }))
 
 // Mock fetch for API routes
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('Gemini Audio Integration Tests', () => {
   let _mockGeminiSession: GeminiRealtimeSession
   let mockSessionAPI: any
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
 
     // Mock the session API
     mockSessionAPI = {
-      connect: vi.fn().mockResolvedValue(undefined),
-      disconnect: vi.fn().mockResolvedValue(undefined),
-      send: vi.fn().mockResolvedValue(undefined),
-      on: vi.fn(),
-      off: vi.fn(),
+      connect: mock().mockResolvedValue(undefined),
+      disconnect: mock().mockResolvedValue(undefined),
+      send: mock().mockResolvedValue(undefined),
+      on: mock(),
+      off: mock(),
     }
 
     // Mock fetch responses
-    vi.mocked(fetch).mockImplementation((url: string | URL) => {
+    ;(fetch as any).mockImplementation((url: string | URL) => {
       const urlString = url.toString()
 
       if (urlString.includes('/api/ai/gemini/session')) {
@@ -54,7 +54,7 @@ describe('Gemini Audio Integration Tests', () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   describe('Session Management', () => {
@@ -186,7 +186,7 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      const messageHandler = vi.fn()
+      const messageHandler = mock()
       session.onMessage(messageHandler)
 
       // Simulate an incoming message
@@ -222,7 +222,7 @@ describe('Gemini Audio Integration Tests', () => {
         ],
       })
 
-      const toolCallHandler = vi.fn()
+      const toolCallHandler = mock()
       session.onToolCall(toolCallHandler)
 
       // Simulate a tool call
@@ -245,7 +245,7 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      const errorHandler = vi.fn()
+      const errorHandler = mock()
       session.onError(errorHandler)
 
       // Simulate an error message
@@ -270,9 +270,9 @@ describe('Gemini Audio Integration Tests', () => {
         voiceName: 'Aoede',
       })
 
-      const messageHandler = vi.fn()
-      const errorHandler = vi.fn()
-      const audioHandler = vi.fn()
+      const messageHandler = mock()
+      const errorHandler = mock()
+      const audioHandler = mock()
 
       session.onMessage(messageHandler)
       session.onError(errorHandler)
@@ -311,7 +311,7 @@ describe('Gemini Audio Integration Tests', () => {
     })
 
     it('should handle API errors', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: () => Promise.resolve({ error: 'Internal server error' }),

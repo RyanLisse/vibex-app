@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAuthBase } from '@/hooks/use-auth-base'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
@@ -78,8 +78,9 @@ describe('useOpenAIAuth', () => {
     })
 
     it('should handle refresh errors', async () => {
-      const consoleErrorSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
-      ;(global.fetch as any).mockResolvedValueOnce({
+      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 401,
       })
@@ -90,16 +91,17 @@ describe('useOpenAIAuth', () => {
         await result.current.refreshToken()
       })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Token refresh failed:', expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith('Token refresh failed:', expect.any(Error))
       expect(mockBaseAuth.refresh).not.toHaveBeenCalled()
 
-      consoleErrorSpy.mockRestore()
+      consoleSpy.mockRestore()
     })
 
     it('should handle network errors', async () => {
-      const consoleErrorSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
       const networkError = new Error('Network error')
-      ;(global.fetch as any).mockRejectedValueOnce(networkError)
+      const fetchMock = mock(global.fetch)
+      fetchMock.mockRejectedValueOnce(networkError)
 
       const { result } = renderHook(() => useOpenAIAuth())
 
@@ -107,10 +109,10 @@ describe('useOpenAIAuth', () => {
         await result.current.refreshToken()
       })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Token refresh failed:', networkError)
+      expect(consoleSpy).toHaveBeenCalledWith('Token refresh failed:', networkError)
       expect(mockBaseAuth.refresh).not.toHaveBeenCalled()
 
-      consoleErrorSpy.mockRestore()
+      consoleSpy.mockRestore()
     })
   })
 

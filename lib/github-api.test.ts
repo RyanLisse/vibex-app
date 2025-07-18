@@ -1,13 +1,15 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { GitHubAPI } from '@/lib/github-api'
 
 describe('GitHubAPI', () => {
   let api: GitHubAPI
   const mockToken = 'github-token-123'
+  let fetchMock: ReturnType<typeof mock>
 
   beforeEach(() => {
     api = new GitHubAPI(mockToken)
-    global.fetch = mock()
+    fetchMock = mock()
+    global.fetch = fetchMock
   })
 
   describe('constructor', () => {
@@ -26,14 +28,14 @@ describe('GitHubAPI', () => {
         name: 'Test User',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockUser,
       } as Response)
 
       const result = await api.getUser()
 
-      expect(fetch).toHaveBeenCalledWith('https://api.github.com/user', {
+      expect(fetchMock).toHaveBeenCalledWith('https://api.github.com/user', {
         headers: {
           Authorization: `Bearer ${mockToken}`,
           Accept: 'application/vnd.github.v3+json',
@@ -43,7 +45,7 @@ describe('GitHubAPI', () => {
     })
 
     it('should throw error when response is not ok', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
@@ -60,14 +62,14 @@ describe('GitHubAPI', () => {
         { id: 2, name: 'repo2', full_name: 'user/repo2' },
       ]
 
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockRepos,
       } as Response)
 
       const result = await api.getRepositories()
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         'https://api.github.com/user/repos?sort=updated&per_page=30',
         {
           headers: {
@@ -82,7 +84,7 @@ describe('GitHubAPI', () => {
     it('should fetch repositories with custom options', async () => {
       const mockRepos = [{ id: 1, name: 'repo1' }]
 
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockRepos,
       } as Response)
@@ -93,7 +95,7 @@ describe('GitHubAPI', () => {
         page: 2,
       })
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenCalledWith(
         'https://api.github.com/user/repos?sort=created&per_page=50&page=2',
         expect.any(Object)
       )
@@ -108,14 +110,14 @@ describe('GitHubAPI', () => {
         { name: 'develop', protected: false },
       ]
 
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockBranches,
       } as Response)
 
       const result = await api.getBranches('user', 'repo')
 
-      expect(fetch).toHaveBeenCalledWith('https://api.github.com/repos/user/repo/branches', {
+      expect(fetchMock).toHaveBeenCalledWith('https://api.github.com/repos/user/repo/branches', {
         headers: {
           Authorization: `Bearer ${mockToken}`,
           Accept: 'application/vnd.github.v3+json',
@@ -125,7 +127,7 @@ describe('GitHubAPI', () => {
     })
 
     it('should handle empty branch list', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => [],
       } as Response)
@@ -150,14 +152,14 @@ describe('GitHubAPI', () => {
         ...newRepo,
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       } as Response)
 
       const result = await api.createRepository(newRepo)
 
-      expect(fetch).toHaveBeenCalledWith('https://api.github.com/user/repos', {
+      expect(fetchMock).toHaveBeenCalledWith('https://api.github.com/user/repos', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${mockToken}`,
@@ -172,13 +174,13 @@ describe('GitHubAPI', () => {
 
   describe('error handling', () => {
     it('should handle network errors', async () => {
-      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      fetchMock.mockRejectedValueOnce(new Error('Network error'))
 
       await expect(api.getUser()).rejects.toThrow('Network error')
     })
 
     it('should handle 404 errors', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 404,
         statusText: 'Not Found',
@@ -190,7 +192,7 @@ describe('GitHubAPI', () => {
     })
 
     it('should handle rate limit errors', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 429,
         statusText: 'Too Many Requests',

@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
   AITool,
-  AIToolHeader,
   AIToolContent,
+  AIToolHeader,
   AIToolInput,
   AIToolOutput,
   type AIToolStatus,
@@ -25,13 +25,11 @@ mock('@/components/ui/collapsible', () => ({
     </div>
   ),
   CollapsibleTrigger: ({ children, onClick, className, ...props }: any) => (
-    <button type="button" className={className} onClick={onClick} {...props}>
+    <button className={className} onClick={onClick} type="button" {...props}>
       {children}
     </button>
   ),
-  CollapsibleContent: ({ children, className }: any) => (
-    <div className={className}>{children}</div>
-  ),
+  CollapsibleContent: ({ children, className }: any) => <div className={className}>{children}</div>,
 }))
 
 mock('@/lib/utils', () => ({
@@ -46,18 +44,10 @@ mock('lucide-react', () => ({
   ChevronDownIcon: ({ className }: any) => (
     <span className={className} data-testid="chevron-down-icon" />
   ),
-  CircleIcon: ({ className }: any) => (
-    <span className={className} data-testid="circle-icon" />
-  ),
-  ClockIcon: ({ className }: any) => (
-    <span className={className} data-testid="clock-icon" />
-  ),
-  WrenchIcon: ({ className }: any) => (
-    <span className={className} data-testid="wrench-icon" />
-  ),
-  XCircleIcon: ({ className }: any) => (
-    <span className={className} data-testid="x-circle-icon" />
-  ),
+  CircleIcon: ({ className }: any) => <span className={className} data-testid="circle-icon" />,
+  ClockIcon: ({ className }: any) => <span className={className} data-testid="clock-icon" />,
+  WrenchIcon: ({ className }: any) => <span className={className} data-testid="wrench-icon" />,
+  XCircleIcon: ({ className }: any) => <span className={className} data-testid="x-circle-icon" />,
 }))
 
 describe('AITool', () => {
@@ -279,7 +269,7 @@ describe('AIToolInput', () => {
 
   it('should apply custom className', () => {
     render(
-      <AIToolInput label="Input" className="custom-input-class">
+      <AIToolInput className="custom-input-class" label="Input">
         <div>Content</div>
       </AIToolInput>
     )
@@ -336,7 +326,7 @@ describe('AIToolOutput', () => {
 
   it('should apply custom className', () => {
     render(
-      <AIToolOutput label="Output" className="custom-output-class">
+      <AIToolOutput className="custom-output-class" label="Output">
         <div>Content</div>
       </AIToolOutput>
     )
@@ -352,17 +342,13 @@ describe('Integration', () => {
 
     render(
       <AITool>
-        <AIToolHeader
-          name="Data Processor"
-          description="Processes input data"
-          status="running"
-        />
+        <AIToolHeader description="Processes input data" name="Data Processor" status="running" />
         <AIToolContent>
           <AIToolInput label="Parameters">
             <pre>{"{ type: 'json', format: 'pretty' }"}</pre>
           </AIToolInput>
           <AIToolOutput label="Results">
-            <pre>{"{ processed: true, count: 42 }"}</pre>
+            <pre>{'{ processed: true, count: 42 }'}</pre>
           </AIToolOutput>
         </AIToolContent>
       </AITool>
@@ -378,7 +364,7 @@ describe('Integration', () => {
     expect(screen.getByText('Parameters')).toBeInTheDocument()
     expect(screen.getByText("{ type: 'json', format: 'pretty' }")).toBeInTheDocument()
     expect(screen.getByText('Results')).toBeInTheDocument()
-    expect(screen.getByText("{ processed: true, count: 42 }")).toBeInTheDocument()
+    expect(screen.getByText('{ processed: true, count: 42 }')).toBeInTheDocument()
   })
 
   it('should handle state transitions', () => {

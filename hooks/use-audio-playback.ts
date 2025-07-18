@@ -93,7 +93,7 @@ export function useAudioPlayback(options: UseAudioPlaybackOptions = {}) {
         options.onError?.(new Error(errorMessage))
       }
     }
-  }, [options])
+  }, [options.onError])
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) {

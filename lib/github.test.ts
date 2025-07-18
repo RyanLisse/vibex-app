@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { cookies } from 'next/headers'
 import {
   clearGitHubAuth,
@@ -30,7 +30,7 @@ describe('GitHub Authentication', () => {
 
   beforeEach(() => {
     mock.restore()
-    mocked(cookies).mockResolvedValue(mockCookies as any)
+    ;(cookies as any).mockResolvedValue(mockCookies as any)
     process.env = {
       ...originalEnv,
       GITHUB_CLIENT_ID: 'test-client-id',
@@ -79,7 +79,7 @@ describe('GitHub Authentication', () => {
         scope: 'repo,user',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       } as Response)
@@ -116,7 +116,7 @@ describe('GitHub Authentication', () => {
     })
 
     it('should throw error when response is not ok', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         statusText: 'Bad Request',
       } as Response)
@@ -144,7 +144,7 @@ describe('GitHub Authentication', () => {
         email: 'test@example.com',
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUser,
       } as Response)
@@ -180,7 +180,7 @@ describe('GitHub Authentication', () => {
         { id: 2, name: 'repo2' },
       ]
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRepos,
       } as Response)
@@ -206,7 +206,7 @@ describe('GitHub Authentication', () => {
     it('should pass custom options to API', async () => {
       mockCookies.get.mockReturnValue({ value: 'valid-token' })
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => [],
       } as Response)
@@ -226,7 +226,7 @@ describe('GitHub Authentication', () => {
 
       const mockBranches = [{ name: 'main' }, { name: 'develop' }]
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockBranches,
       } as Response)
@@ -265,7 +265,7 @@ describe('GitHub Authentication', () => {
         ...newRepo,
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       } as Response)

@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**
  * Integration Test Template for API Routes
- * 
+ *
  * This template demonstrates how to test API routes in integration with:
  * - Database operations
  * - External API calls
@@ -12,7 +12,7 @@ import { integrationTestHelpers } from '../../../vitest.setup'
  */
 describe('API Route Integration Template', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   describe('GET /api/example', () => {
@@ -30,7 +30,11 @@ describe('API Route Integration Template', () => {
 
     it('should handle database errors', async () => {
       // Mock database error
-      integrationTestHelpers.mockApiError('/api/example', { error: 'Database connection failed' }, 500)
+      integrationTestHelpers.mockApiError(
+        '/api/example',
+        { error: 'Database connection failed' },
+        500
+      )
 
       const response = await fetch('/api/example')
       const data = await response.json()
@@ -62,7 +66,7 @@ describe('API Route Integration Template', () => {
       const response = await fetch('/api/example', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
+        body: JSON.stringify(newItem),
       })
 
       const data = await response.json()
@@ -74,15 +78,19 @@ describe('API Route Integration Template', () => {
     it('should validate input data', async () => {
       const invalidData = { name: '' } // Missing required fields
 
-      integrationTestHelpers.mockApiError('/api/example', { 
-        error: 'Validation failed',
-        details: ['Name is required', 'Description is required']
-      }, 400)
+      integrationTestHelpers.mockApiError(
+        '/api/example',
+        {
+          error: 'Validation failed',
+          details: ['Name is required', 'Description is required'],
+        },
+        400
+      )
 
       const response = await fetch('/api/example', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(invalidData)
+        body: JSON.stringify(invalidData),
       })
 
       const data = await response.json()
@@ -103,7 +111,7 @@ describe('API Route Integration Template', () => {
       const response = await fetch('/api/example/1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData)
+        body: JSON.stringify(updatedData),
       })
 
       const data = await response.json()
@@ -118,7 +126,7 @@ describe('API Route Integration Template', () => {
       const response = await fetch('/api/example/999', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Updated' })
+        body: JSON.stringify({ name: 'Updated' }),
       })
 
       const data = await response.json()
@@ -133,7 +141,7 @@ describe('API Route Integration Template', () => {
       integrationTestHelpers.mockApiResponse('/api/example/1', { success: true })
 
       const response = await fetch('/api/example/1', {
-        method: 'DELETE'
+        method: 'DELETE',
       })
 
       const data = await response.json()
@@ -143,13 +151,13 @@ describe('API Route Integration Template', () => {
     })
 
     it('should handle cascade deletion', async () => {
-      integrationTestHelpers.mockApiResponse('/api/example/1', { 
+      integrationTestHelpers.mockApiResponse('/api/example/1', {
         success: true,
-        deletedRelated: 3
+        deletedRelated: 3,
       })
 
       const response = await fetch('/api/example/1', {
-        method: 'DELETE'
+        method: 'DELETE',
       })
 
       const data = await response.json()
@@ -162,23 +170,25 @@ describe('API Route Integration Template', () => {
 
   describe('Error Handling Integration', () => {
     it('should handle network timeouts', async () => {
-      vi.mocked(fetch).mockRejectedValue(new Error('Network timeout'))
+      const fetchMock = mock(fetch)
+      fetchMock.mockRejectedValue(new Error('Network timeout'))
 
       await expect(fetch('/api/example')).rejects.toThrow('Network timeout')
     })
 
     it('should handle malformed JSON', async () => {
-      vi.mocked(fetch).mockResolvedValue({
+      const fetchMock = mock(fetch)
+      fetchMock.mockResolvedValue({
         ok: false,
         status: 400,
-        json: () => Promise.reject(new Error('Invalid JSON'))
+        json: () => Promise.reject(new Error('Invalid JSON')),
       } as Response)
 
       const response = await fetch('/api/example')
-      
+
       expect(response.ok).toBe(false)
       expect(response.status).toBe(400)
-      
+
       await expect(response.json()).rejects.toThrow('Invalid JSON')
     })
 
@@ -201,7 +211,7 @@ describe('API Route Integration Template', () => {
       })
 
       const responses = await Promise.all(promises)
-      
+
       expect(responses).toHaveLength(10)
       responses.forEach((response, index) => {
         expect(response.ok).toBe(true)
@@ -213,8 +223,8 @@ describe('API Route Integration Template', () => {
         items: Array.from({ length: 1000 }, (_, i) => ({
           id: i,
           name: `Item ${i}`,
-          description: 'A'.repeat(1000)
-        }))
+          description: 'A'.repeat(1000),
+        })),
       }
 
       integrationTestHelpers.mockApiResponse('/api/example/bulk', largeData)
@@ -222,7 +232,7 @@ describe('API Route Integration Template', () => {
       const response = await fetch('/api/example/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(largeData)
+        body: JSON.stringify(largeData),
       })
 
       expect(response.ok).toBe(true)

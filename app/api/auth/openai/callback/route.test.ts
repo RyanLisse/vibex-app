@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/openai/callback/route'
 
@@ -33,17 +33,13 @@ mock('@/lib/env', () => ({
   },
 }))
 
-const mockExchangeCodeForToken = mocked(
-  await import('@/lib/auth/openai-codex')
-).exchangeCodeForToken
-const mockValidateOAuthState = mocked(await import('@/lib/auth/openai-codex')).validateOAuthState
-const mockSanitizeRedirectUrl = mocked(
-  await import('@/lib/auth/openai-codex')
-).sanitizeRedirectUrl
-const mockHandleAuthError = mocked(await import('@/lib/auth/openai-codex')).handleAuthError
+const mockExchangeCodeForToken = (await import('@/lib/auth/openai-codex') as any).exchangeCodeForToken
+const mockValidateOAuthState = (await import('@/lib/auth/openai-codex') as any).validateOAuthState
+const mockSanitizeRedirectUrl = (await import('@/lib/auth/openai-codex') as any).sanitizeRedirectUrl
+const mockHandleAuthError = (await import('@/lib/auth/openai-codex') as any).handleAuthError
 
 const { NextResponse } = await import('next/server')
-const mockNextResponse = mocked(NextResponse)
+const mockNextResponse = (NextResponse as any)
 
 describe('GET /api/auth/openai/callback', () => {
   beforeEach(() => {

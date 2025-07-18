@@ -372,19 +372,19 @@ export const githubStateUtils = {
 
   // Simulate API errors
   simulateAPIError: (method: keyof typeof mockGitHubAPI, error: Error) => {
-    const mockFn = mockGitHubAPI[method];
+    const mockFn = mockGitHubAPI[method]
     if (typeof mockFn === 'function' && 'mockRejectedValueOnce' in mockFn) {
-      (mockFn as ReturnType<typeof vi.fn>).mockRejectedValueOnce(error);
+      ;(mockFn as ReturnType<typeof vi.fn>).mockRejectedValueOnce(error)
     }
   },
 
   // Simulate rate limiting
   simulateRateLimit: () => {
-    const rateLimitError = new Error('API rate limit exceeded');
+    const rateLimitError = new Error('API rate limit exceeded')
     for (const method of Object.keys(mockGitHubAPI)) {
-      const mockFn = mockGitHubAPI[method as keyof typeof mockGitHubAPI];
+      const mockFn = mockGitHubAPI[method as keyof typeof mockGitHubAPI]
       if (typeof mockFn === 'function' && 'mockRejectedValueOnce' in mockFn) {
-        (mockFn as ReturnType<typeof vi.fn>).mockRejectedValueOnce(rateLimitError);
+        ;(mockFn as ReturnType<typeof vi.fn>).mockRejectedValueOnce(rateLimitError)
       }
     }
   },

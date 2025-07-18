@@ -28,7 +28,11 @@ mock('@/components/ui/button', () => ({
 
 // Mock lucide-react icons
 mock('lucide-react', () => ({
-  Loader2: ({ className }: any) => <span className={className} data-testid="loader-icon">Loading...</span>,
+  Loader2: ({ className }: any) => (
+    <span className={className} data-testid="loader-icon">
+      Loading...
+    </span>
+  ),
 }))
 
 describe('ClaudeAuthButton', () => {
@@ -46,7 +50,7 @@ describe('ClaudeAuthButton', () => {
   describe('rendering', () => {
     it('should render with default text', () => {
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(screen.getByRole('button')).toBeInTheDocument()
       expect(screen.getByText('Sign in with Claude')).toBeInTheDocument()
     })
@@ -57,19 +61,19 @@ describe('ClaudeAuthButton', () => {
           <span>Custom Auth Text</span>
         </ClaudeAuthButton>
       )
-      
+
       expect(screen.getByText('Custom Auth Text')).toBeInTheDocument()
     })
 
     it('should apply custom className', () => {
       render(<ClaudeAuthButton {...mockProps} className="custom-class" />)
-      
+
       expect(screen.getByRole('button')).toHaveClass('custom-class')
     })
 
     it('should render with outline variant', () => {
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(screen.getByRole('button')).toHaveAttribute('data-variant', 'outline')
     })
   })
@@ -84,7 +88,7 @@ describe('ClaudeAuthButton', () => {
       })
 
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(screen.getByTestId('loader-icon')).toBeInTheDocument()
       expect(screen.getByText('Authenticating...')).toBeInTheDocument()
       expect(screen.getByRole('button')).toBeDisabled()
@@ -92,7 +96,7 @@ describe('ClaudeAuthButton', () => {
 
     it('should not show loading state when not authenticating', () => {
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(screen.queryByTestId('loader-icon')).not.toBeInTheDocument()
       expect(screen.queryByText('Authenticating...')).not.toBeInTheDocument()
       expect(screen.getByRole('button')).not.toBeDisabled()
@@ -111,9 +115,9 @@ describe('ClaudeAuthButton', () => {
 
       const user = userEvent.setup()
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       await user.click(screen.getByRole('button'))
-      
+
       expect(mockStartLogin).toHaveBeenCalledTimes(1)
     })
 
@@ -128,9 +132,9 @@ describe('ClaudeAuthButton', () => {
 
       const user = userEvent.setup()
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       await user.click(screen.getByRole('button'))
-      
+
       expect(mockStartLogin).not.toHaveBeenCalled()
     })
   })
@@ -146,7 +150,7 @@ describe('ClaudeAuthButton', () => {
       })
 
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       await waitFor(() => {
         expect(mockProps.onError).toHaveBeenCalledWith(mockError)
       })
@@ -154,7 +158,7 @@ describe('ClaudeAuthButton', () => {
 
     it('should not call onError when no error', () => {
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(mockProps.onError).not.toHaveBeenCalled()
     })
 
@@ -184,7 +188,7 @@ describe('ClaudeAuthButton', () => {
       const mockHook = mocked(useClaudeAuth.default)
 
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(mockHook).toHaveBeenCalledWith({
         clientId: mockProps.clientId,
         redirectUri: mockProps.redirectUri,
@@ -196,7 +200,7 @@ describe('ClaudeAuthButton', () => {
     it('should handle hook updates correctly', async () => {
       const useClaudeAuth = await import('@/hooks/useClaudeAuth')
       const mockHook = mocked(useClaudeAuth.default)
-      
+
       // Initial render
       mockHook.mockReturnValue({
         startLogin: mock(),
@@ -205,9 +209,9 @@ describe('ClaudeAuthButton', () => {
       })
 
       const { rerender } = render(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(screen.getByText('Sign in with Claude')).toBeInTheDocument()
-      
+
       // Update to authenticating state
       mockHook.mockReturnValue({
         startLogin: mock(),
@@ -216,7 +220,7 @@ describe('ClaudeAuthButton', () => {
       })
 
       rerender(<ClaudeAuthButton {...mockProps} />)
-      
+
       expect(screen.getByText('Authenticating...')).toBeInTheDocument()
     })
   })
@@ -233,14 +237,14 @@ describe('ClaudeAuthButton', () => {
 
       const user = userEvent.setup()
       render(<ClaudeAuthButton {...mockProps} />)
-      
+
       const button = screen.getByRole('button')
-      
+
       // Simulate rapid clicks
       await user.click(button)
       await user.click(button)
       await user.click(button)
-      
+
       // Should still only call once per click
       expect(mockStartLogin).toHaveBeenCalledTimes(3)
     })
@@ -258,7 +262,7 @@ describe('ClaudeAuthButton', () => {
 
     it('should handle empty className', () => {
       render(<ClaudeAuthButton {...mockProps} className="" />)
-      
+
       expect(screen.getByRole('button')).toBeInTheDocument()
     })
   })

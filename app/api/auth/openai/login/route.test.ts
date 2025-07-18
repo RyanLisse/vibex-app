@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { NextRequest } from 'next/server'
 
 // Mock the POST function since it doesn't exist in the route
@@ -38,12 +38,12 @@ import {
   generateState,
 } from '@/lib/auth/openai-codex'
 
-const mockGenerateAuthUrl = mocked(generateAuthUrl)
-const mockGenerateCodeChallenge = mocked(generateCodeChallenge)
-const mockGenerateCodeVerifier = mocked(generateCodeVerifier)
-const mockGenerateState = mocked(generateState)
+const mockGenerateAuthUrl = (generateAuthUrl as any)
+const mockGenerateCodeChallenge = (generateCodeChallenge as any)
+const mockGenerateCodeVerifier = (generateCodeVerifier as any)
+const mockGenerateState = (generateState as any)
 
-const mockNextResponse = mocked((await import('next/server')).NextResponse)
+const mockNextResponse = ((await import('next/server' as any)).NextResponse)
 
 describe('POST /api/auth/openai/login', () => {
   beforeEach(() => {

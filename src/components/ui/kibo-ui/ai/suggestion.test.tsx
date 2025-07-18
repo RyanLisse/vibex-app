@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AISuggestions, AISuggestion } from './suggestion'
+import { AISuggestion, AISuggestions } from './suggestion'
 
 // Mock dependencies
 mock('@/components/ui/button', () => ({
@@ -18,11 +18,7 @@ mock('@/components/ui/scroll-area', () => ({
     </div>
   ),
   ScrollBar: ({ className, orientation }: any) => (
-    <div
-      className={className}
-      data-testid="scroll-bar"
-      data-orientation={orientation}
-    />
+    <div className={className} data-orientation={orientation} data-testid="scroll-bar" />
   ),
 }))
 
@@ -52,11 +48,7 @@ describe('AISuggestions', () => {
   })
 
   it('should apply custom className to container', () => {
-    render(
-      <AISuggestions className="custom-class">
-        Content
-      </AISuggestions>
-    )
+    render(<AISuggestions className="custom-class">Content</AISuggestions>)
 
     const container = screen.getByText('Content').parentElement
     expect(container).toHaveClass('custom-class')
@@ -73,16 +65,13 @@ describe('AISuggestions', () => {
 
   it('should pass through additional props', () => {
     render(
-      <AISuggestions data-testid="ai-suggestions" aria-label="AI suggestions">
+      <AISuggestions aria-label="AI suggestions" data-testid="ai-suggestions">
         Content
       </AISuggestions>
     )
 
     expect(screen.getByTestId('ai-suggestions')).toBeInTheDocument()
-    expect(screen.getByTestId('ai-suggestions')).toHaveAttribute(
-      'aria-label',
-      'AI suggestions'
-    )
+    expect(screen.getByTestId('ai-suggestions')).toHaveAttribute('aria-label', 'AI suggestions')
   })
 })
 
@@ -108,9 +97,7 @@ describe('AISuggestion', () => {
     const handleClick = mock()
     const user = userEvent.setup()
 
-    render(
-      <AISuggestion suggestion="Test suggestion" onClick={handleClick} />
-    )
+    render(<AISuggestion onClick={handleClick} suggestion="Test suggestion" />)
 
     await user.click(screen.getByText('Test suggestion'))
 
@@ -127,13 +114,7 @@ describe('AISuggestion', () => {
   })
 
   it('should apply custom variant and size', () => {
-    render(
-      <AISuggestion
-        suggestion="Test"
-        variant="ghost"
-        size="lg"
-      />
-    )
+    render(<AISuggestion size="lg" suggestion="Test" variant="ghost" />)
 
     const button = screen.getByRole('button')
     expect(button).toHaveAttribute('variant', 'ghost')
@@ -141,25 +122,14 @@ describe('AISuggestion', () => {
   })
 
   it('should apply custom className', () => {
-    render(
-      <AISuggestion
-        suggestion="Test"
-        className="custom-button"
-      />
-    )
+    render(<AISuggestion className="custom-button" suggestion="Test" />)
 
     const button = screen.getByRole('button')
     expect(button).toHaveClass('custom-button')
   })
 
   it('should pass through additional button props', () => {
-    render(
-      <AISuggestion
-        suggestion="Test"
-        disabled
-        data-testid="suggestion-button"
-      />
-    )
+    render(<AISuggestion data-testid="suggestion-button" disabled suggestion="Test" />)
 
     const button = screen.getByTestId('suggestion-button')
     expect(button).toBeDisabled()
@@ -171,8 +141,6 @@ describe('AISuggestion', () => {
     render(<AISuggestion suggestion="Test" />)
 
     // Should not throw when clicked without onClick handler
-    await expect(
-      user.click(screen.getByRole('button'))
-    ).resolves.not.toThrow()
+    await expect(user.click(screen.getByRole('button'))).resolves.not.toThrow()
   })
 })

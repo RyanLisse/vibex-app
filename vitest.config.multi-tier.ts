@@ -76,10 +76,7 @@ export default defineConfig({
       },
       {
         name: 'component',
-        testMatch: [
-          'tests/component/**/*.test.{ts,tsx}',
-          'app/task/**/*.test.{ts,tsx}',
-        ],
+        testMatch: ['tests/component/**/*.test.{ts,tsx}', 'app/task/**/*.test.{ts,tsx}'],
         environment: 'jsdom',
         setupFiles: ['./tests/setup/component.ts'],
         pool: 'threads',
@@ -106,22 +103,22 @@ export default defineConfig({
         },
       },
     ],
-    
+
     // Global test configuration
     globals: true,
     css: true,
-    
+
     // Performance optimizations
     isolate: true,
     restoreMocks: true,
     clearMocks: true,
     mockReset: true,
-    
+
     // Timeouts
     testTimeout: 10_000,
     hookTimeout: 10_000,
-    teardownTimeout: 5_000,
-    
+    teardownTimeout: 5000,
+
     // Global coverage configuration
     coverage: {
       provider: 'v8',
@@ -168,7 +165,7 @@ export default defineConfig({
         },
       },
     },
-    
+
     // File patterns
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: [
@@ -186,7 +183,7 @@ export default defineConfig({
       '.next/**',
     ],
   },
-  
+
   // Path resolution
   resolve: {
     alias: {
@@ -202,19 +199,15 @@ export default defineConfig({
       '@/mocks': path.resolve(__dirname, './tests/mocks'),
     },
   },
-  
+
   // Build optimizations for tests
   esbuild: {
     target: 'node18',
     format: 'esm',
   },
-  
+
   // Dependencies optimization
   optimizeDeps: {
-    include: [
-      '@testing-library/react',
-      '@testing-library/jest-dom',
-      '@testing-library/user-event',
-    ],
+    include: ['@testing-library/react', '@testing-library/jest-dom', '@testing-library/user-event'],
   },
 })

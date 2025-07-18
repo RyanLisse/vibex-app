@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, vi } from 'vitest'
 import { createServer } from 'node:http'
-import { AddressInfo } from 'node:net'
+import type { AddressInfo } from 'node:net'
+import { afterEach, beforeEach, vi } from 'vitest'
 
 // Store original environment
 const originalEnv = { ...process.env }
@@ -126,13 +126,13 @@ export function createTestServer(handler: (req: any, res: any) => void) {
   if (testServer) {
     testServer.close()
   }
-  
+
   testServer = createServer(handler)
   testServer.listen(0)
-  
+
   const address = testServer.address() as AddressInfo
   testServerUrl = `http://localhost:${address.port}`
-  
+
   return testServerUrl
 }
 
@@ -160,7 +160,7 @@ export const integrationTestHelpers = {
       } as Response)
     })
   },
-  
+
   mockApiError: (url: string, error: any, status = 500) => {
     vi.mocked(fetch).mockImplementation((requestUrl: string | URL) => {
       if (requestUrl.toString().includes(url)) {
@@ -177,9 +177,9 @@ export const integrationTestHelpers = {
       } as Response)
     })
   },
-  
-  waitForNextTick: () => new Promise(resolve => process.nextTick(resolve)),
-  
+
+  waitForNextTick: () => new Promise((resolve) => process.nextTick(resolve)),
+
   advanceTimers: (ms: number) => {
     vi.advanceTimersByTime(ms)
     return integrationTestHelpers.waitForNextTick()

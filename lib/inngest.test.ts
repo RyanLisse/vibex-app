@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { VibeKit } from '@vibe-kit/sdk'
 import { Inngest } from 'inngest'
 
@@ -252,7 +252,7 @@ describe('inngest', () => {
       const mockStep = {
         run: mock().mockImplementation(async (_name, fn) => {
           // Mock VibeKit to capture the callbacks
-          mocked(VibeKit).mockImplementationOnce(() => ({
+          ;(VibeKit as any).mockImplementationOnce(() => ({
             setSession: mock(),
             generateCode: mock().mockImplementation(({ callbacks }) => {
               capturedCallback = callbacks
@@ -325,7 +325,7 @@ describe('inngest', () => {
 
     it('should handle task without sessionId', async () => {
       const mockSetSession = mock()
-      mocked(VibeKit).mockImplementationOnce(() => ({
+      ;(VibeKit as any).mockImplementationOnce(() => ({
         setSession: mockSetSession,
         generateCode: mock().mockResolvedValue({ result: 'success' }),
         pause: mock(),
@@ -440,7 +440,7 @@ describe('inngest', () => {
 
       const mockStep = {
         run: mock().mockImplementation(async (_name, fn) => {
-          mocked(VibeKit).mockImplementationOnce(() => ({
+          ;(VibeKit as any).mockImplementationOnce(() => ({
             setSession: mock(),
             generateCode: mock().mockImplementation(({ callbacks }) => {
               capturedCallback = callbacks

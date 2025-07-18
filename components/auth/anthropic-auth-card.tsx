@@ -1,9 +1,9 @@
 'use client'
 
 import { LogIn } from 'lucide-react'
+import { AuthCardBase } from '@/components/auth/auth-card-base'
 import { Button } from '@/components/ui/button'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
-import { AuthCardBase } from '@/components/auth/auth-card-base'
 
 export function AnthropicAuthCard() {
   const { authenticated, loading, login, logout, expires, type, error } = useAnthropicAuth()

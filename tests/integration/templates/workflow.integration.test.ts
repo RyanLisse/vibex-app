@@ -1,22 +1,22 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**
  * Integration Test Template for Cross-Component Workflows
- * 
+ *
  * This template demonstrates how to test complete workflows that span
  * multiple components, services, and API calls in integration.
  */
 describe('Workflow Integration Template', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   describe('User Authentication Workflow', () => {
     it('should complete OAuth flow end-to-end', async () => {
       // Step 1: Initiate OAuth
       integrationTestHelpers.mockApiResponse('/api/auth/github/url', {
-        url: 'https://github.com/login/oauth/authorize?client_id=test&state=abc123'
+        url: 'https://github.com/login/oauth/authorize?client_id=test&state=abc123',
       })
 
       const authResponse = await fetch('/api/auth/github/url')
@@ -28,7 +28,7 @@ describe('Workflow Integration Template', () => {
       // Step 2: Handle callback
       integrationTestHelpers.mockApiResponse('/api/auth/github/callback', {
         access_token: 'test-token',
-        user: { id: 123, login: 'testuser' }
+        user: { id: 123, login: 'testuser' },
       })
 
       const callbackResponse = await fetch('/api/auth/github/callback?code=auth_code&state=abc123')
@@ -41,7 +41,7 @@ describe('Workflow Integration Template', () => {
       // Step 3: Verify authenticated state
       integrationTestHelpers.mockApiResponse('/api/auth/status', {
         authenticated: true,
-        user: { id: 123, login: 'testuser' }
+        user: { id: 123, login: 'testuser' },
       })
 
       const statusResponse = await fetch('/api/auth/status')
@@ -53,7 +53,11 @@ describe('Workflow Integration Template', () => {
 
     it('should handle OAuth errors gracefully', async () => {
       // Step 1: OAuth URL generation fails
-      integrationTestHelpers.mockApiError('/api/auth/github/url', { error: 'GitHub service unavailable' }, 503)
+      integrationTestHelpers.mockApiError(
+        '/api/auth/github/url',
+        { error: 'GitHub service unavailable' },
+        503
+      )
 
       const authResponse = await fetch('/api/auth/github/url')
       const authData = await authResponse.json()
@@ -62,7 +66,11 @@ describe('Workflow Integration Template', () => {
       expect(authData.error).toBe('GitHub service unavailable')
 
       // Step 2: Callback with error
-      integrationTestHelpers.mockApiError('/api/auth/github/callback', { error: 'Invalid authorization code' }, 400)
+      integrationTestHelpers.mockApiError(
+        '/api/auth/github/callback',
+        { error: 'Invalid authorization code' },
+        400
+      )
 
       const callbackResponse = await fetch('/api/auth/github/callback?code=invalid&state=abc123')
       const callbackData = await callbackResponse.json()
@@ -78,20 +86,20 @@ describe('Workflow Integration Template', () => {
       const taskData = {
         title: 'Test Task',
         description: 'Integration test task',
-        repository: 'test/repo'
+        repository: 'test/repo',
       }
 
       integrationTestHelpers.mockApiResponse('/api/tasks', {
         id: 'task-123',
         ...taskData,
         status: 'pending',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       })
 
       const createResponse = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       })
 
       const createdTask = await createResponse.json()
@@ -104,11 +112,11 @@ describe('Workflow Integration Template', () => {
       integrationTestHelpers.mockApiResponse('/api/tasks/task-123/start', {
         id: 'task-123',
         status: 'running',
-        startedAt: new Date().toISOString()
+        startedAt: new Date().toISOString(),
       })
 
       const startResponse = await fetch('/api/tasks/task-123/start', {
-        method: 'POST'
+        method: 'POST',
       })
 
       const startedTask = await startResponse.json()
@@ -124,8 +132,8 @@ describe('Workflow Integration Template', () => {
         progress: 50,
         messages: [
           { type: 'info', content: 'Task started' },
-          { type: 'progress', content: 'Processing files...' }
-        ]
+          { type: 'progress', content: 'Processing files...' },
+        ],
       })
 
       const statusResponse = await fetch('/api/tasks/task-123/status')
@@ -142,7 +150,7 @@ describe('Workflow Integration Template', () => {
         status: 'completed',
         progress: 100,
         result: { pullRequest: { url: 'https://github.com/test/repo/pull/42' } },
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
       })
 
       const completionResponse = await fetch('/api/tasks/task-123/status')
@@ -158,18 +166,22 @@ describe('Workflow Integration Template', () => {
       // Step 1: Create task with invalid data
       const invalidTaskData = {
         title: '', // Empty title should fail validation
-        repository: 'invalid-repo'
+        repository: 'invalid-repo',
       }
 
-      integrationTestHelpers.mockApiError('/api/tasks', {
-        error: 'Validation failed',
-        details: ['Title is required', 'Invalid repository format']
-      }, 400)
+      integrationTestHelpers.mockApiError(
+        '/api/tasks',
+        {
+          error: 'Validation failed',
+          details: ['Title is required', 'Invalid repository format'],
+        },
+        400
+      )
 
       const createResponse = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(invalidTaskData)
+        body: JSON.stringify(invalidTaskData),
       })
 
       const errorData = await createResponse.json()
@@ -179,13 +191,17 @@ describe('Workflow Integration Template', () => {
       expect(errorData.details).toContain('Title is required')
 
       // Step 2: Task execution failure
-      integrationTestHelpers.mockApiError('/api/tasks/task-123/start', {
-        error: 'Repository not accessible',
-        details: 'Check repository permissions'
-      }, 403)
+      integrationTestHelpers.mockApiError(
+        '/api/tasks/task-123/start',
+        {
+          error: 'Repository not accessible',
+          details: 'Check repository permissions',
+        },
+        403
+      )
 
       const startResponse = await fetch('/api/tasks/task-123/start', {
-        method: 'POST'
+        method: 'POST',
       })
 
       const startError = await startResponse.json()
@@ -199,10 +215,10 @@ describe('Workflow Integration Template', () => {
     it('should handle WebSocket connection and updates', async () => {
       // Mock WebSocket connection
       const mockWebSocket = {
-        send: vi.fn(),
-        close: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
+        send: mock(),
+        close: mock(),
+        addEventListener: mock(),
+        removeEventListener: mock(),
         readyState: 1,
         onopen: null,
         onmessage: null,
@@ -210,16 +226,16 @@ describe('Workflow Integration Template', () => {
         onerror: null,
       }
 
-      global.WebSocket = vi.fn(() => mockWebSocket)
+      global.WebSocket = mock(() => mockWebSocket)
 
       // Step 1: Subscribe to task updates
       integrationTestHelpers.mockApiResponse('/api/subscribe/task-123', {
         subscriptionId: 'sub-456',
-        endpoint: 'ws://localhost:3000/ws/task-123'
+        endpoint: 'ws://localhost:3000/ws/task-123',
       })
 
       const subscribeResponse = await fetch('/api/subscribe/task-123', {
-        method: 'POST'
+        method: 'POST',
       })
 
       const subscriptionData = await subscribeResponse.json()
@@ -228,8 +244,8 @@ describe('Workflow Integration Template', () => {
       expect(subscriptionData.subscriptionId).toBe('sub-456')
 
       // Step 2: Simulate WebSocket messages
-      const messageHandler = vi.fn()
-      
+      const messageHandler = mock()
+
       if (mockWebSocket.addEventListener) {
         mockWebSocket.addEventListener('message', messageHandler)
       }
@@ -240,7 +256,7 @@ describe('Workflow Integration Template', () => {
         taskId: 'task-123',
         status: 'running',
         progress: 75,
-        message: 'Almost done...'
+        message: 'Almost done...',
       }
 
       // Trigger message handler
@@ -250,11 +266,11 @@ describe('Workflow Integration Template', () => {
 
       // Step 3: Unsubscribe
       integrationTestHelpers.mockApiResponse('/api/subscribe/sub-456', {
-        success: true
+        success: true,
       })
 
       const unsubscribeResponse = await fetch('/api/subscribe/sub-456', {
-        method: 'DELETE'
+        method: 'DELETE',
       })
 
       const unsubscribeData = await unsubscribeResponse.json()
@@ -266,10 +282,10 @@ describe('Workflow Integration Template', () => {
     it('should handle connection failures', async () => {
       // Mock WebSocket connection failure
       const mockWebSocket = {
-        send: vi.fn(),
-        close: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
+        send: mock(),
+        close: mock(),
+        addEventListener: mock(),
+        removeEventListener: mock(),
         readyState: 3, // CLOSED
         onopen: null,
         onmessage: null,
@@ -277,16 +293,20 @@ describe('Workflow Integration Template', () => {
         onerror: null,
       }
 
-      global.WebSocket = vi.fn(() => mockWebSocket)
+      global.WebSocket = mock(() => mockWebSocket)
 
       // Simulate connection error
-      integrationTestHelpers.mockApiError('/api/subscribe/task-123', {
-        error: 'WebSocket connection failed',
-        details: 'Unable to establish connection'
-      }, 500)
+      integrationTestHelpers.mockApiError(
+        '/api/subscribe/task-123',
+        {
+          error: 'WebSocket connection failed',
+          details: 'Unable to establish connection',
+        },
+        500
+      )
 
       const subscribeResponse = await fetch('/api/subscribe/task-123', {
-        method: 'POST'
+        method: 'POST',
       })
 
       const errorData = await subscribeResponse.json()
@@ -301,7 +321,7 @@ describe('Workflow Integration Template', () => {
       // Step 1: Authenticate user
       integrationTestHelpers.mockApiResponse('/api/auth/status', {
         authenticated: true,
-        user: { id: 123, login: 'testuser' }
+        user: { id: 123, login: 'testuser' },
       })
 
       const authCheck = await fetch('/api/auth/status')
@@ -314,8 +334,8 @@ describe('Workflow Integration Template', () => {
       integrationTestHelpers.mockApiResponse('/api/repositories', {
         repositories: [
           { id: 1, name: 'repo1', fullName: 'testuser/repo1' },
-          { id: 2, name: 'repo2', fullName: 'testuser/repo2' }
-        ]
+          { id: 2, name: 'repo2', fullName: 'testuser/repo2' },
+        ],
       })
 
       const reposResponse = await fetch('/api/repositories')
@@ -327,19 +347,19 @@ describe('Workflow Integration Template', () => {
       // Step 3: Create task for specific repository
       const taskData = {
         title: 'Multi-service task',
-        repository: 'testuser/repo1'
+        repository: 'testuser/repo1',
       }
 
       integrationTestHelpers.mockApiResponse('/api/tasks', {
         id: 'task-456',
         ...taskData,
-        status: 'pending'
+        status: 'pending',
       })
 
       const taskResponse = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       })
 
       const taskResult = await taskResponse.json()
@@ -355,12 +375,12 @@ describe('Workflow Integration Template', () => {
         externalServices: {
           github: 'connected',
           openai: 'connected',
-          inngest: 'connected'
-        }
+          inngest: 'connected',
+        },
       })
 
       const executeResponse = await fetch('/api/tasks/task-456/execute', {
-        method: 'POST'
+        method: 'POST',
       })
 
       const executeResult = await executeResponse.json()
@@ -376,17 +396,21 @@ describe('Workflow Integration Template', () => {
       // Step 1: Successful authentication
       integrationTestHelpers.mockApiResponse('/api/auth/status', {
         authenticated: true,
-        user: { id: 123, login: 'testuser' }
+        user: { id: 123, login: 'testuser' },
       })
 
       const authCheck = await fetch('/api/auth/status')
       expect(authCheck.ok).toBe(true)
 
       // Step 2: Repository service failure
-      integrationTestHelpers.mockApiError('/api/repositories', {
-        error: 'GitHub API rate limit exceeded',
-        retryAfter: 3600
-      }, 429)
+      integrationTestHelpers.mockApiError(
+        '/api/repositories',
+        {
+          error: 'GitHub API rate limit exceeded',
+          retryAfter: 3600,
+        },
+        429
+      )
 
       const reposResponse = await fetch('/api/repositories')
       const reposError = await reposResponse.json()
@@ -400,13 +424,13 @@ describe('Workflow Integration Template', () => {
         id: 'task-789',
         title: 'Partial failure task',
         status: 'pending',
-        warnings: ['Repository list unavailable, using cached data']
+        warnings: ['Repository list unavailable, using cached data'],
       })
 
       const taskResponse = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Partial failure task' })
+        body: JSON.stringify({ title: 'Partial failure task' }),
       })
 
       const taskResult = await taskResponse.json()
@@ -426,7 +450,7 @@ describe('Workflow Integration Template', () => {
         integrationTestHelpers.mockApiResponse(`/api/workflows/${i}`, {
           id: `workflow-${i}`,
           status: 'completed',
-          executionTime: Math.random() * 1000
+          executionTime: Math.random() * 1000,
         })
 
         promises.push(fetch(`/api/workflows/${i}`))
@@ -442,16 +466,17 @@ describe('Workflow Integration Template', () => {
 
     it('should handle workflow timeouts', async () => {
       // Mock a slow workflow
-      vi.mocked(fetch).mockImplementation(() => 
-        new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({
-              ok: false,
-              status: 408,
-              json: () => Promise.resolve({ error: 'Request timeout' })
-            } as Response)
-          }, 100)
-        })
+      ;(fetch as any).mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              resolve({
+                ok: false,
+                status: 408,
+                json: () => Promise.resolve({ error: 'Request timeout' }),
+              } as Response)
+            }, 100)
+          })
       )
 
       const response = await fetch('/api/workflows/slow')

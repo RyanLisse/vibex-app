@@ -83,7 +83,7 @@ vi.mock('next/image', () => ({
 
 // Mock Next.js Link with proper behavior
 vi.mock('next/link', () => ({
-  default: vi.fn(({ href, children, ...props }) => {
+  default: vi.fn((href, children, ...props ) => 
     return (
       <a
         {...props}
@@ -92,9 +92,8 @@ vi.mock('next/link', () => ({
           if (props.onClick) props.onClick(e)
           // Simulate navigation
           window.dispatchEvent(new PopStateEvent('popstate'))
-        }}
-      >
-        {children}
+        }
+      >children
       </a>
     )
   }),

@@ -1,8 +1,5 @@
 'use client'
 import { Suspense } from 'react'
-import TaskNavbar from '@/components/navigation/task-navbar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useTaskStore } from '@/stores/tasks'
 import { ChatMessagesPanel } from '@/app/task/[id]/_components/chat-messages-panel'
 import MessageInput from '@/app/task/[id]/_components/message-input'
 import { ShellOutputPanel } from '@/app/task/[id]/_components/shell-output-panel'
@@ -10,6 +7,9 @@ import { TaskLoadingState } from '@/app/task/[id]/_components/task-loading-state
 import { useAutoScroll } from '@/app/task/[id]/_hooks/use-auto-scroll'
 import { useTaskData } from '@/app/task/[id]/_hooks/use-task-data'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
+import TaskNavbar from '@/components/navigation/task-navbar'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useTaskStore } from '@/stores/tasks'
 
 interface TaskClientPageProps {
   id: string

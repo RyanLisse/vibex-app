@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import type { TelemetryBackend, TelemetryConfig } from '@/src/types/telemetry'
 import {
   getDefaultEndpoint,
@@ -10,17 +10,19 @@ import {
 describe('telemetry', () => {
   // Store original env vars
   const originalEnv = process.env
+  let consoleSpy: ReturnType<typeof spyOn>
 
   beforeEach(() => {
     // Reset environment variables
     process.env = { ...originalEnv }
-    mock.restore()
-    mock.spyOn(console, 'log').mockImplementation(() => {})
+
+    // Set up console spy using spyOn
+    consoleSpy = spyOn(console, 'log').mockImplementation(() => {})
   })
 
   afterEach(() => {
     process.env = originalEnv
-    mock.restore()
+    consoleSpy?.mockRestore()
   })
 
   describe('getTelemetryConfig', () => {
@@ -211,8 +213,8 @@ describe('telemetry', () => {
 
       logTelemetryConfig(config)
 
-      expect(console.log).toHaveBeenCalledWith('📊 OpenTelemetry: Disabled')
-      expect(console.log).toHaveBeenCalledTimes(1)
+      expect(consoleSpy).toHaveBeenCalledWith('📊 OpenTelemetry: Disabled')
+      expect(consoleSpy).toHaveBeenCalledTimes(1)
     })
 
     it('should log enabled configuration', () => {
@@ -226,11 +228,11 @@ describe('telemetry', () => {
 
       logTelemetryConfig(config)
 
-      expect(console.log).toHaveBeenCalledWith('📊 OpenTelemetry: Enabled')
-      expect(console.log).toHaveBeenCalledWith('   Service: test-service@1.2.3')
-      expect(console.log).toHaveBeenCalledWith('   Endpoint: http://localhost:4317')
-      expect(console.log).toHaveBeenCalledWith('   Sampling: 75%')
-      expect(console.log).toHaveBeenCalledTimes(4)
+      expect(consoleSpy).toHaveBeenCalledWith('📊 OpenTelemetry: Enabled')
+      expect(consoleSpy).toHaveBeenCalledWith('   Service: test-service@1.2.3')
+      expect(consoleSpy).toHaveBeenCalledWith('   Endpoint: http://localhost:4317')
+      expect(consoleSpy).toHaveBeenCalledWith('   Sampling: 75%')
+      expect(consoleSpy).toHaveBeenCalledTimes(4)
     })
 
     it('should use default sampling ratio of 1 when not specified', () => {
@@ -243,7 +245,7 @@ describe('telemetry', () => {
 
       logTelemetryConfig(config)
 
-      expect(console.log).toHaveBeenCalledWith('   Sampling: 100%')
+      expect(consoleSpy).toHaveBeenCalledWith('   Sampling: 100%')
     })
 
     it('should log headers when present', () => {
@@ -260,7 +262,7 @@ describe('telemetry', () => {
 
       logTelemetryConfig(config)
 
-      expect(console.log).toHaveBeenCalledWith('   Headers: Authorization, X-Custom-Header')
+      expect(consoleSpy).toHaveBeenCalledWith('   Headers: Authorization, X-Custom-Header')
     })
 
     it('should not log headers when not present', () => {
@@ -273,8 +275,10 @@ describe('telemetry', () => {
 
       logTelemetryConfig(config)
 
-      const logCalls = (console.log as any).mock.calls
-      const hasHeadersLog = logCalls.some((call: any[]) => call[0].includes('Headers:'))
+      const logCalls = consoleSpy.mock.calls
+      const hasHeadersLog = logCalls.some(
+        (call: unknown[]) => typeof call[0] === 'string' && call[0].includes('Headers:')
+      )
       expect(hasHeadersLog).toBe(false)
     })
 
@@ -287,7 +291,7 @@ describe('telemetry', () => {
       ]
 
       for (const { ratio, expected } of testCases) {
-        mock.restore()
+        consoleSpy.mockClear()
 
         const config: TelemetryConfig = {
           isEnabled: true,
@@ -299,7 +303,7 @@ describe('telemetry', () => {
 
         logTelemetryConfig(config)
 
-        expect(console.log).toHaveBeenCalledWith(expected)
+        expect(consoleSpy).toHaveBeenCalledWith(expected)
       }
     })
   })

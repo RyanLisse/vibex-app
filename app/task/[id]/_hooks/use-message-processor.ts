@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
-import { useTaskStore } from '@/stores/tasks'
 import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
+import { useTaskStore } from '@/stores/tasks'
 import {
   isCompletedStreamMessage,
   isStreamingMessage,

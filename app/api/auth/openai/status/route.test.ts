@@ -1,4 +1,3 @@
-
 // Mock the CodexAuthenticator class
 const mockCodexAuthenticator = {
   isAuthenticated: mock(),
@@ -22,7 +21,7 @@ mock('next/server', () => ({
   NextResponse: mockNextResponse,
 }))
 
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { GET } from '@/app/api/auth/openai/status/route'
 
 describe('GET /api/auth/openai/status', () => {

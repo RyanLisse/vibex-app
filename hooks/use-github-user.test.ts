@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useGitHubUser } from '@/hooks/use-github-user'
 
@@ -76,13 +76,13 @@ describe('useGitHubUser', () => {
     }
 
     // Mock token exchange
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockTokenResponse,
     } as any)
 
     // Mock user fetch
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserResponse,
     } as any)
@@ -105,7 +105,7 @@ describe('useGitHubUser', () => {
   it('should handle login errors', async () => {
     const mockCode = 'invalid-code'
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 401,
       json: async () => ({ error: 'bad_verification_code' }),
@@ -174,7 +174,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserProfile,
     } as any)
@@ -217,7 +217,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUpdatedUser,
     } as any)
@@ -260,7 +260,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockOrganizations,
     } as any)
@@ -289,7 +289,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewToken,
     } as any)
@@ -353,7 +353,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -372,7 +372,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 403,
       headers: {
@@ -421,7 +421,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockEmails,
     } as any)

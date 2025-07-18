@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import {
   exchangeCodexToken,
   generateCodexAuthUrl,
@@ -88,7 +88,7 @@ describe('OpenAI Codex Auth', () => {
         model_permissions: ['davinci-codex', 'cushman-codex'],
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
       } as any)
@@ -115,7 +115,7 @@ describe('OpenAI Codex Auth', () => {
     })
 
     it('should handle token exchange errors with specific Codex error codes', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 400,
         json: async () => ({
@@ -145,7 +145,7 @@ describe('OpenAI Codex Auth', () => {
         model_permissions: ['davinci-codex', 'cushman-codex', 'ada-codex'],
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRefreshResponse,
       } as any)
@@ -178,7 +178,7 @@ describe('OpenAI Codex Auth', () => {
         },
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockValidationResponse,
       } as any)
@@ -215,7 +215,7 @@ describe('OpenAI Codex Auth', () => {
         },
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUserInfo,
       } as any)
@@ -238,7 +238,7 @@ describe('OpenAI Codex Auth', () => {
 
   describe('revokeCodexToken', () => {
     it('should revoke a Codex token', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       } as any)
@@ -258,7 +258,7 @@ describe('OpenAI Codex Auth', () => {
     })
 
     it('should handle revocation with hint', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       } as any)
@@ -403,7 +403,7 @@ describe('OpenAI Codex Auth', () => {
         },
       }
 
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
       } as any)
@@ -417,7 +417,7 @@ describe('OpenAI Codex Auth', () => {
     })
 
     it('should handle rate limit headers in responses', async () => {
-      mocked(fetch).mockResolvedValueOnce({
+      ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         headers: {
           get: (name: string) => {

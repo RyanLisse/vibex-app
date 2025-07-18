@@ -1,4 +1,4 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { useGitHubBranches } from '@/hooks/use-github-branches'
 
@@ -55,7 +55,7 @@ describe('useGitHubBranches', () => {
       },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranches,
     } as any)
@@ -73,7 +73,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle fetch errors', async () => {
-    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    ;(fetch as any).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -111,7 +111,7 @@ describe('useGitHubBranches', () => {
       },
     }
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranchDetails,
     } as any)
@@ -137,7 +137,7 @@ describe('useGitHubBranches', () => {
       },
     }
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewBranch,
     } as any)
@@ -162,7 +162,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should delete a branch', async () => {
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       status: 204,
     } as any)
@@ -182,7 +182,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle protected branch deletion error', async () => {
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 422,
       json: async () => ({
@@ -227,7 +227,7 @@ describe('useGitHubBranches', () => {
       ],
     }
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockComparison,
     } as any)
@@ -254,7 +254,7 @@ describe('useGitHubBranches', () => {
       { name: 'bugfix/login-issue' },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => allBranches,
     } as any)
@@ -279,7 +279,7 @@ describe('useGitHubBranches', () => {
       default_branch: 'main',
     }
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepo,
     } as any)
@@ -307,7 +307,7 @@ describe('useGitHubBranches', () => {
       restrictions: null,
     }
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockProtection,
     } as any)
@@ -348,7 +348,7 @@ describe('useGitHubBranches', () => {
       commit: { sha: `sha${i + 31}` },
     }))
 
-    mocked(fetch)
+    ;(fetch as any)
       .mockResolvedValueOnce({
         ok: true,
         headers: {
@@ -387,7 +387,7 @@ describe('useGitHubBranches', () => {
   it('should refresh branches', async () => {
     const mockBranches = [{ name: 'main', commit: { sha: 'abc123' } }]
 
-    mocked(fetch).mockResolvedValue({
+    ;(fetch as any).mockResolvedValue({
       ok: true,
       json: async () => mockBranches,
     } as any)
@@ -447,7 +447,7 @@ describe('useGitHubBranches', () => {
       { name: 'release/v1.0' },
     ]
 
-    mocked(fetch).mockResolvedValueOnce({
+    ;(fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranches,
     } as any)

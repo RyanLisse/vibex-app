@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
+import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import type { Task } from '@/stores/tasks'
 import { useTaskStore } from '@/stores/tasks'
-import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import {
   filterChatMessages,
   filterShellMessages,

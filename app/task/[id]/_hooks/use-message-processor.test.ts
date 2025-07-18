@@ -1,7 +1,7 @@
-import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
-import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import { useMessageProcessor } from '@/app/task/[id]/_hooks/use-message-processor'
+import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
 
 // Mock the message guards
 mock('../_utils/message-guards', () => ({
@@ -22,7 +22,7 @@ mock('@/stores/tasks', () => ({
 // Mock React hooks
 const mockSetStreamingMessages = mock()
 
-const mockMessageGuards = mocked(await import('@/app/task/[id]/_utils/message-guards'))
+const mockMessageGuards = (await import('@/app/task/[id]/_utils/message-guards')) as any
 
 describe('useMessageProcessor', () => {
   beforeEach(() => {

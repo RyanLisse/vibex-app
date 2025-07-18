@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
+import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import type { Task } from '@/stores/tasks'
 import { useTaskStore } from '@/stores/tasks'
-import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import {
   filterChatMessages,
   filterShellMessages,
@@ -42,7 +42,7 @@ export function useOptimizedTaskData({
       previousTaskId.current = task.id
       isFirstRender.current = false
     }
-  }, [task?.id, updateTask, task])
+  }, [task?.id, updateTask])
 
   // Memoize filtered messages with stable references
   const regularMessages = useMemo(() => {
@@ -66,7 +66,7 @@ export function useOptimizedTaskData({
 
   const isTaskInProgressValue = useMemo(() => {
     return task ? isTaskInProgress(task) : false
-  }, [task?.status, task])
+  }, [task?.status])
 
   return {
     regularMessages,
