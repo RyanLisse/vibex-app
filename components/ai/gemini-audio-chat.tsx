@@ -1,21 +1,33 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { MicIcon, SendIcon, StopCircleIcon, VolumeIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import React, { useCallback, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useGeminiAudio } from '@/hooks/use-gemini-audio'
+import { useAudioPlayback } from '@/hooks/use-audio-playback'
 import { useAudioRecorder } from '@/hooks/use-audio-recorder'
-import { cn } from '@/lib/utils'
+import { useChatMessages } from '@/hooks/use-chat-messages'
+import { useGeminiAudio } from '@/hooks/use-gemini-audio'
+import { ChatHeader } from './chat-header'
+import { ChatInputArea } from './chat-input-area'
+import { ChatMessageList } from './chat-message-list'
+import { ErrorBoundary } from './error-boundary'
 
-export function GeminiAudioChat() {
-  const [inputValue, setInputValue] = useState('')
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
+export interface GeminiAudioChatProps {
+  voiceName?: string
+  maxMessages?: number
+  autoScroll?: boolean
+  className?: string
+}
 
+export function GeminiAudioChat({
+  voiceName = 'Enceladus',
+  maxMessages = 1000,
+  autoScroll = true,
+  className,
+}: GeminiAudioChatProps) {
+  // Initialize hooks
   const { isConnected, isLoading, messages, error, connect, disconnect, sendMessage, sendAudio } =
     useGeminiAudio({
-      voiceName: 'Enceladus',
+      voiceName,
     })
 
   const {
@@ -25,129 +37,111 @@ export function GeminiAudioChat() {
     stopRecording,
     error: recordError,
   } = useAudioRecorder({
-    onStop: (audioBlob) => {
-      sendAudio(audioBlob)
+    onStop: useCallback(
+      (audioBlob: Blob) => {
+        sendAudio(audioBlob)
+      },
+      [sendAudio]
+    ),
+  })
+
+  const {
+    messages: chatMessages,
+    scrollAreaRef,
+    addMessage,
+    clearMessages,
+  } = useChatMessages({
+    autoScroll,
+    maxMessages,
+  })
+
+  const { playAudio, cleanupAudio } = useAudioPlayback({
+    onError: (error) => {
+      console.error('Audio playback error:', error)
     },
   })
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+  // Sync messages from Gemini hook to chat messages hook
+  React.useEffect(() => {
+    if (messages.length > chatMessages.length) {
+      const newMessages = messages.slice(chatMessages.length)
+      newMessages.forEach(addMessage)
     }
-  }, [messages])
+  }, [messages, chatMessages.length, addMessage])
 
-  const handleSendMessage = () => {
-    if (inputValue.trim() && isConnected) {
-      sendMessage(inputValue)
-      setInputValue('')
-    }
-  }
+  // Handle audio playback
+  const handleAudioPlay = useCallback(
+    (audioUrl: string) => {
+      playAudio(audioUrl)
+    },
+    [playAudio]
+  )
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+  // Cleanup audio resources on unmount
+  React.useEffect(() => {
+    return () => {
+      cleanupAudio()
     }
-  }
+  }, [cleanupAudio])
+
+  // Combined error state
+  const combinedError = error || recordError
+
+  // Memoize components to prevent unnecessary re-renders
+  const headerComponent = useMemo(
+    () => (
+      <ChatHeader
+        isConnected={isConnected}
+        isLoading={isLoading}
+        onConnect={connect}
+        onDisconnect={disconnect}
+        title="Gemini Audio Chat"
+      />
+    ),
+    [isConnected, isLoading, connect, disconnect]
+  )
+
+  const messageListComponent = useMemo(
+    () => (
+      <ChatMessageList
+        messages={chatMessages}
+        onAudioPlay={handleAudioPlay}
+        scrollAreaRef={scrollAreaRef}
+      />
+    ),
+    [chatMessages, scrollAreaRef, handleAudioPlay]
+  )
+
+  const inputAreaComponent = useMemo(
+    () => (
+      <ChatInputArea
+        className="border-t p-4"
+        formattedDuration={formattedDuration}
+        isConnected={isConnected}
+        isRecording={isRecording}
+        onSendMessage={sendMessage}
+        onStartRecording={startRecording}
+        onStopRecording={stopRecording}
+      />
+    ),
+    [isConnected, isRecording, formattedDuration, sendMessage, startRecording, stopRecording]
+  )
 
   return (
-    <Card className="flex h-[600px] w-full max-w-2xl flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b p-4">
-        <div>
-          <h2 className="text-lg font-semibold">Gemini Audio Chat</h2>
-          <p className="text-sm text-muted-foreground">
-            {isConnected ? 'Connected' : 'Disconnected'}
-          </p>
-        </div>
-        <Button
-          variant={isConnected ? 'destructive' : 'default'}
-          onClick={isConnected ? disconnect : connect}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Connecting...' : isConnected ? 'Disconnect' : 'Connect'}
-        </Button>
-      </div>
+    <ErrorBoundary>
+      <Card className={`flex h-[600px] w-full max-w-2xl flex-col ${className || ''}`}>
+        {headerComponent}
+        {messageListComponent}
 
-      {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={cn('flex', message.isUser ? 'justify-end' : 'justify-start')}
-            >
-              <div
-                className={cn(
-                  'max-w-[80%] rounded-lg px-4 py-2',
-                  message.isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                )}
-              >
-                {message.type === 'audio' && message.audioUrl ? (
-                  <div className="flex items-center gap-2">
-                    <VolumeIcon className="h-4 w-4" />
-                    <audio src={message.audioUrl} controls className="h-8" />
-                  </div>
-                ) : (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                )}
-                <p className="mt-1 text-xs opacity-70">{message.timestamp.toLocaleTimeString()}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-
-      {/* Error display */}
-      {(error || recordError) && (
-        <div className="border-t border-destructive bg-destructive/10 p-2 text-center text-sm text-destructive">
-          {error || recordError}
-        </div>
-      )}
-
-      {/* Input area */}
-      <div className="border-t p-4">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={isConnected ? 'Type a message...' : 'Connect to start chatting'}
-            disabled={!isConnected}
-            className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-
-          {/* Audio recording button */}
-          <Button
-            variant={isRecording ? 'destructive' : 'outline'}
-            size="icon"
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={!isConnected}
-            title={isRecording ? 'Stop recording' : 'Start recording'}
-          >
-            {isRecording ? <StopCircleIcon className="h-4 w-4" /> : <MicIcon className="h-4 w-4" />}
-          </Button>
-
-          {/* Send button */}
-          <Button
-            onClick={handleSendMessage}
-            disabled={!isConnected || !inputValue.trim()}
-            size="icon"
-          >
-            <SendIcon className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Recording indicator */}
-        {isRecording && (
-          <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-            Recording: {formattedDuration}
+        {/* Error display */}
+        {combinedError && (
+          <div className="border-destructive border-t bg-destructive/10 p-2 text-center text-destructive text-sm">
+            {combinedError}
           </div>
         )}
-      </div>
-    </Card>
+
+        {inputAreaComponent}
+      </Card>
+    </ErrorBoundary>
   )
 }

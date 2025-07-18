@@ -136,7 +136,7 @@ class PerformanceMonitor {
     const bottlenecks = []
 
     // Check build time
-    if (this.metrics.buildTime > 60000) {
+    if (this.metrics.buildTime > 60_000) {
       bottlenecks.push({
         type: 'build',
         severity: 'high',
@@ -184,7 +184,7 @@ class PerformanceMonitor {
     const report = {
       timestamp: new Date().toISOString(),
       metrics: this.metrics,
-      bottlenecks: bottlenecks,
+      bottlenecks,
       recommendations: this.generateRecommendations(bottlenecks),
     }
 

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
-import { GET } from './route'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { inngest } from '@/lib/inngest'
+import { GET } from './route'
 
 // Mock the inngest client
 vi.mock('@/lib/inngest', () => ({
@@ -20,11 +20,11 @@ describe('GET /api/test-inngest', () => {
   })
 
   it('should return ok status with config in development', async () => {
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
-    
-    vi.mocked(inngest.send).mockResolvedValue({})
+
+    vi.mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
 
     const response = await GET()
     const data = await response.json()
@@ -47,12 +47,12 @@ describe('GET /api/test-inngest', () => {
   })
 
   it('should return ok status with INNGEST_DEV=1', async () => {
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
     process.env.INNGEST_DEV = '1'
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
-    
-    vi.mocked(inngest.send).mockResolvedValue({})
+
+    vi.mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
 
     const response = await GET()
     const data = await response.json()
@@ -62,9 +62,9 @@ describe('GET /api/test-inngest', () => {
   })
 
   it('should handle missing environment variables', async () => {
-    process.env.NODE_ENV = 'production'
-    
-    vi.mocked(inngest.send).mockResolvedValue({})
+    vi.stubEnv('NODE_ENV', 'production')
+
+    vi.mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
 
     const response = await GET()
     const data = await response.json()
@@ -78,10 +78,10 @@ describe('GET /api/test-inngest', () => {
   })
 
   it('should handle event sending failure', async () => {
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
-    
+
     const error = new Error('Network error')
     vi.mocked(inngest.send).mockRejectedValue(error)
 
@@ -96,10 +96,10 @@ describe('GET /api/test-inngest', () => {
   })
 
   it('should handle unknown event sending error', async () => {
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
-    
+
     vi.mocked(inngest.send).mockRejectedValue('Unknown error type')
 
     const response = await GET()
@@ -144,11 +144,11 @@ describe('GET /api/test-inngest', () => {
   })
 
   it('should send correct test event', async () => {
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.INNGEST_SIGNING_KEY = 'test-signing-key'
-    
-    vi.mocked(inngest.send).mockResolvedValue({})
+
+    vi.mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] } as any)
 
     await GET()
 

@@ -24,7 +24,7 @@ export function StreamingIndicator({
   }
 
   if (variant === 'cursor') {
-    return <span className={cn('inline-block w-0.5 h-4 bg-primary animate-pulse', className)} />
+    return <span className={cn('inline-block h-4 w-0.5 animate-pulse bg-primary', className)} />
   }
 
   if (variant === 'wave') {
@@ -32,8 +32,8 @@ export function StreamingIndicator({
       <div className={cn('flex items-center', sizeClasses[size], className)}>
         {[0, 1, 2].map((i) => (
           <div
+            className={cn('animate-bounce rounded-full bg-primary/70', dotSizeClasses[size])}
             key={i}
-            className={cn('bg-primary/70 rounded-full animate-bounce', dotSizeClasses[size])}
             style={{
               animationDelay: `${i * 0.15}s`,
               animationDuration: '1s',
@@ -49,8 +49,8 @@ export function StreamingIndicator({
     <div className={cn('flex items-center', sizeClasses[size], className)}>
       {[0, 1, 2].map((i) => (
         <div
+          className={cn('animate-pulse rounded-full bg-primary/60', dotSizeClasses[size])}
           key={i}
-          className={cn('bg-primary/60 rounded-full animate-pulse', dotSizeClasses[size])}
           style={{
             animationDelay: `${i * 0.2}s`,
             animationDuration: '1.4s',

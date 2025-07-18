@@ -1,20 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FieldValues, type UseFormProps, type UseFormReturn, useForm } from 'react-hook-form'
-import { z } from 'zod'
-import {
-  createSchemaValidator,
-  validateSingleField,
-  validateAllFormFields,
-} from './useZodForm/validation'
-import { createStorageHelpers } from './useZodForm/storage'
+import type { z } from 'zod'
 import {
   createFieldHelpers,
-  getFormErrors,
-  getDirtyFields,
   getChangedFields,
+  getDirtyFields,
+  getFormErrors,
 } from './useZodForm/fieldHelpers'
 import { useFormState } from './useZodForm/formState'
+import { createStorageHelpers } from './useZodForm/storage'
+import {
+  createSchemaValidator,
+  validateAllFormFields,
+  validateSingleField,
+} from './useZodForm/validation'
 
 // Type definitions
 export type ZodFormData<T extends FieldValues> = T
@@ -222,7 +223,7 @@ export function useZodForm<T extends FieldValues>(
 export function useZodFormPersistence<T extends FieldValues>(
   form: UseZodFormReturn<T>,
   storageKey: string,
-  autoSave: boolean = true
+  autoSave = true
 ) {
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -238,7 +239,7 @@ export function useZodFormPersistence<T extends FieldValues>(
   }, [])
 
   useEffect(() => {
-    if (!isLoaded || !autoSave) return
+    if (!(isLoaded && autoSave)) return
 
     const subscription = form.watch(() => {
       form.saveToStorage(storageKey)
@@ -255,7 +256,7 @@ export function useZodFormPersistence<T extends FieldValues>(
 
 export function useZodFormValidation<T extends FieldValues>(
   form: UseZodFormReturn<T>,
-  realTimeValidation: boolean = false
+  realTimeValidation = false
 ) {
   const [validationState, setValidationState] = useState<{
     [K in keyof T]?: { isValid: boolean; error?: string }

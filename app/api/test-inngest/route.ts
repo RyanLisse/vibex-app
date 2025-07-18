@@ -14,7 +14,7 @@ export async function GET() {
     // Try to send a test event
     let eventSent = false
     let eventError = null
-    
+
     try {
       await inngest.send({
         name: 'test/ping',

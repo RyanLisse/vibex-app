@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnthropicAuthButton } from './anthropic-auth-button'
 
 // Mock the anthropic auth hook
@@ -12,13 +12,13 @@ vi.mock('@/hooks/use-anthropic-auth', () => ({
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
-    <svg data-testid="login-icon" className={className} {...props} />
+    <svg className={className} data-testid="login-icon" {...props} />
   ),
   LogOut: ({ className, ...props }: any) => (
-    <svg data-testid="logout-icon" className={className} {...props} />
+    <svg className={className} data-testid="logout-icon" {...props} />
   ),
   User: ({ className, ...props }: any) => (
-    <svg data-testid="user-icon" className={className} {...props} />
+    <svg className={className} data-testid="user-icon" {...props} />
   ),
 }))
 
@@ -26,11 +26,11 @@ vi.mock('lucide-react', () => ({
 vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, disabled, ...props }: any) => (
     <button
-      data-testid="button"
-      onClick={onClick}
-      disabled={disabled}
-      data-variant={variant}
       data-size={size}
+      data-testid="button"
+      data-variant={variant}
+      disabled={disabled}
+      onClick={onClick}
       {...props}
     >
       {children}
@@ -122,7 +122,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000, // 1 hour from now
+      expires: Date.now() + 3_600_000, // 1 hour from now
     })
 
     render(<AnthropicAuthButton mode="max" />)
@@ -139,7 +139,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
     render(<AnthropicAuthButton mode="console" />)
@@ -153,7 +153,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 240000, // 4 minutes from now (less than 5 minutes)
+      expires: Date.now() + 240_000, // 4 minutes from now (less than 5 minutes)
     })
 
     render(<AnthropicAuthButton />)
@@ -168,7 +168,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 600000, // 10 minutes from now
+      expires: Date.now() + 600_000, // 10 minutes from now
     })
 
     render(<AnthropicAuthButton />)
@@ -182,7 +182,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
     render(<AnthropicAuthButton />)
@@ -202,7 +202,7 @@ describe('AnthropicAuthButton', () => {
       expires: null,
     })
 
-    render(<AnthropicAuthButton variant="outline" size="lg" />)
+    render(<AnthropicAuthButton size="lg" variant="outline" />)
 
     const button = screen.getByTestId('button')
     expect(button).toHaveAttribute('data-variant', 'outline')
@@ -215,10 +215,10 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
-    render(<AnthropicAuthButton variant="ghost" size="sm" />)
+    render(<AnthropicAuthButton size="sm" variant="ghost" />)
 
     const logoutButton = screen.getByText('Logout').closest('button')
     expect(logoutButton).toHaveAttribute('data-variant', 'outline')
@@ -231,7 +231,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
     render(<AnthropicAuthButton />)
@@ -259,7 +259,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
     rerender(<AnthropicAuthButton />)
@@ -303,7 +303,7 @@ describe('AnthropicAuthButton', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
     render(<AnthropicAuthButton />)

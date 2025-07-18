@@ -33,7 +33,7 @@ export const SlugSchema = z
   .min(1, 'Slug is required')
   .max(100, 'Slug must not exceed 100 characters')
   .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens')
-  .refine((slug) => !slug.startsWith('-') && !slug.endsWith('-'), {
+  .refine((slug) => !(slug.startsWith('-') || slug.endsWith('-')), {
     message: 'Slug cannot start or end with a hyphen',
   })
 

@@ -6,10 +6,10 @@ export type HeaderProps = HeaderContentProps
 export const Header = ({ user, onLogin, onLogout, onCreateAccount }: HeaderProps) => (
   <header>
     <HeaderContent
-      user={user}
+      onCreateAccount={onCreateAccount}
       onLogin={onLogin}
       onLogout={onLogout}
-      onCreateAccount={onCreateAccount}
+      user={user}
     />
   </header>
 )

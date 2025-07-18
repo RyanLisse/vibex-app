@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, renderHook, act, waitFor } from '@testing-library/react'
-import { AnthropicAuthProvider, useAuth } from './anthropic-auth-provider'
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
+import { AnthropicAuthProvider, useAuth } from './anthropic-auth-provider'
 
 // Mock the useAnthropicAuth hook
 vi.mock('@/hooks/use-anthropic-auth', () => ({
-  useAnthropicAuth: vi.fn()
+  useAnthropicAuth: vi.fn(),
 }))
 
 // Mock fetch
@@ -32,7 +32,11 @@ describe('AnthropicAuthProvider', () => {
   it('should provide auth context to children', () => {
     const TestComponent = () => {
       const auth = useAuth()
-      return <div data-testid="auth-status">{auth.authenticated ? 'authenticated' : 'not authenticated'}</div>
+      return (
+        <div data-testid="auth-status">
+          {auth.authenticated ? 'authenticated' : 'not authenticated'}
+        </div>
+      )
     }
 
     render(
@@ -50,7 +54,9 @@ describe('AnthropicAuthProvider', () => {
       return <div>test</div>
     }
 
-    expect(() => render(<TestComponent />)).toThrow('useAuth must be used within an AnthropicAuthProvider')
+    expect(() => render(<TestComponent />)).toThrow(
+      'useAuth must be used within an AnthropicAuthProvider'
+    )
   })
 
   it('should fetch access token when authenticated', async () => {
@@ -98,7 +104,7 @@ describe('AnthropicAuthProvider', () => {
   })
 
   it('should schedule token refresh when expires is set', () => {
-    const futureExpiry = Date.now() + 120000 // 2 minutes from now
+    const futureExpiry = Date.now() + 120_000 // 2 minutes from now
     const authenticatedAuth = {
       ...mockAuth,
       authenticated: true,

@@ -1,6 +1,6 @@
+import { Loader2 } from 'lucide-react'
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
 import useClaudeAuth from '@/hooks/useClaudeAuth'
 
 interface ClaudeAuthButtonProps {
@@ -37,9 +37,9 @@ export function ClaudeAuthButton({
 
   return (
     <Button
-      onClick={startLogin}
-      disabled={isAuthenticating}
       className={className}
+      disabled={isAuthenticating}
+      onClick={startLogin}
       variant="outline"
     >
       {isAuthenticating ? (

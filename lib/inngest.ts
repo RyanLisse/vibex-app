@@ -33,7 +33,7 @@ export const taskChannel = channel('tasks')
   )
 
 // Helper function to simulate streaming by chunking text
-function* chunkText(text: string, chunkSize: number = 10): Generator<string, void, unknown> {
+function* chunkText(text: string, chunkSize = 10): Generator<string, void, unknown> {
   const words = text.split(' ')
   for (let i = 0; i < words.length; i += chunkSize) {
     yield words.slice(i, i + chunkSize).join(' ') + (i + chunkSize < words.length ? ' ' : '')
@@ -184,7 +184,7 @@ export const createTask = inngest.createFunction(
                     data: {
                       text: message,
                       isStreaming: true,
-                      streamId: streamId,
+                      streamId,
                       raw: true,
                     },
                   },
@@ -212,9 +212,8 @@ export const createTask = inngest.createFunction(
       )
 
       return { message: parsedLines }
-    } else {
-      return { message: result }
     }
+    return { message: result }
   }
 )
 

@@ -1,9 +1,9 @@
 // Enhanced Next.js Router Mocking Utilities
 // Comprehensive router mocking beyond basic setup
 
-import { vi } from 'vitest'
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import type { ReadonlyURLSearchParams } from 'next/navigation'
+import { vi } from 'vitest'
 
 // Default mock router
 export const mockRouter: AppRouterInstance = {
@@ -104,7 +104,7 @@ export const routerUtils = {
   },
 
   // Mock push with delay (for testing loading states)
-  mockPushWithDelay: (delay: number = 100) => {
+  mockPushWithDelay: (delay = 100) => {
     mockRouter.push = vi.fn().mockImplementation((path: string) => {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -209,7 +209,7 @@ export const routerTestHelpers = {
   },
 
   // Wait for navigation to complete
-  waitForNavigation: async (timeout: number = 1000) => {
+  waitForNavigation: async (timeout = 1000) => {
     return new Promise((resolve) => {
       const checkReady = () => {
         if (routerState.isReady) {

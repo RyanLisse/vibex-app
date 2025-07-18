@@ -1,35 +1,37 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip'
+import { describe, expect, it, vi } from 'vitest'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
 
 // Mock Radix UI Tooltip components
 vi.mock('@radix-ui/react-tooltip', () => ({
   Provider: ({ children, delayDuration, ...props }: any) => (
-    <div data-testid="tooltip-provider-primitive" data-delay={delayDuration} {...props}>
+    <div data-delay={delayDuration} data-testid="tooltip-provider-primitive" {...props}>
       {children}
     </div>
   ),
   Root: ({ children, ...props }: any) => (
-    <div data-testid="tooltip-root-primitive" {...props}>{children}</div>
+    <div data-testid="tooltip-root-primitive" {...props}>
+      {children}
+    </div>
   ),
   Trigger: ({ children, ...props }: any) => (
-    <button data-testid="tooltip-trigger-primitive" {...props}>{children}</button>
+    <button data-testid="tooltip-trigger-primitive" {...props}>
+      {children}
+    </button>
   ),
   Portal: ({ children }: any) => <div data-testid="tooltip-portal">{children}</div>,
   Content: ({ children, className, sideOffset, ...props }: any) => (
-    <div 
-      data-testid="tooltip-content-primitive" 
-      className={className} 
+    <div
+      className={className}
       data-side-offset={sideOffset}
+      data-testid="tooltip-content-primitive"
       {...props}
     >
       {children}
     </div>
   ),
-  Arrow: ({ className }: any) => (
-    <div data-testid="tooltip-arrow" className={className} />
-  ),
+  Arrow: ({ className }: any) => <div className={className} data-testid="tooltip-arrow" />,
 }))
 
 describe('Tooltip Components', () => {
@@ -40,7 +42,7 @@ describe('Tooltip Components', () => {
           <div>Content</div>
         </TooltipProvider>
       )
-      
+
       const provider = screen.getByTestId('tooltip-provider-primitive')
       expect(provider).toBeInTheDocument()
       expect(provider).toHaveAttribute('data-slot', 'tooltip-provider')
@@ -53,18 +55,18 @@ describe('Tooltip Components', () => {
           <div>Content</div>
         </TooltipProvider>
       )
-      
+
       const provider = screen.getByTestId('tooltip-provider-primitive')
       expect(provider).toHaveAttribute('data-delay', '500')
     })
 
     it('should pass through other props', () => {
       render(
-        <TooltipProvider skipDelayDuration={100} disableHoverableContent>
+        <TooltipProvider disableHoverableContent skipDelayDuration={100}>
           <div>Content</div>
         </TooltipProvider>
       )
-      
+
       const provider = screen.getByTestId('tooltip-provider-primitive')
       expect(provider).toHaveAttribute('skipDelayDuration', '100')
       expect(provider).toHaveAttribute('disableHoverableContent')
@@ -79,7 +81,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Tooltip text</TooltipContent>
         </Tooltip>
       )
-      
+
       expect(screen.getByTestId('tooltip-provider-primitive')).toBeInTheDocument()
       expect(screen.getByTestId('tooltip-root-primitive')).toBeInTheDocument()
       expect(screen.getByTestId('tooltip-root-primitive')).toHaveAttribute('data-slot', 'tooltip')
@@ -92,7 +94,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Content</TooltipContent>
         </Tooltip>
       )
-      
+
       const root = screen.getByTestId('tooltip-root-primitive')
       expect(root).toHaveAttribute('defaultOpen')
       expect(root).toHaveAttribute('delayDuration', '200')
@@ -107,7 +109,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Tooltip</TooltipContent>
         </Tooltip>
       )
-      
+
       const trigger = screen.getByTestId('tooltip-trigger-primitive')
       expect(trigger).toBeInTheDocument()
       expect(trigger).toHaveAttribute('data-slot', 'tooltip-trigger')
@@ -117,13 +119,13 @@ describe('Tooltip Components', () => {
     it('should pass through props', () => {
       render(
         <Tooltip>
-          <TooltipTrigger disabled className="custom-trigger">
+          <TooltipTrigger className="custom-trigger" disabled>
             Button
           </TooltipTrigger>
           <TooltipContent>Info</TooltipContent>
         </Tooltip>
       )
-      
+
       const trigger = screen.getByTestId('tooltip-trigger-primitive')
       expect(trigger).toHaveAttribute('disabled')
       expect(trigger).toHaveClass('custom-trigger')
@@ -139,7 +141,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Tooltip</TooltipContent>
         </Tooltip>
       )
-      
+
       const trigger = screen.getByTestId('tooltip-trigger-primitive')
       expect(trigger).toContainHTML('<span>Icon</span>')
       expect(trigger).toContainHTML('<span>Text</span>')
@@ -154,7 +156,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Tooltip content</TooltipContent>
         </Tooltip>
       )
-      
+
       const content = screen.getByTestId('tooltip-content-primitive')
       expect(content).toBeInTheDocument()
       expect(content).toHaveAttribute('data-slot', 'tooltip-content')
@@ -170,7 +172,7 @@ describe('Tooltip Components', () => {
           <TooltipContent sideOffset={10}>Content</TooltipContent>
         </Tooltip>
       )
-      
+
       const content = screen.getByTestId('tooltip-content-primitive')
       expect(content).toHaveAttribute('data-side-offset', '10')
     })
@@ -182,7 +184,7 @@ describe('Tooltip Components', () => {
           <TooltipContent className="custom-tooltip">Content</TooltipContent>
         </Tooltip>
       )
-      
+
       const content = screen.getByTestId('tooltip-content-primitive')
       expect(content).toHaveClass('custom-tooltip')
       expect(content).toHaveClass('bg-primary') // Still has default classes
@@ -195,7 +197,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Content</TooltipContent>
         </Tooltip>
       )
-      
+
       const arrow = screen.getByTestId('tooltip-arrow')
       expect(arrow).toBeInTheDocument()
       expect(arrow).toHaveClass('bg-primary', 'fill-primary', 'size-2.5')
@@ -208,7 +210,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Content</TooltipContent>
         </Tooltip>
       )
-      
+
       expect(screen.getByTestId('tooltip-portal')).toBeInTheDocument()
     })
 
@@ -216,12 +218,12 @@ describe('Tooltip Components', () => {
       render(
         <Tooltip>
           <TooltipTrigger>Trigger</TooltipTrigger>
-          <TooltipContent side="bottom" align="center" avoidCollisions>
+          <TooltipContent align="center" avoidCollisions side="bottom">
             Content
           </TooltipContent>
         </Tooltip>
       )
-      
+
       const content = screen.getByTestId('tooltip-content-primitive')
       expect(content).toHaveAttribute('side', 'bottom')
       expect(content).toHaveAttribute('align', 'center')
@@ -241,7 +243,7 @@ describe('Tooltip Components', () => {
           </TooltipContent>
         </Tooltip>
       )
-      
+
       expect(screen.getByText('Hover for info')).toBeInTheDocument()
       expect(screen.getByText('This is helpful information')).toBeInTheDocument()
     })
@@ -255,7 +257,7 @@ describe('Tooltip Components', () => {
           </Tooltip>
         </TooltipProvider>
       )
-      
+
       // Should only have one provider (the custom one)
       const providers = screen.getAllByTestId('tooltip-provider-primitive')
       expect(providers).toHaveLength(1)
@@ -275,7 +277,7 @@ describe('Tooltip Components', () => {
           </Tooltip>
         </div>
       )
-      
+
       expect(screen.getByText('First')).toBeInTheDocument()
       expect(screen.getByText('Second')).toBeInTheDocument()
       expect(screen.getByText('First tooltip')).toBeInTheDocument()
@@ -286,7 +288,7 @@ describe('Tooltip Components', () => {
       render(
         <Tooltip>
           <TooltipTrigger>
-            <svg width="16" height="16">
+            <svg height="16" width="16">
               <circle cx="8" cy="8" r="8" />
             </svg>
           </TooltipTrigger>
@@ -295,8 +297,10 @@ describe('Tooltip Components', () => {
           </TooltipContent>
         </Tooltip>
       )
-      
-      expect(screen.getByTestId('tooltip-trigger-primitive').querySelector('svg')).toBeInTheDocument()
+
+      expect(
+        screen.getByTestId('tooltip-trigger-primitive').querySelector('svg')
+      ).toBeInTheDocument()
       expect(screen.getByText('Tip:')).toHaveClass('font-bold')
       expect(screen.getByText('Click to continue')).toBeInTheDocument()
     })
@@ -310,7 +314,7 @@ describe('Tooltip Components', () => {
           <TooltipContent>Info</TooltipContent>
         </Tooltip>
       )
-      
+
       const trigger = screen.getByTestId('tooltip-trigger-primitive')
       expect(trigger).toHaveAttribute('asChild')
     })

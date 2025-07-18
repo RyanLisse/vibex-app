@@ -1,30 +1,30 @@
 'use client'
 
+import { CreditCard, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
-import { LogIn, CreditCard } from 'lucide-react'
 import { AuthCardBase } from './auth-card-base'
 
 export function OpenAIAuthCard() {
   const { authenticated, loading, login, logout, expires_at, user, error } = useOpenAIAuth()
 
-  const isExpiringSoon = !!(expires_at && expires_at < Date.now() + 300000) // 5 minutes
+  const isExpiringSoon = !!(expires_at && expires_at < Date.now() + 300_000) // 5 minutes
 
   const authenticatedContent = (
     <>
       {user?.organization_id && (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Organization:</span>
-          <span className="text-sm font-mono">{user.organization_id}</span>
+          <span className="text-muted-foreground text-sm">Organization:</span>
+          <span className="font-mono text-sm">{user.organization_id}</span>
         </div>
       )}
 
       {user?.credits_granted && (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Credits:</span>
+          <span className="text-muted-foreground text-sm">Credits:</span>
           <div className="flex items-center gap-1">
             <CreditCard className="size-3" />
-            <span className="text-sm font-semibold text-green-600">{user.credits_granted}</span>
+            <span className="font-semibold text-green-600 text-sm">{user.credits_granted}</span>
           </div>
         </div>
       )}
@@ -33,24 +33,24 @@ export function OpenAIAuthCard() {
 
   const unauthenticatedContent = (
     <>
-      <div className="bg-blue-50 p-4 rounded-md">
-        <h3 className="font-semibold text-blue-900 mb-2">Sign in with ChatGPT</h3>
-        <p className="text-sm text-blue-700 mb-3">
+      <div className="rounded-md bg-blue-50 p-4">
+        <h3 className="mb-2 font-semibold text-blue-900">Sign in with ChatGPT</h3>
+        <p className="mb-3 text-blue-700 text-sm">
           This will share your name, email, and profile picture with the application.
         </p>
-        <ul className="text-sm text-blue-600 space-y-1">
+        <ul className="space-y-1 text-blue-600 text-sm">
           <li>• ChatGPT Plus users get 5 free credits</li>
           <li>• ChatGPT Pro users get 50 free credits</li>
           <li>• Automatic API key generation</li>
         </ul>
       </div>
 
-      <Button onClick={() => login()} className="w-full" size="lg">
+      <Button className="w-full" onClick={() => login()} size="lg">
         <LogIn className="size-4" />
         Sign in with ChatGPT
       </Button>
 
-      <p className="text-xs text-muted-foreground text-center">
+      <p className="text-center text-muted-foreground text-xs">
         A browser window will open for authentication
       </p>
     </>
@@ -58,20 +58,20 @@ export function OpenAIAuthCard() {
 
   return (
     <AuthCardBase
-      title="OpenAI Authentication"
+      authenticated={authenticated}
+      authenticatedContent={authenticatedContent}
+      authType="ChatGPT OAuth"
       description={
         authenticated
           ? user?.email || 'Successfully authenticated'
           : 'Sign in with your ChatGPT account to get started'
       }
-      loading={loading}
       error={error}
-      authenticated={authenticated}
       expires={expires_at}
-      authType="ChatGPT OAuth"
       isExpiringSoon={isExpiringSoon}
+      loading={loading}
       onLogout={logout}
-      authenticatedContent={authenticatedContent}
+      title="OpenAI Authentication"
       unauthenticatedContent={unauthenticatedContent}
     />
   )

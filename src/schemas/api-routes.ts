@@ -388,7 +388,7 @@ export const createApiSuccessResponse = <T>(data: T, message?: string) => ({
 
 export const createApiErrorResponse = (
   error: string,
-  statusCode: number = 400,
+  statusCode = 400,
   validationErrors?: ValidationError[]
 ) => ({
   success: false as const,

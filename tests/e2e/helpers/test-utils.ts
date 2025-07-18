@@ -1,5 +1,5 @@
-import { Page } from '@playwright/test'
-import { Stagehand } from 'stagehand'
+import type { Page } from '@playwright/test'
+import type { Stagehand } from 'stagehand'
 
 /**
  * Utility functions for E2E tests
@@ -11,7 +11,7 @@ import { Stagehand } from 'stagehand'
 export async function waitForElementVisible(
   stagehand: Stagehand,
   description: string,
-  timeout: number = 10000
+  timeout = 10_000
 ): Promise<void> {
   const startTime = Date.now()
 
@@ -32,7 +32,7 @@ export async function waitForElementVisible(
 export async function waitForElementHidden(
   stagehand: Stagehand,
   description: string,
-  timeout: number = 10000
+  timeout = 10_000
 ): Promise<void> {
   const startTime = Date.now()
 
@@ -53,7 +53,7 @@ export async function waitForElementHidden(
 export async function takeTimestampedScreenshot(
   page: Page,
   name: string,
-  directory: string = 'tests/e2e/screenshots'
+  directory = 'tests/e2e/screenshots'
 ): Promise<string> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
   const filename = `${name}-${timestamp}.png`
@@ -66,14 +66,14 @@ export async function takeTimestampedScreenshot(
 /**
  * Wait for network to be idle
  */
-export async function waitForNetworkIdle(page: Page, timeout: number = 30000): Promise<void> {
+export async function waitForNetworkIdle(page: Page, timeout = 30_000): Promise<void> {
   await page.waitForLoadState('networkidle', { timeout })
 }
 
 /**
  * Generate random string for testing
  */
-export function generateRandomString(length: number = 8): string {
+export function generateRandomString(length = 8): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   for (let i = 0; i < length; i++) {
@@ -133,8 +133,8 @@ export async function setupTestEnvironment(page: Page): Promise<void> {
  */
 export async function retryWithBackoff<T>(
   action: () => Promise<T>,
-  maxRetries: number = 3,
-  baseDelay: number = 1000
+  maxRetries = 3,
+  baseDelay = 1000
 ): Promise<T> {
   let lastError: Error
 
@@ -148,7 +148,7 @@ export async function retryWithBackoff<T>(
         throw lastError
       }
 
-      const delay = baseDelay * Math.pow(2, attempt)
+      const delay = baseDelay * 2 ** attempt
       await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
@@ -184,7 +184,7 @@ export async function getTextContent(stagehand: Stagehand, description: string):
 export async function clickWithRetry(
   stagehand: Stagehand,
   description: string,
-  maxRetries: number = 3
+  maxRetries = 3
 ): Promise<void> {
   await retryWithBackoff(async () => {
     await stagehand.act({ action: 'click', description })
@@ -198,7 +198,7 @@ export async function fillWithRetry(
   stagehand: Stagehand,
   description: string,
   value: string,
-  maxRetries: number = 3
+  maxRetries = 3
 ): Promise<void> {
   await retryWithBackoff(async () => {
     await stagehand.act({ action: 'fill', description, value })
@@ -211,7 +211,7 @@ export async function fillWithRetry(
 export async function validateFormSubmission(
   stagehand: Stagehand,
   expectedResult: string,
-  timeout: number = 10000
+  timeout = 10_000
 ): Promise<boolean> {
   try {
     await waitForElementVisible(stagehand, expectedResult, timeout)

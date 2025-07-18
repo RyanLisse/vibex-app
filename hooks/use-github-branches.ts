@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { GitHubBranch } from '@/lib/github'
+import { useCallback, useState } from 'react'
+import type { GitHubBranch } from '@/lib/github'
 import { fetchGitHubBranches, parseRepositoryName } from '@/lib/github-api'
 
 interface UseGitHubBranchesReturn {

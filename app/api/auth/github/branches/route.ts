@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 interface GitHubBranch {
   name: string
@@ -18,7 +18,7 @@ const validateAuth = (accessToken: string | undefined): NextResponse | null => {
 }
 
 const validateParams = (owner: string | null, repo: string | null): NextResponse | null => {
-  if (!owner || !repo) {
+  if (!(owner && repo)) {
     return NextResponse.json({ error: 'Owner and repo parameters are required' }, { status: 400 })
   }
   return null
@@ -68,7 +68,7 @@ const formatBranches = (branches: GitHubBranch[], defaultBranch: string) => {
       sha: branch.commit.sha,
       url: branch.commit.url,
     },
-    protected: branch.protected || false,
+    protected: branch.protected,
     isDefault: branch.name === defaultBranch,
   }))
 }

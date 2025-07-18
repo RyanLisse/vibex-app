@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GitHubAPI } from './github-api'
 
 describe('GitHubAPI', () => {
@@ -115,15 +115,12 @@ describe('GitHubAPI', () => {
 
       const result = await api.getBranches('user', 'repo')
 
-      expect(fetch).toHaveBeenCalledWith(
-        'https://api.github.com/repos/user/repo/branches',
-        {
-          headers: {
-            Authorization: `Bearer ${mockToken}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
-        }
-      )
+      expect(fetch).toHaveBeenCalledWith('https://api.github.com/repos/user/repo/branches', {
+        headers: {
+          Authorization: `Bearer ${mockToken}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      })
       expect(result).toEqual(mockBranches)
     })
 
@@ -199,9 +196,7 @@ describe('GitHubAPI', () => {
         statusText: 'Too Many Requests',
       } as Response)
 
-      await expect(api.getRepositories()).rejects.toThrow(
-        'GitHub API error: 429 Too Many Requests'
-      )
+      await expect(api.getRepositories()).rejects.toThrow('GitHub API error: 429 Too Many Requests')
     })
   })
 })

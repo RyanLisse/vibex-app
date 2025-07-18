@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { getTelemetryConfig, validateTelemetryConfig, getDefaultEndpoint } from '@/lib/telemetry'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { getDefaultEndpoint, getTelemetryConfig, validateTelemetryConfig } from '@/lib/telemetry'
 import type { TelemetryBackend } from '@/src/types/telemetry'
 
 describe('Telemetry Configuration', () => {

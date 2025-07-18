@@ -126,7 +126,9 @@ const createRunHandler = () =>
 const createSleepHandler = () =>
   vi.fn().mockImplementation((duration: string | number) => {
     const ms =
-      typeof duration === 'string' ? parseInt(duration.replace(/[^\d]/g, '')) * 1000 : duration
+      typeof duration === 'string'
+        ? Number.parseInt(duration.replace(/[^\d]/g, '')) * 1000
+        : duration
     return new Promise((resolve) => setTimeout(resolve, ms))
   })
 
@@ -140,7 +142,7 @@ const createSleepUntilHandler = () =>
 const createWaitForEventHandler = () =>
   vi.fn().mockImplementation((eventName: string, options?: { timeout?: string }) => {
     return new Promise((resolve, reject) => {
-      const timeout = options?.timeout ? parseInt(options.timeout) * 1000 : 30000
+      const timeout = options?.timeout ? Number.parseInt(options.timeout) * 1000 : 30_000
 
       const checkEvent = () => {
         const event = mockEvents.find((e) => e.name === eventName)
@@ -276,7 +278,7 @@ export const inngestStateUtils = {
   },
 
   // Wait for event to be processed
-  waitForEvent: async (eventName: string, timeout: number = 1000) => {
+  waitForEvent: async (eventName: string, timeout = 1000) => {
     return new Promise((resolve, reject) => {
       const checkEvent = () => {
         const event = mockEvents.find((e) => e.name === eventName)
@@ -370,7 +372,7 @@ export const inngestTestHelpers = {
   },
 
   // Wait for all pending events
-  waitForAllEvents: async (timeout: number = 1000) => {
+  waitForAllEvents: async (timeout = 1000) => {
     return new Promise((resolve) => {
       setTimeout(resolve, timeout)
     })

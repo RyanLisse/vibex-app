@@ -4,10 +4,16 @@
 // 2. Set your GEMINI_API_KEY environment variable
 // 3. Run: npx tsx standalone-example.ts
 
-import { GoogleGenAI, LiveServerMessage, MediaResolution, Modality, Session } from '@google/genai'
-import mime from 'mime'
-import { writeFile } from 'fs/promises'
+import {
+  GoogleGenAI,
+  type LiveServerMessage,
+  MediaResolution,
+  Modality,
+  type Session,
+} from '@google/genai'
 import { existsSync, mkdirSync } from 'fs'
+import { writeFile } from 'fs/promises'
+import mime from 'mime'
 
 class GeminiAudioExample {
   private ai: GoogleGenAI
@@ -19,7 +25,7 @@ class GeminiAudioExample {
     this.ai = new GoogleGenAI({ apiKey })
   }
 
-  async connect(voiceName: string = 'Enceladus') {
+  async connect(voiceName = 'Enceladus') {
     const model = 'models/gemini-2.5-flash-preview-native-audio-dialog'
 
     const tools = [
@@ -124,7 +130,7 @@ class GeminiAudioExample {
     if (message.toolCall) {
       message.toolCall.functionCalls?.forEach((functionCall) => {
         console.log(`\n🔧 Tool call: ${functionCall.name}`)
-        console.log(`   Arguments:`, functionCall.args)
+        console.log('   Arguments:', functionCall.args)
 
         // Simulate weather response
         if (functionCall.name === 'getCurrentWeather') {
@@ -145,7 +151,7 @@ class GeminiAudioExample {
             ],
           })
 
-          console.log(`   Response:`, response)
+          console.log('   Response:', response)
         }
       })
     }
@@ -169,7 +175,7 @@ class GeminiAudioExample {
     }
   }
 
-  async saveAudio(filename: string = 'output.wav') {
+  async saveAudio(filename = 'output.wav') {
     if (this.audioParts.length === 0) {
       console.log('No audio data to save')
       return
@@ -205,11 +211,11 @@ class GeminiAudioExample {
     const options = {
       numChannels: 1,
       bitsPerSample: 16,
-      sampleRate: 24000,
+      sampleRate: 24_000,
     }
 
     if (format && format.startsWith('L')) {
-      const bits = parseInt(format.slice(1), 10)
+      const bits = Number.parseInt(format.slice(1), 10)
       if (!isNaN(bits)) {
         options.bitsPerSample = bits
       }
@@ -218,7 +224,7 @@ class GeminiAudioExample {
     for (const param of params) {
       const [key, value] = param.split('=').map((s) => s.trim())
       if (key === 'rate') {
-        options.sampleRate = parseInt(value, 10)
+        options.sampleRate = Number.parseInt(value, 10)
       }
     }
 

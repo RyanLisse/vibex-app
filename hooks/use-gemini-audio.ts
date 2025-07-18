@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
 import type { LiveServerMessage } from '@google/genai'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface GeminiAudioMessage {
   id: string
@@ -87,7 +87,7 @@ export function useGeminiAudio(options: UseGeminiAudioOptions = {}) {
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!sessionIdRef.current || !isConnected) {
+      if (!(sessionIdRef.current && isConnected)) {
         throw new Error('Not connected')
       }
 
@@ -145,7 +145,7 @@ export function useGeminiAudio(options: UseGeminiAudioOptions = {}) {
 
   const sendAudio = useCallback(
     async (audioBlob: Blob) => {
-      if (!sessionIdRef.current || !isConnected) {
+      if (!(sessionIdRef.current && isConnected)) {
         throw new Error('Not connected')
       }
 

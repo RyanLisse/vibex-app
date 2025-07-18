@@ -37,7 +37,7 @@ export const WithInitialValues: Story = {
     isLoading: false,
   },
   render: (args) => (
-    <div className="max-w-md mx-auto p-6 bg-card rounded-lg border">
+    <div className="mx-auto max-w-md rounded-lg border bg-card p-6">
       <ContactForm {...args} />
     </div>
   ),

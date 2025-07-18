@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseAudioRecorderOptions {
   mimeType?: string
@@ -32,7 +32,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
       const mimeType = options.mimeType || 'audio/webm'
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
-        audioBitsPerSecond: options.audioBitsPerSecond || 128000,
+        audioBitsPerSecond: options.audioBitsPerSecond || 128_000,
       })
 
       mediaRecorderRef.current = mediaRecorder
@@ -131,15 +131,21 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }, [])
 
+  // Clean up audio resources
+  const cleanupAudio = useCallback(() => {
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl)
+      setAudioUrl(null)
+    }
+  }, [audioUrl])
+
   // Clean up on unmount
   useEffect(() => {
     return () => {
       stopRecording()
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl)
-      }
+      cleanupAudio()
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [stopRecording, cleanupAudio])
 
   return {
     isRecording,
@@ -153,5 +159,6 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
     pauseRecording,
     resumeRecording,
     resetRecording,
+    cleanupAudio,
   }
 }

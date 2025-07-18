@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAnthropicAuth } from './use-anthropic-auth'
 import { useAuthBase } from './use-auth-base'
 
@@ -92,7 +92,7 @@ describe('useAnthropicAuth', () => {
       authenticated: true,
       loading: false,
       type: 'oauth',
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
     })
 
     rerender()

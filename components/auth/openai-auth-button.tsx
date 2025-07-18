@@ -1,8 +1,8 @@
 'use client'
 
+import { Loader2, LogIn, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
-import { LogIn, LogOut, User, Loader2 } from 'lucide-react'
 
 interface OpenAIAuthButtonProps {
   variant?: 'default' | 'outline' | 'ghost'
@@ -14,7 +14,7 @@ export function OpenAIAuthButton({ variant = 'default', size = 'default' }: Open
 
   if (loading) {
     return (
-      <Button variant={variant} size={size} disabled>
+      <Button disabled size={size} variant={variant}>
         <Loader2 className="size-4 animate-spin" />
         Loading...
       </Button>
@@ -24,11 +24,11 @@ export function OpenAIAuthButton({ variant = 'default', size = 'default' }: Open
   if (authenticated) {
     return (
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 text-sm text-green-600">
+        <div className="flex items-center gap-1 text-green-600 text-sm">
           <User className="size-4" />
           <span>{user?.email || 'OpenAI'}</span>
         </div>
-        <Button variant="outline" size={size} onClick={logout}>
+        <Button onClick={logout} size={size} variant="outline">
           <LogOut className="size-4" />
           Logout
         </Button>
@@ -37,7 +37,7 @@ export function OpenAIAuthButton({ variant = 'default', size = 'default' }: Open
   }
 
   return (
-    <Button variant={variant} size={size} onClick={() => login()}>
+    <Button onClick={() => login()} size={size} variant={variant}>
       <LogIn className="size-4" />
       Sign in with ChatGPT
     </Button>

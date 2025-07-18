@@ -1,6 +1,6 @@
-import React from 'react'
-import { render, renderHook, RenderOptions } from '@testing-library/react'
+import { type RenderOptions, render, renderHook } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type React from 'react'
 
 // Create a custom render function that includes commonly used providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {

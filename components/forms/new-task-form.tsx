@@ -1,9 +1,9 @@
 'use client'
 import { HardDrive, Split } from 'lucide-react'
-import { useRef, useEffect, useState } from 'react'
-
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { createTaskAction } from '@/app/actions/inngest'
 import { Button } from '@/components/ui/button'
-import { useEnvironmentStore } from '@/stores/environments'
 import {
   Select,
   SelectContent,
@@ -12,9 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
+import { useEnvironmentStore } from '@/stores/environments'
 import { useTaskStore } from '@/stores/tasks'
-import { createTaskAction } from '@/app/actions/inngest'
-import Link from 'next/link'
 
 // Helper functions for form logic
 const adjustTextareaHeight = (textarea: HTMLTextAreaElement) => {
@@ -103,16 +102,16 @@ export default function NewTaskForm() {
   }, [branches])
 
   return (
-    <div className="max-w-3xl mx-auto w-full flex flex-col gap-y-10 mt-14">
-      <h1 className="text-4xl text-center font-bold">Ready to ship something new?</h1>
-      <div className="p-0.5 rounded-lg bg-muted">
-        <div className="flex flex-col gap-y-2 border bg-background rounded-lg p-4">
+    <div className="mx-auto mt-14 flex w-full max-w-3xl flex-col gap-y-10">
+      <h1 className="text-center font-bold text-4xl">Ready to ship something new?</h1>
+      <div className="rounded-lg bg-muted p-0.5">
+        <div className="flex flex-col gap-y-2 rounded-lg border bg-background p-4">
           <textarea
-            ref={textareaRef}
-            value={value}
+            className="min-h-[100px] w-full resize-none overflow-hidden border-none p-0 focus:border-transparent focus:outline-none"
             onChange={(e) => setValue(e.target.value)}
             placeholder="Describe a task you want to ship..."
-            className="w-full min-h-[100px] resize-none border-none p-0 focus:outline-none focus:border-transparent overflow-hidden"
+            ref={textareaRef}
+            value={value}
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-x-2">
@@ -129,7 +128,7 @@ export default function NewTaskForm() {
                     {environments.map((environment) => (
                       <SelectItem key={environment.id} value={environment.id}>
                         <div className="flex w-full">
-                          <span className="truncate max-w-[150px]">
+                          <span className="max-w-[150px] truncate">
                             {environment.githubRepository}
                           </span>
                         </div>
@@ -138,7 +137,7 @@ export default function NewTaskForm() {
                   </SelectContent>
                 </Select>
               ) : (
-                <Link passHref href="/environments">
+                <Link href="/environments" passHref>
                   <Button className="rounded-lg" variant="outline">
                     <HardDrive />
                     Create an environment
@@ -165,7 +164,7 @@ export default function NewTaskForm() {
             </div>
             {value && (
               <div className="flex items-center gap-x-2">
-                <Button variant="outline" onClick={() => handleAddTask('ask')}>
+                <Button onClick={() => handleAddTask('ask')} variant="outline">
                   Ask
                 </Button>
                 <Button onClick={() => handleAddTask('code')}>Code</Button>

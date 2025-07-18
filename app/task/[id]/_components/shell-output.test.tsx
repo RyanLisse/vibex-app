@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { ShellOutput } from './shell-output'
 
 // Mock the ScrollArea component
@@ -117,7 +117,14 @@ describe('ShellOutput', () => {
     render(<ShellOutput command={command} />)
 
     const commandElement = screen.getByText('-c long command that should be truncated')
-    expect(commandElement).toHaveClass('font-medium', 'font-mono', 'text-sm', 'truncate', 'max-w-md', 'cursor-help')
+    expect(commandElement).toHaveClass(
+      'font-medium',
+      'font-mono',
+      'text-sm',
+      'truncate',
+      'max-w-md',
+      'cursor-help'
+    )
   })
 
   it('should render tooltip elements', () => {
@@ -129,17 +136,22 @@ describe('ShellOutput', () => {
   })
 
   it('should handle very long command', () => {
-    const command = ['sh', '-c', 'this is a very long command that should be truncated in the display but shown in full in the tooltip']
+    const command = [
+      'sh',
+      '-c',
+      'this is a very long command that should be truncated in the display but shown in full in the tooltip',
+    ]
     render(<ShellOutput command={command} />)
 
-    const commandText = '-c this is a very long command that should be truncated in the display but shown in full in the tooltip'
+    const commandText =
+      '-c this is a very long command that should be truncated in the display but shown in full in the tooltip'
     expect(screen.getByText(commandText)).toBeTruthy()
   })
 
   it('should handle complex JSON output', () => {
     const command = ['sh', '-c', 'complex']
-    const output = JSON.stringify({ 
-      output: 'Multi-line\noutput with\nspecial characters: !@#$%^&*()' 
+    const output = JSON.stringify({
+      output: 'Multi-line\noutput with\nspecial characters: !@#$%^&*()',
     })
     render(<ShellOutput command={command} output={output} />)
 

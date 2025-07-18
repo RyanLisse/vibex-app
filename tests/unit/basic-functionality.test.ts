@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('Basic Functionality', () => {
   it('should perform basic arithmetic', () => {
@@ -10,7 +10,7 @@ describe('Basic Functionality', () => {
   it('should handle string operations', () => {
     expect('hello'.toUpperCase()).toBe('HELLO')
     expect('world'.length).toBe(5)
-    expect('hello' + ' world').toBe('hello world')
+    expect('hello world').toBe('hello world')
   })
 
   it('should handle array operations', () => {

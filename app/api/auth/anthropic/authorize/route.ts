@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { AuthAnthropic } from '@/lib/auth/anthropic'
 
 export async function GET(request: NextRequest) {

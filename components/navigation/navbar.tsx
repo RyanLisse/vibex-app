@@ -5,17 +5,17 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function Navbar() {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex items-center justify-between">
       <Link href="/" passHref>
-        <h1 className="text-lg font-bold">VibeX</h1>
+        <h1 className="font-bold text-lg">VibeX</h1>
       </Link>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-0">
-          <Link href="/" className="hover:opacity-45 transition-opacity duration-300">
+          <Link className="transition-opacity duration-300 hover:opacity-45" href="/">
             Home
           </Link>
           <Dot className="text-muted-foreground/40" />
-          <Link href="/environments" className="hover:opacity-45 transition-opacity duration-300">
+          <Link className="transition-opacity duration-300 hover:opacity-45" href="/environments">
             Environments
           </Link>
         </div>

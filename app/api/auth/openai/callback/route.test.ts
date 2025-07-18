@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GET } from './route'
 
 // Mock the authentication utilities
-vi.mock('@/lib/auth', () => ({
+vi.mock('@/lib/auth/openai-codex', () => ({
   exchangeCodeForToken: vi.fn(),
   validateOAuthState: vi.fn(),
   sanitizeRedirectUrl: vi.fn(),
-  handleAuthError: vi.fn()
+  handleAuthError: vi.fn(),
 }))
 
 // Mock NextResponse
@@ -17,8 +17,8 @@ vi.mock('next/server', async () => {
     ...actual,
     NextResponse: {
       json: vi.fn(),
-      redirect: vi.fn()
-    }
+      redirect: vi.fn(),
+    },
   }
 })
 
@@ -29,14 +29,18 @@ vi.mock('@/lib/env', () => ({
     OPENAI_CLIENT_SECRET: 'test-client-secret',
     OPENAI_REDIRECT_URI: 'https://app.example.com/auth/openai/callback',
     OPENAI_TOKEN_URL: 'https://auth.openai.com/oauth/token',
-    NEXTAUTH_URL: 'https://app.example.com'
-  }
+    NEXTAUTH_URL: 'https://app.example.com',
+  },
 }))
 
-const mockExchangeCodeForToken = vi.mocked(await import('@/lib/auth')).exchangeCodeForToken
-const mockValidateOAuthState = vi.mocked(await import('@/lib/auth')).validateOAuthState
-const mockSanitizeRedirectUrl = vi.mocked(await import('@/lib/auth')).sanitizeRedirectUrl
-const mockHandleAuthError = vi.mocked(await import('@/lib/auth')).handleAuthError
+const mockExchangeCodeForToken = vi.mocked(
+  await import('@/lib/auth/openai-codex')
+).exchangeCodeForToken
+const mockValidateOAuthState = vi.mocked(await import('@/lib/auth/openai-codex')).validateOAuthState
+const mockSanitizeRedirectUrl = vi.mocked(
+  await import('@/lib/auth/openai-codex')
+).sanitizeRedirectUrl
+const mockHandleAuthError = vi.mocked(await import('@/lib/auth/openai-codex')).handleAuthError
 
 const { NextResponse } = await import('next/server')
 const mockNextResponse = vi.mocked(NextResponse)
@@ -45,8 +49,8 @@ describe('GET /api/auth/openai/callback', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockValidateOAuthState.mockReturnValue(true)
-    mockSanitizeRedirectUrl.mockImplementation(url => url)
-    mockHandleAuthError.mockImplementation(error => error.toString())
+    mockSanitizeRedirectUrl.mockImplementation((url) => url)
+    mockHandleAuthError.mockImplementation((error: unknown) => error?.toString() || 'Unknown error')
   })
 
   it('should handle successful callback', async () => {
@@ -55,14 +59,16 @@ describe('GET /api/auth/openai/callback', () => {
       token_type: 'Bearer',
       expires_in: 3600,
       refresh_token: 'test-refresh-token',
-      id_token: 'test-id-token'
+      id_token: 'test-id-token',
     }
 
     mockExchangeCodeForToken.mockResolvedValue(mockToken)
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ success: true })))
+    mockNextResponse.json.mockReturnValue({ success: true } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
+    )
+
     const response = await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
@@ -71,20 +77,22 @@ describe('GET /api/auth/openai/callback', () => {
       clientSecret: 'test-client-secret',
       code: 'test-code',
       redirectUri: 'https://app.example.com/auth/openai/callback',
-      codeVerifier: expect.any(String)
+      codeVerifier: expect.any(String),
     })
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({
       success: true,
-      token: mockToken
+      token: mockToken,
     })
   })
 
   it('should handle missing code parameter', async () => {
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Missing code parameter' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Missing code parameter' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?state=test-state'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -94,10 +102,12 @@ describe('GET /api/auth/openai/callback', () => {
   })
 
   it('should handle missing state parameter', async () => {
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Missing state parameter' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Missing state parameter' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -108,10 +118,12 @@ describe('GET /api/auth/openai/callback', () => {
 
   it('should handle invalid state', async () => {
     mockValidateOAuthState.mockReturnValue(false)
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Invalid state parameter' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Invalid state parameter' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=invalid-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=invalid-state'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -121,10 +133,12 @@ describe('GET /api/auth/openai/callback', () => {
   })
 
   it('should handle error parameter', async () => {
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'access_denied' })))
+    mockNextResponse.json.mockReturnValue({ error: 'access_denied' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?error=access_denied&error_description=User%20denied%20access')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?error=access_denied&error_description=User%20denied%20access'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -136,10 +150,12 @@ describe('GET /api/auth/openai/callback', () => {
   it('should handle token exchange failure', async () => {
     mockExchangeCodeForToken.mockRejectedValue(new Error('Token exchange failed'))
     mockHandleAuthError.mockReturnValue('Token exchange failed')
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Token exchange failed' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Token exchange failed' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -149,10 +165,12 @@ describe('GET /api/auth/openai/callback', () => {
   })
 
   it('should handle OAuth error responses', async () => {
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'invalid_grant' })))
+    mockNextResponse.json.mockReturnValue({ error: 'invalid_grant' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?error=invalid_grant&error_description=Invalid%20authorization%20code')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?error=invalid_grant&error_description=Invalid%20authorization%20code'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -167,14 +185,16 @@ describe('GET /api/auth/openai/callback', () => {
       token_type: 'Bearer',
       expires_in: 3600,
       refresh_token: 'test-refresh-token',
-      id_token: 'test-id-token'
+      id_token: 'test-id-token',
     }
 
     mockExchangeCodeForToken.mockResolvedValue(mockToken)
-    mockNextResponse.redirect.mockReturnValue(new Response(null, { status: 302 }))
+    mockNextResponse.redirect.mockReturnValue({ status: 302 } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard'
+    )
+
     const response = await GET(request)
 
     expect(mockSanitizeRedirectUrl).toHaveBeenCalledWith('https://app.example.com/dashboard')
@@ -187,19 +207,22 @@ describe('GET /api/auth/openai/callback', () => {
       token_type: 'Bearer',
       expires_in: 3600,
       refresh_token: 'test-refresh-token',
-      id_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiZXhwIjoxNjI0NTU2NDAwfQ.signature'
+      id_token:
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiZXhwIjoxNjI0NTU2NDAwfQ.signature',
     }
 
     mockExchangeCodeForToken.mockResolvedValue(mockToken)
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ success: true })))
+    mockNextResponse.json.mockReturnValue({ success: true } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({
       success: true,
-      token: mockToken
+      token: mockToken,
     })
   })
 
@@ -208,15 +231,17 @@ describe('GET /api/auth/openai/callback', () => {
       access_token: 'test-access-token',
       token_type: 'Bearer',
       expires_in: 3600,
-      refresh_token: 'test-refresh-token'
+      refresh_token: 'test-refresh-token',
     }
 
     mockExchangeCodeForToken.mockResolvedValue(mockToken)
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ success: true })))
+    mockNextResponse.json.mockReturnValue({ success: true } as any)
 
     // Mock session storage or cookies for code verifier
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
+    )
+
     const response = await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
@@ -225,7 +250,7 @@ describe('GET /api/auth/openai/callback', () => {
       clientSecret: 'test-client-secret',
       code: 'test-code',
       redirectUri: 'https://app.example.com/auth/openai/callback',
-      codeVerifier: expect.any(String)
+      codeVerifier: expect.any(String),
     })
   })
 
@@ -236,14 +261,16 @@ describe('GET /api/auth/openai/callback', () => {
         OPENAI_CLIENT_SECRET: undefined,
         OPENAI_REDIRECT_URI: undefined,
         OPENAI_TOKEN_URL: undefined,
-        NEXTAUTH_URL: undefined
-      }
+        NEXTAUTH_URL: undefined,
+      },
     }))
 
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Missing configuration' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Missing configuration' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -255,26 +282,27 @@ describe('GET /api/auth/openai/callback', () => {
   it('should handle network errors', async () => {
     mockExchangeCodeForToken.mockRejectedValue(new Error('Network error'))
     mockHandleAuthError.mockReturnValue('Network error')
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Network error' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Network error' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
+    )
+
     const response = await GET(request)
 
-    expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'Network error' },
-      { status: 500 }
-    )
+    expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Network error' }, { status: 500 })
   })
 
   it('should handle malformed URLs', async () => {
     mockSanitizeRedirectUrl.mockImplementation(() => {
       throw new Error('Invalid redirect URL')
     })
-    mockNextResponse.json.mockReturnValue(new Response(JSON.stringify({ error: 'Invalid redirect URL' })))
+    mockNextResponse.json.mockReturnValue({ error: 'Invalid redirect URL' } as any)
 
-    const request = new NextRequest('https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)')
-    
+    const request = new NextRequest(
+      'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)'
+    )
+
     const response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(

@@ -28,19 +28,19 @@ export function ChatMessage({
   return (
     <div
       className={cn(
-        'flex gap-3 animate-in duration-300',
-        isAssistant ? 'justify-start slide-in-from-left' : 'justify-end slide-in-from-right'
+        'flex animate-in gap-3 duration-300',
+        isAssistant ? 'slide-in-from-left justify-start' : 'slide-in-from-right justify-end'
       )}
     >
       {isAssistant && (
         <div className="flex-shrink-0">
           <div
             className={cn(
-              'w-8 h-8 rounded-full bg-muted flex items-center justify-center border border-border',
+              'flex h-8 w-8 items-center justify-center rounded-full border border-border bg-muted',
               isStreaming && 'relative overflow-hidden'
             )}
           >
-            <Bot className="w-4 h-4 text-muted-foreground z-10 relative" />
+            <Bot className="relative z-10 h-4 w-4 text-muted-foreground" />
             {isStreaming && (
               <div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent"
@@ -56,19 +56,19 @@ export function ChatMessage({
       <div
         className={cn(
           'max-w-[85%] rounded-2xl px-5 py-3 shadow-sm',
-          isAssistant ? 'bg-card border border-border' : 'bg-primary text-primary-foreground'
+          isAssistant ? 'border border-border bg-card' : 'bg-primary text-primary-foreground'
         )}
       >
         {isAssistant ? (
           <div className="prose prose-sm dark:prose-invert max-w-none overflow-hidden">
-            <Markdown repoUrl={repoUrl} branch={branch}>
+            <Markdown branch={branch} repoUrl={repoUrl}>
               {text}
             </Markdown>
             {isStreaming && (
-              <span className="inline-flex items-center gap-2 ml-1">
+              <span className="ml-1 inline-flex items-center gap-2">
                 <StreamingIndicator size="sm" variant="cursor" />
                 {streamProgress && (
-                  <span className="text-[10px] text-muted-foreground/60 font-mono">
+                  <span className="font-mono text-[10px] text-muted-foreground/60">
                     {Math.round(
                       ((streamProgress.chunkIndex + 1) / streamProgress.totalChunks) * 100
                     )}
@@ -79,13 +79,13 @@ export function ChatMessage({
             )}
           </div>
         ) : (
-          <p className="text-sm leading-relaxed break-words">{text}</p>
+          <p className="break-words text-sm leading-relaxed">{text}</p>
         )}
       </div>
       {!isAssistant && (
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="w-4 h-4 text-primary" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
           </div>
         </div>
       )}

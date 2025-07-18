@@ -1,4 +1,4 @@
-import type { ExampleItem, ExampleFilter } from '../types'
+import type { ExampleFilter, ExampleItem } from '../types'
 
 export function filterItems(items: ExampleItem[], filter: ExampleFilter): ExampleItem[] {
   return items.filter((item) => {
@@ -13,9 +13,9 @@ export function filterItems(items: ExampleItem[], filter: ExampleFilter): Exampl
     if (filter.searchTerm) {
       const searchLower = filter.searchTerm.toLowerCase()
       const titleMatch = item.title.toLowerCase().includes(searchLower)
-      const descriptionMatch = item.description?.toLowerCase().includes(searchLower) || false
+      const descriptionMatch = item.description?.toLowerCase().includes(searchLower)
 
-      if (!titleMatch && !descriptionMatch) {
+      if (!(titleMatch || descriptionMatch)) {
         return false
       }
     }

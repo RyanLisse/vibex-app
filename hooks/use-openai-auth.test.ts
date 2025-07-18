@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
-import { useOpenAIAuth } from './use-openai-auth'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthBase } from './use-auth-base'
+import { useOpenAIAuth } from './use-openai-auth'
 
 // Mock the base auth hook
 vi.mock('./use-auth-base', () => ({
@@ -90,10 +90,7 @@ describe('useOpenAIAuth', () => {
         await result.current.refreshToken()
       })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Token refresh failed:',
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Token refresh failed:', expect.any(Error))
       expect(mockBaseAuth.refresh).not.toHaveBeenCalled()
 
       consoleErrorSpy.mockRestore()
@@ -123,7 +120,7 @@ describe('useOpenAIAuth', () => {
 
       // Advance time
       act(() => {
-        vi.advanceTimersByTime(60000)
+        vi.advanceTimersByTime(60_000)
       })
 
       expect(global.fetch).not.toHaveBeenCalled()
@@ -141,7 +138,7 @@ describe('useOpenAIAuth', () => {
 
       // Advance time
       act(() => {
-        vi.advanceTimersByTime(60000)
+        vi.advanceTimersByTime(60_000)
       })
 
       expect(global.fetch).not.toHaveBeenCalled()
@@ -152,21 +149,21 @@ describe('useOpenAIAuth', () => {
         ...mockBaseAuth,
         authenticated: true,
         hasRefreshToken: false,
-        expires_at: Date.now() + 120000,
+        expires_at: Date.now() + 120_000,
       })
 
       renderHook(() => useOpenAIAuth())
 
       // Advance time
       act(() => {
-        vi.advanceTimersByTime(60000)
+        vi.advanceTimersByTime(60_000)
       })
 
       expect(global.fetch).not.toHaveBeenCalled()
     })
 
     it('should set up auto-refresh 60 seconds before expiry', async () => {
-      const expiresAt = Date.now() + 120000 // 2 minutes from now
+      const expiresAt = Date.now() + 120_000 // 2 minutes from now
 
       ;(useAuthBase as any).mockReturnValue({
         ...mockBaseAuth,
@@ -182,7 +179,7 @@ describe('useOpenAIAuth', () => {
 
       // Advance to 59 seconds before expiry
       act(() => {
-        vi.advanceTimersByTime(59000)
+        vi.advanceTimersByTime(59_000)
       })
       expect(global.fetch).not.toHaveBeenCalled()
 
@@ -199,7 +196,7 @@ describe('useOpenAIAuth', () => {
     })
 
     it('should handle already expired tokens', async () => {
-      const expiresAt = Date.now() - 10000 // Already expired
+      const expiresAt = Date.now() - 10_000 // Already expired
 
       ;(useAuthBase as any).mockReturnValue({
         ...mockBaseAuth,
@@ -219,7 +216,7 @@ describe('useOpenAIAuth', () => {
     })
 
     it('should clean up timeout on unmount', () => {
-      const expiresAt = Date.now() + 120000
+      const expiresAt = Date.now() + 120_000
 
       ;(useAuthBase as any).mockReturnValue({
         ...mockBaseAuth,
@@ -234,7 +231,7 @@ describe('useOpenAIAuth', () => {
 
       // Advance time past when refresh would occur
       act(() => {
-        vi.advanceTimersByTime(120000)
+        vi.advanceTimersByTime(120_000)
       })
 
       // Should not have called refresh after unmount
@@ -242,8 +239,8 @@ describe('useOpenAIAuth', () => {
     })
 
     it('should update timeout when expires_at changes', async () => {
-      const initialExpiresAt = Date.now() + 120000
-      const updatedExpiresAt = Date.now() + 240000
+      const initialExpiresAt = Date.now() + 120_000
+      const updatedExpiresAt = Date.now() + 240_000
 
       const mockAuth = {
         ...mockBaseAuth,
@@ -262,7 +259,7 @@ describe('useOpenAIAuth', () => {
 
       // Advance to when first refresh would have occurred
       act(() => {
-        vi.advanceTimersByTime(60000)
+        vi.advanceTimersByTime(60_000)
       })
 
       // Should not have refreshed yet
@@ -270,7 +267,7 @@ describe('useOpenAIAuth', () => {
 
       // Advance to new refresh time (180 seconds from start)
       act(() => {
-        vi.advanceTimersByTime(120000)
+        vi.advanceTimersByTime(120_000)
       })
 
       await waitFor(() => {

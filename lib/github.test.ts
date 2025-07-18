@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { cookies } from 'next/headers'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  clearGitHubAuth,
+  createRepository,
+  exchangeCodeForToken,
   GitHubClient,
   getGitHubOAuthUrl,
-  exchangeCodeForToken,
   getGitHubUser,
-  getUserRepositories,
   getRepoBranches,
-  createRepository,
-  clearGitHubAuth,
+  getUserRepositories,
 } from './github'
 
 // Mock dependencies
@@ -129,9 +129,7 @@ describe('GitHub Authentication', () => {
     it('should throw error when environment variables are missing', async () => {
       delete process.env.GITHUB_CLIENT_SECRET
 
-      await expect(exchangeCodeForToken('code')).rejects.toThrow(
-        'GitHub OAuth is not configured'
-      )
+      await expect(exchangeCodeForToken('code')).rejects.toThrow('GitHub OAuth is not configured')
     })
   })
 
@@ -226,10 +224,7 @@ describe('GitHub Authentication', () => {
     it('should fetch branches for a repository', async () => {
       mockCookies.get.mockReturnValue({ value: 'valid-token' })
 
-      const mockBranches = [
-        { name: 'main' },
-        { name: 'develop' },
-      ]
+      const mockBranches = [{ name: 'main' }, { name: 'develop' }]
 
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,

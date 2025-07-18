@@ -47,7 +47,7 @@ export function useOpenAIAuth() {
   useEffect(() => {
     if (baseAuth.authenticated && baseAuth.expires_at && baseAuth.hasRefreshToken) {
       const timeUntilExpiry = baseAuth.expires_at - Date.now()
-      const refreshTime = Math.max(0, timeUntilExpiry - 60000)
+      const refreshTime = Math.max(0, timeUntilExpiry - 60_000)
 
       if (refreshTime > 0) {
         const timeout = setTimeout(() => {

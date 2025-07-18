@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
-import { useGeminiAudio } from '@/hooks/use-gemini-audio'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAudioRecorder } from '@/hooks/use-audio-recorder'
+import { useGeminiAudio } from '@/hooks/use-gemini-audio'
 
 // Mock the Gemini session
 vi.mock('@/lib/ai/gemini-realtime', () => ({
@@ -222,7 +222,7 @@ describe('Gemini Audio Hooks Integration', () => {
 
       // Get the message handler that was registered
       const messageHandler = mockSession.onMessage.mock.calls[0][0]
-      
+
       await act(async () => {
         messageHandler(mockMessage)
       })
@@ -250,7 +250,7 @@ describe('Gemini Audio Hooks Integration', () => {
 
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
         audio: {
-          sampleRate: 44100,
+          sampleRate: 44_100,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
@@ -435,12 +435,12 @@ describe('Gemini Audio Hooks Integration', () => {
 
       // Simulate audio data
       const mockBlob = new Blob(['audio data'], { type: 'audio/webm' })
-      
+
       await act(async () => {
         // Convert blob to Uint8Array (simplified)
         const audioData = new Uint8Array(1024)
         audioData.fill(128)
-        
+
         // Send audio to Gemini
         await geminiResult.current.sendAudio(audioData)
       })

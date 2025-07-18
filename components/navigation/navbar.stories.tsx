@@ -1,6 +1,6 @@
 import type { StoryObj } from '@storybook/nextjs'
-import Navbar from './navbar'
 import { createStorybookMeta } from '../stories/story-base'
+import Navbar from './navbar'
 
 const meta = createStorybookMeta(
   Navbar,

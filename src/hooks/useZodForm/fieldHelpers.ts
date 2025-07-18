@@ -1,5 +1,5 @@
-import { type FieldValues, type UseFormReturn } from 'react-hook-form'
-import { type ZodFormErrors } from '../useZodForm'
+import type { FieldValues, UseFormReturn } from 'react-hook-form'
+import type { ZodFormErrors } from '../useZodForm'
 
 export interface FieldHelpers<T extends FieldValues> {
   getError: (field: keyof T) => string | undefined

@@ -91,18 +91,18 @@ export default function TaskNavbar({ id }: Props) {
   }, [task, id, cancelTask])
 
   return (
-    <div className="h-14 border-b flex items-center justify-between px-4">
+    <div className="flex h-14 items-center justify-between border-b px-4">
       <div className="flex items-center gap-x-2">
         <Link href="/">
-          <Button variant="ghost" size="icon">
+          <Button size="icon" variant="ghost">
             <ArrowLeft />
           </Button>
         </Link>
         <div className="h-8 border-r" />
-        <div className="flex flex-col gap-x-2 ml-4">
+        <div className="ml-4 flex flex-col gap-x-2">
           <h3 className=" font-medium">{task?.title}</h3>
           <div className="flex items-center gap-x-0">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {task?.createdAt
                 ? formatDistanceToNow(new Date(task.createdAt), {
                     addSuffix: true,
@@ -110,7 +110,7 @@ export default function TaskNavbar({ id }: Props) {
                 : 'Loading...'}
             </p>
             <Dot className="size-4 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{task?.repository}</p>
+            <p className="text-muted-foreground text-sm">{task?.repository}</p>
           </div>
         </div>
       </div>
@@ -119,16 +119,16 @@ export default function TaskNavbar({ id }: Props) {
           <>
             <TaskControlButton
               icon={<Pause className="size-4" />}
-              tooltip="Pause Task"
-              onClick={handlePauseTask}
               isLoading={isControllingTask}
+              onClick={handlePauseTask}
+              tooltip="Pause Task"
               variant="outline"
             />
             <TaskControlButton
               icon={<X className="size-4" />}
-              tooltip="Cancel Task"
-              onClick={handleCancelTask}
               isLoading={isControllingTask}
+              onClick={handleCancelTask}
+              tooltip="Cancel Task"
               variant="destructive"
             />
           </>
@@ -137,28 +137,28 @@ export default function TaskNavbar({ id }: Props) {
           <>
             <TaskControlButton
               icon={<Play className="size-4" />}
-              tooltip="Resume Task"
-              onClick={handleResumeTask}
               isLoading={isControllingTask}
+              onClick={handleResumeTask}
+              tooltip="Resume Task"
               variant="default"
             />
             <TaskControlButton
               icon={<X className="size-4" />}
-              tooltip="Cancel Task"
-              onClick={handleCancelTask}
               isLoading={isControllingTask}
+              onClick={handleCancelTask}
+              tooltip="Cancel Task"
               variant="destructive"
             />
           </>
         )}
 
         {task?.isArchived ? (
-          <Button variant="outline" className="rounded-full" onClick={handleArchiveTask}>
+          <Button className="rounded-full" onClick={handleArchiveTask} variant="outline">
             <Archive />
             Unarchive
           </Button>
         ) : (
-          <Button variant="outline" className="rounded-full" onClick={handleArchiveTask}>
+          <Button className="rounded-full" onClick={handleArchiveTask} variant="outline">
             <Archive />
             Archive
           </Button>
@@ -173,10 +173,10 @@ export default function TaskNavbar({ id }: Props) {
         ) : (
           <Button
             className="rounded-full"
-            onClick={handleCreatePullRequest}
             disabled={isCreatingPullRequest}
+            onClick={handleCreatePullRequest}
           >
-            {isCreatingPullRequest ? <Loader className="animate-spin size-4" /> : <GitBranchPlus />}
+            {isCreatingPullRequest ? <Loader className="size-4 animate-spin" /> : <GitBranchPlus />}
             Create Pull Request
           </Button>
         )}

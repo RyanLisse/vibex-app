@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnthropicAuthStatus } from './anthropic-auth-status'
 
 // Mock the anthropic auth hook
@@ -22,26 +22,26 @@ vi.mock('date-fns', () => ({
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
   CheckCircle: ({ className, ...props }: any) => (
-    <svg data-testid="check-circle-icon" className={className} {...props} />
+    <svg className={className} data-testid="check-circle-icon" {...props} />
   ),
   XCircle: ({ className, ...props }: any) => (
-    <svg data-testid="x-circle-icon" className={className} {...props} />
+    <svg className={className} data-testid="x-circle-icon" {...props} />
   ),
   AlertCircle: ({ className, ...props }: any) => (
-    <svg data-testid="alert-circle-icon" className={className} {...props} />
+    <svg className={className} data-testid="alert-circle-icon" {...props} />
   ),
   Clock: ({ className, ...props }: any) => (
-    <svg data-testid="clock-icon" className={className} {...props} />
+    <svg className={className} data-testid="clock-icon" {...props} />
   ),
   Loader2: ({ className, ...props }: any) => (
-    <svg data-testid="loader-icon" className={className} {...props} />
+    <svg className={className} data-testid="loader-icon" {...props} />
   ),
 }))
 
 // Mock UI components
 vi.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className, ...props }: any) => (
-    <span data-testid="badge" data-variant={variant} className={className} {...props}>
+    <span className={className} data-testid="badge" data-variant={variant} {...props}>
       {children}
     </span>
   ),
@@ -50,11 +50,11 @@ vi.mock('@/components/ui/badge', () => ({
 vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
-      data-testid="button"
-      onClick={onClick}
-      data-variant={variant}
-      data-size={size}
       className={className}
+      data-size={size}
+      data-testid="button"
+      data-variant={variant}
+      onClick={onClick}
       {...props}
     >
       {children}
@@ -97,7 +97,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -154,7 +154,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 300000, // 5 minutes
+      expires: Date.now() + 300_000, // 5 minutes
       isExpiring: true,
     })
 
@@ -173,7 +173,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -229,7 +229,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -249,7 +249,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -266,7 +266,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -284,7 +284,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { name: 'Test User' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -301,7 +301,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -401,7 +401,7 @@ describe('AnthropicAuthStatus', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 

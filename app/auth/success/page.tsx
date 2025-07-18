@@ -15,9 +15,9 @@ export default function AuthSuccessPage() {
   }, [])
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">Authentication Successful!</h1>
+        <h1 className="mb-4 font-bold text-2xl">Authentication Successful!</h1>
         <p className="text-muted-foreground">This window will close automatically...</p>
       </div>
     </div>

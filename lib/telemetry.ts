@@ -1,4 +1,4 @@
-import { TelemetryConfig, TelemetryBackend } from '@/src/types/telemetry'
+import type { TelemetryBackend, TelemetryConfig } from '@/src/types/telemetry'
 
 /**
  * Get telemetry configuration from environment variables
@@ -16,7 +16,7 @@ export function getTelemetryConfig(): TelemetryConfig {
     serviceName: process.env.OTEL_SERVICE_NAME || 'codex-clone',
     serviceVersion: process.env.OTEL_SERVICE_VERSION || '1.0.0',
     samplingRatio: process.env.OTEL_SAMPLING_RATIO
-      ? parseFloat(process.env.OTEL_SAMPLING_RATIO)
+      ? Number.parseFloat(process.env.OTEL_SAMPLING_RATIO)
       : 1.0,
   }
 
@@ -60,10 +60,11 @@ export function validateTelemetryConfig(config: TelemetryConfig): {
     errors.push('Telemetry is enabled but no endpoint is configured')
   }
 
-  if (config.samplingRatio !== undefined) {
-    if (config.samplingRatio < 0 || config.samplingRatio > 1) {
-      errors.push('Sampling ratio must be between 0.0 and 1.0')
-    }
+  if (
+    config.samplingRatio !== undefined &&
+    (config.samplingRatio < 0 || config.samplingRatio > 1)
+  ) {
+    errors.push('Sampling ratio must be between 0.0 and 1.0')
   }
 
   return {

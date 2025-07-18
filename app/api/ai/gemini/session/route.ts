@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 
 // Store sessions in memory (in production, use a proper session store)

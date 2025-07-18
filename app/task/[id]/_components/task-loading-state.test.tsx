@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { TaskLoadingState } from './task-loading-state'
 
 // Mock the TextShimmer component
@@ -44,7 +44,13 @@ describe('TaskLoadingState', () => {
     const { container } = render(<TaskLoadingState statusMessage="Test" />)
 
     const mainContainer = container.firstChild as HTMLElement
-    expect(mainContainer).toHaveClass('flex', 'justify-start', 'animate-in', 'slide-in-from-left', 'duration-300')
+    expect(mainContainer).toHaveClass(
+      'flex',
+      'justify-start',
+      'animate-in',
+      'slide-in-from-left',
+      'duration-300'
+    )
   })
 
   it('should handle empty string status message', () => {

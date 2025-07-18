@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 // Generic auth status interface
 interface BaseAuthStatus {
@@ -142,7 +142,7 @@ export function useAuth<T extends BaseAuthStatus>(config: AuthConfig<T>) {
 
   // Auto-refresh effect
   useEffect(() => {
-    if (!config.autoRefreshConfig?.enabled || !authStatus.authenticated) return
+    if (!(config.autoRefreshConfig?.enabled && authStatus.authenticated)) return
 
     const { expiryField, hasRefreshTokenField, refreshBuffer } = config.autoRefreshConfig
     const expiryTime = authStatus[expiryField] as number

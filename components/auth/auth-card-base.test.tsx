@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthCardBase } from './auth-card-base'
 
 // Mock date-fns
@@ -16,31 +16,31 @@ vi.mock('date-fns', () => ({
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
   Shield: ({ className, ...props }: any) => (
-    <svg data-testid="shield-icon" className={className} {...props} />
+    <svg className={className} data-testid="shield-icon" {...props} />
   ),
   AlertCircle: ({ className, ...props }: any) => (
-    <svg data-testid="alert-icon" className={className} {...props} />
+    <svg className={className} data-testid="alert-icon" {...props} />
   ),
   User: ({ className, ...props }: any) => (
-    <svg data-testid="user-icon" className={className} {...props} />
+    <svg className={className} data-testid="user-icon" {...props} />
   ),
   Clock: ({ className, ...props }: any) => (
-    <svg data-testid="clock-icon" className={className} {...props} />
+    <svg className={className} data-testid="clock-icon" {...props} />
   ),
   LogOut: ({ className, ...props }: any) => (
-    <svg data-testid="logout-icon" className={className} {...props} />
+    <svg className={className} data-testid="logout-icon" {...props} />
   ),
 }))
 
 // Mock UI components
 vi.mock('@/components/ui/card', () => ({
   Card: ({ children, className, ...props }: any) => (
-    <div data-testid="card" className={className} {...props}>
+    <div className={className} data-testid="card" {...props}>
       {children}
     </div>
   ),
   CardContent: ({ children, className, ...props }: any) => (
-    <div data-testid="card-content" className={className} {...props}>
+    <div className={className} data-testid="card-content" {...props}>
       {children}
     </div>
   ),
@@ -55,7 +55,7 @@ vi.mock('@/components/ui/card', () => ({
     </div>
   ),
   CardTitle: ({ children, className, ...props }: any) => (
-    <h3 data-testid="card-title" className={className} {...props}>
+    <h3 className={className} data-testid="card-title" {...props}>
       {children}
     </h3>
   ),
@@ -64,10 +64,10 @@ vi.mock('@/components/ui/card', () => ({
 vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
-      data-testid="button"
-      onClick={onClick}
-      data-variant={variant}
       className={className}
+      data-testid="button"
+      data-variant={variant}
+      onClick={onClick}
       {...props}
     >
       {children}
@@ -101,28 +101,30 @@ describe('AuthCardBase', () => {
   it('should render loading state', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={true}
         authenticated={false}
+        loading={true}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
     expect(screen.getByTestId('card')).toBeInTheDocument()
     expect(screen.getByTestId('card-title')).toHaveTextContent('Test Authentication')
     expect(screen.getByTestId('shield-icon')).toBeInTheDocument()
-    expect(screen.getByTestId('card-description')).toHaveTextContent('Checking authentication status...')
+    expect(screen.getByTestId('card-description')).toHaveTextContent(
+      'Checking authentication status...'
+    )
     expect(screen.getByRole('generic')).toHaveClass('animate-spin')
   })
 
   it('should render loading state with custom description', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
+        authenticated={false}
         description="Custom loading message"
         loading={true}
-        authenticated={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -132,11 +134,11 @@ describe('AuthCardBase', () => {
   it('should render error state', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={false}
         error="Authentication failed"
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -151,12 +153,12 @@ describe('AuthCardBase', () => {
   it('should handle retry button click with custom handler', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={false}
         error="Authentication failed"
+        loading={false}
         onLogout={mockOnLogout}
         onRetry={mockOnRetry}
+        title="Test Authentication"
       />
     )
 
@@ -170,11 +172,11 @@ describe('AuthCardBase', () => {
   it('should handle retry button click with default handler', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={false}
         error="Authentication failed"
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -188,10 +190,10 @@ describe('AuthCardBase', () => {
   it('should render authenticated state', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -207,11 +209,11 @@ describe('AuthCardBase', () => {
   it('should render authenticated state with custom description', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
+        authenticated={true}
         description="Custom success message"
         loading={false}
-        authenticated={true}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -221,11 +223,11 @@ describe('AuthCardBase', () => {
   it('should render authenticated state with auth type', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
         authType="OAuth"
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -235,14 +237,14 @@ describe('AuthCardBase', () => {
   })
 
   it('should render authenticated state with expiration', () => {
-    const futureTime = Date.now() + 1800000 // 30 minutes from now
+    const futureTime = Date.now() + 1_800_000 // 30 minutes from now
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
         expires={futureTime}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -252,15 +254,15 @@ describe('AuthCardBase', () => {
   })
 
   it('should render authenticated state with expiring soon warning', () => {
-    const futureTime = Date.now() + 1800000
+    const futureTime = Date.now() + 1_800_000
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
         expires={futureTime}
         isExpiringSoon={true}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -272,11 +274,11 @@ describe('AuthCardBase', () => {
   it('should render authenticated state with authenticated content', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
-        onLogout={mockOnLogout}
         authenticatedContent={<div data-testid="custom-content">Custom auth content</div>}
+        loading={false}
+        onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -287,10 +289,10 @@ describe('AuthCardBase', () => {
   it('should handle logout button click', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -303,11 +305,11 @@ describe('AuthCardBase', () => {
   it('should render unauthenticated state', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
+        authenticated={false}
         description="Please authenticate"
         loading={false}
-        authenticated={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -320,10 +322,10 @@ describe('AuthCardBase', () => {
   it('should render unauthenticated state with content', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={false}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
         unauthenticatedContent={<div data-testid="unauth-content">Login form here</div>}
       />
     )
@@ -335,10 +337,10 @@ describe('AuthCardBase', () => {
   it('should render unauthenticated state with children', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={false}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       >
         <div data-testid="children-content">Child content</div>
       </AuthCardBase>
@@ -351,16 +353,16 @@ describe('AuthCardBase', () => {
   it('should handle all props combinations', () => {
     render(
       <AuthCardBase
-        title="Complex Authentication"
-        description="Complex test case"
-        loading={false}
         authenticated={true}
-        expires={Date.now() + 1800000}
+        authenticatedContent={<div data-testid="auth-content">Auth content</div>}
         authType="API Key"
+        description="Complex test case"
+        expires={Date.now() + 1_800_000}
         isExpiringSoon={true}
+        loading={false}
         onLogout={mockOnLogout}
         onRetry={mockOnRetry}
-        authenticatedContent={<div data-testid="auth-content">Auth content</div>}
+        title="Complex Authentication"
       />
     )
 
@@ -375,11 +377,11 @@ describe('AuthCardBase', () => {
   it('should handle null error gracefully', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={false}
         error={null}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -390,11 +392,11 @@ describe('AuthCardBase', () => {
   it('should handle null expires gracefully', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
         expires={null}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 
@@ -404,10 +406,10 @@ describe('AuthCardBase', () => {
   it('should apply correct styling classes', () => {
     render(
       <AuthCardBase
-        title="Test Authentication"
-        loading={false}
         authenticated={true}
+        loading={false}
         onLogout={mockOnLogout}
+        title="Test Authentication"
       />
     )
 

@@ -1,16 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { getSubscriptionToken } from '@inngest/realtime'
 import { cookies } from 'next/headers'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { inngest } from '@/lib/inngest'
+import type { Task } from '@/stores/tasks'
+import type { TaskChannelToken } from './inngest'
 import {
-  createTaskAction,
+  cancelTaskAction,
   createPullRequestAction,
+  createTaskAction,
+  fetchRealtimeSubscriptionToken,
   pauseTaskAction,
   resumeTaskAction,
-  cancelTaskAction,
-  fetchRealtimeSubscriptionToken,
 } from './inngest'
-import { inngest } from '@/lib/inngest'
-import { getSubscriptionToken } from '@inngest/realtime'
-import type { Task } from '@/stores/tasks'
 
 // Mock dependencies
 vi.mock('next/headers', () => ({
@@ -22,7 +23,7 @@ vi.mock('@/lib/inngest', () => ({
     send: vi.fn(),
   },
   getInngestApp: vi.fn(),
-  taskChannel: vi.fn(() => ({})),
+  taskChannel: vi.fn(() => ({ id: 'test-channel' })),
 }))
 
 vi.mock('@inngest/realtime', () => ({
@@ -51,9 +52,17 @@ describe('Inngest Actions', () => {
     const mockTask: Task = {
       id: 'test-task-123',
       title: 'Test Task',
-      status: 'pending',
-      created_at: new Date(),
-      updated_at: new Date(),
+      description: '',
+      messages: [],
+      status: 'IN_PROGRESS',
+      branch: 'main',
+      sessionId: 'session-123',
+      repository: 'test/repo',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isArchived: false,
+      mode: 'code',
+      hasChanges: false,
     }
 
     it('should create a task successfully with GitHub token', async () => {
@@ -188,7 +197,7 @@ describe('Inngest Actions', () => {
     })
 
     it('should return null when Inngest is not configured', async () => {
-      process.env.NODE_ENV = 'production'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
       process.env.INNGEST_DEV = '0'
       process.env.INNGEST_SIGNING_KEY = undefined
       process.env.INNGEST_EVENT_KEY = undefined
@@ -200,8 +209,8 @@ describe('Inngest Actions', () => {
     })
 
     it('should return token in development mode', async () => {
-      process.env.NODE_ENV = 'development'
-      const mockToken = { token: 'dev-token-123' }
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
+      const mockToken = { token: 'dev-token-123' } as any
       vi.mocked(getSubscriptionToken).mockResolvedValue(mockToken)
 
       const token = await fetchRealtimeSubscriptionToken()
@@ -211,9 +220,9 @@ describe('Inngest Actions', () => {
     })
 
     it('should return token when INNGEST_DEV is set', async () => {
-      process.env.NODE_ENV = 'production'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
       process.env.INNGEST_DEV = '1'
-      const mockToken = { token: 'dev-token-456' }
+      const mockToken = { token: 'dev-token-456' } as any
       vi.mocked(getSubscriptionToken).mockResolvedValue(mockToken)
 
       const token = await fetchRealtimeSubscriptionToken()
@@ -222,7 +231,7 @@ describe('Inngest Actions', () => {
     })
 
     it('should validate signing key format', async () => {
-      process.env.NODE_ENV = 'production'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
       process.env.INNGEST_SIGNING_KEY = 'invalid-key'
       process.env.INNGEST_EVENT_KEY = '12345678901234567890123456789012345678901234567890'
 
@@ -232,7 +241,7 @@ describe('Inngest Actions', () => {
     })
 
     it('should validate event key length', async () => {
-      process.env.NODE_ENV = 'production'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
       process.env.INNGEST_SIGNING_KEY = 'signkey-valid'
       process.env.INNGEST_EVENT_KEY = 'short-key'
 
@@ -242,7 +251,7 @@ describe('Inngest Actions', () => {
     })
 
     it('should handle getSubscriptionToken errors', async () => {
-      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       vi.mocked(getSubscriptionToken).mockRejectedValue(new Error('Network error'))
 
       const token = await fetchRealtimeSubscriptionToken()
@@ -251,7 +260,7 @@ describe('Inngest Actions', () => {
     })
 
     it('should handle authentication errors', async () => {
-      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       vi.mocked(getSubscriptionToken).mockRejectedValue(new Error('401 Unauthorized'))
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -259,13 +268,14 @@ describe('Inngest Actions', () => {
 
       expect(token).toBeNull()
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('authentication failed')
+        expect.stringContaining('authentication failed'),
+        expect.any(Error)
       )
       consoleSpy.mockRestore()
     })
 
     it('should handle invalid token format', async () => {
-      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       vi.mocked(getSubscriptionToken).mockResolvedValue(null as any)
 
       const token = await fetchRealtimeSubscriptionToken()
@@ -274,8 +284,8 @@ describe('Inngest Actions', () => {
     })
 
     it('should handle token as string', async () => {
-      process.env.NODE_ENV = 'development'
-      const mockToken = 'string-token-123'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
+      const mockToken = 'string-token-123' as any
       vi.mocked(getSubscriptionToken).mockResolvedValue(mockToken as any)
 
       const token = await fetchRealtimeSubscriptionToken()

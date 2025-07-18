@@ -1,26 +1,26 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs'
+import { describe, expect, it, vi } from 'vitest'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
 
 // Mock Radix UI Tabs components
 vi.mock('@radix-ui/react-tabs', () => ({
   Root: ({ children, className, ...props }: any) => (
-    <div data-testid="tabs-root-primitive" className={className} {...props}>
+    <div className={className} data-testid="tabs-root-primitive" {...props}>
       {children}
     </div>
   ),
   List: ({ children, className, ...props }: any) => (
-    <div data-testid="tabs-list-primitive" className={className} role="tablist" {...props}>
+    <div className={className} data-testid="tabs-list-primitive" role="tablist" {...props}>
       {children}
     </div>
   ),
   Trigger: ({ children, className, value, ...props }: any) => (
     <button
-      data-testid="tabs-trigger-primitive"
       className={className}
-      role="tab"
+      data-testid="tabs-trigger-primitive"
       data-value={value}
+      role="tab"
       {...props}
     >
       {children}
@@ -28,10 +28,10 @@ vi.mock('@radix-ui/react-tabs', () => ({
   ),
   Content: ({ children, className, value, ...props }: any) => (
     <div
-      data-testid="tabs-content-primitive"
       className={className}
-      role="tabpanel"
+      data-testid="tabs-content-primitive"
       data-value={value}
+      role="tabpanel"
       {...props}
     >
       {children}
@@ -50,7 +50,7 @@ describe('Tabs Components', () => {
           <TabsContent value="tab1">Content 1</TabsContent>
         </Tabs>
       )
-      
+
       const root = screen.getByTestId('tabs-root-primitive')
       expect(root).toBeInTheDocument()
       expect(root).toHaveAttribute('data-slot', 'tabs')
@@ -65,7 +65,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const root = screen.getByTestId('tabs-root-primitive')
       expect(root).toHaveClass('custom-tabs', 'w-full')
       expect(root).toHaveClass('flex') // Still has default classes
@@ -79,7 +79,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const root = screen.getByTestId('tabs-root-primitive')
       expect(root).toHaveAttribute('defaultValue', 'tab1')
       expect(root).toHaveAttribute('orientation', 'horizontal')
@@ -96,11 +96,17 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const list = screen.getByTestId('tabs-list-primitive')
       expect(list).toBeInTheDocument()
       expect(list).toHaveAttribute('data-slot', 'tabs-list')
-      expect(list).toHaveClass('bg-muted', 'text-muted-foreground', 'inline-flex', 'h-9', 'rounded-lg')
+      expect(list).toHaveClass(
+        'bg-muted',
+        'text-muted-foreground',
+        'inline-flex',
+        'h-9',
+        'rounded-lg'
+      )
     })
 
     it('should merge custom className', () => {
@@ -111,7 +117,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const list = screen.getByTestId('tabs-list-primitive')
       expect(list).toHaveClass('w-full', 'justify-start')
     })
@@ -124,7 +130,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const list = screen.getByRole('tablist')
       expect(list).toBeInTheDocument()
     })
@@ -139,7 +145,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       expect(trigger).toBeInTheDocument()
       expect(trigger).toHaveAttribute('data-slot', 'tabs-trigger')
@@ -152,13 +158,13 @@ describe('Tabs Components', () => {
       render(
         <Tabs>
           <TabsList>
-            <TabsTrigger value="tab1" className="custom-trigger">
+            <TabsTrigger className="custom-trigger" value="tab1">
               Tab 1
             </TabsTrigger>
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       expect(trigger).toHaveClass('custom-trigger')
     })
@@ -167,13 +173,13 @@ describe('Tabs Components', () => {
       render(
         <Tabs>
           <TabsList>
-            <TabsTrigger value="tab1" disabled>
+            <TabsTrigger disabled value="tab1">
               Disabled Tab
             </TabsTrigger>
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       expect(trigger).toHaveAttribute('disabled')
       expect(trigger).toHaveClass('disabled:pointer-events-none', 'disabled:opacity-50')
@@ -183,13 +189,13 @@ describe('Tabs Components', () => {
       render(
         <Tabs>
           <TabsList>
-            <TabsTrigger value="tab1" data-state="active">
+            <TabsTrigger data-state="active" value="tab1">
               Active Tab
             </TabsTrigger>
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       expect(trigger).toHaveAttribute('data-state', 'active')
       expect(trigger).toHaveClass('data-[state=active]:bg-background')
@@ -200,7 +206,7 @@ describe('Tabs Components', () => {
         <Tabs>
           <TabsList>
             <TabsTrigger value="tab1">
-              <svg width="16" height="16">
+              <svg height="16" width="16">
                 <circle cx="8" cy="8" r="8" />
               </svg>
               <span>Tab with Icon</span>
@@ -208,7 +214,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       expect(trigger.querySelector('svg')).toBeInTheDocument()
       expect(trigger).toHaveTextContent('Tab with Icon')
@@ -222,7 +228,7 @@ describe('Tabs Components', () => {
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByRole('tab')
       expect(trigger).toBeInTheDocument()
     })
@@ -232,16 +238,16 @@ describe('Tabs Components', () => {
       render(
         <Tabs>
           <TabsList>
-            <TabsTrigger value="tab1" onClick={handleClick}>
+            <TabsTrigger onClick={handleClick} value="tab1">
               Tab 1
             </TabsTrigger>
           </TabsList>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       fireEvent.click(trigger)
-      
+
       expect(handleClick).toHaveBeenCalledTimes(1)
     })
   })
@@ -255,7 +261,7 @@ describe('Tabs Components', () => {
           </TabsContent>
         </Tabs>
       )
-      
+
       const content = screen.getByTestId('tabs-content-primitive')
       expect(content).toBeInTheDocument()
       expect(content).toHaveAttribute('data-slot', 'tabs-content')
@@ -267,12 +273,12 @@ describe('Tabs Components', () => {
     it('should merge custom className', () => {
       render(
         <Tabs>
-          <TabsContent value="tab1" className="p-4 bg-gray-50">
+          <TabsContent className="bg-gray-50 p-4" value="tab1">
             Content
           </TabsContent>
         </Tabs>
       )
-      
+
       const content = screen.getByTestId('tabs-content-primitive')
       expect(content).toHaveClass('p-4', 'bg-gray-50')
     })
@@ -283,7 +289,7 @@ describe('Tabs Components', () => {
           <TabsContent value="tab1">Content</TabsContent>
         </Tabs>
       )
-      
+
       const content = screen.getByRole('tabpanel')
       expect(content).toBeInTheDocument()
     })
@@ -300,7 +306,7 @@ describe('Tabs Components', () => {
           </TabsContent>
         </Tabs>
       )
-      
+
       const content = screen.getByTestId('tabs-content-primitive')
       expect(content.querySelector('h3')).toHaveTextContent('Section Title')
       expect(content.querySelector('p')).toHaveTextContent('Some paragraph text')
@@ -328,7 +334,7 @@ describe('Tabs Components', () => {
           </TabsContent>
         </Tabs>
       )
-      
+
       expect(screen.getByText('Account')).toBeInTheDocument()
       expect(screen.getByText('Password')).toBeInTheDocument()
       expect(screen.getByText('Settings')).toBeInTheDocument()
@@ -341,7 +347,7 @@ describe('Tabs Components', () => {
       const ControlledTabs = () => {
         const [value, setValue] = React.useState('tab1')
         return (
-          <Tabs value={value} onValueChange={setValue}>
+          <Tabs onValueChange={setValue} value={value}>
             <TabsList>
               <TabsTrigger value="tab1">Tab 1</TabsTrigger>
               <TabsTrigger value="tab2">Tab 2</TabsTrigger>
@@ -351,16 +357,16 @@ describe('Tabs Components', () => {
           </Tabs>
         )
       }
-      
+
       render(<ControlledTabs />)
-      
+
       expect(screen.getByTestId('tabs-root-primitive')).toHaveAttribute('value', 'tab1')
     })
 
     it('should handle vertical orientation', () => {
       render(
-        <Tabs orientation="vertical" className="flex-row">
-          <TabsList className="flex-col h-auto">
+        <Tabs className="flex-row" orientation="vertical">
+          <TabsList className="h-auto flex-col">
             <TabsTrigger value="tab1">Tab 1</TabsTrigger>
             <TabsTrigger value="tab2">Tab 2</TabsTrigger>
           </TabsList>
@@ -368,7 +374,7 @@ describe('Tabs Components', () => {
           <TabsContent value="tab2">Content 2</TabsContent>
         </Tabs>
       )
-      
+
       const root = screen.getByTestId('tabs-root-primitive')
       expect(root).toHaveAttribute('orientation', 'vertical')
       expect(root).toHaveClass('flex-row')
@@ -378,14 +384,14 @@ describe('Tabs Components', () => {
       render(
         <Tabs>
           <TabsList>
-            <TabsTrigger value="tab1" asChild>
+            <TabsTrigger asChild value="tab1">
               <a href="#tab1">Link Tab</a>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="tab1">Content</TabsContent>
         </Tabs>
       )
-      
+
       const trigger = screen.getByTestId('tabs-trigger-primitive')
       expect(trigger).toHaveAttribute('asChild')
     })

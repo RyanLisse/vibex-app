@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
+import { Download, Heart, Plus, Trash2 } from 'lucide-react'
 import { Button } from './button'
-import { Heart, Download, Trash2, Plus } from 'lucide-react'
 
 const meta = {
   title: 'Components/UI/Button',
@@ -168,7 +168,7 @@ export const AsLink: Story = {
   args: {
     asChild: true,
     children: (
-      <a href="#" target="_blank">
+      <a href="#" rel="noopener" target="_blank">
         External Link
       </a>
     ),
@@ -181,7 +181,7 @@ export const Loading: Story = {
     disabled: true,
     children: (
       <>
-        <div className="animate-spin rounded-full size-4 border-2 border-current border-t-transparent" />
+        <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         Loading...
       </>
     ),
@@ -191,7 +191,7 @@ export const Loading: Story = {
 // Group of buttons
 export const ButtonGroup: Story = {
   render: () => (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex flex-wrap gap-2">
       <Button>Primary</Button>
       <Button variant="secondary">Secondary</Button>
       <Button variant="outline">Outline</Button>
@@ -204,7 +204,7 @@ export const ButtonGroup: Story = {
 // Size comparison
 export const SizeComparison: Story = {
   render: () => (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex flex-wrap items-center gap-2">
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
@@ -225,7 +225,7 @@ export const AccessibilityExample: Story = {
   render: (args) => (
     <div>
       <Button {...args} />
-      <div id="button-description" className="text-sm text-muted-foreground mt-2">
+      <div className="mt-2 text-muted-foreground text-sm" id="button-description">
         This button closes the current dialog
       </div>
     </div>

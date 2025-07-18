@@ -1,13 +1,13 @@
 // Custom Test Matchers Index
 // Enhanced assertion capabilities for comprehensive testing
 
-export * from './dom-matchers'
-export * from './async-matchers'
-export * from './mock-matchers'
-export * from './component-matchers'
-export * from './api-matchers'
-export * from './performance-matchers'
 export * from './accessibility-matchers'
+export * from './api-matchers'
+export * from './async-matchers'
+export * from './component-matchers'
+export * from './dom-matchers'
+export * from './mock-matchers'
+export * from './performance-matchers'
 
 // Setup function to register all custom matchers
 export const setupCustomMatchers = () => {

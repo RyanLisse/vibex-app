@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -11,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Task } from '@/stores/tasks'
+import { Textarea } from '@/components/ui/textarea'
+import type { Task } from '@/stores/tasks'
 import { safeParse } from '../../src/shared/schemas/validation'
 
 const TaskFormSchema = z.object({
@@ -73,18 +73,18 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
   const isFormValid = safeParse(TaskFormSchema, formData).success
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
         <Label htmlFor="title">Title *</Label>
         <Input
+          aria-describedby={errors.title ? 'title-error' : undefined}
           id="title"
-          value={formData.title}
           onChange={(e) => handleChange('title', e.target.value)}
           placeholder="Enter task title"
-          aria-describedby={errors.title ? 'title-error' : undefined}
+          value={formData.title}
         />
         {errors.title && (
-          <p id="title-error" className="text-sm text-red-600">
+          <p className="text-red-600 text-sm" id="title-error">
             {errors.title}
           </p>
         )}
@@ -93,15 +93,15 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Textarea
+          aria-describedby={errors.description ? 'description-error' : undefined}
           id="description"
-          value={formData.description}
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Enter task description (optional)"
           rows={4}
-          aria-describedby={errors.description ? 'description-error' : undefined}
+          value={formData.description}
         />
         {errors.description && (
-          <p id="description-error" className="text-sm text-red-600">
+          <p className="text-red-600 text-sm" id="description-error">
             {errors.description}
           </p>
         )}
@@ -110,8 +110,8 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
       <div className="space-y-2">
         <Label htmlFor="priority">Priority</Label>
         <Select
-          value={formData.priority}
           onValueChange={(value: 'low' | 'medium' | 'high') => handleChange('priority', value)}
+          value={formData.priority}
         >
           <SelectTrigger id="priority">
             <SelectValue placeholder="Select priority" />
@@ -122,20 +122,20 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
             <SelectItem value="high">High</SelectItem>
           </SelectContent>
         </Select>
-        {errors.priority && <p className="text-sm text-red-600">{errors.priority}</p>}
+        {errors.priority && <p className="text-red-600 text-sm">{errors.priority}</p>}
       </div>
 
       {submitError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{submitError}</p>
+        <div className="rounded-md border border-red-200 bg-red-50 p-3">
+          <p className="text-red-600 text-sm">{submitError}</p>
         </div>
       )}
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+        <Button disabled={isSubmitting} onClick={onCancel} type="button" variant="outline">
           Cancel
         </Button>
-        <Button type="submit" disabled={!isFormValid || isSubmitting}>
+        <Button disabled={!isFormValid || isSubmitting} type="submit">
           {isSubmitting ? 'Submitting...' : task ? 'Update Task' : 'Create Task'}
         </Button>
       </div>

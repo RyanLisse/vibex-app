@@ -32,7 +32,7 @@ export interface MockGeolocation {
 
 // Storage for mock data
 let mockNotifications: MockNotification[] = []
-let mockMediaQueries: Map<string, MockMediaQuery> = new Map()
+const mockMediaQueries: Map<string, MockMediaQuery> = new Map()
 let mockGeolocation: MockGeolocation | null = null
 
 // Mock Notification API
@@ -239,7 +239,7 @@ export const mockBatteryAPI = {
   getBattery: vi.fn().mockResolvedValue({
     charging: true,
     chargingTime: 5400, // 1.5 hours
-    dischargingTime: Infinity,
+    dischargingTime: Number.POSITIVE_INFINITY,
     level: 0.8,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
@@ -445,7 +445,7 @@ export const browserAPITestHelpers = {
   },
 
   // Wait for async operations
-  waitForAsync: async (timeout: number = 100) => {
+  waitForAsync: async (timeout = 100) => {
     return new Promise((resolve) => setTimeout(resolve, timeout))
   },
 }

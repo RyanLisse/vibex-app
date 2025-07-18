@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { TelemetryBackend, TelemetryConfig } from '@/src/types/telemetry'
 import {
-  getTelemetryConfig,
   getDefaultEndpoint,
-  validateTelemetryConfig,
+  getTelemetryConfig,
   logTelemetryConfig,
+  validateTelemetryConfig,
 } from './telemetry'
-import type { TelemetryConfig, TelemetryBackend } from '@/src/types/telemetry'
 
 describe('telemetry', () => {
   // Store original env vars
@@ -274,9 +274,7 @@ describe('telemetry', () => {
       logTelemetryConfig(config)
 
       const logCalls = (console.log as any).mock.calls
-      const hasHeadersLog = logCalls.some((call: any[]) =>
-        call[0].includes('Headers:')
-      )
+      const hasHeadersLog = logCalls.some((call: any[]) => call[0].includes('Headers:'))
       expect(hasHeadersLog).toBe(false)
     })
 

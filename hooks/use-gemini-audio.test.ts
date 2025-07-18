@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { GeminiAudioMessage, UseGeminiAudioOptions } from './use-gemini-audio'
 import { useGeminiAudio } from './use-gemini-audio'
-import type { UseGeminiAudioOptions, GeminiAudioMessage } from './use-gemini-audio'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -177,10 +177,7 @@ describe('useGeminiAudio', () => {
         await result.current.disconnect()
       })
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to disconnect:',
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to disconnect:', expect.any(Error))
 
       consoleErrorSpy.mockRestore()
     })

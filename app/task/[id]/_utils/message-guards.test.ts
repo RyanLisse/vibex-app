@@ -1,26 +1,26 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import type { TaskMessage } from '../_types/message-types'
 import {
-  isStreamingMessage,
-  isCompleteMessage,
-  isErrorMessage,
-  isStatusMessage,
-  isToolMessage,
-  isUserMessage,
-  isAssistantMessage,
-  isSystemMessage,
-  hasToolOutput,
-  isMessageType,
-  isMessageStatus,
-  validateMessage,
   createMessage,
-  updateMessage,
-  filterMessagesByType,
   filterMessagesByStatus,
+  filterMessagesByType,
   getLatestMessage,
   getMessageById,
-  sortMessagesByTimestamp
+  hasToolOutput,
+  isAssistantMessage,
+  isCompleteMessage,
+  isErrorMessage,
+  isMessageStatus,
+  isMessageType,
+  isStatusMessage,
+  isStreamingMessage,
+  isSystemMessage,
+  isToolMessage,
+  isUserMessage,
+  sortMessagesByTimestamp,
+  updateMessage,
+  validateMessage,
 } from './message-guards'
-import type { TaskMessage } from '../_types/message-types'
 
 describe('message-guards', () => {
   const baseMessage = {
@@ -28,14 +28,14 @@ describe('message-guards', () => {
     type: 'user' as const,
     content: 'Test message',
     timestamp: Date.now(),
-    status: 'complete' as const
+    status: 'complete' as const,
   }
 
   describe('isStreamingMessage', () => {
     it('should return true for streaming message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        status: 'streaming'
+        status: 'streaming',
       }
       expect(isStreamingMessage(message)).toBe(true)
     })
@@ -43,7 +43,7 @@ describe('message-guards', () => {
     it('should return false for non-streaming message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        status: 'complete'
+        status: 'complete',
       }
       expect(isStreamingMessage(message)).toBe(false)
     })
@@ -53,7 +53,7 @@ describe('message-guards', () => {
     it('should return true for complete message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        status: 'complete'
+        status: 'complete',
       }
       expect(isCompleteMessage(message)).toBe(true)
     })
@@ -61,7 +61,7 @@ describe('message-guards', () => {
     it('should return false for non-complete message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        status: 'streaming'
+        status: 'streaming',
       }
       expect(isCompleteMessage(message)).toBe(false)
     })
@@ -72,7 +72,7 @@ describe('message-guards', () => {
       const message: TaskMessage = {
         ...baseMessage,
         type: 'error',
-        status: 'error'
+        status: 'error',
       }
       expect(isErrorMessage(message)).toBe(true)
     })
@@ -80,7 +80,7 @@ describe('message-guards', () => {
     it('should return false for non-error message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(isErrorMessage(message)).toBe(false)
     })
@@ -90,7 +90,7 @@ describe('message-guards', () => {
     it('should return true for status message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'status'
+        type: 'status',
       }
       expect(isStatusMessage(message)).toBe(true)
     })
@@ -98,7 +98,7 @@ describe('message-guards', () => {
     it('should return false for non-status message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(isStatusMessage(message)).toBe(false)
     })
@@ -112,8 +112,8 @@ describe('message-guards', () => {
         tool: {
           name: 'file_read',
           input: { path: '/test.txt' },
-          output: 'File content'
-        }
+          output: 'File content',
+        },
       }
       expect(isToolMessage(message)).toBe(true)
     })
@@ -121,7 +121,7 @@ describe('message-guards', () => {
     it('should return false for non-tool message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(isToolMessage(message)).toBe(false)
     })
@@ -131,7 +131,7 @@ describe('message-guards', () => {
     it('should return true for user message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(isUserMessage(message)).toBe(true)
     })
@@ -139,7 +139,7 @@ describe('message-guards', () => {
     it('should return false for non-user message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'assistant'
+        type: 'assistant',
       }
       expect(isUserMessage(message)).toBe(false)
     })
@@ -149,7 +149,7 @@ describe('message-guards', () => {
     it('should return true for assistant message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'assistant'
+        type: 'assistant',
       }
       expect(isAssistantMessage(message)).toBe(true)
     })
@@ -157,7 +157,7 @@ describe('message-guards', () => {
     it('should return false for non-assistant message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(isAssistantMessage(message)).toBe(false)
     })
@@ -167,7 +167,7 @@ describe('message-guards', () => {
     it('should return true for system message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'system'
+        type: 'system',
       }
       expect(isSystemMessage(message)).toBe(true)
     })
@@ -175,7 +175,7 @@ describe('message-guards', () => {
     it('should return false for non-system message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(isSystemMessage(message)).toBe(false)
     })
@@ -189,8 +189,8 @@ describe('message-guards', () => {
         tool: {
           name: 'file_read',
           input: { path: '/test.txt' },
-          output: 'File content'
-        }
+          output: 'File content',
+        },
       }
       expect(hasToolOutput(message)).toBe(true)
     })
@@ -201,8 +201,8 @@ describe('message-guards', () => {
         type: 'tool',
         tool: {
           name: 'file_read',
-          input: { path: '/test.txt' }
-        }
+          input: { path: '/test.txt' },
+        },
       }
       expect(hasToolOutput(message)).toBe(false)
     })
@@ -210,7 +210,7 @@ describe('message-guards', () => {
     it('should return false for non-tool message', () => {
       const message: TaskMessage = {
         ...baseMessage,
-        type: 'user'
+        type: 'user',
       }
       expect(hasToolOutput(message)).toBe(false)
     })
@@ -281,7 +281,7 @@ describe('message-guards', () => {
     it('should create valid message', () => {
       const message = createMessage({
         type: 'user',
-        content: 'Test message'
+        content: 'Test message',
       })
 
       expect(message.id).toBeDefined()
@@ -295,7 +295,7 @@ describe('message-guards', () => {
       const message = createMessage({
         type: 'assistant',
         content: 'Streaming...',
-        status: 'streaming'
+        status: 'streaming',
       })
 
       expect(message.status).toBe('streaming')
@@ -308,8 +308,8 @@ describe('message-guards', () => {
         tool: {
           name: 'file_read',
           input: { path: '/test.txt' },
-          output: 'File content'
-        }
+          output: 'File content',
+        },
       })
 
       expect(message.type).toBe('tool')
@@ -321,7 +321,7 @@ describe('message-guards', () => {
   describe('updateMessage', () => {
     it('should update message content', () => {
       const updatedMessage = updateMessage(baseMessage, {
-        content: 'Updated content'
+        content: 'Updated content',
       })
 
       expect(updatedMessage.content).toBe('Updated content')
@@ -330,7 +330,7 @@ describe('message-guards', () => {
 
     it('should update message status', () => {
       const updatedMessage = updateMessage(baseMessage, {
-        status: 'streaming'
+        status: 'streaming',
       })
 
       expect(updatedMessage.status).toBe('streaming')
@@ -340,7 +340,7 @@ describe('message-guards', () => {
       const updatedMessage = updateMessage(baseMessage, {
         content: 'New content',
         status: 'error',
-        type: 'error'
+        type: 'error',
       })
 
       expect(updatedMessage.content).toBe('New content')
@@ -354,7 +354,7 @@ describe('message-guards', () => {
       { ...baseMessage, id: 'msg-1', type: 'user' },
       { ...baseMessage, id: 'msg-2', type: 'assistant' },
       { ...baseMessage, id: 'msg-3', type: 'user' },
-      { ...baseMessage, id: 'msg-4', type: 'tool' }
+      { ...baseMessage, id: 'msg-4', type: 'tool' },
     ]
 
     it('should filter messages by type', () => {
@@ -375,7 +375,7 @@ describe('message-guards', () => {
       { ...baseMessage, id: 'msg-1', status: 'complete' },
       { ...baseMessage, id: 'msg-2', status: 'streaming' },
       { ...baseMessage, id: 'msg-3', status: 'complete' },
-      { ...baseMessage, id: 'msg-4', status: 'error' }
+      { ...baseMessage, id: 'msg-4', status: 'error' },
     ]
 
     it('should filter messages by status', () => {
@@ -395,7 +395,7 @@ describe('message-guards', () => {
     const messages: TaskMessage[] = [
       { ...baseMessage, id: 'msg-1', timestamp: 1000 },
       { ...baseMessage, id: 'msg-2', timestamp: 3000 },
-      { ...baseMessage, id: 'msg-3', timestamp: 2000 }
+      { ...baseMessage, id: 'msg-3', timestamp: 2000 },
     ]
 
     it('should return latest message', () => {
@@ -413,7 +413,7 @@ describe('message-guards', () => {
     const messages: TaskMessage[] = [
       { ...baseMessage, id: 'msg-1' },
       { ...baseMessage, id: 'msg-2' },
-      { ...baseMessage, id: 'msg-3' }
+      { ...baseMessage, id: 'msg-3' },
     ]
 
     it('should return message by id', () => {
@@ -431,7 +431,7 @@ describe('message-guards', () => {
     const messages: TaskMessage[] = [
       { ...baseMessage, id: 'msg-1', timestamp: 3000 },
       { ...baseMessage, id: 'msg-2', timestamp: 1000 },
-      { ...baseMessage, id: 'msg-3', timestamp: 2000 }
+      { ...baseMessage, id: 'msg-3', timestamp: 2000 },
     ]
 
     it('should sort messages by timestamp ascending', () => {

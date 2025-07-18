@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
+import { describe, expect, it, vi } from 'vitest'
 import RootLayout, { metadata } from './layout'
 
 // Mock next/font/google
@@ -26,16 +26,12 @@ vi.mock('next-themes', () => ({
 
 // Mock error boundary
 vi.mock('@/components/error-boundary', () => ({
-  ErrorBoundary: ({ children }: any) => (
-    <div data-testid="error-boundary">{children}</div>
-  ),
+  ErrorBoundary: ({ children }: any) => <div data-testid="error-boundary">{children}</div>,
 }))
 
 // Mock container
 vi.mock('./container', () => ({
-  default: ({ children }: any) => (
-    <div data-testid="container">{children}</div>
-  ),
+  default: ({ children }: any) => <div data-testid="container">{children}</div>,
 }))
 
 // Mock CSS imports
@@ -49,7 +45,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const htmlElement = container.querySelector('html')
     expect(htmlElement).toBeInTheDocument()
     expect(htmlElement).toHaveAttribute('lang', 'en')
@@ -62,7 +58,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const bodyElement = container.querySelector('body')
     expect(bodyElement).toBeInTheDocument()
     expect(bodyElement).toHaveClass('--font-geist-sans', '--font-geist-mono', 'antialiased')
@@ -74,7 +70,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const scriptElement = container.querySelector('script')
     expect(scriptElement).toBeInTheDocument()
     expect(scriptElement?.innerHTML).toContain('unhandledrejection')
@@ -89,7 +85,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const themeProvider = screen.getByTestId('theme-provider')
     expect(themeProvider).toBeInTheDocument()
     expect(themeProvider).toHaveAttribute('attribute', 'class')
@@ -104,7 +100,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const errorBoundary = screen.getByTestId('error-boundary')
     expect(errorBoundary).toBeInTheDocument()
   })
@@ -115,7 +111,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const container = screen.getByTestId('container')
     expect(container).toBeInTheDocument()
   })
@@ -126,10 +122,10 @@ describe('RootLayout', () => {
         <div data-testid="test-child">Test Content</div>
       </RootLayout>
     )
-    
+
     const container = screen.getByTestId('container')
     const testChild = screen.getByTestId('test-child')
-    
+
     expect(container).toContainElement(testChild)
     expect(testChild).toHaveTextContent('Test Content')
   })
@@ -142,7 +138,7 @@ describe('RootLayout', () => {
         <div data-testid="child-3">Child 3</div>
       </RootLayout>
     )
-    
+
     expect(screen.getByTestId('child-1')).toBeInTheDocument()
     expect(screen.getByTestId('child-2')).toBeInTheDocument()
     expect(screen.getByTestId('child-3')).toBeInTheDocument()
@@ -154,7 +150,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const scriptElement = container.querySelector('script')
     expect(scriptElement?.innerHTML).toContain('locked stream')
     expect(scriptElement?.innerHTML).toContain('cancel')
@@ -168,7 +164,7 @@ describe('RootLayout', () => {
         <div>Test Content</div>
       </RootLayout>
     )
-    
+
     const scriptElement = container.querySelector('script')
     expect(scriptElement?.innerHTML).toContain("addEventListener('unhandledrejection'")
     expect(scriptElement?.innerHTML).toContain("addEventListener('error'")
@@ -180,12 +176,12 @@ describe('RootLayout', () => {
         <div data-testid="content">Content</div>
       </RootLayout>
     )
-    
+
     const body = container.querySelector('body')
     const themeProvider = screen.getByTestId('theme-provider')
     const errorBoundary = screen.getByTestId('error-boundary')
     const containerElement = screen.getByTestId('container')
-    
+
     expect(body).toContainElement(themeProvider)
     expect(themeProvider).toContainElement(errorBoundary)
     expect(errorBoundary).toContainElement(containerElement)
@@ -193,7 +189,7 @@ describe('RootLayout', () => {
 
   it('should handle empty children', () => {
     render(<RootLayout>{null}</RootLayout>)
-    
+
     const container = screen.getByTestId('container')
     expect(container).toBeInTheDocument()
     expect(container).toBeEmptyDOMElement()
@@ -201,7 +197,7 @@ describe('RootLayout', () => {
 
   it('should handle undefined children', () => {
     render(<RootLayout>{undefined}</RootLayout>)
-    
+
     const container = screen.getByTestId('container')
     expect(container).toBeInTheDocument()
   })
@@ -217,7 +213,7 @@ describe('RootLayout', () => {
         <footer>Footer</footer>
       </RootLayout>
     )
-    
+
     expect(screen.getByText('Header')).toBeInTheDocument()
     expect(screen.getByText('Section 1')).toBeInTheDocument()
     expect(screen.getByText('Section 2')).toBeInTheDocument()
@@ -228,7 +224,9 @@ describe('RootLayout', () => {
 describe('metadata', () => {
   it('should have correct metadata values', () => {
     expect(metadata.title).toBe('VibeX | An open-source OpenAI Codex clone')
-    expect(metadata.description).toBe('Codex UI is a modern, open-source, and fully customizable UI for OpenAI Codex.')
+    expect(metadata.description).toBe(
+      'Codex UI is a modern, open-source, and fully customizable UI for OpenAI Codex.'
+    )
   })
 
   it('should be a valid Metadata object', () => {

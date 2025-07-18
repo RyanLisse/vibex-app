@@ -22,7 +22,7 @@ export function AnthropicAuthProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (auth.authenticated && auth.expires) {
       const timeUntilExpiry = auth.expires - Date.now()
-      const refreshTime = Math.max(0, timeUntilExpiry - 60000) // Refresh 1 minute before expiry
+      const refreshTime = Math.max(0, timeUntilExpiry - 60_000) // Refresh 1 minute before expiry
 
       const timeout = setTimeout(() => {
         auth.refresh()

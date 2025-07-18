@@ -1,19 +1,19 @@
 // Public API exports for the example feature
 export { ExampleItem } from './components/ExampleItem'
 export {
+  exampleFilterSchema,
   exampleFormSchema,
   exampleItemSchema,
-  exampleFilterSchema,
 } from './schemas'
 export type {
-  ExampleItem as ExampleItemType,
-  ExampleFormData,
   ExampleFilter,
+  ExampleFormData,
+  ExampleItem as ExampleItemType,
   ExampleStore,
 } from './types'
 export {
   filterItems,
-  sortItems,
   getPriorityColor,
   getStatusIcon,
+  sortItems,
 } from './utils/example-utils'

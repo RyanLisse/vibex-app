@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import type { StreamingMessage, IncomingMessage } from './message-types'
+import { describe, expect, it } from 'vitest'
+import type { IncomingMessage, StreamingMessage } from './message-types'
 
 describe('Message Types', () => {
   describe('StreamingMessage', () => {
@@ -220,21 +220,21 @@ describe('Message Types', () => {
         {
           role: 'assistant',
           type: 'action',
-          data: { 
+          data: {
             call_id: 'call-1',
             action: { command: ['ls', '-la'] },
-            output: 'file listing...'
+            output: 'file listing...',
           },
         },
         {
           role: 'assistant',
           type: 'stream',
-          data: { 
+          data: {
             text: 'streaming...',
             isStreaming: true,
             streamId: 'stream-1',
             chunkIndex: 0,
-            totalChunks: 1
+            totalChunks: 1,
           },
         },
       ]

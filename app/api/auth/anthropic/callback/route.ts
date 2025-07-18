@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { AuthAnthropic } from '@/lib/auth/anthropic'
+import { type NextRequest, NextResponse } from 'next/server'
 import { Auth } from '@/lib/auth'
+import { AuthAnthropic } from '@/lib/auth/anthropic'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code')
     const verifier = request.cookies.get('oauth_verifier')?.value
 
-    if (!code || !verifier) {
+    if (!(code && verifier)) {
       return NextResponse.json({ error: 'Missing code or verifier' }, { status: 400 })
     }
 

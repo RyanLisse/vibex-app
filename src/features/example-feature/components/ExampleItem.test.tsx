@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@/test/test-utils'
-import { ExampleItem } from './ExampleItem'
 import type { ExampleItem as ExampleItemType } from '../types'
+import { ExampleItem } from './ExampleItem'
 
 const mockItem: ExampleItemType = {
   id: '1',

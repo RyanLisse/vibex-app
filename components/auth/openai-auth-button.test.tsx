@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { OpenAIAuthButton } from './openai-auth-button'
 
 // Mock the openai auth hook
@@ -12,16 +12,16 @@ vi.mock('@/hooks/use-openai-auth', () => ({
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
-    <svg data-testid="login-icon" className={className} {...props} />
+    <svg className={className} data-testid="login-icon" {...props} />
   ),
   LogOut: ({ className, ...props }: any) => (
-    <svg data-testid="logout-icon" className={className} {...props} />
+    <svg className={className} data-testid="logout-icon" {...props} />
   ),
   User: ({ className, ...props }: any) => (
-    <svg data-testid="user-icon" className={className} {...props} />
+    <svg className={className} data-testid="user-icon" {...props} />
   ),
   Loader2: ({ className, ...props }: any) => (
-    <svg data-testid="loader-icon" className={className} {...props} />
+    <svg className={className} data-testid="loader-icon" {...props} />
   ),
 }))
 
@@ -29,11 +29,11 @@ vi.mock('lucide-react', () => ({
 vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, disabled, ...props }: any) => (
     <button
-      data-testid="button"
-      onClick={onClick}
-      disabled={disabled}
-      data-variant={variant}
       data-size={size}
+      data-testid="button"
+      data-variant={variant}
+      disabled={disabled}
+      onClick={onClick}
       {...props}
     >
       {children}
@@ -179,7 +179,7 @@ describe('OpenAIAuthButton', () => {
       user: null,
     })
 
-    render(<OpenAIAuthButton variant="outline" size="lg" />)
+    render(<OpenAIAuthButton size="lg" variant="outline" />)
 
     const button = screen.getByTestId('button')
     expect(button).toHaveAttribute('data-variant', 'outline')
@@ -195,7 +195,7 @@ describe('OpenAIAuthButton', () => {
       user: null,
     })
 
-    render(<OpenAIAuthButton variant="ghost" size="sm" />)
+    render(<OpenAIAuthButton size="sm" variant="ghost" />)
 
     const button = screen.getByTestId('button')
     expect(button).toHaveAttribute('data-variant', 'ghost')

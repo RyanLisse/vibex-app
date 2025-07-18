@@ -1,4 +1,3 @@
-import { defineConfig } from '@browserbasehq/stagehand'
 import { z } from 'zod'
 
 // Define schemas for comprehensive data extraction
@@ -119,8 +118,8 @@ export const TestMetricsSchema = z.object({
   aiConfidence: z.number().min(0).max(1).optional(),
 })
 
-// Configuration for different environments
-const getConfig = () => {
+// Stagehand configuration for different environments
+export const getStagehandConfig = () => {
   const isProd = process.env.NODE_ENV === 'production'
   const isCI = process.env.CI === 'true'
 
@@ -131,11 +130,14 @@ const getConfig = () => {
     projectId: process.env.BROWSERBASE_PROJECT_ID,
 
     // AI Model Configuration
-    modelName: process.env.STAGEHAND_MODEL || 'gpt-4o',
-    modelClientOptions: {
-      apiKey: process.env.OPENAI_API_KEY,
-      maxRetries: 3,
-      timeout: 30000,
+    llmClient: {
+      provider: 'openai',
+      model: process.env.STAGEHAND_MODEL || 'gpt-4o',
+      clientOptions: {
+        apiKey: process.env.OPENAI_API_KEY,
+        maxRetries: 3,
+        timeout: 30_000,
+      },
     },
 
     // Browser Configuration
@@ -144,8 +146,8 @@ const getConfig = () => {
     debugDom: process.env.DEBUG_DOM === 'true',
 
     // Performance Settings
-    defaultTimeout: 30000,
-    domSettleTimeoutMs: 30000,
+    defaultTimeout: 30_000,
+    domSettleTimeoutMs: 30_000,
     enableCaching: true,
 
     // Advanced AI Features
@@ -188,11 +190,14 @@ const getConfig = () => {
   }
 }
 
-export default defineConfig(getConfig())
+const config = getStagehandConfig()
+export default config
 
 // Export utility functions for test configuration
-export const createTestConfig = (overrides: Partial<ReturnType<typeof getConfig>> = {}) => {
-  return { ...getConfig(), ...overrides }
+export const createTestConfig = (
+  overrides: Partial<ReturnType<typeof getStagehandConfig>> = {}
+) => {
+  return { ...getStagehandConfig(), ...overrides }
 }
 
 export const getTestSchemas = () => ({

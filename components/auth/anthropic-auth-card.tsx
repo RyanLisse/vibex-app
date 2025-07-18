@@ -1,24 +1,24 @@
 'use client'
 
+import { LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
-import { LogIn } from 'lucide-react'
 import { AuthCardBase } from './auth-card-base'
 
 export function AnthropicAuthCard() {
   const { authenticated, loading, login, logout, expires, type, error } = useAnthropicAuth()
 
-  const isExpiringSoon = !!(expires && expires < Date.now() + 300000) // 5 minutes
+  const isExpiringSoon = !!(expires && expires < Date.now() + 300_000) // 5 minutes
   const authType = type === 'oauth' ? 'OAuth' : 'API Key'
 
   const unauthenticatedContent = (
     <>
       <div className="space-y-2">
-        <Button onClick={() => login('max')} className="w-full">
+        <Button className="w-full" onClick={() => login('max')}>
           <LogIn className="size-4" />
           Login with Claude Max
         </Button>
-        <p className="text-xs text-muted-foreground text-center">
+        <p className="text-center text-muted-foreground text-xs">
           For Claude Pro/Max subscribers - enables free API access
         </p>
       </div>
@@ -33,11 +33,11 @@ export function AnthropicAuthCard() {
       </div>
 
       <div className="space-y-2">
-        <Button variant="outline" onClick={() => login('console')} className="w-full">
+        <Button className="w-full" onClick={() => login('console')} variant="outline">
           <LogIn className="size-4" />
           Login with Console
         </Button>
-        <p className="text-xs text-muted-foreground text-center">
+        <p className="text-center text-muted-foreground text-xs">
           For developers using Anthropic Console
         </p>
       </div>
@@ -46,19 +46,19 @@ export function AnthropicAuthCard() {
 
   return (
     <AuthCardBase
-      title="Anthropic Authentication"
+      authenticated={authenticated}
+      authType={authType}
       description={
         authenticated
           ? 'You are successfully authenticated with Anthropic'
           : 'Choose your authentication method to get started'
       }
-      loading={loading}
       error={error}
-      authenticated={authenticated}
       expires={expires}
-      authType={authType}
       isExpiringSoon={isExpiringSoon}
+      loading={loading}
       onLogout={logout}
+      title="Anthropic Authentication"
       unauthenticatedContent={unauthenticatedContent}
     />
   )

@@ -1,5 +1,5 @@
 // GitHub API utility functions
-import { GitHubRepository, GitHubBranch } from '@/lib/github'
+import type { GitHubBranch, GitHubRepository } from '@/lib/github'
 
 export async function checkAuthStatus(signal?: AbortSignal) {
   const response = await fetch('/api/auth/github/repositories', { signal })
@@ -54,7 +54,7 @@ export function clearAuthCookies() {
 export function parseRepositoryName(repositoryName: string): { owner: string; repo: string } {
   const [owner, repo] = repositoryName.split('/')
 
-  if (!owner || !repo) {
+  if (!(owner && repo)) {
     throw new Error('Repository name must be in format "owner/repo"')
   }
 

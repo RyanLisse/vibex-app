@@ -43,7 +43,7 @@ class StagehandSetup {
 
     // Check if Node.js version is compatible
     const nodeVersion = process.version
-    const majorVersion = parseInt(nodeVersion.split('.')[0].substring(1))
+    const majorVersion = Number.parseInt(nodeVersion.split('.')[0].substring(1))
 
     if (majorVersion < 18) {
       throw new Error(`Node.js 18+ required. Current version: ${nodeVersion}`)

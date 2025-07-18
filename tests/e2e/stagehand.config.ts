@@ -33,7 +33,7 @@ export default defineConfig({
   projectId: process.env.BROWSERBASE_PROJECT_ID,
   verbose: 1,
   headless: process.env.CI === 'true',
-  defaultTimeout: 30000,
+  defaultTimeout: 30_000,
   enableCaching: true,
   modelName: 'gpt-4o',
   domSettleTimeoutMs: 30_000,

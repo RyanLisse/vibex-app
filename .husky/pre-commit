@@ -36,3 +36,5 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "✅ All pre-commit checks passed!"
+
+npx ultracite format

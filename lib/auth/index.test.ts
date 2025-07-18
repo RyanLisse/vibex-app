@@ -1,153 +1,142 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { Auth } from './index'
+import fs from 'fs/promises'
+import path from 'path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { Auth, type AuthInfo } from './index'
 
 // Mock fs/promises
-const mockFs = {
-  mkdir: vi.fn(),
-  readFile: vi.fn(),
-  writeFile: vi.fn(),
-  chmod: vi.fn(),
-}
-
-vi.mock('fs/promises', () => mockFs)
-
-// Mock path
-vi.mock('path', () => ({
+vi.mock('fs/promises', () => ({
   default: {
-    join: vi.fn((...args) => args.join('/')),
+    mkdir: vi.fn(),
+    readFile: vi.fn(),
+    writeFile: vi.fn(),
+    chmod: vi.fn(),
   },
 }))
 
-// Mock process.cwd
-vi.mock('process', () => ({
-  cwd: vi.fn(() => '/test/project'),
-}))
-
 describe('Auth', () => {
+  const mockDataDir = path.join(process.cwd(), '.auth')
+  const mockFilepath = path.join(mockDataDir, 'auth.json')
+
+  const oauthAuth: AuthInfo = {
+    type: 'oauth',
+    refresh: 'test-refresh-token',
+    access: 'test-access-token',
+    expires: Date.now() + 3_600_000, // 1 hour from now
+  }
+
+  const apiAuth: AuthInfo = {
+    type: 'api',
+    key: 'test-api-key',
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
+    // Set default mock behaviors
+    vi.mocked(fs.mkdir).mockResolvedValue(undefined)
+    vi.mocked(fs.chmod).mockResolvedValue(undefined)
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('get', () => {
-    it('should return OAuth auth info when valid', async () => {
-      const mockAuthData = {
-        'test-provider': {
-          type: 'oauth',
-          refresh: 'refresh_token',
-          access: 'access_token',
-          expires: 1234567890,
-        },
+    it('should return OAuth auth info when provider exists', async () => {
+      const mockData = {
+        provider1: oauthAuth,
+        provider2: apiAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
-      const result = await Auth.get('test-provider')
+      const result = await Auth.get('provider1')
 
-      expect(result).toEqual({
-        type: 'oauth',
-        refresh: 'refresh_token',
-        access: 'access_token',
-        expires: 1234567890,
-      })
-      expect(mockFs.mkdir).toHaveBeenCalledWith('/test/project/.auth', { recursive: true })
-      expect(mockFs.readFile).toHaveBeenCalledWith('/test/project/.auth/auth.json', 'utf-8')
+      expect(result).toEqual(oauthAuth)
+      expect(fs.mkdir).toHaveBeenCalledWith(mockDataDir, { recursive: true })
+      expect(fs.readFile).toHaveBeenCalledWith(mockFilepath, 'utf-8')
     })
 
-    it('should return API auth info when valid', async () => {
-      const mockAuthData = {
-        'api-provider': {
-          type: 'api',
-          key: 'api_key_123',
-        },
+    it('should return API auth info when provider exists', async () => {
+      const mockData = {
+        provider1: oauthAuth,
+        provider2: apiAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
-      const result = await Auth.get('api-provider')
+      const result = await Auth.get('provider2')
 
-      expect(result).toEqual({
-        type: 'api',
-        key: 'api_key_123',
-      })
+      expect(result).toEqual(apiAuth)
     })
 
-    it('should return undefined when provider not found', async () => {
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify({}))
+    it('should return undefined when provider does not exist', async () => {
+      const mockData = {
+        provider1: oauthAuth,
+      }
 
-      const result = await Auth.get('nonexistent-provider')
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
+
+      const result = await Auth.get('nonexistent')
 
       expect(result).toBeUndefined()
     })
 
     it('should return undefined when auth data is invalid', async () => {
-      const mockAuthData = {
-        'invalid-provider': {
-          type: 'invalid',
-          someField: 'value',
-        },
+      const mockData = {
+        provider1: { type: 'invalid', data: 'test' },
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
-      const result = await Auth.get('invalid-provider')
+      const result = await Auth.get('provider1')
 
       expect(result).toBeUndefined()
     })
 
     it('should return undefined when file does not exist', async () => {
-      mockFs.readFile.mockRejectedValueOnce(new Error('File not found'))
+      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
 
-      const result = await Auth.get('test-provider')
+      const result = await Auth.get('provider1')
 
       expect(result).toBeUndefined()
     })
 
     it('should return undefined when file contains invalid JSON', async () => {
-      mockFs.readFile.mockResolvedValueOnce('invalid json')
+      vi.mocked(fs.readFile).mockResolvedValueOnce('invalid json')
 
-      const result = await Auth.get('test-provider')
+      const result = await Auth.get('provider1')
 
       expect(result).toBeUndefined()
     })
 
-    it('should handle mkdir error gracefully', async () => {
-      mockFs.mkdir.mockRejectedValueOnce(new Error('Permission denied'))
-      mockFs.readFile.mockResolvedValueOnce('{}')
+    it('should handle mkdir failure gracefully', async () => {
+      vi.mocked(fs.mkdir).mockRejectedValueOnce(new Error('Permission denied'))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }))
 
-      const result = await Auth.get('test-provider')
+      const result = await Auth.get('provider1')
 
-      expect(result).toBeUndefined()
+      expect(result).toEqual(oauthAuth)
     })
   })
 
   describe('all', () => {
-    it('should return all auth data', async () => {
-      const mockAuthData = {
-        'provider1': {
-          type: 'oauth',
-          refresh: 'refresh1',
-          access: 'access1',
-          expires: 123,
-        },
-        'provider2': {
-          type: 'api',
-          key: 'key2',
-        },
+    it('should return all auth info', async () => {
+      const mockData = {
+        provider1: oauthAuth,
+        provider2: apiAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
       const result = await Auth.all()
 
-      expect(result).toEqual(mockAuthData)
+      expect(result).toEqual(mockData)
+      expect(fs.mkdir).toHaveBeenCalledWith(mockDataDir, { recursive: true })
+      expect(fs.readFile).toHaveBeenCalledWith(mockFilepath, 'utf-8')
     })
 
     it('should return empty object when file does not exist', async () => {
-      mockFs.readFile.mockRejectedValueOnce(new Error('File not found'))
+      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
 
       const result = await Auth.all()
 
@@ -155,7 +144,7 @@ describe('Auth', () => {
     })
 
     it('should return empty object when file contains invalid JSON', async () => {
-      mockFs.readFile.mockResolvedValueOnce('invalid json')
+      vi.mocked(fs.readFile).mockResolvedValueOnce('invalid json')
 
       const result = await Auth.all()
 
@@ -164,257 +153,310 @@ describe('Auth', () => {
   })
 
   describe('set', () => {
-    it('should set OAuth auth info', async () => {
+    it('should save OAuth auth info', async () => {
       const existingData = {
-        'existing-provider': {
-          type: 'api',
-          key: 'existing_key',
-        },
+        provider1: apiAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
-      const newAuthInfo = {
-        type: 'oauth' as const,
-        refresh: 'new_refresh',
-        access: 'new_access',
-        expires: 1234567890,
-      }
+      await Auth.set('provider2', oauthAuth)
 
-      await Auth.set('new-provider', newAuthInfo)
-
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        '/test/project/.auth/auth.json',
-        JSON.stringify({
-          'existing-provider': {
-            type: 'api',
-            key: 'existing_key',
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        mockFilepath,
+        JSON.stringify(
+          {
+            provider1: apiAuth,
+            provider2: oauthAuth,
           },
-          'new-provider': newAuthInfo,
-        }, null, 2)
+          null,
+          2
+        )
       )
-      expect(mockFs.chmod).toHaveBeenCalledWith('/test/project/.auth/auth.json', 0o600)
+      expect(fs.chmod).toHaveBeenCalledWith(mockFilepath, 0o600)
     })
 
-    it('should set API auth info', async () => {
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify({}))
+    it('should save API auth info', async () => {
+      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT')) // No existing file
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
-      const newAuthInfo = {
-        type: 'api' as const,
-        key: 'new_api_key',
-      }
+      await Auth.set('provider1', apiAuth)
 
-      await Auth.set('api-provider', newAuthInfo)
-
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        '/test/project/.auth/auth.json',
-        JSON.stringify({
-          'api-provider': newAuthInfo,
-        }, null, 2)
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        mockFilepath,
+        JSON.stringify(
+          {
+            provider1: apiAuth,
+          },
+          null,
+          2
+        )
       )
-      expect(mockFs.chmod).toHaveBeenCalledWith('/test/project/.auth/auth.json', 0o600)
+      expect(fs.chmod).toHaveBeenCalledWith(mockFilepath, 0o600)
     })
 
-    it('should overwrite existing provider', async () => {
+    it('should overwrite existing auth info for same provider', async () => {
       const existingData = {
-        'provider': {
-          type: 'api',
-          key: 'old_key',
-        },
+        provider1: oauthAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
-      const newAuthInfo = {
-        type: 'oauth' as const,
-        refresh: 'new_refresh',
-        access: 'new_access',
-        expires: 1234567890,
+      const newAuth: AuthInfo = {
+        type: 'api',
+        key: 'new-api-key',
       }
 
-      await Auth.set('provider', newAuthInfo)
+      await Auth.set('provider1', newAuth)
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        '/test/project/.auth/auth.json',
-        JSON.stringify({
-          'provider': newAuthInfo,
-        }, null, 2)
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        mockFilepath,
+        JSON.stringify(
+          {
+            provider1: newAuth,
+          },
+          null,
+          2
+        )
       )
     })
 
-    it('should handle write error', async () => {
-      mockFs.readFile.mockResolvedValueOnce('{}')
-      mockFs.writeFile.mockRejectedValueOnce(new Error('Write error'))
+    it('should handle write errors', async () => {
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
+      vi.mocked(fs.writeFile).mockRejectedValueOnce(new Error('Permission denied'))
 
-      const newAuthInfo = {
-        type: 'api' as const,
-        key: 'test_key',
-      }
+      await expect(Auth.set('provider1', apiAuth)).rejects.toThrow('Permission denied')
+    })
 
-      await expect(Auth.set('provider', newAuthInfo)).rejects.toThrow('Write error')
+    it('should handle chmod errors', async () => {
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      vi.mocked(fs.chmod).mockRejectedValueOnce(new Error('Permission denied'))
+
+      await expect(Auth.set('provider1', apiAuth)).rejects.toThrow('Permission denied')
     })
   })
 
   describe('remove', () => {
-    it('should remove existing provider', async () => {
+    it('should remove auth info for provider', async () => {
       const existingData = {
-        'provider1': {
-          type: 'oauth',
-          refresh: 'refresh1',
-          access: 'access1',
-          expires: 123,
-        },
-        'provider2': {
-          type: 'api',
-          key: 'key2',
-        },
+        provider1: oauthAuth,
+        provider2: apiAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.remove('provider1')
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        '/test/project/.auth/auth.json',
-        JSON.stringify({
-          'provider2': {
-            type: 'api',
-            key: 'key2',
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        mockFilepath,
+        JSON.stringify(
+          {
+            provider2: apiAuth,
           },
-        }, null, 2)
+          null,
+          2
+        )
       )
-      expect(mockFs.chmod).toHaveBeenCalledWith('/test/project/.auth/auth.json', 0o600)
+      expect(fs.chmod).toHaveBeenCalledWith(mockFilepath, 0o600)
     })
 
     it('should handle removing non-existent provider', async () => {
       const existingData = {
-        'provider1': {
-          type: 'api',
-          key: 'key1',
-        },
+        provider1: oauthAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.remove('nonexistent')
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        '/test/project/.auth/auth.json',
-        JSON.stringify(existingData, null, 2)
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        mockFilepath,
+        JSON.stringify(
+          {
+            provider1: oauthAuth,
+          },
+          null,
+          2
+        )
       )
     })
 
     it('should handle removing from empty file', async () => {
-      mockFs.readFile.mockResolvedValueOnce('{}')
+      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
-      await Auth.remove('provider')
+      await Auth.remove('provider1')
 
-      expect(mockFs.writeFile).toHaveBeenCalledWith(
-        '/test/project/.auth/auth.json',
-        JSON.stringify({}, null, 2)
+      expect(fs.writeFile).toHaveBeenCalledWith(mockFilepath, JSON.stringify({}, null, 2))
+    })
+
+    it('should handle write errors during removal', async () => {
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }))
+      vi.mocked(fs.writeFile).mockRejectedValueOnce(new Error('Disk full'))
+
+      await expect(Auth.remove('provider1')).rejects.toThrow('Disk full')
+    })
+  })
+
+  describe('data validation', () => {
+    it('should validate OAuth auth structure', async () => {
+      const invalidOauth = {
+        provider1: {
+          type: 'oauth',
+          refresh: 'token',
+          // missing access and expires
+        },
+      }
+
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidOauth))
+
+      const result = await Auth.get('provider1')
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should validate API auth structure', async () => {
+      const invalidApi = {
+        provider1: {
+          type: 'api',
+          // missing key
+        },
+      }
+
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidApi))
+
+      const result = await Auth.get('provider1')
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should handle mixed valid and invalid auth entries', async () => {
+      const mixedData = {
+        valid: oauthAuth,
+        invalid: { type: 'unknown' },
+        valid2: apiAuth,
+      }
+
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mixedData))
+
+      const allData = await Auth.all()
+
+      // All data is returned, validation happens on get()
+      expect(allData).toEqual(mixedData)
+
+      // Reset mocks for individual get calls
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mixedData))
+
+      const validResult = await Auth.get('valid')
+      expect(validResult).toEqual(oauthAuth)
+
+      const invalidResult = await Auth.get('invalid')
+      expect(invalidResult).toBeUndefined()
+    })
+  })
+
+  describe('concurrent operations', () => {
+    it('should handle concurrent reads', async () => {
+      const mockData = {
+        provider1: oauthAuth,
+        provider2: apiAuth,
+      }
+
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mockData))
+
+      const results = await Promise.all([Auth.get('provider1'), Auth.get('provider2'), Auth.all()])
+
+      expect(results[0]).toEqual(oauthAuth)
+      expect(results[1]).toEqual(apiAuth)
+      expect(results[2]).toEqual(mockData)
+    })
+
+    it('should handle concurrent writes', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify({}))
+      vi.mocked(fs.writeFile).mockResolvedValue(undefined)
+
+      const newAuth1: AuthInfo = { type: 'api', key: 'key1' }
+      const newAuth2: AuthInfo = { type: 'api', key: 'key2' }
+
+      // Note: In real scenarios, this could cause race conditions
+      // The test demonstrates the API usage, but the implementation
+      // might need locking for production use
+      await Promise.all([Auth.set('provider1', newAuth1), Auth.set('provider2', newAuth2)])
+
+      expect(fs.writeFile).toHaveBeenCalled()
+    })
+  })
+
+  describe('file permissions', () => {
+    it('should set correct permissions on new file', async () => {
+      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+
+      await Auth.set('provider1', apiAuth)
+
+      expect(fs.chmod).toHaveBeenCalledWith(mockFilepath, 0o600)
+    })
+
+    it('should maintain permissions on update', async () => {
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ existing: oauthAuth }))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+
+      await Auth.set('new', apiAuth)
+
+      expect(fs.chmod).toHaveBeenCalledWith(mockFilepath, 0o600)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should handle very long auth tokens', async () => {
+      const longTokenAuth: AuthInfo = {
+        type: 'oauth',
+        refresh: 'x'.repeat(1000),
+        access: 'y'.repeat(1000),
+        expires: Date.now() + 3_600_000,
+      }
+
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
+      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+
+      await Auth.set('provider1', longTokenAuth)
+
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        mockFilepath,
+        expect.stringContaining('x'.repeat(1000))
       )
     })
 
-    it('should handle write error during removal', async () => {
-      mockFs.readFile.mockResolvedValueOnce('{}')
-      mockFs.writeFile.mockRejectedValueOnce(new Error('Write error'))
-
-      await expect(Auth.remove('provider')).rejects.toThrow('Write error')
-    })
-  })
-
-  describe('ensureDataDir', () => {
-    it('should create directory if it does not exist', async () => {
-      mockFs.readFile.mockResolvedValueOnce('{}')
-
-      await Auth.get('test')
-
-      expect(mockFs.mkdir).toHaveBeenCalledWith('/test/project/.auth', { recursive: true })
-    })
-
-    it('should handle mkdir errors gracefully', async () => {
-      mockFs.mkdir.mockRejectedValueOnce(new Error('Directory exists'))
-      mockFs.readFile.mockResolvedValueOnce('{}')
-
-      // Should not throw error
-      await Auth.get('test')
-
-      expect(mockFs.mkdir).toHaveBeenCalled()
-    })
-  })
-
-  describe('OAuth schema validation', () => {
-    it('should validate OAuth schema with all required fields', async () => {
-      const mockAuthData = {
-        'oauth-provider': {
-          type: 'oauth',
-          refresh: 'refresh_token',
-          access: 'access_token',
-          expires: 1234567890,
-        },
+    it('should handle special characters in provider names', async () => {
+      const specialProviders = {
+        'provider/with/slashes': oauthAuth,
+        'provider:with:colons': apiAuth,
+        'provider@with@at': oauthAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(specialProviders))
 
-      const result = await Auth.get('oauth-provider')
+      const result = await Auth.get('provider/with/slashes')
 
-      expect(result).toEqual({
-        type: 'oauth',
-        refresh: 'refresh_token',
-        access: 'access_token',
-        expires: 1234567890,
-      })
+      expect(result).toEqual(oauthAuth)
     })
 
-    it('should reject OAuth schema with missing fields', async () => {
-      const mockAuthData = {
-        'oauth-provider': {
-          type: 'oauth',
-          access: 'access_token',
-          // Missing refresh and expires
-        },
+    it('should handle empty provider name', async () => {
+      const data = {
+        '': oauthAuth,
+        normal: apiAuth,
       }
 
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
+      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(data))
 
-      const result = await Auth.get('oauth-provider')
+      const result = await Auth.get('')
 
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('API schema validation', () => {
-    it('should validate API schema with all required fields', async () => {
-      const mockAuthData = {
-        'api-provider': {
-          type: 'api',
-          key: 'api_key_123',
-        },
-      }
-
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
-
-      const result = await Auth.get('api-provider')
-
-      expect(result).toEqual({
-        type: 'api',
-        key: 'api_key_123',
-      })
-    })
-
-    it('should reject API schema with missing key', async () => {
-      const mockAuthData = {
-        'api-provider': {
-          type: 'api',
-          // Missing key
-        },
-      }
-
-      mockFs.readFile.mockResolvedValueOnce(JSON.stringify(mockAuthData))
-
-      const result = await Auth.get('api-provider')
-
-      expect(result).toBeUndefined()
+      expect(result).toEqual(oauthAuth)
     })
   })
 })

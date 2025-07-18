@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useEnvironmentStore } from '@/stores/environments'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
+import { useEnvironmentStore } from '@/stores/environments'
 
 interface CreateEnvironmentDialogProps {
   isOpen: boolean
@@ -46,7 +46,7 @@ export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.name.trim() || !formData.selectedRepository) {
+    if (!(formData.name.trim() && formData.selectedRepository)) {
       return
     }
 
@@ -86,41 +86,41 @@ export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironm
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(open) => {
         onOpenChange(open)
         if (!open) {
           resetForm()
         }
       }}
+      open={isOpen}
     >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a new environment</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-y-4">
+        <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-y-2">
-            <label htmlFor="name" className="text-sm font-medium">
+            <label className="font-medium text-sm" htmlFor="name">
               Environment name *
             </label>
             <input
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
               id="name"
-              type="text"
-              value={formData.name}
               onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               placeholder="Enter environment name"
-              className="w-full h-9 px-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-[3px] focus:ring-ring/50 focus:border-ring disabled:cursor-not-allowed disabled:opacity-50"
               required
+              type="text"
+              value={formData.name}
             />
           </div>
 
           <div className="flex flex-col gap-y-2">
-            <label htmlFor="description" className="text-sm font-medium">
+            <label className="font-medium text-sm" htmlFor="description">
               Description
             </label>
             <textarea
+              className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
               id="description"
-              value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -129,22 +129,22 @@ export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironm
               }
               placeholder="Enter environment description"
               rows={3}
-              className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-[3px] focus:ring-ring/50 focus:border-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              value={formData.description}
             />
           </div>
 
           <div className="flex flex-col gap-y-2">
-            <label htmlFor="repository" className="text-sm font-medium">
+            <label className="font-medium text-sm" htmlFor="repository">
               Select your Github repository *
             </label>
             <Select
-              value={formData.selectedRepository}
               onValueChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
                   selectedRepository: value,
                 }))
               }
+              value={formData.selectedRepository}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Choose a repository" />
@@ -163,14 +163,14 @@ export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironm
 
           <div className="flex justify-end gap-2 pt-4">
             <Button
+              disabled={isCreating}
+              onClick={() => onOpenChange(false)}
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isCreating}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!isFormValid || isCreating}>
+            <Button disabled={!isFormValid || isCreating} type="submit">
               {isCreating ? 'Creating...' : 'Create Environment'}
             </Button>
           </div>

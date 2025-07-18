@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { GitHubUser } from '@/lib/github'
-import { checkAuthStatus, parseCookieValue, clearAuthCookies, getAuthUrl } from '@/lib/github-api'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { GitHubUser } from '@/lib/github'
+import { checkAuthStatus, clearAuthCookies, getAuthUrl, parseCookieValue } from '@/lib/github-api'
 
 interface UseGitHubUserReturn {
   isAuthenticated: boolean

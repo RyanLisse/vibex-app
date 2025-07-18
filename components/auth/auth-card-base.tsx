@@ -1,11 +1,11 @@
 'use client'
 
-import { ReactNode } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Shield, AlertCircle, User, Clock, LogOut } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { AlertCircle, Clock, LogOut, Shield, User } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface AuthCardBaseProps {
   title: string
@@ -52,7 +52,7 @@ export function AuthCardBase({
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
           </div>
         </CardContent>
       </Card>
@@ -71,9 +71,9 @@ export function AuthCardBase({
         </CardHeader>
         <CardContent>
           <Button
-            variant="outline"
-            onClick={onRetry || (() => window.location.reload())}
             className="w-full"
+            onClick={onRetry || (() => window.location.reload())}
+            variant="outline"
           >
             Retry
           </Button>
@@ -95,7 +95,7 @@ export function AuthCardBase({
         <CardContent className="space-y-4">
           {authType && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Auth Type:</span>
+              <span className="text-muted-foreground text-sm">Auth Type:</span>
               <Badge variant="secondary">{authType}</Badge>
             </div>
           )}
@@ -104,7 +104,7 @@ export function AuthCardBase({
 
           {expires && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Expires:</span>
+              <span className="text-muted-foreground text-sm">Expires:</span>
               <div className="flex items-center gap-1">
                 <Clock className="size-3" />
                 <span
@@ -117,15 +117,15 @@ export function AuthCardBase({
           )}
 
           {isExpiringSoon && (
-            <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-md">
+            <div className="flex items-center gap-2 rounded-md bg-amber-50 p-2">
               <AlertCircle className="size-4 text-amber-600" />
-              <span className="text-sm text-amber-700">
+              <span className="text-amber-700 text-sm">
                 Token expires soon. Please re-authenticate.
               </span>
             </div>
           )}
 
-          <Button variant="outline" onClick={onLogout} className="w-full">
+          <Button className="w-full" onClick={onLogout} variant="outline">
             <LogOut className="size-4" />
             Logout
           </Button>

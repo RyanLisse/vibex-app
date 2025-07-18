@@ -1,11 +1,11 @@
-import { z } from 'zod'
-import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
-import open from 'open'
-import fs from 'fs/promises'
-import path from 'path'
 import crypto from 'crypto'
-import { Server } from 'http'
+import fs from 'fs/promises'
+import { Hono } from 'hono'
+import type { Server } from 'http'
+import open from 'open'
+import path from 'path'
+import { z } from 'zod'
 
 // Zod schemas for type validation
 const AuthTokenSchema = z.object({
@@ -45,6 +45,166 @@ type AuthToken = z.infer<typeof AuthTokenSchema>
 type ApiKeyResponse = z.infer<typeof ApiKeyResponseSchema>
 type AuthConfig = z.infer<typeof AuthConfigSchema>
 type UserProfile = z.infer<typeof UserProfileSchema>
+
+// Standalone utility functions for API routes
+export async function exchangeCodeForToken(params: {
+  tokenUrl: string
+  clientId: string
+  clientSecret: string
+  code: string
+  redirectUri: string
+  codeVerifier: string
+}): Promise<AuthToken> {
+  const response = await fetch(params.tokenUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: params.clientId,
+      client_secret: params.clientSecret,
+      code: params.code,
+      redirect_uri: params.redirectUri,
+      code_verifier: params.codeVerifier,
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Token exchange failed')
+  }
+
+  const data = await response.json()
+  return AuthTokenSchema.parse(data)
+}
+
+export function validateOAuthState(state: string): boolean {
+  // Simple validation - in production, this should validate against stored state
+  return state && state.length > 0
+}
+
+export function sanitizeRedirectUrl(url: string): string {
+  // Simple sanitization - in production, this should be more robust
+  if (url.startsWith('javascript:') || url.startsWith('data:')) {
+    throw new Error('Invalid redirect URL')
+  }
+  return url
+}
+
+export function handleAuthError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+  return 'Unknown error occurred'
+}
+
+export function generateCodeVerifier(): string {
+  const array = new Uint8Array(32)
+  crypto.getRandomValues(array)
+  return btoa(String.fromCharCode.apply(null, Array.from(array)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+}
+
+export async function generateCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(verifier)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+}
+
+export function generateState(): string {
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return btoa(String.fromCharCode.apply(null, Array.from(array)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+}
+
+export function generateAuthUrl(params: {
+  clientId: string
+  redirectUri: string
+  scope?: string
+  state?: string
+  codeChallenge?: string
+}): string {
+  const url = new URL('https://auth0.openai.com/authorize')
+  url.searchParams.set('client_id', params.clientId)
+  url.searchParams.set('redirect_uri', params.redirectUri)
+  url.searchParams.set('response_type', 'code')
+
+  if (params.scope) {
+    url.searchParams.set('scope', params.scope)
+  }
+
+  if (params.state) {
+    url.searchParams.set('state', params.state)
+  }
+
+  if (params.codeChallenge) {
+    url.searchParams.set('code_challenge', params.codeChallenge)
+    url.searchParams.set('code_challenge_method', 'S256')
+  }
+
+  return url.toString()
+}
+
+// Token storage functions
+export async function getStoredToken(request: any): Promise<AuthToken | null> {
+  // Mock implementation - in production this would read from secure storage
+  return null
+}
+
+export async function clearStoredToken(request: any): Promise<void> {
+  // Mock implementation - in production this would clear from secure storage
+}
+
+export async function revokeToken(accessToken: string): Promise<void> {
+  // Mock implementation - in production this would revoke the token
+}
+
+export async function clearStoredState(request: any): Promise<void> {
+  // Mock implementation - in production this would clear stored state
+}
+
+export async function clearStoredCodeVerifier(request: any): Promise<void> {
+  // Mock implementation - in production this would clear stored code verifier
+}
+
+// Additional functions for status route
+export async function validateToken(accessToken: string): Promise<{ active: boolean }> {
+  // Mock implementation - in production this would validate with OAuth provider
+  return { active: true }
+}
+
+export async function refreshAuthToken(refreshToken: string): Promise<AuthToken> {
+  // Mock implementation - in production this would refresh the token
+  return {
+    access_token: 'new-access-token',
+    token_type: 'Bearer',
+    expires_in: 3600,
+    refresh_token: 'new-refresh-token',
+  }
+}
+
+export function parseJWT(token: string): any {
+  // Mock implementation - in production this would parse the JWT
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format')
+    }
+    const payload = JSON.parse(atob(parts[1]))
+    return payload
+  } catch (error) {
+    throw new Error('Invalid JWT format')
+  }
+}
 
 /**
  * OpenAI Codex Authentication Implementation
@@ -218,7 +378,7 @@ export class CodexAuthenticator {
       redirect_uri: `http://${this.localServerHost}:${this.localServerPort}/auth/callback`,
       response_type: 'code',
       scope: this.oauthConfig.scope,
-      state: state,
+      state,
       audience: this.oauthConfig.audience,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
@@ -240,7 +400,7 @@ export class CodexAuthenticator {
       body: JSON.stringify({
         grant_type: 'authorization_code',
         client_id: this.oauthConfig.clientId,
-        code: code,
+        code,
         redirect_uri: `http://${this.localServerHost}:${this.localServerPort}/auth/callback`,
         code_verifier: codeVerifier,
       }),
@@ -364,7 +524,7 @@ export class CodexAuthenticator {
    */
   async isAuthenticated(): Promise<boolean> {
     const config = await this.loadAuthConfig()
-    if (!config || !config.api_key) {
+    if (!(config && config.api_key)) {
       return false
     }
 
@@ -389,7 +549,7 @@ export class CodexAuthenticator {
    */
   async refreshAccessToken(): Promise<AuthConfig> {
     const config = await this.loadAuthConfig()
-    if (!config || !config.refresh_token) {
+    if (!(config && config.refresh_token)) {
       throw new Error('No refresh token available')
     }
 
@@ -443,10 +603,10 @@ export class CodexAuthenticator {
 
 // Export all types and schemas
 export {
-  AuthConfig,
-  AuthToken,
-  ApiKeyResponse,
-  UserProfile,
+  type AuthConfig,
+  type AuthToken,
+  type ApiKeyResponse,
+  type UserProfile,
   AuthConfigSchema,
   AuthTokenSchema,
   ApiKeyResponseSchema,

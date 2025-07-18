@@ -26,7 +26,7 @@ export function ShellOutput({ command, output }: ShellOutputProps) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <p className="font-medium font-mono text-sm -mt-1 truncate max-w-md cursor-help">
+              <p className="-mt-1 max-w-md cursor-help truncate font-medium font-mono text-sm">
                 {commandText}
               </p>
             </TooltipTrigger>
@@ -37,14 +37,14 @@ export function ShellOutput({ command, output }: ShellOutputProps) {
         </TooltipProvider>
       </div>
       {output && (
-        <div className="mt-3 animate-in slide-in-from-bottom duration-300">
-          <div className="rounded-xl bg-card border-2 border-border shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
-            <div className="flex items-center gap-2 bg-muted/50 border-b px-4 py-3">
+        <div className="slide-in-from-bottom mt-3 animate-in duration-300">
+          <div className="overflow-hidden rounded-xl border-2 border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md">
+            <div className="flex items-center gap-2 border-b bg-muted/50 px-4 py-3">
               <Terminal className="size-4 text-muted-foreground" />
-              <span className="font-medium text-sm text-muted-foreground">Output</span>
+              <span className="font-medium text-muted-foreground text-sm">Output</span>
             </div>
             <ScrollArea className="max-h-[400px]">
-              <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed p-4 text-muted-foreground">
+              <pre className="whitespace-pre-wrap p-4 font-mono text-muted-foreground text-xs leading-relaxed">
                 {parseOutput()}
               </pre>
             </ScrollArea>

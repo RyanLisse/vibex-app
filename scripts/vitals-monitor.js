@@ -78,7 +78,7 @@ class VitalsMonitor {
           // Fallback timeout
           setTimeout(() => {
             resolve(vitalsData)
-          }, 10000)
+          }, 10_000)
         })
       })
 
@@ -135,7 +135,7 @@ class VitalsMonitor {
     const report = {
       timestamp: new Date().toISOString(),
       vitals: this.vitals,
-      evaluation: evaluation,
+      evaluation,
       score: this.calculateScore(evaluation),
       recommendations: this.generateRecommendations(evaluation),
     }

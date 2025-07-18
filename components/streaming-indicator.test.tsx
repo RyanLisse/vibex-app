@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
+import { describe, expect, it, vi } from 'vitest'
 import { StreamingIndicator } from './streaming-indicator'
 
 // Mock the cn utility
@@ -11,13 +11,13 @@ vi.mock('@/lib/utils', () => ({
 describe('StreamingIndicator', () => {
   it('should render dots variant by default', () => {
     render(<StreamingIndicator />)
-    
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-1')
-    
+
     const dots = container.querySelectorAll('div')
     expect(dots).toHaveLength(3)
-    
+
     dots.forEach((dot, index) => {
       expect(dot).toHaveClass('bg-primary/60', 'rounded-full', 'animate-pulse', 'w-1.5', 'h-1.5')
       expect(dot).toHaveStyle({
@@ -29,20 +29,20 @@ describe('StreamingIndicator', () => {
 
   it('should render cursor variant', () => {
     render(<StreamingIndicator variant="cursor" />)
-    
+
     const cursor = screen.getByRole('generic')
     expect(cursor).toHaveClass('inline-block', 'w-0.5', 'h-4', 'bg-primary', 'animate-pulse')
   })
 
   it('should render wave variant', () => {
     render(<StreamingIndicator variant="wave" />)
-    
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-1')
-    
+
     const dots = container.querySelectorAll('div')
     expect(dots).toHaveLength(3)
-    
+
     dots.forEach((dot, index) => {
       expect(dot).toHaveClass('bg-primary/70', 'rounded-full', 'animate-bounce', 'w-1.5', 'h-1.5')
       expect(dot).toHaveStyle({
@@ -54,10 +54,10 @@ describe('StreamingIndicator', () => {
 
   it('should apply small size classes', () => {
     render(<StreamingIndicator size="sm" />)
-    
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('gap-0.5')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-1', 'h-1')
@@ -66,10 +66,10 @@ describe('StreamingIndicator', () => {
 
   it('should apply medium size classes', () => {
     render(<StreamingIndicator size="md" />)
-    
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('gap-1')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-1.5', 'h-1.5')
@@ -78,10 +78,10 @@ describe('StreamingIndicator', () => {
 
   it('should apply large size classes', () => {
     render(<StreamingIndicator size="lg" />)
-    
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('gap-1.5')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-2', 'h-2')
@@ -90,24 +90,24 @@ describe('StreamingIndicator', () => {
 
   it('should apply custom className', () => {
     render(<StreamingIndicator className="custom-class" />)
-    
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('custom-class')
   })
 
   it('should apply custom className to cursor variant', () => {
-    render(<StreamingIndicator variant="cursor" className="custom-cursor" />)
-    
+    render(<StreamingIndicator className="custom-cursor" variant="cursor" />)
+
     const cursor = screen.getByRole('generic')
     expect(cursor).toHaveClass('custom-cursor')
   })
 
   it('should render small wave variant', () => {
-    render(<StreamingIndicator variant="wave" size="sm" />)
-    
+    render(<StreamingIndicator size="sm" variant="wave" />)
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-0.5')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-1', 'h-1')
@@ -115,11 +115,11 @@ describe('StreamingIndicator', () => {
   })
 
   it('should render large wave variant', () => {
-    render(<StreamingIndicator variant="wave" size="lg" />)
-    
+    render(<StreamingIndicator size="lg" variant="wave" />)
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-1.5')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-2', 'h-2')
@@ -127,11 +127,11 @@ describe('StreamingIndicator', () => {
   })
 
   it('should render small dots variant', () => {
-    render(<StreamingIndicator variant="dots" size="sm" />)
-    
+    render(<StreamingIndicator size="sm" variant="dots" />)
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-0.5')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-1', 'h-1')
@@ -139,11 +139,11 @@ describe('StreamingIndicator', () => {
   })
 
   it('should render large dots variant', () => {
-    render(<StreamingIndicator variant="dots" size="lg" />)
-    
+    render(<StreamingIndicator size="lg" variant="dots" />)
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-1.5')
-    
+
     const dots = container.querySelectorAll('div')
     dots.forEach((dot) => {
       expect(dot).toHaveClass('w-2', 'h-2')
@@ -151,14 +151,14 @@ describe('StreamingIndicator', () => {
   })
 
   it('should handle all prop combinations', () => {
-    render(<StreamingIndicator variant="wave" size="lg" className="test-class" />)
-    
+    render(<StreamingIndicator className="test-class" size="lg" variant="wave" />)
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-1.5', 'test-class')
-    
+
     const dots = container.querySelectorAll('div')
     expect(dots).toHaveLength(3)
-    
+
     dots.forEach((dot, index) => {
       expect(dot).toHaveClass('bg-primary/70', 'rounded-full', 'animate-bounce', 'w-2', 'h-2')
       expect(dot).toHaveStyle({
@@ -170,16 +170,16 @@ describe('StreamingIndicator', () => {
 
   it('should render correct number of dots for each variant', () => {
     const { rerender } = render(<StreamingIndicator variant="dots" />)
-    
+
     let container = screen.getByRole('generic')
     let dots = container.querySelectorAll('div')
     expect(dots).toHaveLength(3)
-    
+
     rerender(<StreamingIndicator variant="wave" />)
     container = screen.getByRole('generic')
     dots = container.querySelectorAll('div')
     expect(dots).toHaveLength(3)
-    
+
     rerender(<StreamingIndicator variant="cursor" />)
     container = screen.getByRole('generic')
     expect(container.tagName).toBe('SPAN')
@@ -187,10 +187,10 @@ describe('StreamingIndicator', () => {
 
   it('should apply correct animation properties for dots', () => {
     render(<StreamingIndicator variant="dots" />)
-    
+
     const container = screen.getByRole('generic')
     const dots = container.querySelectorAll('div')
-    
+
     expect(dots[0]).toHaveStyle({
       animationDelay: '0s',
       animationDuration: '1.4s',
@@ -207,10 +207,10 @@ describe('StreamingIndicator', () => {
 
   it('should apply correct animation properties for wave', () => {
     render(<StreamingIndicator variant="wave" />)
-    
+
     const container = screen.getByRole('generic')
     const dots = container.querySelectorAll('div')
-    
+
     expect(dots[0]).toHaveStyle({
       animationDelay: '0s',
       animationDuration: '1s',
@@ -226,11 +226,11 @@ describe('StreamingIndicator', () => {
   })
 
   it('should handle undefined props gracefully', () => {
-    render(<StreamingIndicator variant={undefined} size={undefined} />)
-    
+    render(<StreamingIndicator size={undefined} variant={undefined} />)
+
     const container = screen.getByRole('generic')
     expect(container).toHaveClass('flex', 'items-center', 'gap-1')
-    
+
     const dots = container.querySelectorAll('div')
     expect(dots).toHaveLength(3)
     dots.forEach((dot) => {

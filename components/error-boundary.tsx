@@ -47,13 +47,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       // Default fallback UI
       return (
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <h2 className="text-lg font-semibold text-red-600 mb-2">Something went wrong</h2>
-          <p className="text-sm text-gray-600 mb-4">
+          <h2 className="mb-2 font-semibold text-lg text-red-600">Something went wrong</h2>
+          <p className="mb-4 text-gray-600 text-sm">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
           <button
+            className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
             onClick={this.resetError}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Try again
           </button>

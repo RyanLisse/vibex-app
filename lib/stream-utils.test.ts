@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  createTimeoutPromise,
+  debounce,
+  safeAsync,
   safeStreamCancel,
   safeWebSocketClose,
-  createTimeoutPromise,
   withTimeout,
-  safeAsync,
-  debounce,
 } from './stream-utils'
 
 describe('stream-utils', () => {
@@ -271,7 +271,7 @@ describe('stream-utils', () => {
       const fn = async () => {
         throw error
       }
-      
+
       await safeAsync(fn, undefined, 'Custom error message')
 
       expect(console.warn).toHaveBeenCalledWith('Custom error message', error)
@@ -281,7 +281,7 @@ describe('stream-utils', () => {
       const fn = async () => {
         throw new Error('Test error')
       }
-      
+
       await safeAsync(fn)
 
       expect(console.warn).not.toHaveBeenCalled()
@@ -340,14 +340,14 @@ describe('stream-utils', () => {
 
       debouncedFn('first')
       vi.advanceTimersByTime(50)
-      
+
       debouncedFn('second')
       vi.advanceTimersByTime(50)
-      
+
       expect(fn).not.toHaveBeenCalled()
-      
+
       vi.advanceTimersByTime(50)
-      
+
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('second')
     })
@@ -369,13 +369,13 @@ describe('stream-utils', () => {
 
       debouncedFn('first')
       vi.advanceTimersByTime(100)
-      
+
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('first')
 
       debouncedFn('second')
       vi.advanceTimersByTime(100)
-      
+
       expect(fn).toHaveBeenCalledTimes(2)
       expect(fn).toHaveBeenCalledWith('second')
     })

@@ -15,7 +15,7 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
   }
 }
 
-export function createMockTasks(count: number = 3): Task[] {
+export function createMockTasks(count = 3): Task[] {
   return Array.from({ length: count }, (_, index) =>
     createMockTask({
       id: `mock-task-${index + 1}`,

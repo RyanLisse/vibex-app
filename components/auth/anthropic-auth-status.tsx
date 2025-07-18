@@ -1,10 +1,10 @@
 'use client'
 
-import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
+import { formatDistanceToNow } from 'date-fns'
+import { AlertCircle, LogOut, Shield, User } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { User, LogOut, AlertCircle, Shield } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 
 export function AnthropicAuthStatus() {
   const { authenticated, loading, logout, expires, type, error } = useAnthropicAuth()
@@ -12,8 +12,8 @@ export function AnthropicAuthStatus() {
   if (loading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-        <span className="text-sm text-muted-foreground">Checking auth...</span>
+        <div className="h-4 w-4 animate-spin rounded-full border-primary border-b-2" />
+        <span className="text-muted-foreground text-sm">Checking auth...</span>
       </div>
     )
   }
@@ -22,7 +22,7 @@ export function AnthropicAuthStatus() {
     return (
       <div className="flex items-center gap-2">
         <AlertCircle className="size-4 text-red-500" />
-        <span className="text-sm text-red-600">Auth Error</span>
+        <span className="text-red-600 text-sm">Auth Error</span>
       </div>
     )
   }
@@ -31,18 +31,18 @@ export function AnthropicAuthStatus() {
     return (
       <div className="flex items-center gap-2">
         <Shield className="size-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Not authenticated</span>
+        <span className="text-muted-foreground text-sm">Not authenticated</span>
       </div>
     )
   }
 
-  const isExpiringSoon = expires && expires < Date.now() + 300000 // 5 minutes
+  const isExpiringSoon = expires && expires < Date.now() + 300_000 // 5 minutes
   const timeToExpiry = expires ? formatDistanceToNow(expires, { addSuffix: true }) : null
 
   return (
     <div className="flex items-center gap-2">
       <User className="size-4 text-green-600" />
-      <Badge variant="secondary" className="bg-green-100 text-green-800">
+      <Badge className="bg-green-100 text-green-800" variant="secondary">
         {type === 'oauth' ? 'OAuth' : 'API'}
       </Badge>
       {expires && (
@@ -50,7 +50,7 @@ export function AnthropicAuthStatus() {
           {timeToExpiry}
         </span>
       )}
-      <Button variant="ghost" size="sm" onClick={logout} className="h-6 px-2">
+      <Button className="h-6 px-2" onClick={logout} size="sm" variant="ghost">
         <LogOut className="size-3" />
       </Button>
     </div>

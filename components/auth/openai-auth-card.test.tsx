@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { OpenAIAuthCard } from './openai-auth-card'
 
 // Mock the openai auth hook
@@ -11,11 +11,11 @@ vi.mock('@/hooks/use-openai-auth', () => ({
 
 // Mock the auth card base component
 vi.mock('./auth-card-base', () => ({
-  AuthCardBase: ({ 
-    title, 
-    description, 
-    loading, 
-    authenticated, 
+  AuthCardBase: ({
+    title,
+    description,
+    loading,
+    authenticated,
     error,
     expires,
     authType,
@@ -24,7 +24,7 @@ vi.mock('./auth-card-base', () => ({
     onRetry,
     authenticatedContent,
     unauthenticatedContent,
-    children 
+    children,
   }: any) => (
     <div data-testid="auth-card-base">
       <h3 data-testid="title">{title}</h3>
@@ -35,10 +35,22 @@ vi.mock('./auth-card-base', () => ({
       {expires && <div data-testid="expires">{expires}</div>}
       {authType && <div data-testid="auth-type">{authType}</div>}
       {isExpiringSoon && <div data-testid="expiring-soon">Expiring soon</div>}
-      {onLogout && <button data-testid="logout-btn" onClick={onLogout}>Logout</button>}
-      {onRetry && <button data-testid="retry-btn" onClick={onRetry}>Retry</button>}
-      {authenticatedContent && <div data-testid="authenticated-content">{authenticatedContent}</div>}
-      {unauthenticatedContent && <div data-testid="unauthenticated-content">{unauthenticatedContent}</div>}
+      {onLogout && (
+        <button data-testid="logout-btn" onClick={onLogout}>
+          Logout
+        </button>
+      )}
+      {onRetry && (
+        <button data-testid="retry-btn" onClick={onRetry}>
+          Retry
+        </button>
+      )}
+      {authenticatedContent && (
+        <div data-testid="authenticated-content">{authenticatedContent}</div>
+      )}
+      {unauthenticatedContent && (
+        <div data-testid="unauthenticated-content">{unauthenticatedContent}</div>
+      )}
       {children && <div data-testid="children">{children}</div>}
     </div>
   ),
@@ -47,10 +59,10 @@ vi.mock('./auth-card-base', () => ({
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
-    <svg data-testid="login-icon" className={className} {...props} />
+    <svg className={className} data-testid="login-icon" {...props} />
   ),
   ExternalLink: ({ className, ...props }: any) => (
-    <svg data-testid="external-link-icon" className={className} {...props} />
+    <svg className={className} data-testid="external-link-icon" {...props} />
   ),
 }))
 
@@ -58,10 +70,10 @@ vi.mock('lucide-react', () => ({
 vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
-      data-testid="button"
-      onClick={onClick}
-      data-variant={variant}
       className={className}
+      data-testid="button"
+      data-variant={variant}
+      onClick={onClick}
       {...props}
     >
       {children}
@@ -146,7 +158,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -167,7 +179,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 300000, // 5 minutes
+      expires: Date.now() + 300_000, // 5 minutes
       isExpiring: true,
     })
 
@@ -201,7 +213,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -258,7 +270,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { name: 'Test User', email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -273,13 +285,13 @@ describe('OpenAIAuthCard', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      user: { 
+      user: {
         email: 'test@example.com',
         organization_id: 'org-123',
-        credits_granted: 100 
+        credits_granted: 100,
       },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -296,7 +308,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { name: 'Test User' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -313,7 +325,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -361,7 +373,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -460,11 +472,11 @@ describe('OpenAIAuthCard', () => {
         usage: {
           total_tokens: 1000,
           prompt_tokens: 800,
-          completion_tokens: 200
-        }
+          completion_tokens: 200,
+        },
       },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 
@@ -479,12 +491,12 @@ describe('OpenAIAuthCard', () => {
       loading: false,
       login: mockLogin,
       logout: mockLogout,
-      user: { 
+      user: {
         email: 'test@example.com',
-        display_name: 'Test User Display'
+        display_name: 'Test User Display',
       },
       error: null,
-      expires: Date.now() + 3600000,
+      expires: Date.now() + 3_600_000,
       isExpiring: false,
     })
 

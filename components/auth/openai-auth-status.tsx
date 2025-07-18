@@ -1,10 +1,10 @@
 'use client'
 
-import { useOpenAIAuth } from '@/hooks/use-openai-auth'
+import { formatDistanceToNow } from 'date-fns'
+import { AlertCircle, Clock, CreditCard, LogOut, Shield, User } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { User, LogOut, AlertCircle, Shield, Clock, CreditCard } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { useOpenAIAuth } from '@/hooks/use-openai-auth'
 
 export function OpenAIAuthStatus() {
   const { authenticated, loading, logout, expires_at, user, error } = useOpenAIAuth()
@@ -12,8 +12,8 @@ export function OpenAIAuthStatus() {
   if (loading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-        <span className="text-sm text-muted-foreground">Checking auth...</span>
+        <div className="h-4 w-4 animate-spin rounded-full border-primary border-b-2" />
+        <span className="text-muted-foreground text-sm">Checking auth...</span>
       </div>
     )
   }
@@ -22,7 +22,7 @@ export function OpenAIAuthStatus() {
     return (
       <div className="flex items-center gap-2">
         <AlertCircle className="size-4 text-red-500" />
-        <span className="text-sm text-red-600">Auth Error</span>
+        <span className="text-red-600 text-sm">Auth Error</span>
       </div>
     )
   }
@@ -31,24 +31,24 @@ export function OpenAIAuthStatus() {
     return (
       <div className="flex items-center gap-2">
         <Shield className="size-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Not authenticated</span>
+        <span className="text-muted-foreground text-sm">Not authenticated</span>
       </div>
     )
   }
 
-  const isExpiringSoon = expires_at && expires_at < Date.now() + 300000 // 5 minutes
+  const isExpiringSoon = expires_at && expires_at < Date.now() + 300_000 // 5 minutes
   const timeToExpiry = expires_at ? formatDistanceToNow(expires_at, { addSuffix: true }) : null
 
   return (
     <div className="flex items-center gap-2">
       <User className="size-4 text-green-600" />
-      <Badge variant="secondary" className="bg-green-100 text-green-800">
+      <Badge className="bg-green-100 text-green-800" variant="secondary">
         OpenAI
       </Badge>
       {user?.credits_granted && (
         <div className="flex items-center gap-1">
           <CreditCard className="size-3 text-blue-600" />
-          <span className="text-xs text-blue-600">{user.credits_granted}</span>
+          <span className="text-blue-600 text-xs">{user.credits_granted}</span>
         </div>
       )}
       {expires_at && (
@@ -61,7 +61,7 @@ export function OpenAIAuthStatus() {
           </span>
         </div>
       )}
-      <Button variant="ghost" size="sm" onClick={logout} className="h-6 px-2">
+      <Button className="h-6 px-2" onClick={logout} size="sm" variant="ghost">
         <LogOut className="size-3" />
       </Button>
     </div>

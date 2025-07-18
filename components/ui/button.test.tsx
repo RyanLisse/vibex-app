@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { Button } from './button'
 
 describe('Button', () => {
@@ -124,7 +124,7 @@ describe('Button', () => {
     it('does not call onClick when disabled', () => {
       const handleClick = vi.fn()
       render(
-        <Button onClick={handleClick} disabled>
+        <Button disabled onClick={handleClick}>
           Disabled
         </Button>
       )
@@ -202,7 +202,7 @@ describe('Button', () => {
   describe('Forwarded Props', () => {
     it('forwards HTML button props', () => {
       render(
-        <Button type="submit" name="submit-btn" value="submit">
+        <Button name="submit-btn" type="submit" value="submit">
           Submit
         </Button>
       )
@@ -214,7 +214,7 @@ describe('Button', () => {
 
     it('forwards data attributes', () => {
       render(
-        <Button data-testid="custom-button" data-custom="value">
+        <Button data-custom="value" data-testid="custom-button">
           Test
         </Button>
       )

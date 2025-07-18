@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 
 // Mock the @google/genai module
@@ -24,7 +24,7 @@ describe('Gemini Audio Integration Tests', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock the session API
     mockSessionAPI = {
       connect: vi.fn().mockResolvedValue(undefined),
@@ -37,14 +37,14 @@ describe('Gemini Audio Integration Tests', () => {
     // Mock fetch responses
     vi.mocked(fetch).mockImplementation((url: string | URL) => {
       const urlString = url.toString()
-      
+
       if (urlString.includes('/api/ai/gemini/session')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve({ sessionId: 'test-session-123' }),
         } as Response)
       }
-      
+
       return Promise.resolve({
         ok: false,
         status: 404,
@@ -136,7 +136,7 @@ describe('Gemini Audio Integration Tests', () => {
       })
 
       // Test WAV conversion utility
-      const sampleRate = 44100
+      const sampleRate = 44_100
       const channels = 1
       const bitsPerSample = 16
       const audioData = new Float32Array(1024)
@@ -155,7 +155,7 @@ describe('Gemini Audio Integration Tests', () => {
       })
 
       const emptyAudioData = new Float32Array(0)
-      const wavBuffer = session.convertToWav(emptyAudioData, 44100, 1, 16)
+      const wavBuffer = session.convertToWav(emptyAudioData, 44_100, 1, 16)
 
       expect(wavBuffer.byteLength).toBe(44) // Just the WAV header
     })
@@ -169,9 +169,9 @@ describe('Gemini Audio Integration Tests', () => {
       const audioData = new Float32Array(1024)
       audioData.fill(0.5)
 
-      const sampleRates = [8000, 16000, 22050, 44100, 48000]
-      
-      sampleRates.forEach(sampleRate => {
+      const sampleRates = [8000, 16_000, 22_050, 44_100, 48_000]
+
+      sampleRates.forEach((sampleRate) => {
         const wavBuffer = session.convertToWav(audioData, sampleRate, 1, 16)
         expect(wavBuffer).toBeDefined()
         expect(wavBuffer.byteLength).toBeGreaterThan(44)
@@ -343,7 +343,7 @@ describe('Gemini Audio Integration Tests', () => {
       const largeAudioData = new Float32Array(1024 * 1024)
       largeAudioData.fill(0.5)
 
-      const wavBuffer = session.convertToWav(largeAudioData, 44100, 1, 16)
+      const wavBuffer = session.convertToWav(largeAudioData, 44_100, 1, 16)
 
       expect(wavBuffer).toBeDefined()
       expect(wavBuffer.byteLength).toBeGreaterThan(1024 * 1024) // Should be larger than input due to WAV header

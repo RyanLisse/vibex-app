@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
+import { describe, expect, it } from 'vitest'
 import {
   Table,
-  TableHeader,
   TableBody,
+  TableCaption,
+  TableCell,
   TableFooter,
   TableHead,
+  TableHeader,
   TableRow,
-  TableCell,
-  TableCaption,
 } from './table'
 
 describe('Table Components', () => {
@@ -24,10 +24,10 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       )
-      
+
       const container = screen.getByRole('generic').querySelector('[data-slot="table-container"]')
       const table = screen.getByRole('table')
-      
+
       expect(container).toBeInTheDocument()
       expect(container).toHaveClass('relative', 'w-full', 'overflow-x-auto')
       expect(table).toBeInTheDocument()
@@ -45,7 +45,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       )
-      
+
       const table = screen.getByRole('table')
       expect(table).toHaveClass('custom-table', 'border')
       expect(table).toHaveClass('w-full') // Still has default classes
@@ -53,7 +53,7 @@ describe('Table Components', () => {
 
     it('should pass through table props', () => {
       render(
-        <Table id="data-table" aria-label="User data">
+        <Table aria-label="User data" id="data-table">
           <TableBody>
             <TableRow>
               <TableCell>Cell</TableCell>
@@ -61,7 +61,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       )
-      
+
       const table = screen.getByRole('table')
       expect(table).toHaveAttribute('id', 'data-table')
       expect(table).toHaveAttribute('aria-label', 'User data')
@@ -79,7 +79,7 @@ describe('Table Components', () => {
           </TableHeader>
         </table>
       )
-      
+
       const thead = screen.getByRole('rowgroup')
       expect(thead.tagName).toBe('THEAD')
       expect(thead).toHaveAttribute('data-slot', 'table-header')
@@ -96,7 +96,7 @@ describe('Table Components', () => {
           </TableHeader>
         </table>
       )
-      
+
       const thead = screen.getByRole('rowgroup')
       expect(thead).toHaveClass('sticky', 'top-0')
     })
@@ -113,7 +113,7 @@ describe('Table Components', () => {
           </TableBody>
         </table>
       )
-      
+
       const tbody = screen.getByRole('rowgroup')
       expect(tbody.tagName).toBe('TBODY')
       expect(tbody).toHaveAttribute('data-slot', 'table-body')
@@ -130,7 +130,7 @@ describe('Table Components', () => {
           </TableBody>
         </table>
       )
-      
+
       const tbody = screen.getByRole('rowgroup')
       expect(tbody).toHaveClass('divide-y')
     })
@@ -147,7 +147,7 @@ describe('Table Components', () => {
           </TableFooter>
         </table>
       )
-      
+
       const tfoot = screen.getByRole('rowgroup')
       expect(tfoot.tagName).toBe('TFOOT')
       expect(tfoot).toHaveAttribute('data-slot', 'table-footer')
@@ -164,7 +164,7 @@ describe('Table Components', () => {
           </TableFooter>
         </table>
       )
-      
+
       const tfoot = screen.getByRole('rowgroup')
       expect(tfoot).toHaveClass('bg-gray-100')
     })
@@ -181,7 +181,7 @@ describe('Table Components', () => {
           </tbody>
         </table>
       )
-      
+
       const row = screen.getByRole('row')
       expect(row.tagName).toBe('TR')
       expect(row).toHaveAttribute('data-slot', 'table-row')
@@ -198,7 +198,7 @@ describe('Table Components', () => {
           </tbody>
         </table>
       )
-      
+
       const row = screen.getByRole('row')
       expect(row).toHaveAttribute('data-state', 'selected')
       expect(row).toHaveClass('data-[state=selected]:bg-muted')
@@ -214,7 +214,7 @@ describe('Table Components', () => {
           </tbody>
         </table>
       )
-      
+
       const row = screen.getByRole('row')
       expect(row).toHaveClass('cursor-pointer')
     })
@@ -230,10 +230,10 @@ describe('Table Components', () => {
           </tbody>
         </table>
       )
-      
+
       const row = screen.getByRole('row')
       row.click()
-      
+
       expect(handleClick).toHaveBeenCalledTimes(1)
     })
   })
@@ -249,11 +249,18 @@ describe('Table Components', () => {
           </thead>
         </table>
       )
-      
+
       const th = screen.getByRole('columnheader')
       expect(th.tagName).toBe('TH')
       expect(th).toHaveAttribute('data-slot', 'table-head')
-      expect(th).toHaveClass('text-foreground', 'h-10', 'px-2', 'text-left', 'align-middle', 'font-medium')
+      expect(th).toHaveClass(
+        'text-foreground',
+        'h-10',
+        'px-2',
+        'text-left',
+        'align-middle',
+        'font-medium'
+      )
       expect(th).toHaveTextContent('Column Header')
     })
 
@@ -267,7 +274,7 @@ describe('Table Components', () => {
           </thead>
         </table>
       )
-      
+
       const th = screen.getByRole('columnheader')
       expect(th).toHaveClass('text-right')
     })
@@ -282,7 +289,7 @@ describe('Table Components', () => {
           </thead>
         </table>
       )
-      
+
       const th = screen.getByRole('columnheader')
       expect(th).toHaveAttribute('scope', 'col')
     })
@@ -299,7 +306,7 @@ describe('Table Components', () => {
           </tbody>
         </table>
       )
-      
+
       const td = screen.getByRole('cell')
       expect(td.tagName).toBe('TD')
       expect(td).toHaveAttribute('data-slot', 'table-cell')
@@ -317,7 +324,7 @@ describe('Table Components', () => {
           </tbody>
         </table>
       )
-      
+
       const td = screen.getByRole('cell')
       expect(td).toHaveClass('text-center', 'font-bold')
     })
@@ -327,12 +334,14 @@ describe('Table Components', () => {
         <table>
           <tbody>
             <tr>
-              <TableCell colSpan={2} rowSpan={3}>Cell</TableCell>
+              <TableCell colSpan={2} rowSpan={3}>
+                Cell
+              </TableCell>
             </tr>
           </tbody>
         </table>
       )
-      
+
       const td = screen.getByRole('cell')
       expect(td).toHaveAttribute('colspan', '2')
       expect(td).toHaveAttribute('rowspan', '3')
@@ -351,7 +360,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       )
-      
+
       const caption = screen.getByText('Table caption text')
       expect(caption.tagName).toBe('CAPTION')
       expect(caption).toHaveAttribute('data-slot', 'table-caption')
@@ -369,7 +378,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       )
-      
+
       const caption = screen.getByText('Caption')
       expect(caption).toHaveClass('text-xs', 'italic')
     })
@@ -407,7 +416,7 @@ describe('Table Components', () => {
           </TableFooter>
         </Table>
       )
-      
+
       expect(screen.getByRole('table')).toBeInTheDocument()
       expect(screen.getByText('A list of users')).toBeInTheDocument()
       expect(screen.getAllByRole('columnheader')).toHaveLength(3)
@@ -425,7 +434,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       )
-      
+
       const container = screen.getByRole('generic').querySelector('[data-slot="table-container"]')
       expect(container).toHaveClass('overflow-x-auto')
     })
@@ -436,7 +445,7 @@ describe('Table Components', () => {
           <TableHeader>
             <TableRow>
               <TableHead>
-                <input type="checkbox" role="checkbox" />
+                <input role="checkbox" type="checkbox" />
               </TableHead>
               <TableHead>Name</TableHead>
             </TableRow>
@@ -444,14 +453,14 @@ describe('Table Components', () => {
           <TableBody>
             <TableRow>
               <TableCell>
-                <input type="checkbox" role="checkbox" />
+                <input role="checkbox" type="checkbox" />
               </TableCell>
               <TableCell>John Doe</TableCell>
             </TableRow>
           </TableBody>
         </Table>
       )
-      
+
       const checkboxes = screen.getAllByRole('checkbox')
       expect(checkboxes).toHaveLength(2)
     })

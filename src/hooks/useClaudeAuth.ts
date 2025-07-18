@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { ClaudeAuthClient, TokenResponse } from '@/lib/auth/claude-auth'
+import { useCallback, useEffect, useState } from 'react'
+import { ClaudeAuthClient, type TokenResponse } from '@/lib/auth/claude-auth'
 
 interface UseClaudeAuthProps {
   clientId: string

@@ -2,12 +2,12 @@
 
 import type React from 'react'
 import {
-  useCallback,
-  useRef,
-  useState,
   type ChangeEvent,
   type DragEvent,
   type InputHTMLAttributes,
+  useCallback,
+  useRef,
+  useState,
 } from 'react'
 
 export type FileMetadata = {
@@ -62,8 +62,8 @@ export const useFileUpload = (
   options: FileUploadOptions = {}
 ): [FileUploadState, FileUploadActions] => {
   const {
-    maxFiles = Infinity,
-    maxSize = Infinity,
+    maxFiles = Number.POSITIVE_INFINITY,
+    maxSize = Number.POSITIVE_INFINITY,
     accept = '*',
     multiple = false,
     initialFiles = [],
@@ -89,10 +89,8 @@ export const useFileUpload = (
         if (file.size > maxSize) {
           return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`
         }
-      } else {
-        if (file.size > maxSize) {
-          return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`
-        }
+      } else if (file.size > maxSize) {
+        return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`
       }
 
       if (accept !== '*') {
@@ -177,7 +175,7 @@ export const useFileUpload = (
       // Check if adding these files would exceed maxFiles (only in multiple mode)
       if (
         multiple &&
-        maxFiles !== Infinity &&
+        maxFiles !== Number.POSITIVE_INFINITY &&
         state.files.length + newFilesArray.length > maxFiles
       ) {
         errors.push(`You can only upload a maximum of ${maxFiles} files.`)
@@ -229,7 +227,7 @@ export const useFileUpload = (
         onFilesAdded?.(validFiles)
 
         setState((prev) => {
-          const newFiles = !multiple ? validFiles : [...prev.files, ...validFiles]
+          const newFiles = multiple ? [...prev.files, ...validFiles] : validFiles
           onFilesChange?.(newFiles)
           return {
             ...prev,
@@ -331,11 +329,11 @@ export const useFileUpload = (
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         // In single file mode, only use the first file
-        if (!multiple) {
+        if (multiple) {
+          addFiles(e.dataTransfer.files)
+        } else {
           const file = e.dataTransfer.files[0]
           addFiles([file])
-        } else {
-          addFiles(e.dataTransfer.files)
         }
       }
     },
@@ -399,5 +397,5 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i]
+  return Number.parseFloat((bytes / k ** i).toFixed(dm)) + sizes[i]
 }

@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { JSDOM } from 'jsdom'
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 
 // Mock Next.js router
 vi.mock('next/router', () => ({
@@ -61,26 +61,9 @@ afterEach(() => {
   cleanup()
 })
 
-// Global test configuration
+// Simplified global test configuration
 beforeAll(() => {
-  // Set up JSDOM environment
-  const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-    url: 'http://localhost:3000',
-    pretendToBeVisual: true,
-    resources: 'usable',
-  })
-
-  // Set up global DOM environment
-  global.window = dom.window as any
-  global.document = dom.window.document
-  global.navigator = dom.window.navigator
-  global.location = dom.window.location
-  global.HTMLElement = dom.window.HTMLElement
-  global.Element = dom.window.Element
-  global.Node = dom.window.Node
-  global.Text = dom.window.Text
-  global.Comment = dom.window.Comment
-  global.DocumentFragment = dom.window.DocumentFragment
+  // Minimal setup - vitest already provides jsdom environment
 })
 
 afterAll(() => {

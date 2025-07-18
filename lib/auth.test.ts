@@ -1,21 +1,21 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { 
-  generateCodeChallenge, 
-  generateCodeVerifier, 
-  generateState,
-  validateOAuthState,
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
   buildAuthUrl,
+  createAuthHeaders,
   exchangeCodeForToken,
-  refreshAuthToken,
-  revokeToken,
-  validateToken,
+  generateCodeChallenge,
+  generateCodeVerifier,
+  generateState,
   getTokenExpirationTime,
+  handleAuthError,
   isTokenExpired,
   isTokenExpiring,
   parseJWT,
+  refreshAuthToken,
+  revokeToken,
   sanitizeRedirectUrl,
-  createAuthHeaders,
-  handleAuthError
+  validateOAuthState,
+  validateToken,
 } from './auth'
 
 // Mock crypto
@@ -25,13 +25,13 @@ const mockCrypto = {
     digest: vi.fn(),
     importKey: vi.fn(),
     sign: vi.fn(),
-    verify: vi.fn()
-  }
+    verify: vi.fn(),
+  },
 }
 
 Object.defineProperty(global, 'crypto', {
   value: mockCrypto,
-  writable: true
+  writable: true,
 })
 
 // Mock TextEncoder
@@ -140,7 +140,7 @@ describe('lib/auth', () => {
         redirectUri: 'https://app.com/callback',
         scope: 'read write',
         state: 'test-state',
-        codeChallenge: 'test-challenge'
+        codeChallenge: 'test-challenge',
       }
 
       const url = buildAuthUrl(config)
@@ -160,7 +160,7 @@ describe('lib/auth', () => {
       const config = {
         authUrl: 'https://example.com/auth',
         clientId: 'test-client',
-        redirectUri: 'https://app.com/callback'
+        redirectUri: 'https://app.com/callback',
       }
 
       const url = buildAuthUrl(config)
@@ -178,12 +178,12 @@ describe('lib/auth', () => {
         access_token: 'test-token',
         token_type: 'Bearer',
         expires_in: 3600,
-        refresh_token: 'refresh-token'
+        refresh_token: 'refresh-token',
       }
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse
+        json: async () => mockResponse,
       })
 
       const config = {
@@ -191,7 +191,7 @@ describe('lib/auth', () => {
         clientId: 'test-client',
         code: 'auth-code',
         redirectUri: 'https://app.com/callback',
-        codeVerifier: 'test-verifier'
+        codeVerifier: 'test-verifier',
       }
 
       const token = await exchangeCodeForToken(config)
@@ -200,9 +200,9 @@ describe('lib/auth', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
-        body: expect.stringContaining('grant_type=authorization_code')
+        body: expect.stringContaining('grant_type=authorization_code'),
       })
     })
 
@@ -210,7 +210,7 @@ describe('lib/auth', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: async () => ({ error: 'invalid_grant' })
+        json: async () => ({ error: 'invalid_grant' }),
       })
 
       const config = {
@@ -218,7 +218,7 @@ describe('lib/auth', () => {
         clientId: 'test-client',
         code: 'invalid-code',
         redirectUri: 'https://app.com/callback',
-        codeVerifier: 'test-verifier'
+        codeVerifier: 'test-verifier',
       }
 
       await expect(exchangeCodeForToken(config)).rejects.toThrow('invalid_grant')
@@ -231,18 +231,18 @@ describe('lib/auth', () => {
         access_token: 'new-token',
         token_type: 'Bearer',
         expires_in: 3600,
-        refresh_token: 'new-refresh-token'
+        refresh_token: 'new-refresh-token',
       }
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse
+        json: async () => mockResponse,
       })
 
       const config = {
         tokenUrl: 'https://example.com/token',
         clientId: 'test-client',
-        refreshToken: 'refresh-token'
+        refreshToken: 'refresh-token',
       }
 
       const token = await refreshAuthToken(config)
@@ -253,13 +253,13 @@ describe('lib/auth', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
-        json: async () => ({ error: 'invalid_grant' })
+        json: async () => ({ error: 'invalid_grant' }),
       })
 
       const config = {
         tokenUrl: 'https://example.com/token',
         clientId: 'test-client',
-        refreshToken: 'expired-refresh-token'
+        refreshToken: 'expired-refresh-token',
       }
 
       await expect(refreshAuthToken(config)).rejects.toThrow('invalid_grant')
@@ -270,13 +270,13 @@ describe('lib/auth', () => {
     it('should revoke token successfully', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ revoked: true })
+        json: async () => ({ revoked: true }),
       })
 
       const config = {
         revokeUrl: 'https://example.com/revoke',
         clientId: 'test-client',
-        token: 'test-token'
+        token: 'test-token',
       }
 
       await revokeToken(config)
@@ -284,9 +284,9 @@ describe('lib/auth', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
-        body: expect.stringContaining('token=test-token')
+        body: expect.stringContaining('token=test-token'),
       })
     })
 
@@ -294,13 +294,13 @@ describe('lib/auth', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: async () => ({ error: 'invalid_token' })
+        json: async () => ({ error: 'invalid_token' }),
       })
 
       const config = {
         revokeUrl: 'https://example.com/revoke',
         clientId: 'test-client',
-        token: 'invalid-token'
+        token: 'invalid-token',
       }
 
       await expect(revokeToken(config)).rejects.toThrow('invalid_token')
@@ -312,18 +312,18 @@ describe('lib/auth', () => {
       const mockResponse = {
         active: true,
         exp: Math.floor(Date.now() / 1000) + 3600,
-        client_id: 'test-client'
+        client_id: 'test-client',
       }
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => mockResponse
+        json: async () => mockResponse,
       })
 
       const config = {
         introspectUrl: 'https://example.com/introspect',
         clientId: 'test-client',
-        token: 'test-token'
+        token: 'test-token',
       }
 
       const result = await validateToken(config)
@@ -334,13 +334,13 @@ describe('lib/auth', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
-        json: async () => ({ error: 'invalid_token' })
+        json: async () => ({ error: 'invalid_token' }),
       })
 
       const config = {
         introspectUrl: 'https://example.com/introspect',
         clientId: 'test-client',
-        token: 'invalid-token'
+        token: 'invalid-token',
       }
 
       await expect(validateToken(config)).rejects.toThrow('invalid_token')
@@ -351,11 +351,11 @@ describe('lib/auth', () => {
     it('should get expiration time from expires_in', () => {
       const token = { expires_in: 3600 }
       const expiresAt = getTokenExpirationTime(token)
-      expect(expiresAt).toBeCloseTo(Date.now() + 3600000, -3)
+      expect(expiresAt).toBeCloseTo(Date.now() + 3_600_000, -3)
     })
 
     it('should get expiration time from expires_at', () => {
-      const expiresAt = Date.now() + 3600000
+      const expiresAt = Date.now() + 3_600_000
       const token = { expires_at: expiresAt }
       expect(getTokenExpirationTime(token)).toBe(expiresAt)
     })
@@ -373,7 +373,7 @@ describe('lib/auth', () => {
     })
 
     it('should return false for valid tokens', () => {
-      const token = { expires_at: Date.now() + 3600000 }
+      const token = { expires_at: Date.now() + 3_600_000 }
       expect(isTokenExpired(token)).toBe(false)
     })
 
@@ -402,7 +402,7 @@ describe('lib/auth', () => {
 
   describe('parseJWT', () => {
     it('should parse JWT token', () => {
-      const payload = { sub: 'user123', exp: 1234567890 }
+      const payload = { sub: 'user123', exp: 1_234_567_890 }
       const encodedPayload = btoa(JSON.stringify(payload))
       const token = `header.${encodedPayload}.signature`
 
@@ -425,10 +425,10 @@ describe('lib/auth', () => {
       const validUrls = [
         'https://example.com',
         'https://app.example.com/callback',
-        'http://localhost:3000/callback'
+        'http://localhost:3000/callback',
       ]
 
-      validUrls.forEach(url => {
+      validUrls.forEach((url) => {
         expect(sanitizeRedirectUrl(url)).toBe(url)
       })
     })
@@ -439,10 +439,10 @@ describe('lib/auth', () => {
         'data:text/html,<script>alert(1)</script>',
         'file:///etc/passwd',
         'ftp://example.com',
-        'invalid-url'
+        'invalid-url',
       ]
 
-      invalidUrls.forEach(url => {
+      invalidUrls.forEach((url) => {
         expect(() => sanitizeRedirectUrl(url)).toThrow()
       })
     })
@@ -452,27 +452,27 @@ describe('lib/auth', () => {
     it('should create authorization headers', () => {
       const headers = createAuthHeaders('test-token')
       expect(headers).toEqual({
-        'Authorization': 'Bearer test-token',
-        'Content-Type': 'application/json'
+        Authorization: 'Bearer test-token',
+        'Content-Type': 'application/json',
       })
     })
 
     it('should merge custom headers', () => {
       const headers = createAuthHeaders('test-token', {
-        'X-Custom-Header': 'custom-value'
+        'X-Custom-Header': 'custom-value',
       })
       expect(headers).toEqual({
-        'Authorization': 'Bearer test-token',
+        Authorization: 'Bearer test-token',
         'Content-Type': 'application/json',
-        'X-Custom-Header': 'custom-value'
+        'X-Custom-Header': 'custom-value',
       })
     })
 
     it('should handle token type', () => {
       const headers = createAuthHeaders('test-token', {}, 'Custom')
       expect(headers).toEqual({
-        'Authorization': 'Custom test-token',
-        'Content-Type': 'application/json'
+        Authorization: 'Custom test-token',
+        'Content-Type': 'application/json',
       })
     })
   })

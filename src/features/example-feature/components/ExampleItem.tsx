@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { getPriorityColor, getStatusIcon } from '../utils/example-utils'
 import type { ExampleItem as ExampleItemType } from '../types'
+import { getPriorityColor, getStatusIcon } from '../utils/example-utils'
 
 interface ExampleItemProps {
   item: ExampleItemType
@@ -19,20 +19,20 @@ export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleI
   return (
     <article
       className={cn(
-        'p-4 border rounded-lg bg-white shadow-sm',
+        'rounded-lg border bg-white p-4 shadow-sm',
         item.status === 'completed' && 'opacity-60'
       )}
       data-testid={`example-item-${item.id}`}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 flex-1">
+        <div className="flex flex-1 items-start gap-3">
           <button
-            type="button"
-            onClick={handleStatusToggle}
-            className="mt-1 text-lg hover:scale-110 transition-transform"
-            aria-label={`Mark as ${item.status === 'completed' ? 'pending' : 'completed'}`}
-            role="checkbox"
             aria-checked={item.status === 'completed'}
+            aria-label={`Mark as ${item.status === 'completed' ? 'pending' : 'completed'}`}
+            className="mt-1 text-lg transition-transform hover:scale-110"
+            onClick={handleStatusToggle}
+            role="checkbox"
+            type="button"
           >
             {getStatusIcon(item.status)}
           </button>
@@ -47,12 +47,12 @@ export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleI
               {item.title}
             </h3>
 
-            {item.description && <p className="text-sm text-gray-600 mt-1">{item.description}</p>}
+            {item.description && <p className="mt-1 text-gray-600 text-sm">{item.description}</p>}
 
-            <div className="flex items-center gap-2 mt-2">
+            <div className="mt-2 flex items-center gap-2">
               <span
                 className={cn(
-                  'text-xs font-medium px-2 py-1 rounded',
+                  'rounded px-2 py-1 font-medium text-xs',
                   getPriorityColor(item.priority),
                   'bg-gray-100'
                 )}
@@ -60,7 +60,7 @@ export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleI
                 {item.priority}
               </span>
 
-              <span className="text-xs text-gray-500">{item.createdAt.toLocaleDateString()}</span>
+              <span className="text-gray-500 text-xs">{item.createdAt.toLocaleDateString()}</span>
             </div>
           </div>
         </div>
@@ -68,10 +68,10 @@ export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleI
         <div className="flex gap-2">
           {onEdit && (
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(item)}
               aria-label={`Edit ${item.title}`}
+              onClick={() => onEdit(item)}
+              size="sm"
+              variant="outline"
             >
               Edit
             </Button>
@@ -79,11 +79,11 @@ export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleI
 
           {onDelete && (
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete(item.id)}
               aria-label={`Delete ${item.title}`}
               className="text-red-600 hover:text-red-700"
+              onClick={() => onDelete(item.id)}
+              size="sm"
+              variant="outline"
             >
               Delete
             </Button>

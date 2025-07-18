@@ -1,4 +1,4 @@
-import { type FieldValues, type UseFormReturn } from 'react-hook-form'
+import type { FieldValues, UseFormReturn } from 'react-hook-form'
 
 export interface StorageHelpers {
   save: (key: string) => void

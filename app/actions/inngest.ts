@@ -31,8 +31,8 @@ export const createTaskAction = async ({
     data: {
       task,
       token: githubToken,
-      sessionId: sessionId,
-      prompt: prompt,
+      sessionId,
+      prompt,
       telemetryConfig: telemetryConfig.isEnabled ? telemetryConfig : undefined,
     },
   })
@@ -52,7 +52,7 @@ export const createPullRequestAction = async ({ sessionId }: { sessionId?: strin
     name: 'clonedex/create.pull-request',
     data: {
       token: githubToken,
-      sessionId: sessionId,
+      sessionId,
       telemetryConfig: telemetryConfig.isEnabled ? telemetryConfig : undefined,
     },
   })
@@ -98,7 +98,7 @@ const validateInngestConfig = (): boolean => {
     return true
   }
 
-  if (!INNGEST_SIGNING_KEY || !INNGEST_EVENT_KEY) {
+  if (!(INNGEST_SIGNING_KEY && INNGEST_EVENT_KEY)) {
     console.warn('Inngest not configured - subscription disabled')
     return false
   }

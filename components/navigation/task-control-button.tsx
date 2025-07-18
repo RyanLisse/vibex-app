@@ -1,7 +1,7 @@
+import { Loader } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Loader } from 'lucide-react'
-import { ReactNode } from 'react'
 
 interface TaskControlButtonProps {
   icon: ReactNode
@@ -24,13 +24,13 @@ export function TaskControlButton({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          variant={variant}
-          size="icon"
-          className="rounded-full h-8 w-8"
-          onClick={onClick}
+          className="h-8 w-8 rounded-full"
           disabled={isLoading || disabled}
+          onClick={onClick}
+          size="icon"
+          variant={variant}
         >
-          {isLoading ? <Loader className="animate-spin size-4" /> : icon}
+          {isLoading ? <Loader className="size-4 animate-spin" /> : icon}
         </Button>
       </TooltipTrigger>
       <TooltipContent>

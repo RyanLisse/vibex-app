@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
-import MessageInput from './message-input'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTaskAction } from '@/app/actions/inngest'
-import { useTaskStore } from '@/stores/tasks'
 import type { Task } from '@/stores/tasks'
+import { useTaskStore } from '@/stores/tasks'
+import MessageInput from './message-input'
 
 // Mock the actions and store
 vi.mock('@/app/actions/inngest', () => ({
@@ -226,12 +226,15 @@ describe('MessageInput', () => {
     render(<MessageInput task={mockTask} />)
 
     const textarea = screen.getByPlaceholderText('Type your message...')
-    
+
     // Initial height should be set
     expect(textarea).toHaveStyle('height: 60px')
 
     // Type a long message to trigger height adjustment
-    await user.type(textarea, 'This is a very long message that should cause the textarea to expand in height when it wraps to multiple lines')
+    await user.type(
+      textarea,
+      'This is a very long message that should cause the textarea to expand in height when it wraps to multiple lines'
+    )
 
     // Height should be adjusted (we can't easily test the exact height in jsdom)
     expect(textarea.style.height).toBeTruthy()

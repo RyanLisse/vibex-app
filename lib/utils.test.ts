@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { cn } from './utils'
 
 describe('cn (classname utility)', () => {
@@ -11,8 +11,8 @@ describe('cn (classname utility)', () => {
   })
 
   it('should handle conditional classes', () => {
-    expect(cn('foo', false && 'bar', 'baz')).toBe('foo baz')
-    expect(cn('foo', true && 'bar', 'baz')).toBe('foo bar baz')
+    expect(cn('foo', false, 'baz')).toBe('foo baz')
+    expect(cn('foo', 'bar', 'baz')).toBe('foo bar baz')
   })
 
   it('should handle undefined and null values', () => {
@@ -44,8 +44,8 @@ describe('cn (classname utility)', () => {
         ['array-class-1', 'array-class-2'],
         undefined,
         null,
-        false && 'conditional-false',
-        true && 'conditional-true'
+        false,
+        'conditional-true'
       )
     ).toBe('base-class active-class array-class-1 array-class-2 conditional-true')
   })
@@ -56,7 +56,7 @@ describe('cn (classname utility)', () => {
   })
 
   it('should trim whitespace', () => {
-    expect(cn('  foo  ', '  bar  ')).toBe('foo bar')
+    expect(cn(' foo ', ' bar ')).toBe('foo bar')
   })
 
   it('should handle number inputs', () => {

@@ -30,7 +30,7 @@ export function useOpenAIAuth() {
 
     autoRefresh: {
       enabled: true,
-      refreshTimeBeforeExpiry: 60000, // 1 minute
+      refreshTimeBeforeExpiry: 60_000, // 1 minute
       getExpiryTime: (status) => status.expires_at,
       hasRefreshToken: (status) => !!status.hasRefreshToken,
     },

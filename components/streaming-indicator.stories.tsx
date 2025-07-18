@@ -41,7 +41,7 @@ export const WithCustomText: Story = {
     isStreaming: true,
   },
   render: (args) => (
-    <div className="p-4 bg-muted rounded-lg">
+    <div className="rounded-lg bg-muted p-4">
       <StreamingIndicator {...args} />
     </div>
   ),

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthBase } from './use-auth-base'
 
 // Mock fetch
@@ -394,8 +394,8 @@ describe('useAuthBase', () => {
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ 
-        authenticated: true, 
+      json: async () => ({
+        authenticated: true,
         loading: false,
         user: { email: 'updated@example.com' },
         customProperty: 'updated',

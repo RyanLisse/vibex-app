@@ -1,8 +1,8 @@
 'use client'
 
+import { LogIn, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
-import { LogIn, LogOut, User } from 'lucide-react'
 
 interface AnthropicAuthButtonProps {
   mode?: 'max' | 'console'
@@ -19,23 +19,23 @@ export function AnthropicAuthButton({
 
   if (loading) {
     return (
-      <Button variant={variant} size={size} disabled>
+      <Button disabled size={size} variant={variant}>
         Loading...
       </Button>
     )
   }
 
   if (authenticated) {
-    const isExpiringSoon = expires && expires < Date.now() + 300000 // 5 minutes
+    const isExpiringSoon = expires && expires < Date.now() + 300_000 // 5 minutes
 
     return (
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 text-sm text-green-600">
+        <div className="flex items-center gap-1 text-green-600 text-sm">
           <User className="size-4" />
           <span>Claude {mode === 'max' ? 'Max' : 'Console'}</span>
           {isExpiringSoon && <span className="text-amber-600">(Expires soon)</span>}
         </div>
-        <Button variant="outline" size={size} onClick={logout}>
+        <Button onClick={logout} size={size} variant="outline">
           <LogOut className="size-4" />
           Logout
         </Button>
@@ -44,7 +44,7 @@ export function AnthropicAuthButton({
   }
 
   return (
-    <Button variant={variant} size={size} onClick={() => login(mode)}>
+    <Button onClick={() => login(mode)} size={size} variant={variant}>
       <LogIn className="size-4" />
       Login to Claude {mode === 'max' ? 'Max' : 'Console'}
     </Button>

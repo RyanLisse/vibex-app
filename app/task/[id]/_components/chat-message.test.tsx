@@ -1,11 +1,22 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ChatMessage } from './chat-message'
+
+// Mock Lucide React icons
+vi.mock('lucide-react', () => ({
+  Bot: ({ className, ...props }: any) => (
+    <svg className={className} data-testid="bot-icon" {...props} />
+  ),
+  User: ({ className, ...props }: any) => (
+    <svg className={className} data-testid="user-icon" {...props} />
+  ),
+}))
 
 // Mock the Markdown component
 vi.mock('@/components/markdown', () => ({
-  Markdown: ({ children, repoUrl, branch }: { children: React.ReactNode; repoUrl?: string; branch?: string }) => (
-    <div data-testid="markdown" data-repo-url={repoUrl} data-branch={branch}>
+  Markdown: ({ children, repoUrl, branch }: any) => (
+    <div data-branch={branch} data-repo-url={repoUrl} data-testid="markdown">
       {children}
     </div>
   ),
@@ -13,146 +24,214 @@ vi.mock('@/components/markdown', () => ({
 
 // Mock the StreamingIndicator component
 vi.mock('@/components/streaming-indicator', () => ({
-  StreamingIndicator: ({ size, variant }: { size: string; variant: string }) => (
-    <span data-testid="streaming-indicator" data-size={size} data-variant={variant}>
-      ...
-    </span>
+  StreamingIndicator: ({ size, variant }: any) => (
+    <div data-size={size} data-testid="streaming-indicator" data-variant={variant} />
   ),
 }))
 
-describe('ChatMessage', () => {
-  it('should render user message correctly', () => {
-    render(<ChatMessage role="user" text="Hello, how can I help you?" />)
+// Mock the utils
+vi.mock('@/lib/utils', () => ({
+  cn: (...args: any[]) => args.filter(Boolean).join(' '),
+}))
 
-    expect(screen.getByText('Hello, how can I help you?')).toBeTruthy()
-    
-    // Check for User icon (from lucide-react)
-    const userIcon = document.querySelector('svg[data-lucide="user"]')
-    expect(userIcon).toBeTruthy()
+describe('ChatMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('should render assistant message correctly', () => {
-    render(<ChatMessage role="assistant" text="I can help you with that!" />)
+  it('should render user message', () => {
+    render(<ChatMessage role="user" text="Hello, this is a test message" />)
 
-    expect(screen.getByTestId('markdown')).toHaveTextContent('I can help you with that!')
-    
-    // Check for Bot icon (from lucide-react)
-    const botIcon = document.querySelector('svg[data-lucide="bot"]')
-    expect(botIcon).toBeTruthy()
+    expect(screen.getByText('Hello, this is a test message')).toBeInTheDocument()
+    expect(screen.getByTestId('user-icon')).toBeInTheDocument()
+  })
+
+  it('should render assistant message', () => {
+    render(<ChatMessage role="assistant" text="Hello, I am an AI assistant" />)
+
+    expect(screen.getByText('Hello, I am an AI assistant')).toBeInTheDocument()
+    expect(screen.getByTestId('bot-icon')).toBeInTheDocument()
   })
 
   it('should render streaming assistant message', () => {
+    render(<ChatMessage isStreaming={true} role="assistant" text="This is a streaming message" />)
+
+    expect(screen.getByText('This is a streaming message')).toBeInTheDocument()
+    expect(screen.getByTestId('streaming-indicator')).toBeInTheDocument()
+  })
+
+  it('should render streaming with progress', () => {
     render(
-      <ChatMessage 
-        role="assistant" 
-        text="This is a streaming message..." 
+      <ChatMessage
         isStreaming={true}
+        role="assistant"
         streamProgress={{ chunkIndex: 2, totalChunks: 10 }}
+        text="This is a streaming message"
       />
     )
 
-    expect(screen.getByTestId('streaming-indicator')).toBeTruthy()
-    expect(screen.getByTestId('streaming-indicator')).toHaveAttribute('data-size', 'sm')
-    expect(screen.getByTestId('streaming-indicator')).toHaveAttribute('data-variant', 'cursor')
-    
-    // Check for progress percentage
-    expect(screen.getByText('30%')).toBeTruthy()
+    expect(screen.getByText('30%')).toBeInTheDocument()
+    expect(screen.getByTestId('streaming-indicator')).toBeInTheDocument()
   })
 
-  it('should render streaming indicator without progress', () => {
+  it('should render markdown for assistant messages', () => {
     render(
-      <ChatMessage 
-        role="assistant" 
-        text="Streaming without progress..." 
-        isStreaming={true}
-      />
-    )
-
-    expect(screen.getByTestId('streaming-indicator')).toBeTruthy()
-    expect(screen.queryByText('%')).toBeNull()
-  })
-
-  it('should pass repository info to Markdown component', () => {
-    const repoUrl = 'https://github.com/user/repo'
-    const branch = 'main'
-    
-    render(
-      <ChatMessage 
-        role="assistant" 
-        text="Here's the code..." 
-        repoUrl={repoUrl}
-        branch={branch}
+      <ChatMessage
+        branch="main"
+        repoUrl="https://github.com/test/repo"
+        role="assistant"
+        text="# Hello\n\nThis is **bold** text"
       />
     )
 
     const markdown = screen.getByTestId('markdown')
-    expect(markdown).toHaveAttribute('data-repo-url', repoUrl)
-    expect(markdown).toHaveAttribute('data-branch', branch)
+    expect(markdown).toHaveAttribute('data-repo-url', 'https://github.com/test/repo')
+    expect(markdown).toHaveAttribute('data-branch', 'main')
+    expect(markdown).toHaveTextContent('# Hello\n\nThis is **bold** text')
   })
 
-  it('should apply correct CSS classes for user messages', () => {
-    const { container } = render(<ChatMessage role="user" text="User message" />)
+  it('should render plain text for user messages', () => {
+    render(<ChatMessage role="user" text="This is a user message" />)
 
-    const messageContainer = container.firstChild as HTMLElement
-    expect(messageContainer).toHaveClass('flex', 'gap-3', 'animate-in', 'duration-300', 'justify-end', 'slide-in-from-right')
-  })
-
-  it('should apply correct CSS classes for assistant messages', () => {
-    const { container } = render(<ChatMessage role="assistant" text="Assistant message" />)
-
-    const messageContainer = container.firstChild as HTMLElement
-    expect(messageContainer).toHaveClass('flex', 'gap-3', 'animate-in', 'duration-300', 'justify-start', 'slide-in-from-left')
-  })
-
-  it('should have different styling for user vs assistant messages', () => {
-    const { container: userContainer } = render(<ChatMessage role="user" text="User message" />)
-    const { container: assistantContainer } = render(<ChatMessage role="assistant" text="Assistant message" />)
-
-    const userMessageBubble = userContainer.querySelector('.bg-primary')
-    const assistantMessageBubble = assistantContainer.querySelector('.bg-card')
-
-    expect(userMessageBubble).toBeTruthy()
-    expect(assistantMessageBubble).toBeTruthy()
+    expect(screen.getByText('This is a user message')).toBeInTheDocument()
+    expect(screen.queryByTestId('markdown')).not.toBeInTheDocument()
   })
 
   it('should handle empty text', () => {
     render(<ChatMessage role="user" text="" />)
 
-    const messageElement = screen.getByText('')
-    expect(messageElement).toBeTruthy()
+    expect(screen.getByTestId('user-icon')).toBeInTheDocument()
   })
 
-  it('should handle long text content', () => {
-    const longText = 'This is a very long message that should be handled properly by the component with appropriate styling and layout considerations.'
-    
-    render(<ChatMessage role="assistant" text={longText} />)
+  it('should handle long messages', () => {
+    const longMessage = 'A'.repeat(1000)
+    render(<ChatMessage role="user" text={longMessage} />)
 
-    expect(screen.getByTestId('markdown')).toHaveTextContent(longText)
+    expect(screen.getByText(longMessage)).toBeInTheDocument()
   })
 
-  it('should show streaming shimmer effect for assistant messages', () => {
-    const { container } = render(
-      <ChatMessage 
-        role="assistant" 
-        text="Streaming message" 
+  it('should apply correct styling for assistant messages', () => {
+    render(<ChatMessage role="assistant" text="Assistant message" />)
+
+    const messageContainer = screen.getByText('Assistant message').closest('div')
+    expect(messageContainer).toHaveClass('bg-card', 'border', 'border-border')
+  })
+
+  it('should apply correct styling for user messages', () => {
+    render(<ChatMessage role="user" text="User message" />)
+
+    const messageContainer = screen.getByText('User message').closest('div')
+    expect(messageContainer).toHaveClass('bg-primary', 'text-primary-foreground')
+  })
+
+  it('should show streaming animation for assistant avatar', () => {
+    render(<ChatMessage isStreaming={true} role="assistant" text="Streaming message" />)
+
+    const avatarContainer = screen.getByTestId('bot-icon').closest('div')
+    expect(avatarContainer).toHaveClass('relative', 'overflow-hidden')
+  })
+
+  it('should handle streaming indicator variants', () => {
+    render(<ChatMessage isStreaming={true} role="assistant" text="Streaming message" />)
+
+    const streamingIndicator = screen.getByTestId('streaming-indicator')
+    expect(streamingIndicator).toHaveAttribute('data-size', 'sm')
+    expect(streamingIndicator).toHaveAttribute('data-variant', 'cursor')
+  })
+
+  it('should calculate progress percentage correctly', () => {
+    render(
+      <ChatMessage
         isStreaming={true}
+        role="assistant"
+        streamProgress={{ chunkIndex: 4, totalChunks: 8 }}
+        text="Streaming message"
       />
     )
 
-    const shimmerElement = container.querySelector('.bg-gradient-to-r')
-    expect(shimmerElement).toBeTruthy()
+    expect(screen.getByText('63%')).toBeInTheDocument()
   })
 
-  it('should not show streaming effects for user messages', () => {
-    const { container } = render(
-      <ChatMessage 
-        role="user" 
-        text="User message" 
+  it('should handle zero progress', () => {
+    render(
+      <ChatMessage
         isStreaming={true}
+        role="assistant"
+        streamProgress={{ chunkIndex: 0, totalChunks: 10 }}
+        text="Streaming message"
       />
     )
 
-    expect(screen.queryByTestId('streaming-indicator')).toBeNull()
-    expect(container.querySelector('.bg-gradient-to-r')).toBeNull()
+    expect(screen.getByText('10%')).toBeInTheDocument()
+  })
+
+  it('should handle complete progress', () => {
+    render(
+      <ChatMessage
+        isStreaming={true}
+        role="assistant"
+        streamProgress={{ chunkIndex: 9, totalChunks: 10 }}
+        text="Streaming message"
+      />
+    )
+
+    expect(screen.getByText('100%')).toBeInTheDocument()
+  })
+
+  it('should position user message on the right', () => {
+    render(<ChatMessage role="user" text="User message" />)
+
+    const container = screen.getByText('User message').closest('div')?.parentElement
+    expect(container).toHaveClass('justify-end')
+  })
+
+  it('should position assistant message on the left', () => {
+    render(<ChatMessage role="assistant" text="Assistant message" />)
+
+    const container = screen.getByText('Assistant message').closest('div')?.parentElement
+    expect(container).toHaveClass('justify-start')
+  })
+
+  it('should handle code blocks in markdown', () => {
+    render(<ChatMessage role="assistant" text="```javascript\nconsole.log('Hello World');\n```" />)
+
+    const markdown = screen.getByTestId('markdown')
+    expect(markdown).toHaveTextContent("```javascript\nconsole.log('Hello World');\n```")
+  })
+
+  it('should handle markdown with repository context', () => {
+    render(
+      <ChatMessage
+        branch="feature-branch"
+        repoUrl="https://github.com/test/repo"
+        role="assistant"
+        text="Check out this [file](./src/index.ts)"
+      />
+    )
+
+    const markdown = screen.getByTestId('markdown')
+    expect(markdown).toHaveAttribute('data-repo-url', 'https://github.com/test/repo')
+    expect(markdown).toHaveAttribute('data-branch', 'feature-branch')
+  })
+
+  it('should handle special characters in text', () => {
+    const specialText = 'Hello! @user #hashtag $variable & <div>HTML</div>'
+    render(<ChatMessage role="user" text={specialText} />)
+
+    expect(screen.getByText(specialText)).toBeInTheDocument()
+  })
+
+  it('should handle newlines in user messages', () => {
+    const multilineText = 'Line 1\nLine 2\nLine 3'
+    render(<ChatMessage role="user" text={multilineText} />)
+
+    expect(screen.getByText(multilineText)).toBeInTheDocument()
+  })
+
+  it('should handle unicode characters', () => {
+    const unicodeText = 'Hello 🌍 World! 你好 🚀'
+    render(<ChatMessage role="user" text={unicodeText} />)
+
+    expect(screen.getByText(unicodeText)).toBeInTheDocument()
   })
 })

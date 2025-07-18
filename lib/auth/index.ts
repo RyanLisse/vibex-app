@@ -1,5 +1,5 @@
-import path from 'path'
 import fs from 'fs/promises'
+import path from 'path'
 import { z } from 'zod'
 
 const OauthSchema = z.object({
@@ -39,7 +39,7 @@ export const Auth = {
       const info = InfoSchema.safeParse(parsed[providerID])
       return info.success ? info.data : undefined
     } catch {
-      return undefined
+      return
     }
   },
 

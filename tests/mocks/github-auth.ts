@@ -127,7 +127,7 @@ export const mockGitHubOAuth = {
 export const mockGitHubAPI = {
   // User operations
   getUser: vi.fn().mockImplementation((token?: string) => {
-    if (!token && !mockAuthState.isAuthenticated) {
+    if (!(token || mockAuthState.isAuthenticated)) {
       return Promise.reject(new Error('Unauthorized'))
     }
 
@@ -140,7 +140,7 @@ export const mockGitHubAPI = {
 
   // Repository operations
   getRepositories: vi.fn().mockImplementation((token?: string) => {
-    if (!token && !mockAuthState.isAuthenticated) {
+    if (!(token || mockAuthState.isAuthenticated)) {
       return Promise.reject(new Error('Unauthorized'))
     }
 
@@ -182,7 +182,7 @@ export const mockGitHubAPI = {
     rate: {
       limit: 5000,
       remaining: 4999,
-      reset: Date.now() + 3600000, // 1 hour from now
+      reset: Date.now() + 3_600_000, // 1 hour from now
     },
   }),
 }
@@ -191,7 +191,7 @@ export const mockGitHubAPI = {
 export const githubTestDataGenerators = {
   // Generate mock user
   createMockUser: (overrides: Partial<MockGitHubUser> = {}): MockGitHubUser => ({
-    id: 123456,
+    id: 123_456,
     login: 'testuser',
     name: 'Test User',
     email: 'test@example.com',
@@ -211,11 +211,11 @@ export const githubTestDataGenerators = {
 
   // Generate mock repository
   createMockRepository: (overrides: Partial<MockGitHubRepository> = {}): MockGitHubRepository => ({
-    id: Math.floor(Math.random() * 1000000),
+    id: Math.floor(Math.random() * 1_000_000),
     name: 'test-repo',
     full_name: 'testuser/test-repo',
     owner: {
-      id: 123456,
+      id: 123_456,
       login: 'testuser',
       avatar_url: 'https://github.com/testuser.png',
     },
@@ -416,7 +416,7 @@ export const githubTestHelpers = {
   },
 
   // Wait for authentication
-  waitForAuth: async (timeout: number = 1000) => {
+  waitForAuth: async (timeout = 1000) => {
     return new Promise((resolve, reject) => {
       const checkAuth = () => {
         if (mockAuthState.isAuthenticated) {

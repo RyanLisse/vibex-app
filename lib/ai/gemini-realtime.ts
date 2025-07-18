@@ -1,5 +1,11 @@
-import { GoogleGenAI, LiveServerMessage, MediaResolution, Modality, Session } from '@google/genai'
 import type { FunctionCall, FunctionResponse } from '@google/genai'
+import {
+  GoogleGenAI,
+  type LiveServerMessage,
+  MediaResolution,
+  Modality,
+  type Session,
+} from '@google/genai'
 
 export interface GeminiRealtimeConfig {
   apiKey: string
@@ -228,12 +234,12 @@ export function parseMimeType(mimeType: string): WavConversionOptions {
   const options: Partial<WavConversionOptions> = {
     numChannels: 1,
     bitsPerSample: 16,
-    sampleRate: 24000, // Default sample rate
+    sampleRate: 24_000, // Default sample rate
   }
 
   // Parse L16 format
   if (format && format.startsWith('L')) {
-    const bits = parseInt(format.slice(1), 10)
+    const bits = Number.parseInt(format.slice(1), 10)
     if (!isNaN(bits)) {
       options.bitsPerSample = bits
     }
@@ -243,7 +249,7 @@ export function parseMimeType(mimeType: string): WavConversionOptions {
   for (const param of params) {
     const [key, value] = param.split('=').map((s) => s.trim())
     if (key === 'rate') {
-      options.sampleRate = parseInt(value, 10)
+      options.sampleRate = Number.parseInt(value, 10)
     }
   }
 

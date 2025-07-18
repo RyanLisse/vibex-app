@@ -830,7 +830,7 @@ export type FormField = z.infer<typeof FormFieldSchema>
 export const validateNestedSchema = <T>(
   schema: z.ZodSchema<T>,
   data: unknown,
-  path: string = ''
+  path = ''
 ): { success: boolean; data?: T; errors?: Record<string, string> } => {
   try {
     const result = schema.parse(data)

@@ -1,7 +1,7 @@
-import React from 'react'
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
+import React from 'react'
+import { describe, expect, it, vi } from 'vitest'
 import { Button } from './button'
 
 describe('Button Integration Tests', () => {
@@ -11,7 +11,7 @@ describe('Button Integration Tests', () => {
 
       render(
         <form onSubmit={handleSubmit}>
-          <input name="test" defaultValue="value" />
+          <input defaultValue="value" name="test" />
           <Button type="submit">Submit</Button>
         </form>
       )
@@ -27,7 +27,7 @@ describe('Button Integration Tests', () => {
 
       render(
         <form onSubmit={handleSubmit}>
-          <input name="test" defaultValue="value" />
+          <input defaultValue="value" name="test" />
           <Button type="button">Don&apos;t Submit</Button>
         </form>
       )
@@ -151,11 +151,11 @@ describe('Button Integration Tests', () => {
 
       render(
         <Button
+          onBlur={handleBlur}
           onClick={handleClick}
+          onFocus={handleFocus}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
         >
           Multi Event Button
         </Button>
@@ -250,10 +250,10 @@ describe('Button Integration Tests', () => {
     it('works with screen readers', async () => {
       render(
         <Button
-          aria-label="Close dialog"
           aria-describedby="help-text"
           aria-expanded={false}
           aria-haspopup="dialog"
+          aria-label="Close dialog"
         >
           ×
         </Button>

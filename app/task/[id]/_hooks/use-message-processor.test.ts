@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
-import { useMessageProcessor } from './use-message-processor'
+import { act, renderHook } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TaskMessage } from '../_types/message-types'
+import { useMessageProcessor } from './use-message-processor'
 
 // Mock the message guards
 vi.mock('../_utils/message-guards', () => ({
@@ -70,7 +70,7 @@ describe('useMessageProcessor', () => {
       type: 'assistant',
       content: 'Complete message',
       timestamp: Date.now(),
-      status: 'complete'
+      status: 'complete',
     }
 
     await act(async () => {
@@ -95,7 +95,7 @@ describe('useMessageProcessor', () => {
       type: 'assistant',
       content: 'Streaming...',
       timestamp: Date.now(),
-      status: 'streaming'
+      status: 'streaming',
     }
 
     await act(async () => {
@@ -121,7 +121,7 @@ describe('useMessageProcessor', () => {
       type: 'error',
       content: 'Error occurred',
       timestamp: Date.now(),
-      status: 'error'
+      status: 'error',
     }
 
     await act(async () => {
@@ -147,7 +147,7 @@ describe('useMessageProcessor', () => {
       type: 'status',
       content: 'Task started',
       timestamp: Date.now(),
-      status: 'complete'
+      status: 'complete',
     }
 
     await act(async () => {
@@ -156,7 +156,7 @@ describe('useMessageProcessor', () => {
 
     expect(mockUpdateTask).toHaveBeenCalledWith('task-123', {
       status: 'IN_PROGRESS',
-      lastActivity: expect.any(Number)
+      lastActivity: expect.any(Number),
     })
     expect(mockAddMessage).toHaveBeenCalledWith('task-123', message)
   })
@@ -179,8 +179,8 @@ describe('useMessageProcessor', () => {
       tool: {
         name: 'file_read',
         input: { path: '/test.txt' },
-        output: 'File content'
-      }
+        output: 'File content',
+      },
     }
 
     await act(async () => {
@@ -194,7 +194,7 @@ describe('useMessageProcessor', () => {
   it('should process stream chunk', async () => {
     mockStreamUtils.parseStreamData.mockReturnValue({
       type: 'content',
-      data: { content: 'chunk data' }
+      data: { content: 'chunk data' },
     })
 
     const { result } = renderHook(() => useMessageProcessor('task-123'))
@@ -297,15 +297,15 @@ describe('useMessageProcessor', () => {
         type: 'user',
         content: 'First message',
         timestamp: Date.now(),
-        status: 'complete'
+        status: 'complete',
       },
       {
         id: 'msg-2',
         type: 'assistant',
         content: 'Second message',
         timestamp: Date.now(),
-        status: 'complete'
-      }
+        status: 'complete',
+      },
     ]
 
     for (const message of messages) {
@@ -334,21 +334,19 @@ describe('useMessageProcessor', () => {
         type: 'user',
         content: 'First message',
         timestamp: Date.now(),
-        status: 'complete'
+        status: 'complete',
       },
       {
         id: 'msg-2',
         type: 'assistant',
         content: 'Second message',
         timestamp: Date.now(),
-        status: 'complete'
-      }
+        status: 'complete',
+      },
     ]
 
     await act(async () => {
-      await Promise.all(
-        messages.map(message => result.current.processMessage(message))
-      )
+      await Promise.all(messages.map((message) => result.current.processMessage(message)))
     })
 
     expect(mockAddMessage).toHaveBeenCalledTimes(2)
@@ -365,7 +363,7 @@ describe('useMessageProcessor', () => {
       type: 'user',
       content: 'Test message',
       timestamp: Date.now(),
-      status: 'complete'
+      status: 'complete',
     }
 
     await act(async () => {
@@ -402,7 +400,7 @@ describe('useMessageProcessor', () => {
       type: 'assistant',
       content: 'Streaming...',
       timestamp: Date.now(),
-      status: 'streaming'
+      status: 'streaming',
     }
 
     await act(async () => {
@@ -418,7 +416,7 @@ describe('useMessageProcessor', () => {
     const completeMessage: TaskMessage = {
       ...streamingMessage,
       content: 'Complete message',
-      status: 'complete'
+      status: 'complete',
     }
 
     await act(async () => {

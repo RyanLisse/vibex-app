@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { act } from '@testing-library/react'
-import { useEnvironmentsStore } from './environments'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { useEnvironmentStore } from './environments'
 
 describe('useEnvironmentsStore', () => {
   beforeEach(() => {

@@ -472,7 +472,7 @@ export const storageTestHelpers = {
   },
 
   // Wait for IndexedDB operations
-  waitForIndexedDB: async (timeout: number = 100) => {
+  waitForIndexedDB: async (timeout = 100) => {
     return new Promise((resolve) => setTimeout(resolve, timeout))
   },
 

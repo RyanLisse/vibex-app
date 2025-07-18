@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useGitHubAuth } from './use-github-auth'
 
 // Mock next/navigation

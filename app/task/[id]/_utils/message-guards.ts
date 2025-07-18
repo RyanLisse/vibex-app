@@ -1,4 +1,4 @@
-import { IncomingMessage } from '../_types/message-types'
+import type { IncomingMessage } from '../_types/message-types'
 
 function isValidObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null

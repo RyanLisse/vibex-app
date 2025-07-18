@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { FormField } from './form-field'
 
 describe('FormField', () => {
@@ -34,7 +34,7 @@ describe('FormField', () => {
     })
 
     it('renders textarea field correctly', () => {
-      render(<FormField {...defaultProps} type="textarea" rows={5} />)
+      render(<FormField {...defaultProps} rows={5} type="textarea" />)
 
       const textarea = screen.getByRole('textbox')
       expect(textarea).toBeInTheDocument()
@@ -48,7 +48,7 @@ describe('FormField', () => {
         { value: 'medium', label: 'Medium' },
         { value: 'high', label: 'High' },
       ]
-      render(<FormField {...defaultProps} type="select" options={options} />)
+      render(<FormField {...defaultProps} options={options} type="select" />)
 
       const select = screen.getByRole('combobox')
       expect(select).toBeInTheDocument()
@@ -79,13 +79,7 @@ describe('FormField', () => {
 
   describe('Error Handling', () => {
     it('shows error message when hasError is true', () => {
-      render(
-        <FormField
-          {...defaultProps}
-          hasError={true}
-          errorMessage="This field is required"
-        />
-      )
+      render(<FormField {...defaultProps} errorMessage="This field is required" hasError={true} />)
 
       const errorElement = screen.getByRole('alert')
       expect(errorElement).toBeInTheDocument()
@@ -94,13 +88,7 @@ describe('FormField', () => {
     })
 
     it('does not show error message when hasError is false', () => {
-      render(
-        <FormField
-          {...defaultProps}
-          hasError={false}
-          errorMessage="This field is required"
-        />
-      )
+      render(<FormField {...defaultProps} errorMessage="This field is required" hasError={false} />)
 
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
@@ -112,7 +100,7 @@ describe('FormField', () => {
     })
 
     it('sets aria-describedby when hasError is true', () => {
-      render(<FormField {...defaultProps} hasError={true} errorMessage="Error" />)
+      render(<FormField {...defaultProps} errorMessage="Error" hasError={true} />)
 
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-describedby', 'name-error')
     })
@@ -142,7 +130,7 @@ describe('FormField', () => {
         { value: 'low', label: 'Low' },
         { value: 'medium', label: 'Medium' },
       ]
-      render(<FormField {...defaultProps} type="select" options={options} />)
+      render(<FormField {...defaultProps} options={options} type="select" />)
 
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'medium' } })
@@ -170,7 +158,7 @@ describe('FormField', () => {
 
     it('calls onBlur when select loses focus', () => {
       const options = [{ value: 'test', label: 'Test' }]
-      render(<FormField {...defaultProps} type="select" options={options} />)
+      render(<FormField {...defaultProps} options={options} type="select" />)
 
       const select = screen.getByRole('combobox')
       fireEvent.blur(select)

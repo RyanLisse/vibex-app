@@ -1,23 +1,17 @@
-import type { StorybookConfig } from '@storybook/nextjs'
+import type { StorybookConfig } from '@storybook/nextjs-vite'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons: [
-    '@storybook/addon-links',
     '@storybook/addon-essentials',
-    '@storybook/addon-onboarding',
     '@storybook/addon-interactions',
-    '@chromatic-com/storybook',
+    '@storybook/addon-vitest',
     '@storybook/addon-a11y',
     '@storybook/addon-coverage',
   ],
   framework: {
-    name: '@storybook/nextjs',
-    options: {
-      builder: {
-        useSWC: true,
-      },
-    },
+    name: '@storybook/nextjs-vite',
+    options: {},
   },
   staticDirs: ['../public'],
   typescript: {
@@ -31,7 +25,12 @@ const config: StorybookConfig = {
     },
   },
   features: {
-    buildStoriesJson: true,
+    experimentalRSC: true,
+  },
+  build: {
+    test: {
+      disabledAddons: ['@storybook/addon-docs'],
+    },
   },
   core: {
     disableTelemetry: true,

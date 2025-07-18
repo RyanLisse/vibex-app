@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { cookies } from 'next/headers'
 import { VibeKit } from '@vibe-kit/sdk'
-import { createPullRequestAction } from './vibekit'
+import { cookies } from 'next/headers'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/stores/tasks'
+import { createPullRequestAction } from './vibekit'
 
 // Mock dependencies
 vi.mock('next/headers', () => ({
@@ -30,11 +30,17 @@ describe('vibekit actions', () => {
   const mockTask: Task = {
     id: 'task-123',
     title: 'Test Task',
+    description: '',
+    messages: [],
     repository: 'user/repo',
     sessionId: 'session-456',
-    status: 'pending',
-    created_at: new Date(),
-    updated_at: new Date(),
+    status: 'IN_PROGRESS',
+    branch: 'main',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isArchived: false,
+    mode: 'code',
+    hasChanges: false,
   }
 
   beforeEach(() => {
@@ -61,7 +67,7 @@ describe('vibekit actions', () => {
 
       expect(cookies).toHaveBeenCalled()
       expect(mockCookies.get).toHaveBeenCalledWith('github_access_token')
-      
+
       expect(VibeKit).toHaveBeenCalledWith({
         agent: {
           type: 'codex',
@@ -208,7 +214,7 @@ describe('vibekit actions', () => {
     it('should handle task without sessionId', async () => {
       const taskWithoutSession = {
         ...mockTask,
-        sessionId: undefined,
+        sessionId: undefined as any,
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })

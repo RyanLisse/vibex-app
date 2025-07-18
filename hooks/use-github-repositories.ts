@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { GitHubRepository } from '@/lib/github'
+import { useCallback, useState } from 'react'
+import type { GitHubRepository } from '@/lib/github'
 import { fetchGitHubRepositories } from '@/lib/github-api'
 
 interface UseGitHubRepositoriesReturn {

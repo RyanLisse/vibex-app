@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 import type { ContactForm } from '@/src/schemas/forms'
 
 interface FormFieldProps {
@@ -57,20 +57,20 @@ export function FormField({
           </select>
         )
       case 'textarea':
-        return <textarea {...commonProps} rows={rows} placeholder={placeholder} />
+        return <textarea {...commonProps} placeholder={placeholder} rows={rows} />
       default:
-        return <input {...commonProps} type={type} placeholder={placeholder} />
+        return <input {...commonProps} placeholder={placeholder} type={type} />
     }
   }
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="mb-1 block font-medium text-gray-700 text-sm" htmlFor={id}>
         {label} {required && '*'}
       </label>
       {renderInput()}
       {hasError && errorMessage && (
-        <p id={`${id}-error`} className="mt-1 text-sm text-red-600" role="alert">
+        <p className="mt-1 text-red-600 text-sm" id={`${id}-error`} role="alert">
           {errorMessage}
         </p>
       )}

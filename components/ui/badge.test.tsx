@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
+import { describe, expect, it } from 'vitest'
 import { Badge, badgeVariants } from './badge'
 
 describe('Badge', () => {
   it('should render badge with default variant', () => {
     render(<Badge>Default Badge</Badge>)
-    
+
     const badge = screen.getByText('Default Badge')
     expect(badge).toBeInTheDocument()
     expect(badge.tagName).toBe('DIV')
@@ -29,7 +29,7 @@ describe('Badge', () => {
 
   it('should render with secondary variant', () => {
     render(<Badge variant="secondary">Secondary Badge</Badge>)
-    
+
     const badge = screen.getByText('Secondary Badge')
     expect(badge).toHaveClass(
       'border-transparent',
@@ -41,7 +41,7 @@ describe('Badge', () => {
 
   it('should render with destructive variant', () => {
     render(<Badge variant="destructive">Destructive Badge</Badge>)
-    
+
     const badge = screen.getByText('Destructive Badge')
     expect(badge).toHaveClass(
       'border-transparent',
@@ -53,7 +53,7 @@ describe('Badge', () => {
 
   it('should render with outline variant', () => {
     render(<Badge variant="outline">Outline Badge</Badge>)
-    
+
     const badge = screen.getByText('Outline Badge')
     expect(badge).toHaveClass('text-foreground')
     expect(badge).not.toHaveClass('border-transparent')
@@ -61,7 +61,7 @@ describe('Badge', () => {
 
   it('should merge custom className', () => {
     render(<Badge className="custom-class ml-2">Custom Badge</Badge>)
-    
+
     const badge = screen.getByText('Custom Badge')
     expect(badge).toHaveClass('custom-class', 'ml-2')
     expect(badge).toHaveClass('inline-flex') // Should still have base classes
@@ -70,16 +70,16 @@ describe('Badge', () => {
   it('should pass through other HTML div props', () => {
     render(
       <Badge
-        id="test-badge"
+        aria-label="Status badge"
         data-testid="badge"
+        id="test-badge"
         onClick={() => {}}
         role="status"
-        aria-label="Status badge"
       >
         Badge
       </Badge>
     )
-    
+
     const badge = screen.getByTestId('badge')
     expect(badge).toHaveAttribute('id', 'test-badge')
     expect(badge).toHaveAttribute('role', 'status')
@@ -89,30 +89,30 @@ describe('Badge', () => {
   it('should handle onClick events', () => {
     const handleClick = vi.fn()
     render(<Badge onClick={handleClick}>Clickable Badge</Badge>)
-    
+
     const badge = screen.getByText('Clickable Badge')
     badge.click()
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
   it('should render with complex children', () => {
     render(
       <Badge>
-        <svg width="12" height="12" className="mr-1">
+        <svg className="mr-1" height="12" width="12">
           <circle cx="6" cy="6" r="6" />
         </svg>
         <span>Badge with icon</span>
       </Badge>
     )
-    
+
     const badge = screen.getByText('Badge with icon').parentElement
     expect(badge?.querySelector('svg')).toBeInTheDocument()
   })
 
   it('should handle empty badge', () => {
     render(<Badge data-testid="empty-badge" />)
-    
+
     const badge = screen.getByTestId('empty-badge')
     expect(badge).toBeInTheDocument()
     expect(badge).toBeEmptyDOMElement()
@@ -120,7 +120,7 @@ describe('Badge', () => {
 
   it('should have focus styles', () => {
     render(<Badge>Focusable Badge</Badge>)
-    
+
     const badge = screen.getByText('Focusable Badge')
     expect(badge).toHaveClass(
       'focus:outline-none',
@@ -133,13 +133,13 @@ describe('Badge', () => {
   it('should forward ref', () => {
     const ref = React.createRef<HTMLDivElement>()
     render(<Badge ref={ref}>Badge with ref</Badge>)
-    
+
     expect(ref.current).toBeInstanceOf(HTMLDivElement)
   })
 
   it('should render with numeric content', () => {
     render(<Badge>42</Badge>)
-    
+
     const badge = screen.getByText('42')
     expect(badge).toBeInTheDocument()
   })
@@ -150,29 +150,25 @@ describe('Badge', () => {
         Text before <Badge>Inline Badge</Badge> text after
       </div>
     )
-    
+
     const badge = screen.getByText('Inline Badge')
     expect(badge).toHaveClass('inline-flex')
   })
 
   it('should support title attribute', () => {
     render(<Badge title="This is a tooltip">Hover Badge</Badge>)
-    
+
     const badge = screen.getByText('Hover Badge')
     expect(badge).toHaveAttribute('title', 'This is a tooltip')
   })
 
   it('should handle style prop', () => {
-    render(
-      <Badge style={{ backgroundColor: 'red', color: 'white' }}>
-        Styled Badge
-      </Badge>
-    )
-    
+    render(<Badge style={{ backgroundColor: 'red', color: 'white' }}>Styled Badge</Badge>)
+
     const badge = screen.getByText('Styled Badge')
     expect(badge).toHaveStyle({
       backgroundColor: 'red',
-      color: 'white'
+      color: 'white',
     })
   })
 })

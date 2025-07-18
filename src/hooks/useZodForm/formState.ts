@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { type FieldValues, type UseFormReturn } from 'react-hook-form'
+import type { FieldValues, UseFormReturn } from 'react-hook-form'
 
 export interface FormState {
   hasErrors: boolean

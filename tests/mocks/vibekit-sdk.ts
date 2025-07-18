@@ -320,7 +320,7 @@ export const vibeKitTestHelpers = {
   },
 
   // Wait for task status change
-  waitForTaskStatus: async (taskId: string, status: MockTask['status'], timeout: number = 1000) => {
+  waitForTaskStatus: async (taskId: string, status: MockTask['status'], timeout = 1000) => {
     return new Promise((resolve, reject) => {
       const checkStatus = () => {
         const task = mockTasks.find((t) => t.id === taskId)

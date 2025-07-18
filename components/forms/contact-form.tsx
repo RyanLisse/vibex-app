@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
+import type React from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { FormField } from './form-field'
+import type { ContactForm } from '@/src/schemas/forms'
 import {
   contactFormSchema,
-  validateSchema,
   getFieldError,
   hasFieldError,
+  validateSchema,
 } from '@/src/schemas/forms'
-import type { ContactForm } from '@/src/schemas/forms'
+import { FormField } from './form-field'
 
 interface ContactFormProps {
   onSubmit: (data: ContactForm) => Promise<void>
@@ -115,53 +116,53 @@ export function ContactForm({ onSubmit, isLoading = false, className = '' }: Con
   const messageProps = createFieldProps('message', formData, errors, handleInputChange, handleBlur)
 
   return (
-    <form onSubmit={handleSubmit} className={`space-y-4 ${className}`} noValidate>
-      <FormField {...nameProps} label="Name" type="text" placeholder="Enter your full name" />
+    <form className={`space-y-4 ${className}`} noValidate onSubmit={handleSubmit}>
+      <FormField {...nameProps} label="Name" placeholder="Enter your full name" type="text" />
 
       <FormField
         {...emailProps}
         label="Email"
-        type="email"
         placeholder="Enter your email address"
+        type="email"
       />
 
-      <FormField {...subjectProps} label="Subject" type="text" placeholder="Enter the subject" />
+      <FormField {...subjectProps} label="Subject" placeholder="Enter the subject" type="text" />
 
       <FormField
         {...priorityProps}
         label="Priority"
-        type="select"
         options={[
           { value: 'low', label: 'Low' },
           { value: 'medium', label: 'Medium' },
           { value: 'high', label: 'High' },
         ]}
+        type="select"
       />
 
       <FormField
         {...messageProps}
         label="Message"
-        type="textarea"
         placeholder="Enter your message"
         rows={4}
+        type="textarea"
       />
 
       {errors?.formErrors && errors.formErrors.length > 0 && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600" role="alert">
+        <div className="rounded-md border border-red-200 bg-red-50 p-3">
+          <p className="text-red-600 text-sm" role="alert">
             {errors.formErrors[0]}
           </p>
         </div>
       )}
 
-      <div className="flex gap-2 justify-end">
-        <Button type="button" variant="outline" onClick={handleClear} disabled={isLoading}>
+      <div className="flex justify-end gap-2">
+        <Button disabled={isLoading} onClick={handleClear} type="button" variant="outline">
           Clear
         </Button>
-        <Button type="submit" disabled={isLoading} className="min-w-24">
+        <Button className="min-w-24" disabled={isLoading} type="submit">
           {isLoading ? (
             <>
-              <div className="animate-spin rounded-full size-4 border-2 border-current border-t-transparent mr-2" />
+              <div className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               Sending...
             </>
           ) : (

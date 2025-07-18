@@ -1,6 +1,5 @@
-import React from 'react'
-
 import PropTypes from 'prop-types'
+import React from 'react'
 
 import { HeaderContent } from './HeaderContent'
 import './header.css'
@@ -8,10 +7,10 @@ import './header.css'
 export const Header = ({ user, onLogin, onLogout, onCreateAccount }) => (
   <header>
     <HeaderContent
-      user={user}
+      onCreateAccount={onCreateAccount}
       onLogin={onLogin}
       onLogout={onLogout}
-      onCreateAccount={onCreateAccount}
+      user={user}
     />
   </header>
 )
