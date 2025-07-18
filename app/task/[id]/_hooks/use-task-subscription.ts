@@ -12,7 +12,8 @@ interface UseTaskSubscriptionProps {
 }
 
 export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscriptionProps) {
-  const [subscriptionEnabled, setSubscriptionEnabled] = useState(true)
+  // Start with subscription disabled by default to prevent errors
+  const [subscriptionEnabled, setSubscriptionEnabled] = useState(false)
   const [streamingMessages, setStreamingMessages] = useState<Map<string, StreamingMessage>>(
     new Map()
   )
@@ -26,7 +27,28 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
 
   const { processStatusUpdate } = useStatusProcessor({ taskId })
 
+  // Check if Inngest is available on mount
+  useEffect(() => {
+    const checkInngest = async () => {
+      try {
+        const response = await fetch('/api/test-inngest')
+        const data = await response.json()
+        if (data.status === 'ok' && data.config.isDev) {
+          console.log('Inngest is configured, enabling subscription...')
+          setSubscriptionEnabled(true)
+        } else {
+          console.log('Inngest not properly configured, subscription disabled')
+        }
+      } catch (error) {
+        console.log('Failed to check Inngest status:', error)
+      }
+    }
+    
+    checkInngest()
+  }, [])
+
   const refreshToken = useCallback(async () => {
+    console.log('Attempting to refresh Inngest subscription token...')
     const token = await safeAsync(
       () => fetchRealtimeSubscriptionToken(),
       null,
@@ -35,10 +57,12 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
 
     if (!token) {
       console.log('Inngest subscription disabled: No token available')
+      console.log('Make sure Inngest dev server is running with: bunx inngest-cli@latest dev')
       setSubscriptionEnabled(false)
       return null as unknown as TaskChannelToken
     }
 
+    console.log('Inngest subscription token received successfully')
     return token
   }, [])
 

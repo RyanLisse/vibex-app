@@ -8,7 +8,7 @@ export const inngest = new Inngest({
   eventKey: process.env.INNGEST_EVENT_KEY,
   middleware: [realtimeMiddleware()],
   // Enable dev mode for local development
-  isDev: process.env.INNGEST_DEV === '1',
+  isDev: process.env.NODE_ENV === 'development' || process.env.INNGEST_DEV === '1',
 })
 
 export const taskChannel = channel('tasks')

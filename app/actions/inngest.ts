@@ -90,7 +90,13 @@ export async function cancelTaskAction(taskId: string) {
 
 // Helper functions for validation
 const validateInngestConfig = (): boolean => {
-  const { INNGEST_SIGNING_KEY, INNGEST_EVENT_KEY } = process.env
+  const { INNGEST_SIGNING_KEY, INNGEST_EVENT_KEY, NODE_ENV, INNGEST_DEV } = process.env
+
+  // In development mode with INNGEST_DEV=1, we don't need valid keys
+  if (NODE_ENV === 'development' || INNGEST_DEV === '1') {
+    console.log('Inngest running in dev mode - bypassing key validation')
+    return true
+  }
 
   if (!INNGEST_SIGNING_KEY || !INNGEST_EVENT_KEY) {
     console.warn('Inngest not configured - subscription disabled')
