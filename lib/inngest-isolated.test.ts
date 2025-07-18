@@ -55,7 +55,7 @@ describe('inngest isolated tests', () => {
 
   it('should test task channel creation', () => {
     expect(typeof mockTaskChannel).toBe('function')
-    
+
     const channel = mockTaskChannel('test-id')
     expect(channel).toBeDefined()
     expect(typeof channel.status).toBe('function')
@@ -66,7 +66,7 @@ describe('inngest isolated tests', () => {
   it('should test send function', async () => {
     const event = { name: 'test.event', data: { foo: 'bar' } }
     const result = await mockInngest.send(event)
-    
+
     expect(result).toEqual({ ids: ['test-id'] })
     expect(mockInngest.send).toHaveBeenCalledWith(event)
   })
@@ -87,7 +87,7 @@ describe('inngest isolated tests', () => {
     // Set env vars for this test
     process.env.NODE_ENV = 'test'
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
-    
+
     expect(process.env.NODE_ENV).toBe('test')
     expect(process.env.INNGEST_EVENT_KEY).toBe('test-event-key')
   })

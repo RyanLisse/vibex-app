@@ -10,7 +10,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.components.ts'], // Use setup without fake timers
     pool: 'threads', // Use threads instead of forks for better performance
-    
+
     css: true,
     include: [
       'components/**/*.test.{jsx,tsx}',

@@ -1,6 +1,6 @@
 /**
  * WASM Detection and Progressive Enhancement Utilities
- * 
+ *
  * This module provides utilities for detecting WASM capabilities and
  * progressively enhancing the application with WASM-optimized features.
  */
@@ -86,15 +86,30 @@ export class WASMDetector {
   private async checkWASMFeatures(capabilities: WASMCapabilities): Promise<void> {
     try {
       // Check for threads support
-      capabilities.hasThreads = typeof SharedArrayBuffer !== 'undefined' && 
-                                typeof Worker !== 'undefined'
+      capabilities.hasThreads =
+        typeof SharedArrayBuffer !== 'undefined' && typeof Worker !== 'undefined'
 
       // Check for SIMD support
       try {
-        const simdModule = await WebAssembly.compile(new Uint8Array([
-          0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-          0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7b,       // Type section (v128)
-        ]))
+        const simdModule = await WebAssembly.compile(
+          new Uint8Array([
+            0x00,
+            0x61,
+            0x73,
+            0x6d,
+            0x01,
+            0x00,
+            0x00,
+            0x00, // WASM header
+            0x01,
+            0x05,
+            0x01,
+            0x60,
+            0x00,
+            0x01,
+            0x7b, // Type section (v128)
+          ])
+        )
         capabilities.hasSIMD = true
       } catch {
         capabilities.hasSIMD = false
@@ -102,12 +117,35 @@ export class WASMDetector {
 
       // Check for exception handling
       try {
-        await WebAssembly.compile(new Uint8Array([
-          0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-          0x01, 0x04, 0x01, 0x60, 0x00, 0x00,             // Type section
-          0x03, 0x02, 0x01, 0x00,                         // Function section
-          0x0a, 0x05, 0x01, 0x03, 0x00, 0x06, 0x0b,       // Code section with try
-        ]))
+        await WebAssembly.compile(
+          new Uint8Array([
+            0x00,
+            0x61,
+            0x73,
+            0x6d,
+            0x01,
+            0x00,
+            0x00,
+            0x00, // WASM header
+            0x01,
+            0x04,
+            0x01,
+            0x60,
+            0x00,
+            0x00, // Type section
+            0x03,
+            0x02,
+            0x01,
+            0x00, // Function section
+            0x0a,
+            0x05,
+            0x01,
+            0x03,
+            0x00,
+            0x06,
+            0x0b, // Code section with try
+          ])
+        )
         capabilities.hasExceptionHandling = true
       } catch {
         capabilities.hasExceptionHandling = false
@@ -115,12 +153,38 @@ export class WASMDetector {
 
       // Check for bulk memory operations
       try {
-        await WebAssembly.compile(new Uint8Array([
-          0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-          0x01, 0x04, 0x01, 0x60, 0x00, 0x00,             // Type section
-          0x03, 0x02, 0x01, 0x00,                         // Function section
-          0x0a, 0x07, 0x01, 0x05, 0x00, 0xfc, 0x08, 0x00, 0x00, 0x0b, // memory.fill
-        ]))
+        await WebAssembly.compile(
+          new Uint8Array([
+            0x00,
+            0x61,
+            0x73,
+            0x6d,
+            0x01,
+            0x00,
+            0x00,
+            0x00, // WASM header
+            0x01,
+            0x04,
+            0x01,
+            0x60,
+            0x00,
+            0x00, // Type section
+            0x03,
+            0x02,
+            0x01,
+            0x00, // Function section
+            0x0a,
+            0x07,
+            0x01,
+            0x05,
+            0x00,
+            0xfc,
+            0x08,
+            0x00,
+            0x00,
+            0x0b, // memory.fill
+          ])
+        )
         capabilities.hasBulkMemory = true
       } catch {
         capabilities.hasBulkMemory = false
@@ -128,10 +192,25 @@ export class WASMDetector {
 
       // Check for reference types
       try {
-        await WebAssembly.compile(new Uint8Array([
-          0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-          0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x6f,       // Type section (externref)
-        ]))
+        await WebAssembly.compile(
+          new Uint8Array([
+            0x00,
+            0x61,
+            0x73,
+            0x6d,
+            0x01,
+            0x00,
+            0x00,
+            0x00, // WASM header
+            0x01,
+            0x05,
+            0x01,
+            0x60,
+            0x00,
+            0x01,
+            0x6f, // Type section (externref)
+          ])
+        )
         capabilities.hasReferenceTypes = true
       } catch {
         capabilities.hasReferenceTypes = false
@@ -151,13 +230,51 @@ export class WASMDetector {
 
     try {
       // Simple WASM module for benchmarking
-      const wasmModule = await WebAssembly.compile(new Uint8Array([
-        0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-        0x01, 0x07, 0x01, 0x60, 0x02, 0x7f, 0x7f, 0x01, 0x7f, // Type: (i32, i32) -> i32
-        0x03, 0x02, 0x01, 0x00,                         // Function section
-        0x07, 0x07, 0x01, 0x03, 0x61, 0x64, 0x64, 0x00, 0x00, // Export "add"
-        0x0a, 0x09, 0x01, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6a, 0x0b, // add function
-      ]))
+      const wasmModule = await WebAssembly.compile(
+        new Uint8Array([
+          0x00,
+          0x61,
+          0x73,
+          0x6d,
+          0x01,
+          0x00,
+          0x00,
+          0x00, // WASM header
+          0x01,
+          0x07,
+          0x01,
+          0x60,
+          0x02,
+          0x7f,
+          0x7f,
+          0x01,
+          0x7f, // Type: (i32, i32) -> i32
+          0x03,
+          0x02,
+          0x01,
+          0x00, // Function section
+          0x07,
+          0x07,
+          0x01,
+          0x03,
+          0x61,
+          0x64,
+          0x64,
+          0x00,
+          0x00, // Export "add"
+          0x0a,
+          0x09,
+          0x01,
+          0x07,
+          0x00,
+          0x20,
+          0x00,
+          0x20,
+          0x01,
+          0x6a,
+          0x0b, // add function
+        ])
+      )
 
       const wasmInstance = await WebAssembly.instantiate(wasmModule)
       const addFunction = wasmInstance.exports.add as (a: number, b: number) => number
@@ -165,11 +282,11 @@ export class WASMDetector {
       // Benchmark: perform 1M additions
       const iterations = 1000000
       const startTime = performance.now()
-      
+
       for (let i = 0; i < iterations; i++) {
         addFunction(i, i + 1)
       }
-      
+
       const endTime = performance.now()
       const executionTime = endTime - startTime
 
@@ -208,8 +325,10 @@ export class WASMDetector {
     const { isSupported, performance, hasSIMD, hasThreads } = this.capabilities
 
     return {
-      enableVectorSearch: isSupported && (performance === 'high' || performance === 'medium') && hasSIMD,
-      enableSQLiteOptimizations: isSupported && (performance === 'high' || performance === 'medium'),
+      enableVectorSearch:
+        isSupported && (performance === 'high' || performance === 'medium') && hasSIMD,
+      enableSQLiteOptimizations:
+        isSupported && (performance === 'high' || performance === 'medium'),
       enableComputeOptimizations: isSupported && performance === 'high' && hasThreads,
       fallbackToJS: !isSupported || performance === 'low' || performance === 'unknown',
       performanceThreshold: this.performanceBenchmark || 0,
@@ -221,7 +340,7 @@ export class WASMDetector {
    */
   shouldUseOptimization(type: 'vector' | 'sqlite' | 'compute'): boolean {
     const config = this.getOptimizationConfig()
-    
+
     switch (type) {
       case 'vector':
         return config.enableVectorSearch
@@ -261,5 +380,5 @@ export const wasmDetector = WASMDetector.getInstance()
 // Utility functions
 export const detectWASMCapabilities = () => wasmDetector.detectCapabilities()
 export const getWASMOptimizationConfig = () => wasmDetector.getOptimizationConfig()
-export const shouldUseWASMOptimization = (type: 'vector' | 'sqlite' | 'compute') => 
+export const shouldUseWASMOptimization = (type: 'vector' | 'sqlite' | 'compute') =>
   wasmDetector.shouldUseOptimization(type)

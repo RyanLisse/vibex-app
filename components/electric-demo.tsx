@@ -3,13 +3,17 @@
 import { useState } from 'react'
 import { useElectricTasks, useElectricEnvironments } from '@/hooks/use-electric-tasks'
 import { useElectricContext } from '@/components/providers/electric-provider'
-import { ElectricConnectionStatus, ElectricSyncButton, ElectricOfflineIndicator } from '@/components/providers/electric-provider'
+import {
+  ElectricConnectionStatus,
+  ElectricSyncButton,
+  ElectricOfflineIndicator,
+} from '@/components/providers/electric-provider'
 
 // Demo component to showcase ElectricSQL integration
 export function ElectricDemo() {
   const [userId] = useState('demo-user-123') // In real app, get from auth
   const { isReady, isConnected, isSyncing, error } = useElectricContext()
-  
+
   const {
     tasks,
     taskStats,
@@ -276,7 +280,9 @@ export function ElectricDemo() {
 
         {/* Environments List */}
         {environmentsError ? (
-          <div className="text-red-600 text-sm">Error loading environments: {environmentsError.message}</div>
+          <div className="text-red-600 text-sm">
+            Error loading environments: {environmentsError.message}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {environments.length === 0 ? (

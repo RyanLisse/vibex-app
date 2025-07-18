@@ -1,6 +1,6 @@
 /**
  * Compute WASM Service
- * 
+ *
  * This module provides high-performance computational tasks using WebAssembly
  * for heavy data processing, analytics, and mathematical operations.
  */
@@ -100,11 +100,11 @@ export class ComputeWASM {
       }
 
       await this.loadWASMModule()
-      
+
       if (this.config.enableParallelProcessing) {
         await this.initializeWorkers()
       }
-      
+
       this.isInitialized = true
       console.log('✅ WASM Compute Engine initialized')
     } catch (error) {
@@ -119,11 +119,51 @@ export class ComputeWASM {
   private async loadWASMModule(): Promise<void> {
     // In a real implementation, this would load an actual compute WASM module
     const wasmCode = new Uint8Array([
-      0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-      0x01, 0x07, 0x01, 0x60, 0x02, 0x7f, 0x7f, 0x01, 0x7f, // Type section
-      0x03, 0x02, 0x01, 0x00, // Function section
-      0x07, 0x0c, 0x01, 0x08, 0x63, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x00, 0x00, // Export "compute"
-      0x0a, 0x09, 0x01, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6a, 0x0b, // Function body
+      0x00,
+      0x61,
+      0x73,
+      0x6d,
+      0x01,
+      0x00,
+      0x00,
+      0x00, // WASM header
+      0x01,
+      0x07,
+      0x01,
+      0x60,
+      0x02,
+      0x7f,
+      0x7f,
+      0x01,
+      0x7f, // Type section
+      0x03,
+      0x02,
+      0x01,
+      0x00, // Function section
+      0x07,
+      0x0c,
+      0x01,
+      0x08,
+      0x63,
+      0x6f,
+      0x6d,
+      0x70,
+      0x75,
+      0x74,
+      0x65,
+      0x00,
+      0x00, // Export "compute"
+      0x0a,
+      0x09,
+      0x01,
+      0x07,
+      0x00,
+      0x20,
+      0x00,
+      0x20,
+      0x01,
+      0x6a,
+      0x0b, // Function body
     ])
 
     this.wasmModule = await WebAssembly.compile(wasmCode)
@@ -194,13 +234,14 @@ export class ComputeWASM {
     const mean = sum / count
 
     // Median
-    const median = count % 2 === 0
-      ? (sorted[count / 2 - 1] + sorted[count / 2]) / 2
-      : sorted[Math.floor(count / 2)]
+    const median =
+      count % 2 === 0
+        ? (sorted[count / 2 - 1] + sorted[count / 2]) / 2
+        : sorted[Math.floor(count / 2)]
 
     // Mode (most frequent values)
     const frequency = new Map<number, number>()
-    data.forEach(val => frequency.set(val, (frequency.get(val) || 0) + 1))
+    data.forEach((val) => frequency.set(val, (frequency.get(val) || 0) + 1))
     const maxFreq = Math.max(...frequency.values())
     const mode = Array.from(frequency.entries())
       .filter(([, freq]) => freq === maxFreq)
@@ -216,10 +257,12 @@ export class ComputeWASM {
     const standardDeviation = Math.sqrt(variance)
 
     // Skewness
-    const skewness = data.reduce((acc, val) => acc + Math.pow((val - mean) / standardDeviation, 3), 0) / count
+    const skewness =
+      data.reduce((acc, val) => acc + Math.pow((val - mean) / standardDeviation, 3), 0) / count
 
     // Kurtosis
-    const kurtosis = data.reduce((acc, val) => acc + Math.pow((val - mean) / standardDeviation, 4), 0) / count - 3
+    const kurtosis =
+      data.reduce((acc, val) => acc + Math.pow((val - mean) / standardDeviation, 4), 0) / count - 3
 
     // Percentiles
     const getPercentile = (p: number) => {
@@ -227,7 +270,7 @@ export class ComputeWASM {
       const lower = Math.floor(index)
       const upper = Math.ceil(index)
       const weight = index - lower
-      
+
       if (upper >= count) return sorted[count - 1]
       return sorted[lower] * (1 - weight) + sorted[upper] * weight
     }
@@ -382,23 +425,23 @@ export class ComputeWASM {
 
     // Simple autocorrelation check for common seasonal periods
     const periods = [7, 12, 24, 30] // Daily, monthly, etc.
-    
+
     for (const period of periods) {
       if (values.length < period * 2) continue
-      
+
       let correlation = 0
       const validPairs = values.length - period
-      
+
       for (let i = 0; i < validPairs; i++) {
         correlation += values[i] * values[i + period]
       }
-      
+
       correlation /= validPairs
-      
+
       // If correlation is high, there might be seasonality
       if (correlation > 0.7) return true
     }
-    
+
     return false
   }
 
@@ -414,7 +457,7 @@ export class ComputeWASM {
 
     values.forEach((value, index) => {
       const zScore = Math.abs((value - stats.mean) / stats.standardDeviation)
-      
+
       if (zScore > threshold) {
         anomalies.push({
           index,
@@ -438,9 +481,10 @@ export class ComputeWASM {
     const average = recentValues.reduce((sum, val) => sum + val, 0) / recentValues.length
 
     // Simple trend adjustment
-    const trend = recentValues.length > 1
-      ? (recentValues[recentValues.length - 1] - recentValues[0]) / (recentValues.length - 1)
-      : 0
+    const trend =
+      recentValues.length > 1
+        ? (recentValues[recentValues.length - 1] - recentValues[0]) / (recentValues.length - 1)
+        : 0
 
     const forecast: number[] = []
     for (let i = 1; i <= periods; i++) {
@@ -473,7 +517,7 @@ export class ComputeWASM {
    * Cleanup resources
    */
   cleanup(): void {
-    this.workers.forEach(worker => worker.terminate())
+    this.workers.forEach((worker) => worker.terminate())
     this.workers = []
     this.taskQueue = []
     this.runningTasks.clear()

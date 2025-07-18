@@ -7,42 +7,42 @@ import { schema } from './schema'
 export const electricConfig: ElectricConfig = {
   // Database URL for the Electric sync service
   url: process.env.ELECTRIC_URL || 'ws://localhost:5133',
-  
+
   // Authentication configuration
   auth: {
     token: process.env.ELECTRIC_AUTH_TOKEN || '',
   },
-  
+
   // Sync configuration
   sync: {
     // Enable real-time sync
     realtime: true,
-    
+
     // Conflict resolution strategy
     conflictResolution: 'last-write-wins',
-    
+
     // Sync interval in milliseconds
     syncInterval: 1000,
-    
+
     // Maximum retry attempts for failed syncs
     maxRetries: 3,
-    
+
     // Retry delay in milliseconds
     retryDelay: 1000,
   },
-  
+
   // Offline configuration
   offline: {
     // Enable offline-first mode
     enabled: true,
-    
+
     // Maximum offline storage size in MB
     maxStorageSize: 100,
-    
+
     // Sync when coming back online
     syncOnReconnect: true,
   },
-  
+
   // Debug configuration
   debug: process.env.NODE_ENV === 'development',
 }
@@ -51,13 +51,13 @@ export const electricConfig: ElectricConfig = {
 export const pgliteConfig = {
   // Database path for persistent storage
   dataDir: process.env.NODE_ENV === 'development' ? './pglite-data' : undefined,
-  
+
   // Extensions to load
   extensions: {
     vector: true,
     uuid: true,
   },
-  
+
   // Debug mode
   debug: process.env.NODE_ENV === 'development',
 }
@@ -93,20 +93,20 @@ export class ElectricDatabaseManager {
 
       // Initialize PGlite for client-side database
       this.pglite = new PGlite(pgliteConfig)
-      
+
       // Initialize Electric client
       this.electric = new Electric(electricConfig)
-      
+
       // Set up event listeners
       this.setupEventListeners()
-      
+
       // Connect to Electric sync service
       await this.electric.connect()
-      
+
       this.connectionState = 'connected'
       this.isInitialized = true
       this.notifyListeners()
-      
+
       console.log('✅ ElectricSQL initialized successfully')
     } catch (error) {
       this.connectionState = 'error'
@@ -221,7 +221,7 @@ export class ElectricDatabaseManager {
       connection: this.connectionState,
       sync: this.syncState,
     }
-    this.listeners.forEach(listener => listener(state))
+    this.listeners.forEach((listener) => listener(state))
   }
 
   /**
@@ -248,12 +248,12 @@ export class ElectricDatabaseManager {
       await this.electric.disconnect()
       this.electric = null
     }
-    
+
     if (this.pglite) {
       await this.pglite.close()
       this.pglite = null
     }
-    
+
     this.isInitialized = false
     this.connectionState = 'disconnected'
     this.syncState = 'idle'

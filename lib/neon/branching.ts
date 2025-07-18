@@ -1,6 +1,6 @@
 /**
  * Neon Database Branching Integration
- * 
+ *
  * This module provides utilities for managing Neon database branches
  * for testing, development, and feature isolation workflows.
  */
@@ -72,7 +72,7 @@ export class NeonBranchingManager {
     const response = await fetch(`${this.baseUrl}/projects/${this.projectId}/branches`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -108,7 +108,7 @@ export class NeonBranchingManager {
   async listBranches(): Promise<NeonBranch[]> {
     const response = await fetch(`${this.baseUrl}/projects/${this.projectId}/branches`, {
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
     })
 
@@ -125,11 +125,14 @@ export class NeonBranchingManager {
    * Get branch details
    */
   async getBranch(branchId: string): Promise<NeonBranch> {
-    const response = await fetch(`${this.baseUrl}/projects/${this.projectId}/branches/${branchId}`, {
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-    })
+    const response = await fetch(
+      `${this.baseUrl}/projects/${this.projectId}/branches/${branchId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      }
+    )
 
     if (!response.ok) {
       const error = await response.text()
@@ -144,12 +147,15 @@ export class NeonBranchingManager {
    * Delete a branch
    */
   async deleteBranch(branchId: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/projects/${this.projectId}/branches/${branchId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-    })
+    const response = await fetch(
+      `${this.baseUrl}/projects/${this.projectId}/branches/${branchId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      }
+    )
 
     if (!response.ok) {
       const error = await response.text()
@@ -161,11 +167,14 @@ export class NeonBranchingManager {
    * Get branch endpoints
    */
   async getBranchEndpoints(branchId: string): Promise<NeonEndpoint[]> {
-    const response = await fetch(`${this.baseUrl}/projects/${this.projectId}/branches/${branchId}/endpoints`, {
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-    })
+    const response = await fetch(
+      `${this.baseUrl}/projects/${this.projectId}/branches/${branchId}/endpoints`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      }
+    )
 
     if (!response.ok) {
       const error = await response.text()
@@ -181,8 +190,8 @@ export class NeonBranchingManager {
    */
   async getBranchConnectionString(branchId: string, databaseName = 'neondb'): Promise<string> {
     const endpoints = await this.getBranchEndpoints(branchId)
-    const readWriteEndpoint = endpoints.find(ep => ep.type === 'read_write')
-    
+    const readWriteEndpoint = endpoints.find((ep) => ep.type === 'read_write')
+
     if (!readWriteEndpoint) {
       throw new Error('No read-write endpoint found for branch')
     }
@@ -190,19 +199,22 @@ export class NeonBranchingManager {
     // Note: In a real implementation, you'd need to get the actual password
     // This is a placeholder - the actual password would come from your secure storage
     const password = process.env.NEON_DATABASE_PASSWORD || 'your-password'
-    
+
     return `postgres://neondb_owner:${password}@${readWriteEndpoint.host}/${databaseName}?sslmode=require`
   }
 
   /**
    * Create a test branch for running tests
    */
-  async createTestBranch(testName: string, parentBranch?: string): Promise<{
+  async createTestBranch(
+    testName: string,
+    parentBranch?: string
+  ): Promise<{
     branch: NeonBranch
     connectionString: string
   }> {
     const branchName = `test-${testName}-${Date.now()}`
-    
+
     const branch = await this.createBranch({
       name: branchName,
       parentBranch,
@@ -219,12 +231,15 @@ export class NeonBranchingManager {
   /**
    * Create a feature branch for development
    */
-  async createFeatureBranch(featureName: string, parentBranch?: string): Promise<{
+  async createFeatureBranch(
+    featureName: string,
+    parentBranch?: string
+  ): Promise<{
     branch: NeonBranch
     connectionString: string
   }> {
     const branchName = `feature-${featureName}`
-    
+
     const branch = await this.createBranch({
       name: branchName,
       parentBranch,
@@ -241,17 +256,17 @@ export class NeonBranchingManager {
    */
   private async waitForBranchReady(branchId: string, maxWaitMs = 60000): Promise<void> {
     const startTime = Date.now()
-    
+
     while (Date.now() - startTime < maxWaitMs) {
       const branch = await this.getBranch(branchId)
-      
+
       if (branch.currentState === 'ready') {
         return
       }
-      
-      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     }
-    
+
     throw new Error(`Branch ${branchId} did not become ready within ${maxWaitMs}ms`)
   }
 
@@ -321,34 +336,34 @@ export class NeonTestUtils {
     } = {}
   ): Promise<T> {
     const { cleanupOnSuccess = true, cleanupOnError = true } = options
-    
+
     let testBranch: NeonBranch | null = null
-    
+
     try {
       console.log(`🌿 Creating test branch for: ${testName}`)
       const { branch, connectionString } = await this.branchingManager.createTestBranch(
         testName,
         options.parentBranch
       )
-      
+
       testBranch = branch
       console.log(`✅ Test branch created: ${branch.name} (${branch.id})`)
-      
+
       // Run the test
       const result = await testFn(connectionString)
-      
+
       console.log(`✅ Test completed successfully: ${testName}`)
-      
+
       // Cleanup on success
       if (cleanupOnSuccess && testBranch) {
         await this.branchingManager.deleteBranch(testBranch.id)
         console.log(`🗑️ Test branch cleaned up: ${testBranch.name}`)
       }
-      
+
       return result
     } catch (error) {
       console.error(`❌ Test failed: ${testName}`, error)
-      
+
       // Cleanup on error
       if (cleanupOnError && testBranch) {
         try {
@@ -358,7 +373,7 @@ export class NeonTestUtils {
           console.error(`Failed to cleanup test branch: ${cleanupError}`)
         }
       }
-      
+
       throw error
     }
   }
@@ -383,7 +398,7 @@ export class NeonTestUtils {
       testName,
       async (connectionString) => {
         const sql = neon(connectionString)
-        
+
         // Run setup queries if provided
         if (options.setupSql) {
           console.log(`🔧 Running setup queries...`)
@@ -391,30 +406,30 @@ export class NeonTestUtils {
             await sql.unsafe(setupQuery)
           }
         }
-        
+
         // Run test queries
         for (const query of queries) {
           console.log(`🔍 Testing query: ${query.name}`)
-          
+
           try {
             const result = await sql.unsafe(query.sql)
-            
+
             if (query.shouldFail) {
               throw new Error(`Query ${query.name} should have failed but succeeded`)
             }
-            
+
             if (query.expectedResult !== undefined) {
               // Simple deep equality check
               const resultStr = JSON.stringify(result)
               const expectedStr = JSON.stringify(query.expectedResult)
-              
+
               if (resultStr !== expectedStr) {
                 throw new Error(
                   `Query ${query.name} result mismatch.\nExpected: ${expectedStr}\nActual: ${resultStr}`
                 )
               }
             }
-            
+
             console.log(`✅ Query passed: ${query.name}`)
           } catch (error) {
             if (query.shouldFail) {

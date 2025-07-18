@@ -30,7 +30,7 @@ interface ElectricProviderProps {
 export function ElectricProvider({ children, fallback, onError }: ElectricProviderProps) {
   const [pglite, setPglite] = useState<PGlite | null>(null)
   const [initError, setInitError] = useState<Error | null>(null)
-  
+
   const {
     isInitialized,
     isConnected,
@@ -130,9 +130,7 @@ export function ElectricProvider({ children, fallback, onError }: ElectricProvid
 
   return (
     <ElectricContext.Provider value={contextValue}>
-      <PGliteProvider db={pglite}>
-        {children}
-      </PGliteProvider>
+      <PGliteProvider db={pglite}>{children}</PGliteProvider>
     </ElectricContext.Provider>
   )
 }
@@ -148,17 +146,15 @@ export function useElectricContext() {
 
 // Connection status component
 export function ElectricConnectionStatus() {
-  const { isConnected, isSyncing, isOffline, pendingChanges, error, reconnect } = useElectricContext()
+  const { isConnected, isSyncing, isOffline, pendingChanges, error, reconnect } =
+    useElectricContext()
 
   if (error) {
     return (
       <div className="flex items-center space-x-2 text-red-600 text-sm">
         <div className="w-2 h-2 bg-red-500 rounded-full"></div>
         <span>Database error</span>
-        <button
-          onClick={reconnect}
-          className="text-red-600 hover:text-red-800 underline"
-        >
+        <button onClick={reconnect} className="text-red-600 hover:text-red-800 underline">
           Retry
         </button>
       </div>
@@ -229,9 +225,10 @@ export function ElectricSyncButton() {
       disabled={!isConnected || syncing || isSyncing}
       className={`
         px-3 py-1 text-sm rounded transition-colors
-        ${isConnected && !syncing && !isSyncing
-          ? 'bg-blue-600 text-white hover:bg-blue-700'
-          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        ${
+          isConnected && !syncing && !isSyncing
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }
       `}
     >

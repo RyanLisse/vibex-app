@@ -1,31 +1,8 @@
-import { afterEach, beforeEach, vi } from 'vitest'
-import '@testing-library/jest-dom/vitest'
+// Bun test setup for component tests
+import { vi } from 'vitest'
+import '@testing-library/jest-dom'
 
-// Store original environment
-const originalEnv = { ...process.env }
-
-// Setup for component tests - NO FAKE TIMERS
-beforeEach(() => {
-  // Set consistent test environment
-  vi.stubEnv('NODE_ENV', 'test')
-  vi.stubEnv('NEXTAUTH_URL', 'http://localhost:3000')
-  vi.stubEnv('NEXTAUTH_SECRET', 'test-secret')
-
-  // Clear mocks but don't use fake timers
-  vi.clearAllMocks()
-})
-
-// Cleanup after each test
-afterEach(() => {
-  // Restore environment variables
-  process.env = { ...originalEnv }
-
-  // Clear all vitest mocks
-  vi.clearAllMocks()
-  vi.restoreAllMocks()
-})
-
-// Mock Next.js modules for component tests
+// Mock Next.js modules
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -51,18 +28,18 @@ vi.mock('next/headers', () => ({
   }),
 }))
 
-// Mock fetch for component tests
+// Mock fetch
 global.fetch = vi.fn()
 
-// Mock window.matchMedia for responsive tests
+// Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),

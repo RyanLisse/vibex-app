@@ -1,9 +1,19 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useTasksQuery, useTaskSearchQuery, useCreateTaskMutation, useUpdateTaskMutation, useBulkTaskMutation } from '@/hooks/use-task-queries'
+import {
+  useTasksQuery,
+  useTaskSearchQuery,
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useBulkTaskMutation,
+} from '@/hooks/use-task-queries'
 import { useExecutionsQuery, useExecutionAnalyticsQuery } from '@/hooks/use-execution-queries'
-import { QueryPerformanceMonitor, QueryCacheStatus, WASMOptimizationStatus } from '@/components/providers/query-provider'
+import {
+  QueryPerformanceMonitor,
+  QueryCacheStatus,
+  WASMOptimizationStatus,
+} from '@/components/providers/query-provider'
 
 /**
  * Demo component showcasing Enhanced TanStack Query integration
@@ -13,7 +23,7 @@ export function EnhancedQueryDemo() {
   const [searchQuery, setSearchQuery] = useState('')
   const [useSemanticSearch, setUseSemanticSearch] = useState(false)
   const [selectedTasks, setSelectedTasks] = useState<string[]>([])
-  
+
   // Task filters
   const [taskFilters, setTaskFilters] = useState({
     status: [] as string[],
@@ -66,12 +76,12 @@ export function EnhancedQueryDemo() {
   // Task statistics
   const taskStats = useMemo(() => {
     if (!displayTasks) return { total: 0, pending: 0, inProgress: 0, completed: 0 }
-    
+
     return {
       total: displayTasks.length,
-      pending: displayTasks.filter(t => t.status === 'pending').length,
-      inProgress: displayTasks.filter(t => t.status === 'in_progress').length,
-      completed: displayTasks.filter(t => t.status === 'completed').length,
+      pending: displayTasks.filter((t) => t.status === 'pending').length,
+      inProgress: displayTasks.filter((t) => t.status === 'in_progress').length,
+      completed: displayTasks.filter((t) => t.status === 'completed').length,
     }
   }, [displayTasks])
 
@@ -112,11 +122,7 @@ export function EnhancedQueryDemo() {
 
   // Handle task selection
   const handleTaskSelection = (taskId: string, selected: boolean) => {
-    setSelectedTasks(prev => 
-      selected 
-        ? [...prev, taskId]
-        : prev.filter(id => id !== taskId)
-    )
+    setSelectedTasks((prev) => (selected ? [...prev, taskId] : prev.filter((id) => id !== taskId)))
   }
 
   return (
@@ -154,7 +160,7 @@ export function EnhancedQueryDemo() {
               <span className="text-sm">Semantic Search (WASM)</span>
             </label>
           </div>
-          
+
           {searchQuery && (
             <div className="text-sm text-gray-600">
               {searchLoading ? (
@@ -177,17 +183,17 @@ export function EnhancedQueryDemo() {
           <div>
             <label className="block text-sm font-medium mb-2">Status</label>
             <div className="space-y-2">
-              {['pending', 'in_progress', 'completed', 'cancelled'].map(status => (
+              {['pending', 'in_progress', 'completed', 'cancelled'].map((status) => (
                 <label key={status} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={taskFilters.status.includes(status)}
                     onChange={(e) => {
-                      setTaskFilters(prev => ({
+                      setTaskFilters((prev) => ({
                         ...prev,
                         status: e.target.checked
                           ? [...prev.status, status]
-                          : prev.status.filter(s => s !== status)
+                          : prev.status.filter((s) => s !== status),
                       }))
                     }}
                     className="rounded"
@@ -197,21 +203,21 @@ export function EnhancedQueryDemo() {
               ))}
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-2">Priority</label>
             <div className="space-y-2">
-              {['low', 'medium', 'high'].map(priority => (
+              {['low', 'medium', 'high'].map((priority) => (
                 <label key={priority} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={taskFilters.priority.includes(priority)}
                     onChange={(e) => {
-                      setTaskFilters(prev => ({
+                      setTaskFilters((prev) => ({
                         ...prev,
                         priority: e.target.checked
                           ? [...prev.priority, priority]
-                          : prev.priority.filter(p => p !== priority)
+                          : prev.priority.filter((p) => p !== priority),
                       }))
                     }}
                     className="rounded"
@@ -354,19 +360,28 @@ export function EnhancedQueryDemo() {
                       <p className="text-gray-600 text-sm mt-1">{task.description}</p>
                     )}
                     <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                      <span className={`px-2 py-1 rounded ${
-                        task.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        task.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                        task.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded ${
+                          task.status === 'completed'
+                            ? 'bg-green-100 text-green-800'
+                            : task.status === 'in_progress'
+                              ? 'bg-blue-100 text-blue-800'
+                              : task.status === 'cancelled'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
                         {task.status.replace('_', ' ')}
                       </span>
-                      <span className={`px-2 py-1 rounded ${
-                        task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                        task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-green-100 text-green-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded ${
+                          task.priority === 'high'
+                            ? 'bg-red-100 text-red-800'
+                            : task.priority === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-green-100 text-green-800'
+                        }`}
+                      >
                         {task.priority}
                       </span>
                       <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
@@ -393,7 +408,9 @@ export function EnhancedQueryDemo() {
               <div className="text-sm text-gray-600">Success Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{analytics.averageExecutionTime}ms</div>
+              <div className="text-2xl font-bold text-purple-600">
+                {analytics.averageExecutionTime}ms
+              </div>
               <div className="text-sm text-gray-600">Avg Time</div>
             </div>
             <div className="text-center">

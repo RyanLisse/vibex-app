@@ -1,7 +1,7 @@
-import { LettaClient, Message } from './client';
-import { OrchestratorAgent, OrchestratorConfig } from './agents/orchestrator';
-import { BrainstormAgent, BrainstormConfig, BrainstormSession } from './agents/brainstorm';
-import { z } from 'zod';
+import { LettaClient, Message } from './client'
+import { OrchestratorAgent, OrchestratorConfig } from './agents/orchestrator'
+import { BrainstormAgent, BrainstormConfig, BrainstormSession } from './agents/brainstorm'
+import { z } from 'zod'
 
 // Multi-Agent System Configuration
 export const MultiAgentConfigSchema = z.object({
@@ -10,9 +10,9 @@ export const MultiAgentConfigSchema = z.object({
   enableVoice: z.boolean().default(true),
   enableLowLatency: z.boolean().default(true),
   maxConcurrentSessions: z.number().default(10),
-});
+})
 
-export type MultiAgentConfig = z.infer<typeof MultiAgentConfigSchema>;
+export type MultiAgentConfig = z.infer<typeof MultiAgentConfigSchema>
 
 // Session Management
 export const SessionSchema = z.object({
@@ -25,9 +25,9 @@ export const SessionSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   lastActivity: z.date(),
-});
+})
 
-export type Session = z.infer<typeof SessionSchema>;
+export type Session = z.infer<typeof SessionSchema>
 
 // Agent Communication Event
 export const AgentEventSchema = z.object({
@@ -44,24 +44,24 @@ export const AgentEventSchema = z.object({
   payload: z.record(z.any()),
   timestamp: z.date(),
   sessionId: z.string(),
-});
+})
 
-export type AgentEvent = z.infer<typeof AgentEventSchema>;
+export type AgentEvent = z.infer<typeof AgentEventSchema>
 
 export class MultiAgentSystem {
-  private client: LettaClient;
-  private config: MultiAgentConfig;
-  private orchestrator: OrchestratorAgent;
-  private brainstormAgent: BrainstormAgent;
-  private sessions: Map<string, Session> = new Map();
-  private eventQueue: AgentEvent[] = [];
-  private isInitialized = false;
+  private client: LettaClient
+  private config: MultiAgentConfig
+  private orchestrator: OrchestratorAgent
+  private brainstormAgent: BrainstormAgent
+  private sessions: Map<string, Session> = new Map()
+  private eventQueue: AgentEvent[] = []
+  private isInitialized = false
 
   constructor(config: Partial<MultiAgentConfig> = {}) {
-    this.config = MultiAgentConfigSchema.parse(config);
-    this.client = this.createLettaClient();
-    this.orchestrator = new OrchestratorAgent(this.client, this.config.orchestrator);
-    this.brainstormAgent = new BrainstormAgent(this.client, this.config.brainstorm);
+    this.config = MultiAgentConfigSchema.parse(config)
+    this.client = this.createLettaClient()
+    this.orchestrator = new OrchestratorAgent(this.client, this.config.orchestrator)
+    this.brainstormAgent = new BrainstormAgent(this.client, this.config.brainstorm)
   }
 
   private createLettaClient(): LettaClient {
@@ -69,36 +69,30 @@ export class MultiAgentSystem {
       apiKey: process.env.LETTA_API_KEY!,
       baseUrl: process.env.LETTA_BASE_URL || 'https://api.letta.com',
       projectId: process.env.LETTA_PROJECT_ID,
-    });
+    })
   }
 
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      return;
+      return
     }
 
     try {
       // Initialize all agents
-      await Promise.all([
-        this.orchestrator.initialize(),
-        this.brainstormAgent.initialize(),
-      ]);
+      await Promise.all([this.orchestrator.initialize(), this.brainstormAgent.initialize()])
 
-      this.isInitialized = true;
-      console.log('Multi-Agent System initialized successfully');
+      this.isInitialized = true
+      console.log('Multi-Agent System initialized successfully')
     } catch (error) {
-      console.error('Failed to initialize Multi-Agent System:', error);
-      throw error;
+      console.error('Failed to initialize Multi-Agent System:', error)
+      throw error
     }
   }
 
   // Session Management
-  async createSession(
-    userId: string,
-    type: Session['type'] = 'chat'
-  ): Promise<Session> {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+  async createSession(userId: string, type: Session['type'] = 'chat'): Promise<Session> {
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
     const session: Session = {
       id: sessionId,
       userId,
@@ -109,43 +103,43 @@ export class MultiAgentSystem {
       createdAt: new Date(),
       updatedAt: new Date(),
       lastActivity: new Date(),
-    };
+    }
 
-    this.sessions.set(sessionId, session);
-    
+    this.sessions.set(sessionId, session)
+
     // Initialize session context with orchestrator
     await this.orchestrator.updateUserContext({
       sessionId,
       userId,
       sessionType: type,
       startTime: new Date().toISOString(),
-    });
+    })
 
-    return session;
+    return session
   }
 
   async getSession(sessionId: string): Promise<Session | null> {
-    return this.sessions.get(sessionId) || null;
+    return this.sessions.get(sessionId) || null
   }
 
   async endSession(sessionId: string): Promise<void> {
-    const session = this.sessions.get(sessionId);
+    const session = this.sessions.get(sessionId)
     if (!session) {
-      throw new Error('Session not found');
+      throw new Error('Session not found')
     }
 
-    session.status = 'completed';
-    session.updatedAt = new Date();
-    
+    session.status = 'completed'
+    session.updatedAt = new Date()
+
     // Clean up any active brainstorm sessions
     if (session.type === 'brainstorm') {
-      const brainstormSession = this.brainstormAgent.getActiveSession(sessionId);
+      const brainstormSession = this.brainstormAgent.getActiveSession(sessionId)
       if (brainstormSession) {
-        await this.brainstormAgent.endSession(sessionId);
+        await this.brainstormAgent.endSession(sessionId)
       }
     }
 
-    this.sessions.set(sessionId, session);
+    this.sessions.set(sessionId, session)
   }
 
   // Message Processing
@@ -155,26 +149,26 @@ export class MultiAgentSystem {
     streaming = false
   ): Promise<Message | ReadableStream> {
     if (!this.isInitialized) {
-      await this.initialize();
+      await this.initialize()
     }
 
-    const session = this.sessions.get(sessionId);
+    const session = this.sessions.get(sessionId)
     if (!session) {
-      throw new Error('Session not found');
+      throw new Error('Session not found')
     }
 
     // Update session activity
-    session.lastActivity = new Date();
-    session.updatedAt = new Date();
-    this.sessions.set(sessionId, session);
+    session.lastActivity = new Date()
+    session.updatedAt = new Date()
+    this.sessions.set(sessionId, session)
 
     // Route message based on session type and context
     if (session.type === 'brainstorm') {
-      return this.processBrainstormMessage(sessionId, message, streaming);
+      return this.processBrainstormMessage(sessionId, message, streaming)
     }
 
     // Default to orchestrator for general chat
-    return this.orchestrator.processMessage(message, streaming);
+    return this.orchestrator.processMessage(message, streaming)
   }
 
   private async processBrainstormMessage(
@@ -183,19 +177,16 @@ export class MultiAgentSystem {
     streaming: boolean
   ): Promise<Message | ReadableStream> {
     // Check if there's an active brainstorm session
-    let brainstormSession = this.brainstormAgent.getActiveSession(sessionId);
-    
+    let brainstormSession = this.brainstormAgent.getActiveSession(sessionId)
+
     if (!brainstormSession) {
       // Extract topic from message or ask user
-      const topic = this.extractTopicFromMessage(message) || 'General Brainstorming';
-      const session = this.sessions.get(sessionId)!;
-      brainstormSession = await this.brainstormAgent.startBrainstormSession(
-        session.userId,
-        topic
-      );
+      const topic = this.extractTopicFromMessage(message) || 'General Brainstorming'
+      const session = this.sessions.get(sessionId)!
+      brainstormSession = await this.brainstormAgent.startBrainstormSession(session.userId, topic)
     }
 
-    return this.brainstormAgent.processMessage(sessionId, message, streaming);
+    return this.brainstormAgent.processMessage(sessionId, message, streaming)
   }
 
   private extractTopicFromMessage(message: string): string | null {
@@ -205,16 +196,16 @@ export class MultiAgentSystem {
       /help me with (.+)/i,
       /thinking about (.+)/i,
       /idea for (.+)/i,
-    ];
+    ]
 
     for (const pattern of topicPatterns) {
-      const match = message.match(pattern);
+      const match = message.match(pattern)
       if (match) {
-        return match[1].trim();
+        return match[1].trim()
       }
     }
 
-    return null;
+    return null
   }
 
   // Voice Processing
@@ -222,25 +213,25 @@ export class MultiAgentSystem {
     sessionId: string,
     audioData: ArrayBuffer
   ): Promise<{
-    audioResponse: ArrayBuffer;
-    textResponse: string;
+    audioResponse: ArrayBuffer
+    textResponse: string
   }> {
     if (!this.isInitialized) {
-      await this.initialize();
+      await this.initialize()
     }
 
-    const session = this.sessions.get(sessionId);
+    const session = this.sessions.get(sessionId)
     if (!session) {
-      throw new Error('Session not found');
+      throw new Error('Session not found')
     }
 
     // Update session activity
-    session.lastActivity = new Date();
-    session.updatedAt = new Date();
-    this.sessions.set(sessionId, session);
+    session.lastActivity = new Date()
+    session.updatedAt = new Date()
+    this.sessions.set(sessionId, session)
 
     // Process with orchestrator (voice-enabled)
-    return this.orchestrator.processVoiceMessage(audioData);
+    return this.orchestrator.processVoiceMessage(audioData)
   }
 
   // Agent Communication
@@ -250,9 +241,9 @@ export class MultiAgentSystem {
     task: string,
     context: Record<string, any> = {}
   ): Promise<Message> {
-    const session = this.sessions.get(fromSessionId);
+    const session = this.sessions.get(fromSessionId)
     if (!session) {
-      throw new Error('Session not found');
+      throw new Error('Session not found')
     }
 
     const event: AgentEvent = {
@@ -263,53 +254,47 @@ export class MultiAgentSystem {
       payload: { task, context },
       timestamp: new Date(),
       sessionId: fromSessionId,
-    };
+    }
 
-    this.eventQueue.push(event);
+    this.eventQueue.push(event)
 
     // Execute delegation
     if (toAgent === 'brainstorm') {
       // Start or continue brainstorm session
-      let brainstormSession = this.brainstormAgent.getActiveSession(fromSessionId);
+      let brainstormSession = this.brainstormAgent.getActiveSession(fromSessionId)
       if (!brainstormSession) {
-        brainstormSession = await this.brainstormAgent.startBrainstormSession(
-          session.userId,
-          task
-        );
+        brainstormSession = await this.brainstormAgent.startBrainstormSession(session.userId, task)
       }
-      
-      return this.brainstormAgent.processMessage(fromSessionId, task) as Promise<Message>;
+
+      return this.brainstormAgent.processMessage(fromSessionId, task) as Promise<Message>
     }
 
     // Default to orchestrator
-    return this.orchestrator.processMessage(task) as Promise<Message>;
+    return this.orchestrator.processMessage(task) as Promise<Message>
   }
 
   // Brainstorm-specific methods
-  async startBrainstormSession(
-    sessionId: string,
-    topic: string
-  ): Promise<BrainstormSession> {
-    const session = this.sessions.get(sessionId);
+  async startBrainstormSession(sessionId: string, topic: string): Promise<BrainstormSession> {
+    const session = this.sessions.get(sessionId)
     if (!session) {
-      throw new Error('Session not found');
+      throw new Error('Session not found')
     }
 
     // Update session type
-    session.type = 'brainstorm';
-    session.activeAgents = ['orchestrator', 'brainstorm'];
-    session.updatedAt = new Date();
-    this.sessions.set(sessionId, session);
+    session.type = 'brainstorm'
+    session.activeAgents = ['orchestrator', 'brainstorm']
+    session.updatedAt = new Date()
+    this.sessions.set(sessionId, session)
 
-    return this.brainstormAgent.startBrainstormSession(session.userId, topic);
+    return this.brainstormAgent.startBrainstormSession(session.userId, topic)
   }
 
   async getBrainstormSummary(sessionId: string) {
-    return this.brainstormAgent.getSessionSummary(sessionId);
+    return this.brainstormAgent.getSessionSummary(sessionId)
   }
 
   async advanceBrainstormStage(sessionId: string) {
-    return this.brainstormAgent.advanceStage(sessionId);
+    return this.brainstormAgent.advanceStage(sessionId)
   }
 
   // System Status
@@ -329,7 +314,7 @@ export class MultiAgentSystem {
       },
       eventQueueSize: this.eventQueue.length,
       config: this.config,
-    };
+    }
   }
 
   // Cleanup
@@ -337,32 +322,32 @@ export class MultiAgentSystem {
     // End all active sessions
     for (const [sessionId] of this.sessions) {
       try {
-        await this.endSession(sessionId);
+        await this.endSession(sessionId)
       } catch (error) {
-        console.error(`Error ending session ${sessionId}:`, error);
+        console.error(`Error ending session ${sessionId}:`, error)
       }
     }
 
-    this.sessions.clear();
-    this.eventQueue = [];
-    this.isInitialized = false;
+    this.sessions.clear()
+    this.eventQueue = []
+    this.isInitialized = false
   }
 }
 
 // Singleton instance for the application
-let multiAgentSystem: MultiAgentSystem | null = null;
+let multiAgentSystem: MultiAgentSystem | null = null
 
 export function getMultiAgentSystem(config?: Partial<MultiAgentConfig>): MultiAgentSystem {
   if (!multiAgentSystem) {
-    multiAgentSystem = new MultiAgentSystem(config);
+    multiAgentSystem = new MultiAgentSystem(config)
   }
-  return multiAgentSystem;
+  return multiAgentSystem
 }
 
 export async function initializeMultiAgentSystem(
   config?: Partial<MultiAgentConfig>
 ): Promise<MultiAgentSystem> {
-  const system = getMultiAgentSystem(config);
-  await system.initialize();
-  return system;
+  const system = getMultiAgentSystem(config)
+  await system.initialize()
+  return system
 }

@@ -31,7 +31,7 @@ export interface QueryOptimizationConfig {
  */
 export function getOptimizedQueryConfig(): QueryOptimizationConfig {
   const wasmConfig = wasmDetector.getOptimizationConfig()
-  
+
   return {
     wasm: wasmConfig,
     caching: {
@@ -64,7 +64,7 @@ export function getOptimizedQueryConfig(): QueryOptimizationConfig {
  */
 export function createOptimizedQueryClient(): QueryClient {
   const config = getOptimizedQueryConfig()
-  
+
   const defaultOptions: DefaultOptions = {
     queries: {
       staleTime: config.caching.staleTime,
@@ -100,7 +100,7 @@ export function createOptimizedQueryClient(): QueryClient {
   const queryCache = new QueryCache({
     onError: (error, query) => {
       console.error('Query error:', error, 'Query key:', query.queryKey)
-      
+
       // Enhanced error reporting for WASM-optimized queries
       if (query.queryKey.includes('wasm')) {
         console.error('WASM query failed, falling back to JS implementation')
@@ -117,7 +117,7 @@ export function createOptimizedQueryClient(): QueryClient {
   const mutationCache = new MutationCache({
     onError: (error, variables, context, mutation) => {
       console.error('Mutation error:', error, 'Variables:', variables)
-      
+
       // Automatic rollback for optimistic updates
       if (config.mutations.rollbackOnError && context) {
         console.log('Performing automatic rollback for mutation:', mutation.mutationId)
@@ -149,9 +149,10 @@ export const queryKeys = {
     details: () => [...queryKeys.tasks.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.tasks.details(), id] as const,
     search: (query: string) => [...queryKeys.tasks.all, 'search', query] as const,
-    infinite: (filters: Record<string, any>) => [...queryKeys.tasks.all, 'infinite', filters] as const,
+    infinite: (filters: Record<string, any>) =>
+      [...queryKeys.tasks.all, 'infinite', filters] as const,
   },
-  
+
   // Environment-related queries
   environments: {
     all: ['environments'] as const,
@@ -161,7 +162,7 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.environments.details(), id] as const,
     active: () => [...queryKeys.environments.all, 'active'] as const,
   },
-  
+
   // Agent execution queries
   executions: {
     all: ['executions'] as const,
@@ -170,27 +171,31 @@ export const queryKeys = {
     details: () => [...queryKeys.executions.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.executions.details(), id] as const,
     byTask: (taskId: string) => [...queryKeys.executions.all, 'task', taskId] as const,
-    infinite: (filters: Record<string, any>) => [...queryKeys.executions.all, 'infinite', filters] as const,
+    infinite: (filters: Record<string, any>) =>
+      [...queryKeys.executions.all, 'infinite', filters] as const,
   },
-  
+
   // Observability events
   events: {
     all: ['events'] as const,
     lists: () => [...queryKeys.events.all, 'list'] as const,
     list: (filters: Record<string, any>) => [...queryKeys.events.lists(), filters] as const,
-    byExecution: (executionId: string) => [...queryKeys.events.all, 'execution', executionId] as const,
-    infinite: (filters: Record<string, any>) => [...queryKeys.events.all, 'infinite', filters] as const,
+    byExecution: (executionId: string) =>
+      [...queryKeys.events.all, 'execution', executionId] as const,
+    infinite: (filters: Record<string, any>) =>
+      [...queryKeys.events.all, 'infinite', filters] as const,
   },
-  
+
   // Agent memory queries
   memory: {
     all: ['memory'] as const,
     lists: () => [...queryKeys.memory.all, 'list'] as const,
     list: (filters: Record<string, any>) => [...queryKeys.memory.lists(), filters] as const,
-    search: (query: string, agentType?: string) => [...queryKeys.memory.all, 'search', query, agentType] as const,
+    search: (query: string, agentType?: string) =>
+      [...queryKeys.memory.all, 'search', query, agentType] as const,
     byAgent: (agentType: string) => [...queryKeys.memory.all, 'agent', agentType] as const,
   },
-  
+
   // Workflow queries
   workflows: {
     all: ['workflows'] as const,
@@ -198,17 +203,16 @@ export const queryKeys = {
     list: (filters: Record<string, any>) => [...queryKeys.workflows.lists(), filters] as const,
     details: () => [...queryKeys.workflows.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.workflows.details(), id] as const,
-    executions: (workflowId: string) => [...queryKeys.workflows.all, 'executions', workflowId] as const,
+    executions: (workflowId: string) =>
+      [...queryKeys.workflows.all, 'executions', workflowId] as const,
   },
-  
+
   // WASM-optimized queries
   wasm: {
-    vectorSearch: (query: string, filters?: Record<string, any>) => 
+    vectorSearch: (query: string, filters?: Record<string, any>) =>
       ['wasm', 'vector-search', query, filters] as const,
-    sqliteQuery: (sql: string, params?: any[]) => 
-      ['wasm', 'sqlite', sql, params] as const,
-    compute: (operation: string, data: any) => 
-      ['wasm', 'compute', operation, data] as const,
+    sqliteQuery: (sql: string, params?: any[]) => ['wasm', 'sqlite', sql, params] as const,
+    compute: (operation: string, data: any) => ['wasm', 'compute', operation, data] as const,
   },
 } as const
 

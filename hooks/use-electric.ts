@@ -33,9 +33,9 @@ export function useElectric() {
     const initializeElectric = async () => {
       try {
         await electricDb.initialize()
-        
+
         if (mounted) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isInitialized: true,
             isConnected: electricDb.getConnectionState() === 'connected',
@@ -46,7 +46,7 @@ export function useElectric() {
         }
       } catch (error) {
         if (mounted) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             error: error as Error,
             connectionState: 'error',
@@ -65,7 +65,7 @@ export function useElectric() {
   // Listen to state changes
   useEffect(() => {
     const handleStateChange = (newState: { connection: string; sync: string }) => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         connectionState: newState.connection as any,
         syncState: newState.sync as any,
@@ -86,7 +86,7 @@ export function useElectric() {
     try {
       await electricDb.sync()
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error as Error,
       }))
@@ -108,7 +108,7 @@ export function useElectric() {
   const disconnect = useCallback(async () => {
     try {
       await electricDb.disconnect()
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isInitialized: false,
         isConnected: false,
@@ -116,7 +116,7 @@ export function useElectric() {
         syncState: 'idle',
       }))
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error as Error,
       }))
@@ -159,7 +159,7 @@ export function useElectricQuery<T = any>(
     try {
       setLoading(true)
       setError(null)
-      
+
       const result = await pglite.query(query, params)
       setData(result.rows as T[])
     } catch (err) {
@@ -230,10 +230,10 @@ export function useElectricSubscription<T = any>(
         setError(null)
 
         // Initial data fetch
-        const query = filter 
+        const query = filter
           ? `SELECT * FROM ${tableName} WHERE ${filter}`
           : `SELECT * FROM ${tableName}`
-        
+
         const result = await electric.query(query)
         setData(result.rows as T[])
 
@@ -241,19 +241,17 @@ export function useElectricSubscription<T = any>(
         subscription = electric.subscribe(tableName, {
           filter,
           onInsert: (record: T) => {
-            setData(prev => [...prev, record])
+            setData((prev) => [...prev, record])
             onInsert?.(record)
           },
           onUpdate: (record: T) => {
-            setData(prev => prev.map(item => 
-              (item as any).id === (record as any).id ? record : item
-            ))
+            setData((prev) =>
+              prev.map((item) => ((item as any).id === (record as any).id ? record : item))
+            )
             onUpdate?.(record)
           },
           onDelete: (record: T) => {
-            setData(prev => prev.filter(item => 
-              (item as any).id !== (record as any).id
-            ))
+            setData((prev) => prev.filter((item) => (item as any).id !== (record as any).id))
             onDelete?.(record)
           },
           onError: (err: Error) => {
@@ -261,7 +259,6 @@ export function useElectricSubscription<T = any>(
             onError?.(err)
           },
         })
-
       } catch (err) {
         const error = err as Error
         setError(error)
@@ -289,7 +286,9 @@ export function useElectricSubscription<T = any>(
 
 // Hook for offline state management
 export function useOfflineState() {
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true)
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  )
   const [pendingChanges, setPendingChanges] = useState(0)
 
   useEffect(() => {

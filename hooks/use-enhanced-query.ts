@@ -1,9 +1,9 @@
 'use client'
 
-import { 
-  useQuery, 
-  useMutation, 
-  useInfiniteQuery, 
+import {
+  useQuery,
+  useMutation,
+  useInfiniteQuery,
   useQueryClient,
   type UseQueryOptions,
   type UseMutationOptions,
@@ -29,7 +29,7 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
 ) {
   const { isReady: electricReady } = useElectricContext()
   const config = getOptimizedQueryConfig()
-  
+
   const {
     enableWASMOptimization = false,
     wasmFallback,
@@ -78,7 +78,12 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
 /**
  * Enhanced mutation hook with optimistic updates and rollback
  */
-export function useEnhancedMutation<TData = unknown, TError = Error, TVariables = void, TContext = unknown>(
+export function useEnhancedMutation<
+  TData = unknown,
+  TError = Error,
+  TVariables = void,
+  TContext = unknown,
+>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   options?: UseMutationOptions<TData, TError, TVariables, TContext> & {
     optimisticUpdate?: (variables: TVariables) => TContext
@@ -89,7 +94,7 @@ export function useEnhancedMutation<TData = unknown, TError = Error, TVariables 
 ) {
   const queryClient = useQueryClient()
   const config = getOptimizedQueryConfig()
-  
+
   const {
     optimisticUpdate,
     rollbackUpdate,
@@ -108,28 +113,32 @@ export function useEnhancedMutation<TData = unknown, TError = Error, TVariables 
   }, [enableWASMOptimization])
 
   // Enhanced mutation function with WASM optimization
-  const enhancedMutationFn = useCallback(async (variables: TVariables): Promise<TData> => {
-    if (shouldUseWASM) {
-      console.log('Using WASM-optimized mutation')
-    }
-    return await mutationFn(variables)
-  }, [mutationFn, shouldUseWASM])
+  const enhancedMutationFn = useCallback(
+    async (variables: TVariables): Promise<TData> => {
+      if (shouldUseWASM) {
+        console.log('Using WASM-optimized mutation')
+      }
+      return await mutationFn(variables)
+    },
+    [mutationFn, shouldUseWASM]
+  )
 
   return useMutation({
     mutationFn: enhancedMutationFn,
     onMutate: async (variables) => {
       // Cancel outgoing refetches
       await Promise.all(
-        invalidateQueries.map(queryKey => 
-          queryClient.cancelQueries({ queryKey })
-        )
+        invalidateQueries.map((queryKey) => queryClient.cancelQueries({ queryKey }))
       )
 
       // Snapshot previous values
-      const previousData = invalidateQueries.reduce((acc, queryKey) => {
-        acc[queryKey.join('.')] = queryClient.getQueryData(queryKey)
-        return acc
-      }, {} as Record<string, unknown>)
+      const previousData = invalidateQueries.reduce(
+        (acc, queryKey) => {
+          acc[queryKey.join('.')] = queryClient.getQueryData(queryKey)
+          return acc
+        },
+        {} as Record<string, unknown>
+      )
 
       // Perform optimistic update
       let optimisticContext: TContext | undefined
@@ -164,7 +173,7 @@ export function useEnhancedMutation<TData = unknown, TError = Error, TVariables 
     },
     onSuccess: (data, variables, context) => {
       // Invalidate and refetch queries
-      invalidateQueries.forEach(queryKey => {
+      invalidateQueries.forEach((queryKey) => {
         queryClient.invalidateQueries({ queryKey })
       })
 
@@ -173,7 +182,7 @@ export function useEnhancedMutation<TData = unknown, TError = Error, TVariables 
     },
     onSettled: (data, error, variables, context) => {
       // Ensure queries are refetched
-      invalidateQueries.forEach(queryKey => {
+      invalidateQueries.forEach((queryKey) => {
         queryClient.invalidateQueries({ queryKey })
       })
 
@@ -200,7 +209,7 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
 ) {
   const { isReady: electricReady } = useElectricContext()
   const config = getOptimizedQueryConfig()
-  
+
   const {
     enableVirtualization = false,
     enableWASMOptimization = false,
@@ -214,26 +223,29 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
   }, [enableWASMOptimization])
 
   // Enhanced query function with WASM fallback
-  const enhancedQueryFn = useCallback(async ({ pageParam }: { pageParam: unknown }): Promise<TData> => {
-    try {
-      if (shouldUseWASM) {
-        console.log('Using WASM-optimized infinite query for:', queryKey, 'page:', pageParam)
-        return await queryFn({ pageParam })
-      } else if (wasmFallback) {
-        console.log('Using fallback infinite query for:', queryKey, 'page:', pageParam)
-        return await wasmFallback({ pageParam })
-      } else {
-        return await queryFn({ pageParam })
+  const enhancedQueryFn = useCallback(
+    async ({ pageParam }: { pageParam: unknown }): Promise<TData> => {
+      try {
+        if (shouldUseWASM) {
+          console.log('Using WASM-optimized infinite query for:', queryKey, 'page:', pageParam)
+          return await queryFn({ pageParam })
+        } else if (wasmFallback) {
+          console.log('Using fallback infinite query for:', queryKey, 'page:', pageParam)
+          return await wasmFallback({ pageParam })
+        } else {
+          return await queryFn({ pageParam })
+        }
+      } catch (error) {
+        // Fallback to JS implementation if WASM fails
+        if (shouldUseWASM && wasmFallback) {
+          console.warn('WASM infinite query failed, falling back to JS:', error)
+          return await wasmFallback({ pageParam })
+        }
+        throw error
       }
-    } catch (error) {
-      // Fallback to JS implementation if WASM fails
-      if (shouldUseWASM && wasmFallback) {
-        console.warn('WASM infinite query failed, falling back to JS:', error)
-        return await wasmFallback({ pageParam })
-      }
-      throw error
-    }
-  }, [queryFn, wasmFallback, shouldUseWASM, queryKey])
+    },
+    [queryFn, wasmFallback, shouldUseWASM, queryKey]
+  )
 
   const infiniteQuery = useInfiniteQuery({
     queryKey,
@@ -254,7 +266,7 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
 
     // Flatten pages for virtualization
     const allItems = infiniteQuery.data.pages.flat()
-    
+
     return {
       ...infiniteQuery.data,
       virtualizedItems: allItems,
@@ -282,13 +294,13 @@ export function useVectorSearchQuery<TData = unknown>(
   }
 ) {
   const { enabled = true, filters, limit = 10, threshold = 0.7 } = options || {}
-  
+
   return useEnhancedQuery(
     queryKeys.wasm.vectorSearch(searchQuery, { filters, limit, threshold }),
     async () => {
       // This would be implemented with actual WASM vector search
       console.log('Performing WASM vector search:', searchQuery)
-      
+
       // Placeholder implementation
       return [] as TData[]
     },
@@ -312,44 +324,46 @@ export function useQueryPrefetching() {
   const queryClient = useQueryClient()
   const config = getOptimizedQueryConfig()
 
-  const prefetchQuery = useCallback(async <TData>(
-    queryKey: readonly unknown[],
-    queryFn: () => Promise<TData>,
-    options?: {
-      staleTime?: number
-      enableWASMOptimization?: boolean
-    }
-  ) => {
-    const { staleTime = config.caching.staleTime, enableWASMOptimization = false } = options || {}
-    
-    await queryClient.prefetchQuery({
-      queryKey,
-      queryFn: enableWASMOptimization && shouldUseWASMOptimization('sqlite') 
-        ? queryFn 
-        : queryFn,
-      staleTime,
-    })
-  }, [queryClient, config.caching.staleTime])
+  const prefetchQuery = useCallback(
+    async <TData>(
+      queryKey: readonly unknown[],
+      queryFn: () => Promise<TData>,
+      options?: {
+        staleTime?: number
+        enableWASMOptimization?: boolean
+      }
+    ) => {
+      const { staleTime = config.caching.staleTime, enableWASMOptimization = false } = options || {}
 
-  const prefetchInfiniteQuery = useCallback(async <TData>(
-    queryKey: readonly unknown[],
-    queryFn: ({ pageParam }: { pageParam: unknown }) => Promise<TData>,
-    options?: {
-      staleTime?: number
-      enableWASMOptimization?: boolean
-    }
-  ) => {
-    const { staleTime = config.caching.staleTime, enableWASMOptimization = false } = options || {}
-    
-    await queryClient.prefetchInfiniteQuery({
-      queryKey,
-      queryFn: enableWASMOptimization && shouldUseWASMOptimization('sqlite') 
-        ? queryFn 
-        : queryFn,
-      staleTime,
-      initialPageParam: 0,
-    })
-  }, [queryClient, config.caching.staleTime])
+      await queryClient.prefetchQuery({
+        queryKey,
+        queryFn: enableWASMOptimization && shouldUseWASMOptimization('sqlite') ? queryFn : queryFn,
+        staleTime,
+      })
+    },
+    [queryClient, config.caching.staleTime]
+  )
+
+  const prefetchInfiniteQuery = useCallback(
+    async <TData>(
+      queryKey: readonly unknown[],
+      queryFn: ({ pageParam }: { pageParam: unknown }) => Promise<TData>,
+      options?: {
+        staleTime?: number
+        enableWASMOptimization?: boolean
+      }
+    ) => {
+      const { staleTime = config.caching.staleTime, enableWASMOptimization = false } = options || {}
+
+      await queryClient.prefetchInfiniteQuery({
+        queryKey,
+        queryFn: enableWASMOptimization && shouldUseWASMOptimization('sqlite') ? queryFn : queryFn,
+        staleTime,
+        initialPageParam: 0,
+      })
+    },
+    [queryClient, config.caching.staleTime]
+  )
 
   return {
     prefetchQuery,

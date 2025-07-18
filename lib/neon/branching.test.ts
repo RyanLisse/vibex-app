@@ -1,6 +1,6 @@
 /**
  * Neon Branching Integration Tests
- * 
+ *
  * Tests for database branching functionality using Neon's branching API
  */
 
@@ -54,7 +54,7 @@ describe('Neon Branching Integration', () => {
       if (shouldSkipIntegrationTests) return
 
       const branchName = `test-branch-${Date.now()}`
-      
+
       const branch = await branchingManager.createBranch({
         name: branchName,
       })
@@ -71,12 +71,12 @@ describe('Neon Branching Integration', () => {
       if (shouldSkipIntegrationTests) return
 
       const branches = await branchingManager.listBranches()
-      
+
       expect(Array.isArray(branches)).toBe(true)
       expect(branches.length).toBeGreaterThan(0)
-      
+
       // Should have at least the main branch
-      const mainBranch = branches.find(b => b.primary)
+      const mainBranch = branches.find((b) => b.primary)
       expect(mainBranch).toBeDefined()
     })
 
@@ -92,7 +92,7 @@ describe('Neon Branching Integration', () => {
 
       // Get branch details
       const branch = await branchingManager.getBranch(createdBranch.id)
-      
+
       expect(branch).toBeDefined()
       expect(branch.id).toBe(createdBranch.id)
       expect(branch.name).toBe(branchName)
@@ -109,15 +109,15 @@ describe('Neon Branching Integration', () => {
       testBranches.push(createdBranch)
 
       // Wait for branch to be ready
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      await new Promise((resolve) => setTimeout(resolve, 5000))
 
       // Get branch endpoints
       const endpoints = await branchingManager.getBranchEndpoints(createdBranch.id)
-      
+
       expect(Array.isArray(endpoints)).toBe(true)
       expect(endpoints.length).toBeGreaterThan(0)
-      
-      const readWriteEndpoint = endpoints.find(ep => ep.type === 'read_write')
+
+      const readWriteEndpoint = endpoints.find((ep) => ep.type === 'read_write')
       expect(readWriteEndpoint).toBeDefined()
       expect(readWriteEndpoint?.host).toBeDefined()
     })
@@ -133,11 +133,11 @@ describe('Neon Branching Integration', () => {
       testBranches.push(createdBranch)
 
       // Wait for branch to be ready
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      await new Promise((resolve) => setTimeout(resolve, 5000))
 
       // Get connection string
       const connectionString = await branchingManager.getBranchConnectionString(createdBranch.id)
-      
+
       expect(connectionString).toBeDefined()
       expect(connectionString).toContain('postgres://')
       expect(connectionString).toContain('sslmode=require')
@@ -178,10 +178,10 @@ describe('Neon Branching Integration', () => {
         async (connectionString) => {
           branchCreated = true
           testExecuted = true
-          
+
           expect(connectionString).toBeDefined()
           expect(connectionString).toContain('postgres://')
-          
+
           return 'test-result'
         },
         {
@@ -238,7 +238,7 @@ describe('Neon Branching Integration', () => {
 
       const featureName = 'test-feature'
       const { branch, connectionString } = await branchingManager.createFeatureBranch(featureName)
-      
+
       testBranches.push(branch)
 
       expect(branch.name).toBe(`feature-${featureName}`)
@@ -256,7 +256,10 @@ describe('Neon Branching Integration', () => {
 
       // Then create a test branch from the feature branch
       const testName = 'child-test'
-      const { branch: testBranch } = await branchingManager.createTestBranch(testName, parentBranch.id)
+      const { branch: testBranch } = await branchingManager.createTestBranch(
+        testName,
+        parentBranch.id
+      )
       testBranches.push(testBranch)
 
       expect(testBranch.parentId).toBe(parentBranch.id)
@@ -320,7 +323,7 @@ describe('Neon Branching (Mock Tests)', () => {
       apiKey: 'test-key',
       projectId: 'test-project',
     })
-    
+
     expect(manager).toBeDefined()
   })
 
@@ -329,7 +332,7 @@ describe('Neon Branching (Mock Tests)', () => {
       apiKey: 'test-key',
       projectId: 'test-project',
     })
-    
+
     const utils = createNeonTestUtils(manager)
     expect(utils).toBeDefined()
   })

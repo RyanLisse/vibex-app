@@ -12,7 +12,7 @@ export default defineConfig({
     include: [
       'lib/inngest*.test.ts',
       'tests/integration/inngest*.test.ts',
-      'app/**/*inngest*.test.ts'
+      'app/**/*inngest*.test.ts',
     ],
     exclude: ['node_modules'],
     testTimeout: 10000, // Reasonable timeout for async operations

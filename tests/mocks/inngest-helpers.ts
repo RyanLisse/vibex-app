@@ -20,16 +20,15 @@ export const createMockStep = () => ({
 })
 
 // Helper to create mock publish function
-export const createMockPublish = () => 
-  vi.fn().mockImplementation(async () => Promise.resolve())
+export const createMockPublish = () => vi.fn().mockImplementation(async () => Promise.resolve())
 
 // Helper to reset all Inngest mocks
 export const resetInngestMocks = async () => {
   vi.clearAllMocks()
-  
+
   // Re-mock the inngest module to ensure fresh state
   const { inngest, taskControl, createTask } = await vi.importMock('@/lib/inngest')
-  
+
   vi.mocked(inngest.send).mockResolvedValue({ ids: ['test-id'] })
   vi.mocked(taskControl.handler).mockResolvedValue({ success: true })
   vi.mocked(createTask.handler).mockResolvedValue({ message: [] })
@@ -43,24 +42,24 @@ export const mockStreamingResponse = (callbacks?: { onUpdate?: (message: string)
       JSON.stringify({
         type: 'message',
         role: 'assistant',
-        data: { text: 'Test response chunk 1', id: 'test-id', isStreaming: true }
+        data: { text: 'Test response chunk 1', id: 'test-id', isStreaming: true },
       }),
       JSON.stringify({
         type: 'message',
         role: 'assistant',
-        data: { text: 'Test response chunk 1 chunk 2', id: 'test-id', isStreaming: true }
+        data: { text: 'Test response chunk 1 chunk 2', id: 'test-id', isStreaming: true },
       }),
       JSON.stringify({
         type: 'message',
         role: 'assistant',
-        data: { text: 'Test response chunk 1 chunk 2 complete', id: 'test-id', isStreaming: false }
-      })
+        data: { text: 'Test response chunk 1 chunk 2 complete', id: 'test-id', isStreaming: false },
+      }),
     ]
-    
+
     // Execute all chunks immediately
-    chunks.forEach(chunk => callbacks.onUpdate(chunk))
+    chunks.forEach((chunk) => callbacks.onUpdate(chunk))
   }
-  
+
   return Promise.resolve({
     stdout: JSON.stringify({ result: 'success' }),
     sandboxId: 'test-sandbox-id',

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import {
   KanbanBoard,
   KanbanCard,
@@ -52,7 +52,7 @@ vi.mock('@dnd-kit/sortable', () => ({
 vi.mock('@dnd-kit/utilities', () => ({
   CSS: {
     Transform: {
-      toString: (transform: any) => transform ? 'translate3d(0px, 0px, 0px)' : '',
+      toString: (transform: any) => (transform ? 'translate3d(0px, 0px, 0px)' : ''),
     },
   },
 }))
@@ -133,7 +133,7 @@ describe('KanbanBoard', () => {
     expect(board).toHaveClass('custom-board')
   })
 
-  it('should highlight when dragging over', () => {
+  it('should highlight when dragging over', async () => {
     const { useDroppable } = await import('@dnd-kit/core')
     mocked(useDroppable).mockReturnValue({
       isOver: true,
@@ -243,10 +243,7 @@ describe('KanbanCard', () => {
 
   it('should render drag overlay when active', () => {
     render(
-      <KanbanProvider
-        columns={[{ id: 'column-1', name: 'Column 1' }]}
-        data={[defaultProps]}
-      >
+      <KanbanProvider columns={[{ id: 'column-1', name: 'Column 1' }]} data={[defaultProps]}>
         {() => <KanbanCard {...defaultProps} />}
       </KanbanProvider>
     )
@@ -267,9 +264,7 @@ describe('KanbanCards', () => {
     render(
       <KanbanProvider columns={[]} data={testData}>
         {() => (
-          <KanbanCards id="column-1">
-            {(item) => <div key={item.id}>{item.name}</div>}
-          </KanbanCards>
+          <KanbanCards id="column-1">{(item) => <div key={item.id}>{item.name}</div>}</KanbanCards>
         )}
       </KanbanProvider>
     )
@@ -283,9 +278,7 @@ describe('KanbanCards', () => {
     render(
       <KanbanProvider columns={[]} data={testData}>
         {() => (
-          <KanbanCards id="column-1">
-            {(item) => <div key={item.id}>{item.name}</div>}
-          </KanbanCards>
+          <KanbanCards id="column-1">{(item) => <div key={item.id}>{item.name}</div>}</KanbanCards>
         )}
       </KanbanProvider>
     )
@@ -299,9 +292,7 @@ describe('KanbanCards', () => {
     render(
       <KanbanProvider columns={[]} data={testData}>
         {() => (
-          <KanbanCards id="column-1">
-            {(item) => <div key={item.id}>{item.name}</div>}
-          </KanbanCards>
+          <KanbanCards id="column-1">{(item) => <div key={item.id}>{item.name}</div>}</KanbanCards>
         )}
       </KanbanProvider>
     )

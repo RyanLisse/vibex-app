@@ -1,6 +1,6 @@
 /**
  * SQLite WASM Utilities
- * 
+ *
  * This module provides optimized local database operations using WebAssembly
  * to complement ElectricSQL with high-performance client-side data processing.
  */
@@ -86,7 +86,7 @@ export class SQLiteWASMUtils {
 
       await this.loadWASMModule()
       await this.configureDatabase()
-      
+
       this.isInitialized = true
       console.log('✅ SQLite WASM utilities initialized')
     } catch (error) {
@@ -101,13 +101,53 @@ export class SQLiteWASMUtils {
   private async loadWASMModule(): Promise<void> {
     // In a real implementation, this would load the actual SQLite WASM module
     // For now, we'll create a mock interface
-    
+
     const wasmCode = new Uint8Array([
-      0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-      0x01, 0x07, 0x01, 0x60, 0x02, 0x7f, 0x7f, 0x01, 0x7f, // Type section
-      0x03, 0x02, 0x01, 0x00, // Function section
-      0x07, 0x0b, 0x01, 0x07, 0x65, 0x78, 0x65, 0x63, 0x75, 0x74, 0x65, 0x00, 0x00, // Export "execute"
-      0x0a, 0x09, 0x01, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6a, 0x0b, // Function body
+      0x00,
+      0x61,
+      0x73,
+      0x6d,
+      0x01,
+      0x00,
+      0x00,
+      0x00, // WASM header
+      0x01,
+      0x07,
+      0x01,
+      0x60,
+      0x02,
+      0x7f,
+      0x7f,
+      0x01,
+      0x7f, // Type section
+      0x03,
+      0x02,
+      0x01,
+      0x00, // Function section
+      0x07,
+      0x0b,
+      0x01,
+      0x07,
+      0x65,
+      0x78,
+      0x65,
+      0x63,
+      0x75,
+      0x74,
+      0x65,
+      0x00,
+      0x00, // Export "execute"
+      0x0a,
+      0x09,
+      0x01,
+      0x07,
+      0x00,
+      0x20,
+      0x00,
+      0x20,
+      0x01,
+      0x6a,
+      0x0b, // Function body
     ])
 
     this.wasmModule = await WebAssembly.compile(wasmCode)
@@ -199,7 +239,7 @@ export class SQLiteWASMUtils {
   ): Promise<QueryResult> {
     // In a real implementation, this would call the WASM SQLite functions
     console.log('Executing WASM-optimized query:', sql.substring(0, 100))
-    
+
     // For now, fall back to JavaScript implementation
     return this.executeQueryJS(sql, params, timeout)
   }
@@ -207,14 +247,10 @@ export class SQLiteWASMUtils {
   /**
    * Execute query using JavaScript fallback
    */
-  private async executeQueryJS(
-    sql: string,
-    params: any[],
-    timeout: number
-  ): Promise<QueryResult> {
+  private async executeQueryJS(sql: string, params: any[], timeout: number): Promise<QueryResult> {
     // Mock implementation - in reality this would execute against a real database
     console.log('Executing JS query:', sql.substring(0, 100))
-    
+
     return {
       columns: ['id', 'name', 'value'],
       rows: [
@@ -231,10 +267,10 @@ export class SQLiteWASMUtils {
    */
   async getQueryPlan(sql: string, params: any[] = []): Promise<QueryPlan[]> {
     const explainSql = `EXPLAIN QUERY PLAN ${sql}`
-    
+
     try {
       const result = await this.executeQuery(explainSql, params, { useCache: false })
-      
+
       return result.rows.map((row, index) => ({
         id: row[0] || index,
         parent: row[1] || 0,
@@ -250,26 +286,29 @@ export class SQLiteWASMUtils {
   /**
    * Analyze query performance and suggest optimizations
    */
-  async analyzeQuery(sql: string, params: any[] = []): Promise<{
+  async analyzeQuery(
+    sql: string,
+    params: any[] = []
+  ): Promise<{
     executionTime: number
     queryPlan: QueryPlan[]
     suggestions: string[]
     indexRecommendations: string[]
   }> {
     const startTime = performance.now()
-    
+
     // Execute query to get timing
     const result = await this.executeQuery(sql, params, { explain: false })
-    
+
     // Get query plan
     const queryPlan = await this.getQueryPlan(sql, params)
-    
+
     const executionTime = performance.now() - startTime
-    
+
     // Analyze plan for optimization suggestions
     const suggestions = this.generateOptimizationSuggestions(queryPlan, sql)
     const indexRecommendations = this.generateIndexRecommendations(queryPlan, sql)
-    
+
     return {
       executionTime,
       queryPlan,
@@ -329,7 +368,6 @@ export class SQLiteWASMUtils {
       }
       reindexTime = performance.now() - reindexStart
       optimizations.push('REINDEX completed')
-
     } catch (error) {
       console.error('Database optimization failed:', error)
       throw error
@@ -402,21 +440,21 @@ export class SQLiteWASMUtils {
    */
   private generateOptimizationSuggestions(plan: QueryPlan[], sql: string): string[] {
     const suggestions: string[] = []
-    
+
     // Check for table scans
-    const hasTableScan = plan.some(step => step.detail.includes('SCAN TABLE'))
+    const hasTableScan = plan.some((step) => step.detail.includes('SCAN TABLE'))
     if (hasTableScan) {
       suggestions.push('Consider adding indexes to avoid table scans')
     }
 
     // Check for sorting
-    const hasSort = plan.some(step => step.detail.includes('USE TEMP B-TREE FOR ORDER BY'))
+    const hasSort = plan.some((step) => step.detail.includes('USE TEMP B-TREE FOR ORDER BY'))
     if (hasSort) {
       suggestions.push('Consider adding index on ORDER BY columns')
     }
 
     // Check for joins
-    const hasJoin = plan.some(step => step.detail.includes('NESTED LOOP'))
+    const hasJoin = plan.some((step) => step.detail.includes('NESTED LOOP'))
     if (hasJoin) {
       suggestions.push('Ensure JOIN columns are indexed')
     }
@@ -429,16 +467,16 @@ export class SQLiteWASMUtils {
    */
   private generateIndexRecommendations(plan: QueryPlan[], sql: string): string[] {
     const recommendations: string[] = []
-    
+
     // Simple pattern matching for common cases
     if (sql.includes('WHERE') && !sql.includes('INDEX')) {
       recommendations.push('Consider adding index on WHERE clause columns')
     }
-    
+
     if (sql.includes('ORDER BY') && !sql.includes('INDEX')) {
       recommendations.push('Consider adding index on ORDER BY columns')
     }
-    
+
     if (sql.includes('GROUP BY') && !sql.includes('INDEX')) {
       recommendations.push('Consider adding index on GROUP BY columns')
     }
@@ -462,7 +500,7 @@ export class SQLiteWASMUtils {
       'EXCEPT',
     ]
 
-    return complexOperations.some(op => sql.toUpperCase().includes(op))
+    return complexOperations.some((op) => sql.toUpperCase().includes(op))
   }
 
   /**
@@ -470,14 +508,16 @@ export class SQLiteWASMUtils {
    */
   private shouldCacheQuery(sql: string): boolean {
     const sqlUpper = sql.toUpperCase().trim()
-    
+
     // Don't cache write operations
-    if (sqlUpper.startsWith('INSERT') || 
-        sqlUpper.startsWith('UPDATE') || 
-        sqlUpper.startsWith('DELETE') ||
-        sqlUpper.startsWith('CREATE') ||
-        sqlUpper.startsWith('DROP') ||
-        sqlUpper.startsWith('ALTER')) {
+    if (
+      sqlUpper.startsWith('INSERT') ||
+      sqlUpper.startsWith('UPDATE') ||
+      sqlUpper.startsWith('DELETE') ||
+      sqlUpper.startsWith('CREATE') ||
+      sqlUpper.startsWith('DROP') ||
+      sqlUpper.startsWith('ALTER')
+    ) {
       return false
     }
 
@@ -500,7 +540,7 @@ export class SQLiteWASMUtils {
       const firstKey = this.queryCache.keys().next().value
       this.queryCache.delete(firstKey)
     }
-    
+
     this.queryCache.set(key, result)
   }
 

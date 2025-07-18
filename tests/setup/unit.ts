@@ -9,15 +9,15 @@ const originalEnv = { ...process.env }
 afterEach(() => {
   // Cleanup React components
   cleanup()
-  
+
   // Restore environment variables
   process.env = { ...originalEnv }
-  
+
   // Clear all vitest mocks and timers
   vi.clearAllTimers()
   vi.clearAllMocks()
   vi.restoreAllMocks()
-  
+
   // Reset DOM state
   document.body.innerHTML = ''
   document.head.innerHTML = ''
@@ -28,7 +28,7 @@ beforeEach(() => {
   // Set consistent test environment
   vi.stubEnv('NODE_ENV', 'test')
   vi.stubEnv('VITEST_POOL_ID', '1')
-  
+
   // Reset globals
   vi.resetModules()
 })
@@ -55,15 +55,16 @@ vi.mock('next/navigation', () => ({
 // Mock Next.js Image component
 vi.mock('next/image', () => ({
   default: vi.fn(({ alt, ...props }) => {
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...props} alt={alt} />
+    // Return a mock element representation instead of JSX
+    return { type: 'img', props: { ...props, alt } }
   }),
 }))
 
 // Mock Next.js Link component
 vi.mock('next/link', () => ({
   default: vi.fn(({ children, ...props }) => {
-    return <a {...props}>{children}</a>
+    // Return a mock element representation instead of JSX
+    return { type: 'a', props, children }
   }),
 }))
 

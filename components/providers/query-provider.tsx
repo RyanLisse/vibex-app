@@ -11,7 +11,10 @@ interface QueryProviderProps {
   enableDevtools?: boolean
 }
 
-export function QueryProvider({ children, enableDevtools = process.env.NODE_ENV === 'development' }: QueryProviderProps) {
+export function QueryProvider({
+  children,
+  enableDevtools = process.env.NODE_ENV === 'development',
+}: QueryProviderProps) {
   const [isWASMInitialized, setIsWASMInitialized] = useState(false)
 
   // Initialize WASM detection on mount
@@ -20,7 +23,7 @@ export function QueryProvider({ children, enableDevtools = process.env.NODE_ENV 
       try {
         await wasmDetector.detectCapabilities()
         setIsWASMInitialized(true)
-        
+
         if (process.env.NODE_ENV === 'development') {
           console.log('WASM Capabilities:', wasmDetector.getCapabilitiesSummary())
         }
@@ -56,25 +59,26 @@ export function QueryPerformanceMonitor() {
   useEffect(() => {
     // Monitor query performance
     const cache = queryClient.getQueryCache()
-    
+
     const updateStats = () => {
       const queries = cache.getAll()
       const totalQueries = queries.length
-      const successfulQueries = queries.filter(q => q.state.status === 'success').length
-      const failedQueries = queries.filter(q => q.state.status === 'error').length
-      const wasmOptimizedQueries = queries.filter(q => 
-        q.queryKey.some(key => typeof key === 'string' && key.includes('wasm'))
+      const successfulQueries = queries.filter((q) => q.state.status === 'success').length
+      const failedQueries = queries.filter((q) => q.state.status === 'error').length
+      const wasmOptimizedQueries = queries.filter((q) =>
+        q.queryKey.some((key) => typeof key === 'string' && key.includes('wasm'))
       ).length
 
       // Calculate average query time (simplified)
       const queryTimes = queries
-        .filter(q => q.state.dataUpdatedAt && q.state.dataUpdatedAt > 0)
-        .map(q => q.state.dataUpdatedAt - (q.state.fetchFailureReason?.timestamp || 0))
-        .filter(time => time > 0)
-      
-      const averageQueryTime = queryTimes.length > 0 
-        ? queryTimes.reduce((sum, time) => sum + time, 0) / queryTimes.length 
-        : 0
+        .filter((q) => q.state.dataUpdatedAt && q.state.dataUpdatedAt > 0)
+        .map((q) => q.state.dataUpdatedAt - (q.state.fetchFailureReason?.timestamp || 0))
+        .filter((time) => time > 0)
+
+      const averageQueryTime =
+        queryTimes.length > 0
+          ? queryTimes.reduce((sum, time) => sum + time, 0) / queryTimes.length
+          : 0
 
       setStats({
         totalQueries,
@@ -122,11 +126,11 @@ export function QueryCacheStatus() {
     const updateCacheStats = () => {
       const cache = queryClient.getQueryCache()
       const queries = cache.getAll()
-      
+
       setCacheStats({
         size: queries.length,
-        staleQueries: queries.filter(q => q.isStale()).length,
-        fetchingQueries: queries.filter(q => q.isFetching()).length,
+        staleQueries: queries.filter((q) => q.isStale()).length,
+        fetchingQueries: queries.filter((q) => q.isFetching()).length,
       })
     }
 
@@ -170,12 +174,8 @@ export function WASMOptimizationStatus() {
 
   return (
     <details className="fixed top-4 right-4 bg-white border rounded-lg shadow-lg p-3 text-xs max-w-sm">
-      <summary className="cursor-pointer font-bold text-blue-600">
-        WASM Status
-      </summary>
-      <pre className="mt-2 whitespace-pre-wrap text-gray-700">
-        {capabilities}
-      </pre>
+      <summary className="cursor-pointer font-bold text-blue-600">WASM Status</summary>
+      <pre className="mt-2 whitespace-pre-wrap text-gray-700">{capabilities}</pre>
     </details>
   )
 }

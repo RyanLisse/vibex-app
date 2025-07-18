@@ -68,21 +68,25 @@ vi.mock('@/hooks/use-execution-queries', () => ({
 }))
 
 vi.mock('@/components/providers/query-provider', () => ({
-  QueryPerformanceMonitor: () => <div data-testid="query-performance-monitor">Performance Monitor</div>,
+  QueryPerformanceMonitor: () => (
+    <div data-testid="query-performance-monitor">Performance Monitor</div>
+  ),
   QueryCacheStatus: () => <div data-testid="query-cache-status">Cache Status</div>,
   WASMOptimizationStatus: () => <div data-testid="wasm-optimization-status">WASM Status</div>,
 }))
 
 vi.mock('@/lib/wasm/services', () => ({
   wasmServices: {
-    healthCheck: vi.fn(() => Promise.resolve({
-      overall: 'healthy',
-      details: {
-        vectorSearch: 'healthy',
-        sqliteUtils: 'healthy',
-        computeEngine: 'healthy',
-      },
-    })),
+    healthCheck: vi.fn(() =>
+      Promise.resolve({
+        overall: 'healthy',
+        details: {
+          vectorSearch: 'healthy',
+          sqliteUtils: 'healthy',
+          computeEngine: 'healthy',
+        },
+      })
+    ),
     getStats: vi.fn(() => ({
       capabilities: { isSupported: true },
       initializationTime: 150.5,
@@ -99,11 +103,7 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
     },
   })
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }
 
 describe('DatabaseObservabilityDemo', () => {
@@ -120,10 +120,10 @@ describe('DatabaseObservabilityDemo', () => {
 
     // Check for main title
     expect(screen.getByText('Database Observability Demo')).toBeInTheDocument()
-    
+
     // Check for description
     expect(screen.getByText(/Comprehensive showcase of ElectricSQL/)).toBeInTheDocument()
-    
+
     // Check for status cards
     expect(screen.getByText('System Status')).toBeInTheDocument()
     expect(screen.getByText('Task Statistics')).toBeInTheDocument()
@@ -200,7 +200,7 @@ describe('DatabaseObservabilityDemo', () => {
 
   it('handles task creation', async () => {
     const mockCreateTask = vi.fn()
-    
+
     // Mock the create task mutation
     vi.mocked(require('@/hooks/use-task-queries').useCreateTaskMutation).mockReturnValue({
       mutateAsync: mockCreateTask,
@@ -248,7 +248,9 @@ describe('DatabaseObservabilityDemo', () => {
 
     // Should show collaboration content
     expect(screen.getByText('Real-Time Collaboration')).toBeInTheDocument()
-    expect(screen.getByText('See how multiple users can work together with conflict resolution')).toBeInTheDocument()
+    expect(
+      screen.getByText('See how multiple users can work together with conflict resolution')
+    ).toBeInTheDocument()
 
     // Click on Search tab
     const searchTab = screen.getByRole('tab', { name: 'Smart Search' })

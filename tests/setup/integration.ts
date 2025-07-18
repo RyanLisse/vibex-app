@@ -9,14 +9,14 @@ const originalEnv = { ...process.env }
 afterEach(() => {
   // Cleanup React components
   cleanup()
-  
+
   // Restore environment variables
   process.env = { ...originalEnv }
-  
+
   // Clear mocks but preserve some for integration testing
   vi.clearAllTimers()
   vi.clearAllMocks()
-  
+
   // Reset DOM state
   document.body.innerHTML = ''
   document.head.innerHTML = ''
@@ -27,10 +27,10 @@ beforeEach(() => {
   // Set test environment
   vi.stubEnv('NODE_ENV', 'test')
   vi.stubEnv('VITEST_POOL_ID', '1')
-  
+
   // Set up test database URL if needed
   vi.stubEnv('DATABASE_URL', 'postgresql://test:test@localhost:5432/test')
-  
+
   // Set up test API URLs
   vi.stubEnv('NEXT_PUBLIC_API_URL', 'http://localhost:3000')
   vi.stubEnv('INNGEST_SIGNING_KEY', 'test-key')
@@ -62,19 +62,21 @@ vi.mock('next/navigation', () => ({
 // Mock Next.js Image with better implementation
 vi.mock('next/image', () => ({
   default: vi.fn(({ src, alt, width, height, ...props }) => {
-    return (
-      <img
-        {...props}
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        style={{
+    // Return a mock element representation instead of JSX
+    return {
+      type: 'img',
+      props: {
+        ...props,
+        src,
+        alt,
+        width,
+        height,
+        style: {
           width: typeof width === 'number' ? `${width}px` : width,
           height: typeof height === 'number' ? `${height}px` : height,
-        }}
-      />
-    )
+        },
+      },
+    }
   }),
 }))
 
@@ -121,7 +123,7 @@ const localStorageMock = {
     delete localStorageData[key]
   }),
   clear: vi.fn(() => {
-    Object.keys(localStorageData).forEach(key => delete localStorageData[key])
+    Object.keys(localStorageData).forEach((key) => delete localStorageData[key])
   }),
   length: 0,
   key: vi.fn(),
@@ -141,7 +143,7 @@ const sessionStorageMock = {
     delete sessionStorageData[key]
   }),
   clear: vi.fn(() => {
-    Object.keys(sessionStorageData).forEach(key => delete sessionStorageData[key])
+    Object.keys(sessionStorageData).forEach((key) => delete sessionStorageData[key])
   }),
   length: 0,
   key: vi.fn(),
@@ -160,7 +162,7 @@ global.fetch = vi.fn().mockImplementation(async (url, options) => {
     headers: new Headers(),
     url: url as string,
   }
-  
+
   // Handle different API endpoints
   if (url.toString().includes('/api/auth/')) {
     return Promise.resolve({
@@ -168,14 +170,14 @@ global.fetch = vi.fn().mockImplementation(async (url, options) => {
       json: async () => ({ authenticated: true, user: { id: 'test-user' } }),
     })
   }
-  
+
   if (url.toString().includes('/api/tasks/')) {
     return Promise.resolve({
       ...response,
       json: async () => ({ id: 'test-task', status: 'pending' }),
     })
   }
-  
+
   return Promise.resolve(response)
 })
 
@@ -222,12 +224,12 @@ global.WebSocket = vi.fn().mockImplementation((url) => {
     onerror: null,
     onclose: null,
   }
-  
+
   // Simulate connection
   setTimeout(() => {
     if (ws.onopen) ws.onopen(new Event('open'))
   }, 100)
-  
+
   return ws
 })
 
@@ -259,13 +261,10 @@ beforeEach(() => {
     }
     originalError(message)
   })
-  
+
   console.warn = vi.fn((message) => {
     // Only suppress expected test warnings
-    if (
-      typeof message === 'string' &&
-      message.includes('Warning:')
-    ) {
+    if (typeof message === 'string' && message.includes('Warning:')) {
       return
     }
     originalWarn(message)

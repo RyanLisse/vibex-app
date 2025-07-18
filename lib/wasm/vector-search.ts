@@ -1,6 +1,6 @@
 /**
  * WASM Vector Search Service
- * 
+ *
  * This module provides client-side semantic search capabilities using WebAssembly
  * for high-performance vector operations and similarity calculations.
  */
@@ -73,7 +73,7 @@ export class VectorSearchWASM {
 
       // Load WASM module (in a real implementation, this would load an actual WASM file)
       await this.loadWASMModule()
-      
+
       this.isInitialized = true
       console.log('✅ WASM Vector Search initialized')
     } catch (error) {
@@ -88,13 +88,56 @@ export class VectorSearchWASM {
   private async loadWASMModule(): Promise<void> {
     // In a real implementation, this would load an actual WASM module
     // For now, we'll create a mock WASM module that demonstrates the interface
-    
+
     const wasmCode = new Uint8Array([
-      0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM header
-      0x01, 0x07, 0x01, 0x60, 0x02, 0x7f, 0x7f, 0x01, 0x7f, // Type: (i32, i32) -> i32
-      0x03, 0x02, 0x01, 0x00, // Function section
-      0x07, 0x0f, 0x01, 0x0b, 0x63, 0x6f, 0x73, 0x69, 0x6e, 0x65, 0x5f, 0x73, 0x69, 0x6d, 0x00, 0x00, // Export "cosine_sim"
-      0x0a, 0x09, 0x01, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6a, 0x0b, // Function body (placeholder)
+      0x00,
+      0x61,
+      0x73,
+      0x6d,
+      0x01,
+      0x00,
+      0x00,
+      0x00, // WASM header
+      0x01,
+      0x07,
+      0x01,
+      0x60,
+      0x02,
+      0x7f,
+      0x7f,
+      0x01,
+      0x7f, // Type: (i32, i32) -> i32
+      0x03,
+      0x02,
+      0x01,
+      0x00, // Function section
+      0x07,
+      0x0f,
+      0x01,
+      0x0b,
+      0x63,
+      0x6f,
+      0x73,
+      0x69,
+      0x6e,
+      0x65,
+      0x5f,
+      0x73,
+      0x69,
+      0x6d,
+      0x00,
+      0x00, // Export "cosine_sim"
+      0x0a,
+      0x09,
+      0x01,
+      0x07,
+      0x00,
+      0x20,
+      0x00,
+      0x20,
+      0x01,
+      0x6a,
+      0x0b, // Function body (placeholder)
     ])
 
     this.wasmModule = await WebAssembly.compile(wasmCode)
@@ -115,13 +158,13 @@ export class VectorSearchWASM {
           `Document ${doc.id} has embedding dimension ${doc.embedding.length}, expected ${this.config.dimensions}`
         )
       }
-      
+
       this.documents.set(doc.id, doc)
     }
 
     // Clear cache when documents are added
     this.cache.clear()
-    
+
     console.log(`Added ${documents.length} documents to vector search index`)
   }
 
@@ -132,10 +175,10 @@ export class VectorSearchWASM {
     for (const id of documentIds) {
       this.documents.delete(id)
     }
-    
+
     // Clear cache when documents are removed
     this.cache.clear()
-    
+
     console.log(`Removed ${documentIds.length} documents from vector search index`)
   }
 
@@ -171,21 +214,19 @@ export class VectorSearchWASM {
 
     // Filter documents based on filters
     let candidateDocuments = Array.from(this.documents.values())
-    
+
     if (filters) {
-      candidateDocuments = candidateDocuments.filter(doc => 
-        this.matchesFilters(doc, filters)
-      )
+      candidateDocuments = candidateDocuments.filter((doc) => this.matchesFilters(doc, filters))
     }
 
     // Calculate similarities
     const results: VectorSearchResult[] = []
-    
+
     for (const doc of candidateDocuments) {
       const similarity = this.wasmInstance
         ? this.calculateSimilarityWASM(queryEmbedding, doc.embedding)
         : this.calculateSimilarityJS(queryEmbedding, doc.embedding)
-      
+
       if (similarity >= threshold) {
         results.push({
           document: includeMetadata ? doc : { ...doc, metadata: undefined },
@@ -198,7 +239,7 @@ export class VectorSearchWASM {
     // Sort by similarity (descending) and limit results
     results.sort((a, b) => b.similarity - a.similarity)
     const limitedResults = results.slice(0, maxResults)
-    
+
     // Set ranks
     limitedResults.forEach((result, index) => {
       result.rank = index + 1
@@ -238,9 +279,9 @@ export class VectorSearchWASM {
     }
 
     const results = await this.search(document.embedding, options)
-    
+
     // Remove the original document from results
-    return results.filter(result => result.document.id !== documentId)
+    return results.filter((result) => result.document.id !== documentId)
   }
 
   /**
@@ -277,7 +318,7 @@ export class VectorSearchWASM {
     // In a real implementation, this would use a transformer model
     // For now, we'll create a simple hash-based embedding
     const embedding = new Array(this.config.dimensions).fill(0)
-    
+
     for (let i = 0; i < text.length; i++) {
       const charCode = text.charCodeAt(i)
       const index = charCode % this.config.dimensions
@@ -286,7 +327,7 @@ export class VectorSearchWASM {
 
     // Normalize the embedding
     const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0))
-    return embedding.map(val => magnitude === 0 ? 0 : val / magnitude)
+    return embedding.map((val) => (magnitude === 0 ? 0 : val / magnitude))
   }
 
   /**
@@ -320,7 +361,7 @@ export class VectorSearchWASM {
     let hash = 0
     for (let i = 0; i < arr.length; i++) {
       const char = Math.floor(arr[i] * 1000) // Convert to int for hashing
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash = hash & hash // Convert to 32-bit integer
     }
     return hash.toString(36)
@@ -335,7 +376,7 @@ export class VectorSearchWASM {
       const firstKey = this.cache.keys().next().value
       this.cache.delete(firstKey)
     }
-    
+
     this.cache.set(key, results)
   }
 
@@ -393,7 +434,7 @@ export class VectorSearchManager {
    * Initialize all search engines
    */
   async initializeAll(): Promise<void> {
-    const initPromises = Array.from(this.searchEngines.values()).map(engine => 
+    const initPromises = Array.from(this.searchEngines.values()).map((engine) =>
       engine.initialize()
     )
     await Promise.all(initPromises)

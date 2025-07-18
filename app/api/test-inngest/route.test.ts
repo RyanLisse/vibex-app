@@ -5,14 +5,14 @@ import { GET } from '@/app/api/test-inngest/route'
 
 describe('GET /api/test-inngest', () => {
   let inngest: any
-  
+
   beforeEach(async () => {
     vi.clearAllMocks()
     // Clear environment variables
     delete process.env.INNGEST_EVENT_KEY
     delete process.env.INNGEST_SIGNING_KEY
     delete process.env.INNGEST_DEV
-    
+
     // Get the mocked inngest
     const inngestModule = await import('@/lib/inngest')
     inngest = inngestModule.inngest

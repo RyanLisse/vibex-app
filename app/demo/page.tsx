@@ -5,7 +5,8 @@ import { QueryProvider } from '@/components/providers/query-provider'
 
 export const metadata: Metadata = {
   title: 'Database Observability Demo | Codex Clone',
-  description: 'Comprehensive demonstration of ElectricSQL, Enhanced TanStack Query, and WASM optimizations working together in a real-time collaborative environment.',
+  description:
+    'Comprehensive demonstration of ElectricSQL, Enhanced TanStack Query, and WASM optimizations working together in a real-time collaborative environment.',
   keywords: [
     'database observability',
     'ElectricSQL',
@@ -14,22 +15,22 @@ export const metadata: Metadata = {
     'real-time sync',
     'offline-first',
     'collaborative editing',
-    'performance monitoring'
+    'performance monitoring',
   ],
 }
 
 /**
  * Database Observability Demo Page
- * 
+ *
  * This page showcases the comprehensive database observability system
  * that combines multiple advanced technologies:
- * 
+ *
  * - ElectricSQL for offline-first real-time synchronization
  * - Enhanced TanStack Query with WASM optimizations
  * - Multi-user collaboration simulation
  * - Performance monitoring and analytics
  * - Network status simulation and testing
- * 
+ *
  * The demo provides an interactive environment to explore:
  * - Real-time collaborative task management
  * - Intelligent search with semantic capabilities

@@ -42,7 +42,7 @@ export interface ExecutionAnalytics {
  */
 export function useExecutionsQuery(filters: ExecutionFilters = {}) {
   const { taskId, agentType, status, dateRange, executionTimeRange } = filters
-  
+
   // Use ElectricSQL for real-time data
   const {
     executions: electricExecutions,
@@ -58,29 +58,27 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
       let filteredExecutions = electricExecutions
 
       if (agentType?.length) {
-        filteredExecutions = filteredExecutions.filter(exec => 
-          agentType.includes(exec.agentType)
-        )
+        filteredExecutions = filteredExecutions.filter((exec) => agentType.includes(exec.agentType))
       }
 
       if (status?.length) {
-        filteredExecutions = filteredExecutions.filter(exec => 
-          status.includes(exec.status)
-        )
+        filteredExecutions = filteredExecutions.filter((exec) => status.includes(exec.status))
       }
 
       if (dateRange) {
-        filteredExecutions = filteredExecutions.filter(exec => {
+        filteredExecutions = filteredExecutions.filter((exec) => {
           const execDate = new Date(exec.startedAt)
           return execDate >= dateRange.start && execDate <= dateRange.end
         })
       }
 
       if (executionTimeRange && executionTimeRange.min >= 0) {
-        filteredExecutions = filteredExecutions.filter(exec => {
+        filteredExecutions = filteredExecutions.filter((exec) => {
           const execTime = exec.executionTimeMs || 0
-          return execTime >= executionTimeRange.min && 
-                 (executionTimeRange.max === undefined || execTime <= executionTimeRange.max)
+          return (
+            execTime >= executionTimeRange.min &&
+            (executionTimeRange.max === undefined || execTime <= executionTimeRange.max)
+          )
         })
       }
 
@@ -92,7 +90,7 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
       staleWhileRevalidate: true,
       wasmFallback: async () => {
         // Fallback to simple filtering without WASM optimization
-        return electricExecutions.filter(exec => {
+        return electricExecutions.filter((exec) => {
           if (agentType?.length && !agentType.includes(exec.agentType)) return false
           if (status?.length && !status.includes(exec.status)) return false
           if (dateRange) {
@@ -124,22 +122,21 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
  */
 export function useInfiniteExecutionsQuery(filters: ExecutionFilters = {}, pageSize = 100) {
   const queryClient = useQueryClient()
-  
+
   return useEnhancedInfiniteQuery(
     queryKeys.executions.infinite(filters),
     async ({ pageParam = 0 }) => {
       // Get all executions from cache and paginate
-      const allExecutions = queryClient.getQueryData(
-        queryKeys.executions.list(filters)
-      ) as any[] || []
-      
+      const allExecutions =
+        (queryClient.getQueryData(queryKeys.executions.list(filters)) as any[]) || []
+
       const start = (pageParam as number) * pageSize
       const end = start + pageSize
       const paginatedExecutions = allExecutions.slice(start, end)
-      
+
       return {
         executions: paginatedExecutions,
-        nextCursor: end < allExecutions.length ? pageParam as number + 1 : undefined,
+        nextCursor: end < allExecutions.length ? (pageParam as number) + 1 : undefined,
         hasMore: end < allExecutions.length,
         total: allExecutions.length,
       }
@@ -176,36 +173,43 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 
       // Calculate analytics with potential WASM optimization
       const totalExecutions = executions.length
-      const successfulExecutions = executions.filter(exec => exec.status === 'completed').length
+      const successfulExecutions = executions.filter((exec) => exec.status === 'completed').length
       const successRate = (successfulExecutions / totalExecutions) * 100
 
       // Calculate average execution time
       const executionTimes = executions
-        .filter(exec => exec.executionTimeMs && exec.executionTimeMs > 0)
-        .map(exec => exec.executionTimeMs!)
-      
-      const averageExecutionTime = executionTimes.length > 0
-        ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
-        : 0
+        .filter((exec) => exec.executionTimeMs && exec.executionTimeMs > 0)
+        .map((exec) => exec.executionTimeMs!)
+
+      const averageExecutionTime =
+        executionTimes.length > 0
+          ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
+          : 0
 
       // Group by agent type
-      const executionsByAgent = executions.reduce((acc, exec) => {
-        acc[exec.agentType] = (acc[exec.agentType] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+      const executionsByAgent = executions.reduce(
+        (acc, exec) => {
+          acc[exec.agentType] = (acc[exec.agentType] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>
+      )
 
       // Group by status
-      const executionsByStatus = executions.reduce((acc, exec) => {
-        acc[exec.status] = (acc[exec.status] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+      const executionsByStatus = executions.reduce(
+        (acc, exec) => {
+          acc[exec.status] = (acc[exec.status] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>
+      )
 
       // Calculate execution trends (last 30 days)
       const thirtyDaysAgo = new Date()
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-      const recentExecutions = executions.filter(exec => 
-        new Date(exec.startedAt) >= thirtyDaysAgo
+      const recentExecutions = executions.filter(
+        (exec) => new Date(exec.startedAt) >= thirtyDaysAgo
       )
 
       const executionTrends = Array.from({ length: 30 }, (_, i) => {
@@ -213,18 +217,19 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
         date.setDate(date.getDate() - (29 - i))
         const dateStr = date.toISOString().split('T')[0]
 
-        const dayExecutions = recentExecutions.filter(exec => {
+        const dayExecutions = recentExecutions.filter((exec) => {
           const execDate = new Date(exec.startedAt).toISOString().split('T')[0]
           return execDate === dateStr
         })
 
         const dayExecutionTimes = dayExecutions
-          .filter(exec => exec.executionTimeMs && exec.executionTimeMs > 0)
-          .map(exec => exec.executionTimeMs!)
+          .filter((exec) => exec.executionTimeMs && exec.executionTimeMs > 0)
+          .map((exec) => exec.executionTimeMs!)
 
-        const averageTime = dayExecutionTimes.length > 0
-          ? dayExecutionTimes.reduce((sum, time) => sum + time, 0) / dayExecutionTimes.length
-          : 0
+        const averageTime =
+          dayExecutionTimes.length > 0
+            ? dayExecutionTimes.reduce((sum, time) => sum + time, 0) / dayExecutionTimes.length
+            : 0
 
         return {
           date: dateStr,
@@ -249,7 +254,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
       wasmFallback: async () => {
         // Simplified analytics calculation without WASM
         const totalExecutions = executions.length
-        const successfulExecutions = executions.filter(exec => exec.status === 'completed').length
+        const successfulExecutions = executions.filter((exec) => exec.status === 'completed').length
         const successRate = totalExecutions > 0 ? (successfulExecutions / totalExecutions) * 100 : 0
 
         return {
@@ -282,13 +287,13 @@ export function useExecutionQuery(executionId: string) {
     queryKeys.executions.detail(executionId),
     async () => {
       // Get execution from cache or fetch
-      const allExecutions = queryClient.getQueryData(queryKeys.executions.lists()) as any[] || []
-      const execution = allExecutions.find(exec => exec.id === executionId)
-      
+      const allExecutions = (queryClient.getQueryData(queryKeys.executions.lists()) as any[]) || []
+      const execution = allExecutions.find((exec) => exec.id === executionId)
+
       if (!execution) {
         throw new Error(`Execution with id ${executionId} not found`)
       }
-      
+
       return execution
     },
     {
@@ -331,13 +336,13 @@ export function useExecutionPerformanceQuery(filters: ExecutionFilters = {}) {
       if (!executions.length) return null
 
       // Calculate performance metrics with WASM optimization
-      const completedExecutions = executions.filter(exec => 
-        exec.status === 'completed' && exec.executionTimeMs
+      const completedExecutions = executions.filter(
+        (exec) => exec.status === 'completed' && exec.executionTimeMs
       )
 
       if (!completedExecutions.length) return null
 
-      const executionTimes = completedExecutions.map(exec => exec.executionTimeMs!)
+      const executionTimes = completedExecutions.map((exec) => exec.executionTimeMs!)
       executionTimes.sort((a, b) => a - b)
 
       const min = executionTimes[0]

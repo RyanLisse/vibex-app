@@ -57,16 +57,16 @@ describe('inngest module (standalone tests)', () => {
 
   it('should handle async send operations', async () => {
     const mockSend = vi.fn(() => Promise.resolve({ ids: ['test-id-123'] }))
-    
+
     const result = await mockSend({
       name: 'test.event',
-      data: { test: true }
+      data: { test: true },
     })
-    
+
     expect(result).toEqual({ ids: ['test-id-123'] })
     expect(mockSend).toHaveBeenCalledWith({
       name: 'test.event',
-      data: { test: true }
+      data: { test: true },
     })
   })
 
@@ -78,12 +78,12 @@ describe('inngest module (standalone tests)', () => {
     }))
 
     const channel = mockTaskChannel('task-123')
-    
+
     expect(channel).toBeDefined()
     expect(channel.status).toBeDefined()
     expect(channel.update).toBeDefined()
     expect(channel.control).toBeDefined()
-    
+
     // Test channel methods
     const statusResult = channel.status()
     expect(statusResult).toEqual({ type: 'status', taskId: 'task-123' })
@@ -96,11 +96,9 @@ describe('inngest module (standalone tests)', () => {
       handler: vi.fn(() => Promise.resolve({ success: true })),
     }))
 
-    const fn = mockCreateFunction(
-      { id: 'test-function' },
-      { event: 'test.event' },
-      async () => ({ result: 'test' })
-    )
+    const fn = mockCreateFunction({ id: 'test-function' }, { event: 'test.event' }, async () => ({
+      result: 'test',
+    }))
 
     expect(fn.id).toBe('test-function')
     expect(fn.trigger).toEqual({ event: 'test.event' })
@@ -126,13 +124,13 @@ describe('inngest module (standalone tests)', () => {
   it('should verify no timer conflicts', async () => {
     // This test ensures we're not affected by fake timers
     const startTime = Date.now()
-    
+
     // Simulate async operation
-    await new Promise(resolve => setTimeout(resolve, 10))
-    
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
     const endTime = Date.now()
     const duration = endTime - startTime
-    
+
     // Should take at least 10ms (real timer)
     expect(duration).toBeGreaterThanOrEqual(10)
     expect(duration).toBeLessThan(100)

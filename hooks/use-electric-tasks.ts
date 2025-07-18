@@ -29,7 +29,7 @@ export function useElectricTasks(userId?: string) {
 
   // Subscribe to real-time task updates
   const subscriptionFilter = userId ? `user_id = '${userId}'` : undefined
-  
+
   const {
     data: realtimeTasks,
     loading: subscriptionLoading,
@@ -51,59 +51,78 @@ export function useElectricTasks(userId?: string) {
   const finalTasks = realtimeTasks.length > 0 ? realtimeTasks : tasks
 
   // Create a new task
-  const createTask = useCallback(async (taskData: Omit<NewTask, 'id' | 'createdAt' | 'updatedAt'>) => {
-    // This would use the Electric client to insert data
-    // For now, we'll simulate the operation
-    const newTask: NewTask = {
-      ...taskData,
-      userId: userId || taskData.userId,
-    }
+  const createTask = useCallback(
+    async (taskData: Omit<NewTask, 'id' | 'createdAt' | 'updatedAt'>) => {
+      // This would use the Electric client to insert data
+      // For now, we'll simulate the operation
+      const newTask: NewTask = {
+        ...taskData,
+        userId: userId || taskData.userId,
+      }
 
-    // In a real implementation, this would use Electric's insert method
-    console.log('Creating task:', newTask)
-    
-    // Refetch to get updated data
-    await refetchTasks()
-    
-    return newTask
-  }, [userId, refetchTasks])
+      // In a real implementation, this would use Electric's insert method
+      console.log('Creating task:', newTask)
+
+      // Refetch to get updated data
+      await refetchTasks()
+
+      return newTask
+    },
+    [userId, refetchTasks]
+  )
 
   // Update a task
-  const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
-    // This would use the Electric client to update data
-    console.log('Updating task:', taskId, updates)
-    
-    // Refetch to get updated data
-    await refetchTasks()
-  }, [refetchTasks])
+  const updateTask = useCallback(
+    async (taskId: string, updates: Partial<Task>) => {
+      // This would use the Electric client to update data
+      console.log('Updating task:', taskId, updates)
+
+      // Refetch to get updated data
+      await refetchTasks()
+    },
+    [refetchTasks]
+  )
 
   // Delete a task
-  const deleteTask = useCallback(async (taskId: string) => {
-    // This would use the Electric client to delete data
-    console.log('Deleting task:', taskId)
-    
-    // Refetch to get updated data
-    await refetchTasks()
-  }, [refetchTasks])
+  const deleteTask = useCallback(
+    async (taskId: string) => {
+      // This would use the Electric client to delete data
+      console.log('Deleting task:', taskId)
+
+      // Refetch to get updated data
+      await refetchTasks()
+    },
+    [refetchTasks]
+  )
 
   // Get tasks by status
-  const getTasksByStatus = useCallback((status: string) => {
-    return finalTasks.filter(task => task.status === status)
-  }, [finalTasks])
+  const getTasksByStatus = useCallback(
+    (status: string) => {
+      return finalTasks.filter((task) => task.status === status)
+    },
+    [finalTasks]
+  )
 
   // Get tasks by priority
-  const getTasksByPriority = useCallback((priority: string) => {
-    return finalTasks.filter(task => task.priority === priority)
-  }, [finalTasks])
+  const getTasksByPriority = useCallback(
+    (priority: string) => {
+      return finalTasks.filter((task) => task.priority === priority)
+    },
+    [finalTasks]
+  )
 
   // Search tasks
-  const searchTasks = useCallback((query: string) => {
-    const lowercaseQuery = query.toLowerCase()
-    return finalTasks.filter(task => 
-      task.title.toLowerCase().includes(lowercaseQuery) ||
-      task.description?.toLowerCase().includes(lowercaseQuery)
-    )
-  }, [finalTasks])
+  const searchTasks = useCallback(
+    (query: string) => {
+      const lowercaseQuery = query.toLowerCase()
+      return finalTasks.filter(
+        (task) =>
+          task.title.toLowerCase().includes(lowercaseQuery) ||
+          task.description?.toLowerCase().includes(lowercaseQuery)
+      )
+    },
+    [finalTasks]
+  )
 
   // Get task statistics
   const taskStats = useMemo(() => {
@@ -120,7 +139,7 @@ export function useElectricTasks(userId?: string) {
       },
     }
 
-    finalTasks.forEach(task => {
+    finalTasks.forEach((task) => {
       // Count by status
       switch (task.status) {
         case 'pending':
@@ -158,17 +177,17 @@ export function useElectricTasks(userId?: string) {
     // Data
     tasks: finalTasks,
     taskStats,
-    
+
     // Loading states
     loading: tasksLoading || subscriptionLoading,
     error: tasksError || subscriptionError,
-    
+
     // Actions
     createTask,
     updateTask,
     deleteTask,
     refetch: refetchTasks,
-    
+
     // Utilities
     getTasksByStatus,
     getTasksByPriority,
@@ -200,7 +219,7 @@ export function useElectricTaskExecutions(taskId?: string) {
 
   // Subscribe to real-time execution updates
   const subscriptionFilter = taskId ? `task_id = '${taskId}'` : undefined
-  
+
   const {
     data: realtimeExecutions,
     loading: subscriptionLoading,
@@ -233,7 +252,7 @@ export function useElectricTaskExecutions(taskId?: string) {
     let totalExecutionTime = 0
     let completedCount = 0
 
-    finalExecutions.forEach(execution => {
+    finalExecutions.forEach((execution) => {
       // Count by status
       switch (execution.status) {
         case 'running':
@@ -270,11 +289,11 @@ export function useElectricTaskExecutions(taskId?: string) {
     // Data
     executions: finalExecutions,
     executionStats,
-    
+
     // Loading states
     loading: executionsLoading || subscriptionLoading,
     error: executionsError || subscriptionError,
-    
+
     // Actions
     refetch: refetchExecutions,
   }
@@ -304,7 +323,7 @@ export function useElectricEnvironments(userId?: string) {
 
   // Subscribe to real-time environment updates
   const subscriptionFilter = userId ? `user_id = '${userId}'` : undefined
-  
+
   const {
     data: realtimeEnvironments,
     loading: subscriptionLoading,
@@ -327,54 +346,66 @@ export function useElectricEnvironments(userId?: string) {
 
   // Get active environment
   const activeEnvironment = useMemo(() => {
-    return finalEnvironments.find(env => env.isActive)
+    return finalEnvironments.find((env) => env.isActive)
   }, [finalEnvironments])
 
   // Create a new environment
-  const createEnvironment = useCallback(async (environmentData: any) => {
-    // This would use the Electric client to insert data
-    console.log('Creating environment:', environmentData)
-    
-    // Refetch to get updated data
-    await refetchEnvironments()
-  }, [refetchEnvironments])
+  const createEnvironment = useCallback(
+    async (environmentData: any) => {
+      // This would use the Electric client to insert data
+      console.log('Creating environment:', environmentData)
+
+      // Refetch to get updated data
+      await refetchEnvironments()
+    },
+    [refetchEnvironments]
+  )
 
   // Update an environment
-  const updateEnvironment = useCallback(async (environmentId: string, updates: any) => {
-    // This would use the Electric client to update data
-    console.log('Updating environment:', environmentId, updates)
-    
-    // Refetch to get updated data
-    await refetchEnvironments()
-  }, [refetchEnvironments])
+  const updateEnvironment = useCallback(
+    async (environmentId: string, updates: any) => {
+      // This would use the Electric client to update data
+      console.log('Updating environment:', environmentId, updates)
+
+      // Refetch to get updated data
+      await refetchEnvironments()
+    },
+    [refetchEnvironments]
+  )
 
   // Delete an environment
-  const deleteEnvironment = useCallback(async (environmentId: string) => {
-    // This would use the Electric client to delete data
-    console.log('Deleting environment:', environmentId)
-    
-    // Refetch to get updated data
-    await refetchEnvironments()
-  }, [refetchEnvironments])
+  const deleteEnvironment = useCallback(
+    async (environmentId: string) => {
+      // This would use the Electric client to delete data
+      console.log('Deleting environment:', environmentId)
+
+      // Refetch to get updated data
+      await refetchEnvironments()
+    },
+    [refetchEnvironments]
+  )
 
   // Activate an environment
-  const activateEnvironment = useCallback(async (environmentId: string) => {
-    // Deactivate all environments first, then activate the selected one
-    console.log('Activating environment:', environmentId)
-    
-    // Refetch to get updated data
-    await refetchEnvironments()
-  }, [refetchEnvironments])
+  const activateEnvironment = useCallback(
+    async (environmentId: string) => {
+      // Deactivate all environments first, then activate the selected one
+      console.log('Activating environment:', environmentId)
+
+      // Refetch to get updated data
+      await refetchEnvironments()
+    },
+    [refetchEnvironments]
+  )
 
   return {
     // Data
     environments: finalEnvironments,
     activeEnvironment,
-    
+
     // Loading states
     loading: environmentsLoading || subscriptionLoading,
     error: environmentsError || subscriptionError,
-    
+
     // Actions
     createEnvironment,
     updateEnvironment,

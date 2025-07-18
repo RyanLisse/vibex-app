@@ -65,9 +65,7 @@ describe('inngest unit tests (mocked)', () => {
   })
 
   it('should handle async operations without hanging', async () => {
-    const mockSend = vi.fn().mockImplementation(() => 
-      Promise.resolve({ ids: ['test-id'] })
-    )
+    const mockSend = vi.fn().mockImplementation(() => Promise.resolve({ ids: ['test-id'] }))
 
     const result = await mockSend({ name: 'test.event' })
     expect(result).toEqual({ ids: ['test-id'] })

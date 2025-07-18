@@ -1,6 +1,6 @@
 /**
  * WASM Services Integration
- * 
+ *
  * This module provides a unified interface for all WASM-optimized services
  * including vector search, SQLite utilities, and compute operations.
  */
@@ -29,7 +29,7 @@ export interface WASMServicesStats {
 
 /**
  * WASM Services Manager
- * 
+ *
  * Provides a unified interface for all WASM-optimized services
  */
 export class WASMServices {
@@ -71,7 +71,10 @@ export class WASMServices {
     try {
       // Detect WASM capabilities first
       this.capabilities = await wasmDetector.detectCapabilities()
-      console.log('✅ WASM capabilities detected:', this.capabilities.isSupported ? 'Supported' : 'Not supported')
+      console.log(
+        '✅ WASM capabilities detected:',
+        this.capabilities.isSupported ? 'Supported' : 'Not supported'
+      )
 
       // Initialize services in parallel
       const initPromises: Promise<void>[] = []
@@ -104,13 +107,13 @@ export class WASMServices {
       this.isInitialized = true
 
       console.log(`✅ WASM Services initialized in ${this.initializationTime.toFixed(2)}ms`)
-      
+
       if (process.env.NODE_ENV === 'development') {
         this.logServicesStatus()
       }
     } catch (error) {
       console.error('❌ WASM Services initialization failed:', error)
-      
+
       if (this.config.enableFallbacks) {
         console.log('🔄 Falling back to JavaScript implementations')
         await this.initializeFallbacks()
@@ -125,7 +128,10 @@ export class WASMServices {
    */
   private async initializeVectorSearch(): Promise<void> {
     try {
-      this.vectorSearchEngine = vectorSearchManager.getSearchEngine('default', this.config.vectorSearch)
+      this.vectorSearchEngine = vectorSearchManager.getSearchEngine(
+        'default',
+        this.config.vectorSearch
+      )
       await this.vectorSearchEngine.initialize()
       console.log('✅ Vector Search WASM initialized')
     } catch (error) {
@@ -176,7 +182,7 @@ export class WASMServices {
    */
   private async initializeFallbacks(): Promise<void> {
     console.log('🔄 Initializing JavaScript fallbacks...')
-    
+
     // Initialize services with JavaScript fallbacks
     if (!this.vectorSearchEngine) {
       this.vectorSearchEngine = new VectorSearchWASM(this.config.vectorSearch)
@@ -261,7 +267,7 @@ export class WASMServices {
    */
   private logServicesStatus(): void {
     const stats = this.getStats()
-    
+
     console.group('🔧 WASM Services Status')
     console.log('Capabilities:', stats.capabilities)
     console.log('Vector Search:', stats.vectorSearch ? '✅ Ready' : '❌ Not available')
@@ -327,9 +333,9 @@ export class WASMServices {
     }
 
     // Determine overall health
-    const healthyCount = Object.values(services).filter(status => status === 'healthy').length
-    const unhealthyCount = Object.values(services).filter(status => status === 'unhealthy').length
-    
+    const healthyCount = Object.values(services).filter((status) => status === 'healthy').length
+    const unhealthyCount = Object.values(services).filter((status) => status === 'unhealthy').length
+
     let overall: 'healthy' | 'degraded' | 'unhealthy'
     if (unhealthyCount > 0) {
       overall = 'unhealthy'
@@ -347,12 +353,12 @@ export class WASMServices {
    */
   cleanup(): void {
     console.log('🧹 Cleaning up WASM Services...')
-    
+
     try {
       this.vectorSearchEngine?.clear()
       this.sqliteUtils?.clear()
       this.computeEngine?.cleanup()
-      
+
       this.isInitialized = false
       console.log('✅ WASM Services cleanup completed')
     } catch (error) {
@@ -375,7 +381,7 @@ export const getWASMServices = () => wasmServices
 
 // Auto-initialize if configured
 if (typeof window !== 'undefined' && wasmServices['config'].autoInitialize) {
-  wasmServices.initialize().catch(error => {
+  wasmServices.initialize().catch((error) => {
     console.warn('Auto-initialization of WASM services failed:', error)
   })
 }

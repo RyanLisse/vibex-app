@@ -77,7 +77,7 @@ export const electricSchema = {
           gt: 'NOW()',
         },
         last_accessed_at: {
-          gt: 'NOW() - INTERVAL \'30 days\'',
+          gt: "NOW() - INTERVAL '30 days'",
         },
       },
       indexes: ['agent_type', 'context_key', 'importance', 'last_accessed_at'],
@@ -165,16 +165,16 @@ export const electricSchema = {
     agent_memory: {
       select: true, // All users can read non-expired memory
       insert: true, // All users can create memory
-      update: 'created_at > NOW() - INTERVAL \'1 hour\'', // Can only update recent memory
+      update: "created_at > NOW() - INTERVAL '1 hour'", // Can only update recent memory
       delete: false, // Memory expires automatically
     },
 
     // Workflows are read-only for most users
     workflows: {
       select: 'is_active = true',
-      insert: '${auth.role} = \'admin\'',
-      update: '${auth.role} = \'admin\'',
-      delete: '${auth.role} = \'admin\'',
+      insert: "${auth.role} = 'admin'",
+      update: "${auth.role} = 'admin'",
+      delete: "${auth.role} = 'admin'",
     },
 
     // Workflow executions are mostly read-only
