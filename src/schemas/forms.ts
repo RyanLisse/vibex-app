@@ -216,7 +216,7 @@ export const validateSchema = <T>(schema: z.ZodSchema<T>, data: unknown) => {
 }
 
 export const getFieldError = (
-  error: z.ZodFormattedError<unknown> | null,
+  error: z.ZodFlattenedError<unknown> | null,
   field: string
 ): string | undefined => {
   if (!error?.fieldErrors) return undefined
@@ -225,7 +225,7 @@ export const getFieldError = (
 }
 
 export const hasFieldError = (
-  error: z.ZodFormattedError<unknown> | null,
+  error: z.ZodFlattenedError<unknown> | null,
   field: string
 ): boolean => {
   return !!getFieldError(error, field)

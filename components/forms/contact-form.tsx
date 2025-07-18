@@ -57,7 +57,7 @@ const createFieldProps = (
   onBlur: (field: keyof ContactForm) => void
 ) => ({
   id: field,
-  value: formData[field] || '',
+  value: (formData[field] as string) || '',
   hasError: hasFieldError(errors, field),
   errorMessage: getFieldError(errors, field),
   className: getInputClassName(errors, field),

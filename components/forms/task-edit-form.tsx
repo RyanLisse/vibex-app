@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Task } from '../../test/fixtures/tasks'
+import { Task } from '@/stores/tasks'
 import { safeParse } from '../../src/shared/schemas/validation'
 
 const TaskFormSchema = z.object({

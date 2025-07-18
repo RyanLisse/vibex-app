@@ -1,11 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { getTelemetryConfig, validateTelemetryConfig, getDefaultEndpoint } from '@/lib/telemetry'
 import type { TelemetryBackend } from '@/src/types/telemetry'
 
 describe('Telemetry Configuration', () => {
   beforeEach(() => {
     // Clear all environment variables before each test
-    vi.resetModules()
     delete process.env.OTEL_ENABLED
     delete process.env.OTEL_ENDPOINT
     delete process.env.OTEL_SERVICE_NAME

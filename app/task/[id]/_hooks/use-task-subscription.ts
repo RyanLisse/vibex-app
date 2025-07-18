@@ -42,37 +42,36 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
     return token
   }, [])
 
-  const handleError = useCallback((error: unknown) => {
-    console.error('Inngest subscription error:', error)
-    if (
-      (error as any)?.message?.includes('ReadableStream') ||
-      (error as any)?.message?.includes('WebSocket')
-    ) {
-      console.warn('Stream/WebSocket error, will retry connection')
-    } else {
-      setSubscriptionEnabled(false)
-    }
-  }, [])
+  // Error handling temporarily disabled - removed from subscription config
+  // const handleError = useCallback((error: unknown) => {
+  //   console.error('Inngest subscription error:', error)
+  //   if (
+  //     (error as Error)?.message?.includes('ReadableStream') ||
+  //     (error as Error)?.message?.includes('WebSocket')
+  //   ) {
+  //     console.warn('Stream/WebSocket error, will retry connection')
+  //   } else {
+  //     setSubscriptionEnabled(false)
+  //   }
+  // }, [])
 
-  const handleClose = useCallback(() => {
-    console.log('Inngest subscription closed')
-    setTimeout(() => {
-      if (subscriptionEnabled) {
-        console.log('Attempting to reconnect Inngest subscription')
-      }
-    }, 1000)
-  }, [subscriptionEnabled])
+  // const handleClose = useCallback(() => {
+  //   console.log('Inngest subscription closed')
+  //   setTimeout(() => {
+  //     if (subscriptionEnabled) {
+  //       console.log('Attempting to reconnect Inngest subscription')
+  //     }
+  //   }, 1000)
+  // }, [subscriptionEnabled])
 
   const subscriptionResult = useInngestSubscription({
     refreshToken,
     bufferInterval: 0,
     enabled: subscriptionEnabled,
-    onError: handleError,
-    onClose: handleClose,
   })
 
   const { latestData } = subscriptionResult
-  const disconnect = (subscriptionResult as any)?.disconnect
+  const disconnect = (subscriptionResult as { disconnect?: () => void })?.disconnect
 
   useEffect(() => {
     if (latestData?.channel !== 'tasks') return
@@ -80,9 +79,9 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
     if (latestData.topic === 'status') {
       processStatusUpdate(latestData.data)
     } else if (latestData.topic === 'update') {
-      const { taskId: dataTaskId, message } = latestData.data as any
-      if (dataTaskId === taskId && message) {
-        processMessage(message)
+      const data = latestData.data as { taskId: string; message: unknown }
+      if (data.taskId === taskId && data.message) {
+        processMessage(data.message)
       }
     }
   }, [latestData, taskId, processStatusUpdate, processMessage])

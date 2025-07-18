@@ -8,7 +8,7 @@ import { AuthCardBase } from './auth-card-base'
 export function AnthropicAuthCard() {
   const { authenticated, loading, login, logout, expires, type, error } = useAnthropicAuth()
 
-  const isExpiringSoon = expires && expires < Date.now() + 300000 // 5 minutes
+  const isExpiringSoon = !!(expires && expires < Date.now() + 300000) // 5 minutes
   const authType = type === 'oauth' ? 'OAuth' : 'API Key'
 
   const unauthenticatedContent = (

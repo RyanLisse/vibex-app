@@ -18,12 +18,27 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+export const Default: Story = {
+  args: {
+    onSubmit: async (data) => {
+      console.log('Form submitted:', data)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    },
+    isLoading: false,
+  },
+}
 
 export const WithInitialValues: Story = {
-  render: () => (
+  args: {
+    onSubmit: async (data) => {
+      console.log('Form submitted:', data)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    },
+    isLoading: false,
+  },
+  render: (args) => (
     <div className="max-w-md mx-auto p-6 bg-card rounded-lg border">
-      <ContactForm />
+      <ContactForm {...args} />
     </div>
   ),
 }

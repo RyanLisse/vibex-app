@@ -239,7 +239,7 @@ export const testDataGenerators = {
   }),
 
   // Generate multiple mock tasks
-  createMockTasks: (count: number, overrides: Partial<MockTask> = []): MockTask[] => {
+  createMockTasks: (count: number, overrides: Partial<MockTask> = {}): MockTask[] => {
     return Array.from({ length: count }, (_, i) => ({
       ...testDataGenerators.createMockTask(),
       id: `task-${i}`,
@@ -277,17 +277,19 @@ export const mockStateUtils = {
   // Simulate errors
   simulateError: (method: string, error: Error) => {
     const [category, operation] = method.split('.')
-    if (mockVibeKitSDK[category] && mockVibeKitSDK[category][operation]) {
-      mockVibeKitSDK[category][operation].mockRejectedValueOnce(error)
+    const categoryMock = (mockVibeKitSDK as any)[category]
+    if (categoryMock && categoryMock[operation]) {
+      categoryMock[operation].mockRejectedValueOnce(error)
     }
   },
 
   // Simulate loading delays
   simulateDelay: (method: string, delay: number) => {
     const [category, operation] = method.split('.')
-    if (mockVibeKitSDK[category] && mockVibeKitSDK[category][operation]) {
-      const originalFn = mockVibeKitSDK[category][operation]
-      mockVibeKitSDK[category][operation] = vi.fn().mockImplementation(async (...args) => {
+    const categoryMock = (mockVibeKitSDK as any)[category]
+    if (categoryMock && categoryMock[operation]) {
+      const originalFn = categoryMock[operation]
+      categoryMock[operation] = vi.fn().mockImplementation(async (...args) => {
         await new Promise((resolve) => setTimeout(resolve, delay))
         return originalFn(...args)
       })

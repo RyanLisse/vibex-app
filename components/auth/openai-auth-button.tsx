@@ -37,7 +37,7 @@ export function OpenAIAuthButton({ variant = 'default', size = 'default' }: Open
   }
 
   return (
-    <Button variant={variant} size={size} onClick={login}>
+    <Button variant={variant} size={size} onClick={() => login()}>
       <LogIn className="size-4" />
       Sign in with ChatGPT
     </Button>

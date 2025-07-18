@@ -8,7 +8,7 @@ import { AuthCardBase } from './auth-card-base'
 export function OpenAIAuthCard() {
   const { authenticated, loading, login, logout, expires_at, user, error } = useOpenAIAuth()
 
-  const isExpiringSoon = expires_at && expires_at < Date.now() + 300000 // 5 minutes
+  const isExpiringSoon = !!(expires_at && expires_at < Date.now() + 300000) // 5 minutes
 
   const authenticatedContent = (
     <>
@@ -45,7 +45,7 @@ export function OpenAIAuthCard() {
         </ul>
       </div>
 
-      <Button onClick={login} className="w-full" size="lg">
+      <Button onClick={() => login()} className="w-full" size="lg">
         <LogIn className="size-4" />
         Sign in with ChatGPT
       </Button>
