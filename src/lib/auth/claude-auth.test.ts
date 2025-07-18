@@ -134,7 +134,7 @@ describe('ClaudeAuthClient', () => {
         body: expect.any(URLSearchParams),
       })
 
-      const callArgs = ;(fetch as any).mock.calls[0]
+      const callArgs = (fetch as any).mock.calls[0]
       const body = callArgs[1]?.body as URLSearchParams
       expect(body.get('grant_type')).toBe('authorization_code')
       expect(body.get('client_id')).toBe('test-client-id')
@@ -226,7 +226,7 @@ describe('ClaudeAuthClient', () => {
         body: expect.any(URLSearchParams),
       })
 
-      const callArgs = ;(fetch as any).mock.calls[0]
+      const callArgs = (fetch as any).mock.calls[0]
       const body = callArgs[1]?.body as URLSearchParams
       expect(body.get('grant_type')).toBe('refresh_token')
       expect(body.get('client_id')).toBe('test-client-id')
