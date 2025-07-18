@@ -1,5 +1,4 @@
-import { describe, expect, it } from 'vitest'
-import type { TaskMessage } from '../_types/message-types'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import {
   createMessage,
   filterMessagesByStatus,
@@ -18,6 +17,7 @@ import {
   isToolMessage,
   isUserMessage,
   sortMessagesByTimestamp,
+  type TaskMessage,
   updateMessage,
   validateMessage,
 } from './message-guards'

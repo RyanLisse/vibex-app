@@ -6,8 +6,7 @@ export async function GET() {
     const authUrl = githubAuth.getAuthUrl()
 
     return NextResponse.json({ url: authUrl })
-  } catch (error) {
-    console.error('Error generating auth URL:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to generate auth URL' }, { status: 500 })
   }
 }

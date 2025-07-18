@@ -383,8 +383,7 @@ describe('Gemini Audio Hooks Integration', () => {
       expect(result.current.isSupported).toBe(true)
 
       // Test with no MediaRecorder support
-      const originalMediaRecorder = global.MediaRecorder
-      delete (global as any).MediaRecorder
+      const originalMediaRecorder = (global.MediaRecorder(global as any).MediaRecorder = undefined)
 
       const { result: result2 } = renderHook(() => useAudioRecorder())
 
@@ -434,7 +433,7 @@ describe('Gemini Audio Hooks Integration', () => {
       })
 
       // Simulate audio data
-      const mockBlob = new Blob(['audio data'], { type: 'audio/webm' })
+      const _mockBlob = new Blob(['audio data'], { type: 'audio/webm' })
 
       await act(async () => {
         // Convert blob to Uint8Array (simplified)

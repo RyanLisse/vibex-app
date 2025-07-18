@@ -1,4 +1,4 @@
-import { Button } from './Button'
+import { Button } from '@/src/stories/Button'
 
 export interface HeaderContentProps {
   user?: { name: string }

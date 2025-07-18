@@ -20,12 +20,8 @@ export async function POST(request: NextRequest) {
       apiKey,
       voiceName,
       tools,
-      onMessage: (message) => {
-        console.log('Gemini message:', message)
-      },
-      onError: (error) => {
-        console.error('Gemini error:', error)
-      },
+      onMessage: (_message) => {},
+      onError: (_error) => {},
     })
 
     await session.connect()
@@ -36,8 +32,7 @@ export async function POST(request: NextRequest) {
       sessionId,
       message: 'Session created successfully',
     })
-  } catch (error) {
-    console.error('Failed to create Gemini session:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
   }
 }
@@ -61,8 +56,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Session closed successfully',
     })
-  } catch (error) {
-    console.error('Failed to close Gemini session:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to close session' }, { status: 500 })
   }
 }

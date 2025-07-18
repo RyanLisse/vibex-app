@@ -1,23 +1,23 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGitHubAuth } from './use-github-auth'
+import { useGitHubAuth } from '@/hooks/use-github-auth'
 
 // Mock next/navigation
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(),
+mock('next/navigation', () => ({
+  useRouter: mock(),
 }))
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('useGitHubAuth', () => {
-  const mockPush = vi.fn()
+  const mockPush = mock()
   const mockRouter = { push: mockPush }
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useRouter).mockReturnValue(mockRouter as any)
+    mock.restore()
+    mocked(useRouter).mockReturnValue(mockRouter as any)
     window.location.href = 'http://localhost:3000'
   })
 
@@ -33,7 +33,7 @@ describe('useGitHubAuth', () => {
   describe('login', () => {
     it('should initiate login successfully', async () => {
       const mockAuthUrl = 'https://github.com/oauth/authorize?client_id=test'
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ url: mockAuthUrl }),
       } as Response)
@@ -51,7 +51,7 @@ describe('useGitHubAuth', () => {
     })
 
     it('should handle login error when fetch fails', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -64,7 +64,7 @@ describe('useGitHubAuth', () => {
     })
 
     it('should handle login error when response is not ok', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         statusText: 'Internal Server Error',
       } as Response)
@@ -83,7 +83,7 @@ describe('useGitHubAuth', () => {
       const promise = new Promise((resolve) => {
         resolvePromise = resolve
       })
-      vi.mocked(fetch).mockReturnValueOnce(promise as any)
+      mocked(fetch).mockReturnValueOnce(promise as any)
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -94,7 +94,7 @@ describe('useGitHubAuth', () => {
       expect(result.current.isLoading).toBe(true)
 
       await act(async () => {
-        resolvePromise!({
+        resolvePromise?.({
           ok: true,
           json: async () => ({ url: 'https://github.com/oauth' }),
         })
@@ -107,7 +107,7 @@ describe('useGitHubAuth', () => {
 
   describe('logout', () => {
     it('should logout successfully', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
       } as Response)
 
@@ -125,7 +125,7 @@ describe('useGitHubAuth', () => {
     })
 
     it('should handle logout error', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Logout failed'))
+      mocked(fetch).mockRejectedValueOnce(new Error('Logout failed'))
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -142,7 +142,7 @@ describe('useGitHubAuth', () => {
       const promise = new Promise((resolve) => {
         resolvePromise = resolve
       })
-      vi.mocked(fetch).mockReturnValueOnce(promise as any)
+      mocked(fetch).mockReturnValueOnce(promise as any)
 
       const { result } = renderHook(() => useGitHubAuth())
 
@@ -153,7 +153,7 @@ describe('useGitHubAuth', () => {
       expect(result.current.isLoading).toBe(true)
 
       await act(async () => {
-        resolvePromise!({ ok: true })
+        resolvePromise?.({ ok: true })
         await promise
       })
 
@@ -164,7 +164,7 @@ describe('useGitHubAuth', () => {
   describe('error handling', () => {
     it('should clear error when starting new operation', async () => {
       // First, create an error
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('First error'))
+      mocked(fetch).mockRejectedValueOnce(new Error('First error'))
       const { result } = renderHook(() => useGitHubAuth())
 
       await act(async () => {
@@ -174,7 +174,7 @@ describe('useGitHubAuth', () => {
       expect(result.current.error).toBe('First error')
 
       // Then try another operation
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ url: 'https://github.com/oauth' }),
       } as Response)

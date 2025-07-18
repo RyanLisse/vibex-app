@@ -1,12 +1,12 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGitHubBranches } from './use-github-branches'
+import { useGitHubBranches } from '@/hooks/use-github-branches'
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 // Mock the auth hook
-vi.mock('./use-github-auth', () => ({
+mock('./use-github-auth', () => ({
   useGitHubAuth: () => ({
     isAuthenticated: true,
     user: { login: 'testuser' },
@@ -15,7 +15,7 @@ vi.mock('./use-github-auth', () => ({
 
 describe('useGitHubBranches', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should initialize with default state', () => {
@@ -55,7 +55,7 @@ describe('useGitHubBranches', () => {
       },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranches,
     } as any)
@@ -73,7 +73,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle fetch errors', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubBranches())
 
@@ -111,7 +111,7 @@ describe('useGitHubBranches', () => {
       },
     }
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranchDetails,
     } as any)
@@ -137,7 +137,7 @@ describe('useGitHubBranches', () => {
       },
     }
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewBranch,
     } as any)
@@ -162,7 +162,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should delete a branch', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       status: 204,
     } as any)
@@ -182,7 +182,7 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle protected branch deletion error', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 422,
       json: async () => ({
@@ -227,7 +227,7 @@ describe('useGitHubBranches', () => {
       ],
     }
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockComparison,
     } as any)
@@ -254,7 +254,7 @@ describe('useGitHubBranches', () => {
       { name: 'bugfix/login-issue' },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => allBranches,
     } as any)
@@ -279,7 +279,7 @@ describe('useGitHubBranches', () => {
       default_branch: 'main',
     }
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepo,
     } as any)
@@ -307,7 +307,7 @@ describe('useGitHubBranches', () => {
       restrictions: null,
     }
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockProtection,
     } as any)
@@ -338,21 +338,17 @@ describe('useGitHubBranches', () => {
   })
 
   it('should handle pagination for branches', async () => {
-    const mockPage1 = Array(30)
-      .fill(null)
-      .map((_, i) => ({
-        name: `branch-${i + 1}`,
-        commit: { sha: `sha${i + 1}` },
-      }))
+    const mockPage1 = new Array(30).fill(null).map((_, i) => ({
+      name: `branch-${i + 1}`,
+      commit: { sha: `sha${i + 1}` },
+    }))
 
-    const mockPage2 = Array(10)
-      .fill(null)
-      .map((_, i) => ({
-        name: `branch-${i + 31}`,
-        commit: { sha: `sha${i + 31}` },
-      }))
+    const mockPage2 = new Array(10).fill(null).map((_, i) => ({
+      name: `branch-${i + 31}`,
+      commit: { sha: `sha${i + 31}` },
+    }))
 
-    vi.mocked(fetch)
+    mocked(fetch)
       .mockResolvedValueOnce({
         ok: true,
         headers: {
@@ -391,7 +387,7 @@ describe('useGitHubBranches', () => {
   it('should refresh branches', async () => {
     const mockBranches = [{ name: 'main', commit: { sha: 'abc123' } }]
 
-    vi.mocked(fetch).mockResolvedValue({
+    mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => mockBranches,
     } as any)
@@ -423,7 +419,7 @@ describe('useGitHubBranches', () => {
 
   it('should handle authentication state', async () => {
     // Mock unauthenticated state
-    vi.doMock('./use-github-auth', () => ({
+    mock.doMock('./use-github-auth', () => ({
       useGitHubAuth: () => ({
         isAuthenticated: false,
         user: null,
@@ -451,7 +447,7 @@ describe('useGitHubBranches', () => {
       { name: 'release/v1.0' },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockBranches,
     } as any)

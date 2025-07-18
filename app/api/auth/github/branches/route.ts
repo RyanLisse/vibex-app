@@ -45,7 +45,9 @@ const fetchRepoInfo = async (owner: string, repo: string, accessToken: string) =
   })
 
   const errorResponse = handleGitHubError(response)
-  if (errorResponse) throw errorResponse
+  if (errorResponse) {
+    throw errorResponse
+  }
 
   return response.json()
 }
@@ -56,7 +58,9 @@ const fetchBranches = async (owner: string, repo: string, accessToken: string) =
   })
 
   const errorResponse = handleGitHubError(response)
-  if (errorResponse) throw errorResponse
+  if (errorResponse) {
+    throw errorResponse
+  }
 
   return response.json()
 }
@@ -77,13 +81,17 @@ export async function GET(request: NextRequest) {
   try {
     const accessToken = request.cookies.get('github_access_token')?.value
     const authError = validateAuth(accessToken)
-    if (authError) return authError
+    if (authError) {
+      return authError
+    }
 
     const { searchParams } = new URL(request.url)
     const owner = searchParams.get('owner')
     const repo = searchParams.get('repo')
     const paramsError = validateParams(owner, repo)
-    if (paramsError) return paramsError
+    if (paramsError) {
+      return paramsError
+    }
 
     const repoData = await fetchRepoInfo(owner!, repo!, accessToken!)
     const defaultBranch = repoData.default_branch
@@ -96,7 +104,6 @@ export async function GET(request: NextRequest) {
     if (error instanceof NextResponse) {
       return error
     }
-    console.error('Error fetching branches:', error)
     return NextResponse.json({ error: 'Failed to fetch branches' }, { status: 500 })
   }
 }

@@ -28,6 +28,13 @@ ignore = [
   ".storybook/**",
   "*.config.{js,ts}",
   "*.setup.{js,ts}",
+  # Test files - exclude from code quality analysis to reduce duplication noise
+  "**/*.test.{ts,tsx,js,jsx}",
+  "**/*.spec.{ts,tsx,js,jsx}",
+  "tests/**",
+  "e2e/**",
+  "**/__tests__/**",
+  "**/*.stories.{ts,tsx,js,jsx}",
 ]
 
 [reporting]

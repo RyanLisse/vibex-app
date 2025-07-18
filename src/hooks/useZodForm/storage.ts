@@ -15,9 +15,7 @@ export function createStorageHelpers<T extends FieldValues>(
     try {
       const data = form.getValues()
       localStorage.setItem(key, JSON.stringify(data))
-    } catch (error) {
-      console.error('Failed to save form data to storage:', error)
-    }
+    } catch (_error) {}
   }
 
   const load = (key: string): boolean => {
@@ -30,18 +28,14 @@ export function createStorageHelpers<T extends FieldValues>(
         setInitialData?.(transformedData)
         return true
       }
-    } catch (error) {
-      console.error('Failed to load form data from storage:', error)
-    }
+    } catch (_error) {}
     return false
   }
 
   const clear = (key: string) => {
     try {
       localStorage.removeItem(key)
-    } catch (error) {
-      console.error('Failed to clear form data from storage:', error)
-    }
+    } catch (_error) {}
   }
 
   return { save, load, clear }

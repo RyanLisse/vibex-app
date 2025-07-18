@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { GeminiAudioMessage } from './use-gemini-audio'
+import type { GeminiAudioMessage } from '@/hooks/use-gemini-audio'
 
 export interface UseChatMessagesOptions {
   autoScroll?: boolean
@@ -63,7 +63,7 @@ export function useChatMessages(options: UseChatMessagesOptions = {}) {
         scrollArea.scrollTop = scrollArea.scrollHeight
       }
     }
-  }, [messages, autoScroll])
+  }, [autoScroll])
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {

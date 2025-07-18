@@ -1,15 +1,13 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import Container from './container'
+import { render, screen } from '@testing-library/react'
+import Container from '@/app/container'
 
 // Mock the dependencies
-const mockUpdateTask = vi.fn()
-const mockGetTaskById = vi.fn()
-const mockFetchRealtimeSubscriptionToken = vi.fn()
-const mockUseInngestSubscription = vi.fn()
+const mockUpdateTask = mock()
+const mockGetTaskById = mock()
+const mockFetchRealtimeSubscriptionToken = mock()
+const mockUseInngestSubscription = mock()
 
-vi.mock('@inngest/realtime/hooks', () => ({
+mock('@inngest/realtime/hooks', () => ({
   useInngestSubscription: () => mockUseInngestSubscription(),
   InngestSubscriptionState: {
     Closed: 'closed',
@@ -18,37 +16,37 @@ vi.mock('@inngest/realtime/hooks', () => ({
   },
 }))
 
-vi.mock('@/app/actions/inngest', () => ({
+mock('@/app/actions/inngest', () => ({
   fetchRealtimeSubscriptionToken: () => mockFetchRealtimeSubscriptionToken(),
 }))
 
-vi.mock('@/stores/tasks', () => ({
+mock('@/stores/tasks', () => ({
   useTaskStore: () => ({
     updateTask: mockUpdateTask,
     getTaskById: mockGetTaskById,
   }),
 }))
 
-vi.mock('@/hooks/use-inngest-subscription', () => ({
+mock('@/hooks/use-inngest-subscription', () => ({
   useInngestSubscriptionManagement: () => ({
     subscription: mockUseInngestSubscription(),
     subscriptionEnabled: true,
-    refreshToken: vi.fn(),
-    handleError: vi.fn(),
+    refreshToken: mock(),
+    handleError: mock(),
   }),
 }))
 
-vi.mock('@/hooks/use-task-message-processing', () => ({
-  useTaskMessageProcessing: vi.fn(),
+mock('@/hooks/use-task-message-processing', () => ({
+  useTaskMessageProcessing: mock(),
 }))
 
 // Mock console methods
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+const _mockConsoleLog = mock.spyOn(console, 'log').mockImplementation(() => {})
+const _mockConsoleError = mock.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('Container', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockUseInngestSubscription.mockReturnValue({
       latestData: null,
       error: null,
@@ -57,7 +55,7 @@ describe('Container', () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render children', () => {

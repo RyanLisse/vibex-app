@@ -1,15 +1,15 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { GeminiAudioMessage, UseGeminiAudioOptions } from './use-gemini-audio'
-import { useGeminiAudio } from './use-gemini-audio'
+import type { UseGeminiAudioOptions } from '@/hooks/use-gemini-audio'
+import { useGeminiAudio } from '@/hooks/use-gemini-audio'
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('useGeminiAudio', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.useFakeTimers()
+    mock.restore()
+    mock.useFakeTimers()
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
       json: async () => ({}),
@@ -17,7 +17,7 @@ describe('useGeminiAudio', () => {
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    mock.useRealTimers()
   })
 
   describe('initial state', () => {
@@ -72,7 +72,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle connection errors', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -91,7 +91,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle network errors', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       const networkError = new Error('Network error')
       ;(global.fetch as any).mockRejectedValueOnce(networkError)
 
@@ -121,7 +121,7 @@ describe('useGeminiAudio', () => {
 
       expect(result.current.isLoading).toBe(true)
 
-      resolvePromise!({ ok: true, json: async () => ({}) })
+      resolvePromise?.({ ok: true, json: async () => ({}) })
       await connectPromise
 
       expect(result.current.isLoading).toBe(false)
@@ -162,7 +162,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle disconnect errors gracefully', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
       const { result } = renderHook(() => useGeminiAudio())
 
       // Connect first
@@ -185,7 +185,7 @@ describe('useGeminiAudio', () => {
 
   describe('sendMessage', () => {
     it('should send text message and add to messages', async () => {
-      const onMessage = vi.fn()
+      const onMessage = mock()
       const { result } = renderHook(() => useGeminiAudio({ onMessage }))
 
       // Connect first
@@ -216,7 +216,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should simulate AI response after sending message', async () => {
-      const onMessage = vi.fn()
+      const onMessage = mock()
       const { result } = renderHook(() => useGeminiAudio({ onMessage }))
 
       await act(async () => {
@@ -229,7 +229,7 @@ describe('useGeminiAudio', () => {
 
       // Fast-forward to trigger simulated response
       act(() => {
-        vi.advanceTimersByTime(1000)
+        mock.advanceTimersByTime(1000)
       })
 
       await waitFor(() => {
@@ -255,7 +255,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle send message errors', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       const { result } = renderHook(() => useGeminiAudio({ onError }))
 
       await act(async () => {
@@ -278,7 +278,7 @@ describe('useGeminiAudio', () => {
 
   describe('sendAudio', () => {
     it('should send audio blob and add to messages', async () => {
-      const onMessage = vi.fn()
+      const onMessage = mock()
       const { result } = renderHook(() => useGeminiAudio({ onMessage }))
 
       await act(async () => {
@@ -290,11 +290,11 @@ describe('useGeminiAudio', () => {
 
       // Mock FileReader
       const mockFileReader = {
-        readAsDataURL: vi.fn(),
+        readAsDataURL: mock(),
         onloadend: null as any,
         result: base64Audio,
       }
-      global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any
+      global.FileReader = mock().mockImplementation(() => mockFileReader) as any
 
       await act(async () => {
         const promise = result.current.sendAudio(audioBlob)
@@ -325,7 +325,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle audio send errors', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       const { result } = renderHook(() => useGeminiAudio({ onError }))
 
       await act(async () => {
@@ -336,11 +336,11 @@ describe('useGeminiAudio', () => {
       const base64Audio = 'data:audio/webm;base64,YXVkaW8gZGF0YQ=='
 
       const mockFileReader = {
-        readAsDataURL: vi.fn(),
+        readAsDataURL: mock(),
         onloadend: null as any,
         result: base64Audio,
       }
-      global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any
+      global.FileReader = mock().mockImplementation(() => mockFileReader) as any
 
       ;(global.fetch as any).mockResolvedValueOnce({
         ok: false,

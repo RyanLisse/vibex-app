@@ -1,10 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 // Mock Radix UI Tabs components
-vi.mock('@radix-ui/react-tabs', () => ({
+mock('@radix-ui/react-tabs', () => ({
   Root: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="tabs-root-primitive" {...props}>
       {children}
@@ -234,7 +233,7 @@ describe('Tabs Components', () => {
     })
 
     it('should handle onClick events', () => {
-      const handleClick = vi.fn()
+      const handleClick = mock()
       render(
         <Tabs>
           <TabsList>

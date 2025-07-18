@@ -1,18 +1,17 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ThemeToggle } from './theme-toggle'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 // Mock next-themes
-const mockSetTheme = vi.fn()
-const mockUseTheme = vi.fn()
+const mockSetTheme = mock()
+const mockUseTheme = mock()
 
-vi.mock('next-themes', () => ({
+mock('next-themes', () => ({
   useTheme: () => mockUseTheme(),
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   Moon: ({ className, ...props }: any) => (
     <svg className={className} data-testid="moon-icon" {...props} />
   ),
@@ -22,7 +21,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock Button component
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, disabled, ...props }: any) => (
     <button
       data-size={size}
@@ -39,7 +38,7 @@ vi.mock('@/components/ui/button', () => ({
 
 describe('ThemeToggle', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockUseTheme.mockReturnValue({
       theme: 'light',
       setTheme: mockSetTheme,
@@ -47,7 +46,7 @@ describe('ThemeToggle', () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render with disabled state before mounting', () => {
@@ -129,7 +128,7 @@ describe('ThemeToggle', () => {
 
   it('should toggle from light to dark theme', () => {
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
       const { theme, setTheme } = mockUseTheme()
 
       return (
@@ -157,7 +156,7 @@ describe('ThemeToggle', () => {
     })
 
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
       const { theme, setTheme } = mockUseTheme()
 
       return (
@@ -185,7 +184,7 @@ describe('ThemeToggle', () => {
     })
 
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
       const { theme, setTheme } = mockUseTheme()
 
       return (
@@ -209,7 +208,7 @@ describe('ThemeToggle', () => {
 
   it('should apply correct transition classes to sun icon', () => {
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
 
       return (
         <button data-testid="theme-toggle-button">
@@ -238,7 +237,7 @@ describe('ThemeToggle', () => {
 
   it('should apply correct transition classes to moon icon', () => {
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
 
       return (
         <button data-testid="theme-toggle-button">
@@ -268,7 +267,7 @@ describe('ThemeToggle', () => {
 
   it('should handle multiple rapid clicks', () => {
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
       const { theme, setTheme } = mockUseTheme()
 
       return (
@@ -294,7 +293,7 @@ describe('ThemeToggle', () => {
 
   it('should have correct button props', () => {
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
 
       return (
         <button data-size="icon" data-testid="theme-toggle-button" data-variant="ghost">
@@ -317,7 +316,7 @@ describe('ThemeToggle', () => {
     })
 
     const MockedThemeToggle = () => {
-      const [mounted, setMounted] = React.useState(true)
+      const [_mounted, _setMounted] = React.useState(true)
       const { theme, setTheme } = mockUseTheme()
 
       return (

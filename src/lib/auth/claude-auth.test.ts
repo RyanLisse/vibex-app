@@ -1,20 +1,20 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ClaudeAuthClient } from './claude-auth'
-import * as pkce from './pkce'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { ClaudeAuthClient } from '@/src/lib/auth/claude-auth'
+import * as pkce from '@/src/lib/auth/pkce'
 
 // Mock PKCE module
-vi.mock('./pkce')
+mock('./pkce')
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('ClaudeAuthClient', () => {
   let client: ClaudeAuthClient
-  const mockGenerateCodeVerifier = pkce.generateCodeVerifier as ReturnType<typeof vi.fn>
-  const mockGenerateCodeChallenge = pkce.generateCodeChallenge as ReturnType<typeof vi.fn>
+  const mockGenerateCodeVerifier = pkce.generateCodeVerifier as ReturnType<typeof mock>
+  const mockGenerateCodeChallenge = pkce.generateCodeChallenge as ReturnType<typeof mock>
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     client = new ClaudeAuthClient({
       clientId: 'test-client-id',
       redirectUri: 'https://app.example.com/callback',
@@ -119,7 +119,7 @@ describe('ClaudeAuthClient', () => {
         scope: 'org:create_api_key user:profile',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
       } as Response)
@@ -134,7 +134,7 @@ describe('ClaudeAuthClient', () => {
         body: expect.any(URLSearchParams),
       })
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mocked(fetch).mock.calls[0]
       const body = callArgs[1]?.body as URLSearchParams
       expect(body.get('grant_type')).toBe('authorization_code')
       expect(body.get('client_id')).toBe('test-client-id')
@@ -151,7 +151,7 @@ describe('ClaudeAuthClient', () => {
         error_description: 'Invalid authorization code',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 400,
         statusText: 'Bad Request',
@@ -164,13 +164,13 @@ describe('ClaudeAuthClient', () => {
     })
 
     it('should handle network errors', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
       await expect(client.exchangeCodeForToken('code', 'verifier')).rejects.toThrow('Network error')
     })
 
     it('should handle non-JSON error responses', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
@@ -191,7 +191,7 @@ describe('ClaudeAuthClient', () => {
         tokenUrl: 'https://custom.token.url',
       })
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'token' }),
       } as Response)
@@ -211,7 +211,7 @@ describe('ClaudeAuthClient', () => {
         refresh_token: 'new-refresh-token',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRefreshResponse,
       } as Response)
@@ -226,7 +226,7 @@ describe('ClaudeAuthClient', () => {
         body: expect.any(URLSearchParams),
       })
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mocked(fetch).mock.calls[0]
       const body = callArgs[1]?.body as URLSearchParams
       expect(body.get('grant_type')).toBe('refresh_token')
       expect(body.get('client_id')).toBe('test-client-id')
@@ -241,7 +241,7 @@ describe('ClaudeAuthClient', () => {
         error_description: 'Refresh token expired',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
@@ -254,13 +254,13 @@ describe('ClaudeAuthClient', () => {
     })
 
     it('should handle network errors during refresh', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Connection timeout'))
+      mocked(fetch).mockRejectedValueOnce(new Error('Connection timeout'))
 
       await expect(client.refreshToken('token')).rejects.toThrow('Connection timeout')
     })
 
     it('should handle non-JSON error responses during refresh', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 503,
         statusText: 'Service Unavailable',
@@ -326,7 +326,7 @@ describe('ClaudeAuthClient', () => {
     it('should handle concurrent token exchanges', async () => {
       const responses = [{ access_token: 'token1' }, { access_token: 'token2' }]
 
-      vi.mocked(fetch)
+      mocked(fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => responses[0],

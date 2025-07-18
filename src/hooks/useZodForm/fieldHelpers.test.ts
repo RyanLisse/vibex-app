@@ -1,6 +1,11 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import type { UseFormReturn } from 'react-hook-form'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createFieldHelpers, getChangedFields, getDirtyFields, getFormErrors } from './fieldHelpers'
+import {
+  createFieldHelpers,
+  getChangedFields,
+  getDirtyFields,
+  getFormErrors,
+} from '@/src/hooks/useZodForm/fieldHelpers'
 
 describe('fieldHelpers', () => {
   let mockForm: UseFormReturn<any>
@@ -11,9 +16,9 @@ describe('fieldHelpers', () => {
         errors: {},
         dirtyFields: {},
       },
-      clearErrors: vi.fn(),
-      setError: vi.fn(),
-      getValues: vi.fn(),
+      clearErrors: mock(),
+      setError: mock(),
+      getValues: mock(),
     } as any
   })
 

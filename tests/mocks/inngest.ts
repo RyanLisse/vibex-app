@@ -17,12 +17,12 @@ export interface MockEvent {
 // Mock step context
 export interface MockStepContext {
   step: {
-    run: vi.MockedFunction<any>
-    sleep: vi.MockedFunction<any>
-    sleepUntil: vi.MockedFunction<any>
-    waitForEvent: vi.MockedFunction<any>
-    sendEvent: vi.MockedFunction<any>
-    invoke: vi.MockedFunction<any>
+    run: ReturnType<typeof vi.fn>
+    sleep: ReturnType<typeof vi.fn>
+    sleepUntil: ReturnType<typeof vi.fn>
+    waitForEvent: ReturnType<typeof vi.fn>
+    sendEvent: ReturnType<typeof vi.fn>
+    invoke: ReturnType<typeof vi.fn>
   }
 }
 
@@ -54,7 +54,7 @@ export const mockInngestClient = {
   send: vi.fn().mockImplementation((event: Partial<MockEvent> | Partial<MockEvent>[]) => {
     const events = Array.isArray(event) ? event : [event]
 
-    events.forEach((evt) => {
+    for (const evt of events) {
       const mockEvent: MockEvent = {
         id: `evt-${Date.now()}`,
         name: evt.name || 'test.event',
@@ -65,48 +65,50 @@ export const mockInngestClient = {
         ...evt,
       }
       mockEvents.push(mockEvent)
-    })
+    }
 
     return Promise.resolve({ ids: events.map((e) => e.id || `evt-${Date.now()}`) })
   }),
 
   // Function creation
-  createFunction: vi.fn().mockImplementation((config: MockFunctionConfig, handler: Function) => {
-    const mockFunction = {
-      id: config.id,
-      name: config.name,
-      config,
-      handler,
+  createFunction: vi
+    .fn()
+    .mockImplementation((config: MockFunctionConfig, handler: (...args: any[]) => any) => {
+      const mockFunction = {
+        id: config.id,
+        name: config.name,
+        config,
+        handler,
 
-      // Mock function execution
-      run: vi.fn().mockImplementation(async (event: MockEvent, step: MockStepContext) => {
-        const startTime = Date.now()
+        // Mock function execution
+        run: vi.fn().mockImplementation(async (event: MockEvent, step: MockStepContext) => {
+          const startTime = Date.now()
 
-        try {
-          const result = await handler(event, step)
+          try {
+            const result = await handler(event, step)
 
-          mockFunctionRuns.push({
-            functionId: config.id,
-            event,
-            result,
-            duration: Date.now() - startTime,
-          })
+            mockFunctionRuns.push({
+              functionId: config.id,
+              event,
+              result,
+              duration: Date.now() - startTime,
+            })
 
-          return result
-        } catch (error) {
-          mockFunctionRuns.push({
-            functionId: config.id,
-            event,
-            error: error as Error,
-            duration: Date.now() - startTime,
-          })
-          throw error
-        }
-      }),
-    }
+            return result
+          } catch (error) {
+            mockFunctionRuns.push({
+              functionId: config.id,
+              event,
+              error: error as Error,
+              duration: Date.now() - startTime,
+            })
+            throw error
+          }
+        }),
+      }
 
-    return mockFunction
-  }),
+      return mockFunction
+    }),
 
   // Get function runs
   getFunctionRuns: vi.fn().mockImplementation(() => {
@@ -119,7 +121,7 @@ export const mockInngestClient = {
 
 // Mock step utilities - extracted handlers
 const createRunHandler = () =>
-  vi.fn().mockImplementation(async (id: string, handler: Function) => {
+  vi.fn().mockImplementation(async (_id: string, handler: Function) => {
     return await handler()
   })
 
@@ -127,7 +129,7 @@ const createSleepHandler = () =>
   vi.fn().mockImplementation((duration: string | number) => {
     const ms =
       typeof duration === 'string'
-        ? Number.parseInt(duration.replace(/[^\d]/g, '')) * 1000
+        ? Number.parseInt(duration.replace(/[^\d]/g, ''), 10) * 1000
         : duration
     return new Promise((resolve) => setTimeout(resolve, ms))
   })
@@ -142,7 +144,7 @@ const createSleepUntilHandler = () =>
 const createWaitForEventHandler = () =>
   vi.fn().mockImplementation((eventName: string, options?: { timeout?: string }) => {
     return new Promise((resolve, reject) => {
-      const timeout = options?.timeout ? Number.parseInt(options.timeout) * 1000 : 30_000
+      const timeout = options?.timeout ? Number.parseInt(options.timeout, 10) * 1000 : 30_000
 
       const checkEvent = () => {
         const event = mockEvents.find((e) => e.name === eventName)

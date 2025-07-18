@@ -12,7 +12,6 @@ export async function POST() {
       message: 'Logged out successfully',
     })
   } catch (error) {
-    console.error('OpenAI logout error:', error)
     return NextResponse.json(
       {
         success: false,

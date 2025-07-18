@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const { performance } = require('perf_hooks')
-const fs = require('fs')
-const path = require('path')
+const { performance } = require('node:perf_hooks')
+const fs = require('node:fs')
+const path = require('node:path')
 
 class PerformanceMonitor {
   constructor() {
@@ -20,18 +20,19 @@ class PerformanceMonitor {
     const start = performance.now()
 
     try {
-      const { exec } = require('child_process')
+      const { exec } = require('node:child_process')
       await new Promise((resolve, reject) => {
-        exec('npm run build', (error, stdout, stderr) => {
-          if (error) reject(error)
-          else resolve(stdout)
+        exec('npm run build', (error, stdout, _stderr) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(stdout)
+          }
         })
       })
 
       this.metrics.buildTime = performance.now() - start
-      console.log(`Build completed in ${this.metrics.buildTime.toFixed(2)}ms`)
-    } catch (error) {
-      console.error('Build failed:', error.message)
+    } catch (_error) {
       this.metrics.buildTime = -1
     }
   }
@@ -40,7 +41,6 @@ class PerformanceMonitor {
     const buildDir = path.join(process.cwd(), '.next/static')
 
     if (!fs.existsSync(buildDir)) {
-      console.warn('Build directory not found. Run build first.')
       return
     }
 
@@ -68,11 +68,6 @@ class PerformanceMonitor {
       css: getDirectorySize(path.join(buildDir, 'css')),
       media: getDirectorySize(path.join(buildDir, 'media')),
     }
-
-    console.log('Bundle Size Analysis:')
-    console.log(`  Total: ${(this.metrics.bundleSize.total / 1024 / 1024).toFixed(2)} MB`)
-    console.log(`  JS: ${(this.metrics.bundleSize.js / 1024 / 1024).toFixed(2)} MB`)
-    console.log(`  CSS: ${(this.metrics.bundleSize.css / 1024 / 1024).toFixed(2)} MB`)
   }
 
   measureMemoryUsage() {
@@ -84,11 +79,6 @@ class PerformanceMonitor {
       external: usage.external,
       arrayBuffers: usage.arrayBuffers,
     }
-
-    console.log('Memory Usage:')
-    console.log(`  RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`)
-    console.log(`  Heap Total: ${(usage.heapTotal / 1024 / 1024).toFixed(2)} MB`)
-    console.log(`  Heap Used: ${(usage.heapUsed / 1024 / 1024).toFixed(2)} MB`)
   }
 
   async measureLoadTimes() {
@@ -120,16 +110,7 @@ class PerformanceMonitor {
       this.metrics.loadTimes = performanceMetrics
 
       await browser.close()
-
-      console.log('Load Time Analysis:')
-      console.log(`  DOM Content Loaded: ${performanceMetrics.domContentLoaded}ms`)
-      console.log(`  Load Complete: ${performanceMetrics.loadComplete}ms`)
-      console.log(`  First Paint: ${performanceMetrics.firstPaint}ms`)
-      console.log(`  First Contentful Paint: ${performanceMetrics.firstContentfulPaint}ms`)
-      console.log(`  Largest Contentful Paint: ${performanceMetrics.largestContentfulPaint}ms`)
-    } catch (error) {
-      console.error('Load time measurement failed:', error.message)
-    }
+    } catch (_error) {}
   }
 
   identifyBottlenecks() {
@@ -192,17 +173,9 @@ class PerformanceMonitor {
     const reportPath = path.join(process.cwd(), 'performance-report.json')
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2))
 
-    console.log('\\n=== Performance Report ===')
-    console.log(`Report saved to: ${reportPath}`)
-
     if (bottlenecks.length > 0) {
-      console.log('\\n⚠️  Bottlenecks Identified:')
-      bottlenecks.forEach((bottleneck, index) => {
-        console.log(`  ${index + 1}. ${bottleneck.issue} (${bottleneck.severity})`)
-        console.log(`     💡 ${bottleneck.suggestion}`)
-      })
+      bottlenecks.forEach((_bottleneck, _index) => {})
     } else {
-      console.log('\\n✅ No significant bottlenecks detected')
     }
 
     return report
@@ -241,16 +214,12 @@ class PerformanceMonitor {
   }
 
   async run() {
-    console.log('🚀 Starting Performance Analysis...')
-
     this.measureMemoryUsage()
     await this.measureBuildTime()
     await this.analyzeBundleSize()
     await this.measureLoadTimes()
 
     const report = this.generateReport()
-
-    console.log('\\n✅ Performance analysis complete!')
     return report
   }
 }

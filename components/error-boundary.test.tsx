@@ -1,11 +1,9 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
-import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ErrorBoundary, useErrorBoundary } from './error-boundary'
+import { ErrorBoundary, useErrorBoundary } from '@/components/error-boundary'
 
 // Mock console methods
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-const mockConsoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+const mockConsoleError = mock.spyOn(console, 'error').mockImplementation(() => {})
+const mockConsoleWarn = mock.spyOn(console, 'warn').mockImplementation(() => {})
 
 // Component that throws an error
 const ThrowError = ({ shouldThrow = false, error }: { shouldThrow?: boolean; error?: Error }) => {
@@ -25,11 +23,11 @@ const ThrowStreamError = ({ shouldThrow = false }: { shouldThrow?: boolean }) =>
 
 describe('ErrorBoundary', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render children when no error occurs', () => {
@@ -229,11 +227,11 @@ describe('ErrorBoundary', () => {
 
 describe('useErrorBoundary', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should provide captureError and resetError functions', () => {

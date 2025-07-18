@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import {
   clearStoredToken,
   exchangeCodeForToken,
@@ -14,43 +14,43 @@ import {
 } from './anthropic'
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 // Mock crypto
 const mockCrypto = {
-  getRandomValues: vi.fn((array: Uint8Array) => {
+  getRandomValues: mock((array: Uint8Array) => {
     for (let i = 0; i < array.length; i++) {
       array[i] = Math.floor(Math.random() * 256)
     }
     return array
   }),
   subtle: {
-    digest: vi.fn(),
+    digest: mock(),
   },
 }
 global.crypto = mockCrypto as any
 
 // Mock NextRequest/NextResponse
-vi.mock('next/server', () => ({
+mock('next/server', () => ({
   NextRequest: class {
     constructor(public url: string) {}
     cookies = {
-      get: vi.fn(),
-      set: vi.fn(),
-      delete: vi.fn(),
+      get: mock(),
+      set: mock(),
+      delete: mock(),
     }
   },
   NextResponse: class {
     cookies = {
-      set: vi.fn(),
-      delete: vi.fn(),
+      set: mock(),
+      delete: mock(),
     }
   },
 }))
 
 describe('Anthropic Auth', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   describe('generateCodeVerifier', () => {
@@ -135,7 +135,7 @@ describe('Anthropic Auth', () => {
         scope: 'read write',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockTokenResponse,
       } as any)
@@ -161,7 +161,7 @@ describe('Anthropic Auth', () => {
     })
 
     it('should handle token exchange errors', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 400,
         json: async () => ({ error: 'invalid_grant' }),
@@ -186,7 +186,7 @@ describe('Anthropic Auth', () => {
         expires_in: 3600,
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRefreshResponse,
       } as any)
@@ -214,7 +214,7 @@ describe('Anthropic Auth', () => {
         exp: Math.floor(Date.now() / 1000) + 3600,
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockValidationResponse,
       } as any)
@@ -235,7 +235,7 @@ describe('Anthropic Auth', () => {
     })
 
     it('should handle validation errors', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
       } as any)
@@ -307,7 +307,7 @@ describe('Anthropic Auth', () => {
         expires_at: Date.now() + 3_600_000,
       }
 
-      request.cookies.get = vi.fn().mockReturnValue({
+      request.cookies.get = mock().mockReturnValue({
         value: JSON.stringify(storedToken),
       })
 
@@ -329,7 +329,7 @@ describe('Anthropic Auth', () => {
 
   describe('Error Handling', () => {
     it('should handle network errors during token exchange', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
       await expect(
         exchangeCodeForToken({
@@ -341,7 +341,7 @@ describe('Anthropic Auth', () => {
     })
 
     it('should handle malformed token response', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ invalid: 'response' }),
       } as any)

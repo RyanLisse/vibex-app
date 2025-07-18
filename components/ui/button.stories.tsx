@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
 import { Download, Heart, Plus, Trash2 } from 'lucide-react'
-import { Button } from './button'
+import { Button } from '@/components/ui/button'
 
 const meta = {
   title: 'Components/UI/Button',

@@ -1,16 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CodeComponent, Markdown } from './markdown'
+import { CodeComponent, Markdown } from '@/components/markdown'
 
 // Mock next-themes
-const mockUseTheme = vi.fn()
-vi.mock('next-themes', () => ({
+const mockUseTheme = mock()
+mock('next-themes', () => ({
   useTheme: () => mockUseTheme(),
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   CopyIcon: ({ className, ...props }: any) => (
     <svg className={className} data-testid="copy-icon" {...props} />
   ),
@@ -20,7 +18,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock react-syntax-highlighter
-vi.mock('react-syntax-highlighter', () => ({
+mock('react-syntax-highlighter', () => ({
   Prism: ({ children, language, style, ...props }: any) => (
     <pre data-language={language} data-testid="syntax-highlighter" {...props}>
       {children}
@@ -28,13 +26,13 @@ vi.mock('react-syntax-highlighter', () => ({
   ),
 }))
 
-vi.mock('react-syntax-highlighter/dist/cjs/styles/prism', () => ({
+mock('react-syntax-highlighter/dist/cjs/styles/prism', () => ({
   oneDark: { background: '#1e1e1e' },
   oneLight: { background: '#fafafa' },
 }))
 
 // Mock UI components
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
       className={className}
@@ -49,13 +47,13 @@ vi.mock('@/components/ui/button', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/separator', () => ({
+mock('@/components/ui/separator', () => ({
   Separator: ({ className, ...props }: any) => (
     <hr className={className} data-testid="separator" {...props} />
   ),
 }))
 
-vi.mock('@/components/ui/table', () => ({
+mock('@/components/ui/table', () => ({
   Table: ({ children, className, ...props }: any) => (
     <table className={className} data-testid="table" {...props}>
       {children}
@@ -93,7 +91,7 @@ vi.mock('@/components/ui/table', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/scroll-area', () => ({
+mock('@/components/ui/scroll-area', () => ({
   ScrollArea: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="scroll-area" {...props}>
       {children}
@@ -104,7 +102,7 @@ vi.mock('@/components/ui/scroll-area', () => ({
   ),
 }))
 
-vi.mock('next/link', () => ({
+mock('next/link', () => ({
   default: ({ children, href, className, ...props }: any) => (
     <a className={className} data-testid="next-link" href={href} {...props}>
       {children}
@@ -113,7 +111,7 @@ vi.mock('next/link', () => ({
 }))
 
 // Mock navigator.clipboard
-const mockWriteText = vi.fn()
+const mockWriteText = mock()
 Object.assign(navigator, {
   clipboard: {
     writeText: mockWriteText,
@@ -122,7 +120,7 @@ Object.assign(navigator, {
 
 describe('Markdown Component', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     vi.useFakeTimers()
     mockUseTheme.mockReturnValue({
       theme: 'light',
@@ -131,7 +129,7 @@ describe('Markdown Component', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render simple markdown text', () => {
@@ -277,7 +275,7 @@ describe('Markdown Component', () => {
 
 describe('CodeComponent', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     vi.useFakeTimers()
     mockUseTheme.mockReturnValue({
       theme: 'light',
@@ -286,7 +284,7 @@ describe('CodeComponent', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render inline code', () => {

@@ -1,11 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AuthCardBase } from './auth-card-base'
+import { AuthCardBase } from '@/components/auth/auth-card-base'
 
 // Mock date-fns
-vi.mock('date-fns', () => ({
-  formatDistanceToNow: vi.fn((date, options) => {
+mock('date-fns', () => ({
+  formatDistanceToNow: mock((_date, options) => {
     if (options?.addSuffix) {
       return 'in 30 minutes'
     }
@@ -14,7 +12,7 @@ vi.mock('date-fns', () => ({
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   Shield: ({ className, ...props }: any) => (
     <svg className={className} data-testid="shield-icon" {...props} />
   ),
@@ -33,7 +31,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-vi.mock('@/components/ui/card', () => ({
+mock('@/components/ui/card', () => ({
   Card: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="card" {...props}>
       {children}
@@ -61,7 +59,7 @@ vi.mock('@/components/ui/card', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -75,7 +73,7 @@ vi.mock('@/components/ui/button', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/badge', () => ({
+mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, ...props }: any) => (
     <span data-testid="badge" data-variant={variant} {...props}>
       {children}
@@ -84,18 +82,18 @@ vi.mock('@/components/ui/badge', () => ({
 }))
 
 // Mock window.location.reload
-const mockReload = vi.fn()
+const mockReload = mock()
 Object.defineProperty(window, 'location', {
   value: { reload: mockReload },
   writable: true,
 })
 
 describe('AuthCardBase', () => {
-  const mockOnLogout = vi.fn()
-  const mockOnRetry = vi.fn()
+  const mockOnLogout = mock()
+  const mockOnRetry = mock()
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should render loading state', () => {

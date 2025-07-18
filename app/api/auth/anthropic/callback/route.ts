@@ -27,8 +27,7 @@ export async function GET(request: NextRequest) {
     response.cookies.delete('oauth_verifier')
 
     return response
-  } catch (error) {
-    console.error('OAuth callback error:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to complete OAuth flow' }, { status: 500 })
   }
 }

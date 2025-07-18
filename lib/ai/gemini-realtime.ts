@@ -77,7 +77,6 @@ export class GeminiRealtimeSession {
       model,
       callbacks: {
         onopen: () => {
-          console.debug('Gemini session opened')
           this.config.onOpen?.()
         },
         onmessage: (message: LiveServerMessage) => {
@@ -85,11 +84,9 @@ export class GeminiRealtimeSession {
           this.config.onMessage?.(message)
         },
         onerror: (e: ErrorEvent) => {
-          console.error('Gemini session error:', e.message)
           this.config.onError?.(e)
         },
         onclose: (e: CloseEvent) => {
-          console.debug('Gemini session closed:', e.reason)
           this.config.onClose?.(e)
         },
       },
@@ -146,12 +143,7 @@ export class GeminiRealtimeSession {
   processMessage(message: LiveServerMessage): AudioPart | null {
     if (message.toolCall) {
       // Handle tool calls
-      message.toolCall.functionCalls?.forEach((functionCall) => {
-        console.log(
-          `Execute function ${functionCall.name} with arguments:`,
-          JSON.stringify(functionCall.args)
-        )
-      })
+      message.toolCall.functionCalls?.forEach((_functionCall) => {})
 
       // Send tool responses if needed
       if (this.session && message.toolCall.functionCalls) {
@@ -238,9 +230,9 @@ export function parseMimeType(mimeType: string): WavConversionOptions {
   }
 
   // Parse L16 format
-  if (format && format.startsWith('L')) {
+  if (format?.startsWith('L')) {
     const bits = Number.parseInt(format.slice(1), 10)
-    if (!isNaN(bits)) {
+    if (!Number.isNaN(bits)) {
       options.bitsPerSample = bits
     }
   }

@@ -24,7 +24,9 @@ export function useGitHubRepositories(): UseGitHubRepositoriesReturn {
       const repos = await fetchGitHubRepositories()
       setRepositories(repos)
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') return
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       setError(error instanceof Error ? error.message : 'Failed to fetch repositories')
     } finally {
       setIsLoading(false)

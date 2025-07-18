@@ -1,126 +1,129 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
-import { useEnvironmentStore } from './environments'
+import { useEnvironmentStore } from '@/stores/environments'
 
-describe('useEnvironmentsStore', () => {
+describe('useEnvironmentStore', () => {
   beforeEach(() => {
     // Reset store state before each test
-    useEnvironmentsStore.setState({
+    useEnvironmentStore.setState({
       environments: [],
-      isLoading: false,
-      error: null,
     })
   })
 
   describe('initial state', () => {
     it('should have empty environments array', () => {
-      const state = useEnvironmentsStore.getState()
+      const state = useEnvironmentStore.getState()
       expect(state.environments).toEqual([])
-      expect(state.isLoading).toBe(false)
-      expect(state.error).toBeNull()
     })
   })
 
-  describe('addEnvironment', () => {
+  describe('createEnvironment', () => {
     it('should add a new environment', () => {
       const newEnvironment = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'test-org',
+        githubToken: 'test-token',
+        githubRepository: 'test-repo',
       }
 
       act(() => {
-        useEnvironmentsStore.getState().addEnvironment(newEnvironment)
+        useEnvironmentStore.getState().createEnvironment(newEnvironment)
       })
 
-      const state = useEnvironmentsStore.getState()
+      const state = useEnvironmentStore.getState()
       expect(state.environments).toHaveLength(1)
-      expect(state.environments[0]).toEqual(newEnvironment)
+      expect(state.environments[0].name).toBe('Development')
+      expect(state.environments[0].description).toBe('Development environment')
     })
 
     it('should add multiple environments', () => {
       const env1 = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'dev-org',
+        githubToken: 'dev-token',
+        githubRepository: 'dev-repo',
       }
 
       const env2 = {
-        id: 'env-2',
         name: 'Staging',
-        type: 'kubernetes' as const,
-        status: 'stopped' as const,
-        createdAt: new Date(),
+        description: 'Staging environment',
+        githubOrganization: 'stage-org',
+        githubToken: 'stage-token',
+        githubRepository: 'stage-repo',
       }
 
       act(() => {
-        const store = useEnvironmentsStore.getState()
-        store.addEnvironment(env1)
-        store.addEnvironment(env2)
+        const store = useEnvironmentStore.getState()
+        store.createEnvironment(env1)
+        store.createEnvironment(env2)
       })
 
-      const state = useEnvironmentsStore.getState()
+      const state = useEnvironmentStore.getState()
       expect(state.environments).toHaveLength(2)
-      expect(state.environments[0]).toEqual(env1)
-      expect(state.environments[1]).toEqual(env2)
+      expect(state.environments[0].name).toBe('Development')
+      expect(state.environments[1].name).toBe('Staging')
     })
   })
 
-  describe('removeEnvironment', () => {
+  describe('deleteEnvironment', () => {
     it('should remove an environment by id', () => {
       const env1 = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'dev-org',
+        githubToken: 'dev-token',
+        githubRepository: 'dev-repo',
       }
 
       const env2 = {
-        id: 'env-2',
         name: 'Staging',
-        type: 'kubernetes' as const,
-        status: 'stopped' as const,
-        createdAt: new Date(),
+        description: 'Staging environment',
+        githubOrganization: 'stage-org',
+        githubToken: 'stage-token',
+        githubRepository: 'stage-repo',
       }
 
+      let env1Id: string
+      let env2Id: string
+
       act(() => {
-        const store = useEnvironmentsStore.getState()
-        store.addEnvironment(env1)
-        store.addEnvironment(env2)
+        const store = useEnvironmentStore.getState()
+        store.createEnvironment(env1)
+        store.createEnvironment(env2)
+        const state = store.listEnvironments()
+        env1Id = state[0].id
+        env2Id = state[1].id
       })
 
       act(() => {
-        useEnvironmentsStore.getState().removeEnvironment('env-1')
+        useEnvironmentStore.getState().deleteEnvironment(env1Id)
       })
 
-      const state = useEnvironmentsStore.getState()
+      const state = useEnvironmentStore.getState()
       expect(state.environments).toHaveLength(1)
-      expect(state.environments[0].id).toBe('env-2')
+      expect(state.environments[0].id).toBe(env2Id)
     })
 
     it('should handle removing non-existent environment', () => {
       const env1 = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'dev-org',
+        githubToken: 'dev-token',
+        githubRepository: 'dev-repo',
       }
 
       act(() => {
-        useEnvironmentsStore.getState().addEnvironment(env1)
+        useEnvironmentStore.getState().createEnvironment(env1)
       })
 
       act(() => {
-        useEnvironmentsStore.getState().removeEnvironment('non-existent')
+        useEnvironmentStore.getState().deleteEnvironment('non-existent')
       })
 
-      const state = useEnvironmentsStore.getState()
+      const state = useEnvironmentStore.getState()
       expect(state.environments).toHaveLength(1)
     })
   })
@@ -128,125 +131,94 @@ describe('useEnvironmentsStore', () => {
   describe('updateEnvironment', () => {
     it('should update an existing environment', () => {
       const originalEnv = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'dev-org',
+        githubToken: 'dev-token',
+        githubRepository: 'dev-repo',
       }
 
+      let envId: string
+
       act(() => {
-        useEnvironmentsStore.getState().addEnvironment(originalEnv)
+        const store = useEnvironmentStore.getState()
+        store.createEnvironment(originalEnv)
+        envId = store.listEnvironments()[0].id
       })
 
       act(() => {
-        useEnvironmentsStore.getState().updateEnvironment('env-1', {
-          status: 'stopped',
+        useEnvironmentStore.getState().updateEnvironment(envId, {
           name: 'Dev Environment',
+          description: 'Updated development environment',
         })
       })
 
-      const state = useEnvironmentsStore.getState()
-      expect(state.environments[0].status).toBe('stopped')
+      const state = useEnvironmentStore.getState()
       expect(state.environments[0].name).toBe('Dev Environment')
-      expect(state.environments[0].type).toBe('docker') // unchanged
+      expect(state.environments[0].description).toBe('Updated development environment')
+      expect(state.environments[0].githubOrganization).toBe('dev-org') // unchanged
     })
 
     it('should handle updating non-existent environment', () => {
       const env = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'dev-org',
+        githubToken: 'dev-token',
+        githubRepository: 'dev-repo',
       }
 
       act(() => {
-        useEnvironmentsStore.getState().addEnvironment(env)
+        useEnvironmentStore.getState().createEnvironment(env)
       })
 
       act(() => {
-        useEnvironmentsStore.getState().updateEnvironment('non-existent', {
-          status: 'stopped',
+        useEnvironmentStore.getState().updateEnvironment('non-existent', {
+          name: 'Updated',
         })
       })
 
-      const state = useEnvironmentsStore.getState()
-      expect(state.environments[0].status).toBe('running') // unchanged
-    })
-  })
-
-  describe('setLoading', () => {
-    it('should set loading state', () => {
-      act(() => {
-        useEnvironmentsStore.getState().setLoading(true)
-      })
-
-      expect(useEnvironmentsStore.getState().isLoading).toBe(true)
-
-      act(() => {
-        useEnvironmentsStore.getState().setLoading(false)
-      })
-
-      expect(useEnvironmentsStore.getState().isLoading).toBe(false)
-    })
-  })
-
-  describe('setError', () => {
-    it('should set error message', () => {
-      act(() => {
-        useEnvironmentsStore.getState().setError('Something went wrong')
-      })
-
-      expect(useEnvironmentsStore.getState().error).toBe('Something went wrong')
-    })
-
-    it('should clear error message', () => {
-      act(() => {
-        useEnvironmentsStore.getState().setError('Error')
-      })
-
-      act(() => {
-        useEnvironmentsStore.getState().setError(null)
-      })
-
-      expect(useEnvironmentsStore.getState().error).toBeNull()
+      const state = useEnvironmentStore.getState()
+      expect(state.environments[0].name).toBe('Development') // unchanged
     })
   })
 
   describe('complex scenarios', () => {
     it('should handle multiple operations in sequence', () => {
       const env1 = {
-        id: 'env-1',
         name: 'Development',
-        type: 'docker' as const,
-        status: 'running' as const,
-        createdAt: new Date(),
+        description: 'Development environment',
+        githubOrganization: 'dev-org',
+        githubToken: 'dev-token',
+        githubRepository: 'dev-repo',
       }
 
       const env2 = {
-        id: 'env-2',
         name: 'Staging',
-        type: 'kubernetes' as const,
-        status: 'stopped' as const,
-        createdAt: new Date(),
+        description: 'Staging environment',
+        githubOrganization: 'stage-org',
+        githubToken: 'stage-token',
+        githubRepository: 'stage-repo',
       }
 
+      let env1Id: string
+      let env2Id: string
+
       act(() => {
-        const store = useEnvironmentsStore.getState()
-        store.setLoading(true)
-        store.addEnvironment(env1)
-        store.addEnvironment(env2)
-        store.setLoading(false)
-        store.updateEnvironment('env-1', { status: 'stopped' })
-        store.removeEnvironment('env-2')
+        const store = useEnvironmentStore.getState()
+        store.createEnvironment(env1)
+        store.createEnvironment(env2)
+        const environments = store.listEnvironments()
+        env1Id = environments[0].id
+        env2Id = environments[1].id
+        store.updateEnvironment(env1Id, { name: 'Dev Environment' })
+        store.deleteEnvironment(env2Id)
       })
 
-      const state = useEnvironmentsStore.getState()
+      const state = useEnvironmentStore.getState()
       expect(state.environments).toHaveLength(1)
-      expect(state.environments[0].id).toBe('env-1')
-      expect(state.environments[0].status).toBe('stopped')
-      expect(state.isLoading).toBe(false)
+      expect(state.environments[0].id).toBe(env1Id)
+      expect(state.environments[0].name).toBe('Dev Environment')
     })
   })
 })

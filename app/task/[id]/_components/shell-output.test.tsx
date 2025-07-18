@@ -1,9 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { ShellOutput } from './shell-output'
+import { render, screen } from '@testing-library/react'
+import { ShellOutput } from '@/app/task/[id]/_components/shell-output'
 
 // Mock the ScrollArea component
-vi.mock('@/components/ui/scroll-area', () => ({
+mock('@/components/ui/scroll-area', () => ({
   ScrollArea: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div className={className} data-testid="scroll-area">
       {children}
@@ -12,7 +11,7 @@ vi.mock('@/components/ui/scroll-area', () => ({
 }))
 
 // Mock the Tooltip components
-vi.mock('@/components/ui/tooltip', () => ({
+mock('@/components/ui/tooltip', () => ({
   TooltipProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   TooltipTrigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) => (

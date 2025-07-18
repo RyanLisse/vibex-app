@@ -1,60 +1,60 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GET, POST, PUT } from './route'
+import { GET, POST, PUT } from '@/app/api/inngest/route'
 
 // Mock Inngest
 const mockHandler = {
-  GET: vi.fn(),
-  POST: vi.fn(),
-  PUT: vi.fn(),
+  GET: mock(),
+  POST: mock(),
+  PUT: mock(),
 }
 
-vi.mock('inngest/next', () => ({
-  serve: vi.fn(() => mockHandler),
+mock('inngest/next', () => ({
+  serve: mock(() => mockHandler),
 }))
 
-vi.mock('@/lib/inngest', () => ({
+mock('@/lib/inngest', () => ({
   inngest: {
-    createFunction: vi.fn(),
-    send: vi.fn(),
+    createFunction: mock(),
+    send: mock(),
   },
   createTask: {
     id: 'create-task',
     name: 'Create Task',
     trigger: { event: 'task.created' },
-    handler: vi.fn(),
+    handler: mock(),
   },
   taskControl: {
     id: 'task-control',
     name: 'Task Control',
     trigger: { event: 'task.control' },
-    handler: vi.fn(),
+    handler: mock(),
   },
 }))
 
 // Mock NextResponse
-vi.mock('next/server', async () => {
-  const actual = await vi.importActual('next/server')
+mock('next/server', async () => {
+  const actual = await mock.importActual('next/server')
   return {
     ...actual,
     NextResponse: {
-      json: vi.fn((data, init) => ({ json: () => Promise.resolve(data), ...init })),
-      text: vi.fn(),
+      json: mock((data, init) => ({ json: () => Promise.resolve(data), ...init })),
+      text: mock(),
     },
   }
 })
 
 // Mock environment variables
-vi.stubEnv('INNGEST_SIGNING_KEY', 'test-signing-key')
-vi.stubEnv('INNGEST_EVENT_KEY', 'test-event-key')
-vi.stubEnv('NODE_ENV', 'test')
+mock.stubEnv('INNGEST_SIGNING_KEY', 'test-signing-key')
+mock.stubEnv('INNGEST_EVENT_KEY', 'test-event-key')
+mock.stubEnv('NODE_ENV', 'test')
 
 const { NextResponse } = await import('next/server')
-const mockNextResponse = vi.mocked(NextResponse)
+const _mockNextResponse = mocked(NextResponse)
 
 describe('Inngest API Routes', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   describe('GET /api/inngest', () => {
@@ -74,18 +74,18 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest')
 
-      const response = await GET(request)
+      const _response = await GET(request)
 
       expect(mockHandler.GET).toHaveBeenCalled()
     })
 
     it('should handle missing environment variables', async () => {
-      vi.stubEnv('INNGEST_SIGNING_KEY', '')
-      vi.stubEnv('INNGEST_EVENT_KEY', '')
+      mock.stubEnv('INNGEST_SIGNING_KEY', '')
+      mock.stubEnv('INNGEST_EVENT_KEY', '')
 
       const request = new NextRequest('https://app.example.com/api/inngest')
 
-      const response = await GET(request)
+      const _response = await GET(request)
 
       expect(mockHandler.GET).toHaveBeenCalled()
     })
@@ -145,7 +145,7 @@ describe('Inngest API Routes', () => {
         body: JSON.stringify({ event: 'task.created', data: { taskId: 'task-123' } }),
       })
 
-      const response = await POST(request)
+      const _response = await POST(request)
 
       expect(mockHandler.POST).toHaveBeenCalled()
     })
@@ -191,7 +191,7 @@ describe('Inngest API Routes', () => {
         body: JSON.stringify({ functionId: 'non-existent-function' }),
       })
 
-      const response = await PUT(request)
+      const _response = await PUT(request)
 
       expect(mockHandler.PUT).toHaveBeenCalled()
     })
@@ -207,7 +207,7 @@ describe('Inngest API Routes', () => {
         body: JSON.stringify({ functionId: 'task-processor', enabled: false }),
       })
 
-      const response = await PUT(request)
+      const _response = await PUT(request)
 
       expect(mockHandler.PUT).toHaveBeenCalled()
     })
@@ -219,7 +219,7 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest')
 
-      const response = await GET(request)
+      const _response = await GET(request)
 
       expect(mockHandler.GET).toHaveBeenCalled()
     })
@@ -233,7 +233,7 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest')
 
-      const response = await GET(request)
+      const _response = await GET(request)
 
       expect(mockHandler.GET).toHaveBeenCalled()
     })
@@ -245,7 +245,7 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest')
 
-      const response = await GET(request)
+      const _response = await GET(request)
 
       expect(mockHandler.GET).toHaveBeenCalled()
     })
@@ -268,7 +268,7 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest')
 
-      const response = await GET(request)
+      const _response = await GET(request)
 
       expect(mockHandler.GET).toHaveBeenCalled()
     })
@@ -276,9 +276,9 @@ describe('Inngest API Routes', () => {
 
   describe('Environment Configuration', () => {
     it('should handle development environment', async () => {
-      vi.stubEnv('NODE_ENV', 'development')
-      vi.stubEnv('INNGEST_SIGNING_KEY', 'dev-signing-key')
-      vi.stubEnv('INNGEST_EVENT_KEY', 'dev-event-key')
+      mock.stubEnv('NODE_ENV', 'development')
+      mock.stubEnv('INNGEST_SIGNING_KEY', 'dev-signing-key')
+      mock.stubEnv('INNGEST_EVENT_KEY', 'dev-event-key')
 
       const mockServeResponse = new Response('Development mode')
       mockHandler.GET.mockResolvedValue(mockServeResponse)
@@ -291,9 +291,9 @@ describe('Inngest API Routes', () => {
     })
 
     it('should handle production environment', async () => {
-      vi.stubEnv('NODE_ENV', 'production')
-      vi.stubEnv('INNGEST_SIGNING_KEY', 'prod-signing-key')
-      vi.stubEnv('INNGEST_EVENT_KEY', 'prod-event-key')
+      mock.stubEnv('NODE_ENV', 'production')
+      mock.stubEnv('INNGEST_SIGNING_KEY', 'prod-signing-key')
+      mock.stubEnv('INNGEST_EVENT_KEY', 'prod-event-key')
 
       const mockServeResponse = new Response('Production mode')
       mockHandler.GET.mockResolvedValue(mockServeResponse)

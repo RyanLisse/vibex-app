@@ -1,32 +1,32 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GET } from './route'
+import { GET } from '@/app/api/auth/github/branches/route'
 
 // Mock GitHub auth utilities
-vi.mock('@/lib/github', () => ({
-  GitHubAuth: vi.fn(() => ({
-    fetchBranches: vi.fn(),
+mock('@/lib/github', () => ({
+  GitHubAuth: mock(() => ({
+    fetchBranches: mock(),
   })),
 }))
 
 // Mock NextResponse
-vi.mock('next/server', () => ({
-  NextRequest: vi.fn(),
+mock('next/server', () => ({
+  NextRequest: mock(),
   NextResponse: {
-    json: vi.fn(),
-    redirect: vi.fn(),
+    json: mock(),
+    redirect: mock(),
   },
 }))
 
 // Define mock functions for the test
-const mockGetGitHubAccessToken = vi.fn()
-const mockFetchGitHubBranches = vi.fn()
+const mockGetGitHubAccessToken = mock()
+const mockFetchGitHubBranches = mock()
 
-const mockNextResponse = vi.mocked((await import('next/server')).NextResponse)
+const mockNextResponse = mocked((await import('next/server')).NextResponse)
 
 describe('GET /api/auth/github/branches', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should return branches for valid repository', async () => {
@@ -44,7 +44,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockGetGitHubAccessToken).toHaveBeenCalledWith(request)
     expect(mockFetchGitHubBranches).toHaveBeenCalledWith('github-token', 'owner/repo')
@@ -56,7 +56,7 @@ describe('GET /api/auth/github/branches', () => {
 
     const request = new NextRequest('https://app.example.com/api/auth/github/branches')
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Repository parameter is required' },
@@ -72,7 +72,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockGetGitHubAccessToken).toHaveBeenCalledWith(request)
     expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Unauthorized' }, { status: 401 })
@@ -87,7 +87,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/nonexistent'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockFetchGitHubBranches).toHaveBeenCalledWith('github-token', 'owner/nonexistent')
     expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -104,7 +104,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=invalid-repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid repository format' },
@@ -121,7 +121,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Network error' }, { status: 500 })
   })
@@ -137,7 +137,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Rate limit exceeded' },
@@ -150,7 +150,7 @@ describe('GET /api/auth/github/branches', () => {
 
     const request = new NextRequest('https://app.example.com/api/auth/github/branches?repo=')
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Repository parameter is required' },
@@ -167,7 +167,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/empty-repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith([])
   })
@@ -187,7 +187,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(mockBranches)
   })
@@ -200,7 +200,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Unauthorized' }, { status: 401 })
   })
@@ -213,7 +213,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo/extra/path'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid repository format' },
@@ -232,7 +232,7 @@ describe('GET /api/auth/github/branches', () => {
       'https://app.example.com/api/auth/github/branches?repo=owner/repo-with-dashes'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockFetchGitHubBranches).toHaveBeenCalledWith('github-token', 'owner/repo-with-dashes')
     expect(mockNextResponse.json).toHaveBeenCalledWith(mockBranches)

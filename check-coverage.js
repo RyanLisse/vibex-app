@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 // Function to find all source files
 function findSourceFiles(
@@ -78,18 +78,7 @@ for (const file of sourceFiles) {
 filesWithoutTests.sort()
 filesWithTests.sort()
 
-console.log('📊 Test Coverage Summary')
-console.log('========================')
-console.log(`Total source files: ${sourceFiles.length}`)
-console.log(`Files with tests: ${filesWithTests.length}`)
-console.log(`Files without tests: ${filesWithoutTests.length}`)
-console.log(`Coverage: ${((filesWithTests.length / sourceFiles.length) * 100).toFixed(1)}%`)
-console.log('')
-
 if (filesWithoutTests.length > 0) {
-  console.log('❌ Files without tests:')
-  console.log('=======================')
-
   // Group by directory
   const byDirectory = {}
   for (const file of filesWithoutTests) {
@@ -100,15 +89,8 @@ if (filesWithoutTests.length > 0) {
     byDirectory[dir].push(path.basename(file))
   }
 
-  for (const [dir, files] of Object.entries(byDirectory)) {
-    console.log(`\n${dir}/`)
-    for (const file of files) {
-      console.log(`  - ${file}`)
+  for (const [_dir, files] of Object.entries(byDirectory)) {
+    for (const _file of files) {
     }
   }
 }
-
-console.log('\n✅ Next steps to achieve 100% coverage:')
-console.log('1. Create test files for the remaining', filesWithoutTests.length, 'source files')
-console.log('2. Focus on critical paths first (actions, hooks, lib)')
-console.log('3. Run "bun run test:coverage" to see line-level coverage')

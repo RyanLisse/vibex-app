@@ -1,28 +1,28 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the POST function since it doesn't exist in the route
-const POST = vi.fn()
+const POST = mock()
 
 // Mock the authentication utilities
-vi.mock('@/lib/auth/openai-codex', () => ({
-  generateAuthUrl: vi.fn(),
-  generateCodeChallenge: vi.fn(),
-  generateCodeVerifier: vi.fn(),
-  generateState: vi.fn(),
+mock('@/lib/auth/openai-codex', () => ({
+  generateAuthUrl: mock(),
+  generateCodeChallenge: mock(),
+  generateCodeVerifier: mock(),
+  generateState: mock(),
 }))
 
 // Mock NextResponse
-vi.mock('next/server', () => ({
-  NextRequest: vi.fn(),
+mock('next/server', () => ({
+  NextRequest: mock(),
   NextResponse: {
-    json: vi.fn(),
-    redirect: vi.fn(),
+    json: mock(),
+    redirect: mock(),
   },
 }))
 
 // Mock environment variables
-vi.mock('@/lib/env', () => ({
+mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_REDIRECT_URI: 'https://app.example.com/auth/openai/callback',
@@ -38,16 +38,16 @@ import {
   generateState,
 } from '@/lib/auth/openai-codex'
 
-const mockGenerateAuthUrl = vi.mocked(generateAuthUrl)
-const mockGenerateCodeChallenge = vi.mocked(generateCodeChallenge)
-const mockGenerateCodeVerifier = vi.mocked(generateCodeVerifier)
-const mockGenerateState = vi.mocked(generateState)
+const mockGenerateAuthUrl = mocked(generateAuthUrl)
+const mockGenerateCodeChallenge = mocked(generateCodeChallenge)
+const mockGenerateCodeVerifier = mocked(generateCodeVerifier)
+const mockGenerateState = mocked(generateState)
 
-const mockNextResponse = vi.mocked((await import('next/server')).NextResponse)
+const mockNextResponse = mocked((await import('next/server')).NextResponse)
 
 describe('POST /api/auth/openai/login', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should generate auth URL and redirect', async () => {
@@ -68,7 +68,7 @@ describe('POST /api/auth/openai/login', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGenerateCodeVerifier).toHaveBeenCalled()
     expect(mockGenerateCodeChallenge).toHaveBeenCalledWith(mockCodeVerifier)
@@ -103,7 +103,7 @@ describe('POST /api/auth/openai/login', () => {
       }
     )
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
       clientId: 'test-client-id',
@@ -134,7 +134,7 @@ describe('POST /api/auth/openai/login', () => {
       }
     )
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
       clientId: 'test-client-id',
@@ -159,7 +159,7 @@ describe('POST /api/auth/openai/login', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Code challenge generation failed' },
@@ -168,7 +168,7 @@ describe('POST /api/auth/openai/login', () => {
   })
 
   it('should handle missing environment variables', async () => {
-    vi.doMock('@/lib/env', () => ({
+    mock.doMock('@/lib/env', () => ({
       env: {
         OPENAI_CLIENT_ID: undefined,
         OPENAI_REDIRECT_URI: undefined,
@@ -183,7 +183,7 @@ describe('POST /api/auth/openai/login', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing OpenAI configuration' },
@@ -209,7 +209,7 @@ describe('POST /api/auth/openai/login', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Auth URL generation failed' },
@@ -238,7 +238,7 @@ describe('POST /api/auth/openai/login', () => {
       }
     )
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid redirect URI' },
@@ -270,7 +270,7 @@ describe('POST /api/auth/openai/login', () => {
       },
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
       clientId: 'test-client-id',
@@ -292,7 +292,7 @@ describe('POST /api/auth/openai/login', () => {
       },
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid request body' },
@@ -318,7 +318,7 @@ describe('POST /api/auth/openai/login', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(mockAuthUrl)
     // Code verifier and state should be stored (implementation detail)
@@ -341,7 +341,7 @@ describe('POST /api/auth/openai/login', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
       clientId: 'test-client-id',

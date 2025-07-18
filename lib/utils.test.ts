@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { cn } from './utils'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { cn } from '@/lib/utils'
 
 describe('cn (classname utility)', () => {
   it('should merge single class', () => {

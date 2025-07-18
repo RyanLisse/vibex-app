@@ -19,7 +19,7 @@ vi.mock('@google/genai', () => ({
 global.fetch = vi.fn()
 
 describe('Gemini Audio Integration Tests', () => {
-  let mockGeminiSession: GeminiRealtimeSession
+  let _mockGeminiSession: GeminiRealtimeSession
   let mockSessionAPI: any
 
   beforeEach(() => {

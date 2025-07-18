@@ -94,17 +94,14 @@ const validateInngestConfig = (): boolean => {
 
   // In development mode with INNGEST_DEV=1, we don't need valid keys
   if (NODE_ENV === 'development' || INNGEST_DEV === '1') {
-    console.log('Inngest running in dev mode - bypassing key validation')
     return true
   }
 
   if (!(INNGEST_SIGNING_KEY && INNGEST_EVENT_KEY)) {
-    console.warn('Inngest not configured - subscription disabled')
     return false
   }
 
   if (!INNGEST_SIGNING_KEY.startsWith('signkey-') || INNGEST_EVENT_KEY.length < 50) {
-    console.warn('Inngest credentials appear invalid - subscription disabled')
     return false
   }
 
@@ -113,12 +110,10 @@ const validateInngestConfig = (): boolean => {
 
 const validateToken = (token: unknown): token is TaskChannelToken => {
   if (!token) {
-    console.warn('No subscription token received from Inngest')
     return false
   }
 
   if (typeof token !== 'string' && !(token as { token?: string })?.token) {
-    console.warn('Invalid token format received from Inngest')
     return false
   }
 
@@ -126,13 +121,9 @@ const validateToken = (token: unknown): token is TaskChannelToken => {
 }
 
 const handleTokenError = (error: unknown): void => {
-  console.error('Failed to fetch Inngest subscription token:', error)
-
   if (error instanceof Error) {
     if (error.message.includes('401') || error.message.includes('403')) {
-      console.error('Inngest authentication failed - check credentials')
     } else if (error.message.includes('network') || error.message.includes('fetch')) {
-      console.error('Network error connecting to Inngest')
     }
   }
 }

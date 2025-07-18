@@ -63,6 +63,22 @@ exclude:
   - "bun.lock"
   - "package-lock.json"
   - "yarn.lock"
+  # Test files - exclude from code quality analysis to reduce duplication noise
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.test.js"
+  - "**/*.test.jsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.spec.js"
+  - "**/*.spec.jsx"
+  - "tests/**"
+  - "e2e/**"
+  - "**/__tests__/**"
+  - "**/*.stories.ts"
+  - "**/*.stories.tsx"
+  - "**/*.stories.js"
+  - "**/*.stories.jsx"
 
 targets:
   - "**/*.ts"

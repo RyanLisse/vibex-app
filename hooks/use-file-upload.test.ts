@@ -1,13 +1,13 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useFileUpload } from './use-file-upload'
+import { useFileUpload } from '@/hooks/use-file-upload'
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('useFileUpload', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should initialize with default state', () => {
@@ -29,7 +29,7 @@ describe('useFileUpload', () => {
         size: 1024,
       }),
     }
-    vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -72,7 +72,7 @@ describe('useFileUpload', () => {
       },
     ]
 
-    vi.mocked(fetch)
+    mocked(fetch)
       .mockResolvedValueOnce(mockResponses[0] as any)
       .mockResolvedValueOnce(mockResponses[1] as any)
 
@@ -101,7 +101,7 @@ describe('useFileUpload', () => {
       originalSetProgress(progress)
     }
 
-    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
+    const _file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
 
     // Simulate progress updates
     act(() => {
@@ -115,7 +115,7 @@ describe('useFileUpload', () => {
   })
 
   it('should handle upload errors', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -135,7 +135,7 @@ describe('useFileUpload', () => {
       status: 413,
       statusText: 'Payload Too Large',
     }
-    vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -211,7 +211,7 @@ describe('useFileUpload', () => {
         size: 1024,
       }),
     }
-    vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
@@ -251,7 +251,7 @@ describe('useFileUpload', () => {
       },
     ]
 
-    vi.mocked(fetch)
+    mocked(fetch)
       .mockResolvedValueOnce(mockResponses[0] as any)
       .mockResolvedValueOnce(mockResponses[1] as any)
 
@@ -285,7 +285,7 @@ describe('useFileUpload', () => {
         size: 2048,
       }),
     }
-    vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() => useFileUpload())
 
@@ -310,7 +310,7 @@ describe('useFileUpload', () => {
         url: 'https://example.com/test.pdf',
       }),
     }
-    vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() =>
       useFileUpload({
@@ -343,7 +343,7 @@ describe('useFileUpload', () => {
       ok: true,
       json: async () => ({ id: 'file-123' }),
     }
-    vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+    mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
     const { result } = renderHook(() =>
       useFileUpload({
@@ -361,19 +361,17 @@ describe('useFileUpload', () => {
   })
 
   it('should handle concurrent uploads', async () => {
-    const mockResponses = Array(3)
-      .fill(null)
-      .map((_, i) => ({
-        ok: true,
-        json: async () => ({
-          id: `file-${i}`,
-          name: `test${i}.pdf`,
-          url: `https://example.com/test${i}.pdf`,
-        }),
-      }))
+    const mockResponses = new Array(3).fill(null).map((_, i) => ({
+      ok: true,
+      json: async () => ({
+        id: `file-${i}`,
+        name: `test${i}.pdf`,
+        url: `https://example.com/test${i}.pdf`,
+      }),
+    }))
 
     mockResponses.forEach((response) => {
-      vi.mocked(fetch).mockResolvedValueOnce(response as any)
+      mocked(fetch).mockResolvedValueOnce(response as any)
     })
 
     const { result } = renderHook(() =>
@@ -382,7 +380,7 @@ describe('useFileUpload', () => {
       })
     )
 
-    const files = Array(3)
+    const files = new Array(3)
       .fill(null)
       .map((_, i) => new File([`content${i}`], `test${i}.pdf`, { type: 'application/pdf' }))
 
@@ -395,7 +393,7 @@ describe('useFileUpload', () => {
   })
 
   it('should reset error state', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' })
@@ -414,7 +412,7 @@ describe('useFileUpload', () => {
   })
 
   it('should handle upload retry', async () => {
-    vi.mocked(fetch)
+    mocked(fetch)
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({
         ok: true,

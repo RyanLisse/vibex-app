@@ -10,7 +10,9 @@ export function useStatusProcessor({ taskId }: UseStatusProcessorProps) {
 
   const processStatusUpdate = useCallback(
     (data: { taskId: string; status: string }) => {
-      if (data.taskId !== taskId) return
+      if (data.taskId !== taskId) {
+        return
+      }
 
       switch (data.status) {
         case 'PAUSED':

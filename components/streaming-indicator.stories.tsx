@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import { StreamingIndicator } from './streaming-indicator'
+import { StreamingIndicator } from '@/components/streaming-indicator'
 
 const meta = {
   title: 'Components/StreamingIndicator',

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import {
   buildAuthUrl,
   createAuthHeaders,
@@ -20,12 +20,12 @@ import {
 
 // Mock crypto
 const mockCrypto = {
-  getRandomValues: vi.fn(),
+  getRandomValues: mock(),
   subtle: {
-    digest: vi.fn(),
-    importKey: vi.fn(),
-    sign: vi.fn(),
-    verify: vi.fn(),
+    digest: mock(),
+    importKey: mock(),
+    sign: mock(),
+    verify: mock(),
   },
 }
 
@@ -45,12 +45,12 @@ global.TextEncoder = class TextEncoder {
 global.btoa = (str: string) => Buffer.from(str).toString('base64')
 
 // Mock fetch
-const mockFetch = vi.fn()
+const mockFetch = mock()
 global.fetch = mockFetch
 
 describe('lib/auth', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockCrypto.getRandomValues.mockImplementation((arr: Uint8Array) => {
       for (let i = 0; i < arr.length; i++) {
         arr[i] = Math.floor(Math.random() * 256)

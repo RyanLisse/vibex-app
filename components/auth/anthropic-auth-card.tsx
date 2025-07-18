@@ -3,7 +3,7 @@
 import { LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
-import { AuthCardBase } from './auth-card-base'
+import { AuthCardBase } from '@/components/auth/auth-card-base'
 
 export function AnthropicAuthCard() {
   const { authenticated, loading, login, logout, expires, type, error } = useAnthropicAuth()

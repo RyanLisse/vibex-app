@@ -1,6 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
 import {
   Select,
   SelectContent,
@@ -15,7 +13,7 @@ import {
 } from './select'
 
 // Mock Radix UI Select components
-vi.mock('@radix-ui/react-select', () => ({
+mock('@radix-ui/react-select', () => ({
   Root: ({ children, ...props }: any) => (
     <div data-testid="select-root" {...props}>
       {children}

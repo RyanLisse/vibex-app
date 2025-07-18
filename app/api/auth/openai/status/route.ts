@@ -27,7 +27,6 @@ export async function GET() {
       hasRefreshToken: !!config?.refresh_token,
     })
   } catch (error) {
-    console.error('OpenAI status error:', error)
     return NextResponse.json(
       {
         authenticated: false,

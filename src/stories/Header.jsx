@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types'
-import React from 'react'
 
-import { HeaderContent } from './HeaderContent'
+import { HeaderContent } from '@/src/stories/HeaderContent'
 import './header.css'
 
 export const Header = ({ user, onLogin, onLogout, onCreateAccount }) => (

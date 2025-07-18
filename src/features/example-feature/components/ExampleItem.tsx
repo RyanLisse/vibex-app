@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { ExampleItem as ExampleItemType } from '../types'
-import { getPriorityColor, getStatusIcon } from '../utils/example-utils'
+import type { ExampleItem as ExampleItemType } from '@/src/features/example-feature/types'
+import { getPriorityColor, getStatusIcon } from '@/src/features/example-feature/utils/example-utils'
 
 interface ExampleItemProps {
   item: ExampleItemType

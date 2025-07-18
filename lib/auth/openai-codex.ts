@@ -1,10 +1,10 @@
+import crypto from 'node:crypto'
+import fs from 'node:fs/promises'
+import type { Server } from 'node:http'
+import path from 'node:path'
 import { serve } from '@hono/node-server'
-import crypto from 'crypto'
-import fs from 'fs/promises'
 import { Hono } from 'hono'
-import type { Server } from 'http'
 import open from 'open'
-import path from 'path'
 import { z } from 'zod'
 
 // Zod schemas for type validation
@@ -155,34 +155,34 @@ export function generateAuthUrl(params: {
 }
 
 // Token storage functions
-export async function getStoredToken(request: any): Promise<AuthToken | null> {
+export async function getStoredToken(_request: any): Promise<AuthToken | null> {
   // Mock implementation - in production this would read from secure storage
   return null
 }
 
-export async function clearStoredToken(request: any): Promise<void> {
+export async function clearStoredToken(_request: any): Promise<void> {
   // Mock implementation - in production this would clear from secure storage
 }
 
-export async function revokeToken(accessToken: string): Promise<void> {
+export async function revokeToken(_accessToken: string): Promise<void> {
   // Mock implementation - in production this would revoke the token
 }
 
-export async function clearStoredState(request: any): Promise<void> {
+export async function clearStoredState(_request: any): Promise<void> {
   // Mock implementation - in production this would clear stored state
 }
 
-export async function clearStoredCodeVerifier(request: any): Promise<void> {
+export async function clearStoredCodeVerifier(_request: any): Promise<void> {
   // Mock implementation - in production this would clear stored code verifier
 }
 
 // Additional functions for status route
-export async function validateToken(accessToken: string): Promise<{ active: boolean }> {
+export async function validateToken(_accessToken: string): Promise<{ active: boolean }> {
   // Mock implementation - in production this would validate with OAuth provider
   return { active: true }
 }
 
-export async function refreshAuthToken(refreshToken: string): Promise<AuthToken> {
+export async function refreshAuthToken(_refreshToken: string): Promise<AuthToken> {
   // Mock implementation - in production this would refresh the token
   return {
     access_token: 'new-access-token',
@@ -201,7 +201,7 @@ export function parseJWT(token: string): any {
     }
     const payload = JSON.parse(atob(parts[1]))
     return payload
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Invalid JWT format')
   }
 }
@@ -237,9 +237,6 @@ export class CodexAuthenticator {
    * Main login flow - implements "Sign in with ChatGPT"
    */
   async loginWithChatGPT(): Promise<AuthConfig> {
-    console.log('Starting Sign in with ChatGPT flow...')
-    console.log('This will share your name, email, and profile picture with Codex CLI.')
-
     // Generate PKCE challenge for enhanced security
     const { codeVerifier } = this.generatePKCE()
     const state = this.generateState()
@@ -269,10 +266,8 @@ export class CodexAuthenticator {
     }
 
     await this.saveAuthConfig(authConfig)
-    console.log(`✓ Authentication successful! Logged in as ${userProfile.email}`)
 
     if (apiKeyData.credits_granted) {
-      console.log(`✓ Credits granted: ${apiKeyData.credits_granted}`)
     }
 
     return authConfig
@@ -349,11 +344,8 @@ export class CodexAuthenticator {
         hostname: this.localServerHost,
       })
 
-      console.log(`Listening on http://${this.localServerHost}:${this.localServerPort}`)
-
       // Build and open authorization URL
       const authUrl = this.buildAuthorizationUrl(state, this.generatePKCE().codeChallenge)
-      console.log('Opening browser for Sign in with ChatGPT...')
       open(authUrl)
 
       // Timeout after 5 minutes
@@ -429,9 +421,7 @@ export class CodexAuthenticator {
           picture: payload.picture,
           subscription: this.detectSubscriptionType(payload),
         })
-      } catch {
-        console.warn('Failed to decode ID token, fetching from API')
-      }
+      } catch {}
     }
 
     // Fallback to userinfo endpoint
@@ -454,9 +444,15 @@ export class CodexAuthenticator {
    */
   private detectSubscriptionType(claims: Record<string, unknown>): string {
     // Logic to determine subscription based on claims
-    if (claims['https://openai.com/subscription'] === 'pro') return 'pro'
-    if (claims['https://openai.com/subscription'] === 'plus') return 'plus'
-    if (claims['https://openai.com/organization']) return 'team'
+    if (claims['https://openai.com/subscription'] === 'pro') {
+      return 'pro'
+    }
+    if (claims['https://openai.com/subscription'] === 'plus') {
+      return 'plus'
+    }
+    if (claims['https://openai.com/organization']) {
+      return 'team'
+    }
     return 'free'
   }
 
@@ -486,8 +482,12 @@ export class CodexAuthenticator {
 
     // Determine credits based on subscription
     let creditsGranted = 0
-    if (profile.subscription === 'plus') creditsGranted = 5
-    if (profile.subscription === 'pro') creditsGranted = 50
+    if (profile.subscription === 'plus') {
+      creditsGranted = 5
+    }
+    if (profile.subscription === 'pro') {
+      creditsGranted = 50
+    }
 
     return ApiKeyResponseSchema.parse({
       api_key: data.api_key || data.key,
@@ -524,7 +524,7 @@ export class CodexAuthenticator {
    */
   async isAuthenticated(): Promise<boolean> {
     const config = await this.loadAuthConfig()
-    if (!(config && config.api_key)) {
+    if (!config?.api_key) {
       return false
     }
 
@@ -549,7 +549,7 @@ export class CodexAuthenticator {
    */
   async refreshAccessToken(): Promise<AuthConfig> {
     const config = await this.loadAuthConfig()
-    if (!(config && config.refresh_token)) {
+    if (!config?.refresh_token) {
       throw new Error('No refresh token available')
     }
 

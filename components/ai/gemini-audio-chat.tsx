@@ -1,91 +1,82 @@
 'use client'
 
-import React, { useCallback, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
-import { useAudioPlayback } from '@/hooks/use-audio-playback'
-import { useAudioRecorder } from '@/hooks/use-audio-recorder'
-import { useChatMessages } from '@/hooks/use-chat-messages'
-import { useGeminiAudio } from '@/hooks/use-gemini-audio'
-import { ChatHeader } from './chat-header'
-import { ChatInputArea } from './chat-input-area'
-import { ChatMessageList } from './chat-message-list'
-import { ErrorBoundary } from './error-boundary'
+import { useAudioChatIntegration } from '@/hooks/use-audio-chat-integration'
+import { ChatHeader } from '@/components/ai/chat-header'
+import { ChatInputArea } from '@/components/ai/chat-input-area'
+import { ChatMessageList } from '@/components/ai/chat-message-list'
+import { ErrorBoundary } from '@/components/ai/error-boundary'
 
 export interface GeminiAudioChatProps {
   voiceName?: string
   maxMessages?: number
   autoScroll?: boolean
   className?: string
+  onError?: (error: Error) => void
+  onStateChange?: (state: any) => void
 }
 
-export function GeminiAudioChat({
+/**
+ * Refactored GeminiAudioChat component with improved architecture:
+ * - Centralized state management
+ * - Better resource cleanup
+ * - Improved error handling
+ * - Enhanced performance with proper memoization
+ * - Simplified component structure
+ */
+export const GeminiAudioChat = memo<GeminiAudioChatProps>(function GeminiAudioChat({
   voiceName = 'Enceladus',
   maxMessages = 1000,
   autoScroll = true,
   className,
-}: GeminiAudioChatProps) {
-  // Initialize hooks
-  const { isConnected, isLoading, messages, error, connect, disconnect, sendMessage, sendAudio } =
-    useGeminiAudio({
-      voiceName,
-    })
-
+  onError,
+  onStateChange,
+}) {
+  // Single hook manages all audio chat state and actions
   const {
+    // Connection state
+    isConnected,
+    isLoading,
+    connectionError,
+
+    // Recording state
     isRecording,
     formattedDuration,
+    recordingError,
+
+    // Playback state
+    isPlaying,
+    playingMessageId,
+    playbackError,
+
+    // Messages state
+    messages,
+    messageError,
+
+    // Error state
+    hasError,
+    primaryError,
+
+    // Actions
+    connect,
+    disconnect,
+    sendMessage,
     startRecording,
     stopRecording,
-    error: recordError,
-  } = useAudioRecorder({
-    onStop: useCallback(
-      (audioBlob: Blob) => {
-        sendAudio(audioBlob)
-      },
-      [sendAudio]
-    ),
-  })
-
-  const {
-    messages: chatMessages,
-    scrollAreaRef,
-    addMessage,
+    playAudio,
     clearMessages,
-  } = useChatMessages({
-    autoScroll,
+    clearAllErrors,
+
+    // Refs
+    scrollAreaRef,
+  } = useAudioChatIntegration({
+    voiceName,
     maxMessages,
+    autoScroll,
+    onError,
+    onStateChange,
   })
-
-  const { playAudio, cleanupAudio } = useAudioPlayback({
-    onError: (error) => {
-      console.error('Audio playback error:', error)
-    },
-  })
-
-  // Sync messages from Gemini hook to chat messages hook
-  React.useEffect(() => {
-    if (messages.length > chatMessages.length) {
-      const newMessages = messages.slice(chatMessages.length)
-      newMessages.forEach(addMessage)
-    }
-  }, [messages, chatMessages.length, addMessage])
-
-  // Handle audio playback
-  const handleAudioPlay = useCallback(
-    (audioUrl: string) => {
-      playAudio(audioUrl)
-    },
-    [playAudio]
-  )
-
-  // Cleanup audio resources on unmount
-  React.useEffect(() => {
-    return () => {
-      cleanupAudio()
-    }
-  }, [cleanupAudio])
-
-  // Combined error state
-  const combinedError = error || recordError
 
   // Memoize components to prevent unnecessary re-renders
   const headerComponent = useMemo(
@@ -104,12 +95,13 @@ export function GeminiAudioChat({
   const messageListComponent = useMemo(
     () => (
       <ChatMessageList
-        messages={chatMessages}
-        onAudioPlay={handleAudioPlay}
+        messages={messages}
+        onAudioPlay={playAudio}
+        playingMessageId={playingMessageId}
         scrollAreaRef={scrollAreaRef}
       />
     ),
-    [chatMessages, scrollAreaRef, handleAudioPlay]
+    [messages, scrollAreaRef, playAudio, playingMessageId]
   )
 
   const inputAreaComponent = useMemo(
@@ -127,21 +119,36 @@ export function GeminiAudioChat({
     [isConnected, isRecording, formattedDuration, sendMessage, startRecording, stopRecording]
   )
 
+  // Error display component
+  const errorComponent = useMemo(() => {
+    if (!hasError) {
+      return null
+    }
+
+    return (
+      <div className="border-destructive border-t bg-destructive/10 p-2 text-center text-destructive text-sm">
+        <div className="flex items-center justify-between">
+          <span>{primaryError}</span>
+          <button
+            className="ml-2 text-destructive text-xs underline hover:text-destructive/80"
+            onClick={clearAllErrors}
+            type="button"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+    )
+  }, [hasError, primaryError, clearAllErrors])
+
   return (
     <ErrorBoundary>
       <Card className={`flex h-[600px] w-full max-w-2xl flex-col ${className || ''}`}>
         {headerComponent}
         {messageListComponent}
-
-        {/* Error display */}
-        {combinedError && (
-          <div className="border-destructive border-t bg-destructive/10 p-2 text-center text-destructive text-sm">
-            {combinedError}
-          </div>
-        )}
-
+        {errorComponent}
         {inputAreaComponent}
       </Card>
     </ErrorBoundary>
   )
-}
+})

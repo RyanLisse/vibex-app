@@ -135,7 +135,6 @@ export class E2ETestRunner {
     })
 
     if (errors.length > 0) {
-      console.warn('Console errors detected:', errors)
     }
   }
 
@@ -154,7 +153,7 @@ export class E2ETestRunner {
 
     // DOM snapshot
     const html = await page.content()
-    require('fs').writeFileSync(
+    require('node:fs').writeFileSync(
       `tests/e2e/screenshots/failure-${scenarioName}-${timestamp}.html`,
       html
     )
@@ -275,7 +274,9 @@ export class UserInteractionHelper {
       const isInteractive = await this.stagehand.observe({
         description: `${description} is clickable and ready for interaction`,
       })
-      if (isInteractive) return
+      if (isInteractive) {
+        return
+      }
       await this.page.waitForTimeout(100)
     }
     throw new Error(`Element "${description}" did not become interactive within ${timeout}ms`)

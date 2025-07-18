@@ -68,7 +68,7 @@ test.describe('Container Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for task-related elements
-    const taskElements = page.locator('[data-testid*="task"], [class*="task"]')
+    const _taskElements = page.locator('[data-testid*="task"], [class*="task"]')
     // Container should be present even if no tasks exist
     await expect(page.locator('body')).toBeVisible()
   })

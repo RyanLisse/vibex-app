@@ -1,29 +1,29 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the POST function since it doesn't accept parameters
-const POST = vi.fn()
+const POST = mock()
 
 // Mock the authentication utilities
-vi.mock('@/lib/auth/openai-codex', () => ({
-  clearStoredToken: vi.fn(),
-  revokeToken: vi.fn(),
-  getStoredToken: vi.fn(),
-  clearStoredState: vi.fn(),
-  clearStoredCodeVerifier: vi.fn(),
+mock('@/lib/auth/openai-codex', () => ({
+  clearStoredToken: mock(),
+  revokeToken: mock(),
+  getStoredToken: mock(),
+  clearStoredState: mock(),
+  clearStoredCodeVerifier: mock(),
 }))
 
 // Mock NextResponse
-vi.mock('next/server', () => ({
-  NextRequest: vi.fn(),
+mock('next/server', () => ({
+  NextRequest: mock(),
   NextResponse: {
-    json: vi.fn(),
-    redirect: vi.fn(),
+    json: mock(),
+    redirect: mock(),
   },
 }))
 
 // Mock environment variables
-vi.mock('@/lib/env', () => ({
+mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_CLIENT_SECRET: 'test-client-secret',
@@ -40,17 +40,17 @@ import {
   revokeToken,
 } from '@/lib/auth/openai-codex'
 
-const mockClearStoredToken = vi.mocked(clearStoredToken)
-const mockRevokeToken = vi.mocked(revokeToken)
-const mockGetStoredToken = vi.mocked(getStoredToken)
-const mockClearStoredState = vi.mocked(clearStoredState)
-const mockClearStoredCodeVerifier = vi.mocked(clearStoredCodeVerifier)
+const mockClearStoredToken = mocked(clearStoredToken)
+const mockRevokeToken = mocked(revokeToken)
+const mockGetStoredToken = mocked(getStoredToken)
+const mockClearStoredState = mocked(clearStoredState)
+const mockClearStoredCodeVerifier = mocked(clearStoredCodeVerifier)
 
-const mockNextResponse = vi.mocked((await import('next/server')).NextResponse)
+const mockNextResponse = mocked((await import('next/server')).NextResponse)
 
 describe('POST /api/auth/openai/logout', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should handle successful logout', async () => {
@@ -72,7 +72,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGetStoredToken).toHaveBeenCalledWith(request)
     expect(mockRevokeToken).toHaveBeenCalledWith(mockToken.access_token)
@@ -93,7 +93,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGetStoredToken).toHaveBeenCalledWith(request)
     expect(mockRevokeToken).not.toHaveBeenCalled()
@@ -123,7 +123,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockRevokeToken).toHaveBeenCalledWith(mockToken.access_token)
     expect(mockClearStoredToken).toHaveBeenCalledWith(request)
@@ -152,7 +152,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Storage clearing failed' },
@@ -182,7 +182,7 @@ describe('POST /api/auth/openai/logout', () => {
       }
     )
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith('https://app.example.com/login')
   })
@@ -209,7 +209,7 @@ describe('POST /api/auth/openai/logout', () => {
       }
     )
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     // Should not redirect to invalid URI
     expect(mockNextResponse.redirect).not.toHaveBeenCalled()
@@ -241,7 +241,7 @@ describe('POST /api/auth/openai/logout', () => {
       },
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith('https://app.example.com/login')
   })
@@ -269,7 +269,7 @@ describe('POST /api/auth/openai/logout', () => {
       },
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     // Should still proceed with logout despite malformed JSON
     expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
@@ -296,7 +296,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Multiple cleanup failures' },
@@ -322,7 +322,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockRevokeToken).toHaveBeenCalledWith(mockToken.access_token)
     expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
@@ -347,7 +347,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockRevokeToken).toHaveBeenCalledWith(mockToken.access_token)
     expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
@@ -375,7 +375,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({
       success: true,
@@ -402,7 +402,7 @@ describe('POST /api/auth/openai/logout', () => {
       method: 'POST',
     })
 
-    const response = await POST(request)
+    const _response = await POST(request)
 
     expect(mockGetStoredToken).toHaveBeenCalledWith(request)
     expect(mockRevokeToken).toHaveBeenCalledWith(mockToken.access_token)

@@ -188,7 +188,7 @@ export const mockWebShareAPI = {
 
 // Mock Payment Request API
 export const mockPaymentRequestAPI = {
-  PaymentRequest: vi.fn().mockImplementation((methodData, details) => ({
+  PaymentRequest: vi.fn().mockImplementation((_methodData, _details) => ({
     show: vi.fn().mockResolvedValue({
       complete: vi.fn().mockResolvedValue(undefined),
       methodName: 'basic-card',
@@ -203,7 +203,7 @@ export const mockPaymentRequestAPI = {
 
 // Mock Web Workers
 export const mockWebWorkerAPI = {
-  Worker: vi.fn().mockImplementation((scriptURL: string) => ({
+  Worker: vi.fn().mockImplementation((_scriptURL: string) => ({
     postMessage: vi.fn(),
     terminate: vi.fn(),
     addEventListener: vi.fn(),
@@ -307,7 +307,7 @@ export const browserAPIUtils = {
     },
     get: () => mockGeolocation,
     simulateError: (code: number, message: string) => {
-      mockGeolocationAPI.getCurrentPosition.mockImplementation((success, error) => {
+      mockGeolocationAPI.getCurrentPosition.mockImplementation((_success, error) => {
         if (error) {
           error({ code, message })
         }

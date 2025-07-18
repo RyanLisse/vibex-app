@@ -1,25 +1,25 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GET } from './route'
+import { GET } from '@/app/api/auth/anthropic/callback/route'
 
 // Mock the authentication utilities
-vi.mock('@/lib/auth/anthropic', () => ({
+mock('@/lib/auth/anthropic', () => ({
   AuthAnthropic: {
-    exchange: vi.fn(),
+    exchange: mock(),
   },
 }))
 
 // Mock NextResponse
-vi.mock('next/server', () => ({
-  NextRequest: vi.fn(),
+mock('next/server', () => ({
+  NextRequest: mock(),
   NextResponse: {
-    json: vi.fn(),
-    redirect: vi.fn(),
+    json: mock(),
+    redirect: mock(),
   },
 }))
 
 // Mock environment variables
-vi.mock('@/lib/env', () => ({
+mock('@/lib/env', () => ({
   env: {
     ANTHROPIC_CLIENT_ID: 'test-client-id',
     ANTHROPIC_CLIENT_SECRET: 'test-client-secret',
@@ -30,16 +30,16 @@ vi.mock('@/lib/env', () => ({
 }))
 
 // Define mock functions for the test
-const mockExchangeCodeForToken = vi.fn()
-const mockValidateOAuthState = vi.fn()
-const mockSanitizeRedirectUrl = vi.fn()
-const mockHandleAuthError = vi.fn()
+const mockExchangeCodeForToken = mock()
+const mockValidateOAuthState = mock()
+const mockSanitizeRedirectUrl = mock()
+const mockHandleAuthError = mock()
 
-const mockNextResponse = vi.mocked((await import('next/server')).NextResponse)
+const mockNextResponse = mocked((await import('next/server')).NextResponse)
 
 describe('GET /api/auth/anthropic/callback', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockValidateOAuthState.mockReturnValue(true)
     mockSanitizeRedirectUrl.mockImplementation((url) => url)
     mockHandleAuthError.mockImplementation((error) => error.toString())
@@ -60,7 +60,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
       tokenUrl: 'https://anthropic.com/oauth/token',
@@ -84,7 +84,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing code parameter' },
@@ -99,7 +99,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing state parameter' },
@@ -115,7 +115,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=invalid-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid state parameter' },
@@ -130,7 +130,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?error=access_denied&error_description=User%20denied%20access'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'access_denied', error_description: 'User denied access' },
@@ -147,7 +147,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Token exchange failed' },
@@ -162,7 +162,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?error=invalid_grant&error_description=Invalid%20authorization%20code'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'invalid_grant', error_description: 'Invalid authorization code' },
@@ -185,7 +185,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockSanitizeRedirectUrl).toHaveBeenCalledWith('https://app.example.com/dashboard')
     expect(mockNextResponse.redirect).toHaveBeenCalledWith('https://app.example.com/dashboard')
@@ -207,7 +207,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
       tokenUrl: 'https://anthropic.com/oauth/token',
@@ -220,7 +220,7 @@ describe('GET /api/auth/anthropic/callback', () => {
   })
 
   it('should handle missing environment variables', async () => {
-    vi.doMock('@/lib/env', () => ({
+    mock.doMock('@/lib/env', () => ({
       env: {
         ANTHROPIC_CLIENT_ID: undefined,
         ANTHROPIC_CLIENT_SECRET: undefined,
@@ -236,7 +236,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing configuration' },
@@ -253,7 +253,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Network error' }, { status: 500 })
   })
@@ -268,7 +268,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid redirect URL' },

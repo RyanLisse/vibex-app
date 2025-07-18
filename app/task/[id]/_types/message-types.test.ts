@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import type { IncomingMessage, StreamingMessage } from './message-types'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
 
 describe('Message Types', () => {
   describe('StreamingMessage', () => {

@@ -1,21 +1,31 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useTaskStore } from '@/stores/tasks'
-import { useAutoScroll } from '../_hooks/use-auto-scroll'
-import { useTaskSubscription } from '../_hooks/use-task-subscription'
-import TaskClientPage from '../client-page'
+import { useAutoScroll } from '@/app/task/[id]/_hooks/use-auto-scroll'
+import { useTaskData } from '@/app/task/[id]/_hooks/use-task-data'
+import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
+import TaskClientPage from '@/app/task/[id]/client-page'
 
 // Mock the stores and hooks
-vi.mock('@/stores/tasks')
-vi.mock('../_hooks/use-task-subscription')
-vi.mock('../_hooks/use-auto-scroll')
-vi.mock('@/components/navigation/task-navbar', () => ({
+mock('@/stores/tasks')
+mock('../../_hooks/use-task-subscription')
+mock('../../_hooks/use-auto-scroll')
+mock('../../_hooks/use-task-data')
+mock('@/components/navigation/task-navbar', () => ({
   default: ({ id }: { id: string }) => <div data-testid="task-navbar">TaskNavbar-{id}</div>,
 }))
-vi.mock('../_components/message-input', () => ({
+mock('../../_components/message-input', () => ({
   default: ({ task }: { task: any }) => (
     <div data-testid="message-input">MessageInput-{task?.id}</div>
   ),
+}))
+mock('../../_components/chat-messages-panel', () => ({
+  ChatMessagesPanel: () => <div data-testid="chat-messages-panel">ChatMessagesPanel</div>,
+}))
+mock('../../_components/shell-output-panel', () => ({
+  ShellOutputPanel: () => <div data-testid="shell-output-panel">ShellOutputPanel</div>,
+}))
+mock('../../_components/task-loading-state', () => ({
+  TaskLoadingState: () => <div data-testid="task-loading-state">TaskLoadingState</div>,
 }))
 
 const mockTask = {
@@ -59,13 +69,20 @@ const mockTask = {
 const mockStreamingMessages = new Map()
 
 const mockUseTaskStore = {
-  getTaskById: vi.fn(),
-  updateTask: vi.fn(),
+  getTaskById: mock(),
+  updateTask: mock(),
 }
 
 const mockUseTaskSubscription = {
   streamingMessages: mockStreamingMessages,
   subscriptionEnabled: true,
+}
+
+const mockUseTaskData = {
+  regularMessages: [],
+  shellMessages: [],
+  hasStreamingMessages: false,
+  isTaskInProgress: false,
 }
 
 const mockUseAutoScroll = {
@@ -74,10 +91,11 @@ const mockUseAutoScroll = {
 
 describe('TaskClientPage', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     ;(useTaskStore as any).mockReturnValue(mockUseTaskStore)
     ;(useTaskSubscription as any).mockReturnValue(mockUseTaskSubscription)
     ;(useAutoScroll as any).mockReturnValue(mockUseAutoScroll)
+    ;(useTaskData as any).mockReturnValue(mockUseTaskData)
   })
 
   it('renders task not found when task is undefined', async () => {

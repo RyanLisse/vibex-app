@@ -1,13 +1,13 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import type { UseFormReturn } from 'react-hook-form'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createStorageHelpers } from './storage'
+import { createStorageHelpers } from '@/src/hooks/useZodForm/storage'
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: mock(),
+  setItem: mock(),
+  removeItem: mock(),
+  clear: mock(),
 }
 
 Object.defineProperty(window, 'localStorage', {
@@ -17,18 +17,18 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock console
 const mockConsole = {
-  error: vi.fn(),
+  error: mock(),
 }
-vi.stubGlobal('console', mockConsole)
+mock.stubGlobal('console', mockConsole)
 
 describe('storage helpers', () => {
   let mockForm: UseFormReturn<any>
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockForm = {
-      getValues: vi.fn(),
-      reset: vi.fn(),
+      getValues: mock(),
+      reset: mock(),
     } as any
   })
 
@@ -164,7 +164,7 @@ describe('storage helpers', () => {
 
       const transformer = (data: any) => ({
         name: data.name.toUpperCase(),
-        count: Number.parseInt(data.count),
+        count: Number.parseInt(data.count, 10),
       })
 
       const helpers = createStorageHelpers(mockForm, transformer)
@@ -177,7 +177,7 @@ describe('storage helpers', () => {
     it('should call setInitialData if provided', () => {
       const storedData = { name: 'Test' }
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(storedData))
-      const setInitialData = vi.fn()
+      const setInitialData = mock()
 
       const helpers = createStorageHelpers(mockForm, undefined, setInitialData)
       helpers.load('test-form')
@@ -219,7 +219,7 @@ describe('storage helpers', () => {
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(storedData))
 
       const transformer = (data: any) => ({ value: data.value * 2 })
-      const setInitialData = vi.fn()
+      const setInitialData = mock()
 
       const helpers = createStorageHelpers(mockForm, transformer, setInitialData)
       helpers.load('test-form')

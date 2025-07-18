@@ -53,7 +53,7 @@ test.describe('Application Structure E2E Tests', () => {
     await expect(page.locator('div.flex.flex-col.px-4.py-2.h-screen')).toBeVisible()
 
     // Check for task-related elements
-    const taskElements = page.locator('[data-testid*="task"], [class*="task"], [id*="task"]')
+    const _taskElements = page.locator('[data-testid*="task"], [class*="task"], [id*="task"]')
 
     // Even if no tasks exist, the structure should be there
     await expect(page.locator('body')).toBeVisible()

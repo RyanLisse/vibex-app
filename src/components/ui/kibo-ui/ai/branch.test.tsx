@@ -1,5 +1,4 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import {
   AIBranch,
   AIBranchMessages,
@@ -10,7 +9,7 @@ import {
 } from './branch'
 
 // Mock the Button component
-vi.mock('/components/ui/button', () => ({
+mock('/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, className, 'aria-label': ariaLabel, ...props }: any) => (
     <button
       aria-label={ariaLabel}
@@ -25,12 +24,12 @@ vi.mock('/components/ui/button', () => ({
 }))
 
 // Mock the cn utility
-vi.mock('/lib/utils', () => ({
-  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')),
+mock('/lib/utils', () => ({
+  cn: mock((...classes) => classes.filter(Boolean).join(' ')),
 }))
 
 // Mock Lucide icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   ChevronLeftIcon: ({ size }: { size: number }) => (
     <span data-size={size} data-testid="chevron-left" />
   ),
@@ -52,7 +51,7 @@ describe('AIBranch Components', () => {
     })
 
     it('calls onBranchChange when branch changes', () => {
-      const onBranchChange = vi.fn()
+      const onBranchChange = mock()
 
       render(
         <AIBranch onBranchChange={onBranchChange}>
@@ -90,7 +89,7 @@ describe('AIBranch Components', () => {
     it('throws error when components used outside context', () => {
       // Suppress console.error for this test
       const originalError = console.error
-      console.error = vi.fn()
+      console.error = mock()
 
       expect(() => {
         render(<AIBranchPrevious />)

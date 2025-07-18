@@ -16,8 +16,7 @@ export async function GET() {
       type: info.type,
       expires: info.type === 'oauth' ? info.expires : undefined,
     })
-  } catch (error) {
-    console.error('Auth status error:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to check auth status' }, { status: 500 })
   }
 }

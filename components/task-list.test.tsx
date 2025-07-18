@@ -1,23 +1,21 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import TaskList from './task-list'
+import TaskList from '@/components/task-list'
 
 // Mock the task store
 const mockTaskStore = {
-  getActiveTasks: vi.fn(),
-  getArchivedTasks: vi.fn(),
-  archiveTask: vi.fn(),
-  removeTask: vi.fn(),
+  getActiveTasks: mock(),
+  getArchivedTasks: mock(),
+  archiveTask: mock(),
+  removeTask: mock(),
 }
 
-vi.mock('@/stores/tasks', () => ({
+mock('@/stores/tasks', () => ({
   useTaskStore: () => mockTaskStore,
 }))
 
 // Mock date-fns
-vi.mock('date-fns', () => ({
-  formatDistanceToNow: vi.fn((date, options) => {
+mock('date-fns', () => ({
+  formatDistanceToNow: mock((_date, options) => {
     if (options?.addSuffix) {
       return '2 hours ago'
     }
@@ -26,7 +24,7 @@ vi.mock('date-fns', () => ({
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   Archive: ({ ...props }: any) => <svg data-testid="archive-icon" {...props} />,
   Check: ({ ...props }: any) => <svg data-testid="check-icon" {...props} />,
   Dot: ({ className, ...props }: any) => (
@@ -36,7 +34,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-vi.mock('@/components/ui/tabs', () => ({
+mock('@/components/ui/tabs', () => ({
   Tabs: ({ children, defaultValue, ...props }: any) => (
     <div data-default-value={defaultValue} data-testid="tabs" {...props}>
       {children}
@@ -59,7 +57,7 @@ vi.mock('@/components/ui/tabs', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, ...props }: any) => (
     <button
       data-size={size}
@@ -73,7 +71,7 @@ vi.mock('@/components/ui/button', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/text-shimmer', () => ({
+mock('@/components/ui/text-shimmer', () => ({
   TextShimmer: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="text-shimmer" {...props}>
       {children}
@@ -81,7 +79,7 @@ vi.mock('@/components/ui/text-shimmer', () => ({
   ),
 }))
 
-vi.mock('next/link', () => ({
+mock('next/link', () => ({
   default: ({ children, href, className, ...props }: any) => (
     <a className={className} data-testid="link" href={href} {...props}>
       {children}
@@ -125,7 +123,7 @@ describe('TaskList', () => {
   ]
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockTaskStore.getActiveTasks.mockReturnValue(mockActiveTasks)
     mockTaskStore.getArchivedTasks.mockReturnValue(mockArchivedTasks)
     vi.useFakeTimers()
@@ -133,7 +131,7 @@ describe('TaskList', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render tabs structure', () => {
@@ -378,7 +376,7 @@ describe('TaskList', () => {
   })
 
   it('should stop propagation on remove button click', async () => {
-    const mockStopPropagation = vi.fn()
+    const mockStopPropagation = mock()
     const mockEvent = {
       stopPropagation: mockStopPropagation,
     }

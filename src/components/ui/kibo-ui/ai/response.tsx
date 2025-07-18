@@ -16,12 +16,12 @@ import {
   CodeBlockSelectItem,
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,
-} from '@repo/code-block'
+} from '@/components/ui/code-block'
 import type { HTMLAttributes } from 'react'
 import { memo } from 'react'
 import ReactMarkdown, { type Options } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { cn } from '/lib/utils'
+import { cn } from '@/lib/utils'
 
 export type AIResponseProps = HTMLAttributes<HTMLDivElement> & {
   options?: Options
@@ -140,10 +140,7 @@ const components: Options['components'] = {
               )}
             </CodeBlockSelectContent>
           </CodeBlockSelect>
-          <CodeBlockCopyButton
-            onCopy={() => console.log('Copied code to clipboard')}
-            onError={() => console.error('Failed to copy code to clipboard')}
-          />
+          <CodeBlockCopyButton onCopy={() => {}} onError={() => {}} />
         </CodeBlockHeader>
         <CodeBlockBody>
           {(item) => (

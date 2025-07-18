@@ -20,7 +20,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for task creation elements (forms, buttons, inputs)
-    const taskCreationElements = page.locator(
+    const _taskCreationElements = page.locator(
       'form, [data-testid*="task"], input[type="text"], textarea'
     )
 
@@ -38,7 +38,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for task list elements - TaskList component should be rendered
-    const taskListElements = page.locator(
+    const _taskListElements = page.locator(
       '[data-testid*="task-list"], [class*="task-list"], ul, ol'
     )
 
@@ -53,7 +53,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for interactive elements
-    const interactiveElements = page.locator('button, [role="button"], [tabindex="0"]')
+    const _interactiveElements = page.locator('button, [role="button"], [tabindex="0"]')
 
     // Should have interactive elements for task operations
     await expect(page.locator('body')).toBeVisible()
@@ -63,7 +63,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for task detail elements
-    const taskDetailElements = page.locator('[data-testid*="task-detail"], [class*="task-detail"]')
+    const _taskDetailElements = page.locator('[data-testid*="task-detail"], [class*="task-detail"]')
 
     // Should handle task detail display
     await expect(page.locator('body')).toBeVisible()
@@ -87,7 +87,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for filter/search elements
-    const filterElements = page.locator(
+    const _filterElements = page.locator(
       'input[type="search"], [data-testid*="filter"], [data-testid*="search"]'
     )
 
@@ -99,7 +99,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for sorting elements
-    const sortElements = page.locator('[data-testid*="sort"], [class*="sort"], select')
+    const _sortElements = page.locator('[data-testid*="sort"], [class*="sort"], select')
 
     // Should provide sorting functionality
     await expect(page.locator('body')).toBeVisible()
@@ -109,7 +109,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for pagination elements
-    const paginationElements = page.locator(
+    const _paginationElements = page.locator(
       '[data-testid*="pagination"], [class*="pagination"], nav'
     )
 
@@ -137,7 +137,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for delete buttons
-    const deleteButtons = page.locator('button[data-testid*="delete"], [class*="delete"]')
+    const _deleteButtons = page.locator('button[data-testid*="delete"], [class*="delete"]')
 
     // Should handle task deletion UI
     await expect(page.locator('body')).toBeVisible()
@@ -147,7 +147,7 @@ test.describe('TaskClientPage Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for edit buttons
-    const editButtons = page.locator('button[data-testid*="edit"], [class*="edit"]')
+    const _editButtons = page.locator('button[data-testid*="edit"], [class*="edit"]')
 
     // Should handle task editing UI
     await expect(page.locator('body')).toBeVisible()

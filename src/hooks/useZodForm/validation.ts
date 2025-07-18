@@ -1,6 +1,6 @@
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
-import type { ZodFormErrors } from '../useZodForm'
+import type { ZodFormErrors } from '@/src/hooks/useZodForm'
 
 export function createSchemaValidator<T extends FieldValues>(schema: z.ZodSchema<T>) {
   return (data: unknown) => {

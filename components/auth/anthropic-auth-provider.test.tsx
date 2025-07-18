@@ -1,31 +1,30 @@
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
-import { AnthropicAuthProvider, useAuth } from './anthropic-auth-provider'
+import { AnthropicAuthProvider, useAuth } from '@/components/auth/anthropic-auth-provider'
 
 // Mock the useAnthropicAuth hook
-vi.mock('@/hooks/use-anthropic-auth', () => ({
-  useAnthropicAuth: vi.fn(),
+mock('@/hooks/use-anthropic-auth', () => ({
+  useAnthropicAuth: mock(),
 }))
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('AnthropicAuthProvider', () => {
   const mockAuth = {
     authenticated: false,
     loading: false,
     expires: null,
-    login: vi.fn(),
-    logout: vi.fn(),
-    refresh: vi.fn(),
+    login: mock(),
+    logout: mock(),
+    refresh: mock(),
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useAnthropicAuth).mockReturnValue(mockAuth)
-    vi.mocked(fetch).mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ access_token: 'test-token' }),
+    mock.restore()
+    mocked(useAnthropicAuth).mockReturnValue(mockAuth)
+    mocked(fetch).mockResolvedValue({
+      json: mock().mockResolvedValue({ access_token: 'test-token' }),
     } as any)
   })
 
@@ -64,7 +63,7 @@ describe('AnthropicAuthProvider', () => {
       ...mockAuth,
       authenticated: true,
     }
-    vi.mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
+    mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
 
     const TestComponent = () => {
       const auth = useAuth()
@@ -110,7 +109,7 @@ describe('AnthropicAuthProvider', () => {
       authenticated: true,
       expires: futureExpiry,
     }
-    vi.mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
+    mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
 
     const TestComponent = () => {
       useAuth()
@@ -133,8 +132,8 @@ describe('AnthropicAuthProvider', () => {
       ...mockAuth,
       authenticated: true,
     }
-    vi.mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
-    vi.mocked(fetch).mockRejectedValue(new Error('Network error'))
+    mocked(useAnthropicAuth).mockReturnValue(authenticatedAuth)
+    mocked(fetch).mockRejectedValue(new Error('Network error'))
 
     const TestComponent = () => {
       const auth = useAuth()

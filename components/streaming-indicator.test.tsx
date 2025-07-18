@@ -1,10 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
-import { StreamingIndicator } from './streaming-indicator'
+import { StreamingIndicator } from '@/components/streaming-indicator'
 
 // Mock the cn utility
-vi.mock('@/lib/utils', () => ({
+mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { fn } from '@storybook/test'
-import { ExampleItem } from './ExampleItem'
+import { ExampleItem } from '@/src/features/example-feature/components/ExampleItem'
 
 const meta: Meta<typeof ExampleItem> = {
   title: 'Features/ExampleFeature/ExampleItem',

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { z } from 'zod'
 import {
   ApiErrorResponseSchema,
@@ -9,7 +9,6 @@ import {
   createApiSuccessResponse,
   createPaginatedResponse,
   EnvironmentSchema,
-  EnvironmentsRequestSchema,
   FileUploadRequestSchema,
   FileUploadResponseSchema,
   GitHubBranchesRequestSchema,
@@ -24,7 +23,6 @@ import {
   PaginatedResponseSchema,
   TaskSchema,
   TasksRequestSchema,
-  UpdateEnvironmentSchema,
   UpdateTaskSchema,
   ValidationErrorSchema,
   validateApiRequest,

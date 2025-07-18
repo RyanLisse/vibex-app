@@ -1,15 +1,15 @@
-import fs from 'fs/promises'
-import path from 'path'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Auth, type AuthInfo } from './index'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { Auth, type AuthInfo } from '@/lib/auth/index'
 
 // Mock fs/promises
-vi.mock('fs/promises', () => ({
+mock('fs/promises', () => ({
   default: {
-    mkdir: vi.fn(),
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-    chmod: vi.fn(),
+    mkdir: mock(),
+    readFile: mock(),
+    writeFile: mock(),
+    chmod: mock(),
   },
 }))
 
@@ -30,14 +30,14 @@ describe('Auth', () => {
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     // Set default mock behaviors
-    vi.mocked(fs.mkdir).mockResolvedValue(undefined)
-    vi.mocked(fs.chmod).mockResolvedValue(undefined)
+    mocked(fs.mkdir).mockResolvedValue(undefined)
+    mocked(fs.chmod).mockResolvedValue(undefined)
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   describe('get', () => {
@@ -47,7 +47,7 @@ describe('Auth', () => {
         provider2: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
       const result = await Auth.get('provider1')
 
@@ -62,7 +62,7 @@ describe('Auth', () => {
         provider2: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
       const result = await Auth.get('provider2')
 
@@ -74,7 +74,7 @@ describe('Auth', () => {
         provider1: oauthAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
       const result = await Auth.get('nonexistent')
 
@@ -86,7 +86,7 @@ describe('Auth', () => {
         provider1: { type: 'invalid', data: 'test' },
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
       const result = await Auth.get('provider1')
 
@@ -94,7 +94,7 @@ describe('Auth', () => {
     })
 
     it('should return undefined when file does not exist', async () => {
-      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
+      mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
 
       const result = await Auth.get('provider1')
 
@@ -102,7 +102,7 @@ describe('Auth', () => {
     })
 
     it('should return undefined when file contains invalid JSON', async () => {
-      vi.mocked(fs.readFile).mockResolvedValueOnce('invalid json')
+      mocked(fs.readFile).mockResolvedValueOnce('invalid json')
 
       const result = await Auth.get('provider1')
 
@@ -110,8 +110,8 @@ describe('Auth', () => {
     })
 
     it('should handle mkdir failure gracefully', async () => {
-      vi.mocked(fs.mkdir).mockRejectedValueOnce(new Error('Permission denied'))
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }))
+      mocked(fs.mkdir).mockRejectedValueOnce(new Error('Permission denied'))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }))
 
       const result = await Auth.get('provider1')
 
@@ -126,7 +126,7 @@ describe('Auth', () => {
         provider2: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockData))
 
       const result = await Auth.all()
 
@@ -136,7 +136,7 @@ describe('Auth', () => {
     })
 
     it('should return empty object when file does not exist', async () => {
-      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
+      mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
 
       const result = await Auth.all()
 
@@ -144,7 +144,7 @@ describe('Auth', () => {
     })
 
     it('should return empty object when file contains invalid JSON', async () => {
-      vi.mocked(fs.readFile).mockResolvedValueOnce('invalid json')
+      mocked(fs.readFile).mockResolvedValueOnce('invalid json')
 
       const result = await Auth.all()
 
@@ -158,8 +158,8 @@ describe('Auth', () => {
         provider1: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.set('provider2', oauthAuth)
 
@@ -178,8 +178,8 @@ describe('Auth', () => {
     })
 
     it('should save API auth info', async () => {
-      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT')) // No existing file
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT')) // No existing file
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.set('provider1', apiAuth)
 
@@ -201,8 +201,8 @@ describe('Auth', () => {
         provider1: oauthAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       const newAuth: AuthInfo = {
         type: 'api',
@@ -224,16 +224,16 @@ describe('Auth', () => {
     })
 
     it('should handle write errors', async () => {
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
-      vi.mocked(fs.writeFile).mockRejectedValueOnce(new Error('Permission denied'))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
+      mocked(fs.writeFile).mockRejectedValueOnce(new Error('Permission denied'))
 
       await expect(Auth.set('provider1', apiAuth)).rejects.toThrow('Permission denied')
     })
 
     it('should handle chmod errors', async () => {
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
-      vi.mocked(fs.chmod).mockRejectedValueOnce(new Error('Permission denied'))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.chmod).mockRejectedValueOnce(new Error('Permission denied'))
 
       await expect(Auth.set('provider1', apiAuth)).rejects.toThrow('Permission denied')
     })
@@ -246,8 +246,8 @@ describe('Auth', () => {
         provider2: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.remove('provider1')
 
@@ -269,8 +269,8 @@ describe('Auth', () => {
         provider1: oauthAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(existingData))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.remove('nonexistent')
 
@@ -287,8 +287,8 @@ describe('Auth', () => {
     })
 
     it('should handle removing from empty file', async () => {
-      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.remove('provider1')
 
@@ -296,8 +296,8 @@ describe('Auth', () => {
     })
 
     it('should handle write errors during removal', async () => {
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }))
-      vi.mocked(fs.writeFile).mockRejectedValueOnce(new Error('Disk full'))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }))
+      mocked(fs.writeFile).mockRejectedValueOnce(new Error('Disk full'))
 
       await expect(Auth.remove('provider1')).rejects.toThrow('Disk full')
     })
@@ -313,7 +313,7 @@ describe('Auth', () => {
         },
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidOauth))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidOauth))
 
       const result = await Auth.get('provider1')
 
@@ -328,7 +328,7 @@ describe('Auth', () => {
         },
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidApi))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(invalidApi))
 
       const result = await Auth.get('provider1')
 
@@ -342,7 +342,7 @@ describe('Auth', () => {
         valid2: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mixedData))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mixedData))
 
       const allData = await Auth.all()
 
@@ -350,7 +350,7 @@ describe('Auth', () => {
       expect(allData).toEqual(mixedData)
 
       // Reset mocks for individual get calls
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mixedData))
+      mocked(fs.readFile).mockResolvedValue(JSON.stringify(mixedData))
 
       const validResult = await Auth.get('valid')
       expect(validResult).toEqual(oauthAuth)
@@ -367,7 +367,7 @@ describe('Auth', () => {
         provider2: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(mockData))
+      mocked(fs.readFile).mockResolvedValue(JSON.stringify(mockData))
 
       const results = await Promise.all([Auth.get('provider1'), Auth.get('provider2'), Auth.all()])
 
@@ -377,8 +377,8 @@ describe('Auth', () => {
     })
 
     it('should handle concurrent writes', async () => {
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify({}))
-      vi.mocked(fs.writeFile).mockResolvedValue(undefined)
+      mocked(fs.readFile).mockResolvedValue(JSON.stringify({}))
+      mocked(fs.writeFile).mockResolvedValue(undefined)
 
       const newAuth1: AuthInfo = { type: 'api', key: 'key1' }
       const newAuth2: AuthInfo = { type: 'api', key: 'key2' }
@@ -394,8 +394,8 @@ describe('Auth', () => {
 
   describe('file permissions', () => {
     it('should set correct permissions on new file', async () => {
-      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockRejectedValueOnce(new Error('ENOENT'))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.set('provider1', apiAuth)
 
@@ -403,8 +403,8 @@ describe('Auth', () => {
     })
 
     it('should maintain permissions on update', async () => {
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ existing: oauthAuth }))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({ existing: oauthAuth }))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.set('new', apiAuth)
 
@@ -421,8 +421,8 @@ describe('Auth', () => {
         expires: Date.now() + 3_600_000,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
-      vi.mocked(fs.writeFile).mockResolvedValueOnce(undefined)
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify({}))
+      mocked(fs.writeFile).mockResolvedValueOnce(undefined)
 
       await Auth.set('provider1', longTokenAuth)
 
@@ -439,7 +439,7 @@ describe('Auth', () => {
         'provider@with@at': oauthAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(specialProviders))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(specialProviders))
 
       const result = await Auth.get('provider/with/slashes')
 
@@ -452,7 +452,7 @@ describe('Auth', () => {
         normal: apiAuth,
       }
 
-      vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(data))
+      mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(data))
 
       const result = await Auth.get('')
 

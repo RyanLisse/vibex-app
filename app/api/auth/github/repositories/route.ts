@@ -31,8 +31,7 @@ export async function GET(request: NextRequest) {
         default_branch: repo.default_branch,
       })),
     })
-  } catch (error) {
-    console.error('Error fetching repositories:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch repositories' }, { status: 500 })
   }
 }

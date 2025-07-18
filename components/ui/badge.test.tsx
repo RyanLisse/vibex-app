@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it } from 'vitest'
-import { Badge, badgeVariants } from './badge'
+import { Badge, badgeVariants } from '@/components/ui/badge'
 
 describe('Badge', () => {
   it('should render badge with default variant', () => {
@@ -71,10 +70,12 @@ describe('Badge', () => {
     render(
       <Badge
         aria-label="Status badge"
+        aria-live="polite"
         data-testid="badge"
         id="test-badge"
-        onClick={() => {}}
-        role="status"
+        onClick={() => {
+          // Handle click event
+        }}
       >
         Badge
       </Badge>
@@ -87,7 +88,7 @@ describe('Badge', () => {
   })
 
   it('should handle onClick events', () => {
-    const handleClick = vi.fn()
+    const handleClick = mock()
     render(<Badge onClick={handleClick}>Clickable Badge</Badge>)
 
     const badge = screen.getByText('Clickable Badge')
@@ -99,7 +100,8 @@ describe('Badge', () => {
   it('should render with complex children', () => {
     render(
       <Badge>
-        <svg className="mr-1" height="12" width="12">
+        <svg aria-hidden="true" className="mr-1" height="12" width="12">
+          <title>Status icon</title>
           <circle cx="6" cy="6" r="6" />
         </svg>
         <span>Badge with icon</span>

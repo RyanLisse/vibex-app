@@ -1,21 +1,26 @@
 'use client'
 import type React from 'react'
-import { useInngestSubscriptionManagement } from '@/hooks/use-inngest-subscription'
-import { useTaskMessageProcessing } from '@/hooks/use-task-message-processing'
+import { memo } from 'react'
+import { ErrorBoundary } from '@/components/error-boundary'
+import { RealtimeProvider } from '@/components/providers/realtime-provider'
+import { TaskMessageProcessor } from '@/components/providers/task-message-processor'
 
 interface ContainerProps {
   children: React.ReactNode
 }
 
 /**
- * Container component that manages Inngest subscription and processes task messages.
- * This component handles real-time updates for task status and message processing.
+ * Container component that orchestrates real-time task management.
+ * Uses provider pattern for better separation of concerns and testability.
  */
-export default function Container({ children }: ContainerProps) {
-  const { subscription } = useInngestSubscriptionManagement()
-  const { latestData } = subscription
-
-  useTaskMessageProcessing(latestData)
-
-  return <>{children}</>
+function Container({ children }: ContainerProps) {
+  return (
+    <ErrorBoundary>
+      <RealtimeProvider>
+        <TaskMessageProcessor>{children}</TaskMessageProcessor>
+      </RealtimeProvider>
+    </ErrorBoundary>
+  )
 }
+
+export default memo(Container)

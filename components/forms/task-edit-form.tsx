@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import type { Task } from '@/stores/tasks'
-import { safeParse } from '../../src/shared/schemas/validation'
+import { safeParse } from '@/src/shared/schemas/validation'
 
 const TaskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must not exceed 200 characters'),

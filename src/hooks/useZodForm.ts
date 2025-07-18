@@ -9,8 +9,8 @@ import {
   getDirtyFields,
   getFormErrors,
 } from './useZodForm/fieldHelpers'
-import { useFormState } from './useZodForm/formState'
-import { createStorageHelpers } from './useZodForm/storage'
+import { useFormState } from '@/src/hooks/useZodForm/formState'
+import { createStorageHelpers } from '@/src/hooks/useZodForm/storage'
 import {
   createSchemaValidator,
   validateAllFormFields,
@@ -145,7 +145,9 @@ export function useZodForm<T extends FieldValues>(
 
   // Submit handler
   const submitForm = useCallback(async () => {
-    if (isSubmitting) return
+    if (isSubmitting) {
+      return
+    }
     setIsSubmitting(true)
 
     try {
@@ -157,8 +159,7 @@ export function useZodForm<T extends FieldValues>(
 
       const data = getFormData()
       await onSubmit?.(data)
-    } catch (error) {
-      console.error('Form submission error:', error)
+    } catch (_error) {
       onError?.({ general: 'Submission failed' } as ZodFormErrors<T>)
     } finally {
       setIsSubmitting(false)
@@ -236,10 +237,12 @@ export function useZodFormPersistence<T extends FieldValues>(
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [autoSave, form.loadFromStorage, form.saveToStorage, storageKey])
 
   useEffect(() => {
-    if (!(isLoaded && autoSave)) return
+    if (!(isLoaded && autoSave)) {
+      return
+    }
 
     const subscription = form.watch(() => {
       form.saveToStorage(storageKey)
@@ -263,9 +266,11 @@ export function useZodFormValidation<T extends FieldValues>(
   }>({})
 
   useEffect(() => {
-    if (!realTimeValidation) return
+    if (!realTimeValidation) {
+      return
+    }
 
-    const subscription = form.watch(async (values, { name }) => {
+    const subscription = form.watch(async (_values, { name }) => {
       if (name) {
         const isValid = await form.validateField(name as keyof T)
         const error = form.getFieldError(name as keyof T)

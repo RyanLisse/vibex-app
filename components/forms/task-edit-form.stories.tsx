@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
 import { expect, userEvent, within } from 'storybook/test'
-import { createMockTask } from '../../tests/fixtures/tasks'
-import { TaskEditForm } from './task-edit-form'
+import { createMockTask } from '@/test/fixtures/tasks'
+import { TaskEditForm } from '@/components/forms/task-edit-form'
 
 const meta = {
   title: 'Components/Forms/TaskEditForm',
@@ -30,12 +30,8 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
-    },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
 }
 
@@ -46,12 +42,8 @@ export const EditMode: Story = {
       description: 'This is an existing task that can be edited',
       priority: 'high',
     }),
-    onSubmit: async (data) => {
-      console.log('Task updated:', data)
-    },
-    onCancel: () => {
-      console.log('Edit cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
 }
 
@@ -60,9 +52,7 @@ export const WithError: Story = {
     onSubmit: async () => {
       throw new Error('Failed to submit task')
     },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onCancel: () => {},
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -81,12 +71,8 @@ export const WithError: Story = {
 
 export const ValidationErrors: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
-    },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -107,23 +93,15 @@ export const LongContent: Story = {
         'This is a very long description that contains a lot of text to test how the form handles longer content. It should wrap properly and not break the layout. The description can be quite lengthy and should be displayed correctly in the textarea component.',
       priority: 'medium',
     }),
-    onSubmit: async (data) => {
-      console.log('Task updated:', data)
-    },
-    onCancel: () => {
-      console.log('Edit cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
 }
 
 export const InteractiveForm: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
-    },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -149,14 +127,11 @@ export const InteractiveForm: Story = {
 
 export const LoadingState: Story = {
   args: {
-    onSubmit: async (data) => {
+    onSubmit: async (_data) => {
       // Simulate a slow network request
       await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log('Form submitted:', data)
     },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onCancel: () => {},
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -177,12 +152,8 @@ export const LoadingState: Story = {
 
 export const CancelAction: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
-    },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -197,12 +168,8 @@ export const CancelAction: Story = {
 
 export const AllPriorityOptions: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
-    },
-    onCancel: () => {
-      console.log('Form cancelled')
-    },
+    onSubmit: async (_data) => {},
+    onCancel: () => {},
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)

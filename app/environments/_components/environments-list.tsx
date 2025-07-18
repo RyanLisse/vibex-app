@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { useEnvironmentStore } from '@/stores/environments'
-import { CreateEnvironmentDialog } from './create-environment-dialog'
+import { CreateEnvironmentDialog } from '@/app/environments/_components/create-environment-dialog'
 
 export default function EnvironmentsList() {
   const { isAuthenticated, login, isLoading } = useGitHubAuth()
@@ -39,8 +39,6 @@ export default function EnvironmentsList() {
       </div>
     )
   }
-
-  console.log(isAuthenticated)
 
   return (
     <>

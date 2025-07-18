@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GitHubAPI } from './github-api'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import { GitHubAPI } from '@/lib/github-api'
 
 describe('GitHubAPI', () => {
   let api: GitHubAPI
@@ -7,7 +7,7 @@ describe('GitHubAPI', () => {
 
   beforeEach(() => {
     api = new GitHubAPI(mockToken)
-    global.fetch = vi.fn()
+    global.fetch = mock()
   })
 
   describe('constructor', () => {
@@ -26,7 +26,7 @@ describe('GitHubAPI', () => {
         name: 'Test User',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUser,
       } as Response)
@@ -43,7 +43,7 @@ describe('GitHubAPI', () => {
     })
 
     it('should throw error when response is not ok', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
@@ -60,7 +60,7 @@ describe('GitHubAPI', () => {
         { id: 2, name: 'repo2', full_name: 'user/repo2' },
       ]
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRepos,
       } as Response)
@@ -82,7 +82,7 @@ describe('GitHubAPI', () => {
     it('should fetch repositories with custom options', async () => {
       const mockRepos = [{ id: 1, name: 'repo1' }]
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRepos,
       } as Response)
@@ -108,7 +108,7 @@ describe('GitHubAPI', () => {
         { name: 'develop', protected: false },
       ]
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockBranches,
       } as Response)
@@ -125,7 +125,7 @@ describe('GitHubAPI', () => {
     })
 
     it('should handle empty branch list', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => [],
       } as Response)
@@ -150,7 +150,7 @@ describe('GitHubAPI', () => {
         ...newRepo,
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       } as Response)
@@ -172,13 +172,13 @@ describe('GitHubAPI', () => {
 
   describe('error handling', () => {
     it('should handle network errors', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+      mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
       await expect(api.getUser()).rejects.toThrow('Network error')
     })
 
     it('should handle 404 errors', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 404,
         statusText: 'Not Found',
@@ -190,7 +190,7 @@ describe('GitHubAPI', () => {
     })
 
     it('should handle rate limit errors', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 429,
         statusText: 'Too Many Requests',

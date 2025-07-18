@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import {
   createTimeoutPromise,
   debounce,
@@ -10,11 +10,11 @@ import {
 
 describe('stream-utils', () => {
   beforeEach(() => {
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    mock.spyOn(console, 'warn').mockImplementation(() => {})
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    mock.restore()
   })
 
   describe('safeStreamCancel', () => {
@@ -30,12 +30,12 @@ describe('stream-utils', () => {
 
     it('should cancel an unlocked stream', async () => {
       const mockReader = {
-        cancel: vi.fn().mockResolvedValue(undefined),
-        releaseLock: vi.fn(),
+        cancel: mock().mockResolvedValue(undefined),
+        releaseLock: mock(),
       }
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockReturnValue(mockReader),
+        getReader: mock().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -59,12 +59,12 @@ describe('stream-utils', () => {
     it('should handle cancel error', async () => {
       const mockError = new Error('Cancel failed')
       const mockReader = {
-        cancel: vi.fn().mockRejectedValue(mockError),
-        releaseLock: vi.fn(),
+        cancel: mock().mockRejectedValue(mockError),
+        releaseLock: mock(),
       }
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockReturnValue(mockReader),
+        getReader: mock().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -77,14 +77,14 @@ describe('stream-utils', () => {
     it('should handle releaseLock error', async () => {
       const mockError = new Error('Release lock failed')
       const mockReader = {
-        cancel: vi.fn().mockResolvedValue(undefined),
-        releaseLock: vi.fn().mockImplementation(() => {
+        cancel: mock().mockResolvedValue(undefined),
+        releaseLock: mock().mockImplementation(() => {
           throw mockError
         }),
       }
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockReturnValue(mockReader),
+        getReader: mock().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -97,7 +97,7 @@ describe('stream-utils', () => {
       const mockError = new Error('Get reader failed')
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockImplementation(() => {
+        getReader: mock().mockImplementation(() => {
           throw mockError
         }),
       } as unknown as ReadableStream
@@ -122,7 +122,7 @@ describe('stream-utils', () => {
     it('should close open WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.OPEN,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -134,7 +134,7 @@ describe('stream-utils', () => {
     it('should close connecting WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CONNECTING,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -145,7 +145,7 @@ describe('stream-utils', () => {
     it('should not close closed WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CLOSED,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -156,7 +156,7 @@ describe('stream-utils', () => {
     it('should not close closing WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CLOSING,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -168,7 +168,7 @@ describe('stream-utils', () => {
       const mockError = new Error('Close failed')
       const mockWs = {
         readyState: WebSocket.OPEN,
-        close: vi.fn().mockImplementation(() => {
+        close: mock().mockImplementation(() => {
           throw mockError
         }),
       } as unknown as WebSocket
@@ -198,7 +198,7 @@ describe('stream-utils', () => {
 
       try {
         await promise
-      } catch (error) {
+      } catch (_error) {
         const elapsed = Date.now() - start
         expect(elapsed).toBeGreaterThanOrEqual(50)
         expect(elapsed).toBeLessThan(100)
@@ -299,15 +299,15 @@ describe('stream-utils', () => {
 
   describe('debounce', () => {
     beforeEach(() => {
-      vi.useFakeTimers()
+      mock.useFakeTimers()
     })
 
     afterEach(() => {
-      vi.useRealTimers()
+      mock.useRealTimers()
     })
 
     it('should debounce function calls', () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 100)
 
       debouncedFn('call1')
@@ -316,77 +316,77 @@ describe('stream-utils', () => {
 
       expect(fn).not.toHaveBeenCalled()
 
-      vi.advanceTimersByTime(100)
+      mock.advanceTimersByTime(100)
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('call3')
     })
 
     it('should handle single call', () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 100)
 
       debouncedFn('single')
 
-      vi.advanceTimersByTime(100)
+      mock.advanceTimersByTime(100)
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('single')
     })
 
     it('should reset timer on new calls', () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 100)
 
       debouncedFn('first')
-      vi.advanceTimersByTime(50)
+      mock.advanceTimersByTime(50)
 
       debouncedFn('second')
-      vi.advanceTimersByTime(50)
+      mock.advanceTimersByTime(50)
 
       expect(fn).not.toHaveBeenCalled()
 
-      vi.advanceTimersByTime(50)
+      mock.advanceTimersByTime(50)
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('second')
     })
 
     it('should handle multiple arguments', () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 100)
 
       debouncedFn('arg1', 'arg2', 42)
 
-      vi.advanceTimersByTime(100)
+      mock.advanceTimersByTime(100)
 
       expect(fn).toHaveBeenCalledWith('arg1', 'arg2', 42)
     })
 
     it('should allow multiple executions after wait time', () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 100)
 
       debouncedFn('first')
-      vi.advanceTimersByTime(100)
+      mock.advanceTimersByTime(100)
 
       expect(fn).toHaveBeenCalledTimes(1)
       expect(fn).toHaveBeenCalledWith('first')
 
       debouncedFn('second')
-      vi.advanceTimersByTime(100)
+      mock.advanceTimersByTime(100)
 
       expect(fn).toHaveBeenCalledTimes(2)
       expect(fn).toHaveBeenCalledWith('second')
     })
 
     it('should handle zero wait time', () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 0)
 
       debouncedFn('immediate')
 
-      vi.advanceTimersByTime(0)
+      mock.advanceTimersByTime(0)
 
       expect(fn).toHaveBeenCalledWith('immediate')
     })

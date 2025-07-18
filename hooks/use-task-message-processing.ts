@@ -6,8 +6,6 @@ import {
   isUpdateData,
   isUpdateTopic,
   type LatestData,
-  StatusData,
-  UpdateData,
 } from '@/lib/container-types'
 import { MessageHandlers } from '@/lib/message-handlers'
 import { useTaskStore } from '@/stores/tasks'
@@ -22,7 +20,9 @@ export function useTaskMessageProcessing(latestData: LatestData | null) {
 
   const processMessage = useCallback(
     (data: LatestData) => {
-      if (!isTasksChannel(data)) return
+      if (!isTasksChannel(data)) {
+        return
+      }
 
       if (isStatusTopic(data) && isStatusData(data.data)) {
         messageHandlers.handleStatusUpdate(data.data)

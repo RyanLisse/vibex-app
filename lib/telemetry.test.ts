@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import type { TelemetryBackend, TelemetryConfig } from '@/src/types/telemetry'
 import {
   getDefaultEndpoint,
@@ -14,18 +14,18 @@ describe('telemetry', () => {
   beforeEach(() => {
     // Reset environment variables
     process.env = { ...originalEnv }
-    vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    mock.restore()
+    mock.spyOn(console, 'log').mockImplementation(() => {})
   })
 
   afterEach(() => {
     process.env = originalEnv
-    vi.restoreAllMocks()
+    mock.restore()
   })
 
   describe('getTelemetryConfig', () => {
     it('should return disabled config when OTEL_ENABLED is not true', () => {
-      delete process.env.OTEL_ENABLED
+      process.env.OTEL_ENABLED = undefined
 
       const config = getTelemetryConfig()
 
@@ -100,7 +100,7 @@ describe('telemetry', () => {
   })
 
   describe('getDefaultEndpoint', () => {
-    const backends: Array<[TelemetryBackend, string]> = [
+    const backends: [TelemetryBackend, string][] = [
       ['jaeger', 'http://localhost:14268/api/traces'],
       ['zipkin', 'http://localhost:9411/api/v2/spans'],
       ['datadog', 'https://trace.agent.datadoghq.com/v0.3/traces'],
@@ -287,7 +287,7 @@ describe('telemetry', () => {
       ]
 
       for (const { ratio, expected } of testCases) {
-        vi.clearAllMocks()
+        mock.restore()
 
         const config: TelemetryConfig = {
           isEnabled: true,

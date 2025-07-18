@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import { ContactForm } from './contact-form'
+import { ContactForm } from '@/components/forms/contact-form'
 
 const meta = {
   title: 'Components/Forms/ContactForm',
@@ -20,8 +20,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
+    onSubmit: async (_data) => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
     },
     isLoading: false,
@@ -30,8 +29,7 @@ export const Default: Story = {
 
 export const WithInitialValues: Story = {
   args: {
-    onSubmit: async (data) => {
-      console.log('Form submitted:', data)
+    onSubmit: async (_data) => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
     },
     isLoading: false,

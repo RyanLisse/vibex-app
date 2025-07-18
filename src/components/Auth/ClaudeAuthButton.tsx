@@ -30,7 +30,6 @@ export function ClaudeAuthButton({
   // Handle any errors that occur during authentication
   React.useEffect(() => {
     if (error) {
-      console.error('Authentication error:', error)
       onError?.(error)
     }
   }, [error, onError])

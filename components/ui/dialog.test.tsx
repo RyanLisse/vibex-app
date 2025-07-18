@@ -1,6 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import {
   Dialog,
   DialogClose,
@@ -15,7 +13,7 @@ import {
 } from './dialog'
 
 // Mock Radix UI components
-vi.mock('@radix-ui/react-dialog', () => ({
+mock('@radix-ui/react-dialog', () => ({
   Root: ({ children, ...props }: any) => (
     <div data-testid="dialog-root" {...props}>
       {children}

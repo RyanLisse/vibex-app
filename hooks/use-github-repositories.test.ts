@@ -1,12 +1,12 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGitHubRepositories } from './use-github-repositories'
+import { useGitHubRepositories } from '@/hooks/use-github-repositories'
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 // Mock the auth hook
-vi.mock('./use-github-auth', () => ({
+mock('./use-github-auth', () => ({
   useGitHubAuth: () => ({
     isAuthenticated: true,
     user: { login: 'testuser' },
@@ -15,7 +15,7 @@ vi.mock('./use-github-auth', () => ({
 
 describe('useGitHubRepositories', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should initialize with default state', () => {
@@ -64,7 +64,7 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
     } as any)
@@ -81,7 +81,7 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle fetch errors', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubRepositories())
 
@@ -95,45 +95,41 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle pagination', async () => {
-    const mockPage1 = Array(30)
-      .fill(null)
-      .map((_, i) => ({
-        id: i + 1,
-        name: `repo${i + 1}`,
-        full_name: `testuser/repo${i + 1}`,
-        private: false,
-        owner: { login: 'testuser' },
-        html_url: `https://github.com/testuser/repo${i + 1}`,
-        description: `Test repository ${i + 1}`,
-        fork: false,
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
-        pushed_at: '2023-01-01T00:00:00Z',
-        stargazers_count: i,
-        language: 'TypeScript',
-        default_branch: 'main',
-      }))
+    const mockPage1 = new Array(30).fill(null).map((_, i) => ({
+      id: i + 1,
+      name: `repo${i + 1}`,
+      full_name: `testuser/repo${i + 1}`,
+      private: false,
+      owner: { login: 'testuser' },
+      html_url: `https://github.com/testuser/repo${i + 1}`,
+      description: `Test repository ${i + 1}`,
+      fork: false,
+      created_at: '2023-01-01T00:00:00Z',
+      updated_at: '2023-01-01T00:00:00Z',
+      pushed_at: '2023-01-01T00:00:00Z',
+      stargazers_count: i,
+      language: 'TypeScript',
+      default_branch: 'main',
+    }))
 
-    const mockPage2 = Array(10)
-      .fill(null)
-      .map((_, i) => ({
-        id: i + 31,
-        name: `repo${i + 31}`,
-        full_name: `testuser/repo${i + 31}`,
-        private: false,
-        owner: { login: 'testuser' },
-        html_url: `https://github.com/testuser/repo${i + 31}`,
-        description: `Test repository ${i + 31}`,
-        fork: false,
-        created_at: '2023-01-01T00:00:00Z',
-        updated_at: '2023-01-01T00:00:00Z',
-        pushed_at: '2023-01-01T00:00:00Z',
-        stargazers_count: i,
-        language: 'TypeScript',
-        default_branch: 'main',
-      }))
+    const mockPage2 = new Array(10).fill(null).map((_, i) => ({
+      id: i + 31,
+      name: `repo${i + 31}`,
+      full_name: `testuser/repo${i + 31}`,
+      private: false,
+      owner: { login: 'testuser' },
+      html_url: `https://github.com/testuser/repo${i + 31}`,
+      description: `Test repository ${i + 31}`,
+      fork: false,
+      created_at: '2023-01-01T00:00:00Z',
+      updated_at: '2023-01-01T00:00:00Z',
+      pushed_at: '2023-01-01T00:00:00Z',
+      stargazers_count: i,
+      language: 'TypeScript',
+      default_branch: 'main',
+    }))
 
-    vi.mocked(fetch)
+    mocked(fetch)
       .mockResolvedValueOnce({
         ok: true,
         headers: {
@@ -196,7 +192,7 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => allRepositories,
     } as any)
@@ -246,7 +242,7 @@ describe('useGitHubRepositories', () => {
       },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
     } as any)
@@ -286,7 +282,7 @@ describe('useGitHubRepositories', () => {
   it('should refresh repositories', async () => {
     const mockRepositories = [{ id: 1, name: 'repo1' }]
 
-    vi.mocked(fetch).mockResolvedValue({
+    mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => mockRepositories,
     } as any)
@@ -309,7 +305,7 @@ describe('useGitHubRepositories', () => {
 
   it('should handle authentication state', async () => {
     // Mock unauthenticated state
-    vi.doMock('./use-github-auth', () => ({
+    mock.doMock('./use-github-auth', () => ({
       useGitHubAuth: () => ({
         isAuthenticated: false,
         user: null,
@@ -327,13 +323,17 @@ describe('useGitHubRepositories', () => {
   })
 
   it('should handle API rate limits', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 403,
       headers: {
         get: (name: string) => {
-          if (name === 'X-RateLimit-Remaining') return '0'
-          if (name === 'X-RateLimit-Reset') return '1234567890'
+          if (name === 'X-RateLimit-Remaining') {
+            return '0'
+          }
+          if (name === 'X-RateLimit-Reset') {
+            return '1234567890'
+          }
           return null
         },
       },
@@ -363,7 +363,7 @@ describe('useGitHubRepositories', () => {
       watchers_count: 20,
     }
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepoDetails,
     } as any)
@@ -388,7 +388,7 @@ describe('useGitHubRepositories', () => {
       { id: 3, name: 'another-public', private: false },
     ]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mixedRepositories,
     } as any)
@@ -422,7 +422,7 @@ describe('useGitHubRepositories', () => {
   it('should cache repository data', async () => {
     const mockRepositories = [{ id: 1, name: 'repo1' }]
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockRepositories,
     } as any)

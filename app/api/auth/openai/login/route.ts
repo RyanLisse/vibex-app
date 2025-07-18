@@ -26,7 +26,6 @@ export async function POST() {
       },
     })
   } catch (error) {
-    console.error('OpenAI login error:', error)
     return NextResponse.json(
       {
         success: false,

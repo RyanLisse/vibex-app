@@ -1,6 +1,6 @@
 import type { StoryObj } from '@storybook/nextjs'
-import { createStorybookMeta } from './stories/story-base'
-import TaskList from './task-list'
+import { createStorybookMeta } from '@/components/stories/story-base'
+import TaskList from '@/components/task-list'
 
 const meta = createStorybookMeta(
   TaskList,

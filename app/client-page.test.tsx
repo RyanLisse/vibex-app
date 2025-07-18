@@ -1,18 +1,16 @@
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
-import ClientPage from './client-page'
+import ClientPage from '@/app/client-page'
 
 // Mock the imported components
-vi.mock('@/components/navigation/navbar', () => ({
+mock('@/components/navigation/navbar', () => ({
   default: () => <div data-testid="navbar">Mock Navbar</div>,
 }))
 
-vi.mock('@/components/task-list', () => ({
+mock('@/components/task-list', () => ({
   default: () => <div data-testid="task-list">Mock Task List</div>,
 }))
 
-vi.mock('@/components/forms/new-task-form', () => ({
+mock('@/components/forms/new-task-form', () => ({
   default: () => <div data-testid="new-task-form">Mock New Task Form</div>,
 }))
 
@@ -69,7 +67,7 @@ describe('ClientPage', () => {
   })
 
   it('should render without any console errors', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
 
     render(<ClientPage />)
 

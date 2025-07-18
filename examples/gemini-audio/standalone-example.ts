@@ -4,6 +4,8 @@
 // 2. Set your GEMINI_API_KEY environment variable
 // 3. Run: npx tsx standalone-example.ts
 
+import { existsSync, mkdirSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
 import {
   GoogleGenAI,
   type LiveServerMessage,
@@ -11,9 +13,6 @@ import {
   Modality,
   type Session,
 } from '@google/genai'
-import { existsSync, mkdirSync } from 'fs'
-import { writeFile } from 'fs/promises'
-import mime from 'mime'
 
 class GeminiAudioExample {
   private ai: GoogleGenAI
@@ -74,27 +73,21 @@ class GeminiAudioExample {
     this.session = await this.ai.live.connect({
       model,
       callbacks: {
-        onopen: () => {
-          console.log('✅ Connected to Gemini')
-        },
+        onopen: () => {},
         onmessage: (message: LiveServerMessage) => {
           this.responseQueue.push(message)
         },
-        onerror: (e: ErrorEvent) => {
-          console.error('❌ Error:', e.message)
-        },
-        onclose: (e: CloseEvent) => {
-          console.log('🔌 Disconnected:', e.reason)
-        },
+        onerror: (_e: ErrorEvent) => {},
+        onclose: (_e: CloseEvent) => {},
       },
       config,
     })
   }
 
   async sendMessage(content: string) {
-    if (!this.session) throw new Error('Not connected')
-
-    console.log(`\n👤 User: ${content}`)
+    if (!this.session) {
+      throw new Error('Not connected')
+    }
     this.session.sendClientContent({
       turns: [content],
     })
@@ -103,7 +96,9 @@ class GeminiAudioExample {
   async waitForMessage(): Promise<LiveServerMessage> {
     while (true) {
       const message = this.responseQueue.shift()
-      if (message) return message
+      if (message) {
+        return message
+      }
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
   }
@@ -129,9 +124,6 @@ class GeminiAudioExample {
     // Handle tool calls
     if (message.toolCall) {
       message.toolCall.functionCalls?.forEach((functionCall) => {
-        console.log(`\n🔧 Tool call: ${functionCall.name}`)
-        console.log('   Arguments:', functionCall.args)
-
         // Simulate weather response
         if (functionCall.name === 'getCurrentWeather') {
           const response = {
@@ -150,8 +142,6 @@ class GeminiAudioExample {
               },
             ],
           })
-
-          console.log('   Response:', response)
         }
       })
     }
@@ -161,23 +151,19 @@ class GeminiAudioExample {
       const part = message.serverContent.modelTurn.parts[0]
 
       if (part?.text) {
-        console.log(`\n🤖 Gemini: ${part.text}`)
       }
 
       if (part?.inlineData) {
         this.audioParts.push(part.inlineData.data || '')
-        console.log(`\n🔊 Received audio chunk (${this.audioParts.length})`)
       }
 
       if (part?.fileData) {
-        console.log(`\n📎 File: ${part.fileData.fileUri}`)
       }
     }
   }
 
   async saveAudio(filename = 'output.wav') {
     if (this.audioParts.length === 0) {
-      console.log('No audio data to save')
       return
     }
 
@@ -192,7 +178,6 @@ class GeminiAudioExample {
 
     const filepath = `${outputDir}/${filename}`
     await writeFile(filepath, wavBuffer)
-    console.log(`\n💾 Audio saved to: ${filepath}`)
   }
 
   private convertToWav(rawData: string[], mimeType: string): Buffer {
@@ -214,9 +199,9 @@ class GeminiAudioExample {
       sampleRate: 24_000,
     }
 
-    if (format && format.startsWith('L')) {
+    if (format?.startsWith('L')) {
       const bits = Number.parseInt(format.slice(1), 10)
-      if (!isNaN(bits)) {
+      if (!Number.isNaN(bits)) {
         options.bitsPerSample = bits
       }
     }
@@ -267,48 +252,32 @@ class GeminiAudioExample {
 async function main() {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    console.error('Please set GEMINI_API_KEY environment variable')
     process.exit(1)
   }
-
-  console.log('🚀 Gemini 2.5 Flash Audio Example')
-  console.log('==================================\n')
 
   const example = new GeminiAudioExample(apiKey)
 
   try {
     // Connect to Gemini
     await example.connect()
-
-    // Example 1: Simple conversation
-    console.log('📝 Example 1: Simple conversation')
     await example.sendMessage('Hello! Can you introduce yourself and tell me a joke?')
     await example.handleTurn()
     await example.saveAudio('example1_joke.wav')
 
     // Clear audio buffer for next example
-    example['audioParts'] = []
-
-    // Example 2: Tool usage (weather)
-    console.log('\n\n📝 Example 2: Tool usage')
+    example.audioParts = []
     await example.sendMessage("What's the weather like in San Francisco?")
     await example.handleTurn()
     await example.saveAudio('example2_weather.wav')
 
     // Clear audio buffer
-    example['audioParts'] = []
-
-    // Example 3: Complex conversation
-    console.log('\n\n📝 Example 3: Complex conversation')
+    example.audioParts = []
     await example.sendMessage(
       'Can you explain quantum computing in simple terms, then tell me about its potential applications?'
     )
     await example.handleTurn()
     await example.saveAudio('example3_quantum.wav')
-
-    console.log('\n\n✨ Examples completed!')
-  } catch (error) {
-    console.error('Error:', error)
+  } catch (_error) {
   } finally {
     example.close()
   }

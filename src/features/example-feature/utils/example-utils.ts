@@ -1,4 +1,4 @@
-import type { ExampleFilter, ExampleItem } from '../types'
+import type { ExampleFilter, ExampleItem } from '@/src/features/example-feature/types'
 
 export function filterItems(items: ExampleItem[], filter: ExampleFilter): ExampleItem[] {
   return items.filter((item) => {

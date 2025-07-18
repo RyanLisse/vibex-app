@@ -66,7 +66,6 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to start recording'
       setError(errorMessage)
-      console.error('Failed to start recording:', err)
     }
   }, [options])
 

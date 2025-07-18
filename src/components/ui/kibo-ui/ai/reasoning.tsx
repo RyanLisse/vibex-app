@@ -1,16 +1,12 @@
 'use client'
 
 import { useControllableState } from '@radix-ui/react-use-controllable-state'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@repo/shadcn-ui/components/ui/collapsible'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDownIcon } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { createContext, memo, useContext, useEffect, useState } from 'react'
-import { cn } from '/lib/utils'
-import { AIResponse } from './response'
+import { cn } from '@/lib/utils'
+import { AIResponse } from '@/src/components/ui/kibo-ui/ai/response'
 
 type AIReasoningContextValue = {
   isStreaming: boolean

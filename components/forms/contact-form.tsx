@@ -8,7 +8,7 @@ import {
   hasFieldError,
   validateSchema,
 } from '@/src/schemas/forms'
-import { FormField } from './form-field'
+import { FormField } from '@/components/forms/form-field'
 
 interface ContactFormProps {
   onSubmit: (data: ContactForm) => Promise<void>
@@ -29,7 +29,9 @@ const clearFieldError = (
   errors: ReturnType<typeof validateSchema>['error'],
   field: keyof ContactForm
 ) => {
-  if (!errors?.fieldErrors) return null
+  if (!errors?.fieldErrors) {
+    return null
+  }
 
   const newErrors = { ...errors }
   if (newErrors.fieldErrors) {

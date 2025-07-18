@@ -1,16 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { OpenAIAuthCard } from './openai-auth-card'
+import { OpenAIAuthCard } from '@/components/auth/openai-auth-card'
 
 // Mock the openai auth hook
-const mockUseOpenAIAuth = vi.fn()
-vi.mock('@/hooks/use-openai-auth', () => ({
+const mockUseOpenAIAuth = mock()
+mock('@/hooks/use-openai-auth', () => ({
   useOpenAIAuth: () => mockUseOpenAIAuth(),
 }))
 
 // Mock the auth card base component
-vi.mock('./auth-card-base', () => ({
+mock('./auth-card-base', () => ({
   AuthCardBase: ({
     title,
     description,
@@ -57,7 +55,7 @@ vi.mock('./auth-card-base', () => ({
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   LogIn: ({ className, ...props }: any) => (
     <svg className={className} data-testid="login-icon" {...props} />
   ),
@@ -67,7 +65,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -82,11 +80,11 @@ vi.mock('@/components/ui/button', () => ({
 }))
 
 describe('OpenAIAuthCard', () => {
-  const mockLogin = vi.fn()
-  const mockLogout = vi.fn()
+  const mockLogin = mock()
+  const mockLogout = mock()
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should render loading state', () => {

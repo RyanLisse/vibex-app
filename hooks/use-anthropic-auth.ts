@@ -1,4 +1,4 @@
-import { useAuthBase } from './use-auth-base'
+import { useAuthBase } from '@/hooks/use-auth-base'
 
 interface AuthStatus {
   authenticated: boolean

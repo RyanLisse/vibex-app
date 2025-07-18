@@ -1,14 +1,14 @@
 import { memo } from 'react'
 import type { Task } from '@/stores/tasks'
-import type { StreamingMessage } from '../_types/message-types'
+import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import {
   getMessageKey,
   getMessageText,
   getRepositoryUrl,
   getStreamProgress,
 } from '../_utils/message-utils'
-import { ChatMessage } from './chat-message'
-import { InitialTaskMessage } from './initial-task-message'
+import { ChatMessage } from '@/app/task/[id]/_components/chat-message'
+import { InitialTaskMessage } from '@/app/task/[id]/_components/initial-task-message'
 
 interface ChatMessagesPanelProps {
   task: Task

@@ -3,8 +3,8 @@
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import type { HTMLAttributes, ReactElement, ReactNode } from 'react'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { Button } from '/components/ui/button'
-import { cn } from '/lib/utils'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type AIBranchContextType = {
   currentBranch: number

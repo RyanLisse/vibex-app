@@ -75,8 +75,7 @@ export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironm
       // Reset form and close dialog
       resetForm()
       onOpenChange(false)
-    } catch (error) {
-      console.error('Failed to create environment:', error)
+    } catch (_error) {
     } finally {
       setIsCreating(false)
     }

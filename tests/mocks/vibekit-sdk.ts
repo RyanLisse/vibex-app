@@ -183,7 +183,7 @@ export const mockVibeKitSDK = {
 
   // Streaming operations
   streaming: {
-    subscribe: vi.fn().mockImplementation((taskId: string, callback: (data: any) => void) => {
+    subscribe: vi.fn().mockImplementation((_taskId: string, callback: (data: any) => void) => {
       // Simulate streaming data
       const interval = setInterval(() => {
         callback({
@@ -278,7 +278,7 @@ export const mockStateUtils = {
   simulateError: (method: string, error: Error) => {
     const [category, operation] = method.split('.')
     const categoryMock = (mockVibeKitSDK as any)[category]
-    if (categoryMock && categoryMock[operation]) {
+    if (categoryMock?.[operation]) {
       categoryMock[operation].mockRejectedValueOnce(error)
     }
   },
@@ -287,7 +287,7 @@ export const mockStateUtils = {
   simulateDelay: (method: string, delay: number) => {
     const [category, operation] = method.split('.')
     const categoryMock = (mockVibeKitSDK as any)[category]
-    if (categoryMock && categoryMock[operation]) {
+    if (categoryMock?.[operation]) {
       const originalFn = categoryMock[operation]
       categoryMock[operation] = vi.fn().mockImplementation(async (...args) => {
         await new Promise((resolve) => setTimeout(resolve, delay))

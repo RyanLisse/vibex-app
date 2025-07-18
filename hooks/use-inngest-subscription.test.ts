@@ -1,12 +1,12 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useInngestSubscriptionManagement } from './use-inngest-subscription'
+import { useInngestSubscriptionManagement } from '@/hooks/use-inngest-subscription'
 
 // Mock dependencies
-const mockFetchRealtimeSubscriptionToken = vi.fn()
-const mockUseInngestSubscription = vi.fn()
+const mockFetchRealtimeSubscriptionToken = mock()
+const mockUseInngestSubscription = mock()
 
-vi.mock('@inngest/realtime/hooks', () => ({
+mock('@inngest/realtime/hooks', () => ({
   useInngestSubscription: (config: any) => mockUseInngestSubscription(config),
   InngestSubscriptionState: {
     Closed: 'closed',
@@ -15,16 +15,16 @@ vi.mock('@inngest/realtime/hooks', () => ({
   },
 }))
 
-vi.mock('@/app/actions/inngest', () => ({
+mock('@/app/actions/inngest', () => ({
   fetchRealtimeSubscriptionToken: () => mockFetchRealtimeSubscriptionToken(),
 }))
 
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+const mockConsoleLog = mock.spyOn(console, 'log').mockImplementation(() => {})
+const mockConsoleError = mock.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('useInngestSubscriptionManagement', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockFetchRealtimeSubscriptionToken.mockResolvedValue({
       token: 'test-token',
       channel: 'tasks',
@@ -37,7 +37,7 @@ describe('useInngestSubscriptionManagement', () => {
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should return subscription management functions', () => {

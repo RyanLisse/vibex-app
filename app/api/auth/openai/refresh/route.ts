@@ -13,7 +13,6 @@ export async function POST() {
       expires_at: config.expires_at,
     })
   } catch (error) {
-    console.error('OpenAI token refresh error:', error)
     return NextResponse.json(
       {
         success: false,

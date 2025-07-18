@@ -1,9 +1,9 @@
 'use client'
 
 import type { GitHubBranch, GitHubRepository, GitHubUser } from '@/lib/github'
-import { useGitHubBranches } from './use-github-branches'
-import { useGitHubRepositories } from './use-github-repositories'
-import { useGitHubUser } from './use-github-user'
+import { useGitHubBranches } from '@/hooks/use-github-branches'
+import { useGitHubRepositories } from '@/hooks/use-github-repositories'
+import { useGitHubUser } from '@/hooks/use-github-user'
 
 interface UseGitHubAuthReturn {
   isAuthenticated: boolean

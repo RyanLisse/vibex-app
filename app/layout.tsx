@@ -5,7 +5,7 @@ import './globals.css'
 import './streaming.css'
 
 import { ErrorBoundary } from '@/components/error-boundary'
-import Container from './container'
+import Container from '@/app/container'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

@@ -106,9 +106,7 @@ export async function cleanupTestData(
   try {
     // This is a placeholder - implement based on your app's cleanup needs
     await stagehand.observe({ description: `cleanup data containing ${testDataIdentifier}` })
-  } catch (error) {
-    console.warn(`Could not clean up test data: ${error}`)
-  }
+  } catch (_error) {}
 }
 
 /**
@@ -162,7 +160,7 @@ export async function retryWithBackoff<T>(
 export async function elementExists(stagehand: Stagehand, description: string): Promise<boolean> {
   try {
     return await stagehand.observe({ description })
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }
@@ -173,7 +171,7 @@ export async function elementExists(stagehand: Stagehand, description: string): 
 export async function getTextContent(stagehand: Stagehand, description: string): Promise<string> {
   try {
     return await stagehand.extract({ description })
-  } catch (error) {
+  } catch (_error) {
     return ''
   }
 }
@@ -216,7 +214,7 @@ export async function validateFormSubmission(
   try {
     await waitForElementVisible(stagehand, expectedResult, timeout)
     return true
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }
@@ -225,7 +223,7 @@ export async function validateFormSubmission(
  * Create directory if it doesn't exist
  */
 export async function ensureDirectoryExists(path: string): Promise<void> {
-  const fs = require('fs').promises
+  const fs = require('node:fs').promises
   try {
     await fs.access(path)
   } catch {

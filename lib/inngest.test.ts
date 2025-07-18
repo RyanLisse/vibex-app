@@ -1,40 +1,40 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { VibeKit } from '@vibe-kit/sdk'
 import { Inngest } from 'inngest'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock dependencies
-vi.mock('inngest', () => ({
-  Inngest: vi.fn().mockImplementation(() => ({
-    createFunction: vi.fn().mockImplementation((config, trigger, handler) => {
+mock('inngest', () => ({
+  Inngest: mock().mockImplementation(() => ({
+    createFunction: mock().mockImplementation((config, trigger, handler) => {
       return { config, trigger, handler }
     }),
   })),
 }))
 
-vi.mock('@inngest/realtime', () => ({
-  realtimeMiddleware: vi.fn(() => ({ name: 'realtime' })),
-  channel: vi.fn((name) => ({
-    addTopic: vi.fn().mockReturnThis(),
+mock('@inngest/realtime', () => ({
+  realtimeMiddleware: mock(() => ({ name: 'realtime' })),
+  channel: mock((name) => ({
+    addTopic: mock().mockReturnThis(),
     name,
   })),
-  topic: vi.fn((name) => ({
-    type: vi.fn(() => ({ name })),
+  topic: mock((name) => ({
+    type: mock(() => ({ name })),
   })),
 }))
 
-vi.mock('@vibe-kit/sdk', () => ({
-  VibeKit: vi.fn().mockImplementation(() => ({
-    setSession: vi.fn(),
-    generateCode: vi.fn(),
-    pause: vi.fn(),
+mock('@vibe-kit/sdk', () => ({
+  VibeKit: mock().mockImplementation(() => ({
+    setSession: mock(),
+    generateCode: mock(),
+    pause: mock(),
   })),
 }))
 
 describe('inngest', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     // Reset modules to ensure clean state
-    vi.resetModules()
+    mock.resetModules()
     // Reset environment variables
     process.env.INNGEST_EVENT_KEY = 'test-event-key'
     process.env.NODE_ENV = 'test'
@@ -43,12 +43,12 @@ describe('inngest', () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    mock.restore()
   })
 
   describe('exports', () => {
     it('should export required functions and objects', async () => {
-      const inngestModule = await import('./inngest')
+      const inngestModule = await import('@/lib/inngest')
 
       expect(inngestModule.inngest).toBeDefined()
       expect(inngestModule.taskChannel).toBeDefined()
@@ -60,7 +60,7 @@ describe('inngest', () => {
 
   describe('inngest client', () => {
     it('should create client with correct configuration', async () => {
-      const { inngest } = await import('./inngest')
+      const { inngest } = await import('@/lib/inngest')
 
       expect(Inngest).toHaveBeenCalledWith({
         id: 'clonedex',
@@ -72,9 +72,9 @@ describe('inngest', () => {
 
     it('should enable dev mode in development', async () => {
       process.env.NODE_ENV = 'development'
-      vi.resetModules()
+      mock.resetModules()
 
-      await import('./inngest')
+      await import('@/lib/inngest')
 
       expect(Inngest).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -85,9 +85,9 @@ describe('inngest', () => {
 
     it('should enable dev mode when INNGEST_DEV is set', async () => {
       process.env.INNGEST_DEV = '1'
-      vi.resetModules()
+      mock.resetModules()
 
-      await import('./inngest')
+      await import('@/lib/inngest')
 
       expect(Inngest).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -100,7 +100,7 @@ describe('inngest', () => {
   describe('taskChannel', () => {
     it('should create a channel with correct topics', async () => {
       const { channel, topic } = await import('@inngest/realtime')
-      const { taskChannel } = await import('./inngest')
+      const { taskChannel } = await import('@/lib/inngest')
 
       expect(channel).toHaveBeenCalledWith('tasks')
       expect(topic).toHaveBeenCalledWith('status')
@@ -111,8 +111,8 @@ describe('inngest', () => {
 
   describe('taskControl function', () => {
     it('should handle pause action', async () => {
-      const { taskControl } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { taskControl } = await import('@/lib/inngest')
+      const mockPublish = mock()
 
       const handler = taskControl.handler
       const result = await handler({
@@ -135,8 +135,8 @@ describe('inngest', () => {
     })
 
     it('should handle resume action', async () => {
-      const { taskControl } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { taskControl } = await import('@/lib/inngest')
+      const mockPublish = mock()
 
       const handler = taskControl.handler
       await handler({
@@ -167,8 +167,8 @@ describe('inngest', () => {
     })
 
     it('should handle cancel action', async () => {
-      const { taskControl } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { taskControl } = await import('@/lib/inngest')
+      const mockPublish = mock()
 
       const handler = taskControl.handler
       const result = await handler({
@@ -191,11 +191,11 @@ describe('inngest', () => {
 
   describe('createTask function', () => {
     it('should create and execute a task successfully', async () => {
-      const { createTask } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { createTask } = await import('@/lib/inngest')
+      const mockPublish = mock()
       const mockStep = {
-        run: vi.fn().mockResolvedValue({
-          stdout: JSON.stringify({ type: 'message', data: 'test' }) + '\n',
+        run: mock().mockResolvedValue({
+          stdout: `${JSON.stringify({ type: 'message', data: 'test' })}\n`,
           sandboxId: 'sandbox-123',
         }),
       }
@@ -245,20 +245,20 @@ describe('inngest', () => {
     })
 
     it('should handle task with callbacks', async () => {
-      const { createTask } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { createTask } = await import('@/lib/inngest')
+      const mockPublish = mock()
       let capturedCallback: any
 
       const mockStep = {
-        run: vi.fn().mockImplementation(async (name, fn) => {
+        run: mock().mockImplementation(async (_name, fn) => {
           // Mock VibeKit to capture the callbacks
-          vi.mocked(VibeKit).mockImplementationOnce(() => ({
-            setSession: vi.fn(),
-            generateCode: vi.fn().mockImplementation(({ callbacks }) => {
+          mocked(VibeKit).mockImplementationOnce(() => ({
+            setSession: mock(),
+            generateCode: mock().mockImplementation(({ callbacks }) => {
               capturedCallback = callbacks
               return Promise.resolve({ result: 'success' })
             }),
-            pause: vi.fn(),
+            pause: mock(),
           }))
 
           const result = await fn()
@@ -324,16 +324,16 @@ describe('inngest', () => {
     })
 
     it('should handle task without sessionId', async () => {
-      const mockSetSession = vi.fn()
-      vi.mocked(VibeKit).mockImplementationOnce(() => ({
+      const mockSetSession = mock()
+      mocked(VibeKit).mockImplementationOnce(() => ({
         setSession: mockSetSession,
-        generateCode: vi.fn().mockResolvedValue({ result: 'success' }),
-        pause: vi.fn(),
+        generateCode: mock().mockResolvedValue({ result: 'success' }),
+        pause: mock(),
       }))
 
-      const { createTask } = await import('./inngest')
+      const { createTask } = await import('@/lib/inngest')
       const mockStep = {
-        run: vi.fn().mockImplementation(async (name, fn) => fn()),
+        run: mock().mockImplementation(async (_name, fn) => fn()),
       }
 
       const handler = createTask.handler
@@ -352,17 +352,17 @@ describe('inngest', () => {
           },
         },
         step: mockStep,
-        publish: vi.fn(),
+        publish: mock(),
       })
 
       expect(mockSetSession).not.toHaveBeenCalled()
     })
 
     it('should handle non-stdout response', async () => {
-      const { createTask } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { createTask } = await import('@/lib/inngest')
+      const mockPublish = mock()
       const mockStep = {
-        run: vi.fn().mockResolvedValue({ result: 'direct result' }),
+        run: mock().mockResolvedValue({ result: 'direct result' }),
       }
 
       const handler = createTask.handler
@@ -392,7 +392,7 @@ describe('inngest', () => {
 
   describe('getInngestApp', () => {
     it('should create app instance with correct config', async () => {
-      const { getInngestApp } = await import('./inngest')
+      const { getInngestApp } = await import('@/lib/inngest')
 
       const app = getInngestApp()
       expect(app).toBeDefined()
@@ -403,7 +403,7 @@ describe('inngest', () => {
     })
 
     it('should return same instance on multiple calls', async () => {
-      const { getInngestApp } = await import('./inngest')
+      const { getInngestApp } = await import('@/lib/inngest')
 
       const app1 = getInngestApp()
       const app2 = getInngestApp()
@@ -416,9 +416,9 @@ describe('inngest', () => {
       global.window = {} as any
 
       // Reset modules to pick up window change
-      vi.resetModules()
+      mock.resetModules()
 
-      const { getInngestApp } = await import('./inngest')
+      const { getInngestApp } = await import('@/lib/inngest')
       getInngestApp()
 
       expect(Inngest).toHaveBeenCalledWith({
@@ -434,19 +434,19 @@ describe('inngest', () => {
   describe('chunkText generator', () => {
     it('should chunk text correctly', async () => {
       // This tests the internal chunkText function indirectly through createTask
-      const { createTask } = await import('./inngest')
-      const mockPublish = vi.fn()
+      const { createTask } = await import('@/lib/inngest')
+      const mockPublish = mock()
       let capturedCallback: any
 
       const mockStep = {
-        run: vi.fn().mockImplementation(async (name, fn) => {
-          vi.mocked(VibeKit).mockImplementationOnce(() => ({
-            setSession: vi.fn(),
-            generateCode: vi.fn().mockImplementation(({ callbacks }) => {
+        run: mock().mockImplementation(async (_name, fn) => {
+          mocked(VibeKit).mockImplementationOnce(() => ({
+            setSession: mock(),
+            generateCode: mock().mockImplementation(({ callbacks }) => {
               capturedCallback = callbacks
               return Promise.resolve({ result: 'success' })
             }),
-            pause: vi.fn(),
+            pause: mock(),
           }))
 
           return await fn()

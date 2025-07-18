@@ -16,20 +16,17 @@ export function useInngestSubscriptionManagement(): UseInngestSubscriptionReturn
     try {
       const token = await fetchRealtimeSubscriptionToken()
       if (!token) {
-        console.log('Inngest subscription disabled: No token available')
         setSubscriptionEnabled(false)
         return null as unknown as TaskChannelToken
       }
       return token
-    } catch (error) {
-      console.error('Failed to refresh Inngest token:', error)
+    } catch (_error) {
       setSubscriptionEnabled(false)
       return null as unknown as TaskChannelToken
     }
   }, [])
 
-  const handleError = useCallback((error: unknown) => {
-    console.error('Container Inngest subscription error:', error)
+  const handleError = useCallback((_error: unknown) => {
     setSubscriptionEnabled(false)
   }, [])
 
@@ -49,7 +46,6 @@ export function useInngestSubscriptionManagement(): UseInngestSubscriptionReturn
   // Handle subscription state changes
   useEffect(() => {
     if (subscription.state === InngestSubscriptionState.Closed) {
-      console.log('Container Inngest subscription closed')
     }
   }, [subscription.state])
 

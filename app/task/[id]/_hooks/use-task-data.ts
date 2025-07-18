@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import type { Task } from '@/stores/tasks'
 import { useTaskStore } from '@/stores/tasks'
-import type { StreamingMessage } from '../_types/message-types'
+import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import {
   filterChatMessages,
   filterShellMessages,
@@ -35,12 +35,16 @@ export function useTaskData({ task, streamingMessages }: UseTaskDataProps): UseT
 
   // Memoize filtered messages to prevent unnecessary re-renders
   const regularMessages = useMemo(() => {
-    if (!task?.messages) return []
+    if (!task?.messages) {
+      return []
+    }
     return filterChatMessages(task.messages)
   }, [task?.messages])
 
   const shellMessages = useMemo(() => {
-    if (!task?.messages) return []
+    if (!task?.messages) {
+      return []
+    }
     return filterShellMessages(task.messages)
   }, [task?.messages])
 

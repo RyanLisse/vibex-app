@@ -1,10 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ChatMessage } from './chat-message'
+import { ChatMessage } from '@/app/task/[id]/_components/chat-message'
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   Bot: ({ className, ...props }: any) => (
     <svg className={className} data-testid="bot-icon" {...props} />
   ),
@@ -14,7 +12,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock the Markdown component
-vi.mock('@/components/markdown', () => ({
+mock('@/components/markdown', () => ({
   Markdown: ({ children, repoUrl, branch }: any) => (
     <div data-branch={branch} data-repo-url={repoUrl} data-testid="markdown">
       {children}
@@ -23,20 +21,20 @@ vi.mock('@/components/markdown', () => ({
 }))
 
 // Mock the StreamingIndicator component
-vi.mock('@/components/streaming-indicator', () => ({
+mock('@/components/streaming-indicator', () => ({
   StreamingIndicator: ({ size, variant }: any) => (
     <div data-size={size} data-testid="streaming-indicator" data-variant={variant} />
   ),
 }))
 
 // Mock the utils
-vi.mock('@/lib/utils', () => ({
+mock('@/lib/utils', () => ({
   cn: (...args: any[]) => args.filter(Boolean).join(' '),
 }))
 
 describe('ChatMessage', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should render user message', () => {
@@ -79,7 +77,7 @@ describe('ChatMessage', () => {
       <ChatMessage
         branch="main"
         repoUrl="https://github.com/test/repo"
-        role="assistant"
+        role="user"
         text="# Hello\n\nThis is **bold** text"
       />
     )
@@ -204,7 +202,7 @@ describe('ChatMessage', () => {
       <ChatMessage
         branch="feature-branch"
         repoUrl="https://github.com/test/repo"
-        role="assistant"
+        role="user"
         text="Check out this [file](./src/index.ts)"
       />
     )

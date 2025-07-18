@@ -5,7 +5,7 @@
  * with the original API and expected behavior.
  */
 
-import type { useTaskSubscription } from './use-task-subscription'
+import type { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
 
 // Type check: Verify hook parameters remain unchanged
 type HookParams = Parameters<typeof useTaskSubscription>[0]

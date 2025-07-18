@@ -1,29 +1,29 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { NextRequest } from 'next/server'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GET } from './route'
+import { GET } from '@/app/api/auth/openai/callback/route'
 
 // Mock the authentication utilities
-vi.mock('@/lib/auth/openai-codex', () => ({
-  exchangeCodeForToken: vi.fn(),
-  validateOAuthState: vi.fn(),
-  sanitizeRedirectUrl: vi.fn(),
-  handleAuthError: vi.fn(),
+mock('@/lib/auth/openai-codex', () => ({
+  exchangeCodeForToken: mock(),
+  validateOAuthState: mock(),
+  sanitizeRedirectUrl: mock(),
+  handleAuthError: mock(),
 }))
 
 // Mock NextResponse
-vi.mock('next/server', async () => {
-  const actual = await vi.importActual('next/server')
+mock('next/server', async () => {
+  const actual = await mock.importActual('next/server')
   return {
     ...actual,
     NextResponse: {
-      json: vi.fn(),
-      redirect: vi.fn(),
+      json: mock(),
+      redirect: mock(),
     },
   }
 })
 
 // Mock environment variables
-vi.mock('@/lib/env', () => ({
+mock('@/lib/env', () => ({
   env: {
     OPENAI_CLIENT_ID: 'test-client-id',
     OPENAI_CLIENT_SECRET: 'test-client-secret',
@@ -33,21 +33,21 @@ vi.mock('@/lib/env', () => ({
   },
 }))
 
-const mockExchangeCodeForToken = vi.mocked(
+const mockExchangeCodeForToken = mocked(
   await import('@/lib/auth/openai-codex')
 ).exchangeCodeForToken
-const mockValidateOAuthState = vi.mocked(await import('@/lib/auth/openai-codex')).validateOAuthState
-const mockSanitizeRedirectUrl = vi.mocked(
+const mockValidateOAuthState = mocked(await import('@/lib/auth/openai-codex')).validateOAuthState
+const mockSanitizeRedirectUrl = mocked(
   await import('@/lib/auth/openai-codex')
 ).sanitizeRedirectUrl
-const mockHandleAuthError = vi.mocked(await import('@/lib/auth/openai-codex')).handleAuthError
+const mockHandleAuthError = mocked(await import('@/lib/auth/openai-codex')).handleAuthError
 
 const { NextResponse } = await import('next/server')
-const mockNextResponse = vi.mocked(NextResponse)
+const mockNextResponse = mocked(NextResponse)
 
 describe('GET /api/auth/openai/callback', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockValidateOAuthState.mockReturnValue(true)
     mockSanitizeRedirectUrl.mockImplementation((url) => url)
     mockHandleAuthError.mockImplementation((error: unknown) => error?.toString() || 'Unknown error')
@@ -69,7 +69,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
       tokenUrl: 'https://auth.openai.com/oauth/token',
@@ -93,7 +93,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing code parameter' },
@@ -108,7 +108,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing state parameter' },
@@ -124,7 +124,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=invalid-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid state parameter' },
@@ -139,7 +139,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?error=access_denied&error_description=User%20denied%20access'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'access_denied', error_description: 'User denied access' },
@@ -156,7 +156,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Token exchange failed' },
@@ -171,7 +171,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?error=invalid_grant&error_description=Invalid%20authorization%20code'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'invalid_grant', error_description: 'Invalid authorization code' },
@@ -195,7 +195,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockSanitizeRedirectUrl).toHaveBeenCalledWith('https://app.example.com/dashboard')
     expect(mockNextResponse.redirect).toHaveBeenCalledWith('https://app.example.com/dashboard')
@@ -218,7 +218,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({
       success: true,
@@ -242,7 +242,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
       tokenUrl: 'https://auth.openai.com/oauth/token',
@@ -255,7 +255,7 @@ describe('GET /api/auth/openai/callback', () => {
   })
 
   it('should handle missing environment variables', async () => {
-    vi.doMock('@/lib/env', () => ({
+    mock.doMock('@/lib/env', () => ({
       env: {
         OPENAI_CLIENT_ID: undefined,
         OPENAI_CLIENT_SECRET: undefined,
@@ -271,7 +271,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing configuration' },
@@ -288,7 +288,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Network error' }, { status: 500 })
   })
@@ -303,7 +303,7 @@ describe('GET /api/auth/openai/callback', () => {
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)'
     )
 
-    const response = await GET(request)
+    const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid redirect URL' },

@@ -1,6 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { FormField } from './form-field'
+import { FormField } from '@/components/forms/form-field'
 
 describe('FormField', () => {
   const defaultProps = {
@@ -10,12 +9,12 @@ describe('FormField', () => {
     value: '',
     className: 'test-class',
     hasError: false,
-    onChange: vi.fn(),
-    onBlur: vi.fn(),
+    onChange: mock(),
+    onBlur: mock(),
   }
 
   afterEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   describe('Rendering', () => {

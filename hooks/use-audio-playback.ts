@@ -39,7 +39,7 @@ export function useAudioPlayback(options: UseAudioPlaybackOptions = {}) {
         setCurrentTime(0)
         options.onPlayEnd?.()
       })
-      audio.addEventListener('error', (e) => {
+      audio.addEventListener('error', (_e) => {
         const errorMessage = 'Failed to load audio'
         setError(errorMessage)
         setIsLoading(false)

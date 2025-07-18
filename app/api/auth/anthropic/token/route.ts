@@ -10,8 +10,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ access_token: accessToken })
-  } catch (error) {
-    console.error('Token retrieval error:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to retrieve access token' }, { status: 500 })
   }
 }

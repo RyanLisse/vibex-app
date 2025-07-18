@@ -17,7 +17,7 @@ import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from '@/app/actio
 import { createPullRequestAction } from '@/app/actions/vibekit'
 import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/tasks'
-import { TaskControlButton } from './task-control-button'
+import { TaskControlButton } from '@/components/navigation/task-control-button'
 
 interface Props {
   id: string
@@ -30,7 +30,9 @@ export default function TaskNavbar({ id }: Props) {
   const task = getTaskById(id)
 
   const handleCreatePullRequest = useCallback(async () => {
-    if (!task) return
+    if (!task) {
+      return
+    }
 
     setIsCreatingPullRequest(true)
 
@@ -44,7 +46,9 @@ export default function TaskNavbar({ id }: Props) {
   }, [task, id, updateTask])
 
   const handleArchiveTask = useCallback(() => {
-    if (!task) return
+    if (!task) {
+      return
+    }
 
     updateTask(id, {
       isArchived: !task.isArchived,
@@ -52,39 +56,42 @@ export default function TaskNavbar({ id }: Props) {
   }, [task, id, updateTask])
 
   const handlePauseTask = useCallback(async () => {
-    if (!task) return
+    if (!task) {
+      return
+    }
     setIsControllingTask(true)
     try {
       await pauseTaskAction(id)
       pauseTask(id)
-    } catch (error) {
-      console.error('Failed to pause task:', error)
+    } catch (_error) {
     } finally {
       setIsControllingTask(false)
     }
   }, [task, id, pauseTask])
 
   const handleResumeTask = useCallback(async () => {
-    if (!task) return
+    if (!task) {
+      return
+    }
     setIsControllingTask(true)
     try {
       await resumeTaskAction(id)
       resumeTask(id)
-    } catch (error) {
-      console.error('Failed to resume task:', error)
+    } catch (_error) {
     } finally {
       setIsControllingTask(false)
     }
   }, [task, id, resumeTask])
 
   const handleCancelTask = useCallback(async () => {
-    if (!task) return
+    if (!task) {
+      return
+    }
     setIsControllingTask(true)
     try {
       await cancelTaskAction(id)
       cancelTask(id)
-    } catch (error) {
-      console.error('Failed to cancel task:', error)
+    } catch (_error) {
     } finally {
       setIsControllingTask(false)
     }

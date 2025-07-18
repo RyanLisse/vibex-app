@@ -1,34 +1,34 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAuth } from './use-auth'
+import { useAuth } from '@/hooks/use-auth'
 
 // Mock the individual auth hooks
-const mockUseOpenAIAuth = vi.fn()
-const mockUseAnthropicAuth = vi.fn()
-const mockUseGitHubAuth = vi.fn()
+const mockUseOpenAIAuth = mock()
+const mockUseAnthropicAuth = mock()
+const mockUseGitHubAuth = mock()
 
-vi.mock('./use-openai-auth', () => ({
+mock('./use-openai-auth', () => ({
   useOpenAIAuth: () => mockUseOpenAIAuth(),
 }))
 
-vi.mock('./use-anthropic-auth', () => ({
+mock('./use-anthropic-auth', () => ({
   useAnthropicAuth: () => mockUseAnthropicAuth(),
 }))
 
-vi.mock('./use-github-auth', () => ({
+mock('./use-github-auth', () => ({
   useGitHubAuth: () => mockUseGitHubAuth(),
 }))
 
 describe('useAuth', () => {
-  const mockOpenAILogin = vi.fn()
-  const mockOpenAILogout = vi.fn()
-  const mockAnthropicLogin = vi.fn()
-  const mockAnthropicLogout = vi.fn()
-  const mockGitHubLogin = vi.fn()
-  const mockGitHubLogout = vi.fn()
+  const mockOpenAILogin = mock()
+  const mockOpenAILogout = mock()
+  const mockAnthropicLogin = mock()
+  const mockAnthropicLogout = mock()
+  const mockGitHubLogin = mock()
+  const mockGitHubLogout = mock()
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
 
     // Default mock implementations
     mockUseOpenAIAuth.mockReturnValue({

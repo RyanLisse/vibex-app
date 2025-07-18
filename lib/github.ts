@@ -57,7 +57,6 @@ export class GitHubAuth {
 
     // Log the redirect URI for debugging
     if (process.env.NODE_ENV === 'development') {
-      console.log('GitHub OAuth redirect URI:', this.redirectUri)
     }
   }
 

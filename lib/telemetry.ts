@@ -78,16 +78,9 @@ export function validateTelemetryConfig(config: TelemetryConfig): {
  */
 export function logTelemetryConfig(config: TelemetryConfig): void {
   if (!config.isEnabled) {
-    console.log('📊 OpenTelemetry: Disabled')
     return
   }
 
-  console.log('📊 OpenTelemetry: Enabled')
-  console.log(`   Service: ${config.serviceName}@${config.serviceVersion}`)
-  console.log(`   Endpoint: ${config.endpoint}`)
-  console.log(`   Sampling: ${(config.samplingRatio || 1) * 100}%`)
-
   if (config.headers) {
-    console.log(`   Headers: ${Object.keys(config.headers).join(', ')}`)
   }
 }

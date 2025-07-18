@@ -1,10 +1,10 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ClaudeAuthClient } from '@/lib/auth/claude-auth'
-import { useClaudeAuth } from './useClaudeAuth'
+import { useClaudeAuth } from '@/src/hooks/useClaudeAuth'
 
 // Mock ClaudeAuthClient
-vi.mock('@/lib/auth/claude-auth')
+mock('@/lib/auth/claude-auth')
 
 // Mock window.location
 const mockLocation = {
@@ -20,10 +20,10 @@ Object.defineProperty(window, 'location', {
 
 // Mock sessionStorage
 const mockSessionStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: mock(),
+  setItem: mock(),
+  removeItem: mock(),
+  clear: mock(),
 }
 
 Object.defineProperty(window, 'sessionStorage', {
@@ -38,14 +38,14 @@ describe('useClaudeAuth', () => {
   }
 
   let mockAuthClient: any
-  const MockedClaudeAuthClient = ClaudeAuthClient as unknown as ReturnType<typeof vi.fn>
+  const MockedClaudeAuthClient = ClaudeAuthClient as unknown as ReturnType<typeof mock>
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockAuthClient = {
-      getAuthorizationUrl: vi.fn(),
-      exchangeCodeForToken: vi.fn(),
-      refreshToken: vi.fn(),
+      getAuthorizationUrl: mock(),
+      exchangeCodeForToken: mock(),
+      refreshToken: mock(),
     }
     MockedClaudeAuthClient.mockImplementation(() => mockAuthClient)
 
@@ -55,7 +55,7 @@ describe('useClaudeAuth', () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    mock.restore()
   })
 
   describe('initialization', () => {
@@ -80,13 +80,17 @@ describe('useClaudeAuth', () => {
 
   describe('OAuth callback handling', () => {
     it('should handle successful callback', async () => {
-      const onSuccess = vi.fn()
+      const onSuccess = mock()
       mockLocation.href = 'https://app.example.com/callback?code=auth-code&state=test-state'
       mockLocation.search = '?code=auth-code&state=test-state'
 
       mockSessionStorage.getItem.mockImplementation((key) => {
-        if (key === 'claude_auth_state') return 'test-state'
-        if (key === 'claude_auth_verifier') return 'test-verifier'
+        if (key === 'claude_auth_state') {
+          return 'test-state'
+        }
+        if (key === 'claude_auth_verifier') {
+          return 'test-verifier'
+        }
         return null
       })
 
@@ -117,7 +121,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle error in callback URL', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       mockLocation.href =
         'https://app.example.com/callback?error=access_denied&error_description=User+denied+access'
       mockLocation.search = '?error=access_denied&error_description=User+denied+access'
@@ -155,13 +159,17 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle invalid state', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       mockLocation.href = 'https://app.example.com/callback?code=auth-code&state=wrong-state'
       mockLocation.search = '?code=auth-code&state=wrong-state'
 
       mockSessionStorage.getItem.mockImplementation((key) => {
-        if (key === 'claude_auth_state') return 'test-state'
-        if (key === 'claude_auth_verifier') return 'test-verifier'
+        if (key === 'claude_auth_state') {
+          return 'test-state'
+        }
+        if (key === 'claude_auth_verifier') {
+          return 'test-verifier'
+        }
         return null
       })
 
@@ -186,7 +194,9 @@ describe('useClaudeAuth', () => {
       mockLocation.search = '?code=auth-code&state=test-state'
 
       mockSessionStorage.getItem.mockImplementation((key) => {
-        if (key === 'claude_auth_state') return 'test-state'
+        if (key === 'claude_auth_state') {
+          return 'test-state'
+        }
         return null // Missing verifier
       })
 
@@ -204,8 +214,12 @@ describe('useClaudeAuth', () => {
       mockLocation.search = '?code=auth-code&state=test-state'
 
       mockSessionStorage.getItem.mockImplementation((key) => {
-        if (key === 'claude_auth_state') return 'test-state'
-        if (key === 'claude_auth_verifier') return 'test-verifier'
+        if (key === 'claude_auth_state') {
+          return 'test-state'
+        }
+        if (key === 'claude_auth_verifier') {
+          return 'test-verifier'
+        }
         return null
       })
 
@@ -248,7 +262,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle errors during login start', () => {
-      const onError = vi.fn()
+      const onError = mock()
       mockAuthClient.getAuthorizationUrl.mockImplementation(() => {
         throw new Error('Failed to generate URL')
       })
@@ -330,7 +344,7 @@ describe('useClaudeAuth', () => {
     })
 
     it('should handle refresh token errors', async () => {
-      const onError = vi.fn()
+      const onError = mock()
       mockAuthClient.refreshToken.mockRejectedValue(new Error('Refresh failed'))
 
       const { result } = renderHook(() =>
@@ -343,7 +357,7 @@ describe('useClaudeAuth', () => {
       await act(async () => {
         try {
           await result.current.refreshToken('expired-token')
-        } catch (e) {
+        } catch (_e) {
           // Expected to throw
         }
       })
@@ -364,7 +378,7 @@ describe('useClaudeAuth', () => {
       await act(async () => {
         try {
           await result.current.refreshToken('token')
-        } catch (e) {
+        } catch (_e) {
           // Expected to throw
         }
       })
@@ -391,7 +405,7 @@ describe('useClaudeAuth', () => {
       expect(result.current.isAuthenticating).toBe(true)
 
       await act(async () => {
-        resolveRefresh!({ access_token: 'new-token' })
+        resolveRefresh?.({ access_token: 'new-token' })
         await refreshTokenPromise!
       })
 
@@ -430,13 +444,17 @@ describe('useClaudeAuth', () => {
 
   describe('cleanup', () => {
     it('should not process callback after unmount', async () => {
-      const onSuccess = vi.fn()
+      const onSuccess = mock()
       mockLocation.href = 'https://app.example.com/callback?code=auth-code&state=test-state'
       mockLocation.search = '?code=auth-code&state=test-state'
 
       mockSessionStorage.getItem.mockImplementation((key) => {
-        if (key === 'claude_auth_state') return 'test-state'
-        if (key === 'claude_auth_verifier') return 'test-verifier'
+        if (key === 'claude_auth_state') {
+          return 'test-state'
+        }
+        if (key === 'claude_auth_verifier') {
+          return 'test-verifier'
+        }
         return null
       })
 

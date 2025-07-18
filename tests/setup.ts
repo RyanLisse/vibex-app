@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { JSDOM } from 'jsdom'
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 
 // Mock Next.js router
 vi.mock('next/router', () => ({

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const { getCLS, getFID, getFCP, getLCP, getTTFB } = require('web-vitals')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 class VitalsMonitor {
   constructor() {
@@ -85,16 +85,7 @@ class VitalsMonitor {
       this.vitals = { ...this.vitals, ...vitals }
 
       await browser.close()
-
-      console.log('Core Web Vitals:')
-      console.log(`  CLS (Cumulative Layout Shift): ${vitals.cls || 'N/A'}`)
-      console.log(`  FID (First Input Delay): ${vitals.fid || 'N/A'}ms`)
-      console.log(`  FCP (First Contentful Paint): ${vitals.fcp || 'N/A'}ms`)
-      console.log(`  LCP (Largest Contentful Paint): ${vitals.lcp || 'N/A'}ms`)
-      console.log(`  TTFB (Time to First Byte): ${vitals.ttfb || 'N/A'}ms`)
-    } catch (error) {
-      console.error('Vitals measurement failed:', error.message)
-    }
+    } catch (_error) {}
   }
 
   evaluateVitals() {
@@ -144,23 +135,15 @@ class VitalsMonitor {
     const reportPath = path.join(process.cwd(), 'vitals-report.json')
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2))
 
-    console.log('\\n=== Core Web Vitals Report ===')
-    console.log(`Report saved to: ${reportPath}`)
-    console.log(`Overall Score: ${report.score}/100`)
-
     // Display results
     Object.keys(evaluation).forEach((metric) => {
       const result = evaluation[metric]
-      const icon =
+      const _icon =
         result.status === 'good' ? '✅' : result.status === 'needs-improvement' ? '⚠️' : '❌'
-      console.log(`  ${icon} ${metric.toUpperCase()}: ${result.message}`)
     })
 
     if (report.recommendations.length > 0) {
-      console.log('\\n💡 Recommendations:')
-      report.recommendations.forEach((rec, index) => {
-        console.log(`  ${index + 1}. ${rec}`)
-      })
+      report.recommendations.forEach((_rec, _index) => {})
     }
 
     return report
@@ -237,12 +220,8 @@ class VitalsMonitor {
   }
 
   async run() {
-    console.log('📊 Starting Core Web Vitals Analysis...')
-
     await this.measureVitals()
     const report = this.generateVitalsReport()
-
-    console.log('\\n✅ Web Vitals analysis complete!')
     return report
   }
 }

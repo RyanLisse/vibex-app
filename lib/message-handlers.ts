@@ -7,7 +7,6 @@ import {
   isShellCallMessage,
   isShellOutputMessage,
   type StatusData,
-  TaskMessage,
   type UpdateData,
 } from './container-types'
 
@@ -28,7 +27,9 @@ export class MessageHandlers {
   }
 
   handleGitMessage = (data: UpdateData): void => {
-    if (!isGitMessage(data.message)) return
+    if (!isGitMessage(data.message)) {
+      return
+    }
 
     this.deps.updateTask(data.taskId, {
       statusMessage: data.message.output as string,
@@ -36,7 +37,9 @@ export class MessageHandlers {
   }
 
   handleShellCall = (data: UpdateData): void => {
-    if (!(isShellCallMessage(data.message) && hasShellAction(data.message))) return
+    if (!(isShellCallMessage(data.message) && hasShellAction(data.message))) {
+      return
+    }
 
     const task = this.deps.getTaskById(data.taskId)
     const command = data.message.action.command.join(' ')
@@ -55,7 +58,9 @@ export class MessageHandlers {
   }
 
   handleShellOutput = (data: UpdateData): void => {
-    if (!isShellOutputMessage(data.message)) return
+    if (!isShellOutputMessage(data.message)) {
+      return
+    }
 
     const task = this.deps.getTaskById(data.taskId)
 
@@ -72,7 +77,9 @@ export class MessageHandlers {
   }
 
   handleAssistantMessage = (data: UpdateData): void => {
-    if (!(isCompletedAssistantMessage(data.message) && hasMessageContent(data.message))) return
+    if (!(isCompletedAssistantMessage(data.message) && hasMessageContent(data.message))) {
+      return
+    }
 
     const task = this.deps.getTaskById(data.taskId)
     const content = data.message.content[0]

@@ -1,9 +1,8 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { getSubscriptionToken } from '@inngest/realtime'
 import { cookies } from 'next/headers'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { inngest } from '@/lib/inngest'
 import type { Task } from '@/stores/tasks'
-import type { TaskChannelToken } from './inngest'
 import {
   cancelTaskAction,
   createPullRequestAction,
@@ -14,38 +13,38 @@ import {
 } from './inngest'
 
 // Mock dependencies
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
+mock('next/headers', () => ({
+  cookies: mock(),
 }))
 
-vi.mock('@/lib/inngest', () => ({
+mock('@/lib/inngest', () => ({
   inngest: {
-    send: vi.fn(),
+    send: mock(),
   },
-  getInngestApp: vi.fn(),
-  taskChannel: vi.fn(() => ({ id: 'test-channel' })),
+  getInngestApp: mock(),
+  taskChannel: mock(() => ({ id: 'test-channel' })),
 }))
 
-vi.mock('@inngest/realtime', () => ({
-  getSubscriptionToken: vi.fn(),
+mock('@inngest/realtime', () => ({
+  getSubscriptionToken: mock(),
 }))
 
-vi.mock('@/lib/telemetry', () => ({
-  getTelemetryConfig: vi.fn(() => ({ isEnabled: false })),
+mock('@/lib/telemetry', () => ({
+  getTelemetryConfig: mock(() => ({ isEnabled: false })),
 }))
 
 describe('Inngest Actions', () => {
   const mockCookies = {
-    get: vi.fn(),
+    get: mock(),
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(cookies).mockResolvedValue(mockCookies as any)
+    mock.restore()
+    mocked(cookies).mockResolvedValue(mockCookies as any)
   })
 
   afterEach(() => {
-    vi.resetModules()
+    mock.resetModules()
   })
 
   describe('createTaskAction', () => {
@@ -99,11 +98,11 @@ describe('Inngest Actions', () => {
 
     it('should include telemetry config when enabled', async () => {
       mockCookies.get.mockReturnValue({ value: 'github-token-123' })
-      const mockGetTelemetryConfig = vi.fn(() => ({
+      const mockGetTelemetryConfig = mock(() => ({
         isEnabled: true,
         endpoint: 'http://telemetry.example.com',
       }))
-      vi.doMock('@/lib/telemetry', () => ({
+      mock.doMock('@/lib/telemetry', () => ({
         getTelemetryConfig: mockGetTelemetryConfig,
       }))
 
@@ -211,7 +210,7 @@ describe('Inngest Actions', () => {
     it('should return token in development mode', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       const mockToken = { token: 'dev-token-123' } as any
-      vi.mocked(getSubscriptionToken).mockResolvedValue(mockToken)
+      mocked(getSubscriptionToken).mockResolvedValue(mockToken)
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -223,7 +222,7 @@ describe('Inngest Actions', () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true })
       process.env.INNGEST_DEV = '1'
       const mockToken = { token: 'dev-token-456' } as any
-      vi.mocked(getSubscriptionToken).mockResolvedValue(mockToken)
+      mocked(getSubscriptionToken).mockResolvedValue(mockToken)
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -252,7 +251,7 @@ describe('Inngest Actions', () => {
 
     it('should handle getSubscriptionToken errors', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
-      vi.mocked(getSubscriptionToken).mockRejectedValue(new Error('Network error'))
+      mocked(getSubscriptionToken).mockRejectedValue(new Error('Network error'))
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -261,9 +260,9 @@ describe('Inngest Actions', () => {
 
     it('should handle authentication errors', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
-      vi.mocked(getSubscriptionToken).mockRejectedValue(new Error('401 Unauthorized'))
+      mocked(getSubscriptionToken).mockRejectedValue(new Error('401 Unauthorized'))
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = mock.spyOn(console, 'error').mockImplementation(() => {})
       const token = await fetchRealtimeSubscriptionToken()
 
       expect(token).toBeNull()
@@ -276,7 +275,7 @@ describe('Inngest Actions', () => {
 
     it('should handle invalid token format', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
-      vi.mocked(getSubscriptionToken).mockResolvedValue(null as any)
+      mocked(getSubscriptionToken).mockResolvedValue(null as any)
 
       const token = await fetchRealtimeSubscriptionToken()
 
@@ -286,7 +285,7 @@ describe('Inngest Actions', () => {
     it('should handle token as string', async () => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true })
       const mockToken = 'string-token-123' as any
-      vi.mocked(getSubscriptionToken).mockResolvedValue(mockToken as any)
+      mocked(getSubscriptionToken).mockResolvedValue(mockToken as any)
 
       const token = await fetchRealtimeSubscriptionToken()
 

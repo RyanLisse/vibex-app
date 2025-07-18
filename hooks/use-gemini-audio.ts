@@ -1,4 +1,3 @@
-import type { LiveServerMessage } from '@google/genai'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface GeminiAudioMessage {
@@ -63,10 +62,12 @@ export function useGeminiAudio(options: UseGeminiAudioOptions = {}) {
     } finally {
       setIsLoading(false)
     }
-  }, [options])
+  }, [options, generateSessionId])
 
   const disconnect = useCallback(async () => {
-    if (!sessionIdRef.current) return
+    if (!sessionIdRef.current) {
+      return
+    }
 
     try {
       await fetch(`/api/ai/gemini/session?sessionId=${sessionIdRef.current}`, {
@@ -80,9 +81,7 @@ export function useGeminiAudio(options: UseGeminiAudioOptions = {}) {
 
       setIsConnected(false)
       sessionIdRef.current = null
-    } catch (err) {
-      console.error('Failed to disconnect:', err)
-    }
+    } catch (_err) {}
   }, [])
 
   const sendMessage = useCallback(

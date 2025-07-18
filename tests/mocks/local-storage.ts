@@ -1,496 +1,365 @@
-// Local Storage and Session Storage Mocking Utilities
-// Comprehensive mocking for browser storage APIs
+// storage-mocks.ts
+// ---------------------------------------------------------------------------
+// Unified mocks for localStorage, sessionStorage and IndexedDB in Vitest
+// ---------------------------------------------------------------------------
 
 import { vi } from 'vitest'
 
-// Mock storage implementation
+// ---------------------------------------------------------------------------
+// - Helpers
+// ---------------------------------------------------------------------------
+
+/** Create a standard MockIDBRequest and resolve it in the next micro‑task. */
+const createRequest = <T>(result: T): MockIDBRequest => {
+  const req: MockIDBRequest = {
+    result,
+    error: null,
+    readyState: 'pending',
+    onsuccess: null,
+    onerror: null,
+  }
+  // Faster than setTimeout 0 and keeps JS semantics (≈ `Promise.resolve().then`)
+  queueMicrotask(() => {
+    req.readyState = 'done'
+    req.onsuccess?.(new Event('success'))
+  })
+  return req
+}
+
+/** Wrap common `add/put` logic for an object‑store Map. */
+const op =
+  (db: Map<string, Map<unknown, unknown>>, storeName: string, opts?: IDBObjectStoreParameters) =>
+  (value: unknown, key?: unknown) => {
+    const store = db.get(storeName)!
+    let finalKey = key
+
+    if (finalKey === undefined) {
+      if (opts?.keyPath && typeof opts.keyPath === 'string' && value && typeof value === 'object') {
+        finalKey = (value as Record<string, unknown>)[opts.keyPath]
+      } else {
+        finalKey = crypto.randomUUID()
+      }
+    }
+    store.set(finalKey, value)
+    return createRequest(finalKey)
+  }
+
+/** Build a convenient facade around a MockStorage instance. */
+const buildStorageFacade = (mock: MockStorage) => ({
+  get: (k: string) => mock.getItem(k),
+  set: (k: string, v: string) => mock.setItem(k, v),
+  remove: (k: string) => mock.removeItem(k),
+  clear: () => mock.clear(),
+  getAll: () => mock.getAll(),
+  keys: () => mock.keys(),
+  size: () => mock.size(),
+  has: (k: string) => mock.has(k),
+})
+
+// ---------------------------------------------------------------------------
+// - Mock Storage (local/session)
+// ---------------------------------------------------------------------------
+
 class MockStorage implements Storage {
-  private store: Map<string, string> = new Map()
+  #store = new Map<string, string>()
+  #listeners = new Set<(e: StorageEvent) => void>()
 
-  get length(): number {
-    return this.store.size
+  // Storage API ----------------------------------------------------------------
+  get length() {
+    return this.#store.size
+  }
+  clear() {
+    this.#store.clear()
+  }
+  getItem(k: string) {
+    return this.#store.get(k) ?? null
+  }
+  key(i: number) {
+    return [...this.#store.keys()][i] ?? null
+  }
+  removeItem(k: string) {
+    this.#store.delete(k)
+  }
+  setItem(k: string, v: string) {
+    this.#store.set(k, v)
   }
 
-  clear(): void {
-    this.store.clear()
+  // Extras for tests -----------------------------------------------------------
+  getAll() {
+    return Object.fromEntries(this.#store)
+  }
+  reset() {
+    this.#store.clear()
+  }
+  size() {
+    return this.#store.size
+  }
+  keys() {
+    return [...this.#store.keys()]
+  }
+  values() {
+    return [...this.#store.values()]
+  }
+  has(k: string) {
+    return this.#store.has(k)
   }
 
-  getItem(key: string): string | null {
-    return this.store.get(key) || null
+  // Event simulation -----------------------------------------------------------
+  addEventListener(type: 'storage', fn: (e: StorageEvent) => void) {
+    if (type === 'storage') this.#listeners.add(fn)
   }
-
-  key(index: number): string | null {
-    const keys = Array.from(this.store.keys())
-    return keys[index] || null
+  removeEventListener(type: 'storage', fn: (e: StorageEvent) => void) {
+    if (type === 'storage') this.#listeners.delete(fn)
   }
-
-  removeItem(key: string): void {
-    this.store.delete(key)
-  }
-
-  setItem(key: string, value: string): void {
-    this.store.set(key, value)
-  }
-
-  // Additional utility methods for testing
-  getAll(): Record<string, string> {
-    return Object.fromEntries(this.store)
-  }
-
-  reset(): void {
-    this.store.clear()
-  }
-
-  size(): number {
-    return this.store.size
-  }
-
-  keys(): string[] {
-    return Array.from(this.store.keys())
-  }
-
-  values(): string[] {
-    return Array.from(this.store.values())
-  }
-
-  has(key: string): boolean {
-    return this.store.has(key)
-  }
-
-  // Simulate storage events
-  private listeners: Set<(event: StorageEvent) => void> = new Set()
-
-  addEventListener(type: 'storage', listener: (event: StorageEvent) => void): void {
-    if (type === 'storage') {
-      this.listeners.add(listener)
-    }
-  }
-
-  removeEventListener(type: 'storage', listener: (event: StorageEvent) => void): void {
-    if (type === 'storage') {
-      this.listeners.delete(listener)
-    }
-  }
-
-  dispatchStorageEvent(key: string, newValue: string | null, oldValue: string | null): void {
-    const event = new StorageEvent('storage', {
+  dispatchStorageEvent(key: string, newValue: string | null, oldValue: string | null) {
+    const evt = new StorageEvent('storage', {
       key,
       newValue,
       oldValue,
-      url: global.location?.href || 'http://localhost',
-      storageArea: this as Storage,
+      url: global.location?.href || '',
+      storageArea: this,
     })
-
-    this.listeners.forEach((listener) => listener(event))
+    this.#listeners.forEach((l) => l(evt))
   }
 }
 
-// Create mock storage instances
 const mockLocalStorage = new MockStorage()
 const mockSessionStorage = new MockStorage()
 
-// Mock IndexedDB interfaces
-export interface MockIDBDatabase {
-  name: string
-  version: number
-  objectStoreNames: string[]
-  close: vi.MockedFunction<() => void>
-  createObjectStore: vi.MockedFunction<
-    (name: string, options?: IDBObjectStoreParameters) => MockIDBObjectStore
-  >
-  deleteObjectStore: vi.MockedFunction<(name: string) => void>
-  transaction: vi.MockedFunction<
-    (storeNames: string | string[], mode?: IDBTransactionMode) => MockIDBTransaction
-  >
+// ---------------------------------------------------------------------------
+// - Mock IndexedDB
+// ---------------------------------------------------------------------------
+
+type StoreMap = Map<unknown, unknown>
+const idbData = new Map<string /*db*/, Map<string /*store*/, StoreMap>>()
+
+export const mockIndexedDB = {
+  // open ----------------------------------------------------------------------
+  open: vi.fn().mockImplementation((name: string, v?: number) => {
+    return createRequest(
+      (() => {
+        if (!idbData.has(name)) idbData.set(name, new Map())
+        const dbMap = idbData.get(name)!
+
+        const database: MockIDBDatabase = {
+          name,
+          version: v ?? 1,
+          objectStoreNames: [...dbMap.keys()],
+          close: vi.fn(),
+          createObjectStore: vi
+            .fn()
+            .mockImplementation((storeName: string, opts?: IDBObjectStoreParameters) => {
+              if (!dbMap.has(storeName)) dbMap.set(storeName, new Map())
+
+              const objectStore: MockIDBObjectStore = {
+                name: storeName,
+                keyPath: opts?.keyPath ?? null,
+                indexNames: [],
+                add: op(dbMap, storeName, opts),
+                put: op(dbMap, storeName, opts),
+                get: vi.fn((k) => createRequest(dbMap.get(storeName)!.get(k) ?? null)),
+                getAll: vi.fn(() => createRequest([...dbMap.get(storeName)!.values()])),
+                delete: vi.fn((k) => {
+                  dbMap.get(storeName)!.delete(k)
+                  return createRequest(undefined)
+                }),
+                clear: vi.fn(() => {
+                  dbMap.get(storeName)!.clear()
+                  return createRequest(undefined)
+                }),
+                count: vi.fn(() => createRequest(dbMap.get(storeName)!.size)),
+                createIndex: vi.fn(),
+                deleteIndex: vi.fn(),
+                index: vi.fn(),
+              }
+              return objectStore
+            }),
+          deleteObjectStore: vi.fn(),
+          transaction: vi
+            .fn()
+            .mockImplementation(
+              (stores: string | string[], mode: IDBTransactionMode = 'readonly') => {
+                const names = Array.isArray(stores) ? stores : [stores]
+                return {
+                  mode,
+                  objectStoreNames: names,
+                  error: null,
+                  abort: vi.fn(),
+                  objectStore: vi.fn((sn: string) => {
+                    if (!dbMap.has(sn)) throw new Error(`Store "${sn}" not found`)
+                    const s = dbMap.get(sn)!
+                    return {
+                      add: op(dbMap, sn),
+                      put: op(dbMap, sn),
+                      get: vi.fn((k) => createRequest(s.get(k) ?? null)),
+                      getAll: vi.fn(() => createRequest([...s.values()])),
+                      delete: vi.fn((k) => {
+                        s.delete(k)
+                        return createRequest(undefined)
+                      }),
+                      clear: vi.fn(() => {
+                        s.clear()
+                        return createRequest(undefined)
+                      }),
+                      count: vi.fn(() => createRequest(s.size)),
+                      index: vi.fn(),
+                    }
+                  }),
+                } as MockIDBTransaction
+              }
+            ),
+        }
+        return database
+      })()
+    )
+  }),
+
+  // deleteDatabase ------------------------------------------------------------
+  deleteDatabase: vi.fn().mockImplementation((name: string) => {
+    idbData.delete(name)
+    return createRequest(undefined)
+  }),
+
+  // cmp -----------------------------------------------------------------------
+  cmp: vi.fn((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
 }
 
-export interface MockIDBObjectStore {
-  name: string
-  keyPath: string | string[] | null
-  indexNames: string[]
-  add: vi.MockedFunction<(value: any, key?: any) => MockIDBRequest>
-  put: vi.MockedFunction<(value: any, key?: any) => MockIDBRequest>
-  get: vi.MockedFunction<(key: any) => MockIDBRequest>
-  getAll: vi.MockedFunction<(query?: any, count?: number) => MockIDBRequest>
-  delete: vi.MockedFunction<(key: any) => MockIDBRequest>
-  clear: vi.MockedFunction<() => MockIDBRequest>
-  count: vi.MockedFunction<(query?: any) => MockIDBRequest>
-  createIndex: vi.MockedFunction<
-    (name: string, keyPath: string | string[], options?: IDBIndexParameters) => MockIDBIndex
-  >
-  deleteIndex: vi.MockedFunction<(name: string) => void>
-  index: vi.MockedFunction<(name: string) => MockIDBIndex>
+// ---------------------------------------------------------------------------
+// - Public helpers
+// ---------------------------------------------------------------------------
+
+export const storageUtils = {
+  localStorage: buildStorageFacade(mockLocalStorage),
+  sessionStorage: buildStorageFacade(mockSessionStorage),
+
+  indexedDB: {
+    reset: () => idbData.clear(),
+    getDatabases: () => [...idbData.keys()],
+    getDatabase: (n: string) => idbData.get(n),
+    hasDatabase: (n: string) => idbData.has(n),
+    clearDatabase: (n: string) => idbData.get(n)?.clear(),
+  },
+
+  resetAll() {
+    mockLocalStorage.reset()
+    mockSessionStorage.reset()
+    idbData.clear()
+  },
+
+  simulateQuotaExceeded() {
+    const err = Object.assign(new Error('QuotaExceededError'), { name: 'QuotaExceededError' })
+    mockLocalStorage.setItem = vi.fn(() => {
+      throw err
+    })
+    mockSessionStorage.setItem = vi.fn(() => {
+      throw err
+    })
+  },
+
+  restoreNormalBehavior() {
+    mockLocalStorage.setItem = MockStorage.prototype.setItem.bind(mockLocalStorage)
+    mockSessionStorage.setItem = MockStorage.prototype.setItem.bind(mockSessionStorage)
+  },
+}
+
+// ---------------------------------------------------------------------------
+// - Environment setup / teardown
+// ---------------------------------------------------------------------------
+
+export const setupStorageMocks = () => {
+  Object.assign(global, {
+    localStorage: mockLocalStorage,
+    sessionStorage: mockSessionStorage,
+    indexedDB: mockIndexedDB,
+    IDBKeyRange: {
+      only: vi.fn(),
+      lowerBound: vi.fn(),
+      upperBound: vi.fn(),
+      bound: vi.fn(),
+    },
+  })
+  storageUtils.resetAll()
+}
+
+export const cleanupStorageMocks = () => {
+  storageUtils.resetAll()
+  storageUtils.restoreNormalBehavior()
+  vi.clearAllMocks()
+}
+
+// ---------------------------------------------------------------------------
+// - Extra test helpers
+// ---------------------------------------------------------------------------
+
+export const storageTestHelpers = {
+  expectLocalStorageUsed: (k: string, v?: string) =>
+    v ? expect(mockLocalStorage.getItem(k)).toBe(v) : expect(mockLocalStorage.has(k)).toBe(true),
+
+  expectSessionStorageUsed: (k: string, v?: string) =>
+    v
+      ? expect(mockSessionStorage.getItem(k)).toBe(v)
+      : expect(mockSessionStorage.has(k)).toBe(true),
+
+  expectIndexedDBAccessed: (db: string) =>
+    expect(mockIndexedDB.open).toHaveBeenCalledWith(db, expect.any(Number)),
+
+  waitForIndexedDB: (t = 50) => new Promise((r) => setTimeout(r, t)),
+
+  simulateStorageEvent: (k: string, newV: string | null, oldV: string | null) =>
+    mockLocalStorage.dispatchStorageEvent(k, newV, oldV),
+}
+
+// ---------------------------------------------------------------------------
+// - Type definitions (unchanged public surface)
+// ---------------------------------------------------------------------------
+
+export interface MockIDBRequest {
+  result: unknown
+  error: Error | null
+  readyState: 'pending' | 'done'
+  onsuccess: ((e: Event) => void) | null
+  onerror: ((e: Event) => void) | null
 }
 
 export interface MockIDBIndex {
   name: string
   keyPath: string | string[]
   unique: boolean
-  get: vi.MockedFunction<(key: any) => MockIDBRequest>
-  getAll: vi.MockedFunction<(query?: any, count?: number) => MockIDBRequest>
-  count: vi.MockedFunction<(query?: any) => MockIDBRequest>
+  get: ReturnType<typeof vi.fn>
+  getAll: ReturnType<typeof vi.fn>
+  count: ReturnType<typeof vi.fn>
+}
+
+export interface MockIDBObjectStore {
+  name: string
+  keyPath: string | string[] | null
+  indexNames: string[]
+  add: ReturnType<typeof vi.fn>
+  put: ReturnType<typeof vi.fn>
+  get: ReturnType<typeof vi.fn>
+  getAll: ReturnType<typeof vi.fn>
+  delete: ReturnType<typeof vi.fn>
+  clear: ReturnType<typeof vi.fn>
+  count: ReturnType<typeof vi.fn>
+  createIndex: ReturnType<typeof vi.fn>
+  deleteIndex: ReturnType<typeof vi.fn>
+  index: ReturnType<typeof vi.fn>
 }
 
 export interface MockIDBTransaction {
   mode: IDBTransactionMode
   objectStoreNames: string[]
   error: Error | null
-  abort: vi.MockedFunction<() => void>
-  objectStore: vi.MockedFunction<(name: string) => MockIDBObjectStore>
+  abort: ReturnType<typeof vi.fn>
+  objectStore: ReturnType<typeof vi.fn>
 }
 
-export interface MockIDBRequest {
-  result: any
-  error: Error | null
-  readyState: 'pending' | 'done'
-  onsuccess: ((event: Event) => void) | null
-  onerror: ((event: Event) => void) | null
-}
-
-// Mock IndexedDB data store
-const mockIDBData: Map<string, Map<string, Map<any, any>>> = new Map()
-
-// Helper function to create store operations (add/put)
-const createStoreOperation = (
-  store: Map<string, Map<any, any>>,
-  storeName: string,
-  options?: IDBObjectStoreParameters
-) => {
-  return vi.fn().mockImplementation((value: any, key?: any) => {
-    const storeData = store.get(storeName)!
-    const finalKey = key || (options?.keyPath ? value[options.keyPath as string] : Math.random())
-    storeData.set(finalKey, value)
-
-    const req: MockIDBRequest = {
-      result: finalKey,
-      error: null,
-      readyState: 'done',
-      onsuccess: null,
-      onerror: null,
-    }
-
-    setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-    return req
-  })
-}
-
-// Mock IndexedDB implementation
-export const mockIndexedDB = {
-  open: vi.fn().mockImplementation((name: string, version?: number) => {
-    const request: MockIDBRequest = {
-      result: null,
-      error: null,
-      readyState: 'pending',
-      onsuccess: null,
-      onerror: null,
-    }
-
-    // Simulate async operation
-    setTimeout(() => {
-      if (!mockIDBData.has(name)) {
-        mockIDBData.set(name, new Map())
-      }
-
-      const database: MockIDBDatabase = {
-        name,
-        version: version || 1,
-        objectStoreNames: Array.from(mockIDBData.get(name)!.keys()),
-        close: vi.fn(),
-        createObjectStore: vi
-          .fn()
-          .mockImplementation((storeName: string, options?: IDBObjectStoreParameters) => {
-            const store = mockIDBData.get(name)!
-            if (!store.has(storeName)) {
-              store.set(storeName, new Map())
-            }
-
-            const objectStore: MockIDBObjectStore = {
-              name: storeName,
-              keyPath: options?.keyPath || null,
-              indexNames: [],
-              add: createStoreOperation(store, storeName, options),
-              put: createStoreOperation(store, storeName, options),
-              get: vi.fn().mockImplementation((key: any) => {
-                const storeData = store.get(storeName)!
-                const value = storeData.get(key)
-
-                const req: MockIDBRequest = {
-                  result: value || undefined,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
-              getAll: vi.fn().mockImplementation((query?: any, count?: number) => {
-                const storeData = store.get(storeName)!
-                const values = Array.from(storeData.values())
-
-                const req: MockIDBRequest = {
-                  result: count ? values.slice(0, count) : values,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
-              delete: vi.fn().mockImplementation((key: any) => {
-                const storeData = store.get(storeName)!
-                storeData.delete(key)
-
-                const req: MockIDBRequest = {
-                  result: undefined,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
-              clear: vi.fn().mockImplementation(() => {
-                const storeData = store.get(storeName)!
-                storeData.clear()
-
-                const req: MockIDBRequest = {
-                  result: undefined,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
-              count: vi.fn().mockImplementation((query?: any) => {
-                const storeData = store.get(storeName)!
-
-                const req: MockIDBRequest = {
-                  result: storeData.size,
-                  error: null,
-                  readyState: 'done',
-                  onsuccess: null,
-                  onerror: null,
-                }
-
-                setTimeout(() => req.onsuccess?.(new Event('success')), 0)
-                return req
-              }),
-              createIndex: vi.fn(),
-              deleteIndex: vi.fn(),
-              index: vi.fn(),
-            }
-
-            return objectStore
-          }),
-        deleteObjectStore: vi.fn(),
-        transaction: vi
-          .fn()
-          .mockImplementation((storeNames: string | string[], mode?: IDBTransactionMode) => {
-            const names = Array.isArray(storeNames) ? storeNames : [storeNames]
-
-            const transaction: MockIDBTransaction = {
-              mode: mode || 'readonly',
-              objectStoreNames: names,
-              error: null,
-              abort: vi.fn(),
-              objectStore: vi.fn().mockImplementation((name: string) => {
-                return database.createObjectStore(name)
-              }),
-            }
-
-            return transaction
-          }),
-      }
-
-      request.result = database
-      request.readyState = 'done'
-      request.onsuccess?.(new Event('success'))
-    }, 0)
-
-    return request
-  }),
-
-  deleteDatabase: vi.fn().mockImplementation((name: string) => {
-    const request: MockIDBRequest = {
-      result: undefined,
-      error: null,
-      readyState: 'pending',
-      onsuccess: null,
-      onerror: null,
-    }
-
-    setTimeout(() => {
-      mockIDBData.delete(name)
-      request.readyState = 'done'
-      request.onsuccess?.(new Event('success'))
-    }, 0)
-
-    return request
-  }),
-
-  cmp: vi.fn().mockImplementation((a: any, b: any) => {
-    if (a < b) return -1
-    if (a > b) return 1
-    return 0
-  }),
-}
-
-// Storage utility functions
-export const storageUtils = {
-  // localStorage utilities
-  localStorage: {
-    get: (key: string) => mockLocalStorage.getItem(key),
-    set: (key: string, value: string) => mockLocalStorage.setItem(key, value),
-    remove: (key: string) => mockLocalStorage.removeItem(key),
-    clear: () => mockLocalStorage.clear(),
-    getAll: () => mockLocalStorage.getAll(),
-    keys: () => mockLocalStorage.keys(),
-    size: () => mockLocalStorage.size(),
-    has: (key: string) => mockLocalStorage.has(key),
-  },
-
-  // sessionStorage utilities
-  sessionStorage: {
-    get: (key: string) => mockSessionStorage.getItem(key),
-    set: (key: string, value: string) => mockSessionStorage.setItem(key, value),
-    remove: (key: string) => mockSessionStorage.removeItem(key),
-    clear: () => mockSessionStorage.clear(),
-    getAll: () => mockSessionStorage.getAll(),
-    keys: () => mockSessionStorage.keys(),
-    size: () => mockSessionStorage.size(),
-    has: (key: string) => mockSessionStorage.has(key),
-  },
-
-  // IndexedDB utilities
-  indexedDB: {
-    reset: () => {
-      mockIDBData.clear()
-    },
-    getDatabases: () => Array.from(mockIDBData.keys()),
-    getDatabase: (name: string) => mockIDBData.get(name),
-    hasDatabase: (name: string) => mockIDBData.has(name),
-    clearDatabase: (name: string) => {
-      const db = mockIDBData.get(name)
-      if (db) {
-        db.clear()
-      }
-    },
-  },
-
-  // Reset all storage
-  resetAll: () => {
-    mockLocalStorage.reset()
-    mockSessionStorage.reset()
-    mockIDBData.clear()
-  },
-
-  // Simulate storage quota exceeded
-  simulateQuotaExceeded: () => {
-    const error = new Error('QuotaExceededError')
-    error.name = 'QuotaExceededError'
-
-    mockLocalStorage.setItem = vi.fn().mockImplementation(() => {
-      throw error
-    })
-
-    mockSessionStorage.setItem = vi.fn().mockImplementation(() => {
-      throw error
-    })
-  },
-
-  // Restore normal storage behavior
-  restoreNormalBehavior: () => {
-    mockLocalStorage.setItem = MockStorage.prototype.setItem.bind(mockLocalStorage)
-    mockSessionStorage.setItem = MockStorage.prototype.setItem.bind(mockSessionStorage)
-  },
-}
-
-// Setup function to apply storage mocks
-export const setupStorageMocks = () => {
-  // Mock localStorage
-  Object.defineProperty(global, 'localStorage', {
-    value: mockLocalStorage,
-    writable: true,
-  })
-
-  // Mock sessionStorage
-  Object.defineProperty(global, 'sessionStorage', {
-    value: mockSessionStorage,
-    writable: true,
-  })
-
-  // Mock IndexedDB
-  Object.defineProperty(global, 'indexedDB', {
-    value: mockIndexedDB,
-    writable: true,
-  })
-
-  // Mock IDBKeyRange
-  Object.defineProperty(global, 'IDBKeyRange', {
-    value: {
-      only: vi.fn(),
-      lowerBound: vi.fn(),
-      upperBound: vi.fn(),
-      bound: vi.fn(),
-    },
-    writable: true,
-  })
-}
-
-// Test helpers
-export const storageTestHelpers = {
-  // Assert localStorage was used
-  expectLocalStorageUsed: (key: string, value?: string) => {
-    if (value) {
-      expect(mockLocalStorage.getItem(key)).toBe(value)
-    } else {
-      expect(mockLocalStorage.has(key)).toBe(true)
-    }
-  },
-
-  // Assert sessionStorage was used
-  expectSessionStorageUsed: (key: string, value?: string) => {
-    if (value) {
-      expect(mockSessionStorage.getItem(key)).toBe(value)
-    } else {
-      expect(mockSessionStorage.has(key)).toBe(true)
-    }
-  },
-
-  // Assert IndexedDB was accessed
-  expectIndexedDBAccessed: (dbName: string) => {
-    expect(mockIndexedDB.open).toHaveBeenCalledWith(dbName, expect.any(Number))
-  },
-
-  // Wait for IndexedDB operations
-  waitForIndexedDB: async (timeout = 100) => {
-    return new Promise((resolve) => setTimeout(resolve, timeout))
-  },
-
-  // Simulate storage events
-  simulateStorageEvent: (key: string, newValue: string | null, oldValue: string | null) => {
-    mockLocalStorage.dispatchStorageEvent(key, newValue, oldValue)
-  },
-}
-
-// Export setup function for easy integration
-export const setupLocalStorageMocks = () => {
-  setupStorageMocks()
-  storageUtils.resetAll()
-}
-
-// Cleanup function
-export const cleanupStorageMocks = () => {
-  storageUtils.resetAll()
-  storageUtils.restoreNormalBehavior()
-  vi.clearAllMocks()
+export interface MockIDBDatabase {
+  name: string
+  version: number
+  objectStoreNames: string[]
+  close: ReturnType<typeof vi.fn>
+  createObjectStore: ReturnType<typeof vi.fn>
+  deleteObjectStore: ReturnType<typeof vi.fn>
+  transaction: ReturnType<typeof vi.fn>
 }

@@ -1,22 +1,20 @@
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
 import RootLayout, { metadata } from './layout'
 
 // Mock next/font/google
-vi.mock('next/font/google', () => ({
-  Geist: vi.fn(() => ({
+mock('next/font/google', () => ({
+  Geist: mock(() => ({
     variable: '--font-geist-sans',
     subsets: ['latin'],
   })),
-  Geist_Mono: vi.fn(() => ({
+  Geist_Mono: mock(() => ({
     variable: '--font-geist-mono',
     subsets: ['latin'],
   })),
 }))
 
 // Mock next-themes
-vi.mock('next-themes', () => ({
+mock('next-themes', () => ({
   ThemeProvider: ({ children, ...props }: any) => (
     <div data-testid="theme-provider" {...props}>
       {children}
@@ -25,18 +23,18 @@ vi.mock('next-themes', () => ({
 }))
 
 // Mock error boundary
-vi.mock('@/components/error-boundary', () => ({
+mock('@/components/error-boundary', () => ({
   ErrorBoundary: ({ children }: any) => <div data-testid="error-boundary">{children}</div>,
 }))
 
 // Mock container
-vi.mock('./container', () => ({
+mock('./container', () => ({
   default: ({ children }: any) => <div data-testid="container">{children}</div>,
 }))
 
 // Mock CSS imports
-vi.mock('./globals.css', () => ({}))
-vi.mock('./streaming.css', () => ({}))
+mock('./globals.css', () => ({}))
+mock('./streaming.css', () => ({}))
 
 describe('RootLayout', () => {
   it('should render html structure with correct attributes', () => {

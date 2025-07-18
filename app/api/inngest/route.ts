@@ -41,7 +41,6 @@ const wrapHandler = (method: 'GET' | 'POST' | 'PUT') => {
     } catch (error) {
       // Handle JSON parsing errors gracefully
       if (error instanceof SyntaxError && error.message.includes('JSON')) {
-        console.log('[Inngest] Received request with invalid JSON body, returning success')
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },

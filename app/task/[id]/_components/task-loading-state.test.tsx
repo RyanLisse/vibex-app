@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { TaskLoadingState } from './task-loading-state'
+import { TaskLoadingState } from '@/app/task/[id]/_components/task-loading-state'
 
 // Mock the TextShimmer component
-vi.mock('@/components/ui/text-shimmer', () => ({
+mock('@/components/ui/text-shimmer', () => ({
   TextShimmer: ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <span className={className} data-testid="text-shimmer">
       {children}

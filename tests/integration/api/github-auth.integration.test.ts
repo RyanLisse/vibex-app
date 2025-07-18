@@ -29,7 +29,7 @@ describe('GitHub Auth API Integration Tests', () => {
 
   it('should handle missing environment variables gracefully', async () => {
     // Remove the environment variable to test error handling
-    delete process.env.GITHUB_CLIENT_ID
+    process.env.GITHUB_CLIENT_ID = undefined
 
     const response = await GET()
 

@@ -1,24 +1,24 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAnthropicAuth } from './use-anthropic-auth'
-import { useAuthBase } from './use-auth-base'
+import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
+import { useAuthBase } from '@/hooks/use-auth-base'
 
 // Mock the base auth hook
-vi.mock('./use-auth-base', () => ({
-  useAuthBase: vi.fn(),
+mock('./use-auth-base', () => ({
+  useAuthBase: mock(),
 }))
 
 describe('useAnthropicAuth', () => {
   const mockBaseAuth = {
     authenticated: false,
     loading: true,
-    login: vi.fn(),
-    logout: vi.fn(),
-    refresh: vi.fn(),
+    login: mock(),
+    logout: mock(),
+    refresh: mock(),
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     ;(useAuthBase as any).mockReturnValue(mockBaseAuth)
   })
 

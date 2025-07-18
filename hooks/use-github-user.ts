@@ -46,10 +46,11 @@ export function useGitHubUser(): UseGitHubUserReturn {
   const parseUserCookie = useCallback((): GitHubUser | null => {
     try {
       const userCookie = parseCookieValue('github_user')
-      if (!userCookie) return null
+      if (!userCookie) {
+        return null
+      }
       return JSON.parse(userCookie)
-    } catch (error) {
-      console.error('Error parsing user cookie:', error)
+    } catch (_error) {
       return null
     }
   }, [])
@@ -84,7 +85,9 @@ export function useGitHubUser(): UseGitHubUserReturn {
           setUnauthenticatedState()
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') return
+        if (error instanceof Error && error.name === 'AbortError') {
+          return
+        }
         throw error
       }
     },
@@ -96,8 +99,7 @@ export function useGitHubUser(): UseGitHubUserReturn {
       try {
         updateAuthState({ isLoading: true })
         await validateAuth(signal)
-      } catch (error) {
-        console.error('Error checking auth status:', error)
+      } catch (_error) {
         setUnauthenticatedState()
       } finally {
         if (!signal.aborted) {
@@ -162,7 +164,9 @@ export function useGitHubUser(): UseGitHubUserReturn {
     try {
       updateAuthState({ isLoading: true, error: null })
       const popup = await openAuthPopup()
-      if (popup) monitorPopup(popup)
+      if (popup) {
+        monitorPopup(popup)
+      }
     } catch (error) {
       updateAuthState({
         error: error instanceof Error ? error.message : 'Authentication failed',

@@ -219,7 +219,9 @@ export const getFieldError = (
   error: z.ZodFlattenedError<unknown> | null,
   field: string
 ): string | undefined => {
-  if (!error?.fieldErrors) return
+  if (!error?.fieldErrors) {
+    return
+  }
   const fieldErrors = error.fieldErrors[field]
   return Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors
 }

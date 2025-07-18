@@ -1,5 +1,5 @@
 // Public API exports for the example feature
-export { ExampleItem } from './components/ExampleItem'
+export { ExampleItem } from '@/src/features/example-feature/components/ExampleItem'
 export {
   exampleFilterSchema,
   exampleFormSchema,

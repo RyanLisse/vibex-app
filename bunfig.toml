@@ -1,0 +1,33 @@
+[test]
+# Bun test configuration
+coverage = true
+timeout = 10000
+bail = 1
+verbose = true
+environment = "happy-dom"
+setup = ["./bun-test-setup.ts"]
+
+# Test file patterns
+include = [
+  "**/*.test.{js,jsx,ts,tsx}",
+  "!tests/integration/**",
+  "!tests/e2e/**",
+  "!**/node_modules/**"
+]
+
+exclude = [
+  "tests/integration/**",
+  "tests/e2e/**",
+  "node_modules/**",
+  "dist/**",
+  ".next/**",
+  "coverage/**",
+  "**/*.integration.test.{js,jsx,ts,tsx}",
+  "**/*.e2e.test.{js,jsx,ts,tsx}",
+  "**/*.stories.{js,jsx,ts,tsx}",
+  "**/*.config.{js,ts}"
+]
+
+# Mock configuration
+mock = true
+mockReset = true

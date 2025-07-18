@@ -1,6 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it } from 'vitest'
 import {
   Table,
   TableBody,
@@ -220,7 +218,7 @@ describe('Table Components', () => {
     })
 
     it('should handle onClick events', () => {
-      const handleClick = vi.fn()
+      const handleClick = mock()
       render(
         <table>
           <tbody>
@@ -445,7 +443,7 @@ describe('Table Components', () => {
           <TableHeader>
             <TableRow>
               <TableHead>
-                <input role="checkbox" type="checkbox" />
+                <input aria-label="Select all" type="checkbox" />
               </TableHead>
               <TableHead>Name</TableHead>
             </TableRow>
@@ -453,7 +451,7 @@ describe('Table Components', () => {
           <TableBody>
             <TableRow>
               <TableCell>
-                <input role="checkbox" type="checkbox" />
+                <input aria-label="Select row" type="checkbox" />
               </TableCell>
               <TableCell>John Doe</TableCell>
             </TableRow>

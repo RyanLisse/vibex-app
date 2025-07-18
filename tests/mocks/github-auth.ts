@@ -1,7 +1,7 @@
 // GitHub Authentication Mocking Utilities
 // Comprehensive mocking for GitHub OAuth and API operations
 
-import { vi } from 'vitest'
+import { expect, vi } from 'vitest'
 
 // Mock GitHub user data
 export interface MockGitHubUser {
@@ -124,7 +124,16 @@ export const mockGitHubOAuth = {
 }
 
 // Mock GitHub API client
-export const mockGitHubAPI = {
+export const mockGitHubAPI: Record<string, ReturnType<typeof vi.fn> | (() => void)> & {
+  getUser: ReturnType<typeof vi.fn>
+  getRepositories: ReturnType<typeof vi.fn>
+  getRepository: ReturnType<typeof vi.fn>
+  getBranches: ReturnType<typeof vi.fn>
+  getBranch: ReturnType<typeof vi.fn>
+  getOrganizations: ReturnType<typeof vi.fn>
+  getRateLimit: ReturnType<typeof vi.fn>
+  simulateRateLimit: () => void
+} = {
   // User operations
   getUser: vi.fn().mockImplementation((token?: string) => {
     if (!(token || mockAuthState.isAuthenticated)) {
@@ -185,6 +194,20 @@ export const mockGitHubAPI = {
       reset: Date.now() + 3_600_000, // 1 hour from now
     },
   }),
+
+  simulateRateLimit: () => {
+    const rateLimitError = new Error('API rate limit exceeded')
+    for (const method of Object.keys(mockGitHubAPI)) {
+      if (
+        typeof mockGitHubAPI[method as keyof typeof mockGitHubAPI] === 'function' &&
+        method !== 'simulateRateLimit'
+      ) {
+        ;(
+          mockGitHubAPI[method as keyof typeof mockGitHubAPI] as ReturnType<typeof vi.fn>
+        ).mockRejectedValueOnce(rateLimitError)
+      }
+    }
+  },
 }
 
 // Test data generators
@@ -348,20 +371,22 @@ export const githubStateUtils = {
   },
 
   // Simulate API errors
-  simulateAPIError: (method: string, error: Error) => {
-    if (mockGitHubAPI[method]) {
-      mockGitHubAPI[method].mockRejectedValueOnce(error)
+  simulateAPIError: (method: keyof typeof mockGitHubAPI, error: Error) => {
+    const mockFn = mockGitHubAPI[method];
+    if (typeof mockFn === 'function' && 'mockRejectedValueOnce' in mockFn) {
+      (mockFn as ReturnType<typeof vi.fn>).mockRejectedValueOnce(error);
     }
   },
 
   // Simulate rate limiting
   simulateRateLimit: () => {
-    const rateLimitError = new Error('API rate limit exceeded')
-    Object.keys(mockGitHubAPI).forEach((method) => {
-      if (typeof mockGitHubAPI[method] === 'function') {
-        mockGitHubAPI[method].mockRejectedValueOnce(rateLimitError)
+    const rateLimitError = new Error('API rate limit exceeded');
+    for (const method of Object.keys(mockGitHubAPI)) {
+      const mockFn = mockGitHubAPI[method as keyof typeof mockGitHubAPI];
+      if (typeof mockFn === 'function' && 'mockRejectedValueOnce' in mockFn) {
+        (mockFn as ReturnType<typeof vi.fn>).mockRejectedValueOnce(rateLimitError);
       }
-    })
+    }
   },
 }
 
@@ -384,6 +409,7 @@ export const setupGitHubMocks = () => {
 }
 
 // Test helpers for GitHub testing
+// biome-ignore lint/correctness: Test helpers are designed to contain assertions.
 export const githubTestHelpers = {
   // Assert authentication
   expectAuthenticated: () => {
@@ -400,7 +426,7 @@ export const githubTestHelpers = {
   },
 
   // Assert API call was made
-  expectAPICalled: (method: string, ...args: any[]) => {
+  expectAPICalled: (method: string, ...args: unknown[]) => {
     expect(mockGitHubAPI[method]).toHaveBeenCalledWith(...args)
   },
 
@@ -416,7 +442,7 @@ export const githubTestHelpers = {
   },
 
   // Wait for authentication
-  waitForAuth: async (timeout = 1000) => {
+  waitForAuth: (timeout = 1000) => {
     return new Promise((resolve, reject) => {
       const checkAuth = () => {
         if (mockAuthState.isAuthenticated) {

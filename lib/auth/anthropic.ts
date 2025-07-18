@@ -1,5 +1,5 @@
 import { generatePKCE } from '@openauthjs/openauth/pkce'
-import { Auth } from './index'
+import { Auth } from '@/lib/auth/index'
 
 const CLIENT_ID = '9d1c250a-e61b-44d9-88ed-5944d1962f5e'
 
@@ -41,7 +41,9 @@ export const AuthAnthropic = {
         code_verifier: verifier,
       }),
     })
-    if (!result.ok) throw new ExchangeFailed()
+    if (!result.ok) {
+      throw new ExchangeFailed()
+    }
     const json = await result.json()
     return {
       refresh: json.refresh_token as string,
@@ -52,8 +54,12 @@ export const AuthAnthropic = {
 
   async access() {
     const info = await Auth.get('anthropic')
-    if (!info || info.type !== 'oauth') return
-    if (info.access && info.expires > Date.now()) return info.access
+    if (!info || info.type !== 'oauth') {
+      return
+    }
+    if (info.access && info.expires > Date.now()) {
+      return info.access
+    }
 
     const response = await fetch('https://console.anthropic.com/v1/oauth/token', {
       method: 'POST',
@@ -66,7 +72,9 @@ export const AuthAnthropic = {
         client_id: CLIENT_ID,
       }),
     })
-    if (!response.ok) return
+    if (!response.ok) {
+      return
+    }
     const json = await response.json()
     await Auth.set('anthropic', {
       type: 'oauth',

@@ -30,7 +30,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for microphone-related elements
-    const micElements = page.locator(
+    const _micElements = page.locator(
       '[data-testid*="mic"], [class*="mic"], button[aria-label*="microphone"]'
     )
 
@@ -42,7 +42,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for recording controls
-    const recordingControls = page.locator(
+    const _recordingControls = page.locator(
       '[data-testid*="record"], [class*="record"], button[aria-label*="record"]'
     )
 
@@ -54,7 +54,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for playback controls
-    const playbackControls = page.locator(
+    const _playbackControls = page.locator(
       '[data-testid*="play"], [class*="play"], button[aria-label*="play"]'
     )
 
@@ -66,7 +66,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for audio visualization elements
-    const visualizationElements = page.locator(
+    const _visualizationElements = page.locator(
       '[data-testid*="visualization"], [class*="visualization"], canvas, svg'
     )
 
@@ -78,7 +78,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for chat message elements
-    const messageElements = page.locator(
+    const _messageElements = page.locator(
       '[data-testid*="message"], [class*="message"], [role="log"]'
     )
 
@@ -155,7 +155,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for audio quality controls
-    const qualityControls = page.locator('[data-testid*="quality"], [class*="quality"], select')
+    const _qualityControls = page.locator('[data-testid*="quality"], [class*="quality"], select')
 
     // Should provide audio quality settings
     await expect(page.locator('body')).toBeVisible()
@@ -165,7 +165,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for voice activity indicators
-    const voiceActivityElements = page.locator(
+    const _voiceActivityElements = page.locator(
       '[data-testid*="voice"], [class*="voice"], [class*="activity"]'
     )
 
@@ -177,7 +177,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for conversation history elements
-    const historyElements = page.locator(
+    const _historyElements = page.locator(
       '[data-testid*="history"], [class*="history"], [role="log"]'
     )
 
@@ -189,7 +189,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for loading indicators
-    const loadingElements = page.locator(
+    const _loadingElements = page.locator(
       '[data-testid*="loading"], [class*="loading"], [aria-busy="true"]'
     )
 
@@ -201,7 +201,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for transcription elements
-    const transcriptionElements = page.locator(
+    const _transcriptionElements = page.locator(
       '[data-testid*="transcription"], [class*="transcription"]'
     )
 
@@ -213,7 +213,7 @@ test.describe('GeminiAudioChat Component E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Check for accessibility attributes
-    const accessibleElements = page.locator('[aria-label], [role], [aria-describedby]')
+    const _accessibleElements = page.locator('[aria-label], [role], [aria-describedby]')
 
     // Should have accessibility features
     await expect(page.locator('body')).toBeVisible()

@@ -155,12 +155,11 @@ export const getStagehandConfig = () => {
     enableTracing: !isProd,
 
     // Custom logger for better debugging
-    logger: (message: string, level: 'info' | 'warn' | 'error' = 'info') => {
+    logger: (_message: string, level: 'info' | 'warn' | 'error' = 'info') => {
       const timestamp = new Date().toISOString()
-      const prefix = `[${timestamp}] [Stagehand:${level.toUpperCase()}]`
+      const _prefix = `[${timestamp}] [Stagehand:${level.toUpperCase()}]`
 
       if (process.env.STAGEHAND_DEBUG === 'true' || !isProd) {
-        console.log(`${prefix} ${message}`)
       }
     },
 
@@ -218,13 +217,15 @@ export const TestUtils = {
       const isStable = await stagehand.observe({
         description: 'page content is stable and fully loaded',
       })
-      if (isStable) return
+      if (isStable) {
+        return
+      }
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
     throw new Error('Page did not stabilize within timeout')
   },
 
-  async measurePerformance(stagehand: any, action: () => Promise<void>) {
+  async measurePerformance(_stagehand: any, action: () => Promise<void>) {
     const start = performance.now()
     await action()
     const duration = performance.now() - start
@@ -259,7 +260,7 @@ export const TestUtils = {
   },
 
   async captureMetrics(
-    stagehand: any,
+    _stagehand: any,
     testName: string,
     actions: any[]
   ): Promise<z.infer<typeof TestMetricsSchema>> {

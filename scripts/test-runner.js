@@ -4,8 +4,8 @@
  * Test runner script that ensures proper cleanup and prevents hanging
  */
 
-const { spawn } = require('child_process')
-const path = require('path')
+const { spawn } = require('node:child_process')
+const _path = require('node:path')
 
 // Set test environment variables
 process.env.NODE_ENV = 'test'
@@ -16,9 +16,6 @@ const args = process.argv.slice(2)
 
 // Add default arguments for better test execution
 const vitestArgs = ['vitest', '--run', '--reporter=basic', ...args]
-
-console.log('Running tests with vitest...')
-console.log('Command:', 'bunx', vitestArgs.join(' '))
 
 const child = spawn('bunx', vitestArgs, {
   cwd: process.cwd(),
@@ -33,10 +30,10 @@ const child = spawn('bunx', vitestArgs, {
 let isExiting = false
 
 function cleanup(code = 0) {
-  if (isExiting) return
+  if (isExiting) {
+    return
+  }
   isExiting = true
-
-  console.log('\nCleaning up test environment...')
 
   // Kill the child process if it's still running
   if (!child.killed) {
@@ -66,14 +63,12 @@ child.on('close', (code) => {
   cleanup(code || 0)
 })
 
-child.on('error', (err) => {
-  console.error('Failed to start test runner:', err)
+child.on('error', (_err) => {
   cleanup(1)
 })
 
 // Set a hard timeout to prevent hanging forever
 const TIMEOUT = 5 * 60 * 1000 // 5 minutes
 setTimeout(() => {
-  console.error('\n⚠️  Tests timed out after 5 minutes!')
   cleanup(1)
 }, TIMEOUT)

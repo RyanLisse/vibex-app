@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import {
   type ContactForm,
   contactFormSchema,
@@ -167,7 +167,7 @@ describe('contactFormSchema', () => {
   })
 
   it('should reject too many attachments', () => {
-    const files = Array(6)
+    const files = new Array(6)
       .fill(null)
       .map((_, i) => new File(['content'], `test${i}.txt`, { type: 'text/plain' }))
     const contactWithTooManyAttachments = { ...validContact, attachments: files }

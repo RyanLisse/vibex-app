@@ -253,7 +253,7 @@ const processCitations = (content: string, repoUrl?: string, branch?: string): s
   // Match citations in format 【F:filename†L1-L1】
   const citationRegex = /【F:([^†]+)†L(\d+)-L(\d+)】/g
 
-  return content.replace(citationRegex, (match, filename, startLine, endLine) => {
+  return content.replace(citationRegex, (_match, filename, startLine, endLine) => {
     const displayText =
       startLine === endLine ? `${filename}:${startLine}` : `${filename}:${startLine}-${endLine}`
 

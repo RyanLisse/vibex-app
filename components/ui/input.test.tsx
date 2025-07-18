@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
-import { Input } from './input'
+import { Input } from '@/components/ui/input'
 
 describe('Input', () => {
   it('should render input element', () => {
@@ -92,7 +91,7 @@ describe('Input', () => {
   })
 
   it('should handle onChange events', () => {
-    const handleChange = vi.fn()
+    const handleChange = mock()
     render(<Input data-testid="input" onChange={handleChange} />)
 
     const input = screen.getByTestId('input')
@@ -109,7 +108,7 @@ describe('Input', () => {
   })
 
   it('should handle onFocus events', () => {
-    const handleFocus = vi.fn()
+    const handleFocus = mock()
     render(<Input data-testid="input" onFocus={handleFocus} />)
 
     const input = screen.getByTestId('input')
@@ -119,7 +118,7 @@ describe('Input', () => {
   })
 
   it('should handle onBlur events', () => {
-    const handleBlur = vi.fn()
+    const handleBlur = mock()
     render(<Input data-testid="input" onBlur={handleBlur} />)
 
     const input = screen.getByTestId('input')
@@ -129,7 +128,7 @@ describe('Input', () => {
   })
 
   it('should handle onKeyDown events', () => {
-    const handleKeyDown = vi.fn()
+    const handleKeyDown = mock()
     render(<Input data-testid="input" onKeyDown={handleKeyDown} />)
 
     const input = screen.getByTestId('input')

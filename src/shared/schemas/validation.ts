@@ -44,7 +44,7 @@ export const PhoneSchema = z
 export const DateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
-  .refine((date) => !isNaN(Date.parse(date)), {
+  .refine((date) => !Number.isNaN(Date.parse(date)), {
     message: 'Please enter a valid date',
   })
 

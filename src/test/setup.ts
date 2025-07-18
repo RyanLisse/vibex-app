@@ -27,7 +27,6 @@ beforeAll(() => {
 // Mock IntersectionObserver
 beforeAll(() => {
   global.IntersectionObserver = class IntersectionObserver {
-    constructor() {}
     disconnect() {}
     observe() {}
     unobserve() {}
@@ -37,7 +36,6 @@ beforeAll(() => {
 // Mock ResizeObserver
 beforeAll(() => {
   global.ResizeObserver = class ResizeObserver {
-    constructor() {}
     disconnect() {}
     observe() {}
     unobserve() {}
@@ -58,3 +56,5 @@ beforeAll(() => {
 afterEach(() => {
   console.error = originalError
 })
+
+export { originalError }

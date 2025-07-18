@@ -1,24 +1,23 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { userEvent } from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import userEvent from "@testing-library/user-event";
 import { createTaskAction } from '@/app/actions/inngest'
 import type { Task } from '@/stores/tasks'
 import { useTaskStore } from '@/stores/tasks'
-import MessageInput from './message-input'
+import MessageInput from '@/app/task/[id]/_components/message-input'
 
 // Mock the actions and store
-vi.mock('@/app/actions/inngest', () => ({
-  createTaskAction: vi.fn(),
+mock('@/app/actions/inngest', () => ({
+  createTaskAction: mock(),
 }))
 
-vi.mock('@/stores/tasks', () => ({
-  useTaskStore: vi.fn(),
+mock('@/stores/tasks', () => ({
+  useTaskStore: mock(),
 }))
 
 // Mock crypto.randomUUID
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: vi.fn(() => 'test-uuid-123'),
+    randomUUID: mock(() => 'test-uuid-123'),
   },
 })
 
@@ -39,31 +38,31 @@ describe('MessageInput', () => {
     hasChanges: false,
   }
 
-  const mockUpdateTask = vi.fn()
+  const mockUpdateTask = mock()
   const user = userEvent.setup()
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useTaskStore).mockReturnValue({
+    mock.restore()
+    mocked(useTaskStore).mockReturnValue({
       updateTask: mockUpdateTask,
       tasks: [mockTask],
-      addTask: vi.fn(),
-      setTasks: vi.fn(),
-      removeTask: vi.fn(),
-      archiveTask: vi.fn(),
-      unarchiveTask: vi.fn(),
-      pauseTask: vi.fn(),
-      resumeTask: vi.fn(),
-      cancelTask: vi.fn(),
-      clear: vi.fn(),
-      getTasks: vi.fn(),
-      getActiveTasks: vi.fn(),
-      getArchivedTasks: vi.fn(),
-      getTaskById: vi.fn(),
-      getTasksByStatus: vi.fn(),
-      getTasksBySessionId: vi.fn(),
+      addTask: mock(),
+      setTasks: mock(),
+      removeTask: mock(),
+      archiveTask: mock(),
+      unarchiveTask: mock(),
+      pauseTask: mock(),
+      resumeTask: mock(),
+      cancelTask: mock(),
+      clear: mock(),
+      getTasks: mock(),
+      getActiveTasks: mock(),
+      getArchivedTasks: mock(),
+      getTaskById: mock(),
+      getTasksByStatus: mock(),
+      getTasksBySessionId: mock(),
     })
-    vi.mocked(createTaskAction).mockResolvedValue()
+    mocked(createTaskAction).mockResolvedValue()
   })
 
   it('should render message input with placeholder', () => {

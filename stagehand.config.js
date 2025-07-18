@@ -155,12 +155,11 @@ const getStagehandConfig = () => {
     enableTracing: !isProd,
 
     // Custom logger for better debugging
-    logger: (message, level = 'info') => {
+    logger: (_message, level = 'info') => {
       const timestamp = new Date().toISOString()
-      const prefix = `[${timestamp}] [Stagehand:${level.toUpperCase()}]`
+      const _prefix = `[${timestamp}] [Stagehand:${level.toUpperCase()}]`
 
       if (process.env.STAGEHAND_DEBUG === 'true' || !isProd) {
-        console.log(`${prefix} ${message}`)
       }
     },
 
@@ -215,13 +214,15 @@ const TestUtils = {
       const isStable = await stagehand.observe({
         description: 'page content is stable and fully loaded',
       })
-      if (isStable) return
+      if (isStable) {
+        return
+      }
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
     throw new Error('Page did not stabilize within timeout')
   },
 
-  async measurePerformance(stagehand, action) {
+  async measurePerformance(_stagehand, action) {
     const start = performance.now()
     await action()
     const duration = performance.now() - start
@@ -251,7 +252,7 @@ const TestUtils = {
     return AccessibilityDataSchema.parse(JSON.parse(data))
   },
 
-  async captureMetrics(stagehand, testName, actions) {
+  async captureMetrics(_stagehand, testName, actions) {
     return TestMetricsSchema.parse({
       testName,
       duration: actions.reduce((sum, action) => sum + action.duration, 0),

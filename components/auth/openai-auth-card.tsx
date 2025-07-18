@@ -3,7 +3,7 @@
 import { CreditCard, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
-import { AuthCardBase } from './auth-card-base'
+import { AuthCardBase } from '@/components/auth/auth-card-base'
 
 export function OpenAIAuthCard() {
   const { authenticated, loading, login, logout, expires_at, user, error } = useOpenAIAuth()

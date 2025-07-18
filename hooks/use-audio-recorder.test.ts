@@ -1,6 +1,6 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAudioRecorder } from './use-audio-recorder'
+import { useAudioRecorder } from '@/hooks/use-audio-recorder'
 
 // Mock MediaRecorder
 class MockMediaRecorder {
@@ -38,7 +38,7 @@ class MockMediaRecorder {
 }
 
 // Mock getUserMedia
-const mockGetUserMedia = vi.fn()
+const mockGetUserMedia = mock()
 
 // Setup global mocks
 global.MediaRecorder = MockMediaRecorder as any
@@ -50,14 +50,14 @@ global.navigator = {
 } as any
 
 // Mock URL.createObjectURL
-global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
-global.URL.revokeObjectURL = vi.fn()
+global.URL.createObjectURL = mock(() => 'blob:mock-url')
+global.URL.revokeObjectURL = mock()
 
 describe('useAudioRecorder', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockGetUserMedia.mockResolvedValue({
-      getTracks: () => [{ stop: vi.fn() }],
+      getTracks: () => [{ stop: mock() }],
     })
   })
 
@@ -148,7 +148,7 @@ describe('useAudioRecorder', () => {
   })
 
   it('should track recording time', async () => {
-    vi.useFakeTimers()
+    mock.useFakeTimers()
     const { result } = renderHook(() => useAudioRecorder())
 
     await act(async () => {
@@ -158,13 +158,13 @@ describe('useAudioRecorder', () => {
     expect(result.current.recordingTime).toBe(0)
 
     act(() => {
-      vi.advanceTimersByTime(1000)
+      mock.advanceTimersByTime(1000)
     })
 
     expect(result.current.recordingTime).toBe(1)
 
     act(() => {
-      vi.advanceTimersByTime(2000)
+      mock.advanceTimersByTime(2000)
     })
 
     expect(result.current.recordingTime).toBe(3)
@@ -173,7 +173,7 @@ describe('useAudioRecorder', () => {
       await result.current.stopRecording()
     })
 
-    vi.useRealTimers()
+    mock.useRealTimers()
   })
 
   it('should clear recording', async () => {
@@ -219,7 +219,7 @@ describe('useAudioRecorder', () => {
   })
 
   it('should handle maximum recording duration', async () => {
-    vi.useFakeTimers()
+    mock.useFakeTimers()
     const { result } = renderHook(() => useAudioRecorder({ maxDuration: 5 }))
 
     await act(async () => {
@@ -229,13 +229,13 @@ describe('useAudioRecorder', () => {
     expect(result.current.isRecording).toBe(true)
 
     act(() => {
-      vi.advanceTimersByTime(6000) // 6 seconds
+      mock.advanceTimersByTime(6000) // 6 seconds
     })
 
     expect(result.current.isRecording).toBe(false)
     expect(result.current.recordingTime).toBe(5)
 
-    vi.useRealTimers()
+    mock.useRealTimers()
   })
 
   it('should download audio file', async () => {
@@ -243,9 +243,9 @@ describe('useAudioRecorder', () => {
     const mockAnchor = {
       href: '',
       download: '',
-      click: vi.fn(),
+      click: mock(),
     }
-    vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
+    mock.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
 
     const { result } = renderHook(() => useAudioRecorder())
 
@@ -270,7 +270,7 @@ describe('useAudioRecorder', () => {
     // Mock Audio constructor
     const mockAudio = {
       src: '',
-      addEventListener: vi.fn((event, callback) => {
+      addEventListener: mock((event, callback) => {
         if (event === 'loadedmetadata') {
           mockAudio.duration = 10.5
           callback()
@@ -278,7 +278,7 @@ describe('useAudioRecorder', () => {
       }),
       duration: 0,
     }
-    global.Audio = vi.fn(() => mockAudio) as any
+    global.Audio = mock(() => mockAudio) as any
 
     const { result } = renderHook(() => useAudioRecorder())
 
@@ -306,7 +306,7 @@ describe('useAudioRecorder', () => {
 
     // Simulate MediaRecorder error
     act(() => {
-      if (result.current.mediaRecorder && result.current.mediaRecorder.onerror) {
+      if (result.current.mediaRecorder?.onerror) {
         result.current.mediaRecorder.onerror(new Error('Recording failed'))
       }
     })
@@ -347,7 +347,7 @@ describe('useAudioRecorder', () => {
   })
 
   it('should handle stream cleanup on unmount', async () => {
-    const mockStop = vi.fn()
+    const mockStop = mock()
     mockGetUserMedia.mockResolvedValue({
       getTracks: () => [{ stop: mockStop }],
     })
@@ -376,11 +376,11 @@ describe('useAudioRecorder', () => {
 
     // Mock FileReader
     const mockFileReader = {
-      readAsDataURL: vi.fn(),
+      readAsDataURL: mock(),
       onload: null as any,
       result: 'data:audio/webm;base64,mockBase64Data',
     }
-    global.FileReader = vi.fn(() => mockFileReader) as any
+    global.FileReader = mock(() => mockFileReader) as any
 
     const base64Promise = result.current.getAudioBase64()
 

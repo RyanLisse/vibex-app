@@ -1,12 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import NewTaskForm from './new-task-form'
+import NewTaskForm from '@/components/forms/new-task-form'
 
 // Mock the dependencies
-const mockAddTask = vi.fn()
-const mockFetchBranches = vi.fn()
-const mockCreateTaskAction = vi.fn()
+const mockAddTask = mock()
+const mockFetchBranches = mock()
+const mockCreateTaskAction = mock()
 
 const mockEnvironments = [
   { id: 'env1', githubRepository: 'owner/repo1' },
@@ -19,37 +17,37 @@ const mockBranches = [
   { name: 'feature/test', isDefault: false },
 ]
 
-vi.mock('@/stores/environments', () => ({
+mock('@/stores/environments', () => ({
   useEnvironmentStore: () => ({
     environments: mockEnvironments,
   }),
 }))
 
-vi.mock('@/stores/tasks', () => ({
+mock('@/stores/tasks', () => ({
   useTaskStore: () => ({
     addTask: mockAddTask,
   }),
 }))
 
-vi.mock('@/hooks/use-github-auth', () => ({
+mock('@/hooks/use-github-auth', () => ({
   useGitHubAuth: () => ({
     branches: mockBranches,
     fetchBranches: mockFetchBranches,
   }),
 }))
 
-vi.mock('@/app/actions/inngest', () => ({
+mock('@/app/actions/inngest', () => ({
   createTaskAction: mockCreateTaskAction,
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   HardDrive: ({ ...props }: any) => <svg data-testid="hard-drive-icon" {...props} />,
   Split: ({ ...props }: any) => <svg data-testid="split-icon" {...props} />,
 }))
 
 // Mock UI components
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button
       className={className}
@@ -63,13 +61,10 @@ vi.mock('@/components/ui/button', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/select', () => ({
+mock('@/components/ui/select', () => ({
   Select: ({ children, onValueChange, value, ...props }: any) => (
     <div data-testid="select" data-value={value} {...props}>
-      <button
-        data-testid="select-trigger"
-        onClick={() => onValueChange && onValueChange('test-value')}
-      >
+      <button data-testid="select-trigger" onClick={() => onValueChange?.('test-value')}>
         Select Trigger
       </button>
       {children}
@@ -97,7 +92,7 @@ vi.mock('@/components/ui/select', () => ({
   ),
 }))
 
-vi.mock('next/link', () => ({
+mock('next/link', () => ({
   default: ({ children, href, passHref, ...props }: any) => (
     <a data-testid="link" href={href} {...props}>
       {children}
@@ -107,13 +102,13 @@ vi.mock('next/link', () => ({
 
 describe('NewTaskForm', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockAddTask.mockReturnValue({ id: 'task-123' })
     mockCreateTaskAction.mockResolvedValue({ success: true })
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should render the form title', () => {
@@ -139,7 +134,7 @@ describe('NewTaskForm', () => {
   })
 
   it('should render create environment link when no environments exist', () => {
-    vi.mocked(require('@/stores/environments').useEnvironmentStore).mockReturnValue({
+    mocked(require('@/stores/environments').useEnvironmentStore).mockReturnValue({
       environments: [],
     })
 
@@ -284,7 +279,7 @@ describe('NewTaskForm', () => {
   })
 
   it('should handle environment without repository', () => {
-    vi.mocked(require('@/stores/environments').useEnvironmentStore).mockReturnValue({
+    mocked(require('@/stores/environments').useEnvironmentStore).mockReturnValue({
       environments: [{ id: 'env1' }],
     })
 
@@ -294,7 +289,7 @@ describe('NewTaskForm', () => {
   })
 
   it('should handle branches without default', () => {
-    vi.mocked(require('@/hooks/use-github-auth').useGitHubAuth).mockReturnValue({
+    mocked(require('@/hooks/use-github-auth').useGitHubAuth).mockReturnValue({
       branches: [{ name: 'develop', isDefault: false }],
       fetchBranches: mockFetchBranches,
     })

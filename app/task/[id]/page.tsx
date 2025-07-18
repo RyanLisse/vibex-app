@@ -1,4 +1,4 @@
-import TaskClientPage from './client-page'
+import TaskClientPage from '@/app/task/[id]/client-page'
 
 interface Props {
   params: Promise<{ id: string }>

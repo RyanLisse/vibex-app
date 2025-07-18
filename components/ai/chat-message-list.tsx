@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils'
 interface ChatMessageListProps {
   messages: GeminiAudioMessage[]
   scrollAreaRef: React.RefObject<HTMLDivElement>
-  onAudioPlay?: (audioUrl: string) => void
+  onAudioPlay?: (audioUrl: string, messageId: string) => void
+  playingMessageId?: string | null
   className?: string
 }
 
@@ -16,13 +17,15 @@ const ChatMessage = memo(
   ({
     message,
     onAudioPlay,
+    isPlaying,
   }: {
     message: GeminiAudioMessage
-    onAudioPlay?: (audioUrl: string) => void
+    onAudioPlay?: (audioUrl: string, messageId: string) => void
+    isPlaying?: boolean
   }) => {
     const handleAudioPlay = () => {
       if (message.audioUrl && onAudioPlay) {
-        onAudioPlay(message.audioUrl)
+        onAudioPlay(message.audioUrl, message.id)
       }
     }
 
@@ -40,7 +43,12 @@ const ChatMessage = memo(
         >
           {message.type === 'audio' && message.audioUrl ? (
             <div className="flex items-center gap-2">
-              <VolumeIcon className="h-4 w-4 flex-shrink-0" />
+              <VolumeIcon
+                className={cn(
+                  'h-4 w-4 flex-shrink-0',
+                  isPlaying ? 'animate-pulse text-green-500' : 'text-muted-foreground'
+                )}
+              />
               <audio
                 className="h-8 min-w-0"
                 controls
@@ -48,6 +56,7 @@ const ChatMessage = memo(
                 preload="metadata"
                 src={message.audioUrl}
               />
+              {isPlaying && <span className="animate-pulse text-green-500 text-xs">Playing</span>}
             </div>
           ) : (
             <p className="whitespace-pre-wrap text-sm">{message.content}</p>
@@ -62,7 +71,7 @@ const ChatMessage = memo(
 ChatMessage.displayName = 'ChatMessage'
 
 export const ChatMessageList = memo(
-  ({ messages, scrollAreaRef, onAudioPlay, className }: ChatMessageListProps) => {
+  ({ messages, scrollAreaRef, onAudioPlay, playingMessageId, className }: ChatMessageListProps) => {
     return (
       <ScrollArea className={cn('flex-1 p-4', className)} ref={scrollAreaRef}>
         <div aria-label="Chat messages" aria-live="polite" className="space-y-4" role="log">
@@ -72,7 +81,12 @@ export const ChatMessageList = memo(
             </div>
           ) : (
             messages.map((message) => (
-              <ChatMessage key={message.id} message={message} onAudioPlay={onAudioPlay} />
+              <ChatMessage
+                isPlaying={playingMessageId === message.id}
+                key={message.id}
+                message={message}
+                onAudioPlay={onAudioPlay}
+              />
             ))
           )}
         </div>

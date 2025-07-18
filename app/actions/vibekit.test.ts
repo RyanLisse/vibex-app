@@ -1,30 +1,30 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { VibeKit } from '@vibe-kit/sdk'
 import { cookies } from 'next/headers'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/stores/tasks'
-import { createPullRequestAction } from './vibekit'
+import { createPullRequestAction } from '@/app/actions/vibekit'
 
 // Mock dependencies
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
+mock('next/headers', () => ({
+  cookies: mock(),
 }))
 
-vi.mock('@vibe-kit/sdk', () => ({
-  VibeKit: vi.fn(),
+mock('@vibe-kit/sdk', () => ({
+  VibeKit: mock(),
 }))
 
-vi.mock('@/lib/telemetry', () => ({
-  getTelemetryConfig: vi.fn(),
+mock('@/lib/telemetry', () => ({
+  getTelemetryConfig: mock(),
 }))
 
 describe('vibekit actions', () => {
   const mockCookies = {
-    get: vi.fn(),
+    get: mock(),
   }
 
   const mockVibeKitInstance = {
-    createPullRequest: vi.fn(),
+    createPullRequest: mock(),
   }
 
   const mockTask: Task = {
@@ -44,9 +44,9 @@ describe('vibekit actions', () => {
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(cookies).mockResolvedValue(mockCookies as any)
-    vi.mocked(VibeKit).mockImplementation(() => mockVibeKitInstance as any)
+    mock.restore()
+    mocked(cookies).mockResolvedValue(mockCookies as any)
+    mocked(VibeKit).mockImplementation(() => mockVibeKitInstance as any)
     process.env.OPENAI_API_KEY = 'test-openai-key'
     process.env.E2B_API_KEY = 'test-e2b-key'
   })
@@ -60,7 +60,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token-123' })
-      vi.mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue(mockPR)
 
       const result = await createPullRequestAction({ task: mockTask })
@@ -101,7 +101,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token-123' })
-      vi.mocked(getTelemetryConfig).mockReturnValue(telemetryConfig)
+      mocked(getTelemetryConfig).mockReturnValue(telemetryConfig)
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: mockTask })
@@ -139,7 +139,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      vi.mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: customTask })
@@ -160,7 +160,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      vi.mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: customTask })
@@ -176,7 +176,7 @@ describe('vibekit actions', () => {
       const error = new Error('Failed to create PR')
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      vi.mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockRejectedValue(error)
 
       await expect(createPullRequestAction({ task: mockTask })).rejects.toThrow(
@@ -189,7 +189,7 @@ describe('vibekit actions', () => {
       process.env.E2B_API_KEY = 'custom-e2b-key'
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      vi.mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: mockTask })
@@ -218,7 +218,7 @@ describe('vibekit actions', () => {
       }
 
       mockCookies.get.mockReturnValue({ value: 'github-token' })
-      vi.mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
+      mocked(getTelemetryConfig).mockReturnValue({ isEnabled: false })
       mockVibeKitInstance.createPullRequest.mockResolvedValue({})
 
       await createPullRequestAction({ task: taskWithoutSession })

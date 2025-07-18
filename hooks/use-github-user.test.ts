@@ -1,16 +1,16 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGitHubUser } from './use-github-user'
+import { useGitHubUser } from '@/hooks/use-github-user'
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: mock(),
+  setItem: mock(),
+  removeItem: mock(),
+  clear: mock(),
 }
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
@@ -19,7 +19,7 @@ Object.defineProperty(window, 'localStorage', {
 
 describe('useGitHubUser', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockLocalStorage.getItem.mockReturnValue(null)
   })
 
@@ -76,13 +76,13 @@ describe('useGitHubUser', () => {
     }
 
     // Mock token exchange
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockTokenResponse,
     } as any)
 
     // Mock user fetch
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserResponse,
     } as any)
@@ -105,7 +105,7 @@ describe('useGitHubUser', () => {
   it('should handle login errors', async () => {
     const mockCode = 'invalid-code'
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 401,
       json: async () => ({ error: 'bad_verification_code' }),
@@ -174,7 +174,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserProfile,
     } as any)
@@ -217,7 +217,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUpdatedUser,
     } as any)
@@ -260,7 +260,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockOrganizations,
     } as any)
@@ -289,7 +289,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewToken,
     } as any)
@@ -332,7 +332,7 @@ describe('useGitHubUser', () => {
   })
 
   it('should handle OAuth redirect', () => {
-    delete window.location
+    window.location = undefined
     window.location = { href: '' } as any
 
     const { result } = renderHook(() => useGitHubUser())
@@ -353,7 +353,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+    mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubUser())
 
@@ -372,13 +372,17 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 403,
       headers: {
         get: (name: string) => {
-          if (name === 'X-RateLimit-Remaining') return '0'
-          if (name === 'X-RateLimit-Reset') return '1234567890'
+          if (name === 'X-RateLimit-Remaining') {
+            return '0'
+          }
+          if (name === 'X-RateLimit-Reset') {
+            return '1234567890'
+          }
           return null
         },
       },
@@ -417,7 +421,7 @@ describe('useGitHubUser', () => {
       })
     )
 
-    vi.mocked(fetch).mockResolvedValueOnce({
+    mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockEmails,
     } as any)

@@ -1,6 +1,6 @@
 'use client'
 import Navbar from '@/components/navigation/navbar'
-import EnvironmentsList from './_components/environments-list'
+import EnvironmentsList from '@/app/environments/_components/environments-list'
 
 export default function EnvironmentsClientPage() {
   return (

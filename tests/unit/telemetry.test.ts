@@ -5,12 +5,12 @@ import type { TelemetryBackend } from '@/src/types/telemetry'
 describe('Telemetry Configuration', () => {
   beforeEach(() => {
     // Clear all environment variables before each test
-    delete process.env.OTEL_ENABLED
-    delete process.env.OTEL_ENDPOINT
-    delete process.env.OTEL_SERVICE_NAME
-    delete process.env.OTEL_SERVICE_VERSION
-    delete process.env.OTEL_AUTH_HEADER
-    delete process.env.OTEL_SAMPLING_RATIO
+    process.env.OTEL_ENABLED = undefined
+    process.env.OTEL_ENDPOINT = undefined
+    process.env.OTEL_SERVICE_NAME = undefined
+    process.env.OTEL_SERVICE_VERSION = undefined
+    process.env.OTEL_AUTH_HEADER = undefined
+    process.env.OTEL_SAMPLING_RATIO = undefined
   })
 
   describe('getTelemetryConfig', () => {
@@ -112,7 +112,7 @@ describe('Telemetry Configuration', () => {
   })
 
   describe('getDefaultEndpoint', () => {
-    const testCases: Array<[TelemetryBackend, string]> = [
+    const testCases: [TelemetryBackend, string][] = [
       ['jaeger', 'http://localhost:14268/api/traces'],
       ['zipkin', 'http://localhost:9411/api/v2/spans'],
       ['datadog', 'https://trace.agent.datadoghq.com/v0.3/traces'],

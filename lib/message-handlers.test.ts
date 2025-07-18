@@ -1,15 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { StatusData, UpdateData } from './container-types'
-import { MessageHandlers } from './message-handlers'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
+import type { StatusData, UpdateData } from '@/lib/container-types'
+import { MessageHandlers } from '@/lib/message-handlers'
 
 describe('MessageHandlers', () => {
-  const mockUpdateTask = vi.fn()
-  const mockGetTaskById = vi.fn()
+  const mockUpdateTask = mock()
+  const mockGetTaskById = mock()
 
   let handlers: MessageHandlers
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     handlers = new MessageHandlers({
       updateTask: mockUpdateTask,
       getTaskById: mockGetTaskById,

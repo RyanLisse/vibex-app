@@ -50,8 +50,7 @@ export async function GET(request: NextRequest) {
     )
 
     return response
-  } catch (error) {
-    console.error('GitHub OAuth error:', error)
+  } catch (_error) {
     return NextResponse.redirect(new URL('/?error=oauth_failed', request.url))
   }
 }

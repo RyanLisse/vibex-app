@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAuthBase } from './use-auth-base'
+import { useAuthBase } from '@/hooks/use-auth-base'
 
 interface OpenAIAuthStatus {
   authenticated: boolean
@@ -39,9 +39,7 @@ export function useOpenAIAuth() {
       }
 
       await baseAuth.refresh()
-    } catch (error) {
-      console.error('Token refresh failed:', error)
-    }
+    } catch (_error) {}
   }
 
   useEffect(() => {
@@ -57,7 +55,7 @@ export function useOpenAIAuth() {
         return () => clearTimeout(timeout)
       }
     }
-  }, [baseAuth.authenticated, baseAuth.expires_at, baseAuth.hasRefreshToken])
+  }, [baseAuth.authenticated, baseAuth.expires_at, baseAuth.hasRefreshToken, refreshToken])
 
   return {
     ...baseAuth,

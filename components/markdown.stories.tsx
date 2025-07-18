@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import { Markdown } from './markdown'
+import { Markdown } from '@/components/markdown'
 
 const meta = {
   title: 'Components/Markdown',

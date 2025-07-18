@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import { userEvent } from '@testing-library/user-event'
+import userEvent from "@testing-library/user-event";
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { Button } from './button'
+import { Button } from '@/components/ui/button'
 
 describe('Button Integration Tests', () => {
   describe('Form Integration', () => {

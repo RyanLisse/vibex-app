@@ -75,7 +75,7 @@ test.describe('useTaskSubscription Hook E2E Tests', () => {
     await page.waitForTimeout(3000)
 
     // Should log subscription state changes
-    const subscriptionLogs = consoleMessages.filter(
+    const _subscriptionLogs = consoleMessages.filter(
       (msg) => msg.includes('subscription') || msg.includes('Subscription')
     )
 
@@ -87,7 +87,7 @@ test.describe('useTaskSubscription Hook E2E Tests', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for task-related elements that would be updated via subscription
-    const taskElements = page.locator('[data-testid*="task"], [class*="task"], [id*="task"]')
+    const _taskElements = page.locator('[data-testid*="task"], [class*="task"], [id*="task"]')
 
     // Even if no tasks exist, subscription should be ready
     await expect(page.locator('body')).toBeVisible()

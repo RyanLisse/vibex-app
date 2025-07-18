@@ -123,7 +123,9 @@ export function useAuth<T extends BaseAuthStatus>(config: AuthConfig<T>) {
   }, [config.logoutEndpoint, setError, checkAuthStatus])
 
   const refreshToken = useCallback(async () => {
-    if (!config.refreshEndpoint) return
+    if (!config.refreshEndpoint) {
+      return
+    }
 
     try {
       const response = await fetch(config.refreshEndpoint, {
@@ -142,7 +144,9 @@ export function useAuth<T extends BaseAuthStatus>(config: AuthConfig<T>) {
 
   // Auto-refresh effect
   useEffect(() => {
-    if (!(config.autoRefreshConfig?.enabled && authStatus.authenticated)) return
+    if (!(config.autoRefreshConfig?.enabled && authStatus.authenticated)) {
+      return
+    }
 
     const { expiryField, hasRefreshTokenField, refreshBuffer } = config.autoRefreshConfig
     const expiryTime = authStatus[expiryField] as number

@@ -1,11 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import { userEvent } from '@testing-library/user-event'
-import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ContactForm } from './contact-form'
+import userEvent from "@testing-library/user-event";
+import { ContactForm } from '@/components/forms/contact-form'
 
 describe('ContactForm', () => {
-  const mockOnSubmit = vi.fn()
+  const mockOnSubmit = mock()
   const defaultProps = {
     onSubmit: mockOnSubmit,
   }

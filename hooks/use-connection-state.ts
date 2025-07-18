@@ -40,8 +40,7 @@ export function useConnectionState(options: UseConnectionStateOptions = {}) {
         if (connectionCallbackRef.current) {
           try {
             await connectionCallbackRef.current()
-          } catch (err) {
-            console.error('Reconnection failed:', err)
+          } catch (_err) {
             await attemptReconnect()
           }
         }

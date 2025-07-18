@@ -1,9 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
-import { AIConversation, AIConversationContent, AIConversationScrollButton } from './conversation'
+import {
+  AIConversation,
+  AIConversationContent,
+  AIConversationScrollButton,
+} from '@/src/components/ui/kibo-ui/ai/conversation'
 
 // Mock the Button component
-vi.mock('@repo/shadcn-ui/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, className, ...props }: any) => (
     <button className={className} onClick={onClick} {...props}>
       {children}
@@ -12,13 +15,13 @@ vi.mock('@repo/shadcn-ui/components/ui/button', () => ({
 }))
 
 // Mock the StickToBottom component
-const mockScrollToBottom = vi.fn()
+const mockScrollToBottom = mock()
 const mockStickToBottomContext = {
   isAtBottom: false,
   scrollToBottom: mockScrollToBottom,
 }
 
-vi.mock('use-stick-to-bottom', () => ({
+mock('use-stick-to-bottom', () => ({
   StickToBottom: ({ children, className, ...props }: any) => (
     <div className={className} role="log" {...props}>
       {children}
@@ -28,12 +31,12 @@ vi.mock('use-stick-to-bottom', () => ({
 }))
 
 // Mock the cn utility
-vi.mock('/lib/utils', () => ({
-  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')),
+mock('/lib/utils', () => ({
+  cn: mock((...classes) => classes.filter(Boolean).join(' ')),
 }))
 
 // Mock Lucide icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   ArrowDownIcon: ({ className }: { className: string }) => (
     <span className={className} data-testid="arrow-down-icon" />
   ),
@@ -41,7 +44,7 @@ vi.mock('lucide-react', () => ({
 
 describe('AIConversation Components', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockStickToBottomContext.isAtBottom = false
   })
 
@@ -341,7 +344,7 @@ describe('AIConversation Components', () => {
     it('handles missing scroll context gracefully', () => {
       // Mock missing context
       const originalError = console.error
-      console.error = vi.fn()
+      console.error = mock()
 
       vi.doMock('use-stick-to-bottom', () => ({
         StickToBottom: ({ children, ...props }: any) => <div {...props}>{children}</div>,

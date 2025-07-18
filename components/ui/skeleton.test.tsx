@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it } from 'vitest'
-import { Skeleton } from './skeleton'
+import { Skeleton } from '@/components/ui/skeleton'
 
 describe('Skeleton', () => {
   it('should render skeleton element', () => {
@@ -34,7 +33,9 @@ describe('Skeleton', () => {
         aria-label="Loading content"
         data-testid="skeleton"
         id="loading-skeleton"
-        onClick={() => {}}
+        onClick={() => {
+          // Handle click event
+        }}
         role="status"
       />
     )
@@ -116,7 +117,7 @@ describe('Skeleton', () => {
   })
 
   it('should handle onClick events', () => {
-    const handleClick = vi.fn()
+    const handleClick = mock()
     render(<Skeleton data-testid="skeleton" onClick={handleClick} />)
 
     const skeleton = screen.getByTestId('skeleton')

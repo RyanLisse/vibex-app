@@ -18,7 +18,7 @@ import { useTaskStore } from '@/stores/tasks'
 // Helper functions for form logic
 const adjustTextareaHeight = (textarea: HTMLTextAreaElement) => {
   textarea.style.height = '100px'
-  textarea.style.height = Math.max(100, textarea.scrollHeight) + 'px'
+  textarea.style.height = `${Math.max(100, textarea.scrollHeight)}px`
 }
 
 const getDefaultBranch = (branches: Array<{ name: string; isDefault?: boolean }>) => {
@@ -67,7 +67,9 @@ export default function NewTaskForm() {
   }
 
   const handleAddTask = async (mode: 'code' | 'ask') => {
-    if (!value) return
+    if (!value) {
+      return
+    }
 
     const taskData = createTaskData(value, mode, selectedBranch, environments, selectedEnvironment)
     const task = addTask(taskData)
@@ -78,7 +80,7 @@ export default function NewTaskForm() {
   // Effects for initialization and state management
   useEffect(() => {
     adjustHeight()
-  }, [value])
+  }, [adjustHeight])
 
   useEffect(() => {
     if (environments.length > 0 && !selectedEnvironment) {

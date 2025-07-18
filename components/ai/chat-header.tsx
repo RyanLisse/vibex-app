@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -14,12 +14,16 @@ interface ChatHeaderProps {
 export const ChatHeader = memo(
   ({ title, isConnected, isLoading, onConnect, onDisconnect, className }: ChatHeaderProps) => {
     const getStatusText = () => {
-      if (isLoading) return 'Connecting...'
+      if (isLoading) {
+        return 'Connecting...'
+      }
       return isConnected ? 'Connected' : 'Disconnected'
     }
 
     const getStatusColor = () => {
-      if (isLoading) return 'text-yellow-600'
+      if (isLoading) {
+        return 'text-yellow-600'
+      }
       return isConnected ? 'text-green-600' : 'text-red-600'
     }
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { z } from 'zod'
 import {
   ApiErrorSchema,
@@ -47,7 +47,7 @@ describe('EmailSchema', () => {
       'user@',
       'user@domain',
       'a@b',
-      'a' + 'b'.repeat(100) + '@domain.com',
+      `a${'b'.repeat(100)}@domain.com`,
     ]
 
     invalidEmails.forEach((email) => {

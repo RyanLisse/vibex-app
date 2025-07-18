@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
-import { Button } from './Button'
+import { Button } from '@/src/stories/Button'
 
 // This default export determines where your story goes in the story list
 const meta: Meta<typeof Button> = {

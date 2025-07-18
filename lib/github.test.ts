@@ -1,5 +1,5 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { cookies } from 'next/headers'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   clearGitHubAuth,
   createRepository,
@@ -12,25 +12,25 @@ import {
 } from './github'
 
 // Mock dependencies
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
+mock('next/headers', () => ({
+  cookies: mock(),
 }))
 
 // Mock fetch
-global.fetch = vi.fn()
+global.fetch = mock()
 
 describe('GitHub Authentication', () => {
   const mockCookies = {
-    get: vi.fn(),
-    set: vi.fn(),
-    delete: vi.fn(),
+    get: mock(),
+    set: mock(),
+    delete: mock(),
   }
 
   const originalEnv = process.env
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(cookies).mockResolvedValue(mockCookies as any)
+    mock.restore()
+    mocked(cookies).mockResolvedValue(mockCookies as any)
     process.env = {
       ...originalEnv,
       GITHUB_CLIENT_ID: 'test-client-id',
@@ -59,13 +59,13 @@ describe('GitHub Authentication', () => {
     })
 
     it('should throw error when GITHUB_CLIENT_ID is missing', () => {
-      delete process.env.GITHUB_CLIENT_ID
+      process.env.GITHUB_CLIENT_ID = undefined
 
       expect(() => getGitHubOAuthUrl()).toThrow('GitHub OAuth is not configured')
     })
 
     it('should throw error when NEXT_PUBLIC_APP_URL is missing', () => {
-      delete process.env.NEXT_PUBLIC_APP_URL
+      process.env.NEXT_PUBLIC_APP_URL = undefined
 
       expect(() => getGitHubOAuthUrl()).toThrow('GitHub OAuth is not configured')
     })
@@ -79,7 +79,7 @@ describe('GitHub Authentication', () => {
         scope: 'repo,user',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       } as Response)
@@ -116,7 +116,7 @@ describe('GitHub Authentication', () => {
     })
 
     it('should throw error when response is not ok', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: false,
         statusText: 'Bad Request',
       } as Response)
@@ -127,7 +127,7 @@ describe('GitHub Authentication', () => {
     })
 
     it('should throw error when environment variables are missing', async () => {
-      delete process.env.GITHUB_CLIENT_SECRET
+      process.env.GITHUB_CLIENT_SECRET = undefined
 
       await expect(exchangeCodeForToken('code')).rejects.toThrow('GitHub OAuth is not configured')
     })
@@ -144,7 +144,7 @@ describe('GitHub Authentication', () => {
         email: 'test@example.com',
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUser,
       } as Response)
@@ -180,7 +180,7 @@ describe('GitHub Authentication', () => {
         { id: 2, name: 'repo2' },
       ]
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockRepos,
       } as Response)
@@ -206,7 +206,7 @@ describe('GitHub Authentication', () => {
     it('should pass custom options to API', async () => {
       mockCookies.get.mockReturnValue({ value: 'valid-token' })
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => [],
       } as Response)
@@ -226,7 +226,7 @@ describe('GitHub Authentication', () => {
 
       const mockBranches = [{ name: 'main' }, { name: 'develop' }]
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockBranches,
       } as Response)
@@ -265,7 +265,7 @@ describe('GitHub Authentication', () => {
         ...newRepo,
       }
 
-      vi.mocked(fetch).mockResolvedValueOnce({
+      mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
       } as Response)

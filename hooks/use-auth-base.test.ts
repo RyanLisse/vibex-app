@@ -1,9 +1,9 @@
+import { test, expect, describe, it, beforeEach, afterEach, mock } from "bun:test"
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAuthBase } from './use-auth-base'
+import { useAuthBase } from '@/hooks/use-auth-base'
 
 // Mock fetch
-const mockFetch = vi.fn()
+const mockFetch = mock()
 global.fetch = mockFetch
 
 // Mock window.location
@@ -30,12 +30,12 @@ describe('useAuthBase', () => {
   }
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
     mockLocation.href = ''
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    mock.restore()
   })
 
   it('should initialize with initial state', () => {

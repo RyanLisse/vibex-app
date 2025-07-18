@@ -1,17 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AnthropicAuthStatus } from './anthropic-auth-status'
+import { AnthropicAuthStatus } from '@/components/auth/anthropic-auth-status'
 
 // Mock the anthropic auth hook
-const mockUseAnthropicAuth = vi.fn()
-vi.mock('@/hooks/use-anthropic-auth', () => ({
+const mockUseAnthropicAuth = mock()
+mock('@/hooks/use-anthropic-auth', () => ({
   useAnthropicAuth: () => mockUseAnthropicAuth(),
 }))
 
 // Mock date-fns
-vi.mock('date-fns', () => ({
-  formatDistanceToNow: vi.fn((date, options) => {
+mock('date-fns', () => ({
+  formatDistanceToNow: mock((_date, options) => {
     if (options?.addSuffix) {
       return 'in 30 minutes'
     }
@@ -20,7 +18,7 @@ vi.mock('date-fns', () => ({
 }))
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
+mock('lucide-react', () => ({
   CheckCircle: ({ className, ...props }: any) => (
     <svg className={className} data-testid="check-circle-icon" {...props} />
   ),
@@ -39,7 +37,7 @@ vi.mock('lucide-react', () => ({
 }))
 
 // Mock UI components
-vi.mock('@/components/ui/badge', () => ({
+mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className, ...props }: any) => (
     <span className={className} data-testid="badge" data-variant={variant} {...props}>
       {children}
@@ -47,7 +45,7 @@ vi.mock('@/components/ui/badge', () => ({
   ),
 }))
 
-vi.mock('@/components/ui/button', () => ({
+mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
       className={className}
@@ -63,11 +61,11 @@ vi.mock('@/components/ui/button', () => ({
 }))
 
 describe('AnthropicAuthStatus', () => {
-  const mockLogin = vi.fn()
-  const mockLogout = vi.fn()
+  const mockLogin = mock()
+  const mockLogout = mock()
 
   beforeEach(() => {
-    vi.clearAllMocks()
+    mock.restore()
   })
 
   it('should render loading state', () => {

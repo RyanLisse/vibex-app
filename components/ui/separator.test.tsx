@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
-import { Separator } from './separator'
+import { Separator } from '@/components/ui/separator'
 
 // Mock Radix UI Separator
-vi.mock('@radix-ui/react-separator', () => ({
+mock('@radix-ui/react-separator', () => ({
   Root: ({ className, orientation, decorative, ...props }: any) => (
     <div
       aria-orientation={orientation}

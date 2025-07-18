@@ -6,12 +6,13 @@
  * Safely cancels a ReadableStream without throwing errors
  */
 export async function safeStreamCancel(stream: ReadableStream | null | undefined): Promise<void> {
-  if (!stream) return
+  if (!stream) {
+    return
+  }
 
   try {
     // Check if stream is already locked or cancelled
     if (stream.locked) {
-      console.warn('Stream is locked, cannot cancel safely')
       return
     }
 
@@ -21,34 +22,29 @@ export async function safeStreamCancel(stream: ReadableStream | null | undefined
     try {
       // Try to cancel the stream
       await reader.cancel()
-    } catch (error) {
-      console.warn('Error cancelling stream reader:', error)
+    } catch (_error) {
     } finally {
       // Always release the reader
       try {
         reader.releaseLock()
-      } catch (error) {
-        console.warn('Error releasing stream reader lock:', error)
-      }
+      } catch (_error) {}
     }
-  } catch (error) {
-    console.warn('Error in safe stream cancel:', error)
-  }
+  } catch (_error) {}
 }
 
 /**
  * Safely closes a WebSocket connection
  */
 export function safeWebSocketClose(ws: WebSocket | null | undefined): void {
-  if (!ws) return
+  if (!ws) {
+    return
+  }
 
   try {
     if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
       ws.close(1000, 'Normal closure')
     }
-  } catch (error) {
-    console.warn('Error closing WebSocket:', error)
-  }
+  } catch (_error) {}
 }
 
 /**
@@ -81,9 +77,8 @@ export async function safeAsync<T>(
 ): Promise<T | undefined> {
   try {
     return await fn()
-  } catch (error) {
+  } catch (_error) {
     if (errorMessage) {
-      console.warn(errorMessage, error)
     }
     return fallback
   }

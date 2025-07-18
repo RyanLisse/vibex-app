@@ -1,7 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it } from 'vitest'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 describe('Card Components', () => {
   describe('Card', () => {

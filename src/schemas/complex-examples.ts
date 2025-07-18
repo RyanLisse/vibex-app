@@ -84,7 +84,9 @@ export const ProductSchema = z
   .refine(
     (data) => {
       // Validate that all variants have valid option combinations
-      if (data.options.length === 0) return true
+      if (data.options.length === 0) {
+        return true
+      }
 
       const expectedCombinations = data.options.reduce(
         (acc, option) => acc * option.values.length,

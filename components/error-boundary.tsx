@@ -23,12 +23,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, _errorInfo: React.ErrorInfo) {
     // Log the error to console, but don't crash the app for stream errors
     if (error.message.includes('ReadableStream') || error.message.includes('cancel')) {
-      console.warn('Stream error caught by ErrorBoundary:', error.message)
     } else {
-      console.error('ErrorBoundary caught an error:', error, errorInfo)
     }
   }
 
@@ -76,7 +74,6 @@ export function useErrorBoundary() {
   const captureError = React.useCallback((error: Error) => {
     // Don't capture stream errors as they're handled gracefully
     if (error.message.includes('ReadableStream') || error.message.includes('cancel')) {
-      console.warn('Stream error captured but not thrown:', error.message)
       return
     }
     setError(error)
