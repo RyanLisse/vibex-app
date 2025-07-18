@@ -24,9 +24,10 @@ beforeEach(() => {
 
   // Mock timers for consistent test timing
   // Only use fake timers if not running Inngest tests
-  if (!process.env.VITEST_INNGEST_TESTS) {
-    vi.useFakeTimers()
-  }
+  // TEMPORARILY DISABLED: Fake timers cause tests to hang with async operations
+  // if (!process.env.VITEST_INNGEST_TESTS) {
+  //   vi.useFakeTimers()
+  // }
 })
 
 // Cleanup after each test

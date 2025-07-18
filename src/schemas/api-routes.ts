@@ -1,6 +1,35 @@
 import { z } from 'zod'
 import { IdSchema, PaginationSchema } from '@/src/shared/schemas/validation'
 
+// Base response schemas
+export const ApiSuccessResponseSchema = z.object({
+  success: z.literal(true),
+  data: z.any(),
+  message: z.string().optional(),
+  timestamp: z.date().optional(),
+})
+
+export const ApiErrorResponseSchema = z.object({
+  success: z.literal(false),
+  error: z.string(),
+  code: z.string().optional(),
+  details: z.any().optional(),
+  timestamp: z.date().optional(),
+})
+
+export const PaginatedResponseSchema = z.object({
+  success: z.literal(true),
+  data: z.array(z.any()),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPages: z.number(),
+  }),
+  message: z.string().optional(),
+  timestamp: z.date().optional(),
+})
+
 // GitHub OAuth schemas
 export const GitHubOAuthCallbackSchema = z.object({
   code: z.string().min(1, 'Authorization code is required'),

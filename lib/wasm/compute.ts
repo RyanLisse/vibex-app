@@ -13,6 +13,9 @@ export interface ComputeWASMConfig {
   chunkSize: number
   enableSIMD: boolean
   enableThreads: boolean
+  memoryPages: number
+  enableOptimizations: boolean
+  useSharedArrayBuffer: boolean
 }
 
 export interface ComputeTask<T = any, R = any> {
@@ -22,6 +25,8 @@ export interface ComputeTask<T = any, R = any> {
   operation: string
   priority: 'low' | 'medium' | 'high'
   timeout?: number
+  useWASM?: boolean
+  expectedSize?: number
 }
 
 export interface ComputeResult<R = any> {
@@ -29,6 +34,8 @@ export interface ComputeResult<R = any> {
   result: R
   executionTime: number
   wasmOptimized: boolean
+  memoryUsed: number
+  cpuTime: number
   error?: string
 }
 
@@ -68,11 +75,14 @@ export interface StatisticalSummary {
 export class ComputeWASM {
   private wasmModule: WebAssembly.Module | null = null
   private wasmInstance: WebAssembly.Instance | null = null
+  private sharedMemory: WebAssembly.Memory | null = null
   private isInitialized = false
   private config: ComputeWASMConfig
   private workers: Worker[] = []
   private taskQueue: ComputeTask[] = []
   private runningTasks: Map<string, ComputeTask> = new Map()
+  private performanceMetrics: Map<string, number[]> = new Map()
+  private memoryPool: Float64Array[] = []
 
   constructor(config: Partial<ComputeWASMConfig> = {}) {
     this.config = {
@@ -81,6 +91,9 @@ export class ComputeWASM {
       chunkSize: 10000,
       enableSIMD: true,
       enableThreads: true,
+      memoryPages: 256, // 16MB initial memory
+      enableOptimizations: true,
+      useSharedArrayBuffer: typeof SharedArrayBuffer !== 'undefined',
       ...config,
     }
   }

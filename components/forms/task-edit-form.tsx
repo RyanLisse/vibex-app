@@ -11,28 +11,59 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, RefreshCw } from 'lucide-react'
 import { safeParse } from '@/src/shared/schemas/validation'
-import type { Task } from '@/stores/tasks'
+import { useUpdateTaskMutation } from '@/hooks/use-task-queries'
+import { observability } from '@/lib/observability'
 
 const TaskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must not exceed 200 characters'),
   description: z.string().max(1000, 'Description must not exceed 1000 characters').optional(),
   priority: z.enum(['low', 'medium', 'high']).default('medium'),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
+  assignee: z.string().optional(),
 })
+
+// Task interface from TanStack Query hooks
+interface Task {
+  id: string
+  title: string
+  description?: string
+  priority: 'low' | 'medium' | 'high'
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
+  assignee?: string
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+  branch?: string
+  repository?: string
+  mode?: 'code' | 'ask'
+  hasChanges?: boolean
+  statusMessage?: string
+  sessionId?: string
+  completedAt?: Date
+}
 
 type TaskFormData = z.infer<typeof TaskFormSchema>
 
 interface TaskEditFormProps {
   task?: Task
-  onSubmit: (data: TaskFormData) => Promise<void> | void
+  onSubmit?: (data: TaskFormData) => Promise<void> | void
   onCancel: () => void
+  userId?: string
 }
 
-export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
+export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormProps) {
+  // TanStack Query mutation for updating tasks
+  const updateTaskMutation = useUpdateTaskMutation()
+
   const [formData, setFormData] = useState<TaskFormData>({
     title: task?.title || '',
     description: task?.description || '',
     priority: task?.priority || 'medium',
+    status: task?.status,
+    assignee: task?.assignee,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -62,9 +93,33 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
     setIsSubmitting(true)
 
     try {
-      await onSubmit(validation.data)
+      if (task?.id) {
+        // Use TanStack Query mutation for task updates
+        await updateTaskMutation.mutateAsync({
+          taskId: task.id,
+          updates: validation.data,
+        })
+
+        // Record user action
+        await observability.events.collector.collectEvent(
+          'user_action',
+          'info',
+          `Task updated: ${task.id}`,
+          { taskId: task.id, userId, updates: validation.data },
+          'ui',
+          ['task', 'update']
+        )
+      }
+
+      // Call custom onSubmit if provided (for backward compatibility)
+      if (onSubmit) {
+        await onSubmit(validation.data)
+      } else {
+        // Close form on successful update
+        onCancel()
+      }
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Submission failed')
+      setSubmitError(error instanceof Error ? error.message : 'Failed to update task')
     } finally {
       setIsSubmitting(false)
     }
@@ -82,6 +137,7 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
           onChange={(e) => handleChange('title', e.target.value)}
           placeholder="Enter task title"
           value={formData.title}
+          disabled={isSubmitting || updateTaskMutation.isPending}
         />
         {errors.title && (
           <p className="text-red-600 text-sm" id="title-error">
@@ -99,6 +155,7 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
           placeholder="Enter task description (optional)"
           rows={4}
           value={formData.description}
+          disabled={isSubmitting || updateTaskMutation.isPending}
         />
         {errors.description && (
           <p className="text-red-600 text-sm" id="description-error">
@@ -112,6 +169,7 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
         <Select
           onValueChange={(value: 'low' | 'medium' | 'high') => handleChange('priority', value)}
           value={formData.priority}
+          disabled={isSubmitting || updateTaskMutation.isPending}
         >
           <SelectTrigger id="priority">
             <SelectValue placeholder="Select priority" />
@@ -125,18 +183,85 @@ export function TaskEditForm({ task, onSubmit, onCancel }: TaskEditFormProps) {
         {errors.priority && <p className="text-red-600 text-sm">{errors.priority}</p>}
       </div>
 
-      {submitError && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3">
-          <p className="text-red-600 text-sm">{submitError}</p>
-        </div>
+      {task && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              onValueChange={(value: 'pending' | 'in_progress' | 'completed' | 'cancelled') =>
+                handleChange('status', value)
+              }
+              value={formData.status}
+              disabled={isSubmitting || updateTaskMutation.isPending}
+            >
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.status && <p className="text-red-600 text-sm">{errors.status}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="assignee">Assignee</Label>
+            <Input
+              id="assignee"
+              onChange={(e) => handleChange('assignee', e.target.value)}
+              placeholder="Enter assignee"
+              value={formData.assignee || ''}
+              disabled={isSubmitting || updateTaskMutation.isPending}
+            />
+            {errors.assignee && <p className="text-red-600 text-sm">{errors.assignee}</p>}
+          </div>
+        </>
+      )}
+
+      {(submitError || updateTaskMutation.error) && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {submitError ||
+              updateTaskMutation.error?.message ||
+              'An error occurred while updating the task'}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {updateTaskMutation.isSuccess && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Task updated successfully!</AlertDescription>
+        </Alert>
       )}
 
       <div className="flex justify-end gap-2">
-        <Button disabled={isSubmitting} onClick={onCancel} type="button" variant="outline">
+        <Button
+          disabled={isSubmitting || updateTaskMutation.isPending}
+          onClick={onCancel}
+          type="button"
+          variant="outline"
+        >
           Cancel
         </Button>
-        <Button disabled={!isFormValid || isSubmitting} type="submit">
-          {isSubmitting ? 'Submitting...' : task ? 'Update Task' : 'Create Task'}
+        <Button
+          disabled={!isFormValid || isSubmitting || updateTaskMutation.isPending}
+          type="submit"
+        >
+          {isSubmitting || updateTaskMutation.isPending ? (
+            <>
+              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+              {task ? 'Updating...' : 'Creating...'}
+            </>
+          ) : task ? (
+            'Update Task'
+          ) : (
+            'Create Task'
+          )}
         </Button>
       </div>
     </form>

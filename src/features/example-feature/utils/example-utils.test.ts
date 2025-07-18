@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, test } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
 import type { ExampleFilter, ExampleItem } from '@/src/features/example-feature/types'
 import {
   filterItems,
@@ -570,7 +570,7 @@ describe('Advanced sortItems tests', () => {
       const result = sortItems(complexSortItems, sortType)
       expect(result).toHaveLength(complexSortItems.length)
       expect(result).not.toBe(complexSortItems) // Ensure new array
-    })
+    }
   })
 })
 
@@ -582,7 +582,7 @@ describe('Advanced getPriorityColor tests', () => {
     for (const [index, priority] of priorities.entries()) {
       const result = getPriorityColor(priority)
       expect(result).toBe(expectedColors[index])
-    })
+    }
   })
 
   it('should handle case variations gracefully', () => {
@@ -630,7 +630,7 @@ describe('Advanced getPriorityColor tests', () => {
       const result = getPriorityColor(priority)
       expect(typeof result).toBe('string')
       expect(result).toMatch(/^text-\w+-\d+$/)
-    })
+    }
   })
 })
 
@@ -642,7 +642,7 @@ describe('Advanced getStatusIcon tests', () => {
     for (const [index, status] of statuses.entries()) {
       const result = getStatusIcon(status)
       expect(result).toBe(expectedIcons[index])
-    })
+    }
   })
 
   it('should handle case variations gracefully', () => {
@@ -670,7 +670,7 @@ describe('Advanced getStatusIcon tests', () => {
       const result = getStatusIcon(status)
       expect(typeof result).toBe('string')
       expect(result).toHaveLength(1)
-    })
+    }
   })
 
   it('should use unicode circle characters', () => {
@@ -765,7 +765,7 @@ describe('Function integration tests', () => {
       expect(typeof icon).toBe('string')
       expect(color).toMatch(/^text-\w+-\d+$/)
       expect(icon).toHaveLength(1)
-    })
+    }
   })
 
   it('should handle complete workflow', () => {

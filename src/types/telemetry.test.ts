@@ -91,7 +91,8 @@ describe('TelemetryConfig interface', () => {
       }
 
       expect(config.endpoint).toBe(endpoint)
-    })
+    }
+  })
   })
 
   it('should handle complex headers configuration', () => {
@@ -112,7 +113,7 @@ describe('TelemetryConfig interface', () => {
       'Content-Type': 'application/json',
       'User-Agent': 'codex-clone/1.0.0',
       'X-Custom-Header': 'custom-value',
-    })
+    }
   })
 
   it('should handle semantic version patterns', () => {
@@ -133,7 +134,8 @@ describe('TelemetryConfig interface', () => {
       }
 
       expect(config.serviceVersion).toBe(version)
-    })
+    }
+  })
   })
 
   it('should handle service names with special characters', () => {
@@ -157,7 +159,8 @@ describe('TelemetryConfig interface', () => {
       }
 
       expect(config.samplingRatio).toBe(ratio)
-    })
+    }
+  })
   })
 
   it('should handle disabled telemetry configuration', () => {
@@ -195,7 +198,8 @@ describe('TelemetryBackend type', () => {
       expect(['jaeger', 'zipkin', 'datadog', 'newrelic', 'honeycomb', 'tempo', 'otlp']).toContain(
         backend
       )
-    })
+    }
+  })
   })
 
   it('should have specific backend values', () => {
@@ -297,7 +301,8 @@ describe('TelemetryBackend type', () => {
       type: backend,
       enabled: true,
       priority: backend === 'otlp' ? 1 : 2,
-    }))
+    }
+  }))
 
     expect(backendConfigs).toHaveLength(3)
     expect(backendConfigs[0].type).toBe('jaeger')
@@ -367,7 +372,8 @@ describe('TelemetryEnvironmentConfig interface', () => {
         OTEL_ENABLED: value,
       }
       expect(envConfig.OTEL_ENABLED).toBe(value)
-    })
+    }
+  })
   })
 
   it('should handle various sampling ratio string values', () => {
@@ -378,7 +384,8 @@ describe('TelemetryEnvironmentConfig interface', () => {
         OTEL_SAMPLING_RATIO: ratio,
       }
       expect(envConfig.OTEL_SAMPLING_RATIO).toBe(ratio)
-    })
+    }
+  })
   })
 
   it('should handle various auth header formats', () => {
@@ -395,7 +402,8 @@ describe('TelemetryEnvironmentConfig interface', () => {
         OTEL_AUTH_HEADER: header,
       }
       expect(envConfig.OTEL_AUTH_HEADER).toBe(header)
-    })
+    }
+  })
   })
 
   it('should handle environment variable naming conventions', () => {
@@ -411,7 +419,8 @@ describe('TelemetryEnvironmentConfig interface', () => {
     // All keys should follow OTEL_ prefix convention
     Object.keys(envConfig).forEach((key) => {
       expect(key).toMatch(/^OTEL_/)
-    })
+    }
+  })
   })
 
   it('should handle empty string values', () => {
@@ -600,7 +609,8 @@ describe('Type compatibility and integration', () => {
 
       expect(config.endpoint).toBeDefined()
       expect(config.endpoint).toContain('http')
-    })
+    }
+  })
   })
 })
 
@@ -614,7 +624,8 @@ describe('Edge cases and validation', () => {
       }
 
       expect(envConfig.OTEL_SAMPLING_RATIO).toBe(value)
-    })
+    }
+  })
   })
 
   it('should handle very long strings', () => {
@@ -704,7 +715,8 @@ describe('Edge cases and validation', () => {
       // Conversion would handle the validation
       const parsedRatio = Number.parseFloat(ratio)
       expect(Number.isNaN(parsedRatio) || parsedRatio < 0 || parsedRatio > 1).toBe(true)
-    })
+    }
+  })
   })
 
   it('should handle configuration with all optional fields undefined', () => {

@@ -1,16 +1,16 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
+import type { NewTask, Task } from '@/db/schema'
+import { invalidateQueries, mutationKeys, queryKeys } from '@/lib/query/config'
+import { useElectricTasks } from './use-electric-tasks'
 import {
-  useEnhancedQuery,
-  useEnhancedMutation,
   useEnhancedInfiniteQuery,
+  useEnhancedMutation,
+  useEnhancedQuery,
   useVectorSearchQuery,
 } from './use-enhanced-query'
-import { queryKeys, mutationKeys, invalidateQueries } from '@/lib/query/config'
-import { useElectricTasks } from './use-electric-tasks'
-import type { Task, NewTask } from '@/db/schema'
 
 /**
  * Enhanced task queries with WASM optimization and ElectricSQL integration
@@ -32,6 +32,31 @@ export interface TaskSearchOptions {
   useSemanticSearch?: boolean
   filters?: TaskFilters
   limit?: number
+}
+
+/**
+ * Hook for querying a single task by ID
+ */
+export function useTaskQuery(taskId: string) {
+  return useEnhancedQuery(
+    queryKeys.task(taskId),
+    async () => {
+      const response = await fetch(`/api/tasks/${taskId}`)
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`Task with id ${taskId} not found`)
+        }
+        throw new Error(`Failed to fetch task: ${response.statusText}`)
+      }
+      const result = await response.json()
+      return result.data
+    },
+    {
+      enabled: !!taskId,
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      enableWASMOptimization: false, // Single record doesn't need WASM optimization
+    }
+  )
 }
 
 /**
@@ -81,7 +106,7 @@ export function useTasksQuery(filters: TaskFilters = {}) {
       return filteredTasks
     },
     {
-      enabled: !electricLoading && !electricError,
+      enabled: !(electricLoading || electricError),
       enableWASMOptimization: true,
       staleWhileRevalidate: true,
       wasmFallback: async () => {
@@ -92,8 +117,10 @@ export function useTasksQuery(filters: TaskFilters = {}) {
           if (search) {
             const searchLower = search.toLowerCase()
             if (
-              !task.title.toLowerCase().includes(searchLower) &&
-              !task.description?.toLowerCase().includes(searchLower)
+              !(
+                task.title.toLowerCase().includes(searchLower) ||
+                task.description?.toLowerCase().includes(searchLower)
+              )
             ) {
               return false
             }

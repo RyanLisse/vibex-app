@@ -1,9 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
-import { vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 
 // Mock the @google/genai module
-mock.module('@google/genai', () => ({
+vi.mock('@google/genai', () => ({
   GoogleGenAI: vi.fn(() => ({
     startChat: vi.fn(),
   })),
@@ -24,7 +23,7 @@ describe('Gemini Audio Integration Tests', () => {
   let mockSessionAPI: unknown
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
 
     // Mock the session API
     mockSessionAPI = {
@@ -36,7 +35,7 @@ describe('Gemini Audio Integration Tests', () => {
     }
 
     // Mock fetch responses
-    ;(fetch as unknown as jest.Mock).mockImplementation((url: string | URL) => {
+    vi.mocked(fetch).mockImplementation((url: string | URL) => {
       const urlString = url.toString()
 
       if (urlString.includes('/api/ai/gemini/session')) {

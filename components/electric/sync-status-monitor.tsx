@@ -1,0 +1,434 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Users,
+  Activity,
+  Database,
+  Zap,
+  Pause,
+  Play,
+} from 'lucide-react'
+import { electricDb, SyncEvent } from '@/lib/electric/config'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
+
+interface SyncStatusMonitorProps {
+  compact?: boolean
+  showPresence?: boolean
+  className?: string
+}
+
+export function SyncStatusMonitor({
+  compact = false,
+  showPresence = false,
+  className = '',
+}: SyncStatusMonitorProps) {
+  // Connection and sync state
+  const [connectionState, setConnectionState] = useState('disconnected')
+  const [syncState, setSyncState] = useState('idle')
+  const [isOnline, setIsOnline] = useState(false)
+  const [realtimeStats, setRealtimeStats] = useState<any>({})
+
+  // Sync events and activity
+  const [recentEvents, setRecentEvents] = useState<SyncEvent[]>([])
+  const [syncProgress, setSyncProgress] = useState(0)
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
+
+  // Presence and collaboration
+  const [presenceSystem, setPresenceSystem] = useState<any>(null)
+  const [activeUsers, setActiveUsers] = useState<any>({})
+
+  // Error handling
+  const [errors, setErrors] = useState<Array<{ message: string; timestamp: Date }>>([])
+  const [showErrorDetails, setShowErrorDetails] = useState(false)
+
+  // Initialize presence system
+  useEffect(() => {
+    if (showPresence && electricDb.isReady()) {
+      const presence = electricDb.createPresenceSystem()
+      setPresenceSystem(presence)
+
+      // Subscribe to presence updates
+      presence.subscribeToPresence((presenceData: any) => {
+        setActiveUsers(presenceData)
+      })
+
+      // Update our own presence
+      const userId = 'current-user' // This should come from auth context
+      presence.updatePresence(userId, {
+        status: 'online',
+        activity: 'viewing_sync_monitor',
+        timestamp: new Date(),
+      })
+
+      return () => {
+        presence.removePresence(userId)
+      }
+    }
+  }, [showPresence])
+
+  // Monitor connection and sync state
+  useEffect(() => {
+    const handleStateChange = (state: { connection: string; sync: string }) => {
+      setConnectionState(state.connection)
+      setSyncState(state.sync)
+      setIsOnline(state.connection === 'connected')
+
+      // Update sync time when sync completes
+      if (state.sync === 'idle' && syncState === 'syncing') {
+        setLastSyncTime(new Date())
+        setSyncProgress(100)
+
+        // Reset progress after a delay
+        setTimeout(() => setSyncProgress(0), 2000)
+      } else if (state.sync === 'syncing') {
+        // Simulate progress during sync
+        let progress = 0
+        const interval = setInterval(() => {
+          progress += Math.random() * 10
+          if (progress >= 90) {
+            progress = 90 // Don't complete until actual sync finishes
+            clearInterval(interval)
+          }
+          setSyncProgress(progress)
+        }, 100)
+      }
+    }
+
+    // Add state listener
+    electricDb.addStateListener(handleStateChange)
+
+    // Get initial stats
+    const updateStats = () => {
+      const stats = electricDb.getRealtimeStats()
+      setRealtimeStats(stats)
+    }
+
+    updateStats()
+    const statsInterval = setInterval(updateStats, 5000) // Update every 5 seconds
+
+    return () => {
+      electricDb.removeStateListener(handleStateChange)
+      clearInterval(statsInterval)
+    }
+  }, [syncState])
+
+  // Listen for sync events
+  useEffect(() => {
+    const handleSyncEvent = (event: SyncEvent) => {
+      setRecentEvents((prev) => [event, ...prev.slice(0, 9)]) // Keep last 10 events
+    }
+
+    // Listen to all sync events
+    electricDb.addSyncEventListener('*', handleSyncEvent)
+
+    return () => {
+      electricDb.removeSyncEventListener('*', handleSyncEvent)
+    }
+  }, [])
+
+  // Manual sync trigger
+  const handleManualSync = async () => {
+    try {
+      await electricDb.sync()
+    } catch (error) {
+      setErrors((prev) => [
+        ...prev,
+        {
+          message: `Manual sync failed: ${error.message}`,
+          timestamp: new Date(),
+        },
+      ])
+    }
+  }
+
+  // Get connection status icon and color
+  const getConnectionStatus = () => {
+    switch (connectionState) {
+      case 'connected':
+        return { icon: Wifi, color: 'text-green-500', label: 'Connected' }
+      case 'connecting':
+        return { icon: RefreshCw, color: 'text-yellow-500', label: 'Connecting' }
+      case 'error':
+        return { icon: AlertCircle, color: 'text-red-500', label: 'Error' }
+      default:
+        return { icon: WifiOff, color: 'text-gray-500', label: 'Disconnected' }
+    }
+  }
+
+  // Get sync status icon and color
+  const getSyncStatus = () => {
+    switch (syncState) {
+      case 'syncing':
+        return { icon: RefreshCw, color: 'text-blue-500', label: 'Syncing', spinning: true }
+      case 'error':
+        return { icon: AlertCircle, color: 'text-red-500', label: 'Sync Error' }
+      default:
+        return { icon: CheckCircle2, color: 'text-green-500', label: 'Synced' }
+    }
+  }
+
+  const connectionStatus = getConnectionStatus()
+  const syncStatus = getSyncStatus()
+
+  if (compact) {
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <connectionStatus.icon
+          className={`h-4 w-4 ${connectionStatus.color} ${connectionStatus.icon === RefreshCw ? 'animate-spin' : ''}`}
+        />
+        <span className="text-sm text-muted-foreground">{connectionStatus.label}</span>
+        {syncState === 'syncing' && <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />}
+        {realtimeStats.offlineQueueSize > 0 && (
+          <Badge variant="outline" className="text-xs">
+            {realtimeStats.offlineQueueSize} queued
+          </Badge>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <Card className={className}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Real-time Sync Status
+            </CardTitle>
+            <CardDescription>ElectricSQL synchronization and collaboration status</CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleManualSync}
+            disabled={!isOnline || syncState === 'syncing'}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-1 ${syncState === 'syncing' ? 'animate-spin' : ''}`}
+            />
+            Sync
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {/* Connection Status */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <connectionStatus.icon
+              className={`h-5 w-5 ${connectionStatus.color} ${connectionStatus.icon === RefreshCw ? 'animate-spin' : ''}`}
+            />
+            <span className="font-medium">{connectionStatus.label}</span>
+          </div>
+          <Badge
+            variant={isOnline ? 'default' : 'secondary'}
+            className={isOnline ? 'bg-green-100 text-green-800' : ''}
+          >
+            {isOnline ? 'Online' : 'Offline'}
+          </Badge>
+        </div>
+
+        {/* Sync Status */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <syncStatus.icon
+              className={`h-5 w-5 ${syncStatus.color} ${syncStatus.spinning ? 'animate-spin' : ''}`}
+            />
+            <span className="font-medium">{syncStatus.label}</span>
+          </div>
+          {lastSyncTime && (
+            <span className="text-sm text-muted-foreground">
+              {lastSyncTime.toLocaleTimeString()}
+            </span>
+          )}
+        </div>
+
+        {/* Sync Progress */}
+        {syncState === 'syncing' && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Sync Progress</span>
+              <span>{Math.round(syncProgress)}%</span>
+            </div>
+            <Progress value={syncProgress} className="h-2" />
+          </div>
+        )}
+
+        {/* Real-time Statistics */}
+        {realtimeStats.offlineQueueSize > 0 && (
+          <Alert>
+            <Clock className="h-4 w-4" />
+            <AlertDescription>
+              {realtimeStats.offlineQueueSize} operations queued for sync
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <Separator />
+
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Subscribed Tables</p>
+            <p className="font-mono">{realtimeStats.subscribedTables?.length || 0}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Event Listeners</p>
+            <p className="font-mono">{realtimeStats.syncEventListenerCount || 0}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Reconnect Attempts</p>
+            <p className="font-mono">{realtimeStats.reconnectAttempts || 0}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-muted-foreground">Recent Events</p>
+            <p className="font-mono">{recentEvents.length}</p>
+          </div>
+        </div>
+
+        {/* Recent Sync Events */}
+        {recentEvents.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Recent Activity
+            </h4>
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              <AnimatePresence>
+                {recentEvents.slice(0, 5).map((event, index) => (
+                  <motion.div
+                    key={`${event.table}-${event.timestamp.getTime()}-${index}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="flex items-center gap-2 text-xs bg-muted/50 rounded p-2"
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        event.type === 'insert'
+                          ? 'bg-green-500'
+                          : event.type === 'update'
+                            ? 'bg-blue-500'
+                            : 'bg-red-500'
+                      }`}
+                    />
+                    <span className="font-mono">{event.table}</span>
+                    <span className="capitalize">{event.type}</span>
+                    <span className="text-muted-foreground ml-auto">
+                      {event.timestamp.toLocaleTimeString()}
+                    </span>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
+        )}
+
+        {/* Presence Information */}
+        {showPresence && Object.keys(activeUsers).length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Active Users ({Object.keys(activeUsers).length})
+            </h4>
+            <div className="space-y-1">
+              {Object.entries(activeUsers).map(([userId, userData]: [string, any]) => (
+                <div key={userId} className="flex items-center gap-2 text-xs">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <span>{userId}</span>
+                  <span className="text-muted-foreground">{userData.activity}</span>
+                  <span className="text-muted-foreground ml-auto">
+                    {new Date(userData.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {errors.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-red-600 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Errors ({errors.length})
+              </h4>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowErrorDetails(!showErrorDetails)}
+              >
+                {showErrorDetails ? 'Hide' : 'Show'}
+              </Button>
+            </div>
+
+            {showErrorDetails && (
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {errors.slice(0, 3).map((error, index) => (
+                  <div key={index} className="text-xs bg-red-50 border border-red-200 rounded p-2">
+                    <p className="text-red-800">{error.message}</p>
+                    <p className="text-red-600 mt-1">{error.timestamp.toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {errors.length > 3 && (
+              <p className="text-xs text-muted-foreground">
+                And {errors.length - 3} more errors...
+              </p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// Compact sync indicator for use in navigation bars
+export function SyncIndicator({ className = '' }: { className?: string }) {
+  const [isOnline, setIsOnline] = useState(false)
+  const [syncState, setSyncState] = useState('idle')
+
+  useEffect(() => {
+    const handleStateChange = (state: { connection: string; sync: string }) => {
+      setIsOnline(state.connection === 'connected')
+      setSyncState(state.sync)
+    }
+
+    electricDb.addStateListener(handleStateChange)
+
+    return () => {
+      electricDb.removeStateListener(handleStateChange)
+    }
+  }, [])
+
+  return (
+    <div className={`flex items-center gap-1 ${className}`}>
+      {isOnline ? (
+        <Wifi className="h-4 w-4 text-green-500" />
+      ) : (
+        <WifiOff className="h-4 w-4 text-gray-500" />
+      )}
+
+      {syncState === 'syncing' && <RefreshCw className="h-3 w-3 text-blue-500 animate-spin" />}
+    </div>
+  )
+}
+
+export default SyncStatusMonitor

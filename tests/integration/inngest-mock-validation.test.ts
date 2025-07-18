@@ -1,18 +1,112 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import type { Inngest } from 'inngest'
+
+// Mock the inngest modules before imports
+vi.mock('@/lib/inngest-factory', () => ({
+  createInngestClient: vi.fn(() => ({
+    id: 'clonedex',
+    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+  })),
+  createTaskChannel: vi.fn(() => {
+    const channel = vi.fn()
+    channel.status = vi.fn()
+    channel.update = vi.fn()
+    channel.control = vi.fn()
+    return channel
+  }),
+  createInngestFunctions: vi.fn(() => ({
+    taskControl: {
+      id: 'task-control',
+      trigger: { event: 'clonedx/task.control' },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    createTask: {
+      id: 'create-task',
+      trigger: { event: 'clonedx/create.task' },
+      handler: vi.fn().mockResolvedValue({ message: 'Task created' }),
+    },
+  })),
+}))
+
+vi.mock('@/lib/inngest-instance', () => {
+  const mockInngest = {
+    id: 'clonedex',
+    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+  }
+
+  const mockTaskChannel = vi.fn()
+  mockTaskChannel.status = vi.fn()
+  mockTaskChannel.update = vi.fn()
+  mockTaskChannel.control = vi.fn()
+
+  return {
+    inngest: mockInngest,
+    taskChannel: mockTaskChannel,
+    taskControl: {
+      id: 'task-control',
+      trigger: { event: 'clonedx/task.control' },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    createTask: {
+      id: 'create-task',
+      trigger: { event: 'clonedx/create.task' },
+      handler: vi.fn().mockResolvedValue({ message: 'Task created' }),
+    },
+    getInngest: vi.fn(() => mockInngest),
+    getTaskChannel: vi.fn(() => mockTaskChannel),
+    getInngestFunctions: vi.fn(() => ({
+      taskControl: {
+        id: 'task-control',
+        trigger: { event: 'clonedx/task.control' },
+        handler: vi.fn().mockResolvedValue({ success: true }),
+      },
+      createTask: {
+        id: 'create-task',
+        trigger: { event: 'clonedx/create.task' },
+        handler: vi.fn().mockResolvedValue({ message: 'Task created' }),
+      },
+    })),
+  }
+})
+
+vi.mock('@/lib/inngest', () => {
+  const mockInngest = {
+    id: 'clonedex',
+    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+  }
+
+  const mockTaskChannel = vi.fn()
+  mockTaskChannel.status = vi.fn()
+  mockTaskChannel.update = vi.fn()
+  mockTaskChannel.control = vi.fn()
+
+  return {
+    inngest: mockInngest,
+    taskChannel: mockTaskChannel,
+    taskControl: {
+      id: 'task-control',
+      trigger: { event: 'clonedx/task.control' },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    createTask: {
+      id: 'create-task',
+      trigger: { event: 'clonedx/create.task' },
+      handler: vi.fn().mockResolvedValue({ message: 'Task created' }),
+    },
+    getInngestApp: vi.fn(() => ({
+      id: typeof window !== 'undefined' ? 'client' : 'server',
+      send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
+    })),
+  }
+})
+
+// Import modules after mocks are set up
+import * as inngestModule from '@/lib/inngest'
+import * as inngestFactoryModule from '@/lib/inngest-factory'
+import * as inngestInstanceModule from '@/lib/inngest-instance'
 
 describe('inngest mock validation', () => {
-  let inngestModule: any
-  let inngestFactoryModule: any
-  let inngestInstanceModule: any
-
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-
-    // Dynamically import to ensure mocks are applied
-    inngestModule = await import('@/lib/inngest')
-    inngestFactoryModule = await import('@/lib/inngest-factory')
-    inngestInstanceModule = await import('@/lib/inngest-instance')
   })
 
   describe('factory module mocks', () => {

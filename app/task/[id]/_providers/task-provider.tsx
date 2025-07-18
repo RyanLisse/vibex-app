@@ -5,8 +5,8 @@ import { TaskNotFound } from '@/app/task/[id]/_components/task-not-found'
 import { useOptimizedTaskData } from '@/app/task/[id]/_hooks/use-optimized-task-data'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
 import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
+import { useTaskQuery } from '@/hooks/use-task-queries'
 import type { Task } from '@/stores/tasks'
-import { useTaskStore } from '@/stores/tasks'
 
 interface TaskContextValue {
   task: Task
@@ -34,8 +34,7 @@ interface TaskProviderProps {
  * - Provides clean context API for child components
  */
 export function TaskProvider({ taskId, children }: TaskProviderProps) {
-  const { getTaskById } = useTaskStore()
-  const task = getTaskById(taskId)
+  const { data: task, loading, error } = useTaskQuery(taskId)
 
   const { streamingMessages, subscriptionEnabled, isInitialized, lastError } = useTaskSubscription({
     taskId,
@@ -47,6 +46,23 @@ export function TaskProvider({ taskId, children }: TaskProviderProps) {
       task,
       streamingMessages,
     })
+
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-blue-600 border-b-2" />
+          <p className="font-medium text-lg">Loading task...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Handle error state
+  if (error) {
+    return <TaskNotFound taskId={taskId} />
+  }
 
   // Handle task not found
   if (!task) {

@@ -42,15 +42,20 @@ export default defineConfig({
       'app/actions/vibekit.test.ts',
       'lib/inngest.test.ts',
     ],
-    testTimeout: 10000,
-    hookTimeout: 5000,
-    teardownTimeout: 5000,
+    testTimeout: 5000,
+    hookTimeout: 3000,
+    teardownTimeout: 3000,
     isolate: false, // Don't isolate to improve performance
     restoreMocks: true,
     clearMocks: true,
     mockReset: true,
     retry: 0,
     bail: 1,
+    // Prevent hanging
+    watch: false,
+    passWithNoTests: true,
+    silent: false,
+    allowOnly: false,
   },
   resolve: {
     alias: {

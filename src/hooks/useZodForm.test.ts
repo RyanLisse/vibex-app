@@ -1,6 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, test } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
 import { vi } from 'vitest'
-import { act, renderHook, waitFor } from '@testing-library/react'
+import React from 'react'
+import { act, renderHook, waitFor, render } from '@testing-library/react'
 import { z } from 'zod'
 import {
   createZodFormProvider,
@@ -166,7 +167,7 @@ describe('useZodForm', () => {
     it('should handle submission errors', async () => {
       const onError = vi.fn()
       const { useForm } = await import('react-hook-form')
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -215,7 +216,7 @@ describe('useZodForm', () => {
 
       // Start first submission
       const firstSubmission = result.current.submitForm()
-      
+
       // Try to submit again immediately
       await act(async () => {
         await result.current.submitForm()
@@ -282,10 +283,10 @@ describe('useZodForm', () => {
   })
 
   describe('form reset', () => {
-    it('should reset to initial values', () => {
+    it('should reset to initial values', async () => {
       const { useForm } = await import('react-hook-form')
       const mockReset = vi.fn()
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -316,10 +317,10 @@ describe('useZodForm', () => {
       expect(mockReset).toHaveBeenCalled()
     })
 
-    it('should reset with new values', () => {
+    it('should reset with new values', async () => {
       const { useForm } = await import('react-hook-form')
       const mockReset = vi.fn()
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -356,7 +357,7 @@ describe('useZodForm', () => {
       expect(mockReset).toHaveBeenCalledWith(newData)
     })
 
-    it('should apply transformOnLoad when resetting', () => {
+    it('should apply transformOnLoad when resetting', async () => {
       const transformOnLoad = vi.fn((data) => ({
         ...data,
         name: data.name?.trim(),
@@ -364,7 +365,7 @@ describe('useZodForm', () => {
 
       const { useForm } = await import('react-hook-form')
       const mockReset = vi.fn()
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -447,7 +448,7 @@ describe('useZodForm', () => {
   })
 
   describe('field errors', () => {
-    it('should get field error', () => {
+    it('should get field error', async () => {
       const { useForm } = await import('react-hook-form')
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
@@ -477,7 +478,7 @@ describe('useZodForm', () => {
       expect(result.current.getFieldError('name')).toBe('Name is required')
     })
 
-    it('should check if field has error', () => {
+    it('should check if field has error', async () => {
       const { useForm } = await import('react-hook-form')
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
@@ -508,10 +509,10 @@ describe('useZodForm', () => {
       expect(result.current.hasFieldError('email')).toBe(false)
     })
 
-    it('should set field error', () => {
+    it('should set field error', async () => {
       const { useForm } = await import('react-hook-form')
       const mockSetError = vi.fn()
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -542,10 +543,10 @@ describe('useZodForm', () => {
       expect(mockSetError).toHaveBeenCalledWith('email', { message: 'Custom error' })
     })
 
-    it('should clear field error', () => {
+    it('should clear field error', async () => {
       const { useForm } = await import('react-hook-form')
       const mockClearErrors = vi.fn()
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -578,7 +579,7 @@ describe('useZodForm', () => {
   })
 
   describe('form utilities', () => {
-    it('should get form data', () => {
+    it('should get form data', async () => {
       const formData = {
         name: 'John Doe',
         email: 'john@example.com',
@@ -612,7 +613,7 @@ describe('useZodForm', () => {
       expect(result.current.getFormData()).toEqual(formData)
     })
 
-    it('should get form errors', () => {
+    it('should get form errors', async () => {
       const { useForm } = await import('react-hook-form')
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
@@ -646,7 +647,7 @@ describe('useZodForm', () => {
       })
     })
 
-    it('should get dirty fields', () => {
+    it('should get dirty fields', async () => {
       const { useForm } = await import('react-hook-form')
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
@@ -684,7 +685,7 @@ describe('useZodForm', () => {
       })
     })
 
-    it('should get changed fields', () => {
+    it('should get changed fields', async () => {
       const { useForm } = await import('react-hook-form')
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
@@ -766,7 +767,7 @@ describe('useZodForm', () => {
   })
 
   describe('storage integration', () => {
-    it('should save form data to storage', () => {
+    it('should save form data to storage', async () => {
       const { useForm } = await import('react-hook-form')
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
@@ -809,7 +810,7 @@ describe('useZodForm', () => {
       )
     })
 
-    it('should load form data from storage', () => {
+    it('should load form data from storage', async () => {
       const storedData = {
         name: 'Stored Name',
         email: 'stored@example.com',
@@ -819,7 +820,7 @@ describe('useZodForm', () => {
 
       const { useForm } = await import('react-hook-form')
       const mockSetValue = vi.fn()
-      
+
       ;(useForm as unknown as jest.Mock).mockReturnValue({
         register: vi.fn(),
         handleSubmit: vi.fn((fn) => fn),
@@ -1012,13 +1013,9 @@ describe('createZodFormProvider', () => {
     const FormProvider = createZodFormProvider(testSchema)
 
     const childrenMock = vi.fn()
-    childrenMock.mockReturnValue(<div>Form content</div>)
+    childrenMock.mockReturnValue(React.createElement('div', null, 'Form content'))
 
-    render(
-      <FormProvider onSubmit={vi.fn()}>
-        {childrenMock}
-      </FormProvider>
-    )
+    render(React.createElement(FormProvider, { onSubmit: vi.fn() }, childrenMock))
 
     expect(childrenMock).toHaveBeenCalled()
     expect(childrenMock.mock.calls[0][0]).toHaveProperty('submitForm')
@@ -1032,16 +1029,18 @@ describe('createZodFormProvider', () => {
     const onError = vi.fn()
 
     const childrenMock = vi.fn()
-    childrenMock.mockReturnValue(<div>Form content</div>)
+    childrenMock.mockReturnValue(React.createElement('div', null, 'Form content'))
 
     render(
-      <FormProvider
-        onSubmit={onSubmit}
-        onError={onError}
-        validateOnMount={true}
-      >
-        {childrenMock}
-      </FormProvider>
+      React.createElement(
+        FormProvider,
+        {
+          onSubmit: onSubmit,
+          onError: onError,
+          validateOnMount: true,
+        },
+        childrenMock
+      )
     )
 
     expect(childrenMock).toHaveBeenCalled()

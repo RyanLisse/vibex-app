@@ -1,5 +1,5 @@
 'use client'
-import { HardDrive, Split } from 'lucide-react'
+import { HardDrive, Split, RefreshCw, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { createTaskAction } from '@/app/actions/inngest'
@@ -11,9 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
-import { useEnvironmentStore } from '@/stores/environments'
-import { useTaskStore } from '@/stores/tasks'
+import { useEnvironmentsQuery } from '@/hooks/use-environment-queries'
+import { useCreateTaskMutation } from '@/hooks/use-task-queries'
+import { useElectricContext } from '@/components/providers/electric-provider'
+import { observability } from '@/lib/observability'
 
 // Helper functions for form logic
 const adjustTextareaHeight = (textarea: HTMLTextAreaElement) => {
@@ -26,38 +31,63 @@ const getDefaultBranch = (branches: Array<{ name: string; isDefault?: boolean }>
 }
 
 const getRepositoryFromEnvironment = (
-  environments: Array<{ id: string; githubRepository?: string }>,
+  environments: Array<{ id: string; config?: { githubRepository?: string } }>,
   envId: string
 ) => {
-  return environments.find((env) => env.id === envId)?.githubRepository || ''
+  return environments.find((env) => env.id === envId)?.config?.githubRepository || ''
 }
 
 const createTaskData = (
   value: string,
   mode: 'code' | 'ask',
   selectedBranch: string,
-  environments: Array<{ id: string; githubRepository?: string }>,
-  selectedEnvironment: string
+  environments: Array<{ id: string; config?: { githubRepository?: string } }>,
+  selectedEnvironment: string,
+  userId: string
 ) => ({
   title: value,
   hasChanges: false,
   description: '',
   messages: [],
-  status: 'IN_PROGRESS' as const,
+  status: 'pending' as const,
+  priority: 'medium' as const,
   branch: selectedBranch,
   sessionId: '',
   repository: getRepositoryFromEnvironment(environments, selectedEnvironment),
   mode,
+  userId,
+  assignee: userId,
 })
 
-export default function NewTaskForm() {
-  const { environments } = useEnvironmentStore()
-  const { addTask } = useTaskStore()
+interface NewTaskFormProps {
+  userId?: string
+}
+
+export default function NewTaskForm({ userId }: NewTaskFormProps) {
+  // ElectricSQL connection status
+  const { isConnected, isSyncing, error: electricError } = useElectricContext()
+
+  // Query for environments
+  const {
+    environments,
+    loading: environmentsLoading,
+    error: environmentsError,
+    refetch: refetchEnvironments,
+    isStale: environmentsStale,
+  } = useEnvironmentsQuery({ userId })
+
+  // GitHub auth and branches
   const { branches, fetchBranches } = useGitHubAuth()
+
+  // Task creation mutation
+  const createTaskMutation = useCreateTaskMutation()
+
+  // Form state
   const [selectedBranch, setSelectedBranch] = useState<string>(getDefaultBranch(branches))
-  const [selectedEnvironment, setSelectedEnvironment] = useState<string>(environments[0]?.id || '')
+  const [selectedEnvironment, setSelectedEnvironment] = useState<string>('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [value, setValue] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const adjustHeight = () => {
     const textarea = textareaRef.current
@@ -67,14 +97,46 @@ export default function NewTaskForm() {
   }
 
   const handleAddTask = async (mode: 'code' | 'ask') => {
-    if (!value) {
+    if (!value.trim() || !userId) {
       return
     }
 
-    const taskData = createTaskData(value, mode, selectedBranch, environments, selectedEnvironment)
-    const task = addTask(taskData)
-    await createTaskAction({ task })
-    setValue('')
+    setIsSubmitting(true)
+
+    try {
+      const taskData = createTaskData(
+        value,
+        mode,
+        selectedBranch,
+        environments || [],
+        selectedEnvironment,
+        userId
+      )
+
+      // Create task with optimistic updates
+      const newTask = await createTaskMutation.mutateAsync(taskData)
+
+      // Trigger Inngest workflow
+      await createTaskAction({ task: newTask })
+
+      // Clear form
+      setValue('')
+
+      // Record user action
+      await observability.events.collector.collectEvent(
+        'user_action',
+        'info',
+        `Task created: ${newTask.title}`,
+        { taskId: newTask.id, userId, mode, repository: taskData.repository },
+        'ui',
+        ['task', 'create']
+      )
+    } catch (error) {
+      console.error('Failed to create task:', error)
+      // Error handling is managed by the mutation hook's error boundary
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Effects for initialization and state management
@@ -83,16 +145,16 @@ export default function NewTaskForm() {
   }, [adjustHeight])
 
   useEffect(() => {
-    if (environments.length > 0 && !selectedEnvironment) {
+    if (environments && environments.length > 0 && !selectedEnvironment) {
       setSelectedEnvironment(environments[0].id)
     }
   }, [environments, selectedEnvironment])
 
   useEffect(() => {
-    if (selectedEnvironment) {
+    if (selectedEnvironment && environments) {
       const environment = environments.find((env) => env.id === selectedEnvironment)
-      if (environment?.githubRepository) {
-        fetchBranches(environment.githubRepository)
+      if (environment?.config?.githubRepository) {
+        fetchBranches(environment.config.githubRepository)
       }
     }
   }, [selectedEnvironment, environments, fetchBranches])
@@ -102,6 +164,51 @@ export default function NewTaskForm() {
       setSelectedBranch(getDefaultBranch(branches))
     }
   }, [branches])
+
+  // Connection status indicator
+  const ConnectionStatus = () => (
+    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+      {isConnected ? (
+        <>
+          <Wifi className="h-4 w-4 text-green-500" />
+          <span>Online</span>
+          {isSyncing && <RefreshCw className="h-4 w-4 animate-spin" />}
+        </>
+      ) : (
+        <>
+          <WifiOff className="h-4 w-4 text-red-500" />
+          <span>Offline</span>
+        </>
+      )}
+      {environmentsStale && (
+        <Badge variant="outline" className="text-xs ml-2">
+          Stale Data
+        </Badge>
+      )}
+    </div>
+  )
+
+  // Loading skeleton for environments
+  const EnvironmentsLoadingSkeleton = () => (
+    <div className="flex items-center gap-x-2">
+      <Skeleton className="h-9 w-32" />
+      <Skeleton className="h-9 w-24" />
+    </div>
+  )
+
+  if (environmentsLoading) {
+    return (
+      <div className="mx-auto mt-14 flex w-full max-w-3xl flex-col gap-y-10">
+        <h1 className="text-center font-bold text-4xl">Ready to ship something new?</h1>
+        <div className="rounded-lg bg-muted p-0.5">
+          <div className="flex flex-col gap-y-2 rounded-lg border bg-background p-4">
+            <Skeleton className="min-h-[100px] w-full" />
+            <EnvironmentsLoadingSkeleton />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto mt-14 flex w-full max-w-3xl flex-col gap-y-10">
@@ -114,16 +221,42 @@ export default function NewTaskForm() {
             placeholder="Describe a task you want to ship..."
             ref={textareaRef}
             value={value}
+            disabled={isSubmitting}
           />
+          {/* Connection and error status */}
+          <ConnectionStatus />
+
+          {electricError && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Real-time sync unavailable. Working in offline mode.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {environmentsError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>Failed to load environments: {environmentsError.message}</span>
+                <Button variant="outline" size="sm" onClick={refetchEnvironments}>
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-x-2">
-              {environments.length > 0 ? (
+              {environments && environments.length > 0 ? (
                 <Select
                   onValueChange={(value) => setSelectedEnvironment(value)}
                   value={selectedEnvironment || ''}
+                  disabled={isSubmitting}
                 >
                   <SelectTrigger>
-                    <HardDrive />
+                    <HardDrive className="h-4 w-4" />
                     <SelectValue placeholder="Choose a repository" />
                   </SelectTrigger>
                   <SelectContent>
@@ -131,7 +264,7 @@ export default function NewTaskForm() {
                       <SelectItem key={environment.id} value={environment.id}>
                         <div className="flex w-full">
                           <span className="max-w-[150px] truncate">
-                            {environment.githubRepository}
+                            {environment.config?.githubRepository || environment.name}
                           </span>
                         </div>
                       </SelectItem>
@@ -141,15 +274,19 @@ export default function NewTaskForm() {
               ) : (
                 <Link href="/environments" passHref>
                   <Button className="rounded-lg" variant="outline">
-                    <HardDrive />
+                    <HardDrive className="h-4 w-4" />
                     Create an environment
                   </Button>
                 </Link>
               )}
               {selectedEnvironment && (
-                <Select onValueChange={(value) => setSelectedBranch(value)} value={selectedBranch}>
+                <Select
+                  onValueChange={(value) => setSelectedBranch(value)}
+                  value={selectedBranch}
+                  disabled={isSubmitting}
+                >
                   <SelectTrigger>
-                    <Split />
+                    <Split className="h-4 w-4" />
                     <SelectValue placeholder="Branch..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -166,10 +303,19 @@ export default function NewTaskForm() {
             </div>
             {value && (
               <div className="flex items-center gap-x-2">
-                <Button onClick={() => handleAddTask('ask')} variant="outline">
-                  Ask
+                <Button
+                  onClick={() => handleAddTask('ask')}
+                  variant="outline"
+                  disabled={isSubmitting || createTaskMutation.isPending}
+                >
+                  {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Ask'}
                 </Button>
-                <Button onClick={() => handleAddTask('code')}>Code</Button>
+                <Button
+                  onClick={() => handleAddTask('code')}
+                  disabled={isSubmitting || createTaskMutation.isPending}
+                >
+                  {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Code'}
+                </Button>
               </div>
             )}
           </div>

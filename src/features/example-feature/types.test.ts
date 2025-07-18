@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, test } from "bun:test"
+import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
 import { vi } from 'vitest'
 import type {
   ExampleFilter,
@@ -69,7 +69,7 @@ describe('ExampleItem type', () => {
       }
 
       expect(item.status).toBe(status)
-    })
+    }
   })
 
   it('should accept all valid priority values', () => {
@@ -86,7 +86,7 @@ describe('ExampleItem type', () => {
       }
 
       expect(item.priority).toBe(priority)
-    })
+    }
   })
 })
 
@@ -132,7 +132,7 @@ describe('ExampleFormData type', () => {
       }
 
       expect(formData.priority).toBe(priority)
-    })
+    }
   })
 })
 
@@ -193,7 +193,7 @@ describe('ExampleFilter type', () => {
     for (const status of statuses) {
       const filter: ExampleFilter = { status }
       expect(filter.status).toBe(status)
-    })
+    }
   })
 
   it('should accept all valid priority values', () => {
@@ -202,7 +202,7 @@ describe('ExampleFilter type', () => {
     for (const priority of priorities) {
       const filter: ExampleFilter = { priority }
       expect(filter.priority).toBe(priority)
-    })
+    }
   })
 
   it('should accept empty string as searchTerm', () => {
@@ -862,7 +862,7 @@ describe('Type guards and utility functions', () => {
     for (const status of allStatuses) {
       const filter: ExampleFilter = { status }
       expect(filter.status).toBe(status)
-    })
+    }
   })
 
   it('should handle conditional types', () => {

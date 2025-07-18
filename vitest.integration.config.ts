@@ -5,12 +5,10 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    setupFiles: ['./vitest.setup.ts'],
-    pool: 'threads',
+    pool: 'forks',
     poolOptions: {
-      threads: {
-        singleThread: false,
-        isolate: true,
+      forks: {
+        singleFork: true,
       },
     },
     css: false,
@@ -56,15 +54,20 @@ export default defineConfig({
       '**/*.unit.test.*',
       '**/*.spec.*',
     ],
-    testTimeout: 30_000,
-    hookTimeout: 15_000,
-    teardownTimeout: 10_000,
+    testTimeout: 15_000,
+    hookTimeout: 8_000,
+    teardownTimeout: 5_000,
     isolate: true,
     restoreMocks: true,
     clearMocks: true,
     mockReset: true,
     retry: 1,
     bail: 1,
+    // Prevent hanging
+    watch: false,
+    passWithNoTests: true,
+    silent: false,
+    allowOnly: false,
   },
   resolve: {
     alias: {

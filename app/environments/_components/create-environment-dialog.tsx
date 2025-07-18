@@ -9,17 +9,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, RefreshCw } from 'lucide-react'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
-import { useEnvironmentStore } from '@/stores/environments'
+import { useCreateEnvironmentMutation } from '@/hooks/use-environment-queries'
+import { observability } from '@/lib/observability'
 
 interface CreateEnvironmentDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  userId?: string
 }
 
-export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironmentDialogProps) {
+export function CreateEnvironmentDialog({
+  isOpen,
+  onOpenChange,
+  userId,
+}: CreateEnvironmentDialogProps) {
   const { isAuthenticated, repositories, fetchRepositories } = useGitHubAuth()
-  const { createEnvironment } = useEnvironmentStore()
+  const createEnvironmentMutation = useCreateEnvironmentMutation()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -28,6 +36,7 @@ export function CreateEnvironmentDialog({ isOpen, onOpenChange }: CreateEnvironm
     selectedRepository: '',
   })
   const [isCreating, setIsCreating] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isAuthenticated && isOpen) {

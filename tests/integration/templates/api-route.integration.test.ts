@@ -1,5 +1,4 @@
-import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
-import { vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { integrationTestHelpers } from '../../../vitest.setup'
 
 /**
@@ -13,7 +12,7 @@ import { integrationTestHelpers } from '../../../vitest.setup'
  */
 describe('API Route Integration Template', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('GET /api/example', () => {
@@ -171,14 +170,14 @@ describe('API Route Integration Template', () => {
 
   describe('Error Handling Integration', () => {
     it('should handle network timeouts', async () => {
-      const fetchMock = mock(fetch)
+      const fetchMock = vi.mocked(fetch)
       fetchMock.mockRejectedValue(new Error('Network timeout'))
 
       await expect(fetch('/api/example')).rejects.toThrow('Network timeout')
     })
 
     it('should handle malformed JSON', async () => {
-      const fetchMock = mock(fetch)
+      const fetchMock = vi.mocked(fetch)
       fetchMock.mockResolvedValue({
         ok: false,
         status: 400,
