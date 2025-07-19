@@ -16,19 +16,26 @@ export function useTaskMessageHandler(): UseTaskMessageHandlerReturn {
   const queryClient = useQueryClient()
 
   // Create adapter functions to bridge TanStack Query with MessageHandlers interface
-  const updateTaskAdapter = useCallback((id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
-    updateTaskMutation.mutate({ id, ...updates })
-  }, [updateTaskMutation])
+  const updateTaskAdapter = useCallback(
+    (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
+      updateTaskMutation.mutate({ id, ...updates })
+    },
+    [updateTaskMutation]
+  )
 
-  const getTaskByIdAdapter = useCallback((id: string): Task | undefined => {
-    return queryClient.getQueryData(taskKeys.detail(id))
-  }, [queryClient])
+  const getTaskByIdAdapter = useCallback(
+    (id: string): Task | undefined => {
+      return queryClient.getQueryData(taskKeys.detail(id))
+    },
+    [queryClient]
+  )
 
   const messageHandlers = useMemo(
-    () => new MessageHandlers({
-      updateTask: updateTaskAdapter,
-      getTaskById: getTaskByIdAdapter
-    }),
+    () =>
+      new MessageHandlers({
+        updateTask: updateTaskAdapter,
+        getTaskById: getTaskByIdAdapter,
+      }),
     [updateTaskAdapter, getTaskByIdAdapter]
   )
 

@@ -66,7 +66,7 @@ describe('Migration CLI Tests', () => {
 
     // Setup default mocks
     mockExistsSync.mockReturnValue(true)
-    
+
     // Mock migration service
     vi.mocked(migrationService.getMigrationStatistics).mockResolvedValue({
       localStorageStats: {
@@ -76,7 +76,7 @@ describe('Migration CLI Tests', () => {
         totalSize: 1024,
         keysSizes: {
           'task-store': 512,
-          'environments': 256,
+          environments: 256,
           'other-key': 256,
         },
       },
@@ -135,7 +135,7 @@ describe('Migration CLI Tests', () => {
       unknownKeys: 4,
       keysSizes: {
         'task-store': 1024,
-        'environments': 512,
+        environments: 512,
       },
     })
 
@@ -192,7 +192,8 @@ describe('Migration CLI Tests', () => {
   describe('Status Command', () => {
     it('should display migration status', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts status', {
-        stdout: 'Migration Status\nLocal Storage Data: 2 known keys\nDatabase Data: 10 tasks, 3 environments\nReady to migrate: Yes',
+        stdout:
+          'Migration Status\nLocal Storage Data: 2 known keys\nDatabase Data: 10 tasks, 3 environments\nReady to migrate: Yes',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts status')
@@ -205,7 +206,8 @@ describe('Migration CLI Tests', () => {
 
     it('should display verbose status information', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts status --verbose', {
-        stdout: 'Migration Status\n  task-store: 512 bytes\n  environments: 256 bytes\nBackups: 2 available',
+        stdout:
+          'Migration Status\n  task-store: 512 bytes\n  environments: 256 bytes\nBackups: 2 available',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts status --verbose')
@@ -225,9 +227,7 @@ describe('Migration CLI Tests', () => {
         stderr: 'Failed to check status: Database connection failed',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts status')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts status')).toThrow()
     })
 
     it('should display user-specific status', async () => {
@@ -245,7 +245,8 @@ describe('Migration CLI Tests', () => {
   describe('Migrate Command', () => {
     it('should perform migration successfully', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts migrate', {
-        stdout: 'Starting migration...\nMigration completed successfully!\nItems Processed: 15\nItems Success: 15\nItems Failed: 0\nDuration: 5000ms\nBackup created: backup-123',
+        stdout:
+          'Starting migration...\nMigration completed successfully!\nItems Processed: 15\nItems Success: 15\nItems Failed: 0\nDuration: 5000ms\nBackup created: backup-123',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts migrate')
@@ -258,7 +259,8 @@ describe('Migration CLI Tests', () => {
 
     it('should perform dry run migration', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts migrate --dry-run', {
-        stdout: 'Running in dry-run mode - no data will be modified\nMigration completed successfully!\nItems Processed: 15',
+        stdout:
+          'Running in dry-run mode - no data will be modified\nMigration completed successfully!\nItems Processed: 15',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts migrate --dry-run')
@@ -274,7 +276,7 @@ describe('Migration CLI Tests', () => {
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts migrate --batch-size 25')
-      
+
       expect(vi.mocked(migrationService.startMigration)).toHaveBeenCalledWith(
         expect.objectContaining({ batchSize: 25 }),
         undefined
@@ -298,7 +300,8 @@ describe('Migration CLI Tests', () => {
       })
 
       mockCLIExecution('bun run scripts/migration-cli.ts migrate --continue-on-error', {
-        stdout: 'Migration completed successfully!\nItems Failed: 3\nErrors:\n  1. Invalid task data\n  2. Invalid task data\n  3. Invalid task data',
+        stdout:
+          'Migration completed successfully!\nItems Failed: 3\nErrors:\n  1. Invalid task data\n  2. Invalid task data\n  3. Invalid task data',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts migrate --continue-on-error')
@@ -324,9 +327,7 @@ describe('Migration CLI Tests', () => {
         stderr: 'Migration failed or completed with errors',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts migrate')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts migrate')).toThrow()
     })
 
     it('should handle migration with retry attempts', async () => {
@@ -335,7 +336,7 @@ describe('Migration CLI Tests', () => {
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts migrate --retry-attempts 5')
-      
+
       expect(vi.mocked(migrationService.startMigration)).toHaveBeenCalledWith(
         expect.objectContaining({ retryAttempts: 5 }),
         undefined
@@ -343,12 +344,17 @@ describe('Migration CLI Tests', () => {
     })
 
     it('should handle migration with conflict resolution strategy', async () => {
-      mockCLIExecution('bun run scripts/migration-cli.ts migrate --conflict-resolution MERGE_FAVOR_LOCAL', {
-        stdout: 'Migration completed successfully!',
-      })
+      mockCLIExecution(
+        'bun run scripts/migration-cli.ts migrate --conflict-resolution MERGE_FAVOR_LOCAL',
+        {
+          stdout: 'Migration completed successfully!',
+        }
+      )
 
-      const result = mockExecSync('bun run scripts/migration-cli.ts migrate --conflict-resolution MERGE_FAVOR_LOCAL')
-      
+      const result = mockExecSync(
+        'bun run scripts/migration-cli.ts migrate --conflict-resolution MERGE_FAVOR_LOCAL'
+      )
+
       expect(vi.mocked(migrationService.startMigration)).toHaveBeenCalledWith(
         expect.objectContaining({ conflictResolution: 'MERGE_FAVOR_LOCAL' }),
         undefined
@@ -361,7 +367,7 @@ describe('Migration CLI Tests', () => {
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts migrate --no-backup')
-      
+
       expect(vi.mocked(migrationService.startMigration)).toHaveBeenCalledWith(
         expect.objectContaining({ backupBeforeMigration: false }),
         undefined
@@ -372,7 +378,8 @@ describe('Migration CLI Tests', () => {
   describe('Backup Commands', () => {
     it('should list backups', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts backup list', {
-        stdout: 'Available Backups\n1. backup-1\n   Created: 1/1/2024\n   Items: 10\n   Size: 1 KB\n2. backup-2\n   Created: 1/2/2024\n   Items: 20\n   Size: 2 KB',
+        stdout:
+          'Available Backups\n1. backup-1\n   Created: 1/1/2024\n   Items: 10\n   Size: 1 KB\n2. backup-2\n   Created: 1/2/2024\n   Items: 20\n   Size: 2 KB',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts backup list')
@@ -398,7 +405,8 @@ describe('Migration CLI Tests', () => {
 
     it('should create new backup', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts backup create', {
-        stdout: 'Creating backup...\nBackup created: new-backup-123\nItems: 15\nSize: 1.5 KB\nTypes: tasks, environments',
+        stdout:
+          'Creating backup...\nBackup created: new-backup-123\nItems: 15\nSize: 1.5 KB\nTypes: tasks, environments',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts backup create')
@@ -409,12 +417,17 @@ describe('Migration CLI Tests', () => {
     })
 
     it('should create backup with options', async () => {
-      mockCLIExecution('bun run scripts/migration-cli.ts backup create --source DATABASE --compress --description "Test backup"', {
-        stdout: 'Creating backup...\nBackup created: new-backup-123',
-      })
+      mockCLIExecution(
+        'bun run scripts/migration-cli.ts backup create --source DATABASE --compress --description "Test backup"',
+        {
+          stdout: 'Creating backup...\nBackup created: new-backup-123',
+        }
+      )
 
-      const result = mockExecSync('bun run scripts/migration-cli.ts backup create --source DATABASE --compress --description "Test backup"')
-      
+      const result = mockExecSync(
+        'bun run scripts/migration-cli.ts backup create --source DATABASE --compress --description "Test backup"'
+      )
+
       expect(vi.mocked(backupService.createBackup)).toHaveBeenCalledWith({
         source: 'DATABASE',
         compress: true,
@@ -435,9 +448,7 @@ describe('Migration CLI Tests', () => {
         stderr: 'Backup creation failed: Insufficient storage space',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts backup create')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts backup create')).toThrow()
     })
 
     it('should restore backup', async () => {
@@ -472,7 +483,8 @@ describe('Migration CLI Tests', () => {
   describe('Extract Command', () => {
     it('should extract localStorage data', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts extract', {
-        stdout: 'Extracting localStorage data...\nExtraction Result\nTasks found: 1\nEnvironments found: 1\nForm data keys: 1\nStorage Statistics:\nTotal size: 2 KB\nTotal keys: 6\nKnown keys: 2\nUnknown keys: 4',
+        stdout:
+          'Extracting localStorage data...\nExtraction Result\nTasks found: 1\nEnvironments found: 1\nForm data keys: 1\nStorage Statistics:\nTotal size: 2 KB\nTotal keys: 6\nKnown keys: 2\nUnknown keys: 4',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts extract')
@@ -485,7 +497,8 @@ describe('Migration CLI Tests', () => {
 
     it('should extract with verbose output', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts extract --verbose', {
-        stdout: 'Extracting localStorage data...\nTasks found: 1\n  1. Test Task (pending)\nEnvironments found: 1\n  1. Test Environment',
+        stdout:
+          'Extracting localStorage data...\nTasks found: 1\n  1. Test Task (pending)\nEnvironments found: 1\n  1. Test Environment',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts extract --verbose')
@@ -505,7 +518,8 @@ describe('Migration CLI Tests', () => {
       })
 
       mockCLIExecution('bun run scripts/migration-cli.ts extract', {
-        stdout: 'Extraction Result\nErrors:\n  1. Invalid JSON in localStorage\nWarnings:\n  1. Some warnings',
+        stdout:
+          'Extraction Result\nErrors:\n  1. Invalid JSON in localStorage\nWarnings:\n  1. Some warnings',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts extract')
@@ -516,18 +530,14 @@ describe('Migration CLI Tests', () => {
     })
 
     it('should handle extraction failure', async () => {
-      vi.mocked(dataExtractor.extractAll).mockRejectedValue(
-        new Error('localStorage access denied')
-      )
+      vi.mocked(dataExtractor.extractAll).mockRejectedValue(new Error('localStorage access denied'))
 
       mockCLIExecution('bun run scripts/migration-cli.ts extract', {
         exitCode: 1,
         stderr: 'Failed to extract data: localStorage access denied',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts extract')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts extract')).toThrow()
     })
   })
 
@@ -535,12 +545,11 @@ describe('Migration CLI Tests', () => {
     it('should refuse to clear without confirmation', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts clear', {
         exitCode: 1,
-        stderr: 'This operation will permanently delete localStorage data!\nUse --confirm flag to proceed: migration-cli clear --confirm',
+        stderr:
+          'This operation will permanently delete localStorage data!\nUse --confirm flag to proceed: migration-cli clear --confirm',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts clear')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts clear')).toThrow()
     })
 
     it('should clear localStorage with confirmation', async () => {
@@ -562,9 +571,7 @@ describe('Migration CLI Tests', () => {
         stderr: 'Failed to clear localStorage data',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts clear --confirm')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts clear --confirm')).toThrow()
     })
   })
 
@@ -575,9 +582,7 @@ describe('Migration CLI Tests', () => {
         stderr: 'Uncaught exception: Unexpected error occurred',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts status')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts status')).toThrow()
     })
 
     it('should handle unhandled rejections', async () => {
@@ -586,14 +591,13 @@ describe('Migration CLI Tests', () => {
         stderr: 'Unhandled rejection: Promise rejected unexpectedly',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts migrate')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts migrate')).toThrow()
     })
 
     it('should show help when no command provided', async () => {
       mockCLIExecution('bun run scripts/migration-cli.ts', {
-        stdout: 'Usage: migration-cli [options] [command]\nCommands:\n  status      Check migration status\n  migrate     Start migration\n  backup      Manage backups\n  extract     Extract localStorage data\n  clear       Clear localStorage data',
+        stdout:
+          'Usage: migration-cli [options] [command]\nCommands:\n  status      Check migration status\n  migrate     Start migration\n  backup      Manage backups\n  extract     Extract localStorage data\n  clear       Clear localStorage data',
       })
 
       const result = mockExecSync('bun run scripts/migration-cli.ts')
@@ -609,9 +613,7 @@ describe('Migration CLI Tests', () => {
         stderr: "error: unknown command 'invalid-command'",
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts invalid-command')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts invalid-command')).toThrow()
     })
 
     it('should handle invalid options', async () => {
@@ -683,9 +685,7 @@ describe('Migration CLI Tests', () => {
         stderr: '\x1b[31m✗ Migration failed\x1b[0m',
       })
 
-      expect(() =>
-        mockExecSync('bun run scripts/migration-cli.ts migrate')
-      ).toThrow()
+      expect(() => mockExecSync('bun run scripts/migration-cli.ts migrate')).toThrow()
     })
 
     it('should use colors for warning messages', async () => {

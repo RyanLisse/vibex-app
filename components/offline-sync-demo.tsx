@@ -5,16 +5,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
-  Wifi, 
-  WifiOff, 
-  RefreshCw, 
-  Database, 
-  Clock, 
+import {
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  Database,
+  Clock,
   AlertCircle,
   CheckCircle,
   Loader2,
-  Trash2
+  Trash2,
 } from 'lucide-react'
 import { useOfflineSync } from '@/hooks/use-offline-sync'
 
@@ -50,9 +50,9 @@ export function OfflineSyncDemo() {
       priority: 'medium',
       userId: 'demo-user',
     })
-    
+
     // Update task title for next operation
-    setTestData(prev => ({
+    setTestData((prev) => ({
       ...prev,
       taskTitle: `Task ${Date.now()}`,
     }))
@@ -113,11 +113,9 @@ export function OfflineSyncDemo() {
                 {connectionStatus.icon}
                 {connectionStatus.label}
               </Badge>
-              <span className="text-sm text-muted-foreground">
-                {connectionStatus.description}
-              </span>
+              <span className="text-sm text-muted-foreground">{connectionStatus.description}</span>
             </div>
-            
+
             {syncInProgress && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -141,9 +139,7 @@ export function OfflineSyncDemo() {
               <div className="text-sm text-muted-foreground">Failed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">
-                {lastSyncTime ? '✓' : '—'}
-              </div>
+              <div className="text-2xl font-bold">{lastSyncTime ? '✓' : '—'}</div>
               <div className="text-sm text-muted-foreground">Last Sync</div>
             </div>
           </div>
@@ -164,7 +160,9 @@ export function OfflineSyncDemo() {
                 <div className="space-y-1">
                   <div className="font-medium">Sync Errors:</div>
                   {syncErrors.map((error, index) => (
-                    <div key={index} className="text-sm">{error}</div>
+                    <div key={index} className="text-sm">
+                      {error}
+                    </div>
                   ))}
                 </div>
               </AlertDescription>
@@ -174,9 +172,9 @@ export function OfflineSyncDemo() {
           {/* Test Operations */}
           <div className="space-y-3">
             <h4 className="font-medium">Test Operations</h4>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <Button 
+              <Button
                 onClick={handleCreateTask}
                 variant="outline"
                 size="sm"
@@ -185,8 +183,8 @@ export function OfflineSyncDemo() {
                 <CheckCircle className="h-4 w-4" />
                 Create Task
               </Button>
-              
-              <Button 
+
+              <Button
                 onClick={handleUpdateTask}
                 variant="outline"
                 size="sm"
@@ -195,8 +193,8 @@ export function OfflineSyncDemo() {
                 <RefreshCw className="h-4 w-4" />
                 Update Task
               </Button>
-              
-              <Button 
+
+              <Button
                 onClick={handleDeleteTask}
                 variant="outline"
                 size="sm"
@@ -210,7 +208,7 @@ export function OfflineSyncDemo() {
 
           {/* Manual Controls */}
           <div className="flex gap-2 pt-4 border-t">
-            <Button 
+            <Button
               onClick={manualSync}
               disabled={isOffline || syncInProgress}
               variant="default"
@@ -224,16 +222,12 @@ export function OfflineSyncDemo() {
               )}
               Manual Sync
             </Button>
-            
-            <Button 
-              onClick={testOfflineMode}
-              variant="outline"
-              size="sm"
-            >
+
+            <Button onClick={testOfflineMode} variant="outline" size="sm">
               Test Offline Mode
             </Button>
-            
-            <Button 
+
+            <Button
               onClick={clearQueue}
               variant="destructive"
               size="sm"

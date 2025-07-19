@@ -1,6 +1,6 @@
 /**
  * Simplified ElectricSQL Configuration
- * 
+ *
  * This configuration uses @electric-sql/pglite for client-side database
  * instead of wa-sqlite to avoid build complexity
  */
@@ -10,7 +10,8 @@ import { PGlite } from '@electric-sql/pglite'
 // ElectricSQL configuration
 export const electricConfig = {
   // Database connection URL - will be set from environment
-  url: process.env.ELECTRIC_URL || process.env.DATABASE_URL || 'postgresql://localhost:5432/vibekit',
+  url:
+    process.env.ELECTRIC_URL || process.env.DATABASE_URL || 'postgresql://localhost:5432/vibekit',
 
   // Authentication configuration
   auth: {
@@ -92,7 +93,7 @@ export async function createPGliteInstance() {
 
     // Wait for database to be ready
     await db.waitReady()
-    
+
     return db
   } catch (error) {
     console.error('Failed to initialize PGlite:', error)

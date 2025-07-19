@@ -1,6 +1,6 @@
 /**
  * CI/CD Quality Gates Integration Tests
- * 
+ *
  * Comprehensive test suite for CI/CD quality gates including coverage thresholds,
  * performance benchmarks, security checks, and automated deployment validation
  */
@@ -19,25 +19,25 @@ const QUALITY_THRESHOLDS = {
     lines: 80,
     functions: 80,
     branches: 75,
-    statements: 80
+    statements: 80,
   },
   performance: {
     maxBuildTime: 300000, // 5 minutes
     maxTestTime: 180000, // 3 minutes
     maxBundleSize: 2048, // 2MB
-    maxResponseTime: 200 // 200ms
+    maxResponseTime: 200, // 200ms
   },
   security: {
     maxHighVulnerabilities: 0,
     maxMediumVulnerabilities: 5,
-    maxDependencyAge: 365 // days
+    maxDependencyAge: 365, // days
   },
   codeQuality: {
     maxLintErrors: 0,
     maxLintWarnings: 10,
     maxTypeErrors: 0,
-    maxComplexity: 10
-  }
+    maxComplexity: 10,
+  },
 }
 
 // CI/CD Pipeline status
@@ -71,7 +71,7 @@ interface QualityGateReport {
 class QualityGateValidator {
   async runQualityGates(): Promise<QualityGateReport> {
     const stages: PipelineResult[] = []
-    
+
     // Run all quality gate stages
     stages.push(await this.validateCodeQuality())
     stages.push(await this.validateTestCoverage())
@@ -80,8 +80,8 @@ class QualityGateValidator {
     stages.push(await this.validateBuildArtifacts())
     stages.push(await this.validateDeploymentReadiness())
 
-    const passedStages = stages.filter(s => s.passed).length
-    const failedStages = stages.filter(s => !s.passed).length
+    const passedStages = stages.filter((s) => s.passed).length
+    const failedStages = stages.filter((s) => !s.passed).length
     const warningsCount = stages.reduce((sum, s) => sum + (s.warnings?.length || 0), 0)
 
     const overall = failedStages > 0 ? 'FAILED' : warningsCount > 0 ? 'WARNING' : 'PASSED'
@@ -93,14 +93,14 @@ class QualityGateValidator {
         totalStages: stages.length,
         passedStages,
         failedStages,
-        warnings: warningsCount
+        warnings: warningsCount,
       },
       metrics: {
         coverage: await this.getCoverageMetrics(),
         performance: await this.getPerformanceMetrics(),
         security: await this.getSecurityMetrics(),
-        codeQuality: await this.getCodeQualityMetrics()
-      }
+        codeQuality: await this.getCodeQualityMetrics(),
+      },
     }
   }
 
@@ -121,18 +121,23 @@ class QualityGateValidator {
       try {
         const { stdout } = await execAsync('bun run lint --format json')
         const lintResults = JSON.parse(stdout)
-        
-        const errorCount = lintResults.reduce((sum: number, file: any) => 
-          sum + file.errorCount, 0)
-        const warningCount = lintResults.reduce((sum: number, file: any) => 
-          sum + file.warningCount, 0)
+
+        const errorCount = lintResults.reduce((sum: number, file: any) => sum + file.errorCount, 0)
+        const warningCount = lintResults.reduce(
+          (sum: number, file: any) => sum + file.warningCount,
+          0
+        )
 
         if (errorCount > QUALITY_THRESHOLDS.codeQuality.maxLintErrors) {
-          errors.push(`Lint errors (${errorCount}) exceed threshold (${QUALITY_THRESHOLDS.codeQuality.maxLintErrors})`)
+          errors.push(
+            `Lint errors (${errorCount}) exceed threshold (${QUALITY_THRESHOLDS.codeQuality.maxLintErrors})`
+          )
         }
 
         if (warningCount > QUALITY_THRESHOLDS.codeQuality.maxLintWarnings) {
-          warnings.push(`Lint warnings (${warningCount}) exceed threshold (${QUALITY_THRESHOLDS.codeQuality.maxLintWarnings})`)
+          warnings.push(
+            `Lint warnings (${warningCount}) exceed threshold (${QUALITY_THRESHOLDS.codeQuality.maxLintWarnings})`
+          )
         }
       } catch (error) {
         // Lint command might not support JSON format, continue
@@ -152,7 +157,7 @@ class QualityGateValidator {
         duration: Date.now() - startTime,
         details: { errors, warnings },
         errors,
-        warnings
+        warnings,
       }
     } catch (error) {
       return {
@@ -160,7 +165,7 @@ class QualityGateValidator {
         passed: false,
         duration: Date.now() - startTime,
         details: { error: error.message },
-        errors: [error.message]
+        errors: [error.message],
       }
     }
   }
@@ -196,7 +201,7 @@ class QualityGateValidator {
         duration: Date.now() - startTime,
         details: coverage,
         errors,
-        warnings
+        warnings,
       }
     } catch (error) {
       return {
@@ -204,7 +209,7 @@ class QualityGateValidator {
         passed: false,
         duration: Date.now() - startTime,
         details: { error: error.message },
-        errors: [error.message]
+        errors: [error.message],
       }
     }
   }
@@ -221,13 +226,17 @@ class QualityGateValidator {
       const buildTime = Date.now() - buildStart
 
       if (buildTime > QUALITY_THRESHOLDS.performance.maxBuildTime) {
-        errors.push(`Build time (${buildTime}ms) exceeds threshold (${QUALITY_THRESHOLDS.performance.maxBuildTime}ms)`)
+        errors.push(
+          `Build time (${buildTime}ms) exceeds threshold (${QUALITY_THRESHOLDS.performance.maxBuildTime}ms)`
+        )
       }
 
       // Check bundle size
       const bundleSize = await this.getBundleSize()
       if (bundleSize > QUALITY_THRESHOLDS.performance.maxBundleSize) {
-        warnings.push(`Bundle size (${bundleSize}KB) exceeds threshold (${QUALITY_THRESHOLDS.performance.maxBundleSize}KB)`)
+        warnings.push(
+          `Bundle size (${bundleSize}KB) exceeds threshold (${QUALITY_THRESHOLDS.performance.maxBundleSize}KB)`
+        )
       }
 
       // Run performance tests
@@ -237,7 +246,9 @@ class QualityGateValidator {
         const testTime = Date.now() - testStart
 
         if (testTime > QUALITY_THRESHOLDS.performance.maxTestTime) {
-          warnings.push(`Performance test time (${testTime}ms) exceeds threshold (${QUALITY_THRESHOLDS.performance.maxTestTime}ms)`)
+          warnings.push(
+            `Performance test time (${testTime}ms) exceeds threshold (${QUALITY_THRESHOLDS.performance.maxTestTime}ms)`
+          )
         }
       } catch (error) {
         warnings.push('Performance tests failed or not available')
@@ -249,7 +260,7 @@ class QualityGateValidator {
         duration: Date.now() - startTime,
         details: { buildTime, bundleSize },
         errors,
-        warnings
+        warnings,
       }
     } catch (error) {
       return {
@@ -257,7 +268,7 @@ class QualityGateValidator {
         passed: false,
         duration: Date.now() - startTime,
         details: { error: error.message },
-        errors: [error.message]
+        errors: [error.message],
       }
     }
   }
@@ -277,11 +288,15 @@ class QualityGateValidator {
         const mediumVulns = auditResults.vulnerabilities?.medium || 0
 
         if (highVulns > QUALITY_THRESHOLDS.security.maxHighVulnerabilities) {
-          errors.push(`High severity vulnerabilities (${highVulns}) exceed threshold (${QUALITY_THRESHOLDS.security.maxHighVulnerabilities})`)
+          errors.push(
+            `High severity vulnerabilities (${highVulns}) exceed threshold (${QUALITY_THRESHOLDS.security.maxHighVulnerabilities})`
+          )
         }
 
         if (mediumVulns > QUALITY_THRESHOLDS.security.maxMediumVulnerabilities) {
-          warnings.push(`Medium severity vulnerabilities (${mediumVulns}) exceed threshold (${QUALITY_THRESHOLDS.security.maxMediumVulnerabilities})`)
+          warnings.push(
+            `Medium severity vulnerabilities (${mediumVulns}) exceed threshold (${QUALITY_THRESHOLDS.security.maxMediumVulnerabilities})`
+          )
         }
       } catch (error) {
         warnings.push('Security audit failed or not available')
@@ -305,7 +320,7 @@ class QualityGateValidator {
         duration: Date.now() - startTime,
         details: { secretsFound, outdatedDeps },
         errors,
-        warnings
+        warnings,
       }
     } catch (error) {
       return {
@@ -313,7 +328,7 @@ class QualityGateValidator {
         passed: false,
         duration: Date.now() - startTime,
         details: { error: error.message },
-        errors: [error.message]
+        errors: [error.message],
       }
     }
   }
@@ -325,13 +340,9 @@ class QualityGateValidator {
 
     try {
       // Check if build outputs exist
-      const expectedArtifacts = [
-        '.next',
-        '.next/static',
-        '.next/server'
-      ]
+      const expectedArtifacts = ['.next', '.next/static', '.next/server']
 
-      expectedArtifacts.forEach(artifact => {
+      expectedArtifacts.forEach((artifact) => {
         if (!existsSync(artifact)) {
           errors.push(`Missing build artifact: ${artifact}`)
         }
@@ -339,7 +350,7 @@ class QualityGateValidator {
 
       // Validate package.json
       const packageJson = JSON.parse(readFileSync('package.json', 'utf-8'))
-      
+
       if (!packageJson.version) {
         errors.push('Missing version in package.json')
       }
@@ -349,9 +360,12 @@ class QualityGateValidator {
       }
 
       // Check for source maps in production build
-      const hasSourceMaps = existsSync('.next/static/chunks') && 
-        require('fs').readdirSync('.next/static/chunks').some((file: string) => file.endsWith('.map'))
-      
+      const hasSourceMaps =
+        existsSync('.next/static/chunks') &&
+        require('fs')
+          .readdirSync('.next/static/chunks')
+          .some((file: string) => file.endsWith('.map'))
+
       if (hasSourceMaps) {
         warnings.push('Source maps found in production build')
       }
@@ -362,7 +376,7 @@ class QualityGateValidator {
         duration: Date.now() - startTime,
         details: { artifacts: expectedArtifacts, hasSourceMaps },
         errors,
-        warnings
+        warnings,
       }
     } catch (error) {
       return {
@@ -370,7 +384,7 @@ class QualityGateValidator {
         passed: false,
         duration: Date.now() - startTime,
         details: { error: error.message },
-        errors: [error.message]
+        errors: [error.message],
       }
     }
   }
@@ -382,14 +396,10 @@ class QualityGateValidator {
 
     try {
       // Check environment configuration
-      const requiredEnvVars = [
-        'NODE_ENV',
-        'DATABASE_URL',
-        'NEXTAUTH_SECRET'
-      ]
+      const requiredEnvVars = ['NODE_ENV', 'DATABASE_URL', 'NEXTAUTH_SECRET']
 
       // In real implementation, these would be checked against deployment environment
-      requiredEnvVars.forEach(envVar => {
+      requiredEnvVars.forEach((envVar) => {
         if (!process.env[envVar] && envVar !== 'NEXTAUTH_SECRET') {
           warnings.push(`Environment variable ${envVar} not set`)
         }
@@ -411,15 +421,17 @@ class QualityGateValidator {
         // In real implementation, this would test actual API endpoints
         const healthEndpoints = ['/api/health', '/api/status']
         // Mock successful health checks for now
-        const healthCheckResults = healthEndpoints.map(endpoint => ({
+        const healthCheckResults = healthEndpoints.map((endpoint) => ({
           endpoint,
           status: 200,
-          responseTime: Math.random() * 100 + 50
+          responseTime: Math.random() * 100 + 50,
         }))
 
-        healthCheckResults.forEach(result => {
+        healthCheckResults.forEach((result) => {
           if (result.responseTime > QUALITY_THRESHOLDS.performance.maxResponseTime) {
-            warnings.push(`${result.endpoint} response time (${result.responseTime}ms) exceeds threshold`)
+            warnings.push(
+              `${result.endpoint} response time (${result.responseTime}ms) exceeds threshold`
+            )
           }
         })
       } catch (error) {
@@ -432,7 +444,7 @@ class QualityGateValidator {
         duration: Date.now() - startTime,
         details: { requiredEnvVars },
         errors,
-        warnings
+        warnings,
       }
     } catch (error) {
       return {
@@ -440,7 +452,7 @@ class QualityGateValidator {
         passed: false,
         duration: Date.now() - startTime,
         details: { error: error.message },
-        errors: [error.message]
+        errors: [error.message],
       }
     }
   }
@@ -452,7 +464,7 @@ class QualityGateValidator {
       functions: 82.3,
       branches: 78.9,
       statements: 86.1,
-      uncoveredFiles: ['src/utils/legacy.ts', 'lib/deprecated.ts']
+      uncoveredFiles: ['src/utils/legacy.ts', 'lib/deprecated.ts'],
     }
   }
 
@@ -461,7 +473,7 @@ class QualityGateValidator {
       buildTime: 120000, // 2 minutes
       bundleSize: 1024, // 1MB
       testExecutionTime: 90000, // 1.5 minutes
-      averageResponseTime: 150 // 150ms
+      averageResponseTime: 150, // 150ms
     }
   }
 
@@ -470,10 +482,10 @@ class QualityGateValidator {
       vulnerabilities: {
         high: 0,
         medium: 2,
-        low: 5
+        low: 5,
       },
       secretsFound: 0,
-      outdatedDependencies: 3
+      outdatedDependencies: 3,
     }
   }
 
@@ -483,7 +495,7 @@ class QualityGateValidator {
       lintWarnings: 5,
       typeErrors: 0,
       codeComplexity: 7.2,
-      technicalDebt: '2h 30m'
+      technicalDebt: '2h 30m',
     }
   }
 
@@ -502,27 +514,23 @@ class QualityGateValidator {
 
   async scanForSecrets(): Promise<string[]> {
     // Mock secret scanning - in real implementation, use tools like truffleHog
-    const secretPatterns = [
-      /api[_-]?key/i,
-      /password/i,
-      /secret/i,
-      /token/i
-    ]
+    const secretPatterns = [/api[_-]?key/i, /password/i, /secret/i, /token/i]
 
     // Scan common files for potential secrets
-    const filesToScan = [
-      'package.json',
-      '.env.example'
-    ]
+    const filesToScan = ['package.json', '.env.example']
 
     const foundSecrets: string[] = []
 
-    filesToScan.forEach(file => {
+    filesToScan.forEach((file) => {
       try {
         if (existsSync(file)) {
           const content = readFileSync(file, 'utf-8')
-          secretPatterns.forEach(pattern => {
-            if (pattern.test(content) && !content.includes('test-') && !content.includes('example-')) {
+          secretPatterns.forEach((pattern) => {
+            if (
+              pattern.test(content) &&
+              !content.includes('test-') &&
+              !content.includes('example-')
+            ) {
               foundSecrets.push(`Potential secret in ${file}`)
             }
           })
@@ -539,8 +547,8 @@ class QualityGateValidator {
     try {
       const { stdout } = await execAsync('npm outdated --json')
       const outdatedPackages = JSON.parse(stdout)
-      
-      return Object.keys(outdatedPackages).filter(pkg => {
+
+      return Object.keys(outdatedPackages).filter((pkg) => {
         // Mock age calculation - in real implementation, check actual package dates
         return Math.random() > 0.7 // 30% chance of being "outdated"
       })
@@ -575,17 +583,17 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       console.log(`Passed Stages: ${report.summary.passedStages}/${report.summary.totalStages}`)
       console.log(`Warnings: ${report.summary.warnings}`)
 
-      report.stages.forEach(stage => {
+      report.stages.forEach((stage) => {
         const status = stage.passed ? '✅' : '❌'
         const duration = `${stage.duration}ms`
         console.log(`${status} ${stage.stage} (${duration})`)
-        
+
         if (stage.errors?.length) {
-          stage.errors.forEach(error => console.log(`  ❌ ${error}`))
+          stage.errors.forEach((error) => console.log(`  ❌ ${error}`))
         }
-        
+
         if (stage.warnings?.length) {
-          stage.warnings.forEach(warning => console.log(`  ⚠️  ${warning}`))
+          stage.warnings.forEach((warning) => console.log(`  ⚠️  ${warning}`))
         }
       })
 
@@ -600,10 +608,10 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       const codeQualityResult = await qualityGateValidator.validateCodeQuality()
 
       expect(codeQualityResult.passed).toBe(true)
-      
+
       if (!codeQualityResult.passed) {
         console.log('Code Quality Failures:')
-        codeQualityResult.errors?.forEach(error => console.log(`  - ${error}`))
+        codeQualityResult.errors?.forEach((error) => console.log(`  - ${error}`))
       }
     })
 
@@ -611,7 +619,7 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       const coverageResult = await qualityGateValidator.validateTestCoverage()
 
       expect(coverageResult.passed).toBe(true)
-      
+
       const coverage = coverageResult.details
       expect(coverage.lines).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.coverage.lines)
       expect(coverage.functions).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.coverage.functions)
@@ -623,10 +631,10 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       const performanceResult = await qualityGateValidator.validatePerformance()
 
       expect(performanceResult.passed).toBe(true)
-      
+
       const { buildTime, bundleSize } = performanceResult.details
       expect(buildTime).toBeLessThanOrEqual(QUALITY_THRESHOLDS.performance.maxBuildTime)
-      
+
       if (bundleSize > QUALITY_THRESHOLDS.performance.maxBundleSize) {
         console.warn(`Bundle size (${bundleSize}KB) exceeds recommended threshold`)
       }
@@ -636,7 +644,7 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       const securityResult = await qualityGateValidator.validateSecurity()
 
       expect(securityResult.passed).toBe(true)
-      
+
       const { secretsFound } = securityResult.details
       expect(secretsFound).toHaveLength(0)
     })
@@ -645,7 +653,7 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       const artifactsResult = await qualityGateValidator.validateBuildArtifacts()
 
       expect(artifactsResult.passed).toBe(true)
-      
+
       // Verify critical build outputs exist
       expect(existsSync('package.json')).toBe(true)
       expect(existsSync('next.config.ts')).toBe(true)
@@ -655,7 +663,7 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       const deploymentResult = await qualityGateValidator.validateDeploymentReadiness()
 
       expect(deploymentResult.passed).toBe(true)
-      
+
       // In production, this would validate against actual deployment environment
       console.log('Deployment readiness validated')
     })
@@ -665,13 +673,13 @@ describe('CI/CD Quality Gates Integration Tests', () => {
     it('should fail when coverage is below threshold', async () => {
       // Mock low coverage scenario
       const mockValidator = new QualityGateValidator()
-      
+
       // Override getCoverageMetrics to return low coverage
       mockValidator.getCoverageMetrics = async () => ({
         lines: 60, // Below 80% threshold
         functions: 70, // Below 80% threshold
         branches: 65, // Below 75% threshold
-        statements: 75 // Below 80% threshold
+        statements: 75, // Below 80% threshold
       })
 
       const coverageResult = await mockValidator.validateTestCoverage()
@@ -682,10 +690,10 @@ describe('CI/CD Quality Gates Integration Tests', () => {
     it('should fail when build time exceeds threshold', async () => {
       // Mock slow build scenario
       const mockValidator = new QualityGateValidator()
-      
+
       // This would be tested with actual slow builds in real scenarios
       const performanceResult = await mockValidator.validatePerformance()
-      
+
       // For this test, we just verify the structure
       expect(performanceResult.stage).toBe('Performance')
       expect(performanceResult.duration).toBeGreaterThan(0)
@@ -694,13 +702,13 @@ describe('CI/CD Quality Gates Integration Tests', () => {
     it('should fail when security vulnerabilities are found', async () => {
       // Mock security vulnerability scenario
       const mockValidator = new QualityGateValidator()
-      
+
       // Override security scanning to return vulnerabilities
       mockValidator.scanForSecrets = async () => ['api-key-in-config.js', 'password-in-utils.ts']
 
       const securityResult = await mockValidator.validateSecurity()
       expect(securityResult.passed).toBe(false)
-      expect(securityResult.errors?.some(error => error.includes('secrets'))).toBe(true)
+      expect(securityResult.errors?.some((error) => error.includes('secrets'))).toBe(true)
     })
   })
 
@@ -723,13 +731,13 @@ describe('CI/CD Quality Gates Integration Tests', () => {
     it('should provide actionable feedback for failures', async () => {
       const report = await qualityGateValidator.runQualityGates()
 
-      report.stages.forEach(stage => {
+      report.stages.forEach((stage) => {
         if (!stage.passed) {
           expect(stage.errors).toBeDefined()
           expect(stage.errors?.length).toBeGreaterThan(0)
-          
+
           // Each error should be actionable
-          stage.errors?.forEach(error => {
+          stage.errors?.forEach((error) => {
             expect(error).toBeTruthy()
             expect(typeof error).toBe('string')
             expect(error.length).toBeGreaterThan(10) // Non-trivial error message
@@ -740,18 +748,18 @@ describe('CI/CD Quality Gates Integration Tests', () => {
 
     it('should support parallel execution of quality gates', async () => {
       const startTime = Date.now()
-      
+
       // Run multiple quality gates in parallel
       const parallelGates = await Promise.all([
         qualityGateValidator.validateCodeQuality(),
         qualityGateValidator.validateSecurity(),
-        qualityGateValidator.validateBuildArtifacts()
+        qualityGateValidator.validateBuildArtifacts(),
       ])
 
       const totalTime = Date.now() - startTime
 
       expect(parallelGates).toHaveLength(3)
-      parallelGates.forEach(result => {
+      parallelGates.forEach((result) => {
         expect(result).toHaveProperty('stage')
         expect(result).toHaveProperty('passed')
         expect(result).toHaveProperty('duration')
@@ -784,7 +792,7 @@ describe('CI/CD Quality Gates Integration Tests', () => {
         lines: 82.1,
         functions: 79.8,
         branches: 76.3,
-        statements: 83.5
+        statements: 83.5,
       }
 
       // Calculate improvements/regressions
@@ -801,18 +809,20 @@ describe('CI/CD Quality Gates Integration Tests', () => {
 
 // Helper function to generate JUnit XML report
 function generateJUnitReport(report: QualityGateReport): string {
-  const testsuites = report.stages.map(stage => {
-    const testcase = `
+  const testsuites = report.stages
+    .map((stage) => {
+      const testcase = `
     <testcase name="${stage.stage}" time="${stage.duration / 1000}">
       ${!stage.passed ? `<failure message="${stage.errors?.join('; ')}">${stage.errors?.join('\n')}</failure>` : ''}
       ${stage.warnings?.length ? `<system-out>${stage.warnings.join('\n')}</system-out>` : ''}
     </testcase>`
-    
-    return `
+
+      return `
   <testsuite name="Quality Gates" tests="${report.stages.length}" failures="${report.summary.failedStages}" time="${report.stages.reduce((sum, s) => sum + s.duration, 0) / 1000}">
     ${testcase}
   </testsuite>`
-  }).join('')
+    })
+    .join('')
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuites>

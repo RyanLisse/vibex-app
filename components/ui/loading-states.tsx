@@ -175,7 +175,12 @@ interface ErrorDisplayProps {
   className?: string
 }
 
-export function ErrorDisplay({ error, onRetry, title = 'Something went wrong', className }: ErrorDisplayProps) {
+export function ErrorDisplay({
+  error,
+  onRetry,
+  title = 'Something went wrong',
+  className,
+}: ErrorDisplayProps) {
   if (!error) return null
 
   const errorMessage = typeof error === 'string' ? error : error.message
@@ -188,12 +193,7 @@ export function ErrorDisplay({ error, onRetry, title = 'Something went wrong', c
           <div className="font-medium">{title}</div>
           <div className="text-sm">{errorMessage}</div>
           {onRetry && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRetry}
-              className="mt-2"
-            >
+            <Button variant="outline" size="sm" onClick={onRetry} className="mt-2">
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
@@ -265,7 +265,11 @@ interface OfflineIndicatorProps {
   onSync?: () => void
 }
 
-export function OfflineIndicator({ isOffline, queuedOperations = 0, onSync }: OfflineIndicatorProps) {
+export function OfflineIndicator({
+  isOffline,
+  queuedOperations = 0,
+  onSync,
+}: OfflineIndicatorProps) {
   if (!isOffline) return null
 
   return (
@@ -277,7 +281,8 @@ export function OfflineIndicator({ isOffline, queuedOperations = 0, onSync }: Of
             <span className="font-medium">You're offline</span>
             {queuedOperations > 0 && (
               <span className="ml-2 text-sm">
-                {queuedOperations} change{queuedOperations !== 1 ? 's' : ''} will sync when reconnected
+                {queuedOperations} change{queuedOperations !== 1 ? 's' : ''} will sync when
+                reconnected
               </span>
             )}
           </div>

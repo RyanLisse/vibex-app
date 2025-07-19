@@ -82,7 +82,7 @@ export function useElectricTasks(userId?: string) {
   // Set up real-time sync event listeners
   useEffect(() => {
     const handleTaskSyncEvent = (event: SyncEvent) => {
-      setSyncEvents((prev) => [event, ...prev.slice(0, 9)]) // Keep last 10 events
+      setLocalSyncEvents((prev) => [event, ...prev.slice(0, 9)]) // Keep last 10 events
 
       // Trigger data refetch when sync events occur
       if (event.table === 'tasks') {
@@ -238,7 +238,7 @@ export function useElectricTasks(userId?: string) {
       const optimisticTask = { ...updates, id: taskId, updatedAt: new Date() }
 
       // Emit optimistic sync event
-      setSyncEvents((prev) => [
+      setLocalSyncEvents((prev) => [
         {
           type: 'update',
           table: 'tasks',
@@ -344,11 +344,11 @@ export function useElectricTasks(userId?: string) {
     const realtimeStats = electricDb.getRealtimeStats()
     return {
       ...realtimeStats,
-      recentEvents: syncEvents.length,
+      recentEvents: localSyncEvents.length,
       conflicts: conflicts.length,
-      lastSyncEvent: syncEvents[0]?.timestamp,
+      lastSyncEvent: localSyncEvents[0]?.timestamp,
     }
-  }, [syncEvents, conflicts])
+  }, [localSyncEvents, conflicts])
 
   return {
     // Data
@@ -358,7 +358,7 @@ export function useElectricTasks(userId?: string) {
 
     // Real-time state
     isOnline,
-    syncEvents: syncEvents.slice(0, 5), // Return last 5 events
+    syncEvents: localSyncEvents.slice(0, 5), // Return last 5 events
     conflicts,
 
     // Loading states
@@ -382,7 +382,7 @@ export function useElectricTasks(userId?: string) {
     manualSync: () => electricDb.sync(),
     forceRefresh: async () => {
       await refetchTasks()
-      setSyncEvents([])
+      setLocalSyncEvents([])
     },
   }
 }

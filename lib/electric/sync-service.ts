@@ -46,25 +46,25 @@ export class ElectricSyncService {
   private async setupTableSync(): Promise<void> {
     // Configure sync for tasks table
     await this.setupTasksSync()
-    
+
     // Configure sync for environments table
     await this.setupEnvironmentsSync()
-    
+
     // Configure sync for agent executions table
     await this.setupAgentExecutionsSync()
-    
+
     // Configure sync for observability events table
     await this.setupObservabilityEventsSync()
-    
+
     // Configure sync for agent memory table
     await this.setupAgentMemorySync()
-    
+
     // Configure sync for workflows table
     await this.setupWorkflowsSync()
-    
+
     // Configure sync for workflow executions table
     await this.setupWorkflowExecutionsSync()
-    
+
     // Configure sync for execution snapshots table
     await this.setupExecutionSnapshotsSync()
   }
@@ -82,7 +82,7 @@ export class ElectricSyncService {
             count: tasks.length,
             timestamp: new Date(),
           })
-          
+
           // Emit custom event for UI updates
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('tasks:updated', { detail: tasks }))
@@ -110,7 +110,7 @@ export class ElectricSyncService {
             count: environments.length,
             timestamp: new Date(),
           })
-          
+
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('environments:updated', { detail: environments }))
           }
@@ -137,9 +137,11 @@ export class ElectricSyncService {
             count: executions.length,
             timestamp: new Date(),
           })
-          
+
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('agent-executions:updated', { detail: executions }))
+            window.dispatchEvent(
+              new CustomEvent('agent-executions:updated', { detail: executions })
+            )
           }
         },
         {
@@ -157,28 +159,33 @@ export class ElectricSyncService {
    * Set up observability events table synchronization
    */
   private async setupObservabilityEventsSync(): Promise<void> {
-    return this.observability.trackOperation('sync-service.setup-observability-events', async () => {
-      const unsubscribe = this.electricClient.subscribe<schema.ObservabilityEvent>(
-        'observability_events',
-        (events) => {
-          this.observability.recordEvent('sync.observability-events.updated', {
-            count: events.length,
-            timestamp: new Date(),
-          })
-          
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('observability-events:updated', { detail: events }))
-          }
-        },
-        {
-          orderBy: { timestamp: 'desc' },
-          limit: 500, // Limit for performance
-        }
-      )
+    return this.observability.trackOperation(
+      'sync-service.setup-observability-events',
+      async () => {
+        const unsubscribe = this.electricClient.subscribe<schema.ObservabilityEvent>(
+          'observability_events',
+          (events) => {
+            this.observability.recordEvent('sync.observability-events.updated', {
+              count: events.length,
+              timestamp: new Date(),
+            })
 
-      this.subscriptions.set('observability_events', unsubscribe)
-      console.log('Observability events sync configured')
-    })
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(
+                new CustomEvent('observability-events:updated', { detail: events })
+              )
+            }
+          },
+          {
+            orderBy: { timestamp: 'desc' },
+            limit: 500, // Limit for performance
+          }
+        )
+
+        this.subscriptions.set('observability_events', unsubscribe)
+        console.log('Observability events sync configured')
+      }
+    )
   }
 
   /**
@@ -193,7 +200,7 @@ export class ElectricSyncService {
             count: memories.length,
             timestamp: new Date(),
           })
-          
+
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('agent-memory:updated', { detail: memories }))
           }
@@ -221,7 +228,7 @@ export class ElectricSyncService {
             count: workflows.length,
             timestamp: new Date(),
           })
-          
+
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('workflows:updated', { detail: workflows }))
           }
@@ -249,9 +256,11 @@ export class ElectricSyncService {
             count: executions.length,
             timestamp: new Date(),
           })
-          
+
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('workflow-executions:updated', { detail: executions }))
+            window.dispatchEvent(
+              new CustomEvent('workflow-executions:updated', { detail: executions })
+            )
           }
         },
         {
@@ -277,9 +286,11 @@ export class ElectricSyncService {
             count: snapshots.length,
             timestamp: new Date(),
           })
-          
+
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('execution-snapshots:updated', { detail: snapshots }))
+            window.dispatchEvent(
+              new CustomEvent('execution-snapshots:updated', { detail: snapshots })
+            )
           }
         },
         {
@@ -307,7 +318,7 @@ export class ElectricSyncService {
   ): () => void {
     return this.observability.trackOperationSync('sync-service.subscribe', () => {
       const subscriptionKey = `custom_${tableName}_${Date.now()}`
-      
+
       const unsubscribe = this.electricClient.subscribe<T>(
         tableName,
         (data) => {
@@ -351,7 +362,7 @@ export class ElectricSyncService {
     activeSubscriptions: number
   } {
     const connectionStatus = this.electricClient.getConnectionStatus()
-    
+
     return {
       ...connectionStatus,
       activeSubscriptions: this.subscriptions.size,
@@ -361,7 +372,13 @@ export class ElectricSyncService {
   /**
    * Get conflict log
    */
-  getConflictLog(): Array<{ table: string; id: string; conflict: any; resolution: any; timestamp: Date }> {
+  getConflictLog(): Array<{
+    table: string
+    id: string
+    conflict: any
+    resolution: any
+    timestamp: Date
+  }> {
     return this.electricClient.getConflictLog()
   }
 
@@ -372,7 +389,7 @@ export class ElectricSyncService {
     const healthCheckInterval = setInterval(async () => {
       try {
         const status = this.getSyncStatus()
-        
+
         this.observability.recordEvent('sync-service.health-check', {
           status,
           timestamp: new Date(),
@@ -391,7 +408,8 @@ export class ElectricSyncService {
         // Alert if disconnected for too long
         if (!status.isConnected && status.lastSyncTime) {
           const timeSinceLastSync = Date.now() - status.lastSyncTime.getTime()
-          if (timeSinceLastSync > 300000) { // 5 minutes
+          if (timeSinceLastSync > 300000) {
+            // 5 minutes
             console.warn(`ElectricSQL disconnected for ${Math.round(timeSinceLastSync / 1000)}s`)
           }
         }

@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from "bun:test"
+import { describe, expect, it, test } from 'bun:test'
 import type {
   TelemetryBackend,
   TelemetryConfig,
@@ -65,7 +65,7 @@ describe('TelemetryBackend type', () => {
       'newrelic',
       'honeycomb',
       'tempo',
-      'otlp'
+      'otlp',
     ]
 
     expect(backends).toHaveLength(7)

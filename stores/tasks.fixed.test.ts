@@ -704,7 +704,7 @@ describe('useTaskStore', () => {
       // Should be in reverse order (newest first)
       expect(activeTasks[0].id).toBe(task3.id)
       expect(activeTasks[1].id).toBe(task1.id)
-      expect(activeTasks.every(task => !task.isArchived)).toBe(true)
+      expect(activeTasks.every((task) => !task.isArchived)).toBe(true)
     })
 
     it('should return empty array when all tasks are archived', () => {
@@ -772,10 +772,10 @@ describe('useTaskStore', () => {
       const archivedTasks = useTaskStore.getState().getArchivedTasks()
 
       expect(archivedTasks).toHaveLength(2)
-      expect(archivedTasks.every(task => task.isArchived)).toBe(true)
-      expect(archivedTasks.map(t => t.id)).toContain(task1.id)
-      expect(archivedTasks.map(t => t.id)).toContain(task3.id)
-      expect(archivedTasks.map(t => t.id)).not.toContain(task2.id)
+      expect(archivedTasks.every((task) => task.isArchived)).toBe(true)
+      expect(archivedTasks.map((t) => t.id)).toContain(task1.id)
+      expect(archivedTasks.map((t) => t.id)).toContain(task3.id)
+      expect(archivedTasks.map((t) => t.id)).not.toContain(task2.id)
     })
 
     it('should return empty array when no tasks are archived', () => {
@@ -908,8 +908,8 @@ describe('useTaskStore', () => {
 
       const doneTasks = useTaskStore.getState().getTasksByStatus('DONE')
       expect(doneTasks).toHaveLength(2)
-      expect(doneTasks.map(t => t.id)).toContain(doneTask1.id)
-      expect(doneTasks.map(t => t.id)).toContain(doneTask2.id)
+      expect(doneTasks.map((t) => t.id)).toContain(doneTask1.id)
+      expect(doneTasks.map((t) => t.id)).toContain(doneTask2.id)
 
       const pausedTasks = useTaskStore.getState().getTasksByStatus('PAUSED')
       expect(pausedTasks).toHaveLength(1)
@@ -980,8 +980,8 @@ describe('useTaskStore', () => {
 
       const sessionATasks = useTaskStore.getState().getTasksBySessionId('session-A')
       expect(sessionATasks).toHaveLength(2)
-      expect(sessionATasks.map(t => t.id)).toContain(task1.id)
-      expect(sessionATasks.map(t => t.id)).toContain(task3.id)
+      expect(sessionATasks.map((t) => t.id)).toContain(task1.id)
+      expect(sessionATasks.map((t) => t.id)).toContain(task3.id)
 
       const sessionBTasks = useTaskStore.getState().getTasksBySessionId('session-B')
       expect(sessionBTasks).toHaveLength(1)

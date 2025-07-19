@@ -1,6 +1,6 @@
 /**
  * ElectricSQL Query API Route
- * 
+ *
  * Provides a server-side query endpoint for ElectricSQL to fallback to
  * when local PGlite queries fail or when using server-first sync mode.
  */
@@ -42,7 +42,7 @@ type ElectricQueryResponse = z.infer<typeof ElectricQueryResponseSchema>
  */
 export async function POST(request: NextRequest) {
   const tracer = observability.getTracer('electric-query-api')
-  
+
   return tracer.startActiveSpan('electric-query-post', async (span) => {
     try {
       span.setAttributes({
@@ -112,15 +112,14 @@ export async function POST(request: NextRequest) {
           source: 'server',
         },
       })
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      
+
       span.recordException(error as Error)
       span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage })
 
       console.error('Electric query API error:', error)
-      
+
       return createApiErrorResponse(
         'Failed to execute query',
         500,
@@ -138,7 +137,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   const tracer = observability.getTracer('electric-query-api')
-  
+
   return tracer.startActiveSpan('electric-query-get', async (span) => {
     try {
       span.setAttributes({
@@ -164,10 +163,9 @@ export async function GET() {
 
       span.setStatus({ code: SpanStatusCode.OK })
       return createApiSuccessResponse(response)
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      
+
       span.recordException(error as Error)
       span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage })
 

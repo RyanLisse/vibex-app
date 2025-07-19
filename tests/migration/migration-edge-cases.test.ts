@@ -185,9 +185,7 @@ describe('Migration System Edge Cases', () => {
       const transformResult = dataMapper.transformTasks([largeTask as any])
 
       expect(transformResult.warnings).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('Large data detected'),
-        ])
+        expect.arrayContaining([expect.stringContaining('Large data detected')])
       )
     })
 
@@ -441,9 +439,7 @@ describe('Migration System Edge Cases', () => {
       const results = await Promise.allSettled([migration1, migration2])
 
       // One should succeed, one should fail due to concurrent access
-      const successCount = results.filter(
-        (r) => r.status === 'fulfilled' && r.value.success
-      ).length
+      const successCount = results.filter((r) => r.status === 'fulfilled' && r.value.success).length
       const failureCount = results.filter(
         (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
       ).length
@@ -692,7 +688,7 @@ describe('Migration System Edge Cases', () => {
 
       // Mock beforeunload event
       const beforeUnloadEvent = new Event('beforeunload')
-      
+
       // Start migration
       const migrationPromise = migrationService.startMigration({
         dryRun: false,
@@ -731,9 +727,7 @@ describe('Migration System Edge Cases', () => {
       const transformResult = dataMapper.transformTasks(tasksWithSensitiveData as any)
 
       expect(transformResult.warnings).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('Potentially sensitive data detected'),
-        ])
+        expect.arrayContaining([expect.stringContaining('Potentially sensitive data detected')])
       )
 
       // Sensitive data should be masked or removed
@@ -759,9 +753,7 @@ describe('Migration System Edge Cases', () => {
       const transformResult = dataMapper.transformTasks(tasksWithXSS as any)
 
       expect(transformResult.warnings).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('Potentially malicious content detected'),
-        ])
+        expect.arrayContaining([expect.stringContaining('Potentially malicious content detected')])
       )
 
       // XSS content should be sanitized

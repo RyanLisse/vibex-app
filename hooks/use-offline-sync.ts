@@ -63,10 +63,12 @@ export function useOfflineSync() {
         const stored = localStorage.getItem('electric_offline_queue')
         if (stored) {
           const queue = JSON.parse(stored) as OfflineOperation[]
-          setOfflineQueue(queue.map(op => ({
-            ...op,
-            timestamp: new Date(op.timestamp)
-          })))
+          setOfflineQueue(
+            queue.map((op) => ({
+              ...op,
+              timestamp: new Date(op.timestamp),
+            }))
+          )
         }
       } catch (error) {
         console.error('Failed to load offline queue:', error)
@@ -86,28 +88,31 @@ export function useOfflineSync() {
   }, [offlineQueue])
 
   // Queue an operation for offline processing
-  const queueOperation = useCallback((
-    type: 'insert' | 'update' | 'delete',
-    table: string,
-    data: Record<string, unknown>,
-    userId?: string
-  ) => {
-    const operation: OfflineOperation = {
-      id: `${table}-${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      type,
-      table,
-      data,
-      timestamp: new Date(),
-      retries: 0,
-      maxRetries: 3,
-      userId,
-    }
+  const queueOperation = useCallback(
+    (
+      type: 'insert' | 'update' | 'delete',
+      table: string,
+      data: Record<string, unknown>,
+      userId?: string
+    ) => {
+      const operation: OfflineOperation = {
+        id: `${table}-${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        type,
+        table,
+        data,
+        timestamp: new Date(),
+        retries: 0,
+        maxRetries: 3,
+        userId,
+      }
 
-    setOfflineQueue(prev => [...prev, operation])
-    console.log(`📝 Queued offline operation: ${type} on ${table}`)
-    
-    return operation.id
-  }, [])
+      setOfflineQueue((prev) => [...prev, operation])
+      console.log(`📝 Queued offline operation: ${type} on ${table}`)
+
+      return operation.id
+    },
+    []
+  )
 
   // Execute a single operation
   const executeOperation = useCallback(async (operation: OfflineOperation): Promise<boolean> => {
@@ -118,7 +123,7 @@ export function useOfflineSync() {
         operation.data,
         false // Don't use optimistic updates for queued operations
       )
-      
+
       console.log(`✅ Executed queued operation: ${operation.type} on ${operation.table}`)
       return true
     } catch (error) {
@@ -139,7 +144,7 @@ export function useOfflineSync() {
 
     setSyncInProgress(true)
     setSyncErrors([])
-    
+
     console.log(`🔄 Processing ${offlineQueue.length} offline operations`)
 
     const processedOperations: string[] = []
@@ -147,7 +152,7 @@ export function useOfflineSync() {
 
     for (const operation of offlineQueue) {
       const success = await executeOperation(operation)
-      
+
       if (success) {
         processedOperations.push(operation.id)
       } else {
@@ -158,7 +163,10 @@ export function useOfflineSync() {
             retries: operation.retries + 1,
           })
         } else {
-          setSyncErrors(prev => [...prev, `Failed to sync ${operation.type} on ${operation.table} after ${operation.maxRetries} retries`])
+          setSyncErrors((prev) => [
+            ...prev,
+            `Failed to sync ${operation.type} on ${operation.table} after ${operation.maxRetries} retries`,
+          ])
         }
       }
     }
@@ -168,7 +176,9 @@ export function useOfflineSync() {
     setLastSyncTime(new Date())
     setSyncInProgress(false)
 
-    console.log(`✅ Processed ${processedOperations.length} operations, ${failedOperations.length} failed`)
+    console.log(
+      `✅ Processed ${processedOperations.length} operations, ${failedOperations.length} failed`
+    )
   }, [isOnline, isConnected, isInitialized, syncInProgress, offlineQueue, executeOperation])
 
   // Auto-sync when coming back online
@@ -185,7 +195,7 @@ export function useOfflineSync() {
     if (!isOnline) {
       throw new Error('Cannot sync while offline')
     }
-    
+
     await processOfflineQueue()
   }, [isOnline, processOfflineQueue])
 
@@ -198,8 +208,8 @@ export function useOfflineSync() {
 
   // Get offline statistics
   const getStats = useCallback((): OfflineStats => {
-    const pendingOperations = offlineQueue.filter(op => op.retries < op.maxRetries).length
-    const failedOperations = offlineQueue.filter(op => op.retries >= op.maxRetries).length
+    const pendingOperations = offlineQueue.filter((op) => op.retries < op.maxRetries).length
+    const failedOperations = offlineQueue.filter((op) => op.retries >= op.maxRetries).length
 
     return {
       queueSize: offlineQueue.length,
@@ -214,11 +224,19 @@ export function useOfflineSync() {
   // Test offline functionality
   const testOfflineMode = useCallback(async () => {
     console.log('🧪 Testing offline functionality...')
-    
+
     // Queue some test operations
     const testOperations = [
-      { type: 'insert' as const, table: 'tasks', data: { title: 'Offline Test Task', status: 'pending' } },
-      { type: 'update' as const, table: 'tasks', data: { id: 'test-id', title: 'Updated Offline Task' } },
+      {
+        type: 'insert' as const,
+        table: 'tasks',
+        data: { title: 'Offline Test Task', status: 'pending' },
+      },
+      {
+        type: 'update' as const,
+        table: 'tasks',
+        data: { id: 'test-id', title: 'Updated Offline Task' },
+      },
     ]
 
     for (const op of testOperations) {
@@ -226,7 +244,7 @@ export function useOfflineSync() {
     }
 
     console.log(`📝 Queued ${testOperations.length} test operations`)
-    
+
     // If online, try to process them
     if (isOnline && isConnected) {
       await processOfflineQueue()
@@ -240,16 +258,16 @@ export function useOfflineSync() {
     syncInProgress,
     lastSyncTime,
     syncErrors,
-    
+
     // Queue management
     queueOperation,
     manualSync,
     clearQueue,
-    
+
     // Statistics
     getStats,
     offlineQueue: offlineQueue.length,
-    
+
     // Testing
     testOfflineMode,
   }

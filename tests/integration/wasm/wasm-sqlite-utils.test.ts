@@ -69,7 +69,7 @@ const createMockSQLiteUtils = () => {
     // Connection management
     openDatabase: vi.fn(async (filename: string = ':memory:'): Promise<string> => {
       const connectionId = `conn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      
+
       connections.set(connectionId, {
         id: connectionId,
         filename,
@@ -79,9 +79,9 @@ const createMockSQLiteUtils = () => {
           journal_mode: 'WAL',
           synchronous: 'NORMAL',
           cache_size: 10000,
-          temp_store: 'MEMORY'
+          temp_store: 'MEMORY',
         },
-        memoryUsage: 1024 * 1024 // 1MB initial
+        memoryUsage: 1024 * 1024, // 1MB initial
       })
 
       return connectionId
@@ -96,145 +96,146 @@ const createMockSQLiteUtils = () => {
     }),
 
     // Query execution
-    execute: vi.fn(async (
-      connectionId: string,
-      query: string,
-      params: any[] = []
-    ): Promise<QueryResult> => {
-      const connection = connections.get(connectionId)
-      if (!connection || !connection.isOpen) {
-        throw new Error('Database connection not found or closed')
+    execute: vi.fn(
+      async (connectionId: string, query: string, params: any[] = []): Promise<QueryResult> => {
+        const connection = connections.get(connectionId)
+        if (!connection || !connection.isOpen) {
+          throw new Error('Database connection not found or closed')
+        }
+
+        const startTime = performance.now()
+
+        // Check cache first
+        const cacheKey = `${query}:${JSON.stringify(params)}`
+        const cached = queryCache.get(cacheKey)
+
+        if (cached && Date.now() - cached.timestamp < 300000) {
+          // 5 minute cache
+          cacheHits++
+          return {
+            ...cached.result,
+            executionTime: performance.now() - startTime,
+            fromCache: true,
+          }
+        }
+
+        cacheMisses++
+
+        // Mock query execution based on query type
+        let result: QueryResult
+        const normalizedQuery = query.trim().toLowerCase()
+
+        if (normalizedQuery.startsWith('create table')) {
+          result = {
+            rows: [],
+            columns: [],
+            rowsAffected: 0,
+            executionTime: performance.now() - startTime,
+            fromCache: false,
+          }
+        } else if (normalizedQuery.startsWith('insert')) {
+          const rowId = Math.floor(Math.random() * 1000000)
+          result = {
+            rows: [],
+            columns: [],
+            rowsAffected: 1,
+            lastInsertRowId: rowId,
+            executionTime: performance.now() - startTime,
+            fromCache: false,
+          }
+        } else if (normalizedQuery.startsWith('select')) {
+          // Mock select results based on query complexity
+          const isJoin = normalizedQuery.includes('join')
+          const isAggregation = normalizedQuery.includes('count') || normalizedQuery.includes('sum')
+          const isOrdered = normalizedQuery.includes('order by')
+
+          let rowCount = 10
+          if (isJoin) rowCount *= 3
+          if (isAggregation) rowCount = 1
+          if (normalizedQuery.includes('limit')) {
+            const limitMatch = normalizedQuery.match(/limit\s+(\d+)/)
+            if (limitMatch) rowCount = Math.min(rowCount, parseInt(limitMatch[1]))
+          }
+
+          const rows = Array.from({ length: rowCount }, (_, i) => ({
+            id: i + 1,
+            name: `Test Record ${i + 1}`,
+            value: Math.random() * 100,
+            created_at: new Date().toISOString(),
+          }))
+
+          result = {
+            rows,
+            columns: ['id', 'name', 'value', 'created_at'],
+            rowsAffected: 0,
+            executionTime: performance.now() - startTime,
+            fromCache: false,
+          }
+        } else if (normalizedQuery.startsWith('update')) {
+          const affectedRows = Math.floor(Math.random() * 5) + 1
+          result = {
+            rows: [],
+            columns: [],
+            rowsAffected: affectedRows,
+            executionTime: performance.now() - startTime,
+            fromCache: false,
+          }
+        } else if (normalizedQuery.startsWith('delete')) {
+          const affectedRows = Math.floor(Math.random() * 3) + 1
+          result = {
+            rows: [],
+            columns: [],
+            rowsAffected: affectedRows,
+            executionTime: performance.now() - startTime,
+            fromCache: false,
+          }
+        } else {
+          // Default result for other queries
+          result = {
+            rows: [],
+            columns: [],
+            rowsAffected: 0,
+            executionTime: performance.now() - startTime,
+            fromCache: false,
+          }
+        }
+
+        // Add to cache
+        queryCache.set(cacheKey, {
+          result: { ...result, fromCache: false },
+          timestamp: Date.now(),
+        })
+
+        // Update statistics
+        const stats = queryStats.get(query) || { count: 0, totalTime: 0 }
+        stats.count++
+        stats.totalTime += result.executionTime
+        queryStats.set(query, stats)
+
+        return result
       }
-
-      const startTime = performance.now()
-      
-      // Check cache first
-      const cacheKey = `${query}:${JSON.stringify(params)}`
-      const cached = queryCache.get(cacheKey)
-      
-      if (cached && Date.now() - cached.timestamp < 300000) { // 5 minute cache
-        cacheHits++
-        return {
-          ...cached.result,
-          executionTime: performance.now() - startTime,
-          fromCache: true
-        }
-      }
-
-      cacheMisses++
-
-      // Mock query execution based on query type
-      let result: QueryResult
-      const normalizedQuery = query.trim().toLowerCase()
-
-      if (normalizedQuery.startsWith('create table')) {
-        result = {
-          rows: [],
-          columns: [],
-          rowsAffected: 0,
-          executionTime: performance.now() - startTime,
-          fromCache: false
-        }
-      } else if (normalizedQuery.startsWith('insert')) {
-        const rowId = Math.floor(Math.random() * 1000000)
-        result = {
-          rows: [],
-          columns: [],
-          rowsAffected: 1,
-          lastInsertRowId: rowId,
-          executionTime: performance.now() - startTime,
-          fromCache: false
-        }
-      } else if (normalizedQuery.startsWith('select')) {
-        // Mock select results based on query complexity
-        const isJoin = normalizedQuery.includes('join')
-        const isAggregation = normalizedQuery.includes('count') || normalizedQuery.includes('sum')
-        const isOrdered = normalizedQuery.includes('order by')
-        
-        let rowCount = 10
-        if (isJoin) rowCount *= 3
-        if (isAggregation) rowCount = 1
-        if (normalizedQuery.includes('limit')) {
-          const limitMatch = normalizedQuery.match(/limit\s+(\d+)/)
-          if (limitMatch) rowCount = Math.min(rowCount, parseInt(limitMatch[1]))
-        }
-
-        const rows = Array.from({ length: rowCount }, (_, i) => ({
-          id: i + 1,
-          name: `Test Record ${i + 1}`,
-          value: Math.random() * 100,
-          created_at: new Date().toISOString()
-        }))
-
-        result = {
-          rows,
-          columns: ['id', 'name', 'value', 'created_at'],
-          rowsAffected: 0,
-          executionTime: performance.now() - startTime,
-          fromCache: false
-        }
-      } else if (normalizedQuery.startsWith('update')) {
-        const affectedRows = Math.floor(Math.random() * 5) + 1
-        result = {
-          rows: [],
-          columns: [],
-          rowsAffected: affectedRows,
-          executionTime: performance.now() - startTime,
-          fromCache: false
-        }
-      } else if (normalizedQuery.startsWith('delete')) {
-        const affectedRows = Math.floor(Math.random() * 3) + 1
-        result = {
-          rows: [],
-          columns: [],
-          rowsAffected: affectedRows,
-          executionTime: performance.now() - startTime,
-          fromCache: false
-        }
-      } else {
-        // Default result for other queries
-        result = {
-          rows: [],
-          columns: [],
-          rowsAffected: 0,
-          executionTime: performance.now() - startTime,
-          fromCache: false
-        }
-      }
-
-      // Add to cache
-      queryCache.set(cacheKey, {
-        result: { ...result, fromCache: false },
-        timestamp: Date.now()
-      })
-
-      // Update statistics
-      const stats = queryStats.get(query) || { count: 0, totalTime: 0 }
-      stats.count++
-      stats.totalTime += result.executionTime
-      queryStats.set(query, stats)
-
-      return result
-    }),
+    ),
 
     // Batch operations
-    executeBatch: vi.fn(async (
-      connectionId: string,
-      statements: Array<{ query: string; params?: any[] }>
-    ): Promise<QueryResult[]> => {
-      const results: QueryResult[] = []
-      
-      for (const statement of statements) {
-        const result = await createMockSQLiteUtils().execute(
-          connectionId,
-          statement.query,
-          statement.params
-        )
-        results.push(result)
-      }
+    executeBatch: vi.fn(
+      async (
+        connectionId: string,
+        statements: Array<{ query: string; params?: any[] }>
+      ): Promise<QueryResult[]> => {
+        const results: QueryResult[] = []
 
-      return results
-    }),
+        for (const statement of statements) {
+          const result = await createMockSQLiteUtils().execute(
+            connectionId,
+            statement.query,
+            statement.params
+          )
+          results.push(result)
+        }
+
+        return results
+      }
+    ),
 
     // Transaction support
     beginTransaction: vi.fn(async (connectionId: string): Promise<void> => {
@@ -250,20 +251,17 @@ const createMockSQLiteUtils = () => {
     }),
 
     // Query optimization
-    explainQuery: vi.fn(async (
-      connectionId: string,
-      query: string
-    ): Promise<QueryPlan> => {
+    explainQuery: vi.fn(async (connectionId: string, query: string): Promise<QueryPlan> => {
       const isJoin = query.toLowerCase().includes('join')
       const hasIndex = Math.random() > 0.3 // Mock index usage
-      
+
       const plan = [
         {
           id: 0,
           parent: 0,
           detail: hasIndex ? 'SEARCH TABLE using INDEX' : 'SCAN TABLE',
-          operation: hasIndex ? 'IndexScan' : 'TableScan'
-        }
+          operation: hasIndex ? 'IndexScan' : 'TableScan',
+        },
       ]
 
       if (isJoin) {
@@ -271,7 +269,7 @@ const createMockSQLiteUtils = () => {
           id: 1,
           parent: 0,
           detail: 'SEARCH TABLE using INDEX',
-          operation: 'NestedLoop'
+          operation: 'NestedLoop',
         })
       }
 
@@ -279,24 +277,23 @@ const createMockSQLiteUtils = () => {
         query,
         plan,
         estimatedCost: isJoin ? 100.5 : hasIndex ? 10.2 : 50.8,
-        estimatedRows: isJoin ? 1000 : 100
+        estimatedRows: isJoin ? 1000 : 100,
       }
     }),
 
-    createIndex: vi.fn(async (
-      connectionId: string,
-      indexName: string,
-      tableName: string,
-      columns: string[]
-    ): Promise<void> => {
-      const query = `CREATE INDEX ${indexName} ON ${tableName} (${columns.join(', ')})`
-      await createMockSQLiteUtils().execute(connectionId, query)
-    }),
+    createIndex: vi.fn(
+      async (
+        connectionId: string,
+        indexName: string,
+        tableName: string,
+        columns: string[]
+      ): Promise<void> => {
+        const query = `CREATE INDEX ${indexName} ON ${tableName} (${columns.join(', ')})`
+        await createMockSQLiteUtils().execute(connectionId, query)
+      }
+    ),
 
-    dropIndex: vi.fn(async (
-      connectionId: string,
-      indexName: string
-    ): Promise<void> => {
+    dropIndex: vi.fn(async (connectionId: string, indexName: string): Promise<void> => {
       const query = `DROP INDEX ${indexName}`
       await createMockSQLiteUtils().execute(connectionId, query)
     }),
@@ -316,7 +313,7 @@ const createMockSQLiteUtils = () => {
         totalQueries,
         cacheSize: queryCache.size,
         memoryUsage: queryCache.size * 1024, // Rough estimate
-        evictions: 0 // Mock no evictions
+        evictions: 0, // Mock no evictions
       }
     }),
 
@@ -324,114 +321,121 @@ const createMockSQLiteUtils = () => {
     getQueryStatistics: vi.fn((query?: string) => {
       if (query) {
         const stats = queryStats.get(query)
-        return stats ? {
-          query,
-          count: stats.count,
-          averageTime: stats.totalTime / stats.count,
-          totalTime: stats.totalTime
-        } : null
+        return stats
+          ? {
+              query,
+              count: stats.count,
+              averageTime: stats.totalTime / stats.count,
+              totalTime: stats.totalTime,
+            }
+          : null
       }
 
       return Array.from(queryStats.entries()).map(([q, stats]) => ({
         query: q,
         count: stats.count,
         averageTime: stats.totalTime / stats.count,
-        totalTime: stats.totalTime
+        totalTime: stats.totalTime,
       }))
     }),
 
-    benchmark: vi.fn(async (
-      connectionId: string,
-      operation: string,
-      iterations: number = 100
-    ): Promise<PerformanceBenchmark> => {
-      const times: number[] = []
-      
-      for (let i = 0; i < iterations; i++) {
-        const startTime = performance.now()
-        
-        // Execute different operations based on type
-        switch (operation) {
-          case 'simple_select':
-            await createMockSQLiteUtils().execute(connectionId, 'SELECT * FROM test_table LIMIT 10')
-            break
-          case 'join_query':
-            await createMockSQLiteUtils().execute(connectionId, `
+    benchmark: vi.fn(
+      async (
+        connectionId: string,
+        operation: string,
+        iterations: number = 100
+      ): Promise<PerformanceBenchmark> => {
+        const times: number[] = []
+
+        for (let i = 0; i < iterations; i++) {
+          const startTime = performance.now()
+
+          // Execute different operations based on type
+          switch (operation) {
+            case 'simple_select':
+              await createMockSQLiteUtils().execute(
+                connectionId,
+                'SELECT * FROM test_table LIMIT 10'
+              )
+              break
+            case 'join_query':
+              await createMockSQLiteUtils().execute(
+                connectionId,
+                `
               SELECT t1.*, t2.name 
               FROM test_table t1 
               JOIN other_table t2 ON t1.id = t2.test_id 
               LIMIT 10
-            `)
-            break
-          case 'aggregation':
-            await createMockSQLiteUtils().execute(connectionId, 'SELECT COUNT(*), AVG(value) FROM test_table')
-            break
-          case 'insert':
-            await createMockSQLiteUtils().execute(connectionId, 
-              'INSERT INTO test_table (name, value) VALUES (?, ?)',
-              [`Test ${i}`, Math.random() * 100]
-            )
-            break
-          case 'update':
-            await createMockSQLiteUtils().execute(connectionId,
-              'UPDATE test_table SET value = ? WHERE id = ?',
-              [Math.random() * 100, (i % 100) + 1]
-            )
-            break
-          default:
-            await createMockSQLiteUtils().execute(connectionId, 'SELECT 1')
+            `
+              )
+              break
+            case 'aggregation':
+              await createMockSQLiteUtils().execute(
+                connectionId,
+                'SELECT COUNT(*), AVG(value) FROM test_table'
+              )
+              break
+            case 'insert':
+              await createMockSQLiteUtils().execute(
+                connectionId,
+                'INSERT INTO test_table (name, value) VALUES (?, ?)',
+                [`Test ${i}`, Math.random() * 100]
+              )
+              break
+            case 'update':
+              await createMockSQLiteUtils().execute(
+                connectionId,
+                'UPDATE test_table SET value = ? WHERE id = ?',
+                [Math.random() * 100, (i % 100) + 1]
+              )
+              break
+            default:
+              await createMockSQLiteUtils().execute(connectionId, 'SELECT 1')
+          }
+
+          times.push(performance.now() - startTime)
         }
-        
-        times.push(performance.now() - startTime)
-      }
 
-      const avgTime = times.reduce((sum, time) => sum + time, 0) / times.length
-      const minTime = Math.min(...times)
-      const maxTime = Math.max(...times)
-      const throughput = 1000 / avgTime // Operations per second
+        const avgTime = times.reduce((sum, time) => sum + time, 0) / times.length
+        const minTime = Math.min(...times)
+        const maxTime = Math.max(...times)
+        const throughput = 1000 / avgTime // Operations per second
 
-      return {
-        operation,
-        avgTime,
-        minTime,
-        maxTime,
-        throughput,
-        memoryUsage: Math.random() * 1024 * 1024 // Mock memory usage
+        return {
+          operation,
+          avgTime,
+          minTime,
+          maxTime,
+          throughput,
+          memoryUsage: Math.random() * 1024 * 1024, // Mock memory usage
+        }
       }
-    }),
+    ),
 
     // PRAGMA and configuration
-    setPragma: vi.fn(async (
-      connectionId: string,
-      pragma: string,
-      value: string | number
-    ): Promise<void> => {
-      const connection = connections.get(connectionId)
-      if (connection) {
-        connection.pragma[pragma] = value
+    setPragma: vi.fn(
+      async (connectionId: string, pragma: string, value: string | number): Promise<void> => {
+        const connection = connections.get(connectionId)
+        if (connection) {
+          connection.pragma[pragma] = value
+        }
+        await createMockSQLiteUtils().execute(connectionId, `PRAGMA ${pragma} = ${value}`)
       }
-      await createMockSQLiteUtils().execute(connectionId, `PRAGMA ${pragma} = ${value}`)
-    }),
+    ),
 
-    getPragma: vi.fn(async (
-      connectionId: string,
-      pragma: string
-    ): Promise<any> => {
+    getPragma: vi.fn(async (connectionId: string, pragma: string): Promise<any> => {
       const connection = connections.get(connectionId)
       return connection?.pragma[pragma] || null
     }),
 
     // Database introspection
-    getTableInfo: vi.fn(async (
-      connectionId: string,
-      tableName: string
-    ): Promise<any[]> => {
+    getTableInfo: vi.fn(async (connectionId: string, tableName: string): Promise<any[]> => {
       // Mock table info
       return [
         { cid: 0, name: 'id', type: 'INTEGER', notnull: 1, dflt_value: null, pk: 1 },
         { cid: 1, name: 'name', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
         { cid: 2, name: 'value', type: 'REAL', notnull: 0, dflt_value: null, pk: 0 },
-        { cid: 3, name: 'created_at', type: 'TEXT', notnull: 0, dflt_value: null, pk: 0 }
+        { cid: 3, name: 'created_at', type: 'TEXT', notnull: 0, dflt_value: null, pk: 0 },
       ]
     }),
 
@@ -439,63 +443,62 @@ const createMockSQLiteUtils = () => {
       return ['test_table', 'other_table', 'cache_table', 'sqlite_sequence']
     }),
 
-    getIndexList: vi.fn(async (
-      connectionId: string,
-      tableName?: string
-    ): Promise<any[]> => {
+    getIndexList: vi.fn(async (connectionId: string, tableName?: string): Promise<any[]> => {
       const indexes = [
         { name: 'idx_test_table_name', table: 'test_table', unique: 0 },
         { name: 'idx_test_table_value', table: 'test_table', unique: 0 },
-        { name: 'idx_other_table_test_id', table: 'other_table', unique: 0 }
+        { name: 'idx_other_table_test_id', table: 'other_table', unique: 0 },
       ]
 
-      return tableName 
-        ? indexes.filter(idx => idx.table === tableName)
-        : indexes
+      return tableName ? indexes.filter((idx) => idx.table === tableName) : indexes
     }),
 
     // Backup and export
-    backup: vi.fn(async (
-      sourceConnectionId: string,
-      targetFilename: string
-    ): Promise<{ success: boolean; size: number }> => {
-      // Mock backup operation
-      await new Promise(resolve => setTimeout(resolve, 100))
-      return {
-        success: true,
-        size: Math.floor(Math.random() * 1024 * 1024) + 1024 // Random size 1KB-1MB
-      }
-    }),
-
-    exportToSQL: vi.fn(async (
-      connectionId: string,
-      options: { includeData?: boolean; tables?: string[] } = {}
-    ): Promise<string> => {
-      const { includeData = true, tables } = options
-      
-      let sql = '-- SQLite Export\n'
-      sql += 'BEGIN TRANSACTION;\n\n'
-      
-      const tableList = tables || await createMockSQLiteUtils().getTableList(connectionId)
-      
-      for (const table of tableList) {
-        if (table === 'sqlite_sequence') continue
-        
-        sql += `CREATE TABLE ${table} (\n`
-        sql += '  id INTEGER PRIMARY KEY,\n'
-        sql += '  name TEXT NOT NULL,\n'
-        sql += '  value REAL,\n'
-        sql += '  created_at TEXT\n'
-        sql += ');\n\n'
-        
-        if (includeData) {
-          sql += `INSERT INTO ${table} VALUES (1, 'Sample', 42.0, '2024-01-01T00:00:00Z');\n\n`
+    backup: vi.fn(
+      async (
+        sourceConnectionId: string,
+        targetFilename: string
+      ): Promise<{ success: boolean; size: number }> => {
+        // Mock backup operation
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        return {
+          success: true,
+          size: Math.floor(Math.random() * 1024 * 1024) + 1024, // Random size 1KB-1MB
         }
       }
-      
-      sql += 'COMMIT;\n'
-      return sql
-    }),
+    ),
+
+    exportToSQL: vi.fn(
+      async (
+        connectionId: string,
+        options: { includeData?: boolean; tables?: string[] } = {}
+      ): Promise<string> => {
+        const { includeData = true, tables } = options
+
+        let sql = '-- SQLite Export\n'
+        sql += 'BEGIN TRANSACTION;\n\n'
+
+        const tableList = tables || (await createMockSQLiteUtils().getTableList(connectionId))
+
+        for (const table of tableList) {
+          if (table === 'sqlite_sequence') continue
+
+          sql += `CREATE TABLE ${table} (\n`
+          sql += '  id INTEGER PRIMARY KEY,\n'
+          sql += '  name TEXT NOT NULL,\n'
+          sql += '  value REAL,\n'
+          sql += '  created_at TEXT\n'
+          sql += ');\n\n'
+
+          if (includeData) {
+            sql += `INSERT INTO ${table} VALUES (1, 'Sample', 42.0, '2024-01-01T00:00:00Z');\n\n`
+          }
+        }
+
+        sql += 'COMMIT;\n'
+        return sql
+      }
+    ),
 
     // Memory and resource management
     getMemoryUsage: vi.fn((connectionId: string): number => {
@@ -506,7 +509,7 @@ const createMockSQLiteUtils = () => {
     optimize: vi.fn(async (connectionId: string): Promise<void> => {
       await createMockSQLiteUtils().execute(connectionId, 'VACUUM')
       await createMockSQLiteUtils().execute(connectionId, 'ANALYZE')
-      
+
       const connection = connections.get(connectionId)
       if (connection) {
         connection.memoryUsage *= 0.9 // Mock 10% reduction
@@ -522,7 +525,7 @@ const createMockSQLiteUtils = () => {
       queryStats.clear()
       cacheHits = 0
       cacheMisses = 0
-    })
+    }),
   }
 }
 
@@ -537,25 +540,31 @@ describe('WASM SQLite Utilities Integration Tests', () => {
   beforeEach(async () => {
     await sqliteUtils.cleanup()
     connectionId = await sqliteUtils.openDatabase(':memory:')
-    
+
     // Setup test schema
-    await sqliteUtils.execute(connectionId, `
+    await sqliteUtils.execute(
+      connectionId,
+      `
       CREATE TABLE test_table (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
         value REAL,
         created_at TEXT
       )
-    `)
-    
-    await sqliteUtils.execute(connectionId, `
+    `
+    )
+
+    await sqliteUtils.execute(
+      connectionId,
+      `
       CREATE TABLE other_table (
         id INTEGER PRIMARY KEY,
         test_id INTEGER,
         name TEXT,
         FOREIGN KEY (test_id) REFERENCES test_table(id)
       )
-    `)
+    `
+    )
   })
 
   afterAll(async () => {
@@ -569,38 +578,36 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       expect(typeof newConnectionId).toBe('string')
 
       await sqliteUtils.closeDatabase(newConnectionId)
-      
+
       // Attempting to use closed connection should fail
-      await expect(
-        sqliteUtils.execute(newConnectionId, 'SELECT 1')
-      ).rejects.toThrow()
+      await expect(sqliteUtils.execute(newConnectionId, 'SELECT 1')).rejects.toThrow()
     })
 
     it('should handle multiple concurrent connections', async () => {
       const connections = await Promise.all([
         sqliteUtils.openDatabase(':memory:'),
         sqliteUtils.openDatabase('test1.db'),
-        sqliteUtils.openDatabase('test2.db')
+        sqliteUtils.openDatabase('test2.db'),
       ])
 
       expect(connections).toHaveLength(3)
-      
+
       // Each connection should be unique
       const uniqueConnections = new Set(connections)
       expect(uniqueConnections.size).toBe(3)
 
       // All connections should work independently
       const results = await Promise.all(
-        connections.map(id => sqliteUtils.execute(id, 'SELECT 1 as test'))
+        connections.map((id) => sqliteUtils.execute(id, 'SELECT 1 as test'))
       )
 
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.rows).toHaveLength(1)
         expect(result.rows[0].test).toBe(1)
       })
 
       // Clean up connections
-      await Promise.all(connections.map(id => sqliteUtils.closeDatabase(id)))
+      await Promise.all(connections.map((id) => sqliteUtils.closeDatabase(id)))
     })
 
     it('should configure database pragmas', async () => {
@@ -620,10 +627,14 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
   describe('Basic CRUD Operations Tests', () => {
     it('should insert data correctly', async () => {
-      const result = await sqliteUtils.execute(connectionId, `
+      const result = await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value, created_at) 
         VALUES (?, ?, ?)
-      `, ['Test Item', 42.5, new Date().toISOString()])
+      `,
+        ['Test Item', 42.5, new Date().toISOString()]
+      )
 
       expect(result.rowsAffected).toBe(1)
       expect(result.lastInsertRowId).toBeGreaterThan(0)
@@ -632,15 +643,20 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should select data correctly', async () => {
       // Insert test data first
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value, created_at) 
         VALUES ('Test 1', 10.5, '2024-01-01T00:00:00Z'),
                ('Test 2', 20.5, '2024-01-02T00:00:00Z'),
                ('Test 3', 30.5, '2024-01-03T00:00:00Z')
-      `)
+      `
+      )
 
-      const result = await sqliteUtils.execute(connectionId, 
-        'SELECT * FROM test_table WHERE value > ?', [15]
+      const result = await sqliteUtils.execute(
+        connectionId,
+        'SELECT * FROM test_table WHERE value > ?',
+        [15]
       )
 
       expect(result.rows.length).toBeGreaterThan(0)
@@ -652,41 +668,60 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should update data correctly', async () => {
       // Insert test data
-      const insertResult = await sqliteUtils.execute(connectionId, `
+      const insertResult = await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES ('Update Test', 100)
-      `)
+      `
+      )
 
-      const updateResult = await sqliteUtils.execute(connectionId, `
+      const updateResult = await sqliteUtils.execute(
+        connectionId,
+        `
         UPDATE test_table SET value = ? WHERE id = ?
-      `, [200, insertResult.lastInsertRowId])
+      `,
+        [200, insertResult.lastInsertRowId]
+      )
 
       expect(updateResult.rowsAffected).toBeGreaterThan(0)
     })
 
     it('should delete data correctly', async () => {
       // Insert test data
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES ('Delete Test', 999)
-      `)
+      `
+      )
 
-      const deleteResult = await sqliteUtils.execute(connectionId, `
+      const deleteResult = await sqliteUtils.execute(
+        connectionId,
+        `
         DELETE FROM test_table WHERE value = ?
-      `, [999])
+      `,
+        [999]
+      )
 
       expect(deleteResult.rowsAffected).toBeGreaterThan(0)
     })
 
     it('should handle parameterized queries safely', async () => {
       const maliciousInput = "'; DROP TABLE test_table; --"
-      
-      const result = await sqliteUtils.execute(connectionId, `
+
+      const result = await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES (?, ?)
-      `, [maliciousInput, 123])
+      `,
+        [maliciousInput, 123]
+      )
 
       expect(result.rowsAffected).toBe(1)
-      
+
       // Verify table still exists
-      const tableCheck = await sqliteUtils.execute(connectionId, 
+      const tableCheck = await sqliteUtils.execute(
+        connectionId,
         'SELECT name FROM sqlite_master WHERE type="table" AND name="test_table"'
       )
       expect(tableCheck.rows).toHaveLength(1)
@@ -698,17 +733,24 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       await sqliteUtils.beginTransaction(connectionId)
 
       try {
-        await sqliteUtils.execute(connectionId, `
+        await sqliteUtils.execute(
+          connectionId,
+          `
           INSERT INTO test_table (name, value) VALUES ('Transaction Test 1', 100)
-        `)
-        
-        await sqliteUtils.execute(connectionId, `
+        `
+        )
+
+        await sqliteUtils.execute(
+          connectionId,
+          `
           INSERT INTO test_table (name, value) VALUES ('Transaction Test 2', 200)
-        `)
+        `
+        )
 
         await sqliteUtils.commitTransaction(connectionId)
 
-        const result = await sqliteUtils.execute(connectionId, 
+        const result = await sqliteUtils.execute(
+          connectionId,
           'SELECT COUNT(*) as count FROM test_table WHERE name LIKE "Transaction Test%"'
         )
         expect(result.rows[0].count).toBe(2)
@@ -722,17 +764,21 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       await sqliteUtils.beginTransaction(connectionId)
 
       try {
-        await sqliteUtils.execute(connectionId, `
+        await sqliteUtils.execute(
+          connectionId,
+          `
           INSERT INTO test_table (name, value) VALUES ('Rollback Test', 100)
-        `)
-        
+        `
+        )
+
         // Simulate error
         throw new Error('Simulated transaction error')
       } catch (error) {
         await sqliteUtils.rollbackTransaction(connectionId)
       }
 
-      const result = await sqliteUtils.execute(connectionId, 
+      const result = await sqliteUtils.execute(
+        connectionId,
         'SELECT COUNT(*) as count FROM test_table WHERE name = "Rollback Test"'
       )
       expect(result.rows[0].count).toBe(0)
@@ -740,27 +786,34 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should handle nested transactions appropriately', async () => {
       await sqliteUtils.beginTransaction(connectionId)
-      
-      await sqliteUtils.execute(connectionId, `
+
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES ('Outer Transaction', 100)
-      `)
+      `
+      )
 
       // SQLite doesn't support true nested transactions, but savepoints can be simulated
       await sqliteUtils.execute(connectionId, 'SAVEPOINT sp1')
-      
-      await sqliteUtils.execute(connectionId, `
+
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES ('Inner Transaction', 200)
-      `)
+      `
+      )
 
       // Rollback to savepoint
       await sqliteUtils.execute(connectionId, 'ROLLBACK TO sp1')
-      
+
       await sqliteUtils.commitTransaction(connectionId)
 
-      const result = await sqliteUtils.execute(connectionId, 
+      const result = await sqliteUtils.execute(
+        connectionId,
         'SELECT name FROM test_table WHERE name IN ("Outer Transaction", "Inner Transaction")'
       )
-      
+
       expect(result.rows).toHaveLength(1)
       expect(result.rows[0].name).toBe('Outer Transaction')
     })
@@ -769,17 +822,23 @@ describe('WASM SQLite Utilities Integration Tests', () => {
   describe('Query Optimization Tests', () => {
     beforeEach(async () => {
       // Insert test data for optimization tests
-      const insertData = Array.from({ length: 100 }, (_, i) => 
-        `('Test Item ${i}', ${Math.random() * 100}, '2024-01-${String(i % 30 + 1).padStart(2, '0')}T00:00:00Z')`
+      const insertData = Array.from(
+        { length: 100 },
+        (_, i) =>
+          `('Test Item ${i}', ${Math.random() * 100}, '2024-01-${String((i % 30) + 1).padStart(2, '0')}T00:00:00Z')`
       ).join(',')
 
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value, created_at) VALUES ${insertData}
-      `)
+      `
+      )
     })
 
     it('should explain query execution plans', async () => {
-      const plan = await sqliteUtils.explainQuery(connectionId, 
+      const plan = await sqliteUtils.explainQuery(
+        connectionId,
         'SELECT * FROM test_table WHERE value > 50'
       )
 
@@ -792,7 +851,8 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should create and use indexes for optimization', async () => {
       // Get baseline query plan
-      const planWithoutIndex = await sqliteUtils.explainQuery(connectionId,
+      const planWithoutIndex = await sqliteUtils.explainQuery(
+        connectionId,
         'SELECT * FROM test_table WHERE value > 50'
       )
 
@@ -800,7 +860,8 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       await sqliteUtils.createIndex(connectionId, 'idx_test_value', 'test_table', ['value'])
 
       // Get optimized query plan
-      const planWithIndex = await sqliteUtils.explainQuery(connectionId,
+      const planWithIndex = await sqliteUtils.explainQuery(
+        connectionId,
         'SELECT * FROM test_table WHERE value > 50'
       )
 
@@ -809,48 +870,54 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should optimize join queries with proper indexing', async () => {
       // Insert related data
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO other_table (test_id, name) VALUES 
         (1, 'Related 1'), (2, 'Related 2'), (3, 'Related 3')
-      `)
+      `
+      )
 
       // Create indexes for join optimization
       await sqliteUtils.createIndex(connectionId, 'idx_other_test_id', 'other_table', ['test_id'])
 
-      const joinPlan = await sqliteUtils.explainQuery(connectionId, `
+      const joinPlan = await sqliteUtils.explainQuery(
+        connectionId,
+        `
         SELECT t.name, o.name as related_name 
         FROM test_table t 
         JOIN other_table o ON t.id = o.test_id 
         WHERE t.value > 30
-      `)
+      `
+      )
 
       expect(joinPlan.plan.length).toBeGreaterThan(1)
-      expect(joinPlan.plan.some(p => p.operation === 'NestedLoop')).toBe(true)
+      expect(joinPlan.plan.some((p) => p.operation === 'NestedLoop')).toBe(true)
     })
 
     it('should manage index lifecycle', async () => {
       const indexName = 'idx_test_name'
-      
+
       // Create index
       await sqliteUtils.createIndex(connectionId, indexName, 'test_table', ['name'])
-      
+
       // Verify index exists
       const indexesBefore = await sqliteUtils.getIndexList(connectionId, 'test_table')
-      expect(indexesBefore.some(idx => idx.name === indexName)).toBe(true)
-      
+      expect(indexesBefore.some((idx) => idx.name === indexName)).toBe(true)
+
       // Drop index
       await sqliteUtils.dropIndex(connectionId, indexName)
-      
+
       // Verify index removed
       const indexesAfter = await sqliteUtils.getIndexList(connectionId, 'test_table')
-      expect(indexesAfter.some(idx => idx.name === indexName)).toBe(false)
+      expect(indexesAfter.some((idx) => idx.name === indexName)).toBe(false)
     })
   })
 
   describe('Query Caching Tests', () => {
     it('should cache and retrieve query results', async () => {
       const query = 'SELECT COUNT(*) as count FROM test_table'
-      
+
       // First execution - should miss cache
       const result1 = await sqliteUtils.execute(connectionId, query)
       expect(result1.fromCache).toBe(false)
@@ -878,7 +945,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should provide accurate cache statistics', async () => {
       sqliteUtils.clearCache()
-      
+
       const queries = [
         'SELECT COUNT(*) FROM test_table',
         'SELECT MAX(value) FROM test_table',
@@ -899,14 +966,14 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should handle cache expiration', async () => {
       const query = 'SELECT 1 as test'
-      
+
       // Execute query
       await sqliteUtils.execute(connectionId, query)
-      
+
       // Mock cache expiration by manipulating timestamp
       const cacheStats = sqliteUtils.getCacheStatistics()
       expect(cacheStats.cacheSize).toBeGreaterThan(0)
-      
+
       // Clear cache and verify
       sqliteUtils.clearCache()
       const clearedStats = sqliteUtils.getCacheStatistics()
@@ -923,7 +990,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
           const id = batchIndex * batchSize + i
           return `('Perf Test ${id}', ${Math.random() * 1000}, '2024-01-01T00:00:00Z')`
         }).join(',')
-        
+
         return `INSERT INTO test_table (name, value, created_at) VALUES ${values}`
       })
 
@@ -945,10 +1012,13 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should benchmark join operations', async () => {
       // Setup related data for joins
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO other_table (test_id, name) 
         SELECT id, 'Related ' || id FROM test_table WHERE id <= 100
-      `)
+      `
+      )
 
       const benchmark = await sqliteUtils.benchmark(connectionId, 'join_query', 20)
 
@@ -993,7 +1063,9 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       const benchmarkWithIndex = await sqliteUtils.benchmark(connectionId, 'simple_select', 20)
 
       // With index should be same or better performance
-      expect(benchmarkWithIndex.throughput).toBeGreaterThanOrEqual(benchmarkWithoutIndex.throughput * 0.8)
+      expect(benchmarkWithIndex.throughput).toBeGreaterThanOrEqual(
+        benchmarkWithoutIndex.throughput * 0.8
+      )
     })
   })
 
@@ -1001,7 +1073,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
     it('should execute batch statements efficiently', async () => {
       const statements = Array.from({ length: 100 }, (_, i) => ({
         query: 'INSERT INTO test_table (name, value) VALUES (?, ?)',
-        params: [`Batch Item ${i}`, Math.random() * 100]
+        params: [`Batch Item ${i}`, Math.random() * 100],
       }))
 
       const startTime = performance.now()
@@ -1010,8 +1082,8 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
       expect(results).toHaveLength(100)
       expect(endTime - startTime).toBeLessThan(5000) // Should complete within 5 seconds
-      
-      results.forEach(result => {
+
+      results.forEach((result) => {
         expect(result.rowsAffected).toBe(1)
         expect(result.lastInsertRowId).toBeGreaterThan(0)
       })
@@ -1022,7 +1094,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
         { query: 'INSERT INTO test_table (name, value) VALUES (?, ?)', params: ['Mixed 1', 10] },
         { query: 'INSERT INTO test_table (name, value) VALUES (?, ?)', params: ['Mixed 2', 20] },
         { query: 'UPDATE test_table SET value = ? WHERE name = ?', params: [30, 'Mixed 1'] },
-        { query: 'SELECT COUNT(*) as count FROM test_table WHERE name LIKE ?', params: ['Mixed%'] }
+        { query: 'SELECT COUNT(*) as count FROM test_table WHERE name LIKE ?', params: ['Mixed%'] },
       ]
 
       const results = await sqliteUtils.executeBatch(connectionId, statements)
@@ -1040,11 +1112,11 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       const tableInfo = await sqliteUtils.getTableInfo(connectionId, 'test_table')
 
       expect(tableInfo.length).toBeGreaterThan(0)
-      expect(tableInfo.some(col => col.name === 'id')).toBe(true)
-      expect(tableInfo.some(col => col.name === 'name')).toBe(true)
-      expect(tableInfo.some(col => col.name === 'value')).toBe(true)
-      
-      const idColumn = tableInfo.find(col => col.name === 'id')
+      expect(tableInfo.some((col) => col.name === 'id')).toBe(true)
+      expect(tableInfo.some((col) => col.name === 'name')).toBe(true)
+      expect(tableInfo.some((col) => col.name === 'value')).toBe(true)
+
+      const idColumn = tableInfo.find((col) => col.name === 'id')
       expect(idColumn?.pk).toBe(1) // Primary key
     })
 
@@ -1065,7 +1137,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
       expect(allIndexes.length).toBeGreaterThanOrEqual(2)
       expect(testTableIndexes.length).toBeGreaterThanOrEqual(2)
-      expect(testTableIndexes.every(idx => idx.table === 'test_table')).toBe(true)
+      expect(testTableIndexes.every((idx) => idx.table === 'test_table')).toBe(true)
     })
   })
 
@@ -1075,13 +1147,17 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       expect(initialMemory).toBeGreaterThan(0)
 
       // Insert large amount of data
-      const largeData = Array.from({ length: 1000 }, (_, i) => 
-        `('Large Item ${i}', ${Math.random() * 1000}, '${'x'.repeat(100)}')`
+      const largeData = Array.from(
+        { length: 1000 },
+        (_, i) => `('Large Item ${i}', ${Math.random() * 1000}, '${'x'.repeat(100)}')`
       ).join(',')
-      
-      await sqliteUtils.execute(connectionId, `
+
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value, created_at) VALUES ${largeData}
-      `)
+      `
+      )
 
       const afterInsertMemory = sqliteUtils.getMemoryUsage(connectionId)
       expect(afterInsertMemory).toBeGreaterThan(initialMemory)
@@ -1089,19 +1165,25 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should optimize database to reduce memory usage', async () => {
       // Insert and delete data to create fragmentation
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) 
         SELECT 'Temp ' || value, value FROM test_table
-      `)
-      
-      await sqliteUtils.execute(connectionId, `
+      `
+      )
+
+      await sqliteUtils.execute(
+        connectionId,
+        `
         DELETE FROM test_table WHERE name LIKE 'Temp%'
-      `)
+      `
+      )
 
       const beforeOptimization = sqliteUtils.getMemoryUsage(connectionId)
-      
+
       await sqliteUtils.optimize(connectionId)
-      
+
       const afterOptimization = sqliteUtils.getMemoryUsage(connectionId)
       expect(afterOptimization).toBeLessThanOrEqual(beforeOptimization)
     })
@@ -1110,10 +1192,13 @@ describe('WASM SQLite Utilities Integration Tests', () => {
   describe('Backup and Export Tests', () => {
     it('should backup database successfully', async () => {
       // Insert some data
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES 
         ('Backup Test 1', 100), ('Backup Test 2', 200)
-      `)
+      `
+      )
 
       const backupResult = await sqliteUtils.backup(connectionId, 'backup.db')
 
@@ -1123,12 +1208,15 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should export database to SQL format', async () => {
       // Insert test data
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES ('Export Test', 123)
-      `)
+      `
+      )
 
-      const sqlExport = await sqliteUtils.exportToSQL(connectionId, { 
-        includeData: true 
+      const sqlExport = await sqliteUtils.exportToSQL(connectionId, {
+        includeData: true,
       })
 
       expect(sqlExport).toContain('CREATE TABLE')
@@ -1138,8 +1226,8 @@ describe('WASM SQLite Utilities Integration Tests', () => {
     })
 
     it('should export schema only when requested', async () => {
-      const schemaOnlyExport = await sqliteUtils.exportToSQL(connectionId, { 
-        includeData: false 
+      const schemaOnlyExport = await sqliteUtils.exportToSQL(connectionId, {
+        includeData: false,
       })
 
       expect(schemaOnlyExport).toContain('CREATE TABLE')
@@ -1149,7 +1237,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
     it('should export specific tables only', async () => {
       const specificTableExport = await sqliteUtils.exportToSQL(connectionId, {
         tables: ['test_table'],
-        includeData: true
+        includeData: true,
       })
 
       expect(specificTableExport).toContain('test_table')
@@ -1159,47 +1247,56 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle invalid SQL gracefully', async () => {
-      await expect(
-        sqliteUtils.execute(connectionId, 'INVALID SQL STATEMENT')
-      ).rejects.toThrow()
+      await expect(sqliteUtils.execute(connectionId, 'INVALID SQL STATEMENT')).rejects.toThrow()
     })
 
     it('should handle closed connection errors', async () => {
       const tempConnectionId = await sqliteUtils.openDatabase(':memory:')
       await sqliteUtils.closeDatabase(tempConnectionId)
 
-      await expect(
-        sqliteUtils.execute(tempConnectionId, 'SELECT 1')
-      ).rejects.toThrow()
+      await expect(sqliteUtils.execute(tempConnectionId, 'SELECT 1')).rejects.toThrow()
     })
 
     it('should handle constraint violations', async () => {
       // Create unique constraint
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         CREATE UNIQUE INDEX idx_unique_name ON test_table(name)
-      `)
+      `
+      )
 
-      await sqliteUtils.execute(connectionId, `
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value) VALUES ('Unique Test', 100)
-      `)
+      `
+      )
 
       // Attempt to insert duplicate
       await expect(
-        sqliteUtils.execute(connectionId, `
+        sqliteUtils.execute(
+          connectionId,
+          `
           INSERT INTO test_table (name, value) VALUES ('Unique Test', 200)
-        `)
+        `
+        )
       ).rejects.toThrow()
     })
 
     it('should handle large result sets efficiently', async () => {
       // Insert large dataset
-      const largeInsert = Array.from({ length: 10000 }, (_, i) => 
-        `('Large ${i}', ${i}, '2024-01-01T00:00:00Z')`
+      const largeInsert = Array.from(
+        { length: 10000 },
+        (_, i) => `('Large ${i}', ${i}, '2024-01-01T00:00:00Z')`
       ).join(',')
-      
-      await sqliteUtils.execute(connectionId, `
+
+      await sqliteUtils.execute(
+        connectionId,
+        `
         INSERT INTO test_table (name, value, created_at) VALUES ${largeInsert}
-      `)
+      `
+      )
 
       const startTime = performance.now()
       const result = await sqliteUtils.execute(connectionId, 'SELECT * FROM test_table')
@@ -1211,20 +1308,25 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should handle concurrent operations safely', async () => {
       const promises = Array.from({ length: 10 }, (_, i) =>
-        sqliteUtils.execute(connectionId, `
+        sqliteUtils.execute(
+          connectionId,
+          `
           INSERT INTO test_table (name, value) VALUES (?, ?)
-        `, [`Concurrent ${i}`, i])
+        `,
+          [`Concurrent ${i}`, i]
+        )
       )
 
       const results = await Promise.all(promises)
-      
+
       expect(results).toHaveLength(10)
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.rowsAffected).toBe(1)
       })
 
       // Verify all inserts succeeded
-      const count = await sqliteUtils.execute(connectionId, 
+      const count = await sqliteUtils.execute(
+        connectionId,
         'SELECT COUNT(*) as count FROM test_table WHERE name LIKE "Concurrent%"'
       )
       expect(count.rows[0].count).toBe(10)

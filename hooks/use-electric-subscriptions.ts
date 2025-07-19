@@ -26,18 +26,17 @@ export function useTasksSubscription(userId?: string) {
       setLoading(true)
       setError(null)
 
-      const query = userId 
+      const query = userId
         ? 'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC'
         : 'SELECT * FROM tasks ORDER BY created_at DESC'
-      
+
       const params = userId ? [userId] : []
       const result = await pglite.query(query, params)
-      
+
       setTasks(result.rows as Task[])
-      
+
       // Invalidate related TanStack Query cache
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      
     } catch (err) {
       const error = err as Error
       setError(error)
@@ -48,45 +47,44 @@ export function useTasksSubscription(userId?: string) {
   }, [userId, getPGlite, queryClient])
 
   // Handle real-time sync events
-  const handleSyncEvent = useCallback((event: SyncEvent) => {
-    if (event.table !== 'tasks') return
+  const handleSyncEvent = useCallback(
+    (event: SyncEvent) => {
+      if (event.table !== 'tasks') return
 
-    // Filter events by user if userId is provided
-    if (userId && event.userId !== userId) return
+      // Filter events by user if userId is provided
+      if (userId && event.userId !== userId) return
 
-    setSyncEvents(prev => [...prev.slice(-4), event])
+      setSyncEvents((prev) => [...prev.slice(-4), event])
 
-    switch (event.type) {
-      case 'insert':
-        if (event.record) {
-          setTasks(prev => [event.record as Task, ...prev])
-        }
-        break
-      
-      case 'update':
-        if (event.record) {
-          setTasks(prev => 
-            prev.map(task => 
-              task.id === (event.record as Task).id 
-                ? event.record as Task 
-                : task
+      switch (event.type) {
+        case 'insert':
+          if (event.record) {
+            setTasks((prev) => [event.record as Task, ...prev])
+          }
+          break
+
+        case 'update':
+          if (event.record) {
+            setTasks((prev) =>
+              prev.map((task) =>
+                task.id === (event.record as Task).id ? (event.record as Task) : task
+              )
             )
-          )
-        }
-        break
-      
-      case 'delete':
-        if (event.record) {
-          setTasks(prev => 
-            prev.filter(task => task.id !== (event.record as Task).id)
-          )
-        }
-        break
-    }
+          }
+          break
 
-    // Invalidate TanStack Query cache on changes
-    queryClient.invalidateQueries({ queryKey: ['tasks'] })
-  }, [userId, queryClient])
+        case 'delete':
+          if (event.record) {
+            setTasks((prev) => prev.filter((task) => task.id !== (event.record as Task).id))
+          }
+          break
+      }
+
+      // Invalidate TanStack Query cache on changes
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
+    [userId, queryClient]
+  )
 
   // Setup subscription
   useEffect(() => {
@@ -96,7 +94,7 @@ export function useTasksSubscription(userId?: string) {
     }
 
     setSubscriptionActive(true)
-    
+
     // Initial fetch
     fetchTasks()
 
@@ -141,18 +139,17 @@ export function useEnvironmentsSubscription(userId?: string) {
       setLoading(true)
       setError(null)
 
-      const query = userId 
+      const query = userId
         ? 'SELECT * FROM environments WHERE user_id = $1 ORDER BY created_at DESC'
         : 'SELECT * FROM environments ORDER BY created_at DESC'
-      
+
       const params = userId ? [userId] : []
       const result = await pglite.query(query, params)
-      
+
       setEnvironments(result.rows as Environment[])
-      
+
       // Invalidate related TanStack Query cache
       queryClient.invalidateQueries({ queryKey: ['environments'] })
-      
     } catch (err) {
       const error = err as Error
       setError(error)
@@ -163,45 +160,46 @@ export function useEnvironmentsSubscription(userId?: string) {
   }, [userId, getPGlite, queryClient])
 
   // Handle real-time sync events
-  const handleSyncEvent = useCallback((event: SyncEvent) => {
-    if (event.table !== 'environments') return
+  const handleSyncEvent = useCallback(
+    (event: SyncEvent) => {
+      if (event.table !== 'environments') return
 
-    // Filter events by user if userId is provided
-    if (userId && event.userId !== userId) return
+      // Filter events by user if userId is provided
+      if (userId && event.userId !== userId) return
 
-    setSyncEvents(prev => [...prev.slice(-4), event])
+      setSyncEvents((prev) => [...prev.slice(-4), event])
 
-    switch (event.type) {
-      case 'insert':
-        if (event.record) {
-          setEnvironments(prev => [event.record as Environment, ...prev])
-        }
-        break
-      
-      case 'update':
-        if (event.record) {
-          setEnvironments(prev => 
-            prev.map(env => 
-              env.id === (event.record as Environment).id 
-                ? event.record as Environment 
-                : env
+      switch (event.type) {
+        case 'insert':
+          if (event.record) {
+            setEnvironments((prev) => [event.record as Environment, ...prev])
+          }
+          break
+
+        case 'update':
+          if (event.record) {
+            setEnvironments((prev) =>
+              prev.map((env) =>
+                env.id === (event.record as Environment).id ? (event.record as Environment) : env
+              )
             )
-          )
-        }
-        break
-      
-      case 'delete':
-        if (event.record) {
-          setEnvironments(prev => 
-            prev.filter(env => env.id !== (event.record as Environment).id)
-          )
-        }
-        break
-    }
+          }
+          break
 
-    // Invalidate TanStack Query cache on changes
-    queryClient.invalidateQueries({ queryKey: ['environments'] })
-  }, [userId, queryClient])
+        case 'delete':
+          if (event.record) {
+            setEnvironments((prev) =>
+              prev.filter((env) => env.id !== (event.record as Environment).id)
+            )
+          }
+          break
+      }
+
+      // Invalidate TanStack Query cache on changes
+      queryClient.invalidateQueries({ queryKey: ['environments'] })
+    },
+    [userId, queryClient]
+  )
 
   // Setup subscription
   useEffect(() => {
@@ -211,7 +209,7 @@ export function useEnvironmentsSubscription(userId?: string) {
     }
 
     setSubscriptionActive(true)
-    
+
     // Initial fetch
     fetchEnvironments()
 
@@ -245,7 +243,8 @@ export function useElectricSubscriptions(userId?: string) {
   return {
     tasks: tasksSubscription,
     environments: environmentsSubscription,
-    isConnected: tasksSubscription.subscriptionActive && environmentsSubscription.subscriptionActive,
+    isConnected:
+      tasksSubscription.subscriptionActive && environmentsSubscription.subscriptionActive,
     loading: tasksSubscription.loading || environmentsSubscription.loading,
     error: tasksSubscription.error || environmentsSubscription.error,
   }

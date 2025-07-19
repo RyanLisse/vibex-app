@@ -51,34 +51,42 @@ const createPerformanceLocalStorage = () => {
 const createPerformanceDatabase = () => ({
   tasks: {
     findMany: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockImplementation((data) => 
-      Promise.resolve({ id: `created-${Date.now()}-${Math.random()}` })
-    ),
+    create: vi
+      .fn()
+      .mockImplementation((data) =>
+        Promise.resolve({ id: `created-${Date.now()}-${Math.random()}` })
+      ),
     update: vi.fn().mockResolvedValue({ id: 'updated' }),
     delete: vi.fn().mockResolvedValue({ id: 'deleted' }),
     count: vi.fn().mockResolvedValue(0),
   },
   environments: {
     findMany: vi.fn().mockResolvedValue([]),
-    create: vi.fn().mockImplementation((data) => 
-      Promise.resolve({ id: `env-${Date.now()}-${Math.random()}` })
-    ),
+    create: vi
+      .fn()
+      .mockImplementation((data) => Promise.resolve({ id: `env-${Date.now()}-${Math.random()}` })),
     update: vi.fn().mockResolvedValue({ id: 'updated' }),
     delete: vi.fn().mockResolvedValue({ id: 'deleted' }),
     count: vi.fn().mockResolvedValue(0),
   },
-  $transaction: vi.fn().mockImplementation((fn) => fn({
-    tasks: {
-      create: vi.fn().mockImplementation((data) => 
-        Promise.resolve({ id: `tx-task-${Date.now()}-${Math.random()}` })
-      ),
-    },
-    environments: {
-      create: vi.fn().mockImplementation((data) => 
-        Promise.resolve({ id: `tx-env-${Date.now()}-${Math.random()}` })
-      ),
-    },
-  })),
+  $transaction: vi.fn().mockImplementation((fn) =>
+    fn({
+      tasks: {
+        create: vi
+          .fn()
+          .mockImplementation((data) =>
+            Promise.resolve({ id: `tx-task-${Date.now()}-${Math.random()}` })
+          ),
+      },
+      environments: {
+        create: vi
+          .fn()
+          .mockImplementation((data) =>
+            Promise.resolve({ id: `tx-env-${Date.now()}-${Math.random()}` })
+          ),
+      },
+    })
+  ),
 })
 
 // Data generators for performance testing
@@ -87,12 +95,22 @@ const generateTaskData = (count: number): LocalStorageTask[] =>
     id: `task-${i}`,
     title: `Performance Test Task ${i}`,
     description: `This is a test task for performance testing. Task number ${i}. `.repeat(5),
-    status: i % 4 === 0 ? 'pending' : i % 4 === 1 ? 'in-progress' : i % 4 === 2 ? 'completed' : 'cancelled',
+    status:
+      i % 4 === 0
+        ? 'pending'
+        : i % 4 === 1
+          ? 'in-progress'
+          : i % 4 === 2
+            ? 'completed'
+            : 'cancelled',
     priority: i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low',
     assignedTo: `user-${i % 10}`,
     createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-    dueDate: i % 5 === 0 ? new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() : undefined,
+    dueDate:
+      i % 5 === 0
+        ? new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+        : undefined,
     tags: i % 3 === 0 ? [`tag-${i % 5}`, `category-${i % 3}`] : [`tag-${i % 7}`],
     metadata: {
       category: `category-${i % 5}`,
@@ -148,7 +166,7 @@ const measureMemoryDelta = async (operation: () => Promise<void>) => {
   const beforeMemory = getMemoryUsage()
   await operation()
   const afterMemory = getMemoryUsage()
-  
+
   return {
     heapUsedDelta: afterMemory.heapUsed - beforeMemory.heapUsed,
     heapTotalDelta: afterMemory.heapTotal - beforeMemory.heapTotal,
@@ -157,7 +175,9 @@ const measureMemoryDelta = async (operation: () => Promise<void>) => {
 }
 
 // Performance measurement utilities
-const measureExecutionTime = async <T>(operation: () => Promise<T>): Promise<{ result: T; duration: number }> => {
+const measureExecutionTime = async <T>(
+  operation: () => Promise<T>
+): Promise<{ result: T; duration: number }> => {
   const startTime = performance.now()
   const result = await operation()
   const duration = performance.now() - startTime
@@ -235,10 +255,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(50)
       const environments = generateEnvironmentData(10)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -255,10 +272,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(500)
       const environments = generateEnvironmentData(50)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -275,10 +289,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(5000)
       const environments = generateEnvironmentData(200)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -293,11 +304,8 @@ describe('Migration System Performance Tests', () => {
 
     it('should handle extraction with memory efficiency', async () => {
       const tasks = generateTaskData(1000)
-      
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
 
       const { memoryDelta } = await runPerformanceTest(
         'Memory Efficient Extraction',
@@ -342,7 +350,7 @@ describe('Migration System Performance Tests', () => {
     })
 
     it('should handle complex metadata transformation efficiently', async () => {
-      const complexTasks = generateTaskData(500).map(task => ({
+      const complexTasks = generateTaskData(500).map((task) => ({
         ...task,
         metadata: {
           ...task.metadata,
@@ -369,10 +377,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(50)
       const environments = generateEnvironmentData(10)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -396,10 +401,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(500)
       const environments = generateEnvironmentData(50)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -422,10 +424,7 @@ describe('Migration System Performance Tests', () => {
     it('should optimize batch processing for performance', async () => {
       const tasks = generateTaskData(1000)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
 
       // Test different batch sizes
       const batchSizes = [10, 50, 100, 200, 500]
@@ -463,10 +462,7 @@ describe('Migration System Performance Tests', () => {
     it('should handle concurrent migration operations efficiently', async () => {
       const tasks = generateTaskData(200)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
 
       const config: MigrationConfig = {
         dryRun: true,
@@ -485,9 +481,7 @@ describe('Migration System Performance Tests', () => {
       const duration = performance.now() - startTime
 
       // At least one should succeed
-      const successCount = results.filter(
-        r => r.status === 'fulfilled' && r.value.success
-      ).length
+      const successCount = results.filter((r) => r.status === 'fulfilled' && r.value.success).length
 
       expect(successCount).toBeGreaterThan(0)
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.MEDIUM_DATASET_TIME)
@@ -499,10 +493,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(500)
       const environments = generateEnvironmentData(50)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -510,10 +501,11 @@ describe('Migration System Performance Tests', () => {
 
       await runPerformanceTest(
         'Backup Creation',
-        () => backupService.createBackup({
-          source: 'LOCALSTORAGE',
-          compress: false,
-        }),
+        () =>
+          backupService.createBackup({
+            source: 'LOCALSTORAGE',
+            compress: false,
+          }),
         PERFORMANCE_THRESHOLDS.MEDIUM_DATASET_TIME
       )
     })
@@ -522,10 +514,7 @@ describe('Migration System Performance Tests', () => {
       const tasks = generateTaskData(500)
       const environments = generateEnvironmentData(50)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
       mockLocalStorage.setItem(
         'environments',
         JSON.stringify({ state: { environments }, version: 0 })
@@ -534,19 +523,21 @@ describe('Migration System Performance Tests', () => {
       // Test both compressed and uncompressed backups
       const { result: uncompressedResult } = await runPerformanceTest(
         'Uncompressed Backup',
-        () => backupService.createBackup({
-          source: 'LOCALSTORAGE',
-          compress: false,
-        }),
+        () =>
+          backupService.createBackup({
+            source: 'LOCALSTORAGE',
+            compress: false,
+          }),
         PERFORMANCE_THRESHOLDS.MEDIUM_DATASET_TIME
       )
 
       const { result: compressedResult } = await runPerformanceTest(
         'Compressed Backup',
-        () => backupService.createBackup({
-          source: 'LOCALSTORAGE',
-          compress: true,
-        }),
+        () =>
+          backupService.createBackup({
+            source: 'LOCALSTORAGE',
+            compress: true,
+          }),
         PERFORMANCE_THRESHOLDS.MEDIUM_DATASET_TIME
       )
 
@@ -560,10 +551,7 @@ describe('Migration System Performance Tests', () => {
     it('should restore backup efficiently', async () => {
       const tasks = generateTaskData(300)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
 
       // Create backup first
       const backupResult = await backupService.createBackup({
@@ -601,10 +589,10 @@ describe('Migration System Performance Tests', () => {
 
         await dataExtractor.extractTasks()
         const transformResult = dataMapper.transformTasks(largeTaskSet)
-        
+
         // Clear data to simulate cleanup
         mockLocalStorage.clear()
-        
+
         // Force garbage collection if available
         if (global.gc) {
           global.gc()
@@ -645,10 +633,7 @@ describe('Migration System Performance Tests', () => {
     it('should efficiently handle repetitive operations', async () => {
       const tasks = generateTaskData(200)
 
-      mockLocalStorage.setItem(
-        'task-store',
-        JSON.stringify({ state: { tasks }, version: 0 })
-      )
+      mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
 
       const iterations = 10
       const durations: number[] = []
@@ -676,11 +661,8 @@ describe('Migration System Performance Tests', () => {
 
       for (const size of dataSizes) {
         const tasks = generateTaskData(size)
-        
-        mockLocalStorage.setItem(
-          'task-store',
-          JSON.stringify({ state: { tasks }, version: 0 })
-        )
+
+        mockLocalStorage.setItem('task-store', JSON.stringify({ state: { tasks }, version: 0 }))
 
         const { duration } = await measureExecutionTime(() => dataExtractor.extractTasks())
         results.push({ size, duration })
@@ -705,14 +687,14 @@ describe('Migration System Performance Tests', () => {
 
     it('should handle varying complexity efficiently', async () => {
       // Create tasks with varying complexity
-      const simpleTasks = generateTaskData(500).map(task => ({
+      const simpleTasks = generateTaskData(500).map((task) => ({
         id: task.id,
         title: task.title,
         status: task.status,
         createdAt: task.createdAt,
       }))
 
-      const complexTasks = generateTaskData(500).map(task => ({
+      const complexTasks = generateTaskData(500).map((task) => ({
         ...task,
         metadata: {
           ...task.metadata,

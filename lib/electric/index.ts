@@ -34,25 +34,25 @@ export async function initializeElectricSQL(options?: {
   enableHealthMonitoring?: boolean
 }): Promise<void> {
   const { electricAuthService, electricSyncService } = await import('./index')
-  
+
   try {
     console.log('Initializing ElectricSQL integration...')
-    
+
     // Initialize authentication
     await electricAuthService.initialize({
       userId: options?.userId,
       apiKey: options?.apiKey,
       customToken: options?.customToken,
     })
-    
+
     // Initialize sync service
     await electricSyncService.initialize()
-    
+
     // Start health monitoring if enabled
     if (options?.enableHealthMonitoring !== false) {
       electricSyncService.startHealthMonitoring()
     }
-    
+
     console.log('ElectricSQL integration initialized successfully')
   } catch (error) {
     console.error('Failed to initialize ElectricSQL integration:', error)
@@ -63,7 +63,7 @@ export async function initializeElectricSQL(options?: {
 // Cleanup function
 export async function cleanupElectricSQL(): Promise<void> {
   const { electricSyncService, electricAuthService } = await import('./index')
-  
+
   try {
     await electricSyncService.cleanup()
     await electricAuthService.logout()
@@ -92,7 +92,7 @@ export function getElectricSQLHealth(): {
   }
 } {
   const { electricAuthService, electricSyncService } = require('./index')
-  
+
   return {
     auth: electricAuthService.getTokenInfo(),
     sync: electricSyncService.getSyncStatus(),
@@ -128,7 +128,13 @@ export class ElectricSQLUtils {
   /**
    * Get conflict log for debugging
    */
-  static getConflictLog(): Array<{ table: string; id: string; conflict: any; resolution: any; timestamp: Date }> {
+  static getConflictLog(): Array<{
+    table: string
+    id: string
+    conflict: any
+    resolution: any
+    timestamp: Date
+  }> {
     const { electricSyncService } = require('./index')
     return electricSyncService.getConflictLog()
   }
@@ -183,7 +189,11 @@ export const useElectricSQLAuth = () => {
 
 // Error classes
 export class ElectricSQLError extends Error {
-  constructor(message: string, public code?: string, public details?: any) {
+  constructor(
+    message: string,
+    public code?: string,
+    public details?: any
+  ) {
     super(message)
     this.name = 'ElectricSQLError'
   }
@@ -204,7 +214,10 @@ export class ElectricSQLSyncError extends ElectricSQLError {
 }
 
 export class ElectricSQLConflictError extends ElectricSQLError {
-  constructor(message: string, public conflictData: any) {
+  constructor(
+    message: string,
+    public conflictData: any
+  ) {
     super(message, 'CONFLICT_ERROR', conflictData)
     this.name = 'ElectricSQLConflictError'
   }

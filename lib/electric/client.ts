@@ -20,7 +20,13 @@ export class ElectricClient {
   private offlineQueue: Array<{ operation: string; data: any; timestamp: Date }> = []
   private syncStatus: 'connected' | 'disconnected' | 'syncing' | 'error' = 'disconnected'
   private lastSyncTime: Date | null = null
-  private conflictLog: Array<{ table: string; id: string; conflict: any; resolution: any; timestamp: Date }> = []
+  private conflictLog: Array<{
+    table: string
+    id: string
+    conflict: any
+    resolution: any
+    timestamp: Date
+  }> = []
 
   private constructor() {
     // Private constructor for singleton pattern
@@ -99,25 +105,25 @@ export class ElectricClient {
           this.isConnected = true
           this.syncStatus = 'connected'
           this.lastSyncTime = new Date()
-          
+
           // Process offline queue if any
           await this.processOfflineQueue()
-          
+
           console.log('Connected to ElectricSQL service')
           return
         } catch (error) {
           retryCount++
           this.syncStatus = 'error'
-          
+
           if (retryCount >= config.sync.maxRetries) {
             console.error('Failed to connect to ElectricSQL service after retries:', error)
             throw error
           }
-          
+
           // Exponential backoff
           const delay = config.sync.retryBackoff * Math.pow(2, retryCount - 1)
           console.warn(`Connection attempt ${retryCount} failed, retrying in ${delay}ms...`)
-          await new Promise(resolve => setTimeout(resolve, delay))
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
     })
@@ -196,14 +202,22 @@ export class ElectricClient {
         const remoteTimestamp = new Date(remote.updated_at || remote.created_at)
 
         const winner = remoteTimestamp > localTimestamp ? remote : local
-        conflictEntry.resolution = { strategy: 'last-write-wins', winner: winner === remote ? 'remote' : 'local' }
+        conflictEntry.resolution = {
+          strategy: 'last-write-wins',
+          winner: winner === remote ? 'remote' : 'local',
+        }
 
         // Apply resolution
-        await this.database?.execute(`
+        await this.database?.execute(
+          `
           UPDATE ${table} 
-          SET ${Object.keys(winner).map(key => `${key} = $${key}`).join(', ')}
+          SET ${Object.keys(winner)
+            .map((key) => `${key} = $${key}`)
+            .join(', ')}
           WHERE id = $id
-        `, { ...winner, id })
+        `,
+          { ...winner, id }
+        )
 
         console.log(`Conflict resolved for ${table}:${id} using last-write-wins`)
       } catch (error) {
@@ -248,7 +262,9 @@ export class ElectricClient {
       // Clear processed operations
       this.offlineQueue = failedOperations
 
-      console.log(`Processed ${processedOperations.length} offline operations, ${failedOperations.length} failed`)
+      console.log(
+        `Processed ${processedOperations.length} offline operations, ${failedOperations.length} failed`
+      )
     })
   }
 
@@ -357,7 +373,13 @@ export class ElectricClient {
   /**
    * Get conflict log for debugging
    */
-  getConflictLog(): Array<{ table: string; id: string; conflict: any; resolution: any; timestamp: Date }> {
+  getConflictLog(): Array<{
+    table: string
+    id: string
+    conflict: any
+    resolution: any
+    timestamp: Date
+  }> {
     return [...this.conflictLog]
   }
 

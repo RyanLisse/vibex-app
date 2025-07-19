@@ -1,6 +1,6 @@
 /**
  * Offline Sync Integration Tests
- * 
+ *
  * Tests for ElectricSQL offline-first functionality, queue management,
  * and sync resume capabilities
  */
@@ -65,7 +65,7 @@ describe('Offline Sync Integration', () => {
         navigator.onLine = false
         // Trigger the offline event
         const offlineHandler = mockAddEventListener.mock.calls.find(
-          call => call[0] === 'offline'
+          (call) => call[0] === 'offline'
         )?.[1]
         offlineHandler?.()
       })
@@ -86,7 +86,7 @@ describe('Offline Sync Integration', () => {
       act(() => {
         navigator.onLine = true
         const onlineHandler = mockAddEventListener.mock.calls.find(
-          call => call[0] === 'online'
+          (call) => call[0] === 'online'
         )?.[1]
         onlineHandler?.()
       })
@@ -172,7 +172,7 @@ describe('Offline Sync Integration', () => {
       act(() => {
         navigator.onLine = true
         const onlineHandler = mockAddEventListener.mock.calls.find(
-          call => call[0] === 'online'
+          (call) => call[0] === 'online'
         )?.[1]
         onlineHandler?.()
       })
@@ -220,7 +220,9 @@ describe('Offline Sync Integration', () => {
     })
 
     it('should handle max retries exceeded', async () => {
-      vi.mocked(electricDb.executeRealtimeOperation).mockRejectedValue(new Error('Persistent error'))
+      vi.mocked(electricDb.executeRealtimeOperation).mockRejectedValue(
+        new Error('Persistent error')
+      )
 
       const { result } = renderHook(() => useOfflineSync())
 
@@ -275,7 +277,7 @@ describe('Offline Sync Integration', () => {
       act(() => {
         navigator.onLine = false
         const offlineHandler = mockAddEventListener.mock.calls.find(
-          call => call[0] === 'offline'
+          (call) => call[0] === 'offline'
         )?.[1]
         offlineHandler?.()
       })

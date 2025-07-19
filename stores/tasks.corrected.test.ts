@@ -140,7 +140,7 @@ describe('useTaskStore', () => {
       const originalUpdatedAt = task.updatedAt
 
       // Add small delay to ensure timestamp difference
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
 
       const updates = {
         title: 'Updated Task',
@@ -715,7 +715,7 @@ describe('useTaskStore', () => {
       // Should be in reverse order (newest first)
       expect(activeTasks[0].id).toBe(task3.id)
       expect(activeTasks[1].id).toBe(task1.id)
-      expect(activeTasks.every(task => !task.isArchived)).toBe(true)
+      expect(activeTasks.every((task) => !task.isArchived)).toBe(true)
     })
 
     it('should return empty array when all tasks are archived', () => {
@@ -783,10 +783,10 @@ describe('useTaskStore', () => {
       const archivedTasks = useTaskStore.getState().getArchivedTasks()
 
       expect(archivedTasks).toHaveLength(2)
-      expect(archivedTasks.every(task => task.isArchived)).toBe(true)
-      expect(archivedTasks.map(t => t.id)).toContain(task1.id)
-      expect(archivedTasks.map(t => t.id)).toContain(task3.id)
-      expect(archivedTasks.map(t => t.id)).not.toContain(task2.id)
+      expect(archivedTasks.every((task) => task.isArchived)).toBe(true)
+      expect(archivedTasks.map((t) => t.id)).toContain(task1.id)
+      expect(archivedTasks.map((t) => t.id)).toContain(task3.id)
+      expect(archivedTasks.map((t) => t.id)).not.toContain(task2.id)
     })
 
     it('should return empty array when no tasks are archived', () => {
@@ -919,8 +919,8 @@ describe('useTaskStore', () => {
 
       const doneTasks = useTaskStore.getState().getTasksByStatus('DONE')
       expect(doneTasks).toHaveLength(2)
-      expect(doneTasks.map(t => t.id)).toContain(doneTask1.id)
-      expect(doneTasks.map(t => t.id)).toContain(doneTask2.id)
+      expect(doneTasks.map((t) => t.id)).toContain(doneTask1.id)
+      expect(doneTasks.map((t) => t.id)).toContain(doneTask2.id)
 
       const pausedTasks = useTaskStore.getState().getTasksByStatus('PAUSED')
       expect(pausedTasks).toHaveLength(1)
@@ -991,8 +991,8 @@ describe('useTaskStore', () => {
 
       const sessionATasks = useTaskStore.getState().getTasksBySessionId('session-A')
       expect(sessionATasks).toHaveLength(2)
-      expect(sessionATasks.map(t => t.id)).toContain(task1.id)
-      expect(sessionATasks.map(t => t.id)).toContain(task3.id)
+      expect(sessionATasks.map((t) => t.id)).toContain(task1.id)
+      expect(sessionATasks.map((t) => t.id)).toContain(task3.id)
 
       const sessionBTasks = useTaskStore.getState().getTasksBySessionId('session-B')
       expect(sessionBTasks).toHaveLength(1)
@@ -1051,7 +1051,9 @@ describe('useTaskStore', () => {
       expect(updatedTask.statusMessage).toBe('Task resumed')
 
       // Complete task
-      useTaskStore.getState().updateTask(task.id, { status: 'DONE', statusMessage: 'Task completed' })
+      useTaskStore
+        .getState()
+        .updateTask(task.id, { status: 'DONE', statusMessage: 'Task completed' })
       updatedTask = useTaskStore.getState().getTaskById(task.id)!
       expect(updatedTask.status).toBe('DONE')
       expect(updatedTask.statusMessage).toBe('Task completed')
@@ -1064,11 +1066,11 @@ describe('useTaskStore', () => {
 
       // Verify task is not in active tasks
       const activeTasks = useTaskStore.getState().getActiveTasks()
-      expect(activeTasks.map(t => t.id)).not.toContain(task.id)
+      expect(activeTasks.map((t) => t.id)).not.toContain(task.id)
 
       // Verify task is in archived tasks
       const archivedTasks = useTaskStore.getState().getArchivedTasks()
-      expect(archivedTasks.map(t => t.id)).toContain(task.id)
+      expect(archivedTasks.map((t) => t.id)).toContain(task.id)
     })
 
     it('should handle task cancellation workflow', () => {
@@ -1104,7 +1106,11 @@ describe('useTaskStore', () => {
     it('should handle tasks with complex message structures', () => {
       const complexMessages = [
         { role: 'user' as const, type: 'text', data: { content: 'Start task' } },
-        { role: 'assistant' as const, type: 'code', data: { language: 'javascript', code: 'console.log("hello")' } },
+        {
+          role: 'assistant' as const,
+          type: 'code',
+          data: { language: 'javascript', code: 'console.log("hello")' },
+        },
         { role: 'user' as const, type: 'feedback', data: { rating: 5, comment: 'Good work' } },
       ]
 
@@ -1122,7 +1128,10 @@ describe('useTaskStore', () => {
 
       expect(task.messages).toEqual(complexMessages)
       expect(task.messages).toHaveLength(3)
-      expect(task.messages[1].data).toEqual({ language: 'javascript', code: 'console.log("hello")' })
+      expect(task.messages[1].data).toEqual({
+        language: 'javascript',
+        code: 'console.log("hello")',
+      })
     })
 
     it('should handle empty strings and special characters', () => {

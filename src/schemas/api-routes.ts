@@ -299,7 +299,6 @@ export const ValidationErrorSchema = z.object({
   code: z.string().optional(),
 })
 
-
 // Success response schemas
 
 export const createApiSuccessResponse = <T>(data: T, message?: string) => ({

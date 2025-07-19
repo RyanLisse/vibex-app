@@ -73,13 +73,13 @@ export class ElectricAuthService {
   private async generateUserToken(userId: string, apiKey: string): Promise<void> {
     return this.observability.trackOperation('electric-auth.generate-user-token', async () => {
       const authEndpoint = process.env.ELECTRIC_AUTH_ENDPOINT || '/api/auth/electric'
-      
+
       try {
         const response = await fetch(authEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
             userId,
@@ -116,7 +116,7 @@ export class ElectricAuthService {
       const payload = {
         sub: 'anonymous',
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
         permissions: ['read', 'write'], // Full permissions for development
       }
 
@@ -134,7 +134,7 @@ export class ElectricAuthService {
   private getUserPermissions(userId: string): string[] {
     // Default permissions for authenticated users
     const basePermissions = ['read', 'write']
-    
+
     // Add admin permissions for specific users (in production, this would come from a database)
     const adminUsers = (process.env.ELECTRIC_ADMIN_USERS || '').split(',').filter(Boolean)
     if (adminUsers.includes(userId)) {
@@ -153,8 +153,8 @@ export class ElectricAuthService {
     }
 
     // Refresh token 5 minutes before expiry
-    const refreshTime = this.tokenExpiry 
-      ? this.tokenExpiry.getTime() - Date.now() - (5 * 60 * 1000)
+    const refreshTime = this.tokenExpiry
+      ? this.tokenExpiry.getTime() - Date.now() - 5 * 60 * 1000
       : 30 * 60 * 1000 // Default to 30 minutes
 
     if (refreshTime > 0) {
@@ -179,13 +179,13 @@ export class ElectricAuthService {
 
     return this.observability.trackOperation('electric-auth.refresh-token', async () => {
       const authEndpoint = process.env.ELECTRIC_AUTH_ENDPOINT || '/api/auth/electric'
-      
+
       try {
         const response = await fetch(`${authEndpoint}/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.refreshToken}`,
+            Authorization: `Bearer ${this.refreshToken}`,
           },
         })
 
@@ -249,9 +249,7 @@ export class ElectricAuthService {
   } {
     const hasToken = this.authToken !== null
     const isExpired = this.tokenExpiry ? this.tokenExpiry < new Date() : false
-    const timeUntilExpiry = this.tokenExpiry 
-      ? this.tokenExpiry.getTime() - Date.now()
-      : null
+    const timeUntilExpiry = this.tokenExpiry ? this.tokenExpiry.getTime() - Date.now() : null
 
     return {
       hasToken,
@@ -273,7 +271,7 @@ export class ElectricAuthService {
       // Decode token to check permissions (simplified for development)
       const payload = JSON.parse(atob(this.authToken))
       const permissions = payload.permissions || []
-      
+
       return permissions.includes(operation) || permissions.includes('admin')
     } catch (error) {
       console.error('Failed to validate token permissions:', error)
@@ -291,7 +289,7 @@ export class ElectricAuthService {
     }
 
     return {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     }
   }
 

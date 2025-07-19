@@ -51,7 +51,7 @@ const createMockVectorSearch = () => {
       // Mock embedding generation
       const dimensions = model === 'large' ? 1536 : 384
       const vector = new Float32Array(dimensions)
-      
+
       // Generate deterministic but realistic embeddings based on text
       const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
       for (let i = 0; i < dimensions; i++) {
@@ -69,16 +69,18 @@ const createMockVectorSearch = () => {
         vector,
         dimensions,
         norm: 1.0,
-        metadata: { text, model, length: text.length }
+        metadata: { text, model, length: text.length },
       }
     }),
 
-    batchCreateEmbeddings: vi.fn(async (texts: string[], model = 'default'): Promise<VectorEmbedding[]> => {
-      const embeddings = await Promise.all(
-        texts.map(text => createMockVectorSearch().createEmbedding(text, model))
-      )
-      return embeddings
-    }),
+    batchCreateEmbeddings: vi.fn(
+      async (texts: string[], model = 'default'): Promise<VectorEmbedding[]> => {
+        const embeddings = await Promise.all(
+          texts.map((text) => createMockVectorSearch().createEmbedding(text, model))
+        )
+        return embeddings
+      }
+    ),
 
     // Index operations
     addVector: vi.fn(async (embedding: VectorEmbedding): Promise<void> => {
@@ -86,7 +88,7 @@ const createMockVectorSearch = () => {
     }),
 
     addVectors: vi.fn(async (embeddings: VectorEmbedding[]): Promise<void> => {
-      embeddings.forEach(embedding => vectors.set(embedding.id, embedding))
+      embeddings.forEach((embedding) => vectors.set(embedding.id, embedding))
     }),
 
     removeVector: vi.fn(async (id: string): Promise<boolean> => {
@@ -94,71 +96,73 @@ const createMockVectorSearch = () => {
     }),
 
     // Search operations
-    search: vi.fn(async (
-      queryVector: Float32Array,
-      options: {
-        k?: number
-        threshold?: number
-        filter?: (metadata: any) => boolean
-      } = {}
-    ): Promise<SimilarityResult[]> => {
-      const { k = 10, threshold = 0.0, filter } = options
-      const results: SimilarityResult[] = []
+    search: vi.fn(
+      async (
+        queryVector: Float32Array,
+        options: {
+          k?: number
+          threshold?: number
+          filter?: (metadata: any) => boolean
+        } = {}
+      ): Promise<SimilarityResult[]> => {
+        const { k = 10, threshold = 0.0, filter } = options
+        const results: SimilarityResult[] = []
 
-      for (const [id, embedding] of vectors.entries()) {
-        if (filter && !filter(embedding.metadata)) continue
+        for (const [id, embedding] of vectors.entries()) {
+          if (filter && !filter(embedding.metadata)) continue
 
-        // Calculate cosine similarity
-        let dotProduct = 0
-        for (let i = 0; i < Math.min(queryVector.length, embedding.vector.length); i++) {
-          dotProduct += queryVector[i] * embedding.vector[i]
+          // Calculate cosine similarity
+          let dotProduct = 0
+          for (let i = 0; i < Math.min(queryVector.length, embedding.vector.length); i++) {
+            dotProduct += queryVector[i] * embedding.vector[i]
+          }
+
+          const score = dotProduct // Assuming normalized vectors
+          if (score >= threshold) {
+            results.push({
+              id,
+              score,
+              metadata: embedding.metadata,
+              distance: 1 - score,
+            })
+          }
         }
 
-        const score = dotProduct // Assuming normalized vectors
-        if (score >= threshold) {
-          results.push({
-            id,
-            score,
-            metadata: embedding.metadata,
-            distance: 1 - score
-          })
-        }
+        return results.sort((a, b) => b.score - a.score).slice(0, k)
       }
+    ),
 
-      return results
-        .sort((a, b) => b.score - a.score)
-        .slice(0, k)
-    }),
-
-    searchByText: vi.fn(async (
-      query: string,
-      options: {
-        k?: number
-        threshold?: number
-        model?: string
-        filter?: (metadata: any) => boolean
-      } = {}
-    ): Promise<SimilarityResult[]> => {
-      const queryEmbedding = await createMockVectorSearch().createEmbedding(query, options.model)
-      return createMockVectorSearch().search(queryEmbedding.vector, options)
-    }),
+    searchByText: vi.fn(
+      async (
+        query: string,
+        options: {
+          k?: number
+          threshold?: number
+          model?: string
+          filter?: (metadata: any) => boolean
+        } = {}
+      ): Promise<SimilarityResult[]> => {
+        const queryEmbedding = await createMockVectorSearch().createEmbedding(query, options.model)
+        return createMockVectorSearch().search(queryEmbedding.vector, options)
+      }
+    ),
 
     // Index management
     buildIndex: vi.fn(async (type: 'flat' | 'ivf' | 'hnsw' = 'flat'): Promise<VectorIndex> => {
       const startTime = performance.now()
-      
+
       // Mock index building
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       const buildTime = performance.now() - startTime
       const dimensions = vectors.size > 0 ? Array.from(vectors.values())[0].dimensions : 0
-      
+
       index = {
         size: vectors.size,
         dimensions,
         indexType: type,
         memoryUsage: vectors.size * dimensions * 4, // 4 bytes per float
-        buildTime
+        buildTime,
       }
 
       return index
@@ -169,7 +173,7 @@ const createMockVectorSearch = () => {
     optimizeIndex: vi.fn(async (): Promise<void> => {
       if (index) {
         // Mock optimization
-        await new Promise(resolve => setTimeout(resolve, 50))
+        await new Promise((resolve) => setTimeout(resolve, 50))
         index.memoryUsage *= 0.8 // Simulate compression
       }
     }),
@@ -208,14 +212,14 @@ const createMockVectorSearch = () => {
       dimensions: vectors.size > 0 ? Array.from(vectors.values())[0].dimensions : 0,
       memoryUsage: createMockVectorSearch().getMemoryUsage(),
       indexType: index?.indexType || null,
-      indexSize: index?.size || 0
+      indexSize: index?.size || 0,
     })),
 
     // Cleanup
     clear: vi.fn(async (): Promise<void> => {
       vectors.clear()
       index = null
-    })
+    }),
   }
 }
 
@@ -247,19 +251,19 @@ describe('WASM Vector Search Integration Tests', () => {
       'Web development with modern frameworks',
       'Cloud computing and distributed systems',
       'Cybersecurity and network protection',
-      'Mobile app development best practices'
+      'Mobile app development best practices',
     ]
 
     testEmbeddings = await vectorSearch.batchCreateEmbeddings(testTexts)
     await vectorSearch.addVectors(testEmbeddings)
-    
+
     return testEmbeddings
   }
 
   describe('Embedding Generation Tests', () => {
     it('should generate consistent embeddings for same text', async () => {
       const text = 'Test embedding generation'
-      
+
       const embedding1 = await vectorSearch.createEmbedding(text)
       const embedding2 = await vectorSearch.createEmbedding(text)
 
@@ -274,7 +278,7 @@ describe('WASM Vector Search Integration Tests', () => {
 
       expect(embedding1.vector).not.toEqual(embedding2.vector)
       expect(embedding1.id).not.toBe(embedding2.id)
-      
+
       // Vectors should be different but similar dimensions
       expect(embedding1.dimensions).toBe(embedding2.dimensions)
     })
@@ -290,7 +294,7 @@ describe('WASM Vector Search Integration Tests', () => {
 
     it('should normalize vectors correctly', async () => {
       const embedding = await vectorSearch.createEmbedding('Normalization test')
-      
+
       // Calculate actual norm
       let norm = 0
       for (let i = 0; i < embedding.vector.length; i++) {
@@ -304,17 +308,17 @@ describe('WASM Vector Search Integration Tests', () => {
 
     it('should handle batch embedding generation efficiently', async () => {
       const texts = Array.from({ length: 100 }, (_, i) => `Test text ${i}`)
-      
+
       const startTime = performance.now()
       const embeddings = await vectorSearch.batchCreateEmbeddings(texts)
       const endTime = performance.now()
 
       expect(embeddings).toHaveLength(100)
       expect(endTime - startTime).toBeLessThan(5000) // Should complete within 5 seconds
-      
+
       // All embeddings should have same dimensions
       const dimensions = embeddings[0].dimensions
-      embeddings.forEach(embedding => {
+      embeddings.forEach((embedding) => {
         expect(embedding.dimensions).toBe(dimensions)
         expect(embedding.vector).toHaveLength(dimensions)
       })
@@ -347,17 +351,17 @@ describe('WASM Vector Search Integration Tests', () => {
       const removed = await vectorSearch.removeVector(vectorToRemove.id)
 
       expect(removed).toBe(true)
-      
+
       const stats = vectorSearch.getStatistics()
       expect(stats.vectorCount).toBe(testEmbeddings.length - 1)
     })
 
     it('should build different index types', async () => {
       const indexTypes: Array<'flat' | 'ivf' | 'hnsw'> = ['flat', 'ivf', 'hnsw']
-      
+
       for (const indexType of indexTypes) {
         const index = await vectorSearch.buildIndex(indexType)
-        
+
         expect(index.indexType).toBe(indexType)
         expect(index.size).toBe(testEmbeddings.length)
         expect(index.dimensions).toBe(testEmbeddings[0].dimensions)
@@ -380,12 +384,13 @@ describe('WASM Vector Search Integration Tests', () => {
 
     it('should handle large vector sets efficiently', async () => {
       // Create large dataset
-      const largeTexts = Array.from({ length: 1000 }, (_, i) => 
-        `Large dataset text number ${i} with some unique content ${Math.random()}`
+      const largeTexts = Array.from(
+        { length: 1000 },
+        (_, i) => `Large dataset text number ${i} with some unique content ${Math.random()}`
       )
-      
+
       const largeEmbeddings = await vectorSearch.batchCreateEmbeddings(largeTexts)
-      
+
       const startTime = performance.now()
       await vectorSearch.addVectors(largeEmbeddings)
       const addTime = performance.now() - startTime
@@ -396,7 +401,7 @@ describe('WASM Vector Search Integration Tests', () => {
 
       expect(addTime).toBeLessThan(10000) // 10 seconds max for adding
       expect(buildTime).toBeLessThan(5000) // 5 seconds max for building
-      
+
       const stats = vectorSearch.getStatistics()
       expect(stats.vectorCount).toBe(largeEmbeddings.length)
     })
@@ -427,9 +432,9 @@ describe('WASM Vector Search Integration Tests', () => {
       const results = await vectorSearch.searchByText(query, { k: 3 })
 
       expect(results).toHaveLength(3)
-      
+
       // Should find AI/ML related content
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.score).toBeGreaterThan(0)
         expect(result.metadata).toBeDefined()
       })
@@ -438,33 +443,33 @@ describe('WASM Vector Search Integration Tests', () => {
     it('should filter search results by metadata', async () => {
       const query = 'technology'
       const filter = (metadata: any) => metadata?.text?.includes('learning')
-      
-      const results = await vectorSearch.searchByText(query, { 
-        k: 10, 
-        filter 
+
+      const results = await vectorSearch.searchByText(query, {
+        k: 10,
+        filter,
       })
 
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.metadata?.text).toContain('learning')
       })
     })
 
     it('should respect similarity threshold', async () => {
       const query = 'completely unrelated query about cooking recipes'
-      const results = await vectorSearch.searchByText(query, { 
-        k: 10, 
-        threshold: 0.8 // High threshold
+      const results = await vectorSearch.searchByText(query, {
+        k: 10,
+        threshold: 0.8, // High threshold
       })
 
       // Should return fewer results due to high threshold
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.score).toBeGreaterThanOrEqual(0.8)
       })
     })
 
     it('should handle empty search results gracefully', async () => {
       await vectorSearch.clear()
-      
+
       const query = 'search in empty index'
       const results = await vectorSearch.searchByText(query, { k: 5 })
 
@@ -475,11 +480,11 @@ describe('WASM Vector Search Integration Tests', () => {
       const queryVector = testEmbeddings[0].vector
       const results = await vectorSearch.search(queryVector, { k: 3 })
 
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.distance).toBeDefined()
         expect(result.distance).toBeGreaterThanOrEqual(0)
         expect(result.distance).toBeLessThanOrEqual(2) // Max for normalized vectors
-        
+
         // Distance should be inverse of similarity for cosine
         expect(result.distance).toBeCloseTo(1 - result.score, 5)
       })
@@ -532,7 +537,7 @@ describe('WASM Vector Search Integration Tests', () => {
 
       for (const size of indexSizes) {
         await vectorSearch.clear()
-        
+
         // Generate test data
         const texts = Array.from({ length: size }, (_, i) => `Performance test text ${i}`)
         const embeddings = await vectorSearch.batchCreateEmbeddings(texts)
@@ -557,7 +562,7 @@ describe('WASM Vector Search Integration Tests', () => {
           throughput,
           accuracy: 1.0, // Mock perfect accuracy
           memoryUsage: vectorSearch.getMemoryUsage(),
-          indexSize: size
+          indexSize: size,
         })
       }
 
@@ -566,7 +571,7 @@ describe('WASM Vector Search Integration Tests', () => {
         expect(result.queryTime).toBeLessThan(1000) // Less than 1 second
         expect(result.throughput).toBeGreaterThan(1) // At least 1 QPS
         expect(result.memoryUsage).toBeGreaterThan(0)
-        
+
         if (index > 0) {
           // Memory usage should scale with index size
           expect(result.memoryUsage).toBeGreaterThan(performanceResults[index - 1].memoryUsage)
@@ -601,7 +606,7 @@ describe('WASM Vector Search Integration Tests', () => {
           throughput: 1000 / avgQueryTime,
           accuracy: 1.0,
           memoryUsage: vectorSearch.getMemoryUsage(),
-          indexSize: buildTime
+          indexSize: buildTime,
         }
       }
 
@@ -609,30 +614,33 @@ describe('WASM Vector Search Integration Tests', () => {
       Object.entries(performanceComparison).forEach(([indexType, metrics]) => {
         expect(metrics.queryTime).toBeLessThan(500) // Less than 500ms
         expect(metrics.throughput).toBeGreaterThan(2) // At least 2 QPS
-        console.log(`${indexType} index - Query time: ${metrics.queryTime}ms, Throughput: ${metrics.throughput} QPS`)
+        console.log(
+          `${indexType} index - Query time: ${metrics.queryTime}ms, Throughput: ${metrics.throughput} QPS`
+        )
       })
     })
 
     it('should handle memory constraints efficiently', async () => {
       const initialMemory = vectorSearch.getMemoryUsage()
-      
+
       // Add many vectors and monitor memory
       const batchSize = 100
       let totalVectors = 0
 
       for (let batch = 0; batch < 5; batch++) {
-        const texts = Array.from({ length: batchSize }, (_, i) => 
-          `Memory test batch ${batch} item ${i}`
+        const texts = Array.from(
+          { length: batchSize },
+          (_, i) => `Memory test batch ${batch} item ${i}`
         )
         const embeddings = await vectorSearch.batchCreateEmbeddings(texts)
         await vectorSearch.addVectors(embeddings)
-        
+
         totalVectors += batchSize
         const currentMemory = vectorSearch.getMemoryUsage()
-        
+
         // Memory should grow linearly with vector count
         expect(currentMemory).toBeGreaterThan(initialMemory)
-        
+
         // Memory per vector should be reasonable
         const memoryPerVector = currentMemory / totalVectors
         expect(memoryPerVector).toBeLessThan(10000) // Less than 10KB per vector
@@ -645,10 +653,10 @@ describe('WASM Vector Search Integration Tests', () => {
 
       // Test accuracy with exact matches
       const exactQueries = testEmbeddings.slice(0, 3)
-      
+
       for (const embedding of exactQueries) {
         const results = await vectorSearch.search(embedding.vector, { k: 1 })
-        
+
         expect(results).toHaveLength(1)
         expect(results[0].id).toBe(embedding.id)
         expect(results[0].score).toBeCloseTo(1.0, 5)
@@ -658,12 +666,12 @@ describe('WASM Vector Search Integration Tests', () => {
       const semanticQueries = [
         'artificial intelligence and machine learning',
         'computer programming and software development',
-        'data science and analytics'
+        'data science and analytics',
       ]
 
       for (const query of semanticQueries) {
         const results = await vectorSearch.searchByText(query, { k: 3 })
-        
+
         expect(results.length).toBeGreaterThan(0)
         expect(results[0].score).toBeGreaterThan(0.1) // Should find somewhat relevant results
       }
@@ -673,7 +681,7 @@ describe('WASM Vector Search Integration Tests', () => {
   describe('Error Handling and Edge Cases', () => {
     it('should handle invalid vector dimensions', async () => {
       await setupTestData()
-      
+
       const invalidVector = new Float32Array([1, 2]) // Wrong dimensions
       const results = await vectorSearch.search(invalidVector, { k: 5 })
 
@@ -683,14 +691,14 @@ describe('WASM Vector Search Integration Tests', () => {
 
     it('should handle empty queries gracefully', async () => {
       await setupTestData()
-      
+
       const results = await vectorSearch.searchByText('', { k: 5 })
       expect(Array.isArray(results)).toBe(true)
     })
 
     it('should handle very long text inputs', async () => {
       const longText = 'word '.repeat(10000) // Very long text
-      
+
       const embedding = await vectorSearch.createEmbedding(longText)
       expect(embedding).toBeDefined()
       expect(embedding.dimensions).toBeGreaterThan(0)
@@ -703,12 +711,12 @@ describe('WASM Vector Search Integration Tests', () => {
         '中文测试文本',
         'العربية النص',
         'Русский текст',
-        '🎉🎊🎈 Emoji only text 🌟⭐✨'
+        '🎉🎊🎈 Emoji only text 🌟⭐✨',
       ]
 
       const embeddings = await vectorSearch.batchCreateEmbeddings(unicodeTexts)
-      
-      embeddings.forEach(embedding => {
+
+      embeddings.forEach((embedding) => {
         expect(embedding).toBeDefined()
         expect(embedding.dimensions).toBeGreaterThan(0)
         expect(embedding.vector).toHaveLength(embedding.dimensions)
@@ -720,15 +728,13 @@ describe('WASM Vector Search Integration Tests', () => {
       await vectorSearch.buildIndex('flat')
 
       const queries = Array.from({ length: 10 }, (_, i) => `Concurrent query ${i}`)
-      
-      const searchPromises = queries.map(query =>
-        vectorSearch.searchByText(query, { k: 3 })
-      )
+
+      const searchPromises = queries.map((query) => vectorSearch.searchByText(query, { k: 3 }))
 
       const results = await Promise.all(searchPromises)
-      
+
       expect(results).toHaveLength(10)
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(Array.isArray(result)).toBe(true)
       })
     })
@@ -752,7 +758,7 @@ describe('WASM Vector Search Integration Tests', () => {
         'Design database schema for tasks',
         'Create REST API endpoints',
         'Build frontend components',
-        'Write unit tests for services'
+        'Write unit tests for services',
       ]
 
       const embeddings = await vectorSearch.batchCreateEmbeddings(taskDescriptions)
@@ -764,11 +770,9 @@ describe('WASM Vector Search Integration Tests', () => {
       const results = await vectorSearch.searchByText(query, { k: 3 })
 
       expect(results.length).toBeGreaterThan(0)
-      
+
       // Should find authentication-related task
-      const authResult = results.find(r => 
-        r.metadata?.text?.includes('authentication')
-      )
+      const authResult = results.find((r) => r.metadata?.text?.includes('authentication'))
       expect(authResult).toBeDefined()
     })
 
@@ -778,7 +782,7 @@ describe('WASM Vector Search Integration Tests', () => {
         'Development environment setup',
         'Testing environment variables',
         'Docker container configuration',
-        'CI/CD pipeline settings'
+        'CI/CD pipeline settings',
       ]
 
       const embeddings = await vectorSearch.batchCreateEmbeddings(envConfigs)

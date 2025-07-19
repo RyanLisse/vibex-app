@@ -13,25 +13,34 @@ const RefreshRequestSchema = z.object({
 })
 
 // In-memory token storage (in production, use Redis or database)
-const tokenStore = new Map<string, {
-  userId: string
-  permissions: string[]
-  expiresAt: Date
-  refreshToken: string
-}>()
+const tokenStore = new Map<
+  string,
+  {
+    userId: string
+    permissions: string[]
+    expiresAt: Date
+    refreshToken: string
+  }
+>()
 
-const refreshTokenStore = new Map<string, {
-  userId: string
-  permissions: string[]
-  expiresAt: Date
-}>()
+const refreshTokenStore = new Map<
+  string,
+  {
+    userId: string
+    permissions: string[]
+    expiresAt: Date
+  }
+>()
 
 const observability = ObservabilityService.getInstance()
 
 /**
  * Generate JWT-like token for ElectricSQL authentication
  */
-function generateToken(userId: string, permissions: string[]): {
+function generateToken(
+  userId: string,
+  permissions: string[]
+): {
   token: string
   refreshToken: string
   expiresAt: Date
@@ -82,7 +91,7 @@ function generateToken(userId: string, permissions: string[]): {
  */
 function validateApiKey(apiKey: string): boolean {
   const validApiKeys = (process.env.ELECTRIC_API_KEYS || '').split(',').filter(Boolean)
-  
+
   // In development, allow any non-empty API key
   if (process.env.NODE_ENV === 'development' && apiKey) {
     return true
@@ -108,10 +117,7 @@ export async function POST(request: NextRequest) {
 
       const apiKey = authHeader.substring(7)
       if (!validateApiKey(apiKey)) {
-        return NextResponse.json(
-          { error: 'Invalid API key' },
-          { status: 401 }
-        )
+        return NextResponse.json({ error: 'Invalid API key' }, { status: 401 })
       }
 
       // Parse and validate request body
@@ -120,7 +126,7 @@ export async function POST(request: NextRequest) {
 
       if (!validation.success) {
         return NextResponse.json(
-          { 
+          {
             error: 'Invalid request data',
             details: validation.error.errors,
           },
@@ -145,15 +151,11 @@ export async function POST(request: NextRequest) {
         expiresAt: expiresAt.toISOString(),
         permissions,
       })
-
     } catch (error) {
       observability.recordError('api.auth.electric.generate', error as Error)
       console.error('ElectricSQL auth error:', error)
-      
-      return NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
-      )
+
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
   })
 }
@@ -170,7 +172,7 @@ export async function PUT(request: NextRequest) {
 
       if (!validation.success) {
         return NextResponse.json(
-          { 
+          {
             error: 'Invalid request data',
             details: validation.error.errors,
           },
@@ -183,26 +185,21 @@ export async function PUT(request: NextRequest) {
       // Validate refresh token
       const refreshData = refreshTokenStore.get(refreshToken)
       if (!refreshData) {
-        return NextResponse.json(
-          { error: 'Invalid refresh token' },
-          { status: 401 }
-        )
+        return NextResponse.json({ error: 'Invalid refresh token' }, { status: 401 })
       }
 
       // Check if refresh token is expired
       if (refreshData.expiresAt < new Date()) {
         refreshTokenStore.delete(refreshToken)
-        return NextResponse.json(
-          { error: 'Refresh token expired' },
-          { status: 401 }
-        )
+        return NextResponse.json({ error: 'Refresh token expired' }, { status: 401 })
       }
 
       // Generate new token
-      const { token, refreshToken: newRefreshToken, expiresAt } = generateToken(
-        refreshData.userId,
-        refreshData.permissions
-      )
+      const {
+        token,
+        refreshToken: newRefreshToken,
+        expiresAt,
+      } = generateToken(refreshData.userId, refreshData.permissions)
 
       // Remove old refresh token
       refreshTokenStore.delete(refreshToken)
@@ -219,15 +216,11 @@ export async function PUT(request: NextRequest) {
         expiresAt: expiresAt.toISOString(),
         permissions: refreshData.permissions,
       })
-
     } catch (error) {
       observability.recordError('api.auth.electric.refresh', error as Error)
       console.error('ElectricSQL auth refresh error:', error)
-      
-      return NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
-      )
+
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
   })
 }
@@ -276,22 +269,17 @@ export async function GET(request: NextRequest) {
           permissions: tokenData.permissions,
           expiresAt: tokenData.expiresAt.toISOString(),
         })
-
       } catch (decodeError) {
         return NextResponse.json(
           { authenticated: false, error: 'Invalid token format' },
           { status: 200 }
         )
       }
-
     } catch (error) {
       observability.recordError('api.auth.electric.status', error as Error)
       console.error('ElectricSQL auth status error:', error)
-      
-      return NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
-      )
+
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
   })
 }
@@ -305,10 +293,7 @@ export async function DELETE(request: NextRequest) {
       // Get token from authorization header
       const authHeader = request.headers.get('authorization')
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return NextResponse.json(
-          { message: 'No token to invalidate' },
-          { status: 200 }
-        )
+        return NextResponse.json({ message: 'No token to invalidate' }, { status: 200 })
       }
 
       const token = authHeader.substring(7)
@@ -332,44 +317,42 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({
           message: 'Token invalidated successfully',
         })
-
       } catch (decodeError) {
         return NextResponse.json(
           { message: 'Invalid token format, but logout successful' },
           { status: 200 }
         )
       }
-
     } catch (error) {
       observability.recordError('api.auth.electric.logout', error as Error)
       console.error('ElectricSQL auth logout error:', error)
-      
-      return NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
-      )
+
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
   })
 }
 
 // Cleanup expired tokens periodically
 if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const now = new Date()
-    
-    // Clean up expired tokens
-    for (const [tokenId, tokenData] of tokenStore.entries()) {
-      if (tokenData.expiresAt < now) {
-        tokenStore.delete(tokenId)
-        refreshTokenStore.delete(tokenData.refreshToken)
+  setInterval(
+    () => {
+      const now = new Date()
+
+      // Clean up expired tokens
+      for (const [tokenId, tokenData] of tokenStore.entries()) {
+        if (tokenData.expiresAt < now) {
+          tokenStore.delete(tokenId)
+          refreshTokenStore.delete(tokenData.refreshToken)
+        }
       }
-    }
-    
-    // Clean up expired refresh tokens
-    for (const [refreshTokenId, refreshData] of refreshTokenStore.entries()) {
-      if (refreshData.expiresAt < now) {
-        refreshTokenStore.delete(refreshTokenId)
+
+      // Clean up expired refresh tokens
+      for (const [refreshTokenId, refreshData] of refreshTokenStore.entries()) {
+        if (refreshData.expiresAt < now) {
+          refreshTokenStore.delete(refreshTokenId)
+        }
       }
-    }
-  }, 60 * 60 * 1000) // Clean up every hour
+    },
+    60 * 60 * 1000
+  ) // Clean up every hour
 }

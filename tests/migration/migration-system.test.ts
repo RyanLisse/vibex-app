@@ -158,7 +158,10 @@ const setupMockLocalStorage = () => {
 
   // Add some form data
   mockLocalStorage.setItem('react-hook-form-task-form', JSON.stringify({ title: 'Draft Task' }))
-  mockLocalStorage.setItem('react-hook-form-env-form', JSON.stringify({ name: 'Draft Environment' }))
+  mockLocalStorage.setItem(
+    'react-hook-form-env-form',
+    JSON.stringify({ name: 'Draft Environment' })
+  )
 
   // Add some random keys
   mockLocalStorage.setItem('random-key-1', 'random-value-1')
@@ -531,7 +534,7 @@ describe('Migration System Comprehensive Tests', () => {
 
       // Mock the cleanup to verify it's working
       const cleanupSpy = vi.spyOn(backupService as any, 'cleanupOldBackups')
-      
+
       await backupService.createBackup({
         source: 'LOCALSTORAGE',
         compress: false,
@@ -594,11 +597,7 @@ describe('Migration System Comprehensive Tests', () => {
       const result = await migrationService.startMigration(defaultConfig)
 
       expect(result.success).toBe(true)
-      expect(result.warnings).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('conflict'),
-        ])
-      )
+      expect(result.warnings).toEqual(expect.arrayContaining([expect.stringContaining('conflict')]))
     })
 
     it('should continue on error when configured', async () => {
@@ -761,9 +760,10 @@ describe('Migration System Comprehensive Tests', () => {
       const results = await Promise.allSettled([promise1, promise2])
 
       // At least one should fail due to concurrent access protection
-      const failures = results.filter(r => r.status === 'rejected' || 
-        (r.status === 'fulfilled' && !r.value.success))
-      
+      const failures = results.filter(
+        (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+      )
+
       expect(failures.length).toBeGreaterThan(0)
     })
 
@@ -868,7 +868,7 @@ describe('Migration System Comprehensive Tests', () => {
       })
 
       expect(compressedResult.manifest!.size).toBeLessThan(uncompressedResult.manifest!.size)
-      
+
       // Compression should reduce size by at least 10%
       const compressionRatio = compressedResult.manifest!.size / uncompressedResult.manifest!.size
       expect(compressionRatio).toBeLessThan(0.9)

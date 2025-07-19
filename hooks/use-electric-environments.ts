@@ -31,7 +31,7 @@ export function useElectricEnvironments(userId?: string) {
   const [environments, setEnvironments] = useState<Environment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  
+
   const { isConnected, electricClient } = useElectricContext()
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export function useElectricEnvironments(userId?: string) {
         // Subscribe to real-time environments
         const query = electricClient.db.environments.liveMany({
           where: userId ? { userId } : {},
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         })
 
         // Handle real-time updates
@@ -66,7 +66,7 @@ export function useElectricEnvironments(userId?: string) {
               setError(err instanceof Error ? err : new Error('Failed to load environments'))
               setLoading(false)
             }
-          }
+          },
         })
 
         return () => {
@@ -75,24 +75,26 @@ export function useElectricEnvironments(userId?: string) {
         }
       } catch (err) {
         if (mounted) {
-          setError(err instanceof Error ? err : new Error('Failed to setup environment subscription'))
+          setError(
+            err instanceof Error ? err : new Error('Failed to setup environment subscription')
+          )
           setLoading(false)
         }
       }
     }
 
     const cleanup = loadEnvironments()
-    
+
     return () => {
       mounted = false
-      cleanup?.then(fn => fn?.())
+      cleanup?.then((fn) => fn?.())
     }
   }, [electricClient, isConnected, userId])
 
   return {
     environments,
     loading,
-    error
+    error,
   }
 }
 
@@ -103,7 +105,7 @@ export function useElectricEnvironment(environmentId: string) {
   const [environment, setEnvironment] = useState<Environment | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  
+
   const { isConnected, electricClient } = useElectricContext()
 
   useEffect(() => {
@@ -121,7 +123,7 @@ export function useElectricEnvironment(environmentId: string) {
 
         // Subscribe to real-time environment
         const query = electricClient.db.environments.liveUnique({
-          where: { id: environmentId }
+          where: { id: environmentId },
         })
 
         query.subscribe({
@@ -136,7 +138,7 @@ export function useElectricEnvironment(environmentId: string) {
               setError(err instanceof Error ? err : new Error('Failed to load environment'))
               setLoading(false)
             }
-          }
+          },
         })
 
         return () => {
@@ -145,23 +147,25 @@ export function useElectricEnvironment(environmentId: string) {
         }
       } catch (err) {
         if (mounted) {
-          setError(err instanceof Error ? err : new Error('Failed to setup environment subscription'))
+          setError(
+            err instanceof Error ? err : new Error('Failed to setup environment subscription')
+          )
           setLoading(false)
         }
       }
     }
 
     const cleanup = loadEnvironment()
-    
+
     return () => {
       mounted = false
-      cleanup?.then(fn => fn?.())
+      cleanup?.then((fn) => fn?.())
     }
   }, [electricClient, isConnected, environmentId])
 
   return {
     environment,
     loading,
-    error
+    error,
   }
 }

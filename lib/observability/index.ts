@@ -6,7 +6,8 @@ export class ObservabilityService {
   private tracer = trace.getTracer('electric-sql-client')
   private events: Array<{ name: string; data: any; timestamp: Date }> = []
   private errors: Array<{ operation: string; error: Error; timestamp: Date }> = []
-  private operations: Map<string, { startTime: Date; endTime?: Date; duration?: number }> = new Map()
+  private operations: Map<string, { startTime: Date; endTime?: Date; duration?: number }> =
+    new Map()
 
   private constructor() {
     // Private constructor for singleton pattern
@@ -32,7 +33,7 @@ export class ObservabilityService {
 
     try {
       const result = await context.with(trace.setSpan(context.active(), span), operation)
-      
+
       // Record successful completion
       const operationData = this.operations.get(operationId)
       if (operationData) {
@@ -45,7 +46,7 @@ export class ObservabilityService {
     } catch (error) {
       // Record error
       this.recordError(operationName, error as Error)
-      
+
       const operationData = this.operations.get(operationId)
       if (operationData) {
         operationData.endTime = new Date()
@@ -80,7 +81,7 @@ export class ObservabilityService {
 
     try {
       const result = context.with(trace.setSpan(context.active(), span), operation)
-      
+
       // Record successful completion
       const operationData = this.operations.get(operationId)
       if (operationData) {
@@ -93,7 +94,7 @@ export class ObservabilityService {
     } catch (error) {
       // Record error
       this.recordError(operationName, error as Error)
-      
+
       const operationData = this.operations.get(operationId)
       if (operationData) {
         operationData.endTime = new Date()
@@ -168,7 +169,7 @@ export class ObservabilityService {
     metadata?: any
   ): Promise<T> {
     const operationName = `agent.${agentType}.${operation}`
-    
+
     return this.trackOperation(operationName, async () => {
       const span = trace.getActiveSpan()
       if (span) {
@@ -187,7 +188,7 @@ export class ObservabilityService {
 
       try {
         const result = await execution()
-        
+
         this.recordEvent('agent.execution.complete', {
           agentType,
           operation,
@@ -230,14 +231,16 @@ export class ObservabilityService {
     recentOperations: Array<{ name: string; duration: number; timestamp: Date }>
   } {
     const operations = Array.from(this.operations.values())
-    const completedOperations = operations.filter(op => op.endTime && op.duration !== undefined)
-    
+    const completedOperations = operations.filter((op) => op.endTime && op.duration !== undefined)
+
     const totalDuration = completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0)
-    const averageDuration = completedOperations.length > 0 ? totalDuration / completedOperations.length : 0
-    
+    const averageDuration =
+      completedOperations.length > 0 ? totalDuration / completedOperations.length : 0
+
     const totalOperations = operations.length
     const errorCount = this.errors.length
-    const successRate = totalOperations > 0 ? ((totalOperations - errorCount) / totalOperations) * 100 : 100
+    const successRate =
+      totalOperations > 0 ? ((totalOperations - errorCount) / totalOperations) * 100 : 100
 
     const recentOperations = Array.from(this.operations.entries())
       .filter(([_, op]) => op.endTime && op.duration !== undefined)
@@ -278,18 +281,18 @@ export class ObservabilityService {
     const recentErrors = this.errors.slice(-50)
     const recentOperations = Array.from(this.operations.values()).slice(-50)
 
-    const recentErrorRate = recentEvents.length > 0 
-      ? (recentErrors.length / recentEvents.length) * 100 
-      : 0
+    const recentErrorRate =
+      recentEvents.length > 0 ? (recentErrors.length / recentEvents.length) * 100 : 0
 
-    const completedOperations = recentOperations.filter(op => op.duration !== undefined)
-    const averageResponseTime = completedOperations.length > 0
-      ? completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0) / completedOperations.length
-      : 0
+    const completedOperations = recentOperations.filter((op) => op.duration !== undefined)
+    const averageResponseTime =
+      completedOperations.length > 0
+        ? completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0) /
+          completedOperations.length
+        : 0
 
-    const lastActivity = recentEvents.length > 0 
-      ? recentEvents[recentEvents.length - 1].timestamp 
-      : null
+    const lastActivity =
+      recentEvents.length > 0 ? recentEvents[recentEvents.length - 1].timestamp : null
 
     const isHealthy = recentErrorRate < 10 && averageResponseTime < 5000 // Less than 10% errors and under 5s response time
 
