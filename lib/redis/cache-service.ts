@@ -39,19 +39,19 @@ export class CacheService {
 
         if (value === null) {
           this.metrics.misses++
-          this.observability.recordMetric('cache.miss', 1, { key: fullKey })
+          this.observability.recordEvent('cache.miss', 1, { key: fullKey })
           this.updateHitRate()
           return null
         }
 
         this.metrics.hits++
-        this.observability.recordMetric('cache.hit', 1, { key: fullKey })
+        this.observability.recordEvent('cache.hit', 1, { key: fullKey })
         this.updateHitRate()
 
         return JSON.parse(value) as T
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.get.error', error as Error, {
+        this.observability.recordError('cache.get.error', error as Error, {
           key: fullKey,
         })
         return null
@@ -71,7 +71,7 @@ export class CacheService {
 
         this.metrics.sets++
         this.metrics.totalOperations++
-        this.observability.recordMetric('cache.set', 1, {
+        this.observability.recordEvent('cache.set', 1, {
           key: fullKey,
           ttl: ttl.toString(),
           status: 'success',
@@ -80,7 +80,7 @@ export class CacheService {
         return result === 'OK'
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.set.error', error as Error, {
+        this.observability.recordError('cache.set.error', error as Error, {
           key: fullKey,
         })
         return false
@@ -98,7 +98,7 @@ export class CacheService {
 
         this.metrics.deletes++
         this.metrics.totalOperations++
-        this.observability.recordMetric('cache.delete', 1, {
+        this.observability.recordEvent('cache.delete', 1, {
           key: fullKey,
           status: 'success',
         })
@@ -106,7 +106,7 @@ export class CacheService {
         return result > 0
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.delete.error', error as Error, {
+        this.observability.recordError('cache.delete.error', error as Error, {
           key: fullKey,
         })
         return false
@@ -126,21 +126,21 @@ export class CacheService {
         return values.map((value, index) => {
           if (value === null) {
             this.metrics.misses++
-            this.observability.recordMetric('cache.miss', 1, {
+            this.observability.recordEvent('cache.miss', 1, {
               key: fullKeys[index],
             })
             return null
           }
 
           this.metrics.hits++
-          this.observability.recordMetric('cache.hit', 1, {
+          this.observability.recordEvent('cache.hit', 1, {
             key: fullKeys[index],
           })
           return JSON.parse(value) as T
         })
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.mget.error', error as Error, {
+        this.observability.recordError('cache.mget.error', error as Error, {
           keys: fullKeys,
         })
         return keys.map(() => null)
@@ -173,7 +173,7 @@ export class CacheService {
 
         this.metrics.sets += entries.length
         this.metrics.totalOperations++
-        this.observability.recordMetric('cache.mset', 1, {
+        this.observability.recordEvent('cache.mset', 1, {
           count: entries.length.toString(),
           status: success ? 'success' : 'error',
         })
@@ -181,7 +181,7 @@ export class CacheService {
         return success
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.mset.error', error as Error, {
+        this.observability.recordError('cache.mset.error', error as Error, {
           count: entries.length,
         })
         return false
@@ -205,7 +205,7 @@ export class CacheService {
 
         this.metrics.deletes += result
         this.metrics.totalOperations++
-        this.observability.recordMetric('cache.invalidate_pattern', 1, {
+        this.observability.recordEvent('cache.invalidate_pattern', 1, {
           pattern: fullPattern,
           count: result.toString(),
           status: 'success',
@@ -214,7 +214,7 @@ export class CacheService {
         return result
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.invalidate_pattern.error', error as Error, {
+        this.observability.recordError('cache.invalidate_pattern.error', error as Error, {
           pattern: fullPattern,
         })
         return 0
@@ -351,7 +351,7 @@ export class CacheService {
       const result = await client.expire(key, newTTL)
       return result === 1
     } catch (error) {
-      this.observability.trackError('cache.extend_session.error', error as Error, {
+      this.observability.recordError('cache.extend_session.error', error as Error, {
         sessionId,
       })
       return false
