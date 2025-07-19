@@ -57,7 +57,7 @@ describe('inngest unit tests (mocked)', () => {
 
     // Test client context
     const originalWindow = global.window
-    // @ts-expect-error
+    // @ts-expect-error Testing global override for client context detection
     global.window = {}
     const clientApp = mockGetInngestApp()
     expect(clientApp.id).toBe('client')

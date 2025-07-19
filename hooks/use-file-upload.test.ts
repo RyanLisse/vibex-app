@@ -33,7 +33,9 @@ describe('useFileUpload', () => {
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
-    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
+    const file = new File(['test content'], 'test.pdf', {
+      type: 'application/pdf',
+    })
 
     await act(async () => {
       await result.current.uploadFile(file)
@@ -102,7 +104,9 @@ describe('useFileUpload', () => {
       originalSetProgress(progress)
     }
 
-    const _file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
+    const _file = new File(['test content'], 'test.pdf', {
+      type: 'application/pdf',
+    })
 
     // Simulate progress updates
     act(() => {
@@ -119,7 +123,9 @@ describe('useFileUpload', () => {
     ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useFileUpload())
-    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
+    const file = new File(['test content'], 'test.pdf', {
+      type: 'application/pdf',
+    })
 
     await act(async () => {
       await result.current.uploadFile(file)
@@ -139,7 +145,9 @@ describe('useFileUpload', () => {
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
-    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
+    const file = new File(['test content'], 'test.pdf', {
+      type: 'application/pdf',
+    })
 
     await act(async () => {
       await result.current.uploadFile(file)
@@ -155,7 +163,9 @@ describe('useFileUpload', () => {
       })
     )
 
-    const invalidFile = new File(['test'], 'test.pdf', { type: 'application/pdf' })
+    const invalidFile = new File(['test'], 'test.pdf', {
+      type: 'application/pdf',
+    })
 
     await act(async () => {
       await result.current.uploadFile(invalidFile)
@@ -173,7 +183,9 @@ describe('useFileUpload', () => {
     )
 
     const largeContent = 'x'.repeat(2048) // 2KB
-    const largeFile = new File([largeContent], 'large.txt', { type: 'text/plain' })
+    const largeFile = new File([largeContent], 'large.txt', {
+      type: 'text/plain',
+    })
 
     await act(async () => {
       await result.current.uploadFile(largeFile)
@@ -215,7 +227,9 @@ describe('useFileUpload', () => {
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce(mockResponse as unknown)
 
     const { result } = renderHook(() => useFileUpload())
-    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' })
+    const file = new File(['test content'], 'test.pdf', {
+      type: 'application/pdf',
+    })
 
     await act(async () => {
       await result.current.uploadFile(file)
@@ -381,9 +395,12 @@ describe('useFileUpload', () => {
       })
     )
 
-    const files = new Array(3)
-      .fill(null)
-      .map((_, i) => new File([`content${i}`], `test${i}.pdf`, { type: 'application/pdf' }))
+    const files = new Array(3).fill(null).map(
+      (_, i) =>
+        new File([`content${i}`], `test${i}.pdf`, {
+          type: 'application/pdf',
+        })
+    )
 
     await act(async () => {
       await result.current.uploadFiles(files)

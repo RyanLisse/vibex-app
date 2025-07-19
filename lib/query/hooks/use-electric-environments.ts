@@ -124,7 +124,9 @@ export function useCreateElectricEnvironment() {
     mutationFn: createEnvironment,
     onSuccess: (newEnvironment) => {
       // Update the environments list
-      queryClient.invalidateQueries({ queryKey: electricEnvironmentKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: electricEnvironmentKeys.lists(),
+      })
 
       // Add the new environment to cache
       queryClient.setQueryData(electricEnvironmentKeys.detail(newEnvironment.id), newEnvironment)
@@ -146,7 +148,9 @@ export function useUpdateElectricEnvironment() {
       )
 
       // Invalidate and refetch environments list
-      queryClient.invalidateQueries({ queryKey: electricEnvironmentKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: electricEnvironmentKeys.lists(),
+      })
     },
   })
 }
@@ -158,10 +162,14 @@ export function useDeleteElectricEnvironment() {
     mutationFn: deleteEnvironment,
     onSuccess: (_, deletedId) => {
       // Remove from cache
-      queryClient.removeQueries({ queryKey: electricEnvironmentKeys.detail(deletedId) })
+      queryClient.removeQueries({
+        queryKey: electricEnvironmentKeys.detail(deletedId),
+      })
 
       // Invalidate lists
-      queryClient.invalidateQueries({ queryKey: electricEnvironmentKeys.lists() })
+      queryClient.invalidateQueries({
+        queryKey: electricEnvironmentKeys.lists(),
+      })
     },
   })
 }

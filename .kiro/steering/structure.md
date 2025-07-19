@@ -20,6 +20,7 @@ codex-clone/
 ## Key Conventions
 
 ### File Naming
+
 - **Components**: PascalCase (`TaskList.tsx`, `UserProfile.tsx`)
 - **Hooks**: camelCase with `use` prefix (`useAuth.ts`, `useTaskQueries.ts`)
 - **Utilities**: camelCase (`utils.ts`, `auth-helpers.ts`)
@@ -27,15 +28,18 @@ codex-clone/
 - **Tests**: Match source file with `.test.ts` suffix
 
 ### Import Paths
+
 Use TypeScript path aliases defined in `tsconfig.json`:
+
 ```typescript
-import { Button } from '@/components/ui/button'
-import { useAuth } from '@/hooks/use-auth'
-import { cn } from '@/lib/utils'
-import type { Task } from '@/types/task'
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
+import type { Task } from "@/types/task";
 ```
 
 ### Component Organization
+
 ```
 components/
 ├── ui/                     # Base UI primitives (shadcn/ui)
@@ -48,6 +52,7 @@ components/
 ```
 
 ### Library Structure
+
 ```
 lib/
 ├── auth/                   # Authentication services
@@ -61,6 +66,7 @@ lib/
 ```
 
 ### Database Organization
+
 ```
 db/
 ├── schema.ts               # Drizzle ORM schema definitions
@@ -73,18 +79,21 @@ db/
 ## Architecture Patterns
 
 ### Component Patterns
+
 - **Compound Components**: For complex UI with multiple parts
 - **Render Props**: For logic sharing between components
 - **Custom Hooks**: Extract stateful logic from components
 - **Error Boundaries**: Graceful error handling at component level
 
 ### State Management
+
 - **TanStack Query**: Server state with caching and synchronization
 - **Zustand**: Client-side state for UI and temporary data
 - **ElectricSQL**: Real-time database synchronization
 - **React Context**: Component-level state sharing
 
 ### API Organization
+
 ```
 app/api/
 ├── auth/                   # Authentication endpoints
@@ -96,6 +105,7 @@ app/api/
 ```
 
 ### Testing Structure
+
 ```
 tests/
 ├── unit/                   # Unit tests (lib, utils, schemas)
@@ -109,24 +119,28 @@ tests/
 ## Code Style Guidelines
 
 ### TypeScript
+
 - Use strict mode with `strictNullChecks: true`
 - Prefer `type` over `interface` for object shapes
 - Use explicit return types for public functions
 - Leverage discriminated unions for state management
 
 ### React Components
+
 - Use function components with hooks
 - Prefer composition over inheritance
 - Extract custom hooks for complex logic
 - Use `forwardRef` for component library elements
 
 ### Database Schema
+
 - Use UUID primary keys (`uuid().primaryKey().defaultRandom()`)
 - Include `createdAt` and `updatedAt` timestamps
 - Add appropriate indexes for query performance
 - Use JSONB for flexible metadata storage
 
 ### Error Handling
+
 - Use Result types or explicit error boundaries
 - Log errors with structured data
 - Provide user-friendly error messages
@@ -135,18 +149,21 @@ tests/
 ## Development Workflow
 
 ### Feature Development
+
 1. Create feature branch from `main`
 2. Implement with tests (TDD approach)
 3. Run quality checks (`bun run quality`)
 4. Submit PR with comprehensive description
 
 ### Database Changes
+
 1. Generate migration (`bun run db:generate`)
 2. Review generated SQL
 3. Test migration locally
 4. Include rollback strategy
 
 ### Component Development
+
 1. Start with Storybook story
 2. Implement component with TypeScript
 3. Add unit tests

@@ -54,13 +54,20 @@ describe('userRegistrationSchema', () => {
   })
 
   it('should reject weak password', () => {
-    const invalidUser = { ...validUser, password: 'weak', confirmPassword: 'weak' }
+    const invalidUser = {
+      ...validUser,
+      password: 'weak',
+      confirmPassword: 'weak',
+    }
     const result = userRegistrationSchema.safeParse(invalidUser)
     expect(result.success).toBe(false)
   })
 
   it('should reject mismatched passwords', () => {
-    const invalidUser = { ...validUser, confirmPassword: 'DifferentPassword123' }
+    const invalidUser = {
+      ...validUser,
+      confirmPassword: 'DifferentPassword123',
+    }
     const result = userRegistrationSchema.safeParse(invalidUser)
     expect(result.success).toBe(false)
     if (!result.success) {
@@ -106,7 +113,11 @@ describe('userRegistrationSchema', () => {
   })
 
   it('should accept names with valid special characters', () => {
-    const validUser2 = { ...validUser, firstName: 'Mary-Jane', lastName: "O'Connor" }
+    const validUser2 = {
+      ...validUser,
+      firstName: 'Mary-Jane',
+      lastName: "O'Connor",
+    }
     const result = userRegistrationSchema.safeParse(validUser2)
     expect(result.success).toBe(true)
   })
@@ -170,7 +181,10 @@ describe('contactFormSchema', () => {
     const files = new Array(6)
       .fill(null)
       .map((_, i) => new File(['content'], `test${i}.txt`, { type: 'text/plain' }))
-    const contactWithTooManyAttachments = { ...validContact, attachments: files }
+    const contactWithTooManyAttachments = {
+      ...validContact,
+      attachments: files,
+    }
     const result = contactFormSchema.safeParse(contactWithTooManyAttachments)
     expect(result.success).toBe(false)
   })
@@ -359,21 +373,27 @@ describe('profileUpdateSchema', () => {
 
   it('should reject invalid avatar file size', () => {
     const largeContent = new Array(6 * 1024 * 1024).fill('a').join('')
-    const largeFile = new File([largeContent], 'large.jpg', { type: 'image/jpeg' })
+    const largeFile = new File([largeContent], 'large.jpg', {
+      type: 'image/jpeg',
+    })
     const invalidProfile = { avatar: largeFile }
     const result = profileUpdateSchema.safeParse(invalidProfile)
     expect(result.success).toBe(false)
   })
 
   it('should reject invalid avatar file type', () => {
-    const invalidFile = new File(['content'], 'test.pdf', { type: 'application/pdf' })
+    const invalidFile = new File(['content'], 'test.pdf', {
+      type: 'application/pdf',
+    })
     const invalidProfile = { avatar: invalidFile }
     const result = profileUpdateSchema.safeParse(invalidProfile)
     expect(result.success).toBe(false)
   })
 
   it('should accept valid avatar file', () => {
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' })
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    })
     const profileWithAvatar = { avatar: validFile }
     const result = profileUpdateSchema.safeParse(profileWithAvatar)
     expect(result.success).toBe(true)

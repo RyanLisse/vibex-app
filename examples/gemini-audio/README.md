@@ -36,10 +36,10 @@ bun add @google/genai mime
 ### 4. Use in Your App
 
 ```tsx
-import { GeminiAudioChat } from '@/components/ai/gemini-audio-chat'
+import { GeminiAudioChat } from "@/components/ai/gemini-audio-chat";
 
 export default function MyPage() {
-  return <GeminiAudioChat />
+  return <GeminiAudioChat />;
 }
 ```
 
@@ -48,6 +48,7 @@ export default function MyPage() {
 ### Core Library (`lib/ai/gemini-realtime.ts`)
 
 The main library provides:
+
 - `GeminiRealtimeSession` - Manages WebSocket connections and audio sessions
 - Audio utilities - WAV conversion, buffering, and streaming
 - TypeScript types - Full type safety for all Gemini APIs
@@ -77,11 +78,11 @@ The main library provides:
 ```typescript
 const session = new GeminiRealtimeSession({
   apiKey: process.env.GEMINI_API_KEY,
-})
+});
 
-await session.connect()
-await session.sendMessage("Hello, how are you?")
-const response = await session.handleTurn()
+await session.connect();
+await session.sendMessage("Hello, how are you?");
+const response = await session.handleTurn();
 ```
 
 ### Audio Recording and Sending
@@ -89,31 +90,35 @@ const response = await session.handleTurn()
 ```typescript
 const { startRecording, stopRecording } = useAudioRecorder({
   onStop: async (audioBlob) => {
-    await sendAudio(audioBlob)
-  }
-})
+    await sendAudio(audioBlob);
+  },
+});
 ```
 
 ### Tool Integration
 
 ```typescript
-const tools = [{
-  functionDeclarations: [{
-    name: 'getCurrentWeather',
-    description: 'Get weather for a location',
-    parameters: {
-      type: 'object',
-      properties: {
-        location: { type: 'string' }
-      }
-    }
-  }]
-}]
+const tools = [
+  {
+    functionDeclarations: [
+      {
+        name: "getCurrentWeather",
+        description: "Get weather for a location",
+        parameters: {
+          type: "object",
+          properties: {
+            location: { type: "string" },
+          },
+        },
+      },
+    ],
+  },
+];
 
 const session = new GeminiRealtimeSession({
   apiKey,
   tools,
-})
+});
 ```
 
 ## Standalone Example
@@ -126,6 +131,7 @@ GEMINI_API_KEY=your_key npx tsx standalone-example.ts
 ```
 
 This will:
+
 1. Connect to Gemini
 2. Run multiple example conversations
 3. Save audio responses as WAV files
@@ -133,6 +139,7 @@ This will:
 ## Voice Options
 
 Currently available voice:
+
 - `Enceladus` - Default voice
 
 More voices will be added as they become available from Google.
@@ -140,6 +147,7 @@ More voices will be added as they become available from Google.
 ## Audio Format
 
 Gemini uses the following audio format:
+
 - Format: Linear PCM (L16)
 - Sample Rate: 24kHz
 - Channels: Mono
@@ -158,14 +166,17 @@ The library automatically handles conversion to/from WAV format.
 ## Troubleshooting
 
 ### "Microphone access denied"
+
 - Ensure your app is served over HTTPS (or localhost)
 - Check browser permissions for microphone access
 
 ### "API key not configured"
+
 - Verify GEMINI_API_KEY is set in environment variables
 - Restart your development server after adding the key
 
 ### "Audio not playing"
+
 - Check browser console for CORS or format errors
 - Ensure audio context is resumed after user interaction
 
@@ -176,10 +187,10 @@ The library automatically handles conversion to/from WAV format.
 ```typescript
 const session = new GeminiRealtimeSession({
   apiKey,
-  voiceName: 'Enceladus',
+  voiceName: "Enceladus",
   responseModalities: [Modality.AUDIO, Modality.TEXT],
   mediaResolution: MediaResolution.MEDIA_RESOLUTION_HIGH,
-})
+});
 ```
 
 ### Streaming Audio Processing
@@ -190,10 +201,10 @@ const session = new GeminiRealtimeSession({
   onMessage: (message) => {
     if (message.serverContent?.modelTurn?.parts?.[0]?.inlineData) {
       // Process audio chunk in real-time
-      processAudioChunk(message.serverContent.modelTurn.parts[0].inlineData)
+      processAudioChunk(message.serverContent.modelTurn.parts[0].inlineData);
     }
-  }
-})
+  },
+});
 ```
 
 ### Context Window Management
@@ -201,10 +212,10 @@ const session = new GeminiRealtimeSession({
 ```typescript
 const config = {
   contextWindowCompression: {
-    triggerTokens: '25600',
-    slidingWindow: { targetTokens: '12800' }
-  }
-}
+    triggerTokens: "25600",
+    slidingWindow: { targetTokens: "12800" },
+  },
+};
 ```
 
 ## Security Considerations

@@ -40,7 +40,14 @@ include = [
   "lib/stream-utils.test.ts",
   "lib/github-api.test.ts",
   "lib/auth/index.test.ts",
-  "lib/message-handlers.test.ts"
+  "lib/message-handlers.test.ts",
+  "lib/auth.test.ts",
+  "lib/container-types.test.ts",
+  "lib/utils.test.ts",
+  "lib/inngest.test.ts",
+  "lib/inngest-isolated.test.ts",
+  "lib/inngest-standalone.test.ts",
+  "lib/inngest.unit.test.ts"
 ]
 
 # Explicitly exclude ALL React component tests and integration tests
@@ -83,7 +90,14 @@ include = [
   "lib/stream-utils.test.ts",
   "lib/github-api.test.ts",
   "lib/auth/index.test.ts",
-  "lib/message-handlers.test.ts"
+  "lib/message-handlers.test.ts",
+  "lib/auth.test.ts",
+  "lib/container-types.test.ts",
+  "lib/utils.test.ts",
+  "lib/inngest.test.ts",
+  "lib/inngest-isolated.test.ts",
+  "lib/inngest-standalone.test.ts",
+  "lib/inngest.unit.test.ts"
 ]
 exclude = [
   "**/*.test.{jsx,tsx}",

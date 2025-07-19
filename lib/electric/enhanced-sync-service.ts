@@ -576,7 +576,9 @@ export class EnhancedSyncService {
    */
   private async saveMetrics(): Promise<void> {
     try {
-      await redisCache.set('electric:sync:metrics', this.metrics, { ttl: 86400 }) // 24 hours
+      await redisCache.set('electric:sync:metrics', this.metrics, {
+        ttl: 86400,
+      }) // 24 hours
     } catch (error) {
       console.warn('Failed to save metrics to cache:', error)
     }

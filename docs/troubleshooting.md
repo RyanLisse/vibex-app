@@ -13,46 +13,51 @@ This guide provides solutions for common issues encountered when working with Zo
 **Problem**: Zod error messages are not user-friendly or don't provide enough context.
 
 **Solution**:
+
 ```typescript
 // Instead of this:
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-})
+});
 
 // Use this:
 const schema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters long'),
-})
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+});
 ```
 
 **Advanced Solution** - Custom error formatting:
+
 ```typescript
-import { z } from 'zod'
+import { z } from "zod";
 
 const formatZodError = (error: z.ZodError) => {
-  return error.errors.reduce((acc, err) => {
-    const path = err.path.join('.')
-    acc[path] = err.message
-    return acc
-  }, {} as Record<string, string>)
-}
+  return error.errors.reduce(
+    (acc, err) => {
+      const path = err.path.join(".");
+      acc[path] = err.message;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+};
 
 const validateWithBetterErrors = (schema: z.ZodSchema, data: unknown) => {
   try {
-    return { success: true, data: schema.parse(data) }
+    return { success: true, data: schema.parse(data) };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
         errors: formatZodError(error),
-        fieldErrors: error.flatten().fieldErrors
-      }
+        fieldErrors: error.flatten().fieldErrors,
+      };
     }
-    return { success: false, errors: { general: 'Validation failed' } }
+    return { success: false, errors: { general: "Validation failed" } };
   }
-}
+};
 ```
 
 #### Issue: Complex nested validation doesn't work as expected
@@ -60,34 +65,38 @@ const validateWithBetterErrors = (schema: z.ZodSchema, data: unknown) => {
 **Problem**: Nested object validation fails or produces unexpected results.
 
 **Solution**:
+
 ```typescript
 // Problem: Shallow validation
 const schema = z.object({
   user: z.object({
-    profile: z.any() // This doesn't validate nested structure
-  })
-})
+    profile: z.any(), // This doesn't validate nested structure
+  }),
+});
 
 // Solution: Deep validation
 const schema = z.object({
   user: z.object({
     profile: z.object({
-      firstName: z.string().min(1, 'First name is required'),
-      lastName: z.string().min(1, 'Last name is required'),
-      preferences: z.object({
-        theme: z.enum(['light', 'dark', 'auto']).default('auto'),
-        notifications: z.boolean().default(true)
-      }).default({})
-    })
-  })
-})
+      firstName: z.string().min(1, "First name is required"),
+      lastName: z.string().min(1, "Last name is required"),
+      preferences: z
+        .object({
+          theme: z.enum(["light", "dark", "auto"]).default("auto"),
+          notifications: z.boolean().default(true),
+        })
+        .default({}),
+    }),
+  }),
+});
 ```
 
 **Debug tip**: Use `.passthrough()` to see what data is being processed:
+
 ```typescript
-const debugSchema = schema.passthrough()
-const result = debugSchema.safeParse(data)
-console.log('Parsed data:', result.success ? result.data : result.error)
+const debugSchema = schema.passthrough();
+const result = debugSchema.safeParse(data);
+console.log("Parsed data:", result.success ? result.data : result.error);
 ```
 
 #### Issue: Schema refinement doesn't work correctly
@@ -95,21 +104,29 @@ console.log('Parsed data:', result.success ? result.data : result.error)
 **Problem**: Custom validation using `.refine()` doesn't behave as expected.
 
 **Solution**:
+
 ```typescript
 // Problem: Incorrect refinement
-const schema = z.object({
-  password: z.string(),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, 'Passwords must match')
+const schema = z
+  .object({
+    password: z.string(),
+    confirmPassword: z.string(),
+  })
+  .refine(
+    (data) => data.password === data.confirmPassword,
+    "Passwords must match",
+  );
 
 // Solution: Proper refinement with path
-const schema = z.object({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'], // This targets the specific field
-})
+const schema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"], // This targets the specific field
+  });
 ```
 
 ### 2. useZodForm Hook Issues
@@ -119,13 +136,14 @@ const schema = z.object({
 **Problem**: Validation only happens on submit, not on field changes.
 
 **Solution**:
+
 ```typescript
 // Enable validation on change
 const form = useZodForm({
   schema: mySchema,
   validateOnChange: true, // This enables real-time validation
-  mode: 'onChange', // This is passed to react-hook-form
-})
+  mode: "onChange", // This is passed to react-hook-form
+});
 ```
 
 #### Issue: Async validation doesn't work properly
@@ -133,34 +151,37 @@ const form = useZodForm({
 **Problem**: Async validation fails or doesn't provide feedback.
 
 **Solution**:
+
 ```typescript
 // Proper async validation setup
-const schema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-}).refine(async (data) => {
-  try {
-    const response = await fetch(`/api/check-username/${data.username}`)
-    const result = await response.json()
-    return result.available
-  } catch (error) {
-    return false
-  }
-}, 'Username is not available')
+const schema = z
+  .object({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+  })
+  .refine(async (data) => {
+    try {
+      const response = await fetch(`/api/check-username/${data.username}`);
+      const result = await response.json();
+      return result.available;
+    } catch (error) {
+      return false;
+    }
+  }, "Username is not available");
 
 // Use with async parsing
 const form = useZodForm({
   schema,
   validateOnChange: false, // Disable real-time for async
-})
+});
 
 // Manual async validation
 const handleUsernameBlur = async () => {
-  const username = form.getValues('username')
-  const isValid = await form.validateFieldAsync('username', username)
+  const username = form.getValues("username");
+  const isValid = await form.validateFieldAsync("username", username);
   if (!isValid) {
-    form.setFieldError('username', 'Username is not available')
+    form.setFieldError("username", "Username is not available");
   }
-}
+};
 ```
 
 #### Issue: Form persistence doesn't work
@@ -168,43 +189,44 @@ const handleUsernameBlur = async () => {
 **Problem**: Form data is not saved to or loaded from localStorage.
 
 **Solution**:
+
 ```typescript
 // Check localStorage availability
 const isStorageAvailable = () => {
   try {
-    const test = '__storage_test__'
-    localStorage.setItem(test, test)
-    localStorage.removeItem(test)
-    return true
+    const test = "__storage_test__";
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
   } catch (e) {
-    return false
+    return false;
   }
-}
+};
 
 // Enhanced persistence with error handling
 const form = useZodForm({
   schema: mySchema,
-})
+});
 
 const saveFormData = useCallback(() => {
   if (!isStorageAvailable()) {
-    console.warn('localStorage is not available')
-    return
+    console.warn("localStorage is not available");
+    return;
   }
-  
+
   try {
-    const data = form.getValues()
-    localStorage.setItem('form-data', JSON.stringify(data))
+    const data = form.getValues();
+    localStorage.setItem("form-data", JSON.stringify(data));
   } catch (error) {
-    console.error('Failed to save form data:', error)
+    console.error("Failed to save form data:", error);
   }
-}, [form])
+}, [form]);
 
 // Auto-save with debouncing
 useEffect(() => {
-  const subscription = form.watch(debounce(saveFormData, 1000))
-  return () => subscription.unsubscribe()
-}, [form, saveFormData])
+  const subscription = form.watch(debounce(saveFormData, 1000));
+  return () => subscription.unsubscribe();
+}, [form, saveFormData]);
 ```
 
 ### 3. API Integration Issues
@@ -214,35 +236,36 @@ useEffect(() => {
 **Problem**: Data that should be valid is rejected by API route schemas.
 
 **Solution**:
+
 ```typescript
 // Debug API validation
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    console.log('Received data:', body) // Debug log
-    
-    const validation = CreateTaskSchema.safeParse(body)
-    
+    const body = await request.json();
+    console.log("Received data:", body); // Debug log
+
+    const validation = CreateTaskSchema.safeParse(body);
+
     if (!validation.success) {
-      console.log('Validation errors:', validation.error.errors) // Debug log
+      console.log("Validation errors:", validation.error.errors); // Debug log
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation failed',
+          error: "Validation failed",
           details: validation.error.errors,
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
-    
+
     // Continue with valid data
-    return NextResponse.json({ success: true, data: validation.data })
+    return NextResponse.json({ success: true, data: validation.data });
   } catch (error) {
-    console.error('API error:', error)
+    console.error("API error:", error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+      { success: false, error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 ```
@@ -252,29 +275,34 @@ export async function POST(request: Request) {
 **Problem**: Date strings are not properly validated or parsed.
 
 **Solution**:
+
 ```typescript
 // Problem: Basic date validation
 const schema = z.object({
   dueDate: z.date(), // This expects a Date object, not string
-})
+});
 
 // Solution: Proper date string validation
 const schema = z.object({
-  dueDate: z.string().datetime('Invalid date format').optional(),
-})
+  dueDate: z.string().datetime("Invalid date format").optional(),
+});
 
 // Or with transformation
 const schema = z.object({
-  dueDate: z.string().transform((str) => new Date(str)).optional(),
-})
+  dueDate: z
+    .string()
+    .transform((str) => new Date(str))
+    .optional(),
+});
 
 // With validation
 const schema = z.object({
-  dueDate: z.string()
-    .datetime('Invalid date format')
-    .refine((date) => new Date(date) > new Date(), 'Date must be in the future')
+  dueDate: z
+    .string()
+    .datetime("Invalid date format")
+    .refine((date) => new Date(date) > new Date(), "Date must be in the future")
     .optional(),
-})
+});
 ```
 
 ### 4. Testing Issues
@@ -284,31 +312,32 @@ const schema = z.object({
 **Problem**: Tests pass sometimes and fail other times.
 
 **Solution**:
+
 ```typescript
 // Problem: Non-deterministic test data
-it('should validate user data', () => {
+it("should validate user data", () => {
   const userData = {
     id: Math.random().toString(), // This changes each run
     createdAt: new Date().toISOString(), // This changes each run
-  }
-  
-  const result = schema.safeParse(userData)
-  expect(result.success).toBe(true)
-})
+  };
+
+  const result = schema.safeParse(userData);
+  expect(result.success).toBe(true);
+});
 
 // Solution: Deterministic test data
 const createTestUser = (overrides = {}) => ({
-  id: '123e4567-e89b-12d3-a456-426614174000',
-  email: 'test@example.com',
-  createdAt: '2023-01-01T00:00:00Z',
+  id: "123e4567-e89b-12d3-a456-426614174000",
+  email: "test@example.com",
+  createdAt: "2023-01-01T00:00:00Z",
   ...overrides,
-})
+});
 
-it('should validate user data', () => {
-  const userData = createTestUser()
-  const result = schema.safeParse(userData)
-  expect(result.success).toBe(true)
-})
+it("should validate user data", () => {
+  const userData = createTestUser();
+  const result = schema.safeParse(userData);
+  expect(result.success).toBe(true);
+});
 ```
 
 #### Issue: Async tests timeout or fail
@@ -316,31 +345,32 @@ it('should validate user data', () => {
 **Problem**: Tests involving async validation timeout or fail unexpectedly.
 
 **Solution**:
+
 ```typescript
 // Problem: No timeout handling
-it('should validate async field', async () => {
-  const result = await schema.safeParseAsync(data)
-  expect(result.success).toBe(true)
-})
+it("should validate async field", async () => {
+  const result = await schema.safeParseAsync(data);
+  expect(result.success).toBe(true);
+});
 
 // Solution: Proper timeout and error handling
-it('should validate async field', async () => {
+it("should validate async field", async () => {
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Timeout')), 5000)
-  })
-  
-  const validationPromise = schema.safeParseAsync(data)
-  
+    setTimeout(() => reject(new Error("Timeout")), 5000);
+  });
+
+  const validationPromise = schema.safeParseAsync(data);
+
   try {
-    const result = await Promise.race([validationPromise, timeoutPromise])
-    expect(result.success).toBe(true)
+    const result = await Promise.race([validationPromise, timeoutPromise]);
+    expect(result.success).toBe(true);
   } catch (error) {
-    if (error.message === 'Timeout') {
-      throw new Error('Async validation timed out')
+    if (error.message === "Timeout") {
+      throw new Error("Async validation timed out");
     }
-    throw error
+    throw error;
   }
-}, 10000) // 10 second timeout
+}, 10000); // 10 second timeout
 ```
 
 #### Issue: Mock Service Worker (MSW) doesn't work in tests
@@ -348,41 +378,42 @@ it('should validate async field', async () => {
 **Problem**: API mocking doesn't work, causing tests to fail.
 
 **Solution**:
+
 ```typescript
 // Ensure MSW is properly set up
 // tests/setup.ts
-import { beforeAll, afterEach, afterAll } from 'vitest'
-import { server } from './mocks/server'
+import { beforeAll, afterEach, afterAll } from "vitest";
+import { server } from "./mocks/server";
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
-})
+  server.listen({ onUnhandledRequest: "error" });
+});
 
 afterEach(() => {
-  server.resetHandlers()
-})
+  server.resetHandlers();
+});
 
 afterAll(() => {
-  server.close()
-})
+  server.close();
+});
 
 // Check handler configuration
 // tests/mocks/handlers.ts
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse } from "msw";
 
 export const handlers = [
-  http.post('/api/tasks', async ({ request }) => {
-    const data = await request.json()
-    
+  http.post("/api/tasks", async ({ request }) => {
+    const data = await request.json();
+
     // Add logging for debugging
-    console.log('MSW intercepted request:', data)
-    
+    console.log("MSW intercepted request:", data);
+
     return HttpResponse.json({
       success: true,
-      data: { id: '1', ...data },
-    })
+      data: { id: "1", ...data },
+    });
   }),
-]
+];
 ```
 
 ### 5. Performance Issues
@@ -392,38 +423,39 @@ export const handlers = [
 **Problem**: Large datasets or complex schemas cause performance issues.
 
 **Solution**:
+
 ```typescript
 // Problem: Synchronous validation of large datasets
 const validateLargeDataset = (items: any[]) => {
-  return items.map(item => schema.parse(item)) // Blocks the main thread
-}
+  return items.map((item) => schema.parse(item)); // Blocks the main thread
+};
 
 // Solution: Chunked validation
 const validateLargeDatasetChunked = async (items: any[], chunkSize = 100) => {
-  const chunks = []
+  const chunks = [];
   for (let i = 0; i < items.length; i += chunkSize) {
-    chunks.push(items.slice(i, i + chunkSize))
+    chunks.push(items.slice(i, i + chunkSize));
   }
-  
-  const results = []
+
+  const results = [];
   for (const chunk of chunks) {
-    const chunkResults = chunk.map(item => schema.safeParse(item))
-    results.push(...chunkResults)
-    
+    const chunkResults = chunk.map((item) => schema.safeParse(item));
+    results.push(...chunkResults);
+
     // Allow other tasks to run
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
-  
-  return results
-}
+
+  return results;
+};
 
 // Or use web workers for heavy validation
 // validation-worker.ts
-self.onmessage = function(e) {
-  const { schema, data } = e.data
-  const result = schema.safeParse(data)
-  self.postMessage(result)
-}
+self.onmessage = function (e) {
+  const { schema, data } = e.data;
+  const result = schema.safeParse(data);
+  self.postMessage(result);
+};
 ```
 
 #### Issue: Form validation causes UI lag
@@ -431,34 +463,35 @@ self.onmessage = function(e) {
 **Problem**: Real-time validation causes input lag.
 
 **Solution**:
+
 ```typescript
 // Problem: Validation on every keystroke
 const form = useZodForm({
   schema: complexSchema,
   validateOnChange: true, // This validates on every change
-})
+});
 
 // Solution: Debounced validation
-import { useDebouncedCallback } from 'use-debounce'
+import { useDebouncedCallback } from "use-debounce";
 
 const form = useZodForm({
   schema: complexSchema,
   validateOnChange: false, // Disable automatic validation
-})
+});
 
 const debouncedValidate = useDebouncedCallback(
   async (fieldName: string, value: any) => {
-    const isValid = await form.validateField(fieldName)
+    const isValid = await form.validateField(fieldName);
     // Handle validation result
   },
-  300 // 300ms delay
-)
+  300, // 300ms delay
+);
 
 // Use in input handlers
 const handleInputChange = (fieldName: string, value: any) => {
-  form.setValue(fieldName, value)
-  debouncedValidate(fieldName, value)
-}
+  form.setValue(fieldName, value);
+  debouncedValidate(fieldName, value);
+};
 ```
 
 ### 6. TypeScript Issues
@@ -468,25 +501,26 @@ const handleInputChange = (fieldName: string, value: any) => {
 **Problem**: TypeScript can't infer types correctly from Zod schemas.
 
 **Solution**:
+
 ```typescript
 // Problem: Type inference fails
 const schema = z.object({
   data: z.record(z.any()), // This loses type information
-})
+});
 
 // Solution: Better type definitions
 const schema = z.object({
   data: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
-})
+});
 
 // Or use explicit typing
 interface UserData {
-  id: string
-  email: string
+  id: string;
+  email: string;
   profile: {
-    firstName: string
-    lastName: string
-  }
+    firstName: string;
+    lastName: string;
+  };
 }
 
 const schema: z.ZodSchema<UserData> = z.object({
@@ -496,7 +530,7 @@ const schema: z.ZodSchema<UserData> = z.object({
     firstName: z.string(),
     lastName: z.string(),
   }),
-})
+});
 ```
 
 #### Issue: Generic type constraints don't work
@@ -504,26 +538,27 @@ const schema: z.ZodSchema<UserData> = z.object({
 **Problem**: Generic types with Zod schemas cause TypeScript errors.
 
 **Solution**:
+
 ```typescript
 // Problem: Generic constraint issues
 function createFormHook<T>(schema: z.ZodSchema<T>) {
-  return useZodForm({ schema })
+  return useZodForm({ schema });
 }
 
 // Solution: Proper generic constraints
 function createFormHook<T extends Record<string, any>>(
-  schema: z.ZodSchema<T>
+  schema: z.ZodSchema<T>,
 ): UseZodFormReturn<T> {
-  return useZodForm({ schema })
+  return useZodForm({ schema });
 }
 
 // Or use utility types
-type InferredType<T> = T extends z.ZodSchema<infer U> ? U : never
+type InferredType<T> = T extends z.ZodSchema<infer U> ? U : never;
 
 function createFormHook<T extends z.ZodSchema<any>>(
-  schema: T
+  schema: T,
 ): UseZodFormReturn<InferredType<T>> {
-  return useZodForm({ schema })
+  return useZodForm({ schema });
 }
 ```
 
@@ -534,6 +569,7 @@ function createFormHook<T extends z.ZodSchema<any>>(
 **Problem**: Zod imports work in development but fail in production builds.
 
 **Solution**:
+
 ```typescript
 // Check package.json for proper Zod version
 {
@@ -564,6 +600,7 @@ module.exports = {
 **Problem**: Including Zod significantly increases bundle size.
 
 **Solution**:
+
 ```typescript
 // Use tree shaking
 // Instead of importing everything:
@@ -586,20 +623,20 @@ const UserSchema = lazy(() => import('./schemas/user'))
 ```typescript
 // Debug schema structure
 const debugSchema = (schema: z.ZodSchema, data: unknown) => {
-  console.log('Schema type:', schema._def.typeName)
-  console.log('Input data:', data)
-  
-  const result = schema.safeParse(data)
-  
+  console.log("Schema type:", schema._def.typeName);
+  console.log("Input data:", data);
+
+  const result = schema.safeParse(data);
+
   if (!result.success) {
-    console.log('Validation errors:', result.error.errors)
-    console.log('Formatted errors:', result.error.flatten())
+    console.log("Validation errors:", result.error.errors);
+    console.log("Formatted errors:", result.error.flatten());
   } else {
-    console.log('Parsed data:', result.data)
+    console.log("Parsed data:", result.data);
   }
-  
-  return result
-}
+
+  return result;
+};
 ```
 
 ### 2. Form State Debugging
@@ -608,7 +645,7 @@ const debugSchema = (schema: z.ZodSchema, data: unknown) => {
 // Debug form state
 const DebugForm = () => {
   const form = useZodForm({ schema: mySchema })
-  
+
   useEffect(() => {
     const subscription = form.watch((values) => {
       console.log('Form values:', values)
@@ -619,10 +656,10 @@ const DebugForm = () => {
         isSubmitting: form.formState.isSubmitting,
       })
     })
-    
+
     return () => subscription.unsubscribe()
   }, [form])
-  
+
   return (
     <div>
       <pre>{JSON.stringify(form.getValues(), null, 2)}</pre>
@@ -637,24 +674,24 @@ const DebugForm = () => {
 ```typescript
 // Debug API requests
 const debugApiCall = async (url: string, data: any) => {
-  console.log('API Request:', { url, data })
-  
+  console.log("API Request:", { url, data });
+
   try {
     const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    })
-    
-    const result = await response.json()
-    console.log('API Response:', { status: response.status, data: result })
-    
-    return result
+    });
+
+    const result = await response.json();
+    console.log("API Response:", { status: response.status, data: result });
+
+    return result;
   } catch (error) {
-    console.error('API Error:', error)
-    throw error
+    console.error("API Error:", error);
+    throw error;
   }
-}
+};
 ```
 
 ## Getting Help
@@ -706,6 +743,7 @@ const debugApiCall = async (url: string, data: any) => {
 #### Issue: WebSocket connection fails with "HTTP Authentication failed"
 
 **Problem**: Getting repeated WebSocket errors in the console:
+
 ```
 WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' failed: HTTP Authentication failed; no valid credentials available
 ```
@@ -713,6 +751,7 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
 **Solution**:
 
 1. **Check Inngest Environment Variables**:
+
    ```bash
    # In .env.local - Remove quotes from the values
    INNGEST_EVENT_KEY=your_event_key_without_quotes
@@ -725,23 +764,24 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
    - Make sure the Inngest function is deployed and accessible
 
 3. **Test Inngest Connection**:
+
    ```typescript
    // Add logging to debug
-   import { inngest } from '@/lib/inngest'
-   
+   import { inngest } from "@/lib/inngest";
+
    // In your API route
-   console.log('Inngest client ID:', inngest.id)
-   console.log('Event key present:', !!process.env.INNGEST_EVENT_KEY)
-   console.log('Signing key present:', !!process.env.INNGEST_SIGNING_KEY)
+   console.log("Inngest client ID:", inngest.id);
+   console.log("Event key present:", !!process.env.INNGEST_EVENT_KEY);
+   console.log("Signing key present:", !!process.env.INNGEST_SIGNING_KEY);
    ```
 
 4. **Alternative: Disable Real-time for Development**:
    ```typescript
    // In lib/inngest.ts - temporarily disable realtime
    export const inngest = new Inngest({
-     id: 'clonedex',
+     id: "clonedex",
      // middleware: [realtimeMiddleware()], // Comment out for debugging
-   })
+   });
    ```
 
 ### 9. GitHub OAuth Issues
@@ -753,22 +793,23 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
 **Solution**:
 
 1. **Use Different OAuth Apps for Dev/Prod**:
-   
+
    **For Local Development**:
    - Create a GitHub OAuth app with callback: `http://localhost:3000/api/auth/github/callback`
    - Use these credentials in `.env.local`
-   
+
    **For Production**:
    - Create a separate GitHub OAuth app with callback: `https://vibex-app.vercel.app/api/auth/github/callback`
    - Use these credentials in Vercel environment variables
 
 2. **Configure Environment Variables**:
+
    ```bash
    # .env.local (for development)
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    GITHUB_CLIENT_ID=dev_app_client_id
    GITHUB_CLIENT_SECRET=dev_app_client_secret
-   
+
    # Optional: Force a specific redirect URI
    # GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/github/callback
    ```
@@ -788,10 +829,11 @@ WebSocket connection to 'wss://api.inngest.com/v1/realtime/connect?token=...' fa
      - Production: `https://vibex-app.vercel.app/api/auth/github/callback`
 
 5. **Debug OAuth Flow**:
+
    ```bash
    # Check console output in development
    # The redirect URI will be logged automatically
-   
+
    # Or check the OAuth URL in browser dev tools
    # Look for: redirect_uri parameter in the GitHub OAuth URL
    ```

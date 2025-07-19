@@ -1,6 +1,6 @@
 /**
  * Data Migration End-to-End Integration Tests
- * 
+ *
  * Tests the complete data migration flow from localStorage/Zustand stores
  * to the database, including error handling and recovery scenarios
  */
@@ -57,11 +57,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children)
 }
 
 // Test data factories
@@ -151,10 +148,13 @@ describe('Data Migration End-to-End', () => {
           const created = { ...body, id: `db-${body.id}` }
           createdTasks.push(created)
           await delay(20) // Simulate network delay
-          return HttpResponse.json({
-            success: true,
-            data: created,
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: created,
+            },
+            { status: 201 }
+          )
         }),
         // Environment creation
         http.post('/api/environments', async ({ request }) => {
@@ -162,10 +162,13 @@ describe('Data Migration End-to-End', () => {
           const created = { ...body, id: `db-${body.id}` }
           createdEnvironments.push(created)
           await delay(20)
-          return HttpResponse.json({
-            success: true,
-            data: created,
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: created,
+            },
+            { status: 201 }
+          )
         }),
         // Fetch migrated tasks
         http.get('/api/tasks', () => {
@@ -191,12 +194,15 @@ describe('Data Migration End-to-End', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const migration = useMigration()
-        const tasks = useTasks()
-        const environments = useEnvironments()
-        return { migration, tasks, environments }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const migration = useMigration()
+          const tasks = useTasks()
+          const environments = useEnvironments()
+          return { migration, tasks, environments }
+        },
+        { wrapper }
+      )
 
       // Start migration
       act(() => {
@@ -209,9 +215,12 @@ describe('Data Migration End-to-End', () => {
       expect(result.current.migration.migrationProgress.environments.total).toBe(2)
 
       // Wait for migration to complete
-      await waitFor(() => {
-        expect(result.current.migration.migrationStatus).toBe('completed')
-      }, { timeout: 5000 })
+      await waitFor(
+        () => {
+          expect(result.current.migration.migrationStatus).toBe('completed')
+        },
+        { timeout: 5000 }
+      )
 
       // Verify all items migrated
       expect(result.current.migration.migrationProgress.tasks.migrated).toBe(3)
@@ -265,20 +274,26 @@ describe('Data Migration End-to-End', () => {
         http.post('/api/tasks', async ({ request }) => {
           const body = await request.json()
           attemptCount++
-          
+
           // Fail specific tasks on first attempt
           if (failedIds.includes(body.id) && attemptCount <= 4) {
-            return HttpResponse.json({
-              success: false,
-              error: 'Network error',
-              code: 'NETWORK_ERROR',
-            }, { status: 500 })
+            return HttpResponse.json(
+              {
+                success: false,
+                error: 'Network error',
+                code: 'NETWORK_ERROR',
+              },
+              { status: 500 }
+            )
           }
-          
-          return HttpResponse.json({
-            success: true,
-            data: { ...body, id: `db-${body.id}` },
-          }, { status: 201 })
+
+          return HttpResponse.json(
+            {
+              success: true,
+              data: { ...body, id: `db-${body.id}` },
+            },
+            { status: 201 }
+          )
         })
       )
 
@@ -318,7 +333,7 @@ describe('Data Migration End-to-End', () => {
 
   describe('Migration Progress Tracking', () => {
     it('should provide real-time progress updates during migration', async () => {
-      const largeBatchTasks = Array.from({ length: 20 }, (_, i) => 
+      const largeBatchTasks = Array.from({ length: 20 }, (_, i) =>
         createMockTask({ id: `batch-${i}`, title: `Batch Task ${i}` })
       )
 
@@ -344,10 +359,13 @@ describe('Data Migration End-to-End', () => {
           processedCount++
           const body = await request.json()
           await delay(10) // Simulate processing time
-          return HttpResponse.json({
-            success: true,
-            data: { ...body, id: `db-${body.id}` },
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: { ...body, id: `db-${body.id}` },
+            },
+            { status: 201 }
+          )
         })
       )
 
@@ -355,7 +373,7 @@ describe('Data Migration End-to-End', () => {
       const { result } = renderHook(() => useMigration(), { wrapper })
 
       const progressUpdates: number[] = []
-      
+
       // Start migration and track progress
       act(() => {
         result.current.startMigration()
@@ -370,9 +388,12 @@ describe('Data Migration End-to-End', () => {
       }, 50)
 
       // Wait for completion
-      await waitFor(() => {
-        expect(result.current.migrationStatus).toBe('completed')
-      }, { timeout: 5000 })
+      await waitFor(
+        () => {
+          expect(result.current.migrationStatus).toBe('completed')
+        },
+        { timeout: 5000 }
+      )
 
       clearInterval(checkProgress)
 
@@ -411,21 +432,27 @@ describe('Data Migration End-to-End', () => {
         http.post('/api/tasks', async ({ request }) => {
           requestCount++
           const body = await request.json()
-          
+
           // Simulate interruption after first task
           if (requestCount === 1) {
             await delay(20)
-            return HttpResponse.json({
-              success: true,
-              data: { ...body, id: `db-${body.id}` },
-            }, { status: 201 })
+            return HttpResponse.json(
+              {
+                success: true,
+                data: { ...body, id: `db-${body.id}` },
+              },
+              { status: 201 }
+            )
           }
-          
+
           // Simulate network failure for second task
-          return HttpResponse.json({
-            success: false,
-            error: 'Network interrupted',
-          }, { status: 500 })
+          return HttpResponse.json(
+            {
+              success: false,
+              error: 'Network interrupted',
+            },
+            { status: 500 }
+          )
         })
       )
 
@@ -456,7 +483,9 @@ describe('Data Migration End-to-End', () => {
       localStorageMock.getItem.mockReturnValue(JSON.stringify(migrationState))
 
       // Remount with persisted state
-      const { result: newResult } = renderHook(() => useMigration(), { wrapper })
+      const { result: newResult } = renderHook(() => useMigration(), {
+        wrapper,
+      })
 
       // Should restore previous state
       expect(newResult.current.migrationProgress.tasks.migrated).toBe(1)
@@ -470,7 +499,7 @@ describe('Data Migration End-to-End', () => {
   describe('Migration Cleanup', () => {
     it('should clean up localStorage after successful migration', async () => {
       const tasks = [createMockTask({ id: 'cleanup-1', title: 'Cleanup Task' })]
-      
+
       // Set initial localStorage data
       localStorageMock.setItem('task-store', JSON.stringify({ tasks }))
       localStorageMock.setItem('environment-store', JSON.stringify({ environments: [] }))
@@ -495,10 +524,13 @@ describe('Data Migration End-to-End', () => {
       server.use(
         http.post('/api/tasks', async ({ request }) => {
           const body = await request.json()
-          return HttpResponse.json({
-            success: true,
-            data: { ...body, id: `db-${body.id}` },
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: { ...body, id: `db-${body.id}` },
+            },
+            { status: 201 }
+          )
         })
       )
 
@@ -517,7 +549,7 @@ describe('Data Migration End-to-End', () => {
       // Verify store data was cleared
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('task-store')
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('environment-store')
-      
+
       // User preferences should remain
       expect(localStorageMock.removeItem).not.toHaveBeenCalledWith('user-preferences')
     })
@@ -526,8 +558,8 @@ describe('Data Migration End-to-End', () => {
   describe('Migration Validation', () => {
     it('should validate migrated data integrity', async () => {
       const originalTasks = [
-        createMockTask({ 
-          id: 'validate-1', 
+        createMockTask({
+          id: 'validate-1',
           title: 'Validation Task',
           tags: ['important', 'urgent'],
           metadata: { customField: 'value' },
@@ -555,10 +587,13 @@ describe('Data Migration End-to-End', () => {
         http.post('/api/tasks', async ({ request }) => {
           const body = await request.json()
           migratedTask = { ...body, id: `db-${body.id}` }
-          return HttpResponse.json({
-            success: true,
-            data: migratedTask,
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: migratedTask,
+            },
+            { status: 201 }
+          )
         }),
         http.get('/api/tasks', () => {
           return HttpResponse.json({
@@ -573,11 +608,14 @@ describe('Data Migration End-to-End', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const migration = useMigration()
-        const tasks = useTasks()
-        return { migration, tasks }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const migration = useMigration()
+          const tasks = useTasks()
+          return { migration, tasks }
+        },
+        { wrapper }
+      )
 
       // Start migration
       act(() => {

@@ -476,7 +476,11 @@ export class MigrationRunner {
   /**
    * Rollback last migration
    */
-  async rollback(): Promise<{ success: boolean; rolledBack?: string; error?: string }> {
+  async rollback(): Promise<{
+    success: boolean
+    rolledBack?: string
+    error?: string
+  }> {
     console.log('🔄 Starting migration rollback...')
 
     try {
@@ -493,7 +497,10 @@ export class MigrationRunner {
       const migration = lastMigration[0]
 
       if (!migration.rollbackSql) {
-        return { success: false, error: `No rollback SQL found for migration ${migration.name}` }
+        return {
+          success: false,
+          error: `No rollback SQL found for migration ${migration.name}`,
+        }
       }
 
       await db.transaction(async (tx) => {
@@ -534,7 +541,10 @@ export class MigrationRunner {
     const pending = migrationFiles.filter((m) => !executedNames.has(m.name)).map((m) => m.name)
 
     return {
-      executed: executedMigrations.map((m) => ({ name: m.name, executedAt: m.executedAt })),
+      executed: executedMigrations.map((m) => ({
+        name: m.name,
+        executedAt: m.executedAt,
+      })),
       pending,
       total: migrationFiles.length,
     }

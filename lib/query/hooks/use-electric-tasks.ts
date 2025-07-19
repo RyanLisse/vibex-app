@@ -315,14 +315,20 @@ export function useUpdateElectricTask(options: ElectricTaskOptions = {}) {
     },
     onMutate: async ({ id, data }) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: electricTaskKeys.detail(id) })
+      await queryClient.cancelQueries({
+        queryKey: electricTaskKeys.detail(id),
+      })
 
       // Snapshot previous value
       const previousTask = queryClient.getQueryData<ElectricTask>(electricTaskKeys.detail(id))
 
       // Optimistically update
       if (previousTask) {
-        const optimisticTask = { ...previousTask, ...data, updatedAt: new Date() }
+        const optimisticTask = {
+          ...previousTask,
+          ...data,
+          updatedAt: new Date(),
+        }
         queryClient.setQueryData(electricTaskKeys.detail(id), optimisticTask)
       }
 
@@ -381,7 +387,9 @@ export function useDeleteElectricTask(options: ElectricTaskOptions = {}) {
     },
     onSuccess: (_, deletedId) => {
       // Remove from individual cache
-      queryClient.removeQueries({ queryKey: electricTaskKeys.detail(deletedId) })
+      queryClient.removeQueries({
+        queryKey: electricTaskKeys.detail(deletedId),
+      })
 
       // Remove from lists
       queryClient.setQueriesData(

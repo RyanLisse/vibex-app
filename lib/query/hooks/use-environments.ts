@@ -182,7 +182,9 @@ export function useDeleteEnvironment() {
     mutationFn: deleteEnvironment,
     onSuccess: (_, deletedId) => {
       // Remove from individual environment cache
-      queryClient.removeQueries({ queryKey: environmentKeys.detail(deletedId) })
+      queryClient.removeQueries({
+        queryKey: environmentKeys.detail(deletedId),
+      })
 
       // Update environments in lists
       queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: any) => {

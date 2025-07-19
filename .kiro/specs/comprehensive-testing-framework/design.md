@@ -93,6 +93,7 @@ project-root/
 ### 1. Testing Framework Core
 
 #### Vitest Configuration Component
+
 - **Purpose**: Configure unit testing environment
 - **Responsibilities**:
   - Set up jsdom environment for React components
@@ -102,6 +103,7 @@ project-root/
 - **Interface**: `vitest.config.ts` configuration file
 
 #### Storybook Integration Component
+
 - **Purpose**: Component development and testing platform
 - **Responsibilities**:
   - Provide component isolation and documentation
@@ -111,6 +113,7 @@ project-root/
 - **Interface**: `.storybook/main.ts` and story files
 
 #### Playwright Test Runner Component
+
 - **Purpose**: End-to-end testing execution
 - **Responsibilities**:
   - Cross-browser testing (Chrome, Firefox, Safari)
@@ -120,6 +123,7 @@ project-root/
 - **Interface**: `playwright.config.ts` and test files
 
 #### Stagehand AI Testing Component
+
 - **Purpose**: AI-powered dynamic testing
 - **Responsibilities**:
   - Natural language test interactions
@@ -131,6 +135,7 @@ project-root/
 ### 2. Code Quality System
 
 #### Biome.js Formatter/Linter Component
+
 - **Purpose**: Code formatting and linting
 - **Responsibilities**:
   - Consistent code formatting
@@ -140,6 +145,7 @@ project-root/
 - **Interface**: `biome.json` configuration
 
 #### Qlty CLI Quality Gate Component
+
 - **Purpose**: Comprehensive code quality analysis
 - **Responsibilities**:
   - Multi-tool quality aggregation
@@ -149,6 +155,7 @@ project-root/
 - **Interface**: `.qlty/qlty.toml` configuration
 
 #### Git Hooks Integration Component
+
 - **Purpose**: Automated quality enforcement
 - **Responsibilities**:
   - Pre-commit quality checks
@@ -160,6 +167,7 @@ project-root/
 ### 3. CI/CD Pipeline System
 
 #### GitHub Actions Workflow Component
+
 - **Purpose**: Automated testing and deployment
 - **Responsibilities**:
   - Parallel test execution (unit, component, E2E)
@@ -169,6 +177,7 @@ project-root/
 - **Interface**: `.github/workflows/ci.yml`
 
 #### Semantic Release Component
+
 - **Purpose**: Automated version management
 - **Responsibilities**:
   - Conventional commit analysis
@@ -180,9 +189,10 @@ project-root/
 ## Data Models
 
 ### Test Configuration Model
+
 ```typescript
 interface TestConfig {
-  environment: 'jsdom' | 'node';
+  environment: "jsdom" | "node";
   setupFiles: string[];
   coverage: CoverageConfig;
   globals: boolean;
@@ -203,6 +213,7 @@ interface CoverageConfig {
 ```
 
 ### Storybook Story Model
+
 ```typescript
 interface StoryConfig {
   title: string;
@@ -213,13 +224,14 @@ interface StoryConfig {
 }
 
 interface StoryParameters {
-  layout: 'centered' | 'fullscreen' | 'padded';
+  layout: "centered" | "fullscreen" | "padded";
   docs?: DocsConfig;
   a11y?: AccessibilityConfig;
 }
 ```
 
 ### Playwright Test Model
+
 ```typescript
 interface PlaywrightConfig {
   testDir: string;
@@ -236,6 +248,7 @@ interface BrowserProject {
 ```
 
 ### Quality Gate Model
+
 ```typescript
 interface QualityConfig {
   plugins: Record<string, PluginConfig>;
@@ -245,19 +258,20 @@ interface QualityConfig {
 
 interface PluginConfig {
   enabled: boolean;
-  mode?: 'new_only' | 'all';
+  mode?: "new_only" | "all";
 }
 ```
 
 ### Zod Schema Models
+
 ```typescript
 // Button component schema example
-export const ButtonVariantSchema = z.enum(['primary', 'secondary', 'outline']);
-export const ButtonSizeSchema = z.enum(['sm', 'md', 'lg']);
+export const ButtonVariantSchema = z.enum(["primary", "secondary", "outline"]);
+export const ButtonSizeSchema = z.enum(["sm", "md", "lg"]);
 
 export const ButtonPropsSchema = z.object({
-  variant: ButtonVariantSchema.optional().default('primary'),
-  size: ButtonSizeSchema.optional().default('md'),
+  variant: ButtonVariantSchema.optional().default("primary"),
+  size: ButtonSizeSchema.optional().default("md"),
   children: z.any(),
   className: z.string().optional(),
   disabled: z.boolean().optional(),
@@ -266,19 +280,21 @@ export const ButtonPropsSchema = z.object({
 
 // API validation schemas
 const LoginRequestSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   rememberMe: z.boolean().optional().default(false),
 });
 
 const LoginResponseSchema = z.object({
   success: z.boolean(),
-  user: z.object({
-    id: z.string(),
-    email: z.string().email(),
-    name: z.string(),
-    role: z.enum(['user', 'admin']),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string().email(),
+      name: z.string(),
+      role: z.enum(["user", "admin"]),
+    })
+    .optional(),
   token: z.string().optional(),
   error: z.string().optional(),
 });
@@ -288,25 +304,28 @@ const PageDataSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   headings: z.array(z.string()),
-  links: z.array(z.object({
-    text: z.string(),
-    href: z.string().url(),
-  })),
+  links: z.array(
+    z.object({
+      text: z.string(),
+      href: z.string().url(),
+    }),
+  ),
 });
 ```
 
 ### Package.json Scripts Model
+
 ```typescript
 interface PackageScripts {
   // Development
   dev: "next dev";
   build: "next build";
   start: "next start";
-  
+
   // Storybook
   storybook: "storybook dev -p 6006";
   "build-storybook": "storybook build";
-  
+
   // Testing
   test: "vitest";
   "test:ui": "vitest --ui";
@@ -314,7 +333,7 @@ interface PackageScripts {
   "test-storybook": "vitest --project=storybook";
   "test:e2e": "playwright test";
   "test:e2e:ui": "playwright test --ui";
-  
+
   // Code Quality
   lint: "biome lint --write .";
   format: "biome format --write .";
@@ -322,12 +341,12 @@ interface PackageScripts {
   "quality:check": "qlty check --sample=10";
   "quality:fix": "qlty fmt --all";
   "type-check": "tsc --noEmit";
-  
+
   // Git and Release
   commit: "cz";
   release: "semantic-release";
   prepare: "husky install";
-  
+
   // Git Worktrees
   "worktree:list": "git worktree list";
   "worktree:prune": "git worktree prune";
@@ -337,18 +356,21 @@ interface PackageScripts {
 ## Error Handling
 
 ### Test Execution Error Handling
+
 - **Unit Test Failures**: Provide detailed error messages with stack traces and component state
 - **E2E Test Failures**: Capture screenshots, videos, and network logs for debugging
 - **Storybook Errors**: Display component errors in isolation with hot reloading
 - **CI Pipeline Failures**: Generate detailed reports and prevent deployment
 
 ### Quality Gate Error Handling
+
 - **Linting Errors**: Provide auto-fix suggestions where possible
 - **Type Errors**: Display clear TypeScript error messages with file locations
 - **Security Issues**: Block commits with security vulnerabilities
 - **Performance Regressions**: Alert on bundle size increases or performance degradation
 
 ### Configuration Error Handling
+
 - **Invalid Configurations**: Validate configuration files and provide helpful error messages
 - **Missing Dependencies**: Check for required dependencies and provide installation instructions
 - **Environment Issues**: Detect and report environment setup problems
@@ -357,6 +379,7 @@ interface PackageScripts {
 ## Testing Strategy
 
 ### Unit Testing Strategy
+
 - **Component Testing**: Test React components in isolation with React Testing Library
 - **Hook Testing**: Test custom hooks with @testing-library/react-hooks
 - **Utility Testing**: Test pure functions and utility modules
@@ -364,6 +387,7 @@ interface PackageScripts {
 - **Coverage Goals**: Maintain 80%+ code coverage for critical paths
 
 ### Component Testing Strategy
+
 - **Storybook Stories**: Create stories for all UI components
 - **Interaction Testing**: Test user interactions within Storybook
 - **Visual Regression**: Capture and compare component screenshots
@@ -371,6 +395,7 @@ interface PackageScripts {
 - **Responsive Testing**: Test components across different viewport sizes
 
 ### Integration Testing Strategy
+
 - **Feature Testing**: Test complete feature workflows
 - **API Integration**: Test API endpoints with mock data
 - **State Management**: Test state changes and side effects
@@ -378,6 +403,7 @@ interface PackageScripts {
 - **Authentication Flow**: Test login/logout and protected routes
 
 ### End-to-End Testing Strategy
+
 - **Critical User Journeys**: Test primary user workflows
 - **Cross-Browser Testing**: Validate functionality across browsers
 - **Performance Testing**: Monitor page load times and Core Web Vitals
@@ -385,6 +411,7 @@ interface PackageScripts {
 - **Mobile Testing**: Test responsive behavior on mobile devices
 
 ### Quality Assurance Strategy
+
 - **Automated Quality Gates**: Enforce quality standards in CI/CD
 - **Code Review Process**: Require peer review for all changes
 - **Security Scanning**: Automated vulnerability detection
@@ -394,36 +421,42 @@ interface PackageScripts {
 ## Implementation Phases
 
 ### Phase 1: Core Testing Setup
+
 1. Configure Vitest for unit testing
 2. Set up React Testing Library
 3. Create test utilities and helpers
 4. Configure coverage reporting
 
 ### Phase 2: Component Development Platform
+
 1. Configure Storybook with Next.js
 2. Set up component testing with interactions
 3. Configure accessibility testing
 4. Create component documentation templates
 
 ### Phase 3: End-to-End Testing
+
 1. Configure Playwright for cross-browser testing
 2. Set up Stagehand for AI-powered testing
 3. Create page object models
 4. Implement test fixtures and utilities
 
 ### Phase 4: Code Quality Integration
+
 1. Configure Biome.js for linting and formatting
 2. Set up Qlty CLI for quality analysis
 3. Configure Git hooks with Husky
 4. Set up conventional commit validation
 
 ### Phase 5: CI/CD Pipeline
+
 1. Create GitHub Actions workflows
 2. Configure parallel test execution
 3. Set up automated releases with semantic-release
 4. Configure artifact management and reporting
 
 ### Phase 6: Developer Experience
+
 1. Configure VS Code settings and extensions
 2. Create development scripts and utilities
 3. Set up TDD workflow documentation
@@ -432,6 +465,7 @@ interface PackageScripts {
 ## Detailed Configuration Examples
 
 ### Environment Variables Configuration
+
 ```bash
 # Next.js
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -445,57 +479,59 @@ DATABASE_URL=your_database_url
 ```
 
 ### Vitest Configuration
+
 ```typescript
-import { defineConfig } from 'vitest/config';
-import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-import react from '@vitejs/plugin-react';
-import path from 'node:path';
+import { defineConfig } from "vitest/config";
+import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+import react from "@vitejs/plugin-react";
+import path from "node:path";
 
 export default defineConfig({
   plugins: [
     react(),
     storybookTest({
-      configDir: path.join(__dirname, '.storybook'),
-      storybookScript: 'npm run storybook -- --ci',
-      storybookUrl: 'http://localhost:6006',
+      configDir: path.join(__dirname, ".storybook"),
+      storybookScript: "npm run storybook -- --ci",
+      storybookUrl: "http://localhost:6006",
       tags: {
-        include: ['test'],
-        exclude: ['experimental', 'skip-test'],
+        include: ["test"],
+        exclude: ["experimental", "skip-test"],
       },
     }),
   ],
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     globals: true,
     coverage: {
-      reporter: ['text', 'lcov', 'html'],
-      exclude: ['node_modules/', '.next/', '*.config.*'],
+      reporter: ["text", "lcov", "html"],
+      exclude: ["node_modules/", ".next/", "*.config.*"],
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
 ```
 
 ### Storybook Configuration
+
 ```typescript
-import type { StorybookConfig } from '@storybook/nextjs-vite';
+import type { StorybookConfig } from "@storybook/nextjs-vite";
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-vitest',
-    '@storybook/addon-a11y',
-    '@storybook/addon-coverage',
+    "@storybook/addon-essentials",
+    "@storybook/addon-interactions",
+    "@storybook/addon-vitest",
+    "@storybook/addon-a11y",
+    "@storybook/addon-coverage",
   ],
   framework: {
-    name: '@storybook/nextjs-vite',
+    name: "@storybook/nextjs-vite",
     options: {},
   },
   features: {
@@ -503,50 +539,51 @@ const config: StorybookConfig = {
   },
   build: {
     test: {
-      disabledAddons: ['@storybook/addon-docs'],
+      disabledAddons: ["@storybook/addon-docs"],
     },
   },
 };
 ```
 
 ### Playwright Configuration
+
 ```typescript
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ['html'],
-    ['json', { outputFile: 'playwright-report/results.json' }],
-    ['junit', { outputFile: 'playwright-report/results.xml' }]
+    ["html"],
+    ["json", { outputFile: "playwright-report/results.json" }],
+    ["junit", { outputFile: "playwright-report/results.xml" }],
   ],
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
     },
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
     },
   ],
   webServer: {
-    command: 'bun run dev',
-    url: 'http://localhost:3000',
+    command: "bun run dev",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
@@ -554,6 +591,7 @@ export default defineConfig({
 ```
 
 ### Biome.js Configuration
+
 ```json
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
@@ -617,16 +655,17 @@ export default defineConfig({
 ### Example Component Development Process
 
 #### 1. Schema Definition
+
 ```typescript
 // src/features/ui/schemas/button.schema.ts
-import { z } from 'zod';
+import { z } from "zod";
 
-export const ButtonVariantSchema = z.enum(['primary', 'secondary', 'outline']);
-export const ButtonSizeSchema = z.enum(['sm', 'md', 'lg']);
+export const ButtonVariantSchema = z.enum(["primary", "secondary", "outline"]);
+export const ButtonSizeSchema = z.enum(["sm", "md", "lg"]);
 
 export const ButtonPropsSchema = z.object({
-  variant: ButtonVariantSchema.optional().default('primary'),
-  size: ButtonSizeSchema.optional().default('md'),
+  variant: ButtonVariantSchema.optional().default("primary"),
+  size: ButtonSizeSchema.optional().default("md"),
   children: z.any(),
   className: z.string().optional(),
   disabled: z.boolean().optional(),
@@ -637,6 +676,7 @@ export type ButtonProps = z.infer<typeof ButtonPropsSchema>;
 ```
 
 #### 2. Test-First Development
+
 ```typescript
 // src/features/ui/components/Button/Button.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -653,7 +693,7 @@ describe('Button Component', () => {
   it('handles click events', () => {
     const handleClick = vi.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -672,6 +712,7 @@ describe('Button Component', () => {
 ```
 
 #### 3. Component Implementation
+
 ```typescript
 // src/features/ui/components/Button/Button.tsx
 import React from 'react';
@@ -680,7 +721,7 @@ import { ButtonProps, ButtonPropsSchema } from '../../schemas/button.schema';
 
 export const Button: React.FC<ButtonProps> = (props) => {
   const parsedProps = ButtonPropsSchema.parse(props);
-  
+
   const {
     variant = 'primary',
     size = 'md',
@@ -691,7 +732,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
   } = parsedProps;
 
   const baseStyles = 'font-semibold rounded-md transition-colors focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+
   const variants = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
     secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
@@ -717,27 +758,28 @@ export const Button: React.FC<ButtonProps> = (props) => {
 ```
 
 #### 4. Storybook Stories
+
 ```typescript
 // src/features/ui/components/Button/Button.stories.tsx
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, userEvent, within } from '@storybook/test';
-import { Button } from './Button';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, userEvent, within } from "@storybook/test";
+import { Button } from "./Button";
 
 const meta = {
-  title: 'Features/UI/Button',
+  title: "Features/UI/Button",
   component: Button,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs', 'test'],
+  tags: ["autodocs", "test"],
   argTypes: {
     variant: {
-      control: 'select',
-      options: ['primary', 'secondary', 'outline'],
+      control: "select",
+      options: ["primary", "secondary", "outline"],
     },
     size: {
-      control: 'select',
-      options: ['sm', 'md', 'lg'],
+      control: "select",
+      options: ["sm", "md", "lg"],
     },
   },
 } satisfies Meta<typeof Button>;
@@ -747,20 +789,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
   args: {
-    children: 'Primary Button',
-    variant: 'primary',
+    children: "Primary Button",
+    variant: "primary",
   },
 };
 
 export const Interactive: Story = {
   args: {
-    children: 'Click me',
-    variant: 'primary',
+    children: "Click me",
+    variant: "primary",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const button = canvas.getByRole('button');
-    
+    const button = canvas.getByRole("button");
+
     await expect(button).toBeInTheDocument();
     await userEvent.click(button);
   },
@@ -770,6 +812,7 @@ export const Interactive: Story = {
 ## Git Worktrees Integration
 
 ### Parallel Development Workflow
+
 ```bash
 # Create worktrees for different features
 git worktree add ../feature-auth feature/auth
@@ -783,6 +826,7 @@ cd ../bugfix-navigation && npm run dev -- --port 3003
 ```
 
 ### Worktree Management Scripts
+
 ```json
 {
   "scripts": {
@@ -797,6 +841,7 @@ cd ../bugfix-navigation && npm run dev -- --port 3003
 ## Stagehand AI Testing Integration
 
 ### Server Actions Implementation
+
 ```typescript
 // src/app/stagehand/main.ts
 "use server";
@@ -809,10 +854,12 @@ const PageDataSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   headings: z.array(z.string()),
-  links: z.array(z.object({
-    text: z.string(),
-    href: z.string().url(),
-  })),
+  links: z.array(
+    z.object({
+      text: z.string(),
+      href: z.string().url(),
+    }),
+  ),
 });
 
 export async function runStagehand(sessionId?: string) {
@@ -825,49 +872,53 @@ export async function runStagehand(sessionId?: string) {
     browserbaseSessionID: sessionId,
     disablePino: true,
   });
-  
+
   await stagehand.init();
   const page = stagehand.page;
-  
+
   await page.goto("https://docs.stagehand.dev/");
   await page.act("click the quickstart link");
-  
+
   const pageData = await page.extract({
-    instruction: "extract the main heading, description, all subheadings, and all links on the page",
+    instruction:
+      "extract the main heading, description, all subheadings, and all links on the page",
     schema: PageDataSchema,
   });
-  
+
   await stagehand.close();
   return pageData;
 }
 ```
 
 ### AI-Powered E2E Tests
+
 ```typescript
 // e2e/stagehand/dynamic-content.spec.ts
-import { test } from '../fixtures/stagehand';
-import { z } from 'zod';
+import { test } from "../fixtures/stagehand";
+import { z } from "zod";
 
-test.describe('AI-Powered Dynamic Content Testing', () => {
-  test('should handle complex form interactions', async ({ stagehand }) => {
+test.describe("AI-Powered Dynamic Content Testing", () => {
+  test("should handle complex form interactions", async ({ stagehand }) => {
     const page = stagehand.page;
-    
-    await page.goto('/contact');
-    await page.act('fill out the contact form with name "John Doe", email "john@example.com", and message "Testing the form"');
-    
+
+    await page.goto("/contact");
+    await page.act(
+      'fill out the contact form with name "John Doe", email "john@example.com", and message "Testing the form"',
+    );
+
     const formData = await page.extract({
-      instruction: 'extract all form field values',
+      instruction: "extract all form field values",
       schema: z.object({
         name: z.string(),
         email: z.string().email(),
         message: z.string(),
       }),
     });
-    
-    expect(formData.name).toBe('John Doe');
-    expect(formData.email).toBe('john@example.com');
-    
-    await page.act('submit the form');
+
+    expect(formData.name).toBe("John Doe");
+    expect(formData.email).toBe("john@example.com");
+
+    await page.act("submit the form");
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
   });
 });

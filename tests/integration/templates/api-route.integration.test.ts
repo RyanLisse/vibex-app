@@ -59,7 +59,11 @@ describe('API Route Integration Template', () => {
   describe('POST /api/example', () => {
     it('should create new resource', async () => {
       const newItem = { name: 'New Item', description: 'Test description' }
-      const createdItem = { id: 1, ...newItem, createdAt: new Date().toISOString() }
+      const createdItem = {
+        id: 1,
+        ...newItem,
+        createdAt: new Date().toISOString(),
+      }
 
       integrationTestHelpers.mockApiResponse('/api/example', createdItem)
 
@@ -104,7 +108,11 @@ describe('API Route Integration Template', () => {
   describe('PUT /api/example/:id', () => {
     it('should update existing resource', async () => {
       const updatedData = { name: 'Updated Item' }
-      const updatedItem = { id: 1, ...updatedData, updatedAt: new Date().toISOString() }
+      const updatedItem = {
+        id: 1,
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+      }
 
       integrationTestHelpers.mockApiResponse('/api/example/1', updatedItem)
 
@@ -138,7 +146,9 @@ describe('API Route Integration Template', () => {
 
   describe('DELETE /api/example/:id', () => {
     it('should delete resource', async () => {
-      integrationTestHelpers.mockApiResponse('/api/example/1', { success: true })
+      integrationTestHelpers.mockApiResponse('/api/example/1', {
+        success: true,
+      })
 
       const response = await fetch('/api/example/1', {
         method: 'DELETE',
@@ -206,7 +216,10 @@ describe('API Route Integration Template', () => {
   describe('Performance and Load Testing', () => {
     it('should handle concurrent requests', async () => {
       const promises = Array.from({ length: 10 }, (_, i) => {
-        integrationTestHelpers.mockApiResponse(`/api/example/${i}`, { id: i, name: `Item ${i}` })
+        integrationTestHelpers.mockApiResponse(`/api/example/${i}`, {
+          id: i,
+          name: `Item ${i}`,
+        })
         return fetch(`/api/example/${i}`)
       })
 

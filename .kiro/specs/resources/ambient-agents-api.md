@@ -30,62 +30,69 @@ POST /api/ambient-agents/create
 ```
 
 **Request Body:**
+
 ```typescript
 interface CreateAgentRequest {
-  name: string
-  type: 'coder' | 'reviewer' | 'tester' | 'researcher' | 'optimizer'
-  provider: 'claude' | 'openai' | 'gemini' | 'custom'
-  capabilities: string[]
+  name: string;
+  type: "coder" | "reviewer" | "tester" | "researcher" | "optimizer";
+  provider: "claude" | "openai" | "gemini" | "custom";
+  capabilities: string[];
   configuration: {
-    temperature?: number
-    maxTokens?: number
-    systemPrompt?: string
-    tools?: string[]
-  }
+    temperature?: number;
+    maxTokens?: number;
+    systemPrompt?: string;
+    tools?: string[];
+  };
   ambient: {
-    signals: AmbientSignal[]
-    triggers: AmbientTrigger[]
-    humanInTheLoop: HumanInTheLoopConfig
-  }
+    signals: AmbientSignal[];
+    triggers: AmbientTrigger[];
+    humanInTheLoop: HumanInTheLoopConfig;
+  };
 }
 
 interface AmbientSignal {
-  type: 'file_change' | 'git_commit' | 'error_detected' | 'performance_threshold' | 'custom'
-  pattern: string
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  conditions: Record<string, any>
+  type:
+    | "file_change"
+    | "git_commit"
+    | "error_detected"
+    | "performance_threshold"
+    | "custom";
+  pattern: string;
+  priority: "low" | "medium" | "high" | "critical";
+  conditions: Record<string, any>;
 }
 
 interface AmbientTrigger {
-  signal: string
-  action: 'notify' | 'question' | 'review' | 'auto_execute'
-  parameters: Record<string, any>
+  signal: string;
+  action: "notify" | "question" | "review" | "auto_execute";
+  parameters: Record<string, any>;
 }
 
 interface HumanInTheLoopConfig {
-  notifyOnActions: string[]
-  requireApprovalFor: string[]
-  reviewThreshold: number
-  timeout: number
+  notifyOnActions: string[];
+  requireApprovalFor: string[];
+  reviewThreshold: number;
+  timeout: number;
 }
 ```
 
 **Response:**
+
 ```typescript
 interface CreateAgentResponse {
-  id: string
-  name: string
-  type: string
-  provider: string
-  status: 'idle' | 'busy' | 'error' | 'terminated'
-  capabilities: string[]
-  createdAt: string
+  id: string;
+  name: string;
+  type: string;
+  provider: string;
+  status: "idle" | "busy" | "error" | "terminated";
+  capabilities: string[];
+  createdAt: string;
   metrics: {
-    totalTasks: number
-    completedTasks: number
-    failedTasks: number
-    averageResponseTime: number
-  }
+    totalTasks: number;
+    completedTasks: number;
+    failedTasks: number;
+    averageResponseTime: number;
+  };
 }
 ```
 
@@ -98,6 +105,7 @@ GET /api/ambient-agents/list
 ```
 
 **Query Parameters:**
+
 - `filter`: Filter by status (`idle`, `busy`, `error`, `terminated`)
 - `type`: Filter by agent type
 - `provider`: Filter by provider
@@ -105,15 +113,16 @@ GET /api/ambient-agents/list
 - `offset`: Pagination offset (default: 0)
 
 **Response:**
+
 ```typescript
 interface ListAgentsResponse {
-  agents: Agent[]
+  agents: Agent[];
   pagination: {
-    total: number
-    limit: number
-    offset: number
-    hasNext: boolean
-  }
+    total: number;
+    limit: number;
+    offset: number;
+    hasNext: boolean;
+  };
 }
 ```
 
@@ -126,41 +135,42 @@ GET /api/ambient-agents/{id}
 ```
 
 **Response:**
+
 ```typescript
 interface AgentDetailsResponse {
-  id: string
-  name: string
-  type: string
-  provider: string
-  status: string
-  capabilities: string[]
-  configuration: AgentConfiguration
-  ambient: AmbientConfiguration
-  metrics: AgentMetrics
-  currentTask?: CurrentTask
-  history: TaskHistory[]
-  createdAt: string
-  updatedAt: string
+  id: string;
+  name: string;
+  type: string;
+  provider: string;
+  status: string;
+  capabilities: string[];
+  configuration: AgentConfiguration;
+  ambient: AmbientConfiguration;
+  metrics: AgentMetrics;
+  currentTask?: CurrentTask;
+  history: TaskHistory[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface AgentMetrics {
-  totalTasks: number
-  completedTasks: number
-  failedTasks: number
-  averageResponseTime: number
-  cpuUsage: number
-  memoryUsage: number
-  successRate: number
-  uptime: number
+  totalTasks: number;
+  completedTasks: number;
+  failedTasks: number;
+  averageResponseTime: number;
+  cpuUsage: number;
+  memoryUsage: number;
+  successRate: number;
+  uptime: number;
 }
 
 interface CurrentTask {
-  id: string
-  name: string
-  progress: number
-  estimatedCompletion: string
-  priority: string
-  dependencies: string[]
+  id: string;
+  name: string;
+  progress: number;
+  estimatedCompletion: string;
+  priority: string;
+  dependencies: string[];
 }
 ```
 
@@ -173,13 +183,14 @@ PUT /api/ambient-agents/{id}
 ```
 
 **Request Body:**
+
 ```typescript
 interface UpdateAgentRequest {
-  name?: string
-  capabilities?: string[]
-  configuration?: Partial<AgentConfiguration>
-  ambient?: Partial<AmbientConfiguration>
-  status?: 'idle' | 'busy' | 'paused' | 'terminated'
+  name?: string;
+  capabilities?: string[];
+  configuration?: Partial<AgentConfiguration>;
+  ambient?: Partial<AmbientConfiguration>;
+  status?: "idle" | "busy" | "paused" | "terminated";
 }
 ```
 
@@ -192,11 +203,12 @@ DELETE /api/ambient-agents/{id}
 ```
 
 **Response:**
+
 ```typescript
 interface DeleteAgentResponse {
-  success: boolean
-  message: string
-  terminatedAt: string
+  success: boolean;
+  message: string;
+  terminatedAt: string;
 }
 ```
 
@@ -211,35 +223,42 @@ POST /api/ambient-agents/tasks/create
 ```
 
 **Request Body:**
+
 ```typescript
 interface CreateTaskRequest {
-  name: string
-  description: string
-  type: 'code_generation' | 'code_review' | 'testing' | 'research' | 'optimization'
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  assignedAgent?: string
-  autoAssign?: boolean
-  dependencies: string[]
-  parameters: Record<string, any>
+  name: string;
+  description: string;
+  type:
+    | "code_generation"
+    | "code_review"
+    | "testing"
+    | "research"
+    | "optimization";
+  priority: "low" | "medium" | "high" | "critical";
+  assignedAgent?: string;
+  autoAssign?: boolean;
+  dependencies: string[];
+  parameters: Record<string, any>;
   ambient: {
-    triggers: AmbientTrigger[]
-    humanInTheLoop: HumanInTheLoopConfig
-  }
-  deadline?: string
-  tags: string[]
+    triggers: AmbientTrigger[];
+    humanInTheLoop: HumanInTheLoopConfig;
+  };
+  deadline?: string;
+  tags: string[];
 }
 ```
 
 **Response:**
+
 ```typescript
 interface CreateTaskResponse {
-  id: string
-  name: string
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
-  assignedAgent?: string
-  progress: number
-  createdAt: string
-  estimatedCompletion?: string
+  id: string;
+  name: string;
+  status: "pending" | "running" | "completed" | "failed" | "cancelled";
+  assignedAgent?: string;
+  progress: number;
+  createdAt: string;
+  estimatedCompletion?: string;
 }
 ```
 
@@ -252,6 +271,7 @@ GET /api/ambient-agents/tasks/list
 ```
 
 **Query Parameters:**
+
 - `status`: Filter by task status
 - `assignedAgent`: Filter by assigned agent
 - `priority`: Filter by priority
@@ -268,44 +288,45 @@ GET /api/ambient-agents/tasks/{id}
 ```
 
 **Response:**
+
 ```typescript
 interface TaskDetailsResponse {
-  id: string
-  name: string
-  description: string
-  type: string
-  status: string
-  priority: string
-  assignedAgent?: string
-  progress: number
-  dependencies: TaskDependency[]
-  results?: TaskResult[]
-  logs: TaskLog[]
-  createdAt: string
-  updatedAt: string
-  startedAt?: string
-  completedAt?: string
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: string;
+  priority: string;
+  assignedAgent?: string;
+  progress: number;
+  dependencies: TaskDependency[];
+  results?: TaskResult[];
+  logs: TaskLog[];
+  createdAt: string;
+  updatedAt: string;
+  startedAt?: string;
+  completedAt?: string;
 }
 
 interface TaskDependency {
-  id: string
-  name: string
-  status: string
-  type: 'prerequisite' | 'resource' | 'approval'
+  id: string;
+  name: string;
+  status: string;
+  type: "prerequisite" | "resource" | "approval";
 }
 
 interface TaskResult {
-  type: 'code' | 'file' | 'report' | 'data'
-  content: string
-  metadata: Record<string, any>
-  createdAt: string
+  type: "code" | "file" | "report" | "data";
+  content: string;
+  metadata: Record<string, any>;
+  createdAt: string;
 }
 
 interface TaskLog {
-  level: 'info' | 'warn' | 'error' | 'debug'
-  message: string
-  timestamp: string
-  context?: Record<string, any>
+  level: "info" | "warn" | "error" | "debug";
+  message: string;
+  timestamp: string;
+  context?: Record<string, any>;
 }
 ```
 
@@ -318,14 +339,15 @@ PUT /api/ambient-agents/tasks/{id}
 ```
 
 **Request Body:**
+
 ```typescript
 interface UpdateTaskRequest {
-  status?: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
-  progress?: number
-  assignedAgent?: string
-  priority?: 'low' | 'medium' | 'high' | 'critical'
-  parameters?: Record<string, any>
-  results?: TaskResult[]
+  status?: "pending" | "running" | "completed" | "failed" | "cancelled";
+  progress?: number;
+  assignedAgent?: string;
+  priority?: "low" | "medium" | "high" | "critical";
+  parameters?: Record<string, any>;
+  results?: TaskResult[];
 }
 ```
 
@@ -344,20 +366,24 @@ DELETE /api/ambient-agents/tasks/{id}
 Establishes a WebSocket connection for real-time updates.
 
 ```javascript
-const ws = new WebSocket('wss://api.codeclone.dev/api/ambient-agents/ws');
+const ws = new WebSocket("wss://api.codeclone.dev/api/ambient-agents/ws");
 ```
 
 **Authentication:**
+
 ```javascript
-ws.send(JSON.stringify({
-  type: 'auth',
-  token: 'your-bearer-token'
-}));
+ws.send(
+  JSON.stringify({
+    type: "auth",
+    token: "your-bearer-token",
+  }),
+);
 ```
 
 ### Event Types
 
 #### Agent Events
+
 ```typescript
 // Agent created
 {
@@ -391,6 +417,7 @@ ws.send(JSON.stringify({
 ```
 
 #### Task Events
+
 ```typescript
 // Task started
 {
@@ -435,6 +462,7 @@ ws.send(JSON.stringify({
 ```
 
 #### Communication Events
+
 ```typescript
 // Agent communication
 {
@@ -461,6 +489,7 @@ ws.send(JSON.stringify({
 ```
 
 #### Human-in-the-Loop Events
+
 ```typescript
 // Notification
 {
@@ -504,19 +533,23 @@ ws.send(JSON.stringify({
 Subscribe to specific event types:
 
 ```javascript
-ws.send(JSON.stringify({
-  type: 'subscribe',
-  events: ['agent.status.changed', 'task.progress', 'task.completed']
-}));
+ws.send(
+  JSON.stringify({
+    type: "subscribe",
+    events: ["agent.status.changed", "task.progress", "task.completed"],
+  }),
+);
 ```
 
 ### Unsubscribe from Events
 
 ```javascript
-ws.send(JSON.stringify({
-  type: 'unsubscribe',
-  events: ['agent.status.changed']
-}));
+ws.send(
+  JSON.stringify({
+    type: "unsubscribe",
+    events: ["agent.status.changed"],
+  }),
+);
 ```
 
 ## 📊 Visualization Data API
@@ -530,39 +563,41 @@ GET /api/visualization/data
 ```
 
 **Query Parameters:**
+
 - `view`: View mode (`agent-centric`, `task-centric`, `event-centric`, `memory-centric`)
 - `timeRange`: Time range for data (`1h`, `24h`, `7d`, `30d`)
 - `includeInactive`: Include inactive agents (default: false)
 
 **Response:**
+
 ```typescript
 interface VisualizationDataResponse {
-  nodes: VisualizationNode[]
-  edges: VisualizationEdge[]
+  nodes: VisualizationNode[];
+  edges: VisualizationEdge[];
   metadata: {
-    nodeCount: number
-    edgeCount: number
-    lastUpdated: string
-    timeRange: string
-  }
+    nodeCount: number;
+    edgeCount: number;
+    lastUpdated: string;
+    timeRange: string;
+  };
 }
 
 interface VisualizationNode {
-  id: string
-  type: 'agent' | 'task' | 'memory' | 'event'
-  position: { x: number; y: number }
-  data: Record<string, any>
-  style?: Record<string, any>
+  id: string;
+  type: "agent" | "task" | "memory" | "event";
+  position: { x: number; y: number };
+  data: Record<string, any>;
+  style?: Record<string, any>;
 }
 
 interface VisualizationEdge {
-  id: string
-  source: string
-  target: string
-  type: 'communication' | 'dependency' | 'data-flow'
-  data: Record<string, any>
-  animated?: boolean
-  style?: Record<string, any>
+  id: string;
+  source: string;
+  target: string;
+  type: "communication" | "dependency" | "data-flow";
+  data: Record<string, any>;
+  animated?: boolean;
+  style?: Record<string, any>;
 }
 ```
 
@@ -575,16 +610,21 @@ POST /api/visualization/layout
 ```
 
 **Request Body:**
+
 ```typescript
 interface UpdateLayoutRequest {
-  algorithm: 'hierarchical' | 'force-directed' | 'circular' | 'custom'
+  algorithm: "hierarchical" | "force-directed" | "circular" | "custom";
   parameters: {
-    nodeSpacing?: number
-    edgeLength?: number
-    gravity?: number
-    iterations?: number
-  }
-  viewMode: 'agent-centric' | 'task-centric' | 'event-centric' | 'memory-centric'
+    nodeSpacing?: number;
+    edgeLength?: number;
+    gravity?: number;
+    iterations?: number;
+  };
+  viewMode:
+    | "agent-centric"
+    | "task-centric"
+    | "event-centric"
+    | "memory-centric";
 }
 ```
 
@@ -597,12 +637,12 @@ All API errors follow a consistent format:
 ```typescript
 interface ErrorResponse {
   error: {
-    code: string
-    message: string
-    details?: Record<string, any>
-    timestamp: string
-    requestId: string
-  }
+    code: string;
+    message: string;
+    details?: Record<string, any>;
+    timestamp: string;
+    requestId: string;
+  };
 }
 ```
 
@@ -637,6 +677,7 @@ API endpoints are rate-limited to ensure fair usage:
 - **WebSocket connections**: 10 concurrent connections per user
 
 Rate limit headers are included in responses:
+
 - `X-RateLimit-Limit`: Maximum requests per window
 - `X-RateLimit-Remaining`: Remaining requests in current window
 - `X-RateLimit-Reset`: Time when rate limit resets
@@ -646,42 +687,45 @@ Rate limit headers are included in responses:
 ### JavaScript/TypeScript SDK
 
 ```typescript
-import { AmbientAgentsClient } from '@codeclone/ambient-agents-sdk';
+import { AmbientAgentsClient } from "@codeclone/ambient-agents-sdk";
 
 const client = new AmbientAgentsClient({
-  apiKey: 'your-api-key',
-  baseUrl: 'https://api.codeclone.dev/v1'
+  apiKey: "your-api-key",
+  baseUrl: "https://api.codeclone.dev/v1",
 });
 
 // Create an agent
 const agent = await client.agents.create({
-  name: 'Code Reviewer',
-  type: 'reviewer',
-  provider: 'claude',
-  capabilities: ['code-review', 'security-analysis'],
+  name: "Code Reviewer",
+  type: "reviewer",
+  provider: "claude",
+  capabilities: ["code-review", "security-analysis"],
   ambient: {
     signals: [
       {
-        type: 'git_commit',
-        pattern: '*.ts',
-        priority: 'medium',
-        conditions: { branch: 'main' }
-      }
+        type: "git_commit",
+        pattern: "*.ts",
+        priority: "medium",
+        conditions: { branch: "main" },
+      },
     ],
     triggers: [
       {
-        signal: 'git_commit',
-        action: 'review',
-        parameters: { autoApprove: false }
-      }
-    ]
-  }
+        signal: "git_commit",
+        action: "review",
+        parameters: { autoApprove: false },
+      },
+    ],
+  },
 });
 
 // Subscribe to real-time updates
-client.realtime.subscribe(['agent.status.changed', 'task.completed'], (event) => {
-  console.log('Received event:', event);
-});
+client.realtime.subscribe(
+  ["agent.status.changed", "task.completed"],
+  (event) => {
+    console.log("Received event:", event);
+  },
+);
 ```
 
 This API specification provides a comprehensive foundation for building ambient agents with real-time visualization capabilities.

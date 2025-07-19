@@ -7,7 +7,42 @@
 
 const fs = require('fs')
 const path = require('path')
-const coverageConfig = require('../coverage.config.js')
+
+// Coverage thresholds for different test tiers
+const COVERAGE_THRESHOLDS = {
+  logic: {
+    statements: 85,
+    branches: 80,
+    functions: 85,
+    lines: 85,
+  },
+  components: {
+    statements: 75,
+    branches: 70,
+    functions: 75,
+    lines: 75,
+  },
+  integration: {
+    statements: 70,
+    branches: 65,
+    functions: 70,
+    lines: 70,
+  },
+  merged: {
+    statements: 80,
+    branches: 75,
+    functions: 80,
+    lines: 80,
+  },
+}
+
+// Coverage directories
+const COVERAGE_DIRS = {
+  bun: './coverage/bun-logic',
+  vitest: './coverage/vitest-components',
+  integration: './coverage/vitest-integration',
+  merged: './coverage/merged',
+}
 
 class CoverageValidator {
   constructor() {
@@ -49,10 +84,12 @@ class CoverageValidator {
   async validateTierReports() {
     console.log('\n📊 Validating tier reports...')
 
-    for (const [tierName, tierConfig] of Object.entries(coverageConfig.tiers)) {
-      console.log(`\n  🔍 Checking ${tierConfig.name}...`)
+    for (const [tierName, coverageDir] of Object.entries(COVERAGE_DIRS)) {
+      if (tierName === 'merged') continue // Handle merged separately
+      
+      console.log(`\n  🔍 Checking ${tierName}...`)
 
-      const reportPath = path.join(tierConfig.outputDir, 'coverage-final.json')
+      const reportPath = path.join(coverageDir, 'coverage-final.json')
 
       if (!fs.existsSync(reportPath)) {
         this.warnings.push(`${tierName}: Coverage report not found at ${reportPath}`)
@@ -63,7 +100,7 @@ class CoverageValidator {
       try {
         const coverage = JSON.parse(fs.readFileSync(reportPath, 'utf8'))
         const summary = this.calculateSummary(coverage)
-        const thresholds = tierConfig.thresholds.global
+        const thresholds = COVERAGE_THRESHOLDS[tierName === 'bun' ? 'logic' : tierName === 'vitest' ? 'components' : tierName]
 
         console.log(
           `    📈 Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
@@ -103,7 +140,7 @@ class CoverageValidator {
     try {
       const coverage = JSON.parse(fs.readFileSync(mergedReportPath, 'utf8'))
       const summary = this.calculateSummary(coverage)
-      const thresholds = coverageConfig.merged.thresholds.global
+      const thresholds = COVERAGE_THRESHOLDS.merged
 
       console.log(
         `  📈 Overall Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
@@ -150,7 +187,11 @@ class CoverageValidator {
   validateQualityGates(summary) {
     console.log('\n🏆 Quality Gate Analysis:')
 
-    const gates = coverageConfig.qualityGates
+    const gates = {
+      minimum: { lines: 60, functions: 60, branches: 50, statements: 60 },
+      target: { lines: 80, functions: 80, branches: 75, statements: 80 },
+      excellence: { lines: 95, functions: 95, branches: 90, statements: 95 }
+    }
     const metrics = ['lines', 'functions', 'branches', 'statements']
 
     // Check minimum quality gate
@@ -254,8 +295,8 @@ class CoverageValidator {
       errors: this.errors,
       warnings: this.warnings,
       configuration: {
-        tiers: Object.keys(coverageConfig.tiers).length,
-        qualityGates: coverageConfig.qualityGates,
+        tiers: Object.keys(COVERAGE_DIRS).length - 1, // Exclude merged
+        thresholds: COVERAGE_THRESHOLDS,
       },
     }
 

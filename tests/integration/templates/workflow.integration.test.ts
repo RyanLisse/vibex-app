@@ -149,7 +149,9 @@ describe('Workflow Integration Template', () => {
         id: 'task-123',
         status: 'completed',
         progress: 100,
-        result: { pullRequest: { url: 'https://github.com/test/repo/pull/42' } },
+        result: {
+          pullRequest: { url: 'https://github.com/test/repo/pull/42' },
+        },
         completedAt: new Date().toISOString(),
       })
 
@@ -261,7 +263,9 @@ describe('Workflow Integration Template', () => {
 
       // Trigger message handler
       if (mockWebSocket.onmessage) {
-        mockWebSocket.onmessage({ data: JSON.stringify(mockMessage) } as MessageEvent)
+        mockWebSocket.onmessage({
+          data: JSON.stringify(mockMessage),
+        } as MessageEvent)
       }
 
       // Step 3: Unsubscribe

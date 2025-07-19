@@ -240,14 +240,19 @@ export function EnhancedTaskList({
             <div className="flex items-center gap-0 mt-1">
               <p className="text-muted-foreground text-sm">
                 {task.createdAt
-                  ? formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })
+                  ? formatDistanceToNow(new Date(task.createdAt), {
+                      addSuffix: true,
+                    })
                   : 'Just now'}
               </p>
               {task.updatedAt && task.updatedAt !== task.createdAt && (
                 <>
                   <Dot className="size-4 text-muted-foreground" />
                   <p className="text-muted-foreground text-sm">
-                    Updated {formatDistanceToNow(new Date(task.updatedAt), { addSuffix: true })}
+                    Updated{' '}
+                    {formatDistanceToNow(new Date(task.updatedAt), {
+                      addSuffix: true,
+                    })}
                   </p>
                 </>
               )}

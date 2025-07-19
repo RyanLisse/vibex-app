@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, jest, mock, spyOn } from 'bun:test'
-import { vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import {
   createTimeoutPromise,
   debounce,
@@ -16,12 +15,10 @@ describe('stream-utils', () => {
     consoleSpy = spyOn(console, 'warn').mockImplementation(() => {
       /* no-op */
     })
-    jest.useFakeTimers()
   })
 
   afterEach(() => {
     consoleSpy.mockRestore()
-    jest.useRealTimers()
   })
 
   describe('safeStreamCancel', () => {
@@ -37,12 +34,12 @@ describe('stream-utils', () => {
 
     it('should cancel an unlocked stream', async () => {
       const mockReader = {
-        cancel: vi.fn().mockResolvedValue(undefined),
-        releaseLock: vi.fn(),
+        cancel: mock().mockResolvedValue(undefined),
+        releaseLock: mock(),
       }
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockReturnValue(mockReader),
+        getReader: mock().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -66,12 +63,12 @@ describe('stream-utils', () => {
     it('should handle cancel error', async () => {
       const mockError = new Error('Cancel failed')
       const mockReader = {
-        cancel: vi.fn().mockRejectedValue(mockError),
-        releaseLock: vi.fn(),
+        cancel: mock().mockRejectedValue(mockError),
+        releaseLock: mock(),
       }
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockReturnValue(mockReader),
+        getReader: mock().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -84,14 +81,14 @@ describe('stream-utils', () => {
     it('should handle releaseLock error', async () => {
       const mockError = new Error('Release lock failed')
       const mockReader = {
-        cancel: vi.fn().mockResolvedValue(undefined),
-        releaseLock: vi.fn().mockImplementation(() => {
+        cancel: mock().mockResolvedValue(undefined),
+        releaseLock: mock().mockImplementation(() => {
           throw mockError
         }),
       }
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockReturnValue(mockReader),
+        getReader: mock().mockReturnValue(mockReader),
       } as unknown as ReadableStream
 
       await safeStreamCancel(mockStream)
@@ -104,7 +101,7 @@ describe('stream-utils', () => {
       const mockError = new Error('Get reader failed')
       const mockStream = {
         locked: false,
-        getReader: vi.fn().mockImplementation(() => {
+        getReader: mock().mockImplementation(() => {
           throw mockError
         }),
       } as unknown as ReadableStream
@@ -129,7 +126,7 @@ describe('stream-utils', () => {
     it('should close open WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.OPEN,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -141,7 +138,7 @@ describe('stream-utils', () => {
     it('should close connecting WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CONNECTING,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -152,7 +149,7 @@ describe('stream-utils', () => {
     it('should not close already closed WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CLOSED,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -163,7 +160,7 @@ describe('stream-utils', () => {
     it('should not close already closing WebSocket', () => {
       const mockWs = {
         readyState: WebSocket.CLOSING,
-        close: vi.fn(),
+        close: mock(),
       } as unknown as WebSocket
 
       safeWebSocketClose(mockWs)
@@ -175,7 +172,7 @@ describe('stream-utils', () => {
       const mockError = new Error('Close failed')
       const mockWs = {
         readyState: WebSocket.OPEN,
-        close: vi.fn().mockImplementation(() => {
+        close: mock().mockImplementation(() => {
           throw mockError
         }),
       } as unknown as WebSocket
@@ -290,7 +287,7 @@ describe('stream-utils', () => {
 
   describe('debounce', () => {
     it('should debounce function calls', async () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 50)
 
       debouncedFn('a')
@@ -307,7 +304,7 @@ describe('stream-utils', () => {
     })
 
     it('should handle single call', async () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 50)
 
       debouncedFn('single')
@@ -320,7 +317,7 @@ describe('stream-utils', () => {
     })
 
     it('should handle zero wait', async () => {
-      const fn = vi.fn()
+      const fn = mock()
       const debouncedFn = debounce(fn, 0)
 
       debouncedFn('instant')

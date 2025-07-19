@@ -1,16 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import type { StatusData, UpdateData } from '@/lib/container-types'
 import { MessageHandlers } from '@/lib/message-handlers'
 
 describe('MessageHandlers', () => {
-  const mockUpdateTask = vi.fn()
-  const mockGetTaskById = vi.fn()
-
+  let mockUpdateTask: ReturnType<typeof mock>
+  let mockGetTaskById: ReturnType<typeof mock>
   let handlers: MessageHandlers
 
   beforeEach(() => {
-    mock.restore()
+    // Create fresh mock functions for each test
+    mockUpdateTask = mock()
+    mockGetTaskById = mock()
+
     handlers = new MessageHandlers({
       updateTask: mockUpdateTask,
       getTaskById: mockGetTaskById,

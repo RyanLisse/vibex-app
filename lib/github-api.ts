@@ -114,7 +114,10 @@ export function clearAuthCookies() {
   document.cookie = 'github_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
 }
 
-export function parseRepositoryName(repositoryName: string): { owner: string; repo: string } {
+export function parseRepositoryName(repositoryName: string): {
+  owner: string
+  repo: string
+} {
   const [owner, repo] = repositoryName.split('/')
 
   if (!(owner && repo)) {

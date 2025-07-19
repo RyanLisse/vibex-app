@@ -117,7 +117,9 @@ export function DatabaseObservabilityDemo() {
   })
 
   // Analytics with WASM optimization
-  const { analytics, loading: analyticsLoading } = useExecutionAnalyticsQuery({ taskId: undefined })
+  const { analytics, loading: analyticsLoading } = useExecutionAnalyticsQuery({
+    taskId: undefined,
+  })
 
   // Mutations
   const createTaskMutation = useCreateTaskMutation()
@@ -704,7 +706,8 @@ export function DatabaseObservabilityDemo() {
                       </div>
                       <div className="rounded-lg border p-3 text-center">
                         <div className="font-bold text-2xl text-orange-600">
-                          {wasmStatus?.stats?.initializationTime?.toFixed(1) || 'N/A'}ms
+                          {wasmStatus?.stats?.initializationTime?.toFixed(1) || 'N/A'}
+                          ms
                         </div>
                         <div className="text-gray-600 text-sm">WASM Init Time</div>
                       </div>

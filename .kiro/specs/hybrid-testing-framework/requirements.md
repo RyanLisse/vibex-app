@@ -13,8 +13,8 @@ This feature implements a hybrid testing approach to resolve all remaining testi
 #### Acceptance Criteria
 
 1. WHEN configuring Bun test runner THEN the system SHALL include only non-React test files in bunfig.toml
-2. WHEN running Bun tests THEN the system SHALL execute tests for lib/**/*.test.{js,ts}, src/lib/**/*.test.{js,ts}, src/schemas/**/*.test.{js,ts}, stores/**/*.test.{js,ts}, and src/hooks/useZodForm/**/*.test.{js,ts}
-3. WHEN running Bun tests THEN the system SHALL exclude all React component tests including **/*.test.{jsx,tsx}, components/**, app/**, and hooks/** with JSX/TSX
+2. WHEN running Bun tests THEN the system SHALL execute tests for lib/**/\*.test.{js,ts}, src/lib/**/_.test.{js,ts}, src/schemas/\*\*/_.test.{js,ts}, stores/**/\*.test.{js,ts}, and src/hooks/useZodForm/**/\*.test.{js,ts}
+3. WHEN running Bun tests THEN the system SHALL exclude all React component tests including **/\*.test.{jsx,tsx}, components/**, app/**, and hooks/** with JSX/TSX
 4. WHEN Bun encounters mocking requirements THEN the system SHALL use Bun's native mock.module/mock() API instead of Vitest's vi.mock/vi.spyOn
 
 ### Requirement 2

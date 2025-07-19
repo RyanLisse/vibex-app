@@ -1,6 +1,6 @@
 /**
  * Data Migration Tests
- * 
+ *
  * Tests to verify data migration from Zustand stores to database works correctly
  */
 
@@ -42,11 +42,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children)
 }
 
 describe('Data Migration', () => {
@@ -58,7 +55,7 @@ describe('Data Migration', () => {
     mockFetch = vi.mocked(fetch)
     mockTaskStore = vi.mocked(useTaskStore)
     mockEnvironmentStore = vi.mocked(useEnvironmentStore)
-    
+
     // Default successful API responses
     mockFetch.mockResolvedValue({
       ok: true,

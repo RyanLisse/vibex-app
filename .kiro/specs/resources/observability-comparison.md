@@ -7,6 +7,7 @@ This document compares observability tools for the CodeClone project, focusing o
 ## 🎯 Observability Requirements
 
 ### Core Needs
+
 1. **Error Tracking**: Catch and report errors across frontend and backend
 2. **Performance Monitoring**: Track API latency, rendering performance, WebSocket health
 3. **Session Replay**: Debug user interactions with visual replay
@@ -17,18 +18,18 @@ This document compares observability tools for the CodeClone project, focusing o
 
 ## 📊 Tool Comparison Matrix
 
-| Feature | Sentry | OpenReplay | Datadog | New Relic | Grafana Stack | LogRocket |
-|---------|--------|------------|---------|-----------|---------------|-----------|
-| **Error Tracking** | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| **Performance APM** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Session Replay** | ⭐⭐ | ⭐⭐⭐⭐⭐ | ❌ | ❌ | ❌ | ⭐⭐⭐⭐⭐ |
-| **Real-time Dashboards** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Distributed Tracing** | ⭐⭐⭐ | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ❌ |
-| **Custom Metrics** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ |
-| **Open Source Option** | ⭐⭐ | ⭐⭐⭐⭐⭐ | ❌ | ❌ | ⭐⭐⭐⭐⭐ | ❌ |
-| **Cost for Scale** | $$$ | $$ | $$$$ | $$$$ | $ | $$$ |
-| **React Flow Support** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **AI/ML Insights** | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
+| Feature                  | Sentry     | OpenReplay | Datadog    | New Relic  | Grafana Stack | LogRocket  |
+| ------------------------ | ---------- | ---------- | ---------- | ---------- | ------------- | ---------- |
+| **Error Tracking**       | ⭐⭐⭐⭐⭐ | ⭐⭐       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | ⭐⭐⭐        | ⭐⭐⭐     |
+| **Performance APM**      | ⭐⭐⭐⭐   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐      | ⭐⭐⭐     |
+| **Session Replay**       | ⭐⭐       | ⭐⭐⭐⭐⭐ | ❌         | ❌         | ❌            | ⭐⭐⭐⭐⭐ |
+| **Real-time Dashboards** | ⭐⭐⭐     | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐    | ⭐⭐⭐     |
+| **Distributed Tracing**  | ⭐⭐⭐     | ❌         | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐      | ❌         |
+| **Custom Metrics**       | ⭐⭐⭐     | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐    | ⭐⭐       |
+| **Open Source Option**   | ⭐⭐       | ⭐⭐⭐⭐⭐ | ❌         | ❌         | ⭐⭐⭐⭐⭐    | ❌         |
+| **Cost for Scale**       | $$$        | $$         | $$$$       | $$$$       | $             | $$$        |
+| **React Flow Support**   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | ⭐⭐       | ⭐⭐       | ⭐⭐⭐        | ⭐⭐⭐⭐   |
+| **AI/ML Insights**       | ⭐⭐⭐     | ⭐⭐       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | ⭐⭐          | ⭐⭐⭐     |
 
 ## 🏆 Recommended Stack
 
@@ -60,29 +61,29 @@ This combination provides comprehensive observability:
 ### 1. Sentry Configuration (Enhanced)
 
 ```typescript
-import * as Sentry from '@sentry/nextjs';
-import { CaptureConsole } from '@sentry/integrations';
+import * as Sentry from "@sentry/nextjs";
+import { CaptureConsole } from "@sentry/integrations";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   environment: process.env.NODE_ENV,
-  
+
   // Performance Monitoring
-  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-  
+  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+
   // Session Replay (limited)
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
-  
+
   // Custom integrations
   integrations: [
-    new CaptureConsole({ levels: ['error', 'warn'] }),
+    new CaptureConsole({ levels: ["error", "warn"] }),
     new Sentry.BrowserTracing({
       routingInstrumentation: Sentry.nextRouterInstrumentation,
-      tracingOrigins: ['localhost', process.env.NEXT_PUBLIC_APP_URL],
+      tracingOrigins: ["localhost", process.env.NEXT_PUBLIC_APP_URL],
     }),
   ],
-  
+
   // Before send hook for PII filtering
   beforeSend(event, hint) {
     // Filter out sensitive data
@@ -96,12 +97,12 @@ Sentry.init({
 // Custom breadcrumbs for ambient agents
 export const trackAgentBreadcrumb = (
   message: string,
-  data: Record<string, any>
+  data: Record<string, any>,
 ) => {
   Sentry.addBreadcrumb({
     message,
-    category: 'ambient-agent',
-    level: 'info',
+    category: "ambient-agent",
+    level: "info",
     data,
   });
 };
@@ -110,35 +111,35 @@ export const trackAgentBreadcrumb = (
 ### 2. OpenReplay Integration
 
 ```typescript
-import OpenReplay from '@openreplay/tracker';
-import trackerAssist from '@openreplay/tracker-assist';
-import trackerFetch from '@openreplay/tracker-fetch';
-import trackerGraphQL from '@openreplay/tracker-graphql';
+import OpenReplay from "@openreplay/tracker";
+import trackerAssist from "@openreplay/tracker-assist";
+import trackerFetch from "@openreplay/tracker-fetch";
+import trackerGraphQL from "@openreplay/tracker-graphql";
 
 class ObservabilityManager {
   private openReplayTracker: OpenReplay | null = null;
-  
+
   initializeOpenReplay() {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     this.openReplayTracker = new OpenReplay({
       projectKey: process.env.NEXT_PUBLIC_OPENREPLAY_KEY!,
       ingestPoint: process.env.NEXT_PUBLIC_OPENREPLAY_INGEST,
-      
+
       // Privacy settings
       obscureTextEmails: true,
       obscureTextNumbers: true,
       obscureInputDates: false,
       obscureInputEmails: true,
-      
+
       // Performance settings
       capturePerformance: true,
       captureResourceTimings: true,
       captureCrossOriginIframes: false,
-      
+
       // Sampling
-      sampleRate: process.env.NODE_ENV === 'production' ? 80 : 100,
-      
+      sampleRate: process.env.NODE_ENV === "production" ? 80 : 100,
+
       // Custom sanitizer for PII
       sanitizer: (data) => {
         // Remove sensitive fields
@@ -149,80 +150,92 @@ class ObservabilityManager {
         return sanitized;
       },
     });
-    
+
     // Enhanced plugins
-    this.openReplayTracker.use(trackerAssist({
-      socket: true, // Track WebSocket for real-time updates
-      fetch: true,
-      xhr: true,
-      sessionReset: true,
-    }));
-    
-    this.openReplayTracker.use(trackerFetch({
-      sanitiser: (data) => {
-        // Sanitize API requests
-        if (data.url.includes('/api/auth')) {
-          data.body = '[REDACTED]';
-        }
-        return data;
-      },
-    }));
-    
+    this.openReplayTracker.use(
+      trackerAssist({
+        socket: true, // Track WebSocket for real-time updates
+        fetch: true,
+        xhr: true,
+        sessionReset: true,
+      }),
+    );
+
+    this.openReplayTracker.use(
+      trackerFetch({
+        sanitiser: (data) => {
+          // Sanitize API requests
+          if (data.url.includes("/api/auth")) {
+            data.body = "[REDACTED]";
+          }
+          return data;
+        },
+      }),
+    );
+
     // Start tracking
     this.openReplayTracker.start();
-    
+
     // Integrate with Sentry
     if (window.Sentry) {
       const sessionURL = this.openReplayTracker.getSessionURL();
-      Sentry.setContext('openReplay', {
+      Sentry.setContext("openReplay", {
         sessionURL,
         sessionId: this.openReplayTracker.getSessionID(),
       });
     }
   }
-  
+
   // Custom event tracking for React Flow
   trackReactFlowEvent(eventType: string, data: any) {
-    this.openReplayTracker?.event('reactflow_interaction', {
+    this.openReplayTracker?.event("reactflow_interaction", {
       type: eventType,
       timestamp: Date.now(),
       ...data,
     });
   }
-  
+
   // Track agent events
   trackAgentEvent(agentId: string, event: string, metadata: any) {
-    this.openReplayTracker?.event('agent_event', {
+    this.openReplayTracker?.event("agent_event", {
       agentId,
       event,
       metadata,
       timestamp: Date.now(),
     });
-    
+
     // Also send to custom metrics
-    this.sendMetric('agent.event', 1, {
+    this.sendMetric("agent.event", 1, {
       agent_id: agentId,
       event_type: event,
     });
   }
-  
+
   // Track performance metrics
-  trackPerformanceMetric(metric: string, value: number, tags?: Record<string, string>) {
-    this.openReplayTracker?.event('performance_metric', {
+  trackPerformanceMetric(
+    metric: string,
+    value: number,
+    tags?: Record<string, string>,
+  ) {
+    this.openReplayTracker?.event("performance_metric", {
       metric,
       value,
       tags,
     });
-    
+
     // Send to Prometheus
     this.sendMetric(metric, value, tags);
   }
-  
-  private sendMetric(name: string, value: number, labels?: Record<string, string>) {
+
+  private sendMetric(
+    name: string,
+    value: number,
+    labels?: Record<string, string>,
+  ) {
     // Send to Prometheus push gateway or use OpenTelemetry
-    fetch('/api/metrics', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch("/api/metrics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, value, labels }),
     });
   }
@@ -235,7 +248,7 @@ export const observability = new ObservabilityManager();
 
 ```yaml
 # docker-compose.yml for Grafana stack
-version: '3.8'
+version: "3.8"
 
 services:
   prometheus:
@@ -246,10 +259,10 @@ services:
     ports:
       - "9090:9090"
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.enable-lifecycle'
-      - '--web.enable-admin-api'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
 
   loki:
     image: grafana/loki:latest
@@ -289,50 +302,52 @@ volumes:
 
 ```typescript
 // Prometheus metrics for ambient agents
-import { register, Counter, Gauge, Histogram } from 'prom-client';
+import { register, Counter, Gauge, Histogram } from "prom-client";
 
 // Agent metrics
 export const agentMetrics = {
   activeAgents: new Gauge({
-    name: 'ambient_agents_active_total',
-    help: 'Total number of active agents',
-    labelNames: ['type', 'provider'],
+    name: "ambient_agents_active_total",
+    help: "Total number of active agents",
+    labelNames: ["type", "provider"],
   }),
-  
+
   taskCompletions: new Counter({
-    name: 'ambient_agent_tasks_completed_total',
-    help: 'Total number of completed tasks',
-    labelNames: ['agent_type', 'status'],
+    name: "ambient_agent_tasks_completed_total",
+    help: "Total number of completed tasks",
+    labelNames: ["agent_type", "status"],
   }),
-  
+
   taskDuration: new Histogram({
-    name: 'ambient_agent_task_duration_seconds',
-    help: 'Task execution duration in seconds',
-    labelNames: ['agent_type', 'task_type'],
+    name: "ambient_agent_task_duration_seconds",
+    help: "Task execution duration in seconds",
+    labelNames: ["agent_type", "task_type"],
     buckets: [0.1, 0.5, 1, 5, 10, 30, 60, 120, 300],
   }),
-  
+
   webSocketConnections: new Gauge({
-    name: 'websocket_connections_active',
-    help: 'Number of active WebSocket connections',
-    labelNames: ['server_id'],
+    name: "websocket_connections_active",
+    help: "Number of active WebSocket connections",
+    labelNames: ["server_id"],
   }),
-  
+
   reactFlowNodeCount: new Gauge({
-    name: 'reactflow_nodes_total',
-    help: 'Total number of nodes in visualization',
-    labelNames: ['view_mode'],
+    name: "reactflow_nodes_total",
+    help: "Total number of nodes in visualization",
+    labelNames: ["view_mode"],
   }),
-  
+
   valkeyOperations: new Counter({
-    name: 'valkey_operations_total',
-    help: 'Total Valkey operations',
-    labelNames: ['operation', 'status'],
+    name: "valkey_operations_total",
+    help: "Total Valkey operations",
+    labelNames: ["operation", "status"],
   }),
 };
 
 // Register all metrics
-Object.values(agentMetrics).forEach(metric => register.registerMetric(metric));
+Object.values(agentMetrics).forEach((metric) =>
+  register.registerMetric(metric),
+);
 ```
 
 ### 5. Integrated Dashboard Example
@@ -349,23 +364,23 @@ export const MetricsDashboard = () => {
     avgResponseTime: 0,
     errorRate: 0,
   });
-  
+
   useEffect(() => {
     const fetchMetrics = async () => {
       const response = await fetch('/api/metrics/summary');
       const data = await response.json();
       setMetrics(data);
-      
+
       // Track dashboard view
       observability.trackReactFlowEvent('dashboard_viewed', {
         metrics: data,
       });
     };
-    
+
     const interval = setInterval(fetchMetrics, 5000);
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
     <div className="grid grid-cols-4 gap-4">
       <MetricCard
@@ -396,24 +411,28 @@ export const MetricsDashboard = () => {
 ## 🚀 Implementation Strategy
 
 ### Phase 1: Enhanced Error Tracking (Current)
+
 - ✅ Sentry basic integration
 - ⬜ Add custom breadcrumbs for agents
 - ⬜ Implement PII filtering
 - ⬜ Set up alert rules
 
 ### Phase 2: Session Replay (Week 1-2)
+
 - ⬜ Deploy OpenReplay
 - ⬜ Integrate with React Flow
 - ⬜ Add custom events
 - ⬜ Set up privacy controls
 
 ### Phase 3: Metrics & Dashboards (Week 3-4)
+
 - ⬜ Deploy Grafana stack
 - ⬜ Create agent dashboards
 - ⬜ Implement custom metrics
 - ⬜ Set up alerting
 
 ### Phase 4: Advanced Features (Week 5-6)
+
 - ⬜ Distributed tracing
 - ⬜ AI-powered insights
 - ⬜ Predictive alerting
@@ -422,18 +441,21 @@ export const MetricsDashboard = () => {
 ## 📊 Expected Outcomes
 
 ### Debugging Efficiency
+
 - **90% reduction** in time to identify issues
 - **Session replay** for exact reproduction
 - **Network timeline** for API debugging
 - **State inspection** for Redux/Zustand
 
 ### Performance Insights
+
 - **Real-time metrics** for all components
 - **P99 latency tracking** for critical paths
 - **Resource usage** monitoring
 - **User experience** scoring
 
 ### Operational Excellence
+
 - **Proactive alerting** before users notice
 - **Root cause analysis** with full context
 - **Capacity planning** with trend analysis

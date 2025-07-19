@@ -142,7 +142,10 @@ export function getRedisServiceConfig(): RedisServiceConfig {
 }
 
 // Environment validation
-export function validateRedisEnvironment(): { isValid: boolean; errors: string[] } {
+export function validateRedisEnvironment(): {
+  isValid: boolean
+  errors: string[]
+} {
   const errors: string[] = []
 
   // Check required environment variables

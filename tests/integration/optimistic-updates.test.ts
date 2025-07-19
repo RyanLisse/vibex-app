@@ -1,6 +1,6 @@
 /**
  * Optimistic Updates and Cache Invalidation Tests
- * 
+ *
  * Tests to verify that optimistic updates work correctly and cache invalidation
  * happens at the right times for TanStack Query hooks
  */
@@ -34,9 +34,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
+  return ({ children }: { children: React.ReactNode }) =>
     React.createElement(QueryClientProvider, { client: queryClient }, children)
-  )
 }
 
 describe('Optimistic Updates', () => {
@@ -51,7 +50,7 @@ describe('Optimistic Updates', () => {
         mutations: { retry: false },
       },
     })
-    
+
     // Mock successful responses by default
     mockFetch.mockResolvedValue({
       ok: true,
@@ -67,23 +66,24 @@ describe('Optimistic Updates', () => {
   describe('Task Creation Optimistic Updates', () => {
     it('should optimistically add task to cache before server response', async () => {
       const wrapper = createWrapper()
-      
+
       // Setup initial tasks data
-      const initialTasks = [
-        { id: '1', title: 'Existing Task', status: 'pending' },
-      ] as Task[]
-      
+      const initialTasks = [{ id: '1', title: 'Existing Task', status: 'pending' }] as Task[]
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 1,
         hasMore: false,
       })
 
-      const { result } = renderHook(() => {
-        const createMutation = useCreateTask()
-        const tasksQuery = useTasks()
-        return { createMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const createMutation = useCreateTask()
+          const tasksQuery = useTasks()
+          return { createMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       // Verify initial state
       expect(result.current.tasksQuery.data?.tasks).toHaveLength(1)
@@ -106,7 +106,7 @@ describe('Optimistic Updates', () => {
       })
 
       const optimisticTask = result.current.tasksQuery.data?.tasks.find(
-        task => task.title === 'New Optimistic Task'
+        (task) => task.title === 'New Optimistic Task'
       )
       expect(optimisticTask).toBeDefined()
       expect(optimisticTask?.id).toMatch(/^temp-/) // Temporary ID
@@ -114,12 +114,10 @@ describe('Optimistic Updates', () => {
 
     it('should rollback optimistic update on server error', async () => {
       const wrapper = createWrapper()
-      
+
       // Setup initial tasks data
-      const initialTasks = [
-        { id: '1', title: 'Existing Task', status: 'pending' },
-      ] as Task[]
-      
+      const initialTasks = [{ id: '1', title: 'Existing Task', status: 'pending' }] as Task[]
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 1,
@@ -129,11 +127,14 @@ describe('Optimistic Updates', () => {
       // Mock server error
       mockFetch.mockRejectedValueOnce(new Error('Server error'))
 
-      const { result } = renderHook(() => {
-        const createMutation = useCreateTask()
-        const tasksQuery = useTasks()
-        return { createMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const createMutation = useCreateTask()
+          const tasksQuery = useTasks()
+          return { createMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       const newTask = {
         title: 'Failed Task',
@@ -163,23 +164,31 @@ describe('Optimistic Updates', () => {
   describe('Task Update Optimistic Updates', () => {
     it('should optimistically update task in cache', async () => {
       const wrapper = createWrapper()
-      
+
       const initialTasks = [
-        { id: '1', title: 'Task to Update', status: 'pending', priority: 'low' },
+        {
+          id: '1',
+          title: 'Task to Update',
+          status: 'pending',
+          priority: 'low',
+        },
         { id: '2', title: 'Other Task', status: 'completed', priority: 'high' },
       ] as Task[]
-      
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 2,
         hasMore: false,
       })
 
-      const { result } = renderHook(() => {
-        const updateMutation = useUpdateTask()
-        const tasksQuery = useTasks()
-        return { updateMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const updateMutation = useUpdateTask()
+          const tasksQuery = useTasks()
+          return { updateMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       const updates = {
         id: '1',
@@ -193,7 +202,7 @@ describe('Optimistic Updates', () => {
 
       // Should immediately show optimistic update
       await waitFor(() => {
-        const updatedTask = result.current.tasksQuery.data?.tasks.find(t => t.id === '1')
+        const updatedTask = result.current.tasksQuery.data?.tasks.find((t) => t.id === '1')
         expect(updatedTask?.title).toBe('Updated Task Title')
         expect(updatedTask?.priority).toBe('high')
       })
@@ -201,11 +210,16 @@ describe('Optimistic Updates', () => {
 
     it('should rollback optimistic update on server error', async () => {
       const wrapper = createWrapper()
-      
+
       const initialTasks = [
-        { id: '1', title: 'Original Title', status: 'pending', priority: 'low' },
+        {
+          id: '1',
+          title: 'Original Title',
+          status: 'pending',
+          priority: 'low',
+        },
       ] as Task[]
-      
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 1,
@@ -215,11 +229,14 @@ describe('Optimistic Updates', () => {
       // Mock server error
       mockFetch.mockRejectedValueOnce(new Error('Update failed'))
 
-      const { result } = renderHook(() => {
-        const updateMutation = useUpdateTask()
-        const tasksQuery = useTasks()
-        return { updateMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const updateMutation = useUpdateTask()
+          const tasksQuery = useTasks()
+          return { updateMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       const updates = {
         id: '1',
@@ -232,13 +249,13 @@ describe('Optimistic Updates', () => {
 
       // Should show optimistic update initially
       await waitFor(() => {
-        const task = result.current.tasksQuery.data?.tasks.find(t => t.id === '1')
+        const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === '1')
         expect(task?.title).toBe('Failed Update')
       })
 
       // Should rollback to original after error
       await waitFor(() => {
-        const task = result.current.tasksQuery.data?.tasks.find(t => t.id === '1')
+        const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === '1')
         expect(task?.title).toBe('Original Title')
       })
 
@@ -249,23 +266,26 @@ describe('Optimistic Updates', () => {
   describe('Task Deletion Optimistic Updates', () => {
     it('should optimistically remove task from cache', async () => {
       const wrapper = createWrapper()
-      
+
       const initialTasks = [
         { id: '1', title: 'Task to Delete', status: 'pending' },
         { id: '2', title: 'Task to Keep', status: 'completed' },
       ] as Task[]
-      
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 2,
         hasMore: false,
       })
 
-      const { result } = renderHook(() => {
-        const deleteMutation = useDeleteTask()
-        const tasksQuery = useTasks()
-        return { deleteMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const deleteMutation = useDeleteTask()
+          const tasksQuery = useTasks()
+          return { deleteMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       act(() => {
         result.current.deleteMutation.mutate('1')
@@ -280,12 +300,12 @@ describe('Optimistic Updates', () => {
 
     it('should restore task on deletion error', async () => {
       const wrapper = createWrapper()
-      
+
       const initialTasks = [
         { id: '1', title: 'Task to Delete', status: 'pending' },
         { id: '2', title: 'Task to Keep', status: 'completed' },
       ] as Task[]
-      
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 2,
@@ -295,11 +315,14 @@ describe('Optimistic Updates', () => {
       // Mock server error
       mockFetch.mockRejectedValueOnce(new Error('Deletion failed'))
 
-      const { result } = renderHook(() => {
-        const deleteMutation = useDeleteTask()
-        const tasksQuery = useTasks()
-        return { deleteMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const deleteMutation = useDeleteTask()
+          const tasksQuery = useTasks()
+          return { deleteMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       act(() => {
         result.current.deleteMutation.mutate('1')
@@ -313,7 +336,7 @@ describe('Optimistic Updates', () => {
       // Should restore task after error
       await waitFor(() => {
         expect(result.current.tasksQuery.data?.tasks).toHaveLength(2)
-        const restoredTask = result.current.tasksQuery.data?.tasks.find(t => t.id === '1')
+        const restoredTask = result.current.tasksQuery.data?.tasks.find((t) => t.id === '1')
         expect(restoredTask?.title).toBe('Task to Delete')
       })
 
@@ -324,22 +347,26 @@ describe('Optimistic Updates', () => {
   describe('Cache Invalidation', () => {
     it('should invalidate related queries after successful mutation', async () => {
       const wrapper = createWrapper()
-      
-      const { result } = renderHook(() => {
-        const createMutation = useCreateTask()
-        const tasksQuery = useTasks()
-        return { createMutation, tasksQuery }
-      }, { wrapper })
+
+      const { result } = renderHook(
+        () => {
+          const createMutation = useCreateTask()
+          const tasksQuery = useTasks()
+          return { createMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       // Mock successful server response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          id: 'server-id',
-          title: 'Server Task',
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-        }),
+        json: () =>
+          Promise.resolve({
+            id: 'server-id',
+            title: 'Server Task',
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+          }),
       } as Response)
 
       const newTask = {
@@ -364,22 +391,25 @@ describe('Optimistic Updates', () => {
 
     it('should handle concurrent optimistic updates correctly', async () => {
       const wrapper = createWrapper()
-      
+
       const initialTasks = [
         { id: '1', title: 'Task 1', status: 'pending', priority: 'low' },
       ] as Task[]
-      
+
       queryClient.setQueryData(['tasks', 'list', {}], {
         tasks: initialTasks,
         total: 1,
         hasMore: false,
       })
 
-      const { result } = renderHook(() => {
-        const updateMutation = useUpdateTask()
-        const tasksQuery = useTasks()
-        return { updateMutation, tasksQuery }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const updateMutation = useUpdateTask()
+          const tasksQuery = useTasks()
+          return { updateMutation, tasksQuery }
+        },
+        { wrapper }
+      )
 
       // Perform multiple concurrent updates
       act(() => {
@@ -389,7 +419,7 @@ describe('Optimistic Updates', () => {
 
       // Should handle concurrent updates gracefully
       await waitFor(() => {
-        const task = result.current.tasksQuery.data?.tasks.find(t => t.id === '1')
+        const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === '1')
         expect(task).toBeDefined()
         // Should have the latest optimistic update
         expect(task?.priority).toBe('high')

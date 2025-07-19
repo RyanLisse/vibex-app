@@ -290,9 +290,21 @@ describe('Migration CLI Tests', () => {
         itemsSuccess: 12,
         itemsFailed: 3,
         errors: [
-          { type: 'VALIDATION_ERROR', message: 'Invalid task data', item: 'task-1' },
-          { type: 'VALIDATION_ERROR', message: 'Invalid task data', item: 'task-2' },
-          { type: 'VALIDATION_ERROR', message: 'Invalid task data', item: 'task-3' },
+          {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid task data',
+            item: 'task-1',
+          },
+          {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid task data',
+            item: 'task-2',
+          },
+          {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid task data',
+            item: 'task-3',
+          },
         ],
         warnings: ['Some warnings occurred'],
         duration: 5000,
@@ -317,7 +329,13 @@ describe('Migration CLI Tests', () => {
         itemsProcessed: 5,
         itemsSuccess: 2,
         itemsFailed: 3,
-        errors: [{ type: 'DATABASE_ERROR', message: 'Connection lost', item: 'task-1' }],
+        errors: [
+          {
+            type: 'DATABASE_ERROR',
+            message: 'Connection lost',
+            item: 'task-1',
+          },
+        ],
         warnings: [],
         duration: 2000,
       })
@@ -512,7 +530,11 @@ describe('Migration CLI Tests', () => {
       vi.mocked(dataExtractor.extractAll).mockResolvedValue({
         data: { tasks: [], environments: [] },
         errors: [
-          { type: 'EXTRACTION_ERROR', message: 'Invalid JSON in localStorage', item: 'task-store' },
+          {
+            type: 'EXTRACTION_ERROR',
+            message: 'Invalid JSON in localStorage',
+            item: 'task-store',
+          },
         ],
         warnings: ['Some warnings'],
       })

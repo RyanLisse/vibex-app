@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/auth/anthropic/callback/route'
@@ -61,7 +61,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
       tokenUrl: 'https://anthropic.com/oauth/token',
@@ -79,13 +79,15 @@ describe('GET /api/auth/anthropic/callback', () => {
   })
 
   it('should handle missing code parameter', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Missing code parameter' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing code parameter',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/anthropic/callback?state=test-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing code parameter' },
@@ -94,13 +96,15 @@ describe('GET /api/auth/anthropic/callback', () => {
   })
 
   it('should handle missing state parameter', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Missing state parameter' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing state parameter',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/anthropic/callback?code=test-code'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing state parameter' },
@@ -110,13 +114,15 @@ describe('GET /api/auth/anthropic/callback', () => {
 
   it('should handle invalid state', async () => {
     mockValidateOAuthState.mockReturnValue(false)
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid state parameter' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid state parameter',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=invalid-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid state parameter' },
@@ -131,7 +137,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?error=access_denied&error_description=User%20denied%20access'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'access_denied', error_description: 'User denied access' },
@@ -142,13 +148,15 @@ describe('GET /api/auth/anthropic/callback', () => {
   it('should handle token exchange failure', async () => {
     mockExchangeCodeForToken.mockRejectedValue(new Error('Token exchange failed'))
     mockHandleAuthError.mockReturnValue('Token exchange failed')
-    mockNextResponse.json.mockReturnValue({ error: 'Token exchange failed' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Token exchange failed',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Token exchange failed' },
@@ -163,10 +171,13 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?error=invalid_grant&error_description=Invalid%20authorization%20code'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'invalid_grant', error_description: 'Invalid authorization code' },
+      {
+        error: 'invalid_grant',
+        error_description: 'Invalid authorization code',
+      },
       { status: 400 }
     )
   })
@@ -186,7 +197,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockSanitizeRedirectUrl).toHaveBeenCalledWith('https://app.example.com/dashboard')
     expect(mockNextResponse.redirect).toHaveBeenCalledWith('https://app.example.com/dashboard')
@@ -208,7 +219,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
       tokenUrl: 'https://anthropic.com/oauth/token',
@@ -231,13 +242,15 @@ describe('GET /api/auth/anthropic/callback', () => {
       },
     }))
 
-    mockNextResponse.json.mockReturnValue({ error: 'Missing configuration' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing configuration',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Missing configuration' },
@@ -254,7 +267,7 @@ describe('GET /api/auth/anthropic/callback', () => {
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith({ error: 'Network error' }, { status: 500 })
   })
@@ -263,13 +276,15 @@ describe('GET /api/auth/anthropic/callback', () => {
     mockSanitizeRedirectUrl.mockImplementation(() => {
       throw new Error('Invalid redirect URL')
     })
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid redirect URL' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid redirect URL',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/anthropic/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)'
     )
 
-    const _response = await GET(request)
+    await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
       { error: 'Invalid redirect URL' },

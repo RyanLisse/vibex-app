@@ -111,7 +111,9 @@ describe('useMessageProcessor', () => {
       })
     )
 
-    const message: IncomingMessage & { data: { isStreaming: true; streamId: string } } = {
+    const message: IncomingMessage & {
+      data: { isStreaming: true; streamId: string }
+    } = {
       role: 'assistant',
       type: 'message',
       data: { text: 'Streaming...', isStreaming: true, streamId: 'stream-1' },
@@ -153,10 +155,16 @@ describe('useMessageProcessor', () => {
       })
     )
 
-    const message: IncomingMessage & { data: { streamId: string; isStreaming: false } } = {
+    const message: IncomingMessage & {
+      data: { streamId: string; isStreaming: false }
+    } = {
       role: 'assistant',
       type: 'message',
-      data: { text: 'Complete message', streamId: 'stream-1', isStreaming: false },
+      data: {
+        text: 'Complete message',
+        streamId: 'stream-1',
+        isStreaming: false,
+      },
     }
 
     await act(async () => {

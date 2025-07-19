@@ -459,7 +459,9 @@ describe('WASM Compute Module Tests', () => {
       }
 
       await expect(
-        computeEngine.processLargeDataset(dataset, processor, { chunkSize: 1000 })
+        computeEngine.processLargeDataset(dataset, processor, {
+          chunkSize: 1000,
+        })
       ).rejects.toThrow('Processing error in chunk')
     })
 

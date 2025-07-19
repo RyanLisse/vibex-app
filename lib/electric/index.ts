@@ -2,10 +2,19 @@
 // This module provides offline-first real-time synchronization with conflict resolution
 
 export { ElectricClient, electricClient } from './client'
-export { ElectricDatabaseClient, electricDatabaseClient } from './database-client'
+export {
+  ElectricDatabaseClient,
+  electricDatabaseClient,
+} from './database-client'
 export { ElectricSyncService, electricSyncService } from './sync-service'
-export { EnhancedElectricSyncService, enhancedElectricSyncService } from './enhanced-sync-service'
-export { ConflictResolutionService, conflictResolutionService } from './conflict-resolution'
+export {
+  EnhancedElectricSyncService,
+  enhancedElectricSyncService,
+} from './enhanced-sync-service'
+export {
+  ConflictResolutionService,
+  conflictResolutionService,
+} from './conflict-resolution'
 export { ElectricAuthService, electricAuthService } from './auth'
 export {
   electricConfig,

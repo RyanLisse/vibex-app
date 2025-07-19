@@ -5,6 +5,7 @@ This guide explains how to set up and use OpenTelemetry with the Codex Clone app
 ## Overview
 
 The application integrates OpenTelemetry to provide observability into:
+
 - VibeKit AI agent operations
 - Code generation requests and responses
 - GitHub API interactions
@@ -40,21 +41,22 @@ OTEL_SAMPLING_RATIO=1.0
 
 The application supports various telemetry backends:
 
-| Backend | Endpoint Example | Notes |
-|---------|-----------------|-------|
-| Jaeger | `http://localhost:14268/api/traces` | Popular open-source tracing |
-| Zipkin | `http://localhost:9411/api/v2/spans` | Distributed tracing system |
-| DataDog | `https://trace.agent.datadoghq.com/v0.3/traces` | Requires API key |
-| New Relic | `https://otlp.nr-data.net:4317` | Requires license key |
-| Honeycomb | `https://api.honeycomb.io/v1/traces` | Requires API key |
-| Grafana Tempo | `http://localhost:4317` | OTLP-compatible |
-| Generic OTLP | `http://localhost:4317` | Any OTLP-compatible collector |
+| Backend       | Endpoint Example                                | Notes                         |
+| ------------- | ----------------------------------------------- | ----------------------------- |
+| Jaeger        | `http://localhost:14268/api/traces`             | Popular open-source tracing   |
+| Zipkin        | `http://localhost:9411/api/v2/spans`            | Distributed tracing system    |
+| DataDog       | `https://trace.agent.datadoghq.com/v0.3/traces` | Requires API key              |
+| New Relic     | `https://otlp.nr-data.net:4317`                 | Requires license key          |
+| Honeycomb     | `https://api.honeycomb.io/v1/traces`            | Requires API key              |
+| Grafana Tempo | `http://localhost:4317`                         | OTLP-compatible               |
+| Generic OTLP  | `http://localhost:4317`                         | Any OTLP-compatible collector |
 
 ## Setup Examples
 
 ### Local Development with Jaeger
 
 1. Start Jaeger using Docker:
+
 ```bash
 docker run -d --name jaeger \
   -e COLLECTOR_OTLP_ENABLED=true \
@@ -64,6 +66,7 @@ docker run -d --name jaeger \
 ```
 
 2. Configure environment:
+
 ```bash
 OTEL_ENABLED=true
 OTEL_ENDPOINT=http://localhost:14268/api/traces
@@ -75,6 +78,7 @@ OTEL_SERVICE_NAME=codex-clone-dev
 ### Production with DataDog
 
 1. Configure environment:
+
 ```bash
 OTEL_ENABLED=true
 OTEL_ENDPOINT=https://trace.agent.datadoghq.com/v0.3/traces
@@ -94,17 +98,20 @@ For Vercel deployments, the application automatically detects and uses Vercel's 
 ## What Gets Traced
 
 ### VibeKit Operations
+
 - `vibekit.createPullRequest` - Full PR creation workflow
 - `vibekit.agent.*` - Agent decision making
 - `vibekit.environment.*` - Environment setup/teardown
 - `vibekit.github.*` - GitHub API operations
 
 ### Inngest Events
+
 - `inngest.create.task` - Task creation workflow
 - `inngest.create.pull-request` - PR creation via Inngest
 - `inngest.realtime.*` - Real-time updates
 
 ### Automatic Instrumentation
+
 - HTTP requests (incoming and outgoing)
 - Database queries (if configured)
 - File system operations
@@ -145,10 +152,11 @@ Once configured, you can view traces in your chosen backend:
 ### Debug Mode
 
 Enable verbose logging:
+
 ```typescript
 // In lib/telemetry.ts
 export function logTelemetryConfig(config: TelemetryConfig): void {
-  console.log('📊 OpenTelemetry Debug:', JSON.stringify(config, null, 2))
+  console.log("📊 OpenTelemetry Debug:", JSON.stringify(config, null, 2));
 }
 ```
 

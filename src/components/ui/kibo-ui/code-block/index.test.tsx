@@ -124,8 +124,16 @@ vi.mock('lucide-react', () => ({
 }))
 
 const mockData: CodeBlockProps['data'] = [
-  { language: 'javascript', filename: 'index.js', code: 'console.log("Hello");' },
-  { language: 'typescript', filename: 'index.ts', code: 'const x: string = "Hello";' },
+  {
+    language: 'javascript',
+    filename: 'index.js',
+    code: 'console.log("Hello");',
+  },
+  {
+    language: 'typescript',
+    filename: 'index.ts',
+    code: 'const x: string = "Hello";',
+  },
   { language: 'python', filename: 'main.py', code: 'print("Hello")' },
 ]
 

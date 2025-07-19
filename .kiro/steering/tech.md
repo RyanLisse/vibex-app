@@ -1,10 +1,12 @@
 # Technology Stack
 
 ## Runtime & Package Management
+
 - **Bun**: Primary runtime and package manager (v1.0+)
 - **Node.js**: Compatibility layer (v18+)
 
 ## Frontend Stack
+
 - **Next.js 15**: React framework with App Router
 - **React 19**: UI library with concurrent features
 - **TypeScript**: Strict type checking enabled
@@ -13,6 +15,7 @@
 - **shadcn/ui**: Pre-built component library
 
 ## Backend & Database
+
 - **PostgreSQL 14+**: Primary database with vector search support
 - **ElectricSQL**: Real-time sync with offline-first architecture
 - **Drizzle ORM**: Type-safe SQL queries with migrations
@@ -20,6 +23,7 @@
 - **PGlite**: Embedded PostgreSQL for offline support
 
 ## AI & Background Processing
+
 - **OpenAI API**: Primary LLM integration
 - **Anthropic API**: Secondary AI provider
 - **Letta**: Multi-agent system orchestration
@@ -27,6 +31,7 @@
 - **E2B**: Sandboxed code execution environments
 
 ## Development Tools
+
 - **Biome**: Code formatting and linting (replaces ESLint/Prettier)
 - **Vitest**: Unit and integration testing
 - **Playwright**: End-to-end testing
@@ -36,6 +41,7 @@
 ## Common Commands
 
 ### Development
+
 ```bash
 # Start all services (recommended)
 bun run dev:all
@@ -48,6 +54,7 @@ bun run typecheck
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 bun run test
@@ -66,6 +73,7 @@ bun run test:coverage
 ```
 
 ### Database
+
 ```bash
 # Run migrations
 bun run db:migrate
@@ -81,6 +89,7 @@ bun run db:health
 ```
 
 ### Code Quality
+
 ```bash
 # Format and lint
 bun run check:fix
@@ -93,6 +102,7 @@ bun run quality
 ```
 
 ### Build & Deploy
+
 ```bash
 # Production build
 bun run build
@@ -105,6 +115,7 @@ bun run analyze
 ```
 
 ## Key Configuration Files
+
 - `package.json`: Scripts and dependencies
 - `next.config.ts`: Next.js configuration
 - `tsconfig.json`: TypeScript configuration with strict settings

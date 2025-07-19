@@ -13,7 +13,11 @@ import { safeAsync } from '@/lib/stream-utils'
 
 interface UseTaskSubscriptionProps {
   taskId: string
-  taskMessages?: Array<{ role: 'user' | 'assistant'; type: string; data: Record<string, unknown> }>
+  taskMessages?: Array<{
+    role: 'user' | 'assistant'
+    type: string
+    data: Record<string, unknown>
+  }>
 }
 
 interface SubscriptionState {

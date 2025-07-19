@@ -46,13 +46,18 @@ class StagehandSetup {
     const packageJson = JSON.parse(
       await fs.readFile(path.join(this.projectRoot, 'package.json'), 'utf8')
     )
-    const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies }
+    const allDeps = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+    }
 
     const missingPackages = requiredPackages.filter((pkg) => !allDeps[pkg])
 
     if (missingPackages.length > 0) {
       try {
-        execSync(`npm install ${missingPackages.join(' ')}`, { stdio: 'inherit' })
+        execSync(`npm install ${missingPackages.join(' ')}`, {
+          stdio: 'inherit',
+        })
       } catch (_error) {
         throw new Error(`Failed to install packages: ${missingPackages.join(', ')}`)
       }

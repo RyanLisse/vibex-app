@@ -64,7 +64,11 @@ export function useAuthBase<T extends BaseAuthState>(config: BaseAuthConfig, ini
     async (params?: Record<string, string>) => {
       if (config.loginEndpoint) {
         try {
-          setAuthStatus((prev) => ({ ...prev, loading: true, error: undefined }))
+          setAuthStatus((prev) => ({
+            ...prev,
+            loading: true,
+            error: undefined,
+          }))
 
           const response = await fetch(config.loginEndpoint, {
             method: 'POST',

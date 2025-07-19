@@ -137,5 +137,5 @@ Building upon modern observability practices and integrating with the existing O
 4. WHEN handling sensitive data THEN the system SHALL implement data classification and protection policies
 5. IF compliance is required THEN the system SHALL support regulatory requirements including GDPR, HIPAA, and SOX
 6. WHEN managing secrets THEN the system SHALL securely handle API keys, passwords, and other sensitive configuration data
-</content>
-</file>
+   </content>
+   </file>

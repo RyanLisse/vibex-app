@@ -478,7 +478,9 @@ describe('Migration System Edge Cases', () => {
         mockLocalStorage.setItem(
           'task-store',
           JSON.stringify({
-            state: { tasks: [...tasks, { id: 'task-2', title: 'Added During Migration' }] },
+            state: {
+              tasks: [...tasks, { id: 'task-2', title: 'Added During Migration' }],
+            },
             version: 0,
           })
         )

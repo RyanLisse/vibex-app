@@ -162,7 +162,9 @@ export function TimelineVisualization({
         const index = replaySession.snapshots.findIndex((s) => s.id === snapshot.id)
         if (index === -1) return
 
-        await timeTravel.controlReplay(replaySession.id, 'step-forward', { index })
+        await timeTravel.controlReplay(replaySession.id, 'step-forward', {
+          index,
+        })
 
         const updatedSession = timeTravel.replay.getSession(replaySession.id)
         if (updatedSession) {

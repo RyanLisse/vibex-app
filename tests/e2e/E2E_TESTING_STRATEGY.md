@@ -38,6 +38,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 **Purpose**: Manages real-time subscriptions and application state
 
 **Test Scenarios**:
+
 - ✅ Renders children without interference
 - ✅ Establishes and maintains Inngest subscriptions
 - ✅ Processes status updates in real-time
@@ -49,6 +50,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 - ✅ Network interruption recovery
 
 **Critical User Flows**:
+
 - Application initialization with subscription setup
 - Real-time task status updates
 - Message streaming and display
@@ -59,6 +61,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 **Purpose**: Manages task-specific real-time subscriptions
 
 **Test Scenarios**:
+
 - ✅ Initializes subscription correctly
 - ✅ Processes streaming messages
 - ✅ Handles status updates
@@ -70,6 +73,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 - ✅ Invalid message format handling
 
 **Critical User Flows**:
+
 - Task page load with subscription initialization
 - Real-time message streaming
 - Status change notifications
@@ -80,6 +84,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 **Purpose**: Complete task detail page with chat interface
 
 **Test Scenarios**:
+
 - ✅ Page loads and renders correctly
 - ✅ Chat interface functionality
 - ✅ Real-time updates integration
@@ -93,6 +98,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 - ✅ Accessibility compliance
 
 **Critical User Flows**:
+
 - Task creation and navigation
 - Chat conversation flow
 - Real-time collaboration
@@ -103,6 +109,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 **Purpose**: Audio-enabled chat interface with Gemini AI
 
 **Test Scenarios**:
+
 - ✅ Component initialization
 - ✅ Audio connection management
 - ✅ Text message functionality
@@ -115,6 +122,7 @@ This document outlines the comprehensive end-to-end testing strategy for the Vib
 - ✅ Audio quality management
 
 **Critical User Flows**:
+
 - Audio permission request
 - Recording and playback cycle
 - Real-time audio streaming
@@ -128,24 +136,30 @@ Each test scenario maps to a specific user story:
 
 ```typescript
 // Example: User wants to send a message
-test('User can send and receive messages', async ({ page }) => {
+test("User can send and receive messages", async ({ page }) => {
   await runner.runScenario(scenario, async ({ page, stagehand }) => {
     // Navigate to task page
-    await page.goto('/task/123')
-    
+    await page.goto("/task/123");
+
     // Type message naturally
-    await helper.typeNaturally('message input', 'Hello, help me with this task')
-    
+    await helper.typeNaturally(
+      "message input",
+      "Hello, help me with this task",
+    );
+
     // Send message
-    await helper.clickWithFeedback('send button')
-    
+    await helper.clickWithFeedback("send button");
+
     // Verify message appears
-    await assertions.assertTextContent('latest message', 'Hello, help me with this task')
-    
+    await assertions.assertTextContent(
+      "latest message",
+      "Hello, help me with this task",
+    );
+
     // Verify response received
-    await assertions.assertComponentState('chat', 'has assistant response')
-  })
-})
+    await assertions.assertComponentState("chat", "has assistant response");
+  });
+});
 ```
 
 ### 2. Natural Language Interactions
@@ -154,10 +168,10 @@ Using Stagehand for human-like interactions:
 
 ```typescript
 // Instead of fragile selectors
-await page.click('#send-button')
+await page.click("#send-button");
 
 // Use natural language
-await helper.clickWithFeedback('send message button')
+await helper.clickWithFeedback("send message button");
 ```
 
 ### 3. Performance Testing
@@ -166,14 +180,16 @@ Measuring real-world performance:
 
 ```typescript
 // Measure component render time
-const loadTime = await performance.measureRenderTime('[data-testid="task-page"]')
-await performance.assertPerformance(loadTime, 3000) // Must load within 3s
+const loadTime = await performance.measureRenderTime(
+  '[data-testid="task-page"]',
+);
+await performance.assertPerformance(loadTime, 3000); // Must load within 3s
 
 // Measure interaction responsiveness
 const responseTime = await performance.measureInteractionTime(
-  () => helper.clickWithFeedback('send button'),
-  'message appears in chat'
-)
+  () => helper.clickWithFeedback("send button"),
+  "message appears in chat",
+);
 ```
 
 ### 4. Accessibility Testing
@@ -182,12 +198,14 @@ Ensuring inclusive design:
 
 ```typescript
 // Test keyboard navigation
-await page.keyboard.press('Tab')
-await assertions.assertAccessible('focused element has visible focus indicator')
+await page.keyboard.press("Tab");
+await assertions.assertAccessible(
+  "focused element has visible focus indicator",
+);
 
 // Test screen reader compatibility
-await assertions.assertAccessible('message input field')
-await assertions.assertAccessible('send button')
+await assertions.assertAccessible("message input field");
+await assertions.assertAccessible("send button");
 ```
 
 ## 🛠️ Mock and Fixture Strategy
@@ -198,11 +216,11 @@ Consistent API responses for reliable testing:
 
 ```typescript
 // Mock all APIs
-await mockStrategy.mockAllAPIs()
+await mockStrategy.mockAllAPIs();
 
 // Mock specific scenarios
-await mockStrategy.mockErrorScenarios()
-await mockStrategy.mockSlowResponses(5000)
+await mockStrategy.mockErrorScenarios();
+await mockStrategy.mockSlowResponses(5000);
 ```
 
 ### 2. Browser API Mocking
@@ -211,10 +229,10 @@ Simulating browser capabilities:
 
 ```typescript
 // Mock media APIs for audio testing
-await browserMocks.mockMediaAPIs()
+await browserMocks.mockMediaAPIs();
 
 // Mock storage APIs
-await browserMocks.mockStorageAPIs()
+await browserMocks.mockStorageAPIs();
 ```
 
 ### 3. Test Data Generation
@@ -223,10 +241,10 @@ Dynamic, realistic test data:
 
 ```typescript
 // Generate realistic task data
-const taskData = TestDataGenerator.generateRealisticData()
+const taskData = TestDataGenerator.generateRealisticData();
 
 // Create edge case scenarios
-const edgeCases = TestDataGenerator.generateEdgeCaseData()
+const edgeCases = TestDataGenerator.generateEdgeCaseData();
 ```
 
 ## 📊 Test Organization
@@ -267,10 +285,10 @@ tests/e2e/
 ```typescript
 // Run tests in parallel across browsers
 projects: [
-  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-  { name: 'webkit', use: { ...devices['Desktop Safari'] } }
-]
+  { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+  { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+  { name: "webkit", use: { ...devices["Desktop Safari"] } },
+];
 ```
 
 ### 3. Test Data Management
@@ -381,18 +399,21 @@ npm run test:e2e:debug
 ### 2. Writing New Tests
 
 ```typescript
-import { test } from '@playwright/test'
-import { E2ETestRunner, ComponentTestBuilder } from '../framework/e2e-test-framework'
+import { test } from "@playwright/test";
+import {
+  E2ETestRunner,
+  ComponentTestBuilder,
+} from "../framework/e2e-test-framework";
 
-test.describe('New Component E2E Tests', () => {
-  test('should handle basic functionality', async ({ page }) => {
+test.describe("New Component E2E Tests", () => {
+  test("should handle basic functionality", async ({ page }) => {
     // Use the framework to write maintainable tests
-    const runner = new E2ETestRunner({ page, stagehand })
+    const runner = new E2ETestRunner({ page, stagehand });
     await runner.runScenario(scenario, async ({ page, stagehand }) => {
       // Test implementation
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 ### 3. Best Practices
@@ -408,6 +429,7 @@ test.describe('New Component E2E Tests', () => {
 This comprehensive E2E testing strategy ensures that the VibeKit application delivers a reliable, performant, and accessible user experience. By focusing on real user behaviors and leveraging modern testing tools, we can achieve confidence in the application's functionality while maintaining development velocity.
 
 The strategy emphasizes:
+
 - **User-centric approach**: Testing what users actually do
 - **Comprehensive coverage**: All critical components and flows
 - **Reliability**: Consistent, maintainable tests

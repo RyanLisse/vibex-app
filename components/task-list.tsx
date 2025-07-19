@@ -355,7 +355,9 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
                         <p className="text-muted-foreground text-sm">
                           Completed{' '}
                           {task.completedAt
-                            ? formatDistanceToNow(new Date(task.completedAt), { addSuffix: true })
+                            ? formatDistanceToNow(new Date(task.completedAt), {
+                                addSuffix: true,
+                              })
                             : 'recently'}
                         </p>
                         {task.branch && (

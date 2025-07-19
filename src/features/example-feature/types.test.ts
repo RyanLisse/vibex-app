@@ -470,7 +470,10 @@ describe('Advanced type operations', () => {
 
     const getTitleLength: ItemProcessor<number> = (item) => item.title.length
     const isHighPriority: ItemPredicate = (item) => item.priority === 'high'
-    const markAsCompleted: ItemTransformer = (item) => ({ ...item, status: 'completed' })
+    const markAsCompleted: ItemTransformer = (item) => ({
+      ...item,
+      status: 'completed',
+    })
 
     const testItem: ExampleItem = {
       id: 'test',

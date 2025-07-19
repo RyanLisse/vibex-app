@@ -67,7 +67,9 @@ export const mockInngestClient = {
       mockEvents.push(mockEvent)
     }
 
-    return Promise.resolve({ ids: events.map((e) => e.id || `evt-${Date.now()}`) })
+    return Promise.resolve({
+      ids: events.map((e) => e.id || `evt-${Date.now()}`),
+    })
   }),
 
   // Function creation

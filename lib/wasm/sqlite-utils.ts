@@ -1007,7 +1007,9 @@ export class SQLiteWASMUtils {
       await this.pglite.exec('BEGIN')
 
       for (const query of queries) {
-        const result = await this.executeQuery(query.sql, query.params || [], { useCache: false })
+        const result = await this.executeQuery(query.sql, query.params || [], {
+          useCache: false,
+        })
         results.push(result)
       }
 

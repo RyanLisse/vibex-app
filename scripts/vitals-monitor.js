@@ -111,7 +111,10 @@ class VitalsMonitor {
       if (value <= threshold.good) {
         results[metric] = { status: 'good', message: 'Good performance' }
       } else if (value <= threshold.poor) {
-        results[metric] = { status: 'needs-improvement', message: 'Needs improvement' }
+        results[metric] = {
+          status: 'needs-improvement',
+          message: 'Needs improvement',
+        }
       } else {
         results[metric] = { status: 'poor', message: 'Poor performance' }
       }

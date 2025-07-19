@@ -1,22 +1,22 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import React from 'react'
 import Container from '@/app/container'
 
 // Mock the hooks and components
-vi.mock('@/components/providers/realtime-provider', () => ({
+mock.module('@/components/providers/realtime-provider', () => ({
   RealtimeProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="realtime-provider">{children}</div>
   ),
 }))
 
-vi.mock('@/components/providers/task-message-processor', () => ({
+mock.module('@/components/providers/task-message-processor', () => ({
   TaskMessageProcessor: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="task-message-processor">{children}</div>
   ),
 }))
 
-vi.mock('@/components/error-boundary', () => ({
+mock.module('@/components/error-boundary', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="error-boundary">{children}</div>
   ),

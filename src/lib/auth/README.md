@@ -19,29 +19,26 @@ No additional installation is required as this is part of your project. The impl
 ### Basic Usage with React Hook
 
 ```tsx
-import { useClaudeAuth } from '@/hooks/useClaudeAuth';
+import { useClaudeAuth } from "@/hooks/useClaudeAuth";
 
 function MyComponent() {
   const { startLogin, isAuthenticating, error } = useClaudeAuth({
-    clientId: 'your-client-id', // Use environment variables in production
-    redirectUri: window.location.origin + '/auth/callback', // Your callback URL
+    clientId: "your-client-id", // Use environment variables in production
+    redirectUri: window.location.origin + "/auth/callback", // Your callback URL
     onSuccess: (token) => {
       // Handle successful authentication
-      console.log('Authentication successful', token);
+      console.log("Authentication successful", token);
     },
     onError: (error) => {
       // Handle errors
-      console.error('Authentication error', error);
+      console.error("Authentication error", error);
     },
   });
 
   return (
     <div>
-      <button 
-        onClick={startLogin} 
-        disabled={isAuthenticating}
-      >
-        {isAuthenticating ? 'Signing in...' : 'Sign in with Claude'}
+      <button onClick={startLogin} disabled={isAuthenticating}>
+        {isAuthenticating ? "Signing in..." : "Sign in with Claude"}
       </button>
       {error && <div className="error">{error.message}</div>}
     </div>
@@ -52,18 +49,18 @@ function MyComponent() {
 ### Using the Pre-built Button Component
 
 ```tsx
-import { ClaudeAuthButton } from '@/components/Auth/ClaudeAuthButton';
+import { ClaudeAuthButton } from "@/components/Auth/ClaudeAuthButton";
 
 function LoginPage() {
   return (
     <div className="login-container">
       <h1>Welcome to My App</h1>
-      <ClaudeAuthButton 
+      <ClaudeAuthButton
         clientId={process.env.NEXT_PUBLIC_CLAUDE_CLIENT_ID}
         redirectUri={`${window.location.origin}/auth/callback`}
         onSuccess={(token) => {
           // Store the token in your state management
-          console.log('Authentication successful', token);
+          console.log("Authentication successful", token);
         }}
       />
     </div>
@@ -75,17 +72,17 @@ function LoginPage() {
 
 ```typescript
 // pages/api/auth/callback.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { ClaudeAuthClient } from '@/lib/auth/claude-auth';
+import { NextApiRequest, NextApiResponse } from "next";
+import { ClaudeAuthClient } from "@/lib/auth/claude-auth";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { code, state } = req.query;
-  
+
   if (!code || !state) {
-    return res.status(400).json({ error: 'Missing code or state' });
+    return res.status(400).json({ error: "Missing code or state" });
   }
 
   try {
@@ -96,24 +93,24 @@ export default async function handler(
 
     // Get the verifier from your session or database
     const verifier = await getVerifierFromSession(state as string);
-    
+
     if (!verifier) {
-      return res.status(400).json({ error: 'Invalid state' });
+      return res.status(400).json({ error: "Invalid state" });
     }
 
     const token = await authClient.exchangeCodeForToken(
       code as string,
-      verifier
+      verifier,
     );
 
     // Store the token securely (httpOnly cookie recommended)
     setAuthCookies(res, token);
 
     // Redirect to the app
-    res.redirect('/dashboard');
+    res.redirect("/dashboard");
   } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    console.error("Authentication error:", error);
+    res.status(500).json({ error: "Authentication failed" });
   }
 }
 ```
@@ -137,11 +134,11 @@ The `ClaudeAuthClient` accepts the following configuration options:
 
 ```typescript
 interface AuthConfig {
-  clientId: string;           // Required: Your OAuth client ID
-  redirectUri: string;        // Required: Your redirect URI
-  scopes?: string[];          // Optional: Array of OAuth scopes
-  authorizeUrl?: string;      // Optional: Defaults to Claude's OAuth URL
-  tokenUrl?: string;          // Optional: Defaults to Claude's token URL
+  clientId: string; // Required: Your OAuth client ID
+  redirectUri: string; // Required: Your redirect URI
+  scopes?: string[]; // Optional: Array of OAuth scopes
+  authorizeUrl?: string; // Optional: Defaults to Claude's OAuth URL
+  tokenUrl?: string; // Optional: Defaults to Claude's token URL
 }
 ```
 

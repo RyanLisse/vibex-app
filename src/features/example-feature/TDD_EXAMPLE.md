@@ -5,6 +5,7 @@ This document demonstrates the Test-Driven Development (TDD) workflow used to cr
 ## TDD Process Overview
 
 The TDD process follows three main phases:
+
 1. **Red**: Write a failing test
 2. **Green**: Write minimal code to make the test pass
 3. **Refactor**: Improve the code while keeping tests green
@@ -25,7 +26,7 @@ describe('ExampleItem', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    
+
     render(<ExampleItem item={mockItem} />)
     expect(screen.getByText('Test Task')).toBeInTheDocument()
   })
@@ -91,7 +92,7 @@ it('should render item description when provided', () => {
     // ... other properties
     description: 'This is a test description'
   }
-  
+
   render(<ExampleItem item={mockItem} />)
   expect(screen.getByText('This is a test description')).toBeInTheDocument()
 })
@@ -129,9 +130,9 @@ it('should display priority with correct color', () => {
     // ... other properties
     priority: 'high' as const
   }
-  
+
   render(<ExampleItem item={mockItem} />)
-  
+
   const priorityElement = screen.getByText('high')
   expect(priorityElement).toHaveClass('text-red-600')
 })
@@ -176,7 +177,7 @@ export function ExampleItem({ item }: ExampleItemProps) {
 it('should call onEdit when edit button is clicked', async () => {
   const onEdit = vi.fn()
   const { user } = render(<ExampleItem item={mockItem} onEdit={onEdit} />)
-  
+
   await user.click(screen.getByRole('button', { name: /edit/i }))
   expect(onEdit).toHaveBeenCalledWith(mockItem)
 })

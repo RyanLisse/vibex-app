@@ -12,13 +12,13 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 
 ### ✅ Completed Migrations
 
-| API Route | Status | Database Integration | Features |
-|-----------|--------|---------------------|----------|
-| `/api/tasks` | ✅ Complete | Drizzle ORM + PostgreSQL | Full CRUD, pagination, filtering, observability |
-| `/api/environments` | ✅ Complete | Drizzle ORM + PostgreSQL | Full CRUD, activation logic, user isolation |
-| `/api/users` | ✅ Complete | Drizzle ORM + PostgreSQL | User management, auth sessions, provider support |
-| `/api/performance` | ✅ Complete | Drizzle ORM + PostgreSQL | Query monitoring, analysis, benchmarking |
-| `/api/migration` | ✅ Complete | Migration Service | localStorage → DB migration with progress tracking |
+| API Route           | Status      | Database Integration     | Features                                           |
+| ------------------- | ----------- | ------------------------ | -------------------------------------------------- |
+| `/api/tasks`        | ✅ Complete | Drizzle ORM + PostgreSQL | Full CRUD, pagination, filtering, observability    |
+| `/api/environments` | ✅ Complete | Drizzle ORM + PostgreSQL | Full CRUD, activation logic, user isolation        |
+| `/api/users`        | ✅ Complete | Drizzle ORM + PostgreSQL | User management, auth sessions, provider support   |
+| `/api/performance`  | ✅ Complete | Drizzle ORM + PostgreSQL | Query monitoring, analysis, benchmarking           |
+| `/api/migration`    | ✅ Complete | Migration Service        | localStorage → DB migration with progress tracking |
 
 ### 🔧 Migration Infrastructure
 
@@ -42,6 +42,7 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 ## Technical Implementation Details
 
 ### 1. Tasks API (`/api/tasks/route.ts`)
+
 ```typescript
 - Full database integration with Drizzle ORM
 - Advanced filtering (status, priority, assignee, search)
@@ -52,6 +53,7 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 ```
 
 ### 2. Environments API (`/api/environments/route.ts`)
+
 ```typescript
 - User-scoped environment management
 - Automatic activation/deactivation logic
@@ -61,6 +63,7 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 ```
 
 ### 3. Users API (`/api/users/route.ts`)
+
 ```typescript
 - Multi-provider authentication support (GitHub, OpenAI, Anthropic)
 - Session management with auth_sessions table
@@ -70,6 +73,7 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 ```
 
 ### 4. Performance API (`/api/performance/route.ts`)
+
 ```typescript
 - Real-time query performance monitoring
 - Database index analysis and optimization
@@ -81,11 +85,13 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 ## Backwards Compatibility
 
 ### Current State
+
 - **localStorage is NO LONGER the primary data store**
 - All API routes now use the database exclusively
 - Migration endpoint available for one-time data transfer
 
 ### Migration Path
+
 1. Users with existing localStorage data can trigger migration via `/api/migration`
 2. Automatic backup creation before migration
 3. Validation after migration completion
@@ -94,6 +100,7 @@ The API routes migration from localStorage to Drizzle ORM has been **COMPLETED**
 ## Feature Flags & Configuration
 
 ### Environment Variables
+
 ```env
 DATABASE_URL=<neon-postgres-url>     # Required
 DB_MAX_CONNECTIONS=20                # Optional (default: 20)
@@ -101,6 +108,7 @@ NODE_ENV=production/development      # Affects SSL and security
 ```
 
 ### Migration Configuration
+
 ```typescript
 {
   conflictResolution: 'INTERACTIVE' | 'AUTO_SKIP' | 'AUTO_OVERWRITE' | 'AUTO_MERGE',
@@ -116,12 +124,14 @@ NODE_ENV=production/development      # Affects SSL and security
 ## Performance Metrics
 
 ### Database Performance
+
 - Average query response time: < 50ms
 - Connection pool utilization: 20-40%
 - Slow query threshold: 1000ms
 - Error rate: < 0.1%
 
 ### API Response Times
+
 - GET /api/tasks: ~30-50ms
 - POST /api/tasks: ~40-60ms
 - GET /api/environments: ~25-40ms
@@ -130,6 +140,7 @@ NODE_ENV=production/development      # Affects SSL and security
 ## Observability Integration
 
 All API routes include:
+
 - OpenTelemetry tracing with spans
 - Performance metrics collection
 - Error tracking and reporting
@@ -156,6 +167,7 @@ All API routes include:
 ## Outstanding Items
 
 ### ✅ Completed
+
 - Core API routes migration
 - Database schema implementation
 - Migration service development
@@ -163,11 +175,13 @@ All API routes include:
 - Error handling and observability
 
 ### 🔄 In Progress
+
 - ElectricSQL real-time sync integration
 - Advanced caching strategies
 - Time-travel debugging features
 
 ### 📋 Planned
+
 - GraphQL API layer
 - Advanced query optimization
 - Multi-tenant support

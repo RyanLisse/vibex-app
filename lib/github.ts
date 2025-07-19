@@ -15,13 +15,27 @@ export interface GitHubRepository {
   private: boolean
   description?: string
   html_url: string
+  clone_url: string
+  ssh_url: string
   default_branch: string
   fork: boolean
+  archived: boolean
+  disabled?: boolean
+  language: string | null
+  stargazers_count: number
+  watchers_count?: number
+  forks_count: number
+  open_issues_count: number
+  size: number
+  created_at: string
+  updated_at: string
+  pushed_at: string
   permissions?: {
     admin: boolean
     push: boolean
     pull: boolean
   }
+  owner: GitHubUser
 }
 
 export interface GitHubUser {
@@ -164,3 +178,139 @@ export class GitHubAuth {
 }
 
 export const githubAuth = new GitHubAuth()
+
+// Server-side functions using cookies
+import { cookies } from 'next/headers'
+
+export async function getGitHubUser(): Promise<GitHubUser | null> {
+  const cookieStore = cookies()
+  const token = cookieStore.get('github_access_token')?.value
+
+  if (!token) {
+    return null
+  }
+
+  try {
+    const response = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    })
+
+    if (!response.ok) {
+      return null
+    }
+
+    return response.json()
+  } catch {
+    return null
+  }
+}
+
+export function getGitHubOAuthUrl(state?: string): string {
+  return githubAuth.getAuthUrl(state)
+}
+
+export async function exchangeCodeForToken(code: string): Promise<string> {
+  return githubAuth.exchangeCodeForToken(code)
+}
+
+export async function getUserRepositories(token?: string): Promise<GitHubRepository[]> {
+  const accessToken = token || cookies().get('github_access_token')?.value
+
+  if (!accessToken) {
+    throw new Error('GitHub authentication required')
+  }
+
+  return githubAuth.getUserRepositories(accessToken)
+}
+
+export async function getRepoBranches(
+  owner: string,
+  repo: string,
+  token?: string
+): Promise<GitHubBranch[]> {
+  const accessToken = token || cookies().get('github_access_token')?.value
+
+  if (!accessToken) {
+    throw new Error('GitHub authentication required')
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/vnd.github.v3+json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch branches: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export async function createRepository(
+  data: {
+    name: string
+    description?: string
+    private?: boolean
+  },
+  token?: string
+): Promise<GitHubRepository> {
+  const accessToken = token || cookies().get('github_access_token')?.value
+
+  if (!accessToken) {
+    throw new Error('GitHub authentication required')
+  }
+
+  const response = await fetch('https://api.github.com/user/repos', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to create repository: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export async function clearGitHubAuth(): Promise<void> {
+  const cookieStore = cookies()
+  cookieStore.delete('github_access_token')
+}
+
+export class GitHubClient {
+  private token: string
+
+  constructor(token: string) {
+    this.token = token
+  }
+
+  async getUser(): Promise<GitHubUser> {
+    return githubAuth.getUser(this.token)
+  }
+
+  async getRepositories(): Promise<GitHubRepository[]> {
+    return githubAuth.getUserRepositories(this.token)
+  }
+
+  async getBranches(owner: string, repo: string): Promise<GitHubBranch[]> {
+    return getRepoBranches(owner, repo, this.token)
+  }
+
+  async createRepository(data: {
+    name: string
+    description?: string
+    private?: boolean
+  }): Promise<GitHubRepository> {
+    return createRepository(data, this.token)
+  }
+}

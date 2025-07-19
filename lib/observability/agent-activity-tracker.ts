@@ -434,7 +434,9 @@ export class AgentActivityTracker extends EventEmitter {
       const timeSinceLastActivity = now - agent.lastActivity.getTime()
 
       if (timeSinceLastActivity > staleThreshold && agent.status === 'active') {
-        this.updateAgentStatus(agentId, 'waiting', { reason: 'No activity detected' })
+        this.updateAgentStatus(agentId, 'waiting', {
+          reason: 'No activity detected',
+        })
         this.emit('agentStale', { agentId, lastActivity: agent.lastActivity })
       }
     }

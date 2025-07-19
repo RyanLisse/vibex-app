@@ -50,7 +50,10 @@ export const taskControl = inngest.createFunction(
     const { taskId, action } = event.data
 
     // Update task control state
-    const currentState = taskControlState.get(taskId) || { isPaused: false, isCancelled: false }
+    const currentState = taskControlState.get(taskId) || {
+      isPaused: false,
+      isCancelled: false,
+    }
 
     switch (action) {
       case 'pause':

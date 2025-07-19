@@ -137,5 +137,5 @@ Ambient agents operate continuously in the background, responding to events, inf
 4. WHEN working on different aspects THEN the system SHALL support role-based views tailored to different team member responsibilities
 5. IF conflicts arise THEN the system SHALL provide conflict resolution tools and change tracking capabilities
 6. WHEN onboarding new team members THEN the system SHALL offer guided tours and contextual help for complex visualizations
-</content>
-</file>
+   </content>
+   </file>

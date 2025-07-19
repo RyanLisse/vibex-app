@@ -8,7 +8,11 @@ import { safeAsync } from '@/lib/stream-utils'
 
 interface UseTaskSubscriptionProps {
   taskId: string
-  taskMessages?: Array<{ role: 'user' | 'assistant'; type: string; data: Record<string, unknown> }>
+  taskMessages?: Array<{
+    role: 'user' | 'assistant'
+    type: string
+    data: Record<string, unknown>
+  }>
 }
 
 // Consolidated state for better management
@@ -25,11 +29,17 @@ type SubscriptionAction =
   | { type: 'ENABLE_SUBSCRIPTION' }
   | { type: 'DISABLE_SUBSCRIPTION' }
   | { type: 'SET_STREAMING_MESSAGES'; payload: Map<string, StreamingMessage> }
-  | { type: 'UPDATE_STREAMING_MESSAGE'; payload: { streamId: string; message: StreamingMessage } }
+  | {
+      type: 'UPDATE_STREAMING_MESSAGE'
+      payload: { streamId: string; message: StreamingMessage }
+    }
   | { type: 'REMOVE_STREAMING_MESSAGE'; payload: string }
   | { type: 'SET_INITIALIZED'; payload: boolean }
   | { type: 'SET_ERROR'; payload: Error | null }
-  | { type: 'SET_CONNECTION_STATE'; payload: SubscriptionState['connectionState'] }
+  | {
+      type: 'SET_CONNECTION_STATE'
+      payload: SubscriptionState['connectionState']
+    }
   | { type: 'RESET' }
 
 // Reducer for consolidated state management with better state transitions
@@ -39,7 +49,12 @@ function subscriptionReducer(
 ): SubscriptionState {
   switch (action.type) {
     case 'ENABLE_SUBSCRIPTION':
-      return { ...state, enabled: true, lastError: null, connectionState: 'connecting' }
+      return {
+        ...state,
+        enabled: true,
+        lastError: null,
+        connectionState: 'connecting',
+      }
     case 'DISABLE_SUBSCRIPTION':
       return { ...state, enabled: false, connectionState: 'disconnected' }
     case 'SET_STREAMING_MESSAGES':

@@ -120,7 +120,6 @@ describe('Gemini Audio Integration Tests', () => {
       const mockAudioBuffer = new ArrayBuffer(1024)
       const mockAudioData = new Uint8Array(mockAudioBuffer)
       mockAudioData.fill(128) // Fill with sample data
-
       ;(session as unknown as { session: unknown }).session = mockSessionAPI
       ;(session as unknown as { connected: boolean }).connected = true
 

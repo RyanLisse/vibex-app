@@ -356,7 +356,10 @@ describe('Migration System Performance Tests', () => {
           ...task.metadata,
           // Add complex nested data
           complexData: {
-            arrays: Array.from({ length: 100 }, (_, i) => ({ id: i, value: `item-${i}` })),
+            arrays: Array.from({ length: 100 }, (_, i) => ({
+              id: i,
+              value: `item-${i}`,
+            })),
             nestedObjects: Object.fromEntries(
               Array.from({ length: 50 }, (_, i) => [`key-${i}`, { nested: `value-${i}` }])
             ),

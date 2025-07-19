@@ -305,7 +305,9 @@ export const storageUtils = {
   },
 
   simulateQuotaExceeded() {
-    const err = Object.assign(new Error('QuotaExceededError'), { name: 'QuotaExceededError' })
+    const err = Object.assign(new Error('QuotaExceededError'), {
+      name: 'QuotaExceededError',
+    })
     mockLocalStorage.setItem = vi.fn(() => {
       throw err
     })

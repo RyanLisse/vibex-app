@@ -1,6 +1,6 @@
 /**
  * API + TanStack Query Integration Tests
- * 
+ *
  * End-to-end tests verifying the complete flow from UI actions through
  * TanStack Query hooks to API routes and database operations
  */
@@ -8,13 +8,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { 
-  useTasks, 
-  useTask, 
-  useCreateTask, 
-  useUpdateTask, 
-  useDeleteTask 
-} from '@/lib/query/hooks'
+import { useTasks, useTask, useCreateTask, useUpdateTask, useDeleteTask } from '@/lib/query/hooks'
 import type { Task } from '@/db/schema'
 
 // Mock modules
@@ -52,11 +46,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children)
 }
 
 // Test data factories
@@ -132,11 +123,14 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasksQuery = useTasks()
-        const createMutation = useCreateTask()
-        return { tasksQuery, createMutation }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasksQuery = useTasks()
+          const createMutation = useCreateTask()
+          return { tasksQuery, createMutation }
+        },
+        { wrapper }
+      )
 
       // Initial state - no tasks
       await waitFor(() => {
@@ -203,11 +197,14 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasksQuery = useTasks()
-        const createMutation = useCreateTask()
-        return { tasksQuery, createMutation }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasksQuery = useTasks()
+          const createMutation = useCreateTask()
+          return { tasksQuery, createMutation }
+        },
+        { wrapper }
+      )
 
       // Wait for initial load
       await waitFor(() => {
@@ -272,11 +269,14 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasksQuery = useTasks()
-        const updateMutation = useUpdateTask()
-        return { tasksQuery, updateMutation }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasksQuery = useTasks()
+          const updateMutation = useUpdateTask()
+          return { tasksQuery, updateMutation }
+        },
+        { wrapper }
+      )
 
       // Wait for initial data
       await waitFor(() => {
@@ -342,11 +342,14 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasksQuery = useTasks()
-        const updateMutation = useUpdateTask()
-        return { tasksQuery, updateMutation }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasksQuery = useTasks()
+          const updateMutation = useUpdateTask()
+          return { tasksQuery, updateMutation }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasksQuery.isSuccess).toBe(true)
@@ -423,11 +426,14 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasksQuery = useTasks()
-        const deleteMutation = useDeleteTask()
-        return { tasksQuery, deleteMutation }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasksQuery = useTasks()
+          const deleteMutation = useDeleteTask()
+          return { tasksQuery, deleteMutation }
+        },
+        { wrapper }
+      )
 
       // Wait for initial data
       await waitFor(() => {
@@ -459,15 +465,13 @@ describe('API + TanStack Query Integration', () => {
         createMockTask({ status: 'pending', title: 'Pending 2' }),
       ]
 
-      const completedTasks = [
-        createMockTask({ status: 'completed', title: 'Completed 1' }),
-      ]
+      const completedTasks = [createMockTask({ status: 'completed', title: 'Completed 1' })]
 
       server.use(
         http.get('/api/tasks', ({ request }) => {
           const url = new URL(request.url)
           const status = url.searchParams.get('status')
-          
+
           if (status === 'pending') {
             return HttpResponse.json({
               success: true,
@@ -478,7 +482,7 @@ describe('API + TanStack Query Integration', () => {
               },
             })
           }
-          
+
           if (status === 'completed') {
             return HttpResponse.json({
               success: true,
@@ -502,23 +506,21 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      
+
       // Test pending filter
-      const { result: pendingResult } = renderHook(
-        () => useTasks({ status: 'pending' }), 
-        { wrapper }
-      )
+      const { result: pendingResult } = renderHook(() => useTasks({ status: 'pending' }), {
+        wrapper,
+      })
 
       await waitFor(() => {
         expect(pendingResult.current.data?.tasks).toHaveLength(2)
-        expect(pendingResult.current.data?.tasks.every(t => t.status === 'pending')).toBe(true)
+        expect(pendingResult.current.data?.tasks.every((t) => t.status === 'pending')).toBe(true)
       })
 
       // Test completed filter
-      const { result: completedResult } = renderHook(
-        () => useTasks({ status: 'completed' }), 
-        { wrapper }
-      )
+      const { result: completedResult } = renderHook(() => useTasks({ status: 'completed' }), {
+        wrapper,
+      })
 
       await waitFor(() => {
         expect(completedResult.current.data?.tasks).toHaveLength(1)
@@ -552,10 +554,7 @@ describe('API + TanStack Query Integration', () => {
               data: task,
             })
           }
-          return HttpResponse.json(
-            { success: false, error: 'Not found' },
-            { status: 404 }
-          )
+          return HttpResponse.json({ success: false, error: 'Not found' }, { status: 404 })
         }),
         http.patch('/api/tasks/:id', async ({ request }) => {
           const body = await request.json()
@@ -568,12 +567,15 @@ describe('API + TanStack Query Integration', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const listQuery = useTasks()
-        const detailQuery = useTask('sync-task')
-        const updateMutation = useUpdateTask()
-        return { listQuery, detailQuery, updateMutation }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const listQuery = useTasks()
+          const detailQuery = useTask('sync-task')
+          const updateMutation = useUpdateTask()
+          return { listQuery, detailQuery, updateMutation }
+        },
+        { wrapper }
+      )
 
       // Wait for both queries to load
       await waitFor(() => {

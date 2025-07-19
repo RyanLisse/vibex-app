@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       apiKey,
       voiceName,
       tools,
-      onMessage: (_message) => {
+      onMessage: () => {
         // Update last accessed time when receiving messages
         redisCache.cacheSession(
           sessionId,
@@ -55,9 +55,9 @@ export async function POST(request: NextRequest) {
           3600
         )
       },
-      onError: (_error) => {
+      onError: () => {
         // Handle errors and potentially mark session as inactive
-        console.error('Gemini session error:', _error)
+        console.error('Gemini session error')
       },
     })
 

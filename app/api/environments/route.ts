@@ -97,21 +97,19 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.queryDuration(duration, 'select_environments', true)
+      observability.metrics.recordOperation('select_environments', duration)
 
       // Record event
-      await observability.events.collector.collectEvent(
-        'query_end',
-        'debug',
-        `Environments query completed`,
-        {
-          duration,
-          resultCount: envResults.length,
-          totalCount: countResult.length,
-          filters: params,
-        },
-        'api',
-        ['environments', 'query']
+      observability.recordEvent('environments_query', {
+        action: 'query_end',
+        level: 'debug',
+        message: 'Environments query completed',
+        duration,
+        resultCount: envResults.length,
+        totalCount: countResult.length,
+        filters: params,
+        source: 'api',
+        tags: ['environments', 'query']
       )
 
       span.setAttributes({
@@ -156,17 +154,21 @@ class EnvironmentsService {
     try {
       const startTime = Date.now()
 
+      // Extract userId from request context or set as needed
+      const userId = envData.userId || 'system'; // This should come from auth context
+      
       // If this environment should be active, deactivate others for the same user
       if (envData.isActive) {
         await db
           .update(environments)
           .set({ isActive: false, updatedAt: new Date() })
-          .where(and(eq(environments.userId, envData.userId), eq(environments.isActive, true)))
+          .where(and(eq(environments.userId, userId), eq(environments.isActive, true)))
       }
 
       const newEnvironment = {
         id: ulid(),
         ...envData,
+        userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -176,10 +178,10 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.queryDuration(duration, 'insert_environment', true)
+      observability.metrics.recordOperation('insert_environment', duration)
 
       // Record event
-      await observability.events.collector.collectEvent(
+      observability.recordEvent('environments_event', {
         'user_action',
         'info',
         `Environment created: ${createdEnvironment.name}`,
@@ -251,7 +253,7 @@ class EnvironmentsService {
       observability.metrics.queryDuration(duration, 'activate_environment', true)
 
       // Record event
-      await observability.events.collector.collectEvent(
+      observability.recordEvent('environments_event', {
         'user_action',
         'info',
         `Environment activated: ${activatedEnvironment.name}`,

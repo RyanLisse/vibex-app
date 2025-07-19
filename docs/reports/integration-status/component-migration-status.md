@@ -1,6 +1,7 @@
 # Component Migration Status Report
 
 ## Overview
+
 This report tracks the status of migrating components from Zustand stores to TanStack Query hooks.
 
 ## Migration Status
@@ -18,26 +19,28 @@ This report tracks the status of migrating components from Zustand stores to Tan
    - Uses TanStack Query hooks
    - Has enhanced features like tab management
 
-3. **app/environments/_components/environments-list.tsx**
+3. **app/environments/\_components/environments-list.tsx**
    - Uses `useEnvironmentsQuery` for data fetching
    - Implements mutation hooks for delete and activate operations
    - Has all required UI states (loading, error, offline)
 
-4. **app/environments/_components/create-environment-dialog.tsx**
+4. **app/environments/\_components/create-environment-dialog.tsx**
    - Already integrated with TanStack Query
    - Uses proper mutation hooks
 
 ### 🔄 Components Requiring Migration
 
-#### app/task/[id]/_components/chat-messages-panel.tsx
+#### app/task/[id]/\_components/chat-messages-panel.tsx
+
 - **Current State**: Receives task data as prop
-- **Required Changes**: 
+- **Required Changes**:
   - Could optionally use `useTaskQuery(taskId)` for real-time updates
   - Currently functional but could benefit from direct query integration
 
-#### app/task/[id]/_providers/task-provider.tsx
+#### app/task/[id]/\_providers/task-provider.tsx
+
 - **Current State**: May need review for TanStack Query integration
-- **Required Changes**: 
+- **Required Changes**:
   - Ensure it uses TanStack Query hooks
   - Verify proper data flow to child components
 
@@ -54,30 +57,35 @@ This report tracks the status of migrating components from Zustand stores to Tan
 ## Reusable Components Created
 
 ### 1. ConnectionStatus Component
+
 ```typescript
 // components/ui/connection-status.tsx
 // Displays online/offline status with sync indicator
 ```
 
 ### 2. ErrorDisplay Component
+
 ```typescript
 // components/ui/error-display.tsx
 // Standardized error display with retry functionality
 ```
 
 ### 3. LoadingSkeleton Component
+
 ```typescript
 // components/ui/loading-skeleton.tsx
 // Flexible loading skeleton with multiple variants
 ```
 
 ### 4. StaleDataBadge Component
+
 ```typescript
 // components/ui/stale-data-badge.tsx
 // Badge to indicate when data is stale
 ```
 
 ### 5. RefreshButton Component
+
 ```typescript
 // components/ui/refresh-button.tsx
 // Standardized refresh button with loading state

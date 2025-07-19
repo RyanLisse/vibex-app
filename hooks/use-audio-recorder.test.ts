@@ -22,7 +22,9 @@ class MockMediaRecorder {
   stop() {
     this.state = 'inactive'
     if (this.ondataavailable) {
-      this.ondataavailable({ data: new Blob(['audio data'], { type: 'audio/webm' }) })
+      this.ondataavailable({
+        data: new Blob(['audio data'], { type: 'audio/webm' }),
+      })
     }
     if (this.onstop) {
       this.onstop()

@@ -101,7 +101,10 @@ export class PerformanceBenchmarker {
       return suites
     } catch (error) {
       span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: (error as Error).message,
+      })
       throw error
     } finally {
       span.end()
@@ -137,7 +140,11 @@ export class PerformanceBenchmarker {
    * Compare current performance against baseline
    */
   async compareAgainstBaseline(): Promise<{
-    regressions: Array<{ test: string; degradation: number; threshold: number }>
+    regressions: Array<{
+      test: string
+      degradation: number
+      threshold: number
+    }>
     improvements: Array<{ test: string; improvement: number }>
     summary: {
       totalRegressions: number
@@ -150,7 +157,11 @@ export class PerformanceBenchmarker {
     }
 
     const currentBenchmarks = await this.runBenchmarkSuite()
-    const regressions: Array<{ test: string; degradation: number; threshold: number }> = []
+    const regressions: Array<{
+      test: string
+      degradation: number
+      threshold: number
+    }> = []
     const improvements: Array<{ test: string; improvement: number }> = []
 
     for (const currentSuite of currentBenchmarks) {

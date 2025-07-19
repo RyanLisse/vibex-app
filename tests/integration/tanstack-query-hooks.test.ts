@@ -1,17 +1,17 @@
 /**
  * TanStack Query Hooks Integration Tests
- * 
+ *
  * Tests for all TanStack Query hooks with real database operations and caching behavior
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { 
-  useTasks, 
-  useTask, 
-  useCreateTask, 
-  useUpdateTask, 
+import {
+  useTasks,
+  useTask,
+  useCreateTask,
+  useUpdateTask,
   useDeleteTask,
   useEnvironments,
   useEnvironment,
@@ -19,7 +19,7 @@ import {
   useUpdateEnvironment,
   useDeleteEnvironment,
   taskKeys,
-  environmentKeys
+  environmentKeys,
 } from '@/lib/query/hooks'
 import type { Task, Environment } from '@/db/schema'
 
@@ -40,9 +40,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
+  return ({ children }: { children: React.ReactNode }) =>
     React.createElement(QueryClientProvider, { client: queryClient }, children)
-  )
 }
 
 describe('TanStack Query Hooks Integration', () => {
@@ -74,10 +73,11 @@ describe('TanStack Query Hooks Integration', () => {
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: { tasks: mockTasks, total: 2, hasMore: false },
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: { tasks: mockTasks, total: 2, hasMore: false },
+            }),
         } as Response)
 
         const wrapper = createWrapper()
@@ -101,20 +101,21 @@ describe('TanStack Query Hooks Integration', () => {
       })
 
       it('should handle query filters', async () => {
-        const mockTasks = [
-          { id: '1', title: 'Pending Task', status: 'pending' },
-        ] as Task[]
+        const mockTasks = [{ id: '1', title: 'Pending Task', status: 'pending' }] as Task[]
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: { tasks: mockTasks, total: 1, hasMore: false },
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: { tasks: mockTasks, total: 1, hasMore: false },
+            }),
         } as Response)
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => useTasks({ status: 'pending' }), { wrapper })
+        const { result } = renderHook(() => useTasks({ status: 'pending' }), {
+          wrapper,
+        })
 
         await waitFor(() => {
           expect(result.current.isSuccess).toBe(true)
@@ -161,10 +162,11 @@ describe('TanStack Query Hooks Integration', () => {
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: mockTask,
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: mockTask,
+            }),
         } as Response)
 
         const wrapper = createWrapper()
@@ -185,14 +187,17 @@ describe('TanStack Query Hooks Integration', () => {
         mockFetch.mockResolvedValueOnce({
           ok: false,
           status: 404,
-          json: () => Promise.resolve({
-            success: false,
-            error: 'Task not found',
-          }),
+          json: () =>
+            Promise.resolve({
+              success: false,
+              error: 'Task not found',
+            }),
         } as Response)
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => useTask('non-existent'), { wrapper })
+        const { result } = renderHook(() => useTask('non-existent'), {
+          wrapper,
+        })
 
         await waitFor(() => {
           expect(result.current.isError).toBe(true)
@@ -227,18 +232,22 @@ describe('TanStack Query Hooks Integration', () => {
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: createdTask,
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: createdTask,
+            }),
         } as Response)
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => {
-          const createMutation = useCreateTask()
-          const tasksQuery = useTasks()
-          return { createMutation, tasksQuery }
-        }, { wrapper })
+        const { result } = renderHook(
+          () => {
+            const createMutation = useCreateTask()
+            const tasksQuery = useTasks()
+            return { createMutation, tasksQuery }
+          },
+          { wrapper }
+        )
 
         // Create task
         act(() => {
@@ -280,11 +289,14 @@ describe('TanStack Query Hooks Integration', () => {
         mockFetch.mockRejectedValueOnce(new Error('Creation failed'))
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => {
-          const createMutation = useCreateTask()
-          const tasksQuery = useTasks()
-          return { createMutation, tasksQuery }
-        }, { wrapper })
+        const { result } = renderHook(
+          () => {
+            const createMutation = useCreateTask()
+            const tasksQuery = useTasks()
+            return { createMutation, tasksQuery }
+          },
+          { wrapper }
+        )
 
         act(() => {
           result.current.createMutation.mutate(newTask)
@@ -330,18 +342,22 @@ describe('TanStack Query Hooks Integration', () => {
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: updatedTask,
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: updatedTask,
+            }),
         } as Response)
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => {
-          const updateMutation = useUpdateTask()
-          const tasksQuery = useTasks()
-          return { updateMutation, tasksQuery }
-        }, { wrapper })
+        const { result } = renderHook(
+          () => {
+            const updateMutation = useUpdateTask()
+            const tasksQuery = useTasks()
+            return { updateMutation, tasksQuery }
+          },
+          { wrapper }
+        )
 
         act(() => {
           result.current.updateMutation.mutate({
@@ -353,7 +369,7 @@ describe('TanStack Query Hooks Integration', () => {
 
         // Should show optimistic update immediately
         await waitFor(() => {
-          const task = result.current.tasksQuery.data?.tasks.find(t => t.id === 'task-1')
+          const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === 'task-1')
           expect(task?.title).toBe('Updated Title')
           expect(task?.status).toBe('completed')
         })
@@ -380,18 +396,22 @@ describe('TanStack Query Hooks Integration', () => {
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            message: 'Task deleted successfully',
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              message: 'Task deleted successfully',
+            }),
         } as Response)
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => {
-          const deleteMutation = useDeleteTask()
-          const tasksQuery = useTasks()
-          return { deleteMutation, tasksQuery }
-        }, { wrapper })
+        const { result } = renderHook(
+          () => {
+            const deleteMutation = useDeleteTask()
+            const tasksQuery = useTasks()
+            return { deleteMutation, tasksQuery }
+          },
+          { wrapper }
+        )
 
         act(() => {
           result.current.deleteMutation.mutate('task-1')
@@ -414,16 +434,27 @@ describe('TanStack Query Hooks Integration', () => {
     describe('useEnvironments', () => {
       it('should fetch and cache environments list', async () => {
         const mockEnvironments = [
-          { id: 'env-1', name: 'Development', type: 'development', status: 'active' },
-          { id: 'env-2', name: 'Production', type: 'production', status: 'active' },
+          {
+            id: 'env-1',
+            name: 'Development',
+            type: 'development',
+            status: 'active',
+          },
+          {
+            id: 'env-2',
+            name: 'Production',
+            type: 'production',
+            status: 'active',
+          },
         ] as Environment[]
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: { environments: mockEnvironments, total: 2 },
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: { environments: mockEnvironments, total: 2 },
+            }),
         } as Response)
 
         const wrapper = createWrapper()
@@ -456,14 +487,17 @@ describe('TanStack Query Hooks Integration', () => {
 
         mockFetch.mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            success: true,
-            data: createdEnvironment,
-          }),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: createdEnvironment,
+            }),
         } as Response)
 
         const wrapper = createWrapper()
-        const { result } = renderHook(() => useCreateEnvironment(), { wrapper })
+        const { result } = renderHook(() => useCreateEnvironment(), {
+          wrapper,
+        })
 
         act(() => {
           result.current.mutate(newEnvironment)
@@ -511,10 +545,11 @@ describe('TanStack Query Hooks Integration', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          success: true,
-          data: { id: 'task-1', title: 'Updated' },
-        }),
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: { id: 'task-1', title: 'Updated' },
+          }),
       } as Response)
 
       const wrapper = createWrapper()

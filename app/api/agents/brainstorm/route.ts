@@ -304,7 +304,11 @@ async function extractIdeasFromTranscript(transcript: string): Promise<
   }>
 > {
   // Enhanced idea extraction using pattern matching and NLP techniques
-  const ideas: Array<{ content: string; category: string; confidence: number }> = []
+  const ideas: Array<{
+    content: string
+    category: string
+    confidence: number
+  }> = []
 
   // Idea trigger patterns
   const ideaPatterns = [
@@ -399,7 +403,7 @@ async function analyzeIdeasWithAI(ideas: Array<{ content: string; source: string
   return { scores, categories, themes }
 }
 
-function generateIdeaRecommendations(analysis: any): string[] {
+function generateIdeaRecommendations(analysis: unknown): string[] {
   return [
     'Focus on high-impact, high-feasibility ideas first',
     'Combine complementary ideas for hybrid solutions',
@@ -410,9 +414,9 @@ function generateIdeaRecommendations(analysis: any): string[] {
 }
 
 async function generateStageInsights(
-  session: any,
+  session: unknown,
   transcript: string,
-  ideas: any[]
+  ideas: unknown[]
 ): Promise<string[]> {
   const insights: string[] = []
 
@@ -471,7 +475,7 @@ async function generateAdvancedInsights(
   }
 }
 
-function getNextStageRecommendations(stage: string, insights: any): string[] {
+function getNextStageRecommendations(stage: string, insights: unknown): string[] {
   const stageMap: Record<string, string[]> = {
     exploration: [
       'Move to clarification to define scope and audience',
@@ -508,7 +512,7 @@ function calculateStageProgress(
   return Math.min(baseProgress + ideaBonus + qualityBonus, 100)
 }
 
-async function generateVoiceFriendlySummary(summary: any): Promise<{
+async function generateVoiceFriendlySummary(summary: unknown): Promise<{
   spokenSummary: string
   keyPoints: string[]
   nextSteps: string[]
@@ -524,7 +528,7 @@ async function generateVoiceFriendlySummary(summary: any): Promise<{
   }
 }
 
-function generateAudioScript(voiceSummary: any): string {
+function generateAudioScript(voiceSummary: unknown): string {
   return `
 ${voiceSummary.spokenSummary}
 

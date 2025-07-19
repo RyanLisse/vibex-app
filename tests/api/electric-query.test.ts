@@ -208,7 +208,14 @@ describe('ElectricSQL Query API', () => {
     })
 
     it('should handle complex queries with parameters', async () => {
-      const mockResults = [{ id: '1', title: 'Filtered Task', status: 'pending', priority: 'high' }]
+      const mockResults = [
+        {
+          id: '1',
+          title: 'Filtered Task',
+          status: 'pending',
+          priority: 'high',
+        },
+      ]
 
       mockDb.execute.mockResolvedValue(mockResults)
       mockSql.raw.mockReturnValue('mocked-complex-query')

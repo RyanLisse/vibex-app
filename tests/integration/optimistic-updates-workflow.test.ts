@@ -1,6 +1,6 @@
 /**
  * Optimistic Updates Workflow Integration Tests
- * 
+ *
  * Tests complete workflows involving optimistic updates, ensuring proper
  * UI behavior, error handling, and state consistency
  */
@@ -8,12 +8,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { 
-  useTasks, 
-  useCreateTask, 
-  useUpdateTask, 
+import {
+  useTasks,
+  useCreateTask,
+  useUpdateTask,
   useDeleteTask,
-  useBatchUpdateTasks 
+  useBatchUpdateTasks,
 } from '@/lib/query/hooks'
 import type { Task } from '@/db/schema'
 
@@ -42,9 +42,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
+  return ({ children }: { children: React.ReactNode }) =>
     React.createElement(QueryClientProvider, { client: queryClient }, children)
-  )
 }
 
 // Test data factory
@@ -70,9 +69,7 @@ function createMockTask(overrides: Partial<Task> = {}): Task {
 describe('Optimistic Updates Workflow', () => {
   describe('Task Creation Workflow', () => {
     it('should handle complete task creation workflow with instant UI feedback', async () => {
-      const existingTasks = [
-        createMockTask({ id: '1', title: 'Existing Task' }),
-      ]
+      const existingTasks = [createMockTask({ id: '1', title: 'Existing Task' })]
 
       const newTaskInput = {
         title: 'New Optimistic Task',
@@ -88,10 +85,10 @@ describe('Optimistic Updates Workflow', () => {
           return HttpResponse.json({
             success: true,
             data: {
-              tasks: requestCount === 1 ? existingTasks : [
-                ...existingTasks,
-                createMockTask({ ...newTaskInput, id: 'server-id' }),
-              ],
+              tasks:
+                requestCount === 1
+                  ? existingTasks
+                  : [...existingTasks, createMockTask({ ...newTaskInput, id: 'server-id' })],
               total: requestCount === 1 ? 1 : 2,
               hasMore: false,
             },
@@ -100,19 +97,25 @@ describe('Optimistic Updates Workflow', () => {
         http.post('/api/tasks', async () => {
           // Simulate network delay
           await delay(100)
-          return HttpResponse.json({
-            success: true,
-            data: createMockTask({ ...newTaskInput, id: 'server-id' }),
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: createMockTask({ ...newTaskInput, id: 'server-id' }),
+            },
+            { status: 201 }
+          )
         })
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const createTask = useCreateTask()
-        return { tasks, createTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const createTask = useCreateTask()
+          return { tasks, createTask }
+        },
+        { wrapper }
+      )
 
       // Wait for initial load
       await waitFor(() => {
@@ -132,8 +135,8 @@ describe('Optimistic Updates Workflow', () => {
       await waitFor(() => {
         const tasks = result.current.tasks.data?.tasks || []
         expect(tasks).toHaveLength(2)
-        
-        const optimisticTask = tasks.find(t => t.title === 'New Optimistic Task')
+
+        const optimisticTask = tasks.find((t) => t.title === 'New Optimistic Task')
         expect(optimisticTask).toBeDefined()
         expect(optimisticTask?.id).toMatch(/^temp-/) // Temporary ID
       })
@@ -146,15 +149,13 @@ describe('Optimistic Updates Workflow', () => {
       // Final state should have server-assigned ID
       await waitFor(() => {
         const tasks = result.current.tasks.data?.tasks || []
-        const serverTask = tasks.find(t => t.title === 'New Optimistic Task')
+        const serverTask = tasks.find((t) => t.title === 'New Optimistic Task')
         expect(serverTask?.id).toBe('server-id')
       })
     })
 
     it('should handle task creation failure with proper rollback', async () => {
-      const existingTasks = [
-        createMockTask({ id: '1', title: 'Existing Task' }),
-      ]
+      const existingTasks = [createMockTask({ id: '1', title: 'Existing Task' })]
 
       server.use(
         http.get('/api/tasks', () => {
@@ -169,20 +170,26 @@ describe('Optimistic Updates Workflow', () => {
         }),
         http.post('/api/tasks', async () => {
           await delay(50)
-          return HttpResponse.json({
-            success: false,
-            error: 'Validation failed',
-            code: 'VALIDATION_ERROR',
-          }, { status: 400 })
+          return HttpResponse.json(
+            {
+              success: false,
+              error: 'Validation failed',
+              code: 'VALIDATION_ERROR',
+            },
+            { status: 400 }
+          )
         })
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const createTask = useCreateTask()
-        return { tasks, createTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const createTask = useCreateTask()
+          return { tasks, createTask }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks).toHaveLength(1)
@@ -235,12 +242,12 @@ describe('Optimistic Updates Workflow', () => {
         http.post('/api/tasks/batch', async ({ request }) => {
           const body = await request.json()
           await delay(100)
-          
+
           return HttpResponse.json({
             success: true,
             data: {
               updated: body.updates.length,
-              tasks: tasks.map(task => ({
+              tasks: tasks.map((task) => ({
                 ...task,
                 ...(body.updates.find((u: any) => u.id === task.id) || {}),
                 updatedAt: new Date(),
@@ -251,11 +258,14 @@ describe('Optimistic Updates Workflow', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const batchUpdate = useBatchUpdateTasks()
-        return { tasks, batchUpdate }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const batchUpdate = useBatchUpdateTasks()
+          return { tasks, batchUpdate }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks).toHaveLength(3)
@@ -275,7 +285,7 @@ describe('Optimistic Updates Workflow', () => {
       // Should show optimistic updates immediately
       await waitFor(() => {
         const completedTasks = result.current.tasks.data?.tasks.filter(
-          t => t.status === 'completed'
+          (t) => t.status === 'completed'
         )
         expect(completedTasks).toHaveLength(3)
       })
@@ -306,27 +316,33 @@ describe('Optimistic Updates Workflow', () => {
         }),
         http.post('/api/tasks/batch', async () => {
           await delay(50)
-          return HttpResponse.json({
-            success: false,
-            error: 'Partial failure',
-            data: {
-              succeeded: ['1'],
-              failed: ['2', '3'],
-              errors: {
-                '2': 'Permission denied',
-                '3': 'Task locked',
+          return HttpResponse.json(
+            {
+              success: false,
+              error: 'Partial failure',
+              data: {
+                succeeded: ['1'],
+                failed: ['2', '3'],
+                errors: {
+                  '2': 'Permission denied',
+                  '3': 'Task locked',
+                },
               },
             },
-          }, { status: 207 }) // Multi-status
+            { status: 207 }
+          ) // Multi-status
         })
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const batchUpdate = useBatchUpdateTasks()
-        return { tasks, batchUpdate }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const batchUpdate = useBatchUpdateTasks()
+          return { tasks, batchUpdate }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks).toHaveLength(3)
@@ -350,9 +366,9 @@ describe('Optimistic Updates Workflow', () => {
 
       // Only task 1 should be completed
       const tasks = result.current.tasks.data?.tasks || []
-      expect(tasks.find(t => t.id === '1')?.status).toBe('completed')
-      expect(tasks.find(t => t.id === '2')?.status).toBe('pending')
-      expect(tasks.find(t => t.id === '3')?.status).toBe('pending')
+      expect(tasks.find((t) => t.id === '1')?.status).toBe('completed')
+      expect(tasks.find((t) => t.id === '2')?.status).toBe('pending')
+      expect(tasks.find((t) => t.id === '3')?.status).toBe('pending')
     })
   })
 
@@ -366,7 +382,7 @@ describe('Optimistic Updates Workflow', () => {
       })
 
       let currentTask = { ...initialTask }
-      
+
       server.use(
         http.get('/api/tasks', () => {
           return HttpResponse.json({
@@ -382,7 +398,7 @@ describe('Optimistic Updates Workflow', () => {
           const body = await request.json()
           currentTask = { ...currentTask, ...body, updatedAt: new Date() }
           await delay(50) // Simulate network delay
-          
+
           return HttpResponse.json({
             success: true,
             data: currentTask,
@@ -391,11 +407,14 @@ describe('Optimistic Updates Workflow', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const updateTask = useUpdateTask()
-        return { tasks, updateTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const updateTask = useUpdateTask()
+          return { tasks, updateTask }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks).toHaveLength(1)
@@ -403,15 +422,21 @@ describe('Optimistic Updates Workflow', () => {
 
       // Perform rapid updates
       act(() => {
-        result.current.updateTask.mutate({ id: 'rapid-task', title: 'Update 1' })
+        result.current.updateTask.mutate({
+          id: 'rapid-task',
+          title: 'Update 1',
+        })
       })
-      
+
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks[0].title).toBe('Update 1')
       })
 
       act(() => {
-        result.current.updateTask.mutate({ id: 'rapid-task', status: 'in_progress' })
+        result.current.updateTask.mutate({
+          id: 'rapid-task',
+          status: 'in_progress',
+        })
       })
 
       await waitFor(() => {
@@ -419,7 +444,10 @@ describe('Optimistic Updates Workflow', () => {
       })
 
       act(() => {
-        result.current.updateTask.mutate({ id: 'rapid-task', priority: 'high' })
+        result.current.updateTask.mutate({
+          id: 'rapid-task',
+          priority: 'high',
+        })
       })
 
       await waitFor(() => {
@@ -448,10 +476,13 @@ describe('Optimistic Updates Workflow', () => {
         http.post('/api/tasks', async ({ request }) => {
           const body = await request.json()
           await delay(50)
-          return HttpResponse.json({
-            success: true,
-            data: createMockTask({ ...body, id: 'workflow-task' }),
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: createMockTask({ ...body, id: 'workflow-task' }),
+            },
+            { status: 201 }
+          )
         }),
         http.patch('/api/tasks/:id', async ({ request }) => {
           const body = await request.json()
@@ -471,13 +502,16 @@ describe('Optimistic Updates Workflow', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const createTask = useCreateTask()
-        const updateTask = useUpdateTask()
-        const deleteTask = useDeleteTask()
-        return { tasks, createTask, updateTask, deleteTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const createTask = useCreateTask()
+          const updateTask = useUpdateTask()
+          const deleteTask = useDeleteTask()
+          return { tasks, createTask, updateTask, deleteTask }
+        },
+        { wrapper }
+      )
 
       // Start with empty list
       await waitFor(() => {
@@ -548,10 +582,10 @@ describe('Optimistic Updates Workflow', () => {
         http.patch('/api/tasks/:id', async ({ request }) => {
           const body = await request.json()
           updateCount++
-          
+
           // Simulate varying response times
           await delay(updateCount === 1 ? 100 : 50)
-          
+
           return HttpResponse.json({
             success: true,
             data: { ...task, ...body, version: updateCount },
@@ -560,11 +594,14 @@ describe('Optimistic Updates Workflow', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const updateTask = useUpdateTask()
-        return { tasks, updateTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const updateTask = useUpdateTask()
+          return { tasks, updateTask }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks).toHaveLength(1)
@@ -572,26 +609,29 @@ describe('Optimistic Updates Workflow', () => {
 
       // Fire two overlapping updates
       act(() => {
-        result.current.updateTask.mutate({ 
-          id: 'race-task', 
-          title: 'First Update' 
+        result.current.updateTask.mutate({
+          id: 'race-task',
+          title: 'First Update',
         })
-        
+
         // Second update fires before first completes
         setTimeout(() => {
           act(() => {
-            result.current.updateTask.mutate({ 
-              id: 'race-task', 
-              status: 'completed' 
+            result.current.updateTask.mutate({
+              id: 'race-task',
+              status: 'completed',
             })
           })
         }, 25)
       })
 
       // Wait for both to complete
-      await waitFor(() => {
-        expect(updateCount).toBe(2)
-      }, { timeout: 200 })
+      await waitFor(
+        () => {
+          expect(updateCount).toBe(2)
+        },
+        { timeout: 200 }
+      )
 
       // Final state should reflect both updates
       const finalTask = result.current.tasks.data?.tasks[0]

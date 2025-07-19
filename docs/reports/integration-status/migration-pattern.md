@@ -1,11 +1,13 @@
 # TanStack Query Migration Pattern
 
 ## Overview
+
 This document outlines the migration pattern for converting components from Zustand stores to TanStack Query hooks.
 
 ## Analysis Results
 
 ### Current State
+
 1. **task-list.tsx** - Already migrated to TanStack Query
    - Uses `useTasksQuery` for data fetching
    - Uses `useUpdateTaskMutation` and `useDeleteTaskMutation` for mutations
@@ -25,36 +27,34 @@ This document outlines the migration pattern for converting components from Zust
 ### Migration Pattern
 
 #### 1. Import TanStack Query Hooks
+
 Replace Zustand store imports with TanStack Query hooks:
+
 ```typescript
 // Before
-import { useTaskStore } from '@/stores/tasks'
+import { useTaskStore } from "@/stores/tasks";
 
 // After
 import {
   useTasksQuery,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
-} from '@/hooks/use-task-queries'
+} from "@/hooks/use-task-queries";
 ```
 
 #### 2. Replace Store Usage with Query Hooks
+
 ```typescript
 // Before
-const { tasks, loading, error } = useTaskStore()
+const { tasks, loading, error } = useTaskStore();
 
 // After
-const {
-  tasks,
-  loading,
-  error,
-  refetch,
-  isStale,
-  isFetching,
-} = useTasksQuery(filters)
+const { tasks, loading, error, refetch, isStale, isFetching } =
+  useTasksQuery(filters);
 ```
 
 #### 3. Implement Loading States
+
 ```typescript
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-1">
@@ -70,6 +70,7 @@ if (loading) {
 ```
 
 #### 4. Implement Error Handling
+
 ```typescript
 const ErrorDisplay = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
   <Alert variant="destructive" className="mb-4">
@@ -89,6 +90,7 @@ if (error) {
 ```
 
 #### 5. Add Offline Indicators
+
 ```typescript
 const { isConnected, isSyncing, error: electricError } = useElectricContext()
 
@@ -111,19 +113,21 @@ const ConnectionStatus = () => (
 ```
 
 #### 6. Handle Mutations with Optimistic Updates
+
 ```typescript
-const updateMutation = useUpdateTaskMutation()
+const updateMutation = useUpdateTaskMutation();
 
 const handleUpdate = async (id: string, updates: Partial<Task>) => {
   try {
-    await updateMutation.mutateAsync({ id, data: updates })
+    await updateMutation.mutateAsync({ id, data: updates });
   } catch (error) {
-    console.error('Failed to update:', error)
+    console.error("Failed to update:", error);
   }
-}
+};
 ```
 
 #### 7. Show Stale Data Indicators
+
 ```typescript
 {isStale && (
   <Badge variant="outline" className="text-xs">
@@ -133,6 +137,7 @@ const handleUpdate = async (id: string, updates: Partial<Task>) => {
 ```
 
 #### 8. Add Manual Refresh
+
 ```typescript
 <Button
   variant="ghost"
@@ -147,16 +152,18 @@ const handleUpdate = async (id: string, updates: Partial<Task>) => {
 ## Components Requiring Migration
 
 ### Priority 1 - Task Page Components
-1. **app/task/[id]/_components/chat-messages-panel.tsx**
+
+1. **app/task/[id]/\_components/chat-messages-panel.tsx**
    - Currently uses direct task prop
    - Needs to use `useTaskQuery(taskId)` hook
    - Add loading and error states
 
-2. **app/task/[id]/_providers/task-provider.tsx**
+2. **app/task/[id]/\_providers/task-provider.tsx**
    - May need to integrate TanStack Query hooks
    - Ensure proper data flow to child components
 
 ### Priority 2 - Other Components
+
 1. Any remaining components using Zustand stores
 2. Components that directly fetch data without TanStack Query
 

@@ -20,7 +20,7 @@ graph TB
         Interactions[Interaction Handlers]
         Animations[Animation Engine]
     end
-    
+
     subgraph "Data Processing Layer"
         EventProcessor[Event Stream Processor]
         StateManager[Visualization State Manager]
@@ -28,7 +28,7 @@ graph TB
         FilterEngine[Filter & Search Engine]
         AggregationEngine[Data Aggregation]
     end
-    
+
     subgraph "Integration Layer"
         ClaudeFlowAPI[Claude Flow API]
         LangfuseConnector[Langfuse Connector]
@@ -36,14 +36,14 @@ graph TB
         OTELConnector[OpenTelemetry Connector]
         DatabaseConnector[Database Connector]
     end
-    
+
     subgraph "Real-time Communication"
         WebSocketManager[WebSocket Manager]
         EventBus[Event Bus]
         SSEConnector[Server-Sent Events]
         PubSubSystem[Pub/Sub System]
     end
-    
+
     subgraph "UI Components"
         Dashboard[Main Dashboard]
         ControlPanels[Control Panels]
@@ -52,40 +52,40 @@ graph TB
         Modals[Modal Dialogs]
         Toolbars[Toolbars]
     end
-    
+
     subgraph "Performance Layer"
         Virtualization[Canvas Virtualization]
         LODSystem[Level of Detail System]
         CacheManager[Cache Manager]
         ThrottleManager[Update Throttling]
     end
-    
+
     ReactFlow --> CustomNodes
     ReactFlow --> CustomEdges
     ReactFlow --> Layouts
     CustomNodes --> Interactions
     CustomEdges --> Animations
-    
+
     EventProcessor --> StateManager
     StateManager --> DataTransformer
     DataTransformer --> FilterEngine
     FilterEngine --> AggregationEngine
-    
+
     ClaudeFlowAPI --> EventProcessor
     LangfuseConnector --> EventProcessor
     SentryConnector --> EventProcessor
     OTELConnector --> EventProcessor
     DatabaseConnector --> EventProcessor
-    
+
     WebSocketManager --> EventBus
     EventBus --> SSEConnector
     SSEConnector --> PubSubSystem
-    
+
     Dashboard --> ReactFlow
     ControlPanels --> StateManager
     DetailPanels --> DataTransformer
     ContextMenus --> Interactions
-    
+
     Virtualization --> ReactFlow
     LODSystem --> CustomNodes
     CacheManager --> StateManager
@@ -105,7 +105,7 @@ graph TB
 
 ### Core Visualization Engine (`/components/ambient-agents/visualization-engine.tsx`)
 
-```typescript
+````typescript
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactFlow, {
   Node,
@@ -176,15 +176,15 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false)
 
   // Custom hooks for data and state management
-  const { 
-    agentData, 
-    taskData, 
-    eventStream, 
-    memoryData, 
-    isLoading, 
-    error 
+  const {
+    agentData,
+    taskData,
+    eventStream,
+    memoryData,
+    isLoading,
+    error
   } = useAmbientAgentData(swarmId)
-  
+
   const {
     visualizationState,
     updateLayout,
@@ -262,18 +262,18 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
         >
           {/* Background pattern */}
           <Background color="#aaa" gap={16} />
-          
+
           {/* Navigation controls */}
           <Controls />
-          
+
           {/* Minimap for navigation */}
-          <MiniMap 
+          <MiniMap
             nodeColor={(node) => getNodeColor(node)}
             nodeStrokeWidth={3}
             zoomable
             pannable
           />
-          
+
           {/* Control panels */}
           <Panel position="top-left">
             <VisualizationControls
@@ -284,7 +284,7 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
               onFilterChange={applyFilters}
             />
           </Panel>
-          
+
           {/* Performance monitor */}
           {showPerformanceMetrics && (
             <Panel position="top-right">
@@ -292,7 +292,7 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
             </Panel>
           )}
         </ReactFlow>
-        
+
         {/* Detail panel for selected nodes */}
         {selectedNode && (
           <AgentDetailPanel
@@ -315,7 +315,7 @@ function transformDataToNodes(
   viewMode: string
 ): Node[] {
   const nodes: Node[] = []
-  
+
   // Transform agents to nodes
   if (agentData?.agents) {
     agentData.agents.forEach((agent: any, index: number) => {
@@ -332,7 +332,7 @@ function transformDataToNodes(
       })
     })
   }
-  
+
   // Transform tasks to nodes (if in task-centric view)
   if (viewMode === 'task-centric' && taskData?.tasks) {
     taskData.tasks.forEach((task: any, index: number) => {
@@ -349,7 +349,7 @@ function transformDataToNodes(
       })
     })
   }
-  
+
   // Transform memory nodes (if in memory-centric view)
   if (viewMode === 'memory-centric' && memoryData?.namespaces) {
     memoryData.namespaces.forEach((namespace: any, index: number) => {
@@ -365,7 +365,7 @@ function transformDataToNodes(
       })
     })
   }
-  
+
   return nodes
 }
 
@@ -377,7 +377,7 @@ function transformDataToEdges(
   viewMode: string
 ): Edge[] {
   const edges: Edge[] = []
-  
+
   // Create edges based on agent communications
   if (agentData?.communications) {
     agentData.communications.forEach((comm: any) => {
@@ -395,7 +395,7 @@ function transformDataToEdges(
       })
     })
   }
-  
+
   // Create edges for task dependencies
   if (taskData?.dependencies) {
     taskData.dependencies.forEach((dep: any) => {
@@ -411,7 +411,7 @@ function transformDataToEdges(
       })
     })
   }
-  
+
   return edges
 }
 
@@ -484,12 +484,12 @@ import { Handle, Position, NodeProps } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { 
-  Activity, 
-  Brain, 
-  Clock, 
-  Cpu, 
-  AlertTriangle, 
+import {
+  Activity,
+  Brain,
+  Clock,
+  Cpu,
+  AlertTriangle,
   CheckCircle,
   Pause,
   Play,
@@ -567,12 +567,12 @@ export const AgentNode = memo<NodeProps<AgentNodeData>>(({ data, selected }) => 
     }
   }, [agent.provider])
 
-  const successRate = metrics.totalTasks > 0 
+  const successRate = metrics.totalTasks > 0
     ? ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1)
     : '0'
 
   return (
-    <Card 
+    <Card
       className={`
         w-80 transition-all duration-200 cursor-pointer
         ${getStatusColor()}
@@ -658,7 +658,7 @@ export const AgentNode = memo<NodeProps<AgentNodeData>>(({ data, selected }) => 
 })
 
 AgentNode.displayName = 'AgentNode'
-```
+````
 
 ### Custom Animated Edge Component (`/components/ambient-agents/edges/animated-edge.tsx`)
 
@@ -700,7 +700,7 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(({
 
   const getEdgeColor = () => {
     if (!data?.communication) return '#6b7280'
-    
+
     switch (data.communication.type) {
       case 'data':
         return '#3b82f6' // blue
@@ -717,7 +717,7 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(({
 
   const getEdgeWidth = () => {
     if (!data?.communication) return 2
-    
+
     // Scale width based on throughput
     const baseWidth = 2
     const throughputScale = Math.min(data.communication.throughput / 100, 3)
@@ -740,7 +740,7 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(({
           strokeDasharray: isAnimated ? '5,5' : 'none',
         }}
       />
-      
+
       {/* Edge label with communication details */}
       {data?.communication && (
         <EdgeLabelRenderer>
@@ -752,8 +752,8 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(({
             }}
             className="nodrag nopan"
           >
-            <Badge 
-              variant="secondary" 
+            <Badge
+              variant="secondary"
               className="text-xs bg-white shadow-md border"
             >
               {data.communication.throughput} ops/s
@@ -766,7 +766,7 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(({
           </div>
         </EdgeLabelRenderer>
       )}
-      
+
       {/* Custom label */}
       {data?.label && !data?.communication && (
         <EdgeLabelRenderer>
@@ -802,11 +802,11 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { 
-  LayoutGrid, 
-  Network, 
-  GitBranch, 
-  Search, 
+import {
+  LayoutGrid,
+  Network,
+  GitBranch,
+  Search,
   Filter,
   Settings,
   Eye,
@@ -852,7 +852,7 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
           <span>Visualization Controls</span>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* View Mode Selection */}
         <div className="space-y-2">
@@ -923,7 +923,7 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
         {/* Display Options */}
         <div className="space-y-3">
           <Label className="text-xs font-medium">Display Options</Label>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {showInactive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
@@ -935,7 +935,7 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
               size="sm"
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <LayoutGrid className="w-3 h-3" />
@@ -973,92 +973,97 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 ### Data Hook for Ambient Agent Data (`/hooks/use-ambient-agent-data.ts`)
 
 ```typescript
-import { useEffect, useState, useCallback } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useWebSocket } from './use-websocket'
+import { useEffect, useState, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useWebSocket } from "./use-websocket";
 
 export interface AmbientAgentData {
-  agents: Agent[]
-  tasks: Task[]
-  events: Event[]
-  memory: MemoryNamespace[]
-  communications: Communication[]
-  dependencies: Dependency[]
+  agents: Agent[];
+  tasks: Task[];
+  events: Event[];
+  memory: MemoryNamespace[];
+  communications: Communication[];
+  dependencies: Dependency[];
 }
 
 export interface Agent {
-  id: string
-  name: string
-  type: 'coder' | 'reviewer' | 'tester' | 'researcher' | 'optimizer'
-  provider: 'claude' | 'openai' | 'gemini' | 'custom'
-  status: 'idle' | 'busy' | 'error' | 'terminated'
-  capabilities: string[]
+  id: string;
+  name: string;
+  type: "coder" | "reviewer" | "tester" | "researcher" | "optimizer";
+  provider: "claude" | "openai" | "gemini" | "custom";
+  status: "idle" | "busy" | "error" | "terminated";
+  capabilities: string[];
   metrics: {
-    totalTasks: number
-    completedTasks: number
-    failedTasks: number
-    averageResponseTime: number
-    cpuUsage: number
-    memoryUsage: number
-  }
+    totalTasks: number;
+    completedTasks: number;
+    failedTasks: number;
+    averageResponseTime: number;
+    cpuUsage: number;
+    memoryUsage: number;
+  };
   currentTask?: {
-    id: string
-    name: string
-    progress: number
-    estimatedCompletion: Date
-  }
+    id: string;
+    name: string;
+    progress: number;
+    estimatedCompletion: Date;
+  };
 }
 
 export interface Task {
-  id: string
-  name: string
-  status: 'pending' | 'running' | 'completed' | 'failed'
-  dependencies: string[]
-  assignedAgent?: string
-  progress: number
-  startTime?: Date
-  endTime?: Date
+  id: string;
+  name: string;
+  status: "pending" | "running" | "completed" | "failed";
+  dependencies: string[];
+  assignedAgent?: string;
+  progress: number;
+  startTime?: Date;
+  endTime?: Date;
 }
 
 export interface Event {
-  id: string
-  type: 'agent.created' | 'agent.status.changed' | 'task.started' | 'task.completed' | 'memory.updated'
-  timestamp: Date
-  source: string
-  target?: string
-  data: any
+  id: string;
+  type:
+    | "agent.created"
+    | "agent.status.changed"
+    | "task.started"
+    | "task.completed"
+    | "memory.updated";
+  timestamp: Date;
+  source: string;
+  target?: string;
+  data: any;
 }
 
 export interface Communication {
-  from: string
-  to: string
-  type: 'data' | 'command' | 'event' | 'memory'
-  throughput: number
-  latency: number
-  isActive: boolean
+  from: string;
+  to: string;
+  type: "data" | "command" | "event" | "memory";
+  throughput: number;
+  latency: number;
+  isActive: boolean;
 }
 
 export interface Dependency {
-  from: string
-  to: string
-  type: 'task' | 'data' | 'resource'
-  status: 'active' | 'completed' | 'failed'
+  from: string;
+  to: string;
+  type: "task" | "data" | "resource";
+  status: "active" | "completed" | "failed";
 }
 
 export interface MemoryNamespace {
-  id: string
-  name: string
+  id: string;
+  name: string;
   usage: {
-    used: number
-    total: number
-    percentage: number
-  }
-  connections: string[]
+    used: number;
+    total: number;
+    percentage: number;
+  };
+  connections: string[];
 }
 
 export const useAmbientAgentData = (swarmId?: string) => {
-  const queryClient = useQueryClient()
-  const [eventStream, setEventStream] = useState<Event[]>([])
+  const queryClient = useQueryClient();
+  const [eventStream, setEventStream] = useState<Event[]>([]);
 
   // Fetch initial data
   const {
@@ -1067,106 +1072,135 @@ export const useAmbientAgentData = (swarmId?: string) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['ambient-agent-data', swarmId],
+    queryKey: ["ambient-agent-data", swarmId],
     queryFn: async (): Promise<AmbientAgentData> => {
-      const response = await fetch(`/api/ambient-agents${swarmId ? `?swarmId=${swarmId}` : ''}`)
+      const response = await fetch(
+        `/api/ambient-agents${swarmId ? `?swarmId=${swarmId}` : ""}`,
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch ambient agent data')
+        throw new Error("Failed to fetch ambient agent data");
       }
-      return response.json()
+      return response.json();
     },
     refetchInterval: 5000, // Refetch every 5 seconds
     staleTime: 2000, // Consider data stale after 2 seconds
-  })
+  });
 
   // WebSocket connection for real-time updates
   const { lastMessage, connectionStatus } = useWebSocket(
-    `/api/ambient-agents/ws${swarmId ? `?swarmId=${swarmId}` : ''}`,
+    `/api/ambient-agents/ws${swarmId ? `?swarmId=${swarmId}` : ""}`,
     {
-      onOpen: () => console.log('Ambient agent WebSocket connected'),
-      onClose: () => console.log('Ambient agent WebSocket disconnected'),
-      onError: (error) => console.error('Ambient agent WebSocket error:', error),
-    }
-  )
+      onOpen: () => console.log("Ambient agent WebSocket connected"),
+      onClose: () => console.log("Ambient agent WebSocket disconnected"),
+      onError: (error) =>
+        console.error("Ambient agent WebSocket error:", error),
+    },
+  );
 
   // Handle real-time updates
   useEffect(() => {
     if (lastMessage) {
       try {
-        const update = JSON.parse(lastMessage.data)
-        
+        const update = JSON.parse(lastMessage.data);
+
         switch (update.type) {
-          case 'agent.status.changed':
-            queryClient.setQueryData(['ambient-agent-data', swarmId], (old: AmbientAgentData | undefined) => {
-              if (!old) return old
-              
-              return {
-                ...old,
-                agents: old.agents.map(agent =>
-                  agent.id === update.agentId
-                    ? { ...agent, status: update.status, metrics: update.metrics }
-                    : agent
-                ),
-              }
-            })
-            break
-            
-          case 'task.progress.updated':
-            queryClient.setQueryData(['ambient-agent-data', swarmId], (old: AmbientAgentData | undefined) => {
-              if (!old) return old
-              
-              return {
-                ...old,
-                tasks: old.tasks.map(task =>
-                  task.id === update.taskId
-                    ? { ...task, progress: update.progress, status: update.status }
-                    : task
-                ),
-              }
-            })
-            break
-            
-          case 'communication.updated':
-            queryClient.setQueryData(['ambient-agent-data', swarmId], (old: AmbientAgentData | undefined) => {
-              if (!old) return old
-              
-              return {
-                ...old,
-                communications: old.communications.map(comm =>
-                  comm.from === update.from && comm.to === update.to
-                    ? { ...comm, throughput: update.throughput, latency: update.latency, isActive: update.isActive }
-                    : comm
-                ),
-              }
-            })
-            break
-            
-          case 'event':
-            setEventStream(prev => [update.event, ...prev.slice(0, 99)]) // Keep last 100 events
-            break
+          case "agent.status.changed":
+            queryClient.setQueryData(
+              ["ambient-agent-data", swarmId],
+              (old: AmbientAgentData | undefined) => {
+                if (!old) return old;
+
+                return {
+                  ...old,
+                  agents: old.agents.map((agent) =>
+                    agent.id === update.agentId
+                      ? {
+                          ...agent,
+                          status: update.status,
+                          metrics: update.metrics,
+                        }
+                      : agent,
+                  ),
+                };
+              },
+            );
+            break;
+
+          case "task.progress.updated":
+            queryClient.setQueryData(
+              ["ambient-agent-data", swarmId],
+              (old: AmbientAgentData | undefined) => {
+                if (!old) return old;
+
+                return {
+                  ...old,
+                  tasks: old.tasks.map((task) =>
+                    task.id === update.taskId
+                      ? {
+                          ...task,
+                          progress: update.progress,
+                          status: update.status,
+                        }
+                      : task,
+                  ),
+                };
+              },
+            );
+            break;
+
+          case "communication.updated":
+            queryClient.setQueryData(
+              ["ambient-agent-data", swarmId],
+              (old: AmbientAgentData | undefined) => {
+                if (!old) return old;
+
+                return {
+                  ...old,
+                  communications: old.communications.map((comm) =>
+                    comm.from === update.from && comm.to === update.to
+                      ? {
+                          ...comm,
+                          throughput: update.throughput,
+                          latency: update.latency,
+                          isActive: update.isActive,
+                        }
+                      : comm,
+                  ),
+                };
+              },
+            );
+            break;
+
+          case "event":
+            setEventStream((prev) => [update.event, ...prev.slice(0, 99)]); // Keep last 100 events
+            break;
         }
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error)
+        console.error("Error parsing WebSocket message:", error);
       }
     }
-  }, [lastMessage, queryClient, swarmId])
+  }, [lastMessage, queryClient, swarmId]);
 
   const refreshData = useCallback(() => {
-    refetch()
-  }, [refetch])
+    refetch();
+  }, [refetch]);
 
   return {
     agentData: agentData?.agents,
-    taskData: agentData?.tasks ? { tasks: agentData.tasks, dependencies: agentData.dependencies } : undefined,
+    taskData: agentData?.tasks
+      ? { tasks: agentData.tasks, dependencies: agentData.dependencies }
+      : undefined,
     eventStream,
-    memoryData: agentData?.memory ? { namespaces: agentData.memory } : undefined,
+    memoryData: agentData?.memory
+      ? { namespaces: agentData.memory }
+      : undefined,
     communications: agentData?.communications,
     isLoading,
     error,
     connectionStatus,
     refreshData,
-  }
-}
+  };
+};
 ```
 
 ## Integration Points
@@ -1184,34 +1218,40 @@ export const useAmbientAgentData = (swarmId?: string) => {
 ```typescript
 // Integration with existing observability tools
 export class ObservabilityIntegration {
-  private langfuse: LangfuseClient
-  private sentry: SentryClient
-  private openTelemetry: OpenTelemetryClient
+  private langfuse: LangfuseClient;
+  private sentry: SentryClient;
+  private openTelemetry: OpenTelemetryClient;
 
   async trackVisualizationEvent(event: VisualizationEvent) {
     // Track user interactions with Langfuse
     await this.langfuse.trace({
-      name: 'visualization.interaction',
+      name: "visualization.interaction",
       input: event,
       metadata: {
         viewMode: event.viewMode,
         nodeType: event.nodeType,
         action: event.action,
       },
-    })
+    });
 
     // Track performance metrics with OpenTelemetry
-    this.openTelemetry.recordMetric('visualization.render_time', event.renderTime)
-    this.openTelemetry.recordMetric('visualization.node_count', event.nodeCount)
+    this.openTelemetry.recordMetric(
+      "visualization.render_time",
+      event.renderTime,
+    );
+    this.openTelemetry.recordMetric(
+      "visualization.node_count",
+      event.nodeCount,
+    );
   }
 
   async trackVisualizationError(error: Error, context: any) {
     // Send errors to Sentry with visualization context
     Sentry.withScope((scope) => {
-      scope.setTag('component', 'ambient-agent-visualization')
-      scope.setContext('visualization', context)
-      Sentry.captureException(error)
-    })
+      scope.setTag("component", "ambient-agent-visualization");
+      scope.setContext("visualization", context);
+      Sentry.captureException(error);
+    });
   }
 }
 ```

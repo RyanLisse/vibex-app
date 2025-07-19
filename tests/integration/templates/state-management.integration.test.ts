@@ -80,7 +80,9 @@ describe('State Management Integration Template', () => {
         { id: 2, title: 'Task 2', status: 'completed' },
       ]
 
-      integrationTestHelpers.mockApiResponse('/api/tasks', { tasks: mockTasks })
+      integrationTestHelpers.mockApiResponse('/api/tasks', {
+        tasks: mockTasks,
+      })
 
       // Simulate store action that fetches from API
       taskStore.setState({ loading: true })
@@ -133,8 +135,12 @@ describe('State Management Integration Template', () => {
 
     it('should handle concurrent API calls', async () => {
       // Mock concurrent API responses
-      integrationTestHelpers.mockApiResponse('/api/tasks', { tasks: [{ id: 1, title: 'Task 1' }] })
-      integrationTestHelpers.mockApiResponse('/api/user', { user: { id: 1, name: 'John' } })
+      integrationTestHelpers.mockApiResponse('/api/tasks', {
+        tasks: [{ id: 1, title: 'Task 1' }],
+      })
+      integrationTestHelpers.mockApiResponse('/api/user', {
+        user: { id: 1, name: 'John' },
+      })
 
       // Start concurrent requests
       const taskPromise = fetch('/api/tasks')

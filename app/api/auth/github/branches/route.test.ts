@@ -53,7 +53,9 @@ describe('GET /api/auth/github/branches', () => {
   })
 
   it('should handle missing repository parameter', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Repository parameter is required' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Repository parameter is required',
+    } as any)
 
     const request = new NextRequest('https://app.example.com/api/auth/github/branches')
 
@@ -82,7 +84,9 @@ describe('GET /api/auth/github/branches', () => {
   it('should handle GitHub API errors', async () => {
     mockGetGitHubAccessToken.mockResolvedValue('github-token')
     mockFetchGitHubBranches.mockRejectedValue(new Error('Repository not found'))
-    mockNextResponse.json.mockReturnValue({ error: 'Repository not found' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Repository not found',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/github/branches?repo=owner/nonexistent'
@@ -99,7 +103,9 @@ describe('GET /api/auth/github/branches', () => {
 
   it('should handle invalid repository format', async () => {
     mockGetGitHubAccessToken.mockResolvedValue('github-token')
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid repository format' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid repository format',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/github/branches?repo=invalid-repo'
@@ -132,7 +138,9 @@ describe('GET /api/auth/github/branches', () => {
     const rateLimitError = new Error('API rate limit exceeded')
     rateLimitError.name = 'RateLimitError'
     mockFetchGitHubBranches.mockRejectedValue(rateLimitError)
-    mockNextResponse.json.mockReturnValue({ error: 'Rate limit exceeded' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Rate limit exceeded',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/github/branches?repo=owner/repo'
@@ -147,7 +155,9 @@ describe('GET /api/auth/github/branches', () => {
   })
 
   it('should handle empty repository name', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Repository parameter is required' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Repository parameter is required',
+    } as any)
 
     const request = new NextRequest('https://app.example.com/api/auth/github/branches?repo=')
 
@@ -208,7 +218,9 @@ describe('GET /api/auth/github/branches', () => {
 
   it('should handle malformed repository URLs', async () => {
     mockGetGitHubAccessToken.mockResolvedValue('github-token')
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid repository format' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid repository format',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/github/branches?repo=owner/repo/extra/path'

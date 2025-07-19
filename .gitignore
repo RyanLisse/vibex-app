@@ -76,6 +76,7 @@ hive-mind-prompt-*.txt
 /playwright-report
 /test-results
 /storybook-static
+tests/fixtures/backup/backup-*.json
 
 # IDE and editor files
 .idea/

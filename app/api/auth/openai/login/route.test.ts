@@ -154,7 +154,9 @@ describe('POST /api/auth/openai/login', () => {
     mockGenerateCodeChallenge.mockRejectedValue(new Error('Code challenge generation failed'))
     mockGenerateState.mockReturnValue(mockState)
 
-    mockNextResponse.json.mockReturnValue({ error: 'Code challenge generation failed' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Code challenge generation failed',
+    } as any)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
       method: 'POST',
@@ -178,7 +180,9 @@ describe('POST /api/auth/openai/login', () => {
       },
     }))
 
-    mockNextResponse.json.mockReturnValue({ error: 'Missing OpenAI configuration' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing OpenAI configuration',
+    } as any)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
       method: 'POST',
@@ -204,7 +208,9 @@ describe('POST /api/auth/openai/login', () => {
       throw new Error('Auth URL generation failed')
     })
 
-    mockNextResponse.json.mockReturnValue({ error: 'Auth URL generation failed' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Auth URL generation failed',
+    } as any)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
       method: 'POST',
@@ -230,7 +236,9 @@ describe('POST /api/auth/openai/login', () => {
       throw new Error('Invalid redirect URI')
     })
 
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid redirect URI' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid redirect URI',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/login?redirect_uri=javascript%3Aalert(1)',
@@ -283,7 +291,9 @@ describe('POST /api/auth/openai/login', () => {
   })
 
   it('should handle malformed JSON in request body', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid request body' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid request body',
+    } as any)
 
     const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
       method: 'POST',

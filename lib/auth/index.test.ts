@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { vi } from 'vitest'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { Auth, type AuthInfo } from '@/lib/auth/index'
@@ -7,10 +6,10 @@ import { Auth, type AuthInfo } from '@/lib/auth/index'
 // Mock fs/promises module
 mock.module('node:fs/promises', () => ({
   default: {
-    mkdir: vi.fn(),
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-    chmod: vi.fn(),
+    mkdir: mock(),
+    readFile: mock(),
+    writeFile: mock(),
+    chmod: mock(),
   },
 }))
 

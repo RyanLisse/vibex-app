@@ -41,11 +41,11 @@ import {
   revokeToken,
 } from '@/lib/auth/openai-codex'
 
-const mockClearStoredToken = clearStoredToken as unknown as jest.Mock
-const mockRevokeToken = revokeToken as unknown as jest.Mock
-const mockGetStoredToken = getStoredToken as unknown as jest.Mock
-const mockClearStoredState = clearStoredState as unknown as jest.Mock
-const mockClearStoredCodeVerifier = clearStoredCodeVerifier as unknown as jest.Mock
+const mockClearStoredToken = clearStoredToken as any
+const mockRevokeToken = revokeToken as any
+const mockGetStoredToken = getStoredToken as any
+const mockClearStoredState = clearStoredState as any
+const mockClearStoredCodeVerifier = clearStoredCodeVerifier as any
 
 const mockNextResponse = (await import('next/server' as unknown as string)).NextResponse
 

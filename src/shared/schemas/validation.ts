@@ -169,5 +169,7 @@ export type ValidationResult<T> =
 
 export type PaginationInput = z.infer<typeof PaginationSchema>
 export type SearchInput = z.infer<typeof SearchSchema>
-export type ApiResponse<T = unknown> = z.infer<typeof ApiResponseSchema> & { data?: T }
+export type ApiResponse<T = unknown> = z.infer<typeof ApiResponseSchema> & {
+  data?: T
+}
 export type ApiError = z.infer<typeof ApiErrorSchema>

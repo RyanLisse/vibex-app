@@ -206,7 +206,6 @@ describe('GitHub Authentication', () => {
 
     it('should pass custom options to API', async () => {
       mockCookies.get.mockReturnValue({ value: 'valid-token' })
-
       ;(fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => [],

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     })
 
     return response
-  } catch (_error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to initiate OAuth flow' }, { status: 500 })
   }
 }

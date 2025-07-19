@@ -5,6 +5,7 @@ A comprehensive AI-powered voice brainstorming system that combines real-time tr
 ## 🎯 Overview
 
 The Voice Brainstorming System integrates:
+
 - **OpenAI Whisper** for real-time voice transcription
 - **Letta Multi-Agent System** for intelligent brainstorming guidance
 - **Gemini AI** for natural language processing
@@ -63,6 +64,7 @@ Navigate to `http://localhost:3000/voice-brainstorm`
 ## 🎤 Features
 
 ### Real-time Voice Transcription
+
 - **High Accuracy**: 95%+ transcription accuracy with OpenAI Whisper
 - **Live Feedback**: Real-time audio level monitoring
 - **Confidence Scoring**: Quality assessment for each transcription
@@ -71,12 +73,14 @@ Navigate to `http://localhost:3000/voice-brainstorm`
 ### Intelligent Brainstorming Agents
 
 #### Orchestrator Agent
+
 - **Session Coordination**: Manages overall brainstorming flow
 - **Multi-modal Input**: Handles both voice and text seamlessly
 - **Context Awareness**: Maintains conversation history and user preferences
 - **Agent Delegation**: Routes tasks to specialized agents
 
 #### Brainstorm Agent
+
 - **Structured Process**: Guides through 6 brainstorming stages:
   1. **Exploration** - Discovering core ideas
   2. **Clarification** - Defining scope and audience
@@ -90,6 +94,7 @@ Navigate to `http://localhost:3000/voice-brainstorm`
 - **Progress Tracking**: Stage advancement and completion metrics
 
 ### Multi-Modal Interface
+
 - **Voice-First Design**: Optimized for natural speech interaction
 - **Visual Feedback**: Real-time transcription and idea visualization
 - **Hybrid Input**: Seamless switching between voice and text
@@ -105,12 +110,12 @@ const system = getMultiAgentSystem();
 await system.initialize();
 
 // Create a brainstorm session
-const session = await system.createSession('user-123', 'brainstorm');
+const session = await system.createSession("user-123", "brainstorm");
 
 // Start voice brainstorming
 const brainstormSession = await system.startBrainstormSession(
-  session.id, 
-  'Innovative Mobile App Ideas'
+  session.id,
+  "Innovative Mobile App Ideas",
 );
 ```
 
@@ -118,15 +123,15 @@ const brainstormSession = await system.startBrainstormSession(
 
 ```typescript
 // Process voice transcript
-const response = await fetch('/api/agents/brainstorm', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("/api/agents/brainstorm", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    action: 'process_voice_input',
-    sessionId: 'session-123',
-    transcript: 'I think we should create an app that helps people...',
-    confidence: 0.92
-  })
+    action: "process_voice_input",
+    sessionId: "session-123",
+    transcript: "I think we should create an app that helps people...",
+    confidence: 0.92,
+  }),
 });
 
 const data = await response.json();
@@ -136,14 +141,14 @@ const data = await response.json();
 ### Using the React Component
 
 ```tsx
-import { VoiceBrainstorm } from '@/components/agents/voice-brainstorm';
+import { VoiceBrainstorm } from "@/components/agents/voice-brainstorm";
 
 function MyBrainstormPage() {
   return (
     <VoiceBrainstorm
       sessionId="my-session"
-      onSessionUpdate={(session) => console.log('Session updated:', session)}
-      onIdeaGenerated={(idea) => console.log('New idea:', idea)}
+      onSessionUpdate={(session) => console.log("Session updated:", session)}
+      onIdeaGenerated={(idea) => console.log("New idea:", idea)}
     />
   );
 }
@@ -156,6 +161,7 @@ function MyBrainstormPage() {
 #### `POST /api/agents/brainstorm`
 
 **Start Voice Brainstorm**
+
 ```json
 {
   "action": "start_voice_brainstorm",
@@ -167,6 +173,7 @@ function MyBrainstormPage() {
 ```
 
 **Process Voice Input**
+
 ```json
 {
   "action": "process_voice_input",
@@ -178,33 +185,36 @@ function MyBrainstormPage() {
 ```
 
 **Generate Insights**
+
 ```json
 {
   "action": "generate_insights",
   "sessionId": "session-123",
   "stage": "evaluation",
   "transcripts": ["transcript1", "transcript2"],
-  "ideas": [{"content": "idea text", "score": 8}]
+  "ideas": [{ "content": "idea text", "score": 8 }]
 }
 ```
 
 #### `POST /api/agents/voice`
 
 **Process Voice Message**
+
 ```javascript
 const formData = new FormData();
-formData.append('sessionId', 'session-123');
-formData.append('audio', audioBlob);
+formData.append("sessionId", "session-123");
+formData.append("audio", audioBlob);
 
-const response = await fetch('/api/agents/voice', {
-  method: 'POST',
-  body: formData
+const response = await fetch("/api/agents/voice", {
+  method: "POST",
+  body: formData,
 });
 ```
 
 ### Response Formats
 
 **Brainstorm Session Response**
+
 ```json
 {
   "success": true,
@@ -227,6 +237,7 @@ const response = await fetch('/api/agents/voice', {
 ```
 
 **Voice Processing Response**
+
 ```json
 {
   "success": true,
@@ -254,13 +265,13 @@ const response = await fetch('/api/agents/voice', {
 ### Creativity Levels
 
 ```typescript
-type CreativityLevel = 'conservative' | 'balanced' | 'creative' | 'wild';
+type CreativityLevel = "conservative" | "balanced" | "creative" | "wild";
 
 const creativitySettings = {
-  conservative: 'Focus on practical, proven approaches',
-  balanced: 'Balance creativity with practicality', 
-  creative: 'Encourage bold thinking and novel approaches',
-  wild: 'Embrace radical thinking and unconventional ideas'
+  conservative: "Focus on practical, proven approaches",
+  balanced: "Balance creativity with practicality",
+  creative: "Encourage bold thinking and novel approaches",
+  wild: "Embrace radical thinking and unconventional ideas",
 };
 ```
 
@@ -268,12 +279,12 @@ const creativitySettings = {
 
 ```typescript
 const stages = [
-  'exploration',    // Discovering core ideas
-  'clarification',  // Defining scope and audience  
-  'expansion',      // Generating alternatives
-  'evaluation',     // Assessing feasibility
-  'refinement',     // Combining and improving
-  'action_planning' // Creating next steps
+  "exploration", // Discovering core ideas
+  "clarification", // Defining scope and audience
+  "expansion", // Generating alternatives
+  "evaluation", // Assessing feasibility
+  "refinement", // Combining and improving
+  "action_planning", // Creating next steps
 ];
 ```
 
@@ -282,33 +293,36 @@ const stages = [
 ```typescript
 const voiceConfig = {
   transcription: {
-    model: 'whisper-1',
-    language: 'en',
+    model: "whisper-1",
+    language: "en",
     temperature: 0,
-    responseFormat: 'json'
+    responseFormat: "json",
   },
   audio: {
     sampleRate: 16000,
     echoCancellation: true,
     noiseSuppression: true,
-    autoGainControl: true
-  }
+    autoGainControl: true,
+  },
 };
 ```
 
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 bun run test lib/letta/integration.test.ts
 ```
 
 ### Integration Tests
+
 ```bash
 bun run test:integration
 ```
 
 ### E2E Tests
+
 ```bash
 bun run test:e2e:ai
 ```
@@ -330,26 +344,31 @@ bun run test:e2e:ai
 ### Common Issues
 
 **Voice Recording Not Working**
+
 ```javascript
 // Check microphone permissions
-navigator.mediaDevices.getUserMedia({ audio: true })
-  .then(stream => console.log('Microphone access granted'))
-  .catch(err => console.error('Microphone access denied:', err));
+navigator.mediaDevices
+  .getUserMedia({ audio: true })
+  .then((stream) => console.log("Microphone access granted"))
+  .catch((err) => console.error("Microphone access denied:", err));
 ```
 
 **Transcription Errors**
+
 - Verify OpenAI API key is set correctly
 - Check network connectivity
 - Ensure audio format is supported (WebM/Opus)
 - Test with shorter audio clips
 
 **Agent Not Responding**
+
 - Verify Letta API key and project ID
 - Check agent initialization status
 - Review session state and active agents
 - Monitor API rate limits
 
 **Low Transcription Accuracy**
+
 - Improve audio quality (reduce background noise)
 - Speak clearly and at moderate pace
 - Check microphone settings and positioning
@@ -362,7 +381,7 @@ navigator.mediaDevices.getUserMedia({ audio: true })
 const system = new MultiAgentSystem({
   enableVoice: true,
   enableLowLatency: true,
-  debug: true // Add debug flag
+  debug: true, // Add debug flag
 });
 ```
 
@@ -371,14 +390,15 @@ const system = new MultiAgentSystem({
 ```javascript
 // Monitor session metrics
 const status = system.getSystemStatus();
-console.log('Active sessions:', status.activeSessions);
-console.log('Agent status:', status.agents);
-console.log('Event queue size:', status.eventQueueSize);
+console.log("Active sessions:", status.activeSessions);
+console.log("Agent status:", status.agents);
+console.log("Event queue size:", status.eventQueueSize);
 ```
 
 ## 🚀 Deployment
 
 ### Environment Variables
+
 ```bash
 # Production environment
 LETTA_API_KEY=prod_letta_key
@@ -388,6 +408,7 @@ NODE_ENV=production
 ```
 
 ### Build and Deploy
+
 ```bash
 # Build the application
 bun run build
@@ -397,6 +418,7 @@ bun run start
 ```
 
 ### Performance Optimization
+
 - Enable audio compression for voice data
 - Implement session cleanup and garbage collection
 - Use WebSocket connections for real-time features
@@ -406,6 +428,7 @@ bun run start
 ## 📈 Analytics and Monitoring
 
 ### Key Metrics
+
 - Session duration and completion rates
 - Transcription accuracy scores
 - Ideas generated per session
@@ -413,6 +436,7 @@ bun run start
 - User engagement metrics
 
 ### Logging
+
 ```typescript
 // Session analytics
 const analytics = {
@@ -420,7 +444,7 @@ const analytics = {
   duration: session.duration,
   ideasGenerated: session.ideas.length,
   stagesCompleted: getCompletedStages(session),
-  transcriptionAccuracy: calculateAccuracy(session.transcripts)
+  transcriptionAccuracy: calculateAccuracy(session.transcripts),
 };
 ```
 
@@ -433,6 +457,7 @@ const analytics = {
 5. Submit a pull request
 
 ### Development Guidelines
+
 - Follow TypeScript best practices
 - Add comprehensive tests for new features
 - Update documentation for API changes

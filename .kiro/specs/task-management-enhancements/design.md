@@ -18,7 +18,7 @@ graph TB
         E[Progress Monitor]
         F[PR Status Display]
     end
-    
+
     subgraph "API Layer"
         G[Task API]
         H[File Upload API]
@@ -26,7 +26,7 @@ graph TB
         J[GitHub Integration API]
         K[WebSocket API]
     end
-    
+
     subgraph "Services Layer"
         L[Task Service]
         M[File Storage Service]
@@ -34,26 +34,26 @@ graph TB
         O[GitHub Service]
         P[Real-time Service]
     end
-    
+
     subgraph "Data Layer"
         Q[Task Database]
         R[File Storage]
         S[WebSocket Connections]
     end
-    
+
     A --> G
     B --> H
     C --> I
     D --> G
     E --> K
     F --> J
-    
+
     G --> L
     H --> M
     I --> N
     J --> O
     K --> P
-    
+
     L --> Q
     M --> R
     P --> S
@@ -63,6 +63,7 @@ graph TB
 ### Component Integration Strategy
 
 The design integrates three external component libraries:
+
 1. **OriginUI comp-547**: File upload component for screenshot handling
 2. **Kibo-UI AI components**: Voice input and AI-powered features
 3. **Kibo-UI Kanban components**: Drag-and-drop kanban board functionality
@@ -72,12 +73,14 @@ The design integrates three external component libraries:
 ### 1. Screenshot Bug Reporting System
 
 **Components:**
+
 - `QuickBugReportButton`: Trigger for screenshot capture
 - `ScreenshotCapture`: Handles screen capture using Web APIs
 - `BugReportForm`: Form with screenshot annotation tools
 - `ImageAnnotationTools`: Drawing tools for screenshot markup
 
 **Key Interfaces:**
+
 ```typescript
 interface ScreenshotData {
   id: string;
@@ -87,7 +90,7 @@ interface ScreenshotData {
 }
 
 interface Annotation {
-  type: 'arrow' | 'text' | 'highlight' | 'rectangle';
+  type: "arrow" | "text" | "highlight" | "rectangle";
   position: { x: number; y: number };
   data: string | DrawingPath;
 }
@@ -97,7 +100,7 @@ interface BugReport {
   title: string;
   description: string;
   screenshot: ScreenshotData;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   tags: string[];
 }
 ```
@@ -105,12 +108,14 @@ interface BugReport {
 ### 2. Voice-Dictated Task Creation
 
 **Components:**
+
 - `VoiceInputButton`: Microphone activation button
 - `VoiceRecorder`: Audio recording interface
 - `TranscriptionProcessor`: Speech-to-text conversion
 - `VoiceTaskForm`: Auto-populated task form
 
 **Key Interfaces:**
+
 ```typescript
 interface VoiceRecording {
   id: string;
@@ -140,12 +145,14 @@ interface VoiceTask {
 ### 3. Real-time Progress Monitoring
 
 **Components:**
+
 - `ProgressDashboard`: Main monitoring interface
 - `TaskProgressCard`: Individual task progress display
 - `ProgressIndicator`: Visual progress representation
 - `AlertSystem`: Overdue and blocked task notifications
 
 **Key Interfaces:**
+
 ```typescript
 interface TaskProgress {
   taskId: string;
@@ -170,12 +177,14 @@ interface ProgressMetrics {
 ### 4. Kanban Board Visualization
 
 **Components:**
+
 - `KanbanBoard`: Main board container using Kibo-UI components
 - `KanbanColumn`: Status-based columns
 - `KanbanCard`: Draggable task cards
 - `TaskFilters`: Filtering and search functionality
 
 **Key Interfaces:**
+
 ```typescript
 interface KanbanTask extends KanbanItemProps {
   id: string;
@@ -198,18 +207,20 @@ interface KanbanColumn extends KanbanColumnProps {
 ### 5. PR Status Integration
 
 **Components:**
+
 - `PRStatusCard`: PR information display
 - `PRStatusBadge`: Status indicator
 - `PRReviewSummary`: Review progress summary
 - `PRActionButtons`: Quick action buttons
 
 **Key Interfaces:**
+
 ```typescript
 interface PRStatus {
   prId: string;
   title: string;
-  status: 'draft' | 'open' | 'merged' | 'closed';
-  reviewStatus: 'pending' | 'approved' | 'changes_requested';
+  status: "draft" | "open" | "merged" | "closed";
+  reviewStatus: "pending" | "approved" | "changes_requested";
   checks: PRCheck[];
   reviewers: Reviewer[];
   mergeable: boolean;
@@ -227,6 +238,7 @@ interface TaskPRLink {
 ## Data Models
 
 ### Enhanced Task Model
+
 ```typescript
 interface EnhancedTask {
   id: string;
@@ -239,9 +251,9 @@ interface EnhancedTask {
   createdAt: Date;
   updatedAt: Date;
   dueDate?: Date;
-  
+
   // New fields for enhancements
-  creationMethod: 'manual' | 'voice' | 'bug_report';
+  creationMethod: "manual" | "voice" | "bug_report";
   screenshots: ScreenshotData[];
   voiceRecording?: VoiceRecording;
   progress: TaskProgress;
@@ -254,6 +266,7 @@ interface EnhancedTask {
 ```
 
 ### File Storage Model
+
 ```typescript
 interface FileMetadata {
   id: string;
@@ -262,7 +275,7 @@ interface FileMetadata {
   size: number;
   uploadedAt: Date;
   taskId: string;
-  type: 'screenshot' | 'voice_recording' | 'attachment';
+  type: "screenshot" | "voice_recording" | "attachment";
   url: string;
 }
 ```
@@ -270,24 +283,28 @@ interface FileMetadata {
 ## Error Handling
 
 ### Screenshot Capture Errors
+
 - Browser permission denied
 - Screen capture API not supported
 - File size limitations
 - Upload failures
 
 ### Voice Input Errors
+
 - Microphone permission denied
 - Speech recognition API unavailable
 - Transcription failures
 - Audio quality issues
 
 ### Real-time Connection Errors
+
 - WebSocket connection failures
 - Network interruptions
 - Server unavailability
 - Data synchronization conflicts
 
 ### GitHub Integration Errors
+
 - API rate limiting
 - Authentication failures
 - Repository access issues
@@ -296,30 +313,35 @@ interface FileMetadata {
 ## Testing Strategy
 
 ### Unit Testing
+
 - Component rendering and behavior
 - API endpoint functionality
 - Data transformation logic
 - Error handling scenarios
 
 ### Integration Testing
+
 - File upload workflows
 - Voice transcription accuracy
 - Real-time data synchronization
 - GitHub API integration
 
 ### End-to-End Testing
+
 - Complete bug reporting workflow
 - Voice task creation process
 - Kanban board interactions
 - PR status updates
 
 ### Performance Testing
+
 - File upload performance
 - Real-time update latency
 - Large dataset handling
 - Concurrent user scenarios
 
 ### Accessibility Testing
+
 - Screen reader compatibility
 - Keyboard navigation
 - Voice input alternatives
@@ -328,24 +350,28 @@ interface FileMetadata {
 ## Security Considerations
 
 ### File Upload Security
+
 - File type validation
 - Size limitations
 - Malware scanning
 - Secure storage
 
 ### Voice Data Privacy
+
 - Audio data encryption
 - Temporary storage policies
 - User consent management
 - Data retention limits
 
 ### API Security
+
 - Authentication tokens
 - Rate limiting
 - Input validation
 - CORS policies
 
 ### Real-time Communication Security
+
 - WebSocket authentication
 - Message encryption
 - Connection validation
@@ -354,24 +380,28 @@ interface FileMetadata {
 ## Performance Optimization
 
 ### File Handling
+
 - Image compression for screenshots
 - Progressive upload for large files
 - CDN integration for file delivery
 - Caching strategies
 
 ### Real-time Updates
+
 - Efficient WebSocket message batching
 - Selective data synchronization
 - Connection pooling
 - Graceful degradation
 
 ### Voice Processing
+
 - Client-side audio preprocessing
 - Streaming transcription
 - Background processing
 - Result caching
 
 ### UI Performance
+
 - Virtual scrolling for large kanban boards
 - Lazy loading of task details
 - Optimistic UI updates

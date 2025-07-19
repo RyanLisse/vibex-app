@@ -40,38 +40,41 @@ This refactoring plan addresses critical issues identified across architecture, 
 ### Day 1-2: Build Configuration & Security Headers
 
 **Task 1.1: Fix Next.js Build Configuration**
+
 ```typescript
 // next.config.ts
 const nextConfig: NextConfig = {
   // Remove these dangerous settings
   // eslint: { ignoreDuringBuilds: true },  ❌ DELETE
   // typescript: { ignoreBuildErrors: true }, ❌ DELETE
-  
+
   // Add security headers
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: securityHeaders,
       },
-    ]
+    ];
   },
-  
+
   // Add performance optimizations
   swcMinify: true,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === "production",
   },
-}
+};
 ```
 
 **Task 1.2: Run Full Type Check & Fix Errors**
+
 ```bash
 bun run typecheck
 # Fix all TypeScript errors before proceeding
 ```
 
 **Expected Errors to Fix:**
+
 - Missing type definitions
 - Implicit any types
 - Unused variables
@@ -87,16 +90,17 @@ bun run typecheck
 4. Remove localStorage token storage
 
 **Implementation:**
+
 ```typescript
 // lib/auth/secure-token-service.ts
 export class SecureTokenService {
   async storeToken(userId: string, token: string): Promise<void> {
-    const encrypted = await encrypt(token)
+    const encrypted = await encrypt(token);
     await db.tokens.upsert({
       where: { userId },
       create: { userId, token: encrypted },
       update: { token: encrypted },
-    })
+    });
   }
 }
 ```
@@ -104,6 +108,7 @@ export class SecureTokenService {
 ### Day 5: Security Validation
 
 **Task 1.4: Security Audit & Testing**
+
 - Verify no tokens in filesystem
 - Confirm HTTPS-only cookies
 - Test security headers
@@ -116,6 +121,7 @@ export class SecureTokenService {
 **Task 2.1: Database Observability Demo (813 lines)**
 
 Split into:
+
 ```
 components/
 ├── observability/
@@ -131,6 +137,7 @@ components/
 **Task 2.2: Multi-Agent Chat (602 lines)**
 
 Split into:
+
 ```
 components/
 ├── agents/
@@ -148,15 +155,20 @@ components/
 **Task 2.3: Consolidate Auth Components**
 
 Create generic provider component:
+
 ```typescript
 // components/auth/ProviderAuth.tsx
 interface ProviderAuthProps {
-  provider: 'anthropic' | 'openai' | 'github'
-  variant?: 'button' | 'card'
-  onSuccess: (token: string) => void
+  provider: "anthropic" | "openai" | "github";
+  variant?: "button" | "card";
+  onSuccess: (token: string) => void;
 }
 
-export function ProviderAuth({ provider, variant, onSuccess }: ProviderAuthProps) {
+export function ProviderAuth({
+  provider,
+  variant,
+  onSuccess,
+}: ProviderAuthProps) {
   // Single implementation for all providers
 }
 ```
@@ -164,15 +176,16 @@ export function ProviderAuth({ provider, variant, onSuccess }: ProviderAuthProps
 **Task 2.4: Query Hook Factory**
 
 Create reusable query patterns:
+
 ```typescript
 // hooks/factories/createEntityHooks.ts
 export function createEntityHooks<T>(config: EntityConfig) {
-  const useQuery = createQueryHook(config)
-  const useCreate = createMutationHook(config, 'create')
-  const useUpdate = createMutationHook(config, 'update')
-  const useDelete = createMutationHook(config, 'delete')
-  
-  return { useQuery, useCreate, useUpdate, useDelete }
+  const useQuery = createQueryHook(config);
+  const useCreate = createMutationHook(config, "create");
+  const useUpdate = createMutationHook(config, "update");
+  const useDelete = createMutationHook(config, "delete");
+
+  return { useQuery, useCreate, useUpdate, useDelete };
 }
 ```
 
@@ -184,7 +197,7 @@ export function createEntityHooks<T>(config: EntityConfig) {
 
 ```typescript
 // app/page.tsx
-const DatabaseDemo = dynamic(() => 
+const DatabaseDemo = dynamic(() =>
   import('@/components/database-observability-demo'), {
     loading: () => <LoadingSkeleton />,
     ssr: false,
@@ -196,15 +209,16 @@ const DatabaseDemo = dynamic(() =>
 
 ```typescript
 // app/layout.tsx
-const TaskPage = lazy(() => import('./task/[id]/page'))
-const EnvironmentsPage = lazy(() => import('./environments/page'))
+const TaskPage = lazy(() => import("./task/[id]/page"));
+const EnvironmentsPage = lazy(() => import("./environments/page"));
 ```
 
 **Task 3.3: Component Memoization**
 
 Add React.memo to:
+
 - TaskList
-- EnvironmentsList  
+- EnvironmentsList
 - ChatMessages
 - All UI components
 
@@ -215,12 +229,12 @@ Add React.memo to:
 ```typescript
 // lib/electric/optimized-client.ts
 export class OptimizedElectricClient {
-  private batchQueue: Map<string, Promise<any>> = new Map()
-  
+  private batchQueue: Map<string, Promise<any>> = new Map();
+
   async batchSync(operations: SyncOperation[]) {
     // Batch multiple operations
   }
-  
+
   async deltaSync(table: string, since: Date) {
     // Only sync changes since timestamp
   }
@@ -233,10 +247,10 @@ export class OptimizedElectricClient {
 // lib/query/prefetch-critical.ts
 export async function prefetchCriticalData() {
   await Promise.all([
-    queryClient.prefetchQuery(['user']),
-    queryClient.prefetchQuery(['environments']),
-    queryClient.prefetchQuery(['recent-tasks']),
-  ])
+    queryClient.prefetchQuery(["user"]),
+    queryClient.prefetchQuery(["environments"]),
+    queryClient.prefetchQuery(["recent-tasks"]),
+  ]);
 }
 ```
 
@@ -249,11 +263,11 @@ export async function prefetchCriticalData() {
 ```typescript
 // tests/utils/component-test-suite.ts
 export function runStandardComponentTests(Component, props) {
-  describe('Standard Component Tests', () => {
-    testRendering(Component, props)
-    testAccessibility(Component, props)
-    testEventHandlers(Component, props)
-  })
+  describe("Standard Component Tests", () => {
+    testRendering(Component, props);
+    testAccessibility(Component, props);
+    testEventHandlers(Component, props);
+  });
 }
 ```
 
@@ -287,38 +301,44 @@ gantt
 ## Success Metrics
 
 ### Phase 1 Completion Criteria
+
 - [ ] Zero TypeScript errors
-- [ ] Zero ESLint errors  
+- [ ] Zero ESLint errors
 - [ ] No tokens in filesystem
 - [ ] Security headers active
 - [ ] All tests passing
 
 ### Phase 2 Completion Criteria
+
 - [ ] No component >300 lines
 - [ ] Auth components consolidated
 - [ ] 30% code reduction achieved
 - [ ] All duplications removed
 
 ### Phase 3 Completion Criteria
+
 - [ ] Bundle size <600KB
 - [ ] FCP <1.5s
 - [ ] TTI <3.0s
 - [ ] 50% reduction in re-renders
 
 ### Phase 4 Completion Criteria
+
 - [ ] Test execution <30s
 - [ ] 2 test configs only
-- [ ] >80% code coverage
+- [ ] > 80% code coverage
 - [ ] Zero flaky tests
 
 ## Risk Mitigation
 
 ### High Risk Areas
+
 1. **Authentication changes** - Extensive testing required
 2. **Component splitting** - May break existing functionality
 3. **ElectricSQL integration** - Complex real-time sync
 
 ### Mitigation Strategies
+
 1. **Feature flags** for gradual rollout
 2. **Comprehensive E2E tests** before each phase
 3. **Rollback procedures** documented
@@ -327,23 +347,27 @@ gantt
 ## Resource Requirements
 
 ### Team Allocation
+
 - **Senior Frontend Dev**: 80 hours (Phases 2-3)
 - **Security Engineer**: 20 hours (Phase 1)
 - **QA Engineer**: 30 hours (All phases)
 - **DevOps**: 10 hours (Monitoring setup)
 
 ### Total Effort: 140 hours (3.5 weeks)
+
 ### Budget Estimate: $25,000 - $35,000
 
 ## Post-Refactoring Maintenance
 
 ### Monitoring Setup
+
 1. **Performance monitoring** with Web Vitals
 2. **Error tracking** with Sentry
 3. **Security scanning** with Snyk
 4. **Bundle size tracking** in CI/CD
 
 ### Documentation Updates
+
 1. Update architecture diagrams
 2. Document new patterns
 3. Create onboarding guide
@@ -352,12 +376,14 @@ gantt
 ## Conclusion
 
 This comprehensive refactoring plan addresses:
+
 - **Critical security vulnerabilities** (Week 1)
 - **Architectural debt** (Weeks 2-3)
 - **Performance issues** (Weeks 4-5)
 - **Testing overhead** (Week 6)
 
 Following this plan will result in:
+
 - **50% reduction** in codebase size
 - **80% improvement** in security posture
 - **50% improvement** in performance metrics
@@ -367,4 +393,4 @@ The phased approach minimizes risk while delivering incremental value. Critical 
 
 ---
 
-*Next Steps: Begin Phase 1 immediately with build configuration fixes and security improvements*
+_Next Steps: Begin Phase 1 immediately with build configuration fixes and security improvements_

@@ -248,7 +248,10 @@ global.fetch = vi.fn().mockImplementation(async (url, options) => {
   if (url.toString().includes('/api/auth/status')) {
     return Promise.resolve({
       ...response,
-      json: async () => ({ authenticated: true, user: { id: 'test-user', name: 'Test User' } }),
+      json: async () => ({
+        authenticated: true,
+        user: { id: 'test-user', name: 'Test User' },
+      }),
     })
   }
 

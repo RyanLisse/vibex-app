@@ -22,14 +22,14 @@ vi.mock('@/lib/inngest', () => ({
 
 // Set environment variables manually
 beforeEach(() => {
-  process.env.INNGEST_EVENT_KEY = 'test-event-key'
-  process.env.NODE_ENV = 'test'
+  ;(process.env as any).INNGEST_EVENT_KEY = 'test-event-key'
+  ;(process.env as any).NODE_ENV = 'test'
 })
 
 afterEach(() => {
   vi.restoreAllMocks()
-  delete process.env.INNGEST_EVENT_KEY
-  delete process.env.NODE_ENV
+  ;(process.env as any).INNGEST_EVENT_KEY = undefined
+  ;(process.env as any).NODE_ENV = undefined
 })
 
 describe('Inngest Actions', () => {
@@ -125,7 +125,7 @@ describe('Inngest Actions', () => {
     // Test with null data
     const resultNull = await inngest.send({
       name: 'task.created',
-      data: null as any,
+      data: null as unknown,
     })
 
     expect(resultNull).toEqual({ id: 'test-event-id' })

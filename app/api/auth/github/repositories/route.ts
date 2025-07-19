@@ -121,22 +121,20 @@ class GitHubRepositoriesService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.queryDuration(duration, 'select_github_repositories', true)
+      observability.metrics.recordOperation('select_github_repositories', duration)
 
       // Record event
-      await observability.events.collector.collectEvent(
-        'query_end',
-        'debug',
-        `GitHub repositories query completed`,
-        {
-          duration,
-          resultCount: repoResults.length,
-          totalCount: countResult.length,
-          syncPerformed: syncNeeded,
-          filters: params,
-        },
-        'api',
-        ['github', 'repositories', 'query']
+      observability.recordEvent('github_repositories_query', {
+        action: 'query_end',
+        level: 'debug',
+        message: 'GitHub repositories query completed',
+        duration,
+        resultCount: repoResults.length,
+        totalCount: countResult.length,
+        syncPerformed: syncNeeded,
+        filters: params,
+        source: 'api',
+        tags: ['github', 'repositories', 'query']
       )
 
       span.setAttributes({
@@ -162,7 +160,7 @@ class GitHubRepositoriesService {
       span.setStatus({ code: SpanStatusCode.ERROR })
 
       // Record error metrics
-      observability.metrics.errorRate(1, 'github_repositories_api')
+      observability.recordError('github_repositories_api', error as Error)
 
       throw new GitHubRepositoriesAPIError(
         'Failed to fetch repositories',
@@ -256,21 +254,19 @@ class GitHubRepositoriesService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.queryDuration(duration, 'sync_github_repositories', true)
+      observability.metrics.recordOperation('sync_github_repositories', duration)
 
       // Record event
-      await observability.events.collector.collectEvent(
-        'sync_complete',
-        'info',
-        `GitHub repositories synced: ${repoData.length} repositories`,
-        {
-          userId,
-          repositoryCount: repoData.length,
-          duration,
-        },
-        'api',
-        ['github', 'repositories', 'sync']
-      )
+      observability.recordEvent('github_repositories_sync', {
+        action: 'sync_complete',
+        level: 'info',
+        message: `GitHub repositories synced: ${repoData.length} repositories`,
+        userId,
+        repositoryCount: repoData.length,
+        duration,
+        source: 'api',
+        tags: ['github', 'repositories', 'sync']
+      })
 
       span.setAttributes({
         'sync.repositoryCount': repoData.length,
@@ -329,7 +325,9 @@ export async function GET(request: NextRequest) {
 
     if (!accessToken) {
       return NextResponse.json(
-        createApiErrorResponse('Not authenticated', 401, 'NOT_AUTHENTICATED'),
+        createApiErrorResponse('Not authenticated', 401, [
+          { field: 'auth', message: 'Not authenticated', code: 'NOT_AUTHENTICATED' },
+        ]),
         { status: 401 }
       )
     }
@@ -350,29 +348,41 @@ export async function GET(request: NextRequest) {
     )
 
     return NextResponse.json(
-      createPaginatedResponse(
-        result.repositories,
-        result.pagination,
-        `Repositories retrieved successfully${result.syncPerformed ? ' (synced from GitHub)' : ''}`
-      )
+      createPaginatedResponse(result.repositories, {
+        page: result.pagination.page,
+        limit: result.pagination.limit,
+        total: result.pagination.total,
+      })
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse(
+          'Validation failed',
+          400,
+          error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+            code: err.code,
+          }))
+        ),
         { status: 400 }
       )
     }
 
     if (error instanceof GitHubRepositoriesAPIError) {
       return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
+        createApiErrorResponse(error.message, error.statusCode, [
+          { field: 'general', message: error.message, code: error.code },
+        ]),
         { status: error.statusCode }
       )
     }
 
     return NextResponse.json(
-      createApiErrorResponse('Failed to fetch repositories', 500, 'INTERNAL_ERROR'),
+      createApiErrorResponse('Failed to fetch repositories', 500, [
+        { field: 'general', message: 'Failed to fetch repositories', code: 'INTERNAL_ERROR' },
+      ]),
       { status: 500 }
     )
   }

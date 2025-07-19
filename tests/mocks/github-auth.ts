@@ -180,11 +180,13 @@ export const mockGitHubAPI: Record<string, ReturnType<typeof vi.fn> | (() => voi
   }),
 
   // Organization operations
-  getOrganizations: vi
-    .fn()
-    .mockResolvedValue([
-      { id: 1, login: 'test-org', avatar_url: 'https://github.com/test-org.png' },
-    ]),
+  getOrganizations: vi.fn().mockResolvedValue([
+    {
+      id: 1,
+      login: 'test-org',
+      avatar_url: 'https://github.com/test-org.png',
+    },
+  ]),
 
   // Rate limiting
   getRateLimit: vi.fn().mockResolvedValue({

@@ -135,14 +135,24 @@ describe('ComponentLogger', () => {
 
   describe('specialized logging methods', () => {
     it('should have API request logging', () => {
-      const mockReq = { method: 'GET', url: '/test', headers: {}, ip: '127.0.0.1' }
+      const mockReq = {
+        method: 'GET',
+        url: '/test',
+        headers: {},
+        ip: '127.0.0.1',
+      }
       const mockRes = { statusCode: 200 }
 
       expect(() => logger.apiRequest(mockReq, mockRes, 100)).not.toThrow()
     })
 
     it('should have API error logging', () => {
-      const mockReq = { method: 'POST', url: '/test', headers: {}, ip: '127.0.0.1' }
+      const mockReq = {
+        method: 'POST',
+        url: '/test',
+        headers: {},
+        ip: '127.0.0.1',
+      }
       const error = new Error('Test error')
 
       expect(() => logger.apiError(mockReq, error)).not.toThrow()
@@ -150,7 +160,9 @@ describe('ComponentLogger', () => {
 
     it('should have agent operation logging', () => {
       expect(() =>
-        logger.agentOperation('agent-1', 'task-execution', { taskId: 'task-123' })
+        logger.agentOperation('agent-1', 'task-execution', {
+          taskId: 'task-123',
+        })
       ).not.toThrow()
     })
 

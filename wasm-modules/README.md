@@ -9,6 +9,7 @@ This directory contains WebAssembly modules that provide high-performance implem
 High-performance vector similarity calculations for semantic search.
 
 **Features:**
+
 - Cosine similarity with SIMD optimization
 - Euclidean distance calculations
 - Batch processing for large datasets
@@ -16,12 +17,14 @@ High-performance vector similarity calculations for semantic search.
 - Performance benchmarking tools
 
 **Build:**
+
 ```bash
 cd vector-search
 ./build.sh
 ```
 
 **Dependencies:**
+
 - Rust (latest stable)
 - wasm-pack
 - wasm-opt (optional, for optimization)
@@ -31,17 +34,20 @@ cd vector-search
 ### Prerequisites
 
 1. Install Rust:
+
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 ```
 
 2. Install wasm-pack:
+
 ```bash
 curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 ```
 
 3. Install wasm-opt (optional, for smaller binaries):
+
 ```bash
 # macOS
 brew install binaryen
@@ -71,14 +77,14 @@ bun run wasm:test
 The WASM modules are automatically integrated into the application through the WASM Services Layer:
 
 ```typescript
-import { wasmServices } from '@/lib/wasm/services'
+import { wasmServices } from "@/lib/wasm/services";
 
 // Initialize all WASM services
-await wasmServices.initialize()
+await wasmServices.initialize();
 
 // Use vector search
-const vectorSearch = wasmServices.getVectorSearch()
-const results = await vectorSearch.search(queryEmbedding)
+const vectorSearch = wasmServices.getVectorSearch();
+const results = await vectorSearch.search(queryEmbedding);
 ```
 
 ## Performance
@@ -134,7 +140,7 @@ Enable debug logging for WASM modules:
 
 ```typescript
 // Enable debug mode
-process.env.WASM_DEBUG = 'true'
+process.env.WASM_DEBUG = "true";
 ```
 
 ## Architecture

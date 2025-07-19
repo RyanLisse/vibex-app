@@ -42,17 +42,29 @@ export const mockStreamingResponse = (callbacks?: { onUpdate?: (message: string)
       JSON.stringify({
         type: 'message',
         role: 'assistant',
-        data: { text: 'Test response chunk 1', id: 'test-id', isStreaming: true },
+        data: {
+          text: 'Test response chunk 1',
+          id: 'test-id',
+          isStreaming: true,
+        },
       }),
       JSON.stringify({
         type: 'message',
         role: 'assistant',
-        data: { text: 'Test response chunk 1 chunk 2', id: 'test-id', isStreaming: true },
+        data: {
+          text: 'Test response chunk 1 chunk 2',
+          id: 'test-id',
+          isStreaming: true,
+        },
       }),
       JSON.stringify({
         type: 'message',
         role: 'assistant',
-        data: { text: 'Test response chunk 1 chunk 2 complete', id: 'test-id', isStreaming: false },
+        data: {
+          text: 'Test response chunk 1 chunk 2 complete',
+          id: 'test-id',
+          isStreaming: false,
+        },
       }),
     ]
 

@@ -1,6 +1,6 @@
 /**
  * Real-time Sync Integration Tests
- * 
+ *
  * Tests the complete real-time synchronization flow including ElectricSQL (mocked),
  * WebSocket events, conflict resolution, and offline queue processing
  */
@@ -80,9 +80,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
+  return ({ children }: { children: React.ReactNode }) =>
     React.createElement(QueryClientProvider, { client: queryClient }, children)
-  )
 }
 
 // Test data factory
@@ -119,19 +118,25 @@ describe('Real-time Sync Integration', () => {
   describe('Real-time Task Synchronization', () => {
     it('should sync task creation across multiple clients', async () => {
       const wrapper = createWrapper()
-      
-      // Simulate two clients
-      const { result: client1 } = renderHook(() => {
-        const sync = useElectricSync()
-        const tasks = useTasks()
-        return { sync, tasks }
-      }, { wrapper })
 
-      const { result: client2 } = renderHook(() => {
-        const sync = useElectricSync()
-        const tasks = useTasks()
-        return { sync, tasks }
-      }, { wrapper })
+      // Simulate two clients
+      const { result: client1 } = renderHook(
+        () => {
+          const sync = useElectricSync()
+          const tasks = useTasks()
+          return { sync, tasks }
+        },
+        { wrapper }
+      )
+
+      const { result: client2 } = renderHook(
+        () => {
+          const sync = useElectricSync()
+          const tasks = useTasks()
+          return { sync, tasks }
+        },
+        { wrapper }
+      )
 
       // Setup sync event simulation
       const syncCallbacks: ((event: SyncEvent) => void)[] = []
@@ -166,7 +171,7 @@ describe('Real-time Sync Integration', () => {
 
       // Broadcast to all clients
       act(() => {
-        syncCallbacks.forEach(callback => callback(syncEvent))
+        syncCallbacks.forEach((callback) => callback(syncEvent))
       })
 
       // Both clients should have the new task
@@ -225,11 +230,7 @@ describe('Real-time Sync Integration', () => {
 
       // Trigger conflict
       const conflictResult = await act(async () => {
-        return await result.current.resolveConflict(
-          'tasks',
-          client1Update,
-          client2Update
-        )
+        return await result.current.resolveConflict('tasks', client1Update, client2Update)
       })
 
       expect(conflictResult.winner).toBe('remote')
@@ -241,11 +242,14 @@ describe('Real-time Sync Integration', () => {
   describe('Offline Queue Processing', () => {
     it('should queue operations when offline and sync when online', async () => {
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const queue = useOfflineQueue()
-        const sync = useElectricSync()
-        return { queue, sync }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const queue = useOfflineQueue()
+          const sync = useElectricSync()
+          return { queue, sync }
+        },
+        { wrapper }
+      )
 
       // Go offline
       act(() => {
@@ -365,9 +369,7 @@ describe('Real-time Sync Integration', () => {
       })
 
       // Mock permanent failure
-      mockElectricDb.processOfflineQueue.mockRejectedValue(
-        new Error('Task not found')
-      )
+      mockElectricDb.processOfflineQueue.mockRejectedValue(new Error('Task not found'))
 
       // Attempt processing
       for (let i = 0; i <= 3; i++) {
@@ -390,7 +392,7 @@ describe('Real-time Sync Integration', () => {
   describe('Multi-user Collaboration', () => {
     it('should handle real-time collaboration with presence', async () => {
       const wrapper = createWrapper()
-      
+
       // Setup presence tracking
       const presenceCallbacks: ((event: any) => void)[] = []
       mockElectricDb.addEventListener.mockImplementation((event, callback) => {
@@ -399,10 +401,13 @@ describe('Real-time Sync Integration', () => {
         }
       })
 
-      const { result } = renderHook(() => {
-        const sync = useElectricSync()
-        return sync
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const sync = useElectricSync()
+          return sync
+        },
+        { wrapper }
+      )
 
       // User joins
       act(() => {
@@ -423,10 +428,12 @@ describe('Real-time Sync Integration', () => {
       }
 
       act(() => {
-        presenceCallbacks.forEach(cb => cb({
-          type: 'user-joined',
-          data: otherUserPresence,
-        }))
+        presenceCallbacks.forEach((cb) =>
+          cb({
+            type: 'user-joined',
+            data: otherUserPresence,
+          })
+        )
       })
 
       // Should show both users
@@ -439,10 +446,12 @@ describe('Real-time Sync Integration', () => {
 
       // Simulate user leaving
       act(() => {
-        presenceCallbacks.forEach(cb => cb({
-          type: 'user-left',
-          data: { userId: 'user-2' },
-        }))
+        presenceCallbacks.forEach((cb) =>
+          cb({
+            type: 'user-left',
+            data: { userId: 'user-2' },
+          })
+        )
       })
 
       await waitFor(() => {
@@ -484,10 +493,7 @@ describe('Real-time Sync Integration', () => {
 
       // Apply operational transforms
       const transformed = await act(async () => {
-        return await result.current.applyOperationalTransform(
-          sharedTask,
-          [user1Edit, user2Edit]
-        )
+        return await result.current.applyOperationalTransform(sharedTask, [user1Edit, user2Edit])
       })
 
       // Both edits should be applied
@@ -512,7 +518,7 @@ describe('Real-time Sync Integration', () => {
       }))
 
       // Queue operations rapidly
-      operations.forEach(op => {
+      operations.forEach((op) => {
         act(() => {
           result.current.queueSyncOperation(op)
         })
@@ -572,7 +578,7 @@ describe('Real-time Sync Integration', () => {
     })
 
     it('should optimize sync payload with compression', async () => {
-      const largeTasks = Array.from({ length: 100 }, (_, i) => 
+      const largeTasks = Array.from({ length: 100 }, (_, i) =>
         createMockTask({
           id: `large-${i}`,
           title: `Task ${i}`,
@@ -586,9 +592,7 @@ describe('Real-time Sync Integration', () => {
       // Mock compression
       mockElectricDb.executeRealtimeOperation.mockImplementation(async (table, op, data) => {
         if (data.compressed) {
-          expect(data.payload.length).toBeLessThan(
-            JSON.stringify(largeTasks).length
-          )
+          expect(data.payload.length).toBeLessThan(JSON.stringify(largeTasks).length)
         }
         return { success: true }
       })
@@ -617,7 +621,7 @@ describe('Real-time Sync Integration', () => {
       const { result } = renderHook(() => useElectricSync(), { wrapper })
 
       const connectionStates: string[] = []
-      
+
       // Track connection state changes
       result.current.onConnectionChange((state) => {
         connectionStates.push(state)
@@ -643,11 +647,7 @@ describe('Real-time Sync Integration', () => {
         result.current.handleConnectionChange('connected')
       })
 
-      expect(connectionStates).toEqual([
-        'disconnected',
-        'reconnecting',
-        'connected',
-      ])
+      expect(connectionStates).toEqual(['disconnected', 'reconnecting', 'connected'])
 
       // Should trigger resync after reconnection
       expect(result.current.needsResync).toBe(true)

@@ -368,7 +368,9 @@ export class DataMigrationManager {
           // Cache in Redis for faster access (if available)
           const redis = await this.getRedisCache()
           if (redis) {
-            await redis.set(`environment:${dbEnvironment.id}`, dbEnvironment, { ttl: 600 })
+            await redis.set(`environment:${dbEnvironment.id}`, dbEnvironment, {
+              ttl: 600,
+            })
           }
 
           step.recordsProcessed++

@@ -6,20 +6,20 @@ plugins:
     config:
       format: true
       lint: true
-      
+
   - name: "eslint"
     enabled: true
     config:
       extensions: [".ts", ".tsx", ".js", ".jsx"]
-      
+
   - name: "prettier"
     enabled: false # Using biome instead
-    
+
   - name: "typescript"
     enabled: true
     config:
       strict: true
-      
+
   - name: "semgrep"
     enabled: true
     config:
@@ -33,17 +33,17 @@ checks:
     enabled: true
     config:
       max_size: 1000000 # 1MB
-      
+
   - name: "line-length"
     enabled: true
     config:
       max_length: 120
-      
+
   - name: "complexity"
     enabled: true
     config:
       max_complexity: 15
-      
+
   - name: "test-coverage"
     enabled: true
     config:

@@ -286,10 +286,18 @@ export default function VoiceBrainstormPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
               {[
                 { icon: Mic, title: 'Speak', desc: 'Voice input captured' },
-                { icon: Brain, title: 'Transcribe', desc: 'AI converts to text' },
+                {
+                  icon: Brain,
+                  title: 'Transcribe',
+                  desc: 'AI converts to text',
+                },
                 { icon: Lightbulb, title: 'Extract', desc: 'Ideas identified' },
                 { icon: Users, title: 'Analyze', desc: 'Agents process' },
-                { icon: TrendingUp, title: 'Enhance', desc: 'Insights generated' },
+                {
+                  icon: TrendingUp,
+                  title: 'Enhance',
+                  desc: 'Insights generated',
+                },
                 { icon: Rocket, title: 'Act', desc: 'Next steps planned' },
               ].map((step, index) => (
                 <div className="text-center" key={index}>

@@ -60,7 +60,11 @@ export interface UseZodFormReturn<T extends FieldValues> extends UseFormReturn<T
 
   // Advanced features
   schema: z.ZodSchema<T>
-  validateSchema: (data: unknown) => { success: boolean; data?: T; errors?: ZodFormErrors<T> }
+  validateSchema: (data: unknown) => {
+    success: boolean
+    data?: T
+    errors?: ZodFormErrors<T>
+  }
   validateFieldAsync: (field: keyof T, value: unknown) => Promise<boolean>
 
   // Form state management

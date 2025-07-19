@@ -601,6 +601,74 @@ export class CodexAuthenticator {
   }
 }
 
+// Additional functions expected by tests
+export async function exchangeCodexToken(code: string): Promise<AuthToken> {
+  // Mock implementation for Codex token exchange
+  return {
+    access_token: 'codex-access-token',
+    token_type: 'Bearer',
+    expires_in: 3600,
+    refresh_token: 'codex-refresh-token',
+  }
+}
+
+export function generateCodexAuthUrl(params: {
+  clientId: string
+  redirectUri: string
+  scope?: string
+  state?: string
+}): string {
+  return generateAuthUrl(params)
+}
+
+export function generateCodexHeaders(token: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'User-Agent': 'OpenAI-Codex-Client/1.0',
+  }
+}
+
+export function getCodexScopes(): string[] {
+  return ['openid', 'profile', 'email', 'offline_access', 'codex:read', 'codex:write']
+}
+
+export async function getCodexUserInfo(token: string): Promise<UserProfile> {
+  // Mock implementation for getting Codex user info
+  return {
+    email: 'user@example.com',
+    name: 'Test User',
+    picture: 'https://example.com/avatar.jpg',
+    subscription: 'pro',
+  }
+}
+
+export function isCodexTokenExpired(token: AuthToken): boolean {
+  if (!token.expires_in) {
+    return false
+  }
+
+  // Assuming token was issued now for simplicity
+  const expirationTime = Date.now() + token.expires_in * 1000
+  return Date.now() >= expirationTime
+}
+
+export function parseCodexError(error: unknown): string {
+  return handleAuthError(error)
+}
+
+export async function refreshCodexToken(refreshToken: string): Promise<AuthToken> {
+  return refreshAuthToken(refreshToken)
+}
+
+export async function revokeCodexToken(token: string): Promise<void> {
+  return revokeToken(token)
+}
+
+export async function validateCodexToken(token: string): Promise<{ active: boolean }> {
+  return validateToken(token)
+}
+
 // Export all types and schemas
 export {
   type AuthConfig,

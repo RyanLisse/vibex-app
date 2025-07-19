@@ -144,7 +144,16 @@ export class PerformanceMetricsCollector {
    */
   private aggregateDataPoints(dataPoints: MetricDataPoint[]): AggregatedMetric['aggregation'] {
     if (dataPoints.length === 0) {
-      return { count: 0, sum: 0, avg: 0, min: 0, max: 0, p50: 0, p95: 0, p99: 0 }
+      return {
+        count: 0,
+        sum: 0,
+        avg: 0,
+        min: 0,
+        max: 0,
+        p50: 0,
+        p95: 0,
+        p99: 0,
+      }
     }
 
     const values = dataPoints.map((dp) => dp.value).sort((a, b) => a - b)
@@ -382,5 +391,7 @@ export const metrics = {
     }),
 
   errorRate: (rate: number, component: string) =>
-    PerformanceMetricsCollector.getInstance().recordMetric('error_rate', rate, { component }),
+    PerformanceMetricsCollector.getInstance().recordMetric('error_rate', rate, {
+      component,
+    }),
 }

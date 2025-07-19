@@ -51,7 +51,9 @@ export class CacheService {
         return JSON.parse(value) as T
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.get.error', error as Error, { key: fullKey })
+        this.observability.trackError('cache.get.error', error as Error, {
+          key: fullKey,
+        })
         return null
       }
     })
@@ -78,7 +80,9 @@ export class CacheService {
         return result === 'OK'
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.set.error', error as Error, { key: fullKey })
+        this.observability.trackError('cache.set.error', error as Error, {
+          key: fullKey,
+        })
         return false
       }
     })
@@ -102,7 +106,9 @@ export class CacheService {
         return result > 0
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.delete.error', error as Error, { key: fullKey })
+        this.observability.trackError('cache.delete.error', error as Error, {
+          key: fullKey,
+        })
         return false
       }
     })
@@ -120,17 +126,23 @@ export class CacheService {
         return values.map((value, index) => {
           if (value === null) {
             this.metrics.misses++
-            this.observability.recordMetric('cache.miss', 1, { key: fullKeys[index] })
+            this.observability.recordMetric('cache.miss', 1, {
+              key: fullKeys[index],
+            })
             return null
           }
 
           this.metrics.hits++
-          this.observability.recordMetric('cache.hit', 1, { key: fullKeys[index] })
+          this.observability.recordMetric('cache.hit', 1, {
+            key: fullKeys[index],
+          })
           return JSON.parse(value) as T
         })
       } catch (error) {
         this.metrics.errors++
-        this.observability.trackError('cache.mget.error', error as Error, { keys: fullKeys })
+        this.observability.trackError('cache.mget.error', error as Error, {
+          keys: fullKeys,
+        })
         return keys.map(() => null)
       } finally {
         this.updateHitRate()

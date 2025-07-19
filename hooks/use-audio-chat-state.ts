@@ -158,7 +158,11 @@ export function useAudioChatState(options: UseAudioChatStateOptions = {}) {
   // Recording state management
   const setRecordingState = useCallback(
     (isRecording: boolean, duration = 0, error: string | null = null) => {
-      updateState({ isRecording, recordingDuration: duration, recordingError: error })
+      updateState({
+        isRecording,
+        recordingDuration: duration,
+        recordingError: error,
+      })
     },
     [updateState]
   )
@@ -166,7 +170,11 @@ export function useAudioChatState(options: UseAudioChatStateOptions = {}) {
   // Playback state management
   const setPlaybackState = useCallback(
     (isPlaying: boolean, messageId: string | null = null, error: string | null = null) => {
-      updateState({ isPlaying, playingMessageId: messageId, playbackError: error })
+      updateState({
+        isPlaying,
+        playingMessageId: messageId,
+        playbackError: error,
+      })
     },
     [updateState]
   )

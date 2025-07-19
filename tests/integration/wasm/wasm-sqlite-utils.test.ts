@@ -432,10 +432,38 @@ const createMockSQLiteUtils = () => {
     getTableInfo: vi.fn(async (connectionId: string, tableName: string): Promise<any[]> => {
       // Mock table info
       return [
-        { cid: 0, name: 'id', type: 'INTEGER', notnull: 1, dflt_value: null, pk: 1 },
-        { cid: 1, name: 'name', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
-        { cid: 2, name: 'value', type: 'REAL', notnull: 0, dflt_value: null, pk: 0 },
-        { cid: 3, name: 'created_at', type: 'TEXT', notnull: 0, dflt_value: null, pk: 0 },
+        {
+          cid: 0,
+          name: 'id',
+          type: 'INTEGER',
+          notnull: 1,
+          dflt_value: null,
+          pk: 1,
+        },
+        {
+          cid: 1,
+          name: 'name',
+          type: 'TEXT',
+          notnull: 1,
+          dflt_value: null,
+          pk: 0,
+        },
+        {
+          cid: 2,
+          name: 'value',
+          type: 'REAL',
+          notnull: 0,
+          dflt_value: null,
+          pk: 0,
+        },
+        {
+          cid: 3,
+          name: 'created_at',
+          type: 'TEXT',
+          notnull: 0,
+          dflt_value: null,
+          pk: 0,
+        },
       ]
     }),
 
@@ -1091,10 +1119,22 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should handle mixed batch operations', async () => {
       const statements = [
-        { query: 'INSERT INTO test_table (name, value) VALUES (?, ?)', params: ['Mixed 1', 10] },
-        { query: 'INSERT INTO test_table (name, value) VALUES (?, ?)', params: ['Mixed 2', 20] },
-        { query: 'UPDATE test_table SET value = ? WHERE name = ?', params: [30, 'Mixed 1'] },
-        { query: 'SELECT COUNT(*) as count FROM test_table WHERE name LIKE ?', params: ['Mixed%'] },
+        {
+          query: 'INSERT INTO test_table (name, value) VALUES (?, ?)',
+          params: ['Mixed 1', 10],
+        },
+        {
+          query: 'INSERT INTO test_table (name, value) VALUES (?, ?)',
+          params: ['Mixed 2', 20],
+        },
+        {
+          query: 'UPDATE test_table SET value = ? WHERE name = ?',
+          params: [30, 'Mixed 1'],
+        },
+        {
+          query: 'SELECT COUNT(*) as count FROM test_table WHERE name LIKE ?',
+          params: ['Mixed%'],
+        },
       ]
 
       const results = await sqliteUtils.executeBatch(connectionId, statements)

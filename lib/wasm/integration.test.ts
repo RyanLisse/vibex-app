@@ -395,7 +395,9 @@ describe('WASM Services Integration', () => {
     })
 
     it('should store vector search results in SQLite', async () => {
-      const results = await vectorEngine.searchByText('test query', { maxResults: 3 })
+      const results = await vectorEngine.searchByText('test query', {
+        maxResults: 3,
+      })
 
       if (results.length > 0) {
         // Store results in SQLite

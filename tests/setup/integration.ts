@@ -17,9 +17,11 @@ afterEach(() => {
   vi.clearAllTimers()
   vi.clearAllMocks()
 
-  // Reset DOM state
-  document.body.innerHTML = ''
-  document.head.innerHTML = ''
+  // Reset DOM state (only if document exists)
+  if (typeof document !== 'undefined') {
+    document.body.innerHTML = ''
+    document.head.innerHTML = ''
+  }
 })
 
 // Integration test specific setup
@@ -97,20 +99,22 @@ global.ResizeObserver = vi.fn().mockImplementation((callback) => ({
   disconnect: vi.fn(),
 }))
 
-// Mock matchMedia with responsive behavior
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: query.includes('max-width: 768px') ? false : true,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-})
+// Mock matchMedia for Node.js environment (only if window exists)
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: query.includes('max-width: 768px') ? false : true,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  })
+}
 
 // Mock localStorage with persistence
 const localStorageData: Record<string, string> = {}
@@ -128,9 +132,11 @@ const localStorageMock = {
   length: 0,
   key: vi.fn(),
 }
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-})
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+  })
+}
 
 // Mock sessionStorage with persistence
 const sessionStorageData: Record<string, string> = {}
@@ -148,9 +154,11 @@ const sessionStorageMock = {
   length: 0,
   key: vi.fn(),
 }
-Object.defineProperty(window, 'sessionStorage', {
-  value: sessionStorageMock,
-})
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'sessionStorage', {
+    value: sessionStorageMock,
+  })
+}
 
 // Mock fetch with more realistic behavior
 global.fetch = vi.fn().mockImplementation(async (url, options) => {

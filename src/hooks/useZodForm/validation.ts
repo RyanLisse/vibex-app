@@ -19,7 +19,10 @@ export function createSchemaValidator<T extends FieldValues>(schema: z.ZodSchema
         )
         return { success: false, errors }
       }
-      return { success: false, errors: { general: 'Validation failed' } as ZodFormErrors<T> }
+      return {
+        success: false,
+        errors: { general: 'Validation failed' } as ZodFormErrors<T>,
+      }
     }
   }
 }
@@ -48,7 +51,11 @@ export async function validateSingleField<T extends FieldValues>(
 
 export async function validateAllFormFields<T extends FieldValues>(
   form: UseFormReturn<T>,
-  validateSchema: (data: unknown) => { success: boolean; data?: T; errors?: ZodFormErrors<T> }
+  validateSchema: (data: unknown) => {
+    success: boolean
+    data?: T
+    errors?: ZodFormErrors<T>
+  }
 ): Promise<boolean> {
   const data = form.getValues()
   const result = validateSchema(data)

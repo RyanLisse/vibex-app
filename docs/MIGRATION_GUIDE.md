@@ -81,6 +81,7 @@ bun run migration backup restore <backupId>
 ### Phase 2: Migration Execution
 
 1. **Data Extraction**
+
    ```typescript
    // Extracted data structure
    {
@@ -124,20 +125,20 @@ bun run migration backup restore <backupId>
 ```typescript
 // localStorage format
 {
-  id: string
-  title: string
-  status: 'todo' | 'in-progress' | 'done'
-  createdAt: string // ISO date
+  id: string;
+  title: string;
+  status: "todo" | "in-progress" | "done";
+  createdAt: string; // ISO date
 }
 
 // Database format
 {
-  id: string // ULID
-  title: string
-  status: 'pending' | 'in_progress' | 'completed'
-  userId: string // Added during migration
-  createdAt: Date
-  updatedAt: Date
+  id: string; // ULID
+  title: string;
+  status: "pending" | "in_progress" | "completed";
+  userId: string; // Added during migration
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 
@@ -181,13 +182,13 @@ bun run migration backup restore <backupId>
 
 ```typescript
 const migrationConfig = {
-  conflictResolution: 'MERGE',
+  conflictResolution: "MERGE",
   mergeStrategy: {
-    tasks: 'NEWEST', // Use newest based on timestamp
-    environments: 'PROMPT', // Ask user
-    formData: 'OVERWRITE' // Always overwrite
-  }
-}
+    tasks: "NEWEST", // Use newest based on timestamp
+    environments: "PROMPT", // Ask user
+    formData: "OVERWRITE", // Always overwrite
+  },
+};
 ```
 
 ## Error Handling
@@ -222,26 +223,26 @@ const migrationConfig = {
 ### Custom Migration Scripts
 
 ```typescript
-import { MigrationManager } from '@/lib/migration'
+import { MigrationManager } from "@/lib/migration";
 
 // Custom migration with hooks
 const migration = new MigrationManager({
   beforeMigration: async (data) => {
     // Custom preprocessing
-    return processedData
+    return processedData;
   },
-  
+
   onProgress: (progress) => {
-    console.log(`Progress: ${progress.percentage}%`)
+    console.log(`Progress: ${progress.percentage}%`);
   },
-  
+
   afterMigration: async (result) => {
     // Custom post-processing
-    await notifyUser(result)
-  }
-})
+    await notifyUser(result);
+  },
+});
 
-await migration.execute()
+await migration.execute();
 ```
 
 ### Batch Processing
@@ -251,8 +252,8 @@ await migration.execute()
 const config = {
   batchSize: 100, // Process 100 items at a time
   batchDelay: 500, // 500ms between batches
-  maxConcurrent: 5 // Max concurrent operations
-}
+  maxConcurrent: 5, // Max concurrent operations
+};
 ```
 
 ### Selective Migration
@@ -260,13 +261,13 @@ const config = {
 ```typescript
 // Migrate specific data types only
 await migrationManager.migrate({
-  includeTypes: ['tasks', 'environments'],
-  excludeTypes: ['formData'],
+  includeTypes: ["tasks", "environments"],
+  excludeTypes: ["formData"],
   dateRange: {
-    from: new Date('2024-01-01'),
-    to: new Date()
-  }
-})
+    from: new Date("2024-01-01"),
+    to: new Date(),
+  },
+});
 ```
 
 ## Monitoring & Debugging
@@ -275,15 +276,15 @@ await migrationManager.migrate({
 
 ```typescript
 // Real-time progress updates
-migrationManager.on('progress', (event) => {
+migrationManager.on("progress", (event) => {
   console.log({
     stage: event.stage,
     current: event.current,
     total: event.total,
     percentage: event.percentage,
-    estimatedTimeRemaining: event.eta
-  })
-})
+    estimatedTimeRemaining: event.eta,
+  });
+});
 ```
 
 ### Debug Mode
@@ -367,33 +368,35 @@ bun run migration rollback --before "2024-01-15T10:00:00Z"
 ### Unit Tests
 
 ```typescript
-describe('Migration System', () => {
-  it('should transform localStorage data correctly', async () => {
-    const input = { /* localStorage data */ }
-    const output = await transformer.transform(input)
-    expect(output).toMatchSchema(databaseSchema)
-  })
-})
+describe("Migration System", () => {
+  it("should transform localStorage data correctly", async () => {
+    const input = {
+      /* localStorage data */
+    };
+    const output = await transformer.transform(input);
+    expect(output).toMatchSchema(databaseSchema);
+  });
+});
 ```
 
 ### Integration Tests
 
 ```typescript
 // Test full migration flow
-it('should migrate all data types', async () => {
+it("should migrate all data types", async () => {
   // Setup test data
-  await setupTestLocalStorage()
-  
+  await setupTestLocalStorage();
+
   // Run migration
   const result = await migrationManager.migrate({
     dryRun: false,
-    testMode: true
-  })
-  
+    testMode: true,
+  });
+
   // Verify results
-  expect(result.success).toBe(true)
-  expect(result.itemsProcessed).toBe(100)
-})
+  expect(result.success).toBe(true);
+  expect(result.itemsProcessed).toBe(100);
+});
 ```
 
 ## Security Considerations
@@ -437,28 +440,31 @@ it('should migrate all data types', async () => {
 ### Common Issues
 
 1. **Migration Stuck**
+
    ```bash
    # Check status
    bun run migration:status
-   
+
    # Force unlock
    bun run migration unlock --force
    ```
 
 2. **Data Corruption**
+
    ```bash
    # Validate data integrity
    bun run migration validate
-   
+
    # Repair corrupted data
    bun run migration repair --auto-fix
    ```
 
 3. **Performance Issues**
+
    ```bash
    # Analyze performance
    bun run migration analyze --profile
-   
+
    # Optimize configuration
    bun run migration optimize
    ```
@@ -516,6 +522,7 @@ bun run migration test-connection
 ## Support
 
 For additional help:
+
 - Check logs in `./logs/migration-*.log`
 - Review error details in migration reports
 - Contact team for complex scenarios

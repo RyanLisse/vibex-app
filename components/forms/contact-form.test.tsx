@@ -52,7 +52,9 @@ describe('ContactForm', () => {
     it('shows validation errors on submit with empty fields', async () => {
       render(<ContactForm {...defaultProps} />)
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {
@@ -71,7 +73,9 @@ describe('ContactForm', () => {
       const emailInput = screen.getByLabelText(/email/i)
       await userEvent.type(emailInput, 'invalid-email')
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {
@@ -90,7 +94,9 @@ describe('ContactForm', () => {
       await userEvent.type(subjectInput, 'Test') // Too short
       await userEvent.type(messageInput, 'Short') // Too short
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {
@@ -115,7 +121,9 @@ describe('ContactForm', () => {
       await userEvent.type(subjectInput, 'Test Subject')
       await userEvent.type(messageInput, 'This is a test message with sufficient length.')
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {
@@ -135,7 +143,9 @@ describe('ContactForm', () => {
       render(<ContactForm {...defaultProps} />)
 
       const nameInput = screen.getByLabelText(/name/i)
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
 
       // Trigger validation error
       await userEvent.click(submitButton)
@@ -156,7 +166,9 @@ describe('ContactForm', () => {
       render(<ContactForm {...defaultProps} />)
 
       const nameInput = screen.getByLabelText(/name/i)
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
 
       await userEvent.click(submitButton)
 
@@ -170,7 +182,9 @@ describe('ContactForm', () => {
       render(<ContactForm {...defaultProps} />)
 
       const nameInput = screen.getByLabelText(/name/i)
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
 
       await userEvent.click(submitButton)
 
@@ -231,7 +245,9 @@ describe('ContactForm', () => {
     it('clears validation errors when clear button is clicked', async () => {
       render(<ContactForm {...defaultProps} />)
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {
@@ -277,7 +293,9 @@ describe('ContactForm', () => {
       await userEvent.type(messageInput, 'This is a test message.')
       await userEvent.selectOptions(prioritySelect, 'high')
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {
@@ -304,7 +322,9 @@ describe('ContactForm', () => {
     it('has proper error announcements', async () => {
       render(<ContactForm {...defaultProps} />)
 
-      const submitButton = screen.getByRole('button', { name: /send message/i })
+      const submitButton = screen.getByRole('button', {
+        name: /send message/i,
+      })
       await userEvent.click(submitButton)
 
       await waitFor(() => {

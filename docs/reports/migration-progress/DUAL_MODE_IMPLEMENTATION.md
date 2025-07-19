@@ -7,6 +7,7 @@
 ## Overview
 
 The dual-mode storage implementation allows the application to operate in three modes:
+
 1. **localStorage mode** - Legacy mode using browser storage
 2. **database mode** - New mode using PostgreSQL (current default)
 3. **dual mode** - Hybrid mode that uses both storage systems
@@ -28,16 +29,16 @@ NEXT_PUBLIC_AUTO_MIGRATE=true            # Auto-trigger migration when needed
 Located at: `/lib/feature-flags/storage-mode.ts`
 
 ```typescript
-import { storageModeFlag } from '@/lib/feature-flags/storage-mode'
+import { storageModeFlag } from "@/lib/feature-flags/storage-mode";
 
 // Check current mode
-const mode = storageModeFlag.getMode() // 'localStorage' | 'database' | 'dual'
+const mode = storageModeFlag.getMode(); // 'localStorage' | 'database' | 'dual'
 
 // Check specific capabilities
-const useDB = storageModeFlag.useDatabase()
-const useLS = storageModeFlag.useLocalStorage()
-const isDual = storageModeFlag.isDualMode()
-const hasFallback = storageModeFlag.isFallbackEnabled()
+const useDB = storageModeFlag.useDatabase();
+const useLS = storageModeFlag.useLocalStorage();
+const isDual = storageModeFlag.isDualMode();
+const hasFallback = storageModeFlag.isFallbackEnabled();
 ```
 
 ## Implementation Examples
@@ -46,66 +47,68 @@ const hasFallback = storageModeFlag.isFallbackEnabled()
 
 ```typescript
 // Example: Tasks storage adapter
-import { DualModeStorage, StorageAdapter } from '@/lib/feature-flags/storage-mode'
-import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
+import {
+  DualModeStorage,
+  StorageAdapter,
+} from "@/lib/feature-flags/storage-mode";
+import { db } from "@/db/config";
+import { tasks } from "@/db/schema";
 
 // localStorage adapter
 class LocalStorageTaskAdapter implements StorageAdapter<Task[]> {
   async get(key: string): Promise<Task[] | null> {
     try {
-      const data = localStorage.getItem(key)
-      return data ? JSON.parse(data) : null
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
     } catch {
-      return null
+      return null;
     }
   }
 
   async set(key: string, value: Task[]): Promise<void> {
-    localStorage.setItem(key, JSON.stringify(value))
+    localStorage.setItem(key, JSON.stringify(value));
   }
 
   async delete(key: string): Promise<void> {
-    localStorage.removeItem(key)
+    localStorage.removeItem(key);
   }
 
   async clear(): Promise<void> {
-    localStorage.clear()
+    localStorage.clear();
   }
 }
 
 // Database adapter
 class DatabaseTaskAdapter implements StorageAdapter<Task[]> {
   async get(key: string): Promise<Task[] | null> {
-    const results = await db.select().from(tasks)
-    return results.length > 0 ? results : null
+    const results = await db.select().from(tasks);
+    return results.length > 0 ? results : null;
   }
 
   async set(key: string, value: Task[]): Promise<void> {
     // Bulk upsert logic
     for (const task of value) {
-      await db.insert(tasks).values(task)
-        .onConflictDoUpdate({
-          target: tasks.id,
-          set: task
-        })
+      await db.insert(tasks).values(task).onConflictDoUpdate({
+        target: tasks.id,
+        set: task,
+      });
     }
   }
 
   async delete(key: string): Promise<void> {
-    await db.delete(tasks)
+    await db.delete(tasks);
   }
 
   async clear(): Promise<void> {
-    await db.delete(tasks)
+    await db.delete(tasks);
   }
 }
 
 // Create dual-mode storage instance
 const taskStorage = new DualModeStorage(
   new LocalStorageTaskAdapter(),
-  new DatabaseTaskAdapter()
-)
+  new DatabaseTaskAdapter(),
+);
 ```
 
 ### 2. API Route with Dual-Mode Support
@@ -113,23 +116,26 @@ const taskStorage = new DualModeStorage(
 ```typescript
 // Example: Enhanced tasks API with dual-mode
 export async function GET(request: NextRequest) {
-  const storage = getDualModeTaskStorage()
-  
+  const storage = getDualModeTaskStorage();
+
   try {
     // This automatically handles mode switching and fallback
-    const tasks = await storage.get('user-tasks')
-    
+    const tasks = await storage.get("user-tasks");
+
     return NextResponse.json({
       success: true,
       data: tasks,
-      storageMode: storageModeFlag.getMode()
-    })
+      storageMode: storageModeFlag.getMode(),
+    });
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch tasks',
-      storageMode: storageModeFlag.getMode()
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch tasks",
+        storageMode: storageModeFlag.getMode(),
+      },
+      { status: 500 },
+    );
   }
 }
 ```
@@ -139,61 +145,69 @@ export async function GET(request: NextRequest) {
 ```typescript
 // Migration hook for components
 export function useProgressiveMigration() {
-  const [migrationStatus, setMigrationStatus] = useState<'pending' | 'in-progress' | 'complete'>('pending')
-  
+  const [migrationStatus, setMigrationStatus] = useState<
+    "pending" | "in-progress" | "complete"
+  >("pending");
+
   useEffect(() => {
     const checkAndMigrate = async () => {
       if (storageModeFlag.shouldAutoMigrate()) {
         // Check if migration is needed
-        const response = await fetch('/api/migration')
-        const { migrationNeeded } = await response.json()
-        
+        const response = await fetch("/api/migration");
+        const { migrationNeeded } = await response.json();
+
         if (migrationNeeded) {
-          setMigrationStatus('in-progress')
-          
+          setMigrationStatus("in-progress");
+
           // Trigger migration
-          await fetch('/api/migration', {
-            method: 'POST',
-            body: JSON.stringify({ userId: currentUser.id })
-          })
-          
-          setMigrationStatus('complete')
+          await fetch("/api/migration", {
+            method: "POST",
+            body: JSON.stringify({ userId: currentUser.id }),
+          });
+
+          setMigrationStatus("complete");
         }
       }
-    }
-    
-    checkAndMigrate()
-  }, [])
-  
-  return { migrationStatus }
+    };
+
+    checkAndMigrate();
+  }, []);
+
+  return { migrationStatus };
 }
 ```
 
 ## Rollout Strategy
 
 ### Phase 1: Database Mode with Fallback (Current)
+
 ```env
 NEXT_PUBLIC_STORAGE_MODE=database
 NEXT_PUBLIC_STORAGE_FALLBACK=true
 ```
+
 - Primary storage: Database
 - Fallback: localStorage on errors
 - Risk: Minimal
 
 ### Phase 2: Dual Mode for Testing
+
 ```env
 NEXT_PUBLIC_STORAGE_MODE=dual
 NEXT_PUBLIC_STORAGE_SYNC=true
 ```
+
 - Write to both storages
 - Read from database first, then localStorage
 - Verify data consistency
 
 ### Phase 3: Full Database Mode
+
 ```env
 NEXT_PUBLIC_STORAGE_MODE=database
 NEXT_PUBLIC_STORAGE_FALLBACK=false
 ```
+
 - Database only
 - No fallback
 - localStorage can be cleared
@@ -201,13 +215,14 @@ NEXT_PUBLIC_STORAGE_FALLBACK=false
 ## Monitoring and Metrics
 
 ### Storage Mode Metrics
+
 ```typescript
 // Track storage operations
 export function trackStorageOperation(
-  operation: 'read' | 'write' | 'delete',
-  storage: 'localStorage' | 'database',
+  operation: "read" | "write" | "delete",
+  storage: "localStorage" | "database",
   success: boolean,
-  duration: number
+  duration: number,
 ) {
   // Send to observability service
   observability.metrics.recordStorageOperation({
@@ -215,111 +230,113 @@ export function trackStorageOperation(
     storage,
     success,
     duration,
-    mode: storageModeFlag.getMode()
-  })
+    mode: storageModeFlag.getMode(),
+  });
 }
 ```
 
 ### Health Checks
+
 ```typescript
 // Storage health check endpoint
 export async function GET() {
-  const mode = storageModeFlag.getMode()
+  const mode = storageModeFlag.getMode();
   const health = {
     mode,
     localStorage: checkLocalStorageHealth(),
     database: await checkDatabaseHealth(),
-    recommendation: getStorageModeRecommendation()
-  }
-  
-  return NextResponse.json(health)
+    recommendation: getStorageModeRecommendation(),
+  };
+
+  return NextResponse.json(health);
 }
 ```
 
 ## Error Handling Strategies
 
 ### 1. Graceful Degradation
+
 ```typescript
 async function getTasksWithFallback() {
   try {
     // Try database first
-    return await getTasksFromDatabase()
+    return await getTasksFromDatabase();
   } catch (error) {
-    console.error('Database error:', error)
-    
+    console.error("Database error:", error);
+
     if (storageModeFlag.isFallbackEnabled()) {
       // Fall back to localStorage
-      return getTasksFromLocalStorage()
+      return getTasksFromLocalStorage();
     }
-    
-    throw error
+
+    throw error;
   }
 }
 ```
 
 ### 2. Retry with Exponential Backoff
+
 ```typescript
 async function robustDatabaseOperation<T>(
   operation: () => Promise<T>,
-  maxRetries = 3
+  maxRetries = 3,
 ): Promise<T> {
   for (let i = 0; i < maxRetries; i++) {
     try {
-      return await operation()
+      return await operation();
     } catch (error) {
-      if (i === maxRetries - 1) throw error
-      
+      if (i === maxRetries - 1) throw error;
+
       // Exponential backoff
-      await new Promise(resolve => 
-        setTimeout(resolve, Math.pow(2, i) * 1000)
-      )
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.pow(2, i) * 1000),
+      );
     }
   }
-  throw new Error('Operation failed after retries')
+  throw new Error("Operation failed after retries");
 }
 ```
 
 ## Testing Strategies
 
 ### 1. Mode-Specific Tests
+
 ```typescript
-describe('Storage Operations', () => {
-  it.each(['localStorage', 'database', 'dual'] as StorageMode[])(
-    'should handle %s mode correctly',
+describe("Storage Operations", () => {
+  it.each(["localStorage", "database", "dual"] as StorageMode[])(
+    "should handle %s mode correctly",
     async (mode) => {
-      storageModeFlag.updateConfig({ mode })
-      
-      const storage = new DualModeStorage(
-        localAdapter,
-        dbAdapter
-      )
-      
-      await storage.set('test-key', testData)
-      const result = await storage.get('test-key')
-      
-      expect(result).toEqual(testData)
-    }
-  )
-})
+      storageModeFlag.updateConfig({ mode });
+
+      const storage = new DualModeStorage(localAdapter, dbAdapter);
+
+      await storage.set("test-key", testData);
+      const result = await storage.get("test-key");
+
+      expect(result).toEqual(testData);
+    },
+  );
+});
 ```
 
 ### 2. Fallback Testing
+
 ```typescript
-it('should fallback to localStorage when database fails', async () => {
+it("should fallback to localStorage when database fails", async () => {
   storageModeFlag.updateConfig({
-    mode: 'database',
-    fallbackEnabled: true
-  })
-  
+    mode: "database",
+    fallbackEnabled: true,
+  });
+
   // Mock database failure
-  dbAdapter.get = jest.fn().mockRejectedValue(new Error('DB Error'))
-  
-  const storage = new DualModeStorage(localAdapter, dbAdapter)
-  const result = await storage.get('test-key')
-  
-  expect(localAdapter.get).toHaveBeenCalled()
-  expect(result).toBeDefined()
-})
+  dbAdapter.get = jest.fn().mockRejectedValue(new Error("DB Error"));
+
+  const storage = new DualModeStorage(localAdapter, dbAdapter);
+  const result = await storage.get("test-key");
+
+  expect(localAdapter.get).toHaveBeenCalled();
+  expect(result).toBeDefined();
+});
 ```
 
 ## Best Practices

@@ -229,6 +229,8 @@ export class LoggingHealthMonitor {
 
   setThresholds(thresholds: Partial<typeof this.healthThresholds>): void {
     this.healthThresholds = { ...this.healthThresholds, ...thresholds }
-    this.logger.info('Health thresholds updated', { thresholds: this.healthThresholds })
+    this.logger.info('Health thresholds updated', {
+      thresholds: this.healthThresholds,
+    })
   }
 }

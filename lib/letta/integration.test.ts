@@ -191,7 +191,9 @@ describe('Voice Brainstorming Integration', () => {
       const mockResponse = {
         success: true,
         data: {
-          response: { content: 'Interesting perspective! Let me build on that idea.' },
+          response: {
+            content: 'Interesting perspective! Let me build on that idea.',
+          },
           extractedIdeas: [
             {
               content: 'Use AI to automate customer service',
@@ -236,14 +238,19 @@ describe('Voice Brainstorming Integration', () => {
         // Create session
         {
           ok: true,
-          json: async () => ({ success: true, data: { session: { id: 'session-123' } } }),
+          json: async () => ({
+            success: true,
+            data: { session: { id: 'session-123' } },
+          }),
         },
         // Start brainstorm
         {
           ok: true,
           json: async () => ({
             success: true,
-            data: { brainstormSession: { id: 'brainstorm-123', stage: 'exploration' } },
+            data: {
+              brainstormSession: { id: 'brainstorm-123', stage: 'exploration' },
+            },
           }),
         },
         // Process voice input
@@ -316,7 +323,9 @@ describe('Voice Brainstorming Integration', () => {
         errors.push(event)
       })
 
-      transcription['emit']('transcription_error', { error: 'Audio processing failed' })
+      transcription['emit']('transcription_error', {
+        error: 'Audio processing failed',
+      })
 
       expect(errors).toHaveLength(1)
       expect(errors[0].data.error).toBe('Audio processing failed')

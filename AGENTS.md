@@ -5,6 +5,7 @@ This file provides configuration and guidance for cloud-based coding agents work
 ## 🔧 Project Overview
 
 **Codex-Clone** is a modern AI-powered code generation platform featuring:
+
 - Next.js 15 + TypeScript + Bun runtime
 - ElectricSQL for real-time data synchronization
 - Winston logging system with correlation tracking
@@ -15,6 +16,7 @@ This file provides configuration and guidance for cloud-based coding agents work
 ## 🚀 Quick Start Commands
 
 ### Essential Development Commands
+
 ```bash
 # Install dependencies
 bun install
@@ -34,6 +36,7 @@ bun run db:studio
 ```
 
 ### Testing Commands
+
 ```bash
 # Run specific test suites
 bun run test:unit:logic        # Core logic tests
@@ -47,6 +50,7 @@ bun run test:browser          # Browser-based tests
 ```
 
 ### Database & Migration Commands
+
 ```bash
 # Database management
 bun run db:status             # Check migration status
@@ -60,6 +64,7 @@ bun run migration:backup      # Create backup
 ```
 
 ### Quality & Performance Commands
+
 ```bash
 # Code quality
 bun run quality              # Full quality check pipeline
@@ -74,6 +79,7 @@ bun run bundle:analyze       # Bundle size analysis
 ## 📁 Project Structure
 
 ### Core Directories
+
 ```
 app/                    # Next.js App Router
 ├── actions/           # Server actions
@@ -100,6 +106,7 @@ tests/                 # Test suites
 ```
 
 ### Key Configuration Files
+
 - `package.json` - Dependencies and scripts
 - `tsconfig.json` - TypeScript configuration
 - `vitest.*.config.ts` - Test configurations
@@ -109,6 +116,7 @@ tests/                 # Test suites
 ## 🛠️ Development Workflow
 
 ### 1. Environment Setup
+
 ```bash
 # Copy environment template
 cp .env.example .env.local
@@ -120,6 +128,7 @@ ELECTRIC_URL=postgresql://...
 ```
 
 ### 2. Before Making Changes
+
 ```bash
 # Always check current status
 git status
@@ -131,12 +140,14 @@ bun run db:health
 ```
 
 ### 3. Making Changes
+
 - **Components**: Follow existing patterns in `components/`
 - **API Routes**: Use established patterns in `app/api/`
 - **Tests**: Write tests alongside implementation
 - **Types**: Update TypeScript interfaces as needed
 
 ### 4. Quality Checks
+
 ```bash
 # Required before commits
 bun run lint:fix
@@ -147,6 +158,7 @@ bun run test
 ## 🧪 Testing Strategy
 
 ### Test Categories
+
 1. **Unit Tests** (`bun run test:unit:logic`)
    - Pure functions and utilities
    - Component logic testing
@@ -168,6 +180,7 @@ bun run test
    - Cross-browser compatibility
 
 ### Testing Best Practices
+
 - Write tests alongside implementation
 - Use descriptive test names
 - Mock external dependencies
@@ -177,6 +190,7 @@ bun run test
 ## 🗄️ Database & State Management
 
 ### ElectricSQL Integration
+
 ```bash
 # Check sync status
 bun run db:health
@@ -186,6 +200,7 @@ bun run db:health
 ```
 
 ### State Management Patterns
+
 - **TanStack Query** for server state
 - **Zustand** for client state
 - **ElectricSQL** for real-time data
@@ -194,18 +209,20 @@ bun run db:health
 ## 📊 Logging & Observability
 
 ### Winston Logging System
+
 The project includes a comprehensive logging system:
 
 ```typescript
 // Import logger
-import { LoggerFactory } from '@/lib/logging'
+import { LoggerFactory } from "@/lib/logging";
 
 // Use in components/API routes
-const logger = LoggerFactory.getInstance().createLogger('component-name')
-logger.info('Operation completed', { metadata })
+const logger = LoggerFactory.getInstance().createLogger("component-name");
+logger.info("Operation completed", { metadata });
 ```
 
 ### Log Categories
+
 - **API requests/responses** - Automatic via middleware
 - **Database operations** - Query logging with performance metrics
 - **AI agent operations** - LLM requests and responses
@@ -213,11 +230,13 @@ logger.info('Operation completed', { metadata })
 - **Performance metrics** - Operation timing and bottlenecks
 
 ### Correlation IDs
+
 All requests include correlation IDs for tracing across services.
 
 ## 🤖 AI Agent Integration
 
 ### Letta Agent System
+
 ```bash
 # Test agent functionality
 bun run demo:voice-brainstorm
@@ -227,6 +246,7 @@ bun run scripts/demo-voice-brainstorm.ts
 ```
 
 ### Agent Types
+
 - **Brainstorm Agent** - Creative ideation and problem-solving
 - **Code Generation Agent** - Automated code creation
 - **Orchestrator Agent** - Multi-agent coordination
@@ -234,6 +254,7 @@ bun run scripts/demo-voice-brainstorm.ts
 ## 🔧 Common Issues & Solutions
 
 ### TypeScript Errors
+
 ```bash
 # Fix common TypeScript issues
 bun run fix:typescript
@@ -243,6 +264,7 @@ bun run db:generate
 ```
 
 ### Test Failures
+
 ```bash
 # Fix test configuration issues
 bun run fix:vitest
@@ -252,6 +274,7 @@ bun test path/to/test.ts
 ```
 
 ### Database Issues
+
 ```bash
 # Reset database
 bun run db:rollback
@@ -262,6 +285,7 @@ bun run db:health
 ```
 
 ### Performance Issues
+
 ```bash
 # Analyze bundle size
 bun run bundle:analyze
@@ -273,18 +297,21 @@ bun run monitor:performance
 ## 🚨 Critical Guidelines
 
 ### Security
+
 - **Never commit secrets** - Use environment variables
 - **Validate all inputs** - Use Zod schemas
 - **Sanitize user data** - Prevent XSS/injection
 - **Use parameterized queries** - Prevent SQL injection
 
 ### Code Quality
+
 - **Follow TypeScript strict mode** - No `any` types
 - **Write comprehensive tests** - Unit + Integration + E2E
 - **Use proper error handling** - Try/catch with logging
 - **Document complex logic** - Clear comments for algorithms
 
 ### Performance
+
 - **Optimize database queries** - Use indexes and monitoring
 - **Implement proper caching** - Redis and TanStack Query
 - **Use WASM for heavy computation** - Leverage existing modules
@@ -293,28 +320,33 @@ bun run monitor:performance
 ## 📚 Key Dependencies
 
 ### Core Framework
+
 - **Next.js 15** - React framework with App Router
 - **TypeScript** - Type safety and development experience
 - **Bun** - Fast JavaScript runtime and package manager
 
 ### Database & State
+
 - **PostgreSQL** - Primary database
 - **ElectricSQL** - Real-time sync and offline support
 - **Drizzle ORM** - Type-safe database operations
 - **TanStack Query** - Server state management
 
 ### UI & Styling
+
 - **Tailwind CSS v4** - Utility-first styling
 - **Radix UI** - Accessible component primitives
 - **Framer Motion** - Animation library
 
 ### Testing & Quality
+
 - **Vitest** - Unit and integration testing
 - **Playwright** - End-to-end testing
 - **Biome** - Code formatting and linting
 - **Storybook** - Component development
 
 ### AI & Background Jobs
+
 - **OpenAI SDK** - AI model integration
 - **Inngest** - Background job processing
 - **Letta** - Multi-agent system
@@ -322,18 +354,21 @@ bun run monitor:performance
 ## 🎯 Development Priorities
 
 ### High Priority
+
 1. **Maintain test coverage** - All new code must include tests
 2. **Database performance** - Monitor and optimize queries
 3. **Type safety** - Eliminate any TypeScript errors
 4. **Security** - Follow secure coding practices
 
 ### Medium Priority
+
 1. **Documentation** - Keep README and guides updated
 2. **Performance optimization** - Bundle size and runtime performance
 3. **Code quality** - Refactor legacy code patterns
 4. **Monitoring** - Improve observability and logging
 
 ### Low Priority
+
 1. **Feature enhancements** - New functionality
 2. **UI/UX improvements** - Design system refinements
 3. **Developer experience** - Tooling and automation
@@ -342,11 +377,13 @@ bun run monitor:performance
 ## 📞 Support & Resources
 
 ### Documentation
+
 - `README.md` - Project overview and setup
 - `docs/` - Detailed technical documentation
 - Individual component READMEs in feature directories
 
 ### Debugging
+
 ```bash
 # Enable debug logging
 DEBUG=* bun run dev
@@ -356,6 +393,7 @@ DEBUG=electric:*,migration:* bun run dev
 ```
 
 ### Getting Help
+
 - **Architecture docs** - See `docs/ARCHITECTURE.md`
 - **Testing guide** - See `docs/TESTING_GUIDE.md`
 - **Migration guide** - See `docs/MIGRATION_GUIDE.md`

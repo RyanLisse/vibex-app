@@ -2,7 +2,7 @@
 
 /**
  * Database Performance Dashboard
- * 
+ *
  * Real-time dashboard for monitoring database performance, query optimization results,
  * and system health metrics with interactive visualizations.
  */
@@ -14,17 +14,17 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { 
-  Activity, 
-  Database, 
-  Zap, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
+import {
+  Activity,
+  Database,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
   CheckCircle,
   Clock,
   BarChart3,
-  Settings
+  Settings,
 } from 'lucide-react'
 
 interface PerformanceMetrics {
@@ -72,7 +72,7 @@ export function DatabasePerformanceDashboard() {
     errorRate: 0,
     cacheHitRatio: 0,
     indexUsage: 0,
-    recentAlerts: []
+    recentAlerts: [],
   })
 
   const [optimizationResults, setOptimizationResults] = useState<OptimizationResults>({
@@ -80,14 +80,14 @@ export function DatabasePerformanceDashboard() {
     performanceImprovement: 0,
     queriesOptimized: 0,
     storageOverhead: 0,
-    estimatedSavings: '0ms'
+    estimatedSavings: '0ms',
   })
 
   const [benchmarkResults, setBenchmarkResults] = useState<BenchmarkResults>({
     suites: [],
     overallScore: 0,
     regressions: 0,
-    improvements: 0
+    improvements: 0,
   })
 
   const [isLoading, setIsLoading] = useState(true)
@@ -111,16 +111,16 @@ export function DatabasePerformanceDashboard() {
               type: 'slow_query',
               severity: 'medium',
               message: 'Query execution time exceeded 500ms',
-              timestamp: new Date(Date.now() - 5 * 60 * 1000)
+              timestamp: new Date(Date.now() - 5 * 60 * 1000),
             },
             {
               id: '2',
               type: 'performance_regression',
               severity: 'low',
               message: 'Task list query 15% slower than baseline',
-              timestamp: new Date(Date.now() - 15 * 60 * 1000)
-            }
-          ]
+              timestamp: new Date(Date.now() - 15 * 60 * 1000),
+            },
+          ],
         })
 
         setOptimizationResults({
@@ -128,20 +128,50 @@ export function DatabasePerformanceDashboard() {
           performanceImprovement: 34.5,
           queriesOptimized: 12,
           storageOverhead: 45.2,
-          estimatedSavings: '156ms'
+          estimatedSavings: '156ms',
         })
 
         setBenchmarkResults({
           suites: [
-            { name: 'Database Operations', averageExecutionTime: 23.4, throughput: 42.7, passed: 5, failed: 0 },
-            { name: 'Query Performance', averageExecutionTime: 67.8, throughput: 14.7, passed: 4, failed: 0 },
-            { name: 'ElectricSQL Sync', averageExecutionTime: 12.1, throughput: 82.6, passed: 2, failed: 0 },
-            { name: 'Vector Search', averageExecutionTime: 89.3, throughput: 11.2, passed: 1, failed: 0 },
-            { name: 'Concurrent Operations', averageExecutionTime: 156.7, throughput: 6.4, passed: 2, failed: 0 }
+            {
+              name: 'Database Operations',
+              averageExecutionTime: 23.4,
+              throughput: 42.7,
+              passed: 5,
+              failed: 0,
+            },
+            {
+              name: 'Query Performance',
+              averageExecutionTime: 67.8,
+              throughput: 14.7,
+              passed: 4,
+              failed: 0,
+            },
+            {
+              name: 'ElectricSQL Sync',
+              averageExecutionTime: 12.1,
+              throughput: 82.6,
+              passed: 2,
+              failed: 0,
+            },
+            {
+              name: 'Vector Search',
+              averageExecutionTime: 89.3,
+              throughput: 11.2,
+              passed: 1,
+              failed: 0,
+            },
+            {
+              name: 'Concurrent Operations',
+              averageExecutionTime: 156.7,
+              throughput: 6.4,
+              passed: 2,
+              failed: 0,
+            },
           ],
           overallScore: 87.3,
           regressions: 1,
-          improvements: 4
+          improvements: 4,
         })
 
         setLastUpdated(new Date())
@@ -160,11 +190,16 @@ export function DatabasePerformanceDashboard() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'destructive'
-      case 'high': return 'destructive'
-      case 'medium': return 'default'
-      case 'low': return 'secondary'
-      default: return 'secondary'
+      case 'critical':
+        return 'destructive'
+      case 'high':
+        return 'destructive'
+      case 'medium':
+        return 'default'
+      case 'low':
+        return 'secondary'
+      default:
+        return 'secondary'
     }
   }
 
@@ -190,14 +225,10 @@ export function DatabasePerformanceDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Database Performance Dashboard</h1>
-          <p className="text-muted-foreground">
-            Real-time monitoring and optimization results
-          </p>
+          <p className="text-muted-foreground">Real-time monitoring and optimization results</p>
         </div>
         <div className="flex items-center space-x-2">
-          <Badge variant="outline">
-            Last updated: {lastUpdated.toLocaleTimeString()}
-          </Badge>
+          <Badge variant="outline">Last updated: {lastUpdated.toLocaleTimeString()}</Badge>
           <Button variant="outline" size="sm">
             <Settings className="h-4 w-4 mr-2" />
             Configure
@@ -287,9 +318,7 @@ export function DatabasePerformanceDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Query Performance Trends</CardTitle>
-                <CardDescription>
-                  Real-time query execution metrics
-                </CardDescription>
+                <CardDescription>Real-time query execution metrics</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -317,9 +346,7 @@ export function DatabasePerformanceDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>System Health</CardTitle>
-                <CardDescription>
-                  Database and application health indicators
-                </CardDescription>
+                <CardDescription>Database and application health indicators</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -354,9 +381,7 @@ export function DatabasePerformanceDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Optimization Results</CardTitle>
-              <CardDescription>
-                Recent database optimization improvements
-              </CardDescription>
+              <CardDescription>Recent database optimization improvements</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -385,7 +410,7 @@ export function DatabasePerformanceDashboard() {
                   <p className="text-sm text-muted-foreground">Time Saved</p>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h4 className="font-medium mb-2">Storage Impact</h4>
                 <div className="flex items-center space-x-2">
@@ -401,9 +426,7 @@ export function DatabasePerformanceDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Performance Benchmarks</CardTitle>
-              <CardDescription>
-                Comprehensive performance test results
-              </CardDescription>
+              <CardDescription>Comprehensive performance test results</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -440,7 +463,10 @@ export function DatabasePerformanceDashboard() {
                   <h4 className="font-medium mb-3">Benchmark Suite Results</h4>
                   <div className="space-y-2">
                     {benchmarkResults.suites.map((suite, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 border rounded"
+                      >
                         <div>
                           <span className="font-medium">{suite.name}</span>
                           <div className="text-sm text-muted-foreground">
@@ -465,9 +491,7 @@ export function DatabasePerformanceDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Performance Alerts</CardTitle>
-              <CardDescription>
-                Recent performance issues and notifications
-              </CardDescription>
+              <CardDescription>Recent performance issues and notifications</CardDescription>
             </CardHeader>
             <CardContent>
               {metrics.recentAlerts.length === 0 ? (

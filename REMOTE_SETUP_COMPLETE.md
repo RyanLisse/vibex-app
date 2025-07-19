@@ -6,14 +6,14 @@ The Codex Clone project is now fully configured for agentic coding tools with co
 
 ### 📋 Files Created/Updated
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `AGENTS.md` | Quick reference for AI agents (29 lines) | ✅ Created |
-| `SETUP.sh` | Automated environment setup script | ✅ Created |
-| `.env.example` | Environment variables template | ✅ Created |
-| `.gitignore` | Updated with agent-specific ignores | ✅ Updated |
-| `Makefile` | Common development tasks | ✅ Created |
-| `AGENT_VALIDATION.md` | Setup validation guide | ✅ Created |
+| File                  | Purpose                                  | Status     |
+| --------------------- | ---------------------------------------- | ---------- |
+| `AGENTS.md`           | Quick reference for AI agents (29 lines) | ✅ Created |
+| `SETUP.sh`            | Automated environment setup script       | ✅ Created |
+| `.env.example`        | Environment variables template           | ✅ Created |
+| `.gitignore`          | Updated with agent-specific ignores      | ✅ Updated |
+| `Makefile`            | Common development tasks                 | ✅ Created |
+| `AGENT_VALIDATION.md` | Setup validation guide                   | ✅ Created |
 
 ### 🧪 Validation Results
 
@@ -22,7 +22,7 @@ The Codex Clone project is now fully configured for agentic coding tools with co
 ✅ **Environment**: .env.local created from template  
 ✅ **Code Quality**: Biome.js formatting applied  
 ✅ **Package Manager**: Bun detected and configured  
-✅ **Git Hooks**: Husky integration ready  
+✅ **Git Hooks**: Husky integration ready
 
 ### 🎯 Agent Capabilities Enabled
 
@@ -60,6 +60,7 @@ make build      # Production build
 ### 🎉 Ready for Agentic Development
 
 The environment is optimized for:
+
 - **OpenAI Codex**: Quick understanding via AGENTS.md
 - **GitHub Copilot**: Contextual suggestions with proper setup
 - **Cursor/Continue**: Automated development workflows

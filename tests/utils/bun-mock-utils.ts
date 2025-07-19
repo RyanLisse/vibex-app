@@ -109,7 +109,14 @@ export const mockNextRouter = () => {
     },
   }
 
-  return { mockRouter, mockPush, mockReplace, mockBack, mockForward, mockRefresh }
+  return {
+    mockRouter,
+    mockPush,
+    mockReplace,
+    mockBack,
+    mockForward,
+    mockRefresh,
+  }
 }
 
 export const mockNextCookies = () => {

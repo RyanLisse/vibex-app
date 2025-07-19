@@ -9,7 +9,11 @@ import {
 
 interface UseMessageProcessorProps {
   taskId: string
-  taskMessages: Array<{ role: 'user' | 'assistant'; type: string; data: Record<string, unknown> }>
+  taskMessages: Array<{
+    role: 'user' | 'assistant'
+    type: string
+    data: Record<string, unknown>
+  }>
   streamingMessages: Map<string, StreamingMessage>
   setStreamingMessages: React.Dispatch<React.SetStateAction<Map<string, StreamingMessage>>>
 }
@@ -23,7 +27,11 @@ export function useMessageProcessor({
   const updateTaskMutation = useUpdateTask()
 
   const processStreamingMessage = useCallback(
-    (message: IncomingMessage & { data: { isStreaming: true; streamId: string } }) => {
+    (
+      message: IncomingMessage & {
+        data: { isStreaming: true; streamId: string }
+      }
+    ) => {
       const streamId = message.data.streamId
 
       setStreamingMessages((prev) => {
@@ -51,7 +59,11 @@ export function useMessageProcessor({
   )
 
   const processCompletedStream = useCallback(
-    (message: IncomingMessage & { data: { streamId: string; isStreaming: false } }) => {
+    (
+      message: IncomingMessage & {
+        data: { streamId: string; isStreaming: false }
+      }
+    ) => {
       const streamId = message.data.streamId
       const streamingMessage = streamingMessages.get(streamId)
 
@@ -67,7 +79,11 @@ export function useMessageProcessor({
                 text: (message.data.text as string) || streamingMessage.data.text,
                 isStreaming: false,
               },
-            } as { role: 'user' | 'assistant'; type: string; data: Record<string, unknown> },
+            } as {
+              role: 'user' | 'assistant'
+              type: string
+              data: Record<string, unknown>
+            },
           ],
         })
 
@@ -87,7 +103,11 @@ export function useMessageProcessor({
         id: taskId,
         messages: [
           ...taskMessages,
-          message as { role: 'user' | 'assistant'; type: string; data: Record<string, unknown> },
+          message as {
+            role: 'user' | 'assistant'
+            type: string
+            data: Record<string, unknown>
+          },
         ],
       })
     },

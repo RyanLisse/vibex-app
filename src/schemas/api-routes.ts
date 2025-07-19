@@ -443,6 +443,24 @@ export const createApiErrorResponse = (
   validationErrors,
 })
 
+// Helper function to create validation errors from strings
+export const createValidationErrorsFromStrings = (errors: string[]): ValidationError[] => {
+  return errors.map((error, index) => ({
+    field: `field_${index}`,
+    message: error,
+    code: 'VALIDATION_ERROR',
+  }))
+}
+
+// Helper to create validation errors from Zod errors
+export const createValidationErrorsFromZod = (error: z.ZodError): ValidationError[] => {
+  return error.errors.map((err) => ({
+    field: err.path.join('.') || 'unknown',
+    message: err.message,
+    code: err.code,
+  }))
+}
+
 export const createPaginatedResponse = <T>(
   data: T[],
   pagination: {

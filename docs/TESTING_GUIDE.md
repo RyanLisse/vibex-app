@@ -2,7 +2,6 @@ Got it. I’ll verify compatibility and usage updates for all the listed tools i
 
 I’ll get back to you shortly with the revised file.
 
-
 # Modern JavaScript Development & Testing Guide (July 2025)
 
 > **Purpose**
@@ -137,21 +136,21 @@ const config: StorybookConfig = {
     "@storybook/addon-interactions",
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
-    "@storybook/addon-coverage"
+    "@storybook/addon-coverage",
   ],
   framework: {
     name: "@storybook/nextjs-vite",
-    options: {}
+    options: {},
   },
   features: {
-    experimentalRSC: true    // enable React Server Components support in stories
+    experimentalRSC: true, // enable React Server Components support in stories
   },
   build: {
     test: {
       /** Disable docs addon during test builds to preserve coverage info */
-      disabledAddons: ["@storybook/addon-docs"]
-    }
-  }
+      disabledAddons: ["@storybook/addon-docs"],
+    },
+  },
 };
 export default config;
 ```
@@ -172,30 +171,38 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     environment: "jsdom",
-    setupFiles: ["./tests/setup.ts"],  // global test setup (e.g. polyfills, mocks)
+    setupFiles: ["./tests/setup.ts"], // global test setup (e.g. polyfills, mocks)
     globals: true,
-    css: true,                         // enable CSS import handling in tests
+    css: true, // enable CSS import handling in tests
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       reportsDirectory: "./coverage",
       exclude: [
-        "node_modules/**", "dist/**", ".next/**", 
-        "coverage/**", "tests/**", "**/*.d.ts",
-        "**/*.config.{js,ts}", "**/types.ts",
-        "**/.storybook/**", "**/storybook-static/**"
+        "node_modules/**",
+        "dist/**",
+        ".next/**",
+        "coverage/**",
+        "tests/**",
+        "**/*.d.ts",
+        "**/*.config.{js,ts}",
+        "**/types.ts",
+        "**/.storybook/**",
+        "**/storybook-static/**",
       ],
-      thresholds: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }
+      thresholds: {
+        global: { branches: 80, functions: 80, lines: 80, statements: 80 },
+      },
     },
-    pool: "forks",                     // isolate tests in processes (better with Bun)
-    poolOptions: { forks: { singleFork: true } }  // use one forked process for all tests
-  }
+    pool: "forks", // isolate tests in processes (better with Bun)
+    poolOptions: { forks: { singleFork: true } }, // use one forked process for all tests
+  },
 });
 ```
 
 </details>
 
-**Vitest Notes:** Vitest 3.x is a blazing-fast Vite-powered test runner that seamlessly runs both unit and integration tests. We configure it with the **jsdom** environment for DOM-based tests (React components, etc.), and include `@vitejs/plugin-react` for JSX transform. The `vite-tsconfig-paths` plugin picks up TypeScript path aliases from `tsconfig.json` so imports like `@/utils` resolve properly. We set `globals: true` to use Vitest’s global `it, expect, vi` without imports. Vitest 3 added support for running tests in a real browser context (“browser mode”) which Storybook leverages – the `addon-vitest` uses Vitest’s browser runner to execute story files. The `css: true` option allows importing CSS or Tailwind classes in component tests without errors. For performance, we use `pool: "forks"` to run tests in isolated subprocesses (rather than worker threads) – this avoids some issues with large test suites and, especially when using Bun as the Node runtime, can be more stable. We also enable `singleFork: true`, which runs all tests in a single child process (still isolated from the main process). This can reduce overhead for smaller projects (one process startup instead of many) and is a pattern Bun’s team has recommended for Vitest compatibility. The coverage configuration uses V8’s built-in coverage engine and outputs text, HTML, and LCOV reports. We exclude non-source files and set a basic **coverage threshold** (e.g. 80%) to enforce test quality. Vitest’s watch mode is instant (thanks to Vite’s HMR), and version 3.2 introduced features like a new Annotations API and scoped test fixtures for better organization. *(Tip: Run `bun run test` (which maps to `vitest`) during development for watch mode, and `bun run test:coverage` in CI to generate the coverage report.)*
+**Vitest Notes:** Vitest 3.x is a blazing-fast Vite-powered test runner that seamlessly runs both unit and integration tests. We configure it with the **jsdom** environment for DOM-based tests (React components, etc.), and include `@vitejs/plugin-react` for JSX transform. The `vite-tsconfig-paths` plugin picks up TypeScript path aliases from `tsconfig.json` so imports like `@/utils` resolve properly. We set `globals: true` to use Vitest’s global `it, expect, vi` without imports. Vitest 3 added support for running tests in a real browser context (“browser mode”) which Storybook leverages – the `addon-vitest` uses Vitest’s browser runner to execute story files. The `css: true` option allows importing CSS or Tailwind classes in component tests without errors. For performance, we use `pool: "forks"` to run tests in isolated subprocesses (rather than worker threads) – this avoids some issues with large test suites and, especially when using Bun as the Node runtime, can be more stable. We also enable `singleFork: true`, which runs all tests in a single child process (still isolated from the main process). This can reduce overhead for smaller projects (one process startup instead of many) and is a pattern Bun’s team has recommended for Vitest compatibility. The coverage configuration uses V8’s built-in coverage engine and outputs text, HTML, and LCOV reports. We exclude non-source files and set a basic **coverage threshold** (e.g. 80%) to enforce test quality. Vitest’s watch mode is instant (thanks to Vite’s HMR), and version 3.2 introduced features like a new Annotations API and scoped test fixtures for better organization. _(Tip: Run `bun run test` (which maps to `vitest`) during development for watch mode, and `bun run test:coverage` in CI to generate the coverage report.)_
 
 <details>
 <summary><code>playwright.config.ts</code> – Playwright configuration</summary>
@@ -207,23 +214,23 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
   reporter: [
-    ["html", { open: "never" }], 
-    ["json", { outputFile: "playwright-report/results.json" }]
+    ["html", { open: "never" }],
+    ["json", { outputFile: "playwright-report/results.json" }],
   ],
   use: {
     baseURL: "http://localhost:3000",
-    trace: "on-first-retry"  // capture traces for failed tests (first retry)
+    trace: "on-first-retry", // capture traces for failed tests (first retry)
   },
   projects: [
     { name: "chromium", use: devices["Desktop Chrome"] },
-    { name: "firefox",  use: devices["Desktop Firefox"] },
-    { name: "webkit",   use: devices["Desktop Safari"] }
+    { name: "firefox", use: devices["Desktop Firefox"] },
+    { name: "webkit", use: devices["Desktop Safari"] },
   ],
   webServer: {
     command: "bun run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: true
-  }
+    reuseExistingServer: true,
+  },
 });
 ```
 
@@ -251,9 +258,9 @@ export default defineConfig({
 
 </details>
 
-**Biome Notes:** **Biome** is an all-in-one code formatter and linter (the successor to Rome). Biome 2.x introduced **type-aware** linting rules for TypeScript that do *not* require running `tsc` under the hood. This means you get some of the benefits of TypeScript ESLint’s type rules, but much faster, since Biome performs its own type analysis in Rust. By enabling `"recommended": true` rules, we get a sensible default lint rule set for code quality. The config above is minimal because Biome works mostly out-of-the-box – we just confirm the formatter and linter are on. (You can customize rules, add **organize imports**, etc., but defaults are often enough.) Biome covers formatting similar to Prettier (so we don’t need Prettier), and includes lint rules analogous to ESLint (so no need for separate ESLint either). In this setup, running `bun run format` would invoke Biome’s formatter and `bun run check` would likely run Biome’s linter (and possibly TypeScript’s `tsc` for type-checking, configured in package scripts). Biome also supports **monorepo** configurations and has plugins (e.g. **GritQL** for GraphQL linting). It’s recommended to integrate Biome with your editor for on-save formatting. The provided VS Code settings (see below) configure Biome as the default formatter and enable format-on-save.
+**Biome Notes:** **Biome** is an all-in-one code formatter and linter (the successor to Rome). Biome 2.x introduced **type-aware** linting rules for TypeScript that do _not_ require running `tsc` under the hood. This means you get some of the benefits of TypeScript ESLint’s type rules, but much faster, since Biome performs its own type analysis in Rust. By enabling `"recommended": true` rules, we get a sensible default lint rule set for code quality. The config above is minimal because Biome works mostly out-of-the-box – we just confirm the formatter and linter are on. (You can customize rules, add **organize imports**, etc., but defaults are often enough.) Biome covers formatting similar to Prettier (so we don’t need Prettier), and includes lint rules analogous to ESLint (so no need for separate ESLint either). In this setup, running `bun run format` would invoke Biome’s formatter and `bun run check` would likely run Biome’s linter (and possibly TypeScript’s `tsc` for type-checking, configured in package scripts). Biome also supports **monorepo** configurations and has plugins (e.g. **GritQL** for GraphQL linting). It’s recommended to integrate Biome with your editor for on-save formatting. The provided VS Code settings (see below) configure Biome as the default formatter and enable format-on-save.
 
-*(Additional config files such as **commitlint.config.js** for commit message linting, **package.json** scripts, and GitHub Actions workflow are provided in the repository appendix.)*
+_(Additional config files such as **commitlint.config.js** for commit message linting, **package.json** scripts, and GitHub Actions workflow are provided in the repository appendix.)_
 
 ---
 
@@ -261,12 +268,12 @@ export default defineConfig({
 
 The project employs a multi-layered testing approach:
 
-| Layer                            | Tool                       | Goal & Coverage                                                                                         |
-| -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Unit / Integration**           | **Vitest 3**               | Fast in-memory tests, TypeScript-native, watch mode for TDD                                             |
-| **Component (UI, a11y, states)** | **Storybook 9 Test Suite** | Interactive UI tests (user interactions, visual regressions, accessibility) integrated in Storybook UI  |
-| **End‑to‑End (E2E)**             | **Playwright 1.53**        | Full browser tests across Chromium/Firefox/WebKit, with trace viewer debugging                          |
-| **Contract / Schema Validation** | **Zod 4**                  | Schema-defined validation for API contracts (shared between client & server)                            |
+| Layer                            | Tool                       | Goal & Coverage                                                                                        |
+| -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Unit / Integration**           | **Vitest 3**               | Fast in-memory tests, TypeScript-native, watch mode for TDD                                            |
+| **Component (UI, a11y, states)** | **Storybook 9 Test Suite** | Interactive UI tests (user interactions, visual regressions, accessibility) integrated in Storybook UI |
+| **End‑to‑End (E2E)**             | **Playwright 1.53**        | Full browser tests across Chromium/Firefox/WebKit, with trace viewer debugging                         |
+| **Contract / Schema Validation** | **Zod 4**                  | Schema-defined validation for API contracts (shared between client & server)                           |
 
 **Rationale:** Unit tests verify business logic in isolation (e.g. functions, reducers), while integration tests might render React components with minimal dependencies. These run quickly in Vitest. For front-end **components**, Storybook serves as a living spec: every story can have automated tests. Storybook 9 + Vitest allows running **all** component stories as test cases, covering interactions (clicks, form input, etc.), **accessibility** checks via axe-core, and even **visual diffs** (when linked with a service like Chromatic). This gives broad UI coverage “for free” from the stories you write. End-to-end tests with Playwright then cover user flows through the application (login, navigation, etc.) in a real browser context, ensuring everything works together. Finally, using Zod schemas for data validation ensures that assumptions at boundaries (e.g. API responses, form inputs) are enforced and tested. Zod’s fast runtime makes it feasible to validate on both client and server, and the schemas can double as a source of truth for unit tests (e.g. ensuring no unexpected fields).
 
@@ -306,13 +313,13 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun run type-check          # TypeScript (tsc) type checking
-      - run: bun run check               # Lint (Biome) and other checks
+      - run: bun run type-check # TypeScript (tsc) type checking
+      - run: bun run check # Lint (Biome) and other checks
       - name: Install Qlty CLI
         run: |
           curl -sSf https://qlty.sh | bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - run: qlty check --all            # Static analysis (all languages):contentReference[oaicite:26]{index=26}
+      - run: qlty check --all # Static analysis (all languages):contentReference[oaicite:26]{index=26}
 
   test:
     needs: quality
@@ -356,32 +363,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # fetch full history for changelog
+          fetch-depth: 0 # fetch full history for changelog
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun run build            # build the app (Next.js build)
-      - run: bunx semantic-release    # automatic version bump + CHANGELOG + git tag
+      - run: bun run build # build the app (Next.js build)
+      - run: bunx semantic-release # automatic version bump + CHANGELOG + git tag
 ```
 
 **Explanation:** The pipeline is split into **three stages**:
 
-* **Quality:** Install dependencies, then run static analysis and linting. We run `bun run type-check` (to catch TypeScript errors) and `bun run check` (which we’ve set up to run Biome lint). We then install **Qlty CLI** and run `qlty check --all`. **Qlty CLI** is a unified quality tool that can run multiple linters, formatters, and security scanners across languages via one command. In this context, Qlty might run extra checks (for example, if we had Python or other files, or perform security linting beyond Biome’s scope). It only analyzes changed files by default, but `--all` ensures a full scan in CI. This stage ensures code meets standards *before* running tests.
+- **Quality:** Install dependencies, then run static analysis and linting. We run `bun run type-check` (to catch TypeScript errors) and `bun run check` (which we’ve set up to run Biome lint). We then install **Qlty CLI** and run `qlty check --all`. **Qlty CLI** is a unified quality tool that can run multiple linters, formatters, and security scanners across languages via one command. In this context, Qlty might run extra checks (for example, if we had Python or other files, or perform security linting beyond Biome’s scope). It only analyzes changed files by default, but `--all` ensures a full scan in CI. This stage ensures code meets standards _before_ running tests.
 
-* **Test:** Depends on quality. It uses a **matrix** to run three variants in parallel: unit tests, Storybook tests, and end-to-end tests. For each, it sets up Bun and installs deps. If running e2e tests, we ensure Playwright browsers are installed (using `--with-deps` to include dependencies like ffmpeg if needed for video). Then we have a conditional step:
-
-  * **unit**: run `test:coverage` (which in package scripts would call Vitest with coverage collection).
-  * **storybook**: build Storybook (static build of all stories) then run `test-storybook`. Here `test-storybook` should execute the Storybook test suite in headless mode. This could be accomplished by running the Vitest-powered tests against the built story files (for example, Storybook provides a `test-storybook` CLI or we can use `vitest --browser` to run tests in an instrumented browser environment). The disabledAddons config we set ensures coverage isn't lost during this build. The output could be a coverage report (the Storybook addon-coverage adds a coverage summary visible in the UI and can output a full report as seen in the screenshot).
-  * **e2e**: build the Next.js app for production (`bun run build`) then run Playwright tests (`bun run test:e2e`). We do a production build to more closely resemble real usage (alternatively, we could run against the dev server, but a build catches production-specific issues).
+- **Test:** Depends on quality. It uses a **matrix** to run three variants in parallel: unit tests, Storybook tests, and end-to-end tests. For each, it sets up Bun and installs deps. If running e2e tests, we ensure Playwright browsers are installed (using `--with-deps` to include dependencies like ffmpeg if needed for video). Then we have a conditional step:
+  - **unit**: run `test:coverage` (which in package scripts would call Vitest with coverage collection).
+  - **storybook**: build Storybook (static build of all stories) then run `test-storybook`. Here `test-storybook` should execute the Storybook test suite in headless mode. This could be accomplished by running the Vitest-powered tests against the built story files (for example, Storybook provides a `test-storybook` CLI or we can use `vitest --browser` to run tests in an instrumented browser environment). The disabledAddons config we set ensures coverage isn't lost during this build. The output could be a coverage report (the Storybook addon-coverage adds a coverage summary visible in the UI and can output a full report as seen in the screenshot).
+  - **e2e**: build the Next.js app for production (`bun run build`) then run Playwright tests (`bun run test:e2e`). We do a production build to more closely resemble real usage (alternatively, we could run against the dev server, but a build catches production-specific issues).
 
   After tests, we always upload artifacts: e.g. coverage reports, Playwright HTML report, or any junit results. This helps in viewing test results from CI.
 
-* **Release:** Runs only on pushes to `main`. It waits for both quality and test to succeed. It checks out the code with full history (semantic-release needs commit history for determining version bumps and generating changelogs). After installing deps and building the application (to ensure we have a production build artifact if needed for deployment), it runs **semantic-release**. Semantic-release will analyze commit messages (Conventional Commits) and automatically determine if a release should be published (and of what semantic version). We included plugins for updating the git repo, creating a GitHub release, and generating a changelog. **semantic-release 24** requires a recent Node runtime (Node 18+; using Bun is fine since Bun embeds Node v20) and uses the latest Conventional Changelog preset which expects conventional commit messages. If our commit messages follow the format (which we enforce via commitlint/Commitizen), semantic-release will cut a release, tag the repo, and update the CHANGELOG.
+- **Release:** Runs only on pushes to `main`. It waits for both quality and test to succeed. It checks out the code with full history (semantic-release needs commit history for determining version bumps and generating changelogs). After installing deps and building the application (to ensure we have a production build artifact if needed for deployment), it runs **semantic-release**. Semantic-release will analyze commit messages (Conventional Commits) and automatically determine if a release should be published (and of what semantic version). We included plugins for updating the git repo, creating a GitHub release, and generating a changelog. **semantic-release 24** requires a recent Node runtime (Node 18+; using Bun is fine since Bun embeds Node v20) and uses the latest Conventional Changelog preset which expects conventional commit messages. If our commit messages follow the format (which we enforce via commitlint/Commitizen), semantic-release will cut a release, tag the repo, and update the CHANGELOG.
 
 Overall, this CI setup ensures that code quality and tests gate the release. Only if all checks pass and the branch is main, a release is published. This makes the process fully automated and maintains high confidence in each release.
 
-*(For self-hosted CI or other platforms, the same general approach applies: run **lint/type-check** → **unit/component/e2e tests** → **release**. Ensure to set up any required secrets (for semantic-release to push tags or publish to package registries, if applicable).)*
+_(For self-hosted CI or other platforms, the same general approach applies: run **lint/type-check** → **unit/component/e2e tests** → **release**. Ensure to set up any required secrets (for semantic-release to push tags or publish to package registries, if applicable).)_
 
 ---
 
@@ -409,15 +415,15 @@ With this approach, you can have multiple versions of the repository on disk, ea
 
 ## Best Practices
 
-* **Vertical slice architecture:** Organize code by feature, not by technical layer. Each feature directory contains all relevant components, styles, and logic. This promotes high cohesion and easier code ownership.
+- **Vertical slice architecture:** Organize code by feature, not by technical layer. Each feature directory contains all relevant components, styles, and logic. This promotes high cohesion and easier code ownership.
 
-* **TDD + Storybook:** Use a **red → green → refactor → document** cycle. Start with failing tests (Vitest or Storybook interaction tests), write just enough code to pass them, refactor for clarity, and then add or update Storybook stories to document the feature. Storybook serves as living documentation and also doubles as a testing tool (via its test suite) during development.
+- **TDD + Storybook:** Use a **red → green → refactor → document** cycle. Start with failing tests (Vitest or Storybook interaction tests), write just enough code to pass them, refactor for clarity, and then add or update Storybook stories to document the feature. Storybook serves as living documentation and also doubles as a testing tool (via its test suite) during development.
 
-* **Async everywhere:** Embrace async/await and asynchronous patterns in both front-end and back-end code. Next.js 15’s server functions (e.g. `async function Page()` in the app router, `cookies()`/`headers()` etc.) and React Server Components mean much of the code is async by nature. Design components and utilities to handle promises and loading states gracefully. This ensures compatibility with React 18+ features and future proofs for any data-fetching strategy.
+- **Async everywhere:** Embrace async/await and asynchronous patterns in both front-end and back-end code. Next.js 15’s server functions (e.g. `async function Page()` in the app router, `cookies()`/`headers()` etc.) and React Server Components mean much of the code is async by nature. Design components and utilities to handle promises and loading states gracefully. This ensures compatibility with React 18+ features and future proofs for any data-fetching strategy.
 
-* **Type-safe boundaries:** Use **Zod schemas** (or `@sinclair/typebox`, etc.) to define and **share** the shape of data sent between client and server. By importing the same Zod schema on both sides, you validate incoming data (e.g. from an API) and also derive TypeScript types from it. This guarantees that your front-end and back-end agree on data contracts. In tests, you can use schemas to generate valid and invalid data cases, ensuring robust validation. Zod 4’s performance improvements mean runtime validation is usually not a bottleneck, and its mini bundle helps keep client payload small for browser use.
+- **Type-safe boundaries:** Use **Zod schemas** (or `@sinclair/typebox`, etc.) to define and **share** the shape of data sent between client and server. By importing the same Zod schema on both sides, you validate incoming data (e.g. from an API) and also derive TypeScript types from it. This guarantees that your front-end and back-end agree on data contracts. In tests, you can use schemas to generate valid and invalid data cases, ensuring robust validation. Zod 4’s performance improvements mean runtime validation is usually not a bottleneck, and its mini bundle helps keep client payload small for browser use.
 
-* **Automated migrations:** Keep tooling up-to-date using codemods and CLI upgrades. For example:
+- **Automated migrations:** Keep tooling up-to-date using codemods and CLI upgrades. For example:
 
   ```bash
   npx storybook@9 migrate --glob="**/*.stories.@(tsx|jsx)"     # e.g. CSF2 to CSF3
@@ -427,19 +433,18 @@ With this approach, you can have multiple versions of the repository on disk, ea
 
   Storybook 9 deprecated older module formats and introduced new features (like tag-based organization); their migration tool can handle most breaking changes. Next.js codemods similarly help update for major changes. Automate these when possible instead of manual fixes.
 
-* **Consistent commits & releases:** Adopt **Conventional Commits** for all commit messages (e.g. “feat(auth): support 2FA login”). Use **Commitizen** for interactive commits to simplify following the format, and **Commitlint** (with husky’s `commit-msg` hook) to reject malformed commits. This ensures that semantic-release can determine version bumps (fix = patch, feat = minor, breaking = major) automatically. For example, our Husky commit-msg hook runs `commitlint --edit $1` to enforce the conventional template. By maintaining this discipline, you get human-readable history and automatic CHANGELOG generation for free. **Commitizen 4** provides a convenient CLI wizard for crafting commit messages, and we’ve added a Yarn/NPM script `"commit": "cz"` so developers can run `npm run commit` to invoke it. This, combined with semantic-release, forms a robust release management pipeline where every merge to main can produce a publishable release with meaningful versioning.
+- **Consistent commits & releases:** Adopt **Conventional Commits** for all commit messages (e.g. “feat(auth): support 2FA login”). Use **Commitizen** for interactive commits to simplify following the format, and **Commitlint** (with husky’s `commit-msg` hook) to reject malformed commits. This ensures that semantic-release can determine version bumps (fix = patch, feat = minor, breaking = major) automatically. For example, our Husky commit-msg hook runs `commitlint --edit $1` to enforce the conventional template. By maintaining this discipline, you get human-readable history and automatic CHANGELOG generation for free. **Commitizen 4** provides a convenient CLI wizard for crafting commit messages, and we’ve added a Yarn/NPM script `"commit": "cz"` so developers can run `npm run commit` to invoke it. This, combined with semantic-release, forms a robust release management pipeline where every merge to main can produce a publishable release with meaningful versioning.
 
-* **Pre-commit automation:** Configure git hooks (via Husky 9) to run quick checks before allowing a commit. For instance, a `pre-commit` hook can run formatting and linting on staged files (`npm run lint && npm run format`) to catch issues early, and a `pre-push` hook can run tests (perhaps a fast subset) to prevent pushing broken code. Our setup in `.husky/` indeed includes:
-
-  * `pre-commit` – runs Biome (`npm run lint`) to lint and format the code (`npm run format`) as a safety net.
-  * `commit-msg` – runs commitlint.
-  * `pre-push` – runs the test suite (`npm run test`) so that you only push code that passes tests.
+- **Pre-commit automation:** Configure git hooks (via Husky 9) to run quick checks before allowing a commit. For instance, a `pre-commit` hook can run formatting and linting on staged files (`npm run lint && npm run format`) to catch issues early, and a `pre-push` hook can run tests (perhaps a fast subset) to prevent pushing broken code. Our setup in `.husky/` indeed includes:
+  - `pre-commit` – runs Biome (`npm run lint`) to lint and format the code (`npm run format`) as a safety net.
+  - `commit-msg` – runs commitlint.
+  - `pre-push` – runs the test suite (`npm run test`) so that you only push code that passes tests.
 
   These safeguards automate quality enforcement and save CI cycles. Husky 9 is configured via `husky install` (usually triggered in a postinstall script to set up the hooks). The hooks themselves are simple shell scripts as shown above in the pipeline excerpt.
 
-* **Use Qlty CLI for code quality**: Qlty is a **unified code quality tool** that can run linters, formatters, and static analyzers for **70+ tools across 40+ languages**. In a polyglot project (or even within a JS project, to run specialized tools like dependency auditors, or style linters), Qlty can save time by running only the relevant checks (and only on changed files, unless `--all`). Incorporate Qlty in your workflow (we did in CI) to catch issues like security vulnerabilities (it can run tools like ESLint, Bandit for Python, etc. under the hood) that might be outside the scope of Biome/TS. It’s also useful locally: developers can run `qlty check` before pushing to get a comprehensive quality report.
+- **Use Qlty CLI for code quality**: Qlty is a **unified code quality tool** that can run linters, formatters, and static analyzers for **70+ tools across 40+ languages**. In a polyglot project (or even within a JS project, to run specialized tools like dependency auditors, or style linters), Qlty can save time by running only the relevant checks (and only on changed files, unless `--all`). Incorporate Qlty in your workflow (we did in CI) to catch issues like security vulnerabilities (it can run tools like ESLint, Bandit for Python, etc. under the hood) that might be outside the scope of Biome/TS. It’s also useful locally: developers can run `qlty check` before pushing to get a comprehensive quality report.
 
-* **VS Code setup:** Ensure your team shares editor settings to avoid “it works on my machine” issues. We include a `.vscode/settings.json` that, for example, enables format-on-save with Biome, disables other linters/formatters (ESLint/Prettier) to avoid conflicts, and possibly enables the Qlty VS Code extension. The recommended extensions list (`.vscode/extensions.json`) includes Biome (for syntax and formatting), Qlty (if available), Playwright (for test debugging), etc. This ensures anyone opening the project in VS Code gets a consistent, productive setup out of the box.
+- **VS Code setup:** Ensure your team shares editor settings to avoid “it works on my machine” issues. We include a `.vscode/settings.json` that, for example, enables format-on-save with Biome, disables other linters/formatters (ESLint/Prettier) to avoid conflicts, and possibly enables the Qlty VS Code extension. The recommended extensions list (`.vscode/extensions.json`) includes Biome (for syntax and formatting), Qlty (if available), Playwright (for test debugging), etc. This ensures anyone opening the project in VS Code gets a consistent, productive setup out of the box.
 
 By following these practices, the project stays maintainable, **fast** (both in dev and CI), and ready to adapt to new tech. The tooling versions chosen here (from Storybook 9 to TS 5.8 to Bun) represent the state-of-the-art as of mid-2025 – each chosen for performance and developer experience. Always monitor release notes for these tools; for example, keep an eye on Next.js 16 (which will bring a new Rust-based bundler), and the progress of TypeScript’s Go-based compiler (TS 7) which promises order-of-magnitude speed improvements. Our setup is designed to be future-proof and easy to upgrade with minimal friction.
 
@@ -460,6 +465,6 @@ By following these practices, the project stays maintainable, **fast** (both in 
 | TypeScript    | **5.8**     |
 | Zod           | **4.0.0**   |
 
-*(All version numbers indicate the minimum version tested with this guide. Newer patch versions in the same major line are generally fine. As of July 2025, these represent the latest stable releases for each tool.)*
+_(All version numbers indicate the minimum version tested with this guide. Newer patch versions in the same major line are generally fine. As of July 2025, these represent the latest stable releases for each tool.)_
 
 © 2025 — Feel free to adapt this template to your team’s needs. Contributions are welcome!

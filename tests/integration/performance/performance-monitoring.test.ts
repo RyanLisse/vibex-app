@@ -535,7 +535,9 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
         status: 'pending' as const,
         priority: 'low' as const,
         userId: 'memory-test-user',
-        metadata: { largeData: Array.from({ length: 100 }, (_, j) => `item-${j}`) },
+        metadata: {
+          largeData: Array.from({ length: 100 }, (_, j) => `item-${j}`),
+        },
       }))
 
       // Insert large dataset

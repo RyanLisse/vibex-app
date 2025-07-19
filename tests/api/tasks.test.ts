@@ -266,7 +266,9 @@ describe('Tasks API Routes', () => {
         url: '/api/tasks/non-existent',
       })
 
-      const response = await getTaskById(req, { params: { id: 'non-existent' } })
+      const response = await getTaskById(req, {
+        params: { id: 'non-existent' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -329,7 +331,9 @@ describe('Tasks API Routes', () => {
         body: { title: 'Updated Title' },
       })
 
-      const response = await updateTaskById(req, { params: { id: 'non-existent' } })
+      const response = await updateTaskById(req, {
+        params: { id: 'non-existent' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -376,7 +380,9 @@ describe('Tasks API Routes', () => {
         url: '/api/tasks/non-existent',
       })
 
-      const response = await deleteTaskById(req, { params: { id: 'non-existent' } })
+      const response = await deleteTaskById(req, {
+        params: { id: 'non-existent' },
+      })
       const data = await response.json()
 
       expect(response.status).toBe(404)

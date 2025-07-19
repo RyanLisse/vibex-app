@@ -17,7 +17,11 @@ export class ElectricClient {
   private connectionPromise: Promise<void> | null = null
   private observability = ObservabilityService.getInstance()
   private subscriptions = new Map<string, () => void>()
-  private offlineQueue: Array<{ operation: string; data: any; timestamp: Date }> = []
+  private offlineQueue: Array<{
+    operation: string
+    data: any
+    timestamp: Date
+  }> = []
   private syncStatus: 'connected' | 'disconnected' | 'syncing' | 'error' = 'disconnected'
   private lastSyncTime: Date | null = null
   private conflictLog: Array<{
@@ -221,7 +225,10 @@ export class ElectricClient {
 
         console.log(`Conflict resolved for ${table}:${id} using last-write-wins`)
       } catch (error) {
-        conflictEntry.resolution = { strategy: 'last-write-wins', error: error.message }
+        conflictEntry.resolution = {
+          strategy: 'last-write-wins',
+          error: error.message,
+        }
         console.error('Failed to resolve conflict:', error)
       }
 

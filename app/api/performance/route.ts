@@ -95,7 +95,10 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
     return NextResponse.json(createApiSuccessResponse(response, 'Performance metrics retrieved'))
   } catch (error) {
     span.recordException(error as Error)
-    span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: (error as Error).message,
+    })
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -172,7 +175,10 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
     return NextResponse.json(createApiSuccessResponse(response, 'Performance analysis completed'))
   } catch (error) {
     span.recordException(error as Error)
-    span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: (error as Error).message,
+    })
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -241,7 +247,10 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(createApiSuccessResponse(response, 'Benchmarks completed'))
   } catch (error) {
     span.recordException(error as Error)
-    span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: (error as Error).message,
+    })
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

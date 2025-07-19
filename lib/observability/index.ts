@@ -9,6 +9,23 @@ export class ObservabilityService {
   private operations: Map<string, { startTime: Date; endTime?: Date; duration?: number }> =
     new Map()
 
+  // Public metrics and getTracer for API routes
+  public metrics = {
+    recordOperation: (name: string, duration: number) => {
+      this.operations.set(`${name}_${Date.now()}`, {
+        startTime: new Date(Date.now() - duration),
+        endTime: new Date(),
+        duration,
+      })
+    },
+    getOperationCount: () => this.operations.size,
+    getErrorCount: () => this.errors.length,
+  }
+
+  public getTracer() {
+    return this.tracer
+  }
+
   private constructor() {
     // Private constructor for singleton pattern
   }
@@ -54,7 +71,10 @@ export class ObservabilityService {
       }
 
       span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: (error as Error).message,
+      })
       throw error
     } finally {
       span.end()
@@ -102,7 +122,10 @@ export class ObservabilityService {
       }
 
       span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: (error as Error).message,
+      })
       throw error
     } finally {
       span.end()
@@ -228,7 +251,11 @@ export class ObservabilityService {
     totalOperations: number
     averageDuration: number
     successRate: number
-    recentOperations: Array<{ name: string; duration: number; timestamp: Date }>
+    recentOperations: Array<{
+      name: string
+      duration: number
+      timestamp: Date
+    }>
   } {
     const operations = Array.from(this.operations.values())
     const completedOperations = operations.filter((op) => op.endTime && op.duration !== undefined)

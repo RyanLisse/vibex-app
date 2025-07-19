@@ -74,7 +74,9 @@ async function mockApiCall(endpoint: string, data: any): Promise<any> {
   // Mock responses based on endpoint
   switch (endpoint) {
     case 'create_agent':
-      return { id: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 6)}` }
+      return {
+        id: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      }
 
     case 'create_session':
       return {
@@ -186,8 +188,12 @@ async function runVoiceBrainstormDemo() {
     logStep('Initializing Multi-Agent System...')
 
     // Mock the system initialization
-    const orchestratorId = await mockApiCall('create_agent', { type: 'orchestrator' })
-    const brainstormId = await mockApiCall('create_agent', { type: 'brainstorm' })
+    const orchestratorId = await mockApiCall('create_agent', {
+      type: 'orchestrator',
+    })
+    const brainstormId = await mockApiCall('create_agent', {
+      type: 'brainstorm',
+    })
 
     logStep('Multi-Agent System initialized successfully', 'success')
     log(`  • Orchestrator Agent: ${orchestratorId.id}`, 'green')

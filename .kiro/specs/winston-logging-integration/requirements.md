@@ -137,5 +137,5 @@ Drawing from enterprise logging best practices and modern observability patterns
 4. WHEN testing THEN the system SHALL support log capture and assertion capabilities for automated testing
 5. IF debugging requires THEN the system SHALL support log streaming and real-time filtering for live debugging sessions
 6. WHEN troubleshooting THEN the system SHALL provide log correlation tools to trace issues across multiple components and time periods
-</content>
-</file>
+   </content>
+   </file>

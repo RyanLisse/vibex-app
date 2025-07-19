@@ -105,7 +105,9 @@ export async function cleanupTestData(
 ): Promise<void> {
   try {
     // This is a placeholder - implement based on your app's cleanup needs
-    await stagehand.observe({ description: `cleanup data containing ${testDataIdentifier}` })
+    await stagehand.observe({
+      description: `cleanup data containing ${testDataIdentifier}`,
+    })
   } catch (_error) {}
 }
 

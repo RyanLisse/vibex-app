@@ -174,7 +174,6 @@ describe('useGitHubUser', () => {
         token: 'test-token',
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUserProfile,
@@ -217,7 +216,6 @@ describe('useGitHubUser', () => {
         user: { id: '123', login: 'testuser' },
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockUpdatedUser,
@@ -260,7 +258,6 @@ describe('useGitHubUser', () => {
         token: 'test-token',
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockOrganizations,
@@ -289,7 +286,6 @@ describe('useGitHubUser', () => {
         user: { id: '123', login: 'testuser' },
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockNewToken,
@@ -353,7 +349,6 @@ describe('useGitHubUser', () => {
         token: 'test-token',
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useGitHubUser())
@@ -372,7 +367,6 @@ describe('useGitHubUser', () => {
         token: 'test-token',
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 403,
@@ -421,7 +415,6 @@ describe('useGitHubUser', () => {
         token: 'test-token',
       })
     )
-
     ;(fetch as unknown as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockEmails,

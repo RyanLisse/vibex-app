@@ -102,27 +102,37 @@ export class RedisClientManager {
   private setupEventHandlers(client: Redis | Cluster, name: string): void {
     client.on('connect', () => {
       console.log(`Redis client '${name}' connected`)
-      this.observability.recordMetric('redis.connection.established', 1, { client: name })
+      this.observability.recordMetric('redis.connection.established', 1, {
+        client: name,
+      })
     })
 
     client.on('ready', () => {
       console.log(`Redis client '${name}' ready`)
-      this.observability.recordMetric('redis.connection.ready', 1, { client: name })
+      this.observability.recordMetric('redis.connection.ready', 1, {
+        client: name,
+      })
     })
 
     client.on('error', (error) => {
       console.error(`Redis client '${name}' error:`, error)
-      this.observability.trackError('redis.connection.error', error, { client: name })
+      this.observability.trackError('redis.connection.error', error, {
+        client: name,
+      })
     })
 
     client.on('close', () => {
       console.log(`Redis client '${name}' connection closed`)
-      this.observability.recordMetric('redis.connection.closed', 1, { client: name })
+      this.observability.recordMetric('redis.connection.closed', 1, {
+        client: name,
+      })
     })
 
     client.on('reconnecting', () => {
       console.log(`Redis client '${name}' reconnecting`)
-      this.observability.recordMetric('redis.connection.reconnecting', 1, { client: name })
+      this.observability.recordMetric('redis.connection.reconnecting', 1, {
+        client: name,
+      })
     })
   }
 

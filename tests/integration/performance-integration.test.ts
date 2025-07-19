@@ -1,6 +1,6 @@
 /**
  * Performance Integration Tests
- * 
+ *
  * Tests system performance under various load conditions and ensures
  * optimizations work correctly across integrated components
  */
@@ -78,9 +78,8 @@ function createWrapper() {
     },
   })
 
-  return ({ children }: { children: React.ReactNode }) => (
+  return ({ children }: { children: React.ReactNode }) =>
     React.createElement(QueryClientProvider, { client: queryClient }, children)
-  )
 }
 
 // Test data factory for large datasets
@@ -112,7 +111,7 @@ describe('Performance Integration Tests', () => {
   describe('Large Dataset Handling', () => {
     it('should handle 1000+ tasks with acceptable performance', async () => {
       const largeBatch = createBatchTasks(1000)
-      
+
       server.use(
         http.get('/api/tasks', async () => {
           await delay(100) // Simulate realistic server response time
@@ -133,16 +132,19 @@ describe('Performance Integration Tests', () => {
       const endTiming = monitor.startTiming('large-dataset-load')
 
       // Wait for data to load
-      await waitFor(() => {
-        expect(result.current.isSuccess).toBe(true)
-      }, { timeout: 5000 })
+      await waitFor(
+        () => {
+          expect(result.current.isSuccess).toBe(true)
+        },
+        { timeout: 5000 }
+      )
 
       const loadTime = endTiming()
 
       // Performance assertions
       expect(loadTime).toBeLessThan(2000) // Should load within 2 seconds
       expect(result.current.data?.tasks).toHaveLength(1000)
-      
+
       // Memory usage should be reasonable
       const memoryUsage = (performance as any).memory?.usedJSHeapSize
       if (memoryUsage) {
@@ -153,17 +155,17 @@ describe('Performance Integration Tests', () => {
     it('should handle pagination efficiently', async () => {
       const pageSize = 20
       const totalTasks = 200
-      
+
       server.use(
         http.get('/api/tasks', ({ request }) => {
           const url = new URL(request.url)
           const page = parseInt(url.searchParams.get('page') || '1')
           const limit = parseInt(url.searchParams.get('limit') || '20')
-          
+
           const startIndex = (page - 1) * limit
           const endIndex = startIndex + limit
           const tasks = createBatchTasks(totalTasks).slice(startIndex, endIndex)
-          
+
           return HttpResponse.json({
             success: true,
             data: {
@@ -176,13 +178,10 @@ describe('Performance Integration Tests', () => {
       )
 
       const wrapper = createWrapper()
-      
+
       // Test multiple page loads
       for (let page = 1; page <= 5; page++) {
-        const { result } = renderHook(() => 
-          useTasks({ page, limit: pageSize }), 
-          { wrapper }
-        )
+        const { result } = renderHook(() => useTasks({ page, limit: pageSize }), { wrapper })
 
         const endTiming = monitor.startTiming(`page-${page}-load`)
 
@@ -203,7 +202,7 @@ describe('Performance Integration Tests', () => {
   describe('Optimistic Updates Performance', () => {
     it('should show optimistic updates within 50ms', async () => {
       const initialTasks = createBatchTasks(100)
-      
+
       server.use(
         http.get('/api/tasks', () => {
           return HttpResponse.json({
@@ -218,19 +217,25 @@ describe('Performance Integration Tests', () => {
         http.post('/api/tasks', async ({ request }) => {
           const body = await request.json()
           await delay(200) // Simulate server processing time
-          return HttpResponse.json({
-            success: true,
-            data: { ...body, id: 'server-generated-id' },
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: { ...body, id: 'server-generated-id' },
+            },
+            { status: 201 }
+          )
         })
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const createTask = useCreateTask()
-        return { tasks, createTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const createTask = useCreateTask()
+          return { tasks, createTask }
+        },
+        { wrapper }
+      )
 
       // Wait for initial load
       await waitFor(() => {
@@ -239,7 +244,7 @@ describe('Performance Integration Tests', () => {
 
       // Measure optimistic update timing
       const endTiming = monitor.startTiming('optimistic-update')
-      
+
       act(() => {
         result.current.createTask.mutate({
           title: 'Performance Test Task',
@@ -254,7 +259,7 @@ describe('Performance Integration Tests', () => {
       })
 
       const optimisticTime = endTiming()
-      
+
       // Optimistic update should be nearly instant
       expect(optimisticTime).toBeLessThan(50)
     })
@@ -262,7 +267,7 @@ describe('Performance Integration Tests', () => {
     it('should handle rapid successive operations efficiently', async () => {
       const initialTasks = createBatchTasks(50)
       let operationCount = 0
-      
+
       server.use(
         http.get('/api/tasks', () => {
           return HttpResponse.json({
@@ -286,11 +291,14 @@ describe('Performance Integration Tests', () => {
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const updateTask = useUpdateTask()
-        return { tasks, updateTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const updateTask = useUpdateTask()
+          return { tasks, updateTask }
+        },
+        { wrapper }
+      )
 
       await waitFor(() => {
         expect(result.current.tasks.data?.tasks).toHaveLength(50)
@@ -298,7 +306,7 @@ describe('Performance Integration Tests', () => {
 
       // Perform 10 rapid updates
       const endTiming = monitor.startTiming('rapid-operations')
-      
+
       for (let i = 0; i < 10; i++) {
         act(() => {
           result.current.updateTask.mutate({
@@ -311,20 +319,23 @@ describe('Performance Integration Tests', () => {
       // Wait for all optimistic updates
       await waitFor(() => {
         const completedTasks = result.current.tasks.data?.tasks.filter(
-          t => t.status === 'completed'
+          (t) => t.status === 'completed'
         )
         expect(completedTasks).toHaveLength(10)
       })
 
       const totalTime = endTiming()
-      
+
       // All optimistic updates should complete quickly
       expect(totalTime).toBeLessThan(200)
-      
+
       // Should eventually sync with server
-      await waitFor(() => {
-        expect(operationCount).toBe(10)
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          expect(operationCount).toBe(10)
+        },
+        { timeout: 2000 }
+      )
     })
   })
 
@@ -332,7 +343,7 @@ describe('Performance Integration Tests', () => {
     it('should efficiently invalidate and update cache', async () => {
       const tasks = createBatchTasks(500)
       let requestCount = 0
-      
+
       server.use(
         http.get('/api/tasks', () => {
           requestCount++
@@ -348,19 +359,25 @@ describe('Performance Integration Tests', () => {
         http.post('/api/tasks', async ({ request }) => {
           const body = await request.json()
           tasks.push({ ...body, id: 'new-task-id' })
-          return HttpResponse.json({
-            success: true,
-            data: { ...body, id: 'new-task-id' },
-          }, { status: 201 })
+          return HttpResponse.json(
+            {
+              success: true,
+              data: { ...body, id: 'new-task-id' },
+            },
+            { status: 201 }
+          )
         })
       )
 
       const wrapper = createWrapper()
-      const { result } = renderHook(() => {
-        const tasks = useTasks()
-        const createTask = useCreateTask()
-        return { tasks, createTask }
-      }, { wrapper })
+      const { result } = renderHook(
+        () => {
+          const tasks = useTasks()
+          const createTask = useCreateTask()
+          return { tasks, createTask }
+        },
+        { wrapper }
+      )
 
       // Initial load
       await waitFor(() => {
@@ -371,7 +388,7 @@ describe('Performance Integration Tests', () => {
 
       // Create new task (should trigger cache invalidation)
       const endTiming = monitor.startTiming('cache-invalidation')
-      
+
       act(() => {
         result.current.createTask.mutate({
           title: 'Cache Test Task',
@@ -386,7 +403,7 @@ describe('Performance Integration Tests', () => {
       })
 
       const cacheUpdateTime = endTiming()
-      
+
       // Cache invalidation and update should be fast
       expect(cacheUpdateTime).toBeLessThan(100)
       expect(requestCount).toBe(2) // One refetch after mutation
@@ -394,23 +411,23 @@ describe('Performance Integration Tests', () => {
 
     it('should handle concurrent cache operations', async () => {
       const tasks = createBatchTasks(100)
-      
+
       server.use(
         http.get('/api/tasks', ({ request }) => {
           const url = new URL(request.url)
           const status = url.searchParams.get('status')
-          
+
           if (status) {
             return HttpResponse.json({
               success: true,
               data: {
-                tasks: tasks.filter(t => t.status === status),
-                total: tasks.filter(t => t.status === status).length,
+                tasks: tasks.filter((t) => t.status === status),
+                total: tasks.filter((t) => t.status === status).length,
                 hasMore: false,
               },
             })
           }
-          
+
           return HttpResponse.json({
             success: true,
             data: {
@@ -423,15 +440,15 @@ describe('Performance Integration Tests', () => {
       )
 
       const wrapper = createWrapper()
-      
+
       // Create multiple concurrent queries
       const { result: allTasks } = renderHook(() => useTasks(), { wrapper })
-      const { result: pendingTasks } = renderHook(() => 
-        useTasks({ status: 'pending' }), { wrapper }
-      )
-      const { result: completedTasks } = renderHook(() => 
-        useTasks({ status: 'completed' }), { wrapper }
-      )
+      const { result: pendingTasks } = renderHook(() => useTasks({ status: 'pending' }), {
+        wrapper,
+      })
+      const { result: completedTasks } = renderHook(() => useTasks({ status: 'completed' }), {
+        wrapper,
+      })
 
       const endTiming = monitor.startTiming('concurrent-queries')
 
@@ -446,18 +463,18 @@ describe('Performance Integration Tests', () => {
 
       // Concurrent queries should not block each other
       expect(concurrentTime).toBeLessThan(1000)
-      
+
       // Each query should have correct filtered data
       expect(allTasks.current.data?.tasks).toHaveLength(100)
-      expect(pendingTasks.current.data?.tasks.every(t => t.status === 'pending')).toBe(true)
-      expect(completedTasks.current.data?.tasks.every(t => t.status === 'completed')).toBe(true)
+      expect(pendingTasks.current.data?.tasks.every((t) => t.status === 'pending')).toBe(true)
+      expect(completedTasks.current.data?.tasks.every((t) => t.status === 'completed')).toBe(true)
     })
   })
 
   describe('Memory Management', () => {
     it('should not leak memory with frequent operations', async () => {
       const tasks = createBatchTasks(50)
-      
+
       server.use(
         http.get('/api/tasks', () => {
           return HttpResponse.json({
@@ -475,14 +492,17 @@ describe('Performance Integration Tests', () => {
       )
 
       const wrapper = createWrapper()
-      
+
       // Perform many operations to test memory usage
       for (let round = 0; round < 10; round++) {
-        const { result, unmount } = renderHook(() => {
-          const tasks = useTasks()
-          const updateTask = useUpdateTask()
-          return { tasks, updateTask }
-        }, { wrapper })
+        const { result, unmount } = renderHook(
+          () => {
+            const tasks = useTasks()
+            const updateTask = useUpdateTask()
+            return { tasks, updateTask }
+          },
+          { wrapper }
+        )
 
         await waitFor(() => {
           expect(result.current.tasks.isSuccess).toBe(true)
@@ -519,7 +539,7 @@ describe('Performance Integration Tests', () => {
     it('should batch requests efficiently', async () => {
       let requestCount = 0
       const batchedRequests: any[] = []
-      
+
       server.use(
         http.post('/api/tasks/batch', async ({ request }) => {
           requestCount++
@@ -541,9 +561,9 @@ describe('Performance Integration Tests', () => {
 
       // This would test a batch operation hook (to be implemented)
       // For now, we simulate the batching behavior
-      
+
       const endTiming = monitor.startTiming('batch-operations')
-      
+
       // Simulate batching 20 operations into 2 requests
       await Promise.all([
         fetch('/api/tasks/batch', {

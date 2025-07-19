@@ -54,13 +54,21 @@ describe('Container Types', () => {
       const tasksData: LatestData = {
         channel: 'tasks',
         topic: 'status',
-        data: { taskId: 'task-123', status: 'IN_PROGRESS', sessionId: 'session-456' },
+        data: {
+          taskId: 'task-123',
+          status: 'IN_PROGRESS',
+          sessionId: 'session-456',
+        },
       }
 
       const otherData: LatestData = {
         channel: 'other',
         topic: 'status',
-        data: { taskId: 'task-123', status: 'IN_PROGRESS', sessionId: 'session-456' },
+        data: {
+          taskId: 'task-123',
+          status: 'IN_PROGRESS',
+          sessionId: 'session-456',
+        },
       }
 
       expect(isTasksChannel(tasksData)).toBe(true)
@@ -71,7 +79,11 @@ describe('Container Types', () => {
       const statusData: LatestData = {
         channel: 'tasks',
         topic: 'status',
-        data: { taskId: 'task-123', status: 'IN_PROGRESS', sessionId: 'session-456' },
+        data: {
+          taskId: 'task-123',
+          status: 'IN_PROGRESS',
+          sessionId: 'session-456',
+        },
       }
 
       const updateData: LatestData = {
@@ -88,7 +100,11 @@ describe('Container Types', () => {
       const statusData: LatestData = {
         channel: 'tasks',
         topic: 'status',
-        data: { taskId: 'task-123', status: 'IN_PROGRESS', sessionId: 'session-456' },
+        data: {
+          taskId: 'task-123',
+          status: 'IN_PROGRESS',
+          sessionId: 'session-456',
+        },
       }
 
       const updateData: LatestData = {
@@ -103,14 +119,20 @@ describe('Container Types', () => {
 
     it('should identify git messages correctly', () => {
       const gitMessage = { type: 'git', output: 'test' }
-      const shellMessage = { type: 'local_shell_call', action: { command: ['ls'] } }
+      const shellMessage = {
+        type: 'local_shell_call',
+        action: { command: ['ls'] },
+      }
 
       expect(isGitMessage(gitMessage)).toBe(true)
       expect(isGitMessage(shellMessage)).toBe(false)
     })
 
     it('should identify shell call messages correctly', () => {
-      const shellMessage = { type: 'local_shell_call', action: { command: ['ls'] } }
+      const shellMessage = {
+        type: 'local_shell_call',
+        action: { command: ['ls'] },
+      }
       const gitMessage = { type: 'git', output: 'test' }
 
       expect(isShellCallMessage(shellMessage)).toBe(true)
@@ -118,7 +140,10 @@ describe('Container Types', () => {
     })
 
     it('should identify shell output messages correctly', () => {
-      const shellOutputMessage = { type: 'local_shell_call_output', output: 'test' }
+      const shellOutputMessage = {
+        type: 'local_shell_call_output',
+        output: 'test',
+      }
       const gitMessage = { type: 'git', output: 'test' }
 
       expect(isShellOutputMessage(shellOutputMessage)).toBe(true)

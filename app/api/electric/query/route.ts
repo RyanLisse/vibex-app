@@ -54,7 +54,10 @@ export async function POST(request: NextRequest) {
       const validationResult = await validateApiRequest(request, ElectricQueryRequestSchema)
       if (!validationResult.success) {
         span.recordException(new Error('Validation failed'))
-        span.setStatus({ code: SpanStatusCode.ERROR, message: 'Validation failed' })
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: 'Validation failed',
+        })
         return createApiErrorResponse('Invalid request data', 400, validationResult.errors)
       }
 
@@ -64,7 +67,10 @@ export async function POST(request: NextRequest) {
       const trimmedQuery = query.trim().toLowerCase()
       if (!trimmedQuery.startsWith('select')) {
         span.recordException(new Error('Only SELECT queries are allowed'))
-        span.setStatus({ code: SpanStatusCode.ERROR, message: 'Invalid query type' })
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: 'Invalid query type',
+        })
         return createApiErrorResponse('Only SELECT queries are allowed', 400)
       }
 

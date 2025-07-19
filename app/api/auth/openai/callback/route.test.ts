@@ -13,7 +13,7 @@ vi.mock('@/lib/auth/openai-codex', () => ({
 
 // Mock NextResponse
 vi.mock('next/server', async () => {
-  const actual = await mock.importActual('next/server')
+  const actual = await vi.importActual('next/server')
   return {
     ...actual,
     NextResponse: {
@@ -86,7 +86,9 @@ describe('GET /api/auth/openai/callback', () => {
   })
 
   it('should handle missing code parameter', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Missing code parameter' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing code parameter',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/callback?state=test-state'
@@ -101,7 +103,9 @@ describe('GET /api/auth/openai/callback', () => {
   })
 
   it('should handle missing state parameter', async () => {
-    mockNextResponse.json.mockReturnValue({ error: 'Missing state parameter' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing state parameter',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/callback?code=test-code'
@@ -117,7 +121,9 @@ describe('GET /api/auth/openai/callback', () => {
 
   it('should handle invalid state', async () => {
     mockValidateOAuthState.mockReturnValue(false)
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid state parameter' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid state parameter',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=invalid-state'
@@ -149,7 +155,9 @@ describe('GET /api/auth/openai/callback', () => {
   it('should handle token exchange failure', async () => {
     mockExchangeCodeForToken.mockRejectedValue(new Error('Token exchange failed'))
     mockHandleAuthError.mockReturnValue('Token exchange failed')
-    mockNextResponse.json.mockReturnValue({ error: 'Token exchange failed' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Token exchange failed',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
@@ -173,7 +181,10 @@ describe('GET /api/auth/openai/callback', () => {
     const _response = await GET(request)
 
     expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'invalid_grant', error_description: 'Invalid authorization code' },
+      {
+        error: 'invalid_grant',
+        error_description: 'Invalid authorization code',
+      },
       { status: 400 }
     )
   })
@@ -264,7 +275,9 @@ describe('GET /api/auth/openai/callback', () => {
       },
     }))
 
-    mockNextResponse.json.mockReturnValue({ error: 'Missing configuration' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing configuration',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state'
@@ -296,7 +309,9 @@ describe('GET /api/auth/openai/callback', () => {
     mockSanitizeRedirectUrl.mockImplementation(() => {
       throw new Error('Invalid redirect URL')
     })
-    mockNextResponse.json.mockReturnValue({ error: 'Invalid redirect URL' } as any)
+    mockNextResponse.json.mockReturnValue({
+      error: 'Invalid redirect URL',
+    } as any)
 
     const request = new NextRequest(
       'https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)'

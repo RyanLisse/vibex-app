@@ -29,28 +29,7 @@ export default function TaskNavbar({ id }: Props) {
   const { task, loading, error } = useTaskQuery(id)
   const updateTaskMutation = useUpdateTaskMutation()
 
-  // Handle loading and error states
-  if (loading) {
-    return (
-      <div className="flex items-center justify-between border-b bg-background px-6 py-3">
-        <div className="flex items-center gap-2">
-          <div className="h-4 w-4 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-32 animate-pulse rounded bg-muted" />
-        </div>
-      </div>
-    )
-  }
-
-  if (error || !task) {
-    return (
-      <div className="flex items-center justify-between border-b bg-background px-6 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Task not found</span>
-        </div>
-      </div>
-    )
-  }
-
+  // All hooks must be defined before any early returns
   const handleCreatePullRequest = useCallback(async () => {
     if (!task) {
       return
@@ -120,6 +99,28 @@ export default function TaskNavbar({ id }: Props) {
       setIsControllingTask(false)
     }
   }, [task, id, updateTaskMutation])
+
+  // Handle loading and error states after all hooks are defined
+  if (loading) {
+    return (
+      <div className="flex items-center justify-between border-b bg-background px-6 py-3">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !task) {
+    return (
+      <div className="flex items-center justify-between border-b bg-background px-6 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Task not found</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-14 items-center justify-between border-b px-4">

@@ -305,7 +305,9 @@ export class MigrationService {
       // Store backup in Redis with longer TTL (if available)
       const redis = await this.getRedisCache()
       if (redis) {
-        await redis.set(`migration:backup:${backupId}`, data, { ttl: 86_400 * 7 }) // 7 days
+        await redis.set(`migration:backup:${backupId}`, data, {
+          ttl: 86_400 * 7,
+        }) // 7 days
       } else {
         console.warn('Redis not available, backup will not be stored')
       }

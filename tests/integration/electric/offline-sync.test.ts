@@ -39,8 +39,12 @@ Object.defineProperty(window, 'localStorage', {
 // Mock window events
 const mockAddEventListener = vi.fn()
 const mockRemoveEventListener = vi.fn()
-Object.defineProperty(window, 'addEventListener', { value: mockAddEventListener })
-Object.defineProperty(window, 'removeEventListener', { value: mockRemoveEventListener })
+Object.defineProperty(window, 'addEventListener', {
+  value: mockAddEventListener,
+})
+Object.defineProperty(window, 'removeEventListener', {
+  value: mockRemoveEventListener,
+})
 
 describe('Offline Sync Integration', () => {
   beforeEach(() => {
@@ -121,7 +125,9 @@ describe('Offline Sync Integration', () => {
       const { result } = renderHook(() => useOfflineSync())
 
       act(() => {
-        result.current.queueOperation('insert', 'tasks', { title: 'Test Task' })
+        result.current.queueOperation('insert', 'tasks', {
+          title: 'Test Task',
+        })
       })
 
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
@@ -156,14 +162,18 @@ describe('Offline Sync Integration', () => {
 
   describe('Sync Resume', () => {
     it('should process queue when coming back online', async () => {
-      vi.mocked(electricDb.executeRealtimeOperation).mockResolvedValue({ id: 'test-result' })
+      vi.mocked(electricDb.executeRealtimeOperation).mockResolvedValue({
+        id: 'test-result',
+      })
 
       const { result } = renderHook(() => useOfflineSync())
 
       // Queue an operation while offline
       act(() => {
         navigator.onLine = false
-        result.current.queueOperation('insert', 'tasks', { title: 'Offline Task' })
+        result.current.queueOperation('insert', 'tasks', {
+          title: 'Offline Task',
+        })
       })
 
       expect(result.current.getStats().queueSize).toBe(1)
@@ -199,7 +209,9 @@ describe('Offline Sync Integration', () => {
       const { result } = renderHook(() => useOfflineSync())
 
       act(() => {
-        result.current.queueOperation('insert', 'tasks', { title: 'Retry Task' })
+        result.current.queueOperation('insert', 'tasks', {
+          title: 'Retry Task',
+        })
       })
 
       // First sync attempt (should fail)
@@ -227,7 +239,9 @@ describe('Offline Sync Integration', () => {
       const { result } = renderHook(() => useOfflineSync())
 
       act(() => {
-        result.current.queueOperation('insert', 'tasks', { title: 'Failing Task' })
+        result.current.queueOperation('insert', 'tasks', {
+          title: 'Failing Task',
+        })
       })
 
       // Attempt sync multiple times (should exceed max retries)
@@ -251,12 +265,17 @@ describe('Offline Sync Integration', () => {
 
   describe('Manual Sync', () => {
     it('should allow manual sync trigger', async () => {
-      vi.mocked(electricDb.executeRealtimeOperation).mockResolvedValue({ id: 'manual-sync' })
+      vi.mocked(electricDb.executeRealtimeOperation).mockResolvedValue({
+        id: 'manual-sync',
+      })
 
       const { result } = renderHook(() => useOfflineSync())
 
       act(() => {
-        result.current.queueOperation('update', 'tasks', { id: 'task-1', title: 'Updated' })
+        result.current.queueOperation('update', 'tasks', {
+          id: 'task-1',
+          title: 'Updated',
+        })
       })
 
       await act(async () => {
@@ -288,7 +307,9 @@ describe('Offline Sync Integration', () => {
 
   describe('Test Mode', () => {
     it('should provide test offline functionality', async () => {
-      vi.mocked(electricDb.executeRealtimeOperation).mockResolvedValue({ id: 'test-result' })
+      vi.mocked(electricDb.executeRealtimeOperation).mockResolvedValue({
+        id: 'test-result',
+      })
 
       const { result } = renderHook(() => useOfflineSync())
 

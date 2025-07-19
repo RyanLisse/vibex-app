@@ -511,7 +511,10 @@ describe('lib/auth', () => {
 
   describe('handleAuthError', () => {
     it('should handle standard auth errors', () => {
-      const error = { error: 'invalid_grant', error_description: 'Invalid authorization code' }
+      const error = {
+        error: 'invalid_grant',
+        error_description: 'Invalid authorization code',
+      }
       const result = handleAuthError(error)
       expect(result).toBe('Invalid authorization code')
     })

@@ -105,7 +105,10 @@ export class DatabaseIndexOptimizer {
       return indexes
     } catch (error) {
       span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: (error as Error).message,
+      })
       throw error
     } finally {
       span.end()
@@ -141,7 +144,10 @@ export class DatabaseIndexOptimizer {
       return plan
     } catch (error) {
       span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: (error as Error).message,
+      })
       throw error
     } finally {
       span.end()

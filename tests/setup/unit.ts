@@ -162,6 +162,12 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
   CLOSED: 3,
 }))
 
+// WebSocket constants
+global.WebSocket.CONNECTING = 0
+global.WebSocket.OPEN = 1
+global.WebSocket.CLOSING = 2
+global.WebSocket.CLOSED = 3
+
 // Mock performance
 Object.defineProperty(global, 'performance', {
   value: {

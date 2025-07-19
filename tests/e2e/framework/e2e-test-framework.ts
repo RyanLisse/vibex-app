@@ -378,7 +378,9 @@ export class PerformanceTestUtils {
   ): Promise<number> {
     const startTime = performance.now()
     await actionFn()
-    await this.page.waitForSelector(expectedResultSelector, { state: 'visible' })
+    await this.page.waitForSelector(expectedResultSelector, {
+      state: 'visible',
+    })
     const endTime = performance.now()
     return endTime - startTime
   }

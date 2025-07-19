@@ -94,7 +94,9 @@ export const observabilityEvents = pgTable(
   'observability_events',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    executionId: uuid('execution_id').references(() => agentExecutions.id, { onDelete: 'cascade' }),
+    executionId: uuid('execution_id').references(() => agentExecutions.id, {
+      onDelete: 'cascade',
+    }),
     eventType: varchar('event_type', { length: 100 }).notNull(),
     timestamp: timestamp('timestamp').defaultNow().notNull(),
     data: jsonb('data'),
@@ -173,7 +175,9 @@ export const workflowExecutions = pgTable(
   'workflow_executions',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    workflowId: uuid('workflow_id').references(() => workflows.id, { onDelete: 'cascade' }),
+    workflowId: uuid('workflow_id').references(() => workflows.id, {
+      onDelete: 'cascade',
+    }),
     status: varchar('status', { length: 50 }).notNull(),
     currentStep: integer('current_step').default(0),
     totalSteps: integer('total_steps'),
@@ -206,7 +210,9 @@ export const executionSnapshots = pgTable(
   'execution_snapshots',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    executionId: uuid('execution_id').references(() => agentExecutions.id, { onDelete: 'cascade' }),
+    executionId: uuid('execution_id').references(() => agentExecutions.id, {
+      onDelete: 'cascade',
+    }),
     stepNumber: integer('step_number').notNull(),
     timestamp: timestamp('timestamp').defaultNow().notNull(),
     state: jsonb('state').notNull(),

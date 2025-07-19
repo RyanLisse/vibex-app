@@ -642,7 +642,9 @@ describe('API Routes Schemas', () => {
   describe('File Upload Schemas', () => {
     describe('FileUploadRequestSchema', () => {
       it('should validate file upload request', () => {
-        const validFile = new File(['content'], 'test.jpg', { type: 'image/jpeg' })
+        const validFile = new File(['content'], 'test.jpg', {
+          type: 'image/jpeg',
+        })
         const validRequest = {
           file: validFile,
           category: 'avatar' as const,
@@ -671,7 +673,9 @@ describe('API Routes Schemas', () => {
       })
 
       it('should apply default category', () => {
-        const validFile = new File(['content'], 'test.jpg', { type: 'image/jpeg' })
+        const validFile = new File(['content'], 'test.jpg', {
+          type: 'image/jpeg',
+        })
         const result = FileUploadRequestSchema.parse({ file: validFile })
         expect(result.category).toBe('attachment')
       })

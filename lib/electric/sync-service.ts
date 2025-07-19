@@ -112,7 +112,11 @@ export class ElectricSyncService {
           })
 
           if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('environments:updated', { detail: environments }))
+            window.dispatchEvent(
+              new CustomEvent('environments:updated', {
+                detail: environments,
+              })
+            )
           }
         },
         {
@@ -140,7 +144,9 @@ export class ElectricSyncService {
 
           if (typeof window !== 'undefined') {
             window.dispatchEvent(
-              new CustomEvent('agent-executions:updated', { detail: executions })
+              new CustomEvent('agent-executions:updated', {
+                detail: executions,
+              })
             )
           }
         },
@@ -172,7 +178,9 @@ export class ElectricSyncService {
 
             if (typeof window !== 'undefined') {
               window.dispatchEvent(
-                new CustomEvent('observability-events:updated', { detail: events })
+                new CustomEvent('observability-events:updated', {
+                  detail: events,
+                })
               )
             }
           },
@@ -259,7 +267,9 @@ export class ElectricSyncService {
 
           if (typeof window !== 'undefined') {
             window.dispatchEvent(
-              new CustomEvent('workflow-executions:updated', { detail: executions })
+              new CustomEvent('workflow-executions:updated', {
+                detail: executions,
+              })
             )
           }
         },
@@ -289,7 +299,9 @@ export class ElectricSyncService {
 
           if (typeof window !== 'undefined') {
             window.dispatchEvent(
-              new CustomEvent('execution-snapshots:updated', { detail: snapshots })
+              new CustomEvent('execution-snapshots:updated', {
+                detail: snapshots,
+              })
             )
           }
         },

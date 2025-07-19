@@ -71,24 +71,24 @@ Utility functions for:
 
 ```typescript
 // Click using natural language
-await ai.act({ action: 'click', description: 'primary submit button' })
+await ai.act({ action: "click", description: "primary submit button" });
 
 // Fill forms with natural language
 await ai.act({
-  action: 'fill',
-  description: 'email input field',
-  value: 'test@example.com'
-})
+  action: "fill",
+  description: "email input field",
+  value: "test@example.com",
+});
 
 // Extract information
 const pageTitle = await ai.extract({
-  description: 'the main page title'
-})
+  description: "the main page title",
+});
 
 // Observe page state
 const isLoaded = await ai.observe({
-  description: 'page is fully loaded with all content visible'
-})
+  description: "page is fully loaded with all content visible",
+});
 ```
 
 ### 2. Structured Data Extraction
@@ -97,13 +97,13 @@ const isLoaded = await ai.observe({
 // Extract structured data with schema validation
 const taskData = await utils.extractWithSchema(
   stagehand,
-  'task information including id, title, status, and timestamp',
-  schemas.TaskDataSchema
-)
+  "task information including id, title, status, and timestamp",
+  schemas.TaskDataSchema,
+);
 
 // Validate the extracted data
-expect(taskData.title).toBeTruthy()
-expect(taskData.status).toBe('pending')
+expect(taskData.title).toBeTruthy();
+expect(taskData.status).toBe("pending");
 ```
 
 ### 3. Performance Testing with AI
@@ -111,21 +111,21 @@ expect(taskData.status).toBe('pending')
 ```typescript
 // Measure action performance
 const { result, metrics } = await basePage.measureAction(async () => {
-  await ai.act({ action: 'click', description: 'submit button' })
-})
+  await ai.act({ action: "click", description: "submit button" });
+});
 
-console.log('Action took:', metrics.duration, 'ms')
+console.log("Action took:", metrics.duration, "ms");
 ```
 
 ### 4. Accessibility Testing
 
 ```typescript
 // Comprehensive accessibility validation
-const accessibilityData = await basePage.validateAccessibility()
+const accessibilityData = await basePage.validateAccessibility();
 
-expect(accessibilityData.hasAltText).toBeTruthy()
-expect(accessibilityData.hasProperHeadings).toBeTruthy()
-expect(accessibilityData.hasKeyboardNavigation).toBeTruthy()
+expect(accessibilityData.hasAltText).toBeTruthy();
+expect(accessibilityData.hasProperHeadings).toBeTruthy();
+expect(accessibilityData.hasKeyboardNavigation).toBeTruthy();
 ```
 
 ### 5. Visual Regression Testing
@@ -133,13 +133,14 @@ expect(accessibilityData.hasKeyboardNavigation).toBeTruthy()
 ```typescript
 // AI-powered visual analysis
 const layoutAnalysis = await ai.extract({
-  description: 'detailed layout analysis including header, content, and footer positioning'
-})
+  description:
+    "detailed layout analysis including header, content, and footer positioning",
+});
 
 // Visual consistency validation
 const visuallyConsistent = await ai.observe({
-  description: 'page appearance is visually consistent with expected design'
-})
+  description: "page appearance is visually consistent with expected design",
+});
 ```
 
 ## Test Examples
@@ -147,6 +148,7 @@ const visuallyConsistent = await ai.observe({
 ### 1. Basic Workflow Testing (`example.spec.ts`)
 
 Demonstrates:
+
 - Natural language interactions
 - Form validation
 - Data extraction
@@ -156,6 +158,7 @@ Demonstrates:
 ### 2. Advanced Testing (`ai-powered-advanced.spec.ts`)
 
 Advanced patterns including:
+
 - Multi-step workflow testing
 - Comprehensive accessibility auditing
 - Performance monitoring with AI insights
@@ -166,6 +169,7 @@ Advanced patterns including:
 ### 3. Visual Regression Testing (`visual-regression-ai.spec.ts`)
 
 Visual testing capabilities:
+
 - Responsive design validation
 - Component visual consistency
 - Dark mode testing
@@ -180,29 +184,34 @@ Visual testing capabilities:
 ### 1. Writing Effective AI Descriptions
 
 **Good:**
+
 ```typescript
-await ai.act({ action: 'click', description: 'primary blue submit button in the task creation form' })
+await ai.act({
+  action: "click",
+  description: "primary blue submit button in the task creation form",
+});
 ```
 
 **Bad:**
+
 ```typescript
-await ai.act({ action: 'click', description: 'button' })
+await ai.act({ action: "click", description: "button" });
 ```
 
 ### 2. Error Handling
 
 ```typescript
 try {
-  await ai.act({ action: 'click', description: 'submit button' })
+  await ai.act({ action: "click", description: "submit button" });
 } catch (error) {
   // Log the error with context
-  console.error('Failed to click submit button:', error)
-  
+  console.error("Failed to click submit button:", error);
+
   // Take screenshot for debugging
-  await page.screenshot({ path: 'error-screenshot.png' })
-  
+  await page.screenshot({ path: "error-screenshot.png" });
+
   // Attempt alternative action
-  await ai.act({ action: 'click', description: 'alternative submit button' })
+  await ai.act({ action: "click", description: "alternative submit button" });
 }
 ```
 
@@ -212,16 +221,16 @@ try {
 // Use structured data extraction for better performance
 const data = await utils.extractWithSchema(
   stagehand,
-  'specific data description',
-  MyDataSchema
-)
+  "specific data description",
+  MyDataSchema,
+);
 
 // Batch multiple observations
 const [isVisible, isEnabled, hasContent] = await Promise.all([
-  ai.observe({ description: 'element is visible' }),
-  ai.observe({ description: 'element is enabled' }),
-  ai.observe({ description: 'element has content' })
-])
+  ai.observe({ description: "element is visible" }),
+  ai.observe({ description: "element is enabled" }),
+  ai.observe({ description: "element has content" }),
+]);
 ```
 
 ### 4. Debugging
@@ -233,6 +242,7 @@ STAGEHAND_DEBUG=true npm run test:e2e
 ```
 
 This provides:
+
 - Detailed AI action logs
 - Performance metrics
 - Error context
@@ -293,28 +303,33 @@ npm run test:e2e:headed
 ### Debug Strategies
 
 1. **Enable verbose logging**
+
    ```typescript
    const stagehand = new Stagehand({
      ...config,
      verbose: 2,
-     debugDom: true
-   })
+     debugDom: true,
+   });
    ```
 
 2. **Take screenshots at each step**
+
    ```typescript
-   await takeTimestampedScreenshot(page, 'step-1-before-action')
-   await ai.act({ action: 'click', description: 'button' })
-   await takeTimestampedScreenshot(page, 'step-2-after-action')
+   await takeTimestampedScreenshot(page, "step-1-before-action");
+   await ai.act({ action: "click", description: "button" });
+   await takeTimestampedScreenshot(page, "step-2-after-action");
    ```
 
 3. **Use metrics to identify bottlenecks**
    ```typescript
-   console.log('AI actions:', metrics.actions.map(a => ({
-     type: a.type,
-     duration: a.duration,
-     success: a.success
-   })))
+   console.log(
+     "AI actions:",
+     metrics.actions.map((a) => ({
+       type: a.type,
+       duration: a.duration,
+       success: a.success,
+     })),
+   );
    ```
 
 ## Extending the Framework
@@ -326,28 +341,35 @@ export const CustomDataSchema = z.object({
   field1: z.string(),
   field2: z.number(),
   field3: z.boolean().optional(),
-})
+});
 
 // Use in tests
 const data = await utils.extractWithSchema(
   stagehand,
-  'custom data description',
-  CustomDataSchema
-)
+  "custom data description",
+  CustomDataSchema,
+);
 ```
 
 ### Creating Custom Utilities
 
 ```typescript
 export const CustomUtils = {
-  async validateCustomElement(stagehand: Stagehand, elementDescription: string) {
-    const exists = await stagehand.observe({ description: elementDescription })
-    const isVisible = await stagehand.observe({ description: `${elementDescription} is visible` })
-    const isEnabled = await stagehand.observe({ description: `${elementDescription} is enabled` })
-    
-    return { exists, isVisible, isEnabled }
-  }
-}
+  async validateCustomElement(
+    stagehand: Stagehand,
+    elementDescription: string,
+  ) {
+    const exists = await stagehand.observe({ description: elementDescription });
+    const isVisible = await stagehand.observe({
+      description: `${elementDescription} is visible`,
+    });
+    const isEnabled = await stagehand.observe({
+      description: `${elementDescription} is enabled`,
+    });
+
+    return { exists, isVisible, isEnabled };
+  },
+};
 ```
 
 ## Future Enhancements

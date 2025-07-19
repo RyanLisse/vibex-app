@@ -57,7 +57,10 @@ describe('useTaskSubscription', () => {
 
   it('should initialize with correct default state', () => {
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     expect(result.current.subscriptionEnabled).toBe(false)
@@ -71,7 +74,12 @@ describe('useTaskSubscription', () => {
   })
 
   it('should check Inngest availability on mount', async () => {
-    renderHook(() => useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages }))
+    renderHook(() =>
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
+    )
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith('/api/test-inngest')
@@ -80,7 +88,10 @@ describe('useTaskSubscription', () => {
 
   it('should enable subscription when Inngest is available', async () => {
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     await waitFor(() => {
@@ -101,7 +112,10 @@ describe('useTaskSubscription', () => {
     })
 
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     await waitFor(() => {
@@ -116,7 +130,10 @@ describe('useTaskSubscription', () => {
     mockFetch.mockRejectedValue(mockError)
 
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     await waitFor(() => {
@@ -136,7 +153,10 @@ describe('useTaskSubscription', () => {
     })
 
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     await waitFor(() => {
@@ -156,7 +176,10 @@ describe('useTaskSubscription', () => {
     })
 
     const { unmount } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     act(() => {
@@ -172,7 +195,10 @@ describe('useTaskSubscription', () => {
 
   it('should handle streaming messages correctly', () => {
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     expect(result.current.streamingMessages).toBeInstanceOf(Map)
@@ -181,7 +207,10 @@ describe('useTaskSubscription', () => {
 
   it('should provide correct connection state helpers', async () => {
     const { result } = renderHook(() =>
-      useTaskSubscription({ taskId: mockTaskId, taskMessages: mockTaskMessages })
+      useTaskSubscription({
+        taskId: mockTaskId,
+        taskMessages: mockTaskMessages,
+      })
     )
 
     await waitFor(() => {

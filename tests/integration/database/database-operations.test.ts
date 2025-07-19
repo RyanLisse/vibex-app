@@ -142,7 +142,11 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
         const taskData = createTestTask()
         const [created] = await db.insert(tasks).values(taskData).returning()
 
-        const updatedMetadata = { test: true, updated: true, step: 'in-progress' }
+        const updatedMetadata = {
+          test: true,
+          updated: true,
+          step: 'in-progress',
+        }
         const [updated] = await db
           .update(tasks)
           .set({
@@ -194,7 +198,10 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
       })
 
       it('should enforce unique constraints where appropriate', async () => {
-        const envData = createTestEnvironment({ name: 'Unique Test', userId: 'user123' })
+        const envData = createTestEnvironment({
+          name: 'Unique Test',
+          userId: 'user123',
+        })
 
         // First insert should succeed
         await db.insert(environments).values(envData)
@@ -208,13 +215,21 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
       it('should query tasks with filters and sorting', async () => {
         // Create multiple tasks with different statuses and priorities
         const taskData = [
-          createTestTask({ title: 'High Priority Task', priority: 'high', status: 'pending' }),
+          createTestTask({
+            title: 'High Priority Task',
+            priority: 'high',
+            status: 'pending',
+          }),
           createTestTask({
             title: 'Medium Priority Task',
             priority: 'medium',
             status: 'in_progress',
           }),
-          createTestTask({ title: 'Low Priority Task', priority: 'low', status: 'completed' }),
+          createTestTask({
+            title: 'Low Priority Task',
+            priority: 'low',
+            status: 'completed',
+          }),
           createTestTask({
             title: 'Another High Priority',
             priority: 'high',
@@ -332,12 +347,16 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
 
     it('should query tasks with their executions', async () => {
       // Create additional executions for the task
-      await db
-        .insert(agentExecutions)
-        .values([
-          createTestExecution(testTaskId, { agentType: 'executor-1', status: 'completed' }),
-          createTestExecution(testTaskId, { agentType: 'executor-2', status: 'failed' }),
-        ])
+      await db.insert(agentExecutions).values([
+        createTestExecution(testTaskId, {
+          agentType: 'executor-1',
+          status: 'completed',
+        }),
+        createTestExecution(testTaskId, {
+          agentType: 'executor-2',
+          status: 'failed',
+        }),
+      ])
 
       // Query task with execution count
       const taskWithExecutions = await db
@@ -415,14 +434,22 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
         {
           executionId: testExecutionId,
           stepNumber: 2,
-          state: { step: 'processing', variables: { x: 3, y: 4 }, progress: 0.5 },
+          state: {
+            step: 'processing',
+            variables: { x: 3, y: 4 },
+            progress: 0.5,
+          },
           description: 'Mid-execution state',
           checkpoint: false,
         },
         {
           executionId: testExecutionId,
           stepNumber: 3,
-          state: { step: 'completion', variables: { x: 5, y: 6 }, result: 'success' },
+          state: {
+            step: 'completion',
+            variables: { x: 5, y: 6 },
+            result: 'success',
+          },
           description: 'Final state',
           checkpoint: true,
         },
@@ -752,8 +779,16 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
         name: 'Test Workflow',
         definition: {
           steps: [
-            { id: 'step1', type: 'action', config: { action: 'validate-input' } },
-            { id: 'step2', type: 'condition', config: { condition: 'input.valid === true' } },
+            {
+              id: 'step1',
+              type: 'action',
+              config: { action: 'validate-input' },
+            },
+            {
+              id: 'step2',
+              type: 'condition',
+              config: { condition: 'input.valid === true' },
+            },
             { id: 'step3', type: 'action', config: { action: 'process-data' } },
           ],
           metadata: { version: '1.0', author: 'test-user' },
@@ -907,7 +942,11 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
 
         const [execution] = await db
           .insert(agentExecutions)
-          .values(createTestExecution(task.id, { agentType: `concurrent-agent-${i}` }))
+          .values(
+            createTestExecution(task.id, {
+              agentType: `concurrent-agent-${i}`,
+            })
+          )
           .returning()
 
         await db.insert(observabilityEvents).values({

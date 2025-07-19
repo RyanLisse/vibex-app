@@ -34,7 +34,10 @@ export interface ShellOutputPanelProps {
 }
 
 // Re-export from message-types for convenience
-export type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
+export type {
+  IncomingMessage,
+  StreamingMessage,
+} from '@/app/task/[id]/_types/message-types'
 
 // Task status helpers
 export type TaskStatus = 'IN_PROGRESS' | 'DONE' | 'MERGED' | 'PAUSED' | 'CANCELLED'

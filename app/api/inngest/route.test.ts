@@ -38,7 +38,10 @@ mock.module('next/server', () => ({
     ) {}
   },
   NextResponse: {
-    json: mock((data, init) => ({ json: () => Promise.resolve(data), ...init })),
+    json: mock((data, init) => ({
+      json: () => Promise.resolve(data),
+      ...init,
+    })),
     text: mock(),
   },
 }))
@@ -109,7 +112,10 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest', {
         method: 'POST',
-        body: JSON.stringify({ event: 'task.created', data: { taskId: 'task-123' } }),
+        body: JSON.stringify({
+          event: 'task.created',
+          data: { taskId: 'task-123' },
+        }),
       })
 
       const response = await POST(request)
@@ -118,7 +124,9 @@ describe('Inngest API Routes', () => {
     })
 
     it('should handle webhook signature validation', async () => {
-      const mockServeResponse = new Response('Invalid signature', { status: 401 })
+      const mockServeResponse = new Response('Invalid signature', {
+        status: 401,
+      })
       mockHandler.POST.mockReturnValue(Promise.resolve(mockServeResponse))
 
       const request = new NextRequest('https://app.example.com/api/inngest', {
@@ -126,7 +134,10 @@ describe('Inngest API Routes', () => {
         headers: {
           'x-inngest-signature': 'invalid-signature',
         },
-        body: JSON.stringify({ event: 'task.created', data: { taskId: 'task-123' } }),
+        body: JSON.stringify({
+          event: 'task.created',
+          data: { taskId: 'task-123' },
+        }),
       })
 
       const response = await POST(request)
@@ -153,7 +164,10 @@ describe('Inngest API Routes', () => {
 
       const request = new NextRequest('https://app.example.com/api/inngest', {
         method: 'POST',
-        body: JSON.stringify({ event: 'task.created', data: { taskId: 'task-123' } }),
+        body: JSON.stringify({
+          event: 'task.created',
+          data: { taskId: 'task-123' },
+        }),
       })
 
       try {

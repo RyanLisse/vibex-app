@@ -333,7 +333,13 @@ export class DataExtractor {
     if (!task || typeof task !== 'object') {
       return {
         valid: false,
-        errors: [{ field: 'root', message: 'Task must be an object', severity: 'ERROR' }],
+        errors: [
+          {
+            field: 'root',
+            message: 'Task must be an object',
+            severity: 'ERROR',
+          },
+        ],
         warnings: [],
         statistics: { totalChecked: 1, passed: 0, failed: 1, skipped: 0 },
       }
@@ -345,36 +351,60 @@ export class DataExtractor {
     const requiredFields = ['id', 'title', 'status', 'createdAt', 'updatedAt']
     for (const field of requiredFields) {
       if (!(field in t) || t[field] === null || t[field] === undefined) {
-        errors.push({ field, message: `Missing required field: ${field}`, severity: 'ERROR' })
+        errors.push({
+          field,
+          message: `Missing required field: ${field}`,
+          severity: 'ERROR',
+        })
       }
     }
 
     // Type validations
     if (typeof t.id !== 'string') {
-      errors.push({ field: 'id', message: 'ID must be a string', severity: 'ERROR' })
+      errors.push({
+        field: 'id',
+        message: 'ID must be a string',
+        severity: 'ERROR',
+      })
     }
 
     if (typeof t.title !== 'string') {
-      errors.push({ field: 'title', message: 'Title must be a string', severity: 'ERROR' })
+      errors.push({
+        field: 'title',
+        message: 'Title must be a string',
+        severity: 'ERROR',
+      })
     }
 
     // Date validations
     if (t.createdAt && typeof t.createdAt === 'string') {
       if (isNaN(Date.parse(t.createdAt as string))) {
-        errors.push({ field: 'createdAt', message: 'Invalid date format', severity: 'ERROR' })
+        errors.push({
+          field: 'createdAt',
+          message: 'Invalid date format',
+          severity: 'ERROR',
+        })
       }
     }
 
     if (t.updatedAt && typeof t.updatedAt === 'string') {
       if (isNaN(Date.parse(t.updatedAt as string))) {
-        errors.push({ field: 'updatedAt', message: 'Invalid date format', severity: 'ERROR' })
+        errors.push({
+          field: 'updatedAt',
+          message: 'Invalid date format',
+          severity: 'ERROR',
+        })
       }
     }
 
     // Status validation
     const validStatuses = ['IN_PROGRESS', 'DONE', 'MERGED', 'PAUSED', 'CANCELLED']
     if (t.status && !validStatuses.includes(t.status as string)) {
-      errors.push({ field: 'status', message: `Invalid status: ${t.status}`, severity: 'ERROR' })
+      errors.push({
+        field: 'status',
+        message: `Invalid status: ${t.status}`,
+        severity: 'ERROR',
+      })
     }
 
     return {
@@ -399,7 +429,13 @@ export class DataExtractor {
     if (!env || typeof env !== 'object') {
       return {
         valid: false,
-        errors: [{ field: 'root', message: 'Environment must be an object', severity: 'ERROR' }],
+        errors: [
+          {
+            field: 'root',
+            message: 'Environment must be an object',
+            severity: 'ERROR',
+          },
+        ],
         warnings: [],
         statistics: { totalChecked: 1, passed: 0, failed: 1, skipped: 0 },
       }
@@ -411,23 +447,39 @@ export class DataExtractor {
     const requiredFields = ['id', 'name', 'createdAt', 'updatedAt']
     for (const field of requiredFields) {
       if (!(field in e) || e[field] === null || e[field] === undefined) {
-        errors.push({ field, message: `Missing required field: ${field}`, severity: 'ERROR' })
+        errors.push({
+          field,
+          message: `Missing required field: ${field}`,
+          severity: 'ERROR',
+        })
       }
     }
 
     // Type validations
     if (typeof e.id !== 'string') {
-      errors.push({ field: 'id', message: 'ID must be a string', severity: 'ERROR' })
+      errors.push({
+        field: 'id',
+        message: 'ID must be a string',
+        severity: 'ERROR',
+      })
     }
 
     if (typeof e.name !== 'string') {
-      errors.push({ field: 'name', message: 'Name must be a string', severity: 'ERROR' })
+      errors.push({
+        field: 'name',
+        message: 'Name must be a string',
+        severity: 'ERROR',
+      })
     }
 
     // Date validations (can be Date object or ISO string)
     if (e.createdAt) {
       if (typeof e.createdAt === 'string' && isNaN(Date.parse(e.createdAt))) {
-        errors.push({ field: 'createdAt', message: 'Invalid date format', severity: 'ERROR' })
+        errors.push({
+          field: 'createdAt',
+          message: 'Invalid date format',
+          severity: 'ERROR',
+        })
       } else if (!(e.createdAt instanceof Date) && typeof e.createdAt !== 'string') {
         errors.push({
           field: 'createdAt',
@@ -439,7 +491,11 @@ export class DataExtractor {
 
     if (e.updatedAt) {
       if (typeof e.updatedAt === 'string' && isNaN(Date.parse(e.updatedAt))) {
-        errors.push({ field: 'updatedAt', message: 'Invalid date format', severity: 'ERROR' })
+        errors.push({
+          field: 'updatedAt',
+          message: 'Invalid date format',
+          severity: 'ERROR',
+        })
       } else if (!(e.updatedAt instanceof Date) && typeof e.updatedAt !== 'string') {
         errors.push({
           field: 'updatedAt',

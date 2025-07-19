@@ -80,7 +80,11 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
       message?: string
     ) => {
       return async (...args: T) => {
-        setComponentLoading(componentId, { isLoading: true, error: null, message })
+        setComponentLoading(componentId, {
+          isLoading: true,
+          error: null,
+          message,
+        })
         try {
           await asyncFn(...args)
           setComponentLoading(componentId, { isLoading: false, error: null })
@@ -161,7 +165,10 @@ export function useLoading() {
 export function useComponentLoading(componentId: string) {
   const { componentStates, setComponentLoading, clearComponentLoading, withLoading } = useLoading()
 
-  const state = componentStates[componentId] || { isLoading: false, error: null }
+  const state = componentStates[componentId] || {
+    isLoading: false,
+    error: null,
+  }
 
   const setLoading = useCallback(
     (loadingState: Partial<LoadingState>) => {
@@ -212,7 +219,7 @@ export function withLoadingStates<P extends object>(
 
   const WrappedComponent = (props: P) => {
     const { globalLoading, isOffline, offlineStats } = useLoading()
-    const componentLoading = componentId ? useComponentLoading(componentId) : null
+    const componentLoading = useComponentLoading(componentId || '')
 
     const content = (
       <div className="relative">

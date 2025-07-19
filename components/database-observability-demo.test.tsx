@@ -219,7 +219,9 @@ describe('DatabaseObservabilityDemo', () => {
     const createButton = screen.getByRole('button', { name: 'Create Task' })
 
     fireEvent.change(titleInput, { target: { value: 'Test Task' } })
-    fireEvent.change(descriptionInput, { target: { value: 'Test Description' } })
+    fireEvent.change(descriptionInput, {
+      target: { value: 'Test Description' },
+    })
 
     // Submit the form
     fireEvent.click(createButton)

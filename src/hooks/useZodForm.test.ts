@@ -540,7 +540,9 @@ describe('useZodForm', () => {
         result.current.setFieldError('email', 'Custom error')
       })
 
-      expect(mockSetError).toHaveBeenCalledWith('email', { message: 'Custom error' })
+      expect(mockSetError).toHaveBeenCalledWith('email', {
+        message: 'Custom error',
+      })
     })
 
     it('should clear field error', async () => {

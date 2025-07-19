@@ -160,7 +160,11 @@ export function SyncStatusMonitor({
       case 'connected':
         return { icon: Wifi, color: 'text-green-500', label: 'Connected' }
       case 'connecting':
-        return { icon: RefreshCw, color: 'text-yellow-500', label: 'Connecting' }
+        return {
+          icon: RefreshCw,
+          color: 'text-yellow-500',
+          label: 'Connecting',
+        }
       case 'error':
         return { icon: AlertCircle, color: 'text-red-500', label: 'Error' }
       default:
@@ -172,9 +176,18 @@ export function SyncStatusMonitor({
   const getSyncStatus = () => {
     switch (syncState) {
       case 'syncing':
-        return { icon: RefreshCw, color: 'text-blue-500', label: 'Syncing', spinning: true }
+        return {
+          icon: RefreshCw,
+          color: 'text-blue-500',
+          label: 'Syncing',
+          spinning: true,
+        }
       case 'error':
-        return { icon: AlertCircle, color: 'text-red-500', label: 'Sync Error' }
+        return {
+          icon: AlertCircle,
+          color: 'text-red-500',
+          label: 'Sync Error',
+        }
       default:
         return { icon: CheckCircle2, color: 'text-green-500', label: 'Synced' }
     }

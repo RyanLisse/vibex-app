@@ -2,13 +2,14 @@
 
 A cutting-edge AI-powered code generation platform featuring real-time synchronization, advanced state management, and comprehensive developer tooling. Built with Next.js 15, ElectricSQL, and modern web technologies.
 
-## 🔗 Demo 
+## 🔗 Demo
 
 [https://clonedex.vercel.app/](https://clonedex.vercel.app/)
 
 ## ✨ Features
 
 ### Core Capabilities
+
 - 🤖 **AI-Powered Code Generation** - Multiple AI models (OpenAI, Anthropic)
 - 🔄 **Real-time Synchronization** - Instant updates across all clients with ElectricSQL
 - 🐙 **GitHub Integration** - Full repository management and OAuth authentication
@@ -17,6 +18,7 @@ A cutting-edge AI-powered code generation platform featuring real-time synchroni
 - 📝 **Rich Content** - Markdown rendering with syntax highlighting
 
 ### Advanced Architecture
+
 - 🗄️ **PostgreSQL + Drizzle ORM** - Type-safe database operations
 - ⚡ **ElectricSQL** - Real-time, offline-first data sync
 - 📊 **TanStack Query** - Advanced server state management
@@ -114,6 +116,7 @@ bun run dev:all
 ```
 
 This starts:
+
 - Next.js development server (with Turbopack)
 - Inngest development server
 - Database migrations watcher
@@ -148,6 +151,7 @@ INNGEST_DEV=1 bun run dev --turbopack
 ```
 
 The application will be available at:
+
 - **App**: `http://localhost:3000`
 - **Inngest Dashboard**: `http://localhost:8288`
 - **Database Studio**: `bun run db:studio`
@@ -155,12 +159,14 @@ The application will be available at:
 ## 📋 Available Scripts
 
 ### Development
+
 - `bun run dev` - Start development server with Turbopack
 - `bun run dev:all` - Start all services concurrently (Next.js + Inngest)
 - `bun run build` - Build for production
 - `bun start` - Start production server
 
 ### Testing
+
 - `bun run test` - Run all test suites (unit + components + integration)
 - `bun run test:unit` - Run unit tests with Vitest
 - `bun run test:components` - Run component tests
@@ -169,6 +175,7 @@ The application will be available at:
 - `bun run test:coverage` - Generate comprehensive coverage report
 
 ### Database
+
 - `bun run db:migrate` - Run database migrations
 - `bun run db:rollback` - Rollback migrations
 - `bun run db:studio` - Open Drizzle Studio
@@ -176,6 +183,7 @@ The application will be available at:
 - `bun run db:generate` - Generate migration files
 
 ### Code Quality
+
 - `bun run lint` - Run Next.js linting
 - `bun run lint:fix` - Fix linting issues automatically
 - `bun run typecheck` - TypeScript type checking
@@ -184,6 +192,7 @@ The application will be available at:
 - `bun run check:fix` - Fix Biome issues automatically
 
 ### Specialized Commands
+
 - `bun run demo:voice-brainstorm` - Run voice brainstorming demo
 - `bun run test:inngest` - Test Inngest background jobs
 - `bun run migration:status` - Check data migration status
@@ -234,26 +243,31 @@ The application will be available at:
 ## 🔧 Key Technologies
 
 ### Database & ORM
+
 - **PostgreSQL 14+** - Primary database
 - **Drizzle ORM** - Type-safe SQL queries
 - **PGlite** - Embedded PostgreSQL for offline support
 
 ### Real-time Sync
+
 - **ElectricSQL** - Bidirectional sync with conflict resolution
 - **WebSocket** - Real-time communication
 - **Offline Queue** - Resilient operation handling
 
 ### State Management
+
 - **TanStack Query** - Server state with caching
 - **Optimistic Updates** - Instant UI feedback
 - **WASM Optimization** - Performance for large datasets
 
 ### Background Processing
+
 - **Inngest** - Reliable job processing
 - **Event-driven** - Decoupled architecture
 - **Real-time Updates** - Progress tracking
 
 ### Performance
+
 - **WASM Modules** - High-performance computing
 - **Vector Search** - SIMD-optimized similarity search
 - **Worker Threads** - Parallel processing
@@ -264,31 +278,33 @@ The application will be available at:
 ### Production Checklist
 
 1. **Database Setup**
+
    ```bash
    # Create production database
    createdb clonedex_prod
-   
+
    # Run migrations
    DATABASE_URL=prod_url bun run db:migrate
-   
+
    # Verify ElectricSQL sync
    bun run db:health
    ```
 
 2. **Environment Variables**
+
    ```bash
    # Required for production
    NODE_ENV=production
    DATABASE_URL=postgresql://...
    ELECTRIC_URL=postgresql://...
-   
+
    # API Keys (see .env.example for full list)
    OPENAI_API_KEY=
    ANTHROPIC_API_KEY=
    E2B_API_KEY=
    GITHUB_CLIENT_ID=
    GITHUB_CLIENT_SECRET=
-   
+
    # Security
    NEXTAUTH_SECRET=
    INNGEST_SIGNING_KEY=
@@ -312,6 +328,7 @@ vercel --prod
 ```
 
 **Vercel Configuration:**
+
 - Enable Edge Functions for optimal performance
 - Configure environment variables in dashboard
 - Set up custom domain and SSL
@@ -369,10 +386,11 @@ This project is licensed under the MIT License.
 ### Common Issues
 
 1. **Database Connection**
+
    ```bash
    # Test database connection
    bun run db:health
-   
+
    # Check migrations status
    bun run db:status
    ```
@@ -388,6 +406,7 @@ This project is licensed under the MIT License.
    - Fall back to JavaScript implementation
 
 4. **Type Errors**
+
    ```bash
    # Regenerate types
    bun run db:generate
@@ -395,10 +414,11 @@ This project is licensed under the MIT License.
    ```
 
 5. **Migration Problems**
+
    ```bash
    # Check migration status
    bun run migration:status --verbose
-   
+
    # Create backup before retry
    bun run migration:backup
    ```

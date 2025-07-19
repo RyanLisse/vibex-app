@@ -1,9 +1,11 @@
 # Integration Test Plan
 
 ## Overview
+
 This document outlines the comprehensive integration testing strategy for the modernized codebase with Drizzle ORM, TanStack Query, ElectricSQL, and data migration systems.
 
 ## Test Objectives
+
 1. Verify end-to-end workflows work correctly across all system components
 2. Ensure data consistency between UI, API, and database layers
 3. Validate optimistic updates and cache invalidation strategies
@@ -15,6 +17,7 @@ This document outlines the comprehensive integration testing strategy for the mo
 ### 1. API + TanStack Query Integration
 
 #### 1.1 Create Task Flow
+
 - **Objective**: Verify task creation through API and UI updates
 - **Components**: API route, TanStack Query hooks, UI components
 - **Test Steps**:
@@ -26,6 +29,7 @@ This document outlines the comprehensive integration testing strategy for the mo
   6. UI shows server-confirmed task data
 
 #### 1.2 Update Task Flow
+
 - **Objective**: Verify task updates with optimistic UI changes
 - **Components**: API route, TanStack Query hooks, ElectricSQL sync
 - **Test Steps**:
@@ -37,6 +41,7 @@ This document outlines the comprehensive integration testing strategy for the mo
   6. UI confirms server state
 
 #### 1.3 Delete Task Flow
+
 - **Objective**: Verify task deletion with rollback on failure
 - **Components**: API route, TanStack Query hooks, cache management
 - **Test Steps**:
@@ -49,6 +54,7 @@ This document outlines the comprehensive integration testing strategy for the mo
 ### 2. Data Migration Integration
 
 #### 2.1 Full Migration Flow
+
 - **Objective**: Verify complete migration from Zustand to database
 - **Components**: Migration hook, API routes, Zustand stores
 - **Test Steps**:
@@ -60,6 +66,7 @@ This document outlines the comprehensive integration testing strategy for the mo
   6. UI switches to database-backed data
 
 #### 2.2 Partial Migration Recovery
+
 - **Objective**: Verify resilience to migration failures
 - **Components**: Migration error handling, retry logic
 - **Test Steps**:
@@ -72,6 +79,7 @@ This document outlines the comprehensive integration testing strategy for the mo
 ### 3. Real-time Sync Integration
 
 #### 3.1 Multi-user Task Updates
+
 - **Objective**: Verify real-time updates across users
 - **Components**: ElectricSQL (mocked), WebSocket events, UI updates
 - **Test Steps**:
@@ -82,6 +90,7 @@ This document outlines the comprehensive integration testing strategy for the mo
   5. Conflict resolution if concurrent edits
 
 #### 3.2 Offline Queue Processing
+
 - **Objective**: Verify offline operations sync when online
 - **Components**: Offline queue, sync manager, API routes
 - **Test Steps**:
@@ -94,6 +103,7 @@ This document outlines the comprehensive integration testing strategy for the mo
 ### 4. Performance & Optimization
 
 #### 4.1 Batch Operations
+
 - **Objective**: Verify efficient handling of bulk operations
 - **Components**: API batch endpoints, query optimization
 - **Test Steps**:
@@ -104,6 +114,7 @@ This document outlines the comprehensive integration testing strategy for the mo
   5. Efficient cache invalidation
 
 #### 4.2 Cache Management
+
 - **Objective**: Verify intelligent cache invalidation
 - **Components**: TanStack Query cache, invalidation strategies
 - **Test Steps**:
@@ -116,6 +127,7 @@ This document outlines the comprehensive integration testing strategy for the mo
 ## Test Implementation
 
 ### Test Structure
+
 ```
 tests/integration/
 ├── api-tanstack-integration.test.ts
@@ -126,6 +138,7 @@ tests/integration/
 ```
 
 ### Test Utilities
+
 - Mock server for API responses
 - Test database with migrations
 - ElectricSQL mock with event simulation
@@ -133,6 +146,7 @@ tests/integration/
 - Test data factories
 
 ## Success Criteria
+
 - All test scenarios pass consistently
 - No race conditions or flaky tests
 - Performance benchmarks met
@@ -140,6 +154,7 @@ tests/integration/
 - Code coverage > 80% for integration paths
 
 ## Risk Areas
+
 1. **Race Conditions**: Async operations may complete in different orders
 2. **Cache Consistency**: Complex invalidation patterns may miss edge cases
 3. **Migration Failures**: Network issues during migration need robust handling
@@ -147,6 +162,7 @@ tests/integration/
 5. **Performance**: Large datasets may reveal optimization needs
 
 ## Testing Schedule
+
 1. Phase 1: Core API + TanStack Query tests
 2. Phase 2: Data migration scenarios
 3. Phase 3: Real-time sync testing
@@ -154,6 +170,7 @@ tests/integration/
 5. Phase 5: Full system integration tests
 
 ## Monitoring & Metrics
+
 - Test execution time
 - Flaky test detection
 - Coverage reports

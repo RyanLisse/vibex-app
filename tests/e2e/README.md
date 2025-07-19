@@ -130,16 +130,16 @@ npx playwright test --project="Mobile Chrome"
 
 ```typescript
 // Click using natural language
-await homePage.aiClick('submit button');
+await homePage.aiClick("submit button");
 
 // Fill form fields descriptively
-await homePage.aiFill('task description input', 'My test task');
+await homePage.aiFill("task description input", "My test task");
 
 // Extract information
-const title = await homePage.aiExtract('main page heading');
+const title = await homePage.aiExtract("main page heading");
 
 // Check state
-const isVisible = await homePage.aiObserve('navigation menu is visible');
+const isVisible = await homePage.aiObserve("navigation menu is visible");
 ```
 
 ## 📋 Test Categories
@@ -209,21 +209,21 @@ npx playwright show-report
 
 ```typescript
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: "./tests/e2e",
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-    { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
-    { name: 'Mobile Safari', use: { ...devices['iPhone 12'] } },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    { name: "Mobile Chrome", use: { ...devices["Pixel 5"] } },
+    { name: "Mobile Safari", use: { ...devices["iPhone 12"] } },
   ],
 });
 ```
@@ -233,9 +233,9 @@ export default defineConfig({
 ```typescript
 export const stagehandConfig = {
   apiKey: process.env.OPENAI_API_KEY,
-  headless: process.env.CI === 'true',
-  debugDom: process.env.DEBUG_DOM === 'true',
-  verbose: process.env.VERBOSE === 'true',
+  headless: process.env.CI === "true",
+  debugDom: process.env.DEBUG_DOM === "true",
+  verbose: process.env.VERBOSE === "true",
   enableCaching: true,
 };
 ```
@@ -248,6 +248,7 @@ Tests automatically run on mobile viewports:
 - **Mobile Safari** (iPhone 12)
 
 Mobile-specific tests verify:
+
 - Responsive layout
 - Touch interactions
 - Mobile navigation
@@ -258,6 +259,7 @@ Mobile-specific tests verify:
 ### Base Page (`base.page.ts`)
 
 Provides common functionality:
+
 - Navigation methods
 - Screenshot utilities
 - AI interaction methods
@@ -266,6 +268,7 @@ Provides common functionality:
 ### Specific Pages
 
 Each page object extends `BasePage` and provides:
+
 - Page-specific navigation
 - Element interactions
 - Form handling
@@ -306,27 +309,27 @@ npx playwright show-trace trace.zip
 ```typescript
 // Good
 const homePage = new HomePage(page, stagehand);
-await homePage.createTask('My task');
+await homePage.createTask("My task");
 
 // Avoid
-await page.click('#submit-button');
+await page.click("#submit-button");
 ```
 
 ### 2. Descriptive AI Queries
 
 ```typescript
 // Good
-await homePage.aiClick('submit task button');
+await homePage.aiClick("submit task button");
 
 // Less clear
-await homePage.aiClick('button');
+await homePage.aiClick("button");
 ```
 
 ### 3. Wait for Elements
 
 ```typescript
 // Good
-await homePage.waitForElement('task appears in list');
+await homePage.waitForElement("task appears in list");
 
 // Avoid
 await page.waitForTimeout(5000);
@@ -355,8 +358,8 @@ expect(loadTime).toBeLessThan(5000);
 
 ```typescript
 // Monitor network requests
-page.on('request', request => {
-  console.log('Request:', request.url());
+page.on("request", (request) => {
+  console.log("Request:", request.url());
 });
 ```
 
@@ -373,7 +376,7 @@ await homePage.createTask('<script>alert("xss")</script>');
 
 ```typescript
 // Test unauthorized access
-await page.goto('/protected-route');
+await page.goto("/protected-route");
 await expect(page).toHaveURL(/login/);
 ```
 
@@ -397,7 +400,7 @@ When adding new tests:
 ## 📝 Example Test
 
 ```typescript
-test('should create and interact with task', async ({ page, stagehand }) => {
+test("should create and interact with task", async ({ page, stagehand }) => {
   const homePage = new HomePage(page, stagehand);
   await homePage.goto();
 
@@ -407,17 +410,17 @@ test('should create and interact with task', async ({ page, stagehand }) => {
 
   // Verify task creation
   const taskExists = await homePage.aiObserve(
-    `task containing "${testData.taskDescription}" is visible`
+    `task containing "${testData.taskDescription}" is visible`,
   );
   expect(taskExists).toBeTruthy();
 
   // Navigate to task detail
   await homePage.clickTask(testData.taskDescription);
-  
+
   // Interact with task
   const taskPage = new TaskPage(page, stagehand);
-  await taskPage.sendMessage('Hello AI!');
-  
+  await taskPage.sendMessage("Hello AI!");
+
   // Verify response
   const messages = await taskPage.getMessages();
   expect(messages.length).toBeGreaterThan(1);

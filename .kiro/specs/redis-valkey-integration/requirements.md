@@ -137,5 +137,5 @@ Redis/Valkey will complement the existing PostgreSQL + ElectricSQL database arch
 4. WHEN data classification is needed THEN the system SHALL implement data classification and protection policies
 5. IF compliance is required THEN the system SHALL support regulatory requirements including GDPR, HIPAA, and SOX
 6. WHEN managing secrets THEN the system SHALL securely handle Redis/Valkey passwords, certificates, and configuration data
-</content>
-</file>
+   </content>
+   </file>

@@ -196,8 +196,18 @@ describe('Product Schemas', () => {
         options: [
           { id: 'opt-1', name: 'Size', position: 0, values: ['S', 'M', 'L'] },
           { id: 'opt-2', name: 'Color', position: 1, values: ['Red', 'Blue'] },
-          { id: 'opt-3', name: 'Material', position: 2, values: ['Cotton', 'Polyester'] },
-          { id: 'opt-4', name: 'Style', position: 3, values: ['Casual', 'Formal'] },
+          {
+            id: 'opt-3',
+            name: 'Material',
+            position: 2,
+            values: ['Cotton', 'Polyester'],
+          },
+          {
+            id: 'opt-4',
+            name: 'Style',
+            position: 3,
+            values: ['Casual', 'Formal'],
+          },
         ],
         createdAt: '2023-01-01T00:00:00Z',
         updatedAt: '2023-01-01T00:00:00Z',
@@ -841,14 +851,44 @@ describe('Utility Functions', () => {
 
     it('should handle different operators', () => {
       const testCases = [
-        { operator: 'equals', value: 'test', targetValue: 'test', expected: true },
-        { operator: 'equals', value: 'test', targetValue: 'other', expected: false },
-        { operator: 'not_equals', value: 'test', targetValue: 'other', expected: true },
-        { operator: 'contains', value: 'test string', targetValue: 'test', expected: true },
+        {
+          operator: 'equals',
+          value: 'test',
+          targetValue: 'test',
+          expected: true,
+        },
+        {
+          operator: 'equals',
+          value: 'test',
+          targetValue: 'other',
+          expected: false,
+        },
+        {
+          operator: 'not_equals',
+          value: 'test',
+          targetValue: 'other',
+          expected: true,
+        },
+        {
+          operator: 'contains',
+          value: 'test string',
+          targetValue: 'test',
+          expected: true,
+        },
         { operator: 'greater', value: 10, targetValue: 5, expected: true },
         { operator: 'less', value: 5, targetValue: 10, expected: true },
-        { operator: 'is_empty', value: '', targetValue: undefined, expected: true },
-        { operator: 'is_not_empty', value: 'test', targetValue: undefined, expected: true },
+        {
+          operator: 'is_empty',
+          value: '',
+          targetValue: undefined,
+          expected: true,
+        },
+        {
+          operator: 'is_not_empty',
+          value: 'test',
+          targetValue: undefined,
+          expected: true,
+        },
       ]
 
       testCases.forEach(({ operator, value, targetValue, expected }) => {
@@ -931,7 +971,11 @@ describe('Type Inference', () => {
             showPhone: false,
             showLocation: true,
           },
-          activity: { showOnline: true, showLastSeen: true, showActivity: true },
+          activity: {
+            showOnline: true,
+            showLastSeen: true,
+            showActivity: true,
+          },
           content: {
             allowComments: true,
             allowSharing: true,

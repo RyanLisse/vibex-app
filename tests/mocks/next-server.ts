@@ -13,7 +13,9 @@ export function createMockNextResponse() {
   const createResponse = (body: any, init?: ResponseInit) => {
     const response = new Response(body ? JSON.stringify(body) : null, init)
     Object.defineProperty(response, 'cookies', { value: mockCookies })
-    Object.defineProperty(response, Symbol.for('next.internal.response'), { value: {} })
+    Object.defineProperty(response, Symbol.for('next.internal.response'), {
+      value: {},
+    })
     return response
   }
 

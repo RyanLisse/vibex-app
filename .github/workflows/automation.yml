@@ -2,196 +2,196 @@ name: Testing Infrastructure Automation
 
 on:
   push:
-    branches: [ main, develop, feature/* ]
+    branches: [main, develop, feature/*]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
   automation:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [20]
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
-        
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.bun/install/cache
-        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
-        restore-keys: |
-          ${{ runner.os }}-bun-
-          
-    - name: Install dependencies
-      run: bun install --frozen-lockfile
-      
-    - name: Check initial TypeScript errors
-      id: initial-check
-      run: |
-        ERROR_COUNT=$(bunx tsc --noEmit 2>&1 | grep -c 'error TS' || echo "0")
-        echo "initial_errors=$ERROR_COUNT" >> $GITHUB_OUTPUT
-        echo "📊 Initial TypeScript errors: $ERROR_COUNT"
-      continue-on-error: true
-      
-    - name: Run automation fixes
-      run: |
-        echo "🚀 Running comprehensive testing infrastructure automation..."
-        bun run fix:all
-      continue-on-error: true
-      
-    - name: Check final TypeScript errors
-      id: final-check
-      run: |
-        ERROR_COUNT=$(bunx tsc --noEmit 2>&1 | grep -c 'error TS' || echo "0")
-        echo "final_errors=$ERROR_COUNT" >> $GITHUB_OUTPUT
-        echo "📊 Final TypeScript errors: $ERROR_COUNT"
-      continue-on-error: true
-      
-    - name: Run code quality checks
-      run: |
-        echo "🔧 Running code quality automation..."
-        bun run check:fix
-        bun run type-check
-      continue-on-error: true
-      
-    - name: Test Vitest execution
-      run: |
-        echo "🧪 Testing Vitest execution..."
-        timeout 60s bun run test --run --reporter=basic || echo "⚠️ Vitest execution issues detected"
-      continue-on-error: true
-      
-    - name: Run authentication component tests
-      run: |
-        echo "🔐 Testing authentication components..."
-        bun run test --run components/auth/ || echo "⚠️ Auth component test issues detected"
-      continue-on-error: true
-      
-    - name: Generate automation report
-      run: |
-        echo "📊 AUTOMATION RESULTS" >> automation-report.md
-        echo "===================" >> automation-report.md
-        echo "" >> automation-report.md
-        echo "**Initial TypeScript Errors:** ${{ steps.initial-check.outputs.initial_errors }}" >> automation-report.md
-        echo "**Final TypeScript Errors:** ${{ steps.final-check.outputs.final_errors }}" >> automation-report.md
-        
-        INITIAL=${{ steps.initial-check.outputs.initial_errors }}
-        FINAL=${{ steps.final-check.outputs.final_errors }}
-        
-        if [ "$INITIAL" -gt 0 ]; then
-          FIXED=$((INITIAL - FINAL))
-          PERCENTAGE=$((FIXED * 100 / INITIAL))
-          echo "**Errors Fixed:** $FIXED" >> automation-report.md
-          echo "**Success Rate:** ${PERCENTAGE}%" >> automation-report.md
-        else
-          echo "**Status:** No initial errors detected" >> automation-report.md
-        fi
-        
-        echo "" >> automation-report.md
-        echo "## Available Commands" >> automation-report.md
-        echo "- \`bun run fix:all\` - Run all automation fixes" >> automation-report.md
-        echo "- \`bun run test:safe\` - Fix Vitest then run tests" >> automation-report.md
-        echo "- \`bun run quality:auto\` - Full quality automation" >> automation-report.md
-        
-    - name: Upload automation report
-      uses: actions/upload-artifact@v3
-      with:
-        name: automation-report
-        path: automation-report.md
-        
-    - name: Comment PR with results
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const report = fs.readFileSync('automation-report.md', 'utf8');
-          
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `## 🤖 Testing Infrastructure Automation Results\n\n${report}`
-          });
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check initial TypeScript errors
+        id: initial-check
+        run: |
+          ERROR_COUNT=$(bunx tsc --noEmit 2>&1 | grep -c 'error TS' || echo "0")
+          echo "initial_errors=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "📊 Initial TypeScript errors: $ERROR_COUNT"
+        continue-on-error: true
+
+      - name: Run automation fixes
+        run: |
+          echo "🚀 Running comprehensive testing infrastructure automation..."
+          bun run fix:all
+        continue-on-error: true
+
+      - name: Check final TypeScript errors
+        id: final-check
+        run: |
+          ERROR_COUNT=$(bunx tsc --noEmit 2>&1 | grep -c 'error TS' || echo "0")
+          echo "final_errors=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "📊 Final TypeScript errors: $ERROR_COUNT"
+        continue-on-error: true
+
+      - name: Run code quality checks
+        run: |
+          echo "🔧 Running code quality automation..."
+          bun run check:fix
+          bun run type-check
+        continue-on-error: true
+
+      - name: Test Vitest execution
+        run: |
+          echo "🧪 Testing Vitest execution..."
+          timeout 60s bun run test --run --reporter=basic || echo "⚠️ Vitest execution issues detected"
+        continue-on-error: true
+
+      - name: Run authentication component tests
+        run: |
+          echo "🔐 Testing authentication components..."
+          bun run test --run components/auth/ || echo "⚠️ Auth component test issues detected"
+        continue-on-error: true
+
+      - name: Generate automation report
+        run: |
+          echo "📊 AUTOMATION RESULTS" >> automation-report.md
+          echo "===================" >> automation-report.md
+          echo "" >> automation-report.md
+          echo "**Initial TypeScript Errors:** ${{ steps.initial-check.outputs.initial_errors }}" >> automation-report.md
+          echo "**Final TypeScript Errors:** ${{ steps.final-check.outputs.final_errors }}" >> automation-report.md
+
+          INITIAL=${{ steps.initial-check.outputs.initial_errors }}
+          FINAL=${{ steps.final-check.outputs.final_errors }}
+
+          if [ "$INITIAL" -gt 0 ]; then
+            FIXED=$((INITIAL - FINAL))
+            PERCENTAGE=$((FIXED * 100 / INITIAL))
+            echo "**Errors Fixed:** $FIXED" >> automation-report.md
+            echo "**Success Rate:** ${PERCENTAGE}%" >> automation-report.md
+          else
+            echo "**Status:** No initial errors detected" >> automation-report.md
+          fi
+
+          echo "" >> automation-report.md
+          echo "## Available Commands" >> automation-report.md
+          echo "- \`bun run fix:all\` - Run all automation fixes" >> automation-report.md
+          echo "- \`bun run test:safe\` - Fix Vitest then run tests" >> automation-report.md
+          echo "- \`bun run quality:auto\` - Full quality automation" >> automation-report.md
+
+      - name: Upload automation report
+        uses: actions/upload-artifact@v3
+        with:
+          name: automation-report
+          path: automation-report.md
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('automation-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🤖 Testing Infrastructure Automation Results\n\n${report}`
+            });
 
   quality-gate:
     runs-on: ubuntu-latest
     needs: automation
     if: always()
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
-        
-    - name: Install dependencies
-      run: bun install --frozen-lockfile
-      
-    - name: Quality gate check
-      run: |
-        echo "🚪 Running quality gate checks..."
-        
-        # Check if TypeScript compilation passes
-        if ! bunx tsc --noEmit; then
-          echo "❌ TypeScript compilation failed"
-          echo "Run 'bun run fix:typescript' to attempt automatic fixes"
-          exit 1
-        fi
-        
-        # Check if basic tests can run
-        if ! timeout 30s bun run test --run --reporter=basic > /dev/null 2>&1; then
-          echo "⚠️ Test execution issues detected"
-          echo "Run 'bun run fix:vitest' to attempt automatic fixes"
-          # Don't fail the build for test issues, just warn
-        fi
-        
-        echo "✅ Quality gate passed"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Quality gate check
+        run: |
+          echo "🚪 Running quality gate checks..."
+
+          # Check if TypeScript compilation passes
+          if ! bunx tsc --noEmit; then
+            echo "❌ TypeScript compilation failed"
+            echo "Run 'bun run fix:typescript' to attempt automatic fixes"
+            exit 1
+          fi
+
+          # Check if basic tests can run
+          if ! timeout 30s bun run test --run --reporter=basic > /dev/null 2>&1; then
+            echo "⚠️ Test execution issues detected"
+            echo "Run 'bun run fix:vitest' to attempt automatic fixes"
+            # Don't fail the build for test issues, just warn
+          fi
+
+          echo "✅ Quality gate passed"
 
   documentation:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Update automation documentation
-      run: |
-        echo "📚 Updating automation documentation..."
-        
-        # Update README with automation status
-        if [ -f "README.md" ]; then
-          if ! grep -q "## 🤖 Automation" README.md; then
-            echo "" >> README.md
-            echo "## 🤖 Automation" >> README.md
-            echo "" >> README.md
-            echo "This project includes comprehensive testing infrastructure automation:" >> README.md
-            echo "" >> README.md
-            echo "- \`bun run fix:all\` - Fix all TypeScript and testing issues" >> README.md
-            echo "- \`bun run test:safe\` - Safe test execution with auto-fixes" >> README.md
-            echo "- \`bun run quality:auto\` - Complete quality automation" >> README.md
-            echo "" >> README.md
-            echo "See [AUTOMATION_GUIDE.md](docs/AUTOMATION_GUIDE.md) for details." >> README.md
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update automation documentation
+        run: |
+          echo "📚 Updating automation documentation..."
+
+          # Update README with automation status
+          if [ -f "README.md" ]; then
+            if ! grep -q "## 🤖 Automation" README.md; then
+              echo "" >> README.md
+              echo "## 🤖 Automation" >> README.md
+              echo "" >> README.md
+              echo "This project includes comprehensive testing infrastructure automation:" >> README.md
+              echo "" >> README.md
+              echo "- \`bun run fix:all\` - Fix all TypeScript and testing issues" >> README.md
+              echo "- \`bun run test:safe\` - Safe test execution with auto-fixes" >> README.md
+              echo "- \`bun run quality:auto\` - Complete quality automation" >> README.md
+              echo "" >> README.md
+              echo "See [AUTOMATION_GUIDE.md](docs/AUTOMATION_GUIDE.md) for details." >> README.md
+            fi
           fi
-        fi
-        
-    - name: Commit documentation updates
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add README.md
-        git diff --staged --quiet || git commit -m "docs: update automation documentation [skip ci]"
-        git push || echo "No changes to push"
+
+      - name: Commit documentation updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git diff --staged --quiet || git commit -m "docs: update automation documentation [skip ci]"
+          git push || echo "No changes to push"

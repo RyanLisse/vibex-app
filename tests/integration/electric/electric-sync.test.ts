@@ -500,8 +500,14 @@ describe('ElectricSQL Synchronization Tests', () => {
       await mockElectricClient.offline.setEnabled(true)
 
       // Create tasks while offline
-      const offlineTask1 = createTestTask({ id: 'offline-1', title: 'Offline Task 1' })
-      const offlineTask2 = createTestTask({ id: 'offline-2', title: 'Offline Task 2' })
+      const offlineTask1 = createTestTask({
+        id: 'offline-1',
+        title: 'Offline Task 1',
+      })
+      const offlineTask2 = createTestTask({
+        id: 'offline-2',
+        title: 'Offline Task 2',
+      })
 
       await mockElectricClient.insert('tasks', offlineTask1)
       await mockElectricClient.insert('tasks', offlineTask2)
@@ -513,9 +519,21 @@ describe('ElectricSQL Synchronization Tests', () => {
 
     it('should sync queued operations when coming back online', async () => {
       const offlineQueue = [
-        { operation: 'insert', table: 'tasks', data: createTestTask({ id: 'queued-1' }) },
-        { operation: 'insert', table: 'tasks', data: createTestTask({ id: 'queued-2' }) },
-        { operation: 'update', table: 'tasks', data: { id: 'queued-1', status: 'completed' } },
+        {
+          operation: 'insert',
+          table: 'tasks',
+          data: createTestTask({ id: 'queued-1' }),
+        },
+        {
+          operation: 'insert',
+          table: 'tasks',
+          data: createTestTask({ id: 'queued-2' }),
+        },
+        {
+          operation: 'update',
+          table: 'tasks',
+          data: { id: 'queued-1', status: 'completed' },
+        },
       ]
 
       // Mock sync processing queued operations
@@ -600,7 +618,9 @@ describe('ElectricSQL Synchronization Tests', () => {
 
       vi.mocked(mockElectricClient.subscribe).mockImplementation((filter, callback) => {
         subscriptions.set(filter, callback)
-        return Promise.resolve({ unsubscribe: () => subscriptions.delete(filter) })
+        return Promise.resolve({
+          unsubscribe: () => subscriptions.delete(filter),
+        })
       })
 
       // Subscribe to user's tasks
@@ -680,7 +700,9 @@ describe('ElectricSQL Synchronization Tests', () => {
       vi.mocked(mockElectricClient.subscribe).mockImplementation((filter, callback) => {
         if (connectionState === 'connected') {
           subscriptionCallbacks.set(filter, callback)
-          return Promise.resolve({ unsubscribe: () => subscriptionCallbacks.delete(filter) })
+          return Promise.resolve({
+            unsubscribe: () => subscriptionCallbacks.delete(filter),
+          })
         } else {
           throw new Error('Not connected')
         }

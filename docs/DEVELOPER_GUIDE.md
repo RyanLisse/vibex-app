@@ -23,33 +23,41 @@ First, add the schema to `/db/schema.ts`:
 
 ```typescript
 // db/schema.ts
-export const projects = pgTable('projects', {
-  id: text('id').primaryKey().$defaultFn(() => ulid()),
-  name: text('name').notNull(),
-  description: text('description'),
-  status: text('status', { 
-    enum: ['planning', 'active', 'completed', 'archived'] 
-  }).notNull().default('planning'),
-  visibility: text('visibility', { 
-    enum: ['private', 'public', 'team'] 
-  }).notNull().default('private'),
-  userId: text('user_id').notNull().references(() => users.id),
-  environmentId: text('environment_id').references(() => environments.id),
-  metadata: jsonb('metadata').$type<ProjectMetadata>(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const projects = pgTable("projects", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  name: text("name").notNull(),
+  description: text("description"),
+  status: text("status", {
+    enum: ["planning", "active", "completed", "archived"],
+  })
+    .notNull()
+    .default("planning"),
+  visibility: text("visibility", {
+    enum: ["private", "public", "team"],
+  })
+    .notNull()
+    .default("private"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  environmentId: text("environment_id").references(() => environments.id),
+  metadata: jsonb("metadata").$type<ProjectMetadata>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 // Define TypeScript types
-export type Project = InferSelectModel<typeof projects>
-export type NewProject = InferInsertModel<typeof projects>
+export type Project = InferSelectModel<typeof projects>;
+export type NewProject = InferInsertModel<typeof projects>;
 
 // Create indexes for performance
 export const projectsIndexes = [
-  index('projects_user_id_idx').on(projects.userId),
-  index('projects_status_idx').on(projects.status),
-  index('projects_created_at_idx').on(projects.createdAt.desc()),
-]
+  index("projects_user_id_idx").on(projects.userId),
+  index("projects_status_idx").on(projects.status),
+  index("projects_created_at_idx").on(projects.createdAt.desc()),
+];
 ```
 
 ### Step 2: Generate and Run Migrations
@@ -70,30 +78,32 @@ bun run db:migrate
 Create `/app/api/projects/route.ts`:
 
 ```typescript
-import { type NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { db } from '@/db/config'
-import { projects } from '@/db/schema'
-import { eq, and, desc, like } from 'drizzle-orm'
-import { ulid } from 'ulid'
-import { observability } from '@/lib/observability'
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { db } from "@/db/config";
+import { projects } from "@/db/schema";
+import { eq, and, desc, like } from "drizzle-orm";
+import { ulid } from "ulid";
+import { observability } from "@/lib/observability";
 import {
   createApiSuccessResponse,
   createApiErrorResponse,
   createPaginatedResponse,
-} from '@/src/schemas/api-routes'
+} from "@/src/schemas/api-routes";
 
 // Validation schemas
 const CreateProjectSchema = z.object({
   name: z.string().min(1).max(255),
   description: z.string().optional(),
-  status: z.enum(['planning', 'active', 'completed', 'archived']).default('planning'),
-  visibility: z.enum(['private', 'public', 'team']).default('private'),
+  status: z
+    .enum(["planning", "active", "completed", "archived"])
+    .default("planning"),
+  visibility: z.enum(["private", "public", "team"]).default("private"),
   userId: z.string().ulid(),
   environmentId: z.string().ulid().optional(),
   metadata: z.record(z.any()).optional(),
-})
+});
 
 const GetProjectsQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
@@ -101,45 +111,48 @@ const GetProjectsQuerySchema = z.object({
   userId: z.string().optional(),
   status: z.string().optional(),
   search: z.string().optional(),
-})
+});
 
 // Service class for business logic
 class ProjectsService {
   static async getProjects(params: z.infer<typeof GetProjectsQuerySchema>) {
-    const tracer = trace.getTracer('projects-api')
-    const span = tracer.startSpan('projects.getProjects')
+    const tracer = trace.getTracer("projects-api");
+    const span = tracer.startSpan("projects.getProjects");
 
     try {
-      const startTime = Date.now()
-      
+      const startTime = Date.now();
+
       // Build query conditions
-      const conditions = []
-      if (params.userId) conditions.push(eq(projects.userId, params.userId))
-      if (params.status) conditions.push(eq(projects.status, params.status))
-      if (params.search) conditions.push(like(projects.name, `%${params.search}%`))
+      const conditions = [];
+      if (params.userId) conditions.push(eq(projects.userId, params.userId));
+      if (params.status) conditions.push(eq(projects.status, params.status));
+      if (params.search)
+        conditions.push(like(projects.name, `%${params.search}%`));
 
       // Execute query
-      const offset = (params.page - 1) * params.limit
+      const offset = (params.page - 1) * params.limit;
       const [results, [{ count }]] = await Promise.all([
-        db.select()
+        db
+          .select()
           .from(projects)
           .where(conditions.length > 0 ? and(...conditions) : undefined)
           .orderBy(desc(projects.createdAt))
           .limit(params.limit)
           .offset(offset),
-        db.select({ count: sql`count(*)` })
+        db
+          .select({ count: sql`count(*)` })
           .from(projects)
           .where(conditions.length > 0 ? and(...conditions) : undefined),
-      ])
+      ]);
 
-      const duration = Date.now() - startTime
-      observability.metrics.queryDuration(duration, 'select_projects', true)
+      const duration = Date.now() - startTime;
+      observability.metrics.queryDuration(duration, "select_projects", true);
 
       span.setAttributes({
-        'projects.count': results.length,
-        'projects.total': Number(count),
-        'query.duration': duration,
-      })
+        "projects.count": results.length,
+        "projects.total": Number(count),
+        "query.duration": duration,
+      });
 
       return {
         projects: results,
@@ -149,13 +162,13 @@ class ProjectsService {
           total: Number(count),
           totalPages: Math.ceil(Number(count) / params.limit),
         },
-      }
+      };
     } catch (error) {
-      span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR })
-      throw error
+      span.recordException(error as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR });
+      throw error;
     } finally {
-      span.end()
+      span.end();
     }
   }
 
@@ -165,59 +178,66 @@ class ProjectsService {
       ...data,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    };
 
-    const [created] = await db.insert(projects).values(newProject).returning()
-    
+    const [created] = await db.insert(projects).values(newProject).returning();
+
     // Record metrics
-    observability.metrics.increment('projects.created')
-    
-    return created
+    observability.metrics.increment("projects.created");
+
+    return created;
   }
 }
 
 // GET /api/projects
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const params = GetProjectsQuerySchema.parse(Object.fromEntries(searchParams))
-    
-    const result = await ProjectsService.getProjects(params)
-    
+    const { searchParams } = new URL(request.url);
+    const params = GetProjectsQuerySchema.parse(
+      Object.fromEntries(searchParams),
+    );
+
+    const result = await ProjectsService.getProjects(params);
+
     return NextResponse.json(
       createPaginatedResponse(
         result.projects,
         result.pagination,
-        'Projects retrieved successfully'
-      )
-    )
+        "Projects retrieved successfully",
+      ),
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
-        { status: 400 }
-      )
+        createApiErrorResponse(
+          "Validation failed",
+          400,
+          "VALIDATION_ERROR",
+          error.errors,
+        ),
+        { status: 400 },
+      );
     }
-    
+
     return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+      createApiErrorResponse("Internal server error", 500, "INTERNAL_ERROR"),
+      { status: 500 },
+    );
   }
 }
 
 // POST /api/projects
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const validated = CreateProjectSchema.parse(body)
-    
-    const project = await ProjectsService.createProject(validated)
-    
+    const body = await request.json();
+    const validated = CreateProjectSchema.parse(body);
+
+    const project = await ProjectsService.createProject(validated);
+
     return NextResponse.json(
-      createApiSuccessResponse(project, 'Project created successfully'),
-      { status: 201 }
-    )
+      createApiSuccessResponse(project, "Project created successfully"),
+      { status: 201 },
+    );
   } catch (error) {
     // Error handling...
   }
@@ -229,88 +249,92 @@ export async function POST(request: NextRequest) {
 Create `/hooks/use-project-queries.ts`:
 
 ```typescript
-import { useMemo } from 'react'
-import { useEnhancedQuery, useEnhancedMutation } from '@/components/providers/query-provider'
-import { useElectricProjects } from '@/hooks/use-electric-projects'
-import { observability } from '@/lib/observability'
+import { useMemo } from "react";
+import {
+  useEnhancedQuery,
+  useEnhancedMutation,
+} from "@/components/providers/query-provider";
+import { useElectricProjects } from "@/hooks/use-electric-projects";
+import { observability } from "@/lib/observability";
 
 // Types
 export interface Project {
-  id: string
-  name: string
-  description?: string
-  status: 'planning' | 'active' | 'completed' | 'archived'
-  visibility: 'private' | 'public' | 'team'
-  userId: string
-  environmentId?: string
-  metadata?: Record<string, any>
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  name: string;
+  description?: string;
+  status: "planning" | "active" | "completed" | "archived";
+  visibility: "private" | "public" | "team";
+  userId: string;
+  environmentId?: string;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Query keys factory
 export const projectQueryKeys = {
-  all: ['projects'] as const,
-  lists: () => [...projectQueryKeys.all, 'list'] as const,
+  all: ["projects"] as const,
+  lists: () => [...projectQueryKeys.all, "list"] as const,
   list: (filters: any) => [...projectQueryKeys.lists(), filters] as const,
-  details: () => [...projectQueryKeys.all, 'detail'] as const,
+  details: () => [...projectQueryKeys.all, "detail"] as const,
   detail: (id: string) => [...projectQueryKeys.details(), id] as const,
-}
+};
 
 // Hook for querying projects
 export function useProjectsQuery(filters: ProjectFilters = {}) {
   // Use ElectricSQL for real-time data
-  const { projects: electricProjects, loading: electricLoading } = useElectricProjects(filters)
-  
+  const { projects: electricProjects, loading: electricLoading } =
+    useElectricProjects(filters);
+
   // API query with fallback
   const { data: apiProjects, ...queryState } = useEnhancedQuery(
     projectQueryKeys.list(filters),
     async () => {
-      const params = new URLSearchParams()
+      const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined) params.append(key, String(value))
-      })
-      
-      const response = await fetch(`/api/projects?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch projects')
-      
-      const result = await response.json()
-      return result.data || []
+        if (value !== undefined) params.append(key, String(value));
+      });
+
+      const response = await fetch(`/api/projects?${params}`);
+      if (!response.ok) throw new Error("Failed to fetch projects");
+
+      const result = await response.json();
+      return result.data || [];
     },
     {
       staleTime: 2 * 60 * 1000, // 2 minutes
       enableWASMOptimization: true,
-    }
-  )
-  
+    },
+  );
+
   // Combine data sources
   const projects = useMemo(() => {
-    return electricProjects?.length > 0 ? electricProjects : apiProjects || []
-  }, [electricProjects, apiProjects])
-  
+    return electricProjects?.length > 0 ? electricProjects : apiProjects || [];
+  }, [electricProjects, apiProjects]);
+
   return {
     projects,
     loading: electricLoading || queryState.loading,
     ...queryState,
-  }
+  };
 }
 
 // Hook for creating projects
 export function useCreateProjectMutation() {
   return useEnhancedMutation(
     async (projectData: CreateProjectData) => {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(projectData),
-      })
-      
+      });
+
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to create project')
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create project");
       }
-      
-      return response.json()
+
+      return response.json();
     },
     {
       optimisticUpdate: (variables) => {
@@ -320,29 +344,29 @@ export function useCreateProjectMutation() {
           ...variables,
           createdAt: new Date(),
           updatedAt: new Date(),
-        }
-        
+        };
+
         // Update cache immediately
         queryClient.setQueryData(
           projectQueryKeys.lists(),
-          (old: Project[] = []) => [optimisticProject, ...old]
-        )
-        
-        return { optimisticProject }
+          (old: Project[] = []) => [optimisticProject, ...old],
+        );
+
+        return { optimisticProject };
       },
       rollbackUpdate: (context) => {
         // Remove optimistic project on error
         if (context?.optimisticProject) {
           queryClient.setQueryData(
             projectQueryKeys.lists(),
-            (old: Project[] = []) => 
-              old.filter(p => p.id !== context.optimisticProject.id)
-          )
+            (old: Project[] = []) =>
+              old.filter((p) => p.id !== context.optimisticProject.id),
+          );
         }
       },
       invalidateQueries: [projectQueryKeys.all],
-    }
-  )
+    },
+  );
 }
 ```
 
@@ -351,58 +375,58 @@ export function useCreateProjectMutation() {
 Create `/hooks/use-electric-projects.ts`:
 
 ```typescript
-import { useEffect, useState } from 'react'
-import { electricClient } from '@/lib/electric/client'
-import type { Project } from '@/db/schema'
+import { useEffect, useState } from "react";
+import { electricClient } from "@/lib/electric/client";
+import type { Project } from "@/db/schema";
 
 export function useElectricProjects(filters?: ProjectFilters) {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | null = null
+    let unsubscribe: (() => void) | null = null;
 
     const setupSubscription = async () => {
       try {
         // Initialize ElectricSQL if needed
-        await electricClient.initialize()
-        
+        await electricClient.initialize();
+
         // Subscribe to projects table
         unsubscribe = electricClient.subscribe<Project>(
-          'projects',
+          "projects",
           (data) => {
             // Apply client-side filtering if needed
-            let filtered = data
+            let filtered = data;
             if (filters?.userId) {
-              filtered = filtered.filter(p => p.userId === filters.userId)
+              filtered = filtered.filter((p) => p.userId === filters.userId);
             }
             if (filters?.status) {
-              filtered = filtered.filter(p => p.status === filters.status)
+              filtered = filtered.filter((p) => p.status === filters.status);
             }
-            
-            setProjects(filtered)
-            setLoading(false)
+
+            setProjects(filtered);
+            setLoading(false);
           },
           {
             where: filters?.userId ? { userId: filters.userId } : undefined,
-            orderBy: { createdAt: 'desc' },
-          }
-        )
+            orderBy: { createdAt: "desc" },
+          },
+        );
       } catch (err) {
-        setError(err as Error)
-        setLoading(false)
+        setError(err as Error);
+        setLoading(false);
       }
-    }
+    };
 
-    setupSubscription()
+    setupSubscription();
 
     return () => {
-      if (unsubscribe) unsubscribe()
-    }
-  }, [filters?.userId, filters?.status])
+      if (unsubscribe) unsubscribe();
+    };
+  }, [filters?.userId, filters?.status]);
 
-  return { projects, loading, error }
+  return { projects, loading, error };
 }
 ```
 
@@ -497,87 +521,88 @@ function getStatusVariant(status: string) {
 Create `/tests/integration/projects.test.ts`:
 
 ```typescript
-import { describe, it, expect, beforeEach } from 'vitest'
-import { db } from '@/db/config'
-import { projects } from '@/db/schema'
-import { ProjectsService } from '@/app/api/projects/service'
+import { describe, it, expect, beforeEach } from "vitest";
+import { db } from "@/db/config";
+import { projects } from "@/db/schema";
+import { ProjectsService } from "@/app/api/projects/service";
 
-describe('Projects API', () => {
+describe("Projects API", () => {
   beforeEach(async () => {
     // Clean up test data
-    await db.delete(projects)
-  })
+    await db.delete(projects);
+  });
 
-  describe('GET /api/projects', () => {
-    it('should return paginated projects', async () => {
+  describe("GET /api/projects", () => {
+    it("should return paginated projects", async () => {
       // Create test data
       const testProjects = Array.from({ length: 25 }, (_, i) => ({
         id: `test-${i}`,
         name: `Project ${i}`,
-        status: 'active' as const,
-        visibility: 'private' as const,
-        userId: 'test-user',
-      }))
-      
-      await db.insert(projects).values(testProjects)
-      
+        status: "active" as const,
+        visibility: "private" as const,
+        userId: "test-user",
+      }));
+
+      await db.insert(projects).values(testProjects);
+
       // Test pagination
       const result = await ProjectsService.getProjects({
         page: 1,
         limit: 10,
-        userId: 'test-user',
-      })
-      
-      expect(result.projects).toHaveLength(10)
-      expect(result.pagination.total).toBe(25)
-      expect(result.pagination.totalPages).toBe(3)
-    })
+        userId: "test-user",
+      });
 
-    it('should filter by status', async () => {
+      expect(result.projects).toHaveLength(10);
+      expect(result.pagination.total).toBe(25);
+      expect(result.pagination.totalPages).toBe(3);
+    });
+
+    it("should filter by status", async () => {
       // Create projects with different statuses
       await db.insert(projects).values([
-        { name: 'Active Project', status: 'active', userId: 'test-user' },
-        { name: 'Completed Project', status: 'completed', userId: 'test-user' },
-        { name: 'Planning Project', status: 'planning', userId: 'test-user' },
-      ])
-      
+        { name: "Active Project", status: "active", userId: "test-user" },
+        { name: "Completed Project", status: "completed", userId: "test-user" },
+        { name: "Planning Project", status: "planning", userId: "test-user" },
+      ]);
+
       const result = await ProjectsService.getProjects({
         page: 1,
         limit: 10,
-        status: 'active',
-      })
-      
-      expect(result.projects).toHaveLength(1)
-      expect(result.projects[0].name).toBe('Active Project')
-    })
-  })
+        status: "active",
+      });
 
-  describe('POST /api/projects', () => {
-    it('should create a new project', async () => {
+      expect(result.projects).toHaveLength(1);
+      expect(result.projects[0].name).toBe("Active Project");
+    });
+  });
+
+  describe("POST /api/projects", () => {
+    it("should create a new project", async () => {
       const projectData = {
-        name: 'Test Project',
-        description: 'Test description',
-        status: 'planning' as const,
-        visibility: 'private' as const,
-        userId: 'test-user',
-      }
-      
-      const created = await ProjectsService.createProject(projectData)
-      
-      expect(created).toMatchObject(projectData)
-      expect(created.id).toBeDefined()
-      expect(created.createdAt).toBeInstanceOf(Date)
-      
+        name: "Test Project",
+        description: "Test description",
+        status: "planning" as const,
+        visibility: "private" as const,
+        userId: "test-user",
+      };
+
+      const created = await ProjectsService.createProject(projectData);
+
+      expect(created).toMatchObject(projectData);
+      expect(created.id).toBeDefined();
+      expect(created.createdAt).toBeInstanceOf(Date);
+
       // Verify in database
-      const [dbProject] = await db.select()
+      const [dbProject] = await db
+        .select()
         .from(projects)
-        .where(eq(projects.id, created.id))
-      
-      expect(dbProject).toBeDefined()
-      expect(dbProject.name).toBe(projectData.name)
-    })
-  })
-})
+        .where(eq(projects.id, created.id));
+
+      expect(dbProject).toBeDefined();
+      expect(dbProject.name).toBe(projectData.name);
+    });
+  });
+});
 ```
 
 ## Database Schema Changes
@@ -596,18 +621,19 @@ describe('Projects API', () => {
    - Use enums for constrained values
 
 3. **Migration workflow**
+
    ```bash
    # 1. Modify schema
    # 2. Generate migration
    bun run db:generate
-   
+
    # 3. Review generated SQL
    # 4. Test migration locally
    bun run db:migrate
-   
+
    # 5. Test rollback
    bun run db:rollback
-   
+
    # 6. Re-apply and test application
    ```
 
@@ -631,16 +657,16 @@ class APIError extends Error {
   constructor(
     message: string,
     public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR',
-    public details?: any
+    public code: string = "INTERNAL_ERROR",
+    public details?: any,
   ) {
-    super(message)
+    super(message);
   }
 }
 
 // Usage in routes
 if (!authorized) {
-  throw new APIError('Unauthorized', 401, 'UNAUTHORIZED')
+  throw new APIError("Unauthorized", 401, "UNAUTHORIZED");
 }
 ```
 
@@ -686,14 +712,15 @@ if (!authorized) {
 ### TanStack Query Patterns
 
 1. **Query Keys Factory**
+
    ```typescript
    export const resourceQueryKeys = {
-     all: ['resource'] as const,
-     lists: () => [...resourceQueryKeys.all, 'list'] as const,
+     all: ["resource"] as const,
+     lists: () => [...resourceQueryKeys.all, "list"] as const,
      list: (filters) => [...resourceQueryKeys.lists(), filters] as const,
-     details: () => [...resourceQueryKeys.all, 'detail'] as const,
+     details: () => [...resourceQueryKeys.all, "detail"] as const,
      detail: (id) => [...resourceQueryKeys.details(), id] as const,
-   }
+   };
    ```
 
 2. **Optimistic Updates**
@@ -711,14 +738,15 @@ if (!authorized) {
 ### ElectricSQL Integration
 
 1. **Subscribe to tables**
+
    ```typescript
    const unsubscribe = electricClient.subscribe(
-     'table_name',
+     "table_name",
      (data) => {
        // Handle real-time updates
      },
-     { where: conditions }
-   )
+     { where: conditions },
+   );
    ```
 
 2. **Handle offline scenarios**
@@ -809,8 +837,8 @@ describe('useProjectsQuery', () => {
 // API test
 describe('POST /api/projects', () => {
   it('creates project with valid data', async () => {
-    const response = await POST(createMockRequest({ 
-      name: 'Test' 
+    const response = await POST(createMockRequest({
+      name: 'Test'
     }))
     expect(response.status).toBe(201)
   })

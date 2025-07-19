@@ -15,71 +15,76 @@ A comprehensive structured logging system using Winston with OpenTelemetry corre
 ## Quick Start
 
 ```typescript
-import { initializeLogging, createLogger } from '@/lib/logging'
+import { initializeLogging, createLogger } from "@/lib/logging";
 
 // Initialize logging system
 initializeLogging({
-  level: 'info',
-  serviceName: 'my-service',
-  serviceVersion: '1.0.0',
-  environment: 'production'
-})
+  level: "info",
+  serviceName: "my-service",
+  serviceVersion: "1.0.0",
+  environment: "production",
+});
 
 // Create a component logger
-const logger = createLogger('my-component')
+const logger = createLogger("my-component");
 
-logger.info('Application started', { version: '1.0.0' })
-logger.error('Something went wrong', error, { context: 'startup' })
+logger.info("Application started", { version: "1.0.0" });
+logger.error("Something went wrong", error, { context: "startup" });
 ```
 
 ## Specialized Loggers
 
 ### Agent Logger
-```typescript
-import { AgentLogger } from '@/lib/logging'
 
-const agentLogger = new AgentLogger()
-agentLogger.agentStarted('agent-1', 'research-agent')
-agentLogger.taskCompleted('agent-1', 'task-123', 5000, result)
+```typescript
+import { AgentLogger } from "@/lib/logging";
+
+const agentLogger = new AgentLogger();
+agentLogger.agentStarted("agent-1", "research-agent");
+agentLogger.taskCompleted("agent-1", "task-123", 5000, result);
 ```
 
 ### Database Logger
-```typescript
-import { DatabaseLogger } from '@/lib/logging'
 
-const dbLogger = new DatabaseLogger()
-dbLogger.queryExecuted('SELECT * FROM users', 150, 42)
-dbLogger.slowQuery('SELECT * FROM large_table', 2500, 1000)
+```typescript
+import { DatabaseLogger } from "@/lib/logging";
+
+const dbLogger = new DatabaseLogger();
+dbLogger.queryExecuted("SELECT * FROM users", 150, 42);
+dbLogger.slowQuery("SELECT * FROM large_table", 2500, 1000);
 ```
 
 ### Security Logger
-```typescript
-import { SecurityLogger } from '@/lib/logging'
 
-const securityLogger = new SecurityLogger()
-securityLogger.authenticationAttempt('user-123', 'oauth', true)
-securityLogger.unauthorizedAccess('user-456', '/admin', 'read')
+```typescript
+import { SecurityLogger } from "@/lib/logging";
+
+const securityLogger = new SecurityLogger();
+securityLogger.authenticationAttempt("user-123", "oauth", true);
+securityLogger.unauthorizedAccess("user-456", "/admin", "read");
 ```
 
 ## Middleware Integration
 
 ### Next.js API Routes
-```typescript
-import { createApiRouteLogger } from '@/lib/logging'
 
-const withLogging = createApiRouteLogger()
+```typescript
+import { createApiRouteLogger } from "@/lib/logging";
+
+const withLogging = createApiRouteLogger();
 
 export const GET = withLogging(async (req) => {
   // Your API route logic
-  return Response.json({ data: 'success' })
-})
+  return Response.json({ data: "success" });
+});
 ```
 
 ### Custom Middleware
-```typescript
-import { createLoggingMiddleware } from '@/lib/logging'
 
-const loggingMiddleware = createLoggingMiddleware()
+```typescript
+import { createLoggingMiddleware } from "@/lib/logging";
+
+const loggingMiddleware = createLoggingMiddleware();
 
 // Use in your middleware chain
 ```
@@ -115,14 +120,14 @@ LOGGING_REDACTION_FIELDS=custom_secret,internal_token
 ## Health Monitoring
 
 ```typescript
-import { LoggingHealthMonitor } from '@/lib/logging/health-monitor'
+import { LoggingHealthMonitor } from "@/lib/logging/health-monitor";
 
-const healthMonitor = new LoggingHealthMonitor()
-healthMonitor.startMonitoring(60000) // Check every minute
+const healthMonitor = new LoggingHealthMonitor();
+healthMonitor.startMonitoring(60000); // Check every minute
 
 // Get health status
-const status = await healthMonitor.checkHealth()
-console.log(status.status) // 'healthy' | 'degraded' | 'unhealthy'
+const status = await healthMonitor.checkHealth();
+console.log(status.status); // 'healthy' | 'degraded' | 'unhealthy'
 ```
 
 ## Log Structure
@@ -167,6 +172,7 @@ Every log entry follows this structure:
 ## External Integrations
 
 The system supports integration with:
+
 - ELK Stack (Elasticsearch, Logstash, Kibana)
 - Splunk
 - Datadog
@@ -193,6 +199,7 @@ The system supports integration with:
 ## Architecture
 
 The logging system consists of:
+
 - **Logger Factory**: Central logger management and configuration
 - **Correlation Manager**: Request correlation and context propagation
 - **Performance Tracker**: Logging performance monitoring and optimization
@@ -204,6 +211,7 @@ The logging system consists of:
 ## Integration with Observability
 
 This logging system integrates seamlessly with:
+
 - OpenTelemetry for distributed tracing correlation
 - Sentry for error correlation and enhanced context
 - Langfuse for AI-specific logging and trace correlation
