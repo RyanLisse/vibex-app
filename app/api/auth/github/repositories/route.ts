@@ -135,7 +135,7 @@ class GitHubRepositoriesService {
         filters: params,
         source: 'api',
         tags: ['github', 'repositories', 'query']
-      )
+      })
 
       span.setAttributes({
         'repositories.count': repoResults.length,

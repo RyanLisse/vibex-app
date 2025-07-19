@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
-import { vi } from 'vitest'
 import { useGitHubUser } from '@/hooks/use-github-user'
 
 // Mock fetch
@@ -20,7 +19,7 @@ Object.defineProperty(window, 'localStorage', {
 
 describe('useGitHubUser', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockLocalStorage.getItem.mockReturnValue(null)
   })
 

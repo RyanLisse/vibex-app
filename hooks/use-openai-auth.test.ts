@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { vi } from 'vitest'
 import { useAuthBase } from '@/hooks/use-auth-base'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
 
@@ -22,7 +21,7 @@ describe('useOpenAIAuth', () => {
   }
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mock.useFakeTimers()
     ;(useAuthBase as any).mockReturnValue(mockBaseAuth)
     ;(global.fetch as any).mockResolvedValue({
