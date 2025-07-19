@@ -174,6 +174,33 @@ export const createQueryKey = {
   ],
 }
 
+// Observability and Database Integration hooks
+export * from './use-agent-executions'
+export * from './use-observability-events'
+export * from './use-workflows'
+export * from './use-agent-memory'
+
+// Hook utilities and types
+export type {
+  AgentExecution,
+  ExecutionFilter,
+  ExecutionUpdate,
+  ObservabilityEvent,
+  EventFilter,
+  EventType,
+  EventSeverity,
+  Workflow,
+  WorkflowExecution,
+  WorkflowFilter,
+  WorkflowExecutionFilter,
+  AgentMemory,
+  MemoryFilter,
+  MemorySearchQuery,
+  MemorySearchResult,
+  CreateMemoryRequest,
+  UpdateMemoryRequest,
+} from '@/lib/observability/types'
+
 // Optimistic update helpers
 export const optimisticUpdates = {
   // Add item to list

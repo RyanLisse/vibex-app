@@ -109,8 +109,8 @@ class EnvironmentsService {
         totalCount: countResult.length,
         filters: params,
         source: 'api',
-        tags: ['environments', 'query']
-      )
+        tags: ['environments', 'query'],
+      })
 
       span.setAttributes({
         'environments.count': envResults.length,
@@ -155,8 +155,8 @@ class EnvironmentsService {
       const startTime = Date.now()
 
       // Extract userId from request context or set as needed
-      const userId = envData.userId || 'system'; // This should come from auth context
-      
+      const userId = envData.userId || 'system' // This should come from auth context
+
       // If this environment should be active, deactivate others for the same user
       if (envData.isActive) {
         await db
@@ -182,18 +182,16 @@ class EnvironmentsService {
 
       // Record event
       observability.recordEvent('environments_event', {
-        'user_action',
-        'info',
-        `Environment created: ${createdEnvironment.name}`,
-        {
-          environmentId: createdEnvironment.id,
-          userId: createdEnvironment.userId,
-          isActive: createdEnvironment.isActive,
-          duration,
-        },
-        'api',
-        ['environments', 'create']
-      )
+        action: 'user_action',
+        level: 'info',
+        message: `Environment created: ${createdEnvironment.name}`,
+        environmentId: createdEnvironment.id,
+        userId: createdEnvironment.userId,
+        isActive: createdEnvironment.isActive,
+        duration,
+        source: 'api',
+        tags: ['environments', 'create'],
+      })
 
       span.setAttributes({
         'environment.id': createdEnvironment.id,
@@ -254,17 +252,15 @@ class EnvironmentsService {
 
       // Record event
       observability.recordEvent('environments_event', {
-        'user_action',
-        'info',
-        `Environment activated: ${activatedEnvironment.name}`,
-        {
-          environmentId: activatedEnvironment.id,
-          userId: activatedEnvironment.userId,
-          duration,
-        },
-        'api',
-        ['environments', 'activate']
-      )
+        action: 'user_action',
+        level: 'info',
+        message: `Environment activated: ${activatedEnvironment.name}`,
+        environmentId: activatedEnvironment.id,
+        userId: activatedEnvironment.userId,
+        duration,
+        source: 'api',
+        tags: ['environments', 'activate'],
+      })
 
       span.setAttributes({
         'environment.id': activatedEnvironment.id,

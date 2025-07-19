@@ -134,8 +134,8 @@ class GitHubRepositoriesService {
         syncPerformed: syncNeeded,
         filters: params,
         source: 'api',
-        tags: ['github', 'repositories', 'query']
-      )
+        tags: ['github', 'repositories', 'query'],
+      })
 
       span.setAttributes({
         'repositories.count': repoResults.length,
@@ -265,7 +265,7 @@ class GitHubRepositoriesService {
         repositoryCount: repoData.length,
         duration,
         source: 'api',
-        tags: ['github', 'repositories', 'sync']
+        tags: ['github', 'repositories', 'sync'],
       })
 
       span.setAttributes({

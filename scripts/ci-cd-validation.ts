@@ -2,7 +2,7 @@
 
 /**
  * CI/CD Integration Validation Script
- * 
+ *
  * Comprehensive validation of the testing framework for CI/CD environments
  */
 
@@ -50,14 +50,14 @@ class CICDValidator {
 
   private log(message: string, level: 'info' | 'error' | 'success' | 'warn' = 'info') {
     if (!this.verbose && level !== 'error') return
-    
+
     const prefix = {
       info: '📋',
       error: '❌',
       success: '✅',
-      warn: '⚠️ '
+      warn: '⚠️ ',
     }[level]
-    
+
     console.log(`${prefix} ${message}`)
   }
 
@@ -69,19 +69,19 @@ class CICDValidator {
   ): Promise<TestResult> {
     const startTime = Date.now()
     this.log(`Running: ${name}`)
-    
+
     try {
       const proc = spawn({
         cmd: [command, ...args],
         cwd: process.cwd(),
         stdout: 'pipe',
         stderr: 'pipe',
-        ...options
+        ...options,
       })
 
       const output = await new Response(proc.stdout).text()
       const errors = await new Response(proc.stderr).text()
-      
+
       await proc.exited
       const duration = Date.now() - startTime
       const success = proc.exitCode === 0
@@ -92,12 +92,15 @@ class CICDValidator {
         duration,
         success,
         output,
-        errors: errors ? [errors] : undefined
+        errors: errors ? [errors] : undefined,
       }
 
       this.results.push(result)
-      this.log(`${name}: ${success ? 'PASSED' : 'FAILED'} (${duration}ms)`, success ? 'success' : 'error')
-      
+      this.log(
+        `${name}: ${success ? 'PASSED' : 'FAILED'} (${duration}ms)`,
+        success ? 'success' : 'error'
+      )
+
       return result
     } catch (error) {
       const duration = Date.now() - startTime
@@ -107,9 +110,9 @@ class CICDValidator {
         duration,
         success: false,
         output: '',
-        errors: [String(error)]
+        errors: [String(error)],
       }
-      
+
       this.results.push(result)
       this.log(`${name}: ERROR (${duration}ms)`, 'error')
       return result
@@ -118,12 +121,12 @@ class CICDValidator {
 
   private async checkEnvironment(): Promise<Record<string, string>> {
     this.log('Checking environment...')
-    
+
     const env = {
       bun: '',
       node: '',
       typescript: '',
-      platform: process.platform
+      platform: process.platform,
     }
 
     try {
@@ -152,7 +155,7 @@ class CICDValidator {
 
   private async validatePackageScripts(): Promise<void> {
     this.log('Validating package.json test scripts...')
-    
+
     const packageJsonPath = join(process.cwd(), 'package.json')
     if (!existsSync(packageJsonPath)) {
       throw new Error('package.json not found')
@@ -164,13 +167,13 @@ class CICDValidator {
     const requiredScripts = [
       'test',
       'test:unit',
-      'test:integration', 
+      'test:integration',
       'test:coverage',
       'typecheck',
-      'lint'
+      'lint',
     ]
 
-    const missingScripts = requiredScripts.filter(script => !scripts[script])
+    const missingScripts = requiredScripts.filter((script) => !scripts[script])
     if (missingScripts.length > 0) {
       this.log(`Missing required scripts: ${missingScripts.join(', ')}`, 'warn')
     }
@@ -178,13 +181,9 @@ class CICDValidator {
 
   private async validateTestTimeout(): Promise<void> {
     this.log('Testing command timeouts...')
-    
+
     // Test a command that should complete quickly
-    const quickTest = await this.runCommand(
-      'Quick Test',
-      'bun',
-      ['--version']
-    )
+    const quickTest = await this.runCommand('Quick Test', 'bun', ['--version'])
 
     if (quickTest.duration > 5000) {
       this.log('Command execution is slower than expected', 'warn')
@@ -197,26 +196,30 @@ class CICDValidator {
 
     // Environment check
     const environment = await this.checkEnvironment()
-    
+
     // Package validation
     await this.validatePackageScripts()
-    
+
     // Test timeouts
     await this.validateTestTimeout()
 
     // Core tests
     await this.runCommand('Install Dependencies', 'bun', ['install'])
-    
+
     await this.runCommand('Type Check', 'bun', ['run', 'typecheck'])
-    
+
     // Unit tests (should be fast and reliable)
     await this.runCommand('Unit Tests', 'bun', ['run', 'test:unit:logic'])
-    
+
     // Try component tests (may fail due to config issues)
     await this.runCommand('Component Tests', 'bun', ['run', 'test:components'])
-    
+
     // Try integration tests with timeout
-    await this.runCommand('Integration Tests (Limited)', 'bun', ['test', '--timeout=5000', 'tests/integration/basic.test.ts'])
+    await this.runCommand('Integration Tests (Limited)', 'bun', [
+      'test',
+      '--timeout=5000',
+      'tests/integration/basic.test.ts',
+    ])
 
     // Test linting
     await this.runCommand('Lint Check', 'bun', ['run', 'lint'])
@@ -225,8 +228,8 @@ class CICDValidator {
     await this.runCommand('Security Audit', 'bun', ['audit'])
 
     const totalDuration = Date.now() - this.startTime
-    const passed = this.results.filter(r => r.success).length
-    const failed = this.results.filter(r => !r.success).length
+    const passed = this.results.filter((r) => r.success).length
+    const failed = this.results.filter((r) => !r.success).length
 
     // Generate CI/CD readiness assessment
     const issues: string[] = []
@@ -234,37 +237,40 @@ class CICDValidator {
 
     // Check critical failures
     const criticalTests = ['Install Dependencies', 'Type Check', 'Unit Tests']
-    const criticalFailures = this.results.filter(r => 
-      criticalTests.includes(r.name) && !r.success
+    const criticalFailures = this.results.filter(
+      (r) => criticalTests.includes(r.name) && !r.success
     )
 
     if (criticalFailures.length > 0) {
       issues.push('Critical tests are failing - CI/CD not ready')
-      issues.push(...criticalFailures.map(r => `${r.name}: ${r.errors?.[0] || 'Unknown error'}`))
+      issues.push(...criticalFailures.map((r) => `${r.name}: ${r.errors?.[0] || 'Unknown error'}`))
     }
 
     // Check performance
-    const slowTests = this.results.filter(r => r.duration > 30000) // 30s
+    const slowTests = this.results.filter((r) => r.duration > 30000) // 30s
     if (slowTests.length > 0) {
       issues.push('Some tests are running slower than 30 seconds')
       recommendations.push('Optimize slow tests or increase CI timeout limits')
     }
 
     // Check test coverage
-    const hasIntegrationTests = this.results.some(r => r.name.includes('Integration') && r.success)
+    const hasIntegrationTests = this.results.some(
+      (r) => r.name.includes('Integration') && r.success
+    )
     if (!hasIntegrationTests) {
       issues.push('Integration tests are not working properly')
       recommendations.push('Fix integration test configuration and hanging issues')
     }
 
-    const hasComponentTests = this.results.some(r => r.name.includes('Component') && r.success)
+    const hasComponentTests = this.results.some((r) => r.name.includes('Component') && r.success)
     if (!hasComponentTests) {
       issues.push('Component tests are not working properly')
       recommendations.push('Fix Vitest component test configuration')
     }
 
     // Performance recommendations
-    if (totalDuration > 300000) { // 5 minutes
+    if (totalDuration > 300000) {
+      // 5 minutes
       recommendations.push('Total test suite time exceeds 5 minutes - consider parallel execution')
     }
 
@@ -283,19 +289,19 @@ class CICDValidator {
         passed,
         failed,
         skipped: 0,
-        totalDuration
+        totalDuration,
       },
       ciReadiness: {
         ready,
         issues,
-        recommendations
-      }
+        recommendations,
+      },
     }
   }
 
   async generateReport(): Promise<string> {
     const report = await this.validate()
-    
+
     let output = `
 # CI/CD Integration Validation Report
 Generated: ${report.timestamp}
@@ -323,7 +329,7 @@ Generated: ${report.timestamp}
 - **Command**: \`${test.command}\`
 - **Duration**: ${duration}
 `
-      
+
       if (!test.success && test.errors) {
         output += `- **Errors**:
 \`\`\`
@@ -340,22 +346,22 @@ ${test.errors.join('\n')}
 
     if (report.ciReadiness.issues.length > 0) {
       output += `### Issues to Fix:
-${report.ciReadiness.issues.map(issue => `- ${issue}`).join('\n')}
+${report.ciReadiness.issues.map((issue) => `- ${issue}`).join('\n')}
 
 `
     }
 
     if (report.ciReadiness.recommendations.length > 0) {
       output += `### Recommendations:
-${report.ciReadiness.recommendations.map(rec => `- ${rec}`).join('\n')}
+${report.ciReadiness.recommendations.map((rec) => `- ${rec}`).join('\n')}
 
 `
     }
 
     output += `
 ## Performance Analysis
-- **Fastest Test**: ${Math.min(...report.tests.map(t => t.duration))}ms
-- **Slowest Test**: ${Math.max(...report.tests.map(t => t.duration))}ms
+- **Fastest Test**: ${Math.min(...report.tests.map((t) => t.duration))}ms
+- **Slowest Test**: ${Math.max(...report.tests.map((t) => t.duration))}ms
 - **Average Duration**: ${(report.tests.reduce((sum, t) => sum + t.duration, 0) / report.tests.length).toFixed(0)}ms
 
 ## Troubleshooting Guide
@@ -395,16 +401,15 @@ Generated by CI/CD Validation Script v1.0
 if (import.meta.main) {
   const verbose = process.argv.includes('--verbose') || process.argv.includes('-v')
   const validator = new CICDValidator(verbose)
-  
+
   try {
     const report = await validator.generateReport()
     console.log(report)
-    
+
     // Write to file
     const reportPath = join(process.cwd(), 'ci-cd-validation-report.md')
     await Bun.write(reportPath, report)
     console.log(`\n📄 Report saved to: ${reportPath}`)
-    
   } catch (error) {
     console.error('❌ Validation failed:', error)
     process.exit(1)
