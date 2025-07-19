@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
-import { redisCache } from '@/lib/redis'
 import { getLogger } from '@/lib/logging'
+import { redisCache } from '@/lib/redis'
 
 const logger = getLogger('api-gemini-session')
 

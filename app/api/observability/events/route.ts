@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db/config';
-import { observabilityEvents } from '@/db/schema';
-import { eq, desc, and, gte, lte, ilike, inArray } from 'drizzle-orm';
-import { z } from 'zod';
-import { observabilityService } from '@/lib/observability';
+import { and, desc, eq, gte, ilike, inArray, lte } from 'drizzle-orm'
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { db } from '@/db/config'
+import { observabilityEvents } from '@/db/schema'
+import { observabilityService } from '@/lib/observability'
 
 const eventsQuerySchema = z.object({
   type: z.enum(['execution', 'step', 'query', 'sync', 'wasm', 'error']).optional(),
@@ -15,7 +15,7 @@ const eventsQuerySchema = z.object({
   endTime: z.string().datetime().optional(),
   limit: z.coerce.number().min(1).max(1000).default(100),
   offset: z.coerce.number().min(0).default(0),
-});
+})
 
 const createEventSchema = z.object({
   type: z.enum(['execution', 'step', 'query', 'sync', 'wasm', 'error']),
@@ -26,42 +26,42 @@ const createEventSchema = z.object({
   traceId: z.string().optional(),
   spanId: z.string().optional(),
   metadata: z.record(z.any()).default({}),
-});
+})
 
 // GET /api/observability/events - List observability events
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const query = eventsQuerySchema.parse(Object.fromEntries(searchParams));
-    
-    const conditions = [];
-    
+    const { searchParams } = new URL(request.url)
+    const query = eventsQuerySchema.parse(Object.fromEntries(searchParams))
+
+    const conditions = []
+
     if (query.type) {
-      conditions.push(eq(observabilityEvents.type, query.type));
+      conditions.push(eq(observabilityEvents.type, query.type))
     }
-    
+
     if (query.category) {
-      conditions.push(eq(observabilityEvents.category, query.category));
+      conditions.push(eq(observabilityEvents.category, query.category))
     }
-    
+
     if (query.severity) {
-      conditions.push(eq(observabilityEvents.severity, query.severity));
+      conditions.push(eq(observabilityEvents.severity, query.severity))
     }
-    
+
     if (query.executionId) {
-      conditions.push(eq(observabilityEvents.executionId, query.executionId));
+      conditions.push(eq(observabilityEvents.executionId, query.executionId))
     }
-    
+
     if (query.search) {
-      conditions.push(ilike(observabilityEvents.message, `%${query.search}%`));
+      conditions.push(ilike(observabilityEvents.message, `%${query.search}%`))
     }
-    
+
     if (query.startTime) {
-      conditions.push(gte(observabilityEvents.timestamp, new Date(query.startTime)));
+      conditions.push(gte(observabilityEvents.timestamp, new Date(query.startTime)))
     }
-    
+
     if (query.endTime) {
-      conditions.push(lte(observabilityEvents.timestamp, new Date(query.endTime)));
+      conditions.push(lte(observabilityEvents.timestamp, new Date(query.endTime)))
     }
 
     const events = await db
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(observabilityEvents.timestamp))
       .limit(query.limit)
-      .offset(query.offset);
+      .offset(query.offset)
 
     // Get summary statistics
     const stats = await db
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
         `,
       })
       .from(observabilityEvents)
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
 
     return NextResponse.json({
       events,
@@ -109,48 +109,40 @@ export async function GET(request: NextRequest) {
         totalEvents: 0,
         eventsByType: {},
         eventsBySeverity: {},
-      }
-    });
-
+      },
+    })
   } catch (error) {
     observabilityService.recordError(error as Error, {
       context: 'observability_events_get',
-    });
-    
-    return NextResponse.json(
-      { error: 'Failed to fetch events' },
-      { status: 500 }
-    );
+    })
+
+    return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 })
   }
 }
 
 // POST /api/observability/events - Create new event
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const eventData = createEventSchema.parse(body);
-    
+    const body = await request.json()
+    const eventData = createEventSchema.parse(body)
+
     const [event] = await db
       .insert(observabilityEvents)
       .values({
         ...eventData,
         timestamp: new Date(),
       })
-      .returning();
+      .returning()
 
     // Also record through observability service for real-time streaming
-    observabilityService.recordEvent(eventData);
+    observabilityService.recordEvent(eventData)
 
-    return NextResponse.json(event, { status: 201 });
-
+    return NextResponse.json(event, { status: 201 })
   } catch (error) {
     observabilityService.recordError(error as Error, {
       context: 'observability_events_post',
-    });
-    
-    return NextResponse.json(
-      { error: 'Failed to create event' },
-      { status: 500 }
-    );
+    })
+
+    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
   }
 }

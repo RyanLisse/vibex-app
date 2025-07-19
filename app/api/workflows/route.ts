@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db/config';
-import { workflows, workflowExecutions } from '@/db/schema';
-import { eq, desc, and, ilike, inArray } from 'drizzle-orm';
-import { z } from 'zod';
-import { observabilityService } from '@/lib/observability';
+import { and, desc, eq, ilike, inArray } from 'drizzle-orm'
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { db } from '@/db/config'
+import { workflowExecutions, workflows } from '@/db/schema'
+import { observabilityService } from '@/lib/observability'
 
 const workflowQuerySchema = z.object({
   status: z.enum(['draft', 'active', 'archived']).optional(),
@@ -11,7 +11,7 @@ const workflowQuerySchema = z.object({
   tags: z.array(z.string()).optional(),
   limit: z.coerce.number().min(1).max(100).default(50),
   offset: z.coerce.number().min(0).default(0),
-});
+})
 
 const createWorkflowSchema = z.object({
   name: z.string().min(1),
@@ -21,36 +21,34 @@ const createWorkflowSchema = z.object({
   status: z.enum(['draft', 'active', 'archived']).default('draft'),
   tags: z.array(z.string()).default([]),
   config: z.record(z.any()).default({}),
-});
+})
 
 // GET /api/workflows - List workflows
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const query = workflowQuerySchema.parse(Object.fromEntries(searchParams));
-    
+    const { searchParams } = new URL(request.url)
+    const query = workflowQuerySchema.parse(Object.fromEntries(searchParams))
+
     observabilityService.recordEvent({
       type: 'query',
       category: 'workflow',
       message: 'Fetching workflows',
       metadata: { query },
-    });
+    })
 
-    const conditions = [];
-    
+    const conditions = []
+
     if (query.status) {
-      conditions.push(eq(workflows.status, query.status));
+      conditions.push(eq(workflows.status, query.status))
     }
-    
+
     if (query.search) {
-      conditions.push(ilike(workflows.name, `%${query.search}%`));
+      conditions.push(ilike(workflows.name, `%${query.search}%`))
     }
-    
+
     if (query.tags && query.tags.length > 0) {
       // PostgreSQL array overlap operator
-      conditions.push(
-        sql`${workflows.tags} && ${query.tags}`
-      );
+      conditions.push(sql`${workflows.tags} && ${query.tags}`)
     }
 
     const workflowsList = await db
@@ -74,7 +72,7 @@ export async function GET(request: NextRequest) {
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(workflows.updatedAt))
       .limit(query.limit)
-      .offset(query.offset);
+      .offset(query.offset)
 
     return NextResponse.json({
       workflows: workflowsList,
@@ -82,37 +80,33 @@ export async function GET(request: NextRequest) {
         limit: query.limit,
         offset: query.offset,
         hasMore: workflowsList.length === query.limit,
-      }
-    });
-
+      },
+    })
   } catch (error) {
     observabilityService.recordError(error as Error, {
       context: 'workflows_get',
-    });
-    
-    return NextResponse.json(
-      { error: 'Failed to fetch workflows' },
-      { status: 500 }
-    );
+    })
+
+    return NextResponse.json({ error: 'Failed to fetch workflows' }, { status: 500 })
   }
 }
 
 // POST /api/workflows - Create new workflow
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const workflowData = createWorkflowSchema.parse(body);
-    
+    const body = await request.json()
+    const workflowData = createWorkflowSchema.parse(body)
+
     observabilityService.recordEvent({
       type: 'execution',
       category: 'workflow',
       message: 'Creating new workflow',
-      metadata: { 
+      metadata: {
         name: workflowData.name,
         version: workflowData.version,
-        status: workflowData.status 
+        status: workflowData.status,
       },
-    });
+    })
 
     const [workflow] = await db
       .insert(workflows)
@@ -127,18 +121,14 @@ export async function POST(request: NextRequest) {
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      .returning();
+      .returning()
 
-    return NextResponse.json(workflow, { status: 201 });
-
+    return NextResponse.json(workflow, { status: 201 })
   } catch (error) {
     observabilityService.recordError(error as Error, {
       context: 'workflows_post',
-    });
-    
-    return NextResponse.json(
-      { error: 'Failed to create workflow' },
-      { status: 500 }
-    );
+    })
+
+    return NextResponse.json({ error: 'Failed to create workflow' }, { status: 500 })
   }
 }
