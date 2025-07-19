@@ -102,7 +102,7 @@ if (typeof global !== 'undefined') {
   }))
 
   // Mock fetch for tests
-  global.fetch = vi.fn(async (url, options) => {
+  global.fetch = vi.fn((url, _options) => {
     const response = {
       ok: true,
       status: 200,

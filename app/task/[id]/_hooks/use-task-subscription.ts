@@ -230,7 +230,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }, ERROR_RECONNECT_DELAY)
       }
     },
-    [checkInngestAvailability]
+    [state.enabled, checkInngestAvailability]
   )
 
   const handleClose = useCallback(() => {
@@ -251,7 +251,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }
       }, RECONNECT_DELAY)
     }
-  }, [checkInngestAvailability])
+  }, [state.enabled, state.lastError, checkInngestAvailability])
 
   // Memoized subscription configuration to prevent unnecessary re-subscriptions
   const subscriptionConfig = useMemo(

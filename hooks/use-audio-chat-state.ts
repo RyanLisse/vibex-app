@@ -164,7 +164,7 @@ export function useAudioChatState(options: UseAudioChatStateOptions = {}) {
         recordingError: error,
       })
     },
-    [updateState]
+    [updateState, options]
   )
 
   // Playback state management

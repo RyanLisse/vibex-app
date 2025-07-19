@@ -1,7 +1,7 @@
 'use client'
 import { AlertCircle, HardDrive, RefreshCw, Split, Wifi, WifiOff } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createTaskAction } from '@/app/actions/inngest'
 import { useElectricContext } from '@/components/providers/electric-provider'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -89,12 +89,12 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
   const [value, setValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const adjustHeight = () => {
+  const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current
     if (textarea) {
       adjustTextareaHeight(textarea)
     }
-  }
+  }, [])
 
   const handleAddTask = async (mode: 'code' | 'ask') => {
     if (!(value.trim() && userId)) {

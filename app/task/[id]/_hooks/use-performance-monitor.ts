@@ -51,7 +51,7 @@ export function usePerformanceMonitor(_componentName: string) {
       if (rerenderCount.current > 10) {
       }
     }
-  })
+  }, [])
 
   return metrics
 }

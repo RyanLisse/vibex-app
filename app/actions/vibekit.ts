@@ -15,16 +15,27 @@ export const createPullRequestAction = async ({ task }: { task: Task }) => {
 
   const telemetryConfig = getTelemetryConfig()
 
+  const openaiApiKey = process.env.OPENAI_API_KEY
+  const e2bApiKey = process.env.E2B_API_KEY
+
+  if (!openaiApiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is required')
+  }
+
+  if (!e2bApiKey) {
+    throw new Error('E2B_API_KEY environment variable is required')
+  }
+
   const config: VibeKitConfig = {
     agent: {
       type: 'codex',
       model: {
-        apiKey: process.env.OPENAI_API_KEY!,
+        apiKey: openaiApiKey,
       },
     },
     environment: {
       e2b: {
-        apiKey: process.env.E2B_API_KEY!,
+        apiKey: e2bApiKey,
       },
     },
     github: {

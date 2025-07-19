@@ -6,6 +6,9 @@ import './streaming.css'
 
 import Container from '@/app/container'
 import { AppProviders } from '@/components/providers/app-providers'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('app-layout')
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,13 +45,32 @@ export default function RootLayout({
                       message.includes('locked stream') ||
                       message.includes('WebSocket') ||
                       message.includes('Authentication failed')) {
-                    console.warn('Unhandled stream/connection error prevented:', message);
+                    // Log to server via API endpoint for proper Winston logging
+                    fetch('/api/logging/client-error', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        level: 'warn',
+                        message: 'Unhandled stream/connection error prevented',
+                        error: message,
+                        timestamp: new Date().toISOString()
+                      })
+                    }).catch(() => {}); // Silently fail if logging fails
                     event.preventDefault();
                     return;
                   }
                 }
                 // Log other unhandled rejections for debugging
-                console.warn('Unhandled promise rejection:', event.reason);
+                fetch('/api/logging/client-error', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    level: 'warn',
+                    message: 'Unhandled promise rejection',
+                    error: event.reason,
+                    timestamp: new Date().toISOString()
+                  })
+                }).catch(() => {}); // Silently fail if logging fails
               });
 
               // Global error handler for general errors
@@ -58,7 +80,16 @@ export default function RootLayout({
                   if (message.includes('ReadableStream') ||
                       message.includes('cancel') ||
                       message.includes('locked stream')) {
-                    console.warn('Stream error handled:', message);
+                    fetch('/api/logging/client-error', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        level: 'warn',
+                        message: 'Stream error handled',
+                        error: message,
+                        timestamp: new Date().toISOString()
+                      })
+                    }).catch(() => {}); // Silently fail if logging fails
                     event.preventDefault();
                     return;
                   }

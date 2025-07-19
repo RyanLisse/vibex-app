@@ -16,7 +16,7 @@ import {
   RefreshCw,
   X,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -57,7 +57,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
   // Check migration status on component mount
   useEffect(() => {
     checkMigrationStatus()
-  }, [])
+  }, [checkMigrationStatus])
 
   // Poll migration progress if migration is in progress
   useEffect(() => {
@@ -65,9 +65,9 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
       const interval = setInterval(checkMigrationStatus, 2000)
       return () => clearInterval(interval)
     }
-  }, [migrationStatus?.currentMigration?.status])
+  }, [migrationStatus?.currentMigration?.status, checkMigrationStatus])
 
-  const checkMigrationStatus = async () => {
+  const checkMigrationStatus = useCallback(async () => {
     try {
       const response = await fetch(`/api/migration?userId=${userId}`)
       if (!response.ok) {
@@ -81,7 +81,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId])
 
   const startMigration = async () => {
     setMigrating(true)

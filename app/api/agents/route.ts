@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('api-agents')
 
 // Request schemas
 const CreateSessionSchema = z.object({
@@ -20,7 +23,7 @@ const StartBrainstormSchema = z.object({
 })
 
 // GET /api/agents - Get system status
-export async function GET() {
+export function GET() {
   try {
     const system = getMultiAgentSystem()
     const status = system.getSystemStatus()
@@ -30,7 +33,7 @@ export async function GET() {
       data: status,
     })
   } catch (error) {
-    console.error('Error getting system status:', error)
+    logger.error('Error getting system status', error as Error)
     return NextResponse.json(
       {
         success: false,
@@ -136,7 +139,7 @@ export async function POST(request: NextRequest) {
         )
     }
   } catch (error) {
-    console.error('Error processing agent request:', error)
+    logger.error('Error processing agent request', error as Error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

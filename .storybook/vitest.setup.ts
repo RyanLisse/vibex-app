@@ -1,7 +1,7 @@
 import { setProjectAnnotations } from '@storybook/react'
 import { beforeAll } from 'vitest'
-import * as globalStorybookConfig from './preview'
+import { decorators, globalTypes, parameters } from './preview'
 
-const annotations = setProjectAnnotations([globalStorybookConfig])
+const annotations = setProjectAnnotations([{ globalTypes, decorators, parameters }])
 
 beforeAll(annotations.beforeAll)
