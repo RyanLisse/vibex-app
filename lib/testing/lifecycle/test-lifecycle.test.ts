@@ -213,6 +213,9 @@ describe('ResourceManager', () => {
         }
       })
 
+      // Setup the resource first so it can be cleaned up
+      await resourceManager.get('failing')
+
       await expect(resourceManager.cleanupAll()).resolves.not.toThrow()
     })
   })
@@ -272,7 +275,7 @@ describe('ResourceManager', () => {
         dependencies: ['B']
       })
 
-      resourceManager.get('C')
+      await resourceManager.get('C')
 
       expect(setup).toEqual(['A', 'B', 'C'])
     })

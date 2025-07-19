@@ -780,25 +780,42 @@ export class DocumentationGenerator {
     const tests: TestMetadata['tests'] = []
     const suites: TestMetadata['suites'] = []
 
-    // Extract test cases with metadata
-    const testRegex = /(?:\/\/ @(\w+) (.+)\n\s*)?it\(['"`]([^'"`]+)['"`]/g
-    let match
-
-    while ((match = testRegex.exec(testContent)) !== null) {
-      const [, metaKey, metaValue, testName] = match
-      const test: any = { name: testName }
-
-      if (metaKey === 'category') {
-        test.category = metaValue
-      } else if (metaKey === 'tags') {
-        test.tags = metaValue.split(',').map(tag => tag.trim())
+    // Extract test cases with metadata - improved regex to handle multiple metadata lines
+    const lines = testContent.split('\n')
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const itMatch = line.match(/it\(['"`]([^'"`]+)['"`]/)
+      
+      if (itMatch) {
+        const testName = itMatch[1]
+        const test: any = { name: testName }
+        
+        // Look backwards for metadata comments
+        for (let j = i - 1; j >= 0; j--) {
+          const prevLine = lines[j].trim()
+          const metaMatch = prevLine.match(/\/\/ @(\w+) (.+)/)
+          
+          if (metaMatch) {
+            const [, metaKey, metaValue] = metaMatch
+            if (metaKey === 'category') {
+              test.category = metaValue
+            } else if (metaKey === 'tags') {
+              test.tags = metaValue.split(',').map(tag => tag.trim())
+            }
+          } else if (prevLine && !prevLine.startsWith('//')) {
+            // Stop when we hit a non-comment, non-empty line
+            break
+          }
+        }
+        
+        tests.push(test)
       }
-
-      tests.push(test)
     }
 
     // Extract describe blocks
     const suiteRegex = /describe\(['"`]([^'"`]+)['"`]/g
+    let match
     while ((match = suiteRegex.exec(testContent)) !== null) {
       suites.push({ name: match[1] })
     }

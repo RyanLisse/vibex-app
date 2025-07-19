@@ -286,7 +286,7 @@ describe('{{componentName}}', () => {
   {{#each props}}
   it('should handle {{this}} prop', () => {
     const {{this}} = 'test-{{this}}'
-    render(<{{../componentName}} {{this}}={{"{{"}}{{this}}{{"}"}} />)
+    render(<{{../componentName}} {{this}}={{{this}}} />)
     // TODO: Add assertions
   })
   {{/each}}
@@ -442,11 +442,17 @@ describe('${options.table} table', () => {
           })
           // Handle missing description field with default
           if (!item.description) {
-            itemContent = itemContent.replace(/\{\{this\.description\}\}/g, `should handle ${item.input || item.expected || 'input'}`)
+            const inputDesc = typeof item.input === 'object' && item.input !== null ? 
+              Object.keys(item.input).join(' and ') : item.input
+            const description = `should handle ${inputDesc || item.expected || 'input'}`
+            itemContent = itemContent.replace(/\{\{this\.description\}\}/g, description)
           }
         } else {
           // Replace {{this}} with item value
           itemContent = itemContent.replace(/\{\{this\}\}/g, this.formatIdentifier(item))
+          // Handle capitalize helper with this context for interactions
+          const capitalizedItem = this.capitalize(item.replace(/\s+/g, ''))
+          itemContent = itemContent.replace(/on\{\{capitalize this\}\}/g, `on${capitalizedItem}`)
         }
         // Replace parent context variables
         itemContent = itemContent.replace(/\{\{\.\.\/(\w+)\}\}/g, (m: string, parentKey: string) => data[parentKey] || m)
@@ -462,6 +468,15 @@ describe('${options.table} table', () => {
     // Handle parent context conditionals like {{#if ../authentication}}
     result = result.replace(/\{\{#if \.\.\/(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, parentKey, content) => {
       return data[parentKey] ? content : ''
+    })
+
+    // Handle template helpers
+    result = result.replace(/\{\{capitalize (\w+)\}\}/g, (match, word) => {
+      return this.capitalize(word)
+    })
+    
+    result = result.replace(/on\{\{capitalize this\}\}/g, (match) => {
+      return 'onCapitalize' // Will be handled in context
     })
 
     return result.trim()
@@ -497,6 +512,10 @@ describe('${options.table} table', () => {
 
   private camelCase(str: string): string {
     return str.charAt(0).toLowerCase() + str.slice(1)
+  }
+
+  private capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
   private kebabCase(str: string): string {
@@ -636,6 +655,7 @@ export class WorkflowAutomation {
       
       if (options.includeAccessibilityTests) {
         tests.push('should be accessible')
+        tests.push('should pass accessibility checks')
       }
 
       // Storybook story
