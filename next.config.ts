@@ -7,6 +7,30 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  webpack: (config, { isServer }) => {
+    // Handle Node.js modules that shouldn't be bundled for client
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
+        child_process: false,
+        aws4: false,
+      }
+    }
+
+    // Ignore OpenTelemetry instrumentation warnings
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      /Critical dependency: the request of a dependency is an expression/,
+      /Module not found: Can't resolve '@opentelemetry\/winston-transport'/,
+      /Module not found: Can't resolve '@opentelemetry\/exporter-jaeger'/,
+    ]
+
+    return config
+  },
 }
 
 export default nextConfig
