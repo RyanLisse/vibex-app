@@ -164,7 +164,7 @@ export function VoiceBrainstorm({
       transcription.off('silence_detected', handleSilenceDetected)
       transcription.off('transcription_error', handleTranscriptionError)
     }
-  }, [isRecording])
+  }, [isRecording, processVoiceInput])
 
   // Session timer
   useEffect(() => {
@@ -206,7 +206,7 @@ export function VoiceBrainstorm({
     await speakPrompt(STAGE_PROMPTS.exploration)
   }
 
-  const processVoiceInput = async (transcript: string) => {
+  const processVoiceInput = useCallback(async (transcript: string) => {
     if (!session) return
 
     // Add transcript to session
@@ -246,7 +246,7 @@ export function VoiceBrainstorm({
 
     setSession(updatedSession)
     onSessionUpdate?.(updatedSession)
-  }
+  }, [session, onIdeaGenerated, onSessionUpdate])
 
   const extractIdeasFromTranscript = async (transcript: string): Promise<BrainstormIdea[]> => {
     // Simple keyword-based idea extraction (can be enhanced with AI)

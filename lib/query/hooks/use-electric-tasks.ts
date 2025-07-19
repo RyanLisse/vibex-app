@@ -106,10 +106,7 @@ export function useElectricTasks(
     }
   }, [
     realtime,
-    filters.userId,
-    filters.status,
-    filters.archived,
-    filters.sessionId,
+    filters,
     cacheFirst,
     queryClient,
   ])

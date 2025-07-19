@@ -22,6 +22,9 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('multi-agent-chat')
 
 // Types
 interface Message {
@@ -92,14 +95,14 @@ export function MultiAgentChat({
   useEffect(() => {
     initializeSession()
     fetchSystemStatus()
-  }, [userId, initialSessionType])
+  }, [userId, initialSessionType, initializeSession])
 
   // Auto-scroll messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const initializeSession = async () => {
+  const initializeSession = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await fetch('/api/agents', {
@@ -118,12 +121,12 @@ export function MultiAgentChat({
         addSystemMessage(`Session started with ${initialSessionType} mode`)
       }
     } catch (error) {
-      console.error('Failed to initialize session:', error)
+      logger.error('Failed to initialize session', error as Error)
       addSystemMessage('Failed to initialize session', 'error')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userId, initialSessionType])
 
   const fetchSystemStatus = async () => {
     try {
@@ -133,7 +136,7 @@ export function MultiAgentChat({
         setSystemStatus(data.data)
       }
     } catch (error) {
-      console.error('Failed to fetch system status:', error)
+      logger.error('Failed to fetch system status', error as Error)
     }
   }
 
@@ -185,7 +188,7 @@ export function MultiAgentChat({
         setMessages((prev) => [...prev, assistantMessage])
       }
     } catch (error) {
-      console.error('Failed to send message:', error)
+      logger.error('Failed to send message', error as Error)
       addSystemMessage('Failed to send message', 'error')
     } finally {
       setIsLoading(false)
@@ -214,7 +217,7 @@ export function MultiAgentChat({
         addSystemMessage(`Started brainstorming session: ${topic}`)
       }
     } catch (error) {
-      console.error('Failed to start brainstorm session:', error)
+      logger.error('Failed to start brainstorm session', error as Error)
       addSystemMessage('Failed to start brainstorm session', 'error')
     } finally {
       setIsLoading(false)
@@ -240,7 +243,7 @@ export function MultiAgentChat({
         addSystemMessage(`Advanced to ${data.data.session.stage} stage`)
       }
     } catch (error) {
-      console.error('Failed to advance brainstorm stage:', error)
+      logger.error('Failed to advance brainstorm stage', error as Error)
     }
   }
 
@@ -264,7 +267,7 @@ export function MultiAgentChat({
       recorder.start()
       setIsRecording(true)
     } catch (error) {
-      console.error('Failed to start recording:', error)
+      logger.error('Failed to start recording', error as Error)
       addSystemMessage('Failed to start voice recording', 'error')
     }
   }
@@ -318,7 +321,7 @@ export function MultiAgentChat({
         }
       }
     } catch (error) {
-      console.error('Failed to send voice message:', error)
+      logger.error('Failed to send voice message', error as Error)
       addSystemMessage('Failed to process voice message', 'error')
     } finally {
       setIsLoading(false)
@@ -339,7 +342,7 @@ export function MultiAgentChat({
         setIsPlayingAudio(true)
       }
     } catch (error) {
-      console.error('Failed to play audio response:', error)
+      logger.error('Failed to play audio response', error as Error)
     }
   }
 

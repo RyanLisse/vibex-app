@@ -1,16 +1,16 @@
+import { eq } from 'drizzle-orm'
+import { ulid } from 'ulid'
 import { db } from '@/db/config'
 import {
-  workflows,
-  workflowExecutions,
+  type ExecutionSnapshot,
   executionSnapshots,
   type Workflow,
   type WorkflowExecution,
-  type ExecutionSnapshot,
+  workflowExecutions,
+  workflows,
 } from '@/db/schema'
-import { ulid } from 'ulid'
 import { observability } from '@/lib/observability'
 import { snapshotManager } from '@/lib/time-travel/execution-snapshots'
-import { eq } from 'drizzle-orm'
 
 /**
  * WorkflowExecutionEngine
@@ -35,7 +35,11 @@ export class WorkflowExecutionEngine {
   /**
    * Start a new workflow execution.
    */
-  async startWorkflow(workflowId: string, triggeredBy: string, initialState: unknown = {}): Promise<WorkflowExecution> {
+  async startWorkflow(
+    workflowId: string,
+    triggeredBy: string,
+    initialState: unknown = {}
+  ): Promise<WorkflowExecution> {
     return observability.trackAgentExecution('system', 'workflow.start', async () => {
       const id = ulid()
       const [execution] = await db
@@ -84,7 +88,7 @@ export class WorkflowExecutionEngine {
         },
         'Workflow execution started',
         ['workflow', 'start'],
-        true,
+        true
       )
 
       return execution
@@ -94,7 +98,11 @@ export class WorkflowExecutionEngine {
   /**
    * Update execution progress.
    */
-  async updateProgress(executionId: string, stepNumber: number, stateUpdate: unknown): Promise<void> {
+  async updateProgress(
+    executionId: string,
+    stepNumber: number,
+    stateUpdate: unknown
+  ): Promise<void> {
     return observability.trackAgentExecution('system', 'workflow.progress', async () => {
       // Record snapshot for step
       await snapshotManager.captureSnapshot(
@@ -103,7 +111,7 @@ export class WorkflowExecutionEngine {
         stepNumber,
         stateUpdate as any,
         `Step ${stepNumber} completed`,
-        ['workflow', 'step'],
+        ['workflow', 'step']
       )
 
       // Update execution row
@@ -125,7 +133,12 @@ export class WorkflowExecutionEngine {
 
       if (!exe.length) throw new Error('Execution not found')
 
-      await snapshotManager.createCheckpoint(executionId, exe[0].currentStep ?? 0, exe[0].state as any, description)
+      await snapshotManager.createCheckpoint(
+        executionId,
+        exe[0].currentStep ?? 0,
+        exe[0].state as any,
+        description
+      )
     })
   }
 
@@ -155,7 +168,7 @@ export class WorkflowExecutionEngine {
         finalState as any,
         'Workflow execution completed',
         ['workflow', 'complete'],
-        true,
+        true
       )
     })
   }
@@ -174,7 +187,7 @@ export class WorkflowExecutionEngine {
         0,
         (state ?? {}) as any,
         error.message,
-        ['workflow', 'error'],
+        ['workflow', 'error']
       )
     })
   }

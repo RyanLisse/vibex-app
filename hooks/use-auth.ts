@@ -103,6 +103,7 @@ export function useAuth<T extends BaseAuthStatus>(config: AuthConfig<T>) {
       setLoading,
       setError,
       checkAuthStatus,
+      config,
     ]
   )
 

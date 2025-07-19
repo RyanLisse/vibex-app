@@ -193,8 +193,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
     }
   }, [
     state.enabled,
-    state.enabled,
-    state.lastError.lastError,
+    state.lastError,
     checkInngestAvailability,
     scheduleRetry,
     handleStateChange,

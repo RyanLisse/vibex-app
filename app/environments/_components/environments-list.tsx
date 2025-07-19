@@ -28,6 +28,9 @@ import {
 } from '@/hooks/use-environment-queries'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { observability } from '@/lib/observability'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('environments-list')
 
 interface EnvironmentsListProps {
   userId?: string
@@ -68,7 +71,7 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
         ['auth', 'github']
       )
     } catch (error) {
-      console.error('GitHub authentication failed:', error)
+      logger.error('GitHub authentication failed', error as Error)
     }
   }
 
@@ -94,7 +97,7 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
         ['environment', 'delete']
       )
     } catch (error) {
-      console.error('Failed to delete environment:', error)
+      logger.error('Failed to delete environment', error as Error)
     }
   }
 
@@ -117,7 +120,7 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
         ['environment', 'activate']
       )
     } catch (error) {
-      console.error('Failed to activate environment:', error)
+      logger.error('Failed to activate environment', error as Error)
     }
   }
 

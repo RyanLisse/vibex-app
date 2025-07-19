@@ -14,7 +14,7 @@ vi.mock('@/components/ui/avatar', () => ({
     </div>
   ),
   AvatarImage: ({ src, alt, className, ...props }: any) => (
-    <img alt={alt} className={className} data-testid="avatar-image" src={src} {...props} />
+    <div alt={alt} className={className} data-testid="avatar-image" data-src={src} {...props} />
   ),
   AvatarFallback: ({ children, className, ...props }: any) => (
     <div className={className} data-testid="avatar-fallback" {...props}>

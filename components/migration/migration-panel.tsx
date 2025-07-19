@@ -197,7 +197,7 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
 
   useEffect(() => {
     loadStatus()
-  }, [])
+  }, [loadStatus])
 
   if (loading) {
     return (

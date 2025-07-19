@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 import { redisCache } from '@/lib/redis'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('api-gemini-session')
 
 // Session data interface for Redis storage
 interface SessionData {
@@ -57,7 +60,7 @@ export async function POST(request: NextRequest) {
       },
       onError: () => {
         // Handle errors and potentially mark session as inactive
-        console.error('Gemini session error')
+        logger.error('Gemini session error')
       },
     })
 
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
       message: 'Session created successfully',
     })
   } catch (error) {
-    console.error('Failed to create Gemini session:', error)
+    logger.error('Failed to create Gemini session', error as Error)
     return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
   }
 }
@@ -99,7 +102,7 @@ export async function DELETE(request: NextRequest) {
       message: 'Session closed successfully',
     })
   } catch (error) {
-    console.error('Failed to close Gemini session:', error)
+    logger.error('Failed to close Gemini session', error as Error)
     return NextResponse.json({ error: 'Failed to close session' }, { status: 500 })
   }
 }

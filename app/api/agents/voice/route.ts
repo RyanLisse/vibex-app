@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('api-agents-voice')
 
 const VoiceMessageSchema = z.object({
   sessionId: z.string(),
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error processing voice message:', error)
+    logger.error('Error processing voice message', error as Error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/agents/voice - Get voice capabilities
-export async function GET() {
+export function GET() {
   try {
     const system = getMultiAgentSystem()
     const status = system.getSystemStatus()
@@ -82,7 +85,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('Error getting voice capabilities:', error)
+    logger.error('Error getting voice capabilities', error as Error)
     return NextResponse.json(
       {
         success: false,
