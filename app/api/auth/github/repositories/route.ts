@@ -59,7 +59,11 @@ class GitHubRepositoriesService {
       const startTime = Date.now()
 
       // Check if sync is needed
-      const syncNeeded = await GitHubRepositoriesService.isSyncNeeded(userId, params.syncThreshold, params.forceSync)
+      const syncNeeded = await GitHubRepositoriesService.isSyncNeeded(
+        userId,
+        params.syncThreshold,
+        params.forceSync
+      )
 
       if (syncNeeded) {
         await GitHubRepositoriesService.syncRepositories(userId, accessToken)
@@ -134,7 +138,7 @@ class GitHubRepositoriesService {
         syncPerformed: syncNeeded,
         filters: params,
         source: 'api',
-        tags: ['github', 'repositories', 'query']
+        tags: ['github', 'repositories', 'query'],
       })
 
       span.setAttributes({
@@ -265,7 +269,7 @@ class GitHubRepositoriesService {
         repositoryCount: repoData.length,
         duration,
         source: 'api',
-        tags: ['github', 'repositories', 'sync']
+        tags: ['github', 'repositories', 'sync'],
       })
 
       span.setAttributes({

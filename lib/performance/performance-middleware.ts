@@ -236,3 +236,5 @@ export function withDatabasePerformanceMonitoring<T>(
     }
   }
 }
+
+export default withPerformanceMonitoring

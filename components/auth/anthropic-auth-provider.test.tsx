@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnthropicAuthProvider, useAuth } from '@/components/auth/anthropic-auth-provider'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 

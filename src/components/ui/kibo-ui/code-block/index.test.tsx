@@ -98,7 +98,7 @@ vi.mock('@icons-pack/react-simple-icons', () => {
       🔸
     </span>
   )
-  
+
   return {
     SiDotenv: MockIcon,
     SiAstro: MockIcon,

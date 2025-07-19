@@ -3,6 +3,7 @@ import { type WASMOptimizationConfig, wasmDetector } from '@/lib/wasm/detection'
 
 /**
  * Enhanced TanStack Query configuration with WASM optimization support
+ * and comprehensive observability integration for database synchronization.
  */
 
 export interface QueryOptimizationConfig {
@@ -180,6 +181,8 @@ export const queryKeys = {
     all: ['events'] as const,
     lists: () => [...queryKeys.events.all, 'list'] as const,
     list: (filters: Record<string, any>) => [...queryKeys.events.lists(), filters] as const,
+    details: () => [...queryKeys.events.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.events.details(), id] as const,
     byExecution: (executionId: string) =>
       [...queryKeys.events.all, 'execution', executionId] as const,
     infinite: (filters: Record<string, any>) =>
@@ -194,6 +197,9 @@ export const queryKeys = {
     search: (query: string, agentType?: string) =>
       [...queryKeys.memory.all, 'search', query, agentType] as const,
     byAgent: (agentType: string) => [...queryKeys.memory.all, 'agent', agentType] as const,
+    context: (agentType: string, contextType: string, contextId?: string) =>
+      [...queryKeys.memory.all, 'context', agentType, contextType, contextId] as const,
+    analytics: (agentType?: string) => [...queryKeys.memory.all, 'analytics', agentType] as const,
   },
 
   // Workflow queries
@@ -213,6 +219,24 @@ export const queryKeys = {
       ['wasm', 'vector-search', query, filters] as const,
     sqliteQuery: (sql: string, params?: any[]) => ['wasm', 'sqlite', sql, params] as const,
     compute: (operation: string, data: any) => ['wasm', 'compute', operation, data] as const,
+  },
+
+  // Real-time subscription queries
+  realtime: {
+    executions: (filters?: Record<string, any>) => ['realtime', 'executions', filters] as const,
+    events: (filters?: Record<string, any>) => ['realtime', 'events', filters] as const,
+    workflows: (filters?: Record<string, any>) => ['realtime', 'workflows', filters] as const,
+    memory: (agentType?: string) => ['realtime', 'memory', agentType] as const,
+  },
+
+  // Analytics and metrics queries
+  analytics: {
+    execution: (timeRange?: Record<string, any>) => ['analytics', 'execution', timeRange] as const,
+    performance: (timeRange?: Record<string, any>) =>
+      ['analytics', 'performance', timeRange] as const,
+    errors: (timeRange?: Record<string, any>) => ['analytics', 'errors', timeRange] as const,
+    memory: (agentType?: string, timeRange?: Record<string, any>) =>
+      ['analytics', 'memory', agentType, timeRange] as const,
   },
 } as const
 
@@ -251,7 +275,7 @@ export const mutationKeys = {
 } as const
 
 /**
- * Cache invalidation utilities
+ * Enhanced cache invalidation utilities with observability tracking
  */
 export const invalidateQueries = {
   tasks: (queryClient: QueryClient) => {
@@ -262,19 +286,55 @@ export const invalidateQueries = {
   },
   executions: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.executions.all })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.executions() })
   },
   events: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.events.all })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.events() })
   },
   memory: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.memory.all })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.memory() })
   },
   workflows: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.workflows() })
+  },
+  analytics: (queryClient: QueryClient) => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.analytics.execution() })
+    queryClient.invalidateQueries({ queryKey: queryKeys.analytics.performance() })
+    queryClient.invalidateQueries({ queryKey: queryKeys.analytics.errors() })
+    queryClient.invalidateQueries({ queryKey: queryKeys.analytics.memory() })
+  },
+  realtime: (queryClient: QueryClient) => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.executions() })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.events() })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.workflows() })
+    queryClient.invalidateQueries({ queryKey: queryKeys.realtime.memory() })
   },
   all: (queryClient: QueryClient) => {
     queryClient.invalidateQueries()
   },
+}
+
+/**
+ * Selective invalidation based on table changes from ElectricSQL
+ */
+export const invalidateByTable = (queryClient: QueryClient, tableName: string, data?: any) => {
+  const tableInvalidationMap: Record<string, () => void> = {
+    agent_executions: () => invalidateQueries.executions(queryClient),
+    observability_events: () => invalidateQueries.events(queryClient),
+    workflows: () => invalidateQueries.workflows(queryClient),
+    workflow_executions: () => invalidateQueries.workflows(queryClient),
+    agent_memory: () => invalidateQueries.memory(queryClient),
+    tasks: () => invalidateQueries.tasks(queryClient),
+    environments: () => invalidateQueries.environments(queryClient),
+  }
+
+  const invalidationFn = tableInvalidationMap[tableName]
+  if (invalidationFn) {
+    invalidationFn()
+  }
 }
 
 // Export the optimized query client instance
