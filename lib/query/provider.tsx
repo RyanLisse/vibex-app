@@ -7,11 +7,11 @@
 
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { electricQueryBridge, type ElectricBridgeConfig } from './electric-bridge'
+import React, { createContext, type ReactNode, useContext, useEffect, useState } from 'react'
 import { observability } from '@/lib/observability'
+import { type ElectricBridgeConfig, electricQueryBridge } from './electric-bridge'
 
 export interface QueryProviderConfig {
   electricBridge?: Partial<ElectricBridgeConfig>
@@ -154,7 +154,7 @@ export function QueryProvider({
       <QueryClientProvider client={queryClient}>
         {children}
         {config.enableDevtools !== false && process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+          <ReactQueryDevtools buttonPosition="bottom-left" initialIsOpen={false} />
         )}
       </QueryClientProvider>
     </QueryProviderContext.Provider>
@@ -260,8 +260,8 @@ export function QueryDevStatus() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white/90 backdrop-blur border rounded-lg p-3 text-xs shadow-lg max-w-sm">
-      <div className="font-semibold mb-2">🔄 Query Bridge Status</div>
+    <div className="fixed right-4 bottom-4 max-w-sm rounded-lg border bg-white/90 p-3 text-xs shadow-lg backdrop-blur">
+      <div className="mb-2 font-semibold">🔄 Query Bridge Status</div>
 
       <div className="space-y-1">
         <div className={`flex justify-between ${getHealthColor(connection.health)}`}>
@@ -304,7 +304,7 @@ export function QueryDevStatus() {
       </div>
 
       {connection.lastSyncTime && (
-        <div className="text-gray-500 mt-1 text-xs">
+        <div className="mt-1 text-gray-500 text-xs">
           Last sync: {connection.lastSyncTime.toLocaleTimeString()}
         </div>
       )}

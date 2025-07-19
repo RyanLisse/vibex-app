@@ -5,10 +5,10 @@
  * pause/resume functionality, and real-time progress monitoring.
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
-import { queryKeys } from '../config'
 import { observability } from '@/lib/observability'
+import { queryKeys } from '../config'
 
 // Workflow schemas
 const WorkflowSchema = z.object({
@@ -366,7 +366,7 @@ export function useWorkflowExecutionsByWorkflow(workflowId: string) {
     queryFn: () => fetchWorkflowExecutions({ filters: { workflowId }, limit: 100 }),
     enabled: !!workflowId,
     staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 10000, // 10 seconds
+    refetchInterval: 10_000, // 10 seconds
   })
 }
 
@@ -606,12 +606,12 @@ export function useWorkflowStats(timeRange?: { start: Date; end: Date }) {
     queryFn: () => fetchWorkflowStats(timeRange),
     staleTime: 1000 * 60 * 2, // 2 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
-    refetchInterval: 30000, // Update every 30 seconds
+    refetchInterval: 30_000, // Update every 30 seconds
   })
 }
 
 // Convenience hooks
-export function useRecentWorkflowExecutions(limit: number = 20) {
+export function useRecentWorkflowExecutions(limit = 20) {
   const timeRange = {
     start: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
     end: new Date(),
@@ -625,7 +625,7 @@ export function useRecentWorkflowExecutions(limit: number = 20) {
         limit,
       }),
     staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 10000, // 10 seconds
+    refetchInterval: 10_000, // 10 seconds
   })
 }
 

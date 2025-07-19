@@ -5,11 +5,11 @@
  * time-travel debugging, and performance monitoring integration.
  */
 
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
-import { queryKeys } from '../config'
 import { observability } from '@/lib/observability'
 import { wasmServices } from '@/lib/wasm/services'
+import { queryKeys } from '../config'
 
 // Agent execution schemas
 const AgentExecutionSchema = z.object({
@@ -376,7 +376,7 @@ export function useActiveAgentExecutions() {
   return useAgentExecutions({ status: 'running' })
 }
 
-export function useRecentAgentExecutions(limit: number = 50) {
+export function useRecentAgentExecutions(limit = 50) {
   const timeRange = {
     start: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
     end: new Date(),
@@ -386,7 +386,7 @@ export function useRecentAgentExecutions(limit: number = 50) {
     queryKey: [...queryKeys.executions.all, 'recent', limit],
     queryFn: () => fetchAgentExecutions({ timeRange, limit }),
     staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 10000, // 10 seconds
+    refetchInterval: 10_000, // 10 seconds
   })
 }
 

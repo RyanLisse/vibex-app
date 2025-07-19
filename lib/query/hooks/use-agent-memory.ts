@@ -5,11 +5,11 @@
  * with vector embeddings and WASM optimization.
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
-import { queryKeys } from '../config'
 import { observability } from '@/lib/observability'
 import { wasmServices } from '@/lib/wasm/services'
+import { queryKeys } from '../config'
 
 // Agent memory schemas
 const AgentMemorySchema = z.object({
@@ -419,7 +419,7 @@ export function useMemoryStats(agentType?: string, timeRange?: { start: Date; en
 }
 
 // Convenience hooks
-export function useRecentMemories(agentType?: string, limit: number = 20) {
+export function useRecentMemories(agentType?: string, limit = 20) {
   const timeRange = {
     start: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
     end: new Date(),
@@ -436,7 +436,7 @@ export function useRecentMemories(agentType?: string, limit: number = 20) {
   })
 }
 
-export function useImportantMemories(agentType?: string, minImportance: number = 8) {
+export function useImportantMemories(agentType?: string, minImportance = 8) {
   return useQuery({
     queryKey: [...queryKeys.memory.all, 'important', agentType, minImportance],
     queryFn: () =>
@@ -448,7 +448,7 @@ export function useImportantMemories(agentType?: string, minImportance: number =
   })
 }
 
-export function useExpiringMemories(days: number = 7) {
+export function useExpiringMemories(days = 7) {
   const expiryThreshold = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
 
   return useQuery({

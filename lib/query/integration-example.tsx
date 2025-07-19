@@ -9,24 +9,24 @@
 
 import React, { useEffect, useState } from 'react'
 import {
-  QueryProvider,
-  useElectricConnection,
-  useElectricBridgeStats,
-  QueryDevStatus,
-  createQueryProviderConfig,
-} from './provider'
-import {
+  useActiveAgentExecutions,
   useAgentExecutions,
   useCreateAgentExecution,
-  useActiveAgentExecutions,
 } from './hooks/use-agent-executions'
+import { useAgentMemories, useCreateAgentMemory, useSemanticSearch } from './hooks/use-agent-memory'
 import {
+  useEventsByExecution,
   useObservabilityEvents,
   useRealtimeObservabilityEvents,
-  useEventsByExecution,
 } from './hooks/use-observability-events'
-import { useAgentMemories, useSemanticSearch, useCreateAgentMemory } from './hooks/use-agent-memory'
-import { useWorkflows, useExecuteWorkflow, useActiveWorkflows } from './hooks/use-workflows'
+import { useActiveWorkflows, useExecuteWorkflow, useWorkflows } from './hooks/use-workflows'
+import {
+  createQueryProviderConfig,
+  QueryDevStatus,
+  QueryProvider,
+  useElectricBridgeStats,
+  useElectricConnection,
+} from './provider'
 
 /**
  * Real-time Dashboard Component
@@ -42,22 +42,22 @@ function RealtimeDashboard() {
   const { data: activeWorkflows } = useActiveWorkflows()
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Real-time Dashboard</h1>
+        <h1 className="font-bold text-2xl">Real-time Dashboard</h1>
         <ConnectionStatus connection={connection} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Active Executions */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="text-lg font-semibold mb-3">Active Executions</h2>
+        <div className="rounded-lg border bg-white p-4">
+          <h2 className="mb-3 font-semibold text-lg">Active Executions</h2>
           <div className="space-y-2">
             {activeExecutions?.executions?.slice(0, 5).map((execution) => (
-              <div key={execution.id} className="flex justify-between items-center">
+              <div className="flex items-center justify-between" key={execution.id}>
                 <span className="text-sm">{execution.agentType}</span>
                 <span
-                  className={`px-2 py-1 rounded text-xs ${
+                  className={`rounded px-2 py-1 text-xs ${
                     execution.status === 'running'
                       ? 'bg-blue-100 text-blue-800'
                       : execution.status === 'pending'
@@ -73,15 +73,15 @@ function RealtimeDashboard() {
         </div>
 
         {/* Recent Events */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="text-lg font-semibold mb-3">Recent Events</h2>
+        <div className="rounded-lg border bg-white p-4">
+          <h2 className="mb-3 font-semibold text-lg">Recent Events</h2>
           <div className="space-y-2">
             {recentEvents?.events?.slice(0, 5).map((event) => (
-              <div key={event.id} className="text-sm">
+              <div className="text-sm" key={event.id}>
                 <div className="flex justify-between">
                   <span className="font-medium">{event.eventType}</span>
                   <span
-                    className={`px-1 rounded text-xs ${
+                    className={`rounded px-1 text-xs ${
                       event.severity === 'error'
                         ? 'bg-red-100 text-red-800'
                         : event.severity === 'warn'
@@ -92,20 +92,20 @@ function RealtimeDashboard() {
                     {event.severity}
                   </span>
                 </div>
-                {event.message && <div className="text-gray-500 truncate">{event.message}</div>}
+                {event.message && <div className="truncate text-gray-500">{event.message}</div>}
               </div>
             )) || <div className="text-gray-500 text-sm">No recent events</div>}
           </div>
         </div>
 
         {/* Active Workflows */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="text-lg font-semibold mb-3">Active Workflows</h2>
+        <div className="rounded-lg border bg-white p-4">
+          <h2 className="mb-3 font-semibold text-lg">Active Workflows</h2>
           <div className="space-y-2">
             {activeWorkflows?.workflows?.slice(0, 5).map((workflow) => (
-              <div key={workflow.id} className="flex justify-between items-center">
+              <div className="flex items-center justify-between" key={workflow.id}>
                 <span className="text-sm">{workflow.name}</span>
-                <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                <span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">
                   Active
                 </span>
               </div>
@@ -116,9 +116,9 @@ function RealtimeDashboard() {
 
       {/* Bridge Statistics */}
       {stats && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="font-semibold mb-2">Bridge Statistics</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="rounded-lg bg-gray-50 p-4">
+          <h3 className="mb-2 font-semibold">Bridge Statistics</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
             <div>
               <span className="text-gray-600">Status:</span>
               <span className={`ml-2 ${stats.isActive ? 'text-green-600' : 'text-red-600'}`}>
@@ -195,30 +195,30 @@ function InteractiveDemo() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold">Interactive Demo</h2>
+    <div className="space-y-6 p-6">
+      <h2 className="font-bold text-2xl">Interactive Demo</h2>
 
       {/* Action Buttons */}
       <div className="flex gap-4">
         <button
-          onClick={handleCreateExecution}
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
           disabled={createExecution.isPending}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          onClick={handleCreateExecution}
         >
           {createExecution.isPending ? 'Creating...' : 'Create Execution'}
         </button>
 
         <button
-          onClick={handleCreateMemory}
+          className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
           disabled={createMemory.isPending}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          onClick={handleCreateMemory}
         >
           {createMemory.isPending ? 'Creating...' : 'Create Memory'}
         </button>
 
         <button
+          className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
           onClick={() => refetchExecutions()}
-          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
         >
           Force Refetch
         </button>
@@ -226,23 +226,23 @@ function InteractiveDemo() {
 
       {/* Semantic Search */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium">Semantic Search (WASM-optimized):</label>
+        <label className="block font-medium text-sm">Semantic Search (WASM-optimized):</label>
         <input
-          type="text"
-          value={searchQuery}
+          className="w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search agent memories..."
-          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="text"
+          value={searchQuery}
         />
 
         {searchResults && searchResults.length > 0 && (
-          <div className="bg-gray-50 rounded p-3">
-            <h4 className="font-medium mb-2">Search Results:</h4>
+          <div className="rounded bg-gray-50 p-3">
+            <h4 className="mb-2 font-medium">Search Results:</h4>
             {searchResults.slice(0, 3).map((result) => (
-              <div key={result.memory.id} className="text-sm border-b pb-2 mb-2 last:border-b-0">
+              <div className="mb-2 border-b pb-2 text-sm last:border-b-0" key={result.memory.id}>
                 <div className="font-medium">{result.memory.contextKey}</div>
                 <div className="text-gray-600">{result.memory.content}</div>
-                <div className="text-xs text-gray-500">
+                <div className="text-gray-500 text-xs">
                   Similarity: {(result.similarity * 100).toFixed(1)}%
                 </div>
               </div>
@@ -252,22 +252,22 @@ function InteractiveDemo() {
       </div>
 
       {/* Recent Executions */}
-      <div className="bg-white rounded-lg border p-4">
-        <h3 className="font-semibold mb-3">Recent Executions (Real-time)</h3>
-        <div className="space-y-2 max-h-64 overflow-y-auto">
+      <div className="rounded-lg border bg-white p-4">
+        <h3 className="mb-3 font-semibold">Recent Executions (Real-time)</h3>
+        <div className="max-h-64 space-y-2 overflow-y-auto">
           {executions?.executions?.slice(0, 10).map((execution) => (
             <div
+              className="flex items-center justify-between rounded bg-gray-50 p-2"
               key={execution.id}
-              className="flex justify-between items-center p-2 bg-gray-50 rounded"
             >
               <div>
                 <div className="font-medium">{execution.agentType}</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-gray-600 text-sm">
                   Started: {execution.startedAt.toLocaleTimeString()}
                 </div>
               </div>
               <div
-                className={`px-2 py-1 rounded text-xs ${
+                className={`rounded px-2 py-1 text-xs ${
                   execution.status === 'running'
                     ? 'bg-blue-100 text-blue-800'
                     : execution.status === 'completed'
@@ -310,10 +310,10 @@ function ConnectionStatus({
 
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-3 h-3 rounded-full ${getStatusColor(connection.health)}`} />
-      <span className="text-sm font-medium capitalize">{connection.health}</span>
+      <div className={`h-3 w-3 rounded-full ${getStatusColor(connection.health)}`} />
+      <span className="font-medium text-sm capitalize">{connection.health}</span>
       {connection.offlineQueueSize > 0 && (
-        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+        <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">
           {connection.offlineQueueSize} queued
         </span>
       )}
@@ -340,30 +340,30 @@ export function IntegrationExampleApp() {
     <QueryProvider config={queryConfig}>
       <div className="min-h-screen bg-gray-100">
         {/* Navigation */}
-        <nav className="bg-white shadow border-b">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex justify-between items-center h-16">
+        <nav className="border-b bg-white shadow">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
-                <h1 className="text-xl font-bold">ElectricSQL + TanStack Query</h1>
+                <h1 className="font-bold text-xl">ElectricSQL + TanStack Query</h1>
               </div>
               <div className="flex space-x-4">
                 <button
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`px-3 py-2 rounded text-sm font-medium ${
+                  className={`rounded px-3 py-2 font-medium text-sm ${
                     activeTab === 'dashboard'
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
+                  onClick={() => setActiveTab('dashboard')}
                 >
                   Dashboard
                 </button>
                 <button
-                  onClick={() => setActiveTab('demo')}
-                  className={`px-3 py-2 rounded text-sm font-medium ${
+                  className={`rounded px-3 py-2 font-medium text-sm ${
                     activeTab === 'demo'
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
+                  onClick={() => setActiveTab('demo')}
                 >
                   Interactive Demo
                 </button>
@@ -388,11 +388,11 @@ export function IntegrationExampleApp() {
 export function ExampleUsage() {
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Integration Usage Example</h2>
+      <h2 className="mb-4 font-bold text-2xl">Integration Usage Example</h2>
 
-      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-        <h3 className="font-semibold mb-2">1. Wrap your app with QueryProvider:</h3>
-        <pre className="text-sm overflow-x-auto">
+      <div className="mb-4 rounded-lg bg-gray-50 p-4">
+        <h3 className="mb-2 font-semibold">1. Wrap your app with QueryProvider:</h3>
+        <pre className="overflow-x-auto text-sm">
           {`import { QueryProvider, createQueryProviderConfig } from '@/lib/query/provider'
 
 function App() {
@@ -413,9 +413,9 @@ function App() {
         </pre>
       </div>
 
-      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-        <h3 className="font-semibold mb-2">2. Use hooks in your components:</h3>
-        <pre className="text-sm overflow-x-auto">
+      <div className="mb-4 rounded-lg bg-gray-50 p-4">
+        <h3 className="mb-2 font-semibold">2. Use hooks in your components:</h3>
+        <pre className="overflow-x-auto text-sm">
           {`import { useAgentExecutions, useCreateAgentExecution } from '@/lib/query/hooks/use-agent-executions'
 
 function ExecutionsPage() {
@@ -442,9 +442,9 @@ function ExecutionsPage() {
         </pre>
       </div>
 
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-2">3. Monitor connection status:</h3>
-        <pre className="text-sm overflow-x-auto">
+      <div className="rounded-lg bg-gray-50 p-4">
+        <h3 className="mb-2 font-semibold">3. Monitor connection status:</h3>
+        <pre className="overflow-x-auto text-sm">
           {`import { useElectricConnection } from '@/lib/query/provider'
 
 function ConnectionMonitor() {

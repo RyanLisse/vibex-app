@@ -224,10 +224,7 @@ export class ApiRouteTestRunner {
   private baseUrl: string
   private defaultHeaders: Record<string, string>
 
-  constructor(
-    baseUrl: string = 'http://localhost:3000',
-    defaultHeaders: Record<string, string> = {}
-  ) {
+  constructor(baseUrl = 'http://localhost:3000', defaultHeaders: Record<string, string> = {}) {
     this.baseUrl = baseUrl
     this.defaultHeaders = defaultHeaders
   }

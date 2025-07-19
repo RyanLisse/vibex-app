@@ -5,10 +5,10 @@
  * and TanStack Query cache invalidation for automatic UI updates.
  */
 
-import { QueryClient } from '@tanstack/react-query'
-import { electricClient, ElectricClient } from '@/lib/electric/client'
-import { queryKeys } from './config'
+import type { QueryClient } from '@tanstack/react-query'
+import { ElectricClient, electricClient } from '@/lib/electric/client'
 import { observability } from '@/lib/observability'
+import { queryKeys } from './config'
 
 export interface TableChangeEvent {
   table: string
@@ -184,7 +184,7 @@ export class ElectricQueryBridge {
    * Handle real-time data changes from ElectricSQL subscriptions
    */
   private handleTableDataChange(tableName: string, data: any[]): void {
-    if (!this.config.enableRealTimeInvalidation || !this.queryClient) {
+    if (!(this.config.enableRealTimeInvalidation && this.queryClient)) {
       return
     }
 
@@ -304,7 +304,7 @@ export class ElectricQueryBridge {
       const timeSinceSync = Date.now() - status.lastSyncTime.getTime()
 
       // If sync completed within the last sync check interval, refresh caches
-      if (timeSinceSync < 10000) {
+      if (timeSinceSync < 10_000) {
         // 10 seconds
         this.invalidateAllCaches()
       }

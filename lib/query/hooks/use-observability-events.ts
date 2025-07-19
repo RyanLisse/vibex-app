@@ -5,11 +5,11 @@
  * and WASM-optimized search capabilities.
  */
 
-import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
-import { queryKeys } from '../config'
 import { observability } from '@/lib/observability'
 import { wasmServices } from '@/lib/wasm/services'
+import { queryKeys } from '../config'
 
 // Observability event schemas
 const ObservabilityEventSchema = z.object({
@@ -258,7 +258,7 @@ export function useObservabilityEventMetrics(
     queryFn: () => fetchEventMetrics(timeRange, filters),
     staleTime: 1000 * 60, // 1 minute
     gcTime: 1000 * 60 * 10, // 10 minutes
-    refetchInterval: 30000, // Update every 30 seconds
+    refetchInterval: 30_000, // Update every 30 seconds
   })
 }
 
@@ -294,7 +294,7 @@ export function useErrorEvents(timeRange?: { start: Date; end: Date }) {
   return useEventsBySeverity(['error', 'critical'])
 }
 
-export function useRecentEvents(limit: number = 50) {
+export function useRecentEvents(limit = 50) {
   const timeRange = {
     start: new Date(Date.now() - 60 * 60 * 1000), // Last hour
     end: new Date(),
@@ -343,7 +343,7 @@ export function usePerformanceEvents(timeRange?: { start: Date; end: Date }) {
         limit: 1000,
       }),
     staleTime: 1000 * 60, // 1 minute
-    refetchInterval: 15000, // 15 seconds
+    refetchInterval: 15_000, // 15 seconds
   })
 }
 
@@ -364,7 +364,7 @@ export function useSystemHealthEvents() {
         limit: 100,
       }),
     staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 10000, // 10 seconds
+    refetchInterval: 10_000, // 10 seconds
   })
 }
 
