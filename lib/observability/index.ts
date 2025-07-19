@@ -332,5 +332,11 @@ export class ObservabilityService {
   }
 }
 
+// Import events system
+import { observabilityEvents } from './events'
+
 // Export singleton instance
-export const observability = ObservabilityService.getInstance()
+export const observability = {
+  ...ObservabilityService.getInstance(),
+  events: observabilityEvents,
+}

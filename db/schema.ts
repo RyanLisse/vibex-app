@@ -97,7 +97,7 @@ export const observabilityEvents = pgTable(
     executionId: uuid('execution_id').references(() => agentExecutions.id, {
       onDelete: 'cascade',
     }),
-    eventType: varchar('event_type', { length: 100 }).notNull(),
+    type: varchar('type', { length: 100 }).notNull(),
     timestamp: timestamp('timestamp').defaultNow().notNull(),
     data: jsonb('data'),
     traceId: varchar('trace_id', { length: 255 }),
@@ -105,10 +105,14 @@ export const observabilityEvents = pgTable(
     // Event categorization
     severity: varchar('severity', { length: 20 }).default('info'),
     category: varchar('category', { length: 50 }),
+    source: varchar('source', { length: 100 }).default('system'),
+    message: text('message'),
+    metadata: jsonb('metadata'),
+    tags: jsonb('tags'),
   },
   (table) => ({
     executionIdIdx: index('observability_events_execution_id_idx').on(table.executionId),
-    eventTypeIdx: index('observability_events_event_type_idx').on(table.eventType),
+    eventTypeIdx: index('observability_events_event_type_idx').on(table.type),
     timestampIdx: index('observability_events_timestamp_idx').on(table.timestamp),
     traceIdIdx: index('observability_events_trace_id_idx').on(table.traceId),
     severityIdx: index('observability_events_severity_idx').on(table.severity),
@@ -219,6 +223,8 @@ export const executionSnapshots = pgTable(
     // Snapshot metadata
     description: text('description'),
     checkpoint: boolean('checkpoint').default(false),
+    type: varchar('type', { length: 50 }).notNull(),
+    metadata: jsonb('metadata'),
   },
   (table) => ({
     executionIdIdx: index('execution_snapshots_execution_id_idx').on(table.executionId),

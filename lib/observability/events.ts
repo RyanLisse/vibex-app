@@ -158,6 +158,11 @@ export class ObservabilityEventCollector {
           timestamp: event.timestamp,
           source: event.source,
           tags: event.tags,
+          executionId: event.metadata.executionId || null,
+          traceId: event.metadata.traceId || null,
+          spanId: event.metadata.spanId || null,
+          data: event.metadata,
+          category: event.source,
         }))
       )
     } catch (error) {
@@ -259,7 +264,7 @@ export class ObservabilityEventQuery {
       .from(observabilityEvents)
       .where(
         and(
-          inArray(observabilityEvents.type, types),
+          inArray(observabilityEvents.type, types as any),
           gte(observabilityEvents.timestamp, startTime),
           lte(observabilityEvents.timestamp, endTime)
         )
@@ -280,7 +285,7 @@ export class ObservabilityEventQuery {
     const events = await db
       .select()
       .from(observabilityEvents)
-      .where(inArray(observabilityEvents.severity, severity))
+      .where(inArray(observabilityEvents.severity, severity as any))
       .orderBy(desc(observabilityEvents.timestamp))
       .limit(limit)
 

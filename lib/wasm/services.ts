@@ -9,13 +9,19 @@ import { ComputeWASM, type ComputeWASMConfig, computeManager } from './compute'
 import { type WASMCapabilities, wasmDetector } from './detection'
 import { type SQLiteWASMConfig, SQLiteWASMUtils, sqliteWASMUtils } from './sqlite-utils'
 import { type VectorSearchConfig, VectorSearchWASM, vectorSearchManager } from './vector-search'
+import { dataProcessor, type DataProcessingConfig } from './data-processor'
+import { moduleLoader } from './module-loader'
+import { wasmPerformanceTracker } from './performance-tracker'
+import { wasmObservability } from './observability-integration'
 
 export interface WASMServicesConfig {
   vectorSearch?: Partial<VectorSearchConfig>
   sqlite?: Partial<SQLiteWASMConfig>
   compute?: Partial<ComputeWASMConfig>
+  dataProcessing?: Partial<DataProcessingConfig>
   autoInitialize?: boolean
   enableFallbacks?: boolean
+  enableObservability?: boolean
 }
 
 export interface WASMServicesStats {
@@ -23,6 +29,9 @@ export interface WASMServicesStats {
   vectorSearch: any
   sqlite: any
   compute: any
+  dataProcessing: any
+  performance: any
+  observability: any
   initializationTime: number
   isFullyInitialized: boolean
 }
@@ -48,6 +57,7 @@ export class WASMServices {
     this.config = {
       autoInitialize: true,
       enableFallbacks: true,
+      enableObservability: true,
       ...config,
     }
   }
@@ -98,6 +108,16 @@ export class WASMServices {
         initPromises.push(this.initializeComputeEngine())
       } else {
         console.log('⚠️ Compute WASM disabled (threads not available)')
+      }
+
+      // Data Processing Service
+      if (this.capabilities.isSupported) {
+        initPromises.push(this.initializeDataProcessor())
+      }
+
+      // Observability Integration
+      if (this.config.enableObservability) {
+        initPromises.push(this.initializeObservability())
       }
 
       // Wait for all services to initialize
@@ -178,6 +198,33 @@ export class WASMServices {
   }
 
   /**
+   * Initialize Data Processing service
+   */
+  private async initializeDataProcessor(): Promise<void> {
+    try {
+      await dataProcessor.initialize()
+      console.log('✅ Data Processing WASM initialized')
+    } catch (error) {
+      console.warn('⚠️ Data Processing WASM initialization failed:', error)
+      if (this.config.enableFallbacks) {
+        // Data processor has built-in fallbacks
+      }
+    }
+  }
+
+  /**
+   * Initialize Observability Integration
+   */
+  private async initializeObservability(): Promise<void> {
+    try {
+      await wasmObservability.initialize()
+      console.log('✅ WASM Observability Integration initialized')
+    } catch (error) {
+      console.warn('⚠️ WASM Observability initialization failed:', error)
+    }
+  }
+
+  /**
    * Initialize fallback implementations
    */
   private async initializeFallbacks(): Promise<void> {
@@ -197,6 +244,11 @@ export class WASMServices {
     if (!this.computeEngine) {
       this.computeEngine = new ComputeWASM(this.config.compute)
       await this.computeEngine.initialize()
+    }
+
+    // Data processor has built-in fallbacks
+    if (!dataProcessor['isInitialized']) {
+      await dataProcessor.initialize()
     }
 
     this.isInitialized = true
@@ -234,6 +286,34 @@ export class WASMServices {
   }
 
   /**
+   * Get Data Processor
+   */
+  getDataProcessor() {
+    return dataProcessor
+  }
+
+  /**
+   * Get Module Loader
+   */
+  getModuleLoader() {
+    return moduleLoader
+  }
+
+  /**
+   * Get Performance Tracker
+   */
+  getPerformanceTracker() {
+    return wasmPerformanceTracker
+  }
+
+  /**
+   * Get Observability Integration
+   */
+  getObservability() {
+    return wasmObservability
+  }
+
+  /**
    * Check if services are ready
    */
   isReady(): boolean {
@@ -257,6 +337,9 @@ export class WASMServices {
       vectorSearch: this.vectorSearchEngine?.getStats() || null,
       sqlite: this.sqliteUtils?.getStats() || null,
       compute: this.computeEngine?.getStats() || null,
+      dataProcessing: dataProcessor.getStats() || null,
+      performance: wasmPerformanceTracker.getMetrics() || null,
+      observability: this.config.enableObservability ? wasmObservability.getHealthStatus() : null,
       initializationTime: this.initializationTime,
       isFullyInitialized: this.isInitialized,
     }
@@ -358,6 +441,10 @@ export class WASMServices {
       this.vectorSearchEngine?.clear()
       this.sqliteUtils?.clear()
       this.computeEngine?.cleanup()
+      dataProcessor.cleanup()
+      moduleLoader.clearCache()
+      wasmPerformanceTracker.reset()
+      wasmObservability.cleanup()
 
       this.isInitialized = false
       console.log('✅ WASM Services cleanup completed')
