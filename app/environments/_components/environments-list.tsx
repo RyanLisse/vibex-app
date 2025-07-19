@@ -28,6 +28,7 @@ import {
 } from '@/hooks/use-environment-queries'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { observability } from '@/lib/observability'
+import { Environment } from '@/hooks/use-environment-queries'
 
 interface EnvironmentsListProps {
   userId?: string
@@ -183,7 +184,7 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
   )
 
   // Environment card component
-  const EnvironmentCard = ({ environment }: { environment: any }) => (
+  const EnvironmentCard = ({ environment }: { environment: Environment }) => (
     <Card
       className={`transition-all hover:shadow-md ${environment.isActive ? 'ring-2 ring-primary' : ''}`}
     >
