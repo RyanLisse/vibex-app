@@ -142,7 +142,7 @@ describe('ResourceManager', () => {
         cleanup: async () => {}
       })
 
-      const db = resourceManager.get('database')
+      const db = await resourceManager.get('database')
       expect(db).toBe(dbConfig)
     })
 
@@ -154,7 +154,7 @@ describe('ResourceManager', () => {
         cleanup: async () => {}
       })
 
-      const serverInstance = resourceManager.get('server')
+      const serverInstance = await resourceManager.get('server')
       expect(serverInstance).toBe(server)
     })
 
@@ -166,7 +166,7 @@ describe('ResourceManager', () => {
         cleanup: async () => {}
       })
 
-      const dir = resourceManager.get('tempDir')
+      const dir = await resourceManager.get('tempDir')
       expect(dir).toBe(tempDir)
     })
   })
@@ -181,8 +181,8 @@ describe('ResourceManager', () => {
       })
 
       // Get resource multiple times
-      resourceManager.get('test-resource')
-      resourceManager.get('test-resource')
+      await resourceManager.get('test-resource')
+      await resourceManager.get('test-resource')
 
       expect(setupFn).toHaveBeenCalledOnce()
     })
@@ -216,7 +216,9 @@ describe('ResourceManager', () => {
       // Setup the resource first so it can be cleaned up
       await resourceManager.get('failing')
 
-      await expect(resourceManager.cleanupAll()).resolves.not.toThrow()
+      // Should not throw during cleanup
+      await resourceManager.cleanupAll()
+      // If we reach this point, the test passes
     })
   })
 
@@ -241,7 +243,7 @@ describe('ResourceManager', () => {
         dependencies: ['database']
       })
 
-      resourceManager.get('server')
+      await resourceManager.get('server')
 
       expect(setup).toEqual(['database', 'server'])
     })
@@ -367,7 +369,9 @@ describe('SetupTeardownOrchestrator', () => {
       
       // Should still be able to run successful setups
       orchestrator.unregisterSetup('failing')
-      await expect(orchestrator.runSetups()).resolves.not.toThrow()
+      // Should not throw after unregistering failing setup
+      await orchestrator.runSetups()
+      // If we reach this point, the test passes
     })
 
     it('should continue cleanup even if some cleanups fail', async () => {

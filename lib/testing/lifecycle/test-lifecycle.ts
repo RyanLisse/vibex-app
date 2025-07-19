@@ -146,9 +146,9 @@ export class ResourceManager {
     }
   }
 
-  get<T>(name: string): T {
+  async get<T>(name: string): Promise<T> {
     if (!this.resources.has(name)) {
-      this.setupResource(name)
+      await this.setupResource(name)
     }
     return this.resources.get(name)
   }
@@ -157,6 +157,10 @@ export class ResourceManager {
     const config = this.resourceConfigs.get(name)
     if (!config) {
       throw new Error(`Resource "${name}" not registered`)
+    }
+
+    if (this.resources.has(name)) {
+      return // Already setup
     }
 
     // Setup dependencies first
@@ -180,6 +184,7 @@ export class ResourceManager {
   async cleanupAll(): Promise<void> {
     // Cleanup in reverse order
     const cleanupOrder = [...this.setupOrder].reverse()
+    const errors: Error[] = []
 
     for (const name of cleanupOrder) {
       try {
@@ -189,12 +194,15 @@ export class ResourceManager {
         }
       } catch (error) {
         console.warn(`Failed to cleanup resource "${name}":`, error)
+        errors.push(error as Error)
         // Continue with other cleanups
       }
     }
 
     this.resources.clear()
     this.setupOrder.length = 0
+    
+    // Don't throw errors during cleanup - this is graceful cleanup
   }
 
   isSetup(name: string): boolean {
@@ -292,12 +300,19 @@ export class SetupTeardownOrchestrator {
   }
 
   async runSetups(): Promise<void> {
+    const errors: Error[] = []
+    
     for (const [name, setup] of this.setups) {
       try {
         await setup()
       } catch (error) {
-        throw new Error(`Setup "${name}" failed: ${error}`)
+        errors.push(new Error(`Setup "${name}" failed: ${error}`))
       }
+    }
+    
+    // Only throw if there are errors and we have setups to run
+    if (errors.length > 0) {
+      throw errors[0] // Throw the first error
     }
   }
 

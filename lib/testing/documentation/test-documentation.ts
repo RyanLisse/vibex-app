@@ -926,7 +926,7 @@ export class DocumentationGenerator {
       for (const suite of testDocs.suites) {
         const relatedFile = coverageData.files.find(file => 
           file.path.includes(suite.name.toLowerCase()) || 
-          suite.file.includes(file.path)
+          (suite.file && suite.file.includes(file.path))
         )
         
         if (relatedFile) {

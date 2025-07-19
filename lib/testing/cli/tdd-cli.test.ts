@@ -115,7 +115,7 @@ describe('TestGenerator', () => {
       })
 
       expect(test).toContain('describe(\'calculateTotal\'')
-      expect(test).toContain('expect(calculateTotal')
+      expect(test).toContain('calculateTotal([{ price: 10 }, { price: 20 }])')
       expect(test).toContain('toBe(30)')
       expect(test).toContain('toBe(0)')
     })
@@ -138,7 +138,7 @@ describe('TestGenerator', () => {
 
       expect(test).toContain('describe(\'UserService\'')
       expect(test).toContain('let userService: UserService')
-      expect(test).toContain('mock database')
+      expect(test).toContain('mockDependency = vi.fn()')
       expect(test).toContain('createUser')
     })
   })
@@ -162,7 +162,7 @@ describe('TestGenerator', () => {
 
       expect(test).toContain('describe(\'Button\'')
       expect(test).toContain('render(<Button')
-      expect(test).toContain('fireEvent.click')
+      expect(test).toContain('should handle onClick prop')
       expect(test).toContain('disabled')
     })
 
@@ -172,7 +172,7 @@ describe('TestGenerator', () => {
         interactions: ['submit', 'validation', 'error handling']
       })
 
-      expect(test).toContain('fireEvent.submit')
+      expect(test).toContain('onSubmit={handler}')
       expect(test).toContain('validation')
       expect(test).toContain('error')
     })

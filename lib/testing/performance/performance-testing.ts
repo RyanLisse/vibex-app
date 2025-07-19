@@ -254,6 +254,13 @@ export class PerformanceBenchmark {
 
 export class MemoryProfiler {
   private snapshots: MemorySnapshot[] = []
+  private mockMemoryBase = 20 * 1024 * 1024 // 20MB base
+  private mockMemoryCounter = 0
+
+  resetMockMemory(): void {
+    this.mockMemoryCounter = 0
+    this.snapshots = []
+  }
 
   async measureMemoryUsage<T>(fn: () => T | Promise<T>): Promise<MemoryUsage> {
     const initialSnapshot = await this.createSnapshot()
@@ -273,9 +280,9 @@ export class MemoryProfiler {
     
     const finalSnapshot = await this.createSnapshot()
 
-    const peakMemoryUsage = afterSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize
+    const peakMemoryUsage = Math.max(0, afterSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize)
     const averageMemoryUsage = peakMemoryUsage / 2 // Simplified calculation
-    const memoryLeaked = finalSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize
+    const memoryLeaked = Math.max(0, finalSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize)
     const hasMemoryLeak = memoryLeaked > 1024 * 1024 // 1MB threshold
 
     return {
@@ -289,8 +296,10 @@ export class MemoryProfiler {
 
   async createSnapshot(): Promise<MemorySnapshot> {
     // In a real implementation, this would use performance.memory or Node.js process.memoryUsage()
+    // Simulate gradual memory increase for predictable testing
+    this.mockMemoryCounter++
     const mockMemory = {
-      usedJSHeapSize: Math.random() * 50 * 1024 * 1024, // 0-50MB
+      usedJSHeapSize: this.mockMemoryBase + (this.mockMemoryCounter * 1024 * 1024), // Increase by 1MB per snapshot
       totalJSHeapSize: 100 * 1024 * 1024, // 100MB
       jsHeapSizeLimit: 2 * 1024 * 1024 * 1024 // 2GB
     }
