@@ -116,18 +116,26 @@ const toHaveValidSchema: MatcherFunction<[received: unknown, schema: any]> = fun
     // Basic schema validation - in a real implementation, this would use Zod
     const pass = validateSchema(received, schema)
     
+    if (isNot && pass) {
+      throw new Error(`Expected ${JSON.stringify(received)} not to match schema`)
+    }
+    
+    if (!isNot && !pass) {
+      throw new Error(`Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`)
+    }
+    
     return {
       pass,
       message: () =>
         isNot
-          ? `Expected ${received} not to match schema`
-          : `Expected ${received} to match schema ${schema}`
+          ? `Expected ${JSON.stringify(received)} not to match schema`
+          : `Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`
     }
   } catch (error) {
-    return {
-      pass: false,
-      message: () => `Schema validation failed: ${error}`
+    if (error.message.includes('Expected')) {
+      throw error // Re-throw our own errors
     }
+    throw new Error(`Schema validation failed: ${error}`)
   }
 }
 
@@ -135,17 +143,37 @@ const toHaveValidSchema: MatcherFunction<[received: unknown, schema: any]> = fun
 const toBeWithinTimeRange: MatcherFunction<[received: Date, target: Date, toleranceMs: number]> = function (received, target, toleranceMs) {
   const { isNot } = this
 
-  const receivedTime = received instanceof Date ? received.getTime() : new Date(received).getTime()
-  const targetTime = target instanceof Date ? target.getTime() : new Date(target).getTime()
-  const difference = Math.abs(receivedTime - targetTime)
-  const pass = difference <= toleranceMs
+  // Input validation
+  if (!(received instanceof Date) && typeof received !== 'string' && typeof received !== 'number') {
+    throw new Error('Expected Date object, valid date string, or timestamp')
+  }
+  if (!(target instanceof Date) && typeof target !== 'string' && typeof target !== 'number') {
+    throw new Error('Expected target to be Date object, valid date string, or timestamp')
+  }
 
-  return {
-    pass,
-    message: () =>
-      isNot
-        ? `Expected ${received} not to be within ${toleranceMs}ms of ${target}`
-        : `Expected ${received} to be within ${toleranceMs}ms of ${target}, but was ${difference}ms away`
+  try {
+    const receivedTime = received instanceof Date ? received.getTime() : new Date(received).getTime()
+    const targetTime = target instanceof Date ? target.getTime() : new Date(target).getTime()
+    
+    if (isNaN(receivedTime) || isNaN(targetTime)) {
+      throw new Error('Invalid date values provided')
+    }
+    
+    const difference = Math.abs(receivedTime - targetTime)
+    const pass = difference <= toleranceMs
+
+    return {
+      pass,
+      message: () =>
+        isNot
+          ? `Expected ${received} not to be within ${toleranceMs}ms of ${target}`
+          : `Expected ${received} to be within ${toleranceMs}ms of ${target}, but was ${difference}ms away`
+    }
+  } catch (error) {
+    return {
+      pass: false,
+      message: () => `Date validation failed: ${error}`
+    }
   }
 }
 
@@ -258,19 +286,23 @@ const toResolveWithin: MatcherFunction<[received: Promise<any>, timeoutMs: numbe
     )
 
     await Promise.race([received, timeoutPromise])
-    const pass = true
+    
+    if (isNot) {
+      throw new Error(`Expected promise not to resolve within ${timeoutMs}ms`)
+    }
 
     return {
-      pass,
-      message: () =>
-        isNot
-          ? `Expected promise not to resolve within ${timeoutMs}ms`
-          : `Expected promise to resolve within ${timeoutMs}ms`
+      pass: true,
+      message: () => `Expected promise not to resolve within ${timeoutMs}ms`
     }
   } catch (error) {
+    if (!isNot) {
+      throw new Error(`Promise did not resolve within ${timeoutMs}ms`)
+    }
+    
     return {
-      pass: false,
-      message: () => `Promise did not resolve within ${timeoutMs}ms`
+      pass: true,
+      message: () => `Expected promise not to resolve within ${timeoutMs}ms`
     }
   }
 }
@@ -285,12 +317,12 @@ const toEventuallyEqual: MatcherFunction<[received: () => any, expected: any, op
     try {
       const actual = typeof received === 'function' ? received() : received
       if (this.equals(actual, expected)) {
+        if (isNot) {
+          throw new Error(`Expected ${actual} not to eventually equal ${expected}`)
+        }
         return {
           pass: true,
-          message: () =>
-            isNot
-              ? `Expected ${actual} not to eventually equal ${expected}`
-              : `Expected ${actual} to eventually equal ${expected}`
+          message: () => `Expected ${actual} not to eventually equal ${expected}`
         }
       }
     } catch (error) {
@@ -300,9 +332,13 @@ const toEventuallyEqual: MatcherFunction<[received: () => any, expected: any, op
     await new Promise(resolve => setTimeout(resolve, interval))
   }
 
+  if (!isNot) {
+    throw new Error(`Expected value to eventually equal ${expected} within ${timeout}ms`)
+  }
+  
   return {
-    pass: false,
-    message: () => `Expected value to eventually equal ${expected} within ${timeout}ms`
+    pass: true,
+    message: () => `Expected value not to eventually equal ${expected} within ${timeout}ms`
   }
 }
 
@@ -322,15 +358,26 @@ function validateSchema(data: any, schema: any): boolean {
     const actualValue = data[key]
 
     if (expectedType && typeof expectedType.asymmetricMatch === 'function') {
-      // Handle Jest/Vitest asymmetric matchers
+      // Handle Jest/Vitest asymmetric matchers like expect.any()
       if (!expectedType.asymmetricMatch(actualValue)) {
         return false
       }
     } else if (typeof expectedType === 'object' && expectedType.constructor === RegExp) {
-      if (!expectedType.test(actualValue)) {
+      // Handle regex validation
+      if (typeof actualValue !== 'string' || !expectedType.test(actualValue)) {
         return false
       }
-    } else if (typeof actualValue !== typeof expectedType) {
+    } else if (expectedType && expectedType.stringMatching) {
+      // Handle expect.stringMatching()
+      if (typeof actualValue !== 'string' || !expectedType.sample.test(actualValue)) {
+        return false
+      }
+    } else if (typeof expectedType === 'object' && expectedType !== null) {
+      // Recursively validate nested objects
+      if (!validateSchema(actualValue, expectedType)) {
+        return false
+      }
+    } else if (actualValue !== expectedType) {
       return false
     }
   }

@@ -437,11 +437,16 @@ describe('${options.table} table', () => {
           // Replace object properties
           Object.keys(item).forEach(prop => {
             const regex = new RegExp(`\\{\\{this\\.${prop}\\}\\}`, 'g')
-            itemContent = itemContent.replace(regex, item[prop])
+            const value = this.serializeTestCaseInput(item[prop])
+            itemContent = itemContent.replace(regex, value)
           })
+          // Handle missing description field with default
+          if (!item.description) {
+            itemContent = itemContent.replace(/\{\{this\.description\}\}/g, `should handle ${item.input || item.expected || 'input'}`)
+          }
         } else {
           // Replace {{this}} with item value
-          itemContent = itemContent.replace(/\{\{this\}\}/g, item)
+          itemContent = itemContent.replace(/\{\{this\}\}/g, this.formatIdentifier(item))
         }
         // Replace parent context variables
         itemContent = itemContent.replace(/\{\{\.\.\/(\w+)\}\}/g, (m: string, parentKey: string) => data[parentKey] || m)
@@ -453,8 +458,41 @@ describe('${options.table} table', () => {
     result = result.replace(/\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, condKey, content) => {
       return data[condKey] ? content : ''
     })
+    
+    // Handle parent context conditionals like {{#if ../authentication}}
+    result = result.replace(/\{\{#if \.\.\/(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, parentKey, content) => {
+      return data[parentKey] ? content : ''
+    })
 
     return result.trim()
+  }
+
+  private serializeTestCaseInput(input: any): string {
+    if (input === null) return 'null'
+    if (input === undefined) return 'undefined'
+    if (typeof input === 'string') return `'${input}'`
+    if (typeof input === 'number' || typeof input === 'boolean') return String(input)
+    if (Array.isArray(input)) {
+      return `[${input.map(item => this.serializeTestCaseInput(item)).join(', ')}]`
+    }
+    if (typeof input === 'object') {
+      const pairs = Object.entries(input).map(([key, value]) => 
+        `${key}: ${this.serializeTestCaseInput(value)}`
+      )
+      return `{ ${pairs.join(', ')} }`
+    }
+    return String(input)
+  }
+
+  private formatIdentifier(value: any): string {
+    if (typeof value === 'string') {
+      // Don't quote if it's a valid JavaScript identifier
+      if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)) {
+        return value
+      }
+      return `'${value}'`
+    }
+    return this.serializeTestCaseInput(value)
   }
 
   private camelCase(str: string): string {
@@ -588,7 +626,8 @@ export class WorkflowAutomation {
     const className = options.name
 
     // Main test file
-    const testFile = `${baseName}.test.${options.type === 'component' ? 'tsx' : 'ts'}`
+    const testFileName = options.type === 'component' ? className : baseName
+    const testFile = `${testFileName}.test.${options.type === 'component' ? 'tsx' : 'ts'}`
     files.push(testFile)
 
     if (options.type === 'component') {

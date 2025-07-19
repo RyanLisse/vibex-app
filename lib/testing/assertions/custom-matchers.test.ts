@@ -233,9 +233,12 @@ describe('Custom Matchers', () => {
           setTimeout(() => resolve('slow'), 2000)
         )
         
-        await expect(async () => {
-          await expect(slowPromise).toResolveWithin(500) // 0.5 seconds
-        }).rejects.toThrow()
+        try {
+          await expect(slowPromise).toResolveWithin(500)
+          throw new Error('Expected matcher to fail')
+        } catch (error: any) {
+          expect(error.message).toMatch(/Promise did not resolve within 500ms|Matcher.*returned a promise that rejected/)
+        }
       })
     })
 
@@ -254,9 +257,12 @@ describe('Custom Matchers', () => {
       it('should timeout if value never matches', async () => {
         let value = 'initial'
         
-        await expect(async () => {
+        try {
           await expect(() => value).toEventuallyEqual('final', { timeout: 100 })
-        }).rejects.toThrow()
+          throw new Error('Expected matcher to fail')
+        } catch (error: any) {
+          expect(error.message).toMatch(/Expected value to eventually equal|Matcher.*returned a promise that rejected/)
+        }
       })
     })
   })
