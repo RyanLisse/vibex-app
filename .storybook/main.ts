@@ -1,5 +1,8 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite'
 
+// Top-level regex for performance
+const NODE_MODULES_REGEX = /node_modules/
+
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons: [
@@ -20,7 +23,7 @@ const config: StorybookConfig = {
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
       propFilter: (prop) => {
-        return prop.parent ? !/node_modules/.test(prop.parent.fileName) : true
+        return prop.parent ? !NODE_MODULES_REGEX.test(prop.parent.fileName) : true
       },
     },
   },
@@ -35,8 +38,8 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
-  env: (config) => ({
-    ...config,
+  env: (storybookConfig) => ({
+    ...storybookConfig,
     IS_STORYBOOK: 'true',
   }),
 }

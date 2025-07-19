@@ -104,15 +104,7 @@ export function useElectricTasks(
         setIsSubscribed(false)
       }
     }
-  }, [
-    realtime,
-    filters.userId,
-    filters.status,
-    filters.archived,
-    filters.sessionId,
-    cacheFirst,
-    queryClient,
-  ])
+  }, [realtime, filters, cacheFirst, queryClient])
 
   // TanStack Query for fallback and initial data
   const query = useQuery({

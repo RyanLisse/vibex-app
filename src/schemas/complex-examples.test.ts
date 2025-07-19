@@ -35,7 +35,7 @@ describe('Product Schemas', () => {
         attributes: { color: 'red', size: 'small' },
         images: [
           {
-            id: 'img-1',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
             url: 'https://example.com/image.jpg',
             altText: 'Red shirt',
             position: 0,
@@ -104,7 +104,7 @@ describe('Product Schemas', () => {
         status: 'active',
         variants: [
           {
-            id: 'var-1',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
             sku: 'PROD-001',
             name: 'Default Variant',
             price: 29.99,
@@ -115,7 +115,7 @@ describe('Product Schemas', () => {
         ],
         options: [
           {
-            id: 'opt-1',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d482',
             name: 'Size',
             position: 0,
             values: ['Small', 'Medium', 'Large'],
@@ -142,7 +142,7 @@ describe('Product Schemas', () => {
         productType: 'Apparel',
         variants: [
           {
-            id: 'var-1',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
             sku: 'PROD-001',
             name: 'Default Variant',
             price: 29.99,
@@ -184,7 +184,7 @@ describe('Product Schemas', () => {
         productType: 'Apparel',
         variants: [
           {
-            id: 'var-1',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
             sku: 'PROD-001',
             name: 'Default Variant',
             price: 29.99,
@@ -194,16 +194,26 @@ describe('Product Schemas', () => {
           },
         ],
         options: [
-          { id: 'opt-1', name: 'Size', position: 0, values: ['S', 'M', 'L'] },
-          { id: 'opt-2', name: 'Color', position: 1, values: ['Red', 'Blue'] },
           {
-            id: 'opt-3',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d483',
+            name: 'Size',
+            position: 0,
+            values: ['S', 'M', 'L'],
+          },
+          {
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d484',
+            name: 'Color',
+            position: 1,
+            values: ['Red', 'Blue'],
+          },
+          {
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d485',
             name: 'Material',
             position: 2,
             values: ['Cotton', 'Polyester'],
           },
           {
-            id: 'opt-4',
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d486',
             name: 'Style',
             position: 3,
             values: ['Casual', 'Formal'],
@@ -442,7 +452,7 @@ describe('Survey Schemas', () => {
   describe('QuestionSchema', () => {
     it('should validate valid question', () => {
       const validQuestion = {
-        id: 'q1',
+        id: 'f47ac10b-58cc-4372-a567-0e02b2c3d487',
         type: 'select',
         title: 'What is your favorite color?',
         description: 'Please select one option',

@@ -14,6 +14,9 @@ import {
 import { useCreateEnvironmentMutation } from '@/hooks/use-environment-queries'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { observability } from '@/lib/observability'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('create-environment-dialog')
 
 interface CreateEnvironmentDialogProps {
   isOpen: boolean
@@ -102,7 +105,7 @@ export function CreateEnvironmentDialog({
       resetForm()
       onOpenChange(false)
     } catch (error) {
-      console.error('Failed to create environment:', error)
+      logger.error('Failed to create environment', error as Error)
       setSubmitError(error instanceof Error ? error.message : 'Failed to create environment')
     } finally {
       setIsCreating(false)

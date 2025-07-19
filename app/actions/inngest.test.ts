@@ -103,6 +103,7 @@ describe('Inngest Actions', () => {
       { name: 'task.completed', data: { id: 'task-1' } },
     ]
 
+    // Intentionally sequential for testing event order
     for (const event of events) {
       const result = await inngest.send(event)
       expect(result).toEqual({ id: 'test-event-id' })

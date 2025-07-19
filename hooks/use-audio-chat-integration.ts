@@ -79,7 +79,7 @@ export function useAudioChatIntegration(options: UseAudioChatIntegrationOptions 
         scrollArea.scrollTop = scrollArea.scrollHeight
       }
     }
-  }, [options.autoScroll.autoScroll])
+  }, [options.autoScroll])
 
   // Format recording duration
   const formatDuration = useCallback((ms: number) => {

@@ -3,7 +3,10 @@ import { getSubscriptionToken, type Realtime } from '@inngest/realtime'
 import { cookies } from 'next/headers'
 import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
 import { getTelemetryConfig } from '@/lib/telemetry'
+import { getLogger } from '@/lib/logging'
 import type { Task } from '@/types/task'
+
+const logger = getLogger('inngest-actions')
 
 export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update', 'control']>
 export type TaskChannelTokenResponse = TaskChannelToken | null
@@ -123,7 +126,11 @@ const validateToken = (token: unknown): token is TaskChannelToken => {
 const handleTokenError = (error: unknown): void => {
   if (error instanceof Error) {
     if (error.message.includes('401') || error.message.includes('403')) {
+      // Authentication error - user needs to re-authenticate
+      logger.warn('Authentication error', { error: error.message })
     } else if (error.message.includes('network') || error.message.includes('fetch')) {
+      // Network error - connection issues
+      logger.warn('Network error', { error: error.message })
     }
   }
 }

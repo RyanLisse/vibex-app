@@ -71,7 +71,9 @@ export function EnhancedQueryDemo() {
   const [newTaskDescription, setNewTaskDescription] = useState('')
 
   // Display data - use search results if searching, otherwise use filtered tasks
-  const displayTasks = searchQuery.trim() ? searchResults || [] : tasks
+  const displayTasks = useMemo(() => {
+    return searchQuery.trim() ? searchResults || [] : tasks
+  }, [searchQuery, searchResults, tasks])
 
   // Task statistics
   const taskStats = useMemo(() => {

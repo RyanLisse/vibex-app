@@ -53,14 +53,14 @@ export function useOptimizedTaskData({
       return []
     }
     return filterChatMessages(task.messages)
-  }, [task?.messages])
+  }, [task])
 
   const shellMessages = useMemo(() => {
     if (!task?.messages) {
       return []
     }
     return filterShellMessages(task.messages)
-  }, [task?.messages])
+  }, [task])
 
   // Memoize streaming state checks
   const hasStreamingMessagesValue = useMemo(() => {

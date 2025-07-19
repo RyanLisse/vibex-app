@@ -1,42 +1,43 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the inngest modules
-mock.module('@/lib/inngest-factory', () => ({
-  createInngestClient: mock(() => ({
+vi.mock('@/lib/inngest-factory', () => ({
+  createInngestClient: vi.fn(() => ({
     id: 'clonedex',
-    send: mock(() => Promise.resolve({ ids: ['test-id'] })),
+    send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
   })),
-  createTaskChannel: mock(() => {
-    const channel = mock()
-    channel.status = mock()
-    channel.update = mock()
-    channel.control = mock()
+  createTaskChannel: vi.fn(() => {
+    const channel = {
+      status: vi.fn(),
+      update: vi.fn(),
+      control: vi.fn(),
+    }
     return channel
   }),
-  createInngestFunctions: mock(() => ({
+  createInngestFunctions: vi.fn(() => ({
     taskControl: {
       id: 'task-control',
       trigger: { event: 'clonedx/task.control' },
-      handler: mock(() => Promise.resolve({ success: true })),
+      handler: vi.fn(() => Promise.resolve({ success: true })),
     },
     createTask: {
       id: 'create-task',
       trigger: { event: 'clonedx/create.task' },
-      handler: mock(() => Promise.resolve({ message: 'Task created' })),
+      handler: vi.fn(() => Promise.resolve({ message: 'Task created' })),
     },
   })),
 }))
 
-mock.module('@/lib/inngest-instance', () => {
+vi.mock('@/lib/inngest-instance', () => {
   const mockInngest = {
-    id: 'clonedex',
-    send: mock(() => Promise.resolve({ ids: ['test-id'] })),
+    id: 'clonedx',
+    send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
   }
 
-  const mockTaskChannel = mock()
-  mockTaskChannel.status = mock()
-  mockTaskChannel.update = mock()
-  mockTaskChannel.control = mock()
+  const mockTaskChannel = vi.fn()
+  mockTaskChannel.status = vi.fn()
+  mockTaskChannel.update = vi.fn()
+  mockTaskChannel.control = vi.fn()
 
   return {
     inngest: mockInngest,
@@ -44,40 +45,40 @@ mock.module('@/lib/inngest-instance', () => {
     taskControl: {
       id: 'task-control',
       trigger: { event: 'clonedx/task.control' },
-      handler: mock(() => Promise.resolve({ success: true })),
+      handler: vi.fn(() => Promise.resolve({ success: true })),
     },
     createTask: {
       id: 'create-task',
       trigger: { event: 'clonedx/create.task' },
-      handler: mock(() => Promise.resolve({ message: 'Task created' })),
+      handler: vi.fn(() => Promise.resolve({ message: 'Task created' })),
     },
-    getInngest: mock(() => mockInngest),
-    getTaskChannel: mock(() => mockTaskChannel),
-    getInngestFunctions: mock(() => ({
+    getInngest: vi.fn(() => mockInngest),
+    getTaskChannel: vi.fn(() => mockTaskChannel),
+    getInngestFunctions: vi.fn(() => ({
       taskControl: {
         id: 'task-control',
         trigger: { event: 'clonedx/task.control' },
-        handler: mock(() => Promise.resolve({ success: true })),
+        handler: vi.fn(() => Promise.resolve({ success: true })),
       },
       createTask: {
         id: 'create-task',
         trigger: { event: 'clonedx/create.task' },
-        handler: mock(() => Promise.resolve({ message: 'Task created' })),
+        handler: vi.fn(() => Promise.resolve({ message: 'Task created' })),
       },
     })),
   }
 })
 
-mock.module('@/lib/inngest', () => {
+vi.mock('@/lib/inngest', () => {
   const mockInngest = {
     id: 'clonedex',
-    send: mock(() => Promise.resolve({ ids: ['test-id'] })),
+    send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
   }
 
-  const mockTaskChannel = mock()
-  mockTaskChannel.status = mock()
-  mockTaskChannel.update = mock()
-  mockTaskChannel.control = mock()
+  const mockTaskChannel = vi.fn()
+  mockTaskChannel.status = vi.fn()
+  mockTaskChannel.update = vi.fn()
+  mockTaskChannel.control = vi.fn()
 
   return {
     inngest: mockInngest,
@@ -85,23 +86,23 @@ mock.module('@/lib/inngest', () => {
     taskControl: {
       id: 'task-control',
       trigger: { event: 'clonedx/task.control' },
-      handler: mock(() => Promise.resolve({ success: true })),
+      handler: vi.fn(() => Promise.resolve({ success: true })),
     },
     createTask: {
       id: 'create-task',
       trigger: { event: 'clonedx/create.task' },
-      handler: mock(() => Promise.resolve({ message: 'Task created' })),
+      handler: vi.fn(() => Promise.resolve({ message: 'Task created' })),
     },
-    getInngestApp: mock(() => ({
+    getInngestApp: vi.fn(() => ({
       id: typeof global !== 'undefined' && global.window ? 'client' : 'server',
-      send: mock(() => Promise.resolve({ ids: ['test-id'] })),
+      send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
     })),
   }
 })
 
-describe('inngest mock validation (Bun)', () => {
+describe('inngest mock validation (Vitest)', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('factory module mocks', () => {

@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
+import { getLogger } from '@/lib/logging'
+
+const logger = getLogger('api-agents-brainstorm')
 
 // Enhanced brainstorm request schemas
 const StartVoiceBrainstormSchema = z.object({
@@ -105,7 +108,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 })
     }
   } catch (error) {
-    console.error('Error in brainstorm GET:', error)
+    logger.error('Error in brainstorm GET', error as Error)
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -188,6 +191,7 @@ export async function POST(request: NextRequest) {
         const analysis = await analyzeIdeasWithAI(ideas)
 
         // Update brainstorm session with analyzed ideas
+        // Intentionally sequential to maintain order and avoid overwhelming the system
         for (const idea of ideas) {
           // This would typically update the brainstorm agent's memory
           await system.processMessage(
@@ -207,7 +211,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'generate_insights': {
-        const { sessionId, stage, transcripts, ideas } = GenerateInsightsSchema.parse(body)
+        const { stage, transcripts, ideas } = GenerateInsightsSchema.parse(body)
 
         // Generate stage-specific insights
         const insights = await generateAdvancedInsights(stage, transcripts, ideas)
@@ -245,7 +249,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 })
     }
   } catch (error) {
-    console.error('Error in brainstorm POST:', error)
+    logger.error('Error in brainstorm POST', error as Error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -296,13 +300,11 @@ Remember: This is a voice conversation, so keep responses engaging and easy to f
   `.trim()
 }
 
-async function extractIdeasFromTranscript(transcript: string): Promise<
-  Array<{
-    content: string
-    category: string
-    confidence: number
-  }>
-> {
+function extractIdeasFromTranscript(transcript: string): Array<{
+  content: string
+  category: string
+  confidence: number
+}> {
   // Enhanced idea extraction using pattern matching and NLP techniques
   const ideas: Array<{
     content: string
@@ -340,7 +342,7 @@ async function extractIdeasFromTranscript(transcript: string): Promise<
   ]
 
   for (const { pattern, category, confidence } of ideaPatterns) {
-    let match
+    let match: RegExpExecArray | null
     while ((match = pattern.exec(transcript)) !== null) {
       const content = match[1].trim()
       if (content.length > 10 && content.length < 200) {
@@ -362,7 +364,7 @@ async function extractIdeasFromTranscript(transcript: string): Promise<
   return uniqueIdeas.sort((a, b) => b.confidence - a.confidence)
 }
 
-async function analyzeIdeasWithAI(ideas: Array<{ content: string; source: string }>): Promise<{
+function analyzeIdeasWithAI(ideas: Array<{ content: string; source: string }>): {
   scores: Array<{
     content: string
     feasibility: number
@@ -372,7 +374,7 @@ async function analyzeIdeasWithAI(ideas: Array<{ content: string; source: string
   }>
   categories: Record<string, string[]>
   themes: string[]
-}> {
+} {
   // Simulate AI analysis (in production, this would call an AI service)
   const scores = ideas.map((idea) => ({
     content: idea.content,
@@ -391,11 +393,11 @@ async function analyzeIdeasWithAI(ideas: Array<{ content: string; source: string
     Strategic: [],
   }
 
-  ideas.forEach((idea) => {
+  for (const idea of ideas) {
     const category =
       Object.keys(categories)[Math.floor(Math.random() * Object.keys(categories).length)]
     categories[category].push(idea.content)
-  })
+  }
 
   // Extract themes
   const themes = ['Innovation', 'Efficiency', 'User Experience', 'Scalability', 'Sustainability']
@@ -403,7 +405,7 @@ async function analyzeIdeasWithAI(ideas: Array<{ content: string; source: string
   return { scores, categories, themes }
 }
 
-function generateIdeaRecommendations(analysis: unknown): string[] {
+function generateIdeaRecommendations(_analysis: unknown): string[] {
   return [
     'Focus on high-impact, high-feasibility ideas first',
     'Combine complementary ideas for hybrid solutions',
@@ -413,11 +415,7 @@ function generateIdeaRecommendations(analysis: unknown): string[] {
   ]
 }
 
-async function generateStageInsights(
-  session: unknown,
-  transcript: string,
-  ideas: unknown[]
-): Promise<string[]> {
+function generateStageInsights(session: unknown, _transcript: string, ideas: unknown[]): string[] {
   const insights: string[] = []
 
   // Stage-specific insight generation
@@ -436,21 +434,25 @@ async function generateStageInsights(
     case 'evaluation':
       insights.push('Consider both short-term and long-term implications')
       break
+
+    default:
+      insights.push('Continue exploring and developing your ideas')
+      break
   }
 
   return insights
 }
 
-async function generateAdvancedInsights(
-  stage: string,
-  transcripts: string[],
-  ideas: Array<{ content: string; score: number }>
-): Promise<{
+function generateAdvancedInsights(
+  _stage: string,
+  _transcripts: string[],
+  _ideas: Array<{ content: string; score: number }>
+): {
   patterns: string[]
   gaps: string[]
   strengths: string[]
   recommendations: string[]
-}> {
+} {
   return {
     patterns: [
       'Strong focus on user-centered solutions',
@@ -475,7 +477,7 @@ async function generateAdvancedInsights(
   }
 }
 
-function getNextStageRecommendations(stage: string, insights: unknown): string[] {
+function getNextStageRecommendations(stage: string, _insights: unknown): string[] {
   const stageMap: Record<string, string[]> = {
     exploration: [
       'Move to clarification to define scope and audience',
@@ -497,7 +499,7 @@ function getNextStageRecommendations(stage: string, insights: unknown): string[]
 }
 
 function calculateStageProgress(
-  stage: string,
+  _stage: string,
   transcripts: string[],
   ideas: Array<{ content: string; score: number }>
 ): number {
@@ -512,11 +514,11 @@ function calculateStageProgress(
   return Math.min(baseProgress + ideaBonus + qualityBonus, 100)
 }
 
-async function generateVoiceFriendlySummary(summary: unknown): Promise<{
+function generateVoiceFriendlySummary(summary: unknown): {
   spokenSummary: string
   keyPoints: string[]
   nextSteps: string[]
-}> {
+} {
   return {
     spokenSummary: `Great brainstorming session! We explored ${summary?.session?.topic || 'your idea'} and generated several promising directions.`,
     keyPoints: [

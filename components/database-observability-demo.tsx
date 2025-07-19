@@ -161,7 +161,9 @@ export function DatabaseObservabilityDemo() {
   }, [])
 
   // Display data - prioritize ElectricSQL for real-time features
-  const displayTasks = searchQuery.trim() ? searchResults || [] : electricTasks || queryTasks || []
+  const displayTasks = useMemo(() => {
+    return searchQuery.trim() ? searchResults || [] : electricTasks || queryTasks || []
+  }, [searchQuery, searchResults, electricTasks, queryTasks])
 
   // Combined statistics
   const combinedStats = useMemo(() => {

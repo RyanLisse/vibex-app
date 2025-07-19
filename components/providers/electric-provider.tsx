@@ -63,7 +63,7 @@ export function ElectricProvider({ children, fallback, onError }: ElectricProvid
         pglite.close()
       }
     }
-  }, [onError])
+  }, [onError, pglite])
 
   // Handle errors
   useEffect(() => {

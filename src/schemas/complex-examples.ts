@@ -15,7 +15,7 @@ export const ProductVariantSchema = z.object({
     policy: z.enum(['deny', 'continue']).default('deny'),
     lowStockThreshold: z.number().int().min(0).optional(),
   }),
-  attributes: z.record(z.string()).default({}),
+  attributes: z.record(z.string(), z.string()).default({}),
   images: z
     .array(
       z.object({
@@ -282,7 +282,7 @@ export const QuestionOptionSchema = z.object({
   label: z.string().min(1, 'Option label is required'),
   value: z.string().min(1, 'Option value is required'),
   order: z.number().int().min(0),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export const QuestionValidationSchema = z.object({
@@ -333,7 +333,7 @@ export const QuestionSchema = z
         conditions: z
           .array(
             z.object({
-              field: z.string().uuid(),
+              field: z.string(),
               operator: z.enum([
                 'equals',
                 'not_equals',
@@ -353,7 +353,7 @@ export const QuestionSchema = z
       .optional(),
     order: z.number().int().min(0),
     section: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
   })
   .refine(
     (data) => {
@@ -492,7 +492,7 @@ export const ApiEndpointSchema = z.object({
         contentType: z.string().default('application/json'),
         schema: z.string().optional(), // JSON schema
         example: z.string().optional(),
-        headers: z.record(z.string()).optional(),
+        headers: z.record(z.string(), z.string()).optional(),
       })
     )
     .min(1, 'At least one response is required'),
@@ -533,7 +533,7 @@ export const ApiConfigurationSchema = z.object({
       z.object({
         name: z.string().min(1, 'Environment name is required'),
         baseUrl: z.string().url('Invalid base URL'),
-        variables: z.record(z.string()).default({}),
+        variables: z.record(z.string(), z.string()).default({}),
         active: z.boolean().default(false),
       })
     )
@@ -541,7 +541,7 @@ export const ApiConfigurationSchema = z.object({
   authentication: z
     .object({
       type: z.enum(['none', 'basic', 'bearer', 'oauth2', 'apikey']),
-      config: z.record(z.string()).default({}),
+      config: z.record(z.string(), z.string()).default({}),
       refreshToken: z
         .object({
           enabled: z.boolean().default(false),
@@ -558,7 +558,7 @@ export const ApiConfigurationSchema = z.object({
         name: z.string().min(1, 'Middleware name is required'),
         type: z.enum(['request', 'response', 'error']),
         enabled: z.boolean().default(true),
-        config: z.record(z.any()).default({}),
+        config: z.record(z.string(), z.unknown()).default({}),
         order: z.number().int().min(0).default(0),
       })
     )
@@ -671,7 +671,7 @@ export const FormFieldSchema = z.object({
     .object({
       show: z
         .object({
-          field: z.string().uuid(),
+          field: z.string(),
           operator: z.enum([
             'equals',
             'not_equals',
@@ -689,7 +689,7 @@ export const FormFieldSchema = z.object({
         .optional(),
       hide: z
         .object({
-          field: z.string().uuid(),
+          field: z.string(),
           operator: z.enum([
             'equals',
             'not_equals',
@@ -707,7 +707,7 @@ export const FormFieldSchema = z.object({
         .optional(),
       require: z
         .object({
-          field: z.string().uuid(),
+          field: z.string(),
           operator: z.enum([
             'equals',
             'not_equals',
@@ -740,7 +740,7 @@ export const FormFieldSchema = z.object({
     .optional(),
   order: z.number().int().min(0),
   section: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export const FormSchema = z.object({
@@ -839,7 +839,7 @@ export const validateNestedSchema = <T>(
     return { success: true, data: result }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.reduce(
+      const errors = error.issues.reduce(
         (acc, err) => {
           const fieldPath = path ? `${path}.${err.path.join('.')}` : err.path.join('.')
           acc[fieldPath] = err.message

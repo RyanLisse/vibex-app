@@ -74,7 +74,7 @@ export function useAudioPlayback(options: UseAudioPlaybackOptions = {}) {
         options.onError?.(new Error(errorMessage))
       }
     },
-    [createAudioElement, options]
+    [createAudioElement, options.onError]
   )
 
   const pauseAudio = useCallback(() => {
