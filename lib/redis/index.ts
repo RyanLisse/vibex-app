@@ -8,13 +8,25 @@
 import { ObservabilityService } from '../observability'
 import { CacheService } from './cache-service'
 import { getRedisServiceConfig, redisFeatures, validateRedisEnvironment } from './config'
+import { JobQueueService } from './job-queue-service'
+import { LockService } from './lock-service'
+import { MetricsService } from './metrics-service'
+import { PubSubService } from './pubsub-service'
+import { RateLimitService } from './rate-limit-service'
 import { RedisClientManager } from './redis-client'
+import { SessionService } from './session-service'
 import type { RedisHealthStatus, RedisServiceConfig } from './types'
 
 export class RedisService {
   private static instance: RedisService
   private clientManager: RedisClientManager
   private cacheService: CacheService
+  private pubsubService: PubSubService
+  private lockService: LockService
+  private rateLimitService: RateLimitService
+  private jobQueueService: JobQueueService
+  private metricsService: MetricsService
+  private sessionService: SessionService
   private config: RedisServiceConfig
   private observability = ObservabilityService.getInstance()
   private isInitialized = false
@@ -25,6 +37,12 @@ export class RedisService {
     this.config = getRedisServiceConfig()
     this.clientManager = RedisClientManager.getInstance(this.config.redis)
     this.cacheService = CacheService.getInstance()
+    this.pubsubService = PubSubService.getInstance()
+    this.lockService = LockService.getInstance()
+    this.rateLimitService = RateLimitService.getInstance()
+    this.jobQueueService = JobQueueService.getInstance()
+    this.metricsService = MetricsService.getInstance()
+    this.sessionService = SessionService.getInstance()
   }
 
   static getInstance(): RedisService {
@@ -75,10 +93,40 @@ export class RedisService {
     })
   }
 
-  // Cache Service Access
+  // Service Access
   get cache(): CacheService {
     this.ensureInitialized()
     return this.cacheService
+  }
+
+  get pubsub(): PubSubService {
+    this.ensureInitialized()
+    return this.pubsubService
+  }
+
+  get locks(): LockService {
+    this.ensureInitialized()
+    return this.lockService
+  }
+
+  get rateLimit(): RateLimitService {
+    this.ensureInitialized()
+    return this.rateLimitService
+  }
+
+  get jobQueue(): JobQueueService {
+    this.ensureInitialized()
+    return this.jobQueueService
+  }
+
+  get metrics(): MetricsService {
+    this.ensureInitialized()
+    return this.metricsService
+  }
+
+  get sessions(): SessionService {
+    this.ensureInitialized()
+    return this.sessionService
   }
 
   // Client Manager Access
@@ -137,7 +185,17 @@ export class RedisService {
       clearInterval(this.metricsInterval)
     }
 
-    // Shutdown client manager
+    // Cleanup all services
+    await Promise.all([
+      this.pubsubService.cleanup(),
+      this.lockService.cleanup(),
+      this.rateLimitService.cleanup(),
+      this.jobQueueService.cleanup(),
+      this.metricsService.cleanup(),
+      this.sessionService.cleanup(),
+    ])
+
+    // Shutdown client manager last
     await this.clientManager.shutdown()
 
     this.isInitialized = false
@@ -168,20 +226,20 @@ export class RedisService {
         const health = await this.getHealthStatus()
 
         // Record health metrics
-        this.observability.recordMetric('redis.health.overall', 1, {
+        this.observability.recordEvent('redis.health.overall', 1, {
           status: health.overall,
         })
 
         // Record individual client health
         Object.entries(health.clients).forEach(([clientName, clientHealth]) => {
-          this.observability.recordMetric('redis.health.client', 1, {
+          this.observability.recordEvent('redis.health.client', 1, {
             client: clientName,
             status: clientHealth.status,
             connected: clientHealth.connected.toString(),
           })
 
           if (clientHealth.responseTime) {
-            this.observability.recordMetric(
+            this.observability.recordEvent(
               'redis.health.response_time',
               clientHealth.responseTime,
               {
@@ -203,7 +261,7 @@ export class RedisService {
         }
       } catch (error) {
         console.error('Redis health check failed:', error)
-        this.observability.trackError('redis.health.check.error', error as Error)
+        this.observability.recordError('redis.health.check.error', error as Error)
       }
     }, interval)
   }
@@ -217,14 +275,14 @@ export class RedisService {
 
         // Record cache metrics
         const cacheMetrics = metrics.cache
-        this.observability.recordMetric('redis.cache.hits', cacheMetrics.hits)
-        this.observability.recordMetric('redis.cache.misses', cacheMetrics.misses)
-        this.observability.recordMetric('redis.cache.hit_rate', cacheMetrics.hitRate)
-        this.observability.recordMetric('redis.cache.operations', cacheMetrics.totalOperations)
-        this.observability.recordMetric('redis.cache.errors', cacheMetrics.errors)
+        this.observability.recordEvent('redis.cache.hits', cacheMetrics.hits)
+        this.observability.recordEvent('redis.cache.misses', cacheMetrics.misses)
+        this.observability.recordEvent('redis.cache.hit_rate', cacheMetrics.hitRate)
+        this.observability.recordEvent('redis.cache.operations', cacheMetrics.totalOperations)
+        this.observability.recordEvent('redis.cache.errors', cacheMetrics.errors)
 
         // Record connection metrics
-        this.observability.recordMetric('redis.connections.total', metrics.connections.total)
+        this.observability.recordEvent('redis.connections.total', metrics.connections.total)
 
         // Log metrics summary in development
         if (process.env.NODE_ENV === 'development') {
@@ -240,7 +298,7 @@ export class RedisService {
         }
       } catch (error) {
         console.error('Redis metrics collection failed:', error)
-        this.observability.trackError('redis.metrics.collection.error', error as Error)
+        this.observability.recordError('redis.metrics.collection.error', error as Error)
       }
     }, interval)
   }
@@ -300,8 +358,41 @@ export async function shutdownRedis(): Promise<void> {
   await redisService.shutdown()
 }
 
+// Export all services
 export { CacheService } from './cache-service'
-export * from './config'
+export { JobQueueService } from './job-queue-service'
+export { LockService } from './lock-service'
+export { MetricsService } from './metrics-service'
+export { PubSubService } from './pubsub-service'
+export { RateLimitService } from './rate-limit-service'
 export { RedisClientManager } from './redis-client'
-// Re-export types and utilities
+export { SessionService } from './session-service'
+
+// Export configuration and utilities
+export * from './config'
 export * from './types'
+
+// Convenience getters for individual services
+export function getRedisPubSub() {
+  return redisService.pubsub
+}
+
+export function getRedisLocks() {
+  return redisService.locks
+}
+
+export function getRedisRateLimit() {
+  return redisService.rateLimit
+}
+
+export function getRedisJobQueue() {
+  return redisService.jobQueue
+}
+
+export function getRedisMetrics() {
+  return redisService.metrics
+}
+
+export function getRedisSessions() {
+  return redisService.sessions
+}

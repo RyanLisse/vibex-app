@@ -92,7 +92,7 @@ export class RateLimitService {
           windowStart: new Date(windowStart)
         }
 
-        this.observability.recordMetric('rate_limit.checked', 1, {
+        this.observability.recordEvent('rate_limit.checked', 1, {
           key,
           allowed: isAllowed.toString(),
           remaining: remaining.toString()
@@ -100,7 +100,7 @@ export class RateLimitService {
 
         return rateLimitResult
       } catch (error) {
-        this.observability.trackError('rate_limit.check.error', error as Error, {
+        this.observability.recordError('rate_limit.check.error', error as Error, {
           key
         })
         // Fail open - allow request if rate limiting fails
@@ -172,7 +172,7 @@ export class RateLimitService {
           windowStart: new Date(windowStart)
         }
       } catch (error) {
-        this.observability.trackError('rate_limit.sliding_window.error', error as Error, {
+        this.observability.recordError('rate_limit.sliding_window.error', error as Error, {
           key
         })
         return {
@@ -261,7 +261,7 @@ export class RateLimitService {
         windowStart: new Date()
       }
     } catch (error) {
-      this.observability.trackError('rate_limit.token_bucket.error', error as Error, {
+      this.observability.recordError('rate_limit.token_bucket.error', error as Error, {
         key
       })
       return {
@@ -352,7 +352,7 @@ export class RateLimitService {
         windowStart: new Date()
       }
     } catch (error) {
-      this.observability.trackError('rate_limit.cost_limit.error', error as Error, {
+      this.observability.recordError('rate_limit.cost_limit.error', error as Error, {
         key
       })
       return {

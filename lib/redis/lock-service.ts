@@ -70,7 +70,7 @@ export class LockService {
             this.stats.totalLocks++
             this.stats.activeLocks++
 
-            this.observability.recordMetric('lock.acquired', 1, {
+            this.observability.recordEvent('lock.acquired', 1, {
               key,
               ttl: ttl.toString(),
               attempts: attempts.toString()
@@ -87,7 +87,7 @@ export class LockService {
             break
           }
         } catch (error) {
-          this.observability.trackError('lock.acquire.error', error as Error, {
+          this.observability.recordError('lock.acquire.error', error as Error, {
             key,
             attempt: attempts.toString()
           })
@@ -95,7 +95,7 @@ export class LockService {
         }
       }
 
-      this.observability.recordMetric('lock.acquire.failed', 1, {
+      this.observability.recordEvent('lock.acquire.failed', 1, {
         key,
         attempts: attempts.toString(),
         duration: (Date.now() - startTime).toString()
@@ -130,7 +130,7 @@ export class LockService {
 
           this.activeLocks.delete(lock.key)
 
-          this.observability.recordMetric('lock.released', 1, {
+          this.observability.recordEvent('lock.released', 1, {
             key: lock.key,
             holdTime: holdTime.toString()
           })
@@ -139,14 +139,14 @@ export class LockService {
         }
 
         // Lock was not owned by this client or already expired
-        this.observability.recordMetric('lock.release.failed', 1, {
+        this.observability.recordEvent('lock.release.failed', 1, {
           key: lock.key,
           reason: 'not_owned_or_expired'
         })
 
         return false
       } catch (error) {
-        this.observability.trackError('lock.release.error', error as Error, {
+        this.observability.recordError('lock.release.error', error as Error, {
           key: lock.key
         })
         return false
@@ -175,7 +175,7 @@ export class LockService {
           lock.ttl = newTtl
           lock.expiresAt = new Date(Date.now() + newTtl * 1000)
 
-          this.observability.recordMetric('lock.renewed', 1, {
+          this.observability.recordEvent('lock.renewed', 1, {
             key: lock.key,
             newTtl: newTtl.toString()
           })
@@ -185,7 +185,7 @@ export class LockService {
 
         return false
       } catch (error) {
-        this.observability.trackError('lock.renew.error', error as Error, {
+        this.observability.recordError('lock.renew.error', error as Error, {
           key: lock.key
         })
         return false
@@ -201,7 +201,7 @@ export class LockService {
       const exists = await client.exists(lockKey)
       return exists === 1
     } catch (error) {
-      this.observability.trackError('lock.check.error', error as Error, { key })
+      this.observability.recordError('lock.check.error', error as Error)
       return false
     }
   }
@@ -218,13 +218,13 @@ export class LockService {
           this.activeLocks.delete(key)
           this.stats.activeLocks--
 
-          this.observability.recordMetric('lock.force_released', 1, { key })
+          this.observability.recordEvent('lock.force_released', 1, { key })
           return true
         }
 
         return false
       } catch (error) {
-        this.observability.trackError('lock.force_release.error', error as Error, { key })
+        this.observability.recordError('lock.force_release.error', error as Error)
         return false
       }
     })
@@ -246,7 +246,7 @@ export class LockService {
         acquiredLocks.push(lock)
       }
 
-      this.observability.recordMetric('lock.multiple_acquired', 1, {
+      this.observability.recordEvent('lock.multiple_acquired', 1, {
         count: acquiredLocks.length.toString()
       })
 
@@ -254,7 +254,7 @@ export class LockService {
     } catch (error) {
       // Release any acquired locks in case of error
       await this.releaseMultipleLocks(acquiredLocks)
-      this.observability.trackError('lock.multiple_acquire.error', error as Error, {
+      this.observability.recordError('lock.multiple_acquire.error', error as Error, {
         keys: keys.join(',')
       })
       return []
@@ -267,7 +267,7 @@ export class LockService {
     
     const allReleased = results.every(result => result)
     
-    this.observability.recordMetric('lock.multiple_released', 1, {
+    this.observability.recordEvent('lock.multiple_released', 1, {
       count: locks.length.toString(),
       success: allReleased.toString()
     })

@@ -70,7 +70,7 @@ export class JobQueueService {
           await client.zadd(queueKey, job.priority, jobId)
         }
 
-        this.observability.recordMetric('job_queue.job.added', 1, {
+        this.observability.recordEvent('job_queue.job.added', 1, {
           queue: queueName,
           type,
           priority: job.priority.toString(),
@@ -79,7 +79,7 @@ export class JobQueueService {
 
         return jobId
       } catch (error) {
-        this.observability.trackError('job_queue.add.error', error as Error, {
+        this.observability.recordError('job_queue.add.error', error as Error, {
           queue: queueName,
           type
         })
@@ -143,7 +143,7 @@ export class JobQueueService {
         // Update job data
         await client.hset(jobKey, this.serializeJob(job))
 
-        this.observability.recordMetric('job_queue.job.retrieved', 1, {
+        this.observability.recordEvent('job_queue.job.retrieved', 1, {
           queue: queueName,
           type: job.type,
           attempts: job.attempts.toString()
@@ -151,7 +151,7 @@ export class JobQueueService {
 
         return job
       } catch (error) {
-        this.observability.trackError('job_queue.get_next.error', error as Error, {
+        this.observability.recordError('job_queue.get_next.error', error as Error, {
           queue: queueName
         })
         return null
@@ -177,7 +177,7 @@ export class JobQueueService {
         await client.zrem(activeQueueKey, job.id)
         await client.zadd(completedQueueKey, Date.now(), job.id)
 
-        this.observability.recordMetric('job_queue.job.completed', 1, {
+        this.observability.recordEvent('job_queue.job.completed', 1, {
           queue: queueName,
           type: job.type,
           duration: job.completedAt.getTime() - job.processedAt!.getTime()
@@ -185,7 +185,7 @@ export class JobQueueService {
 
         return true
       } catch (error) {
-        this.observability.trackError('job_queue.complete.error', error as Error, {
+        this.observability.recordError('job_queue.complete.error', error as Error, {
           queue: queueName,
           jobId: job.id
         })
@@ -216,7 +216,7 @@ export class JobQueueService {
           await client.zadd(delayedQueueKey, retryAt, job.id)
           await client.hset(jobKey, this.serializeJob(job))
 
-          this.observability.recordMetric('job_queue.job.retried', 1, {
+          this.observability.recordEvent('job_queue.job.retried', 1, {
             queue: queueName,
             type: job.type,
             attempt: job.attempts.toString(),
@@ -230,7 +230,7 @@ export class JobQueueService {
           await client.zadd(failedQueueKey, Date.now(), job.id)
           await client.hset(jobKey, this.serializeJob(job))
 
-          this.observability.recordMetric('job_queue.job.failed', 1, {
+          this.observability.recordEvent('job_queue.job.failed', 1, {
             queue: queueName,
             type: job.type,
             attempts: job.attempts.toString()
@@ -239,7 +239,7 @@ export class JobQueueService {
 
         return true
       } catch (error) {
-        this.observability.trackError('job_queue.fail.error', error as Error, {
+        this.observability.recordError('job_queue.fail.error', error as Error, {
           queue: queueName,
           jobId: job.id
         })
@@ -272,7 +272,7 @@ export class JobQueueService {
         paused
       }
     } catch (error) {
-      this.observability.trackError('job_queue.stats.error', error as Error, {
+      this.observability.recordError('job_queue.stats.error', error as Error, {
         queue: queueName
       })
       return {
@@ -294,7 +294,7 @@ export class JobQueueService {
       await client.set(pausedKey, '1')
       return true
     } catch (error) {
-      this.observability.trackError('job_queue.pause.error', error as Error, {
+      this.observability.recordError('job_queue.pause.error', error as Error, {
         queue: queueName
       })
       return false
@@ -309,7 +309,7 @@ export class JobQueueService {
       await client.del(pausedKey)
       return true
     } catch (error) {
-      this.observability.trackError('job_queue.resume.error', error as Error, {
+      this.observability.recordError('job_queue.resume.error', error as Error, {
         queue: queueName
       })
       return false
@@ -334,7 +334,7 @@ export class JobQueueService {
 
       return jobs
     } catch (error) {
-      this.observability.trackError('job_queue.get_failed.error', error as Error, {
+      this.observability.recordError('job_queue.get_failed.error', error as Error, {
         queue: queueName
       })
       return []
@@ -456,7 +456,7 @@ export class JobQueueService {
       const removed = await client.zremrangebyscore(completedQueueKey, 0, cutoff)
       return removed
     } catch (error) {
-      this.observability.trackError('job_queue.cleanup_completed.error', error as Error, {
+      this.observability.recordError('job_queue.cleanup_completed.error', error as Error, {
         queue: queueName
       })
       return 0
@@ -472,7 +472,7 @@ export class JobQueueService {
       const removed = await client.zremrangebyscore(failedQueueKey, 0, cutoff)
       return removed
     } catch (error) {
-      this.observability.trackError('job_queue.cleanup_failed.error', error as Error, {
+      this.observability.recordError('job_queue.cleanup_failed.error', error as Error, {
         queue: queueName
       })
       return 0
@@ -516,7 +516,7 @@ export class JobQueueService {
         }
       }
     } catch (error) {
-      this.observability.trackError('job_queue.process_delayed.error', error as Error, {
+      this.observability.recordError('job_queue.process_delayed.error', error as Error, {
         queue: queueName
       })
     }
