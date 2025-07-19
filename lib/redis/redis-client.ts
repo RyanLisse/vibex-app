@@ -107,35 +107,33 @@ export class RedisClientManager {
   private setupEventHandlers(client: Redis | Cluster, name: string): void {
     client.on('connect', () => {
       console.log(`Redis client '${name}' connected`)
-      this.observability.recordMetric('redis.connection.established', 1, {
+      this.observability.recordEvent('redis.connection.established', {
         client: name,
       })
     })
 
     client.on('ready', () => {
       console.log(`Redis client '${name}' ready`)
-      this.observability.recordMetric('redis.connection.ready', 1, {
+      this.observability.recordEvent('redis.connection.ready', {
         client: name,
       })
     })
 
     client.on('error', (error) => {
       console.error(`Redis client '${name}' error:`, error)
-      this.observability.trackError('redis.connection.error', error, {
-        client: name,
-      })
+      this.observability.recordError('redis.connection.error', error)
     })
 
     client.on('close', () => {
       console.log(`Redis client '${name}' connection closed`)
-      this.observability.recordMetric('redis.connection.closed', 1, {
+      this.observability.recordEvent('redis.connection.closed', {
         client: name,
       })
     })
 
     client.on('reconnecting', () => {
       console.log(`Redis client '${name}' reconnecting`)
-      this.observability.recordMetric('redis.connection.reconnecting', 1, {
+      this.observability.recordEvent('redis.connection.reconnecting', {
         client: name,
       })
     })
@@ -162,7 +160,7 @@ export class RedisClientManager {
         const result = await client.call(command, ...args)
         const duration = Date.now() - startTime
 
-        this.observability.recordMetric('redis.command.duration', duration, {
+        this.observability.recordEvent('redis.command.duration', duration, {
           command,
           client: clientName,
           status: 'success',
@@ -172,13 +170,13 @@ export class RedisClientManager {
       } catch (error) {
         const duration = Date.now() - startTime
 
-        this.observability.recordMetric('redis.command.duration', duration, {
+        this.observability.recordEvent('redis.command.duration', duration, {
           command,
           client: clientName,
           status: 'error',
         })
 
-        this.observability.trackError('redis.command.error', error as Error, {
+        this.observability.recordError('redis.command.error', error as Error, {
           command,
           client: clientName,
         })
