@@ -3,17 +3,17 @@
  */
 
 import {
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
-  type UseMutationOptions,
-  type UseQueryOptions,
 } from '@tanstack/react-query'
-import { queryKeys, mutationKeys } from '../keys'
-import type { Environment, NewEnvironment } from '@/db/schema'
-import { observability } from '@/lib/observability'
-import { electricClient } from '@/lib/electric/client'
 import { useEffect } from 'react'
+import type { Environment, NewEnvironment } from '@/db/schema'
+import { electricClient } from '@/lib/electric/client'
+import { observability } from '@/lib/observability'
+import { mutationKeys, queryKeys } from '../keys'
 
 // API types
 export interface EnvironmentFilters {

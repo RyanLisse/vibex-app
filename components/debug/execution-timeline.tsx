@@ -1,33 +1,33 @@
 'use client'
 
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Activity,
+  AlertCircle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Flag,
+  GitBranch,
+  Layers,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+  Square,
+} from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
 import type { ExecutionSnapshot, SnapshotType } from '@/lib/time-travel'
-import {
-  ChevronLeft,
-  ChevronRight,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Square,
-  Maximize2,
-  Minimize2,
-  Flag,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Activity,
-  Layers,
-  GitBranch,
-} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ExecutionTimelineProps {
   sessionId: string
@@ -99,7 +99,7 @@ function TimelineItem({
             {index > 0 && (
               <div
                 className={cn(
-                  'absolute -left-6 top-10 h-0.5 w-12',
+                  '-left-6 absolute top-10 h-0.5 w-12',
                   isActive ? 'bg-primary' : 'bg-muted-foreground/30'
                 )}
               />
@@ -108,7 +108,7 @@ function TimelineItem({
             {/* Breakpoint indicator */}
             {hasBreakpoint && (
               <div
-                className="absolute -top-2 z-20 h-3 w-3 cursor-pointer rounded-full bg-red-600"
+                className="-top-2 absolute z-20 h-3 w-3 cursor-pointer rounded-full bg-red-600"
                 onClick={(e) => {
                   e.stopPropagation()
                   onBreakpointToggle()
@@ -118,6 +118,10 @@ function TimelineItem({
 
             {/* Main node */}
             <motion.div
+              animate={{
+                scale: isCurrent ? 1.2 : 1,
+                y: isCurrent ? -4 : 0,
+              }}
               className={cn(
                 'relative flex h-10 w-10 items-center justify-center rounded-full transition-all',
                 style.color,
@@ -125,24 +129,20 @@ function TimelineItem({
                 hasError && 'ring-2 ring-red-500',
                 isCheckpoint && 'ring-2 ring-indigo-500'
               )}
-              animate={{
-                scale: isCurrent ? 1.2 : 1,
-                y: isCurrent ? -4 : 0,
-              }}
               transition={{ duration: 0.2 }}
             >
               <Icon className="h-5 w-5 text-white" />
               {isCurrent && (
                 <motion.div
-                  className="absolute inset-0 rounded-full bg-white/30"
                   animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-                  transition={{ duration: 1, repeat: Infinity }}
+                  className="absolute inset-0 rounded-full bg-white/30"
+                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
                 />
               )}
             </motion.div>
 
             {/* Step number */}
-            <div className="mt-1 text-xs font-medium text-muted-foreground">
+            <div className="mt-1 font-medium text-muted-foreground text-xs">
               {snapshot.stepNumber}
             </div>
           </div>
@@ -150,13 +150,13 @@ function TimelineItem({
         <TooltipContent>
           <div className="space-y-1">
             <div className="font-semibold">{style.label}</div>
-            <div className="text-xs text-muted-foreground">Step {snapshot.stepNumber}</div>
+            <div className="text-muted-foreground text-xs">Step {snapshot.stepNumber}</div>
             {snapshot.metadata.description && (
               <div className="text-xs">{snapshot.metadata.description}</div>
             )}
-            {hasError && <div className="text-xs text-red-500">Error occurred</div>}
-            {isCheckpoint && <div className="text-xs text-indigo-500">Checkpoint</div>}
-            {hasBreakpoint && <div className="text-xs text-red-600">Breakpoint</div>}
+            {hasError && <div className="text-red-500 text-xs">Error occurred</div>}
+            {isCheckpoint && <div className="text-indigo-500 text-xs">Checkpoint</div>}
+            {hasBreakpoint && <div className="text-red-600 text-xs">Breakpoint</div>}
           </div>
         </TooltipContent>
       </Tooltip>
@@ -221,9 +221,9 @@ function TimelineOverview({
 
   return (
     <div
-      ref={overviewRef}
       className="relative h-8 w-full cursor-pointer rounded bg-muted"
       onMouseDown={handleMouseDown}
+      ref={overviewRef}
     >
       {/* Snapshot indicators */}
       {snapshots.map((snapshot, i) => {
@@ -234,13 +234,13 @@ function TimelineOverview({
 
         return (
           <div
-            key={snapshot.id}
             className={cn(
-              'absolute top-1/2 h-2 w-px -translate-y-1/2',
+              '-translate-y-1/2 absolute top-1/2 h-2 w-px',
               style.color,
               isError && 'h-4 w-1',
               isCheckpoint && 'h-3 w-0.5'
             )}
+            key={snapshot.id}
             style={{ left: `${left}%` }}
           />
         )
@@ -317,11 +317,11 @@ export function ExecutionTimeline({
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="gap-1">
+            <Badge className="gap-1" variant="outline">
               <Clock className="h-3 w-3" />
               {playbackSpeed}x
             </Badge>
-            <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
+            <Button onClick={() => setIsExpanded(!isExpanded)} size="icon" variant="ghost">
               {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
           </div>
@@ -332,40 +332,40 @@ export function ExecutionTimeline({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onStepTo(0)}
               disabled={currentIndex === 0}
+              onClick={() => onStepTo(0)}
+              size="icon"
+              variant="outline"
             >
               <SkipBack className="h-4 w-4" />
             </Button>
             <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onStepTo(Math.max(0, currentIndex - 1))}
               disabled={currentIndex === 0}
+              onClick={() => onStepTo(Math.max(0, currentIndex - 1))}
+              size="icon"
+              variant="outline"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="default" size="icon" onClick={onPlayPause}>
+            <Button onClick={onPlayPause} size="icon" variant="default">
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" size="icon" onClick={onStop}>
+            <Button onClick={onStop} size="icon" variant="outline">
               <Square className="h-4 w-4" />
             </Button>
             <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onStepTo(Math.min(snapshots.length - 1, currentIndex + 1))}
               disabled={currentIndex === snapshots.length - 1}
+              onClick={() => onStepTo(Math.min(snapshots.length - 1, currentIndex + 1))}
+              size="icon"
+              variant="outline"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onStepTo(snapshots.length - 1)}
               disabled={currentIndex === snapshots.length - 1}
+              onClick={() => onStepTo(snapshots.length - 1)}
+              size="icon"
+              variant="outline"
             >
               <SkipForward className="h-4 w-4" />
             </Button>
@@ -373,43 +373,43 @@ export function ExecutionTimeline({
 
           {/* Speed control */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Speed:</span>
+            <span className="text-muted-foreground text-sm">Speed:</span>
             <Slider
-              value={[playbackSpeed]}
-              onValueChange={([value]) => onSpeedChange(value)}
-              min={0.25}
-              max={8}
-              step={0.25}
               className="w-32"
+              max={8}
+              min={0.25}
+              onValueChange={([value]) => onSpeedChange(value)}
+              step={0.25}
+              value={[playbackSpeed]}
             />
           </div>
         </div>
 
         {/* Progress bar */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-muted-foreground text-sm">
             <span>Progress</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
             <motion.div
-              className="absolute left-0 top-0 h-full bg-primary"
               animate={{ width: `${progress}%` }}
+              className="absolute top-0 left-0 h-full bg-primary"
               transition={{ duration: 0.2 }}
             />
             {/* Checkpoint markers */}
             {checkpoints.map((checkpoint) => (
               <div
-                key={checkpoint}
                 className="absolute top-0 h-full w-0.5 bg-indigo-500"
+                key={checkpoint}
                 style={{ left: `${(checkpoint / (snapshots.length - 1)) * 100}%` }}
               />
             ))}
             {/* Error markers */}
             {errors.map((error) => (
               <div
-                key={error}
                 className="absolute top-0 h-full w-1 bg-red-500"
+                key={error}
                 style={{ left: `${(error / (snapshots.length - 1)) * 100}%` }}
               />
             ))}
@@ -419,11 +419,11 @@ export function ExecutionTimeline({
         {/* Timeline overview */}
         {isExpanded && (
           <TimelineOverview
-            snapshots={snapshots}
             currentIndex={currentIndex}
-            viewportStart={viewportStart}
-            viewportEnd={viewportEnd}
             onViewportChange={setViewportStart}
+            snapshots={snapshots}
+            viewportEnd={viewportEnd}
+            viewportStart={viewportStart}
           />
         )}
 
@@ -441,23 +441,23 @@ export function ExecutionTimeline({
 
                 return (
                   <motion.div
-                    key={snapshot.id}
-                    layout
-                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    key={snapshot.id}
+                    layout
                     transition={{ duration: 0.2 }}
                   >
                     <TimelineItem
-                      snapshot={snapshot}
-                      index={i}
-                      isActive={isActive}
-                      isCurrent={isCurrent}
                       hasBreakpoint={hasBreakpoint}
                       hasError={hasError}
+                      index={i}
+                      isActive={isActive}
                       isCheckpoint={isCheckpoint}
-                      onClick={() => onStepTo(globalIndex)}
+                      isCurrent={isCurrent}
                       onBreakpointToggle={() => onBreakpointToggle(snapshot.stepNumber)}
+                      onClick={() => onStepTo(globalIndex)}
+                      snapshot={snapshot}
                     />
                   </motion.div>
                 )

@@ -10,8 +10,8 @@ import { ulid } from 'ulid'
 import { db } from '@/db/config'
 import { agentExecutions, executionSnapshots, users } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import { timeTravel } from '@/lib/time-travel'
 import type { ExecutionSnapshot, ExecutionState } from '@/lib/time-travel'
+import { timeTravel } from '@/lib/time-travel'
 
 // Debug session status
 export type DebugSessionStatus = 'active' | 'paused' | 'completed' | 'archived'
@@ -221,7 +221,7 @@ export class DebugSessionManager {
     const session = this.sessions.get(sessionId)
     const storedSession = this.sessionStorage.get(sessionId)
 
-    if (!session || !storedSession) {
+    if (!(session && storedSession)) {
       throw new Error(`Debug session ${sessionId} not found`)
     }
 
@@ -342,7 +342,7 @@ export class DebugSessionManager {
    */
   async stepTo(sessionId: string, stepNumber: number): Promise<ExecutionSnapshot | null> {
     const session = this.sessions.get(sessionId)
-    if (!session || !session.replaySessionId) {
+    if (!(session && session.replaySessionId)) {
       throw new Error(`Debug session ${sessionId} not found or not initialized`)
     }
 
@@ -454,7 +454,7 @@ export class DebugSessionManager {
    */
   async getWatchedVariables(sessionId: string): Promise<Record<string, any>> {
     const session = this.sessions.get(sessionId)
-    if (!session || !session.currentSnapshot) {
+    if (!(session && session.currentSnapshot)) {
       throw new Error(`Debug session ${sessionId} not found or no current snapshot`)
     }
 
@@ -477,7 +477,7 @@ export class DebugSessionManager {
     const session = this.sessions.get(sessionId)
     const storedSession = this.sessionStorage.get(sessionId)
 
-    if (!session || !storedSession) {
+    if (!(session && storedSession)) {
       throw new Error(`Debug session ${sessionId} not found`)
     }
 
@@ -575,7 +575,7 @@ export class DebugSessionManager {
       if (value && typeof value === 'object' && key in value) {
         value = value[key]
       } else {
-        return undefined
+        return
       }
     }
 

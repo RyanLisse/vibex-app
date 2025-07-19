@@ -5,15 +5,15 @@
  * memory cross-pollination and transformation.
  */
 
+import { observability } from '@/lib/observability'
 import { memoryRepository } from './repository'
 import { memorySearchService } from './search-service'
-import { observability } from '@/lib/observability'
 import type {
+  CreateMemoryInput,
   MemoryEntry,
   MemorySharingConfig,
   MemoryTransformRule,
   MemoryType,
-  CreateMemoryInput,
 } from './types'
 
 export class MemorySharingService {

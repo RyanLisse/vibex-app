@@ -102,7 +102,7 @@ if (typeof global !== 'undefined') {
   }))
 
   // Mock fetch for tests
-  global.fetch = vi.fn(async (url, options) => {
+  global.fetch = vi.fn((url, _options) => {
     const response = {
       ok: true,
       status: 200,
@@ -127,7 +127,7 @@ if (typeof global !== 'undefined') {
       })
     }
 
-    return Promise.resolve(response)
+    return response
   })
 
   // Mock crypto with proper implementation
@@ -239,7 +239,9 @@ if (typeof window !== 'undefined') {
 }
 
 // Mock console methods to reduce noise in test output
+// eslint-disable-next-line no-console
 const originalError = console.error
+// eslint-disable-next-line no-console
 const originalWarn = console.warn
 
 beforeEach(() => {

@@ -5,11 +5,11 @@
  */
 
 import type {
-  WorkflowDefinition,
   StepConfig,
-  WorkflowExecutionState,
   StepExecutionState,
   StepStatus,
+  WorkflowDefinition,
+  WorkflowExecutionState,
   WorkflowStatus,
 } from './types'
 
@@ -125,7 +125,7 @@ export class WorkflowVisualizer {
       const stepStatus = execution?.stepStates[step.id]?.status
       const node: GraphNode = {
         id: step.id,
-        type: this.getNodeType(step.type),
+        type: WorkflowVisualizer.getNodeType(step.type),
         label: step.name,
         description: step.description,
         status: stepStatus,
@@ -134,7 +134,7 @@ export class WorkflowVisualizer {
           timeout: step.timeout,
           retryPolicy: step.retryPolicy,
         },
-        style: this.getNodeStyle(step, stepStatus),
+        style: WorkflowVisualizer.getNodeStyle(step, stepStatus),
       }
       nodes.push(node)
       nodeMap.set(step.id, node)
@@ -164,12 +164,12 @@ export class WorkflowVisualizer {
 
     // Process each step to create edges
     definition.steps.forEach((step, index) => {
-      const edgesFromStep = this.createEdgesForStep(step, definition, execution)
+      const edgesFromStep = WorkflowVisualizer.createEdgesForStep(step, definition, execution)
       edges.push(...edgesFromStep)
     })
 
     // Add edges to end node for terminal steps
-    const terminalSteps = this.findTerminalSteps(definition)
+    const terminalSteps = WorkflowVisualizer.findTerminalSteps(definition)
     terminalSteps.forEach((stepId) => {
       edges.push({
         id: `${stepId}-to-end`,
@@ -179,7 +179,7 @@ export class WorkflowVisualizer {
     })
 
     // Apply auto-layout
-    this.autoLayout(nodes, edges)
+    WorkflowVisualizer.autoLayout(nodes, edges)
 
     return {
       nodes,
@@ -190,7 +190,7 @@ export class WorkflowVisualizer {
         version: definition.version,
         executionId: execution?.executionId,
         status: execution?.status,
-        progress: execution ? this.calculateProgress(execution) : 0,
+        progress: execution ? WorkflowVisualizer.calculateProgress(execution) : 0,
         timestamp: new Date(),
       },
     }
@@ -226,7 +226,7 @@ export class WorkflowVisualizer {
       borderWidth: status === 'running' ? 3 : 1,
       textColor: status === 'completed' || status === 'failed' ? '#ffffff' : '#1e293b',
       shape,
-      icon: this.getStepIcon(step.type),
+      icon: WorkflowVisualizer.getStepIcon(step.type),
     }
   }
 
@@ -359,7 +359,7 @@ export class WorkflowVisualizer {
         })
         break
 
-      default:
+      default: {
         // For regular steps, find next step in sequence
         const currentIndex = definition.steps.findIndex((s) => s.id === step.id)
         if (currentIndex < definition.steps.length - 1) {
@@ -372,6 +372,7 @@ export class WorkflowVisualizer {
             animated: execution?.currentStepId === step.id,
           })
         }
+      }
     }
 
     // Add error handling edges
@@ -413,11 +414,12 @@ export class WorkflowVisualizer {
         case 'loop':
           hasOutgoingEdge.add(step.id)
           break
-        default:
+        default: {
           const index = definition.steps.findIndex((s) => s.id === step.id)
           if (index < definition.steps.length - 1) {
             hasOutgoingEdge.add(step.id)
           }
+        }
       }
     })
 
@@ -606,7 +608,7 @@ export function getStatusIcon(status?: StepStatus | WorkflowStatus): string {
 
 export function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
-  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
-  if (ms < 3600000) return `${(ms / 60000).toFixed(1)}m`
-  return `${(ms / 3600000).toFixed(1)}h`
+  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
+  if (ms < 3_600_000) return `${(ms / 60_000).toFixed(1)}m`
+  return `${(ms / 3_600_000).toFixed(1)}h`
 }

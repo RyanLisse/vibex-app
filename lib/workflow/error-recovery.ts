@@ -6,12 +6,12 @@
 
 import { observability } from '@/lib/observability'
 import type {
-  WorkflowError,
-  StepError,
   ErrorHandler,
   RetryPolicy,
-  WorkflowExecutionState,
+  StepError,
   StepExecutionState,
+  WorkflowError,
+  WorkflowExecutionState,
 } from './types'
 
 // Error types
@@ -147,7 +147,7 @@ export class WorkflowErrorClassifier {
         retryable: true,
         strategy: RecoveryStrategy.RETRY_WITH_BACKOFF,
         maxRetries: 10,
-        retryDelay: 10000,
+        retryDelay: 10_000,
       },
     ],
   ])
@@ -156,7 +156,7 @@ export class WorkflowErrorClassifier {
     // Try to determine error code from error
     let code = WorkflowErrorCode.STEP_EXECUTION_FAILED
 
-    if (error.code && this.classifications.has(error.code)) {
+    if (error.code && WorkflowErrorClassifier.classifications.has(error.code)) {
       code = error.code
     } else if (error.message) {
       // Pattern matching on error message
@@ -172,7 +172,7 @@ export class WorkflowErrorClassifier {
     }
 
     return (
-      this.classifications.get(code) || {
+      WorkflowErrorClassifier.classifications.get(code) || {
         code,
         severity: ErrorSeverity.MEDIUM,
         recoverable: false,
@@ -286,8 +286,8 @@ export class RecoveryExecutor {
     if (!breaker) {
       breaker = new CircuitBreaker({
         failureThreshold: 5,
-        resetTimeout: 60000, // 1 minute
-        monitoringPeriod: 300000, // 5 minutes
+        resetTimeout: 60_000, // 1 minute
+        monitoringPeriod: 300_000, // 5 minutes
       })
       this.circuitBreakers.set(breakerId, breaker)
     }
@@ -380,9 +380,9 @@ export class RecoveryExecutor {
 
   private calculateBackoff(baseDelay: number, retryCount: number): number {
     // Exponential backoff with jitter
-    const exponentialDelay = baseDelay * Math.pow(2, retryCount - 1)
+    const exponentialDelay = baseDelay * 2 ** (retryCount - 1)
     const jitter = Math.random() * 0.3 * exponentialDelay // 30% jitter
-    return Math.min(exponentialDelay + jitter, 300000) // Max 5 minutes
+    return Math.min(exponentialDelay + jitter, 300_000) // Max 5 minutes
   }
 
   private delay(ms: number): Promise<void> {

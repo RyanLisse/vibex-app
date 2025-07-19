@@ -4,11 +4,11 @@
  * Tracks service level agreements and generates compliance reports
  */
 
-import { metrics as prometheusMetrics, prometheusRegistry } from '../prometheus'
-import { notificationManager } from '../notifications'
-import { observability } from '@/lib/observability'
-import { db } from '@/db/config'
 import { sql } from 'drizzle-orm'
+import { db } from '@/db/config'
+import { observability } from '@/lib/observability'
+import { notificationManager } from '../notifications'
+import { metrics as prometheusMetrics, prometheusRegistry } from '../prometheus'
 
 export interface SLATarget {
   name: string
@@ -121,7 +121,7 @@ export class SLAMonitor {
     this.startMonitoring()
 
     // Start reporting
-    this.startReporting(config.reportingInterval || 3600000) // Default 1 hour
+    this.startReporting(config.reportingInterval || 3_600_000) // Default 1 hour
 
     console.log(`📊 SLA monitoring initialized with ${this.targets.length} targets`)
   }
@@ -130,7 +130,7 @@ export class SLAMonitor {
     // Check SLAs every minute
     this.monitoringInterval = setInterval(() => {
       this.checkSLAs()
-    }, 60000)
+    }, 60_000)
 
     // Initial check
     this.checkSLAs()
@@ -195,7 +195,7 @@ export class SLAMonitor {
     let samples = 0
 
     switch (target.metric) {
-      case 'availability':
+      case 'availability': {
         const { availabilityResult, availabilitySamples } = await this.calculateAvailability(
           start,
           now
@@ -203,8 +203,9 @@ export class SLAMonitor {
         actual = availabilityResult
         samples = availabilitySamples
         break
+      }
 
-      case 'response_time_p95':
+      case 'response_time_p95': {
         const { p95Result, p95Samples } = await this.calculateResponseTimePercentile(
           start,
           now,
@@ -213,8 +214,9 @@ export class SLAMonitor {
         actual = p95Result
         samples = p95Samples
         break
+      }
 
-      case 'response_time_p99':
+      case 'response_time_p99': {
         const { p99Result, p99Samples } = await this.calculateResponseTimePercentile(
           start,
           now,
@@ -223,14 +225,16 @@ export class SLAMonitor {
         actual = p99Result
         samples = p99Samples
         break
+      }
 
-      case 'error_rate':
+      case 'error_rate': {
         const { errorRateResult, errorRateSamples } = await this.calculateErrorRate(start, now)
         actual = errorRateResult
         samples = errorRateSamples
         break
+      }
 
-      case 'db_query_time_p95':
+      case 'db_query_time_p95': {
         const { dbP95Result, dbP95Samples } = await this.calculateDatabasePercentile(
           start,
           now,
@@ -239,6 +243,7 @@ export class SLAMonitor {
         actual = dbP95Result
         samples = dbP95Samples
         break
+      }
 
       case 'concurrent_users':
         actual = await this.getConcurrentUsers()
@@ -277,7 +282,7 @@ export class SLAMonitor {
   ): Promise<{ availabilityResult: number; availabilitySamples: number }> {
     // In a real implementation, query actual metrics
     // For demo, we'll use mock data
-    const totalRequests = 10000
+    const totalRequests = 10_000
     const successfulRequests = 9990
 
     return {
@@ -312,7 +317,7 @@ export class SLAMonitor {
 
     return {
       errorRateResult: errorRate,
-      errorRateSamples: 10000,
+      errorRateSamples: 10_000,
     }
   }
 
@@ -338,10 +343,10 @@ export class SLAMonitor {
 
   private getWindowMs(window: SLATarget['window']): number {
     const windows = {
-      hour: 3600000,
-      day: 86400000,
-      week: 604800000,
-      month: 2592000000,
+      hour: 3_600_000,
+      day: 86_400_000,
+      week: 604_800_000,
+      month: 2_592_000_000,
     }
     return windows[window]
   }

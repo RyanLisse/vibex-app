@@ -4,9 +4,9 @@
  * Manages alerts, rules, and integrations with Prometheus Alert Manager
  */
 
-import { metrics } from '../prometheus'
-import { notificationManager } from '../notifications'
 import { observability } from '@/lib/observability'
+import { notificationManager } from '../notifications'
+import { metrics } from '../prometheus'
 
 export interface Alert {
   id: string
@@ -278,7 +278,7 @@ class AlertManager {
     // Evaluate rules every 30 seconds
     this.evaluationInterval = setInterval(() => {
       this.evaluateRules()
-    }, 30000)
+    }, 30_000)
 
     // Initial evaluation
     this.evaluateRules()
@@ -319,7 +319,7 @@ class AlertManager {
           // Remove from active alerts after some time
           setTimeout(() => {
             this.alerts.delete(fingerprint)
-          }, 300000) // 5 minutes
+          }, 300_000) // 5 minutes
         }
       } catch (error) {
         console.error(`Failed to evaluate alert rule ${rule.name}:`, error)
@@ -340,7 +340,7 @@ class AlertManager {
     }
 
     const [, metric, operator, thresholdStr] = match
-    const threshold = parseFloat(thresholdStr)
+    const threshold = Number.parseFloat(thresholdStr)
 
     // Get mock metric value (in production, query Prometheus)
     const value = this.getMockMetricValue(metric)
@@ -447,7 +447,7 @@ class AlertManager {
 
   private formatDuration(start: Date, end: Date): string {
     const durationMs = end.getTime() - start.getTime()
-    const minutes = Math.floor(durationMs / 60000)
+    const minutes = Math.floor(durationMs / 60_000)
     const hours = Math.floor(minutes / 60)
     const days = Math.floor(hours / 24)
 

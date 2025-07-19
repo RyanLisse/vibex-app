@@ -5,42 +5,41 @@
  */
 
 import {
-  trace,
+  ConsoleMetricExporter,
   context,
+  MeterProvider,
+  metrics as otelMetrics,
+  PeriodicExportingMetricReader,
+  type Span,
   SpanKind,
   SpanStatusCode,
-  Tracer,
-  Span,
-  metrics as otelMetrics,
-  MeterProvider,
-  PeriodicExportingMetricReader,
-  ConsoleMetricExporter,
+  type Tracer,
+  trace,
 } from '@opentelemetry/api'
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
+import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { Resource } from '@opentelemetry/resources'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import {
   SEMRESATTRS_SERVICE_NAME,
   SEMRESATTRS_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions'
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base'
-import { registerInstrumentations } from '@opentelemetry/instrumentation'
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
-import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
-
+import { getTelemetryConfig } from '@/lib/telemetry'
+import { alertManager } from './alerts'
+import { notificationManager } from './notifications'
 import {
   metrics as prometheusMetrics,
-  recordHttpRequest,
-  recordDatabaseQuery,
   recordAgentExecution,
+  recordDatabaseQuery,
+  recordHttpRequest,
 } from './prometheus'
 import {
   dbObservabilityMetrics,
   otelMetrics as otelExportMetrics,
 } from './prometheus/custom-metrics'
-import { alertManager } from './alerts'
-import { notificationManager } from './notifications'
-import { getTelemetryConfig } from '@/lib/telemetry'
 
 // Custom span processor for monitoring integration
 class MonitoringSpanProcessor extends BatchSpanProcessor {
@@ -225,7 +224,7 @@ export async function initializeOpenTelemetryIntegration(): Promise<void> {
   // Initialize metrics
   const metricReader = new PeriodicExportingMetricReader({
     exporter: new PrometheusMetricExporter(),
-    exportIntervalMillis: 10000, // 10 seconds
+    exportIntervalMillis: 10_000, // 10 seconds
   })
 
   // Register instrumentations

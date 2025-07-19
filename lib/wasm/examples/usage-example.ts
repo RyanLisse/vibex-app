@@ -5,10 +5,10 @@
  * for high-performance database operations.
  */
 
-import { wasmServices } from '../services'
 import { observability } from '../../observability'
-import type { VectorDocument } from '../vector-search'
 import type { AgentMemory, CreateMemoryRequest } from '../../observability/types'
+import { wasmServices } from '../services'
+import type { VectorDocument } from '../vector-search'
 
 /**
  * Example: High-performance vector search for agent memories
@@ -136,7 +136,7 @@ async function dataProcessingExample() {
   const processor = wasmServices.getDataProcessor()
 
   // Generate sample observability data
-  const sampleData = Array.from({ length: 10000 }, (_, i) => ({
+  const sampleData = Array.from({ length: 10_000 }, (_, i) => ({
     id: `event_${i}`,
     timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
     eventType: ['execution_started', 'execution_completed', 'error'][Math.floor(Math.random() * 3)],

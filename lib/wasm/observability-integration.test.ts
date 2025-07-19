@@ -2,12 +2,12 @@
  * WASM Observability Integration Tests
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
-import { wasmServices } from './services'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { observability } from '../observability'
+import { dataProcessor } from './data-processor'
 import { wasmObservability } from './observability-integration'
 import { wasmPerformanceTracker } from './performance-tracker'
-import { dataProcessor } from './data-processor'
-import { observability } from '../observability'
+import { wasmServices } from './services'
 
 describe('WASM Observability Integration', () => {
   beforeAll(async () => {

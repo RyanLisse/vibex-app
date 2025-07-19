@@ -92,7 +92,7 @@ export class WASMDataProcessor {
     await wasmPerformanceTracker.trackInitialization('data-processor', async () => {
       try {
         // Check if WASM should be used
-        if (!this.config.enableWASM || !shouldUseWASMOptimization('compute')) {
+        if (!(this.config.enableWASM && shouldUseWASMOptimization('compute'))) {
           console.log('WASM data processing not available, using JavaScript fallback')
           this.isInitialized = true
           this.isWASMEnabled = false

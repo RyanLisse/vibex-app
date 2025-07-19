@@ -3,238 +3,231 @@
  * This provides a single entry point for all database query hooks
  */
 
+// Re-export database types
+export type {
+  AgentExecution,
+  AgentMemory,
+  AgentSession,
+  AuthSession,
+  Environment,
+  ExecutionSnapshot,
+  FileUpload,
+  GitHubBranch,
+  // GitHub entities
+  GitHubRepository,
+  // System entities
+  Migration,
+  NewAgentExecution,
+  NewAgentMemory,
+  NewAgentSession,
+  NewAuthSession,
+  NewEnvironment,
+  NewExecutionSnapshot,
+  NewFileUpload,
+  NewGitHubBranch,
+  NewGitHubRepository,
+  NewMigration,
+  NewObservabilityEvent,
+  NewTask,
+  NewUser,
+  NewWorkflow,
+  NewWorkflowExecution,
+  ObservabilityEvent,
+  // Core entities
+  Task,
+  // User entities
+  User,
+  Workflow,
+  WorkflowExecution,
+} from '@/db/schema'
+export { createOptimizedQueryClient, getOptimizedQueryConfig } from '@/lib/query/config'
+// Export utility functions
+export { getElectricBridge, initializeElectricBridge } from '@/lib/query/electric-bridge'
+export type { MutationKeys, QueryKeys } from '../keys'
 // Export query keys
-export { queryKeys, mutationKeys } from '../keys'
-export type { QueryKeys, MutationKeys } from '../keys'
-
-// Task hooks
-export {
-  // Query hooks
-  useTasks,
-  useTask,
-  useInfiniteTasks,
-  useTaskVectorSearch,
-  useTaskStats,
-  // Mutation hooks
-  useCreateTask,
-  useUpdateTask,
-  useDeleteTask,
-  // Convenience hooks
-  useArchiveTask,
-  useUnarchiveTask,
-  useUpdateTaskStatus,
-  useUpdateTaskPriority,
-  // Real-time hooks
-  useTasksSubscription,
-  // Batch operations
-  useBulkUpdateTasks,
-  // Helpers
-  prefetchTask,
-  prefetchTasks,
-  // Types
-  type TasksResponse,
-  type TaskFilters,
-  type UpdateTaskInput,
-} from './use-tasks'
-
-// Environment hooks
-export {
-  // Query hooks
-  useEnvironments,
-  useEnvironment,
-  useActiveEnvironment,
-  useValidateEnvironmentConfig,
-  // Mutation hooks
-  useCreateEnvironment,
-  useUpdateEnvironment,
-  useDeleteEnvironment,
-  useActivateEnvironment,
-  // Real-time hooks
-  useEnvironmentsSubscription,
-  // Convenience hooks
-  useDeactivateEnvironment,
-  useCloneEnvironment,
-  // Helpers
-  prefetchEnvironment,
-  prefetchActiveEnvironment,
-  // Types
-  type EnvironmentFilters,
-  type UpdateEnvironmentInput,
-  type EnvironmentValidationResult,
-} from './use-environments'
-
+export { mutationKeys, queryKeys } from '../keys'
 // Agent execution hooks
 export {
-  // Query hooks
-  useAgentExecutions,
-  useAgentExecution,
-  useInfiniteAgentExecutions,
-  useExecutionStats,
-  useExecutionPerformance,
-  useExecutionsByTask,
-  useExecutionsByAgent,
-  useExecutionsByTrace,
-  // Mutation hooks
-  useCreateAgentExecution,
-  useCancelAgentExecution,
-  useRetryAgentExecution,
-  // Real-time hooks
-  useExecutionsSubscription,
-  // Performance hooks
-  useExecutionPerformanceMonitor,
+  // Types
+  type AgentExecutionFilters,
+  type ExecutionPerformance,
+  type ExecutionStats,
+  type ExecutionsResponse,
   // Helpers
   prefetchExecution,
   prefetchExecutionStats,
-  // Types
-  type AgentExecutionFilters,
-  type ExecutionStats,
-  type ExecutionPerformance,
-  type ExecutionsResponse,
-} from './use-agent-executions'
-
-// Observability event hooks
-export {
+  useAgentExecution,
   // Query hooks
-  useObservabilityEvents,
-  useObservabilityEvent,
-  useInfiniteObservabilityEvents,
-  useEventTimeline,
-  useEventAggregation,
-  useEventsByExecution,
-  useEventsByTrace,
-  useEventsBySeverity,
-  useCriticalEvents,
-  useErrorEvents,
+  useAgentExecutions,
+  useCancelAgentExecution,
   // Mutation hooks
-  useCreateObservabilityEvent,
-  useBulkCreateObservabilityEvents,
+  useCreateAgentExecution,
+  useExecutionPerformance,
+  // Performance hooks
+  useExecutionPerformanceMonitor,
+  useExecutionStats,
+  useExecutionsByAgent,
+  useExecutionsByTask,
+  useExecutionsByTrace,
   // Real-time hooks
-  useEventsSubscription,
-  useEventStream,
-  // Helpers
-  prefetchEvent,
-  prefetchEventTimeline,
-  // Types
-  type EventFilters,
-  type EventsResponse,
-  type EventTimeline,
-  type EventAggregation,
-} from './use-observability-events'
+  useExecutionsSubscription,
+  useInfiniteAgentExecutions,
+  useRetryAgentExecution,
+} from './use-agent-executions'
 
 // Agent memory hooks
 export {
-  // Query hooks
-  useAgentMemories,
-  useAgentMemory,
-  useMemorySearch,
-  useMemoryVectorSearch,
-  useMemoryStats,
-  useMemoriesByAgent,
-  useMemoryByContext,
-  // Mutation hooks
-  useCreateAgentMemory,
-  useUpdateAgentMemory,
-  useDeleteAgentMemory,
-  useCleanupMemories,
-  useRefreshMemoryImportance,
-  // Real-time hooks
-  useMemorySubscription,
-  // WASM hooks
-  useWASMVectorSearch,
-  // Helpers
-  prefetchMemory,
-  prefetchMemoryStats,
   // Types
   type MemoryFilters,
   type MemorySearchResult,
   type MemoryStats,
+  // Helpers
+  prefetchMemory,
+  prefetchMemoryStats,
   type UpdateMemoryInput,
+  // Query hooks
+  useAgentMemories,
+  useAgentMemory,
+  useCleanupMemories,
+  // Mutation hooks
+  useCreateAgentMemory,
+  useDeleteAgentMemory,
+  useMemoriesByAgent,
+  useMemoryByContext,
+  useMemorySearch,
+  useMemoryStats,
+  // Real-time hooks
+  useMemorySubscription,
+  useMemoryVectorSearch,
+  useRefreshMemoryImportance,
+  useUpdateAgentMemory,
+  // WASM hooks
+  useWASMVectorSearch,
 } from './use-agent-memory'
-
+// Environment hooks
+export {
+  // Types
+  type EnvironmentFilters,
+  type EnvironmentValidationResult,
+  prefetchActiveEnvironment,
+  // Helpers
+  prefetchEnvironment,
+  type UpdateEnvironmentInput,
+  useActivateEnvironment,
+  useActiveEnvironment,
+  useCloneEnvironment,
+  // Mutation hooks
+  useCreateEnvironment,
+  // Convenience hooks
+  useDeactivateEnvironment,
+  useDeleteEnvironment,
+  useEnvironment,
+  // Query hooks
+  useEnvironments,
+  // Real-time hooks
+  useEnvironmentsSubscription,
+  useUpdateEnvironment,
+  useValidateEnvironmentConfig,
+} from './use-environments'
+// Observability event hooks
+export {
+  type EventAggregation,
+  // Types
+  type EventFilters,
+  type EventsResponse,
+  type EventTimeline,
+  // Helpers
+  prefetchEvent,
+  prefetchEventTimeline,
+  useBulkCreateObservabilityEvents,
+  // Mutation hooks
+  useCreateObservabilityEvent,
+  useCriticalEvents,
+  useErrorEvents,
+  useEventAggregation,
+  useEventStream,
+  useEventsByExecution,
+  useEventsBySeverity,
+  useEventsByTrace,
+  // Real-time hooks
+  useEventsSubscription,
+  useEventTimeline,
+  useInfiniteObservabilityEvents,
+  useObservabilityEvent,
+  // Query hooks
+  useObservabilityEvents,
+} from './use-observability-events'
+// Task hooks
+export {
+  // Helpers
+  prefetchTask,
+  prefetchTasks,
+  type TaskFilters,
+  // Types
+  type TasksResponse,
+  type UpdateTaskInput,
+  // Convenience hooks
+  useArchiveTask,
+  // Batch operations
+  useBulkUpdateTasks,
+  // Mutation hooks
+  useCreateTask,
+  useDeleteTask,
+  useInfiniteTasks,
+  useTask,
+  useTaskStats,
+  // Query hooks
+  useTasks,
+  // Real-time hooks
+  useTasksSubscription,
+  useTaskVectorSearch,
+  useUnarchiveTask,
+  useUpdateTask,
+  useUpdateTaskPriority,
+  useUpdateTaskStatus,
+} from './use-tasks'
 // Workflow hooks
 export {
-  // Workflow query hooks
-  useWorkflows,
-  useWorkflow,
-  useWorkflowVersions,
-  useValidateWorkflow,
-  // Workflow execution query hooks
-  useWorkflowExecutions,
-  useWorkflowExecution,
-  useInfiniteWorkflowExecutions,
-  useWorkflowExecutionStats,
-  useExecutionSnapshots,
-  // Workflow mutation hooks
-  useCreateWorkflow,
-  useUpdateWorkflow,
-  useDeleteWorkflow,
-  useExecuteWorkflow,
-  // Workflow execution mutation hooks
-  usePauseWorkflowExecution,
-  useResumeWorkflowExecution,
-  useCancelWorkflowExecution,
-  useCreateExecutionSnapshot,
-  // Real-time hooks
-  useWorkflowsSubscription,
-  useWorkflowExecutionsSubscription,
-  // Convenience hooks
-  useActiveWorkflows,
-  useWorkflowsByTag,
-  useWorkflowExecutionsByWorkflow,
-  useChildExecutions,
+  type ExecutionsResponse as WorkflowExecutionsResponse,
   // Helpers
   prefetchWorkflow,
   prefetchWorkflowExecution,
+  type UpdateWorkflowInput,
+  // Convenience hooks
+  useActiveWorkflows,
+  useCancelWorkflowExecution,
+  useChildExecutions,
+  useCreateExecutionSnapshot,
+  // Workflow mutation hooks
+  useCreateWorkflow,
+  useDeleteWorkflow,
+  useExecuteWorkflow,
+  useExecutionSnapshots,
+  useInfiniteWorkflowExecutions,
+  // Workflow execution mutation hooks
+  usePauseWorkflowExecution,
+  useResumeWorkflowExecution,
+  useUpdateWorkflow,
+  useValidateWorkflow,
+  useWorkflow,
+  useWorkflowExecution,
+  useWorkflowExecutionStats,
+  // Workflow execution query hooks
+  useWorkflowExecutions,
+  useWorkflowExecutionsByWorkflow,
+  useWorkflowExecutionsSubscription,
+  // Workflow query hooks
+  useWorkflows,
+  useWorkflowsByTag,
+  // Real-time hooks
+  useWorkflowsSubscription,
+  useWorkflowVersions,
+  type WorkflowExecutionFilters,
+  type WorkflowExecutionStats,
   // Types
   type WorkflowFilters,
-  type WorkflowExecutionFilters,
   type WorkflowValidationResult,
-  type WorkflowExecutionStats,
-  type UpdateWorkflowInput,
-  type ExecutionsResponse as WorkflowExecutionsResponse,
 } from './use-workflows'
-
-// Re-export database types
-export type {
-  // Core entities
-  Task,
-  NewTask,
-  Environment,
-  NewEnvironment,
-  AgentExecution,
-  NewAgentExecution,
-  ObservabilityEvent,
-  NewObservabilityEvent,
-  AgentMemory,
-  NewAgentMemory,
-  Workflow,
-  NewWorkflow,
-  WorkflowExecution,
-  NewWorkflowExecution,
-  ExecutionSnapshot,
-  NewExecutionSnapshot,
-  // User entities
-  User,
-  NewUser,
-  AuthSession,
-  NewAuthSession,
-  FileUpload,
-  NewFileUpload,
-  AgentSession,
-  NewAgentSession,
-  // GitHub entities
-  GitHubRepository,
-  NewGitHubRepository,
-  GitHubBranch,
-  NewGitHubBranch,
-  // System entities
-  Migration,
-  NewMigration,
-} from '@/db/schema'
-
-// Export utility functions
-export { initializeElectricBridge, getElectricBridge } from '@/lib/query/electric-bridge'
-export { createOptimizedQueryClient, getOptimizedQueryConfig } from '@/lib/query/config'
 
 // Export hooks for other entities (to be implemented)
 // These are placeholders for the remaining hooks

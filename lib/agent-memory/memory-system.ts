@@ -6,11 +6,11 @@
  */
 
 import { observability } from '@/lib/observability'
+import { memoryContextManager } from './context-manager'
+import { memoryLifecycleManager } from './lifecycle-manager'
 import { memoryRepository } from './repository'
 import { memorySearchService } from './search-service'
-import { memoryContextManager } from './context-manager'
 import { memorySharingService } from './sharing-service'
-import { memoryLifecycleManager } from './lifecycle-manager'
 import { memorySuggestionEngine } from './suggestion-engine'
 import type {
   CreateMemoryInput,
@@ -38,7 +38,7 @@ export class AgentMemorySystem {
     this.config = {
       vectorDimensions: 1536,
       semanticSearchThreshold: 0.7,
-      maxMemoriesPerAgent: 10000,
+      maxMemoriesPerAgent: 10_000,
       memoryExpirationDays: 90,
       archiveAfterDays: 30,
       enableAutoSummarization: true,

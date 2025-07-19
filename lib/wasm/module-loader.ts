@@ -226,7 +226,7 @@ export class WASMModuleLoader {
         }
 
         const contentLength = response.headers.get('content-length')
-        const total = contentLength ? parseInt(contentLength, 10) : 0
+        const total = contentLength ? Number.parseInt(contentLength, 10) : 0
 
         if (!response.body) {
           return response.arrayBuffer()
@@ -350,7 +350,7 @@ export class WASMModuleLoader {
       size: module.size,
       loadTime: module.loadTime,
       version: module.version,
-      memoryPages: module.memory ? module.memory.buffer.byteLength / 65536 : undefined,
+      memoryPages: module.memory ? module.memory.buffer.byteLength / 65_536 : undefined,
     }
   }
 
@@ -391,7 +391,7 @@ export class WASMModuleLoader {
       return exports.version.toString()
     }
 
-    return undefined
+    return
   }
 
   /**

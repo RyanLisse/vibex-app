@@ -4,12 +4,12 @@
  * Monitors resource usage, predicts future capacity needs, and provides recommendations
  */
 
-import { prometheusRegistry } from '../prometheus'
-import { notificationManager } from '../notifications'
-import { observability } from '@/lib/observability'
-import { db } from '@/db/config'
 import { sql } from 'drizzle-orm'
+import { db } from '@/db/config'
+import { observability } from '@/lib/observability'
 import { queryPerformanceMonitor } from '@/lib/performance/query-performance-monitor'
+import { notificationManager } from '../notifications'
+import { prometheusRegistry } from '../prometheus'
 
 export interface CapacityThreshold {
   resource: string
@@ -144,7 +144,7 @@ export class CapacityPlanningManager {
 
       // Generate 30 days of historical data
       for (let i = 30 * 24; i >= 0; i--) {
-        const timestamp = new Date(now - i * 3600000) // Hour intervals
+        const timestamp = new Date(now - i * 3_600_000) // Hour intervals
         const baseValue = threshold.warningThreshold * 0.5
         const growth = (30 * 24 - i) * 0.001 // Slow growth over time
         const noise = Math.random() * 0.1 - 0.05 // ±5% noise
@@ -161,7 +161,7 @@ export class CapacityPlanningManager {
     // Collect metrics every 5 minutes
     this.monitoringInterval = setInterval(() => {
       this.collectMetrics()
-    }, 300000)
+    }, 300_000)
 
     // Initial collection
     this.collectMetrics()
@@ -171,7 +171,7 @@ export class CapacityPlanningManager {
     // Run forecasts every hour
     this.forecastInterval = setInterval(() => {
       this.runForecasts()
-    }, 3600000)
+    }, 3_600_000)
 
     // Initial forecast
     this.runForecasts()
@@ -191,7 +191,7 @@ export class CapacityPlanningManager {
         history.push(dataPoint)
 
         // Keep only last 30 days of data
-        const thirtyDaysAgo = Date.now() - 30 * 24 * 3600000
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 3_600_000
         const filtered = history.filter((dp) => dp.timestamp.getTime() > thirtyDaysAgo)
         this.historicalData.set(threshold.metric, filtered)
 
@@ -218,9 +218,10 @@ export class CapacityPlanningManager {
       case 'disk_usage_gb':
         return 40 + Math.random() * 20 // 40-60GB
 
-      case 'memory_usage_gb':
+      case 'memory_usage_gb': {
         const memoryUsage = process.memoryUsage()
         return memoryUsage.rss / 1024 / 1024 / 1024
+      }
 
       case 'cpu_usage_percent':
         return 30 + Math.random() * 40 // 30-70%
@@ -281,7 +282,7 @@ export class CapacityPlanningManager {
 
       if (criticalPredictions.length > 0) {
         const daysUntilCritical = Math.ceil(
-          (criticalPredictions[0].date.getTime() - Date.now()) / (24 * 3600000)
+          (criticalPredictions[0].date.getTime() - Date.now()) / (24 * 3_600_000)
         )
 
         if (daysUntilCritical <= 7) {
@@ -364,7 +365,7 @@ export class CapacityPlanningManager {
     const lastValue = recent[recent.length - 1].value
     const days =
       (recent[recent.length - 1].timestamp.getTime() - recent[0].timestamp.getTime()) /
-      (24 * 3600000)
+      (24 * 3_600_000)
 
     if (days === 0 || firstValue === 0) return 0
 
@@ -393,8 +394,8 @@ export class CapacityPlanningManager {
 
     // Generate predictions
     for (let i = 1; i <= days; i++) {
-      const date = new Date(Date.now() + i * 24 * 3600000)
-      const value = currentValue * Math.pow(1 + dailyGrowth, i)
+      const date = new Date(Date.now() + i * 24 * 3_600_000)
+      const value = currentValue * (1 + dailyGrowth) ** i
 
       // Confidence decreases with time
       const confidence = Math.max(0.5, 1 - (i / days) * 0.5)

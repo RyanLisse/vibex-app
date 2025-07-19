@@ -5,91 +5,81 @@
  * with zero-downtime, validation, rollback, and progress tracking capabilities.
  */
 
-// Core services
-export { migrationOrchestrator } from './migration-orchestrator'
-export { autoDetector } from './auto-detector'
-export { zeroDowntimeCoordinator } from './zero-downtime-coordinator'
-export { validationService } from './validation-service'
-export { progressTracker } from './progress-tracker'
-export { rollbackService } from './rollback-service'
-export { backupService } from './backup-service'
-export { migrationService } from './migration-service'
-export { dataMigrationManager } from './data-migration'
-
-// Data extraction and mapping services
-export { DataExtractor } from './data-extractor'
-export { DataMapper } from './data-mapper'
-
-// Types
-export type {
-  // Core types
-  MigrationConfig,
-  MigrationResult,
-  MigrationProgress,
-  MigrationState,
-  MigrationError,
-  MigrationEvent,
-  MigrationStrategy,
-  // Data types
-  LocalStorageTask,
-  LocalStorageEnvironment,
-  LocalStorageData,
-  // Validation types
-  ValidationResult,
-  ValidationError,
-  DataConflict,
-  // Backup types
-  BackupData,
-  BackupManifest,
-  // API types
-  MigrationApiResponse,
-  MigrationStatusResponse,
-  MigrationHistoryEntry,
-} from './types'
-
 // Additional types from services
 export type {
-  DetectionResult,
   DetectionConfig,
+  DetectionResult,
 } from './auto-detector'
-
-export type {
-  ZeroDowntimeConfig,
-  MigrationMode,
-  SystemHealth,
-} from './zero-downtime-coordinator'
-
-export type {
-  ValidationOptions,
-  DataComparisonResult,
-  DataDifference,
-} from './validation-service'
-
-export type {
-  ProgressMetrics,
-  ProgressSnapshot,
-  ProgressConfig,
-} from './progress-tracker'
-
-export type {
-  RollbackOptions,
-  RollbackResult,
-  RollbackError,
-  RollbackPoint,
-} from './rollback-service'
-
+export { autoDetector } from './auto-detector'
 export type {
   BackupOptions,
   BackupResult,
 } from './backup-service'
-
+export { backupService } from './backup-service'
+// Data extraction and mapping services
+export { DataExtractor } from './data-extractor'
+export { DataMapper } from './data-mapper'
+export { dataMigrationManager } from './data-migration'
 export type {
-  OrchestrationConfig,
   MigrationPlan,
+  OrchestrationConfig,
 } from './migration-orchestrator'
-
+// Core services
+export { migrationOrchestrator } from './migration-orchestrator'
+export { migrationService } from './migration-service'
+export type {
+  ProgressConfig,
+  ProgressMetrics,
+  ProgressSnapshot,
+} from './progress-tracker'
+export { progressTracker } from './progress-tracker'
+export type {
+  RollbackError,
+  RollbackOptions,
+  RollbackPoint,
+  RollbackResult,
+} from './rollback-service'
+export { rollbackService } from './rollback-service'
+// Types
+export type {
+  // Backup types
+  BackupData,
+  BackupManifest,
+  DataConflict,
+  LocalStorageData,
+  LocalStorageEnvironment,
+  // Data types
+  LocalStorageTask,
+  // API types
+  MigrationApiResponse,
+  // Core types
+  MigrationConfig,
+  MigrationError,
+  MigrationEvent,
+  MigrationHistoryEntry,
+  MigrationProgress,
+  MigrationResult,
+  MigrationState,
+  MigrationStatusResponse,
+  MigrationStrategy,
+  ValidationError,
+  // Validation types
+  ValidationResult,
+} from './types'
 // Utility functions
-export { createMigrationPlan, startMigration, checkMigrationStatus } from './utils'
+export { checkMigrationStatus, createMigrationPlan, startMigration } from './utils'
+export type {
+  DataComparisonResult,
+  DataDifference,
+  ValidationOptions,
+} from './validation-service'
+export { validationService } from './validation-service'
+export type {
+  MigrationMode,
+  SystemHealth,
+  ZeroDowntimeConfig,
+} from './zero-downtime-coordinator'
+export { zeroDowntimeCoordinator } from './zero-downtime-coordinator'
 
 /**
  * Quick start guide:

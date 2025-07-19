@@ -5,8 +5,8 @@
  * vector embeddings and semantic search.
  */
 
-import { wasmServices } from '@/lib/wasm/services'
 import { observability } from '@/lib/observability'
+import { wasmServices } from '@/lib/wasm/services'
 import { memoryRepository } from './repository'
 import type { MemoryEntry, MemorySearchOptions, MemorySearchResult, MemoryType } from './types'
 

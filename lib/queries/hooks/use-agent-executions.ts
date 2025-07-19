@@ -3,19 +3,19 @@
  */
 
 import {
+  type InfiniteData,
+  type UseMutationOptions,
+  type UseQueryOptions,
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
-  type InfiniteData,
-  type UseMutationOptions,
-  type UseQueryOptions,
 } from '@tanstack/react-query'
-import { queryKeys, mutationKeys } from '../keys'
-import type { AgentExecution, NewAgentExecution } from '@/db/schema'
-import { observability } from '@/lib/observability'
-import { electricClient } from '@/lib/electric/client'
 import { useEffect } from 'react'
+import type { AgentExecution, NewAgentExecution } from '@/db/schema'
+import { electricClient } from '@/lib/electric/client'
+import { observability } from '@/lib/observability'
+import { mutationKeys, queryKeys } from '../keys'
 
 // API types
 export interface AgentExecutionFilters {
@@ -240,7 +240,7 @@ export function useInfiniteAgentExecutions(filters: AgentExecutionFilters = {}, 
       fetchExecutions({ ...filters, offset: pageParam, limit: filters.limit || 50 }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.hasMore) return undefined
+      if (!lastPage.hasMore) return
       return allPages.length * (filters.limit || 50)
     },
     staleTime: 1000 * 60 * 1, // 1 minute
@@ -520,7 +520,7 @@ export function useExecutionPerformanceMonitor(executionId: string) {
   const { data: performance } = useExecutionPerformance(executionId)
 
   useEffect(() => {
-    if (!execution || !performance) return
+    if (!(execution && performance)) return
 
     // Report performance metrics to observability
     if (execution.status === 'completed' || execution.status === 'failed') {

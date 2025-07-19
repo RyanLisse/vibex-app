@@ -7,16 +7,16 @@
 
 import { observability } from '../observability'
 import type {
-  PerformanceMetrics,
-  ObservabilityEvent,
   AgentMemory,
   MemorySearchQuery,
   MemorySearchResult,
+  ObservabilityEvent,
+  PerformanceMetrics,
 } from '../observability/types'
-import { wasmServices } from './services'
-import { wasmPerformanceTracker } from './performance-tracker'
-import { moduleLoader } from './module-loader'
 import { dataProcessor } from './data-processor'
+import { moduleLoader } from './module-loader'
+import { wasmPerformanceTracker } from './performance-tracker'
+import { wasmServices } from './services'
 import type { VectorDocument } from './vector-search'
 
 export interface WASMObservabilityConfig {

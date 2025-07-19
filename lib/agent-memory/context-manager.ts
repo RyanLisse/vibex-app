@@ -5,9 +5,9 @@
  * and suggestions based on current context.
  */
 
+import { observability } from '@/lib/observability'
 import { memoryRepository } from './repository'
 import { memorySearchService } from './search-service'
-import { observability } from '@/lib/observability'
 import type { MemoryContext, MemoryEntry, MemorySuggestion, MemoryType } from './types'
 
 export class MemoryContextManager {

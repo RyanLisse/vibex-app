@@ -1,32 +1,32 @@
+import { and, eq } from 'drizzle-orm'
+import { ulid } from 'ulid'
 import { db } from '@/db/config'
 import {
-  workflows,
-  workflowExecutions,
+  type ExecutionSnapshot,
   executionSnapshots,
   observabilityEvents,
   type Workflow,
   type WorkflowExecution,
-  type ExecutionSnapshot,
+  workflowExecutions,
+  workflows,
 } from '@/db/schema'
-import { ulid } from 'ulid'
+import { inngest } from '@/lib/inngest'
 import { observability } from '@/lib/observability'
 import { snapshotManager } from '@/lib/time-travel/execution-snapshots'
-import { eq, and } from 'drizzle-orm'
-import { inngest } from '@/lib/inngest'
-import type {
-  WorkflowDefinition,
-  WorkflowExecutionState,
-  StepExecutionState,
-  WorkflowContext,
-  WorkflowEvent,
-  WorkflowMetrics,
-  StepConfig,
-  WorkflowError,
-  StepExecutionResult,
-} from './types'
 import { stepExecutorRegistry } from './executors'
 import { createWorkflowStateMachine, StateValidation } from './state-machine'
 import { templateRegistry } from './templates'
+import type {
+  StepConfig,
+  StepExecutionResult,
+  StepExecutionState,
+  WorkflowContext,
+  WorkflowDefinition,
+  WorkflowError,
+  WorkflowEvent,
+  WorkflowExecutionState,
+  WorkflowMetrics,
+} from './types'
 
 /**
  * WorkflowExecutionEngine
@@ -300,7 +300,7 @@ export class WorkflowExecutionEngine {
 
     try {
       // Execute step with timeout
-      const timeout = stepConfig.timeout || 300000 // 5 minutes default
+      const timeout = stepConfig.timeout || 300_000 // 5 minutes default
       const result = await this.withTimeout(executor.execute(stepConfig, context), timeout)
 
       // Update step state
@@ -399,7 +399,7 @@ export class WorkflowExecutionEngine {
   private getNextStep(definition: WorkflowDefinition, currentStepId: string): string | undefined {
     const currentIndex = definition.steps.findIndex((s) => s.id === currentStepId)
     if (currentIndex === -1 || currentIndex === definition.steps.length - 1) {
-      return undefined
+      return
     }
     return definition.steps[currentIndex + 1].id
   }
@@ -423,7 +423,7 @@ export class WorkflowExecutionEngine {
     // Calculate delay
     let delay = stepConfig.retryPolicy.initialDelay
     if (stepConfig.retryPolicy.backoffType === 'exponential') {
-      delay = delay * Math.pow(2, retryCount - 1)
+      delay = delay * 2 ** (retryCount - 1)
     } else if (stepConfig.retryPolicy.backoffType === 'linear') {
       delay = delay * retryCount
     }
@@ -937,8 +937,8 @@ export class WorkflowExecutionEngine {
 // Export singleton
 export const workflowEngine = WorkflowExecutionEngine.getInstance()
 
-// Export types and utilities
-export * from './types'
-export { templateRegistry, TEMPLATE_CATEGORIES, suggestTemplates } from './templates'
 export { stepExecutorRegistry } from './executors'
 export { createWorkflowStateMachine, StateValidation } from './state-machine'
+export { suggestTemplates, TEMPLATE_CATEGORIES, templateRegistry } from './templates'
+// Export types and utilities
+export * from './types'

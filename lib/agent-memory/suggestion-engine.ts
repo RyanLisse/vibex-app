@@ -5,10 +5,10 @@
  * patterns, and agent behavior.
  */
 
+import { observability } from '@/lib/observability'
 import { memoryRepository } from './repository'
 import { memorySearchService } from './search-service'
-import { observability } from '@/lib/observability'
-import type { MemoryEntry, MemorySuggestion, MemoryContext, MemoryType } from './types'
+import type { MemoryContext, MemoryEntry, MemorySuggestion, MemoryType } from './types'
 
 interface SuggestionStrategy {
   name: string

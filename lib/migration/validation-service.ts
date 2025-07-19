@@ -5,15 +5,15 @@
  * Ensures no data loss and maintains consistency.
  */
 
+import { eq } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { environments, tasks } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 import type {
-  ValidationResult,
-  ValidationError,
-  LocalStorageTask,
-  LocalStorageEnvironment,
   LocalStorageData,
+  LocalStorageEnvironment,
+  LocalStorageTask,
+  ValidationError,
+  ValidationResult,
 } from './types'
 
 export interface ValidationOptions {
@@ -370,17 +370,19 @@ export class ValidationService {
     }
 
     // Messages integrity
-    if (localTask.messages && dbTask.metadata?.messages) {
-      if (localTask.messages.length !== dbTask.metadata.messages.length) {
-        errors.push({
-          type: 'CONSTRAINT_VIOLATION',
-          field: 'messages',
-          value: dbTask.metadata.messages.length,
-          expected: localTask.messages.length,
-          message: 'Message count mismatch',
-          severity: 'WARNING',
-        })
-      }
+    if (
+      localTask.messages &&
+      dbTask.metadata?.messages &&
+      localTask.messages.length !== dbTask.metadata.messages.length
+    ) {
+      errors.push({
+        type: 'CONSTRAINT_VIOLATION',
+        field: 'messages',
+        value: dbTask.metadata.messages.length,
+        expected: localTask.messages.length,
+        message: 'Message count mismatch',
+        severity: 'WARNING',
+      })
     }
 
     return errors
@@ -447,17 +449,15 @@ export class ValidationService {
     }
 
     // Config validation
-    if (dbEnv.config) {
-      if (localEnv.githubOrganization !== dbEnv.config.githubOrganization) {
-        errors.push({
-          type: 'CONSTRAINT_VIOLATION',
-          field: 'githubOrganization',
-          value: dbEnv.config.githubOrganization,
-          expected: localEnv.githubOrganization,
-          message: 'GitHub organization mismatch',
-          severity: 'WARNING',
-        })
-      }
+    if (dbEnv.config && localEnv.githubOrganization !== dbEnv.config.githubOrganization) {
+      errors.push({
+        type: 'CONSTRAINT_VIOLATION',
+        field: 'githubOrganization',
+        value: dbEnv.config.githubOrganization,
+        expected: localEnv.githubOrganization,
+        message: 'GitHub organization mismatch',
+        severity: 'WARNING',
+      })
     }
 
     return errors
@@ -565,9 +565,7 @@ export class ValidationService {
       // Compare tasks
       for (const [id, localTask] of localTaskMap) {
         const dbTask = dbTaskMap.get(id)
-        if (!dbTask) {
-          localOnly.push(`task:${id}`)
-        } else {
+        if (dbTask) {
           const taskDiffs = this.compareTask(localTask, dbTask)
           if (taskDiffs.length > 0) {
             differences.push(...taskDiffs)
@@ -576,15 +574,15 @@ export class ValidationService {
             matched++
           }
           dbTaskMap.delete(id) // Remove to track database-only items
+        } else {
+          localOnly.push(`task:${id}`)
         }
       }
 
       // Compare environments
       for (const [id, localEnv] of localEnvMap) {
         const dbEnv = dbEnvMap.get(id)
-        if (!dbEnv) {
-          localOnly.push(`environment:${id}`)
-        } else {
+        if (dbEnv) {
           const envDiffs = this.compareEnvironment(localEnv, dbEnv)
           if (envDiffs.length > 0) {
             differences.push(...envDiffs)
@@ -593,6 +591,8 @@ export class ValidationService {
             matched++
           }
           dbEnvMap.delete(id)
+        } else {
+          localOnly.push(`environment:${id}`)
         }
       }
 

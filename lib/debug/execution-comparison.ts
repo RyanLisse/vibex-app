@@ -34,8 +34,9 @@ const diff = (left: any, right: any): any => {
 
   return changes
 }
-import type { ExecutionState, ExecutionSnapshot } from '@/lib/time-travel'
+
 import { observability } from '@/lib/observability'
+import type { ExecutionSnapshot, ExecutionState } from '@/lib/time-travel'
 
 // Comparison result types
 export interface StateDifference {
@@ -172,7 +173,7 @@ export class ExecutionComparisonEngine {
     const delta = diff(leftState, rightState)
 
     // Convert delta to differences
-    const processDelta = (delta: any, path: string = '') => {
+    const processDelta = (delta: any, path = '') => {
       if (!delta) return
 
       Object.keys(delta).forEach((key) => {
@@ -229,7 +230,7 @@ export class ExecutionComparisonEngine {
       const changedPaths = new Set(differences.map((d) => d.path))
 
       allPaths.forEach((path) => {
-        if (!changedPaths.has(path) && !ignorePaths.some((p) => path.startsWith(p))) {
+        if (!(changedPaths.has(path) || ignorePaths.some((p) => path.startsWith(p)))) {
           differences.push({
             path,
             type: 'unchanged',
@@ -530,7 +531,7 @@ export class ExecutionComparisonEngine {
       if (value && typeof value === 'object' && key in value) {
         value = value[key]
       } else {
-        return undefined
+        return
       }
     }
 

@@ -3,18 +3,18 @@
  */
 
 import {
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
-  type UseMutationOptions,
-  type UseQueryOptions,
 } from '@tanstack/react-query'
-import { queryKeys, mutationKeys } from '../keys'
-import type { AgentMemory, NewAgentMemory } from '@/db/schema'
-import { observability } from '@/lib/observability'
-import { electricClient } from '@/lib/electric/client'
-import { wasmDetector } from '@/lib/wasm/detection'
 import { useEffect } from 'react'
+import type { AgentMemory, NewAgentMemory } from '@/db/schema'
+import { electricClient } from '@/lib/electric/client'
+import { observability } from '@/lib/observability'
+import { wasmDetector } from '@/lib/wasm/detection'
+import { mutationKeys, queryKeys } from '../keys'
 
 // API types
 export interface MemoryFilters {
@@ -145,21 +145,20 @@ async function searchMemoryByVector(
       }
 
       return response.json()
-    } else {
-      // Fallback to server-side vector search
-      console.warn('WASM vector search not available, using server-side search')
-      const response = await fetch('/api/agent-memory/vector-search-fallback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ embedding, agentType, limit }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Vector search failed')
-      }
-
-      return response.json()
     }
+    // Fallback to server-side vector search
+    console.warn('WASM vector search not available, using server-side search')
+    const response = await fetch('/api/agent-memory/vector-search-fallback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ embedding, agentType, limit }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Vector search failed')
+    }
+
+    return response.json()
   })
 }
 

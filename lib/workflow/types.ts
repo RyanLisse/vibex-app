@@ -4,7 +4,7 @@
  * Comprehensive types for workflow definition, execution, and state management
  */
 
-import { z } from 'zod'
+import type { z } from 'zod'
 
 // Workflow step types
 export type StepType =

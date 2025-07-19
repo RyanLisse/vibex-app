@@ -5,11 +5,11 @@
  * for collection by Prometheus server
  */
 
-import { Registry, Counter, Gauge, Histogram, Summary, collectDefaultMetrics } from 'prom-client'
 import { createServer } from 'node:http'
+import { Counter, collectDefaultMetrics, Gauge, Histogram, Registry, Summary } from 'prom-client'
+import { observability } from '@/lib/observability'
 import { metrics as observabilityMetrics } from '@/lib/observability/metrics'
 import { queryPerformanceMonitor } from '@/lib/performance/query-performance-monitor'
-import { observability } from '@/lib/observability'
 
 // Create custom registry
 export const prometheusRegistry = new Registry()
@@ -198,7 +198,7 @@ function startMetricsCollection(): void {
     updateSystemMetrics()
     updateDatabaseMetrics()
     updateBusinessMetrics()
-  }, 10000)
+  }, 10_000)
 }
 
 // Update system metrics
@@ -211,7 +211,7 @@ function updateSystemMetrics(): void {
 
   // CPU usage (simplified - in production use more sophisticated measurement)
   const cpuUsage = process.cpuUsage()
-  const totalCpuTime = (cpuUsage.user + cpuUsage.system) / 1000000 // Convert to seconds
+  const totalCpuTime = (cpuUsage.user + cpuUsage.system) / 1_000_000 // Convert to seconds
   metrics.cpuUsagePercent.set(totalCpuTime)
 }
 

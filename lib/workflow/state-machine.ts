@@ -6,11 +6,11 @@
 
 import { EventEmitter } from 'events'
 import type {
-  WorkflowStatus,
-  WorkflowExecutionState,
-  WorkflowTransition,
-  WorkflowEvent,
   WorkflowError,
+  WorkflowEvent,
+  WorkflowExecutionState,
+  WorkflowStatus,
+  WorkflowTransition,
 } from './types'
 
 // State machine configuration

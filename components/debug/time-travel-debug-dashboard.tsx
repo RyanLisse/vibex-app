@@ -1,33 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
-import { ExecutionTimeline } from './execution-timeline'
-import { StateReplayViewer } from './state-replay-viewer'
-import { StateDiffViewer } from './state-diff-viewer'
-import {
-  useDebugSession,
-  useTimeTravelReplay,
-  useBreakpoints,
-  useWatchedVariables,
-  useDebugNotes,
-  useDebugExport,
-  useSnapshotComparison,
-} from '@/hooks/use-time-travel-debug'
 import {
   Activity,
   AlertCircle,
@@ -44,6 +16,34 @@ import {
   Terminal,
   X,
 } from 'lucide-react'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  useBreakpoints,
+  useDebugExport,
+  useDebugNotes,
+  useDebugSession,
+  useSnapshotComparison,
+  useTimeTravelReplay,
+  useWatchedVariables,
+} from '@/hooks/use-time-travel-debug'
+import { cn } from '@/lib/utils'
+import { ExecutionTimeline } from './execution-timeline'
+import { StateDiffViewer } from './state-diff-viewer'
+import { StateReplayViewer } from './state-replay-viewer'
 
 interface TimeTravelDebugDashboardProps {
   sessionId: string
@@ -163,7 +163,7 @@ function NotesPanel({ notes, onAddNote }: { notes: string[]; onAddNote: (note: s
             <FileText className="h-4 w-4" />
             Debug Notes
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={() => setIsAddingNote(!isAddingNote)}>
+          <Button onClick={() => setIsAddingNote(!isAddingNote)} size="icon" variant="ghost">
             {isAddingNote ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </Button>
         </div>
@@ -172,23 +172,23 @@ function NotesPanel({ notes, onAddNote }: { notes: string[]; onAddNote: (note: s
         {isAddingNote && (
           <div className="mb-4 space-y-2">
             <Textarea
+              className="min-h-[80px]"
+              onChange={(e) => setNewNote(e.target.value)}
               placeholder="Add a debug note..."
               value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              className="min-h-[80px]"
             />
             <div className="flex justify-end gap-2">
               <Button
-                variant="outline"
-                size="sm"
                 onClick={() => {
                   setNewNote('')
                   setIsAddingNote(false)
                 }}
+                size="sm"
+                variant="outline"
               >
                 Cancel
               </Button>
-              <Button size="sm" onClick={handleAddNote}>
+              <Button onClick={handleAddNote} size="sm">
                 Add Note
               </Button>
             </div>
@@ -199,7 +199,7 @@ function NotesPanel({ notes, onAddNote }: { notes: string[]; onAddNote: (note: s
             <p className="text-muted-foreground text-sm">No notes yet</p>
           ) : (
             notes.map((note, index) => (
-              <div key={index} className="rounded-md border bg-muted/50 p-2 text-sm">
+              <div className="rounded-md border bg-muted/50 p-2 text-sm" key={index}>
                 {note}
               </div>
             ))
@@ -238,27 +238,27 @@ function ComparisonPanel({
           <Label>Compare with step:</Label>
           <div className="flex gap-2">
             <Input
-              type="number"
-              placeholder="Step number"
-              value={compareIndex >= 0 ? compareIndex : ''}
-              onChange={(e) => setCompareIndex(parseInt(e.target.value) || -1)}
-              min={0}
-              max={snapshots.length - 1}
               className="flex-1"
+              max={snapshots.length - 1}
+              min={0}
+              onChange={(e) => setCompareIndex(Number.parseInt(e.target.value) || -1)}
+              placeholder="Step number"
+              type="number"
+              value={compareIndex >= 0 ? compareIndex : ''}
             />
             <Button
+              disabled={compareIndex < 0 || compareIndex >= snapshots.length}
               onClick={() => {
                 if (compareIndex >= 0 && compareIndex < snapshots.length) {
                   onCompare(currentSnapshot, snapshots[compareIndex])
                 }
               }}
-              disabled={compareIndex < 0 || compareIndex >= snapshots.length}
             >
               Compare
             </Button>
           </div>
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           Current step: {currentSnapshot?.stepNumber || 0}
         </div>
       </CardContent>
@@ -319,7 +319,7 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="flex items-center gap-2 text-2xl font-bold">
+          <h2 className="flex items-center gap-2 font-bold text-2xl">
             <Bug className="h-6 w-6" />
             Time-Travel Debugger
           </h2>
@@ -328,11 +328,11 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportSession} disabled={isExporting}>
+          <Button disabled={isExporting} onClick={exportSession} size="sm" variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export Session
           </Button>
-          <Button variant="outline" size="sm" onClick={closeSession}>
+          <Button onClick={closeSession} size="sm" variant="outline">
             <X className="mr-2 h-4 w-4" />
             Close Session
           </Button>
@@ -349,47 +349,47 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
         </div>
 
         {/* Main panel */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Timeline */}
           <ExecutionTimeline
+            breakpoints={breakpoints}
+            checkpoints={session.checkpoints}
+            currentIndex={currentIndex}
+            errors={session.errors.map((e) => e.stepNumber)}
+            isPlaying={isPlaying}
+            onBreakpointToggle={toggleBreakpoint}
+            onPlayPause={togglePlayback}
+            onSpeedChange={updateSpeed}
+            onStepTo={stepTo}
+            onStop={stopPlayback}
+            playbackSpeed={playbackSpeed}
             sessionId={sessionId}
             snapshots={snapshots}
-            currentIndex={currentIndex}
-            checkpoints={session.checkpoints}
-            errors={session.errors.map((e) => e.stepNumber)}
-            breakpoints={breakpoints}
-            isPlaying={isPlaying}
-            playbackSpeed={playbackSpeed}
-            onStepTo={stepTo}
-            onPlayPause={togglePlayback}
-            onStop={stopPlayback}
-            onSpeedChange={updateSpeed}
-            onBreakpointToggle={toggleBreakpoint}
           />
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs onValueChange={setActiveTab} value={activeTab}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="state">State Viewer</TabsTrigger>
               <TabsTrigger value="errors">Errors & Issues</TabsTrigger>
               <TabsTrigger value="insights">Insights</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="state" className="space-y-4">
+            <TabsContent className="space-y-4" value="state">
               <StateReplayViewer
-                snapshot={currentSnapshot}
-                watchedVariables={watchedVariables}
                 onAddWatch={addWatch}
                 onRemoveWatch={removeWatch}
+                snapshot={currentSnapshot}
+                watchedVariables={watchedVariables}
               />
               <ComparisonPanel
                 currentSnapshot={currentSnapshot}
-                snapshots={snapshots}
                 onCompare={handleCompare}
+                snapshots={snapshots}
               />
             </TabsContent>
 
-            <TabsContent value="errors" className="space-y-4">
+            <TabsContent className="space-y-4" value="errors">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -404,26 +404,26 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
                   ) : (
                     <div className="space-y-3">
                       {session.errors.map((error, index) => (
-                        <div key={index} className="rounded-lg border border-red-200 bg-red-50 p-3">
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-3" key={index}>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <Badge variant="destructive">Step {error.stepNumber}</Badge>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-muted-foreground text-xs">
                                   {new Date(error.timestamp).toLocaleTimeString()}
                                 </span>
                               </div>
                               <p className="mt-1 font-medium text-red-900">{error.error.message}</p>
                               {error.error.stack && (
-                                <pre className="mt-2 overflow-x-auto text-xs text-red-800">
+                                <pre className="mt-2 overflow-x-auto text-red-800 text-xs">
                                   {error.error.stack}
                                 </pre>
                               )}
                             </div>
                             <Button
-                              variant="ghost"
-                              size="sm"
                               onClick={() => stepTo(error.stepNumber)}
+                              size="sm"
+                              variant="ghost"
                             >
                               Go to Step
                             </Button>
@@ -436,7 +436,7 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
               </Card>
             </TabsContent>
 
-            <TabsContent value="insights" className="space-y-4">
+            <TabsContent className="space-y-4" value="insights">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -463,8 +463,8 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
 
       {/* Comparison Dialog */}
       {showComparison && comparison && (
-        <Dialog open={showComparison} onOpenChange={setShowComparison}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <Dialog onOpenChange={setShowComparison} open={showComparison}>
+          <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Snapshot Comparison</DialogTitle>
               <DialogDescription>

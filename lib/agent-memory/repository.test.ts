@@ -2,10 +2,10 @@
  * Memory Repository Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { and, eq, gte, inArray, lte, sql } from 'drizzle-orm'
-import { MemoryRepository } from './repository'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '@/db/config'
+import { MemoryRepository } from './repository'
 import type { CreateMemoryInput, MemoryEntry } from './types'
 
 // Mock database
@@ -300,7 +300,7 @@ describe('MemoryRepository', () => {
         totalCount: 100,
         averageImportance: 5.5,
         averageAccessCount: 3.2,
-        storageSize: 1024000,
+        storageSize: 1_024_000,
       }
 
       mockDb.select.mockReturnValue({

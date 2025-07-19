@@ -4,7 +4,7 @@
  * Provides dashboard configurations and provisioning for Grafana
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 export interface GrafanaDashboard {

@@ -39,7 +39,7 @@ export class AutoDetector extends EventEmitter {
 
   private readonly defaultConfig: DetectionConfig = {
     autoDetect: true,
-    detectionInterval: 30000, // 30 seconds
+    detectionInterval: 30_000, // 30 seconds
     storageKeys: ['task-store', 'environments'],
     notifyOnDetection: true,
     minimumItemsForNotification: 1,
@@ -257,7 +257,7 @@ export class AutoDetector extends EventEmitter {
       console.error('Error getting last modified time:', error)
     }
 
-    return undefined
+    return
   }
 
   /**

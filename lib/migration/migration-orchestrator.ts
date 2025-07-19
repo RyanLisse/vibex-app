@@ -6,22 +6,22 @@
  */
 
 import { EventEmitter } from 'events'
+import { observability } from '@/lib/observability'
 import { autoDetector } from './auto-detector'
-import { zeroDowntimeCoordinator } from './zero-downtime-coordinator'
-import { validationService } from './validation-service'
+import { backupService } from './backup-service'
+import { dataMigrationManager } from './data-migration'
+import { migrationService } from './migration-service'
 import { progressTracker } from './progress-tracker'
 import { rollbackService } from './rollback-service'
-import { backupService } from './backup-service'
-import { migrationService } from './migration-service'
-import { dataMigrationManager } from './data-migration'
-import { observability } from '@/lib/observability'
 import type {
   MigrationConfig,
-  MigrationResult,
-  MigrationProgress,
-  MigrationState,
   MigrationEvent,
+  MigrationProgress,
+  MigrationResult,
+  MigrationState,
 } from './types'
+import { validationService } from './validation-service'
+import { zeroDowntimeCoordinator } from './zero-downtime-coordinator'
 
 export interface OrchestrationConfig {
   autoDetectInterval: number
@@ -54,7 +54,7 @@ export class MigrationOrchestrator extends EventEmitter {
   private eventHistory: MigrationEvent[] = []
 
   private readonly defaultConfig: OrchestrationConfig = {
-    autoDetectInterval: 60000, // 1 minute
+    autoDetectInterval: 60_000, // 1 minute
     enableAutoMigration: false,
     requireUserConfirmation: true,
     createPreMigrationBackup: true,

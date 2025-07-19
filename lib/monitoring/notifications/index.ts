@@ -4,7 +4,7 @@
  * Handles sending notifications through various channels (email, Slack, webhooks)
  */
 
-import { createTransport, Transporter } from 'nodemailer'
+import { createTransport, type Transporter } from 'nodemailer'
 import { observability } from '@/lib/observability'
 
 export interface Notification {
@@ -43,7 +43,7 @@ export class EmailChannel implements NotificationChannel {
   }
 
   async send(notification: Notification): Promise<void> {
-    if (!this.enabled || !this.transporter) return
+    if (!(this.enabled && this.transporter)) return
 
     const severityEmoji = {
       low: '📌',
@@ -236,7 +236,7 @@ export class WebhookChannel implements NotificationChannel {
 export class NotificationManager {
   private channels: NotificationChannel[] = []
   private rateLimits: Map<string, { count: number; resetAt: number }> = new Map()
-  private readonly RATE_LIMIT_WINDOW = 3600000 // 1 hour
+  private readonly RATE_LIMIT_WINDOW = 3_600_000 // 1 hour
   private readonly RATE_LIMIT_MAX = 100 // Max notifications per hour per channel
 
   addChannel(channel: NotificationChannel): void {
@@ -295,7 +295,7 @@ export class NotificationManager {
   private digestQueue: Map<string, Notification[]> = new Map()
   private digestInterval: NodeJS.Timeout | null = null
 
-  startDigest(intervalMs: number = 300000): void {
+  startDigest(intervalMs = 300_000): void {
     // 5 minutes default
     this.digestInterval = setInterval(() => {
       this.sendDigest()

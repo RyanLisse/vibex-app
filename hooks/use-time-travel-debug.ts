@@ -1,12 +1,12 @@
 'use client'
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { timeTravel } from '@/lib/time-travel'
-import { debugSessionManager, type DebugSession } from '@/lib/debug/session-manager'
 import { comparisonEngine } from '@/lib/debug/execution-comparison'
-import type { ExecutionSnapshot, ReplaySpeed } from '@/lib/time-travel'
+import { type DebugSession, debugSessionManager } from '@/lib/debug/session-manager'
 import { observability } from '@/lib/observability'
+import type { ExecutionSnapshot, ReplaySpeed } from '@/lib/time-travel'
+import { timeTravel } from '@/lib/time-travel'
 
 // Query keys
 const debugQueryKeys = {
@@ -329,7 +329,7 @@ export function useWatchedVariables(sessionId?: string) {
   // Update watched values when snapshot changes
   useEffect(() => {
     const updateValues = async () => {
-      if (!sessionId || !session?.currentSnapshot) return
+      if (!(sessionId && session?.currentSnapshot)) return
       const values = await debugSessionManager.getWatchedVariables(sessionId)
       setWatchedValues(values)
     }
@@ -379,7 +379,7 @@ export function useSnapshotComparison(
   // Perform comparison when snapshots change
   useEffect(() => {
     const compare = async () => {
-      if (!leftSnapshot || !rightSnapshot) {
+      if (!(leftSnapshot && rightSnapshot)) {
         setComparison(null)
         return
       }

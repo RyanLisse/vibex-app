@@ -2,13 +2,13 @@
  * Agent Memory System Tests
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { memoryContextManager } from './context-manager'
+import { memoryLifecycleManager } from './lifecycle-manager'
 import { AgentMemorySystem } from './memory-system'
 import { memoryRepository } from './repository'
 import { memorySearchService } from './search-service'
-import { memoryContextManager } from './context-manager'
 import { memorySharingService } from './sharing-service'
-import { memoryLifecycleManager } from './lifecycle-manager'
 import type { CreateMemoryInput, MemoryEntry } from './types'
 
 // Mock dependencies
@@ -265,7 +265,7 @@ describe('AgentMemorySystem', () => {
         totalCount: 100,
         averageImportance: 5.5,
         averageAccessCount: 3.2,
-        storageSize: 1024000,
+        storageSize: 1_024_000,
       }
       const mockSharingStats = {
         totalShared: 25,
@@ -293,7 +293,7 @@ describe('AgentMemorySystem', () => {
         expiringMemories: 10,
         archivedMemories: 20,
         averageAge: 15,
-        storageUtilization: 1024000,
+        storageUtilization: 1_024_000,
         recommendations: ['Archive old memories'],
       }
 

@@ -4,11 +4,11 @@
  * Helper functions for common migration operations.
  */
 
-import { migrationOrchestrator } from './migration-orchestrator'
 import { autoDetector } from './auto-detector'
+import { migrationOrchestrator } from './migration-orchestrator'
 import { progressTracker } from './progress-tracker'
-import { validationService } from './validation-service'
 import type { MigrationConfig, MigrationPlan, MigrationState } from './types'
+import { validationService } from './validation-service'
 
 /**
  * Create a migration plan with recommendations
@@ -163,7 +163,7 @@ export function formatBytes(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  return Number.parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i]
 }
 
 /**
@@ -176,11 +176,11 @@ export function formatDuration(milliseconds: number): string {
 
   if (hours > 0) {
     return `${hours}h ${minutes % 60}m`
-  } else if (minutes > 0) {
-    return `${minutes}m ${seconds % 60}s`
-  } else {
-    return `${seconds}s`
   }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds % 60}s`
+  }
+  return `${seconds}s`
 }
 
 /**

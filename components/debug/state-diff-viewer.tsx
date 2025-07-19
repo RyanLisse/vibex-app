@@ -1,5 +1,16 @@
 'use client'
 
+import {
+  AlertCircle,
+  CheckCircle,
+  GitBranch,
+  Info,
+  Layers,
+  Minus,
+  Plus,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react'
 import { useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,23 +18,12 @@ import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
 import type {
+  ComparisonInsight,
   ExecutionComparison,
   StateDifference,
-  ComparisonInsight,
 } from '@/lib/debug/execution-comparison'
-import {
-  AlertCircle,
-  CheckCircle,
-  Info,
-  Minus,
-  Plus,
-  TrendingDown,
-  TrendingUp,
-  GitBranch,
-  Layers,
-} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface StateDiffViewerProps {
   comparison: ExecutionComparison
@@ -43,7 +43,7 @@ function DiffTypeBadge({ type }: { type: StateDifference['type'] }) {
   const Icon = style.icon
 
   return (
-    <Badge variant={style.variant} className={cn('gap-1', style.color)}>
+    <Badge className={cn('gap-1', style.color)} variant={style.variant}>
       <Icon className="h-3 w-3" />
       {type}
     </Badge>
@@ -71,11 +71,11 @@ function ValueDisplay({ value, type }: { value: any; type: 'old' | 'new' }) {
     >
       <div className="mb-1 flex items-center gap-2">
         <span
-          className={cn('text-xs font-medium', type === 'old' ? 'text-red-700' : 'text-green-700')}
+          className={cn('font-medium text-xs', type === 'old' ? 'text-red-700' : 'text-green-700')}
         >
           {type === 'old' ? 'Previous' : 'Current'}
         </span>
-        <Badge variant="outline" className="text-xs">
+        <Badge className="text-xs" variant="outline">
           {valueType}
         </Badge>
       </div>
@@ -96,20 +96,20 @@ function DifferenceItem({ difference }: { difference: StateDifference }) {
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex items-center justify-between">
-        <code className="font-mono text-sm font-medium">{difference.path}</code>
+        <code className="font-medium font-mono text-sm">{difference.path}</code>
         <DiffTypeBadge type={difference.type} />
       </div>
 
       {difference.type === 'modified' && (
         <div className="grid gap-2 md:grid-cols-2">
-          <ValueDisplay value={difference.oldValue} type="old" />
-          <ValueDisplay value={difference.newValue} type="new" />
+          <ValueDisplay type="old" value={difference.oldValue} />
+          <ValueDisplay type="new" value={difference.newValue} />
         </div>
       )}
 
-      {difference.type === 'added' && <ValueDisplay value={difference.newValue} type="new" />}
+      {difference.type === 'added' && <ValueDisplay type="new" value={difference.newValue} />}
 
-      {difference.type === 'removed' && <ValueDisplay value={difference.oldValue} type="old" />}
+      {difference.type === 'removed' && <ValueDisplay type="old" value={difference.oldValue} />}
     </div>
   )
 }
@@ -145,10 +145,10 @@ function InsightCard({ insight }: { insight: ComparisonInsight }) {
 
         {insight.affectedPaths.length > 0 && (
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Affected paths:</p>
+            <p className="font-medium text-muted-foreground text-xs">Affected paths:</p>
             <div className="flex flex-wrap gap-1">
               {insight.affectedPaths.map((path, i) => (
-                <Badge key={i} variant="outline" className="text-xs">
+                <Badge className="text-xs" key={i} variant="outline">
                   {path}
                 </Badge>
               ))}
@@ -158,10 +158,10 @@ function InsightCard({ insight }: { insight: ComparisonInsight }) {
 
         {insight.recommendations && insight.recommendations.length > 0 && (
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Recommendations:</p>
+            <p className="font-medium text-muted-foreground text-xs">Recommendations:</p>
             <ul className="space-y-1 text-xs">
               {insight.recommendations.map((rec, i) => (
-                <li key={i} className="flex items-start gap-1">
+                <li className="flex items-start gap-1" key={i}>
                   <span className="text-muted-foreground">•</span>
                   <span>{rec}</span>
                 </li>
@@ -187,7 +187,7 @@ function StatisticsOverview({ statistics }: { statistics: ExecutionComparison['s
             <span>Similarity Score</span>
             <span className="font-medium">{statistics.similarityScore}%</span>
           </div>
-          <Progress value={statistics.similarityScore} className="h-2" />
+          <Progress className="h-2" value={statistics.similarityScore} />
         </div>
 
         <Separator />
@@ -247,12 +247,12 @@ export function StateDiffViewer({ comparison, className }: StateDiffViewerProps)
       {/* Header info */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">State Comparison Results</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="font-semibold text-lg">State Comparison Results</h3>
+          <p className="text-muted-foreground text-sm">
             Step {comparison.leftSnapshot.stepNumber} → Step {comparison.rightSnapshot.stepNumber}
           </p>
         </div>
-        <Badge variant="outline" className="gap-1">
+        <Badge className="gap-1" variant="outline">
           <Layers className="h-3 w-3" />
           {comparison.differences.length} differences
         </Badge>
@@ -269,7 +269,7 @@ export function StateDiffViewer({ comparison, className }: StateDiffViewerProps)
             <div className="space-y-3">
               <h4 className="font-medium">Insights</h4>
               {comparison.insights.map((insight, i) => (
-                <InsightCard key={i} insight={insight} />
+                <InsightCard insight={insight} key={i} />
               ))}
             </div>
           )}
@@ -291,7 +291,7 @@ export function StateDiffViewer({ comparison, className }: StateDiffViewerProps)
               <ScrollArea className="h-[600px]">
                 <div className="space-y-3 pr-4">
                   {comparison.differences.map((diff, i) => (
-                    <DifferenceItem key={i} difference={diff} />
+                    <DifferenceItem difference={diff} key={i} />
                   ))}
                 </div>
               </ScrollArea>
@@ -302,7 +302,7 @@ export function StateDiffViewer({ comparison, className }: StateDiffViewerProps)
                 <ScrollArea className="h-[600px]">
                   <div className="space-y-3 pr-4">
                     {diffs.map((diff, i) => (
-                      <DifferenceItem key={i} difference={diff} />
+                      <DifferenceItem difference={diff} key={i} />
                     ))}
                   </div>
                 </ScrollArea>

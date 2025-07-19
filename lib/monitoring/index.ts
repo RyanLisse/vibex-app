@@ -11,14 +11,14 @@
  * - Capacity planning
  */
 
+export * from './alerts'
+export * from './capacity'
+export * from './grafana'
+export * from './health'
+export * from './notifications'
 // Export all monitoring components
 export * from './prometheus'
-export * from './grafana'
-export * from './alerts'
-export * from './notifications'
-export * from './health'
 export * from './sla'
-export * from './capacity'
 
 // Central monitoring configuration
 export interface MonitoringConfig {
@@ -135,7 +135,7 @@ export function getMonitoringConfig(): MonitoringConfig {
   return {
     prometheus: {
       enabled: process.env.PROMETHEUS_ENABLED === 'true',
-      port: parseInt(process.env.PROMETHEUS_PORT || '9090', 10),
+      port: Number.parseInt(process.env.PROMETHEUS_PORT || '9090', 10),
       path: process.env.PROMETHEUS_PATH || '/metrics',
       defaultLabels: {
         service: process.env.SERVICE_NAME || 'codex-clone',
@@ -160,7 +160,7 @@ export function getMonitoringConfig(): MonitoringConfig {
               enabled: true,
               smtp: {
                 host: process.env.SMTP_HOST || 'localhost',
-                port: parseInt(process.env.SMTP_PORT || '587', 10),
+                port: Number.parseInt(process.env.SMTP_PORT || '587', 10),
                 secure: process.env.SMTP_SECURE === 'true',
                 auth: {
                   user: process.env.SMTP_USER || '',
@@ -197,12 +197,12 @@ export function getMonitoringConfig(): MonitoringConfig {
     sla: {
       enabled: process.env.SLA_MONITORING_ENABLED === 'true',
       targets: [], // Loaded from configuration
-      reportingInterval: parseInt(process.env.SLA_REPORTING_INTERVAL || '3600000', 10), // 1 hour
+      reportingInterval: Number.parseInt(process.env.SLA_REPORTING_INTERVAL || '3600000', 10), // 1 hour
     },
     capacity: {
       enabled: process.env.CAPACITY_PLANNING_ENABLED === 'true',
       thresholds: [], // Loaded from configuration
-      forecastDays: parseInt(process.env.CAPACITY_FORECAST_DAYS || '30', 10),
+      forecastDays: Number.parseInt(process.env.CAPACITY_FORECAST_DAYS || '30', 10),
     },
   }
 }

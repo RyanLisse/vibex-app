@@ -2,19 +2,19 @@
  * Comprehensive test suite for workflow orchestration engine
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { workflowEngine, templateRegistry, stepExecutorRegistry } from './index'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { recoveryExecutor, WorkflowErrorClassifier } from './error-recovery'
+import { stepExecutorRegistry, templateRegistry, workflowEngine } from './index'
 import { createWorkflowStateMachine, StateValidation } from './state-machine'
-import { WorkflowErrorClassifier, recoveryExecutor } from './error-recovery'
-import { WorkflowVisualizer } from './visualization'
 import type {
-  WorkflowDefinition,
-  WorkflowExecutionState,
-  StepConfig,
   ActionStepConfig,
   ConditionStepConfig,
   ParallelStepConfig,
+  StepConfig,
+  WorkflowDefinition,
+  WorkflowExecutionState,
 } from './types'
+import { WorkflowVisualizer } from './visualization'
 
 // Mock database operations
 vi.mock('@/db/config', () => ({

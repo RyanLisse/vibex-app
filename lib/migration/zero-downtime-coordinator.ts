@@ -6,16 +6,16 @@
  */
 
 import { EventEmitter } from 'events'
+import { observability } from '@/lib/observability'
+import { backupService } from './backup-service'
 import type {
+  LocalStorageEnvironment,
+  LocalStorageTask,
   MigrationConfig,
   MigrationProgress,
   MigrationResult,
-  LocalStorageTask,
-  LocalStorageEnvironment,
 } from './types'
-import { backupService } from './backup-service'
 import { validationService } from './validation-service'
-import { observability } from '@/lib/observability'
 
 export interface ZeroDowntimeConfig {
   enableDualWrite: boolean
@@ -54,7 +54,7 @@ export class ZeroDowntimeCoordinator extends EventEmitter {
   private syncInterval?: NodeJS.Timeout
   private healthCheckInterval?: NodeJS.Timeout
   private dualWriteQueue: Map<string, any> = new Map()
-  private cutoverProgress: number = 0
+  private cutoverProgress = 0
 
   private readonly defaultConfig: ZeroDowntimeConfig = {
     enableDualWrite: true,
@@ -63,7 +63,7 @@ export class ZeroDowntimeCoordinator extends EventEmitter {
     syncInterval: 5000, // 5 seconds
     maxRetries: 3,
     retryDelay: 1000, // 1 second
-    healthCheckInterval: 30000, // 30 seconds
+    healthCheckInterval: 30_000, // 30 seconds
   }
 
   private config: ZeroDowntimeConfig
@@ -285,7 +285,7 @@ export class ZeroDowntimeCoordinator extends EventEmitter {
           this.completeCutover()
         }
       }
-    }, 60000) // Increase every minute
+    }, 60_000) // Increase every minute
   }
 
   /**
@@ -394,7 +394,7 @@ export class ZeroDowntimeCoordinator extends EventEmitter {
     }
 
     // Determine overall health
-    if (!health.localStorage.healthy || !health.database.healthy) {
+    if (!(health.localStorage.healthy && health.database.healthy)) {
       health.overallHealth = 'unhealthy'
     } else if (!health.redis.healthy) {
       health.overallHealth = 'degraded'

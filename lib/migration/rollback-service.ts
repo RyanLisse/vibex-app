@@ -5,13 +5,13 @@
  * with comprehensive data recovery options.
  */
 
+import { eq, inArray } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { environments, tasks } from '@/db/schema'
-import { eq, inArray } from 'drizzle-orm'
-import { backupService } from './backup-service'
-import { validationService } from './validation-service'
 import { observability } from '@/lib/observability'
+import { backupService } from './backup-service'
 import type { BackupManifest, MigrationError } from './types'
+import { validationService } from './validation-service'
 
 export interface RollbackOptions {
   targetBackupId?: string
@@ -53,7 +53,7 @@ export interface RollbackPoint {
 export class RollbackService {
   private static instance: RollbackService
   private rollbackPoints: Map<string, RollbackPoint> = new Map()
-  private isRollingBack: boolean = false
+  private isRollingBack = false
 
   static getInstance(): RollbackService {
     if (!RollbackService.instance) {
@@ -79,7 +79,7 @@ export class RollbackService {
         description: `Rollback point: ${description}`,
       })
 
-      if (!backupResult.success || !backupResult.manifest) {
+      if (!(backupResult.success && backupResult.manifest)) {
         throw new Error('Failed to create backup for rollback point')
       }
 
@@ -257,7 +257,7 @@ export class RollbackService {
     try {
       // Get migration timestamp
       const migrationStatus = this.getMigrationStatus()
-      if (!migrationStatus || !migrationStatus.completedAt) {
+      if (!(migrationStatus && migrationStatus.completedAt)) {
         warnings.push('No migration timestamp found, cannot preserve new data')
         return { count, warnings }
       }
@@ -342,7 +342,7 @@ export class RollbackService {
       const taskData = localStorage.getItem('task-store')
       const envData = localStorage.getItem('environments')
 
-      if (!taskData && !envData) {
+      if (!(taskData || envData)) {
         warnings.push('No data found in localStorage after rollback')
       }
 
@@ -477,7 +477,7 @@ export class RollbackService {
       }
     } else {
       // Estimate based on current data
-      estimatedTime += 10000 // 10 seconds for unknown size
+      estimatedTime += 10_000 // 10 seconds for unknown size
     }
 
     return estimatedTime

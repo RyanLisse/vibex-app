@@ -6,13 +6,13 @@
  */
 
 import { ComputeWASM, type ComputeWASMConfig, computeManager } from './compute'
+import { type DataProcessingConfig, dataProcessor } from './data-processor'
 import { type WASMCapabilities, wasmDetector } from './detection'
+import { moduleLoader } from './module-loader'
+import { wasmObservability } from './observability-integration'
+import { wasmPerformanceTracker } from './performance-tracker'
 import { type SQLiteWASMConfig, SQLiteWASMUtils, sqliteWASMUtils } from './sqlite-utils'
 import { type VectorSearchConfig, VectorSearchWASM, vectorSearchManager } from './vector-search'
-import { dataProcessor, type DataProcessingConfig } from './data-processor'
-import { moduleLoader } from './module-loader'
-import { wasmPerformanceTracker } from './performance-tracker'
-import { wasmObservability } from './observability-integration'
 
 export interface WASMServicesConfig {
   vectorSearch?: Partial<VectorSearchConfig>

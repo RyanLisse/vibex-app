@@ -2,20 +2,20 @@
  * Comprehensive tests for monitoring system components
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import {
-  prometheusRegistry,
-  metrics,
-  recordHttpRequest,
-  recordDatabaseQuery,
-  recordAgentExecution,
-} from '../prometheus'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { alertManager } from '../alerts'
-import { notificationManager, EmailChannel, SlackChannel } from '../notifications'
-import { healthCheckManager, getHealthStatus } from '../health'
-import { slaMonitor, getSLAReport } from '../sla'
 import { capacityPlanningManager, getCapacityReport } from '../capacity'
+import { getHealthStatus, healthCheckManager } from '../health'
 import { initializeMonitoring } from '../index'
+import { EmailChannel, notificationManager, SlackChannel } from '../notifications'
+import {
+  metrics,
+  prometheusRegistry,
+  recordAgentExecution,
+  recordDatabaseQuery,
+  recordHttpRequest,
+} from '../prometheus'
+import { getSLAReport, slaMonitor } from '../sla'
 
 describe('Monitoring System', () => {
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe('Monitoring System', () => {
 
     it('should record agent execution metrics', async () => {
       recordAgentExecution('code-analyzer', 'success', 5000, 1500)
-      recordAgentExecution('code-generator', 'failure', 10000)
+      recordAgentExecution('code-generator', 'failure', 10_000)
 
       const metrics = await prometheusRegistry.metrics()
       expect(metrics).toContain('agent_executions_total')
@@ -292,7 +292,7 @@ describe('Monitoring System', () => {
       healthCheckManager.addCheck({
         name: 'healthy_check',
         type: 'custom',
-        interval: 60000,
+        interval: 60_000,
         timeout: 1000,
         check: async () => ({ status: 'healthy' }),
       })
@@ -300,7 +300,7 @@ describe('Monitoring System', () => {
       healthCheckManager.addCheck({
         name: 'degraded_check',
         type: 'custom',
-        interval: 60000,
+        interval: 60_000,
         timeout: 1000,
         check: async () => ({ status: 'degraded', message: 'Performance degraded' }),
       })
@@ -316,7 +316,7 @@ describe('Monitoring System', () => {
     it('should evaluate SLA targets', async () => {
       await slaMonitor.initialize({
         targets: [],
-        reportingInterval: 3600000,
+        reportingInterval: 3_600_000,
       })
 
       const targets = slaMonitor.getTargets()
@@ -332,7 +332,7 @@ describe('Monitoring System', () => {
     it('should generate SLA report', async () => {
       await slaMonitor.initialize({
         targets: [],
-        reportingInterval: 3600000,
+        reportingInterval: 3_600_000,
       })
 
       const report = await getSLAReport('hour')
@@ -354,7 +354,7 @@ describe('Monitoring System', () => {
             calculation: 'average',
           },
         ],
-        reportingInterval: 3600000,
+        reportingInterval: 3_600_000,
       })
 
       // In real scenario, metrics would trigger violations

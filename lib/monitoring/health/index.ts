@@ -4,9 +4,9 @@
  * Provides health check endpoints and monitoring for external systems
  */
 
-import { createServer, IncomingMessage, ServerResponse } from 'node:http'
-import { db } from '@/db/config'
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { sql } from 'drizzle-orm'
+import { db } from '@/db/config'
 import { observability } from '@/lib/observability'
 import { queryPerformanceMonitor } from '@/lib/performance/query-performance-monitor'
 import { metrics } from '../prometheus'
@@ -45,7 +45,7 @@ const builtInChecks: HealthCheck[] = [
   {
     name: 'database',
     type: 'database',
-    interval: 30000, // 30 seconds
+    interval: 30_000, // 30 seconds
     timeout: 5000, // 5 seconds
     check: async () => {
       const start = Date.now()
@@ -81,7 +81,7 @@ const builtInChecks: HealthCheck[] = [
   {
     name: 'memory',
     type: 'service',
-    interval: 60000, // 1 minute
+    interval: 60_000, // 1 minute
     timeout: 1000,
     check: async () => {
       const memoryUsage = process.memoryUsage()
@@ -129,7 +129,7 @@ const builtInChecks: HealthCheck[] = [
   {
     name: 'disk_space',
     type: 'service',
-    interval: 300000, // 5 minutes
+    interval: 300_000, // 5 minutes
     timeout: 5000,
     check: async () => {
       try {
@@ -138,7 +138,7 @@ const builtInChecks: HealthCheck[] = [
         const output = execSync('df -h /').toString()
         const lines = output.trim().split('\n')
         const diskInfo = lines[1].split(/\s+/)
-        const usagePercent = parseInt(diskInfo[4].replace('%', ''))
+        const usagePercent = Number.parseInt(diskInfo[4].replace('%', ''))
 
         if (usagePercent > 90) {
           return {
@@ -173,7 +173,7 @@ const builtInChecks: HealthCheck[] = [
   {
     name: 'query_performance',
     type: 'database',
-    interval: 60000, // 1 minute
+    interval: 60_000, // 1 minute
     timeout: 5000,
     check: async () => {
       const perfMetrics = queryPerformanceMonitor.getCurrentMetrics()
@@ -213,7 +213,7 @@ const builtInChecks: HealthCheck[] = [
   {
     name: 'observability',
     type: 'service',
-    interval: 120000, // 2 minutes
+    interval: 120_000, // 2 minutes
     timeout: 5000,
     check: async () => {
       const health = observability.getHealthStatus()
@@ -354,7 +354,8 @@ class HealthCheckManager {
       if (check.status === 'unhealthy') {
         overallStatus = 'unhealthy'
         break
-      } else if (check.status === 'degraded' && overallStatus === 'healthy') {
+      }
+      if (check.status === 'degraded' && overallStatus === 'healthy') {
         overallStatus = 'degraded'
       }
     }
@@ -369,7 +370,7 @@ class HealthCheckManager {
   }
 
   private startServer(path: string): void {
-    const port = parseInt(process.env.HEALTH_CHECK_PORT || '3001', 10)
+    const port = Number.parseInt(process.env.HEALTH_CHECK_PORT || '3001', 10)
 
     this.server = createServer((req: IncomingMessage, res: ServerResponse) => {
       if (req.url === path && req.method === 'GET') {

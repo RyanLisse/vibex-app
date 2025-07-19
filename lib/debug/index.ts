@@ -5,26 +5,23 @@
  * state inspection, and performance profiling.
  */
 
-// Export session management
-export * from './session-manager'
-export * from './execution-comparison'
-
-// Re-export time-travel components
-export * from '@/lib/time-travel'
-
 // Export React components
 export { ExecutionTimeline } from '@/components/debug/execution-timeline'
-export { StateReplayViewer } from '@/components/debug/state-replay-viewer'
 export { StateDiffViewer } from '@/components/debug/state-diff-viewer'
+export { StateReplayViewer } from '@/components/debug/state-replay-viewer'
 export { TimeTravelDebugDashboard } from '@/components/debug/time-travel-debug-dashboard'
-
 // Export hooks
 export * from '@/hooks/use-time-travel-debug'
+// Re-export time-travel components
+export * from '@/lib/time-travel'
+export * from './execution-comparison'
+// Export session management
+export * from './session-manager'
 
+import { timeTravel } from '@/lib/time-travel'
+import { comparisonEngine } from './execution-comparison'
 // Main debug API
 import { debugSessionManager } from './session-manager'
-import { comparisonEngine } from './execution-comparison'
-import { timeTravel } from '@/lib/time-travel'
 
 export const debug = {
   // Session management

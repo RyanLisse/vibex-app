@@ -4,102 +4,95 @@
  * Comprehensive workflow engine with execution, monitoring, and visualization
  */
 
-// Core engine and types
-export * from './types'
 export { workflowEngine } from './engine'
-
-// Templates
-export {
-  templateRegistry,
-  TEMPLATE_CATEGORIES,
-  suggestTemplates,
-} from './templates'
-
-// Executors
-export {
-  stepExecutorRegistry,
-  ActionStepExecutor,
-  ConditionStepExecutor,
-  ParallelStepExecutor,
-  SequentialStepExecutor,
-  LoopStepExecutor,
-  WaitStepExecutor,
-  HumanApprovalStepExecutor,
-  WebhookStepExecutor,
-  TransformStepExecutor,
-  AggregateStepExecutor,
-  BranchStepExecutor,
-} from './executors'
-
-// State machine
-export {
-  WorkflowStateMachine,
-  createWorkflowStateMachine,
-  StateValidation,
-  useWorkflowStateMachine,
-  DEFAULT_WORKFLOW_TRANSITIONS,
-} from './state-machine'
-
 // Error handling
 export {
-  WorkflowErrorCode,
-  ErrorSeverity,
-  RecoveryStrategy,
-  WorkflowErrorClassifier,
-  RecoveryExecutor,
-  recoveryExecutor,
-  enrichError,
   ErrorAggregator,
   type ErrorClassification,
-  type RecoveryContext,
-  type RecoveryResult,
+  ErrorSeverity,
   type ErrorSummary,
+  enrichError,
+  type RecoveryContext,
+  RecoveryExecutor,
+  type RecoveryResult,
+  RecoveryStrategy,
+  recoveryExecutor,
+  WorkflowErrorClassifier,
+  WorkflowErrorCode,
 } from './error-recovery'
-
-// Monitoring
+// Executors
 export {
-  WorkflowMonitor,
-  workflowMonitor,
-  WorkflowDashboard,
-  workflowDashboard,
-  type MonitoringConfig,
-  type AlertThresholds,
-  type RetentionPolicy,
-  type WorkflowMetricsCollection,
-  type PerformanceReport,
-  type Alert,
-  type RealTimeMetrics,
-  type DashboardOverview,
-} from './monitoring'
-
-// Visualization
-export {
-  WorkflowVisualizer,
-  getStatusColor,
-  getStatusIcon,
-  formatDuration,
-  type WorkflowGraph,
-  type GraphNode,
-  type GraphEdge,
-  type GraphMetadata,
-  type NodeStyle,
-  type EdgeStyle,
-  type ExecutionTimeline,
-  type TimelineEvent,
-} from './visualization'
-
+  ActionStepExecutor,
+  AggregateStepExecutor,
+  BranchStepExecutor,
+  ConditionStepExecutor,
+  HumanApprovalStepExecutor,
+  LoopStepExecutor,
+  ParallelStepExecutor,
+  SequentialStepExecutor,
+  stepExecutorRegistry,
+  TransformStepExecutor,
+  WaitStepExecutor,
+  WebhookStepExecutor,
+} from './executors'
 // Inngest handlers
 export {
-  workflowHandlers,
-  workflowTriggerHandler,
-  scheduledWorkflowHandler,
-  workflowStateChangeHandler,
-  workflowRetryHandler,
   humanApprovalHandler,
+  scheduledWorkflowHandler,
   webhookTriggerHandler,
-  workflowMonitoringHandler,
   workflowCleanupHandler,
+  workflowHandlers,
+  workflowMonitoringHandler,
+  workflowRetryHandler,
+  workflowStateChangeHandler,
+  workflowTriggerHandler,
 } from './inngest-handlers'
+// Monitoring
+export {
+  type Alert,
+  type AlertThresholds,
+  type DashboardOverview,
+  type MonitoringConfig,
+  type PerformanceReport,
+  type RealTimeMetrics,
+  type RetentionPolicy,
+  WorkflowDashboard,
+  type WorkflowMetricsCollection,
+  WorkflowMonitor,
+  workflowDashboard,
+  workflowMonitor,
+} from './monitoring'
+// State machine
+export {
+  createWorkflowStateMachine,
+  DEFAULT_WORKFLOW_TRANSITIONS,
+  StateValidation,
+  useWorkflowStateMachine,
+  WorkflowStateMachine,
+} from './state-machine'
+// Templates
+export {
+  suggestTemplates,
+  TEMPLATE_CATEGORIES,
+  templateRegistry,
+} from './templates'
+// Core engine and types
+export * from './types'
+// Visualization
+export {
+  type EdgeStyle,
+  type ExecutionTimeline,
+  formatDuration,
+  type GraphEdge,
+  type GraphMetadata,
+  type GraphNode,
+  getStatusColor,
+  getStatusIcon,
+  type NodeStyle,
+  type TimelineEvent,
+  type WorkflowGraph,
+  WorkflowVisualizer,
+} from './visualization'
 
 // Convenience exports for common use cases
 export const Workflow = {
@@ -130,20 +123,20 @@ export const Workflow = {
 export const DEFAULT_WORKFLOW_CONFIG = {
   monitoring: {
     enabled: true,
-    interval: 60000, // 1 minute
+    interval: 60_000, // 1 minute
   },
   retryPolicy: {
     maxAttempts: 3,
     backoffType: 'exponential' as const,
     initialDelay: 1000,
-    maxDelay: 30000,
+    maxDelay: 30_000,
   },
   errorHandling: {
     strategy: RecoveryStrategy.RETRY_WITH_BACKOFF,
     circuitBreaker: {
       enabled: true,
       failureThreshold: 5,
-      resetTimeout: 60000,
+      resetTimeout: 60_000,
     },
   },
   visualization: {

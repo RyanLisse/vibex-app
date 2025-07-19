@@ -19,12 +19,12 @@ export const createPullRequestAction = async ({ task }: { task: Task }) => {
     agent: {
       type: 'codex',
       model: {
-        apiKey: process.env.OPENAI_API_KEY!,
+        apiKey: process.env.OPENAI_API_KEY || '',
       },
     },
     environment: {
       e2b: {
-        apiKey: process.env.E2B_API_KEY!,
+        apiKey: process.env.E2B_API_KEY || '',
       },
     },
     github: {

@@ -191,14 +191,7 @@ export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscr
         }
       })
     }
-  }, [
-    state.enabled,
-    state.enabled,
-    state.lastError.lastError,
-    checkInngestAvailability,
-    scheduleRetry,
-    handleStateChange,
-  ])
+  }, [state.enabled, state.lastError, checkInngestAvailability, scheduleRetry, handleStateChange])
 
   // Subscription configuration
   const { config } = useSubscriptionConfig({

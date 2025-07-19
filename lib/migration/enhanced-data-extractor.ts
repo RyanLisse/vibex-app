@@ -4,7 +4,7 @@
  * Advanced extraction with better pattern matching and normalization.
  */
 
-import type { LocalStorageData, LocalStorageTask, LocalStorageEnvironment } from './types'
+import type { LocalStorageData, LocalStorageEnvironment, LocalStorageTask } from './types'
 
 export interface ExtractionOptions {
   includeFormData: boolean

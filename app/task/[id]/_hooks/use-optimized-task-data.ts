@@ -45,7 +45,7 @@ export function useOptimizedTaskData({
       previousTaskId.current = task.id
       isFirstRender.current = false
     }
-  }, [task?.id, updateTaskMutation])
+  }, [task, updateTaskMutation])
 
   // Memoize filtered messages with stable references
   const regularMessages = useMemo(() => {
@@ -69,7 +69,7 @@ export function useOptimizedTaskData({
 
   const isTaskInProgressValue = useMemo(() => {
     return task ? isTaskInProgress(task) : false
-  }, [task?.status])
+  }, [task])
 
   return {
     regularMessages,

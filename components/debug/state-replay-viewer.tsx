@@ -1,7 +1,27 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Brain,
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  Database,
+  Download,
+  Eye,
+  EyeOff,
+  FileText,
+  Filter,
+  Layers,
+  Package,
+  RefreshCw,
+  Search,
+  Settings,
+  Terminal,
+  Variable,
+  Zap,
+} from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,28 +30,8 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { ExecutionSnapshot, ExecutionState } from '@/lib/time-travel'
 import { cn } from '@/lib/utils'
-import type { ExecutionState, ExecutionSnapshot } from '@/lib/time-travel'
-import {
-  Brain,
-  Database,
-  Eye,
-  EyeOff,
-  FileText,
-  Layers,
-  Package,
-  Search,
-  Settings,
-  Terminal,
-  Variable,
-  Zap,
-  ChevronRight,
-  ChevronDown,
-  Copy,
-  Download,
-  RefreshCw,
-  Filter,
-} from 'lucide-react'
 
 interface StateReplayViewerProps {
   snapshot: ExecutionSnapshot | null
@@ -66,7 +66,7 @@ function ValueTypeBadge({ type }: { type: string }) {
   const style = variants[type] || variants.object
 
   return (
-    <Badge variant={style.variant} className={cn('text-xs', style.color)}>
+    <Badge className={cn('text-xs', style.color)} variant={style.variant}>
       {type}
     </Badge>
   )
@@ -114,7 +114,7 @@ function TreeView({
         const isExpanded = node.isExpanded || searchQuery !== ''
 
         return (
-          <div key={node.path} className="relative">
+          <div className="relative" key={node.path}>
             <div
               className={cn(
                 'group flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-muted',
@@ -125,10 +125,10 @@ function TreeView({
               {/* Expand/collapse button */}
               {hasChildren && (
                 <Button
-                  variant="ghost"
-                  size="icon"
                   className="h-4 w-4 p-0"
                   onClick={() => onToggle(node.path)}
+                  size="icon"
+                  variant="ghost"
                 >
                   {isExpanded ? (
                     <ChevronDown className="h-3 w-3" />
@@ -147,7 +147,7 @@ function TreeView({
                 <ValueTypeBadge type={node.type} />
                 {node.type === 'object' || node.type === 'array' ? (
                   <span className="text-muted-foreground">
-                    {node.type === 'array' ? `[${node.children?.length || 0}]` : `{...}`}
+                    {node.type === 'array' ? `[${node.children?.length || 0}]` : '{...}'}
                   </span>
                 ) : (
                   <span
@@ -166,18 +166,18 @@ function TreeView({
               {/* Actions */}
               <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100">
                 <Button
-                  variant="ghost"
-                  size="icon"
                   className="h-6 w-6"
                   onClick={() => (isWatched ? onUnwatch(node.path) : onWatch(node.path))}
+                  size="icon"
+                  variant="ghost"
                 >
                   {isWatched ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                 </Button>
                 <Button
-                  variant="ghost"
-                  size="icon"
                   className="h-6 w-6"
                   onClick={() => navigator.clipboard.writeText(JSON.stringify(node.value, null, 2))}
+                  size="icon"
+                  variant="ghost"
                 >
                   <Copy className="h-3 w-3" />
                 </Button>
@@ -187,13 +187,13 @@ function TreeView({
             {/* Children */}
             {hasChildren && isExpanded && (
               <TreeView
-                nodes={node.children!}
-                watchedPaths={watchedPaths}
-                onToggle={onToggle}
-                onWatch={onWatch}
-                onUnwatch={onUnwatch}
-                searchQuery={searchQuery}
                 level={level + 1}
+                nodes={node.children!}
+                onToggle={onToggle}
+                onUnwatch={onUnwatch}
+                onWatch={onWatch}
+                searchQuery={searchQuery}
+                watchedPaths={watchedPaths}
               />
             )}
           </div>
@@ -271,11 +271,11 @@ function StateSection({
         <ScrollArea className="h-[300px]">
           <TreeView
             nodes={tree}
-            watchedPaths={watchedPaths}
             onToggle={onToggle}
-            onWatch={onWatch}
             onUnwatch={onUnwatch}
+            onWatch={onWatch}
             searchQuery={searchQuery}
+            watchedPaths={watchedPaths}
           />
         </ScrollArea>
       </CardContent>
@@ -343,8 +343,6 @@ export function StateReplayViewer({
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="sm"
               onClick={() => {
                 const data = JSON.stringify(state, null, 2)
                 const blob = new Blob([data], { type: 'application/json' })
@@ -355,6 +353,8 @@ export function StateReplayViewer({
                 a.click()
                 URL.revokeObjectURL(url)
               }}
+              size="sm"
+              variant="outline"
             >
               <Download className="h-4 w-4" />
             </Button>
@@ -365,21 +365,21 @@ export function StateReplayViewer({
         {/* Search bar */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
             <Input
+              className="pl-8"
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search state..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
             />
           </div>
-          <Button variant="outline" size="icon" onClick={() => setExpandedPaths(new Set())}>
+          <Button onClick={() => setExpandedPaths(new Set())} size="icon" variant="outline">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs onValueChange={setActiveTab} value={activeTab}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="state">State</TabsTrigger>
             <TabsTrigger value="memory">Memory</TabsTrigger>
@@ -387,144 +387,144 @@ export function StateReplayViewer({
             <TabsTrigger value="watch">Watch</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="state" className="space-y-4">
+          <TabsContent className="space-y-4" value="state">
             <div className="grid gap-4 lg:grid-cols-2">
               <StateSection
-                title="Agent"
-                icon={Brain}
                 data={{
                   agentId: state.agentId,
                   sessionId: state.sessionId,
                   currentStep: state.currentStep,
                   totalSteps: state.totalSteps,
                 }}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Brain}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Agent"
+                watchedPaths={watchedPaths}
               />
               <StateSection
-                title="Current Operation"
-                icon={Terminal}
                 data={state.currentOperation || {}}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Terminal}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Current Operation"
+                watchedPaths={watchedPaths}
               />
               <StateSection
-                title="Outputs"
-                icon={Package}
                 data={state.outputs}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Package}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Outputs"
+                watchedPaths={watchedPaths}
               />
               <StateSection
-                title="Performance"
-                icon={Zap}
                 data={state.performance}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Zap}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Performance"
+                watchedPaths={watchedPaths}
               />
             </div>
           </TabsContent>
 
-          <TabsContent value="memory" className="space-y-4">
+          <TabsContent className="space-y-4" value="memory">
             <div className="grid gap-4">
               <StateSection
-                title="Short Term Memory"
-                icon={Brain}
                 data={state.memory.shortTerm}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Brain}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Short Term Memory"
+                watchedPaths={watchedPaths}
               />
               <StateSection
-                title="Long Term Memory"
-                icon={Database}
                 data={state.memory.longTerm}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Database}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Long Term Memory"
+                watchedPaths={watchedPaths}
               />
               <StateSection
-                title="Context Memory"
-                icon={FileText}
                 data={state.memory.context}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={FileText}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Context Memory"
+                watchedPaths={watchedPaths}
               />
               <StateSection
-                title="Variables"
-                icon={Variable}
                 data={state.memory.variables}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Variable}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Variables"
+                watchedPaths={watchedPaths}
               />
             </div>
           </TabsContent>
 
-          <TabsContent value="context" className="space-y-4">
+          <TabsContent className="space-y-4" value="context">
             <StateSection
-              title="Execution Context"
-              icon={Settings}
               data={state.context}
-              watchedPaths={watchedPaths}
-              onWatch={onAddWatch}
-              onUnwatch={onRemoveWatch}
               expandedPaths={expandedPaths}
+              icon={Settings}
               onToggle={handleToggle}
+              onUnwatch={onRemoveWatch}
+              onWatch={onAddWatch}
               searchQuery={searchQuery}
+              title="Execution Context"
+              watchedPaths={watchedPaths}
             />
             {state.error && (
               <StateSection
-                title="Error Details"
-                icon={Terminal}
                 data={state.error}
-                watchedPaths={watchedPaths}
-                onWatch={onAddWatch}
-                onUnwatch={onRemoveWatch}
                 expandedPaths={expandedPaths}
+                icon={Terminal}
                 onToggle={handleToggle}
+                onUnwatch={onRemoveWatch}
+                onWatch={onAddWatch}
                 searchQuery={searchQuery}
+                title="Error Details"
+                watchedPaths={watchedPaths}
               />
             )}
           </TabsContent>
 
-          <TabsContent value="watch" className="space-y-4">
+          <TabsContent className="space-y-4" value="watch">
             <div className="space-y-4">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter variable path (e.g., memory.shortTerm.userId)"
-                  value={newWatchPath}
                   onChange={(e) => setNewWatchPath(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddWatch()}
+                  placeholder="Enter variable path (e.g., memory.shortTerm.userId)"
+                  value={newWatchPath}
                 />
                 <Button onClick={handleAddWatch}>Add Watch</Button>
               </div>
@@ -549,24 +549,24 @@ export function StateReplayViewer({
 
                       return (
                         <div
-                          key={variable}
                           className="flex items-center justify-between rounded-md border p-2"
+                          key={variable}
                         >
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-sm">{variable}</span>
                               <ValueTypeBadge type={type} />
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               {type === 'object' || type === 'array'
                                 ? JSON.stringify(value, null, 2).substring(0, 100) + '...'
                                 : String(value)}
                             </div>
                           </div>
                           <Button
-                            variant="ghost"
-                            size="icon"
                             onClick={() => onRemoveWatch(variable)}
+                            size="icon"
+                            variant="ghost"
                           >
                             <EyeOff className="h-4 w-4" />
                           </Button>

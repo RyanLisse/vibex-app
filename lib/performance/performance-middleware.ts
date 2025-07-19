@@ -7,9 +7,9 @@
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
 import type { NextRequest, NextResponse } from 'next/server'
-import { queryPerformanceMonitor } from './query-performance-monitor'
 import { observability } from '@/lib/observability'
 import { metrics } from '@/lib/observability/metrics'
+import { queryPerformanceMonitor } from './query-performance-monitor'
 
 /**
  * Performance monitoring wrapper for API route handlers

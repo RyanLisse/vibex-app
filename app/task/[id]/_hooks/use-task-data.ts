@@ -32,7 +32,7 @@ export function useTaskData({ task, streamingMessages }: UseTaskDataProps): UseT
         hasChanges: false,
       })
     }
-  }, [task?.id, updateTaskMutation])
+  }, [task, updateTaskMutation])
 
   // Memoize filtered messages to prevent unnecessary re-renders
   const regularMessages = useMemo(() => {

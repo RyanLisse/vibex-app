@@ -5,7 +5,7 @@
  */
 
 import { z } from 'zod'
-import type { WorkflowTemplate, WorkflowDefinition } from './types'
+import type { WorkflowDefinition, WorkflowTemplate } from './types'
 
 // Template registry
 export class WorkflowTemplateRegistry {

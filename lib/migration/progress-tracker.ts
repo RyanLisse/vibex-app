@@ -6,7 +6,7 @@
  */
 
 import { EventEmitter } from 'events'
-import type { MigrationProgress, MigrationError } from './types'
+import type { MigrationError, MigrationProgress } from './types'
 
 export interface ProgressMetrics {
   startTime: Date
@@ -206,7 +206,7 @@ export class ProgressTracker extends EventEmitter {
   /**
    * Increment processed items
    */
-  incrementProcessed(count: number = 1): void {
+  incrementProcessed(count = 1): void {
     if (!this.currentProgress) return
 
     this.updateProgress({
@@ -225,7 +225,7 @@ export class ProgressTracker extends EventEmitter {
    * Get progress metrics
    */
   getMetrics(): ProgressMetrics | undefined {
-    if (!this.currentProgress || !this.startTime) return undefined
+    if (!(this.currentProgress && this.startTime)) return
 
     return this.calculateCurrentMetrics()
   }
@@ -244,7 +244,7 @@ export class ProgressTracker extends EventEmitter {
    */
   getEstimatedCompletionTime(): Date | undefined {
     const metrics = this.getMetrics()
-    if (!metrics || !metrics.estimatedTimeRemaining) return undefined
+    if (!(metrics && metrics.estimatedTimeRemaining)) return
 
     return new Date(Date.now() + metrics.estimatedTimeRemaining)
   }
@@ -361,7 +361,7 @@ export class ProgressTracker extends EventEmitter {
    * Generate progress summary
    */
   generateSummary(): string {
-    if (!this.currentProgress || !this.startTime) {
+    if (!(this.currentProgress && this.startTime)) {
       return 'No migration in progress'
     }
 
@@ -392,11 +392,11 @@ Warnings: ${this.currentProgress.warnings.length}
 
     if (hours > 0) {
       return `${hours}h ${minutes % 60}m ${seconds % 60}s`
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds % 60}s`
-    } else {
-      return `${seconds}s`
     }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`
+    }
+    return `${seconds}s`
   }
 
   /**

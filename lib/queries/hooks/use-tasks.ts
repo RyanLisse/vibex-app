@@ -3,19 +3,19 @@
  */
 
 import {
+  type InfiniteData,
+  type QueryClient,
+  type UseMutationOptions,
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
-  type InfiniteData,
-  type QueryClient,
-  type UseMutationOptions,
 } from '@tanstack/react-query'
-import { queryKeys, mutationKeys } from '../keys'
-import type { Task, NewTask } from '@/db/schema'
-import { observability } from '@/lib/observability'
+import type { NewTask, Task } from '@/db/schema'
 import { electricClient } from '@/lib/electric/client'
+import { observability } from '@/lib/observability'
 import { wasmDetector } from '@/lib/wasm/detection'
+import { mutationKeys, queryKeys } from '../keys'
 
 // API types
 export interface TasksResponse {
@@ -141,11 +141,10 @@ async function searchTasksByVector(
       }
 
       return response.json()
-    } else {
-      // Fallback to regular search
-      const result = await fetchTasks({ ...filters, limit })
-      return result.tasks
     }
+    // Fallback to regular search
+    const result = await fetchTasks({ ...filters, limit })
+    return result.tasks
   })
 }
 
@@ -178,7 +177,7 @@ export function useInfiniteTasks(filters: TaskFilters = {}, options?: any) {
       fetchTasks({ ...filters, offset: pageParam, limit: filters.limit || 20 }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.hasMore) return undefined
+      if (!lastPage.hasMore) return
       return allPages.length * (filters.limit || 20)
     },
     staleTime: 1000 * 60 * 2, // 2 minutes

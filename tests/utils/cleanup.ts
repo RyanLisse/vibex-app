@@ -46,8 +46,12 @@ export function setupTestCleanup() {
 
   afterEach(() => {
     // Clear all active timers
-    activeTimers.forEach((timer) => originalClearTimeout(timer))
-    activeIntervals.forEach((interval) => originalClearInterval(interval))
+    for (const timer of activeTimers) {
+      originalClearTimeout(timer)
+    }
+    for (const interval of activeIntervals) {
+      originalClearInterval(interval)
+    }
 
     // Clear sets
     activeTimers.clear()

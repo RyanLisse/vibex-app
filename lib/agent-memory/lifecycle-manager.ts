@@ -4,9 +4,9 @@
  * Manages memory expiration, archival, and maintenance operations.
  */
 
-import { memoryRepository } from './repository'
 import { observability } from '@/lib/observability'
-import type { MemoryEntry, MemoryLifecycleEvent, MemoryImportance } from './types'
+import { memoryRepository } from './repository'
+import type { MemoryEntry, MemoryImportance, MemoryLifecycleEvent } from './types'
 
 export class MemoryLifecycleManager {
   private static instance: MemoryLifecycleManager
@@ -379,7 +379,7 @@ export class MemoryLifecycleManager {
     // Generate recommendations
     const recommendations: string[] = []
 
-    if (stats.totalCount > 10000) {
+    if (stats.totalCount > 10_000) {
       recommendations.push('Consider archiving old memories to improve performance')
     }
 

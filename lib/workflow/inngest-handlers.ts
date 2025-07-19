@@ -5,9 +5,9 @@
  */
 
 import { inngest } from '@/lib/inngest'
-import { workflowEngine } from './engine'
 import { observability } from '@/lib/observability'
-import type { WorkflowDefinition, WorkflowTrigger, WorkflowExecutionState } from './types'
+import { workflowEngine } from './engine'
+import type { WorkflowDefinition, WorkflowExecutionState, WorkflowTrigger } from './types'
 
 // Workflow trigger events
 export const workflowTriggerHandler = inngest.createFunction(
@@ -232,7 +232,7 @@ export const workflowMonitoringHandler = inngest.createFunction(
     // Check for stuck workflows
     const stuckWorkflows = await step.run('check-stuck-workflows', async () => {
       return await findStuckWorkflows({
-        maxRunningTime: 3600000, // 1 hour
+        maxRunningTime: 3_600_000, // 1 hour
         statuses: ['running'],
       })
     })

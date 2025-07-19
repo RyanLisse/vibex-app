@@ -1,13 +1,13 @@
 'use client'
 
+import { Bug, Clock, Database, Layers, Play } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TimeTravelDebugDashboard } from '@/components/debug/time-travel-debug-dashboard'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDebugSession, useUserDebugSessions } from '@/hooks/use-time-travel-debug'
 import { debug } from '@/lib/debug'
-import { Bug, Play, Clock, Database, Layers } from 'lucide-react'
 
 // Mock user ID for demo
 const DEMO_USER_ID = 'demo-user-123'
@@ -19,8 +19,8 @@ const MOCK_EXECUTIONS = [
     agentType: 'search-agent',
     taskId: 'task-1',
     status: 'completed',
-    startedAt: new Date(Date.now() - 3600000),
-    completedAt: new Date(Date.now() - 3000000),
+    startedAt: new Date(Date.now() - 3_600_000),
+    completedAt: new Date(Date.now() - 3_000_000),
     error: null,
     metadata: {
       query: 'Find documentation about React hooks',
@@ -32,8 +32,8 @@ const MOCK_EXECUTIONS = [
     agentType: 'code-analysis-agent',
     taskId: 'task-2',
     status: 'failed',
-    startedAt: new Date(Date.now() - 7200000),
-    completedAt: new Date(Date.now() - 6600000),
+    startedAt: new Date(Date.now() - 7_200_000),
+    completedAt: new Date(Date.now() - 6_600_000),
     error: 'Failed to analyze complex type definitions',
     metadata: {
       filesAnalyzed: 23,
@@ -45,8 +45,8 @@ const MOCK_EXECUTIONS = [
     agentType: 'optimization-agent',
     taskId: 'task-3',
     status: 'completed',
-    startedAt: new Date(Date.now() - 1800000),
-    completedAt: new Date(Date.now() - 1200000),
+    startedAt: new Date(Date.now() - 1_800_000),
+    completedAt: new Date(Date.now() - 1_200_000),
     error: null,
     metadata: {
       optimizationsApplied: 7,
@@ -77,7 +77,7 @@ export default function DebugDemoPage() {
     return (
       <div className="container mx-auto p-6">
         <div className="mb-6">
-          <Button variant="outline" onClick={() => setSelectedSessionId(null)}>
+          <Button onClick={() => setSelectedSessionId(null)} variant="outline">
             ← Back to Sessions
           </Button>
         </div>
@@ -89,62 +89,62 @@ export default function DebugDemoPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Time-Travel Debugging Demo</h1>
+        <h1 className="mb-2 font-bold text-3xl">Time-Travel Debugging Demo</h1>
         <p className="text-muted-foreground">
           Debug agent executions with step-by-step replay and state inspection
         </p>
       </div>
 
       {/* Features overview */}
-      <div className="grid gap-4 md:grid-cols-4 mb-8">
+      <div className="mb-8 grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Clock className="h-4 w-4" />
               Time Travel
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Step through execution history forwards and backwards
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Layers className="h-4 w-4" />
               State Inspection
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Inspect agent state at any point in the execution
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Database className="h-4 w-4" />
               Snapshot Storage
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Automatic state snapshots stored in the database
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Bug className="h-4 w-4" />
               Error Analysis
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Identify and analyze errors in agent executions
             </p>
           </CardContent>
@@ -162,13 +162,13 @@ export default function DebugDemoPage() {
             <div className="space-y-3">
               {sessions.map((session) => (
                 <div
+                  className="flex cursor-pointer items-center justify-between rounded-lg border p-4 hover:bg-muted/50"
                   key={session.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 cursor-pointer"
                   onClick={() => setSelectedSessionId(session.id)}
                 >
                   <div>
                     <div className="font-medium">{session.metadata.agentType}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       Started {new Date(session.metadata.startedAt).toLocaleString()}
                     </div>
                   </div>
@@ -195,8 +195,8 @@ export default function DebugDemoPage() {
           <div className="space-y-3">
             {MOCK_EXECUTIONS.map((execution) => (
               <div
+                className="flex items-center justify-between rounded-lg border p-4"
                 key={execution.id}
-                className="flex items-center justify-between p-4 rounded-lg border"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -213,14 +213,14 @@ export default function DebugDemoPage() {
                       {execution.status}
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">
+                  <div className="mt-1 text-muted-foreground text-sm">
                     {new Date(execution.startedAt).toLocaleString()} -
                     {execution.completedAt && new Date(execution.completedAt).toLocaleString()}
                   </div>
                   {execution.error && (
-                    <div className="text-sm text-red-600 mt-1">{execution.error}</div>
+                    <div className="mt-1 text-red-600 text-sm">{execution.error}</div>
                   )}
-                  <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                  <div className="mt-2 flex gap-4 text-muted-foreground text-xs">
                     {Object.entries(execution.metadata).map(([key, value]) => (
                       <span key={key}>
                         {key}: <strong>{value}</strong>
@@ -229,8 +229,8 @@ export default function DebugDemoPage() {
                   </div>
                 </div>
                 <Button
-                  onClick={() => handleCreateSession(execution.id)}
                   disabled={isCreatingSession}
+                  onClick={() => handleCreateSession(execution.id)}
                 >
                   <Bug className="mr-2 h-4 w-4" />
                   Debug
@@ -248,36 +248,36 @@ export default function DebugDemoPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-medium mb-2">1. Select an Execution</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="mb-2 font-medium">1. Select an Execution</h4>
+            <p className="text-muted-foreground text-sm">
               Choose an agent execution from the list above to start debugging. The system will load
               all execution snapshots.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">2. Navigate the Timeline</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="mb-2 font-medium">2. Navigate the Timeline</h4>
+            <p className="text-muted-foreground text-sm">
               Use the timeline controls to step through the execution. You can play, pause, step
               forward/backward, or jump to specific steps.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">3. Inspect State</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="mb-2 font-medium">3. Inspect State</h4>
+            <p className="text-muted-foreground text-sm">
               View the complete agent state at each step, including memory, context, outputs, and
               performance metrics.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">4. Set Breakpoints</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="mb-2 font-medium">4. Set Breakpoints</h4>
+            <p className="text-muted-foreground text-sm">
               Click on any step in the timeline to set a breakpoint. The debugger will pause when it
               reaches that step.
             </p>
           </div>
           <div>
-            <h4 className="font-medium mb-2">5. Compare States</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="mb-2 font-medium">5. Compare States</h4>
+            <p className="text-muted-foreground text-sm">
               Compare the state between different steps to understand how the execution evolved and
               identify issues.
             </p>

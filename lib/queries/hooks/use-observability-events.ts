@@ -3,19 +3,19 @@
  */
 
 import {
+  type InfiniteData,
+  type UseMutationOptions,
+  type UseQueryOptions,
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
-  type InfiniteData,
-  type UseMutationOptions,
-  type UseQueryOptions,
 } from '@tanstack/react-query'
-import { queryKeys, mutationKeys } from '../keys'
-import type { ObservabilityEvent, NewObservabilityEvent } from '@/db/schema'
-import { observability } from '@/lib/observability'
-import { electricClient } from '@/lib/electric/client'
 import { useEffect } from 'react'
+import type { NewObservabilityEvent, ObservabilityEvent } from '@/db/schema'
+import { electricClient } from '@/lib/electric/client'
+import { observability } from '@/lib/observability'
+import { mutationKeys, queryKeys } from '../keys'
 
 // API types
 export interface EventFilters {
@@ -224,7 +224,7 @@ export function useInfiniteObservabilityEvents(filters: EventFilters = {}, optio
       fetchEvents({ ...filters, offset: pageParam, limit: filters.limit || 100 }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.hasMore) return undefined
+      if (!lastPage.hasMore) return
       return allPages.length * (filters.limit || 100)
     },
     staleTime: 1000 * 30, // 30 seconds
@@ -531,5 +531,5 @@ export async function prefetchEventTimeline(queryClient: QueryClient, executionI
   })
 }
 
-import { useState } from 'react'
 import type { QueryClient } from '@tanstack/react-query'
+import { useState } from 'react'

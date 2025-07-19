@@ -4,18 +4,18 @@
  * Real-time monitoring, metrics collection, and performance tracking
  */
 
+import { and, eq, gte, lte, sql } from 'drizzle-orm'
 import { EventEmitter } from 'events'
-import { observability } from '@/lib/observability'
 import { db } from '@/db/config'
-import { workflowExecutions, observabilityEvents } from '@/db/schema'
-import { eq, gte, lte, and, sql } from 'drizzle-orm'
+import { observabilityEvents, workflowExecutions } from '@/db/schema'
+import { observability } from '@/lib/observability'
 import type {
-  WorkflowMetrics,
-  StepMetrics,
   PerformanceMetrics,
   ResourceUsage,
-  WorkflowExecutionState,
+  StepMetrics,
   WorkflowEvent,
+  WorkflowExecutionState,
+  WorkflowMetrics,
 } from './types'
 
 // Monitoring configuration
@@ -44,16 +44,16 @@ export interface RetentionPolicy {
 
 // Default configuration
 const DEFAULT_CONFIG: MonitoringConfig = {
-  metricsInterval: 60000, // 1 minute
+  metricsInterval: 60_000, // 1 minute
   alertThresholds: {
-    executionTime: 300000, // 5 minutes
+    executionTime: 300_000, // 5 minutes
     errorRate: 10, // 10%
     resourceUsage: {
       cpu: 80,
       memory: 1024,
       apiCalls: 1000,
     },
-    stuckWorkflowTime: 3600000, // 1 hour
+    stuckWorkflowTime: 3_600_000, // 1 hour
   },
   retention: {
     metrics: 30,
@@ -475,7 +475,7 @@ class PerformanceAnalyzer {
 
     // Performance optimization
     const slowWorkflows = Object.entries(metrics.byWorkflow)
-      .filter(([_, m]) => m.avgDuration > 60000) // 1 minute
+      .filter(([_, m]) => m.avgDuration > 60_000) // 1 minute
       .map(([id]) => id)
 
     if (slowWorkflows.length > 0) {
