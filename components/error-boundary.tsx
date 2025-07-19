@@ -1,10 +1,10 @@
 'use client'
 
+import { AlertTriangle, Bug, Home, RefreshCw } from 'lucide-react'
 import React from 'react'
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { observability } from '@/lib/observability'
 
 interface ErrorBoundaryState {

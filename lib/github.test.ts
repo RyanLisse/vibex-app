@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import { cookies } from 'next/headers'
+import { vi } from 'vitest'
 import {
   clearGitHubAuth,
   createRepository,

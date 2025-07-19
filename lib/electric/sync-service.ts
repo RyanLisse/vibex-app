@@ -1,6 +1,6 @@
-import { ElectricClient } from './client'
+import type * as schema from '../../db/schema'
 import { ObservabilityService } from '../observability'
-import * as schema from '../../db/schema'
+import { ElectricClient } from './client'
 
 // Sync service for managing real-time synchronization
 export class ElectricSyncService {
@@ -397,7 +397,7 @@ export class ElectricSyncService {
   /**
    * Set up periodic health checks
    */
-  startHealthMonitoring(intervalMs = 30000): void {
+  startHealthMonitoring(intervalMs = 30_000): void {
     const healthCheckInterval = setInterval(async () => {
       try {
         const status = this.getSyncStatus()
@@ -420,7 +420,7 @@ export class ElectricSyncService {
         // Alert if disconnected for too long
         if (!status.isConnected && status.lastSyncTime) {
           const timeSinceLastSync = Date.now() - status.lastSyncTime.getTime()
-          if (timeSinceLastSync > 300000) {
+          if (timeSinceLastSync > 300_000) {
             // 5 minutes
             console.warn(`ElectricSQL disconnected for ${Math.round(timeSinceLastSync / 1000)}s`)
           }

@@ -5,13 +5,13 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { z } from 'zod'
-import {
-  EnvironmentSchema,
+import type { z } from 'zod'
+import type { Environment, NewEnvironment } from '@/db/schema'
+import type {
   CreateEnvironmentSchema,
+  EnvironmentSchema,
   UpdateEnvironmentSchema,
 } from '@/src/schemas/api-routes'
-import type { Environment, NewEnvironment } from '@/db/schema'
 
 // Types
 export type ElectricEnvironment = z.infer<typeof EnvironmentSchema>

@@ -3,14 +3,14 @@
  * Testing AI SDK patterns with mock language models
  */
 
-import { streamText, generateText } from 'ai'
-import { describe, expect, it, beforeEach } from 'vitest'
+import { generateText, streamText } from 'ai'
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  createTestChatModel,
-  createStaticTestChatModel,
-  createSlowTestChatModel,
-  createErrorTestChatModel,
   AITestUtils,
+  createErrorTestChatModel,
+  createSlowTestChatModel,
+  createStaticTestChatModel,
+  createTestChatModel,
 } from '@/lib/ai/testing/mock-language-model'
 
 describe('AI Chat Testing Patterns', () => {

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
-import { vi } from 'vitest'
+import { act, render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
-import { act, renderHook, waitFor, render } from '@testing-library/react'
+import { vi } from 'vitest'
 import { z } from 'zod'
 import {
   createZodFormProvider,
@@ -1037,8 +1037,8 @@ describe('createZodFormProvider', () => {
       React.createElement(
         FormProvider,
         {
-          onSubmit: onSubmit,
-          onError: onError,
+          onSubmit,
+          onError,
           validateOnMount: true,
         },
         childrenMock

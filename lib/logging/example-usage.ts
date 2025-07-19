@@ -6,15 +6,15 @@
  */
 
 import {
-  initializeLogging,
-  createLogger,
   AgentLogger,
-  DatabaseLogger,
-  SecurityLogger,
-  PerformanceLogger,
   createApiRouteLogger,
-  LoggingHealthMonitor,
+  createLogger,
+  DatabaseLogger,
+  initializeLogging,
   type LoggingConfig,
+  LoggingHealthMonitor,
+  PerformanceLogger,
+  SecurityLogger,
 } from '@/lib/logging'
 
 // 1. Basic Setup and Initialization
@@ -201,7 +201,7 @@ export function performanceLoggingExamples() {
   })
 
   // Slow operation detection
-  perfLogger.slowOperation('database_backup', 300000, 60000) // 5 minutes vs 1 minute threshold
+  perfLogger.slowOperation('database_backup', 300_000, 60_000) // 5 minutes vs 1 minute threshold
 
   // System resource monitoring
   perfLogger.memoryUsage(process.memoryUsage())
@@ -253,7 +253,7 @@ export function setupHealthMonitoring() {
   })
 
   // Start monitoring every minute
-  healthMonitor.startMonitoring(60000)
+  healthMonitor.startMonitoring(60_000)
 
   // Manual health check
   return healthMonitor.checkHealth()
@@ -328,7 +328,7 @@ export function productionSetup() {
     sampling: {
       enabled: true,
       rate: 0.1, // Sample 10% of logs for high-volume scenarios
-      highVolumeThreshold: 10000,
+      highVolumeThreshold: 10_000,
     },
     performance: {
       trackOperations: true,
@@ -340,7 +340,7 @@ export function productionSetup() {
 
   // Set up health monitoring
   const healthMonitor = new LoggingHealthMonitor()
-  healthMonitor.startMonitoring(30000) // Check every 30 seconds
+  healthMonitor.startMonitoring(30_000) // Check every 30 seconds
 
   return {
     healthMonitor,

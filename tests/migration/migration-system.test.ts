@@ -6,18 +6,18 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { migrationService } from '../../lib/migration/migration-service'
+import { backupService } from '../../lib/migration/backup-service'
 import { dataExtractor } from '../../lib/migration/data-extractor'
 import { dataMapper } from '../../lib/migration/data-mapper'
-import { backupService } from '../../lib/migration/backup-service'
+import { migrationService } from '../../lib/migration/migration-service'
 import type {
-  MigrationConfig,
-  MigrationResult,
-  LocalStorageData,
-  LocalStorageTask,
-  LocalStorageEnvironment,
-  MigrationError,
   BackupManifest,
+  LocalStorageData,
+  LocalStorageEnvironment,
+  LocalStorageTask,
+  MigrationConfig,
+  MigrationError,
+  MigrationResult,
 } from '../../lib/migration/types'
 
 // Mock localStorage
@@ -792,7 +792,7 @@ describe('Migration System Comprehensive Tests', () => {
 
       expect(result.success).toBe(true)
       expect(result.itemsProcessed).toBe(1000 + 2) // Large tasks + environments
-      expect(duration).toBeLessThan(10000) // Should complete within 10 seconds
+      expect(duration).toBeLessThan(10_000) // Should complete within 10 seconds
     })
 
     it('should handle memory constraints during migration', async () => {

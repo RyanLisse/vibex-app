@@ -87,7 +87,7 @@ export async function createPGliteInstance() {
       options: {
         journal_mode: 'WAL',
         synchronous: 'NORMAL',
-        cache_size: -64000, // 64MB cache
+        cache_size: -64_000, // 64MB cache
       },
     })
 

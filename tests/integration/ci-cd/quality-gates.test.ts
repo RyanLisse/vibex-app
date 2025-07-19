@@ -5,11 +5,11 @@
  * performance benchmarks, security checks, and automated deployment validation
  */
 
+import { exec } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
-import { describe, expect, it, beforeAll, afterAll } from 'vitest'
-import { exec } from 'child_process'
 import { promisify } from 'util'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const execAsync = promisify(exec)
 
@@ -22,8 +22,8 @@ const QUALITY_THRESHOLDS = {
     statements: 80,
   },
   performance: {
-    maxBuildTime: 300000, // 5 minutes
-    maxTestTime: 180000, // 3 minutes
+    maxBuildTime: 300_000, // 5 minutes
+    maxTestTime: 180_000, // 3 minutes
     maxBundleSize: 2048, // 2MB
     maxResponseTime: 200, // 200ms
   },
@@ -470,9 +470,9 @@ class QualityGateValidator {
 
   async getPerformanceMetrics(): Promise<any> {
     return {
-      buildTime: 120000, // 2 minutes
+      buildTime: 120_000, // 2 minutes
       bundleSize: 1024, // 1MB
-      testExecutionTime: 90000, // 1.5 minutes
+      testExecutionTime: 90_000, // 1.5 minutes
       averageResponseTime: 150, // 150ms
     }
   }
@@ -503,7 +503,7 @@ class QualityGateValidator {
     try {
       if (existsSync('.next/static')) {
         const { stdout } = await execAsync('du -sk .next/static')
-        const sizeInKB = parseInt(stdout.split('\t')[0])
+        const sizeInKB = Number.parseInt(stdout.split('\t')[0])
         return sizeInKB
       }
       return 0
@@ -602,7 +602,7 @@ describe('CI/CD Quality Gates Integration Tests', () => {
       console.log('Performance:', report.metrics.performance)
       console.log('Security:', report.metrics.security)
       console.log('Code Quality:', report.metrics.codeQuality)
-    }, 600000) // 10 minute timeout for full quality gate run
+    }, 600_000) // 10 minute timeout for full quality gate run
 
     it('should enforce code quality standards', async () => {
       const codeQualityResult = await qualityGateValidator.validateCodeQuality()
@@ -813,7 +813,7 @@ function generateJUnitReport(report: QualityGateReport): string {
     .map((stage) => {
       const testcase = `
     <testcase name="${stage.stage}" time="${stage.duration / 1000}">
-      ${!stage.passed ? `<failure message="${stage.errors?.join('; ')}">${stage.errors?.join('\n')}</failure>` : ''}
+      ${stage.passed ? '' : `<failure message="${stage.errors?.join('; ')}">${stage.errors?.join('\n')}</failure>`}
       ${stage.warnings?.length ? `<system-out>${stage.warnings.join('\n')}</system-out>` : ''}
     </testcase>`
 

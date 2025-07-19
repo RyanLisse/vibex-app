@@ -4,13 +4,13 @@
  * Comprehensive tests for ElectricSQL real-time sync, conflict resolution, and offline scenarios
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
-import { useElectricTasks, useElectricEnvironments } from '@/hooks/use-electric-tasks'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Environment, Task } from '@/db/schema'
 import { useElectric } from '@/hooks/use-electric'
+import { useElectricEnvironments, useElectricTasks } from '@/hooks/use-electric-tasks'
 import { useOfflineSync } from '@/hooks/use-offline-sync'
 import { electricDb } from '@/lib/electric/config'
-import type { Task, Environment } from '@/db/schema'
 
 // Mock ElectricSQL
 vi.mock('@/lib/electric/config', () => ({

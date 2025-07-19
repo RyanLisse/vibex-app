@@ -141,7 +141,7 @@ export async function getMemoryStats(): Promise<{
 }> {
   const module = await loadVectorSearchWASM()
   const memorySize = module.MemoryUtils.getMemorySize()
-  const pageSize = 65536 // 64KB per page
+  const pageSize = 65_536 // 64KB per page
 
   return {
     bufferSize: memorySize,

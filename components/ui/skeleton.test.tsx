@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import React from 'react'
+import { vi } from 'vitest'
 import { Skeleton } from '@/components/ui/skeleton'
 
 describe('Skeleton', () => {

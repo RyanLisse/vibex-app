@@ -9,12 +9,12 @@
  * - Redis caching integration
  */
 
-import { ElectricClient } from './client'
-import { electricDatabaseClient } from './database-client'
-import { conflictResolutionService } from './conflict-resolution'
+import * as schema from '../../db/schema'
 import { ObservabilityService } from '../observability'
 import { redisCache } from '../redis'
-import * as schema from '../../db/schema'
+import { ElectricClient } from './client'
+import { conflictResolutionService } from './conflict-resolution'
+import { electricDatabaseClient } from './database-client'
 
 export interface SyncConfiguration {
   autoSync: boolean
@@ -68,7 +68,7 @@ export class EnhancedSyncService {
 
   private config: SyncConfiguration = {
     autoSync: true,
-    syncInterval: 30000, // 30 seconds
+    syncInterval: 30_000, // 30 seconds
     conflictStrategy: 'last-write-wins',
     offlineQueueLimit: 1000,
     performanceMonitoring: true,
@@ -577,7 +577,7 @@ export class EnhancedSyncService {
   private async saveMetrics(): Promise<void> {
     try {
       await redisCache.set('electric:sync:metrics', this.metrics, {
-        ttl: 86400,
+        ttl: 86_400,
       }) // 24 hours
     } catch (error) {
       console.warn('Failed to save metrics to cache:', error)

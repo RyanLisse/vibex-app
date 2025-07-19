@@ -67,7 +67,7 @@ const createMockSQLiteUtils = () => {
 
   return {
     // Connection management
-    openDatabase: vi.fn(async (filename: string = ':memory:'): Promise<string> => {
+    openDatabase: vi.fn(async (filename = ':memory:'): Promise<string> => {
       const connectionId = `conn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
       connections.set(connectionId, {
@@ -78,7 +78,7 @@ const createMockSQLiteUtils = () => {
         pragma: {
           journal_mode: 'WAL',
           synchronous: 'NORMAL',
-          cache_size: 10000,
+          cache_size: 10_000,
           temp_store: 'MEMORY',
         },
         memoryUsage: 1024 * 1024, // 1MB initial
@@ -99,7 +99,7 @@ const createMockSQLiteUtils = () => {
     execute: vi.fn(
       async (connectionId: string, query: string, params: any[] = []): Promise<QueryResult> => {
         const connection = connections.get(connectionId)
-        if (!connection || !connection.isOpen) {
+        if (!(connection && connection.isOpen)) {
           throw new Error('Database connection not found or closed')
         }
 
@@ -109,7 +109,7 @@ const createMockSQLiteUtils = () => {
         const cacheKey = `${query}:${JSON.stringify(params)}`
         const cached = queryCache.get(cacheKey)
 
-        if (cached && Date.now() - cached.timestamp < 300000) {
+        if (cached && Date.now() - cached.timestamp < 300_000) {
           // 5 minute cache
           cacheHits++
           return {
@@ -134,7 +134,7 @@ const createMockSQLiteUtils = () => {
             fromCache: false,
           }
         } else if (normalizedQuery.startsWith('insert')) {
-          const rowId = Math.floor(Math.random() * 1000000)
+          const rowId = Math.floor(Math.random() * 1_000_000)
           result = {
             rows: [],
             columns: [],
@@ -154,7 +154,7 @@ const createMockSQLiteUtils = () => {
           if (isAggregation) rowCount = 1
           if (normalizedQuery.includes('limit')) {
             const limitMatch = normalizedQuery.match(/limit\s+(\d+)/)
-            if (limitMatch) rowCount = Math.min(rowCount, parseInt(limitMatch[1]))
+            if (limitMatch) rowCount = Math.min(rowCount, Number.parseInt(limitMatch[1]))
           }
 
           const rows = Array.from({ length: rowCount }, (_, i) => ({
@@ -343,7 +343,7 @@ const createMockSQLiteUtils = () => {
       async (
         connectionId: string,
         operation: string,
-        iterations: number = 100
+        iterations = 100
       ): Promise<PerformanceBenchmark> => {
         const times: number[] = []
 
@@ -640,7 +640,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
 
     it('should configure database pragmas', async () => {
       await sqliteUtils.setPragma(connectionId, 'journal_mode', 'WAL')
-      await sqliteUtils.setPragma(connectionId, 'cache_size', 20000)
+      await sqliteUtils.setPragma(connectionId, 'cache_size', 20_000)
       await sqliteUtils.setPragma(connectionId, 'synchronous', 'NORMAL')
 
       const journalMode = await sqliteUtils.getPragma(connectionId, 'journal_mode')
@@ -648,7 +648,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       const synchronous = await sqliteUtils.getPragma(connectionId, 'synchronous')
 
       expect(journalMode).toBe('WAL')
-      expect(cacheSize).toBe(20000)
+      expect(cacheSize).toBe(20_000)
       expect(synchronous).toBe('NORMAL')
     })
   })
@@ -1327,7 +1327,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
     it('should handle large result sets efficiently', async () => {
       // Insert large dataset
       const largeInsert = Array.from(
-        { length: 10000 },
+        { length: 10_000 },
         (_, i) => `('Large ${i}', ${i}, '2024-01-01T00:00:00Z')`
       ).join(',')
 
@@ -1343,7 +1343,7 @@ describe('WASM SQLite Utilities Integration Tests', () => {
       const endTime = performance.now()
 
       expect(result.rows.length).toBeGreaterThan(5000)
-      expect(endTime - startTime).toBeLessThan(10000) // Should complete within 10 seconds
+      expect(endTime - startTime).toBeLessThan(10_000) // Should complete within 10 seconds
     })
 
     it('should handle concurrent operations safely', async () => {

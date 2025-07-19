@@ -5,11 +5,11 @@
  * for real-time monitoring, debugging, and performance analysis.
  */
 
-import { trace, context, SpanStatusCode, SpanKind } from '@opentelemetry/api'
-import { db } from '@/db/config'
-import { observabilityEvents, agentExecutions } from '@/db/schema'
-import { eq, desc, and, gte, lte, inArray } from 'drizzle-orm'
+import { context, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, desc, eq, gte, inArray, lte } from 'drizzle-orm'
 import { ulid } from 'ulid'
+import { db } from '@/db/config'
+import { agentExecutions, observabilityEvents } from '@/db/schema'
 
 // Event types for categorization
 export type ObservabilityEventType =
@@ -108,7 +108,7 @@ export class ObservabilityEventCollector {
     severity: EventSeverity,
     message: string,
     metadata: EventMetadata = {},
-    source: string = 'system',
+    source = 'system',
     tags: string[] = []
   ): Promise<void> {
     const event: ObservabilityEvent = {
@@ -242,7 +242,7 @@ export class ObservabilityEventQuery {
       .where(eq(observabilityEvents.metadata, { executionId }))
       .orderBy(desc(observabilityEvents.timestamp))
 
-    return events.map(this.mapDbEventToEvent)
+    return events.map(ObservabilityEventQuery.mapDbEventToEvent)
   }
 
   /**
@@ -252,7 +252,7 @@ export class ObservabilityEventQuery {
     types: ObservabilityEventType[],
     startTime: Date,
     endTime: Date,
-    limit: number = 1000
+    limit = 1000
   ): Promise<ObservabilityEvent[]> {
     const events = await db
       .select()
@@ -267,7 +267,7 @@ export class ObservabilityEventQuery {
       .orderBy(desc(observabilityEvents.timestamp))
       .limit(limit)
 
-    return events.map(this.mapDbEventToEvent)
+    return events.map(ObservabilityEventQuery.mapDbEventToEvent)
   }
 
   /**
@@ -275,7 +275,7 @@ export class ObservabilityEventQuery {
    */
   static async getEventsBySeverity(
     severity: EventSeverity[],
-    limit: number = 1000
+    limit = 1000
   ): Promise<ObservabilityEvent[]> {
     const events = await db
       .select()
@@ -284,20 +284,20 @@ export class ObservabilityEventQuery {
       .orderBy(desc(observabilityEvents.timestamp))
       .limit(limit)
 
-    return events.map(this.mapDbEventToEvent)
+    return events.map(ObservabilityEventQuery.mapDbEventToEvent)
   }
 
   /**
    * Get recent events
    */
-  static async getRecentEvents(limit: number = 100): Promise<ObservabilityEvent[]> {
+  static async getRecentEvents(limit = 100): Promise<ObservabilityEvent[]> {
     const events = await db
       .select()
       .from(observabilityEvents)
       .orderBy(desc(observabilityEvents.timestamp))
       .limit(limit)
 
-    return events.map(this.mapDbEventToEvent)
+    return events.map(ObservabilityEventQuery.mapDbEventToEvent)
   }
 
   /**

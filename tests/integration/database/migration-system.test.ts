@@ -10,11 +10,11 @@ import { join } from 'path'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { checkDatabaseHealth, db } from '../../../db/config'
 import {
-  migrationRunner,
-  MigrationRunner,
-  type MigrationFile,
   type MigrationExecutionResult,
+  type MigrationFile,
+  MigrationRunner,
   type MigrationValidationResult,
+  migrationRunner,
 } from '../../../db/migrations/migration-runner'
 import { migrations } from '../../../db/schema'
 
@@ -151,9 +151,9 @@ describe.skipIf(skipTests)('Migration System Integration Tests', () => {
   async function cleanupTestData() {
     try {
       // Drop test tables if they exist
-      await db.execute(`DROP TABLE IF EXISTS test_user_settings CASCADE`)
-      await db.execute(`DROP TABLE IF EXISTS test_users CASCADE`)
-      await db.execute(`DROP TABLE IF EXISTS invalid_table CASCADE`)
+      await db.execute('DROP TABLE IF EXISTS test_user_settings CASCADE')
+      await db.execute('DROP TABLE IF EXISTS test_users CASCADE')
+      await db.execute('DROP TABLE IF EXISTS invalid_table CASCADE')
 
       // Clean up migration records for test migrations
       await db.execute(`DELETE FROM migrations WHERE name LIKE '%test%' OR name LIKE '00%'`)
@@ -416,8 +416,8 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       ])
 
       // Verify dependent data was created
-      const userCount = await db.execute(`SELECT COUNT(*) as count FROM test_users`)
-      expect(parseInt(userCount.rows[0].count)).toBe(1)
+      const userCount = await db.execute('SELECT COUNT(*) as count FROM test_users')
+      expect(Number.parseInt(userCount.rows[0].count)).toBe(1)
     })
 
     it('should track execution time and metadata', async () => {
@@ -698,11 +698,11 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       const executionTime = performance.now() - startTime
 
       expect(result.success).toBe(true)
-      expect(executionTime).toBeLessThan(30000) // Should complete within 30 seconds
+      expect(executionTime).toBeLessThan(30_000) // Should complete within 30 seconds
 
       // Verify data was inserted
-      const userCount = await db.execute(`SELECT COUNT(*) as count FROM test_users`)
-      expect(parseInt(userCount.rows[0].count)).toBe(1000)
+      const userCount = await db.execute('SELECT COUNT(*) as count FROM test_users')
+      expect(Number.parseInt(userCount.rows[0].count)).toBe(1000)
     })
 
     it('should handle concurrent migration attempts safely', async () => {

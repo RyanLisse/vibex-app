@@ -7,15 +7,6 @@
 
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -32,14 +23,23 @@ import {
   X,
   Zap,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type {
-  MigrationState,
-  MigrationProgress,
+  BackupManifest,
   DataConflict,
   MigrationEvent,
-  BackupManifest,
+  MigrationProgress,
+  MigrationState,
 } from '@/lib/migration/types'
+import { cn } from '@/lib/utils'
 
 export interface MigrationPanelProps {
   userId?: string
@@ -185,14 +185,14 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
+    return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`
   }
 
   // Format duration
   const formatDuration = (ms: number): string => {
     if (ms < 1000) return `${ms}ms`
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
-    return `${(ms / 60000).toFixed(1)}m`
+    if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
+    return `${(ms / 60_000).toFixed(1)}m`
   }
 
   useEffect(() => {
@@ -219,8 +219,8 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-          <Button onClick={loadStatus} className="mt-4">
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button className="mt-4" onClick={loadStatus}>
+            <RefreshCw className="mr-2 h-4 w-4" />
             Retry
           </Button>
         </CardContent>
@@ -295,23 +295,23 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                 </span>
               </div>
               <Progress
+                className="h-2"
                 value={
                   (currentMigration.progress.processedItems /
                     currentMigration.progress.totalItems) *
                   100
                 }
-                className="h-2"
               />
             </div>
 
             {currentMigration.progress.currentItem && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {currentMigration.progress.currentItem}
               </p>
             )}
 
             {currentMigration.progress.estimatedTimeRemaining && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Estimated time remaining:{' '}
                 {formatDuration(currentMigration.progress.estimatedTimeRemaining)}
               </p>
@@ -320,10 +320,10 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
         </Card>
       )}
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs className="w-full" defaultValue="overview">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="conflicts" disabled={!hasConflicts}>
+          <TabsTrigger disabled={!hasConflicts} value="conflicts">
             Conflicts {hasConflicts && `(${currentMigration.conflicts.length})`}
           </TabsTrigger>
           <TabsTrigger value="backups">Backups ({backups.length})</TabsTrigger>
@@ -331,7 +331,7 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent className="space-y-4" value="overview">
           <div className="grid gap-4 md:grid-cols-2">
             {/* Local Storage Stats */}
             <Card>
@@ -359,7 +359,7 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                   {Object.entries(statistics.localStorageStats.keysSizes)
                     .filter(([key]) => ['task-store', 'environments'].includes(key))
                     .map(([key, size]) => (
-                      <div key={key} className="flex justify-between text-sm">
+                      <div className="flex justify-between text-sm" key={key}>
                         <span>{key}:</span>
                         <span>{formatSize(size)}</span>
                       </div>
@@ -418,29 +418,29 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
 
               <div className="flex gap-2">
                 <Button
-                  onClick={() => startMigration()}
-                  disabled={!canMigrate || !hasLocalData}
                   className="flex-1"
+                  disabled={!(canMigrate && hasLocalData)}
+                  onClick={() => startMigration()}
                 >
                   {migrating ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <Play className="h-4 w-4 mr-2" />
+                    <Play className="mr-2 h-4 w-4" />
                   )}
                   {migrating ? 'Migrating...' : 'Start Migration'}
                 </Button>
 
                 <Button
-                  variant="outline"
+                  disabled={!(canMigrate && hasLocalData)}
                   onClick={() => startMigration({ dryRun: true })}
-                  disabled={!canMigrate || !hasLocalData}
+                  variant="outline"
                 >
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="mr-2 h-4 w-4" />
                   Dry Run
                 </Button>
 
-                <Button variant="outline" onClick={loadStatus}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                <Button onClick={loadStatus} variant="outline">
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   Refresh
                 </Button>
               </div>
@@ -449,7 +449,7 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
         </TabsContent>
 
         {/* Conflicts Tab */}
-        <TabsContent value="conflicts" className="space-y-4">
+        <TabsContent className="space-y-4" value="conflicts">
           {hasConflicts ? (
             <Card>
               <CardHeader>
@@ -466,14 +466,14 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                 <ScrollArea className="h-64">
                   <div className="space-y-2">
                     {currentMigration.conflicts.map((conflict) => (
-                      <div key={conflict.id} className="border rounded p-3 space-y-2">
+                      <div className="space-y-2 rounded border p-3" key={conflict.id}>
                         <div className="flex items-center justify-between">
                           <Badge variant="outline">{conflict.type}</Badge>
-                          <span className="text-sm text-muted-foreground">{conflict.id}</span>
+                          <span className="text-muted-foreground text-sm">{conflict.id}</span>
                         </div>
                         <p className="text-sm">{conflict.suggestion}</p>
                         {conflict.field && (
-                          <p className="text-xs text-muted-foreground">Field: {conflict.field}</p>
+                          <p className="text-muted-foreground text-xs">Field: {conflict.field}</p>
                         )}
                       </div>
                     ))}
@@ -482,8 +482,8 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
 
                 {isPaused && (
                   <div className="mt-4">
-                    <Button onClick={resolveConflicts} className="w-full">
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                    <Button className="w-full" onClick={resolveConflicts}>
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
                       Resolve Conflicts & Continue
                     </Button>
                   </div>
@@ -500,7 +500,7 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
         </TabsContent>
 
         {/* Backups Tab */}
-        <TabsContent value="backups" className="space-y-4">
+        <TabsContent className="space-y-4" value="backups">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -516,24 +516,24 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                 <ScrollArea className="h-64">
                   <div className="space-y-2">
                     {backups.map((backup) => (
-                      <div key={backup.id} className="border rounded p-3">
+                      <div className="rounded border p-3" key={backup.id}>
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium">{backup.id}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                               {backup.createdAt.toLocaleString()}
                             </p>
                           </div>
                           <div className="text-right">
                             <p className="text-sm">{backup.totalItems} items</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {formatSize(backup.size)}
                             </p>
                           </div>
                         </div>
-                        <div className="flex gap-1 mt-2">
+                        <div className="mt-2 flex gap-1">
                           {backup.dataTypes.map((type) => (
-                            <Badge key={type} variant="secondary" className="text-xs">
+                            <Badge className="text-xs" key={type} variant="secondary">
                               {type}
                             </Badge>
                           ))}
@@ -543,14 +543,14 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                   </div>
                 </ScrollArea>
               ) : (
-                <p className="text-center text-muted-foreground py-8">No backups available</p>
+                <p className="py-8 text-center text-muted-foreground">No backups available</p>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Events Tab */}
-        <TabsContent value="logs" className="space-y-4">
+        <TabsContent className="space-y-4" value="logs">
           <Card>
             <CardHeader>
               <CardTitle>Migration Events</CardTitle>
@@ -560,7 +560,7 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                 <ScrollArea className="h-64">
                   <div className="space-y-2">
                     {events.map((event, index) => (
-                      <div key={index} className="border-l-2 border-muted pl-3 py-2">
+                      <div className="border-muted border-l-2 py-2 pl-3" key={index}>
                         <div className="flex items-center gap-2">
                           <Badge
                             variant={
@@ -573,17 +573,17 @@ export function MigrationPanel({ userId, onMigrationComplete, className }: Migra
                           >
                             {event.type}
                           </Badge>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-muted-foreground text-xs">
                             {event.timestamp.toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="text-sm mt-1">{event.message}</p>
+                        <p className="mt-1 text-sm">{event.message}</p>
                       </div>
                     ))}
                   </div>
                 </ScrollArea>
               ) : (
-                <p className="text-center text-muted-foreground py-8">No events recorded</p>
+                <p className="py-8 text-center text-muted-foreground">No events recorded</p>
               )}
             </CardContent>
           </Card>

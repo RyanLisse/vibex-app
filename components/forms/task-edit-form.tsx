@@ -1,5 +1,7 @@
+import { AlertCircle, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { z } from 'zod'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,11 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, RefreshCw } from 'lucide-react'
-import { safeParse } from '@/src/shared/schemas/validation'
 import { useUpdateTaskMutation } from '@/hooks/use-task-queries'
 import { observability } from '@/lib/observability'
+import { safeParse } from '@/src/shared/schemas/validation'
 
 const TaskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must not exceed 200 characters'),
@@ -133,11 +133,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormP
         <Label htmlFor="title">Title *</Label>
         <Input
           aria-describedby={errors.title ? 'title-error' : undefined}
+          disabled={isSubmitting || updateTaskMutation.isPending}
           id="title"
           onChange={(e) => handleChange('title', e.target.value)}
           placeholder="Enter task title"
           value={formData.title}
-          disabled={isSubmitting || updateTaskMutation.isPending}
         />
         {errors.title && (
           <p className="text-red-600 text-sm" id="title-error">
@@ -150,12 +150,12 @@ export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormP
         <Label htmlFor="description">Description</Label>
         <Textarea
           aria-describedby={errors.description ? 'description-error' : undefined}
+          disabled={isSubmitting || updateTaskMutation.isPending}
           id="description"
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Enter task description (optional)"
           rows={4}
           value={formData.description}
-          disabled={isSubmitting || updateTaskMutation.isPending}
         />
         {errors.description && (
           <p className="text-red-600 text-sm" id="description-error">
@@ -167,9 +167,9 @@ export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormP
       <div className="space-y-2">
         <Label htmlFor="priority">Priority</Label>
         <Select
+          disabled={isSubmitting || updateTaskMutation.isPending}
           onValueChange={(value: 'low' | 'medium' | 'high') => handleChange('priority', value)}
           value={formData.priority}
-          disabled={isSubmitting || updateTaskMutation.isPending}
         >
           <SelectTrigger id="priority">
             <SelectValue placeholder="Select priority" />
@@ -188,11 +188,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormP
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select
+              disabled={isSubmitting || updateTaskMutation.isPending}
               onValueChange={(value: 'pending' | 'in_progress' | 'completed' | 'cancelled') =>
                 handleChange('status', value)
               }
               value={formData.status}
-              disabled={isSubmitting || updateTaskMutation.isPending}
             >
               <SelectTrigger id="status">
                 <SelectValue placeholder="Select status" />
@@ -210,11 +210,11 @@ export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormP
           <div className="space-y-2">
             <Label htmlFor="assignee">Assignee</Label>
             <Input
+              disabled={isSubmitting || updateTaskMutation.isPending}
               id="assignee"
               onChange={(e) => handleChange('assignee', e.target.value)}
               placeholder="Enter assignee"
               value={formData.assignee || ''}
-              disabled={isSubmitting || updateTaskMutation.isPending}
             />
             {errors.assignee && <p className="text-red-600 text-sm">{errors.assignee}</p>}
           </div>
@@ -254,7 +254,7 @@ export function TaskEditForm({ task, onSubmit, onCancel, userId }: TaskEditFormP
         >
           {isSubmitting || updateTaskMutation.isPending ? (
             <>
-              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               {task ? 'Updating...' : 'Creating...'}
             </>
           ) : task ? (

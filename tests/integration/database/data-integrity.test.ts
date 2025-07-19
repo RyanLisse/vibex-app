@@ -6,18 +6,17 @@
  * consistency validation across the entire database schema.
  */
 
+import { and, count, eq, exists, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { sql } from 'drizzle-orm'
-import { eq, and, inArray, isNull, isNotNull, count, exists } from 'drizzle-orm'
 import { checkDatabaseHealth, db } from '../../../db/config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
 import {
-  tasks,
-  environments,
   agentExecutions,
-  observabilityEvents,
-  users,
   apiKeys,
+  environments,
+  observabilityEvents,
+  tasks,
+  users,
 } from '../../../db/schema'
 
 // Data integrity types
@@ -646,7 +645,7 @@ describe.skipIf(skipTests)('Data Integrity Validation Tests', () => {
         .where(sql`title LIKE 'Bulk Consistency Task%'`)
 
       expect(createdCount[0].count).toBe(bulkSize)
-      expect(endTime - startTime).toBeLessThan(10000) // Should complete within 10 seconds
+      expect(endTime - startTime).toBeLessThan(10_000) // Should complete within 10 seconds
     })
   })
 
@@ -908,7 +907,7 @@ describe.skipIf(skipTests)('Data Integrity Validation Tests', () => {
       await validateReferentialIntegrity()
       const validateTime = Date.now() - validateStart
 
-      expect(insertTime).toBeLessThan(10000) // 10 seconds for insert
+      expect(insertTime).toBeLessThan(10_000) // 10 seconds for insert
       expect(validateTime).toBeLessThan(5000) // 5 seconds for validation
     })
   })

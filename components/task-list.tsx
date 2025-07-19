@@ -1,20 +1,20 @@
 'use client'
 import { formatDistanceToNow } from 'date-fns'
-import { Archive, Check, Dot, Trash2, RefreshCw, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import { AlertCircle, Archive, Check, Dot, RefreshCw, Trash2, Wifi, WifiOff } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useElectricContext } from '@/components/providers/electric-provider'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TextShimmer } from '@/components/ui/text-shimmer'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
+  useDeleteTaskMutation,
   useTasksQuery,
   useUpdateTaskMutation,
-  useDeleteTaskMutation,
 } from '@/hooks/use-task-queries'
-import { useElectricContext } from '@/components/providers/electric-provider'
 import { observability } from '@/lib/observability'
 
 interface TaskListProps {
@@ -124,7 +124,7 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
 
   // Connection status indicator
   const ConnectionStatus = () => (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex items-center gap-2 text-muted-foreground text-sm">
       {isConnected ? (
         <>
           <Wifi className="h-4 w-4 text-green-500" />
@@ -142,11 +142,11 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
 
   // Error display component
   const ErrorDisplay = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
-    <Alert variant="destructive" className="mb-4">
+    <Alert className="mb-4" variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>Failed to load tasks: {error.message}</span>
-        <Button variant="outline" size="sm" onClick={onRetry}>
+        <Button onClick={onRetry} size="sm" variant="outline">
           Retry
         </Button>
       </AlertDescription>
@@ -157,7 +157,7 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
   const LoadingSkeleton = () => (
     <div className="flex flex-col gap-1">
       {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="rounded-lg border bg-background p-4">
+        <div className="rounded-lg border bg-background p-4" key={index}>
           <div className="flex items-center justify-between">
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-3/4" />
@@ -180,15 +180,15 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
         <ConnectionStatus />
         <div className="flex items-center gap-2">
           {(activeStale || archivedStale) && (
-            <Badge variant="outline" className="text-xs">
+            <Badge className="text-xs" variant="outline">
               Stale Data
             </Badge>
           )}
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
             disabled={activeFetching || archivedFetching}
+            onClick={handleRefresh}
+            size="sm"
+            variant="ghost"
           >
             <RefreshCw
               className={`h-4 w-4 ${activeFetching || archivedFetching ? 'animate-spin' : ''}`}
@@ -250,14 +250,14 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
                           {task.status.replace('_', ' ')}
                         </Badge>
                         {task.priority === 'high' && (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge className="text-xs" variant="destructive">
                             High
                           </Badge>
                         )}
                       </div>
 
                       {task.description && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        <p className="mt-1 line-clamp-2 text-muted-foreground text-sm">
                           {task.description}
                         </p>
                       )}
@@ -269,7 +269,7 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
                           </TextShimmer>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-0 mt-1">
+                        <div className="mt-1 flex items-center gap-0">
                           <p className="text-muted-foreground text-sm">
                             {task.createdAt
                               ? formatDistanceToNow(new Date(task.createdAt), {
@@ -300,10 +300,10 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
                   <div className="flex items-center gap-2">
                     {(task.status === 'pending' || task.status === 'in_progress') && (
                       <Button
+                        disabled={updateTaskMutation.isPending}
                         onClick={() => handleArchiveTask(task.id)}
                         size="icon"
                         variant="outline"
-                        disabled={updateTaskMutation.isPending}
                       >
                         <Archive className="h-4 w-4" />
                       </Button>
@@ -346,12 +346,12 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
                       </div>
 
                       {task.description && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        <p className="mt-1 line-clamp-2 text-muted-foreground text-sm">
                           {task.description}
                         </p>
                       )}
 
-                      <div className="flex items-center gap-0 mt-1">
+                      <div className="mt-1 flex items-center gap-0">
                         <p className="text-muted-foreground text-sm">
                           Completed{' '}
                           {task.completedAt
@@ -377,10 +377,10 @@ export default function TaskList({ userId, filters = {} }: TaskListProps) {
                   </Link>
 
                   <Button
+                    disabled={deleteTaskMutation.isPending}
                     onClick={() => handleDeleteTask(task.id)}
                     size="icon"
                     variant="outline"
-                    disabled={deleteTaskMutation.isPending}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

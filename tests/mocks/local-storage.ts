@@ -240,9 +240,8 @@ export const mockIndexedDB = {
                     getAll: vi.fn(() => {
                       if (storeMap) {
                         return createRequest([...storeMap.values()])
-                      } else {
-                        return createRequest([])
                       }
+                      return createRequest([])
                     }),
                     delete: vi.fn((key: unknown) => {
                       storeMap?.delete(key)

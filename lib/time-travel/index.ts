@@ -9,15 +9,15 @@
 export * from './execution-snapshots'
 export * from './replay-engine'
 
+import { observability } from '@/lib/observability'
 // Import main components
 import {
+  type ExecutionSnapshot,
+  type ExecutionState,
+  type SnapshotType,
   snapshotManager,
-  ExecutionSnapshot,
-  ExecutionState,
-  SnapshotType,
 } from './execution-snapshots'
-import { replayEngine, ReplaySession, ReplayState, ReplaySpeed } from './replay-engine'
-import { observability } from '@/lib/observability'
+import { type ReplaySession, type ReplaySpeed, ReplayState, replayEngine } from './replay-engine'
 
 // Time-travel system manager
 export class TimeTravelSystem {
@@ -85,7 +85,7 @@ export class TimeTravelSystem {
       } catch (error) {
         console.error('Error in time-travel monitoring:', error)
       }
-    }, 60000) // Every minute
+    }, 60_000) // Every minute
   }
 
   /**

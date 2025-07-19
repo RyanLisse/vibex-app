@@ -7,34 +7,35 @@
  * step-by-step replay, and diff visualization capabilities.
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
 import {
-  Play,
-  Pause,
-  Stop,
-  SkipForward,
-  SkipBack,
-  StepForward,
-  StepBack,
-  Clock,
-  GitCommit,
+  Activity,
   AlertTriangle,
   CheckCircle,
+  Clock,
+  GitCommit,
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+  StepBack,
+  StepForward,
+  Stop,
   XCircle,
-  Activity,
   Zap,
 } from 'lucide-react'
-import { timeTravel } from '@/lib/time-travel'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
-  ExecutionSnapshot,
-  SnapshotType,
-  ReplaySession,
-  ReplayState,
-  ReplaySpeed,
+  type ExecutionSnapshot,
+  type ReplaySession,
+  type ReplaySpeed,
+  type ReplayState,
+  type SnapshotType,
+  timeTravel,
 } from '@/lib/time-travel'
 
 interface TimelineVisualizationProps {
@@ -46,14 +47,14 @@ interface TimelineVisualizationProps {
 
 // Snapshot type to icon mapping
 const SNAPSHOT_ICONS: Record<SnapshotType, React.ReactNode> = {
-  execution_start: <Play className="w-4 h-4" />,
-  step_start: <Activity className="w-3 h-3" />,
-  step_end: <CheckCircle className="w-3 h-3" />,
-  decision_point: <GitCommit className="w-4 h-4" />,
-  error_state: <XCircle className="w-4 h-4" />,
-  execution_end: <Stop className="w-4 h-4" />,
-  checkpoint: <Clock className="w-4 h-4" />,
-  rollback_point: <SkipBack className="w-4 h-4" />,
+  execution_start: <Play className="h-4 w-4" />,
+  step_start: <Activity className="h-3 w-3" />,
+  step_end: <CheckCircle className="h-3 w-3" />,
+  decision_point: <GitCommit className="h-4 w-4" />,
+  error_state: <XCircle className="h-4 w-4" />,
+  execution_end: <Stop className="h-4 w-4" />,
+  checkpoint: <Clock className="h-4 w-4" />,
+  rollback_point: <SkipBack className="h-4 w-4" />,
 }
 
 // Snapshot type to color mapping
@@ -228,7 +229,7 @@ export function TimelineVisualization({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <Activity className="w-5 h-5 animate-spin mr-2" />
+            <Activity className="mr-2 h-5 w-5 animate-spin" />
             Loading timeline...
           </div>
         </CardContent>
@@ -241,7 +242,7 @@ export function TimelineVisualization({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center text-red-600">
-            <AlertTriangle className="w-5 h-5 mr-2" />
+            <AlertTriangle className="mr-2 h-5 w-5" />
             {error}
           </div>
         </CardContent>
@@ -256,7 +257,7 @@ export function TimelineVisualization({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center">
-              <Clock className="w-5 h-5 mr-2" />
+              <Clock className="mr-2 h-5 w-5" />
               Time-Travel Debug Timeline
             </CardTitle>
             <div className="flex items-center space-x-2">
@@ -274,59 +275,59 @@ export function TimelineVisualization({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => controlReplay('step-backward')}
                 disabled={!replaySession || replaySession.currentIndex === 0}
+                onClick={() => controlReplay('step-backward')}
+                size="sm"
+                variant="outline"
               >
-                <StepBack className="w-4 h-4" />
+                <StepBack className="h-4 w-4" />
               </Button>
 
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => controlReplay(replayState === 'playing' ? 'pause' : 'start')}
                 disabled={!replaySession}
+                onClick={() => controlReplay(replayState === 'playing' ? 'pause' : 'start')}
+                size="sm"
+                variant="outline"
               >
                 {replayState === 'playing' ? (
-                  <Pause className="w-4 h-4" />
+                  <Pause className="h-4 w-4" />
                 ) : (
-                  <Play className="w-4 h-4" />
+                  <Play className="h-4 w-4" />
                 )}
               </Button>
 
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => controlReplay('stop')}
                 disabled={!replaySession || replayState === 'idle'}
+                onClick={() => controlReplay('stop')}
+                size="sm"
+                variant="outline"
               >
-                <Stop className="w-4 h-4" />
+                <Stop className="h-4 w-4" />
               </Button>
 
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => controlReplay('step-forward')}
                 disabled={
                   !replaySession ||
                   replaySession.currentIndex === replaySession.snapshots.length - 1
                 }
+                onClick={() => controlReplay('step-forward')}
+                size="sm"
+                variant="outline"
               >
-                <StepForward className="w-4 h-4" />
+                <StepForward className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Speed Controls */}
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Speed:</span>
+              <span className="text-gray-600 text-sm">Speed:</span>
               {([0.25, 0.5, 1, 2, 4] as ReplaySpeed[]).map((speed) => (
                 <Button
-                  key={speed}
-                  variant={replaySpeed === speed ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSpeed(speed)}
                   className="px-2"
+                  key={speed}
+                  onClick={() => setSpeed(speed)}
+                  size="sm"
+                  variant={replaySpeed === speed ? 'default' : 'outline'}
                 >
                   {speed}x
                 </Button>
@@ -336,30 +337,30 @@ export function TimelineVisualization({
 
           {/* Progress Bar */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center justify-between text-gray-600 text-sm">
               <span>Progress</span>
               <span>{Math.round(progress)}%</span>
             </div>
-            <Progress value={progress} className="w-full" />
+            <Progress className="w-full" value={progress} />
           </div>
 
           {/* Current Snapshot Info */}
           {currentSnapshot && (
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
+            <div className="rounded-lg bg-gray-50 p-3">
+              <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div
-                    className={`w-3 h-3 rounded-full ${SNAPSHOT_COLORS[currentSnapshot.type]}`}
+                    className={`h-3 w-3 rounded-full ${SNAPSHOT_COLORS[currentSnapshot.type]}`}
                   />
                   <span className="font-medium">Step {currentSnapshot.stepNumber}</span>
                   <Badge variant="outline">{currentSnapshot.type}</Badge>
                 </div>
-                <span className="text-sm text-gray-600">
+                <span className="text-gray-600 text-sm">
                   {currentSnapshot.timestamp.toLocaleTimeString()}
                 </span>
               </div>
               {currentSnapshot.metadata.description && (
-                <p className="text-sm text-gray-700">{currentSnapshot.metadata.description}</p>
+                <p className="text-gray-700 text-sm">{currentSnapshot.metadata.description}</p>
               )}
             </div>
           )}
@@ -373,26 +374,21 @@ export function TimelineVisualization({
         </CardHeader>
         <CardContent>
           <div className="relative overflow-x-auto">
-            <div className="flex items-center space-x-1 pb-4 min-w-max">
+            <div className="flex min-w-max items-center space-x-1 pb-4">
               {snapshots.map((snapshot, index) => (
                 <div
+                  className="group relative cursor-pointer"
                   key={snapshot.id}
-                  className="relative group cursor-pointer"
                   onClick={() => jumpToSnapshot(snapshot)}
                 >
                   {/* Timeline line */}
                   {index < snapshots.length - 1 && (
-                    <div className="absolute top-3 left-6 w-8 h-0.5 bg-gray-300" />
+                    <div className="absolute top-3 left-6 h-0.5 w-8 bg-gray-300" />
                   )}
 
                   {/* Snapshot marker */}
                   <div
-                    className={`
-                    relative z-10 w-6 h-6 rounded-full border-2 border-white shadow-sm
-                    ${SNAPSHOT_COLORS[snapshot.type]}
-                    ${currentSnapshot?.id === snapshot.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
-                    hover:scale-110 transition-transform
-                  `}
+                    className={`relative z-10 h-6 w-6 rounded-full border-2 border-white shadow-sm ${SNAPSHOT_COLORS[snapshot.type]} ${currentSnapshot?.id === snapshot.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''}hover:scale-110 transition-transform `}
                   >
                     <div className="absolute inset-0 flex items-center justify-center text-white">
                       {SNAPSHOT_ICONS[snapshot.type]}
@@ -400,11 +396,7 @@ export function TimelineVisualization({
                   </div>
 
                   {/* Tooltip */}
-                  <div
-                    className="absolute bottom-8 left-1/2 transform -translate-x-1/2 
-                                  bg-black text-white text-xs rounded px-2 py-1 opacity-0 
-                                  group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
-                  >
+                  <div className="-translate-x-1/2 pointer-events-none absolute bottom-8 left-1/2 transform whitespace-nowrap rounded bg-black px-2 py-1 text-white text-xs opacity-0 transition-opacity group-hover:opacity-100">
                     <div>{snapshot.type}</div>
                     <div>Step {snapshot.stepNumber}</div>
                     {snapshot.metadata.description && (
@@ -428,14 +420,14 @@ export function TimelineVisualization({
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <div className="flex-1">
-                  <label className="text-sm font-medium">Compare From:</label>
-                  <div className="mt-1 p-2 bg-gray-50 rounded">
+                  <label className="font-medium text-sm">Compare From:</label>
+                  <div className="mt-1 rounded bg-gray-50 p-2">
                     Step {compareSnapshot.stepNumber} - {compareSnapshot.type}
                   </div>
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm font-medium">Compare To:</label>
-                  <div className="mt-1 p-2 bg-gray-50 rounded">
+                  <label className="font-medium text-sm">Compare To:</label>
+                  <div className="mt-1 rounded bg-gray-50 p-2">
                     Step {currentSnapshot.stepNumber} - {currentSnapshot.type}
                   </div>
                 </div>
@@ -445,7 +437,7 @@ export function TimelineVisualization({
                 const diff = calculateDiff(compareSnapshot, currentSnapshot)
                 return (
                   <div className="space-y-2">
-                    <div className="text-sm font-medium">Changes Summary:</div>
+                    <div className="font-medium text-sm">Changes Summary:</div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>State Changes: {diff.summary.stateChanges}</div>
                       <div>Memory Changes: {diff.summary.memoryChanges}</div>
@@ -465,21 +457,21 @@ export function TimelineVisualization({
       {/* Quick Actions */}
       <div className="flex items-center space-x-2">
         <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowDiff(!showDiff)}
           disabled={!currentSnapshot}
+          onClick={() => setShowDiff(!showDiff)}
+          size="sm"
+          variant="outline"
         >
-          <Zap className="w-4 h-4 mr-2" />
+          <Zap className="mr-2 h-4 w-4" />
           {showDiff ? 'Hide' : 'Show'} Diff
         </Button>
 
         {currentSnapshot && (
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCompareSnapshot(currentSnapshot)}
             disabled={!currentSnapshot}
+            onClick={() => setCompareSnapshot(currentSnapshot)}
+            size="sm"
+            variant="outline"
           >
             Set Compare Point
           </Button>

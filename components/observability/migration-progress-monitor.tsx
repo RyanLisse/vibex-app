@@ -7,25 +7,25 @@
  * performance metrics, and comprehensive status reporting.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Activity,
-  Database,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Zap,
-  TrendingUp,
   AlertTriangle,
+  BarChart3,
+  CheckCircle,
+  Clock,
+  Database,
   Pause,
   Play,
   RefreshCw,
-  BarChart3,
+  TrendingUp,
+  XCircle,
+  Zap,
 } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { observability } from '@/lib/observability'
 
 interface MigrationStep {
@@ -99,8 +99,8 @@ export function MigrationProgressMonitor({
           name: 'User Data Migration',
           overallProgress: 75,
           status: 'running',
-          startTime: new Date(Date.now() - 1800000), // 30 minutes ago
-          estimatedCompletion: new Date(Date.now() + 600000), // 10 minutes from now
+          startTime: new Date(Date.now() - 1_800_000), // 30 minutes ago
+          estimatedCompletion: new Date(Date.now() + 600_000), // 10 minutes from now
           steps: [
             {
               id: 'step_001',
@@ -108,9 +108,9 @@ export function MigrationProgressMonitor({
               description: 'Updating database schema for new structure',
               status: 'completed',
               progress: 100,
-              startTime: new Date(Date.now() - 1800000),
-              endTime: new Date(Date.now() - 1680000),
-              duration: 120000,
+              startTime: new Date(Date.now() - 1_800_000),
+              endTime: new Date(Date.now() - 1_680_000),
+              duration: 120_000,
               metrics: {
                 recordsProcessed: 15,
                 totalRecords: 15,
@@ -124,10 +124,10 @@ export function MigrationProgressMonitor({
               description: 'Migrating user data to new format',
               status: 'running',
               progress: 73,
-              startTime: new Date(Date.now() - 1680000),
+              startTime: new Date(Date.now() - 1_680_000),
               metrics: {
-                recordsProcessed: 36500,
-                totalRecords: 50000,
+                recordsProcessed: 36_500,
+                totalRecords: 50_000,
                 throughput: 21.7,
                 errorCount: 3,
               },
@@ -153,15 +153,15 @@ export function MigrationProgressMonitor({
               progress: 0,
               metrics: {
                 recordsProcessed: 0,
-                totalRecords: 50000,
+                totalRecords: 50_000,
                 throughput: 0,
                 errorCount: 0,
               },
             },
           ],
           metrics: {
-            totalRecords: 100023,
-            processedRecords: 72515,
+            totalRecords: 100_023,
+            processedRecords: 72_515,
             errorCount: 3,
             averageThroughput: 18.4,
             peakThroughput: 34.2,
@@ -222,26 +222,26 @@ export function MigrationProgressMonitor({
 
     if (hours > 0) {
       return `${hours}h ${minutes % 60}m ${seconds % 60}s`
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds % 60}s`
-    } else {
-      return `${seconds}s`
     }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`
+    }
+    return `${seconds}s`
   }, [])
 
   // Get status icon
   const getStatusIcon = useCallback((status: string) => {
     switch (status) {
       case 'running':
-        return <Activity className="w-4 h-4 animate-spin text-blue-600" />
+        return <Activity className="h-4 w-4 animate-spin text-blue-600" />
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
+        return <CheckCircle className="h-4 w-4 text-green-600" />
       case 'failed':
-        return <XCircle className="w-4 h-4 text-red-600" />
+        return <XCircle className="h-4 w-4 text-red-600" />
       case 'paused':
-        return <Pause className="w-4 h-4 text-yellow-600" />
+        return <Pause className="h-4 w-4 text-yellow-600" />
       default:
-        return <Clock className="w-4 h-4 text-gray-400" />
+        return <Clock className="h-4 w-4 text-gray-400" />
     }
   }, [])
 
@@ -266,7 +266,7 @@ export function MigrationProgressMonitor({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <Activity className="w-5 h-5 animate-spin mr-2" />
+            <Activity className="mr-2 h-5 w-5 animate-spin" />
             Loading migration status...
           </div>
         </CardContent>
@@ -279,7 +279,7 @@ export function MigrationProgressMonitor({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center text-red-600">
-            <AlertTriangle className="w-5 h-5 mr-2" />
+            <AlertTriangle className="mr-2 h-5 w-5" />
             {error}
           </div>
         </CardContent>
@@ -294,18 +294,18 @@ export function MigrationProgressMonitor({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center">
-              <Database className="w-5 h-5 mr-2" />
+              <Database className="mr-2 h-5 w-5" />
               Migration Progress Monitor
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={() => setIsPaused(!isPaused)}>
-                {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+              <Button onClick={() => setIsPaused(!isPaused)} size="sm" variant="outline">
+                {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
               </Button>
-              <Button variant="outline" size="sm" onClick={fetchMigrationStatus} disabled={loading}>
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <Button disabled={loading} onClick={fetchMigrationStatus} size="sm" variant="outline">
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowMetrics(!showMetrics)}>
-                <BarChart3 className="w-4 h-4" />
+              <Button onClick={() => setShowMetrics(!showMetrics)} size="sm" variant="outline">
+                <BarChart3 className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -314,33 +314,33 @@ export function MigrationProgressMonitor({
         <CardContent className="space-y-4">
           {migrations.map((migration) => (
             <div
-              key={migration.id}
-              className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+              className={`cursor-pointer rounded-lg border p-4 transition-colors ${
                 selectedMigration?.id === migration.id
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
+              key={migration.id}
               onClick={() => setSelectedMigration(migration)}
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   {getStatusIcon(migration.status)}
                   <div>
                     <h3 className="font-medium">{migration.name}</h3>
-                    <p className="text-sm text-gray-600">ID: {migration.id}</p>
+                    <p className="text-gray-600 text-sm">ID: {migration.id}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <Badge variant={migration.status === 'running' ? 'default' : 'secondary'}>
                     {migration.status}
                   </Badge>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="mt-1 text-gray-600 text-sm">
                     {migration.overallProgress}% complete
                   </p>
                 </div>
               </div>
 
-              <Progress value={migration.overallProgress} className="mb-3" />
+              <Progress className="mb-3" value={migration.overallProgress} />
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -365,8 +365,8 @@ export function MigrationProgressMonitor({
               </div>
 
               {migration.metrics.errorCount > 0 && (
-                <div className="mt-2 p-2 bg-red-50 rounded text-red-700 text-sm">
-                  <AlertTriangle className="w-4 h-4 inline mr-1" />
+                <div className="mt-2 rounded bg-red-50 p-2 text-red-700 text-sm">
+                  <AlertTriangle className="mr-1 inline h-4 w-4" />
                   {migration.metrics.errorCount} errors encountered
                 </div>
               )}
@@ -384,26 +384,26 @@ export function MigrationProgressMonitor({
           <CardContent>
             <div className="space-y-4">
               {selectedMigration.steps.map((step, index) => (
-                <div key={step.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
+                <div className="rounded-lg border p-4" key={step.id}>
+                  <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-medium ${getStatusColor(step.status)}`}
+                        className={`flex h-8 w-8 items-center justify-center rounded-full font-medium text-white ${getStatusColor(step.status)}`}
                       >
                         {index + 1}
                       </div>
                       <div>
                         <h4 className="font-medium">{step.name}</h4>
-                        <p className="text-sm text-gray-600">{step.description}</p>
+                        <p className="text-gray-600 text-sm">{step.description}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       {getStatusIcon(step.status)}
-                      <p className="text-sm text-gray-600 mt-1">{step.progress}%</p>
+                      <p className="mt-1 text-gray-600 text-sm">{step.progress}%</p>
                     </div>
                   </div>
 
-                  <Progress value={step.progress} className="mb-3" />
+                  <Progress className="mb-3" value={step.progress} />
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -432,7 +432,7 @@ export function MigrationProgressMonitor({
                   </div>
 
                   {step.error && (
-                    <div className="mt-3 p-2 bg-red-50 rounded text-red-700 text-sm">
+                    <div className="mt-3 rounded bg-red-50 p-2 text-red-700 text-sm">
                       <strong>Error:</strong> {step.error}
                     </div>
                   )}
@@ -448,7 +448,7 @@ export function MigrationProgressMonitor({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2" />
+              <TrendingUp className="mr-2 h-5 w-5" />
               Performance Metrics
             </CardTitle>
           </CardHeader>
@@ -456,14 +456,14 @@ export function MigrationProgressMonitor({
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Average Throughput</label>
-                  <div className="text-2xl font-bold">
+                  <label className="font-medium text-gray-600 text-sm">Average Throughput</label>
+                  <div className="font-bold text-2xl">
                     {selectedMigration.metrics.averageThroughput} rec/s
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Peak Throughput</label>
-                  <div className="text-2xl font-bold text-green-600">
+                  <label className="font-medium text-gray-600 text-sm">Peak Throughput</label>
+                  <div className="font-bold text-2xl text-green-600">
                     {selectedMigration.metrics.peakThroughput} rec/s
                   </div>
                 </div>
@@ -471,15 +471,15 @@ export function MigrationProgressMonitor({
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Total Records</label>
-                  <div className="text-2xl font-bold">
+                  <label className="font-medium text-gray-600 text-sm">Total Records</label>
+                  <div className="font-bold text-2xl">
                     {selectedMigration.metrics.totalRecords.toLocaleString()}
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Error Rate</label>
+                  <label className="font-medium text-gray-600 text-sm">Error Rate</label>
                   <div
-                    className={`text-2xl font-bold ${selectedMigration.metrics.errorCount > 0 ? 'text-red-600' : 'text-green-600'}`}
+                    className={`font-bold text-2xl ${selectedMigration.metrics.errorCount > 0 ? 'text-red-600' : 'text-green-600'}`}
                   >
                     {(
                       (selectedMigration.metrics.errorCount /

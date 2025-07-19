@@ -4,24 +4,24 @@
  * Tests for all TanStack Query hooks with real database operations and caching behavior
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Environment, Task } from '@/db/schema'
 import {
-  useTasks,
-  useTask,
-  useCreateTask,
-  useUpdateTask,
-  useDeleteTask,
-  useEnvironments,
-  useEnvironment,
-  useCreateEnvironment,
-  useUpdateEnvironment,
-  useDeleteEnvironment,
-  taskKeys,
   environmentKeys,
+  taskKeys,
+  useCreateEnvironment,
+  useCreateTask,
+  useDeleteEnvironment,
+  useDeleteTask,
+  useEnvironment,
+  useEnvironments,
+  useTask,
+  useTasks,
+  useUpdateEnvironment,
+  useUpdateTask,
 } from '@/lib/query/hooks'
-import type { Task, Environment } from '@/db/schema'
 
 // Mock fetch
 global.fetch = vi.fn()

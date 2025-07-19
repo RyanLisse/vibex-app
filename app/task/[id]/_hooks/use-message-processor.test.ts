@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
+import { vi } from 'vitest'
 import { useMessageProcessor } from '@/app/task/[id]/_hooks/use-message-processor'
 import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
 

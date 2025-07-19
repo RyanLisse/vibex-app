@@ -5,13 +5,13 @@
  * including all commands, options, and error scenarios.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi, type MockedFunction } from 'vitest'
 import { execSync, spawn } from 'child_process'
-import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import { migrationService } from '../../lib/migration/migration-service'
-import { dataExtractor } from '../../lib/migration/data-extractor'
+import { afterEach, beforeEach, describe, expect, it, type MockedFunction, vi } from 'vitest'
 import { backupService } from '../../lib/migration/backup-service'
+import { dataExtractor } from '../../lib/migration/data-extractor'
+import { migrationService } from '../../lib/migration/migration-service'
 
 // Mock CLI dependencies
 vi.mock('child_process')

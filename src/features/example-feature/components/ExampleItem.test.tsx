@@ -1,5 +1,5 @@
-import { ExampleItem } from '@/src/features/example-feature/components/ExampleItem'
 import { vi } from 'vitest'
+import { ExampleItem } from '@/src/features/example-feature/components/ExampleItem'
 import type { ExampleItem as ExampleItemType } from '@/src/features/example-feature/types'
 import { render, screen } from '@/test/test-utils'
 

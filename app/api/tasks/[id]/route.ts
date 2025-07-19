@@ -5,18 +5,18 @@
  * Zod validation, OpenTelemetry tracing, and comprehensive error handling.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 import { observability } from '@/lib/observability'
 import {
+  createApiErrorResponse,
+  createApiSuccessResponse,
   TaskSchema,
   UpdateTaskSchema,
-  createApiSuccessResponse,
-  createApiErrorResponse,
 } from '@/src/schemas/api-routes'
 
 // Route parameters schema
@@ -28,8 +28,8 @@ const TaskParamsSchema = z.object({
 class TaskAPIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR'
+    public statusCode = 500,
+    public code = 'INTERNAL_ERROR'
   ) {
     super(message)
     this.name = 'TaskAPIError'
@@ -108,7 +108,7 @@ class TaskService {
       const startTime = Date.now()
 
       // First check if task exists
-      const existingTask = await this.getTask(id)
+      const existingTask = await TaskService.getTask(id)
 
       const [updatedTask] = await db
         .update(tasks)
@@ -182,7 +182,7 @@ class TaskService {
       const startTime = Date.now()
 
       // First check if task exists
-      const existingTask = await this.getTask(id)
+      const existingTask = await TaskService.getTask(id)
 
       const [deletedTask] = await db.delete(tasks).where(eq(tasks.id, id)).returning()
 

@@ -1,6 +1,6 @@
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { AnthropicAuthProvider, useAuth } from '@/components/auth/anthropic-auth-provider'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 

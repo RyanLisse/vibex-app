@@ -5,8 +5,8 @@
  * Provides rollback capabilities and data recovery.
  */
 
-import { db } from '@/db/config'
 import { ulid } from 'ulid'
+import { db } from '@/db/config'
 import type { BackupData, BackupManifest, LocalStorageData } from './types'
 
 export interface BackupOptions {
@@ -106,7 +106,7 @@ export class BackupService {
         createdAt: timestamp,
         dataTypes,
         totalItems: itemCount,
-        compressed: options.compress || false,
+        compressed: options.compress,
         checksum: this.generateChecksum(JSON.stringify(data)),
         size: backupData.metadata.size,
       }
@@ -467,7 +467,7 @@ export class BackupService {
       const text = await file.text()
       const importData = JSON.parse(text)
 
-      if (!importData.metadata || !importData.data) {
+      if (!(importData.metadata && importData.data)) {
         return {
           success: false,
           error: 'Invalid backup file format',

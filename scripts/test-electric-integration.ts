@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * ElectricSQL Integration Test Script
  *
@@ -6,11 +7,11 @@
  * to verify end-to-end functionality including conflict resolution and offline sync.
  */
 
+import type { NewEnvironment, NewTask } from '../db/schema'
+import { conflictResolutionService } from '../lib/electric/conflict-resolution'
 import { electricDatabaseClient } from '../lib/electric/database-client'
 import { enhancedElectricSyncService } from '../lib/electric/enhanced-sync-service'
-import { conflictResolutionService } from '../lib/electric/conflict-resolution'
 import { initializeRedis } from '../lib/redis'
-import type { NewTask, NewEnvironment } from '../db/schema'
 
 // Sample test data
 const sampleTask: NewTask = {
@@ -93,7 +94,7 @@ async function testDatabaseClient(): Promise<boolean> {
       },
     })
 
-    if (!insertResult.success || !insertResult.data) {
+    if (!(insertResult.success && insertResult.data)) {
       logError('Task insertion failed')
       return false
     }
@@ -112,7 +113,7 @@ async function testDatabaseClient(): Promise<boolean> {
       },
     })
 
-    if (!selectResult.success || !selectResult.data) {
+    if (!(selectResult.success && selectResult.data)) {
       logError('Task selection failed')
       return false
     }
@@ -327,7 +328,7 @@ async function testEnvironmentOperations(): Promise<boolean> {
       },
     })
 
-    if (!createResult.success || !createResult.data) {
+    if (!(createResult.success && createResult.data)) {
       logError('Environment creation failed')
       return false
     }

@@ -1,4 +1,4 @@
-import { LogLevel, LoggingMetrics, OperationMetrics } from './types'
+import type { LoggingMetrics, LogLevel, OperationMetrics } from './types'
 
 export class PerformanceTracker {
   private metrics: LoggingMetrics = {
@@ -30,7 +30,7 @@ export class PerformanceTracker {
       count: 0,
       totalDuration: 0,
       averageDuration: 0,
-      minDuration: Infinity,
+      minDuration: Number.POSITIVE_INFINITY,
       maxDuration: 0,
     }
 
@@ -59,7 +59,7 @@ export class PerformanceTracker {
     return this.metrics.averageLoggingTime > 10 // 10ms threshold
   }
 
-  getSlowOperations(thresholdMs: number = 1000): OperationMetrics[] {
+  getSlowOperations(thresholdMs = 1000): OperationMetrics[] {
     const slowOps: OperationMetrics[] = []
     for (const [, metrics] of this.metrics.operationMetrics) {
       if (metrics.averageDuration > thresholdMs) {

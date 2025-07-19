@@ -7,18 +7,18 @@
 
 'use client'
 
+import { Archive, Pause, Play, Plus, RefreshCw, X } from 'lucide-react'
 import { useState } from 'react'
-import { Plus, Archive, Play, Pause, X, RefreshCw } from 'lucide-react'
 import {
-  useTasks,
-  useCreateTask,
-  useUpdateTask,
-  useDeleteTask,
+  type Task,
   useArchiveTask,
+  useCancelTask,
+  useCreateTask,
+  useDeleteTask,
   usePauseTask,
   useResumeTask,
-  useCancelTask,
-  type Task,
+  useTasks,
+  useUpdateTask,
 } from '@/lib/query/hooks'
 
 interface TaskListExampleProps {
@@ -120,12 +120,12 @@ export function TaskListExample({ className = '' }: TaskListExampleProps) {
   if (error) {
     return (
       <div className={`p-6 ${className}`}>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="text-red-800 font-medium">Error loading tasks</div>
-          <div className="text-red-600 text-sm mt-1">{error.message}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="font-medium text-red-800">Error loading tasks</div>
+          <div className="mt-1 text-red-600 text-sm">{error.message}</div>
           <button
+            className="mt-2 text-red-600 text-sm underline hover:text-red-800"
             onClick={() => refetch()}
-            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
           >
             Try again
           </button>
@@ -137,22 +137,22 @@ export function TaskListExample({ className = '' }: TaskListExampleProps) {
   return (
     <div className={`p-6 ${className}`}>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Tasks ({tasks.length})</h2>
+        <h2 className="mb-4 font-semibold text-xl">Tasks ({tasks.length})</h2>
 
         {/* Create new task */}
-        <div className="flex space-x-2 mb-4">
+        <div className="mb-4 flex space-x-2">
           <input
+            className="flex-1 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleCreateTask()}
+            placeholder="Enter task title..."
             type="text"
             value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            placeholder="Enter task title..."
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onKeyPress={(e) => e.key === 'Enter' && handleCreateTask()}
           />
           <button
-            onClick={handleCreateTask}
+            className="flex items-center space-x-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={createTask.isPending || !newTaskTitle.trim()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+            onClick={handleCreateTask}
           >
             {createTask.isPending ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
@@ -166,17 +166,17 @@ export function TaskListExample({ className = '' }: TaskListExampleProps) {
         {/* Filter toggle */}
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => setShowArchived(!showArchived)}
-            className={`px-3 py-1 rounded-md text-sm ${
+            className={`rounded-md px-3 py-1 text-sm ${
               showArchived ? 'bg-gray-200 text-gray-800' : 'bg-blue-100 text-blue-800'
             }`}
+            onClick={() => setShowArchived(!showArchived)}
           >
             {showArchived ? 'Show Active' : 'Show Archived'}
           </button>
 
           <button
+            className="flex items-center space-x-1 text-gray-600 text-sm hover:text-gray-800"
             onClick={() => refetch()}
-            className="text-sm text-gray-600 hover:text-gray-800 flex items-center space-x-1"
           >
             <RefreshCw className="h-3 w-3" />
             <span>Refresh</span>
@@ -187,17 +187,17 @@ export function TaskListExample({ className = '' }: TaskListExampleProps) {
       {/* Task list */}
       <div className="space-y-3">
         {tasks.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="py-8 text-center text-gray-500">
             {showArchived ? 'No archived tasks' : 'No active tasks'}
           </div>
         ) : (
           tasks.map((task) => (
             <TaskItem
-              key={task.id}
-              task={task}
-              onUpdateTitle={(newTitle) => handleUpdateTaskTitle(task.id, newTitle)}
-              onAction={(action) => handleTaskAction(task.id, action)}
               isUpdating={updateTask.isPending}
+              key={task.id}
+              onAction={(action) => handleTaskAction(task.id, action)}
+              onUpdateTitle={(newTitle) => handleUpdateTaskTitle(task.id, newTitle)}
+              task={task}
             />
           ))
         )}
@@ -205,7 +205,7 @@ export function TaskListExample({ className = '' }: TaskListExampleProps) {
 
       {/* Mutation status */}
       {(createTask.error || updateTask.error || deleteTask.error) && (
-        <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
           <div className="text-red-800 text-sm">
             {createTask.error?.message || updateTask.error?.message || deleteTask.error?.message}
           </div>
@@ -249,45 +249,45 @@ function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) 
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-sm">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           {isEditing ? (
             <div className="flex space-x-2">
               <input
+                autoFocus
+                className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+                onBlur={handleSaveTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSaveTitle()}
                 type="text"
                 value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                onKeyPress={(e) => e.key === 'Enter' && handleSaveTitle()}
-                onBlur={handleSaveTitle}
-                autoFocus
               />
             </div>
           ) : (
             <h3
-              className="font-medium cursor-pointer hover:text-blue-600"
+              className="cursor-pointer font-medium hover:text-blue-600"
               onClick={() => setIsEditing(true)}
             >
               {task.title}
             </h3>
           )}
 
-          <div className="flex items-center space-x-2 mt-2">
-            <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(task.status)}`}>
+          <div className="mt-2 flex items-center space-x-2">
+            <span className={`rounded-full px-2 py-1 text-xs ${getStatusColor(task.status)}`}>
               {task.status}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-gray-500 text-xs">
               {task.mode} • {task.repository}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center space-x-1 ml-4">
+        <div className="ml-4 flex items-center space-x-1">
           {task.status === 'IN_PROGRESS' && (
             <button
-              onClick={() => onAction('pause')}
               className="p-1 text-gray-400 hover:text-yellow-600"
+              onClick={() => onAction('pause')}
               title="Pause task"
             >
               <Pause className="h-4 w-4" />
@@ -296,8 +296,8 @@ function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) 
 
           {task.status === 'PAUSED' && (
             <button
-              onClick={() => onAction('resume')}
               className="p-1 text-gray-400 hover:text-blue-600"
+              onClick={() => onAction('resume')}
               title="Resume task"
             >
               <Play className="h-4 w-4" />
@@ -306,8 +306,8 @@ function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) 
 
           {!task.isArchived && (
             <button
-              onClick={() => onAction('archive')}
               className="p-1 text-gray-400 hover:text-gray-600"
+              onClick={() => onAction('archive')}
               title="Archive task"
             >
               <Archive className="h-4 w-4" />
@@ -315,8 +315,8 @@ function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) 
           )}
 
           <button
-            onClick={() => onAction('delete')}
             className="p-1 text-gray-400 hover:text-red-600"
+            onClick={() => onAction('delete')}
             title="Delete task"
           >
             <X className="h-4 w-4" />
@@ -325,7 +325,7 @@ function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) 
       </div>
 
       {isUpdating && (
-        <div className="mt-2 text-xs text-gray-500 flex items-center space-x-1">
+        <div className="mt-2 flex items-center space-x-1 text-gray-500 text-xs">
           <RefreshCw className="h-3 w-3 animate-spin" />
           <span>Updating...</span>
         </div>

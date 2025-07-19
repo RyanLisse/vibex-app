@@ -8,7 +8,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { checkDatabaseHealth, db } from '../../../db/config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
-import { tasks, environments, agentExecutions, observabilityEvents } from '../../../db/schema'
+import { agentExecutions, environments, observabilityEvents, tasks } from '../../../db/schema'
 
 // Performance monitoring types
 interface PerformanceMetrics {
@@ -59,7 +59,7 @@ interface SystemHealthMetrics {
 // Mock performance monitoring utilities
 class PerformanceMonitor {
   private metrics: PerformanceMetrics[] = []
-  private startTime: number = 0
+  private startTime = 0
   private requestTimes: number[] = []
 
   startMonitoring(): void {
@@ -174,9 +174,9 @@ class PerformanceMonitor {
       },
       cpuUsage: Math.random() * 50 + 10,
       diskUsage: {
-        used: 10240,
-        free: 40960,
-        total: 51200,
+        used: 10_240,
+        free: 40_960,
+        total: 51_200,
         percentage: 20,
       },
       networkConnections: Math.floor(Math.random() * 100) + 10,
@@ -632,8 +632,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
 
       // Check for outliers (response times > 3 standard deviations)
       const standardDev = Math.sqrt(
-        responseTimes.reduce((sum, time) => sum + Math.pow(time - average, 2), 0) /
-          responseTimes.length
+        responseTimes.reduce((sum, time) => sum + (time - average) ** 2, 0) / responseTimes.length
       )
       const outliers = responseTimes.filter((time) => Math.abs(time - average) > 3 * standardDev)
 

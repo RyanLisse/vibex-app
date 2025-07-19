@@ -1,23 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Activity,
+  AlertCircle,
+  CheckCircle,
+  Clock,
   Cloud,
   CloudOff,
   Database,
   RefreshCw,
-  Zap,
-  AlertCircle,
-  CheckCircle,
-  Clock,
   TrendingUp,
+  Zap,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { enhancedSyncService } from '@/lib/electric/enhanced-sync-service'
 import { cn } from '@/lib/utils'
 
@@ -119,8 +119,8 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
               {isConnected ? 'Connected' : 'Disconnected'}
             </Badge>
             {isSyncing && (
-              <Badge variant="secondary" className="animate-pulse">
-                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+              <Badge className="animate-pulse" variant="secondary">
+                <RefreshCw className="mr-1 h-3 w-3 animate-spin" />
                 Syncing
               </Badge>
             )}
@@ -128,26 +128,26 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Connection Info */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Sync Status</p>
-              <p className="text-lg font-medium">{connectionStatus.syncStatus}</p>
+              <p className="text-muted-foreground text-sm">Sync Status</p>
+              <p className="font-medium text-lg">{connectionStatus.syncStatus}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Last Sync</p>
-              <p className="text-lg font-medium">
+              <p className="text-muted-foreground text-sm">Last Sync</p>
+              <p className="font-medium text-lg">
                 {metrics.lastSyncTime
                   ? new Date(metrics.lastSyncTime).toLocaleTimeString()
                   : 'Never'}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Offline Queue</p>
-              <p className="text-lg font-medium">{connectionStatus.offlineQueueSize || 0}</p>
+              <p className="text-muted-foreground text-sm">Offline Queue</p>
+              <p className="font-medium text-lg">{connectionStatus.offlineQueueSize || 0}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Conflicts</p>
-              <p className="text-lg font-medium">{connectionStatus.conflictCount || 0}</p>
+              <p className="text-muted-foreground text-sm">Conflicts</p>
+              <p className="font-medium text-lg">{connectionStatus.conflictCount || 0}</p>
             </div>
           </div>
 
@@ -157,37 +157,37 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
               <span>Sync Success Rate</span>
               <span className="font-medium">{syncSuccessRate}%</span>
             </div>
-            <Progress value={syncSuccessRate} className="h-2" />
+            <Progress className="h-2" value={syncSuccessRate} />
           </div>
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button size="sm" onClick={triggerManualSync} disabled={isManualSyncing || isSyncing}>
+            <Button disabled={isManualSyncing || isSyncing} onClick={triggerManualSync} size="sm">
               {isManualSyncing ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                  <RefreshCw className="mr-1 h-4 w-4 animate-spin" />
                   Syncing...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-1" />
+                  <RefreshCw className="mr-1 h-4 w-4" />
                   Manual Sync
                 </>
               )}
             </Button>
             <Button
+              onClick={() => updateSyncConfig({ autoSync: !config.autoSync })}
               size="sm"
               variant={config.autoSync ? 'secondary' : 'outline'}
-              onClick={() => updateSyncConfig({ autoSync: !config.autoSync })}
             >
               {config.autoSync ? (
                 <>
-                  <Activity className="h-4 w-4 mr-1" />
+                  <Activity className="mr-1 h-4 w-4" />
                   Auto-Sync ON
                 </>
               ) : (
                 <>
-                  <Activity className="h-4 w-4 mr-1" />
+                  <Activity className="mr-1 h-4 w-4" />
                   Auto-Sync OFF
                 </>
               )}
@@ -205,36 +205,36 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Total Syncs</p>
-              <p className="text-2xl font-bold">{metrics.totalSyncs}</p>
+              <p className="text-muted-foreground text-sm">Total Syncs</p>
+              <p className="font-bold text-2xl">{metrics.totalSyncs}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Successful</p>
-              <p className="text-2xl font-bold text-green-600">{metrics.successfulSyncs}</p>
+              <p className="text-muted-foreground text-sm">Successful</p>
+              <p className="font-bold text-2xl text-green-600">{metrics.successfulSyncs}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Failed</p>
-              <p className="text-2xl font-bold text-red-600">{metrics.failedSyncs}</p>
+              <p className="text-muted-foreground text-sm">Failed</p>
+              <p className="font-bold text-2xl text-red-600">{metrics.failedSyncs}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Avg Time</p>
-              <p className="text-2xl font-bold">{metrics.averageSyncTime}ms</p>
+              <p className="text-muted-foreground text-sm">Avg Time</p>
+              <p className="font-bold text-2xl">{metrics.averageSyncTime}ms</p>
             </div>
           </div>
 
           {/* Sync History */}
           <div className="mt-4">
-            <p className="text-sm text-muted-foreground mb-2">Recent Sync History</p>
+            <p className="mb-2 text-muted-foreground text-sm">Recent Sync History</p>
             <div className="flex gap-1">
               {syncHistory.map((sync, i) => (
                 <div
-                  key={i}
                   className={cn(
-                    'w-8 h-8 rounded flex items-center justify-center',
+                    'flex h-8 w-8 items-center justify-center rounded',
                     sync.status === 'success' ? 'bg-green-100' : 'bg-red-100'
                   )}
+                  key={i}
                   title={sync.timestamp.toLocaleString()}
                 >
                   {sync.status === 'success' ? (
@@ -271,21 +271,21 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-sm">Sync Interval</span>
               <Badge variant="outline">{config.syncInterval / 1000}s</Badge>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-sm">Conflict Strategy</span>
               <Badge variant="outline">{config.conflictStrategy}</Badge>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-sm">Cache Enabled</span>
               <Badge variant={config.cacheEnabled ? 'default' : 'secondary'}>
                 {config.cacheEnabled ? 'Yes' : 'No'}
               </Badge>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-sm">Performance Monitoring</span>
               <Badge variant={config.performanceMonitoring ? 'default' : 'secondary'}>
                 {config.performanceMonitoring ? 'Yes' : 'No'}
@@ -296,7 +296,7 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
       </Card>
 
       {/* Last Update */}
-      <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center justify-end gap-2 text-muted-foreground text-sm">
         <Clock className="h-4 w-4" />
         Last updated: {lastUpdate.toLocaleTimeString()}
       </div>

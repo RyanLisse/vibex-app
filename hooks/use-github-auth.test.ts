@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
+import { vi } from 'vitest'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 
 // Mock next/navigation

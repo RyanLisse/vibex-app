@@ -7,38 +7,38 @@
  * agent coordination, performance metrics, and system health visualization.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
-  Monitor,
   Activity,
-  Database,
-  Users,
-  Clock,
-  TrendingUp,
   AlertTriangle,
+  BarChart3,
   CheckCircle,
-  Zap,
-  RefreshCw,
-  Settings,
+  Clock,
+  Cpu,
+  Database,
   Download,
   Eye,
-  BarChart3,
-  Network,
-  Cpu,
-  MemoryStick,
   HardDrive,
+  MemoryStick,
+  Monitor,
+  Network,
+  RefreshCw,
+  Settings,
+  TrendingUp,
+  Users,
   Wifi,
+  Zap,
 } from 'lucide-react'
-import { TimelineVisualization } from './timeline-visualization'
-import { MigrationProgressMonitor } from './migration-progress-monitor'
-import { AgentCoordinationMonitor } from './agent-coordination-monitor'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { observability } from '@/lib/observability'
 import { timeTravel } from '@/lib/time-travel'
+import { AgentCoordinationMonitor } from './agent-coordination-monitor'
+import { MigrationProgressMonitor } from './migration-progress-monitor'
+import { TimelineVisualization } from './timeline-visualization'
 
 interface SystemHealth {
   overall: number
@@ -106,7 +106,7 @@ interface ComprehensiveObservabilityDashboardProps {
 export function ComprehensiveObservabilityDashboard({
   defaultTab = 'overview',
   autoRefresh = true,
-  refreshInterval = 10000,
+  refreshInterval = 10_000,
   className = '',
 }: ComprehensiveObservabilityDashboardProps) {
   const [activeTab, setActiveTab] = useState(defaultTab)
@@ -139,21 +139,21 @@ export function ComprehensiveObservabilityDashboard({
             id: 'alert_001',
             severity: 'warning',
             message: 'Migration task_004 failed - retrying automatically',
-            timestamp: new Date(Date.now() - 120000),
+            timestamp: new Date(Date.now() - 120_000),
             component: 'migration',
           },
           {
             id: 'alert_002',
             severity: 'info',
             message: 'Agent coordination efficiency above 85%',
-            timestamp: new Date(Date.now() - 300000),
+            timestamp: new Date(Date.now() - 300_000),
             component: 'agents',
           },
           {
             id: 'alert_003',
             severity: 'error',
             message: 'Database connection pool near capacity',
-            timestamp: new Date(Date.now() - 60000),
+            timestamp: new Date(Date.now() - 60_000),
             component: 'database',
           },
         ],
@@ -176,8 +176,8 @@ export function ComprehensiveObservabilityDashboard({
           percentage: 47.9,
         },
         network: {
-          bytesIn: 1247369,
-          bytesOut: 892456,
+          bytesIn: 1_247_369,
+          bytesOut: 892_456,
           latency: 23,
         },
         database: {
@@ -188,12 +188,12 @@ export function ComprehensiveObservabilityDashboard({
       }
 
       const mockSystemOverview: SystemOverview = {
-        uptime: 86400 * 3 + 3600 * 4 + 1200, // 3 days, 4 hours, 20 minutes
+        uptime: 86_400 * 3 + 3600 * 4 + 1200, // 3 days, 4 hours, 20 minutes
         version: '2.1.0',
         environment: 'production',
-        lastUpdate: new Date(Date.now() - 3600000), // 1 hour ago
+        lastUpdate: new Date(Date.now() - 3_600_000), // 1 hour ago
         activeProcesses: 156,
-        totalRequests: 45672,
+        totalRequests: 45_672,
         errorRate: 0.23,
       }
 
@@ -229,17 +229,17 @@ export function ComprehensiveObservabilityDashboard({
 
   // Format uptime
   const formatUptime = useCallback((seconds: number): string => {
-    const days = Math.floor(seconds / 86400)
-    const hours = Math.floor((seconds % 86400) / 3600)
+    const days = Math.floor(seconds / 86_400)
+    const hours = Math.floor((seconds % 86_400) / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
 
     if (days > 0) {
       return `${days}d ${hours}h ${minutes}m`
-    } else if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    } else {
-      return `${minutes}m`
     }
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
+    return `${minutes}m`
   }, [])
 
   // Format bytes
@@ -279,7 +279,7 @@ export function ComprehensiveObservabilityDashboard({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <Activity className="w-5 h-5 animate-spin mr-2" />
+            <Activity className="mr-2 h-5 w-5 animate-spin" />
             Loading observability dashboard...
           </div>
         </CardContent>
@@ -292,7 +292,7 @@ export function ComprehensiveObservabilityDashboard({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center text-red-600">
-            <AlertTriangle className="w-5 h-5 mr-2" />
+            <AlertTriangle className="mr-2 h-5 w-5" />
             {error}
           </div>
         </CardContent>
@@ -307,10 +307,10 @@ export function ComprehensiveObservabilityDashboard({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Monitor className="w-6 h-6" />
+              <Monitor className="h-6 w-6" />
               <div>
                 <CardTitle>Comprehensive Observability Dashboard</CardTitle>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="mt-1 text-gray-600 text-sm">
                   Real-time monitoring of system components and performance
                 </p>
               </div>
@@ -318,18 +318,18 @@ export function ComprehensiveObservabilityDashboard({
             <div className="flex items-center space-x-2">
               <Badge variant="outline">Last updated: {lastRefresh.toLocaleTimeString()}</Badge>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchDashboardData}
                 disabled={isRefreshing}
+                onClick={fetchDashboardData}
+                size="sm"
+                variant="outline"
               >
-                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4" />
+              <Button size="sm" variant="outline">
+                <Settings className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4" />
+              <Button size="sm" variant="outline">
+                <Download className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -341,33 +341,33 @@ export function ComprehensiveObservabilityDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Activity className="w-5 h-5 mr-2" />
+              <Activity className="mr-2 h-5 w-5" />
               System Health Overview
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {/* Overall Health */}
               <div className="text-center">
-                <div className={`text-4xl font-bold ${getHealthColor(systemHealth.overall)}`}>
+                <div className={`font-bold text-4xl ${getHealthColor(systemHealth.overall)}`}>
                   {systemHealth.overall}%
                 </div>
-                <div className="text-lg font-medium">Overall Health</div>
-                <Progress value={systemHealth.overall} className="mt-2" />
+                <div className="font-medium text-lg">Overall Health</div>
+                <Progress className="mt-2" value={systemHealth.overall} />
               </div>
 
               {/* Component Health */}
               <div className="space-y-3">
                 <h3 className="font-medium">Component Health</h3>
                 {Object.entries(systemHealth.components).map(([component, score]) => (
-                  <div key={component} className="flex items-center justify-between">
+                  <div className="flex items-center justify-between" key={component}>
                     <span className="text-sm capitalize">{component}:</span>
                     <div className="flex items-center space-x-2">
-                      <span className={`text-sm font-medium ${getHealthColor(score)}`}>
+                      <span className={`font-medium text-sm ${getHealthColor(score)}`}>
                         {score}%
                       </span>
                       <div className="w-16">
-                        <Progress value={score} className="h-2" />
+                        <Progress className="h-2" value={score} />
                       </div>
                     </div>
                   </div>
@@ -377,11 +377,11 @@ export function ComprehensiveObservabilityDashboard({
               {/* Recent Alerts */}
               <div className="space-y-3">
                 <h3 className="font-medium">Recent Alerts</h3>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
+                <div className="max-h-32 space-y-2 overflow-y-auto">
                   {systemHealth.alerts.slice(0, 3).map((alert) => (
-                    <div key={alert.id} className="flex items-start space-x-2 text-sm">
+                    <div className="flex items-start space-x-2 text-sm" key={alert.id}>
                       <div
-                        className={`w-2 h-2 rounded-full mt-1.5 ${getAlertColor(alert.severity)}`}
+                        className={`mt-1.5 h-2 w-2 rounded-full ${getAlertColor(alert.severity)}`}
                       />
                       <div className="flex-1">
                         <div className="font-medium">{alert.message}</div>
@@ -403,57 +403,57 @@ export function ComprehensiveObservabilityDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2" />
+              <BarChart3 className="mr-2 h-5 w-5" />
               Performance Metrics
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
               {/* CPU */}
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Cpu className="w-8 h-8 text-blue-600" />
+                <div className="mb-2 flex items-center justify-center">
+                  <Cpu className="h-8 w-8 text-blue-600" />
                 </div>
-                <div className="text-2xl font-bold">{performanceMetrics.cpu.usage}%</div>
-                <div className="text-sm text-gray-600">CPU Usage</div>
-                <div className="text-xs text-gray-500">{performanceMetrics.cpu.cores} cores</div>
-                <Progress value={performanceMetrics.cpu.usage} className="mt-2" />
+                <div className="font-bold text-2xl">{performanceMetrics.cpu.usage}%</div>
+                <div className="text-gray-600 text-sm">CPU Usage</div>
+                <div className="text-gray-500 text-xs">{performanceMetrics.cpu.cores} cores</div>
+                <Progress className="mt-2" value={performanceMetrics.cpu.usage} />
               </div>
 
               {/* Memory */}
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <MemoryStick className="w-8 h-8 text-green-600" />
+                <div className="mb-2 flex items-center justify-center">
+                  <MemoryStick className="h-8 w-8 text-green-600" />
                 </div>
-                <div className="text-2xl font-bold">{performanceMetrics.memory.percentage}%</div>
-                <div className="text-sm text-gray-600">Memory</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-bold text-2xl">{performanceMetrics.memory.percentage}%</div>
+                <div className="text-gray-600 text-sm">Memory</div>
+                <div className="text-gray-500 text-xs">
                   {performanceMetrics.memory.used}GB / {performanceMetrics.memory.total}GB
                 </div>
-                <Progress value={performanceMetrics.memory.percentage} className="mt-2" />
+                <Progress className="mt-2" value={performanceMetrics.memory.percentage} />
               </div>
 
               {/* Disk */}
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <HardDrive className="w-8 h-8 text-purple-600" />
+                <div className="mb-2 flex items-center justify-center">
+                  <HardDrive className="h-8 w-8 text-purple-600" />
                 </div>
-                <div className="text-2xl font-bold">{performanceMetrics.disk.percentage}%</div>
-                <div className="text-sm text-gray-600">Disk</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-bold text-2xl">{performanceMetrics.disk.percentage}%</div>
+                <div className="text-gray-600 text-sm">Disk</div>
+                <div className="text-gray-500 text-xs">
                   {performanceMetrics.disk.used}GB / {performanceMetrics.disk.total}GB
                 </div>
-                <Progress value={performanceMetrics.disk.percentage} className="mt-2" />
+                <Progress className="mt-2" value={performanceMetrics.disk.percentage} />
               </div>
 
               {/* Network */}
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Wifi className="w-8 h-8 text-orange-600" />
+                <div className="mb-2 flex items-center justify-center">
+                  <Wifi className="h-8 w-8 text-orange-600" />
                 </div>
-                <div className="text-2xl font-bold">{performanceMetrics.network.latency}ms</div>
-                <div className="text-sm text-gray-600">Network Latency</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-bold text-2xl">{performanceMetrics.network.latency}ms</div>
+                <div className="text-gray-600 text-sm">Network Latency</div>
+                <div className="text-gray-500 text-xs">
                   ↓{formatBytes(performanceMetrics.network.bytesIn)} ↑
                   {formatBytes(performanceMetrics.network.bytesOut)}
                 </div>
@@ -468,29 +468,29 @@ export function ComprehensiveObservabilityDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2" />
+              <TrendingUp className="mr-2 h-5 w-5" />
               System Overview
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
               <div>
-                <div className="text-2xl font-bold">{formatUptime(systemOverview.uptime)}</div>
-                <div className="text-sm text-gray-600">Uptime</div>
+                <div className="font-bold text-2xl">{formatUptime(systemOverview.uptime)}</div>
+                <div className="text-gray-600 text-sm">Uptime</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">{systemOverview.version}</div>
-                <div className="text-sm text-gray-600">Version</div>
+                <div className="font-bold text-2xl">{systemOverview.version}</div>
+                <div className="text-gray-600 text-sm">Version</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">
+                <div className="font-bold text-2xl">
                   {systemOverview.totalRequests.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600">Total Requests</div>
+                <div className="text-gray-600 text-sm">Total Requests</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-600">{systemOverview.errorRate}%</div>
-                <div className="text-sm text-gray-600">Error Rate</div>
+                <div className="font-bold text-2xl text-green-600">{systemOverview.errorRate}%</div>
+                <div className="text-gray-600 text-sm">Error Rate</div>
               </div>
             </div>
           </CardContent>
@@ -503,27 +503,27 @@ export function ComprehensiveObservabilityDashboard({
           <CardTitle>Detailed Monitoring</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs className="w-full" onValueChange={setActiveTab} value={activeTab}>
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="time-travel" className="flex items-center">
-                <Clock className="w-4 h-4 mr-2" />
+              <TabsTrigger className="flex items-center" value="time-travel">
+                <Clock className="mr-2 h-4 w-4" />
                 Time Travel
               </TabsTrigger>
-              <TabsTrigger value="migration" className="flex items-center">
-                <Database className="w-4 h-4 mr-2" />
+              <TabsTrigger className="flex items-center" value="migration">
+                <Database className="mr-2 h-4 w-4" />
                 Migration
               </TabsTrigger>
-              <TabsTrigger value="agents" className="flex items-center">
-                <Users className="w-4 h-4 mr-2" />
+              <TabsTrigger className="flex items-center" value="agents">
+                <Users className="mr-2 h-4 w-4" />
                 Agents
               </TabsTrigger>
-              <TabsTrigger value="performance" className="flex items-center">
-                <Zap className="w-4 h-4 mr-2" />
+              <TabsTrigger className="flex items-center" value="performance">
+                <Zap className="mr-2 h-4 w-4" />
                 Performance
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="time-travel" className="mt-6">
+            <TabsContent className="mt-6" value="time-travel">
               <TimelineVisualization
                 executionId="execution_001"
                 onSnapshotSelected={(snapshot) => {
@@ -535,23 +535,23 @@ export function ComprehensiveObservabilityDashboard({
               />
             </TabsContent>
 
-            <TabsContent value="migration" className="mt-6">
+            <TabsContent className="mt-6" value="migration">
               <MigrationProgressMonitor
-                migrationId="migration_001"
                 autoRefresh={autoRefresh}
+                migrationId="migration_001"
                 refreshInterval={refreshInterval}
               />
             </TabsContent>
 
-            <TabsContent value="agents" className="mt-6">
+            <TabsContent className="mt-6" value="agents">
               <AgentCoordinationMonitor
                 autoRefresh={autoRefresh}
                 refreshInterval={refreshInterval}
               />
             </TabsContent>
 
-            <TabsContent value="performance" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <TabsContent className="mt-6" value="performance">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Database Performance</CardTitle>

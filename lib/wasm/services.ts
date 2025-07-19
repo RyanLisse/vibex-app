@@ -5,10 +5,10 @@
  * including vector search, SQLite utilities, and compute operations.
  */
 
-import { wasmDetector, type WASMCapabilities } from './detection'
-import { VectorSearchWASM, vectorSearchManager, type VectorSearchConfig } from './vector-search'
-import { SQLiteWASMUtils, sqliteWASMUtils, type SQLiteWASMConfig } from './sqlite-utils'
-import { ComputeWASM, computeManager, type ComputeWASMConfig } from './compute'
+import { ComputeWASM, type ComputeWASMConfig, computeManager } from './compute'
+import { type WASMCapabilities, wasmDetector } from './detection'
+import { type SQLiteWASMConfig, SQLiteWASMUtils, sqliteWASMUtils } from './sqlite-utils'
+import { type VectorSearchConfig, VectorSearchWASM, vectorSearchManager } from './vector-search'
 
 export interface WASMServicesConfig {
   vectorSearch?: Partial<VectorSearchConfig>

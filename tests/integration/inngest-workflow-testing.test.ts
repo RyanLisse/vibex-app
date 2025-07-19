@@ -3,13 +3,13 @@
  * Integration tests for Inngest functions using @inngest/test
  */
 
-import { describe, expect, it, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
-  InngestTestEventFactory,
   InngestFunctionTester,
+  InngestTestEventFactory,
+  InngestTestHelpers,
   InngestWorkflowTester,
   MockInngestClient,
-  InngestTestHelpers,
 } from '@/lib/inngest/testing/inngest-test-utils'
 
 // Mock Inngest functions for testing

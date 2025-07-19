@@ -86,7 +86,7 @@ class CoverageValidator {
 
     for (const [tierName, coverageDir] of Object.entries(COVERAGE_DIRS)) {
       if (tierName === 'merged') continue // Handle merged separately
-      
+
       console.log(`\n  🔍 Checking ${tierName}...`)
 
       const reportPath = path.join(coverageDir, 'coverage-final.json')
@@ -100,7 +100,10 @@ class CoverageValidator {
       try {
         const coverage = JSON.parse(fs.readFileSync(reportPath, 'utf8'))
         const summary = this.calculateSummary(coverage)
-        const thresholds = COVERAGE_THRESHOLDS[tierName === 'bun' ? 'logic' : tierName === 'vitest' ? 'components' : tierName]
+        const thresholds =
+          COVERAGE_THRESHOLDS[
+            tierName === 'bun' ? 'logic' : tierName === 'vitest' ? 'components' : tierName
+          ]
 
         console.log(
           `    📈 Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
@@ -190,7 +193,7 @@ class CoverageValidator {
     const gates = {
       minimum: { lines: 60, functions: 60, branches: 50, statements: 60 },
       target: { lines: 80, functions: 80, branches: 75, statements: 80 },
-      excellence: { lines: 95, functions: 95, branches: 90, statements: 95 }
+      excellence: { lines: 95, functions: 95, branches: 90, statements: 95 },
     }
     const metrics = ['lines', 'functions', 'branches', 'statements']
 

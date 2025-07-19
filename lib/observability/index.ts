@@ -1,4 +1,4 @@
-import { trace, context, SpanStatusCode, SpanKind } from '@opentelemetry/api'
+import { context, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api'
 
 // Observability service for tracking operations and events
 export class ObservabilityService {

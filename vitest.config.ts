@@ -29,7 +29,7 @@ export default defineConfig({
       'app/**/*.test.*',
       'hooks/**/*.test.*',
     ],
-    testTimeout: 10000,
+    testTimeout: 10_000,
     hookTimeout: 5000,
     teardownTimeout: 5000,
     isolate: true,

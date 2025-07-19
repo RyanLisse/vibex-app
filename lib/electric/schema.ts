@@ -144,7 +144,7 @@ export const electricSchema = {
 
     // Agent executions are read-only for users
     agent_executions: {
-      select: `task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})`,
+      select: 'task_id IN (SELECT id FROM tasks WHERE user_id = ${auth.user_id})',
       insert: false, // Only system can create executions
       update: false,
       delete: false,
@@ -205,7 +205,7 @@ export const electricSchema = {
     // Subscribe to task executions
     taskExecutions: {
       table: 'agent_executions',
-      filter: `task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})`,
+      filter: 'task_id IN (SELECT id FROM tasks WHERE user_id = ${auth.user_id})',
       events: ['insert', 'update'],
     },
 

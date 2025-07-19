@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
-import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
+import { vi } from 'vitest'
 import { GET } from '@/app/api/auth/anthropic/callback/route'
 
 // Mock the authentication utilities

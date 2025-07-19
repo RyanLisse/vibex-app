@@ -1,6 +1,6 @@
 'use client'
 
-import { Wifi, WifiOff, RefreshCw } from 'lucide-react'
+import { RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { useElectricContext } from '@/components/providers/electric-provider'
 
 interface ConnectionStatusProps {
@@ -15,7 +15,7 @@ export function ConnectionStatus({
   const { isConnected, isSyncing } = useElectricContext()
 
   return (
-    <div className={`flex items-center gap-2 text-sm text-muted-foreground ${className}`}>
+    <div className={`flex items-center gap-2 text-muted-foreground text-sm ${className}`}>
       {isConnected ? (
         <>
           <Wifi className="h-4 w-4 text-green-500" />

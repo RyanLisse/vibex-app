@@ -9,11 +9,11 @@
  * needed, this file can be removed entirely.
  */
 
-import { useState, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useTaskStore } from '@/stores/tasks'
+import { useEffect, useState } from 'react'
 import { useEnvironmentStore } from '@/stores/environments'
-import { useTasks, useEnvironments, taskKeys, environmentKeys } from './index'
+import { useTaskStore } from '@/stores/tasks'
+import { environmentKeys, taskKeys, useEnvironments, useTasks } from './index'
 
 interface MigrationStatus {
   isUsingDatabase: boolean
@@ -209,7 +209,7 @@ export function useDataSource() {
 
   return {
     useDatabase: status.isUsingDatabase || status.migrationCompleted,
-    useLocalStorage: !status.isUsingDatabase && !status.migrationCompleted,
+    useLocalStorage: !(status.isUsingDatabase || status.migrationCompleted),
     isTransitioning: status.isLoading,
     hasLocalData: status.hasLocalData,
     migrationNeeded: status.hasLocalData && !status.migrationCompleted,

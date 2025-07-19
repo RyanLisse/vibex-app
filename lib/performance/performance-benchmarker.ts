@@ -5,11 +5,10 @@
  * and overall application performance with baseline establishment and regression detection.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, desc, eq, like, sql } from 'drizzle-orm'
 import { db } from '@/db/config'
-import { sql } from 'drizzle-orm'
-import { tasks, environments, agentExecutions, observabilityEvents } from '@/db/schema'
-import { eq, and, desc, like } from 'drizzle-orm'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
+import { agentExecutions, environments, observabilityEvents, tasks } from '@/db/schema'
 import { databaseQueryAnalyzer } from './database-query-analyzer'
 import { queryPerformanceMonitor } from './query-performance-monitor'
 

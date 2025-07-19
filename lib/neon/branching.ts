@@ -254,7 +254,7 @@ export class NeonBranchingManager {
   /**
    * Wait for branch to be ready
    */
-  private async waitForBranchReady(branchId: string, maxWaitMs = 60000): Promise<void> {
+  private async waitForBranchReady(branchId: string, maxWaitMs = 60_000): Promise<void> {
     const startTime = Date.now()
 
     while (Date.now() - startTime < maxWaitMs) {
@@ -401,7 +401,7 @@ export class NeonTestUtils {
 
         // Run setup queries if provided
         if (options.setupSql) {
-          console.log(`🔧 Running setup queries...`)
+          console.log('🔧 Running setup queries...')
           for (const setupQuery of options.setupSql) {
             await sql.unsafe(setupQuery)
           }

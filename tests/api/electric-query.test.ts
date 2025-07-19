@@ -4,11 +4,11 @@
  * Tests for the ElectricSQL query API route that provides server-side fallback
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { sql } from 'drizzle-orm'
 import { createMocks } from 'node-mocks-http'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GET, POST } from '@/app/api/electric/query/route'
 import { db } from '@/db/config'
-import { sql } from 'drizzle-orm'
 
 // Mock database
 vi.mock('@/db/config', () => ({

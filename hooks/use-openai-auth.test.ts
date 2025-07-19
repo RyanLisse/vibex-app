@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import { useAuthBase } from '@/hooks/use-auth-base'
 import { useOpenAIAuth } from '@/hooks/use-openai-auth'
 

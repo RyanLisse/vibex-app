@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { expect, it, describe, vi } from 'vitest'
 import React from 'react'
+import { describe, expect, it, vi } from 'vitest'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 // Mock next-themes

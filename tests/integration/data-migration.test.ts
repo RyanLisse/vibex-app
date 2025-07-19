@@ -4,13 +4,13 @@
  * Tests to verify data migration from Zustand stores to database works correctly
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Environment, Task } from '@/db/schema'
 import { useMigration } from '@/hooks/use-migration'
-import { useTaskStore } from '@/stores/tasks'
 import { useEnvironmentStore } from '@/stores/environments'
-import type { Task, Environment } from '@/db/schema'
+import { useTaskStore } from '@/stores/tasks'
 
 // Mock fetch for API calls
 global.fetch = vi.fn()
@@ -356,7 +356,7 @@ describe('Data Migration', () => {
       const wrapper = createWrapper()
       const { result } = renderHook(() => useMigration(), { wrapper })
 
-      let progressUpdates: number[] = []
+      const progressUpdates: number[] = []
 
       // Monitor progress updates
       const originalMigrate = result.current.migrateToDatabase

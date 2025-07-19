@@ -15,12 +15,12 @@ export function ErrorDisplay({ error, onRetry, message, className = '' }: ErrorD
   if (!error) return null
 
   return (
-    <Alert variant="destructive" className={`mb-4 ${className}`}>
+    <Alert className={`mb-4 ${className}`} variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>{message || error.message || 'An error occurred'}</span>
         {onRetry && (
-          <Button variant="outline" size="sm" onClick={onRetry}>
+          <Button onClick={onRetry} size="sm" variant="outline">
             Retry
           </Button>
         )}

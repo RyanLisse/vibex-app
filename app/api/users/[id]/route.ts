@@ -5,25 +5,25 @@
  * and account management with full database integration.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
 import { db } from '@/db/config'
-import { users, authSessions } from '@/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { authSessions, users } from '@/db/schema'
 import { observability } from '@/lib/observability'
 import {
-  UpdateUserSchema,
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
+  UpdateUserSchema,
 } from '@/src/schemas/api-routes'
 
 // Enhanced error handling
 class UserAPIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR'
+    public statusCode = 500,
+    public code = 'INTERNAL_ERROR'
   ) {
     super(message)
     this.name = 'UserAPIError'

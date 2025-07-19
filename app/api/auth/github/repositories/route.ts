@@ -5,17 +5,17 @@
  * synchronization, and comprehensive error handling.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, desc, eq, gte, like } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
 import { db } from '@/db/config'
-import { users, authSessions, githubRepositories } from '@/db/schema'
-import { eq, and, desc, gte, like } from 'drizzle-orm'
+import { authSessions, githubRepositories, users } from '@/db/schema'
 import { githubAuth } from '@/lib/github'
 import { observability } from '@/lib/observability'
 import {
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   createPaginatedResponse,
 } from '@/src/schemas/api-routes'
 
@@ -34,8 +34,8 @@ const GetRepositoriesQuerySchema = z.object({
 class GitHubRepositoriesAPIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR'
+    public statusCode = 500,
+    public code = 'INTERNAL_ERROR'
   ) {
     super(message)
     this.name = 'GitHubRepositoriesAPIError'
@@ -59,10 +59,10 @@ class GitHubRepositoriesService {
       const startTime = Date.now()
 
       // Check if sync is needed
-      const syncNeeded = await this.isSyncNeeded(userId, params.syncThreshold, params.forceSync)
+      const syncNeeded = await GitHubRepositoriesService.isSyncNeeded(userId, params.syncThreshold, params.forceSync)
 
       if (syncNeeded) {
-        await this.syncRepositories(userId, accessToken)
+        await GitHubRepositoriesService.syncRepositories(userId, accessToken)
       }
 
       // Build query conditions

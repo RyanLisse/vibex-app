@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { LoggerFactory } from './logger-factory'
-import { CorrelationIdManager } from './correlation-id-manager'
+import type { NextRequest, NextResponse } from 'next/server'
 import { createDefaultLoggingConfig } from './config'
+import { CorrelationIdManager } from './correlation-id-manager'
+import { LoggerFactory } from './logger-factory'
 
 export function createLoggingMiddleware() {
   const config = createDefaultLoggingConfig()

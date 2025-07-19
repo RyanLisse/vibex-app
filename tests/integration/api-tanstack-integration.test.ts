@@ -5,11 +5,11 @@
  * TanStack Query hooks to API routes and database operations
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useTasks, useTask, useCreateTask, useUpdateTask, useDeleteTask } from '@/lib/query/hooks'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Task } from '@/db/schema'
+import { useCreateTask, useDeleteTask, useTask, useTasks, useUpdateTask } from '@/lib/query/hooks'
 
 // Mock modules
 vi.mock('@/db/config', () => ({
@@ -21,9 +21,9 @@ vi.mock('@/db/config', () => ({
   },
 }))
 
+import { HttpResponse, http } from 'msw'
 // Setup MSW for mocking API responses
 import { setupServer } from 'msw/node'
-import { http, HttpResponse } from 'msw'
 
 const server = setupServer()
 

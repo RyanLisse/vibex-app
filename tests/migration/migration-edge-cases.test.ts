@@ -6,14 +6,14 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { migrationService } from '../../lib/migration/migration-service'
+import { backupService } from '../../lib/migration/backup-service'
 import { dataExtractor } from '../../lib/migration/data-extractor'
 import { dataMapper } from '../../lib/migration/data-mapper'
-import { backupService } from '../../lib/migration/backup-service'
+import { migrationService } from '../../lib/migration/migration-service'
 import type {
-  MigrationConfig,
-  LocalStorageTask,
   LocalStorageEnvironment,
+  LocalStorageTask,
+  MigrationConfig,
   MigrationError,
 } from '../../lib/migration/types'
 
@@ -196,7 +196,7 @@ describe('Migration System Edge Cases', () => {
         status: 'pending',
         createdAt: 'not-a-date',
         updatedAt: '2024-13-45T99:99:99.999Z', // Invalid date
-        dueDate: 1234567890, // Number instead of string
+        dueDate: 1_234_567_890, // Number instead of string
       }
 
       const transformResult = dataMapper.transformTasks([taskWithInvalidDates as any])
@@ -226,7 +226,7 @@ describe('Migration System Edge Cases', () => {
 
     it('should handle very large datasets with memory constraints', async () => {
       // Create a dataset that would use a lot of memory
-      const largeTasks = Array.from({ length: 50000 }, (_, i) => ({
+      const largeTasks = Array.from({ length: 50_000 }, (_, i) => ({
         id: `task-${i}`,
         title: `Large Dataset Task ${i}`,
         description: 'x'.repeat(1000), // 1KB per task = ~50MB total
@@ -256,7 +256,7 @@ describe('Migration System Edge Cases', () => {
       const result = await migrationService.startMigration(config)
 
       expect(result.success).toBe(true)
-      expect(result.itemsProcessed).toBe(50000)
+      expect(result.itemsProcessed).toBe(50_000)
     })
 
     it('should handle browser storage API failures', async () => {
@@ -614,7 +614,7 @@ describe('Migration System Edge Cases', () => {
   describe('Resource Exhaustion Scenarios', () => {
     it('should handle CPU intensive operations gracefully', async () => {
       // Create data that would require intensive processing
-      const intensiveTasks = Array.from({ length: 10000 }, (_, i) => ({
+      const intensiveTasks = Array.from({ length: 10_000 }, (_, i) => ({
         id: `task-${i}`,
         title: `CPU Intensive Task ${i}`,
         status: 'pending',
@@ -649,8 +649,8 @@ describe('Migration System Edge Cases', () => {
       const duration = performance.now() - startTime
 
       expect(result.success).toBe(true)
-      expect(result.itemsProcessed).toBe(10000)
-      expect(duration).toBeLessThan(30000) // Should complete within 30 seconds
+      expect(result.itemsProcessed).toBe(10_000)
+      expect(duration).toBeLessThan(30_000) // Should complete within 30 seconds
     })
 
     it('should handle file system errors during backup', async () => {

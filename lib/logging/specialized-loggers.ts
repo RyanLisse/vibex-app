@@ -1,5 +1,5 @@
-import { LoggerFactory } from './logger-factory'
 import { createDefaultLoggingConfig } from './config'
+import { LoggerFactory } from './logger-factory'
 
 export class AgentLogger {
   private logger: any

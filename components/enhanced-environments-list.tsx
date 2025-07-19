@@ -7,35 +7,35 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
+  Activity,
+  AlertCircle,
+  CheckCircle,
+  Clock,
   Dot,
   FolderGit,
   GithubIcon,
   Plus,
-  Trash2,
   RefreshCw,
-  AlertCircle,
   Settings,
-  CheckCircle,
+  Trash2,
+  Users,
   Wifi,
   WifiOff,
-  Clock,
-  Users,
-  Activity,
   Zap,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import React, { useEffect, useState } from 'react'
+import { SyncIndicator, SyncStatusMonitor } from '@/components/electric/sync-status-monitor'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useGitHubAuth } from '@/hooks/use-github-auth'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useElectricEnvironments } from '@/hooks/use-electric-tasks'
-import { SyncStatusMonitor, SyncIndicator } from '@/components/electric/sync-status-monitor'
+import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { observability } from '@/lib/observability'
 
 interface EnhancedEnvironmentsListProps {
@@ -213,7 +213,7 @@ export function EnhancedEnvironmentsList({
 
   // Connection status indicator
   const ConnectionStatus = () => (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex items-center gap-2 text-muted-foreground text-sm">
       {isOnline ? (
         <>
           <Wifi className="h-4 w-4 text-green-500" />
@@ -256,11 +256,11 @@ export function EnhancedEnvironmentsList({
 
   // Error display component
   const ErrorDisplay = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
-    <Alert variant="destructive" className="mb-4">
+    <Alert className="mb-4" variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>Failed to load environments: {error.message}</span>
-        <Button variant="outline" size="sm" onClick={onRetry}>
+        <Button onClick={onRetry} size="sm" variant="outline">
           Retry
         </Button>
       </AlertDescription>
@@ -278,9 +278,9 @@ export function EnhancedEnvironmentsList({
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 20 }}
         layout
       >
         <Card
@@ -293,13 +293,13 @@ export function EnhancedEnvironmentsList({
               <div className="flex items-center gap-2">
                 <FolderGit className="h-5 w-5" />
                 <div>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     {environment.name}
                     {isRecentlyUpdated && (
                       <motion.div
-                        initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="flex items-center"
+                        initial={{ scale: 0 }}
                       >
                         <Zap className="h-4 w-4 text-blue-500" />
                       </motion.div>
@@ -310,22 +310,22 @@ export function EnhancedEnvironmentsList({
               </div>
               <div className="flex items-center gap-2">
                 {environment.isActive && (
-                  <Badge variant="default" className="text-xs">
-                    <CheckCircle className="h-3 w-3 mr-1" />
+                  <Badge className="text-xs" variant="default">
+                    <CheckCircle className="mr-1 h-3 w-3" />
                     Active
                   </Badge>
                 )}
                 {isOnline && (
-                  <Badge variant="outline" className="text-xs text-green-600">
-                    <Wifi className="h-3 w-3 mr-1" />
+                  <Badge className="text-green-600 text-xs" variant="outline">
+                    <Wifi className="mr-1 h-3 w-3" />
                     Live
                   </Badge>
                 )}
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteEnvironment(environment.id, environment.name)}
                   disabled={!isOnline}
+                  onClick={() => handleDeleteEnvironment(environment.id, environment.name)}
+                  size="icon"
+                  variant="ghost"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -334,22 +334,22 @@ export function EnhancedEnvironmentsList({
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <GithubIcon className="h-4 w-4" />
                 <span>{environment.config?.githubOrganization || 'No organization'}</span>
                 <Dot className="h-4 w-4" />
                 <span>{environment.config?.githubRepository || 'No repository'}</span>
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Created {format(new Date(environment.createdAt), 'MMM d, yyyy')}
                 </p>
                 {!environment.isActive && (
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleActivateEnvironment(environment.id, environment.name)}
                     disabled={!isOnline}
+                    onClick={() => handleActivateEnvironment(environment.id, environment.name)}
+                    size="sm"
+                    variant="outline"
                   >
                     Activate
                   </Button>
@@ -381,22 +381,22 @@ export function EnhancedEnvironmentsList({
         <div className="flex items-center gap-4">
           <p className="font-medium">Environments</p>
           {syncEvents.length > 0 && (
-            <Badge variant="outline" className="text-xs">
-              <Activity className="h-3 w-3 mr-1" />
+            <Badge className="text-xs" variant="outline">
+              <Activity className="mr-1 h-3 w-3" />
               {syncEvents.length} recent updates
             </Badge>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => setShowSyncDetails(!showSyncDetails)}>
-            <Activity className="h-4 w-4 mr-1" />
+          <Button onClick={() => setShowSyncDetails(!showSyncDetails)} size="sm" variant="ghost">
+            <Activity className="mr-1 h-4 w-4" />
             {showSyncDetails ? 'Hide' : 'Show'} Sync
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={environmentsLoading}>
+          <Button disabled={environmentsLoading} onClick={handleRefresh} size="sm" variant="ghost">
             <RefreshCw className={`h-4 w-4 ${environmentsLoading ? 'animate-spin' : ''}`} />
           </Button>
           {isAuthenticated ? (
-            <Button onClick={() => handleCreateDialogChange(true)} disabled={!isOnline}>
+            <Button disabled={!isOnline} onClick={() => handleCreateDialogChange(true)}>
               <Plus className="h-4 w-4" />
               Add new
             </Button>
@@ -412,9 +412,9 @@ export function EnhancedEnvironmentsList({
       {/* Sync Status Monitor */}
       {showSyncDetails && (
         <motion.div
-          initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
+          initial={{ opacity: 0, height: 0 }}
         >
           <SyncStatusMonitor showPresence={true} />
         </motion.div>
@@ -432,24 +432,24 @@ export function EnhancedEnvironmentsList({
       {recentActivity.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4" />
               Recent Activity
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 max-h-32 overflow-y-auto">
+            <div className="max-h-32 space-y-2 overflow-y-auto">
               <AnimatePresence>
                 {recentActivity.slice(0, 5).map((activity, index) => (
                   <motion.div
-                    key={`${activity.environmentId}-${activity.timestamp.getTime()}`}
-                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-2 rounded bg-muted/50 p-2 text-sm"
                     exit={{ opacity: 0, x: 20 }}
-                    className="flex items-center gap-2 text-sm bg-muted/50 rounded p-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    key={`${activity.environmentId}-${activity.timestamp.getTime()}`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full ${
+                      className={`h-2 w-2 rounded-full ${
                         activity.type === 'create'
                           ? 'bg-green-500'
                           : activity.type === 'update'
@@ -461,7 +461,7 @@ export function EnhancedEnvironmentsList({
                     />
                     <span className="capitalize">{activity.type}d</span>
                     <span className="font-medium">{activity.environmentName}</span>
-                    <span className="text-muted-foreground ml-auto">
+                    <span className="ml-auto text-muted-foreground">
                       {activity.timestamp.toLocaleTimeString()}
                     </span>
                   </motion.div>
@@ -474,43 +474,45 @@ export function EnhancedEnvironmentsList({
 
       {/* Environments list */}
       <div className="flex flex-col gap-y-4">
-        {!isAuthenticated ? (
+        {isAuthenticated ? (
+          environments?.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <FolderGit className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="text-muted-foreground">No environments yet.</p>
+                  <Button
+                    className="mt-4"
+                    disabled={!isOnline}
+                    onClick={() => handleCreateDialogChange(true)}
+                  >
+                    Create your first environment
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <AnimatePresence>
+              {environments?.map((environment) => (
+                <EnvironmentCard environment={environment} key={environment.id} />
+              ))}
+            </AnimatePresence>
+          )
+        ) : (
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <GithubIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">
+                <GithubIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                <p className="mb-4 text-muted-foreground">
                   Connect your Github account to get started
                 </p>
                 <Button onClick={handleGitHubAuth}>
-                  <GithubIcon className="h-4 w-4 mr-2" />
+                  <GithubIcon className="mr-2 h-4 w-4" />
                   Connect Github
                 </Button>
               </div>
             </CardContent>
           </Card>
-        ) : environments?.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <FolderGit className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No environments yet.</p>
-                <Button
-                  className="mt-4"
-                  onClick={() => handleCreateDialogChange(true)}
-                  disabled={!isOnline}
-                >
-                  Create your first environment
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <AnimatePresence>
-            {environments?.map((environment) => (
-              <EnvironmentCard key={environment.id} environment={environment} />
-            ))}
-          </AnimatePresence>
         )}
       </div>
 

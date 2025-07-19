@@ -1,4 +1,4 @@
-import { LoggingConfig } from './types'
+import type { LoggingConfig } from './types'
 
 export function createDefaultLoggingConfig(): LoggingConfig {
   const isDev = process.env.NODE_ENV === 'development'
@@ -20,15 +20,15 @@ export function createDefaultLoggingConfig(): LoggingConfig {
       enabled: isProd || process.env.LOGGING_FILE_ENABLED === 'true',
       filename: process.env.LOGGING_FILE_PATH || 'logs/app.log',
       errorFilename: process.env.LOGGING_ERROR_FILE_PATH || 'logs/error.log',
-      maxSize: parseInt(process.env.LOGGING_FILE_MAX_SIZE || '10485760'), // 10MB
-      maxFiles: parseInt(process.env.LOGGING_FILE_MAX_FILES || '5'),
+      maxSize: Number.parseInt(process.env.LOGGING_FILE_MAX_SIZE || '10485760'), // 10MB
+      maxFiles: Number.parseInt(process.env.LOGGING_FILE_MAX_FILES || '5'),
       level: (process.env.LOGGING_FILE_LEVEL as any) || undefined,
     },
 
     http: {
       enabled: process.env.LOGGING_HTTP_ENABLED === 'true',
       host: process.env.LOGGING_HTTP_HOST,
-      port: parseInt(process.env.LOGGING_HTTP_PORT || '80'),
+      port: Number.parseInt(process.env.LOGGING_HTTP_PORT || '80'),
       path: process.env.LOGGING_HTTP_PATH || '/logs',
       ssl: process.env.LOGGING_HTTP_SSL === 'true',
       level: (process.env.LOGGING_HTTP_LEVEL as any) || undefined,
@@ -36,8 +36,8 @@ export function createDefaultLoggingConfig(): LoggingConfig {
 
     sampling: {
       enabled: process.env.LOGGING_SAMPLING_ENABLED === 'true',
-      rate: parseFloat(process.env.LOGGING_SAMPLING_RATE || '0.1'),
-      highVolumeThreshold: parseInt(process.env.LOGGING_HIGH_VOLUME_THRESHOLD || '1000'),
+      rate: Number.parseFloat(process.env.LOGGING_SAMPLING_RATE || '0.1'),
+      highVolumeThreshold: Number.parseInt(process.env.LOGGING_HIGH_VOLUME_THRESHOLD || '1000'),
     },
 
     redaction: {
@@ -48,7 +48,7 @@ export function createDefaultLoggingConfig(): LoggingConfig {
 
     performance: {
       trackOperations: process.env.LOGGING_TRACK_OPERATIONS !== 'false',
-      slowOperationThreshold: parseInt(process.env.LOGGING_SLOW_THRESHOLD || '1000'),
+      slowOperationThreshold: Number.parseInt(process.env.LOGGING_SLOW_THRESHOLD || '1000'),
     },
   }
 }

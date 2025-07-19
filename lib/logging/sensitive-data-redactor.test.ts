@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { SensitiveDataRedactor } from './sensitive-data-redactor'
 
 describe('SensitiveDataRedactor', () => {

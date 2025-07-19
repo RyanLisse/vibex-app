@@ -5,11 +5,11 @@
  * for high-performance vector operations and similarity calculations.
  */
 
-import { wasmDetector, shouldUseWASMOptimization } from './detection'
+import { shouldUseWASMOptimization, wasmDetector } from './detection'
 import {
-  loadVectorSearchWASM,
-  createVectorSearchInstance,
   batchSimilaritySearch,
+  createVectorSearchInstance,
+  loadVectorSearchWASM,
   type VectorSearch as WASMVectorSearchInstance,
 } from './modules/vector-search-loader'
 
@@ -563,7 +563,7 @@ export class VectorSearchWASM {
     }
 
     // Fall back to inline WASM
-    if (!this.inlineWASMInstance || !this.inlineWASMInstance.exports.cosine_similarity) {
+    if (!(this.inlineWASMInstance && this.inlineWASMInstance.exports.cosine_similarity)) {
       return this.calculateSimilarityJS(embedding1, embedding2)
     }
 
@@ -613,7 +613,7 @@ export class VectorSearchWASM {
     }
 
     // Fall back to inline WASM
-    if (!this.inlineWASMInstance || !this.inlineWASMInstance.exports.euclidean_distance) {
+    if (!(this.inlineWASMInstance && this.inlineWASMInstance.exports.euclidean_distance)) {
       return this.calculateDistanceJS(embedding1, embedding2)
     }
 
@@ -748,7 +748,7 @@ export class VectorSearchWASM {
 
     // Apply position encoding
     for (let i = 0; i < this.config.dimensions; i++) {
-      const posEncoding = Math.sin(i / Math.pow(10000, (2 * (i % 64)) / 64))
+      const posEncoding = Math.sin(i / 10_000 ** ((2 * (i % 64)) / 64))
       embedding[i] += posEncoding * 0.1
     }
 
@@ -773,8 +773,8 @@ export class VectorSearchWASM {
    */
   private hash32(input: number): number {
     let hash = input
-    hash = ((hash >>> 16) ^ hash) * 0x45d9f3b
-    hash = ((hash >>> 16) ^ hash) * 0x45d9f3b
+    hash = ((hash >>> 16) ^ hash) * 0x4_5d_9f_3b
+    hash = ((hash >>> 16) ^ hash) * 0x4_5d_9f_3b
     hash = (hash >>> 16) ^ hash
     return hash
   }
@@ -871,7 +871,7 @@ export class VectorSearchWASM {
    * Warm up WASM module for better performance
    */
   async warmUp(): Promise<void> {
-    if (!this.isWASMEnabled && !this.inlineWASMInstance) return
+    if (!(this.isWASMEnabled || this.inlineWASMInstance)) return
 
     try {
       // Perform a few dummy calculations to warm up the WASM module
@@ -954,7 +954,7 @@ export class VectorSearchWASM {
 
     if (this.inlineWASMInstance?.exports.memory) {
       const memory = this.inlineWASMInstance.exports.memory as WebAssembly.Memory
-      wasmMemoryPages = memory.buffer.byteLength / 65536 // 64KB pages
+      wasmMemoryPages = memory.buffer.byteLength / 65_536 // 64KB pages
       wasmMemoryBytes = memory.buffer.byteLength
     }
 

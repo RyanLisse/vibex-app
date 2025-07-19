@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks'
 import { randomUUID } from 'crypto'
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export class CorrelationIdManager {
   private static instance: CorrelationIdManager

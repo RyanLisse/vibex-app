@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { ObservabilityService } from '../../../../lib/observability'
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     try {
       // Validate API key
       const authHeader = request.headers.get('authorization')
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      if (!(authHeader && authHeader.startsWith('Bearer '))) {
         return NextResponse.json(
           { error: 'Missing or invalid authorization header' },
           { status: 401 }
@@ -233,7 +233,7 @@ export async function GET(request: NextRequest) {
     try {
       // Get token from authorization header
       const authHeader = request.headers.get('authorization')
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      if (!(authHeader && authHeader.startsWith('Bearer '))) {
         return NextResponse.json(
           { authenticated: false, error: 'No token provided' },
           { status: 200 }
@@ -292,7 +292,7 @@ export async function DELETE(request: NextRequest) {
     try {
       // Get token from authorization header
       const authHeader = request.headers.get('authorization')
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      if (!(authHeader && authHeader.startsWith('Bearer '))) {
         return NextResponse.json({ message: 'No token to invalidate' }, { status: 200 })
       }
 

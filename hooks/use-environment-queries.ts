@@ -6,8 +6,8 @@
  */
 
 import { useMemo } from 'react'
-import { useEnhancedQuery, useEnhancedMutation } from '@/hooks/use-enhanced-query'
 import { useElectricEnvironments } from '@/hooks/use-electric-environments'
+import { useEnhancedMutation, useEnhancedQuery } from '@/hooks/use-enhanced-query'
 import { observability } from '@/lib/observability'
 
 // Types

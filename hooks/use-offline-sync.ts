@@ -1,8 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useElectric } from './use-electric'
 import { electricDb } from '@/lib/electric/config'
+import { useElectric } from './use-electric'
 
 interface OfflineOperation {
   id: string
@@ -134,7 +134,7 @@ export function useOfflineSync() {
 
   // Process the offline queue
   const processOfflineQueue = useCallback(async () => {
-    if (!isOnline || !isConnected || !isInitialized || syncInProgress) {
+    if (!(isOnline && isConnected && isInitialized) || syncInProgress) {
       return
     }
 
@@ -254,7 +254,7 @@ export function useOfflineSync() {
   return {
     // State
     isOnline: isOnline && isConnected,
-    isOffline: !isOnline || !isConnected,
+    isOffline: !(isOnline && isConnected),
     syncInProgress,
     lastSyncTime,
     syncErrors,

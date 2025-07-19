@@ -22,11 +22,11 @@ export function RefreshButton({
 }: RefreshButtonProps) {
   return (
     <Button
-      variant={variant}
-      size={size}
-      onClick={onClick}
-      disabled={disabled || isFetching}
       className={className}
+      disabled={disabled || isFetching}
+      onClick={onClick}
+      size={size}
+      variant={variant}
     >
       <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
     </Button>
