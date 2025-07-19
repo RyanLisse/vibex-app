@@ -22,9 +22,7 @@ describe('AuthCardBase', () => {
   const mockOnRetry = mock()
 
   beforeEach(() => {
-    mockOnLogout.mockReset()
-    mockOnRetry.mockReset()
-    mockReload.mockReset()
+    mock.restore()
   })
 
   it('should render loading state', () => {

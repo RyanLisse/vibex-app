@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
-import { vi } from 'vitest'
 import { z } from 'zod'
 import {
   createZodFormProvider,
@@ -11,10 +10,10 @@ import {
 } from './useZodForm'
 
 // Mock react-hook-form
-vi.mock('react-hook-form', () => ({
-  useForm: vi.fn(() => ({
-    register: vi.fn(),
-    handleSubmit: vi.fn((fn) => fn),
+mock.module('react-hook-form', () => ({
+  useForm: mock(() => ({
+    register: mock(),
+    handleSubmit: mock((fn) => fn),
     formState: {
       errors: {},
       isSubmitting: false,
@@ -23,28 +22,28 @@ vi.mock('react-hook-form', () => ({
       touchedFields: {},
       defaultValues: {},
     },
-    getValues: vi.fn(() => ({})),
-    setValue: vi.fn(),
-    setError: vi.fn(),
-    clearErrors: vi.fn(),
-    reset: vi.fn(),
-    watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
-    trigger: vi.fn(() => Promise.resolve(true)),
+    getValues: mock(() => ({})),
+    setValue: mock(),
+    setError: mock(),
+    clearErrors: mock(),
+    reset: mock(),
+    watch: mock(() => ({ unsubscribe: mock() })),
+    trigger: mock(() => Promise.resolve(true)),
     control: {},
   })),
 }))
 
 // Mock @hookform/resolvers/zod
-vi.mock('@hookform/resolvers/zod', () => ({
-  zodResolver: vi.fn(() => vi.fn()),
+mock.module('@hookform/resolvers/zod', () => ({
+  zodResolver: mock(() => mock()),
 }))
 
 // Mock localStorage
 const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: mock(),
+  setItem: mock(),
+  removeItem: mock(),
+  clear: mock(),
 }
 
 Object.defineProperty(window, 'localStorage', {
@@ -70,7 +69,7 @@ describe('useZodForm', () => {
 
   beforeEach(() => {
     mock.restore()
-    mockLocalStorage.getItem.mockReturnValue(null)
+    mockLocalStorage.getItem.mockImplementation(() => null)
   })
 
   describe('initialization', () => {
@@ -121,7 +120,7 @@ describe('useZodForm', () => {
 
   describe('form submission', () => {
     it('should handle successful submission', async () => {
-      const onSubmit = vi.fn()
+      const onSubmit = mock()
       const formData = {
         name: 'John Doe',
         email: 'john@example.com',
@@ -129,9 +128,9 @@ describe('useZodForm', () => {
       }
 
       const { useForm } = await import('react-hook-form')
-      ;(useForm as unknown as jest.Mock).mockReturnValue({
-        register: vi.fn(),
-        handleSubmit: vi.fn((fn) => fn),
+      ;(useForm as unknown as any).mockImplementation(() => ({
+        register: mock(),
+        handleSubmit: mock((fn) => fn),
         formState: {
           errors: {},
           isSubmitting: false,
@@ -140,15 +139,15 @@ describe('useZodForm', () => {
           touchedFields: {},
           defaultValues: {},
         },
-        getValues: vi.fn(() => formData),
-        setValue: vi.fn(),
-        setError: vi.fn(),
-        clearErrors: vi.fn(),
-        reset: vi.fn(),
-        watch: vi.fn(() => ({ unsubscribe: vi.fn() })),
-        trigger: vi.fn(() => Promise.resolve(true)),
+        getValues: mock(() => formData),
+        setValue: mock(),
+        setError: mock(),
+        clearErrors: mock(),
+        reset: mock(),
+        watch: mock(() => ({ unsubscribe: mock() })),
+        trigger: mock(() => Promise.resolve(true)),
         control: {},
-      } as unknown)
+      }))
 
       const { result } = renderHook(() =>
         useZodForm({
