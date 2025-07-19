@@ -2,6 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import NewTaskForm from '@/components/forms/new-task-form'
 
+// Mock functions at the top level
+vi.mock('@/app/actions/inngest', () => ({
+  createTaskAction: vi.fn(),
+}))
+
 // Mock the dependencies
 const mockAddTask = vi.fn()
 const mockFetchBranches = vi.fn()
@@ -45,10 +50,6 @@ vi.mock('@/hooks/use-github-auth', () => ({
     branches: mockBranches,
     fetchBranches: mockFetchBranches,
   }),
-}))
-
-vi.mock('@/app/actions/inngest', () => ({
-  createTaskAction: mockCreateTaskAction,
 }))
 
 // Mock Lucide React icons

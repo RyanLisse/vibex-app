@@ -85,7 +85,7 @@ describe('OpenAIAuthCard', () => {
   const mockLogout = vi.fn()
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render loading state', () => {
@@ -96,8 +96,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard />)
@@ -115,8 +114,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard />)
@@ -137,8 +135,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard />)
@@ -157,8 +154,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)
@@ -167,7 +163,7 @@ describe('OpenAIAuthCard', () => {
     expect(screen.getByTestId('title')).toHaveTextContent('OpenAI Authentication')
     expect(screen.getByTestId('authenticated')).toBeInTheDocument()
     expect(screen.getByTestId('expires')).toBeInTheDocument()
-    expect(screen.getByTestId('auth-type')).toHaveTextContent('OAuth')
+    expect(screen.getByTestId('auth-type')).toHaveTextContent('ChatGPT OAuth')
   })
 
   it('should render expiring soon warning', () => {
@@ -178,8 +174,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 300_000, // 5 minutes
-      isExpiring: true,
+      expires_at: Date.now() + 300_000, // 5 minutes
     })
 
     render(<OpenAIAuthCard />)
@@ -212,8 +207,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)
@@ -252,8 +246,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard description="Custom description" />)
@@ -290,8 +283,7 @@ describe('OpenAIAuthCard', () => {
         credits_granted: 100,
       },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)
@@ -307,8 +299,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { name: 'Test User' },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)
@@ -324,8 +315,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)
@@ -341,8 +331,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: Date.now() - 1000, // expired
-      isExpiring: false,
+      expires_at: Date.now() - 1000, // expired
     })
 
     render(<OpenAIAuthCard />)
@@ -358,8 +347,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     const { rerender } = render(<OpenAIAuthCard />)
@@ -372,8 +360,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: { email: 'test@example.com' },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     rerender(<OpenAIAuthCard />)
@@ -388,8 +375,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard />)
@@ -410,8 +396,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard />)
@@ -429,8 +414,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard />)
@@ -447,8 +431,7 @@ describe('OpenAIAuthCard', () => {
       logout: mockLogout,
       user: null,
       error: null,
-      expires: null,
-      isExpiring: false,
+      expires_at: null,
     })
 
     render(<OpenAIAuthCard title="Custom Auth Title" />)
@@ -475,8 +458,7 @@ describe('OpenAIAuthCard', () => {
         },
       },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)
@@ -495,8 +477,7 @@ describe('OpenAIAuthCard', () => {
         display_name: 'Test User Display',
       },
       error: null,
-      expires: Date.now() + 3_600_000,
-      isExpiring: false,
+      expires_at: Date.now() + 3_600_000,
     })
 
     render(<OpenAIAuthCard />)

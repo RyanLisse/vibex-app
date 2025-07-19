@@ -364,10 +364,10 @@ describe('Optimistic Updates Workflow', () => {
       })
 
       // Only task 1 should be completed
-      const tasks = result.current.tasks.data?.tasks || []
-      expect(tasks.find((t) => t.id === '1')?.status).toBe('completed')
-      expect(tasks.find((t) => t.id === '2')?.status).toBe('pending')
-      expect(tasks.find((t) => t.id === '3')?.status).toBe('pending')
+      const updatedTasksList = result.current.tasks.data?.tasks || []
+      expect(updatedTasksList.find((t) => t.id === '1')?.status).toBe('completed')
+      expect(updatedTasksList.find((t) => t.id === '2')?.status).toBe('pending')
+      expect(updatedTasksList.find((t) => t.id === '3')?.status).toBe('pending')
     })
   })
 

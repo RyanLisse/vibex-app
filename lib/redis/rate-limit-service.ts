@@ -1,6 +1,6 @@
 /**
  * RateLimitService - Redis/Valkey Rate Limiting Implementation
- * 
+ *
  * Provides various rate limiting algorithms for API protection
  */
 
@@ -19,7 +19,7 @@ export class RateLimitService {
     blockedRequests: 0,
     allowedRequests: 0,
     blockRate: 0,
-    topLimitedKeys: [] as string[]
+    topLimitedKeys: [] as string[],
   }
 
   private constructor() {
@@ -69,7 +69,7 @@ export class RateLimitService {
         `
 
         const now = Date.now()
-        const result = await client.eval(
+        const result = (await client.eval(
           luaScript,
           1,
           rateLimitKey,
@@ -77,7 +77,7 @@ export class RateLimitService {
           windowEnd.toString(),
           options.maxRequests.toString(),
           now.toString()
-        ) as [number, number, number]
+        )) as [number, number, number]
 
         const [allowed, totalRequests, remaining] = result
         const isAllowed = allowed === 1
@@ -89,19 +89,19 @@ export class RateLimitService {
           remaining,
           resetTime: new Date(windowEnd),
           totalRequests,
-          windowStart: new Date(windowStart)
+          windowStart: new Date(windowStart),
         }
 
         this.observability.recordEvent('rate_limit.checked', 1, {
           key,
           allowed: isAllowed.toString(),
-          remaining: remaining.toString()
+          remaining: remaining.toString(),
         })
 
         return rateLimitResult
       } catch (error) {
         this.observability.recordError('rate_limit.check.error', error as Error, {
-          key
+          key,
         })
         // Fail open - allow request if rate limiting fails
         return {
@@ -109,7 +109,7 @@ export class RateLimitService {
           remaining: options.maxRequests,
           resetTime: new Date(Date.now() + options.windowSize * 1000),
           totalRequests: 0,
-          windowStart: new Date()
+          windowStart: new Date(),
         }
       }
     })
@@ -123,7 +123,7 @@ export class RateLimitService {
       const client = this.redisManager.getClient(options.clientName)
       const rateLimitKey = this.buildKey(key, options.keyPrefix)
       const now = Date.now()
-      const windowStart = now - (options.windowSize * 1000)
+      const windowStart = now - options.windowSize * 1000
 
       try {
         const luaScript = `
@@ -149,7 +149,7 @@ export class RateLimitService {
           end
         `
 
-        const result = await client.eval(
+        const result = (await client.eval(
           luaScript,
           1,
           rateLimitKey,
@@ -157,7 +157,7 @@ export class RateLimitService {
           options.maxRequests.toString(),
           now.toString(),
           options.windowSize.toString()
-        ) as [number, number, number]
+        )) as [number, number, number]
 
         const [allowed, totalRequests, remaining] = result
         const isAllowed = allowed === 1
@@ -169,18 +169,18 @@ export class RateLimitService {
           remaining,
           resetTime: new Date(now + options.windowSize * 1000),
           totalRequests,
-          windowStart: new Date(windowStart)
+          windowStart: new Date(windowStart),
         }
       } catch (error) {
         this.observability.recordError('rate_limit.sliding_window.error', error as Error, {
-          key
+          key,
         })
         return {
           allowed: true,
           remaining: options.maxRequests,
           resetTime: new Date(now + options.windowSize * 1000),
           totalRequests: 0,
-          windowStart: new Date(windowStart)
+          windowStart: new Date(windowStart),
         }
       }
     })
@@ -194,7 +194,7 @@ export class RateLimitService {
       size: bucketSize,
       tokens: bucketSize,
       refillRate,
-      lastRefill: Date.now()
+      lastRefill: Date.now(),
     }
 
     await client.hset(bucketKey, bucketData)
@@ -240,13 +240,13 @@ export class RateLimitService {
         end
       `
 
-      const result = await client.eval(
+      const result = (await client.eval(
         luaScript,
         1,
         bucketKey,
         tokens.toString(),
         Date.now().toString()
-      ) as [number, number, number]
+      )) as [number, number, number]
 
       const [allowed, remaining] = result
       const isAllowed = allowed === 1
@@ -258,18 +258,18 @@ export class RateLimitService {
         remaining,
         resetTime: new Date(Date.now() + 60000), // Rough estimate
         totalRequests: tokens,
-        windowStart: new Date()
+        windowStart: new Date(),
       }
     } catch (error) {
       this.observability.recordError('rate_limit.token_bucket.error', error as Error, {
-        key
+        key,
       })
       return {
         allowed: true,
         remaining: tokens,
         resetTime: new Date(),
         totalRequests: 0,
-        windowStart: new Date()
+        windowStart: new Date(),
       }
     }
   }
@@ -285,7 +285,7 @@ export class RateLimitService {
 
     return {
       ...baseOptions,
-      maxRequests: Math.max(1, adaptedMaxRequests)
+      maxRequests: Math.max(1, adaptedMaxRequests),
     }
   }
 
@@ -296,7 +296,7 @@ export class RateLimitService {
     await client.hset(budgetKey, {
       total: budget,
       remaining: budget,
-      spent: 0
+      spent: 0,
     })
     await client.expire(budgetKey, 86400) // 24 hours TTL
   }
@@ -332,12 +332,11 @@ export class RateLimitService {
         end
       `
 
-      const result = await client.eval(
-        luaScript,
-        1,
-        budgetKey,
-        cost.toString()
-      ) as [number, number, number]
+      const result = (await client.eval(luaScript, 1, budgetKey, cost.toString())) as [
+        number,
+        number,
+        number,
+      ]
 
       const [allowed, remaining] = result
       const isAllowed = allowed === 1
@@ -349,26 +348,25 @@ export class RateLimitService {
         remaining,
         resetTime: new Date(Date.now() + 86400000), // 24 hours
         totalRequests: cost,
-        windowStart: new Date()
+        windowStart: new Date(),
       }
     } catch (error) {
       this.observability.recordError('rate_limit.cost_limit.error', error as Error, {
-        key
+        key,
       })
       return {
         allowed: false,
         remaining: 0,
         resetTime: new Date(),
         totalRequests: 0,
-        windowStart: new Date()
+        windowStart: new Date(),
       }
     }
   }
 
   async getStats(): Promise<typeof this.stats> {
-    this.stats.blockRate = this.stats.totalRequests > 0 
-      ? this.stats.blockedRequests / this.stats.totalRequests 
-      : 0
+    this.stats.blockRate =
+      this.stats.totalRequests > 0 ? this.stats.blockedRequests / this.stats.totalRequests : 0
 
     return { ...this.stats }
   }
@@ -386,7 +384,7 @@ export class RateLimitService {
       allowedRequests: 0,
       blockedRequests: 0,
       currentRemaining: 0,
-      nextResetTime: new Date()
+      nextResetTime: new Date(),
     }
   }
 
@@ -399,7 +397,7 @@ export class RateLimitService {
       blockedRequests: 0,
       allowedRequests: 0,
       blockRate: 0,
-      topLimitedKeys: []
+      topLimitedKeys: [],
     }
 
     console.log('RateLimit service cleaned up successfully')
@@ -434,12 +432,12 @@ export class RateLimitService {
 
   private updateStats(key: string, allowed: boolean): void {
     this.stats.totalRequests++
-    
+
     if (allowed) {
       this.stats.allowedRequests++
     } else {
       this.stats.blockedRequests++
-      
+
       // Track top limited keys
       if (!this.stats.topLimitedKeys.includes(key)) {
         this.stats.topLimitedKeys.push(key)

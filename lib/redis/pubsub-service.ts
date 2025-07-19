@@ -1,6 +1,6 @@
 /**
  * PubSubService - Redis/Valkey Pub/Sub Implementation
- * 
+ *
  * Provides real-time messaging and event broadcasting capabilities
  */
 
@@ -66,7 +66,7 @@ export class PubSubService {
         callback: this.wrapCallback(callback, options),
         options,
         createdAt: new Date(),
-        isActive: true
+        isActive: true,
       }
 
       this.subscriptions.set(subscriptionId, subscription)
@@ -81,7 +81,7 @@ export class PubSubService {
 
       this.observability.recordEvent('pubsub.subscription.created', 1, {
         channel,
-        subscriptions: this.subscriptions.size.toString()
+        subscriptions: this.subscriptions.size.toString(),
       })
 
       return subscription
@@ -105,7 +105,7 @@ export class PubSubService {
         callback: this.wrapCallback(callback, options),
         options,
         createdAt: new Date(),
-        isActive: true
+        isActive: true,
       }
 
       this.subscriptions.set(subscriptionId, subscription)
@@ -120,7 +120,7 @@ export class PubSubService {
 
       this.observability.recordEvent('pubsub.pattern_subscription.created', 1, {
         pattern,
-        subscriptions: this.subscriptions.size.toString()
+        subscriptions: this.subscriptions.size.toString(),
       })
 
       return subscription
@@ -140,12 +140,12 @@ export class PubSubService {
         if (subscription.pattern) {
           await this.subscriberClient!.punsubscribe(subscription.pattern)
           this.observability.recordEvent('pubsub.pattern_subscription.removed', 1, {
-            pattern: subscription.pattern
+            pattern: subscription.pattern,
           })
         } else {
           await this.subscriberClient!.unsubscribe(subscription.channel)
           this.observability.recordEvent('pubsub.subscription.removed', 1, {
-            channel: subscription.channel
+            channel: subscription.channel,
           })
         }
 
@@ -153,7 +153,7 @@ export class PubSubService {
         return true
       } catch (error) {
         this.observability.recordError('pubsub.unsubscribe.error', error as Error, {
-          subscriptionId
+          subscriptionId,
         })
         return false
       }
@@ -170,7 +170,7 @@ export class PubSubService {
           channel,
           data,
           timestamp: new Date(),
-          messageId: randomUUID()
+          messageId: randomUUID(),
         }
 
         const serializedMessage = JSON.stringify(message)
@@ -178,13 +178,13 @@ export class PubSubService {
 
         this.observability.recordEvent('pubsub.message.published', 1, {
           channel,
-          subscribers: subscriberCount.toString()
+          subscribers: subscriberCount.toString(),
         })
 
         return true
       } catch (error) {
         this.observability.recordError('pubsub.publish.error', error as Error, {
-          channel
+          channel,
         })
         return false
       }
@@ -192,19 +192,19 @@ export class PubSubService {
   }
 
   getActiveSubscriptions(): PubSubSubscription[] {
-    return Array.from(this.subscriptions.values()).filter(sub => sub.isActive)
+    return Array.from(this.subscriptions.values()).filter((sub) => sub.isActive)
   }
 
   getStats() {
     const activeSubscriptions = this.getActiveSubscriptions()
-    const channelSubscriptions = activeSubscriptions.filter(sub => !sub.pattern).length
-    const patternSubscriptions = activeSubscriptions.filter(sub => sub.pattern).length
+    const channelSubscriptions = activeSubscriptions.filter((sub) => !sub.pattern).length
+    const patternSubscriptions = activeSubscriptions.filter((sub) => sub.pattern).length
 
     return {
       totalSubscriptions: activeSubscriptions.length,
       channelSubscriptions,
       patternSubscriptions,
-      totalMessages: 0 // This would be tracked in a real implementation
+      totalMessages: 0, // This would be tracked in a real implementation
     }
   }
 
@@ -212,7 +212,7 @@ export class PubSubService {
     console.log('Cleaning up PubSub service...')
 
     // Unsubscribe from all channels and patterns
-    const unsubscribePromises = Array.from(this.subscriptions.keys()).map(id => 
+    const unsubscribePromises = Array.from(this.subscriptions.keys()).map((id) =>
       this.unsubscribe(id)
     )
     await Promise.all(unsubscribePromises)
@@ -246,7 +246,7 @@ export class PubSubService {
       } catch (error) {
         console.error('PubSub callback error:', error)
         this.observability.recordError('pubsub.callback.error', error as Error, {
-          channel: message.channel
+          channel: message.channel,
         })
 
         // Retry logic if enabled
@@ -270,7 +270,7 @@ export class PubSubService {
     try {
       // Wait for retry delay
       if (options.retryDelay) {
-        await new Promise(resolve => setTimeout(resolve, options.retryDelay))
+        await new Promise((resolve) => setTimeout(resolve, options.retryDelay))
       }
 
       await callback(message)
@@ -284,10 +284,11 @@ export class PubSubService {
     this.subscriberClient!.on('message', (channel: string, messageData: string) => {
       try {
         const message: PubSubMessage = JSON.parse(messageData)
-        
+
         // Find matching subscriptions
-        const matchingSubscriptions = Array.from(this.subscriptions.values())
-          .filter(sub => sub.isActive && sub.channel === channel)
+        const matchingSubscriptions = Array.from(this.subscriptions.values()).filter(
+          (sub) => sub.isActive && sub.channel === channel
+        )
 
         for (const subscription of matchingSubscriptions) {
           subscription.callback(message)
@@ -295,43 +296,51 @@ export class PubSubService {
 
         this.observability.recordEvent('pubsub.message.received', 1, {
           channel,
-          subscribers: matchingSubscriptions.length.toString()
+          subscribers: matchingSubscriptions.length.toString(),
         })
       } catch (error) {
         console.error('Failed to process PubSub message:', error)
         this.observability.recordError('pubsub.message.processing.error', error as Error, {
-          channel
+          channel,
         })
       }
     })
   }
 
   private setupPatternMessageHandler(): void {
-    this.subscriberClient!.on('pmessage', (pattern: string, channel: string, messageData: string) => {
-      try {
-        const message: PubSubMessage = JSON.parse(messageData)
-        message.pattern = pattern
-        
-        // Find matching pattern subscriptions
-        const matchingSubscriptions = Array.from(this.subscriptions.values())
-          .filter(sub => sub.isActive && sub.pattern === pattern)
+    this.subscriberClient!.on(
+      'pmessage',
+      (pattern: string, channel: string, messageData: string) => {
+        try {
+          const message: PubSubMessage = JSON.parse(messageData)
+          message.pattern = pattern
 
-        for (const subscription of matchingSubscriptions) {
-          subscription.callback(message)
+          // Find matching pattern subscriptions
+          const matchingSubscriptions = Array.from(this.subscriptions.values()).filter(
+            (sub) => sub.isActive && sub.pattern === pattern
+          )
+
+          for (const subscription of matchingSubscriptions) {
+            subscription.callback(message)
+          }
+
+          this.observability.recordEvent('pubsub.pattern_message.received', 1, {
+            pattern,
+            channel,
+            subscribers: matchingSubscriptions.length.toString(),
+          })
+        } catch (error) {
+          console.error('Failed to process PubSub pattern message:', error)
+          this.observability.recordError(
+            'pubsub.pattern_message.processing.error',
+            error as Error,
+            {
+              pattern,
+              channel,
+            }
+          )
         }
-
-        this.observability.recordEvent('pubsub.pattern_message.received', 1, {
-          pattern,
-          channel,
-          subscribers: matchingSubscriptions.length.toString()
-        })
-      } catch (error) {
-        console.error('Failed to process PubSub pattern message:', error)
-        this.observability.recordError('pubsub.pattern_message.processing.error', error as Error, {
-          pattern,
-          channel
-        })
       }
-    })
+    )
   }
 }

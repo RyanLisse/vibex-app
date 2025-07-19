@@ -206,47 +206,50 @@ export function VoiceBrainstorm({
     await speakPrompt(STAGE_PROMPTS.exploration)
   }
 
-  const processVoiceInput = useCallback(async (transcript: string) => {
-    if (!session) return
+  const processVoiceInput = useCallback(
+    async (transcript: string) => {
+      if (!session) return
 
-    // Add transcript to session
-    const updatedSession = {
-      ...session,
-      voiceTranscripts: [...session.voiceTranscripts, transcript],
-    }
-
-    // Analyze transcript for ideas
-    const ideas = await extractIdeasFromTranscript(transcript)
-    if (ideas.length > 0) {
-      updatedSession.ideas = [...updatedSession.ideas, ...ideas]
-      ideas.forEach((idea) => onIdeaGenerated?.(idea))
-    }
-
-    // Send to brainstorm agent for processing
-    try {
-      const response = await fetch('/api/agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'send_message',
-          sessionId: session.id,
-          message: `Voice input: "${transcript}"`,
-          streaming: false,
-        }),
-      })
-
-      const data = await response.json()
-      if (data.success && data.data.response.content) {
-        // Speak the agent's response
-        await speakResponse(data.data.response.content)
+      // Add transcript to session
+      const updatedSession = {
+        ...session,
+        voiceTranscripts: [...session.voiceTranscripts, transcript],
       }
-    } catch (error) {
-      console.error('Failed to process voice input:', error)
-    }
 
-    setSession(updatedSession)
-    onSessionUpdate?.(updatedSession)
-  }, [session, onIdeaGenerated, onSessionUpdate])
+      // Analyze transcript for ideas
+      const ideas = await extractIdeasFromTranscript(transcript)
+      if (ideas.length > 0) {
+        updatedSession.ideas = [...updatedSession.ideas, ...ideas]
+        ideas.forEach((idea) => onIdeaGenerated?.(idea))
+      }
+
+      // Send to brainstorm agent for processing
+      try {
+        const response = await fetch('/api/agents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'send_message',
+            sessionId: session.id,
+            message: `Voice input: "${transcript}"`,
+            streaming: false,
+          }),
+        })
+
+        const data = await response.json()
+        if (data.success && data.data.response.content) {
+          // Speak the agent's response
+          await speakResponse(data.data.response.content)
+        }
+      } catch (error) {
+        console.error('Failed to process voice input:', error)
+      }
+
+      setSession(updatedSession)
+      onSessionUpdate?.(updatedSession)
+    },
+    [session, onIdeaGenerated, onSessionUpdate]
+  )
 
   const extractIdeasFromTranscript = async (transcript: string): Promise<BrainstormIdea[]> => {
     // Simple keyword-based idea extraction (can be enhanced with AI)

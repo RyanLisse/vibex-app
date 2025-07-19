@@ -13,6 +13,14 @@ vi.mock('@google/genai', () => ({
     on: vi.fn(),
     off: vi.fn(),
   })),
+  Modality: {
+    AUDIO: 'audio',
+    TEXT: 'text',
+  },
+  MediaResolution: {
+    MEDIUM: 'medium',
+    HIGH: 'high',
+  },
 }))
 
 // Mock fetch for API routes
@@ -54,7 +62,7 @@ describe('Gemini Audio Integration Tests', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('Session Management', () => {

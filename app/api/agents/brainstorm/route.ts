@@ -415,11 +415,7 @@ function generateIdeaRecommendations(_analysis: unknown): string[] {
   ]
 }
 
-function generateStageInsights(
-  session: unknown,
-  _transcript: string,
-  ideas: unknown[]
-): string[] {
+function generateStageInsights(session: unknown, _transcript: string, ideas: unknown[]): string[] {
   const insights: string[] = []
 
   // Stage-specific insight generation
