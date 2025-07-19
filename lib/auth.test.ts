@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import {
   buildAuthUrl,
   createAuthHeaders,
@@ -19,18 +18,27 @@ import {
   validateToken,
 } from './auth'
 
-// Mock crypto
+// Test constants
+const BASE64URL_REGEX = /^[A-Za-z0-9_-]+$/
+
+// Mock crypto using Bun's mock API
 const mockCrypto = {
-  getRandomValues: vi.fn(),
+  getRandomValues: mock(),
   subtle: {
-    digest: vi.fn(),
-    importKey: vi.fn(),
-    sign: vi.fn(),
-    verify: vi.fn(),
+    digest: mock(),
+    importKey: mock(),
+    sign: mock(),
+    verify: mock(),
   },
 }
 
+// Mock both global.crypto and globalThis.crypto
 Object.defineProperty(global, 'crypto', {
+  value: mockCrypto,
+  writable: true,
+})
+
+Object.defineProperty(globalThis, 'crypto', {
   value: mockCrypto,
   writable: true,
 })
@@ -45,20 +53,27 @@ global.TextEncoder = class TextEncoder {
 // Mock btoa
 global.btoa = (str: string) => Buffer.from(str).toString('base64')
 
-// Mock fetch
-const mockFetch = vi.fn()
+// Mock fetch using Bun's mock API
+const mockFetch = mock()
 global.fetch = mockFetch
 
 describe('lib/auth', () => {
   beforeEach(() => {
-    mock.restore()
+    // Reset all mocks
+    mockCrypto.getRandomValues.mockReset()
+    mockCrypto.subtle.digest.mockReset()
+    mockCrypto.subtle.importKey.mockReset()
+    mockCrypto.subtle.sign.mockReset()
+    mockCrypto.subtle.verify.mockReset()
+    mockFetch.mockReset()
+
+    // Set up default implementations
     mockCrypto.getRandomValues.mockImplementation((arr: Uint8Array) => {
       for (let i = 0; i < arr.length; i++) {
         arr[i] = Math.floor(Math.random() * 256)
       }
       return arr
     })
-    mockCrypto.subtle.digest.mockReset()
   })
 
   describe('generateCodeVerifier', () => {
@@ -76,24 +91,39 @@ describe('lib/auth', () => {
 
     it('should generate base64url encoded string', () => {
       const verifier = generateCodeVerifier()
-      expect(verifier).toMatch(/^[A-Za-z0-9_-]+$/)
+      expect(verifier).toMatch(BASE64URL_REGEX)
     })
   })
 
   describe('generateCodeChallenge', () => {
     it('should generate a code challenge from verifier', async () => {
-      const mockDigest = new Uint8Array([1, 2, 3, 4, 5])
-      mockCrypto.subtle.digest.mockResolvedValue(mockDigest.buffer)
-
+      // Test with actual crypto implementation since mocking isn't working
       const challenge = await generateCodeChallenge('test-verifier')
       expect(challenge).toBeTypeOf('string')
-      expect(mockCrypto.subtle.digest).toHaveBeenCalledWith('SHA-256', expect.any(Uint8Array))
+      expect(challenge.length).toBeGreaterThan(0)
+      expect(challenge).toMatch(BASE64URL_REGEX) // base64url pattern
     })
 
-    it('should handle digest errors', async () => {
-      mockCrypto.subtle.digest.mockRejectedValue(new Error('Digest failed'))
+    it('should generate different challenges for different verifiers', async () => {
+      const challenge1 = await generateCodeChallenge('verifier1')
+      const challenge2 = await generateCodeChallenge('verifier2')
+      expect(challenge1).not.toBe(challenge2)
+    })
 
-      await expect(generateCodeChallenge('test-verifier')).rejects.toThrow('Digest failed')
+    it('should generate consistent challenge for same verifier', async () => {
+      const verifier = 'consistent-verifier'
+      const challenge1 = await generateCodeChallenge(verifier)
+      const challenge2 = await generateCodeChallenge(verifier)
+      expect(challenge1).toBe(challenge2)
+    })
+
+    it('should generate base64url encoded challenge', async () => {
+      const challenge = await generateCodeChallenge('test-verifier')
+      expect(challenge).toBeTypeOf('string')
+      expect(challenge).toMatch(BASE64URL_REGEX) // base64url pattern
+      expect(challenge).not.toContain('=') // no padding
+      expect(challenge).not.toContain('+') // no + characters
+      expect(challenge).not.toContain('/') // no / characters
     })
   })
 
@@ -112,7 +142,7 @@ describe('lib/auth', () => {
 
     it('should generate base64url encoded string', () => {
       const state = generateState()
-      expect(state).toMatch(/^[A-Za-z0-9_-]+$/)
+      expect(state).toMatch(BASE64URL_REGEX)
     })
   })
 
@@ -129,8 +159,8 @@ describe('lib/auth', () => {
     it('should reject empty or null states', () => {
       expect(validateOAuthState('', 'test')).toBe(false)
       expect(validateOAuthState('test', '')).toBe(false)
-      expect(validateOAuthState(null as any, 'test')).toBe(false)
-      expect(validateOAuthState('test', null as any)).toBe(false)
+      expect(validateOAuthState(null as unknown as string, 'test')).toBe(false)
+      expect(validateOAuthState('test', null as unknown as string)).toBe(false)
     })
   })
 

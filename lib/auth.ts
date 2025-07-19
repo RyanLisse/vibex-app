@@ -2,7 +2,8 @@
  * Authentication utilities for OAuth and API token management
  */
 
-import crypto from 'node:crypto'
+// Use Web Crypto API (available in modern Node.js and browsers)
+const crypto = globalThis.crypto
 
 // Types for OAuth and authentication
 export interface AuthConfig {
@@ -101,7 +102,7 @@ export function generateState(): string {
  * Validate OAuth state parameter
  */
 export function validateOAuthState(receivedState: string, storedState: string): boolean {
-  if (!receivedState || !storedState) {
+  if (!(receivedState && storedState)) {
     return false
   }
   return receivedState === storedState
@@ -347,7 +348,7 @@ export function sanitizeRedirectUrl(url: string): string {
 export function createAuthHeaders(
   token: string,
   additionalHeaders: Record<string, string> = {},
-  tokenType: string = 'Bearer'
+  tokenType = 'Bearer'
 ): Record<string, string> {
   return {
     Authorization: `${tokenType} ${token}`,
