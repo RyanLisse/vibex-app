@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { Task } from '@/stores/tasks'
+import type { Task } from '@/types/task'
 
 interface UseShellOutputDataProps {
   shellMessages: Task['messages']

@@ -1,4 +1,4 @@
-import type { Task } from '@/stores/tasks'
+import type { Task } from '@/types/task'
 
 // Enhanced message types with better type safety
 export interface TaskMessage {

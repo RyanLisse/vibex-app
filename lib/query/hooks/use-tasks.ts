@@ -7,7 +7,6 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 import { TaskSchema, CreateTaskSchema, UpdateTaskSchema } from '@/src/schemas/api-routes'
-import { redisCache } from '@/lib/redis'
 
 // Types
 export type Task = z.infer<typeof TaskSchema>
@@ -50,21 +49,12 @@ async function fetchTasks(params: {
 }
 
 async function fetchTask(id: string): Promise<Task> {
-  // Try cache first
-  const cached = await redisCache.get<Task>(`task:${id}`)
-  if (cached) {
-    return cached
-  }
-
   const response = await fetch(`/api/tasks/${id}`)
   if (!response.ok) {
     throw new Error('Failed to fetch task')
   }
 
   const task = await response.json()
-
-  // Cache the result
-  await redisCache.set(`task:${id}`, task, { ttl: 300 }) // 5 minutes
 
   return task
 }
@@ -82,12 +72,6 @@ async function createTask(data: CreateTaskInput): Promise<Task> {
 
   const task = await response.json()
 
-  // Cache the new task
-  await redisCache.set(`task:${task.id}`, task, { ttl: 300 })
-
-  // Invalidate list cache
-  await redisCache.invalidatePattern('tasks:list:*')
-
   return task
 }
 
@@ -104,12 +88,6 @@ async function updateTask(id: string, data: UpdateTaskInput): Promise<Task> {
 
   const task = await response.json()
 
-  // Update cache
-  await redisCache.set(`task:${id}`, task, { ttl: 300 })
-
-  // Invalidate list cache
-  await redisCache.invalidatePattern('tasks:list:*')
-
   return task
 }
 
@@ -121,12 +99,6 @@ async function deleteTask(id: string): Promise<void> {
   if (!response.ok) {
     throw new Error('Failed to delete task')
   }
-
-  // Remove from cache
-  await redisCache.delete(`task:${id}`)
-
-  // Invalidate list cache
-  await redisCache.invalidatePattern('tasks:list:*')
 }
 
 // Hooks

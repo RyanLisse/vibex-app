@@ -243,6 +243,118 @@ export const InngestFunctionSchema = z.object({
     .optional(),
 })
 
+// User management schemas
+export const UserSchema = z.object({
+  id: IdSchema,
+  email: z.string().email('Invalid email address'),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be less than 255 characters'),
+  avatar: z.string().url('Invalid avatar URL').optional(),
+  provider: z.enum(['github', 'openai', 'anthropic']),
+  providerId: z.string().min(1, 'Provider ID is required'),
+  profile: z.record(z.any()).optional(),
+  preferences: z.record(z.any()).default({}),
+  isActive: z.boolean().default(true),
+  lastLoginAt: z.string().datetime().optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+})
+
+export const CreateUserSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be less than 255 characters'),
+  avatar: z.string().url('Invalid avatar URL').optional(),
+  provider: z.enum(['github', 'openai', 'anthropic']),
+  providerId: z.string().min(1, 'Provider ID is required'),
+  profile: z.record(z.any()).optional(),
+  preferences: z.record(z.any()).default({}),
+})
+
+export const UpdateUserSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be less than 255 characters').optional(),
+  avatar: z.string().url('Invalid avatar URL').optional(),
+  preferences: z.record(z.any()).optional(),
+  isActive: z.boolean().optional(),
+})
+
+// Auth session schemas
+export const AuthSessionSchema = z.object({
+  id: IdSchema,
+  userId: IdSchema,
+  provider: z.enum(['github', 'openai', 'anthropic']),
+  accessToken: z.string().min(1, 'Access token is required'),
+  refreshToken: z.string().optional(),
+  idToken: z.string().optional(),
+  tokenType: z.string().default('Bearer'),
+  expiresAt: z.string().datetime().optional(),
+  scope: z.string().optional(),
+  organizationId: z.string().optional(),
+  creditsGranted: z.number().optional(),
+  metadata: z.record(z.any()).optional(),
+  isActive: z.boolean().default(true),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  lastUsedAt: z.string().datetime(),
+})
+
+export const CreateAuthSessionSchema = z.object({
+  userId: IdSchema,
+  provider: z.enum(['github', 'openai', 'anthropic']),
+  accessToken: z.string().min(1, 'Access token is required'),
+  refreshToken: z.string().optional(),
+  idToken: z.string().optional(),
+  tokenType: z.string().default('Bearer'),
+  expiresAt: z.string().datetime().optional(),
+  scope: z.string().optional(),
+  organizationId: z.string().optional(),
+  creditsGranted: z.number().optional(),
+  metadata: z.record(z.any()).optional(),
+})
+
+// Agent session schemas
+export const AgentSessionSchema = z.object({
+  id: IdSchema,
+  userId: IdSchema,
+  sessionType: z.enum(['chat', 'voice', 'brainstorm', 'multi-agent']),
+  sessionData: z.record(z.any()),
+  currentStage: z.string().optional(),
+  totalStages: z.number().optional(),
+  isActive: z.boolean().default(true),
+  startedAt: z.string().datetime(),
+  endedAt: z.string().datetime().optional(),
+  lastInteractionAt: z.string().datetime(),
+  metadata: z.record(z.any()).optional(),
+})
+
+export const CreateAgentSessionSchema = z.object({
+  userId: IdSchema,
+  sessionType: z.enum(['chat', 'voice', 'brainstorm', 'multi-agent']),
+  sessionData: z.record(z.any()),
+  currentStage: z.string().optional(),
+  totalStages: z.number().optional(),
+  metadata: z.record(z.any()).optional(),
+})
+
+export const UpdateAgentSessionSchema = z.object({
+  sessionData: z.record(z.any()).optional(),
+  currentStage: z.string().optional(),
+  totalStages: z.number().optional(),
+  isActive: z.boolean().optional(),
+  endedAt: z.string().datetime().optional(),
+  metadata: z.record(z.any()).optional(),
+})
+
+// GitHub repository schemas (already defined but enhanced)
+export const GitHubRepositoryEnhancedSchema = GitHubRepositorySchema.extend({
+  userId: IdSchema,
+  lastSyncAt: z.string().datetime(),
+})
+
+export const GitHubBranchEnhancedSchema = GitHubBranchSchema.extend({
+  repositoryId: IdSchema,
+  isDefault: z.boolean().default(false),
+  lastSyncAt: z.string().datetime(),
+})
+
 // Webhook schemas
 export const WebhookPayloadSchema = z.object({
   event: z.string().min(1, 'Event type is required'),
@@ -299,6 +411,8 @@ export const ValidationErrorSchema = z.object({
   code: z.string().optional(),
 })
 
+export type ValidationError = z.infer<typeof ValidationErrorSchema>
+
 // Success response schemas
 
 export const createApiSuccessResponse = <T>(data: T, message?: string) => ({
@@ -342,3 +456,28 @@ export const createPaginatedResponse = <T>(
     hasPrev: pagination.page > 1,
   },
 })
+
+// Validation utility
+export async function validateApiRequest<T>(
+  request: Request,
+  schema: z.ZodSchema<T>
+): Promise<{ data: T; error: null } | { data: null; error: string }> {
+  try {
+    const body = await request.json()
+    const result = schema.safeParse(body)
+
+    if (!result.success) {
+      return {
+        data: null,
+        error: result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
+      }
+    }
+
+    return { data: result.data, error: null }
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Invalid request body',
+    }
+  }
+}

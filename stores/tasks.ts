@@ -1,11 +1,24 @@
 // stores/useTaskStore.ts
 
+/**
+ * @deprecated This Zustand store has been replaced by TanStack Query hooks.
+ * Please use the following instead:
+ * - For types: import type { Task } from '@/types/task'
+ * - For queries: import { useTaskQuery, useTasksQuery } from '@/hooks/use-task-queries'
+ * - For mutations: import { useCreateTaskMutation, useUpdateTaskMutation } from '@/hooks/use-task-queries'
+ *
+ * This file will be removed in the next major version.
+ */
+
 import type { PullRequestResponse } from '@vibe-kit/sdk'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 type TaskStatus = 'IN_PROGRESS' | 'DONE' | 'MERGED' | 'PAUSED' | 'CANCELLED'
 
+/**
+ * @deprecated Use import type { Task } from '@/types/task' instead
+ */
 export interface Task {
   id: string
   title: string
@@ -48,6 +61,9 @@ interface TaskStore {
   getTasksBySessionId: (sessionId: string) => Task[]
 }
 
+/**
+ * @deprecated Use TanStack Query hooks from '@/hooks/use-task-queries' instead
+ */
 export const useTaskStore = create<TaskStore>()(
   persist(
     (set, get) => ({

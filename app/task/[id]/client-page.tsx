@@ -1,7 +1,7 @@
 'use client'
 import { Suspense } from 'react'
 import { ChatMessagesPanel } from '@/app/task/[id]/_components/chat-messages-panel'
-import MessageInput from '@/app/task/[id]/_components/message-input'
+import { MessageInput } from '@/app/task/[id]/_components/message-input'
 import { ShellOutputPanel } from '@/app/task/[id]/_components/shell-output-panel'
 import { TaskLoadingState } from '@/app/task/[id]/_components/task-loading-state'
 import { useAutoScroll } from '@/app/task/[id]/_hooks/use-auto-scroll'

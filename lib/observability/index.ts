@@ -304,3 +304,6 @@ export class ObservabilityService {
     }
   }
 }
+
+// Export singleton instance
+export const observability = ObservabilityService.getInstance()

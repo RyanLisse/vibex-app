@@ -2,16 +2,50 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import TaskList from '@/components/task-list'
 
-// Mock the task store
-const mockTaskStore = {
-  getActiveTasks: vi.fn(),
-  getArchivedTasks: vi.fn(),
-  archiveTask: vi.fn(),
-  removeTask: vi.fn(),
+// Mock TanStack Query hooks
+const mockTasksQuery = {
+  tasks: [],
+  loading: false,
+  error: null,
+  refetch: vi.fn(),
+  isStale: false,
+  isFetching: false,
 }
 
-vi.mock('@/stores/tasks', () => ({
-  useTaskStore: () => mockTaskStore,
+const mockUpdateTaskMutation = {
+  mutateAsync: vi.fn(),
+  isPending: false,
+}
+
+const mockDeleteTaskMutation = {
+  mutateAsync: vi.fn(),
+  isPending: false,
+}
+
+vi.mock('@/hooks/use-task-queries', () => ({
+  useTasksQuery: vi.fn(() => mockTasksQuery),
+  useUpdateTaskMutation: vi.fn(() => mockUpdateTaskMutation),
+  useDeleteTaskMutation: vi.fn(() => mockDeleteTaskMutation),
+}))
+
+// Mock ElectricSQL provider
+vi.mock('@/components/providers/electric-provider', () => ({
+  useElectricContext: () => ({
+    isConnected: true,
+    isSyncing: false,
+    error: null,
+  }),
+}))
+
+// Mock observability
+vi.mock('@/lib/observability', () => ({
+  observability: {
+    events: {
+      collector: {
+        collectEvent: vi.fn(),
+      },
+    },
+  },
 }))
 
 // Mock date-fns

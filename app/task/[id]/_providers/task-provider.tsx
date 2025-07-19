@@ -6,7 +6,7 @@ import { useOptimizedTaskData } from '@/app/task/[id]/_hooks/use-optimized-task-
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
 import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
 import { useTaskQuery } from '@/hooks/use-task-queries'
-import type { Task } from '@/stores/tasks'
+import type { Task } from '@/types/task'
 
 interface TaskContextValue {
   task: Task

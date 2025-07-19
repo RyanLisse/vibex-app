@@ -18,16 +18,26 @@ const mockBranches = [
   { name: 'feature/test', isDefault: false },
 ]
 
-vi.mock('@/stores/environments', () => ({
-  useEnvironmentStore: () => ({
-    environments: mockEnvironments,
-  }),
+// Mock TanStack Query hooks
+const mockEnvironmentsQuery = {
+  environments: mockEnvironments,
+  loading: false,
+  error: null,
+  refetch: vi.fn(),
+  isStale: false,
+}
+
+const mockCreateTaskMutation = {
+  mutateAsync: mockAddTask,
+  isPending: false,
+}
+
+vi.mock('@/hooks/use-environment-queries', () => ({
+  useEnvironmentsQuery: vi.fn(() => mockEnvironmentsQuery),
 }))
 
-vi.mock('@/stores/tasks', () => ({
-  useTaskStore: () => ({
-    addTask: mockAddTask,
-  }),
+vi.mock('@/hooks/use-task-queries', () => ({
+  useCreateTaskMutation: vi.fn(() => mockCreateTaskMutation),
 }))
 
 vi.mock('@/hooks/use-github-auth', () => ({

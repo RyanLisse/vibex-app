@@ -226,6 +226,171 @@ export const executionSnapshots = pgTable(
   })
 )
 
+// User Management Tables
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    name: varchar('name', { length: 255 }),
+    avatar: text('avatar'),
+    provider: varchar('provider', { length: 50 }).notNull(), // 'github', 'openai', 'anthropic'
+    providerId: varchar('provider_id', { length: 255 }).notNull(),
+    profile: jsonb('profile'), // Store provider-specific profile data
+    preferences: jsonb('preferences').default({}),
+    isActive: boolean('is_active').default(true),
+    lastLoginAt: timestamp('last_login_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    emailIdx: index('users_email_idx').on(table.email),
+    providerIdx: index('users_provider_idx').on(table.provider),
+    providerIdIdx: index('users_provider_id_idx').on(table.providerId),
+    isActiveIdx: index('users_is_active_idx').on(table.isActive),
+    uniqueProviderUser: unique('users_provider_user_unique').on(table.provider, table.providerId),
+  })
+)
+
+export const authSessions = pgTable(
+  'auth_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    provider: varchar('provider', { length: 50 }).notNull(),
+    accessToken: text('access_token').notNull(),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    tokenType: varchar('token_type', { length: 50 }).default('Bearer'),
+    expiresAt: timestamp('expires_at'),
+    scope: text('scope'),
+    organizationId: varchar('organization_id', { length: 255 }),
+    creditsGranted: integer('credits_granted'),
+    metadata: jsonb('metadata'),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    lastUsedAt: timestamp('last_used_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index('auth_sessions_user_id_idx').on(table.userId),
+    providerIdx: index('auth_sessions_provider_idx').on(table.provider),
+    isActiveIdx: index('auth_sessions_is_active_idx').on(table.isActive),
+    expiresAtIdx: index('auth_sessions_expires_at_idx').on(table.expiresAt),
+    lastUsedIdx: index('auth_sessions_last_used_idx').on(table.lastUsedAt),
+  })
+)
+
+export const fileUploads = pgTable(
+  'file_uploads',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    filename: varchar('filename', { length: 255 }).notNull(),
+    originalName: varchar('original_name', { length: 255 }).notNull(),
+    mimeType: varchar('mime_type', { length: 100 }).notNull(),
+    size: integer('size').notNull(),
+    category: varchar('category', { length: 50 }).default('attachment'),
+    description: text('description'),
+    url: text('url').notNull(),
+    storageProvider: varchar('storage_provider', { length: 50 }).notNull(), // 'local', 's3', 'gcs'
+    storagePath: text('storage_path').notNull(),
+    metadata: jsonb('metadata'),
+    isPublic: boolean('is_public').default(false),
+    isDeleted: boolean('is_deleted').default(false),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => ({
+    userIdIdx: index('file_uploads_user_id_idx').on(table.userId),
+    filenameIdx: index('file_uploads_filename_idx').on(table.filename),
+    categoryIdx: index('file_uploads_category_idx').on(table.category),
+    isDeletedIdx: index('file_uploads_is_deleted_idx').on(table.isDeleted),
+    createdAtIdx: index('file_uploads_created_at_idx').on(table.createdAt),
+  })
+)
+
+export const agentSessions = pgTable(
+  'agent_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    sessionType: varchar('session_type', { length: 50 }).notNull(), // 'chat', 'voice', 'brainstorm', 'multi-agent'
+    sessionData: jsonb('session_data').notNull(),
+    currentStage: varchar('current_stage', { length: 100 }),
+    totalStages: integer('total_stages'),
+    isActive: boolean('is_active').default(true),
+    startedAt: timestamp('started_at').defaultNow().notNull(),
+    endedAt: timestamp('ended_at'),
+    lastInteractionAt: timestamp('last_interaction_at').defaultNow().notNull(),
+    metadata: jsonb('metadata'),
+  },
+  (table) => ({
+    userIdIdx: index('agent_sessions_user_id_idx').on(table.userId),
+    sessionTypeIdx: index('agent_sessions_session_type_idx').on(table.sessionType),
+    isActiveIdx: index('agent_sessions_is_active_idx').on(table.isActive),
+    startedAtIdx: index('agent_sessions_started_at_idx').on(table.startedAt),
+    lastInteractionIdx: index('agent_sessions_last_interaction_idx').on(table.lastInteractionAt),
+  })
+)
+
+export const githubRepositories = pgTable(
+  'github_repositories',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    githubId: integer('github_id').notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
+    fullName: varchar('full_name', { length: 255 }).notNull(),
+    description: text('description'),
+    htmlUrl: text('html_url').notNull(),
+    cloneUrl: text('clone_url').notNull(),
+    sshUrl: text('ssh_url').notNull(),
+    defaultBranch: varchar('default_branch', { length: 100 }).notNull(),
+    isPrivate: boolean('is_private').notNull(),
+    isFork: boolean('is_fork').notNull(),
+    isArchived: boolean('is_archived').notNull(),
+    language: varchar('language', { length: 50 }),
+    stargazersCount: integer('stargazers_count').default(0),
+    forksCount: integer('forks_count').default(0),
+    openIssuesCount: integer('open_issues_count').default(0),
+    size: integer('size').default(0),
+    permissions: jsonb('permissions'),
+    lastSyncAt: timestamp('last_sync_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index('github_repositories_user_id_idx').on(table.userId),
+    githubIdIdx: index('github_repositories_github_id_idx').on(table.githubId),
+    fullNameIdx: index('github_repositories_full_name_idx').on(table.fullName),
+    lastSyncIdx: index('github_repositories_last_sync_idx').on(table.lastSyncAt),
+    uniqueUserRepo: unique('github_repositories_user_repo_unique').on(table.userId, table.githubId),
+  })
+)
+
+export const githubBranches = pgTable(
+  'github_branches',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    repositoryId: uuid('repository_id').references(() => githubRepositories.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 255 }).notNull(),
+    commitSha: varchar('commit_sha', { length: 40 }).notNull(),
+    commitUrl: text('commit_url').notNull(),
+    isProtected: boolean('is_protected').default(false),
+    isDefault: boolean('is_default').default(false),
+    lastSyncAt: timestamp('last_sync_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    repositoryIdIdx: index('github_branches_repository_id_idx').on(table.repositoryId),
+    nameIdx: index('github_branches_name_idx').on(table.name),
+    isDefaultIdx: index('github_branches_is_default_idx').on(table.isDefault),
+    lastSyncIdx: index('github_branches_last_sync_idx').on(table.lastSyncAt),
+    uniqueRepoBranch: unique('github_branches_repo_branch_unique').on(table.repositoryId, table.name),
+  })
+)
+
 // Database migration tracking
 export const migrations = pgTable(
   'migrations',
@@ -244,8 +409,64 @@ export const migrations = pgTable(
 )
 
 // Relations
-export const tasksRelations = relations(tasks, ({ many }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
+  authSessions: many(authSessions),
+  fileUploads: many(fileUploads),
+  agentSessions: many(agentSessions),
+  githubRepositories: many(githubRepositories),
+  environments: many(environments),
+  tasks: many(tasks),
+}))
+
+export const authSessionsRelations = relations(authSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [authSessions.userId],
+    references: [users.id],
+  }),
+}))
+
+export const fileUploadsRelations = relations(fileUploads, ({ one }) => ({
+  user: one(users, {
+    fields: [fileUploads.userId],
+    references: [users.id],
+  }),
+}))
+
+export const agentSessionsRelations = relations(agentSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [agentSessions.userId],
+    references: [users.id],
+  }),
+}))
+
+export const githubRepositoriesRelations = relations(githubRepositories, ({ one, many }) => ({
+  user: one(users, {
+    fields: [githubRepositories.userId],
+    references: [users.id],
+  }),
+  branches: many(githubBranches),
+}))
+
+export const githubBranchesRelations = relations(githubBranches, ({ one }) => ({
+  repository: one(githubRepositories, {
+    fields: [githubBranches.repositoryId],
+    references: [githubRepositories.id],
+  }),
+}))
+
+export const tasksRelations = relations(tasks, ({ many, one }) => ({
   agentExecutions: many(agentExecutions),
+  user: one(users, {
+    fields: [tasks.userId],
+    references: [users.id],
+  }),
+}))
+
+export const environmentsRelations = relations(environments, ({ one }) => ({
+  user: one(users, {
+    fields: [environments.userId],
+    references: [users.id],
+  }),
 }))
 
 export const agentExecutionsRelations = relations(agentExecutions, ({ one, many }) => ({
@@ -291,6 +512,18 @@ export const executionSnapshotsRelations = relations(executionSnapshots, ({ one 
 }))
 
 // Type exports
+export type User = typeof users.$inferSelect
+export type NewUser = typeof users.$inferInsert
+export type AuthSession = typeof authSessions.$inferSelect
+export type NewAuthSession = typeof authSessions.$inferInsert
+export type FileUpload = typeof fileUploads.$inferSelect
+export type NewFileUpload = typeof fileUploads.$inferInsert
+export type AgentSession = typeof agentSessions.$inferSelect
+export type NewAgentSession = typeof agentSessions.$inferInsert
+export type GitHubRepository = typeof githubRepositories.$inferSelect
+export type NewGitHubRepository = typeof githubRepositories.$inferInsert
+export type GitHubBranch = typeof githubBranches.$inferSelect
+export type NewGitHubBranch = typeof githubBranches.$inferInsert
 export type Task = typeof tasks.$inferSelect
 export type NewTask = typeof tasks.$inferInsert
 export type Environment = typeof environments.$inferSelect

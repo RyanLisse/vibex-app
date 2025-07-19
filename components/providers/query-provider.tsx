@@ -44,6 +44,13 @@ export function QueryProvider({
   )
 }
 
+// Re-export enhanced query hooks
+export {
+  useEnhancedQuery,
+  useEnhancedMutation,
+  useEnhancedInfiniteQuery,
+} from '@/hooks/use-enhanced-query'
+
 /**
  * Query performance monitor component
  */

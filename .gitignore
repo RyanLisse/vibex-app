@@ -51,7 +51,7 @@ next-env.d.ts
 claude-flow.config.json
 .swarm/
 .hive-mind/
-.kiro/
+
 memory/
 coordination/
 *.db

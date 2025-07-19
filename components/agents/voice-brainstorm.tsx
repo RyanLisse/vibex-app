@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Activity,
   ArrowRight,
   Brain,
   Lightbulb,
@@ -11,7 +12,6 @@ import {
   RotateCcw,
   TrendingUp,
   Volume2,
-  Waveform,
 } from 'lucide-react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
@@ -463,7 +463,7 @@ export function VoiceBrainstorm({
             {isRecording && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Waveform className="h-4 w-4" />
+                  <Activity className="h-4 w-4" />
                   <Progress className="flex-1" value={audioLevel} />
                 </div>
                 <p className="text-center text-muted-foreground text-xs">

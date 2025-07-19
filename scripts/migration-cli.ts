@@ -7,10 +7,8 @@
  */
 
 import { program } from 'commander'
-import { migrationService } from '../lib/migration/migration-service'
-import { dataExtractor } from '../lib/migration/data-extractor'
-import { backupService } from '../lib/migration/backup-service'
 import type { MigrationConfig } from '../lib/migration/types'
+import { initializeRedis } from '../lib/redis'
 
 // CLI version
 program.version('1.0.0')
@@ -46,6 +44,21 @@ function logInfo(message: string): void {
   console.log(colorize('ℹ ' + message, 'blue'))
 }
 
+/**
+ * Initialize required services
+ */
+async function initializeServices(): Promise<void> {
+  try {
+    await initializeRedis()
+    logInfo('Services initialized successfully')
+  } catch (error) {
+    logError(
+      `Failed to initialize services: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+    process.exit(1)
+  }
+}
+
 // Status command
 program
   .command('status')
@@ -54,10 +67,15 @@ program
   .option('-v, --verbose', 'Show detailed information')
   .action(async (options) => {
     try {
+      await initializeServices()
       logInfo('Checking migration status...')
 
-      const statistics = await migrationService.getMigrationStatistics(options.userId)
-      const currentMigration = migrationService.getCurrentMigrationStatus()
+      // Lazy import services
+      const { dataMigrationManager } = await import('../lib/migration/data-migration')
+      const { backupService } = await import('../lib/migration/backup-service')
+
+      const migrationCheck = await dataMigrationManager.checkMigrationNeeded()
+      const currentMigration = dataMigrationManager.getCurrentMigration()
       const backups = backupService.listBackups()
 
       console.log('\n' + colorize('=== Migration Status ===', 'bright'))
@@ -79,27 +97,20 @@ program
 
       // Local storage data
       console.log('\n' + colorize('Local Storage Data:', 'bright'))
-      console.log(`Total Keys: ${statistics.localStorageStats.totalKeys}`)
-      console.log(`Known Keys: ${statistics.localStorageStats.knownKeys}`)
-      console.log(`Total Size: ${formatBytes(statistics.localStorageStats.totalSize)}`)
-
-      if (options.verbose) {
-        Object.entries(statistics.localStorageStats.keysSizes).forEach(([key, size]) => {
-          console.log(`  ${key}: ${formatBytes(size)}`)
-        })
-      }
+      console.log(`Tasks: ${migrationCheck.localStorageData.tasks}`)
+      console.log(`Environments: ${migrationCheck.localStorageData.environments}`)
 
       // Database data
       console.log('\n' + colorize('Database Data:', 'bright'))
-      console.log(`Tasks: ${statistics.databaseStats.taskCount}`)
-      console.log(`Environments: ${statistics.databaseStats.environmentCount}`)
+      console.log(`Tasks: ${migrationCheck.databaseData.tasks}`)
+      console.log(`Environments: ${migrationCheck.databaseData.environments}`)
 
       // Migration capability
-      console.log('\n' + colorize('Migration Capability:', 'bright'))
-      if (statistics.canMigrate) {
-        logSuccess('Ready to migrate')
+      console.log('\n' + colorize('Migration Status:', 'bright'))
+      if (migrationCheck.needed) {
+        logInfo('Migration is needed')
       } else {
-        logWarning('Cannot migrate - no data found or migration in progress')
+        logSuccess('No migration needed - data is already in database')
       }
 
       // Backups
@@ -130,23 +141,19 @@ program
   .option('--conflict-resolution <strategy>', 'Conflict resolution strategy', 'INTERACTIVE')
   .action(async (options) => {
     try {
+      await initializeServices()
       logInfo('Starting migration...')
 
-      const config: Partial<MigrationConfig> = {
-        dryRun: options.dryRun,
-        backupBeforeMigration: !options.noBackup,
-        continueOnError: options.continueOnError,
-        batchSize: parseInt(options.batchSize),
-        retryAttempts: parseInt(options.retryAttempts),
-        conflictResolution: options.conflictResolution as any,
-        validateAfterMigration: true,
-      }
+      // Lazy import services
+      const { dataMigrationManager } = await import('../lib/migration/data-migration')
 
       if (options.dryRun) {
         logInfo('Running in dry-run mode - no data will be modified')
+        logWarning('Dry-run mode not yet implemented for DataMigrationManager')
+        return
       }
 
-      const result = await migrationService.startMigration(config, options.userId)
+      const result = await dataMigrationManager.startMigration(options.userId || 'cli-user')
 
       console.log('\n' + colorize('=== Migration Result ===', 'bright'))
 
@@ -190,12 +197,15 @@ program
 
 // Backup commands
 program
-  .command('backup')
-  .description('Manage migration backups')
-  .command('list')
+  .command('backup:list')
   .description('List all available backups')
   .action(async () => {
     try {
+      await initializeServices()
+
+      // Lazy import services
+      const { backupService } = await import('../lib/migration/backup-service')
+
       const backups = backupService.listBackups()
 
       if (backups.length === 0) {
@@ -220,7 +230,7 @@ program
   })
 
 program
-  .command('backup create')
+  .command('backup:create')
   .description('Create a new backup')
   .option('-s, --source <source>', 'Backup source (LOCALSTORAGE or DATABASE)', 'LOCALSTORAGE')
   .option('-u, --user-id <userId>', 'User ID for user-specific backup')
@@ -229,7 +239,11 @@ program
   .option('-d, --description <description>', 'Backup description')
   .action(async (options) => {
     try {
+      await initializeServices()
       logInfo('Creating backup...')
+
+      // Lazy import services
+      const { backupService } = await import('../lib/migration/backup-service')
 
       const result = await backupService.createBackup({
         source: options.source as 'LOCALSTORAGE' | 'DATABASE',
@@ -264,7 +278,7 @@ program
       const result = await backupService.restoreBackup(backupId)
 
       if (result.success) {
-        logSuccess(`Backup restored successfully!`)
+        logSuccess('Backup restored successfully!')
         if (result.restoredItems) {
           console.log(`Restored Items: ${result.restoredItems}`)
         }
@@ -285,7 +299,11 @@ program
   .option('-v, --verbose', 'Show detailed extraction information')
   .action(async (options) => {
     try {
+      await initializeServices()
       logInfo('Extracting localStorage data...')
+
+      // Lazy import services
+      const { dataExtractor } = await import('../lib/migration/data-extractor')
 
       const result = await dataExtractor.extractAll()
 
@@ -387,7 +405,7 @@ function formatBytes(bytes: number): string {
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
+  return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`
 }
 
 // Error handling

@@ -6,6 +6,12 @@
  */
 
 import { wasmDetector, shouldUseWASMOptimization } from './detection'
+import {
+  loadVectorSearchWASM,
+  createVectorSearchInstance,
+  batchSimilaritySearch,
+  type VectorSearch as WASMVectorSearchInstance,
+} from './modules/vector-search-loader'
 
 export interface VectorSearchConfig {
   dimensions: number
@@ -39,9 +45,10 @@ export interface VectorSearchOptions {
  * WASM Vector Search Engine
  */
 export class VectorSearchWASM {
-  private wasmModule: WebAssembly.Module | null = null
-  private wasmInstance: WebAssembly.Instance | null = null
+  private wasmVectorSearch: WASMVectorSearchInstance | null = null
+  private inlineWASMInstance: WebAssembly.Instance | null = null
   private isInitialized = false
+  private isWASMEnabled = false
   private documents: Map<string, VectorDocument> = new Map()
   private config: VectorSearchConfig
   private cache: Map<string, VectorSearchResult[]> = new Map()
@@ -68,32 +75,44 @@ export class VectorSearchWASM {
       if (!shouldUseWASMOptimization('vector')) {
         console.log('WASM vector search not available, using JavaScript fallback')
         this.isInitialized = true
+        this.isWASMEnabled = false
         return
       }
 
-      // Load WASM module (in a real implementation, this would load an actual WASM file)
-      await this.loadWASMModule()
+      // Try to load the real WASM module
+      try {
+        await loadVectorSearchWASM()
+        this.wasmVectorSearch = await createVectorSearchInstance(this.config.dimensions)
+        this.isWASMEnabled = true
+        console.log('✅ Real WASM Vector Search module loaded successfully')
+      } catch (wasmError) {
+        console.warn('Failed to load real WASM module, using inline WASM fallback:', wasmError)
+        // Fall back to inline WASM module
+        await this.loadInlineWASMModule()
+        this.isWASMEnabled = false
+      }
 
       this.isInitialized = true
       console.log('✅ WASM Vector Search initialized')
     } catch (error) {
       console.warn('Failed to initialize WASM vector search, falling back to JS:', error)
-      this.isInitialized = true // Continue with JS fallback
+      this.isInitialized = true
+      this.isWASMEnabled = false
     }
   }
 
   /**
-   * Load WASM module for vector operations
+   * Load inline WASM module for vector operations (fallback)
    */
-  private async loadWASMModule(): Promise<void> {
+  private async loadInlineWASMModule(): Promise<void> {
     try {
       // Load vector operations WASM module with optimized similarity calculations
       const wasmCode = await this.generateVectorWASMModule()
-      this.wasmModule = await WebAssembly.compile(wasmCode)
+      const wasmModule = await WebAssembly.compile(wasmCode)
 
       // Create instance with memory for vector operations
       const memory = new WebAssembly.Memory({ initial: 256, maximum: 1024 })
-      this.wasmInstance = await WebAssembly.instantiate(this.wasmModule, {
+      const wasmInstance = await WebAssembly.instantiate(wasmModule, {
         env: {
           memory,
           Math_sqrt: Math.sqrt,
@@ -101,6 +120,9 @@ export class VectorSearchWASM {
           console_log: console.log,
         },
       })
+
+      // Store inline WASM for fallback operations
+      this.inlineWASMInstance = wasmInstance
 
       console.log('✅ Vector WASM module loaded successfully')
     } catch (error) {
@@ -442,7 +464,8 @@ export class VectorSearchWASM {
 
     // Calculate similarities with performance optimization
     const results: VectorSearchResult[] = []
-    const useBatchProcessing = candidateDocuments.length > 100 && this.wasmInstance
+    const useBatchProcessing =
+      candidateDocuments.length > 100 && (this.isWASMEnabled || this.inlineWASMInstance)
 
     if (useBatchProcessing) {
       // Batch process for better performance with large datasets
@@ -461,9 +484,10 @@ export class VectorSearchWASM {
     } else {
       // Process individually for smaller datasets
       for (const doc of candidateDocuments) {
-        const similarity = this.wasmInstance
-          ? this.calculateSimilarityWASM(queryEmbedding, doc.embedding)
-          : this.calculateSimilarityJS(queryEmbedding, doc.embedding)
+        const similarity =
+          this.isWASMEnabled || this.inlineWASMInstance
+            ? this.calculateSimilarityWASM(queryEmbedding, doc.embedding)
+            : this.calculateSimilarityJS(queryEmbedding, doc.embedding)
 
         if (similarity >= threshold) {
           results.push({
@@ -527,13 +551,25 @@ export class VectorSearchWASM {
    * Calculate cosine similarity using WASM
    */
   private calculateSimilarityWASM(embedding1: number[], embedding2: number[]): number {
-    if (!this.wasmInstance || !this.wasmInstance.exports.cosine_similarity) {
+    // Try real WASM module first
+    if (this.wasmVectorSearch && this.isWASMEnabled) {
+      try {
+        const vec1 = new Float64Array(embedding1)
+        const vec2 = new Float64Array(embedding2)
+        return this.wasmVectorSearch.cosineSimilarity(vec1, vec2)
+      } catch (error) {
+        console.warn('Real WASM similarity calculation failed:', error)
+      }
+    }
+
+    // Fall back to inline WASM
+    if (!this.inlineWASMInstance || !this.inlineWASMInstance.exports.cosine_similarity) {
       return this.calculateSimilarityJS(embedding1, embedding2)
     }
 
     try {
       // Use WASM memory for better performance
-      const memory = (this.wasmInstance.exports.memory as WebAssembly.Memory).buffer
+      const memory = (this.inlineWASMInstance.exports.memory as WebAssembly.Memory).buffer
       const float64Array = new Float64Array(memory)
 
       // Copy embeddings to WASM memory
@@ -546,7 +582,7 @@ export class VectorSearchWASM {
       }
 
       // Call WASM cosine similarity function
-      const cosineSim = (this.wasmInstance.exports.cosine_similarity as Function)(
+      const cosineSim = (this.inlineWASMInstance.exports.cosine_similarity as Function)(
         embedding1Offset * 8, // byte offset
         embedding2Offset * 8, // byte offset
         embedding1.length
@@ -565,12 +601,24 @@ export class VectorSearchWASM {
    * Calculate euclidean distance using WASM
    */
   private calculateDistanceWASM(embedding1: number[], embedding2: number[]): number {
-    if (!this.wasmInstance || !this.wasmInstance.exports.euclidean_distance) {
+    // Try real WASM module first
+    if (this.wasmVectorSearch && this.isWASMEnabled) {
+      try {
+        const vec1 = new Float64Array(embedding1)
+        const vec2 = new Float64Array(embedding2)
+        return this.wasmVectorSearch.euclideanDistance(vec1, vec2)
+      } catch (error) {
+        console.warn('Real WASM distance calculation failed:', error)
+      }
+    }
+
+    // Fall back to inline WASM
+    if (!this.inlineWASMInstance || !this.inlineWASMInstance.exports.euclidean_distance) {
       return this.calculateDistanceJS(embedding1, embedding2)
     }
 
     try {
-      const memory = (this.wasmInstance.exports.memory as WebAssembly.Memory).buffer
+      const memory = (this.inlineWASMInstance.exports.memory as WebAssembly.Memory).buffer
       const float64Array = new Float64Array(memory)
 
       const embedding1Offset = 0
@@ -581,7 +629,7 @@ export class VectorSearchWASM {
         float64Array[embedding2Offset + i] = embedding2[i]
       }
 
-      const distance = (this.wasmInstance.exports.euclidean_distance as Function)(
+      const distance = (this.inlineWASMInstance.exports.euclidean_distance as Function)(
         embedding1Offset * 8,
         embedding2Offset * 8,
         embedding1.length
@@ -631,7 +679,7 @@ export class VectorSearchWASM {
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     // Use WASM-optimized text processing when available
-    if (this.wasmInstance && text.length > 100) {
+    if ((this.isWASMEnabled || this.inlineWASMInstance) && text.length > 100) {
       return this.generateEmbeddingWASM(text)
     }
 
@@ -647,8 +695,8 @@ export class VectorSearchWASM {
       const embedding = await this.generateEmbeddingJS(text) // Base implementation
 
       // Apply WASM-optimized normalization if available
-      if (this.wasmInstance?.exports.normalize_vector) {
-        const memory = (this.wasmInstance.exports.memory as WebAssembly.Memory).buffer
+      if (this.inlineWASMInstance?.exports.normalize_vector) {
+        const memory = (this.inlineWASMInstance.exports.memory as WebAssembly.Memory).buffer
         const float64Array = new Float64Array(memory)
 
         // Copy embedding to WASM memory
@@ -656,7 +704,7 @@ export class VectorSearchWASM {
           float64Array[i] = embedding[i]
         }
         // Normalize using WASM
-        ;(this.wasmInstance.exports.normalize_vector as Function)(0, embedding.length)
+        ;(this.inlineWASMInstance.exports.normalize_vector as Function)(0, embedding.length)
 
         // Copy normalized result back
         return Array.from(float64Array.slice(0, embedding.length))
@@ -823,7 +871,7 @@ export class VectorSearchWASM {
    * Warm up WASM module for better performance
    */
   async warmUp(): Promise<void> {
-    if (!this.wasmInstance) return
+    if (!this.isWASMEnabled && !this.inlineWASMInstance) return
 
     try {
       // Perform a few dummy calculations to warm up the WASM module
@@ -855,7 +903,7 @@ export class VectorSearchWASM {
     return {
       documentsCount: this.documents.size,
       cacheSize: this.cache.size,
-      isWASMEnabled: !!this.wasmInstance,
+      isWASMEnabled: this.isWASMEnabled || !!this.inlineWASMInstance,
       dimensions: this.config.dimensions,
       wasmSupported: shouldUseWASMOptimization('vector'),
       averageSearchTime: 0, // TODO: implement performance tracking
@@ -871,13 +919,23 @@ export class VectorSearchWASM {
     this.cache.clear()
 
     // Clean up WASM memory if available
-    if (this.wasmInstance?.exports.memory) {
+    if (this.inlineWASMInstance?.exports.memory) {
       try {
-        const memory = this.wasmInstance.exports.memory as WebAssembly.Memory
+        const memory = this.inlineWASMInstance.exports.memory as WebAssembly.Memory
         const uint8Array = new Uint8Array(memory.buffer)
         uint8Array.fill(0) // Zero out memory for security
       } catch (error) {
         console.warn('Failed to clear WASM memory:', error)
+      }
+    }
+
+    // Clean up real WASM module
+    if (this.wasmVectorSearch) {
+      try {
+        // Note: Real WASM modules should handle their own cleanup
+        this.wasmVectorSearch = null
+      } catch (error) {
+        console.warn('Failed to cleanup real WASM module:', error)
       }
     }
   }
@@ -894,8 +952,8 @@ export class VectorSearchWASM {
     let wasmMemoryPages = 0
     let wasmMemoryBytes = 0
 
-    if (this.wasmInstance?.exports.memory) {
-      const memory = this.wasmInstance.exports.memory as WebAssembly.Memory
+    if (this.inlineWASMInstance?.exports.memory) {
+      const memory = this.inlineWASMInstance.exports.memory as WebAssembly.Memory
       wasmMemoryPages = memory.buffer.byteLength / 65536 // 64KB pages
       wasmMemoryBytes = memory.buffer.byteLength
     }

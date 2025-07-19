@@ -11,7 +11,6 @@ import {
   CreateEnvironmentSchema,
   UpdateEnvironmentSchema,
 } from '@/src/schemas/api-routes'
-import { redisCache } from '@/lib/redis'
 
 // Types
 export type Environment = z.infer<typeof EnvironmentSchema>
@@ -39,47 +38,22 @@ async function fetchEnvironments(
     }
   })
 
-  // Try cache first
-  const cacheKey = `environments:list:${searchParams.toString()}`
-  const cached = await redisCache.get<{
-    environments: Environment[]
-    total: number
-    hasMore: boolean
-  }>(cacheKey)
-  if (cached) {
-    return cached
-  }
-
   const response = await fetch(`/api/environments?${searchParams}`)
   if (!response.ok) {
     throw new Error('Failed to fetch environments')
   }
 
   const result = await response.json()
-
-  // Cache the result
-  await redisCache.set(cacheKey, result, { ttl: 300 }) // 5 minutes
-
   return result
 }
 
 async function fetchEnvironment(id: string): Promise<Environment> {
-  // Try cache first
-  const cached = await redisCache.get<Environment>(`environment:${id}`)
-  if (cached) {
-    return cached
-  }
-
   const response = await fetch(`/api/environments/${id}`)
   if (!response.ok) {
     throw new Error('Failed to fetch environment')
   }
 
   const environment = await response.json()
-
-  // Cache the result
-  await redisCache.set(`environment:${id}`, environment, { ttl: 600 }) // 10 minutes
-
   return environment
 }
 
@@ -96,13 +70,6 @@ async function createEnvironment(data: CreateEnvironmentInput): Promise<Environm
   }
 
   const environment = await response.json()
-
-  // Cache the new environment
-  await redisCache.set(`environment:${environment.id}`, environment, { ttl: 600 })
-
-  // Invalidate list cache
-  await redisCache.invalidatePattern('environments:list:*')
-
   return environment
 }
 
@@ -119,13 +86,6 @@ async function updateEnvironment(id: string, data: UpdateEnvironmentInput): Prom
   }
 
   const environment = await response.json()
-
-  // Update cache
-  await redisCache.set(`environment:${id}`, environment, { ttl: 600 })
-
-  // Invalidate list cache
-  await redisCache.invalidatePattern('environments:list:*')
-
   return environment
 }
 
@@ -138,12 +98,6 @@ async function deleteEnvironment(id: string): Promise<void> {
     const error = await response.json()
     throw new Error(error.message || 'Failed to delete environment')
   }
-
-  // Remove from cache
-  await redisCache.delete(`environment:${id}`)
-
-  // Invalidate list cache
-  await redisCache.invalidatePattern('environments:list:*')
 }
 
 // Hooks

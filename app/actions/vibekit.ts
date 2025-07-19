@@ -3,7 +3,7 @@
 import { VibeKit, type VibeKitConfig } from '@vibe-kit/sdk'
 import { cookies } from 'next/headers'
 import { getTelemetryConfig } from '@/lib/telemetry'
-import type { Task } from '@/stores/tasks'
+import type { Task } from '@/types/task'
 
 export const createPullRequestAction = async ({ task }: { task: Task }) => {
   const cookieStore = await cookies()

@@ -50,6 +50,7 @@ export function CreateEnvironmentDialog({
       description: '',
       selectedRepository: '',
     })
+    setSubmitError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,18 +74,36 @@ export function CreateEnvironmentDialog({
       const [githubOrganization] = formData.selectedRepository.split('/')
 
       // Create the environment
-      createEnvironment({
+      await createEnvironmentMutation.mutateAsync({
         name: formData.name.trim(),
         description: formData.description.trim(),
         githubOrganization,
         githubToken,
         githubRepository: formData.selectedRepository,
+        userId,
       })
+
+      // Record user action
+      await observability.events.collector.collectEvent(
+        'user_action',
+        'info',
+        `Environment created: ${formData.name.trim()}`,
+        { 
+          environmentName: formData.name.trim(),
+          repository: formData.selectedRepository,
+          userId,
+          action: 'create'
+        },
+        'ui',
+        ['environment', 'create']
+      )
 
       // Reset form and close dialog
       resetForm()
       onOpenChange(false)
-    } catch (_error) {
+    } catch (error) {
+      console.error('Failed to create environment:', error)
+      setSubmitError(error instanceof Error ? error.message : 'Failed to create environment')
     } finally {
       setIsCreating(false)
     }
@@ -107,6 +126,12 @@ export function CreateEnvironmentDialog({
           <DialogTitle>Create a new environment</DialogTitle>
         </DialogHeader>
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
+          {submitError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{submitError}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex flex-col gap-y-2">
             <label className="font-medium text-sm" htmlFor="name">
               Environment name *
@@ -178,8 +203,15 @@ export function CreateEnvironmentDialog({
             >
               Cancel
             </Button>
-            <Button disabled={!isFormValid || isCreating} type="submit">
-              {isCreating ? 'Creating...' : 'Create Environment'}
+            <Button disabled={!isFormValid || isCreating || createEnvironmentMutation.isPending} type="submit">
+              {isCreating || createEnvironmentMutation.isPending ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                  Creating...
+                </>
+              ) : (
+                'Create Environment'
+              )}
             </Button>
           </div>
         </form>

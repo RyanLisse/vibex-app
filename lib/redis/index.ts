@@ -5,11 +5,11 @@
  * caching, session management, pub/sub, distributed locks, and more.
  */
 
-import { RedisClientManager } from './redis-client'
-import { CacheService } from './cache-service'
-import { getRedisServiceConfig, validateRedisEnvironment, redisFeatures } from './config'
 import { ObservabilityService } from '../observability'
-import type { RedisServiceConfig, RedisHealthStatus } from './types'
+import { CacheService } from './cache-service'
+import { getRedisServiceConfig, redisFeatures, validateRedisEnvironment } from './config'
+import { RedisClientManager } from './redis-client'
+import type { RedisHealthStatus, RedisServiceConfig } from './types'
 
 export class RedisService {
   private static instance: RedisService
@@ -248,12 +248,51 @@ export class RedisService {
 
 // Convenience exports
 export const redisService = RedisService.getInstance()
-export const redisCache = redisService.cache
-export const redisClient = redisService.client
+
+// Lazy-loaded cache and client to avoid initialization issues
+export function getRedisCache() {
+  return redisService.cache
+}
+
+export function getRedisClient() {
+  return redisService.client
+}
+
+// For backward compatibility, but these will throw if not initialized
+export const redisCache = new Proxy({} as any, {
+  get(target, prop) {
+    return redisService.cache[prop as keyof typeof redisService.cache]
+  },
+})
+
+export const redisClient = new Proxy({} as any, {
+  get(target, prop) {
+    return redisService.client[prop as keyof typeof redisService.client]
+  },
+})
 
 // Initialize Redis service (call this in your app startup)
 export async function initializeRedis(): Promise<void> {
-  await redisService.initialize()
+  try {
+    await redisService.initialize()
+  } catch (error) {
+    console.warn('Redis initialization failed, falling back to mock Redis:', error)
+    // Fall back to mock Redis
+    const { initializeMockRedis, mockRedisCache } = await import('./mock-redis')
+    await initializeMockRedis()
+
+    // Replace the cache with mock cache
+    Object.defineProperty(redisService, 'cache', {
+      value: mockRedisCache,
+      writable: false,
+      configurable: true,
+    })
+    Object.defineProperty(redisService, 'isInitialized', {
+      value: true,
+      writable: false,
+      configurable: true,
+    })
+  }
 }
 
 // Graceful shutdown (call this in your app shutdown)
@@ -261,8 +300,8 @@ export async function shutdownRedis(): Promise<void> {
   await redisService.shutdown()
 }
 
-// Re-export types and utilities
-export * from './types'
+export { CacheService } from './cache-service'
 export * from './config'
 export { RedisClientManager } from './redis-client'
-export { CacheService } from './cache-service'
+// Re-export types and utilities
+export * from './types'

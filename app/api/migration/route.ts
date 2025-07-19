@@ -7,16 +7,12 @@
 
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { migrationService } from '@/lib/migration/migration-service'
-import { backupService } from '@/lib/migration/backup-service'
-import { observability } from '@/lib/observability'
-import { createApiSuccessResponse, createApiErrorResponse } from '@/src/schemas/api-routes'
-import type { MigrationApiResponse } from '@/lib/migration/types'
+import { dataMigrationManager } from '@/lib/migration/data-migration'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 
 // Request schemas
 const StartMigrationSchema = z.object({
-  userId: z.string().optional(),
+  userId: z.string().min(1, 'User ID is required'),
   config: z
     .object({
       conflictResolution: z
@@ -36,15 +32,6 @@ const CheckMigrationSchema = z.object({
   userId: z.string().optional(),
 })
 
-const ResolveConflictsSchema = z.object({
-  resolutions: z.array(
-    z.object({
-      conflictId: z.string(),
-      resolution: z.enum(['SKIP', 'OVERWRITE', 'MERGE', 'RENAME']),
-    })
-  ),
-})
-
 /**
  * GET /api/migration - Check migration status and requirements
  */
@@ -53,8 +40,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const queryParams = Object.fromEntries(searchParams.entries())
 
-    // Validate query parameters
-    const { userId } = CheckMigrationSchema.parse(queryParams)
+    // Validate query parameters (userId is optional for status check)
+    CheckMigrationSchema.parse(queryParams)
 
     // Check if migration is needed
     const migrationCheck = await dataMigrationManager.checkMigrationNeeded()
@@ -150,7 +137,7 @@ export async function POST(request: NextRequest) {
 /**
  * DELETE /api/migration - Clean up migration data (for testing)
  */
-export async function DELETE(request: NextRequest) {
+export function DELETE(_request: NextRequest) {
   try {
     // This is primarily for development/testing purposes
     // In production, you might want to restrict this endpoint
@@ -162,10 +149,12 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Clear localStorage backups
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('task-store-backup')
-      localStorage.removeItem('environments-backup')
+    // Note: localStorage cleanup would need to be done client-side
+    // This endpoint could clear server-side migration state instead
+    const currentMigration = dataMigrationManager.getCurrentMigration()
+    if (currentMigration) {
+      // Reset migration state (this would need to be implemented in DataMigrationManager)
+      // For now, just acknowledge the migration exists
     }
 
     return NextResponse.json(

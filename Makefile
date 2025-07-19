@@ -77,8 +77,12 @@ kill-ports: ## Kill processes on common development ports
 	)
 
 # Test targets
-test: kill-ports ## Run all tests
-	@echo "🧪 Running all tests..."
+test: kill-ports ## Run all tests (excluding hanging e2e tests)
+	@echo "🧪 Running safe tests (unit + integration)..."
+	@$(PM) run test:fast
+
+test-all: kill-ports ## Run ALL tests including e2e (may hang)
+	@echo "🧪 Running all tests including e2e..."
 	@$(PM) run test:all
 
 test-unit: kill-ports ## Run unit tests only

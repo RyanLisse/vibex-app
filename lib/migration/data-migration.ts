@@ -9,7 +9,6 @@ import { ulid } from 'ulid'
 import { db } from '@/db/config'
 import { agentExecutions, environments, tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import { redisCache } from '@/lib/redis'
 
 // Migration status
 export type MigrationStatus = 'not_started' | 'in_progress' | 'completed' | 'failed' | 'rolled_back'
@@ -49,6 +48,19 @@ export class DataMigrationManager {
   private currentMigration: MigrationResult | null = null
 
   private constructor() {}
+
+  /**
+   * Get Redis cache instance (lazy-loaded)
+   */
+  private async getRedisCache() {
+    try {
+      const { redisCache } = await import('@/lib/redis')
+      return redisCache
+    } catch (error) {
+      console.warn('Redis not available, continuing without cache:', error)
+      return null
+    }
+  }
 
   static getInstance(): DataMigrationManager {
     if (!DataMigrationManager.instance) {
@@ -271,8 +283,11 @@ export class DataMigrationManager {
           // Insert into database
           await db.insert(tasks).values(dbTask).onConflictDoNothing()
 
-          // Cache in Redis for faster access
-          await redisCache.set(`task:${dbTask.id}`, dbTask, { ttl: 300 })
+          // Cache in Redis for faster access (if available)
+          const redis = await this.getRedisCache()
+          if (redis) {
+            await redis.set(`task:${dbTask.id}`, dbTask, { ttl: 300 })
+          }
 
           step.recordsProcessed++
           this.currentMigration!.summary.migratedRecords++
@@ -350,8 +365,11 @@ export class DataMigrationManager {
           // Insert into database
           await db.insert(environments).values(dbEnvironment).onConflictDoNothing()
 
-          // Cache in Redis for faster access
-          await redisCache.set(`environment:${dbEnvironment.id}`, dbEnvironment, { ttl: 600 })
+          // Cache in Redis for faster access (if available)
+          const redis = await this.getRedisCache()
+          if (redis) {
+            await redis.set(`environment:${dbEnvironment.id}`, dbEnvironment, { ttl: 600 })
+          }
 
           step.recordsProcessed++
           this.currentMigration!.summary.migratedRecords++

@@ -3,7 +3,7 @@ import { getSubscriptionToken, type Realtime } from '@inngest/realtime'
 import { cookies } from 'next/headers'
 import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
 import { getTelemetryConfig } from '@/lib/telemetry'
-import type { Task } from '@/stores/tasks'
+import type { Task } from '@/types/task'
 
 export type TaskChannelToken = Realtime.Token<typeof taskChannel, ['status', 'update', 'control']>
 export type TaskChannelTokenResponse = TaskChannelToken | null

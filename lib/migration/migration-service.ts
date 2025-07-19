@@ -8,7 +8,6 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { environments, tasks } from '@/db/schema'
 import { ObservabilityService } from '@/lib/observability'
-import { redisCache } from '@/lib/redis'
 import type {
   LocalStorageData,
   LocalStorageEnvironment,
@@ -22,6 +21,19 @@ export class MigrationService {
   private observability = ObservabilityService.getInstance()
 
   private constructor() {}
+
+  /**
+   * Get Redis cache instance (lazy-loaded)
+   */
+  private async getRedisCache() {
+    try {
+      const { redisCache } = await import('@/lib/redis')
+      return redisCache
+    } catch (error) {
+      console.warn('Redis not available, continuing without cache:', error)
+      return null
+    }
+  }
 
   static getInstance(): MigrationService {
     if (!MigrationService.instance) {
@@ -150,8 +162,11 @@ export class MigrationService {
         // Insert into database
         await db.insert(tasks).values(dbTask)
 
-        // Cache in Redis
-        await redisCache.set(`task:${localTask.id}`, dbTask, { ttl: 300 })
+        // Cache in Redis (if available)
+        const redis = await this.getRedisCache()
+        if (redis) {
+          await redis.set(`task:${localTask.id}`, dbTask, { ttl: 300 })
+        }
 
         result.itemsSuccess++
       } catch (error) {
@@ -216,8 +231,11 @@ export class MigrationService {
         // Insert into database
         await db.insert(environments).values(dbEnv)
 
-        // Cache in Redis
-        await redisCache.set(`environment:${localEnv.id}`, dbEnv, { ttl: 600 })
+        // Cache in Redis (if available)
+        const redis = await this.getRedisCache()
+        if (redis) {
+          await redis.set(`environment:${localEnv.id}`, dbEnv, { ttl: 600 })
+        }
 
         result.itemsSuccess++
       } catch (error) {
@@ -284,8 +302,13 @@ export class MigrationService {
     const backupId = `backup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     try {
-      // Store backup in Redis with longer TTL
-      await redisCache.set(`migration:backup:${backupId}`, data, { ttl: 86_400 * 7 }) // 7 days
+      // Store backup in Redis with longer TTL (if available)
+      const redis = await this.getRedisCache()
+      if (redis) {
+        await redis.set(`migration:backup:${backupId}`, data, { ttl: 86_400 * 7 }) // 7 days
+      } else {
+        console.warn('Redis not available, backup will not be stored')
+      }
 
       return backupId
     } catch (error) {
@@ -317,7 +340,12 @@ export class MigrationService {
    */
   async restoreFromBackup(backupId: string): Promise<boolean> {
     try {
-      const backup = await redisCache.get<LocalStorageData>(`migration:backup:${backupId}`)
+      const redis = await this.getRedisCache()
+      if (!redis) {
+        throw new Error('Redis not available for backup restoration')
+      }
+
+      const backup = await redis.get<LocalStorageData>(`migration:backup:${backupId}`)
 
       if (!backup) {
         throw new Error('Backup not found')

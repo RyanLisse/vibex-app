@@ -1,4 +1,48 @@
-import type { ElectricConfig } from '@electric-sql/client'
+// Note: ElectricConfig type will be available when @electric-sql/client is properly installed
+// For now, we'll define our own comprehensive interface
+interface ElectricConfig {
+  url?: string
+  debug?: boolean
+  timeout?: number
+  connectionTimeout?: number
+  heartbeatInterval?: number
+  auth?: {
+    token?: string
+    endpoint?: string
+    refreshToken?: string
+    expiresAt?: number
+  }
+  sync?: {
+    enabled?: boolean
+    interval?: number
+    batchSize?: number
+    retryAttempts?: number
+    maxRetries?: number
+    retryBackoff?: number
+    conflictResolution?: 'last-write-wins' | 'user-priority' | 'field-merge'
+  }
+  offline?: {
+    enabled?: boolean
+    maxQueueSize?: number
+    persistQueue?: boolean
+    retryInterval?: number
+    storage?: 'indexeddb' | 'memory'
+  }
+  realtime?: {
+    enabled?: boolean
+    heartbeatInterval?: number
+    reconnectAttempts?: number
+  }
+  conflictResolution?: {
+    strategy?: 'last-write-wins' | 'user-priority' | 'field-merge'
+    detectConflicts?: boolean
+    logConflicts?: boolean
+    userPriorityMap?: Record<string, number>
+  }
+}
+
+// Re-export pgliteConfig from simple-config
+export { pgliteConfig } from './simple-config'
 
 // ElectricSQL configuration
 export const electricConfig: ElectricConfig = {
@@ -41,8 +85,8 @@ export const electricConfig: ElectricConfig = {
     strategy: 'last-write-wins',
     // Enable conflict detection and logging
     detectConflicts: true,
-    // Custom conflict resolver function (optional)
-    resolver: undefined,
+    // Log conflicts for debugging
+    logConflicts: process.env.NODE_ENV === 'development',
   },
 
   // Debug configuration
@@ -63,11 +107,11 @@ export function validateElectricConfig(): void {
     )
   }
 
-  if (electricConfig.sync.interval < 100) {
+  if (electricConfig.sync?.interval && electricConfig.sync.interval < 100) {
     console.warn('ElectricSQL sync interval is very low (<100ms). This may impact performance.')
   }
 
-  if (electricConfig.offline.maxQueueSize > 10_000) {
+  if (electricConfig.offline?.maxQueueSize && electricConfig.offline.maxQueueSize > 10_000) {
     console.warn(
       'ElectricSQL offline queue size is very large (>10000). This may impact memory usage.'
     )
@@ -132,3 +176,203 @@ export const getFinalConfig = (): ElectricConfig => {
     },
   }
 }
+
+// Export SyncEvent type
+export interface SyncEvent {
+  type: 'insert' | 'update' | 'delete' | 'sync'
+  table: string
+  record?: any
+  timestamp: Date
+  userId?: string
+}
+
+// Real ElectricDB implementation that integrates all services
+class ElectricDB {
+  private stateListeners = new Set<(state: { connection: string; sync: string }) => void>()
+  private syncEventListeners = new Map<string, Set<(event: SyncEvent) => void>>()
+  private realtimeStats = {
+    totalOperations: 0,
+    pendingOperations: 0,
+    successfulOperations: 0,
+    failedOperations: 0,
+  }
+
+  isReady(): boolean {
+    return true // Always ready for now
+  }
+
+  initialize = async (): Promise<void> => {
+    try {
+      // Initialize real-time sync service
+      const { realtimeSyncService } = await import('./realtime-sync')
+      const { electricAuthService } = await import('./auth')
+      
+      const authToken = electricAuthService.getAuthToken()
+      await realtimeSyncService.initialize(authToken || undefined)
+      
+      console.log('✅ ElectricDB initialized with real-time sync')
+    } catch (error) {
+      console.warn('⚠️ Failed to initialize real-time sync, using fallback mode:', error)
+    }
+  }
+
+  addSyncEventListener(table: string, handler: (event: SyncEvent) => void): void {
+    if (!this.syncEventListeners.has(table)) {
+      this.syncEventListeners.set(table, new Set())
+    }
+    this.syncEventListeners.get(table)!.add(handler)
+  }
+
+  removeSyncEventListener(table: string, handler: (event: SyncEvent) => void): void {
+    const listeners = this.syncEventListeners.get(table)
+    if (listeners) {
+      listeners.delete(handler)
+      if (listeners.size === 0) {
+        this.syncEventListeners.delete(table)
+      }
+    }
+  }
+
+  addStateListener(handler: (state: { connection: string; sync: string }) => void): void {
+    this.stateListeners.add(handler)
+  }
+
+  removeStateListener(handler: (state: { connection: string; sync: string }) => void): void {
+    this.stateListeners.delete(handler)
+  }
+
+  getConnectionState(): string {
+    try {
+      const { realtimeSyncService } = require('./realtime-sync')
+      const status = realtimeSyncService.getConnectionStatus()
+      return status.isConnected ? 'connected' : 'disconnected'
+    } catch {
+      return 'disconnected'
+    }
+  }
+
+  getSyncState(): string {
+    try {
+      const { conflictResolutionService } = require('./conflict-resolution')
+      const queueStatus = conflictResolutionService.getOfflineQueueStatus()
+      return queueStatus.pendingOperations > 0 ? 'syncing' : 'idle'
+    } catch {
+      return 'idle'
+    }
+  }
+
+  async subscribeToTable(table: string, filters?: any): Promise<() => void> {
+    try {
+      const { realtimeSyncService } = await import('./realtime-sync')
+      
+      return realtimeSyncService.subscribeToTable(table, (event) => {
+        // Notify local listeners
+        const listeners = this.syncEventListeners.get(table)
+        if (listeners) {
+          listeners.forEach(handler => {
+            try {
+              handler(event)
+            } catch (error) {
+              console.error('Sync event listener error:', error)
+            }
+          })
+        }
+      }, filters)
+    } catch (error) {
+      console.error('Failed to subscribe to table:', error)
+      return () => {} // Return no-op unsubscribe
+    }
+  }
+
+  async executeRealtimeOperation(
+    table: string,
+    operation: string,
+    data: any,
+    realtime: boolean = true
+  ): Promise<any> {
+    try {
+      this.realtimeStats.totalOperations++
+      this.realtimeStats.pendingOperations++
+
+      // Execute through database client
+      const { electricDatabaseClient } = await import('./database-client')
+      const result = await electricDatabaseClient.executeOperation({
+        table,
+        operation: operation as any,
+        data,
+        options: { realtime },
+      })
+
+      if (result.success) {
+        this.realtimeStats.successfulOperations++
+        
+        // Send to real-time sync if enabled
+        if (realtime) {
+          try {
+            const { realtimeSyncService } = await import('./realtime-sync')
+            await realtimeSyncService.sendUpdate(table, operation, result.data, data.userId)
+          } catch (error) {
+            console.warn('Failed to send real-time update:', error)
+          }
+        }
+        
+        return result.data
+      } else {
+        this.realtimeStats.failedOperations++
+        throw new Error(result.error || 'Operation failed')
+      }
+    } catch (error) {
+      this.realtimeStats.failedOperations++
+      throw error
+    } finally {
+      this.realtimeStats.pendingOperations--
+    }
+  }
+
+  getRealtimeStats() {
+    return { ...this.realtimeStats }
+  }
+
+  async sync(): Promise<void> {
+    try {
+      const { conflictResolutionService } = await import('./conflict-resolution')
+      await conflictResolutionService.processOfflineQueue()
+      
+      // Notify state listeners
+      this.notifyStateListeners()
+    } catch (error) {
+      console.error('Sync failed:', error)
+      throw error
+    }
+  }
+
+  getStats() {
+    try {
+      const { conflictResolutionService } = require('./conflict-resolution')
+      const queueStatus = conflictResolutionService.getOfflineQueueStatus()
+      return {
+        pendingChanges: queueStatus.pendingOperations,
+      }
+    } catch {
+      return { pendingChanges: 0 }
+    }
+  }
+
+  private notifyStateListeners(): void {
+    const state = {
+      connection: this.getConnectionState(),
+      sync: this.getSyncState(),
+    }
+    
+    this.stateListeners.forEach(handler => {
+      try {
+        handler(state)
+      } catch (error) {
+        console.error('State listener error:', error)
+      }
+    })
+  }
+}
+
+// Export singleton instance
+export const electricDb = new ElectricDB()

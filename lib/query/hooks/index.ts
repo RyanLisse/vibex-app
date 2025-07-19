@@ -2,60 +2,88 @@
  * TanStack Query Hooks - Main Export
  *
  * Centralized exports for all query hooks with Redis caching integration
+ * and ElectricSQL real-time sync capabilities
  */
 
-// Task hooks
+// Re-export query client utilities
+export { useQueryClient } from '@tanstack/react-query'
+// Enhanced ElectricSQL Environment hooks (simplified)
 export {
-  useTasks,
-  useTask,
-  useInfiniteTasks,
-  useCreateTask,
-  useUpdateTask,
-  useDeleteTask,
-  useActiveTasks,
-  useArchivedTasks,
-  useTasksByStatus,
-  useTasksBySession,
-  useArchiveTask,
-  useUnarchiveTask,
-  usePauseTask,
-  useResumeTask,
-  useCancelTask,
-  taskKeys,
-  type Task,
-  type CreateTaskInput,
-  type UpdateTaskInput,
-} from './use-tasks'
+  type CreateElectricEnvironmentInput,
+  type ElectricEnvironment,
+  electricEnvironmentKeys,
+  type UpdateElectricEnvironmentInput,
+  useCreateElectricEnvironment,
+  useDeleteElectricEnvironment,
+  useElectricEnvironment,
+  useElectricEnvironments,
+  useUpdateElectricEnvironment,
+} from './use-electric-environments'
+// Enhanced ElectricSQL Task hooks (temporarily disabled to fix build)
+// export {
+//   type CreateElectricTaskInput,
+//   type ElectricTask,
+//   type ElectricTaskFilters,
+//   type ElectricTaskOptions,
+//   electricTaskKeys,
+//   type UpdateElectricTaskInput,
+//   useActiveTasks,
+//   useArchivedTasks,
+//   useCreateElectricTask,
+//   useDeleteElectricTask,
+//   useElectricTask,
+//   useElectricTasks,
+//   useForceTaskSync,
+//   useOfflineTaskStatus,
+//   useTasksBySession,
+//   useTasksByStatus,
+//   useUpdateElectricTask,
+// } from './use-electric-tasks'
 
-// Environment hooks
+// Legacy Environment hooks (for backward compatibility)
 export {
-  useEnvironments,
-  useEnvironment,
-  useCreateEnvironment,
-  useUpdateEnvironment,
-  useDeleteEnvironment,
-  useEnvironmentByName,
-  useEnvironmentsByOrganization,
-  useValidateEnvironmentName,
-  usePrefetchEnvironment,
-  environmentKeys,
-  type Environment,
   type CreateEnvironmentInput,
+  type Environment,
+  environmentKeys,
   type UpdateEnvironmentInput,
+  useCreateEnvironment,
+  useDeleteEnvironment,
+  useEnvironment,
+  useEnvironmentByName,
+  useEnvironments,
+  useEnvironmentsByOrganization,
+  usePrefetchEnvironment,
+  useUpdateEnvironment,
+  useValidateEnvironmentName,
 } from './use-environments'
 
 // Migration hooks
 export {
-  useMigration,
-  useUnifiedTasks,
-  useUnifiedEnvironments,
   useDataSource,
-  useResetMigration,
+  useMigration,
   usePrefetchData,
+  useResetMigration,
+  useUnifiedEnvironments,
+  useUnifiedTasks,
 } from './use-migration'
-
-// Re-export query client utilities
-export { useQueryClient } from '@tanstack/react-query'
+// Legacy Task hooks (for backward compatibility)
+export {
+  type CreateTaskInput,
+  type Task,
+  taskKeys,
+  type UpdateTaskInput,
+  useArchiveTask,
+  useCancelTask,
+  useCreateTask,
+  useDeleteTask,
+  useInfiniteTasks,
+  usePauseTask,
+  useResumeTask,
+  useTask,
+  useTasks,
+  useUnarchiveTask,
+  useUpdateTask,
+} from './use-tasks'
 
 // Common query patterns
 export const queryPatterns = {
