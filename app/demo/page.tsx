@@ -52,11 +52,6 @@ export default function DatabaseObservabilityDemoPage() {
             </div>
           </div>
         }
-        onError={(error) => {
-          console.error('ElectricSQL initialization error:', error)
-          // In a production app, you might want to show a user-friendly error message
-          // or attempt recovery strategies
-        }}
       >
         <DatabaseObservabilityDemo />
       </ElectricProvider>

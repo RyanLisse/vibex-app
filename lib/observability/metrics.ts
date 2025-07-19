@@ -361,6 +361,30 @@ export const metrics = {
   collector: PerformanceMetricsCollector.getInstance(),
   analyzer: MetricsAnalyzer,
 
+  // API Request metrics
+  apiRequestStart: (method: string, route: string) =>
+    PerformanceMetricsCollector.getInstance().recordMetric('throughput', 1, {
+      method,
+      route,
+      event: 'request_start',
+    }),
+
+  apiRequestSuccess: (method: string, route: string, duration: number) =>
+    PerformanceMetricsCollector.getInstance().recordMetric('query_duration', duration, {
+      method,
+      route,
+      success: 'true',
+      event: 'request_success',
+    }),
+
+  apiRequestError: (method: string, route: string, duration: number, errorMessage: string) =>
+    PerformanceMetricsCollector.getInstance().recordMetric('error_rate', 1, {
+      method,
+      route,
+      error: errorMessage,
+      event: 'request_error',
+    }),
+
   // Database metrics
   queryDuration: (duration: number, queryType: string, success: boolean) =>
     PerformanceMetricsCollector.getInstance().recordMetric('query_duration', duration, {
