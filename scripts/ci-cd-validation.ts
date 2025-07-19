@@ -6,7 +6,7 @@
  * Comprehensive validation of the testing framework for CI/CD environments
  */
 
-import { spawn, type SpawnOptions } from 'bun'
+import { type SpawnOptions, spawn } from 'bun'
 import { existsSync, statSync } from 'fs'
 import { join } from 'path'
 
@@ -247,7 +247,7 @@ class CICDValidator {
     }
 
     // Check performance
-    const slowTests = this.results.filter((r) => r.duration > 30000) // 30s
+    const slowTests = this.results.filter((r) => r.duration > 30_000) // 30s
     if (slowTests.length > 0) {
       issues.push('Some tests are running slower than 30 seconds')
       recommendations.push('Optimize slow tests or increase CI timeout limits')
@@ -269,7 +269,7 @@ class CICDValidator {
     }
 
     // Performance recommendations
-    if (totalDuration > 300000) {
+    if (totalDuration > 300_000) {
       // 5 minutes
       recommendations.push('Total test suite time exceeds 5 minutes - consider parallel execution')
     }

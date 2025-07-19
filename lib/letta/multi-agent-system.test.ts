@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MultiAgentConfigSchema, SessionSchema, AgentEventSchema } from './multi-agent-system'
+import { AgentEventSchema, MultiAgentConfigSchema, SessionSchema } from './multi-agent-system'
 
 describe('MultiAgentSystem Schemas', () => {
   describe('MultiAgentConfigSchema', () => {

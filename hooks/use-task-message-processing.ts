@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo } from 'react'
+import type { Task } from '@/db/schema'
 import {
   isStatusData,
   isStatusTopic,
@@ -9,8 +10,7 @@ import {
   type LatestData,
 } from '@/lib/container-types'
 import { MessageHandlers } from '@/lib/message-handlers'
-import { useUpdateTask, useTask, taskKeys } from '@/lib/query/hooks'
-import type { Task } from '@/db/schema'
+import { taskKeys, useTask, useUpdateTask } from '@/lib/query/hooks'
 
 export function useTaskMessageProcessing(latestData: LatestData | null) {
   const updateTaskMutation = useUpdateTask()

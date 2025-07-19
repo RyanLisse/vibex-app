@@ -1,8 +1,9 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
-import { LoadingSpinner, ErrorDisplay, OfflineIndicator } from '@/components/ui/loading-states'
+import type React from 'react'
+import { createContext, useCallback, useContext, useState } from 'react'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { ErrorDisplay, LoadingSpinner, OfflineIndicator } from '@/components/ui/loading-states'
 import { useOfflineSync } from '@/hooks/use-offline-sync'
 
 interface LoadingState {
@@ -119,8 +120,8 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
         {/* Global Loading Overlay */}
         {globalLoading.isLoading && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-            <LoadingSpinner size="lg" message={globalLoading.message} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <LoadingSpinner message={globalLoading.message} size="lg" />
           </div>
         )}
 
@@ -230,15 +231,15 @@ export function withLoadingStates<P extends object>(
 
         {/* Component Loading Overlay */}
         {componentLoading?.isLoading && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
             <LoadingSpinner message={componentLoading.message} />
           </div>
         )}
 
         {/* Global Loading Overlay */}
         {showGlobalLoading && globalLoading.isLoading && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-20">
-            <LoadingSpinner size="lg" message={globalLoading.message} />
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <LoadingSpinner message={globalLoading.message} size="lg" />
           </div>
         )}
 
@@ -259,13 +260,13 @@ export function withLoadingStates<P extends object>(
     if (errorBoundary) {
       return (
         <ErrorBoundary
-          resetKeys={componentId ? [componentId] : undefined}
           onError={(error, errorInfo) => {
             console.error(`Error in component ${componentId || 'unknown'}:`, error, errorInfo)
             if (componentLoading) {
               componentLoading.setLoading({ error })
             }
           }}
+          resetKeys={componentId ? [componentId] : undefined}
         >
           {content}
         </ErrorBoundary>
@@ -308,7 +309,7 @@ export function LoadingWrapper({
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <LoadingSpinner message={message} />
         </div>
       )}
@@ -327,11 +328,11 @@ export function LoadingWrapper({
   if (errorBoundary) {
     return (
       <ErrorBoundary
-        resetKeys={[componentId]}
         onError={(error, errorInfo) => {
           console.error(`Error in LoadingWrapper ${componentId}:`, error, errorInfo)
           setLoading({ error })
         }}
+        resetKeys={[componentId]}
       >
         {content}
       </ErrorBoundary>

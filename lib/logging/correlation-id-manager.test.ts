@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import type { NextRequest } from 'next/server'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CorrelationIdManager } from './correlation-id-manager'
-import { NextRequest } from 'next/server'
 
 describe('CorrelationIdManager', () => {
   let manager: CorrelationIdManager

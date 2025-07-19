@@ -399,7 +399,7 @@ describe('WASM Vector Search Integration Tests', () => {
       await vectorSearch.buildIndex('ivf')
       const buildTime = performance.now() - buildStartTime
 
-      expect(addTime).toBeLessThan(10000) // 10 seconds max for adding
+      expect(addTime).toBeLessThan(10_000) // 10 seconds max for adding
       expect(buildTime).toBeLessThan(5000) // 5 seconds max for building
 
       const stats = vectorSearch.getStatistics()
@@ -643,7 +643,7 @@ describe('WASM Vector Search Integration Tests', () => {
 
         // Memory per vector should be reasonable
         const memoryPerVector = currentMemory / totalVectors
-        expect(memoryPerVector).toBeLessThan(10000) // Less than 10KB per vector
+        expect(memoryPerVector).toBeLessThan(10_000) // Less than 10KB per vector
       }
     })
 
@@ -697,7 +697,7 @@ describe('WASM Vector Search Integration Tests', () => {
     })
 
     it('should handle very long text inputs', async () => {
-      const longText = 'word '.repeat(10000) // Very long text
+      const longText = 'word '.repeat(10_000) // Very long text
 
       const embedding = await vectorSearch.createEmbedding(longText)
       expect(embedding).toBeDefined()

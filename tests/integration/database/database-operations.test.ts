@@ -5,27 +5,27 @@
  * Tests CRUD operations, transactions, constraints, and performance
  */
 
-import { eq, and, desc, asc, count, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { checkDatabaseHealth, db, initializeExtensions } from '../../../db/config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
 import {
-  tasks,
-  environments,
   agentExecutions,
-  observabilityEvents,
   agentMemory,
-  workflows,
-  workflowExecutions,
+  environments,
   executionSnapshots,
-  type NewTask,
-  type NewEnvironment,
   type NewAgentExecution,
-  type NewObservabilityEvent,
   type NewAgentMemory,
+  type NewEnvironment,
+  type NewExecutionSnapshot,
+  type NewObservabilityEvent,
+  type NewTask,
   type NewWorkflow,
   type NewWorkflowExecution,
-  type NewExecutionSnapshot,
+  observabilityEvents,
+  tasks,
+  workflowExecutions,
+  workflows,
 } from '../../../db/schema'
 
 // Skip tests if no database URL is provided
@@ -271,7 +271,7 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
           config: {
             apiKey: 'test-key-123',
             endpoint: 'https://api.example.com',
-            timeout: 30000,
+            timeout: 30_000,
             retries: 3,
             features: ['feature1', 'feature2'],
           },
@@ -964,7 +964,7 @@ describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
       const totalTime = performance.now() - startTime
 
       expect(results).toHaveLength(concurrentOps)
-      expect(totalTime).toBeLessThan(10000) // Should handle concurrent ops within 10 seconds
+      expect(totalTime).toBeLessThan(10_000) // Should handle concurrent ops within 10 seconds
 
       // Verify all operations completed successfully
       const taskCount = await db.select({ count: count() }).from(tasks)

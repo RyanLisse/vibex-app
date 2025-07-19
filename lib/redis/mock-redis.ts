@@ -5,7 +5,7 @@
  * when Redis is not available.
  */
 
-import type { CacheKey, CacheValue, CacheOptions } from './types'
+import type { CacheKey, CacheOptions, CacheValue } from './types'
 
 export class MockRedisCache {
   private cache = new Map<string, { value: any; expiry?: number }>()
@@ -76,7 +76,7 @@ export class MockRedisCache {
     const fullKey = this.buildKey(key)
     const item = this.cache.get(fullKey)
 
-    if (!item || !item.expiry) {
+    if (!(item && item.expiry)) {
       return -1
     }
 

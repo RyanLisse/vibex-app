@@ -5,22 +5,22 @@
  * OpenTelemetry tracing, and comprehensive error handling.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, asc, desc, eq, gte, inArray, like, lte } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
+import { ulid } from 'ulid'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
-import { eq, and, desc, asc, like, inArray, gte, lte } from 'drizzle-orm'
-import { ulid } from 'ulid'
 import { observability } from '@/lib/observability'
 import {
-  TaskSchema,
   CreateTaskSchema,
-  UpdateTaskSchema,
-  TasksRequestSchema,
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   createPaginatedResponse,
+  TaskSchema,
+  TasksRequestSchema,
+  type UpdateTaskSchema,
   validateApiRequest,
 } from '@/src/schemas/api-routes'
 
@@ -47,8 +47,8 @@ const GetTaskParamsSchema = z.object({
 class TasksAPIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR'
+    public statusCode = 500,
+    public code = 'INTERNAL_ERROR'
   ) {
     super(message)
     this.name = 'TasksAPIError'
@@ -120,7 +120,7 @@ class TasksService {
       await observability.events.collector.collectEvent(
         'query_end',
         'debug',
-        `Tasks query completed`,
+        'Tasks query completed',
         {
           duration,
           resultCount: taskResults.length,

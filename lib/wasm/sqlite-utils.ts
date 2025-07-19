@@ -7,7 +7,7 @@
  */
 
 import { PGlite } from '@electric-sql/pglite'
-import { wasmDetector, shouldUseWASMOptimization } from './detection'
+import { shouldUseWASMOptimization, wasmDetector } from './detection'
 
 export interface SQLiteWASMConfig {
   enableWAL: boolean
@@ -343,7 +343,7 @@ export class SQLiteWASMUtils {
         `SET work_mem = '${Math.floor(this.config.cacheSize / 4)}kB'`,
         `SET maintenance_work_mem = '${Math.floor(this.config.cacheSize)}kB'`,
         `SET effective_cache_size = '${Math.floor((this.config.maxMemory / 1024 / 1024) * 0.75)}MB'`,
-        `SET random_page_cost = 1.1`, // SSD optimized
+        'SET random_page_cost = 1.1', // SSD optimized
       ]
 
       for (const config of configs) {
@@ -418,7 +418,7 @@ export class SQLiteWASMUtils {
       await this.initialize()
     }
 
-    const { useCache = true, explain = false, timeout = 30000, trackPerformance = true } = options
+    const { useCache = true, explain = false, timeout = 30_000, trackPerformance = true } = options
     const cacheKey = useCache ? this.getCacheKey(sql, params) : null
 
     // Check cache
@@ -786,7 +786,7 @@ export class SQLiteWASMUtils {
       timeout?: number
     } = {}
   ): Promise<QueryResult[]> {
-    const { useTransaction = true, continueOnError = false, timeout = 60000 } = options
+    const { useTransaction = true, continueOnError = false, timeout = 60_000 } = options
     const results: QueryResult[] = []
 
     if (useTransaction) {
@@ -800,18 +800,18 @@ export class SQLiteWASMUtils {
           const result = await this.executeQuery(query.sql, query.params || [], { timeout })
           results.push(result)
         } catch (error) {
-          if (!continueOnError) {
-            if (useTransaction) {
-              await this.executeQuery('ROLLBACK')
-            }
-            throw error
-          } else {
+          if (continueOnError) {
             console.warn('Query failed in batch, continuing:', error)
             results.push({
               columns: [],
               rows: [],
               executionTime: 0,
             })
+          } else {
+            if (useTransaction) {
+              await this.executeQuery('ROLLBACK')
+            }
+            throw error
           }
         }
       }

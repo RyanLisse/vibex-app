@@ -1,49 +1,48 @@
 // ElectricSQL Real-time Sync Integration
 // This module provides offline-first real-time synchronization with conflict resolution
 
+// Re-export types from schema
+export type {
+  AgentExecution,
+  AgentMemory,
+  Environment,
+  ExecutionSnapshot,
+  NewAgentExecution,
+  NewAgentMemory,
+  NewEnvironment,
+  NewExecutionSnapshot,
+  NewObservabilityEvent,
+  NewTask,
+  NewWorkflow,
+  NewWorkflowExecution,
+  ObservabilityEvent,
+  Task,
+  Workflow,
+  WorkflowExecution,
+} from '../../db/schema'
+export { ElectricAuthService, electricAuthService } from './auth'
 export { ElectricClient, electricClient } from './client'
 export {
-  ElectricDatabaseClient,
-  electricDatabaseClient,
-} from './database-client'
-export { ElectricSyncService, electricSyncService } from './sync-service'
-export {
-  EnhancedElectricSyncService,
-  enhancedElectricSyncService,
-} from './enhanced-sync-service'
+  electricConfig,
+  electricDb,
+  getFinalConfig,
+  type SyncEvent,
+  validateElectricConfig,
+} from './config'
 export {
   ConflictResolutionService,
   conflictResolutionService,
 } from './conflict-resolution'
-export { ElectricAuthService, electricAuthService } from './auth'
 export {
-  electricConfig,
-  getFinalConfig,
-  validateElectricConfig,
-  electricDb,
-  type SyncEvent,
-} from './config'
-export { pgliteConfig, getPGliteInstance } from './simple-config'
-
-// Re-export types from schema
-export type {
-  Task,
-  NewTask,
-  Environment,
-  NewEnvironment,
-  AgentExecution,
-  NewAgentExecution,
-  ObservabilityEvent,
-  NewObservabilityEvent,
-  AgentMemory,
-  NewAgentMemory,
-  Workflow,
-  NewWorkflow,
-  WorkflowExecution,
-  NewWorkflowExecution,
-  ExecutionSnapshot,
-  NewExecutionSnapshot,
-} from '../../db/schema'
+  ElectricDatabaseClient,
+  electricDatabaseClient,
+} from './database-client'
+export {
+  EnhancedElectricSyncService,
+  enhancedElectricSyncService,
+} from './enhanced-sync-service'
+export { getPGliteInstance, pgliteConfig } from './simple-config'
+export { ElectricSyncService, electricSyncService } from './sync-service'
 
 // Main initialization function
 export async function initializeElectricSQL(options?: {

@@ -5,10 +5,10 @@
  * step-by-step replay, and execution comparison capabilities.
  */
 
-import { db } from '@/db/config'
-import { executionSnapshots, agentExecutions } from '@/db/schema'
-import { eq, desc, and, gte, lte } from 'drizzle-orm'
+import { and, desc, eq, gte, lte } from 'drizzle-orm'
 import { ulid } from 'ulid'
+import { db } from '@/db/config'
+import { agentExecutions, executionSnapshots } from '@/db/schema'
 import { observability } from '@/lib/observability'
 
 // Snapshot types
@@ -103,7 +103,7 @@ export class ExecutionSnapshotManager {
   private static instance: ExecutionSnapshotManager
   private snapshotBuffer: Map<string, ExecutionSnapshot[]> = new Map()
   private readonly MAX_BUFFER_SIZE = 50
-  private readonly FLUSH_INTERVAL = 10000 // 10 seconds
+  private readonly FLUSH_INTERVAL = 10_000 // 10 seconds
   private flushInterval: NodeJS.Timeout | null = null
 
   private constructor() {
@@ -125,9 +125,9 @@ export class ExecutionSnapshotManager {
     type: SnapshotType,
     stepNumber: number,
     state: ExecutionState,
-    description: string = '',
+    description = '',
     tags: string[] = [],
-    isCheckpoint: boolean = false
+    isCheckpoint = false
   ): Promise<ExecutionSnapshot> {
     const snapshot: ExecutionSnapshot = {
       id: ulid(),
@@ -281,7 +281,7 @@ export class ExecutionSnapshotManager {
     executionId: string,
     stepNumber: number,
     state: ExecutionState,
-    description: string = 'Manual checkpoint'
+    description = 'Manual checkpoint'
   ): Promise<ExecutionSnapshot> {
     return this.captureSnapshot(
       executionId,

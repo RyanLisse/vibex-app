@@ -1,16 +1,16 @@
 'use client'
 
+import { CheckCircle, Clock, Edit, Plus, RefreshCw, Trash2, XCircle, Zap } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Plus, Edit, Trash2, RefreshCw, CheckCircle, XCircle, Clock, Zap } from 'lucide-react'
-import { useElectricTasks } from '@/hooks/use-electric-tasks'
-import { LoadingSpinner, ErrorDisplay } from '@/components/ui/loading-states'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { ErrorDisplay, LoadingSpinner } from '@/components/ui/loading-states'
 import type { Task } from '@/db/schema'
+import { useElectricTasks } from '@/hooks/use-electric-tasks'
 
 /**
  * Demo component to test and showcase optimistic updates functionality
@@ -95,18 +95,18 @@ export function OptimisticUpdatesDemo() {
             {/* Create Task Section */}
             <div className="flex gap-2">
               <Input
-                placeholder="Enter new task title..."
-                value={newTaskTitle}
+                className="flex-1"
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCreateTask()}
-                className="flex-1"
+                placeholder="Enter new task title..."
+                value={newTaskTitle}
               />
-              <Button onClick={handleCreateTask} disabled={!newTaskTitle.trim() || loading}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button disabled={!newTaskTitle.trim() || loading} onClick={handleCreateTask}>
+                <Plus className="mr-2 h-4 w-4" />
                 Add Task
               </Button>
-              <Button variant="outline" onClick={refetch} disabled={loading}>
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <Button disabled={loading} onClick={refetch} variant="outline">
+                <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
@@ -117,7 +117,7 @@ export function OptimisticUpdatesDemo() {
               <AlertDescription>
                 <div className="space-y-2">
                   <div className="font-medium">How to test optimistic updates:</div>
-                  <ol className="list-decimal list-inside space-y-1 text-sm">
+                  <ol className="list-inside list-decimal space-y-1 text-sm">
                     <li>Create, edit, or delete tasks - changes appear instantly</li>
                     <li>
                       Open DevTools → Network → Throttle to "Slow 3G" to see optimistic updates
@@ -142,16 +142,16 @@ export function OptimisticUpdatesDemo() {
             {/* Tasks List */}
             <div className="space-y-3">
               {tasks.map((task) => (
-                <Card key={task.id} className="transition-all duration-200">
+                <Card className="transition-all duration-200" key={task.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1">
+                      <div className="flex flex-1 items-center gap-3">
                         {/* Task Status Toggle */}
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleTaskStatus(task)}
                           className="p-1"
+                          onClick={() => toggleTaskStatus(task)}
+                          size="sm"
+                          variant="ghost"
                         >
                           {task.status === 'completed' ? (
                             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -165,19 +165,19 @@ export function OptimisticUpdatesDemo() {
                           {editingTask === task.id ? (
                             <div className="flex gap-2">
                               <Input
-                                value={editTitle}
+                                autoFocus
+                                className="flex-1"
                                 onChange={(e) => setEditTitle(e.target.value)}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') saveEdit()
                                   if (e.key === 'Escape') cancelEditing()
                                 }}
-                                className="flex-1"
-                                autoFocus
+                                value={editTitle}
                               />
-                              <Button size="sm" onClick={saveEdit}>
+                              <Button onClick={saveEdit} size="sm">
                                 <CheckCircle className="h-4 w-4" />
                               </Button>
-                              <Button size="sm" variant="outline" onClick={cancelEditing}>
+                              <Button onClick={cancelEditing} size="sm" variant="outline">
                                 <XCircle className="h-4 w-4" />
                               </Button>
                             </div>
@@ -186,14 +186,14 @@ export function OptimisticUpdatesDemo() {
                               <span
                                 className={`${
                                   task.status === 'completed'
-                                    ? 'line-through text-muted-foreground'
+                                    ? 'text-muted-foreground line-through'
                                     : ''
                                 }`}
                               >
                                 {task.title}
                               </span>
                               {task.id.startsWith('temp-') && (
-                                <Badge variant="outline" className="text-xs">
+                                <Badge className="text-xs" variant="outline">
                                   Optimistic
                                 </Badge>
                               )}
@@ -211,20 +211,20 @@ export function OptimisticUpdatesDemo() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex items-center gap-1 ml-4">
+                      <div className="ml-4 flex items-center gap-1">
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => startEditing(task)}
                           disabled={editingTask === task.id}
+                          onClick={() => startEditing(task)}
+                          size="sm"
+                          variant="ghost"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteTask(task.id)}
                           className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteTask(task.id)}
+                          size="sm"
+                          variant="ghost"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -233,13 +233,13 @@ export function OptimisticUpdatesDemo() {
 
                     {/* Task Description */}
                     {task.description && (
-                      <div className="mt-2 text-sm text-muted-foreground pl-8">
+                      <div className="mt-2 pl-8 text-muted-foreground text-sm">
                         {task.description}
                       </div>
                     )}
 
                     {/* Timestamps */}
-                    <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground pl-8">
+                    <div className="mt-2 flex items-center gap-4 pl-8 text-muted-foreground text-xs">
                       {task.createdAt && (
                         <span>Created: {new Date(task.createdAt).toLocaleString()}</span>
                       )}
@@ -256,8 +256,8 @@ export function OptimisticUpdatesDemo() {
                 <Card>
                   <CardContent className="p-8 text-center">
                     <div className="text-muted-foreground">
-                      <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-lg font-medium mb-2">No tasks yet</h3>
+                      <Clock className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                      <h3 className="mb-2 font-medium text-lg">No tasks yet</h3>
                       <p className="text-sm">Create your first task to test optimistic updates</p>
                     </div>
                   </CardContent>
@@ -272,7 +272,7 @@ export function OptimisticUpdatesDemo() {
                   <CardTitle className="text-sm">Debug Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 text-xs font-mono">
+                  <div className="space-y-2 font-mono text-xs">
                     <div>Total Tasks: {tasks.length}</div>
                     <div>Loading: {loading ? 'true' : 'false'}</div>
                     <div>Error: {error ? error.message : 'none'}</div>

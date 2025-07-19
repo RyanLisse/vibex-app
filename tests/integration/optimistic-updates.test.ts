@@ -5,12 +5,12 @@
  * happens at the right times for TanStack Query hooks
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useUpdateTask, useCreateTask, useDeleteTask, useTasks } from '@/lib/query/hooks'
-import { useElectricTasks } from '@/hooks/use-electric-tasks'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Task } from '@/db/schema'
+import { useElectricTasks } from '@/hooks/use-electric-tasks'
+import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from '@/lib/query/hooks'
 
 // Mock fetch
 global.fetch = vi.fn()

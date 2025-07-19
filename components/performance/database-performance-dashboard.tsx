@@ -7,25 +7,25 @@
  * and system health metrics with interactive visualizations.
  */
 
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Activity,
-  Database,
-  Zap,
-  TrendingUp,
-  TrendingDown,
   AlertTriangle,
+  BarChart3,
   CheckCircle,
   Clock,
-  BarChart3,
+  Database,
   Settings,
+  TrendingDown,
+  TrendingUp,
+  Zap,
 } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface PerformanceMetrics {
   totalQueries: number
@@ -183,7 +183,7 @@ export function DatabasePerformanceDashboard() {
     }
 
     fetchMetrics()
-    const interval = setInterval(fetchMetrics, 30000) // Update every 30 seconds
+    const interval = setInterval(fetchMetrics, 30_000) // Update every 30 seconds
 
     return () => clearInterval(interval)
   }, [])
@@ -210,9 +210,9 @@ export function DatabasePerformanceDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <Activity className="h-8 w-8 animate-spin mx-auto mb-2" />
+          <Activity className="mx-auto mb-2 h-8 w-8 animate-spin" />
           <p>Loading performance metrics...</p>
         </div>
       </div>
@@ -224,28 +224,28 @@ export function DatabasePerformanceDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Database Performance Dashboard</h1>
+          <h1 className="font-bold text-3xl">Database Performance Dashboard</h1>
           <p className="text-muted-foreground">Real-time monitoring and optimization results</p>
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline">Last updated: {lastUpdated.toLocaleTimeString()}</Badge>
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
+          <Button size="sm" variant="outline">
+            <Settings className="mr-2 h-4 w-4" />
             Configure
           </Button>
         </div>
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Query Time</CardTitle>
+            <CardTitle className="font-medium text-sm">Average Query Time</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.averageExecutionTime}ms</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="font-bold text-2xl">{metrics.averageExecutionTime}ms</div>
+            <p className="text-muted-foreground text-xs">
               {getPerformanceStatus(metrics.averageExecutionTime, 100, true) === 'good' ? (
                 <span className="text-green-600">Excellent performance</span>
               ) : (
@@ -257,13 +257,13 @@ export function DatabasePerformanceDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cache Hit Ratio</CardTitle>
+            <CardTitle className="font-medium text-sm">Cache Hit Ratio</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.cacheHitRatio}%</div>
-            <Progress value={metrics.cacheHitRatio} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
+            <div className="font-bold text-2xl">{metrics.cacheHitRatio}%</div>
+            <Progress className="mt-2" value={metrics.cacheHitRatio} />
+            <p className="mt-1 text-muted-foreground text-xs">
               {metrics.cacheHitRatio > 95 ? 'Excellent' : 'Good'} cache performance
             </p>
           </CardContent>
@@ -271,12 +271,12 @@ export function DatabasePerformanceDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Slow Queries</CardTitle>
+            <CardTitle className="font-medium text-sm">Slow Queries</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.slowQueries}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="font-bold text-2xl">{metrics.slowQueries}</div>
+            <p className="text-muted-foreground text-xs">
               {metrics.slowQueries === 0 ? (
                 <span className="text-green-600">No slow queries detected</span>
               ) : (
@@ -288,12 +288,12 @@ export function DatabasePerformanceDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Error Rate</CardTitle>
+            <CardTitle className="font-medium text-sm">Error Rate</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.errorRate}%</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="font-bold text-2xl">{metrics.errorRate}%</div>
+            <p className="text-muted-foreground text-xs">
               {metrics.errorRate < 1 ? (
                 <span className="text-green-600">Very low error rate</span>
               ) : (
@@ -305,7 +305,7 @@ export function DatabasePerformanceDashboard() {
       </div>
 
       {/* Detailed Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs className="space-y-4" defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="optimizations">Optimizations</TabsTrigger>
@@ -313,8 +313,8 @@ export function DatabasePerformanceDashboard() {
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <TabsContent className="space-y-4" value="overview">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Query Performance Trends</CardTitle>
@@ -329,7 +329,7 @@ export function DatabasePerformanceDashboard() {
                   <div className="flex items-center justify-between">
                     <span>Index Usage</span>
                     <div className="flex items-center space-x-2">
-                      <Progress value={metrics.indexUsage} className="w-20" />
+                      <Progress className="w-20" value={metrics.indexUsage} />
                       <span className="text-sm">{metrics.indexUsage}%</span>
                     </div>
                   </div>
@@ -353,21 +353,21 @@ export function DatabasePerformanceDashboard() {
                   <div className="flex items-center justify-between">
                     <span>Database Connection</span>
                     <Badge variant="secondary">
-                      <CheckCircle className="h-3 w-3 mr-1" />
+                      <CheckCircle className="mr-1 h-3 w-3" />
                       Healthy
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>ElectricSQL Sync</span>
                     <Badge variant="secondary">
-                      <CheckCircle className="h-3 w-3 mr-1" />
+                      <CheckCircle className="mr-1 h-3 w-3" />
                       Active
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Performance Monitoring</span>
                     <Badge variant="secondary">
-                      <Activity className="h-3 w-3 mr-1" />
+                      <Activity className="mr-1 h-3 w-3" />
                       Running
                     </Badge>
                   </div>
@@ -377,42 +377,42 @@ export function DatabasePerformanceDashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="optimizations" className="space-y-4">
+        <TabsContent className="space-y-4" value="optimizations">
           <Card>
             <CardHeader>
               <CardTitle>Optimization Results</CardTitle>
               <CardDescription>Recent database optimization improvements</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="font-bold text-2xl text-green-600">
                     {optimizationResults.indexesCreated}
                   </div>
-                  <p className="text-sm text-muted-foreground">Indexes Created</p>
+                  <p className="text-muted-foreground text-sm">Indexes Created</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="font-bold text-2xl text-blue-600">
                     {optimizationResults.performanceImprovement}%
                   </div>
-                  <p className="text-sm text-muted-foreground">Performance Gain</p>
+                  <p className="text-muted-foreground text-sm">Performance Gain</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
+                  <div className="font-bold text-2xl text-purple-600">
                     {optimizationResults.queriesOptimized}
                   </div>
-                  <p className="text-sm text-muted-foreground">Queries Optimized</p>
+                  <p className="text-muted-foreground text-sm">Queries Optimized</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">
+                  <div className="font-bold text-2xl text-orange-600">
                     {optimizationResults.estimatedSavings}
                   </div>
-                  <p className="text-sm text-muted-foreground">Time Saved</p>
+                  <p className="text-muted-foreground text-sm">Time Saved</p>
                 </div>
               </div>
 
               <div className="mt-6">
-                <h4 className="font-medium mb-2">Storage Impact</h4>
+                <h4 className="mb-2 font-medium">Storage Impact</h4>
                 <div className="flex items-center space-x-2">
                   <span className="text-sm">Additional storage used:</span>
                   <Badge variant="outline">{optimizationResults.storageOverhead}MB</Badge>
@@ -422,7 +422,7 @@ export function DatabasePerformanceDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="benchmarks" className="space-y-4">
+        <TabsContent className="space-y-4" value="benchmarks">
           <Card>
             <CardHeader>
               <CardTitle>Performance Benchmarks</CardTitle>
@@ -433,43 +433,43 @@ export function DatabasePerformanceDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Overall Performance Score</span>
                   <div className="flex items-center space-x-2">
-                    <Progress value={benchmarkResults.overallScore} className="w-32" />
+                    <Progress className="w-32" value={benchmarkResults.overallScore} />
                     <Badge variant="secondary">{benchmarkResults.overallScore}/100</Badge>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <h4 className="font-medium mb-2 flex items-center">
-                      <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
+                    <h4 className="mb-2 flex items-center font-medium">
+                      <TrendingUp className="mr-2 h-4 w-4 text-green-600" />
                       Improvements ({benchmarkResults.improvements})
                     </h4>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       Vector search optimization, index usage improvements
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-2 flex items-center">
-                      <TrendingDown className="h-4 w-4 mr-2 text-red-600" />
+                    <h4 className="mb-2 flex items-center font-medium">
+                      <TrendingDown className="mr-2 h-4 w-4 text-red-600" />
                       Regressions ({benchmarkResults.regressions})
                     </h4>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       Concurrent operations slightly slower
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <h4 className="font-medium mb-3">Benchmark Suite Results</h4>
+                  <h4 className="mb-3 font-medium">Benchmark Suite Results</h4>
                   <div className="space-y-2">
                     {benchmarkResults.suites.map((suite, index) => (
                       <div
+                        className="flex items-center justify-between rounded border p-2"
                         key={index}
-                        className="flex items-center justify-between p-2 border rounded"
                       >
                         <div>
                           <span className="font-medium">{suite.name}</span>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-muted-foreground text-sm">
                             {suite.averageExecutionTime}ms avg • {suite.throughput} ops/sec
                           </div>
                         </div>
@@ -487,7 +487,7 @@ export function DatabasePerformanceDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="alerts" className="space-y-4">
+        <TabsContent className="space-y-4" value="alerts">
           <Card>
             <CardHeader>
               <CardTitle>Performance Alerts</CardTitle>
@@ -495,8 +495,8 @@ export function DatabasePerformanceDashboard() {
             </CardHeader>
             <CardContent>
               {metrics.recentAlerts.length === 0 ? (
-                <div className="text-center py-8">
-                  <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
+                <div className="py-8 text-center">
+                  <CheckCircle className="mx-auto mb-2 h-12 w-12 text-green-600" />
                   <p className="text-muted-foreground">No recent alerts</p>
                 </div>
               ) : (
@@ -512,7 +512,7 @@ export function DatabasePerformanceDashboard() {
                       </AlertTitle>
                       <AlertDescription>
                         {alert.message}
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="mt-1 text-muted-foreground text-xs">
                           {alert.timestamp.toLocaleString()}
                         </div>
                       </AlertDescription>

@@ -4,7 +4,7 @@
  * Tests for database branching functionality using Neon's branching API
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'bun:test'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test'
 import { createNeonBranchingManager, createNeonTestUtils, type NeonBranch } from './branching'
 
 // Test configuration
@@ -14,7 +14,7 @@ const TEST_CONFIG = {
 }
 
 // Skip tests if no real Neon credentials are provided
-const shouldSkipIntegrationTests = !process.env.NEON_PROJECT_ID || !process.env.NEON_API_KEY
+const shouldSkipIntegrationTests = !(process.env.NEON_PROJECT_ID && process.env.NEON_API_KEY)
 
 describe('Neon Branching Integration', () => {
   let branchingManager: ReturnType<typeof createNeonBranchingManager>

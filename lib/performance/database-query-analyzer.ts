@@ -5,9 +5,9 @@
  * and generating optimization recommendations for the ElectricSQL + Drizzle + Neon setup.
  */
 
-import { db } from '@/db/config'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { sql } from 'drizzle-orm'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
+import { db } from '@/db/config'
 import { observability } from '@/lib/observability'
 
 export interface QueryAnalysis {
@@ -136,25 +136,25 @@ export class DatabaseQueryAnalyzer {
   async analyzeCriticalQueries(): Promise<QueryAnalysis[]> {
     const criticalQueries = [
       // Task queries
-      `SELECT * FROM tasks WHERE user_id = $1 AND status = $2 ORDER BY created_at DESC LIMIT 20`,
-      `SELECT * FROM tasks WHERE user_id = $1 AND status IN ($2, $3) AND priority = $4`,
-      `SELECT * FROM tasks WHERE user_id = $1 AND title ILIKE $2`,
+      'SELECT * FROM tasks WHERE user_id = $1 AND status = $2 ORDER BY created_at DESC LIMIT 20',
+      'SELECT * FROM tasks WHERE user_id = $1 AND status IN ($2, $3) AND priority = $4',
+      'SELECT * FROM tasks WHERE user_id = $1 AND title ILIKE $2',
 
       // Environment queries
-      `SELECT * FROM environments WHERE user_id = $1 AND is_active = true`,
-      `SELECT * FROM environments WHERE user_id = $1 ORDER BY created_at DESC`,
+      'SELECT * FROM environments WHERE user_id = $1 AND is_active = true',
+      'SELECT * FROM environments WHERE user_id = $1 ORDER BY created_at DESC',
 
       // Agent execution queries
-      `SELECT ae.*, t.title FROM agent_executions ae JOIN tasks t ON ae.task_id = t.id WHERE t.user_id = $1`,
-      `SELECT * FROM agent_executions WHERE task_id = $1 ORDER BY started_at DESC`,
+      'SELECT ae.*, t.title FROM agent_executions ae JOIN tasks t ON ae.task_id = t.id WHERE t.user_id = $1',
+      'SELECT * FROM agent_executions WHERE task_id = $1 ORDER BY started_at DESC',
 
       // Observability queries
-      `SELECT * FROM observability_events WHERE execution_id = $1 ORDER BY timestamp DESC`,
-      `SELECT COUNT(*) FROM observability_events WHERE timestamp > $1`,
+      'SELECT * FROM observability_events WHERE execution_id = $1 ORDER BY timestamp DESC',
+      'SELECT COUNT(*) FROM observability_events WHERE timestamp > $1',
 
       // Vector search queries
-      `SELECT *, embedding <-> $1 as distance FROM tasks WHERE user_id = $2 ORDER BY distance LIMIT 10`,
-      `SELECT *, embedding <-> $1 as distance FROM agent_memory WHERE agent_type = $2 ORDER BY distance LIMIT 5`,
+      'SELECT *, embedding <-> $1 as distance FROM tasks WHERE user_id = $2 ORDER BY distance LIMIT 10',
+      'SELECT *, embedding <-> $1 as distance FROM agent_memory WHERE agent_type = $2 ORDER BY distance LIMIT 5',
     ]
 
     const analyses: QueryAnalysis[] = []

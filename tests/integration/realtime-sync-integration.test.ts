@@ -5,15 +5,15 @@
  * WebSocket events, conflict resolution, and offline queue processing
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Task } from '@/db/schema'
 import { useElectricSync } from '@/hooks/use-electric-sync'
 import { useOfflineQueue } from '@/hooks/use-offline-queue'
-import { useTasks, useTask } from '@/lib/query/hooks'
 import { electricDb } from '@/lib/electric/config'
-import type { Task } from '@/db/schema'
-import type { SyncEvent, ConflictResolution } from '@/lib/electric/types'
+import type { ConflictResolution, SyncEvent } from '@/lib/electric/types'
+import { useTask, useTasks } from '@/lib/query/hooks'
 
 // Mock ElectricSQL
 vi.mock('@/lib/electric/config', () => ({
@@ -36,7 +36,7 @@ vi.mock('@/lib/electric/config', () => ({
 // Mock WebSocket for real-time events
 class MockWebSocket {
   url: string
-  readyState: number = 0
+  readyState = 0
   onopen: ((event: Event) => void) | null = null
   onmessage: ((event: MessageEvent) => void) | null = null
   onerror: ((event: Event) => void) | null = null

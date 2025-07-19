@@ -193,7 +193,7 @@ export class ResponseAssertions {
   /**
    * Assert CORS headers
    */
-  static assertCorsHeaders(response: Response, allowedOrigin: string = '*') {
+  static assertCorsHeaders(response: Response, allowedOrigin = '*') {
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe(allowedOrigin)
     expect(response.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
     expect(response.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
@@ -238,7 +238,7 @@ export class ApiRouteTestRunner {
   async testGet(
     path: string,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
@@ -257,7 +257,7 @@ export class ApiRouteTestRunner {
     path: string,
     body: any,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
@@ -279,7 +279,7 @@ export class ApiRouteTestRunner {
     path: string,
     body: any,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
@@ -300,7 +300,7 @@ export class ApiRouteTestRunner {
   async testDelete(
     path: string,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
@@ -324,7 +324,7 @@ export class ApiRouteTestRunner {
     token: string,
     handler: (request: NextRequest) => Promise<Response>,
     body?: any,
-    expectedStatus: number = 200
+    expectedStatus = 200
   ) {
     const url = `${this.baseUrl}${path}`
     const request = MockRequestFactory.createAuthenticatedRequest(
@@ -349,7 +349,7 @@ export class ApiRouteTestRunner {
     path: string,
     params: Record<string, string>,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200
+    expectedStatus = 200
   ) {
     const url = `${this.baseUrl}${path}`
     const request = MockRequestFactory.createRequestWithQuery(
@@ -373,7 +373,7 @@ export class DatabaseTestHelpers {
   /**
    * Create test data setup
    */
-  static createTestData<T>(factory: () => T, count: number = 1): T[] {
+  static createTestData<T>(factory: () => T, count = 1): T[] {
     return Array.from({ length: count }, () => factory())
   }
 

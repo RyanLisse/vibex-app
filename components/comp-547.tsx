@@ -1,9 +1,9 @@
 'use client'
 
 import { AlertCircleIcon, ImageIcon, UploadIcon, XIcon } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { formatBytes, useFileUpload } from '@/hooks/use-file-upload'
-import Image from 'next/image'
 
 // Create some dummy initial files
 const initialFiles = [
@@ -59,22 +59,22 @@ export default function Component() {
     <div className="flex flex-col gap-2">
       {/* Drop area */}
       <div
-        role="button"
-        tabIndex={0}
         className="relative flex min-h-52 flex-col items-center not-data-[files]:justify-center overflow-hidden rounded-xl border border-input border-dashed p-4 transition-colors has-[input:focus]:border-ring has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50"
         data-dragging={isDragging || undefined}
         data-files={files.length > 0 || undefined}
+        onClick={openFileDialog}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        onClick={openFileDialog}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             openFileDialog()
           }
         }}
+        role="button"
+        tabIndex={0}
       >
         <input {...getInputProps()} aria-label="Upload image file" className="sr-only" />
         <div className="flex flex-col items-center justify-center px-4 py-3 text-center">
@@ -113,9 +113,9 @@ export default function Component() {
                   <Image
                     alt={file.file.name}
                     className="size-10 rounded-[inherit] object-cover"
+                    height={40}
                     src={file.preview}
                     width={40}
-                    height={40}
                   />
                 </div>
                 <div className="flex min-w-0 flex-col gap-0.5">

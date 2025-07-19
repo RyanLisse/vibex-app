@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, type mock } from 'bun:test'
 import { vi } from 'vitest'
 import { GitHubAPI } from '@/lib/github-api'
 

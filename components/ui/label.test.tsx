@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import React from 'react'
+import { vi } from 'vitest'
 import { Label } from '@/components/ui/label'
 
 // Mock Radix UI Label

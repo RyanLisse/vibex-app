@@ -69,33 +69,32 @@ export const Auth = {
   },
 }
 
-// Re-export auth utility functions for backwards compatibility
-export {
-  generateCodeVerifier,
-  generateCodeChallenge,
-  generateState,
-  validateOAuthState,
-  buildAuthUrl,
-  exchangeCodeForToken,
-  refreshAuthToken,
-  revokeToken,
-  validateToken,
-  getTokenExpirationTime,
-  isTokenExpired,
-  isTokenExpiring,
-  parseJWT,
-  sanitizeRedirectUrl,
-  createAuthHeaders,
-  handleAuthError,
-} from '../auth'
-
 // Re-export types
 export type {
   AuthConfig,
-  TokenResponse,
   TokenExchangeConfig,
+  TokenInfo,
   TokenRefreshConfig,
+  TokenResponse,
   TokenRevokeConfig,
   TokenValidationConfig,
-  TokenInfo,
+} from '../auth'
+// Re-export auth utility functions for backwards compatibility
+export {
+  buildAuthUrl,
+  createAuthHeaders,
+  exchangeCodeForToken,
+  generateCodeChallenge,
+  generateCodeVerifier,
+  generateState,
+  getTokenExpirationTime,
+  handleAuthError,
+  isTokenExpired,
+  isTokenExpiring,
+  parseJWT,
+  refreshAuthToken,
+  revokeToken,
+  sanitizeRedirectUrl,
+  validateOAuthState,
+  validateToken,
 } from '../auth'

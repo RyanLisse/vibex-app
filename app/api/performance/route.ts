@@ -5,17 +5,17 @@
  * for the database performance dashboard.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { queryPerformanceMonitor } from '@/lib/performance/query-performance-monitor'
-import { databaseQueryAnalyzer } from '@/lib/performance/database-query-analyzer'
 import { databaseIndexOptimizer } from '@/lib/performance/database-index-optimizer'
+import { databaseQueryAnalyzer } from '@/lib/performance/database-query-analyzer'
 import { performanceBenchmarker } from '@/lib/performance/performance-benchmarker'
 import { withPerformanceMonitoring } from '@/lib/performance/performance-middleware'
+import { queryPerformanceMonitor } from '@/lib/performance/query-performance-monitor'
 import {
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   validateApiRequest,
 } from '@/src/schemas/api-routes'
 
@@ -69,7 +69,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
           indexSizes: indexAnalysis.reduce((total, idx) => {
             const sizeMatch = idx.size.match(/(\d+(?:\.\d+)?)\s*(\w+)/)
             if (sizeMatch) {
-              const value = parseFloat(sizeMatch[1])
+              const value = Number.parseFloat(sizeMatch[1])
               const unit = sizeMatch[2].toLowerCase()
               const bytes = convertToBytes(value, unit)
               return total + bytes

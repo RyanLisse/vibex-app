@@ -1,5 +1,5 @@
 import { trace } from '@opentelemetry/api'
-import { LogContext } from './types'
+import type { LogContext } from './types'
 
 export class MetadataEnricher {
   private systemMetadata: Record<string, any> = {}

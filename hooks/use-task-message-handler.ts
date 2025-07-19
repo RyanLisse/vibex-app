@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
+import type { Task } from '@/db/schema'
 import type { LatestData } from '@/lib/container-types'
 import { MessageHandlers } from '@/lib/message-handlers'
-import { useUpdateTask, taskKeys } from '@/lib/query/hooks'
-import type { Task } from '@/db/schema'
+import { taskKeys, useUpdateTask } from '@/lib/query/hooks'
 
 export type MessageType = 'status' | 'update' | 'unknown'
 

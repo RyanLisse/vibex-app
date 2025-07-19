@@ -5,10 +5,10 @@
  * WASM optimizations, query performance, and system health monitoring.
  */
 
-import { observabilityEvents } from './events'
+import { and, eq, gte, lte, sql } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { observabilityEvents as eventsTable } from '@/db/schema'
-import { eq, and, gte, lte, sql } from 'drizzle-orm'
+import { observabilityEvents } from './events'
 
 // Metric types
 export type MetricType =
@@ -56,7 +56,7 @@ export class PerformanceMetricsCollector {
   private static instance: PerformanceMetricsCollector
   private metricsBuffer: Map<MetricType, MetricDataPoint[]> = new Map()
   private readonly BUFFER_SIZE = 1000
-  private readonly FLUSH_INTERVAL = 10000 // 10 seconds
+  private readonly FLUSH_INTERVAL = 10_000 // 10 seconds
   private flushInterval: NodeJS.Timeout | null = null
 
   private constructor() {

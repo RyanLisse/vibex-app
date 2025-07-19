@@ -5,21 +5,21 @@
  * provider support, session management, and observability.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, desc, eq, inArray, like } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { db } from '@/db/config'
-import { users, authSessions } from '@/db/schema'
-import { eq, and, desc, like, inArray } from 'drizzle-orm'
 import { ulid } from 'ulid'
+import { z } from 'zod'
+import { db } from '@/db/config'
+import { authSessions, users } from '@/db/schema'
 import { observability } from '@/lib/observability'
 import {
-  UserSchema,
   CreateUserSchema,
-  UpdateUserSchema,
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   createPaginatedResponse,
+  type UpdateUserSchema,
+  UserSchema,
 } from '@/src/schemas/api-routes'
 
 // Request validation schemas
@@ -41,8 +41,8 @@ const GetUserParamsSchema = z.object({
 class UsersAPIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR'
+    public statusCode = 500,
+    public code = 'INTERNAL_ERROR'
   ) {
     super(message)
     this.name = 'UsersAPIError'
@@ -119,7 +119,7 @@ class UsersService {
       await observability.events.collector.collectEvent(
         'query_end',
         'debug',
-        `Users query completed`,
+        'Users query completed',
         {
           duration,
           resultCount: userResults.length,

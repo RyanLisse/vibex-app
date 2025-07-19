@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { Auth } from '@/lib/auth/index'
 import { AuthAnthropic } from '@/lib/auth/anthropic'
+import { Auth } from '@/lib/auth/index'
 
 export async function GET(request: NextRequest) {
   try {

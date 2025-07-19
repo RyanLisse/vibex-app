@@ -1,10 +1,10 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEnhancedQuery, useEnhancedInfiniteQuery } from './use-enhanced-query'
+import { useCallback, useMemo } from 'react'
 import { queryKeys } from '@/lib/query/config'
 import { useElectricTaskExecutions } from './use-electric-tasks'
+import { useEnhancedInfiniteQuery, useEnhancedQuery } from './use-enhanced-query'
 
 /**
  * Enhanced agent execution queries with WASM optimization
@@ -85,7 +85,7 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
       return filteredExecutions
     },
     {
-      enabled: !electricLoading && !electricError,
+      enabled: !(electricLoading || electricError),
       enableWASMOptimization: true,
       staleWhileRevalidate: true,
       wasmFallback: async () => {
@@ -248,7 +248,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
       }
     },
     {
-      enabled: !loading && !error && executions.length > 0,
+      enabled: !(loading || error) && executions.length > 0,
       enableWASMOptimization: true,
       staleTime: 5 * 60 * 1000, // 5 minutes for analytics
       wasmFallback: async () => {
@@ -367,7 +367,7 @@ export function useExecutionPerformanceQuery(filters: ExecutionFilters = {}) {
       }
     },
     {
-      enabled: !loading && !error && executions.length > 0,
+      enabled: !(loading || error) && executions.length > 0,
       enableWASMOptimization: true,
       staleTime: 2 * 60 * 1000, // 2 minutes
     }

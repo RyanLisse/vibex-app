@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 
 // Mock the inngest modules
 mock.module('@/lib/inngest', () => ({

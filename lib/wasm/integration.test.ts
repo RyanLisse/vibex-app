@@ -5,16 +5,16 @@
  * SQLite utilities, and compute operations with performance benchmarking.
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import { wasmServices, WASMServices } from './services'
-import {
-  VectorSearchWASM,
-  createOptimizedEmbedding,
-  calculateFastSimilarity,
-} from './vector-search'
-import { SQLiteWASMUtils, createSQLiteWASMUtils } from './sqlite-utils'
-import { ComputeWASM, createComputeEngine } from './compute'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { type ComputeWASM, createComputeEngine } from './compute'
 import { wasmDetector } from './detection'
+import { WASMServices, wasmServices } from './services'
+import { createSQLiteWASMUtils, type SQLiteWASMUtils } from './sqlite-utils'
+import {
+  calculateFastSimilarity,
+  createOptimizedEmbedding,
+  VectorSearchWASM,
+} from './vector-search'
 
 describe('WASM Services Integration', () => {
   let vectorEngine: VectorSearchWASM
@@ -272,7 +272,7 @@ describe('WASM Services Integration', () => {
   })
 
   describe('Compute WASM Engine', () => {
-    const testData = Array.from({ length: 10000 }, () => Math.random() * 100)
+    const testData = Array.from({ length: 10_000 }, () => Math.random() * 100)
 
     beforeEach(async () => {
       await computeEngine.initialize()
@@ -326,7 +326,7 @@ describe('WASM Services Integration', () => {
     })
 
     it('should process large datasets efficiently', async () => {
-      const largeData = Array.from({ length: 100000 }, () => Math.random())
+      const largeData = Array.from({ length: 100_000 }, () => Math.random())
       let progressCount = 0
 
       const results = await computeEngine.processLargeDataset(
@@ -472,7 +472,7 @@ describe('WASM Services Integration', () => {
       await testEngine.initialize()
 
       // Should handle large data gracefully
-      const largeData = new Array(1000000).fill(1)
+      const largeData = new Array(1_000_000).fill(1)
       await expect(testEngine.calculateStatistics(largeData)).resolves.toBeDefined()
     })
 

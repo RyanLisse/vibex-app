@@ -3,7 +3,7 @@
  * Utilities for testing Inngest functions with @inngest/test
  */
 
-import { InngestTestEngine, EventPayload } from '@inngest/test'
+import { type EventPayload, InngestTestEngine } from '@inngest/test'
 import { inngest } from '@/lib/inngest'
 
 /**
@@ -174,7 +174,7 @@ export class InngestFunctionTester {
   /**
    * Execute with retry testing
    */
-  async executeWithRetries(event: EventPayload, maxAttempts: number = 3) {
+  async executeWithRetries(event: EventPayload, maxAttempts = 3) {
     let lastExecution
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -386,7 +386,7 @@ export const InngestTestHelpers = {
   /**
    * Wait for async operations to complete
    */
-  waitForAsync: (ms: number = 100) => new Promise((resolve) => setTimeout(resolve, ms)),
+  waitForAsync: (ms = 100) => new Promise((resolve) => setTimeout(resolve, ms)),
 
   /**
    * Create a delayed event for testing timing
@@ -400,7 +400,7 @@ export const InngestTestHelpers = {
   /**
    * Simulate network delays in testing
    */
-  withNetworkDelay: async <T>(operation: () => Promise<T>, delayMs: number = 100): Promise<T> => {
+  withNetworkDelay: async <T>(operation: () => Promise<T>, delayMs = 100): Promise<T> => {
     await new Promise((resolve) => setTimeout(resolve, delayMs))
     return await operation()
   },

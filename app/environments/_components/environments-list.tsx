@@ -1,32 +1,32 @@
 'use client'
 import { format } from 'date-fns'
 import {
+  AlertCircle,
+  CheckCircle,
   Dot,
   FolderGit,
   GithubIcon,
   Plus,
-  Trash2,
   RefreshCw,
-  AlertCircle,
+  Trash2,
   Wifi,
   WifiOff,
-  CheckCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { CreateEnvironmentDialog } from '@/app/environments/_components/create-environment-dialog'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useGitHubAuth } from '@/hooks/use-github-auth'
-import {
-  useEnvironmentsQuery,
-  useDeleteEnvironmentMutation,
-  useActivateEnvironmentMutation,
-} from '@/hooks/use-environment-queries'
 import { useElectricContext } from '@/components/providers/electric-provider'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  useActivateEnvironmentMutation,
+  useDeleteEnvironmentMutation,
+  useEnvironmentsQuery,
+} from '@/hooks/use-environment-queries'
+import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { observability } from '@/lib/observability'
 
 interface EnvironmentsListProps {
@@ -128,7 +128,7 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
 
   // Connection status indicator
   const ConnectionStatus = () => (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex items-center gap-2 text-muted-foreground text-sm">
       {isConnected ? (
         <>
           <Wifi className="h-4 w-4 text-green-500" />
@@ -146,11 +146,11 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
 
   // Error display component
   const ErrorDisplay = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
-    <Alert variant="destructive" className="mb-4">
+    <Alert className="mb-4" variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>Failed to load environments: {error.message}</span>
-        <Button variant="outline" size="sm" onClick={onRetry}>
+        <Button onClick={onRetry} size="sm" variant="outline">
           Retry
         </Button>
       </AlertDescription>
@@ -198,16 +198,16 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
           </div>
           <div className="flex items-center gap-2">
             {environment.isActive && (
-              <Badge variant="default" className="text-xs">
-                <CheckCircle className="h-3 w-3 mr-1" />
+              <Badge className="text-xs" variant="default">
+                <CheckCircle className="mr-1 h-3 w-3" />
                 Active
               </Badge>
             )}
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDeleteEnvironment(environment.id, environment.name)}
               disabled={deleteEnvironmentMutation.isPending}
+              onClick={() => handleDeleteEnvironment(environment.id, environment.name)}
+              size="icon"
+              variant="ghost"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -216,22 +216,22 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <GithubIcon className="h-4 w-4" />
             <span>{environment.config?.githubOrganization || 'No organization'}</span>
             <Dot className="h-4 w-4" />
             <span>{environment.config?.githubRepository || 'No repository'}</span>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Created {format(new Date(environment.createdAt), 'MMM d, yyyy')}
             </p>
             {!environment.isActive && (
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleActivateEnvironment(environment.id)}
                 disabled={activateEnvironmentMutation.isPending}
+                onClick={() => handleActivateEnvironment(environment.id)}
+                size="sm"
+                variant="outline"
               >
                 Activate
               </Button>
@@ -262,17 +262,17 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
           <div className="flex items-center gap-4">
             <p className="font-medium">Environments</p>
             {environmentsStale && (
-              <Badge variant="outline" className="text-xs">
+              <Badge className="text-xs" variant="outline">
                 Stale Data
               </Badge>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
               disabled={environmentsFetching}
+              onClick={handleRefresh}
+              size="sm"
+              variant="ghost"
             >
               <RefreshCw className={`h-4 w-4 ${environmentsFetching ? 'animate-spin' : ''}`} />
             </Button>
@@ -308,43 +308,45 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
         )}
         {/* Environments list */}
         <div className="flex flex-col gap-y-4">
-          {!isAuthenticated ? (
+          {isAuthenticated ? (
+            environments?.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <FolderGit className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                    <p className="text-muted-foreground">No environments yet.</p>
+                    <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
+                      Create your first environment
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              environments?.map((environment) => (
+                <EnvironmentCard environment={environment} key={environment.id} />
+              ))
+            )
+          ) : (
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <GithubIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground mb-4">
+                  <GithubIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="mb-4 text-muted-foreground">
                     Connect your Github account to get started
                   </p>
                   <Button onClick={handleGitHubAuth}>
-                    <GithubIcon className="h-4 w-4 mr-2" />
+                    <GithubIcon className="mr-2 h-4 w-4" />
                     Connect Github
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          ) : environments?.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <FolderGit className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No environments yet.</p>
-                  <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
-                    Create your first environment
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            environments?.map((environment) => (
-              <EnvironmentCard key={environment.id} environment={environment} />
-            ))
           )}
         </div>
 
         {/* Sync status */}
         {isConnected && isSyncing && (
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
             <RefreshCw className="h-4 w-4 animate-spin" />
             <span>Syncing environments...</span>
           </div>

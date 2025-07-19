@@ -1,19 +1,19 @@
 'use client'
 
 import {
-  useQuery,
-  useMutation,
-  useInfiniteQuery,
-  useQueryClient,
-  type UseQueryOptions,
-  type UseMutationOptions,
-  type UseInfiniteQueryOptions,
   type InfiniteData,
+  type UseInfiniteQueryOptions,
+  type UseMutationOptions,
+  type UseQueryOptions,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
 } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
-import { wasmDetector, shouldUseWASMOptimization } from '@/lib/wasm/detection'
-import { queryKeys, mutationKeys, getOptimizedQueryConfig } from '@/lib/query/config'
 import { useElectricContext } from '@/components/providers/electric-provider'
+import { getOptimizedQueryConfig, mutationKeys, queryKeys } from '@/lib/query/config'
+import { shouldUseWASMOptimization, wasmDetector } from '@/lib/wasm/detection'
 
 /**
  * Enhanced query hook with WASM optimization support
@@ -48,12 +48,12 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
       if (shouldUseWASM) {
         console.log('Using WASM-optimized query for:', queryKey)
         return await queryFn()
-      } else if (wasmFallback) {
+      }
+      if (wasmFallback) {
         console.log('Using fallback query for:', queryKey)
         return await wasmFallback()
-      } else {
-        return await queryFn()
       }
+      return await queryFn()
     } catch (error) {
       // Fallback to JS implementation if WASM fails
       if (shouldUseWASM && wasmFallback) {
@@ -229,12 +229,12 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
         if (shouldUseWASM) {
           console.log('Using WASM-optimized infinite query for:', queryKey, 'page:', pageParam)
           return await queryFn({ pageParam })
-        } else if (wasmFallback) {
+        }
+        if (wasmFallback) {
           console.log('Using fallback infinite query for:', queryKey, 'page:', pageParam)
           return await wasmFallback({ pageParam })
-        } else {
-          return await queryFn({ pageParam })
         }
+        return await queryFn({ pageParam })
       } catch (error) {
         // Fallback to JS implementation if WASM fails
         if (shouldUseWASM && wasmFallback) {
@@ -260,7 +260,7 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
 
   // Virtualization helpers
   const virtualizedData = useMemo(() => {
-    if (!enableVirtualization || !infiniteQuery.data) {
+    if (!(enableVirtualization && infiniteQuery.data)) {
       return infiniteQuery.data
     }
 

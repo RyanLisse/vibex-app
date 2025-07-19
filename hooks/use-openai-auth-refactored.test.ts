@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
+import { vi } from 'vitest'
 import { useOpenAIAuthRefactored } from '@/hooks/use-openai-auth-refactored'
 
 // Mock the base auth hook

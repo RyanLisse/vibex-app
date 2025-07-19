@@ -5,7 +5,7 @@
  * for heavy data processing, analytics, and mathematical operations.
  */
 
-import { wasmDetector, shouldUseWASMOptimization } from './detection'
+import { shouldUseWASMOptimization, wasmDetector } from './detection'
 
 export interface ComputeWASMConfig {
   enableParallelProcessing: boolean
@@ -88,7 +88,7 @@ export class ComputeWASM {
     this.config = {
       enableParallelProcessing: true,
       maxWorkers: Math.min(navigator.hardwareConcurrency || 4, 8),
-      chunkSize: 10000,
+      chunkSize: 10_000,
       enableSIMD: true,
       enableThreads: true,
       memoryPages: 256, // 16MB initial memory
@@ -266,16 +266,16 @@ export class ComputeWASM {
     const range = max - min
 
     // Variance and standard deviation
-    const variance = data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count
+    const variance = data.reduce((acc, val) => acc + (val - mean) ** 2, 0) / count
     const standardDeviation = Math.sqrt(variance)
 
     // Skewness
     const skewness =
-      data.reduce((acc, val) => acc + Math.pow((val - mean) / standardDeviation, 3), 0) / count
+      data.reduce((acc, val) => acc + ((val - mean) / standardDeviation) ** 3, 0) / count
 
     // Kurtosis
     const kurtosis =
-      data.reduce((acc, val) => acc + Math.pow((val - mean) / standardDeviation, 4), 0) / count - 3
+      data.reduce((acc, val) => acc + ((val - mean) / standardDeviation) ** 4, 0) / count - 3
 
     // Percentiles
     const getPercentile = (p: number) => {

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { createTaskAction } from '@/app/actions/inngest'
 import MessageInput from '@/app/task/[id]/_components/message-input'
 import type { Task } from '@/stores/tasks'

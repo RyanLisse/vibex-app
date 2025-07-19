@@ -1,10 +1,10 @@
 'use client'
 
-import { Loader2, Wifi, WifiOff, AlertCircle, RefreshCw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AlertCircle, Loader2, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
@@ -27,7 +27,7 @@ export function LoadingSpinner({ size = 'md', message, className }: LoadingSpinn
   return (
     <div className={cn('flex items-center justify-center gap-2', className)}>
       <Loader2 className={cn('animate-spin', sizeClasses[size])} />
-      {message && <span className="text-sm text-muted-foreground">{message}</span>}
+      {message && <span className="text-muted-foreground text-sm">{message}</span>}
     </div>
   )
 }
@@ -151,13 +151,13 @@ export function ConnectionStatus({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Badge variant={status.variant} className="flex items-center gap-1">
+      <Badge className="flex items-center gap-1" variant={status.variant}>
         {status.icon}
         {status.label}
       </Badge>
-      <span className="text-xs text-muted-foreground">{status.description}</span>
+      <span className="text-muted-foreground text-xs">{status.description}</span>
       {lastSyncTime && !isSyncing && (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           Last sync: {lastSyncTime.toLocaleTimeString()}
         </span>
       )}
@@ -186,15 +186,15 @@ export function ErrorDisplay({
   const errorMessage = typeof error === 'string' ? error : error.message
 
   return (
-    <Alert variant="destructive" className={className}>
+    <Alert className={className} variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription>
         <div className="space-y-2">
           <div className="font-medium">{title}</div>
           <div className="text-sm">{errorMessage}</div>
           {onRetry && (
-            <Button variant="outline" size="sm" onClick={onRetry} className="mt-2">
-              <RefreshCw className="h-4 w-4 mr-2" />
+            <Button className="mt-2" onClick={onRetry} size="sm" variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
               Try Again
             </Button>
           )}
@@ -222,8 +222,8 @@ export function EmptyState({ title, description, action, icon, className }: Empt
   return (
     <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
       {icon && <div className="mb-4 text-muted-foreground">{icon}</div>}
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-sm text-muted-foreground mb-4 max-w-sm">{description}</p>
+      <h3 className="font-semibold text-lg">{title}</h3>
+      <p className="mb-4 max-w-sm text-muted-foreground text-sm">{description}</p>
       {action && (
         <Button onClick={action.onClick} variant="outline">
           {action.label}
@@ -248,7 +248,7 @@ export function LoadingOverlay({ isLoading, message, children, className }: Load
     <div className={cn('relative', className)}>
       {children}
       {isLoading && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <LoadingSpinner message={message} />
         </div>
       )}
@@ -287,8 +287,8 @@ export function OfflineIndicator({
             )}
           </div>
           {onSync && (
-            <Button variant="outline" size="sm" onClick={onSync}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+            <Button onClick={onSync} size="sm" variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
               Retry Sync
             </Button>
           )}

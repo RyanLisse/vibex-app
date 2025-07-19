@@ -1,8 +1,8 @@
-import { ElectricClient as BaseElectricClient, ElectricDatabase } from '@electric-sql/client'
+import { ElectricClient as BaseElectricClient, type ElectricDatabase } from '@electric-sql/client'
 import { PGlite } from '@electric-sql/pglite'
-import { electricConfig, getFinalConfig, validateElectricConfig } from './config'
+import type * as schema from '../../db/schema'
 import { ObservabilityService } from '../observability'
-import * as schema from '../../db/schema'
+import { electricConfig, getFinalConfig, validateElectricConfig } from './config'
 
 // Type definitions for our database schema
 export type DatabaseSchema = typeof schema
@@ -125,7 +125,7 @@ export class ElectricClient {
           }
 
           // Exponential backoff
-          const delay = config.sync.retryBackoff * Math.pow(2, retryCount - 1)
+          const delay = config.sync.retryBackoff * 2 ** (retryCount - 1)
           console.warn(`Connection attempt ${retryCount} failed, retrying in ${delay}ms...`)
           await new Promise((resolve) => setTimeout(resolve, delay))
         }

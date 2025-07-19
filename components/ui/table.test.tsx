@@ -24,8 +24,8 @@ describe('Table Components', () => {
         </Table>
       )
 
-      const container = screen.getByRole('generic').querySelector('[data-slot="table-container"]')
       const table = screen.getByRole('table')
+      const container = table.closest('[data-slot="table-container"]')
 
       expect(container).toBeInTheDocument()
       expect(container).toHaveClass('relative', 'w-full', 'overflow-x-auto')

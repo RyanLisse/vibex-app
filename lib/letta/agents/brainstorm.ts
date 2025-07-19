@@ -1,5 +1,5 @@
-import { LettaClient, AgentConfig, Message } from '../client'
 import { z } from 'zod'
+import type { AgentConfig, LettaClient, Message } from '../client'
 
 // Brainstorm Agent Configuration
 export const BrainstormConfigSchema = z.object({
@@ -294,7 +294,7 @@ Transition smoothly and explain what we'll focus on in this stage.
     return session
   }
 
-  async addIdea(sessionId: string, content: string, category: string = 'general'): Promise<void> {
+  async addIdea(sessionId: string, content: string, category = 'general'): Promise<void> {
     const session = this.activeSessions.get(sessionId)
     if (!session) {
       throw new Error('Brainstorm session not found')

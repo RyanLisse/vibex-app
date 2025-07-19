@@ -5,9 +5,9 @@
  * performance analysis, and best practices for PostgreSQL with vector extensions.
  */
 
-import { db } from '@/db/config'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { sql } from 'drizzle-orm'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
+import { db } from '@/db/config'
 import type { IndexSuggestion } from './database-query-analyzer'
 
 export interface IndexOptimizationPlan {
@@ -303,7 +303,7 @@ export class DatabaseIndexOptimizer {
   /**
    * Generate CREATE INDEX SQL
    */
-  private generateCreateIndexSql(suggestion: IndexSuggestion, concurrent: boolean = true): string {
+  private generateCreateIndexSql(suggestion: IndexSuggestion, concurrent = true): string {
     const indexName = this.generateIndexName(suggestion)
     const concurrentKeyword = concurrent ? 'CONCURRENTLY' : ''
     const columns = suggestion.columns.join(', ')

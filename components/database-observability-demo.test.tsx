@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { DatabaseObservabilityDemo } from './database-observability-demo'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { DatabaseObservabilityDemo } from './database-observability-demo'
 
 // Mock the hooks and providers
 vi.mock('@/hooks/use-electric-tasks', () => ({

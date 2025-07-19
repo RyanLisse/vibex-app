@@ -5,21 +5,21 @@
  * with Redis caching integration for optimal performance.
  */
 
-import { eq, and, desc, asc, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, sql } from 'drizzle-orm'
 import { db } from '@/db/config'
-import { tasks, environments, agentExecutions, observabilityEvents } from '@/db/schema'
-import { redisCache } from '@/lib/redis'
-import { ObservabilityService } from '@/lib/observability'
 import type {
-  Task,
-  NewTask,
-  Environment,
-  NewEnvironment,
   AgentExecution,
+  Environment,
   NewAgentExecution,
-  ObservabilityEvent,
+  NewEnvironment,
   NewObservabilityEvent,
+  NewTask,
+  ObservabilityEvent,
+  Task,
 } from '@/db/schema'
+import { agentExecutions, environments, observabilityEvents, tasks } from '@/db/schema'
+import { ObservabilityService } from '@/lib/observability'
+import { redisCache } from '@/lib/redis'
 
 export interface DatabaseOperation {
   table: string
@@ -161,30 +161,34 @@ export class ElectricDatabaseClient {
     const insertData = { ...data, userId }
 
     switch (table) {
-      case 'tasks':
+      case 'tasks': {
         const [newTask] = await db
           .insert(tasks)
           .values(insertData as NewTask)
           .returning()
         return newTask
-      case 'environments':
+      }
+      case 'environments': {
         const [newEnv] = await db
           .insert(environments)
           .values(insertData as NewEnvironment)
           .returning()
         return newEnv
-      case 'agent_executions':
+      }
+      case 'agent_executions': {
         const [newExecution] = await db
           .insert(agentExecutions)
           .values(insertData as NewAgentExecution)
           .returning()
         return newExecution
-      case 'observability_events':
+      }
+      case 'observability_events': {
         const [newEvent] = await db
           .insert(observabilityEvents)
           .values(insertData as NewObservabilityEvent)
           .returning()
         return newEvent
+      }
       default:
         throw new Error(`Unsupported table for insert: ${table}`)
     }
@@ -197,13 +201,14 @@ export class ElectricDatabaseClient {
     const updateData = { ...data, updatedAt: new Date() }
 
     switch (table) {
-      case 'tasks':
+      case 'tasks': {
         const whereClause = userId
           ? and(eq(tasks.id, where.id), eq(tasks.userId, userId))
           : eq(tasks.id, where.id)
         const [updatedTask] = await db.update(tasks).set(updateData).where(whereClause).returning()
         return updatedTask
-      case 'environments':
+      }
+      case 'environments': {
         const envWhereClause = userId
           ? and(eq(environments.id, where.id), eq(environments.userId, userId))
           : eq(environments.id, where.id)
@@ -213,6 +218,7 @@ export class ElectricDatabaseClient {
           .where(envWhereClause)
           .returning()
         return updatedEnv
+      }
       default:
         throw new Error(`Unsupported table for update: ${table}`)
     }
@@ -223,18 +229,20 @@ export class ElectricDatabaseClient {
    */
   private async executeDelete(table: string, where: any, userId?: string): Promise<any> {
     switch (table) {
-      case 'tasks':
+      case 'tasks': {
         const whereClause = userId
           ? and(eq(tasks.id, where.id), eq(tasks.userId, userId))
           : eq(tasks.id, where.id)
         const [deletedTask] = await db.delete(tasks).where(whereClause).returning()
         return deletedTask
-      case 'environments':
+      }
+      case 'environments': {
         const envWhereClause = userId
           ? and(eq(environments.id, where.id), eq(environments.userId, userId))
           : eq(environments.id, where.id)
         const [deletedEnv] = await db.delete(environments).where(envWhereClause).returning()
         return deletedEnv
+      }
       default:
         throw new Error(`Unsupported table for delete: ${table}`)
     }

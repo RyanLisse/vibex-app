@@ -280,7 +280,7 @@ export class WASMDetector {
       const addFunction = wasmInstance.exports.add as (a: number, b: number) => number
 
       // Benchmark: perform 1M additions
-      const iterations = 1000000
+      const iterations = 1_000_000
       const startTime = performance.now()
 
       for (let i = 0; i < iterations; i++) {

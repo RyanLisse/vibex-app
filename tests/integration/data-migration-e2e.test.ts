@@ -5,18 +5,17 @@
  * to the database, including error handling and recovery scenarios
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useMigration } from '@/hooks/use-migration'
-import { useTaskStore } from '@/stores/tasks'
-import { useEnvironmentStore } from '@/stores/environments'
-import { useTasks, useEnvironments } from '@/lib/query/hooks'
-import type { Task, Environment } from '@/db/schema'
-
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { delay, HttpResponse, http } from 'msw'
 // Mock server setup
 import { setupServer } from 'msw/node'
-import { http, HttpResponse, delay } from 'msw'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Environment, Task } from '@/db/schema'
+import { useMigration } from '@/hooks/use-migration'
+import { useEnvironments, useTasks } from '@/lib/query/hooks'
+import { useEnvironmentStore } from '@/stores/environments'
+import { useTaskStore } from '@/stores/tasks'
 
 const server = setupServer()
 

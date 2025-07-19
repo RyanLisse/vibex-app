@@ -6,7 +6,7 @@
  */
 
 import { ObservabilityService } from '@/lib/observability'
-import { electricDatabaseClient, type DatabaseOperation } from './database-client'
+import { type DatabaseOperation, electricDatabaseClient } from './database-client'
 
 export interface ConflictData {
   table: string
@@ -133,7 +133,7 @@ export class ConflictResolutionService {
         options: operation.options,
       })
 
-      if (!currentResult.success || !currentResult.data || currentResult.data.length === 0) {
+      if (!(currentResult.success && currentResult.data) || currentResult.data.length === 0) {
         return null // Record doesn't exist, no conflict
       }
 
@@ -193,10 +193,7 @@ export class ConflictResolutionService {
   /**
    * Queue operation for offline sync
    */
-  async queueOfflineOperation(
-    operation: DatabaseOperation,
-    maxRetries: number = 3
-  ): Promise<string> {
+  async queueOfflineOperation(operation: DatabaseOperation, maxRetries = 3): Promise<string> {
     const operationId = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     const offlineOp: OfflineOperation = {
@@ -472,7 +469,7 @@ export class ConflictResolutionService {
       }
 
       const logKey = `electric:conflicts:${conflict.table}:${resolution.metadata.conflictId}`
-      await redis.set(logKey, logEntry, { ttl: 86400 * 7 }) // Keep for 7 days
+      await redis.set(logKey, logEntry, { ttl: 86_400 * 7 }) // Keep for 7 days
     } catch (error) {
       console.warn('Failed to log conflict resolution:', error)
     }
@@ -487,7 +484,7 @@ export class ConflictResolutionService {
       if (!redis) return
 
       const queueData = Array.from(this.offlineQueue.entries())
-      await redis.set('electric:offline-queue', queueData, { ttl: 86400 * 30 }) // Keep for 30 days
+      await redis.set('electric:offline-queue', queueData, { ttl: 86_400 * 30 }) // Keep for 30 days
     } catch (error) {
       console.warn('Failed to persist offline queue:', error)
     }
@@ -514,7 +511,7 @@ export class ConflictResolutionService {
    * Clean up completed operations
    */
   private cleanupCompletedOperations(): void {
-    const cutoffTime = new Date(Date.now() - 86400 * 1000) // 1 day ago
+    const cutoffTime = new Date(Date.now() - 86_400 * 1000) // 1 day ago
 
     for (const [id, operation] of this.offlineQueue.entries()) {
       if (operation.status === 'completed' && operation.timestamp < cutoffTime) {

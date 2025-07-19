@@ -1,32 +1,29 @@
 // Main logging exports
-export { LoggerFactory, ComponentLogger } from './logger-factory'
-export { CorrelationIdManager } from './correlation-id-manager'
-export { SensitiveDataRedactor } from './sensitive-data-redactor'
-export { PerformanceTracker } from './performance-tracker'
-export { MetadataEnricher } from './metadata-enricher'
 
 // Configuration
 export { createDefaultLoggingConfig, validateLoggingConfig } from './config'
-
-// Types
-export type {
-  LogLevel,
-  LoggingConfig,
-  LogContext,
-  LoggingMetrics,
-  OperationMetrics,
-} from './types'
-
+export { CorrelationIdManager } from './correlation-id-manager'
+export { ComponentLogger, LoggerFactory } from './logger-factory'
+export { MetadataEnricher } from './metadata-enricher'
 // Middleware
-export { createLoggingMiddleware, createApiRouteLogger } from './middleware'
-
+export { createApiRouteLogger, createLoggingMiddleware } from './middleware'
+export { PerformanceTracker } from './performance-tracker'
+export { SensitiveDataRedactor } from './sensitive-data-redactor'
 // Specialized loggers
 export {
   AgentLogger,
   DatabaseLogger,
-  SecurityLogger,
   PerformanceLogger,
+  SecurityLogger,
 } from './specialized-loggers'
+// Types
+export type {
+  LogContext,
+  LoggingConfig,
+  LoggingMetrics,
+  LogLevel,
+  OperationMetrics,
+} from './types'
 
 // Convenience function to create a logger
 export function createLogger(component: string) {

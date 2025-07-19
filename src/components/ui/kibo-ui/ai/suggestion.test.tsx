@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { AISuggestion, AISuggestions } from './suggestion'
 
 // Mock dependencies

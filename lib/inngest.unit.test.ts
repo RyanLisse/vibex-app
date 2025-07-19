@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // IMPORTANT: This is a unit test that doesn't import the real inngest module
 // to avoid hanging issues with fake timers

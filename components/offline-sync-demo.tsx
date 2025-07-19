@@ -1,21 +1,21 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
-  Wifi,
-  WifiOff,
-  RefreshCw,
-  Database,
-  Clock,
   AlertCircle,
   CheckCircle,
+  Clock,
+  Database,
   Loader2,
+  RefreshCw,
   Trash2,
+  Wifi,
+  WifiOff,
 } from 'lucide-react'
+import { useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useOfflineSync } from '@/hooks/use-offline-sync'
 
 /**
@@ -81,13 +81,12 @@ export function OfflineSyncDemo() {
         variant: 'default' as const,
         description: 'Connected to server',
       }
-    } else {
-      return {
-        icon: <WifiOff className="h-4 w-4" />,
-        label: 'Offline',
-        variant: 'destructive' as const,
-        description: 'Working offline - changes will sync when reconnected',
-      }
+    }
+    return {
+      icon: <WifiOff className="h-4 w-4" />,
+      label: 'Offline',
+      variant: 'destructive' as const,
+      description: 'Working offline - changes will sync when reconnected',
     }
   }
 
@@ -109,15 +108,15 @@ export function OfflineSyncDemo() {
           {/* Connection Status */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Badge variant={connectionStatus.variant} className="flex items-center gap-1">
+              <Badge className="flex items-center gap-1" variant={connectionStatus.variant}>
                 {connectionStatus.icon}
                 {connectionStatus.label}
               </Badge>
-              <span className="text-sm text-muted-foreground">{connectionStatus.description}</span>
+              <span className="text-muted-foreground text-sm">{connectionStatus.description}</span>
             </div>
 
             {syncInProgress && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Syncing...
               </div>
@@ -125,28 +124,28 @@ export function OfflineSyncDemo() {
           </div>
 
           {/* Sync Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <div className="text-2xl font-bold">{stats.queueSize}</div>
-              <div className="text-sm text-muted-foreground">Queued Operations</div>
+              <div className="font-bold text-2xl">{stats.queueSize}</div>
+              <div className="text-muted-foreground text-sm">Queued Operations</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{stats.pendingOperations}</div>
-              <div className="text-sm text-muted-foreground">Pending</div>
+              <div className="font-bold text-2xl">{stats.pendingOperations}</div>
+              <div className="text-muted-foreground text-sm">Pending</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{stats.failedOperations}</div>
-              <div className="text-sm text-muted-foreground">Failed</div>
+              <div className="font-bold text-2xl">{stats.failedOperations}</div>
+              <div className="text-muted-foreground text-sm">Failed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{lastSyncTime ? '✓' : '—'}</div>
-              <div className="text-sm text-muted-foreground">Last Sync</div>
+              <div className="font-bold text-2xl">{lastSyncTime ? '✓' : '—'}</div>
+              <div className="text-muted-foreground text-sm">Last Sync</div>
             </div>
           </div>
 
           {/* Last Sync Time */}
           {lastSyncTime && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Clock className="h-4 w-4" />
               Last synced: {lastSyncTime.toLocaleTimeString()}
             </div>
@@ -160,7 +159,7 @@ export function OfflineSyncDemo() {
                 <div className="space-y-1">
                   <div className="font-medium">Sync Errors:</div>
                   {syncErrors.map((error, index) => (
-                    <div key={index} className="text-sm">
+                    <div className="text-sm" key={index}>
                       {error}
                     </div>
                   ))}
@@ -173,32 +172,32 @@ export function OfflineSyncDemo() {
           <div className="space-y-3">
             <h4 className="font-medium">Test Operations</h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
               <Button
-                onClick={handleCreateTask}
-                variant="outline"
-                size="sm"
                 className="flex items-center gap-2"
+                onClick={handleCreateTask}
+                size="sm"
+                variant="outline"
               >
                 <CheckCircle className="h-4 w-4" />
                 Create Task
               </Button>
 
               <Button
-                onClick={handleUpdateTask}
-                variant="outline"
-                size="sm"
                 className="flex items-center gap-2"
+                onClick={handleUpdateTask}
+                size="sm"
+                variant="outline"
               >
                 <RefreshCw className="h-4 w-4" />
                 Update Task
               </Button>
 
               <Button
-                onClick={handleDeleteTask}
-                variant="outline"
-                size="sm"
                 className="flex items-center gap-2"
+                onClick={handleDeleteTask}
+                size="sm"
+                variant="outline"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete Task
@@ -207,13 +206,13 @@ export function OfflineSyncDemo() {
           </div>
 
           {/* Manual Controls */}
-          <div className="flex gap-2 pt-4 border-t">
+          <div className="flex gap-2 border-t pt-4">
             <Button
-              onClick={manualSync}
-              disabled={isOffline || syncInProgress}
-              variant="default"
-              size="sm"
               className="flex items-center gap-2"
+              disabled={isOffline || syncInProgress}
+              onClick={manualSync}
+              size="sm"
+              variant="default"
             >
               {syncInProgress ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -223,15 +222,15 @@ export function OfflineSyncDemo() {
               Manual Sync
             </Button>
 
-            <Button onClick={testOfflineMode} variant="outline" size="sm">
+            <Button onClick={testOfflineMode} size="sm" variant="outline">
               Test Offline Mode
             </Button>
 
             <Button
-              onClick={clearQueue}
-              variant="destructive"
-              size="sm"
               disabled={stats.queueSize === 0}
+              onClick={clearQueue}
+              size="sm"
+              variant="destructive"
             >
               Clear Queue
             </Button>
@@ -243,7 +242,7 @@ export function OfflineSyncDemo() {
             <AlertDescription>
               <div className="space-y-2">
                 <div className="font-medium">How to test:</div>
-                <ol className="list-decimal list-inside space-y-1 text-sm">
+                <ol className="list-inside list-decimal space-y-1 text-sm">
                   <li>Click "Create Task" to queue operations</li>
                   <li>Open DevTools → Network → Go offline to simulate connection loss</li>
                   <li>Continue creating tasks (they'll be queued locally)</li>

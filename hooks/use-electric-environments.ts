@@ -35,7 +35,7 @@ export function useElectricEnvironments(userId?: string) {
   const { isConnected, electricClient } = useElectricContext()
 
   useEffect(() => {
-    if (!electricClient || !isConnected) {
+    if (!(electricClient && isConnected)) {
       setLoading(false)
       return
     }
@@ -109,7 +109,7 @@ export function useElectricEnvironment(environmentId: string) {
   const { isConnected, electricClient } = useElectricContext()
 
   useEffect(() => {
-    if (!electricClient || !isConnected || !environmentId) {
+    if (!(electricClient && isConnected && environmentId)) {
       setLoading(false)
       return
     }

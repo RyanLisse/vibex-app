@@ -5,9 +5,9 @@
  * alerting, and performance regression detection.
  */
 
-import { db } from '@/db/config'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { sql } from 'drizzle-orm'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
+import { db } from '@/db/config'
 import { observability } from '@/lib/observability'
 import { metrics } from '@/lib/observability/metrics'
 
@@ -59,7 +59,7 @@ export class QueryPerformanceMonitor {
   private readonly config = {
     slowQueryThreshold: 100, // ms
     bufferSize: 1000,
-    flushIntervalMs: 30000, // 30 seconds
+    flushIntervalMs: 30_000, // 30 seconds
     baselineUpdateInterval: 24 * 60 * 60 * 1000, // 24 hours
     alertThresholds: {
       slowQuery: 1000, // ms

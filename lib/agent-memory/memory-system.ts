@@ -5,12 +5,12 @@
  * knowledge sharing between sessions, and automatic context summarization.
  */
 
+import { and, cosineDistance, desc, eq, sql } from 'drizzle-orm'
+import { ulid } from 'ulid'
 import { db } from '@/db/config'
 import { agentMemory } from '@/db/schema'
-import { eq, desc, and, sql, cosineDistance } from 'drizzle-orm'
-import { ulid } from 'ulid'
-import { wasmServices } from '@/lib/wasm/services'
 import { observability } from '@/lib/observability'
+import { wasmServices } from '@/lib/wasm/services'
 
 // Memory types
 export type MemoryType =
@@ -366,7 +366,7 @@ export class AgentMemorySystem {
   /**
    * Archive old memories
    */
-  async archiveOldMemories(agentId: string, olderThanDays: number = 30): Promise<number> {
+  async archiveOldMemories(agentId: string, olderThanDays = 30): Promise<number> {
     try {
       const cutoffDate = new Date()
       cutoffDate.setDate(cutoffDate.getDate() - olderThanDays)
@@ -466,7 +466,7 @@ export class AgentMemorySystem {
   private async getRecentMemories(
     agentId: string,
     sessionId: string,
-    limit: number = 10
+    limit = 10
   ): Promise<MemoryEntry[]> {
     const results = await db
       .select()
