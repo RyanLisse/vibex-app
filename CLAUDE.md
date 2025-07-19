@@ -59,6 +59,33 @@ Message 6: Bash("npm install")
 - Take advantage of Bun's native TypeScript support
 - Utilize Bun's fast package manager for installations
 
+### Testing Strategy (4 Consolidated Configs):
+```bash
+# Unit tests (lib, utils, schemas)
+bun run test:unit
+
+# Component tests (React components, hooks)  
+bun run test:components
+
+# Integration tests (API, database, Inngest)
+bun run test:integration
+
+# Browser tests (E2E, browser-specific)
+bun run test:browser
+
+# Run all tests
+bun run test:all
+
+# Type checking
+bun run typecheck
+```
+
+### Vitest Configuration Structure:
+1. **vitest.config.ts** - Unit tests for business logic
+2. **vitest.components.config.ts** - React component tests
+3. **vitest.integration.config.ts** - API and integration tests
+4. **vitest.browser.config.ts** - Browser and E2E tests
+
 ### Example Bun Workflow:
 ```bash
 # Install dependencies
@@ -66,7 +93,7 @@ bun install
 
 # Run scripts
 bun run start
-bun run test
+bun run test:all
 
 # Use bunx for package execution
 bunx create-next-app@latest

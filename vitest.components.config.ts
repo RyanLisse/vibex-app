@@ -1,21 +1,23 @@
 import path from 'node:path'
+import react from '@vitejs/plugin-react'
+import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 
-// Main Vitest config for unit tests (lib, utils, schemas)
+// Component tests config for React components and hooks
 export default defineConfig({
+  plugins: [react(), tsconfigPaths()],
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup/unit.ts'],
+    pool: 'threads',
+    css: true,
     include: [
-      'lib/**/*.test.{js,ts}',
-      'src/lib/**/*.test.{js,ts}',
-      'src/schemas/**/*.test.{js,ts}',
-      'src/shared/**/*.test.{js,ts}',
-      'src/features/**/*.test.{js,ts}',
-      'src/types/**/*.test.{js,ts}',
-      'stores/**/*.test.{js,ts}',
-      'src/hooks/useZodForm/**/*.test.{js,ts}',
+      'components/**/*.test.{jsx,tsx}',
+      'app/**/*.test.{jsx,tsx}',
+      'hooks/**/*.test.{jsx,tsx}',
+      'src/components/**/*.test.{jsx,tsx}',
+      'src/hooks/**/*.test.{jsx,tsx}',
     ],
     exclude: [
       'node_modules',
@@ -25,9 +27,11 @@ export default defineConfig({
       '**/*.e2e.test.*',
       '**/*.bun.test.*',
       'tests/bun-*.test.*',
-      'components/**/*.test.*',
-      'app/**/*.test.*',
-      'hooks/**/*.test.*',
+      'lib/**/*.test.*',
+      'src/lib/**/*.test.*',
+      'stores/**/*.test.*',
+      'src/schemas/**/*.test.*',
+      'src/hooks/useZodForm/**/*.test.{js,ts}',
     ],
     testTimeout: 10000,
     hookTimeout: 5000,
@@ -40,7 +44,7 @@ export default defineConfig({
     bail: 1,
     watch: false,
     passWithNoTests: true,
-    logHeapUsage: true,
+    allowOnly: false,
   },
   resolve: {
     alias: {
@@ -59,5 +63,16 @@ export default defineConfig({
   esbuild: {
     target: 'es2022',
     format: 'esm',
+    jsx: 'automatic',
+  },
+  optimizeDeps: {
+    include: [
+      '@testing-library/react',
+      '@testing-library/jest-dom',
+      '@testing-library/user-event',
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+    ],
   },
 })

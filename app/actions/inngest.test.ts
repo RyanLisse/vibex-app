@@ -1,22 +1,22 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock the inngest client
-const mockSend = mock(() => Promise.resolve({ id: 'test-event-id' }))
+const mockSend = vi.fn(() => Promise.resolve({ id: 'test-event-id' }))
 
-mock.module('@/lib/inngest', () => ({
+vi.mock('@/lib/inngest', () => ({
   inngest: {
     send: mockSend,
-    createFunction: mock(() => ({
+    createFunction: vi.fn(() => ({
       id: 'test-function',
       name: 'Test Function',
     })),
   },
-  createTask: mock(() => Promise.resolve({ success: true })),
-  taskControl: mock(() => Promise.resolve({ success: true })),
-  taskChannel: mock(() => ({
-    status: mock(),
-    update: mock(),
-    control: mock(),
+  createTask: vi.fn(() => Promise.resolve({ success: true })),
+  taskControl: vi.fn(() => Promise.resolve({ success: true })),
+  taskChannel: vi.fn(() => ({
+    status: vi.fn(),
+    update: vi.fn(),
+    control: vi.fn(),
   })),
 }))
 
@@ -27,7 +27,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  mock.restore()
+  vi.restoreAllMocks()
   delete process.env.INNGEST_EVENT_KEY
   delete process.env.NODE_ENV
 })
@@ -92,8 +92,8 @@ describe('Inngest Actions', () => {
 
   it('should handle multiple events in sequence', async () => {
     // Reset the mock before this test
-    mockSend.mockRestore()
-    mockSend.mockReturnValue(Promise.resolve({ id: 'test-event-id' }))
+    mockSend.mockClear()
+    mockSend.mockResolvedValue({ id: 'test-event-id' })
 
     const { inngest } = await import('@/lib/inngest')
 
