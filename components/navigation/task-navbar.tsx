@@ -17,7 +17,7 @@ import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from '@/app/actio
 import { createPullRequestAction } from '@/app/actions/vibekit'
 import { TaskControlButton } from '@/components/navigation/task-control-button'
 import { Button } from '@/components/ui/button'
-import { useTaskStore } from '@/stores/tasks'
+import { useTaskQuery, useUpdateTaskMutation } from '@/hooks/use-task-queries'
 
 interface Props {
   id: string
@@ -26,8 +26,30 @@ interface Props {
 export default function TaskNavbar({ id }: Props) {
   const [isCreatingPullRequest, setIsCreatingPullRequest] = useState(false)
   const [isControllingTask, setIsControllingTask] = useState(false)
-  const { getTaskById, updateTask, pauseTask, resumeTask, cancelTask } = useTaskStore()
-  const task = getTaskById(id)
+  const { task, loading, error } = useTaskQuery(id)
+  const updateTaskMutation = useUpdateTaskMutation()
+
+  // Handle loading and error states
+  if (loading) {
+    return (
+      <div className="flex items-center justify-between border-b bg-background px-6 py-3">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !task) {
+    return (
+      <div className="flex items-center justify-between border-b bg-background px-6 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Task not found</span>
+        </div>
+      </div>
+    )
+  }
 
   const handleCreatePullRequest = useCallback(async () => {
     if (!task) {
@@ -38,22 +60,24 @@ export default function TaskNavbar({ id }: Props) {
 
     const pr = await createPullRequestAction({ task })
 
-    updateTask(id, {
+    updateTaskMutation.mutate({
+      id,
       pullRequest: pr,
     })
 
     setIsCreatingPullRequest(false)
-  }, [task, id, updateTask])
+  }, [task, id, updateTaskMutation])
 
   const handleArchiveTask = useCallback(() => {
     if (!task) {
       return
     }
 
-    updateTask(id, {
+    updateTaskMutation.mutate({
+      id,
       isArchived: !task.isArchived,
     })
-  }, [task, id, updateTask])
+  }, [task, id, updateTaskMutation])
 
   const handlePauseTask = useCallback(async () => {
     if (!task) {
@@ -62,12 +86,12 @@ export default function TaskNavbar({ id }: Props) {
     setIsControllingTask(true)
     try {
       await pauseTaskAction(id)
-      pauseTask(id)
+      updateTaskMutation.mutate({ id, status: 'paused' })
     } catch (_error) {
     } finally {
       setIsControllingTask(false)
     }
-  }, [task, id, pauseTask])
+  }, [task, id, updateTaskMutation])
 
   const handleResumeTask = useCallback(async () => {
     if (!task) {
@@ -76,12 +100,12 @@ export default function TaskNavbar({ id }: Props) {
     setIsControllingTask(true)
     try {
       await resumeTaskAction(id)
-      resumeTask(id)
+      updateTaskMutation.mutate({ id, status: 'in_progress' })
     } catch (_error) {
     } finally {
       setIsControllingTask(false)
     }
-  }, [task, id, resumeTask])
+  }, [task, id, updateTaskMutation])
 
   const handleCancelTask = useCallback(async () => {
     if (!task) {
@@ -90,12 +114,12 @@ export default function TaskNavbar({ id }: Props) {
     setIsControllingTask(true)
     try {
       await cancelTaskAction(id)
-      cancelTask(id)
+      updateTaskMutation.mutate({ id, status: 'cancelled' })
     } catch (_error) {
     } finally {
       setIsControllingTask(false)
     }
-  }, [task, id, cancelTask])
+  }, [task, id, updateTaskMutation])
 
   return (
     <div className="flex h-14 items-center justify-between border-b px-4">

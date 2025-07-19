@@ -1,284 +1,303 @@
-/**
- * Observability System Main Export
- *
- * Comprehensive observability system that provides event collection,
- * performance metrics, real-time streaming, and monitoring capabilities
- * for the database observability integration.
- */
+import { trace, context, SpanStatusCode, SpanKind } from '@opentelemetry/api'
 
-// Re-export all observability components
-export * from './events'
-export * from './metrics'
-export * from './streaming'
+// Observability service for tracking operations and events
+export class ObservabilityService {
+  private static instance: ObservabilityService | null = null
+  private tracer = trace.getTracer('electric-sql-client')
+  private events: Array<{ name: string; data: any; timestamp: Date }> = []
+  private errors: Array<{ operation: string; error: Error; timestamp: Date }> = []
+  private operations: Map<string, { startTime: Date; endTime?: Date; duration?: number }> = new Map()
 
-// Import main components
-import { observabilityEvents, ObservabilityEventCollector } from './events'
-import { metrics, PerformanceMetricsCollector } from './metrics'
-import { eventStream, EventStreamManager } from './streaming'
+  private constructor() {
+    // Private constructor for singleton pattern
+  }
 
-// Observability system manager
-export class ObservabilitySystem {
-  private static instance: ObservabilitySystem
-  private initialized = false
-
-  private constructor() {}
-
-  static getInstance(): ObservabilitySystem {
-    if (!ObservabilitySystem.instance) {
-      ObservabilitySystem.instance = new ObservabilitySystem()
+  static getInstance(): ObservabilityService {
+    if (!ObservabilityService.instance) {
+      ObservabilityService.instance = new ObservabilityService()
     }
-    return ObservabilitySystem.instance
+    return ObservabilityService.instance
   }
 
   /**
-   * Initialize the observability system
+   * Track an operation with OpenTelemetry tracing
    */
-  async initialize(): Promise<void> {
-    if (this.initialized) return
+  async trackOperation<T>(operationName: string, operation: () => Promise<T>): Promise<T> {
+    const span = this.tracer.startSpan(operationName, {
+      kind: SpanKind.INTERNAL,
+    })
+
+    const operationId = `${operationName}_${Date.now()}_${Math.random()}`
+    this.operations.set(operationId, { startTime: new Date() })
 
     try {
-      console.log('🔍 Initializing Observability System...')
+      const result = await context.with(trace.setSpan(context.active(), span), operation)
+      
+      // Record successful completion
+      const operationData = this.operations.get(operationId)
+      if (operationData) {
+        operationData.endTime = new Date()
+        operationData.duration = operationData.endTime.getTime() - operationData.startTime.getTime()
+      }
 
-      // Initialize event collection
-      const eventCollector = ObservabilityEventCollector.getInstance()
-      console.log('✅ Event collection system initialized')
-
-      // Initialize metrics collection
-      const metricsCollector = PerformanceMetricsCollector.getInstance()
-      console.log('✅ Performance metrics system initialized')
-
-      // Initialize event streaming
-      const streamManager = EventStreamManager.getInstance()
-      console.log('✅ Real-time event streaming initialized')
-
-      // Set up system monitoring
-      this.setupSystemMonitoring()
-      console.log('✅ System monitoring configured')
-
-      // Record initialization event
-      await observabilityEvents.collector.collectEvent(
-        'system_event',
-        'info',
-        'Observability system initialized',
-        {
-          initializationTime: Date.now(),
-          components: ['events', 'metrics', 'streaming', 'monitoring'],
-        },
-        'observability',
-        ['system', 'initialization']
-      )
-
-      this.initialized = true
-      console.log('🎉 Observability System fully initialized')
+      span.setStatus({ code: SpanStatusCode.OK })
+      return result
     } catch (error) {
-      console.error('❌ Failed to initialize Observability System:', error)
+      // Record error
+      this.recordError(operationName, error as Error)
+      
+      const operationData = this.operations.get(operationId)
+      if (operationData) {
+        operationData.endTime = new Date()
+        operationData.duration = operationData.endTime.getTime() - operationData.startTime.getTime()
+      }
+
+      span.recordException(error as Error)
+      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
       throw error
+    } finally {
+      span.end()
+      // Clean up old operations (keep last 1000)
+      if (this.operations.size > 1000) {
+        const entries = Array.from(this.operations.entries())
+        const toKeep = entries.slice(-1000)
+        this.operations.clear()
+        toKeep.forEach(([key, value]) => this.operations.set(key, value))
+      }
     }
   }
 
   /**
-   * Set up system monitoring
+   * Track a synchronous operation
    */
-  private setupSystemMonitoring(): void {
-    // Monitor system health every 30 seconds
-    setInterval(async () => {
+  trackOperationSync<T>(operationName: string, operation: () => T): T {
+    const span = this.tracer.startSpan(operationName, {
+      kind: SpanKind.INTERNAL,
+    })
+
+    const operationId = `${operationName}_${Date.now()}_${Math.random()}`
+    this.operations.set(operationId, { startTime: new Date() })
+
+    try {
+      const result = context.with(trace.setSpan(context.active(), span), operation)
+      
+      // Record successful completion
+      const operationData = this.operations.get(operationId)
+      if (operationData) {
+        operationData.endTime = new Date()
+        operationData.duration = operationData.endTime.getTime() - operationData.startTime.getTime()
+      }
+
+      span.setStatus({ code: SpanStatusCode.OK })
+      return result
+    } catch (error) {
+      // Record error
+      this.recordError(operationName, error as Error)
+      
+      const operationData = this.operations.get(operationId)
+      if (operationData) {
+        operationData.endTime = new Date()
+        operationData.duration = operationData.endTime.getTime() - operationData.startTime.getTime()
+      }
+
+      span.recordException(error as Error)
+      span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
+      throw error
+    } finally {
+      span.end()
+    }
+  }
+
+  /**
+   * Record an event
+   */
+  recordEvent(name: string, data: any): void {
+    const event = {
+      name,
+      data,
+      timestamp: new Date(),
+    }
+
+    this.events.push(event)
+
+    // Keep only last 1000 events
+    if (this.events.length > 1000) {
+      this.events = this.events.slice(-1000)
+    }
+
+    // Add to current span if available
+    const span = trace.getActiveSpan()
+    if (span) {
+      span.addEvent(name, data)
+    }
+  }
+
+  /**
+   * Record an error
+   */
+  recordError(operation: string, error: Error): void {
+    const errorRecord = {
+      operation,
+      error,
+      timestamp: new Date(),
+    }
+
+    this.errors.push(errorRecord)
+
+    // Keep only last 500 errors
+    if (this.errors.length > 500) {
+      this.errors = this.errors.slice(-500)
+    }
+
+    // Add to current span if available
+    const span = trace.getActiveSpan()
+    if (span) {
+      span.recordException(error)
+    }
+
+    console.error(`Operation ${operation} failed:`, error)
+  }
+
+  /**
+   * Track agent execution with comprehensive metadata
+   */
+  async trackAgentExecution<T>(
+    agentType: string,
+    operation: string,
+    execution: () => Promise<T>,
+    metadata?: any
+  ): Promise<T> {
+    const operationName = `agent.${agentType}.${operation}`
+    
+    return this.trackOperation(operationName, async () => {
+      const span = trace.getActiveSpan()
+      if (span) {
+        span.setAttributes({
+          'agent.type': agentType,
+          'agent.operation': operation,
+          ...metadata,
+        })
+      }
+
+      this.recordEvent('agent.execution.start', {
+        agentType,
+        operation,
+        metadata,
+      })
+
       try {
-        await this.collectSystemHealthMetrics()
+        const result = await execution()
+        
+        this.recordEvent('agent.execution.complete', {
+          agentType,
+          operation,
+          success: true,
+        })
+
+        return result
       } catch (error) {
-        console.error('Error collecting system health metrics:', error)
+        this.recordEvent('agent.execution.error', {
+          agentType,
+          operation,
+          error: (error as Error).message,
+        })
+        throw error
       }
-    }, 30000)
-
-    // Monitor memory usage
-    if (typeof process !== 'undefined' && process.memoryUsage) {
-      setInterval(() => {
-        const memUsage = process.memoryUsage()
-        metrics.memoryUsage(memUsage.heapUsed, 'heap')
-        metrics.memoryUsage(memUsage.rss, 'rss')
-        metrics.memoryUsage(memUsage.external, 'external')
-      }, 10000)
-    }
-
-    // Monitor event stream health
-    setInterval(() => {
-      const streamStats = eventStream.manager.getSubscriptionStats()
-      metrics.collector.recordMetric('throughput', streamStats.active, {
-        component: 'event_stream',
-        metric: 'active_subscriptions',
-      })
-    }, 15000)
+    })
   }
 
   /**
-   * Collect system health metrics
+   * Get recent events
    */
-  private async collectSystemHealthMetrics(): Promise<void> {
-    try {
-      // Calculate health score for the last hour
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-      const now = new Date()
-
-      const healthScore = await metrics.analyzer.calculateHealthScore({
-        start: oneHourAgo,
-        end: now,
-      })
-
-      // Record health metrics
-      metrics.collector.recordMetric('throughput', healthScore.overall, {
-        component: 'system',
-        metric: 'health_score',
-      })
-
-      metrics.collector.recordMetric('throughput', healthScore.components.database, {
-        component: 'database',
-        metric: 'health_score',
-      })
-
-      metrics.collector.recordMetric('throughput', healthScore.components.sync, {
-        component: 'sync',
-        metric: 'health_score',
-      })
-
-      metrics.collector.recordMetric('throughput', healthScore.components.wasm, {
-        component: 'wasm',
-        metric: 'health_score',
-      })
-
-      metrics.collector.recordMetric('throughput', healthScore.components.queries, {
-        component: 'queries',
-        metric: 'health_score',
-      })
-
-      // Log health status if concerning
-      if (healthScore.overall < 80) {
-        await observabilityEvents.collector.collectEvent(
-          'system_event',
-          healthScore.overall < 50 ? 'critical' : 'warn',
-          `System health score: ${healthScore.overall.toFixed(1)}%`,
-          {
-            healthScore: healthScore.overall,
-            components: healthScore.components,
-          },
-          'monitoring',
-          ['health', 'system']
-        )
-      }
-    } catch (error) {
-      console.error('Error collecting system health metrics:', error)
-    }
+  getEvents(limit = 100): Array<{ name: string; data: any; timestamp: Date }> {
+    return this.events.slice(-limit)
   }
 
   /**
-   * Shutdown the observability system
+   * Get recent errors
    */
-  async shutdown(): Promise<void> {
-    if (!this.initialized) return
-
-    try {
-      console.log('🔍 Shutting down Observability System...')
-
-      // Record shutdown event
-      await observabilityEvents.collector.collectEvent(
-        'system_event',
-        'info',
-        'Observability system shutting down',
-        { shutdownTime: Date.now() },
-        'observability',
-        ['system', 'shutdown']
-      )
-
-      // Flush all pending data
-      await observabilityEvents.collector.forceFlush()
-      await metrics.collector.forceFlush()
-
-      // Stop periodic processes
-      observabilityEvents.collector.stopPeriodicFlush()
-      metrics.collector.stopPeriodicFlush()
-      eventStream.manager.stopEventPolling()
-
-      this.initialized = false
-      console.log('✅ Observability System shutdown complete')
-    } catch (error) {
-      console.error('❌ Error during Observability System shutdown:', error)
-      throw error
-    }
+  getErrors(limit = 50): Array<{ operation: string; error: Error; timestamp: Date }> {
+    return this.errors.slice(-limit)
   }
 
   /**
-   * Get system status
+   * Get operation statistics
    */
-  getSystemStatus(): {
-    initialized: boolean
-    components: {
-      events: boolean
-      metrics: boolean
-      streaming: boolean
-    }
-    stats: {
-      activeSubscriptions: number
-      bufferedEvents: number
-    }
+  getOperationStats(): {
+    totalOperations: number
+    averageDuration: number
+    successRate: number
+    recentOperations: Array<{ name: string; duration: number; timestamp: Date }>
   } {
+    const operations = Array.from(this.operations.values())
+    const completedOperations = operations.filter(op => op.endTime && op.duration !== undefined)
+    
+    const totalDuration = completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0)
+    const averageDuration = completedOperations.length > 0 ? totalDuration / completedOperations.length : 0
+    
+    const totalOperations = operations.length
+    const errorCount = this.errors.length
+    const successRate = totalOperations > 0 ? ((totalOperations - errorCount) / totalOperations) * 100 : 100
+
+    const recentOperations = Array.from(this.operations.entries())
+      .filter(([_, op]) => op.endTime && op.duration !== undefined)
+      .slice(-20)
+      .map(([name, op]) => ({
+        name: name.split('_')[0], // Remove timestamp and random suffix
+        duration: op.duration!,
+        timestamp: op.startTime,
+      }))
+
     return {
-      initialized: this.initialized,
-      components: {
-        events: true, // Always available once initialized
-        metrics: true, // Always available once initialized
-        streaming: true, // Always available once initialized
-      },
-      stats: {
-        activeSubscriptions: eventStream.manager.getActiveSubscriptionsCount(),
-        bufferedEvents: eventStream.manager.getBufferedEvents().length,
-      },
+      totalOperations,
+      averageDuration: Math.round(averageDuration),
+      successRate: Math.round(successRate * 100) / 100,
+      recentOperations,
     }
   }
 
   /**
-   * Force flush all systems
+   * Clear all stored data (for testing)
    */
-  async forceFlush(): Promise<void> {
-    await Promise.all([observabilityEvents.collector.forceFlush(), metrics.collector.forceFlush()])
+  clear(): void {
+    this.events = []
+    this.errors = []
+    this.operations.clear()
   }
-}
 
-// Main observability system instance
-export const observability = {
-  system: ObservabilitySystem.getInstance(),
-  events: observabilityEvents,
-  metrics,
-  stream: eventStream,
+  /**
+   * Get health status
+   */
+  getHealthStatus(): {
+    isHealthy: boolean
+    recentErrorRate: number
+    averageResponseTime: number
+    lastActivity: Date | null
+  } {
+    const recentEvents = this.events.slice(-100)
+    const recentErrors = this.errors.slice(-50)
+    const recentOperations = Array.from(this.operations.values()).slice(-50)
 
-  // Convenience methods
-  initialize: () => ObservabilitySystem.getInstance().initialize(),
-  shutdown: () => ObservabilitySystem.getInstance().shutdown(),
-  getStatus: () => ObservabilitySystem.getInstance().getSystemStatus(),
-  forceFlush: () => ObservabilitySystem.getInstance().forceFlush(),
-}
+    const recentErrorRate = recentEvents.length > 0 
+      ? (recentErrors.length / recentEvents.length) * 100 
+      : 0
 
-// Auto-initialize in browser environment
-if (typeof window !== 'undefined') {
-  // Initialize on next tick to avoid blocking
-  setTimeout(() => {
-    observability.initialize().catch(console.error)
-  }, 0)
-}
+    const completedOperations = recentOperations.filter(op => op.duration !== undefined)
+    const averageResponseTime = completedOperations.length > 0
+      ? completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0) / completedOperations.length
+      : 0
 
-// Graceful shutdown handling
-if (typeof process !== 'undefined') {
-  const gracefulShutdown = async (signal: string) => {
-    console.log(`Received ${signal}, shutting down observability system...`)
-    try {
-      await observability.shutdown()
-      process.exit(0)
-    } catch (error) {
-      console.error('Error during graceful shutdown:', error)
-      process.exit(1)
+    const lastActivity = recentEvents.length > 0 
+      ? recentEvents[recentEvents.length - 1].timestamp 
+      : null
+
+    const isHealthy = recentErrorRate < 10 && averageResponseTime < 5000 // Less than 10% errors and under 5s response time
+
+    return {
+      isHealthy,
+      recentErrorRate: Math.round(recentErrorRate * 100) / 100,
+      averageResponseTime: Math.round(averageResponseTime),
+      lastActivity,
     }
   }
-
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 }
-
-// Default export
-export default observability

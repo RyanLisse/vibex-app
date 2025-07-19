@@ -9,15 +9,14 @@ import { useTaskData } from '@/app/task/[id]/_hooks/use-task-data'
 import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription'
 import TaskNavbar from '@/components/navigation/task-navbar'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useTaskStore } from '@/stores/tasks'
+import { useTaskQuery } from '@/hooks/use-task-queries'
 
 interface TaskClientPageProps {
   id: string
 }
 
 export default function TaskClientPage({ id }: TaskClientPageProps) {
-  const { getTaskById } = useTaskStore()
-  const task = getTaskById(id)
+  const { task, loading, error } = useTaskQuery(id)
   const { streamingMessages } = useTaskSubscription({
     taskId: id,
     taskMessages: task?.messages,

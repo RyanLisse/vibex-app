@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
-import type { Task } from '@/stores/tasks'
-import { useTaskStore } from '@/stores/tasks'
+import type { Task } from '@/db/schema'
+import { useUpdateTask } from '@/lib/query/hooks'
 import {
   filterChatMessages,
   filterShellMessages,
@@ -31,18 +31,21 @@ export function useOptimizedTaskData({
   task,
   streamingMessages,
 }: UseOptimizedTaskDataProps): UseOptimizedTaskDataReturn {
-  const { updateTask } = useTaskStore()
+  const updateTaskMutation = useUpdateTask()
   const previousTaskId = useRef<string | null>(null)
   const isFirstRender = useRef(true)
 
   // Mark task as viewed when component mounts or task changes
   useEffect(() => {
     if (task && (task.id !== previousTaskId.current || isFirstRender.current)) {
-      updateTask(task.id, { hasChanges: false })
+      updateTaskMutation.mutate({
+        id: task.id,
+        hasChanges: false,
+      })
       previousTaskId.current = task.id
       isFirstRender.current = false
     }
-  }, [task?.id, updateTask])
+  }, [task?.id, updateTaskMutation])
 
   // Memoize filtered messages with stable references
   const regularMessages = useMemo(() => {

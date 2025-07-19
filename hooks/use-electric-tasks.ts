@@ -1,9 +1,10 @@
 'use client'
 
-import { useCallback, useMemo, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { Environment, NewEnvironment, NewTask, Task } from '@/db/schema'
+import { electricDb, type SyncEvent } from '@/lib/electric/config'
 import { useElectricQuery, useElectricSubscription } from './use-electric'
-import { electricDb, SyncEvent } from '@/lib/electric/config'
-import type { Task, NewTask } from '@/db/schema'
+import { useEnvironmentsSubscription, useTasksSubscription } from './use-electric-subscriptions'
 
 interface ConflictEvent {
   type: 'conflict'
@@ -13,9 +14,19 @@ interface ConflictEvent {
   resolved?: any
 }
 
-// Hook for managing tasks with real-time sync
+// Enhanced hook for managing tasks with real-time sync
 export function useElectricTasks(userId?: string) {
-  // Query for user's tasks
+  // Use the new subscription system for real-time updates
+  const {
+    tasks: subscriptionTasks,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+    subscriptionActive,
+    syncEvents,
+    refetch: refetchTasks,
+  } = useTasksSubscription(userId)
+
+  // Fallback query for when subscription is not active
   const tasksQuery = useMemo(() => {
     if (!userId) return 'SELECT * FROM tasks ORDER BY created_at DESC'
     return 'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC'
@@ -25,24 +36,28 @@ export function useElectricTasks(userId?: string) {
     return userId ? [userId] : []
   }, [userId])
 
-  // Get tasks with real-time updates
+  // Fallback query when subscription is not available
   const {
-    data: tasks,
-    loading: tasksLoading,
-    error: tasksError,
-    refetch: refetchTasks,
+    data: fallbackTasks,
+    loading: fallbackLoading,
+    error: fallbackError,
   } = useElectricQuery<Task>(tasksQuery, tasksParams, {
-    enabled: true,
-    refetchInterval: 30000, // Refetch every 30 seconds as fallback
+    enabled: !subscriptionActive,
+    refetchInterval: 30_000,
   })
+
+  // Use subscription data when available, fallback otherwise
+  const tasks = subscriptionActive ? subscriptionTasks : fallbackTasks || []
+  const tasksLoading = subscriptionActive ? subscriptionLoading : fallbackLoading
+  const tasksError = subscriptionActive ? subscriptionError : fallbackError
 
   // Subscribe to real-time task updates
   const subscriptionFilter = userId ? `user_id = '${userId}'` : undefined
 
   const {
     data: realtimeTasks,
-    loading: subscriptionLoading,
-    error: subscriptionError,
+    loading: realtimeLoading,
+    error: realtimeError,
   } = useElectricSubscription<Task>('tasks', subscriptionFilter, {
     enabled: true,
     onInsert: (task) => {
@@ -60,7 +75,7 @@ export function useElectricTasks(userId?: string) {
   const finalTasks = realtimeTasks.length > 0 ? realtimeTasks : tasks
 
   // State for sync events and conflicts
-  const [syncEvents, setSyncEvents] = useState<SyncEvent[]>([])
+  const [localSyncEvents, setLocalSyncEvents] = useState<SyncEvent[]>([])
   const [conflicts, setConflicts] = useState<ConflictEvent[]>([])
   const [isOnline, setIsOnline] = useState(true)
 
@@ -347,8 +362,8 @@ export function useElectricTasks(userId?: string) {
     conflicts,
 
     // Loading states
-    loading: tasksLoading || subscriptionLoading,
-    error: tasksError || subscriptionError,
+    loading: tasksLoading || realtimeLoading,
+    error: tasksError || realtimeError,
 
     // Actions
     createTask,
@@ -395,13 +410,13 @@ export function useElectricTaskExecutions(taskId?: string) {
   })
 
   // Subscribe to real-time execution updates
-  const subscriptionFilter = taskId ? `task_id = '${taskId}'` : undefined
+  const executionSubscriptionFilter = taskId ? `task_id = '${taskId}'` : undefined
 
   const {
     data: realtimeExecutions,
-    loading: subscriptionLoading,
-    error: subscriptionError,
-  } = useElectricSubscription('agent_executions', subscriptionFilter, {
+    loading: realtimeExecLoading,
+    error: realtimeExecError,
+  } = useElectricSubscription('agent_executions', executionSubscriptionFilter, {
     enabled: true,
     onInsert: (execution) => {
       console.log('New execution started:', execution.agentType)
@@ -468,17 +483,27 @@ export function useElectricTaskExecutions(taskId?: string) {
     executionStats,
 
     // Loading states
-    loading: executionsLoading || subscriptionLoading,
-    error: executionsError || subscriptionError,
+    loading: executionsLoading || realtimeExecLoading,
+    error: executionsError || realtimeExecError,
 
     // Actions
     refetch: refetchExecutions,
   }
 }
 
-// Hook for managing environments with real-time sync
+// Enhanced hook for managing environments with real-time sync
 export function useElectricEnvironments(userId?: string) {
-  // Query for user's environments
+  // Use the new subscription system for real-time updates
+  const {
+    environments: subscriptionEnvironments,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+    subscriptionActive,
+    syncEvents,
+    refetch: refetchEnvironments,
+  } = useEnvironmentsSubscription(userId)
+
+  // Fallback query for when subscription is not active
   const environmentsQuery = useMemo(() => {
     if (!userId) return 'SELECT * FROM environments ORDER BY created_at DESC'
     return 'SELECT * FROM environments WHERE user_id = $1 ORDER BY created_at DESC'
@@ -488,24 +513,29 @@ export function useElectricEnvironments(userId?: string) {
     return userId ? [userId] : []
   }, [userId])
 
-  // Get environments with real-time updates
+  // Fallback query when subscription is not available
   const {
-    data: environments,
-    loading: environmentsLoading,
-    error: environmentsError,
-    refetch: refetchEnvironments,
-  } = useElectricQuery(environmentsQuery, environmentsParams, {
-    enabled: true,
+    data: fallbackEnvironments,
+    loading: fallbackLoading,
+    error: fallbackError,
+  } = useElectricQuery<Environment>(environmentsQuery, environmentsParams, {
+    enabled: !subscriptionActive,
+    refetchInterval: 30_000,
   })
 
+  // Use subscription data when available, fallback otherwise
+  const environments = subscriptionActive ? subscriptionEnvironments : fallbackEnvironments || []
+  const environmentsLoading = subscriptionActive ? subscriptionLoading : fallbackLoading
+  const environmentsError = subscriptionActive ? subscriptionError : fallbackError
+
   // Subscribe to real-time environment updates
-  const subscriptionFilter = userId ? `user_id = '${userId}'` : undefined
+  const envSubscriptionFilter = userId ? `user_id = '${userId}'` : undefined
 
   const {
     data: realtimeEnvironments,
-    loading: subscriptionLoading,
-    error: subscriptionError,
-  } = useElectricSubscription('environments', subscriptionFilter, {
+    loading: realtimeEnvLoading,
+    error: realtimeEnvError,
+  } = useElectricSubscription('environments', envSubscriptionFilter, {
     enabled: true,
     onInsert: (environment) => {
       console.log('New environment created:', environment.name)
@@ -701,8 +731,8 @@ export function useElectricEnvironments(userId?: string) {
     syncEvents: envSyncEvents.slice(0, 5), // Return last 5 events
 
     // Loading states
-    loading: environmentsLoading || subscriptionLoading,
-    error: environmentsError || subscriptionError,
+    loading: environmentsLoading || realtimeEnvLoading,
+    error: environmentsError || realtimeEnvError,
 
     // Actions
     createEnvironment,

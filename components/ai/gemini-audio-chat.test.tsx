@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
+import { vi, describe, it, expect } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
 import { GeminiAudioChat } from '@/components/ai/gemini-audio-chat'
 
 // Mock the hooks

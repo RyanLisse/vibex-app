@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createTaskAction } from '@/app/actions/inngest'
 import { useTaskContext } from '@/app/task/[id]/_providers/task-provider'
 import { Button } from '@/components/ui/button'
-import { useTaskStore } from '@/stores/tasks'
+import { useUpdateTask } from '@/lib/query/hooks'
 
 /**
  * MessageInput component with improved UX and error handling
@@ -16,7 +16,7 @@ import { useTaskStore } from '@/stores/tasks'
  */
 export function MessageInput() {
   const { task } = useTaskContext()
-  const { updateTask } = useTaskStore()
+  const updateTaskMutation = useUpdateTask()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [messageValue, setMessageValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -46,8 +46,8 @@ export function MessageInput() {
       })
 
       // Update task with new message
-      updateTask(task.id, {
-        ...task,
+      updateTaskMutation.mutate({
+        id: task.id,
         status: 'IN_PROGRESS',
         statusMessage: 'Working on task',
         messages: [
@@ -66,7 +66,7 @@ export function MessageInput() {
     } finally {
       setIsLoading(false)
     }
-  }, [messageValue, isLoading, task, updateTask])
+  }, [messageValue, isLoading, task, updateTaskMutation])
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent) => {

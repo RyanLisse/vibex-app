@@ -73,29 +73,34 @@ export function EnhancedEnvironmentsList({
   } = useElectricEnvironments(userId)
 
   // Track environment activity
-  const [recentActivity, setRecentActivity] = useState<Array<{
-    type: 'create' | 'update' | 'delete' | 'activate'
-    environmentId: string
-    environmentName: string
-    timestamp: Date
-    userId?: string
-  }>>([])
+  const [recentActivity, setRecentActivity] = useState<
+    Array<{
+      type: 'create' | 'update' | 'delete' | 'activate'
+      environmentId: string
+      environmentName: string
+      timestamp: Date
+      userId?: string
+    }>
+  >([])
 
   // Monitor sync events for environment-specific activity
   useEffect(() => {
-    syncEvents.forEach(event => {
+    syncEvents.forEach((event) => {
       if (event.table === 'environments') {
         const activity = {
-          type: event.type === 'insert' ? 'create' as const : 
-                event.type === 'update' ? 'update' as const : 
-                'delete' as const,
+          type:
+            event.type === 'insert'
+              ? ('create' as const)
+              : event.type === 'update'
+                ? ('update' as const)
+                : ('delete' as const),
           environmentId: event.record?.id || 'unknown',
           environmentName: event.record?.name || 'Unknown Environment',
           timestamp: event.timestamp,
           userId: event.userId,
         }
-        
-        setRecentActivity(prev => [activity, ...prev.slice(0, 9)]) // Keep last 10 activities
+
+        setRecentActivity((prev) => [activity, ...prev.slice(0, 9)]) // Keep last 10 activities
       }
     })
   }, [syncEvents])
@@ -137,13 +142,16 @@ export function EnhancedEnvironmentsList({
       )
 
       // Add to activity log
-      setRecentActivity(prev => [{
-        type: 'activate',
-        environmentId,
-        environmentName,
-        timestamp: new Date(),
-        userId,
-      }, ...prev.slice(0, 9)])
+      setRecentActivity((prev) => [
+        {
+          type: 'activate',
+          environmentId,
+          environmentName,
+          timestamp: new Date(),
+          userId,
+        },
+        ...prev.slice(0, 9),
+      ])
     } catch (error) {
       console.error('Failed to activate environment:', error)
     }
@@ -173,13 +181,16 @@ export function EnhancedEnvironmentsList({
       )
 
       // Add to activity log
-      setRecentActivity(prev => [{
-        type: 'delete',
-        environmentId,
-        environmentName,
-        timestamp: new Date(),
-        userId,
-      }, ...prev.slice(0, 9)])
+      setRecentActivity((prev) => [
+        {
+          type: 'delete',
+          environmentId,
+          environmentName,
+          timestamp: new Date(),
+          userId,
+        },
+        ...prev.slice(0, 9),
+      ])
     } catch (error) {
       console.error('Failed to delete environment:', error)
     }
@@ -259,9 +270,10 @@ export function EnhancedEnvironmentsList({
   // Enhanced environment card with real-time indicators
   const EnvironmentCard = ({ environment }: { environment: any }) => {
     const isRecentlyUpdated = syncEvents.some(
-      event => event.table === 'environments' && 
-                event.record?.id === environment.id && 
-                (Date.now() - event.timestamp.getTime()) < 5000 // Within last 5 seconds
+      (event) =>
+        event.table === 'environments' &&
+        event.record?.id === environment.id &&
+        Date.now() - event.timestamp.getTime() < 5000 // Within last 5 seconds
     )
 
     return (
@@ -271,9 +283,11 @@ export function EnhancedEnvironmentsList({
         exit={{ opacity: 0, y: -20 }}
         layout
       >
-        <Card className={`transition-all hover:shadow-md ${
-          environment.isActive ? 'ring-2 ring-primary' : ''
-        } ${isRecentlyUpdated ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}>
+        <Card
+          className={`transition-all hover:shadow-md ${
+            environment.isActive ? 'ring-2 ring-primary' : ''
+          } ${isRecentlyUpdated ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`}
+        >
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -374,20 +388,11 @@ export function EnhancedEnvironmentsList({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSyncDetails(!showSyncDetails)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => setShowSyncDetails(!showSyncDetails)}>
             <Activity className="h-4 w-4 mr-1" />
             {showSyncDetails ? 'Hide' : 'Show'} Sync
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={environmentsLoading}
-          >
+          <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={environmentsLoading}>
             <RefreshCw className={`h-4 w-4 ${environmentsLoading ? 'animate-spin' : ''}`} />
           </Button>
           {isAuthenticated ? (
@@ -417,7 +422,7 @@ export function EnhancedEnvironmentsList({
 
       {/* Connection status */}
       <ConnectionStatus />
-      
+
       {/* Error display */}
       {environmentsError && (
         <ErrorDisplay error={environmentsError} onRetry={refetchEnvironments} />
@@ -443,12 +448,17 @@ export function EnhancedEnvironmentsList({
                     exit={{ opacity: 0, x: 20 }}
                     className="flex items-center gap-2 text-sm bg-muted/50 rounded p-2"
                   >
-                    <div className={`w-2 h-2 rounded-full ${
-                      activity.type === 'create' ? 'bg-green-500' :
-                      activity.type === 'update' ? 'bg-blue-500' :
-                      activity.type === 'activate' ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    }`} />
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        activity.type === 'create'
+                          ? 'bg-green-500'
+                          : activity.type === 'update'
+                            ? 'bg-blue-500'
+                            : activity.type === 'activate'
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
+                      }`}
+                    />
                     <span className="capitalize">{activity.type}d</span>
                     <span className="font-medium">{activity.environmentName}</span>
                     <span className="text-muted-foreground ml-auto">
@@ -469,7 +479,9 @@ export function EnhancedEnvironmentsList({
             <CardContent className="pt-6">
               <div className="text-center">
                 <GithubIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">Connect your Github account to get started</p>
+                <p className="text-muted-foreground mb-4">
+                  Connect your Github account to get started
+                </p>
                 <Button onClick={handleGitHubAuth}>
                   <GithubIcon className="h-4 w-4 mr-2" />
                   Connect Github
@@ -483,8 +495,8 @@ export function EnhancedEnvironmentsList({
               <div className="text-center">
                 <FolderGit className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">No environments yet.</p>
-                <Button 
-                  className="mt-4" 
+                <Button
+                  className="mt-4"
                   onClick={() => handleCreateDialogChange(true)}
                   disabled={!isOnline}
                 >

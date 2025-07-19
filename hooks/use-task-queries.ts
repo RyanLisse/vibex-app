@@ -237,28 +237,6 @@ export function useTaskSearchQuery(options: TaskSearchOptions) {
 /**
  * Hook for task detail query
  */
-export function useTaskQuery(taskId: string) {
-  return useEnhancedQuery(
-    queryKeys.tasks.detail(taskId),
-    async () => {
-      // This would typically fetch from API or database
-      // For now, we'll get it from the tasks list cache
-      const allTasks = (queryClient.getQueryData(queryKeys.tasks.lists()) as Task[]) || []
-      const task = allTasks.find((t) => t.id === taskId)
-
-      if (!task) {
-        throw new Error(`Task with id ${taskId} not found`)
-      }
-
-      return task
-    },
-    {
-      enabled: !!taskId,
-      enableWASMOptimization: false, // Single record doesn't need WASM optimization
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  )
-}
 
 /**
  * Hook for creating tasks with optimistic updates

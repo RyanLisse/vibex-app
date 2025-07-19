@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
-import { useTaskStore } from '@/stores/tasks'
+import { useUpdateTask } from '@/lib/query/hooks'
 import {
   isCompletedStreamMessage,
   isStreamingMessage,
@@ -20,7 +20,7 @@ export function useMessageProcessor({
   streamingMessages,
   setStreamingMessages,
 }: UseMessageProcessorProps) {
-  const { updateTask } = useTaskStore()
+  const updateTaskMutation = useUpdateTask()
 
   const processStreamingMessage = useCallback(
     (message: IncomingMessage & { data: { isStreaming: true; streamId: string } }) => {
@@ -56,7 +56,8 @@ export function useMessageProcessor({
       const streamingMessage = streamingMessages.get(streamId)
 
       if (streamingMessage) {
-        updateTask(taskId, {
+        updateTaskMutation.mutate({
+          id: taskId,
           messages: [
             ...taskMessages,
             {
@@ -77,19 +78,20 @@ export function useMessageProcessor({
         })
       }
     },
-    [taskId, taskMessages, streamingMessages, updateTask, setStreamingMessages]
+    [taskId, taskMessages, streamingMessages, updateTaskMutation, setStreamingMessages]
   )
 
   const processRegularMessage = useCallback(
     (message: IncomingMessage) => {
-      updateTask(taskId, {
+      updateTaskMutation.mutate({
+        id: taskId,
         messages: [
           ...taskMessages,
           message as { role: 'user' | 'assistant'; type: string; data: Record<string, unknown> },
         ],
       })
     },
-    [taskId, taskMessages, updateTask]
+    [taskId, taskMessages, updateTaskMutation]
   )
 
   const processMessage = useCallback(

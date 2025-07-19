@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   isStatusData,
   isStatusTopic,
@@ -8,14 +9,28 @@ import {
   type LatestData,
 } from '@/lib/container-types'
 import { MessageHandlers } from '@/lib/message-handlers'
-import { useTaskStore } from '@/stores/tasks'
+import { useUpdateTask, useTask, taskKeys } from '@/lib/query/hooks'
+import type { Task } from '@/db/schema'
 
 export function useTaskMessageProcessing(latestData: LatestData | null) {
-  const { updateTask, getTaskById } = useTaskStore()
+  const updateTaskMutation = useUpdateTask()
+  const queryClient = useQueryClient()
+
+  // Create adapter functions to bridge TanStack Query with MessageHandlers interface
+  const updateTaskAdapter = useCallback((id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
+    updateTaskMutation.mutate({ id, ...updates })
+  }, [updateTaskMutation])
+
+  const getTaskByIdAdapter = useCallback((id: string): Task | undefined => {
+    return queryClient.getQueryData(taskKeys.detail(id))
+  }, [queryClient])
 
   const messageHandlers = useMemo(
-    () => new MessageHandlers({ updateTask, getTaskById }),
-    [updateTask, getTaskById]
+    () => new MessageHandlers({
+      updateTask: updateTaskAdapter,
+      getTaskById: getTaskByIdAdapter
+    }),
+    [updateTaskAdapter, getTaskByIdAdapter]
   )
 
   const processMessage = useCallback(

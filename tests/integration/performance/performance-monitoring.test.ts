@@ -1,6 +1,6 @@
 /**
  * Performance Monitoring Integration Tests
- * 
+ *
  * Comprehensive test suite for performance testing including load testing,
  * memory usage monitoring, response time validation, and system health checks
  */
@@ -75,7 +75,8 @@ class PerformanceMonitor {
     const endTime = performance.now()
     const totalTime = endTime - this.startTime
 
-    const avgResponseTime = this.requestTimes.reduce((sum, time) => sum + time, 0) / this.requestTimes.length
+    const avgResponseTime =
+      this.requestTimes.reduce((sum, time) => sum + time, 0) / this.requestTimes.length
     const throughput = this.requestTimes.length / (totalTime / 1000)
 
     return {
@@ -85,7 +86,7 @@ class PerformanceMonitor {
       cpuUsage: this.getCpuUsage(),
       databaseQueryTime: avgResponseTime * 0.3, // Estimate DB time as 30% of response time
       errorRate: 0, // Mock implementation
-      concurrentUsers: 1
+      concurrentUsers: 1,
     }
   }
 
@@ -116,7 +117,7 @@ class PerformanceMonitor {
     const workers = Array.from({ length: concurrency }, async (_, index) => {
       // Ramp up delay
       if (rampUp > 0) {
-        await new Promise(resolve => setTimeout(resolve, (index / concurrency) * rampUp))
+        await new Promise((resolve) => setTimeout(resolve, (index / concurrency) * rampUp))
       }
 
       const workerStartTime = performance.now()
@@ -131,7 +132,7 @@ class PerformanceMonitor {
         }
 
         // Small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
       }
     })
 
@@ -155,10 +156,10 @@ class PerformanceMonitor {
       percentiles: {
         p50: getPercentile(50),
         p95: getPercentile(95),
-        p99: getPercentile(99)
+        p99: getPercentile(99),
       },
       throughputPerSecond: results.length / (totalTime / 1000),
-      errorsPerSecond: errors.length / (totalTime / 1000)
+      errorsPerSecond: errors.length / (totalTime / 1000),
     }
   }
 
@@ -169,18 +170,18 @@ class PerformanceMonitor {
         used: 512,
         free: 1536,
         total: 2048,
-        percentage: 25
+        percentage: 25,
       },
       cpuUsage: Math.random() * 50 + 10,
       diskUsage: {
         used: 10240,
         free: 40960,
         total: 51200,
-        percentage: 20
+        percentage: 20,
       },
       networkConnections: Math.floor(Math.random() * 100) + 10,
       activeQueries: Math.floor(Math.random() * 10) + 1,
-      queueDepth: Math.floor(Math.random() * 5)
+      queueDepth: Math.floor(Math.random() * 5),
     }
   }
 }
@@ -239,9 +240,9 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       title: `Performance Test Task ${i}`,
       description: `Task ${i} for performance testing`,
       status: 'pending' as const,
-      priority: i % 2 === 0 ? 'high' as const : 'medium' as const,
+      priority: i % 2 === 0 ? ('high' as const) : ('medium' as const),
       userId: 'perf-test-user',
-      metadata: { testIndex: i, batchId: 'perf-test-batch' }
+      metadata: { testIndex: i, batchId: 'perf-test-batch' },
     }))
 
     const createdTasks = await db.insert(tasks).values(taskData).returning()
@@ -249,14 +250,14 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
     // Create test environments
     const envData = Array.from({ length: 3 }, (_, i) => ({
       name: `Performance Test Environment ${i}`,
-      config: { 
+      config: {
         apiKey: `perf-test-key-${i}`,
         endpoint: `https://api-${i}.test.com`,
-        timeout: 5000 + i * 1000
+        timeout: 5000 + i * 1000,
       },
       isActive: i === 0,
       userId: 'perf-test-user',
-      schemaVersion: 1
+      schemaVersion: 1,
     }))
 
     const createdEnvs = await db.insert(environments).values(envData).returning()
@@ -268,15 +269,15 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       status: 'completed' as const,
       input: { prompt: `Test input ${i}` },
       output: { result: `Test result ${i}` },
-      executionTimeMs: 1000 + i * 200
+      executionTimeMs: 1000 + i * 200,
     }))
 
     const createdExecutions = await db.insert(agentExecutions).values(executionData).returning()
 
     return {
-      taskIds: createdTasks.map(t => t.id),
-      environmentIds: createdEnvs.map(e => e.id),
-      executionIds: createdExecutions.map(e => e.id)
+      taskIds: createdTasks.map((t) => t.id),
+      environmentIds: createdEnvs.map((e) => e.id),
+      executionIds: createdExecutions.map((e) => e.id),
     }
   }
 
@@ -285,7 +286,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       const queryTests = [
         () => db.select().from(tasks).limit(10),
         () => db.select().from(environments).where(eq(environments.isActive, true)),
-        () => db.select().from(agentExecutions).limit(5)
+        () => db.select().from(agentExecutions).limit(5),
       ]
 
       const results: number[] = []
@@ -298,7 +299,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       }
 
       // All queries should complete within reasonable time
-      results.forEach(time => {
+      results.forEach((time) => {
         expect(time).toBeLessThan(100) // Less than 100ms
       })
 
@@ -315,7 +316,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           taskTitle: tasks.title,
           executionId: agentExecutions.id,
           executionStatus: agentExecutions.status,
-          executionTime: agentExecutions.executionTimeMs
+          executionTime: agentExecutions.executionTimeMs,
         })
         .from(tasks)
         .leftJoin(agentExecutions, eq(tasks.id, agentExecutions.taskId))
@@ -334,7 +335,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
         .select({
           totalTasks: count(tasks.id),
           avgExecutionTime: sql<number>`AVG(${agentExecutions.executionTimeMs})`,
-          maxExecutionTime: sql<number>`MAX(${agentExecutions.executionTimeMs})`
+          maxExecutionTime: sql<number>`MAX(${agentExecutions.executionTimeMs})`,
         })
         .from(tasks)
         .leftJoin(agentExecutions, eq(tasks.id, agentExecutions.taskId))
@@ -353,7 +354,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
         status: 'pending' as const,
         priority: 'low' as const,
         userId: 'bulk-test-user',
-        metadata: { bulkIndex: i }
+        metadata: { bulkIndex: i },
       }))
 
       const startTime = performance.now()
@@ -371,19 +372,22 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
 
       await db.transaction(async (tx) => {
         // Create task
-        const [task] = await tx.insert(tasks).values({
-          title: 'Transaction Test Task',
-          status: 'pending',
-          priority: 'medium',
-          userId: 'transaction-test-user'
-        }).returning()
+        const [task] = await tx
+          .insert(tasks)
+          .values({
+            title: 'Transaction Test Task',
+            status: 'pending',
+            priority: 'medium',
+            userId: 'transaction-test-user',
+          })
+          .returning()
 
         // Create execution
         await tx.insert(agentExecutions).values({
           taskId: task.id,
           agentType: 'transaction-test-agent',
           status: 'running',
-          input: { test: true }
+          input: { test: true },
         })
 
         // Create events
@@ -392,7 +396,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           eventType: `test.event.${i}`,
           data: { index: i },
           severity: 'info' as const,
-          category: 'test'
+          category: 'test',
         }))
 
         // Note: This would need a proper execution ID in real implementation
@@ -416,7 +420,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
 
       const loadTestResult = await performanceMonitor.runLoadTest(testFunction, {
         duration: 5000, // 5 seconds
-        concurrency: 10 // 10 concurrent users
+        concurrency: 10, // 10 concurrent users
       })
 
       expect(loadTestResult.successfulRequests).toBeGreaterThan(0)
@@ -435,13 +439,13 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           title: `Load Test Task ${counter}`,
           status: 'pending',
           priority: 'low',
-          userId: 'load-test-user'
+          userId: 'load-test-user',
         })
       }
 
       const loadTestResult = await performanceMonitor.runLoadTest(testFunction, {
         duration: 3000, // 3 seconds
-        concurrency: 5 // 5 concurrent writers
+        concurrency: 5, // 5 concurrent writers
       })
 
       expect(loadTestResult.successfulRequests).toBeGreaterThan(0)
@@ -457,14 +461,14 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
 
       const testFunction = async () => {
         operationCounter++
-        
+
         if (operationCounter % 3 === 0) {
           // Write operation (33% of requests)
           await db.insert(tasks).values({
             title: `Mixed Load Task ${operationCounter}`,
             status: 'pending',
             priority: 'medium',
-            userId: 'mixed-load-user'
+            userId: 'mixed-load-user',
           })
         } else {
           // Read operation (67% of requests)
@@ -475,7 +479,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       const loadTestResult = await performanceMonitor.runLoadTest(testFunction, {
         duration: 4000, // 4 seconds
         concurrency: 8, // 8 concurrent users
-        rampUp: 1000 // 1 second ramp up
+        rampUp: 1000, // 1 second ramp up
       })
 
       expect(loadTestResult.successfulRequests).toBeGreaterThan(0)
@@ -493,7 +497,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           .select({
             id: tasks.id,
             title: tasks.title,
-            executionCount: count(agentExecutions.id)
+            executionCount: count(agentExecutions.id),
           })
           .from(tasks)
           .leftJoin(agentExecutions, eq(tasks.id, agentExecutions.taskId))
@@ -501,15 +505,15 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           .limit(20)
 
         // Simulate some processing time
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 10))
-        
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 10))
+
         return results
       }
 
       const loadTestResult = await performanceMonitor.runLoadTest(stressTestFunction, {
         duration: 6000, // 6 seconds
         concurrency: 15, // 15 concurrent users
-        rampUp: 2000 // 2 second ramp up
+        rampUp: 2000, // 2 second ramp up
       })
 
       expect(loadTestResult.successfulRequests).toBeGreaterThan(0)
@@ -531,7 +535,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
         status: 'pending' as const,
         priority: 'low' as const,
         userId: 'memory-test-user',
-        metadata: { largeData: Array.from({ length: 100 }, (_, j) => `item-${j}`) }
+        metadata: { largeData: Array.from({ length: 100 }, (_, j) => `item-${j}`) },
       }))
 
       // Insert large dataset
@@ -567,11 +571,14 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           title: `Leak Test Task ${iteration}-${i}`,
           status: 'pending' as const,
           priority: 'low' as const,
-          userId: `leak-test-user-${iteration}`
+          userId: `leak-test-user-${iteration}`,
         }))
 
         await db.insert(tasks).values(tempData)
-        await db.select().from(tasks).where(eq(tasks.userId, `leak-test-user-${iteration}`))
+        await db
+          .select()
+          .from(tasks)
+          .where(eq(tasks.userId, `leak-test-user-${iteration}`))
         await db.delete(tasks).where(eq(tasks.userId, `leak-test-user-${iteration}`))
 
         // Record memory usage
@@ -579,13 +586,13 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
         memorySnapshots.push(health.memoryUsage.percentage)
 
         // Small delay between iterations
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
       }
 
       // Memory should not continuously increase
-      const memoryTrend = memorySnapshots.slice(1).map((current, index) => 
-        current - memorySnapshots[index]
-      )
+      const memoryTrend = memorySnapshots
+        .slice(1)
+        .map((current, index) => current - memorySnapshots[index])
 
       const averageTrend = memoryTrend.reduce((sum, diff) => sum + diff, 0) / memoryTrend.length
       expect(averageTrend).toBeLessThan(5) // Average memory increase should be less than 5%
@@ -599,16 +606,14 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       // Collect response times from multiple operations
       for (let i = 0; i < 50; i++) {
         const startTime = performance.now()
-        
-        await db.select().from(tasks)
-          .where(eq(tasks.userId, 'perf-test-user'))
-          .limit(10)
-        
+
+        await db.select().from(tasks).where(eq(tasks.userId, 'perf-test-user')).limit(10)
+
         const responseTime = performance.now() - startTime
         responseTimes.push(responseTime)
 
         // Small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
       }
 
       // Calculate statistics
@@ -625,32 +630,34 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
 
       // Check for outliers (response times > 3 standard deviations)
       const standardDev = Math.sqrt(
-        responseTimes.reduce((sum, time) => sum + Math.pow(time - average, 2), 0) / responseTimes.length
+        responseTimes.reduce((sum, time) => sum + Math.pow(time - average, 2), 0) /
+          responseTimes.length
       )
-      const outliers = responseTimes.filter(time => Math.abs(time - average) > 3 * standardDev)
-      
+      const outliers = responseTimes.filter((time) => Math.abs(time - average) > 3 * standardDev)
+
       expect(outliers.length / responseTimes.length).toBeLessThan(0.01) // Less than 1% outliers
     })
 
     it('should measure database connection pool performance', async () => {
       const connectionTests = Array.from({ length: 20 }, async (_, i) => {
         const startTime = performance.now()
-        
+
         // Simulate acquiring connection from pool
         const result = await db.select().from(tasks).limit(1)
-        
+
         const connectionTime = performance.now() - startTime
         return { index: i, connectionTime, success: result.length >= 0 }
       })
 
       const results = await Promise.all(connectionTests)
-      const connectionTimes = results.map(r => r.connectionTime)
-      const successRate = results.filter(r => r.success).length / results.length
+      const connectionTimes = results.map((r) => r.connectionTime)
+      const successRate = results.filter((r) => r.success).length / results.length
 
       expect(successRate).toBe(1) // 100% success rate
       expect(Math.max(...connectionTimes)).toBeLessThan(100) // Max connection time under 100ms
-      
-      const averageConnectionTime = connectionTimes.reduce((sum, time) => sum + time, 0) / connectionTimes.length
+
+      const averageConnectionTime =
+        connectionTimes.reduce((sum, time) => sum + time, 0) / connectionTimes.length
       expect(averageConnectionTime).toBeLessThan(30) // Average connection time under 30ms
     })
   })
@@ -681,22 +688,22 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
         const metrics = performanceMonitor.stopMonitoring()
         metricsHistory.push(metrics)
 
-        await new Promise(resolve => setTimeout(resolve, 200)) // 200ms interval
+        await new Promise((resolve) => setTimeout(resolve, 200)) // 200ms interval
       }
 
       // Analyze trends
       expect(metricsHistory).toHaveLength(5)
-      
-      metricsHistory.forEach(metrics => {
+
+      metricsHistory.forEach((metrics) => {
         expect(metrics.responseTime).toBeLessThan(100)
         expect(metrics.memoryUsage).toBeLessThan(200) // Under 200MB
         expect(metrics.cpuUsage).toBeLessThan(70)
       })
 
       // Check for performance degradation
-      const responseTimeTrend = metricsHistory.map(m => m.responseTime)
-      const isPerformanceDegrading = responseTimeTrend.every((time, index) => 
-        index === 0 || time <= responseTimeTrend[index - 1] * 1.5 // Allow 50% variance
+      const responseTimeTrend = metricsHistory.map((m) => m.responseTime)
+      const isPerformanceDegrading = responseTimeTrend.every(
+        (time, index) => index === 0 || time <= responseTimeTrend[index - 1] * 1.5 // Allow 50% variance
       )
 
       expect(isPerformanceDegrading).toBe(true)
@@ -709,7 +716,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           await db.select().from(tasks).limit(100)
           return performance.now() - start
         },
-        
+
         complexJoin: async () => {
           const start = performance.now()
           await db
@@ -724,15 +731,15 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
           const start = performance.now()
           await db
             .select({
-              count: count(tasks.id)
+              count: count(tasks.id),
             })
             .from(tasks)
           return performance.now() - start
-        }
+        },
       }
 
       const bottleneckResults: Record<string, number> = {}
-      
+
       for (const [testName, testFn] of Object.entries(bottleneckTests)) {
         // Run test multiple times and get average
         const times: number[] = []
@@ -743,14 +750,15 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       }
 
       // Identify bottlenecks
-      const slowestOperation = Object.entries(bottleneckResults)
-        .sort(([, timeA], [, timeB]) => timeB - timeA)[0]
+      const slowestOperation = Object.entries(bottleneckResults).sort(
+        ([, timeA], [, timeB]) => timeB - timeA
+      )[0]
 
       console.log('Bottleneck analysis:', bottleneckResults)
       console.log('Slowest operation:', slowestOperation)
 
       // All operations should complete within reasonable time
-      Object.values(bottleneckResults).forEach(time => {
+      Object.values(bottleneckResults).forEach((time) => {
         expect(time).toBeLessThan(200) // All operations under 200ms
       })
     })
@@ -765,15 +773,20 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       const regressionMetrics = await measurePerformanceWithRegression()
 
       // Compare metrics
-      const responseTimeRegression = (regressionMetrics.responseTime - baselineMetrics.responseTime) / baselineMetrics.responseTime
-      const throughputRegression = (baselineMetrics.throughput - regressionMetrics.throughput) / baselineMetrics.throughput
+      const responseTimeRegression =
+        (regressionMetrics.responseTime - baselineMetrics.responseTime) /
+        baselineMetrics.responseTime
+      const throughputRegression =
+        (baselineMetrics.throughput - regressionMetrics.throughput) / baselineMetrics.throughput
 
       // Flag significant regressions
-      if (responseTimeRegression > 0.5) { // 50% slower
+      if (responseTimeRegression > 0.5) {
+        // 50% slower
         console.warn('Response time regression detected:', responseTimeRegression)
       }
 
-      if (throughputRegression > 0.3) { // 30% less throughput
+      if (throughputRegression > 0.3) {
+        // 30% less throughput
         console.warn('Throughput regression detected:', throughputRegression)
       }
 
@@ -799,7 +812,7 @@ describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
       // Inefficient operations (simulating regression)
       for (let i = 0; i < 10; i++) {
         await db.select().from(tasks) // No limit - potentially slower
-        await new Promise(resolve => setTimeout(resolve, 10)) // Simulate slower operation
+        await new Promise((resolve) => setTimeout(resolve, 10)) // Simulate slower operation
       }
 
       return performanceMonitor.stopMonitoring()

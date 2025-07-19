@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import type { StreamingMessage } from '@/app/task/[id]/_types/message-types'
-import type { Task } from '@/stores/tasks'
-import { useTaskStore } from '@/stores/tasks'
+import type { Task } from '@/db/schema'
+import { useUpdateTask } from '@/lib/query/hooks'
 import {
   filterChatMessages,
   filterShellMessages,
@@ -22,16 +22,17 @@ interface UseTaskDataReturn {
 }
 
 export function useTaskData({ task, streamingMessages }: UseTaskDataProps): UseTaskDataReturn {
-  const { updateTask } = useTaskStore()
+  const updateTaskMutation = useUpdateTask()
 
   // Mark task as viewed when component mounts
   useEffect(() => {
     if (task) {
-      updateTask(task.id, {
+      updateTaskMutation.mutate({
+        id: task.id,
         hasChanges: false,
       })
     }
-  }, [task, updateTask])
+  }, [task?.id, updateTaskMutation])
 
   // Memoize filtered messages to prevent unnecessary re-renders
   const regularMessages = useMemo(() => {

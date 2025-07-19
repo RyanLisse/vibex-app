@@ -1,15 +1,32 @@
 'use client'
 
 import React from 'react'
+import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { observability } from '@/lib/observability'
 
 interface ErrorBoundaryState {
   hasError: boolean
-  error?: Error
+  error: Error | null
+  errorInfo: React.ErrorInfo | null
+  errorId: string | null
 }
 
 interface ErrorBoundaryProps {
   children: React.ReactNode
-  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>
+  fallback?: React.ComponentType<ErrorFallbackProps>
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  resetOnPropsChange?: boolean
+  resetKeys?: Array<string | number>
+}
+
+interface ErrorFallbackProps {
+  error: Error
+  errorInfo: React.ErrorInfo
+  resetError: () => void
+  errorId: string
 }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {

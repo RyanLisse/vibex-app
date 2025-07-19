@@ -1,9 +1,16 @@
-import type { ElectricConfig } from '@electric-sql/client'
+/**
+ * Simplified ElectricSQL Configuration
+ * 
+ * This configuration uses @electric-sql/pglite for client-side database
+ * instead of wa-sqlite to avoid build complexity
+ */
+
+import { PGlite } from '@electric-sql/pglite'
 
 // ElectricSQL configuration
-export const electricConfig: ElectricConfig = {
+export const electricConfig = {
   // Database connection URL - will be set from environment
-  url: process.env.ELECTRIC_URL || process.env.DATABASE_URL || '',
+  url: process.env.ELECTRIC_URL || process.env.DATABASE_URL || 'postgresql://localhost:5432/vibekit',
 
   // Authentication configuration
   auth: {
@@ -32,13 +39,13 @@ export const electricConfig: ElectricConfig = {
     // Maximum offline queue size
     maxQueueSize: Number.parseInt(process.env.ELECTRIC_MAX_QUEUE_SIZE || '1000'),
     // Offline storage type
-    storage: 'indexeddb', // or 'memory' for testing
+    storage: 'indexeddb' as const, // or 'memory' for testing
   },
 
   // Conflict resolution strategy
   conflictResolution: {
     // Use last-write-wins with conflict detection
-    strategy: 'last-write-wins',
+    strategy: 'last-write-wins' as const,
     // Enable conflict detection and logging
     detectConflicts: true,
     // Custom conflict resolver function (optional)
@@ -55,11 +62,49 @@ export const electricConfig: ElectricConfig = {
   heartbeatInterval: Number.parseInt(process.env.ELECTRIC_HEARTBEAT_INTERVAL || '30000'),
 }
 
+// PGlite configuration for client-side database
+export const pgliteConfig = {
+  // Database path for persistent storage
+  dataDir: process.env.NODE_ENV === 'development' ? './pglite-data' : undefined,
+
+  // Extensions to load
+  extensions: {
+    vector: false, // Disable for now to simplify build
+    uuid: true,
+  },
+
+  // Debug mode
+  debug: process.env.NODE_ENV === 'development',
+}
+
+// Initialize PGlite instance
+export async function createPGliteInstance() {
+  try {
+    const db = new PGlite({
+      ...pgliteConfig,
+      // Enable WAL mode for better concurrency
+      options: {
+        journal_mode: 'WAL',
+        synchronous: 'NORMAL',
+        cache_size: -64000, // 64MB cache
+      },
+    })
+
+    // Wait for database to be ready
+    await db.waitReady()
+    
+    return db
+  } catch (error) {
+    console.error('Failed to initialize PGlite:', error)
+    throw error
+  }
+}
+
 // Validate configuration
 export function validateElectricConfig(): void {
   if (!electricConfig.url) {
-    throw new Error(
-      'ElectricSQL URL is required. Set ELECTRIC_URL or DATABASE_URL environment variable.'
+    console.warn(
+      'ElectricSQL URL is not set. Using default localhost URL. Set ELECTRIC_URL or DATABASE_URL environment variable for production.'
     )
   }
 
@@ -75,7 +120,7 @@ export function validateElectricConfig(): void {
 }
 
 // Environment-specific configurations
-export const getEnvironmentConfig = (): Partial<ElectricConfig> => {
+export const getEnvironmentConfig = () => {
   const env = process.env.NODE_ENV || 'development'
 
   switch (env) {
@@ -101,7 +146,7 @@ export const getEnvironmentConfig = (): Partial<ElectricConfig> => {
         },
         offline: {
           ...electricConfig.offline,
-          storage: 'memory', // Use memory storage for tests
+          storage: 'memory' as const, // Use memory storage for tests
         },
       }
 
@@ -117,7 +162,7 @@ export const getEnvironmentConfig = (): Partial<ElectricConfig> => {
 }
 
 // Merge environment-specific config with base config
-export const getFinalConfig = (): ElectricConfig => {
+export const getFinalConfig = () => {
   const envConfig = getEnvironmentConfig()
   return {
     ...electricConfig,
@@ -131,4 +176,14 @@ export const getFinalConfig = (): ElectricConfig => {
       ...envConfig.offline,
     },
   }
+}
+
+// Export singleton PGlite instance
+let pgliteInstance: PGlite | null = null
+
+export async function getPGliteInstance(): Promise<PGlite> {
+  if (!pgliteInstance) {
+    pgliteInstance = await createPGliteInstance()
+  }
+  return pgliteInstance
 }

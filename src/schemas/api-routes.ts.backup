@@ -301,6 +301,99 @@ export const ValidationErrorSchema = z.object({
 
 
 // Success response schemas
+export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    success: z.literal(true),
+    data: dataSchema,
+    message: z.string().optional(),
+    meta: z
+      .object({
+        timestamp: z.string().datetime(),
+        version: z.string().optional(),
+        requestId: z.string().optional(),
+      })
+      .optional(),
+  })
+
+export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
+  z.object({
+    success: z.literal(true),
+    data: z.array(itemSchema),
+    pagination: z.object({
+      page: z.number().int().positive(),
+      limit: z.number().int().positive(),
+      total: z.number().int().nonnegative(),
+      totalPages: z.number().int().nonnegative(),
+      hasNext: z.boolean(),
+      hasPrev: z.boolean(),
+    }),
+    message: z.string().optional(),
+  })
+
+// Type exports
+export type GitHubOAuthCallback = z.infer<typeof GitHubOAuthCallbackSchema>
+export type GitHubOAuthUrl = z.infer<typeof GitHubOAuthUrlSchema>
+export type GitHubUser = z.infer<typeof GitHubUserSchema>
+export type GitHubRepository = z.infer<typeof GitHubRepositorySchema>
+export type GitHubBranch = z.infer<typeof GitHubBranchSchema>
+export type GitHubRepositoriesRequest = z.infer<typeof GitHubRepositoriesRequestSchema>
+export type GitHubBranchesRequest = z.infer<typeof GitHubBranchesRequestSchema>
+
+export type Task = z.infer<typeof TaskSchema>
+export type CreateTask = z.infer<typeof CreateTaskSchema>
+export type UpdateTask = z.infer<typeof UpdateTaskSchema>
+export type TasksRequest = z.infer<typeof TasksRequestSchema>
+
+export type Environment = z.infer<typeof EnvironmentSchema>
+export type CreateEnvironment = z.infer<typeof CreateEnvironmentSchema>
+export type UpdateEnvironment = z.infer<typeof UpdateEnvironmentSchema>
+export type EnvironmentsRequest = z.infer<typeof EnvironmentsRequestSchema>
+
+export type InngestEvent = z.infer<typeof InngestEventSchema>
+export type InngestFunction = z.infer<typeof InngestFunctionSchema>
+
+export type WebhookPayload = z.infer<typeof WebhookPayloadSchema>
+export type WebhookResponse = z.infer<typeof WebhookResponseSchema>
+
+export type FileUploadRequest = z.infer<typeof FileUploadRequestSchema>
+export type FileUploadResponse = z.infer<typeof FileUploadResponseSchema>
+
+export type ValidationError = z.infer<typeof ValidationErrorSchema>
+export type ApiErrorResponse = z.infer<typeof ApiErrorResponseSchema>
+
+// Utility functions for API route validation
+export const validateApiRequest = <T>(schema: z.ZodSchema<T>, data: unknown) => {
+  try {
+    return {
+      success: true as const,
+      data: schema.parse(data),
+      error: null,
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false as const,
+        data: null,
+        error: {
+          message: 'Validation failed',
+          validationErrors: error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+            code: err.code,
+          })),
+        },
+      }
+    }
+    return {
+      success: false as const,
+      data: null,
+      error: {
+        message: 'Unknown validation error',
+        validationErrors: [],
+      },
+    }
+  }
+}
 
 export const createApiSuccessResponse = <T>(data: T, message?: string) => ({
   success: true as const,
