@@ -1,5 +1,5 @@
+import { describe, expect, it } from 'bun:test'
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'bun:test'
 import React from 'react'
 import {
   Card,

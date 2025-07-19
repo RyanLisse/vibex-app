@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useElectric, type SyncEvent } from './use-electric'
-import type { Task, Environment } from '@/db/schema'
+import { useCallback, useEffect, useState } from 'react'
+import type { Environment, Task } from '@/db/schema'
+import { type SyncEvent, useElectric } from './use-electric'
 
 /**
  * Enhanced real-time subscription hook for tasks with user filtering
@@ -112,7 +112,7 @@ export function useTasksSubscription(userId?: string) {
       .catch(console.error)
 
     // Fallback: periodic refetch for when real-time fails
-    const interval = setInterval(fetchTasks, 60000) // Refetch every 60 seconds as fallback
+    const interval = setInterval(fetchTasks, 60_000) // Refetch every 60 seconds as fallback
 
     return () => {
       clearInterval(interval)
@@ -243,7 +243,7 @@ export function useEnvironmentsSubscription(userId?: string) {
       .catch(console.error)
 
     // Fallback: periodic refetch for when real-time fails
-    const interval = setInterval(fetchEnvironments, 60000) // Refetch every 60 seconds as fallback
+    const interval = setInterval(fetchEnvironments, 60_000) // Refetch every 60 seconds as fallback
 
     return () => {
       clearInterval(interval)

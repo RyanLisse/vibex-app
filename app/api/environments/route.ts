@@ -5,22 +5,22 @@
  * OpenTelemetry tracing, and comprehensive error handling for environment management.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { and, desc, eq, like } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
+import { ulid } from 'ulid'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
 import { db } from '@/db/config'
 import { environments } from '@/db/schema'
-import { eq, and, desc, like } from 'drizzle-orm'
-import { ulid } from 'ulid'
 import { observability } from '@/lib/observability'
 import {
-  EnvironmentSchema,
   CreateEnvironmentSchema,
-  UpdateEnvironmentSchema,
-  EnvironmentsRequestSchema,
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   createPaginatedResponse,
+  EnvironmentSchema,
+  EnvironmentsRequestSchema,
+  UpdateEnvironmentSchema,
 } from '@/src/schemas/api-routes'
 
 // Request validation schemas
@@ -38,8 +38,8 @@ const GetEnvironmentsQuerySchema = z.object({
 class EnvironmentsAPIError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public code: string = 'INTERNAL_ERROR'
+    public statusCode = 500,
+    public code = 'INTERNAL_ERROR'
   ) {
     super(message)
     this.name = 'EnvironmentsAPIError'
@@ -110,7 +110,7 @@ class EnvironmentsService {
         filters: params,
         source: 'api',
         tags: ['environments', 'query']
-      )
+      })
 
       span.setAttributes({
         'environments.count': envResults.length,
@@ -132,7 +132,7 @@ class EnvironmentsService {
       span.setStatus({ code: SpanStatusCode.ERROR })
 
       // Record error metrics
-      observability.metrics.errorRate(1, 'environments_api')
+      observability.recordError('environments_api', error as Error)
 
       throw new EnvironmentsAPIError(
         'Failed to fetch environments',
@@ -182,18 +182,18 @@ class EnvironmentsService {
 
       // Record event
       observability.recordEvent('environments_event', {
-        'user_action',
-        'info',
-        `Environment created: ${createdEnvironment.name}`,
-        {
+        action: 'user_action',
+        level: 'info',
+        message: `Environment created: ${createdEnvironment.name}`,
+        metadata: {
           environmentId: createdEnvironment.id,
           userId: createdEnvironment.userId,
           isActive: createdEnvironment.isActive,
           duration,
         },
-        'api',
-        ['environments', 'create']
-      )
+        source: 'api',
+        tags: ['environments', 'create']
+      })
 
       span.setAttributes({
         'environment.id': createdEnvironment.id,
@@ -208,7 +208,7 @@ class EnvironmentsService {
       span.setStatus({ code: SpanStatusCode.ERROR })
 
       // Record error metrics
-      observability.metrics.errorRate(1, 'environments_api')
+      observability.recordError('environments_api', error as Error)
 
       throw new EnvironmentsAPIError(
         'Failed to create environment',
@@ -250,21 +250,21 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.queryDuration(duration, 'activate_environment', true)
+      observability.metrics.recordOperation('activate_environment', duration)
 
       // Record event
       observability.recordEvent('environments_event', {
-        'user_action',
-        'info',
-        `Environment activated: ${activatedEnvironment.name}`,
-        {
+        action: 'user_action',
+        level: 'info',
+        message: `Environment activated: ${activatedEnvironment.name}`,
+        metadata: {
           environmentId: activatedEnvironment.id,
           userId: activatedEnvironment.userId,
           duration,
         },
-        'api',
-        ['environments', 'activate']
-      )
+        source: 'api',
+        tags: ['environments', 'activate']
+      })
 
       span.setAttributes({
         'environment.id': activatedEnvironment.id,
@@ -282,7 +282,7 @@ class EnvironmentsService {
       }
 
       // Record error metrics
-      observability.metrics.errorRate(1, 'environments_api')
+      observability.recordError('environments_api', error as Error)
 
       throw new EnvironmentsAPIError(
         'Failed to activate environment',

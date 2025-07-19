@@ -1,6 +1,11 @@
-import Redis, { Cluster, RedisOptions, ClusterOptions } from 'ioredis'
+import Redis, { Cluster, type ClusterOptions, type RedisOptions } from 'ioredis'
 import { ObservabilityService } from '../observability'
-import { RedisConfig, RedisConnectionConfig, RedisHealthStatus, ClientHealthStatus } from './types'
+import {
+  ClientHealthStatus,
+  type RedisConfig,
+  type RedisConnectionConfig,
+  type RedisHealthStatus,
+} from './types'
 
 export class RedisClientManager {
   private static instance: RedisClientManager
@@ -69,8 +74,8 @@ export class RedisClientManager {
       retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
-      keepAlive: 30000,
-      connectTimeout: 10000,
+      keepAlive: 30_000,
+      connectTimeout: 10_000,
       commandTimeout: 5000,
       ...config.options,
     }
@@ -136,7 +141,7 @@ export class RedisClientManager {
     })
   }
 
-  getClient(name: string = 'primary'): Redis | Cluster {
+  getClient(name = 'primary'): Redis | Cluster {
     if (!this.isInitialized) {
       throw new Error('RedisClientManager not initialized. Call initialize() first.')
     }
@@ -148,11 +153,7 @@ export class RedisClientManager {
     return client
   }
 
-  async executeCommand<T>(
-    command: string,
-    args: any[],
-    clientName: string = 'primary'
-  ): Promise<T> {
+  async executeCommand<T>(command: string, args: any[], clientName = 'primary'): Promise<T> {
     return this.observability.trackOperation('redis.command', async () => {
       const client = this.getClient(clientName)
       const startTime = Date.now()
@@ -236,7 +237,7 @@ export class RedisClientManager {
   }
 
   // Utility methods
-  isClientConnected(name: string = 'primary'): boolean {
+  isClientConnected(name = 'primary'): boolean {
     const client = this.clients.get(name)
     return client ? client.status === 'ready' : false
   }
@@ -247,7 +248,7 @@ export class RedisClientManager {
       .map(([name]) => name)
   }
 
-  async flushAll(clientName: string = 'primary'): Promise<void> {
+  async flushAll(clientName = 'primary'): Promise<void> {
     const client = this.getClient(clientName)
     await client.flushall()
     console.log(`Flushed all data from Redis client '${clientName}'`)

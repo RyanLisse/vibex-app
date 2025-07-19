@@ -1,8 +1,11 @@
 'use client'
-import { HardDrive, Split, RefreshCw, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import { AlertCircle, HardDrive, RefreshCw, Split, Wifi, WifiOff } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { createTaskAction } from '@/app/actions/inngest'
+import { useElectricContext } from '@/components/providers/electric-provider'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -11,13 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { useEnvironmentsQuery } from '@/hooks/use-environment-queries'
+import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { useCreateTaskMutation } from '@/hooks/use-task-queries'
-import { useElectricContext } from '@/components/providers/electric-provider'
 import { observability } from '@/lib/observability'
 
 // Helper functions for form logic
@@ -97,7 +97,7 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
   }
 
   const handleAddTask = async (mode: 'code' | 'ask') => {
-    if (!value.trim() || !userId) {
+    if (!(value.trim() && userId)) {
       return
     }
 
@@ -167,7 +167,7 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
 
   // Connection status indicator
   const ConnectionStatus = () => (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+    <div className="mb-4 flex items-center gap-2 text-muted-foreground text-sm">
       {isConnected ? (
         <>
           <Wifi className="h-4 w-4 text-green-500" />
@@ -181,7 +181,7 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
         </>
       )}
       {environmentsStale && (
-        <Badge variant="outline" className="text-xs ml-2">
+        <Badge className="ml-2 text-xs" variant="outline">
           Stale Data
         </Badge>
       )}
@@ -217,11 +217,11 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
         <div className="flex flex-col gap-y-2 rounded-lg border bg-background p-4">
           <textarea
             className="min-h-[100px] w-full resize-none overflow-hidden border-none p-0 focus:border-transparent focus:outline-none"
+            disabled={isSubmitting}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Describe a task you want to ship..."
             ref={textareaRef}
             value={value}
-            disabled={isSubmitting}
           />
           {/* Connection and error status */}
           <ConnectionStatus />
@@ -236,11 +236,11 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
           )}
 
           {environmentsError && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert className="mb-4" variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>Failed to load environments: {environmentsError.message}</span>
-                <Button variant="outline" size="sm" onClick={refetchEnvironments}>
+                <Button onClick={refetchEnvironments} size="sm" variant="outline">
                   Retry
                 </Button>
               </AlertDescription>
@@ -251,9 +251,9 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
             <div className="flex items-center gap-x-2">
               {environments && environments.length > 0 ? (
                 <Select
+                  disabled={isSubmitting}
                   onValueChange={(value) => setSelectedEnvironment(value)}
                   value={selectedEnvironment || ''}
-                  disabled={isSubmitting}
                 >
                   <SelectTrigger>
                     <HardDrive className="h-4 w-4" />
@@ -281,9 +281,9 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
               )}
               {selectedEnvironment && (
                 <Select
+                  disabled={isSubmitting}
                   onValueChange={(value) => setSelectedBranch(value)}
                   value={selectedBranch}
-                  disabled={isSubmitting}
                 >
                   <SelectTrigger>
                     <Split className="h-4 w-4" />
@@ -304,15 +304,15 @@ export default function NewTaskForm({ userId }: NewTaskFormProps) {
             {value && (
               <div className="flex items-center gap-x-2">
                 <Button
+                  disabled={isSubmitting || createTaskMutation.isPending}
                   onClick={() => handleAddTask('ask')}
                   variant="outline"
-                  disabled={isSubmitting || createTaskMutation.isPending}
                 >
                   {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Ask'}
                 </Button>
                 <Button
-                  onClick={() => handleAddTask('code')}
                   disabled={isSubmitting || createTaskMutation.isPending}
+                  onClick={() => handleAddTask('code')}
                 >
                   {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Code'}
                 </Button>

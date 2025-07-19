@@ -4,9 +4,9 @@
  * Replaces Zustand task store with TanStack Query + Redis caching
  */
 
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
-import { z } from 'zod'
-import { TaskSchema, CreateTaskSchema, UpdateTaskSchema } from '@/src/schemas/api-routes'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { z } from 'zod'
+import type { CreateTaskSchema, TaskSchema, UpdateTaskSchema } from '@/src/schemas/api-routes'
 
 // Types
 export type Task = z.infer<typeof TaskSchema>

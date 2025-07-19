@@ -7,21 +7,21 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
 import {
-  CheckCircle,
   AlertCircle,
+  ArrowRight,
+  CheckCircle,
   Database,
   HardDrive,
-  ArrowRight,
   RefreshCw,
   X,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 
 interface MigrationStatus {
@@ -117,7 +117,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
 
   if (loading) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardContent className="pt-6">
           <div className="flex items-center justify-center space-x-2">
             <RefreshCw className="h-4 w-4 animate-spin" />
@@ -130,18 +130,18 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
 
   if (!migrationStatus) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardContent className="pt-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>Failed to load migration status. Please try again.</AlertDescription>
           </Alert>
           <div className="mt-4 flex justify-end space-x-2">
-            <Button variant="outline" onClick={checkMigrationStatus}>
+            <Button onClick={checkMigrationStatus} variant="outline">
               Retry
             </Button>
             {onClose && (
-              <Button variant="ghost" onClick={onClose}>
+              <Button onClick={onClose} variant="ghost">
                 Close
               </Button>
             )}
@@ -154,7 +154,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
   // Migration not needed
   if (!migrationStatus.migrationNeeded) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -165,19 +165,19 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center p-4 border rounded-lg">
-              <Database className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+          <div className="mb-4 grid grid-cols-2 gap-4">
+            <div className="rounded-lg border p-4 text-center">
+              <Database className="mx-auto mb-2 h-8 w-8 text-blue-500" />
               <div className="font-medium">Database</div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {migrationStatus.databaseData.tasks} tasks,{' '}
                 {migrationStatus.databaseData.environments} environments
               </div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <HardDrive className="h-8 w-8 mx-auto mb-2 text-gray-500" />
+            <div className="rounded-lg border p-4 text-center">
+              <HardDrive className="mx-auto mb-2 h-8 w-8 text-gray-500" />
               <div className="font-medium">Local Storage</div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {migrationStatus.localStorageData.tasks} tasks,{' '}
                 {migrationStatus.localStorageData.environments} environments
               </div>
@@ -196,7 +196,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
   // Migration completed
   if (migrationStatus.currentMigration?.status === 'completed') {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -209,15 +209,15 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
         <CardContent>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 border rounded-lg bg-green-50">
-                <Database className="h-8 w-8 mx-auto mb-2 text-green-500" />
+              <div className="rounded-lg border bg-green-50 p-4 text-center">
+                <Database className="mx-auto mb-2 h-8 w-8 text-green-500" />
                 <div className="font-medium">Migrated Successfully</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {migrationStatus.currentMigration.summary.migratedRecords} records
                 </div>
               </div>
-              <div className="text-center p-4 border rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
+              <div className="rounded-lg border p-4 text-center">
+                <div className="font-bold text-2xl text-green-600">
                   {Math.round(
                     (migrationStatus.currentMigration.summary.migratedRecords /
                       migrationStatus.currentMigration.summary.totalRecords) *
@@ -225,7 +225,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
                   )}
                   %
                 </div>
-                <div className="text-sm text-muted-foreground">Success Rate</div>
+                <div className="text-muted-foreground text-sm">Success Rate</div>
               </div>
             </div>
 
@@ -260,7 +260,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
     const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
 
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <RefreshCw className="h-5 w-5 animate-spin text-blue-500" />
@@ -271,17 +271,17 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
         <CardContent>
           <div className="space-y-4">
             <div>
-              <div className="flex justify-between text-sm mb-2">
+              <div className="mb-2 flex justify-between text-sm">
                 <span>Overall Progress</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <Progress value={progress} className="w-full" />
+              <Progress className="w-full" value={progress} />
             </div>
 
             {currentStep && (
-              <div className="p-4 border rounded-lg bg-blue-50">
+              <div className="rounded-lg border bg-blue-50 p-4">
                 <div className="font-medium">{currentStep.description}</div>
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className="mt-1 text-muted-foreground text-sm">
                   {currentStep.recordsProcessed} of {currentStep.totalRecords} records processed
                 </div>
               </div>
@@ -289,7 +289,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
 
             <div className="space-y-2">
               {migrationStatus.currentMigration.steps.map((step: any) => (
-                <div key={step.id} className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2" key={step.id}>
                   {step.status === 'completed' && (
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   )}
@@ -297,7 +297,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
                     <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
                   )}
                   {step.status === 'failed' && <X className="h-4 w-4 text-red-500" />}
-                  {step.status === 'not_started' && <div className="h-4 w-4 border rounded-full" />}
+                  {step.status === 'not_started' && <div className="h-4 w-4 rounded-full border" />}
                   <span className="text-sm">{step.description}</span>
                   <Badge
                     variant={
@@ -324,7 +324,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
   // Migration failed
   if (migrationStatus.currentMigration?.status === 'failed') {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <X className="h-5 w-5 text-red-500" />
@@ -335,7 +335,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert variant="destructive" className="mb-4">
+          <Alert className="mb-4" variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               {migrationStatus.currentMigration.errors[0] ||
@@ -344,12 +344,12 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
           </Alert>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={checkMigrationStatus}>
+            <Button onClick={checkMigrationStatus} variant="outline">
               Retry Check
             </Button>
             <Button onClick={startMigration}>Retry Migration</Button>
             {onClose && (
-              <Button variant="ghost" onClick={onClose}>
+              <Button onClick={onClose} variant="ghost">
                 Close
               </Button>
             )}
@@ -361,7 +361,7 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
 
   // Ready to migrate
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Data Migration Required</CardTitle>
         <CardDescription>
@@ -372,23 +372,23 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
         <div className="space-y-6">
           {/* Data overview */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 border rounded-lg">
-              <HardDrive className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+            <div className="rounded-lg border p-4 text-center">
+              <HardDrive className="mx-auto mb-2 h-8 w-8 text-orange-500" />
               <div className="font-medium">Local Storage</div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {migrationStatus.localStorageData.tasks} tasks
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 {migrationStatus.localStorageData.environments} environments
               </div>
             </div>
             <div className="flex items-center justify-center">
               <ArrowRight className="h-6 w-6 text-muted-foreground" />
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <Database className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+            <div className="rounded-lg border p-4 text-center">
+              <Database className="mx-auto mb-2 h-8 w-8 text-blue-500" />
               <div className="font-medium">Database</div>
-              <div className="text-sm text-muted-foreground">Secure & Synchronized</div>
+              <div className="text-muted-foreground text-sm">Secure & Synchronized</div>
             </div>
           </div>
 
@@ -396,8 +396,8 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
 
           {/* Benefits */}
           <div>
-            <h4 className="font-medium mb-2">Migration Benefits:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
+            <h4 className="mb-2 font-medium">Migration Benefits:</h4>
+            <ul className="space-y-1 text-muted-foreground text-sm">
               <li>• Real-time synchronization across devices</li>
               <li>• Better performance and reliability</li>
               <li>• Advanced search and filtering capabilities</li>
@@ -415,17 +415,17 @@ export function DataMigrationWizard({ userId, onComplete, onClose }: DataMigrati
           {/* Actions */}
           <div className="flex justify-end space-x-2">
             {onClose && (
-              <Button variant="ghost" onClick={onClose}>
+              <Button onClick={onClose} variant="ghost">
                 Skip for Now
               </Button>
             )}
             <Button
-              onClick={startMigration}
               disabled={migrating || !migrationStatus.recommendations.canMigrate}
+              onClick={startMigration}
             >
               {migrating ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Starting Migration...
                 </>
               ) : (

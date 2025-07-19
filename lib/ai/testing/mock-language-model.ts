@@ -174,7 +174,7 @@ export function createStaticTestChatModel(
 /**
  * Create a mock chat model that simulates streaming delays
  */
-export function createSlowTestChatModel(response: string, delayMs: number = 1000) {
+export function createSlowTestChatModel(response: string, delayMs = 1000) {
   const words = response.split(' ')
   const chunks = words.map((word) => ({ type: 'text-delta' as const, textDelta: `${word} ` }))
   chunks.push({ type: 'finish' as const, finishReason: 'stop' as const })
@@ -205,7 +205,7 @@ export function createSlowTestChatModel(response: string, delayMs: number = 1000
 /**
  * Create a mock chat model that simulates errors
  */
-export function createErrorTestChatModel(errorMessage: string = 'Test error') {
+export function createErrorTestChatModel(errorMessage = 'Test error') {
   return new MockLanguageModelV1({
     doStream: async () => {
       throw new Error(errorMessage)

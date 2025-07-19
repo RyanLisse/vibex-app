@@ -7,19 +7,19 @@
 
 import { ulid } from 'ulid'
 import type {
-  LocalStorageTask,
+  Environment as DbEnvironment,
+  Task as DbTask,
+  NewEnvironment,
+  NewTask,
+} from '@/db/schema'
+import type {
+  DataConflict,
+  DataMapping,
   LocalStorageEnvironment,
+  LocalStorageTask,
   MigrationError,
   TransformationRule,
-  DataMapping,
-  DataConflict,
 } from './types'
-import type {
-  Task as DbTask,
-  Environment as DbEnvironment,
-  NewTask,
-  NewEnvironment,
-} from '@/db/schema'
 
 export class DataMapper {
   private static instance: DataMapper
@@ -147,9 +147,9 @@ export class DataMapper {
             repository: item?.repository,
             sessionId: item?.sessionId,
             statusMessage: item?.statusMessage,
-            isArchived: item?.isArchived || false,
+            isArchived: item?.isArchived,
             mode: item?.mode || 'code',
-            hasChanges: item?.hasChanges || false,
+            hasChanges: item?.hasChanges,
             pullRequest: item?.pullRequest,
             originalLocalStorageId: item?.id,
           }
@@ -308,17 +308,16 @@ export class DataMapper {
                 ;(dbTask as any)[rule.field] = rule.defaultValue
                 warnings.push(`Task ${i}: Using default value for ${rule.field}`)
                 continue
-              } else {
-                errors.push({
-                  type: 'VALIDATION_ERROR',
-                  message: `Invalid value for field ${rule.field}`,
-                  item: task,
-                  field: rule.field,
-                  originalValue: sourceValue,
-                  expectedType: rule.targetType,
-                })
-                continue
               }
+              errors.push({
+                type: 'VALIDATION_ERROR',
+                message: `Invalid value for field ${rule.field}`,
+                item: task,
+                field: rule.field,
+                originalValue: sourceValue,
+                expectedType: rule.targetType,
+              })
+              continue
             }
 
             // Transform the value
@@ -389,17 +388,16 @@ export class DataMapper {
                 ;(dbEnv as any)[rule.field] = rule.defaultValue
                 warnings.push(`Environment ${i}: Using default value for ${rule.field}`)
                 continue
-              } else {
-                errors.push({
-                  type: 'VALIDATION_ERROR',
-                  message: `Invalid value for field ${rule.field}`,
-                  item: env,
-                  field: rule.field,
-                  originalValue: sourceValue,
-                  expectedType: rule.targetType,
-                })
-                continue
               }
+              errors.push({
+                type: 'VALIDATION_ERROR',
+                message: `Invalid value for field ${rule.field}`,
+                item: env,
+                field: rule.field,
+                originalValue: sourceValue,
+                expectedType: rule.targetType,
+              })
+              continue
             }
 
             // Transform the value

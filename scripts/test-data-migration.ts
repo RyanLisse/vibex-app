@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Data Migration Test Script
  *
@@ -6,11 +7,11 @@
  * to verify end-to-end functionality.
  */
 
-import { dataMigrationManager } from '../lib/migration/data-migration'
-import { dataExtractor } from '../lib/migration/data-extractor'
 import { backupService } from '../lib/migration/backup-service'
+import { dataExtractor } from '../lib/migration/data-extractor'
+import { dataMigrationManager } from '../lib/migration/data-migration'
+import type { LocalStorageEnvironment, LocalStorageTask } from '../lib/migration/types'
 import { redisCache } from '../lib/redis'
-import type { LocalStorageTask, LocalStorageEnvironment } from '../lib/migration/types'
 
 // Sample test data that mimics real localStorage data
 const sampleTasks: LocalStorageTask[] = [
@@ -49,7 +50,7 @@ const sampleTasks: LocalStorageTask[] = [
     branch: 'main',
     sessionId: 'session-456',
     repository: 'test-repo',
-    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    createdAt: new Date(Date.now() - 86_400_000).toISOString(), // 1 day ago
     updatedAt: new Date().toISOString(),
     isArchived: false,
     mode: 'ask',
@@ -75,7 +76,7 @@ const sampleEnvironments: LocalStorageEnvironment[] = [
     githubOrganization: 'test-org',
     githubToken: 'ghp_prod_token',
     githubRepository: 'prod-repo',
-    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    createdAt: new Date(Date.now() - 172_800_000).toISOString(), // 2 days ago
     updatedAt: new Date().toISOString(),
   },
 ]
@@ -183,7 +184,7 @@ async function testBackupCreation(): Promise<string | null> {
       description: 'Test migration backup',
     })
 
-    if (!result.success || !result.manifest) {
+    if (!(result.success && result.manifest)) {
       logError(`Backup creation failed: ${result.error || 'Unknown error'}`)
       return null
     }

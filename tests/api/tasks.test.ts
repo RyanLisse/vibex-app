@@ -4,18 +4,18 @@
  * Comprehensive tests for task-related API routes with database operations
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { eq } from 'drizzle-orm'
 import { createMocks } from 'node-mocks-http'
-import { GET, POST, PUT, DELETE } from '@/app/api/tasks/route'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  DELETE as deleteTaskById,
   GET as getTaskById,
   PUT as updateTaskById,
-  DELETE as deleteTaskById,
 } from '@/app/api/tasks/[id]/route'
+import { DELETE, GET, POST, PUT } from '@/app/api/tasks/route'
 import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 import type { Task } from '@/db/schema'
+import { tasks } from '@/db/schema'
 
 // Mock database
 vi.mock('@/db/config', () => ({

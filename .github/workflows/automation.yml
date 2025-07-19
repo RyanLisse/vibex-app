@@ -103,7 +103,7 @@ jobs:
           echo "- \`bun run quality:auto\` - Full quality automation" >> automation-report.md
 
       - name: Upload automation report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: automation-report
           path: automation-report.md

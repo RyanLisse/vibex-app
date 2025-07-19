@@ -7,37 +7,37 @@
  * migration progress, and system performance in real-time.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Activity,
-  Users,
-  CheckCircle,
   AlertTriangle,
+  CheckCircle,
   Clock,
-  TrendingUp,
-  Database,
   Cpu,
-  HardDrive,
-  Network,
-  RefreshCw,
-  Play,
-  Pause,
+  Database,
   Eye,
   GitBranch,
+  HardDrive,
+  Network,
+  Pause,
+  Play,
+  RefreshCw,
+  TrendingUp,
+  Users,
 } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  agentActivityTracker,
   type AgentActivity,
   type AgentType,
+  agentActivityTracker,
 } from '@/lib/observability/agent-activity-tracker'
+import { AgentCoordinationMonitor } from './agent-coordination-monitor'
 import { MigrationProgressMonitor } from './migration-progress-monitor'
 import { TimelineVisualization } from './timeline-visualization'
-import { AgentCoordinationMonitor } from './agent-coordination-monitor'
 
 interface UnifiedProgressDashboardProps {
   className?: string
@@ -111,16 +111,16 @@ export function UnifiedProgressDashboard({
     switch (status) {
       case 'active':
       case 'processing':
-        return <Activity className="w-4 h-4 animate-spin text-blue-600" />
+        return <Activity className="h-4 w-4 animate-spin text-blue-600" />
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
+        return <CheckCircle className="h-4 w-4 text-green-600" />
       case 'error':
       case 'failed':
-        return <AlertTriangle className="w-4 h-4 text-red-600" />
+        return <AlertTriangle className="h-4 w-4 text-red-600" />
       case 'waiting':
-        return <Clock className="w-4 h-4 text-yellow-600" />
+        return <Clock className="h-4 w-4 text-yellow-600" />
       default:
-        return <Clock className="w-4 h-4 text-gray-400" />
+        return <Clock className="h-4 w-4 text-gray-400" />
     }
   }, [])
 
@@ -137,7 +137,7 @@ export function UnifiedProgressDashboard({
       <Card className={className}>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <Activity className="w-5 h-5 animate-spin mr-2" />
+            <Activity className="mr-2 h-5 w-5 animate-spin" />
             Loading dashboard...
           </div>
         </CardContent>
@@ -152,15 +152,15 @@ export function UnifiedProgressDashboard({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center text-2xl">
-              <Users className="w-6 h-6 mr-2" />
+              <Users className="mr-2 h-6 w-6" />
               Unified Progress Dashboard
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={() => setIsPaused(!isPaused)}>
-                {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+              <Button onClick={() => setIsPaused(!isPaused)} size="sm" variant="outline">
+                {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
               </Button>
-              <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <Button disabled={loading} onClick={fetchData} size="sm" variant="outline">
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
@@ -174,56 +174,56 @@ export function UnifiedProgressDashboard({
             <CardTitle>System Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <div className="text-center">
-                <div className="text-3xl font-bold">{systemOverview.totalAgents}</div>
-                <div className="text-sm text-gray-600">Total Agents</div>
+                <div className="font-bold text-3xl">{systemOverview.totalAgents}</div>
+                <div className="text-gray-600 text-sm">Total Agents</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="font-bold text-3xl text-blue-600">
                   {systemOverview.activeAgents}
                 </div>
-                <div className="text-sm text-gray-600">Active Agents</div>
+                <div className="text-gray-600 text-sm">Active Agents</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">
+                <div className="font-bold text-3xl text-green-600">
                   {systemOverview.completedTasks}
                 </div>
-                <div className="text-sm text-gray-600">Completed Tasks</div>
+                <div className="text-gray-600 text-sm">Completed Tasks</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-600">{systemOverview.failedTasks}</div>
-                <div className="text-sm text-gray-600">Failed Tasks</div>
+                <div className="font-bold text-3xl text-red-600">{systemOverview.failedTasks}</div>
+                <div className="text-gray-600 text-sm">Failed Tasks</div>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-4">
               <div className="flex items-center">
-                <Cpu className="w-5 h-5 mr-2 text-blue-600" />
+                <Cpu className="mr-2 h-5 w-5 text-blue-600" />
                 <div>
-                  <div className="text-sm font-medium">CPU Usage</div>
-                  <Progress value={systemOverview.averageResourceUsage.cpu} className="mt-1" />
-                  <div className="text-xs text-gray-600 mt-1">
+                  <div className="font-medium text-sm">CPU Usage</div>
+                  <Progress className="mt-1" value={systemOverview.averageResourceUsage.cpu} />
+                  <div className="mt-1 text-gray-600 text-xs">
                     {systemOverview.averageResourceUsage.cpu.toFixed(1)}%
                   </div>
                 </div>
               </div>
               <div className="flex items-center">
-                <HardDrive className="w-5 h-5 mr-2 text-green-600" />
+                <HardDrive className="mr-2 h-5 w-5 text-green-600" />
                 <div>
-                  <div className="text-sm font-medium">Memory Usage</div>
-                  <Progress value={systemOverview.averageResourceUsage.memory} className="mt-1" />
-                  <div className="text-xs text-gray-600 mt-1">
+                  <div className="font-medium text-sm">Memory Usage</div>
+                  <Progress className="mt-1" value={systemOverview.averageResourceUsage.memory} />
+                  <div className="mt-1 text-gray-600 text-xs">
                     {systemOverview.averageResourceUsage.memory.toFixed(1)}%
                   </div>
                 </div>
               </div>
               <div className="flex items-center">
-                <Network className="w-5 h-5 mr-2 text-purple-600" />
+                <Network className="mr-2 h-5 w-5 text-purple-600" />
                 <div>
-                  <div className="text-sm font-medium">Network Usage</div>
-                  <Progress value={systemOverview.averageResourceUsage.network} className="mt-1" />
-                  <div className="text-xs text-gray-600 mt-1">
+                  <div className="font-medium text-sm">Network Usage</div>
+                  <Progress className="mt-1" value={systemOverview.averageResourceUsage.network} />
+                  <div className="mt-1 text-gray-600 text-xs">
                     {systemOverview.averageResourceUsage.network.toFixed(1)}%
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export function UnifiedProgressDashboard({
       )}
 
       {/* Tabs for different views */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs onValueChange={setActiveTab} value={activeTab}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="agents">Agents</TabsTrigger>
@@ -248,36 +248,36 @@ export function UnifiedProgressDashboard({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Database className="w-5 h-5 mr-2" />
+                  <Database className="mr-2 h-5 w-5" />
                   Migration Progress Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Overall Progress</span>
-                      <span className="text-sm text-gray-600">
+                    <div className="mb-2 flex justify-between">
+                      <span className="font-medium text-sm">Overall Progress</span>
+                      <span className="text-gray-600 text-sm">
                         {migrationProgress.overallProgress.toFixed(1)}%
                       </span>
                     </div>
-                    <Progress value={migrationProgress.overallProgress} className="h-3" />
+                    <Progress className="h-3" value={migrationProgress.overallProgress} />
                   </div>
 
                   {migrationProgress.estimatedCompletion && (
-                    <div className="text-sm text-gray-600">
+                    <div className="text-gray-600 text-sm">
                       Estimated Completion:{' '}
                       {migrationProgress.estimatedCompletion.toLocaleTimeString()}
                     </div>
                   )}
 
                   {migrationProgress.blockers.length > 0 && (
-                    <div className="mt-4 p-3 bg-yellow-50 rounded">
+                    <div className="mt-4 rounded bg-yellow-50 p-3">
                       <div className="flex items-center text-yellow-700">
-                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        <AlertTriangle className="mr-2 h-4 w-4" />
                         <span className="font-medium">Blockers Detected</span>
                       </div>
-                      <ul className="mt-2 text-sm text-yellow-600 list-disc list-inside">
+                      <ul className="mt-2 list-inside list-disc text-sm text-yellow-600">
                         {migrationProgress.blockers.map((blocker: string, index: number) => (
                           <li key={index}>{blocker}</li>
                         ))}
@@ -292,13 +292,13 @@ export function UnifiedProgressDashboard({
 
         <TabsContent value="agents">
           {/* Agent Activities Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {agents.map((agent) => (
               <Card
-                key={agent.agentId}
                 className={`cursor-pointer transition-all ${
                   selectedAgent === agent.agentId ? 'ring-2 ring-blue-500' : ''
                 }`}
+                key={agent.agentId}
                 onClick={() =>
                   setSelectedAgent(selectedAgent === agent.agentId ? null : agent.agentId)
                 }
@@ -307,13 +307,13 @@ export function UnifiedProgressDashboard({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getAgentTypeColor(agent.agentType)}`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-white ${getAgentTypeColor(agent.agentType)}`}
                       >
                         {agent.agentType.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <h3 className="font-medium">{formatAgentType(agent.agentType)}</h3>
-                        <p className="text-xs text-gray-600">{agent.agentId}</p>
+                        <p className="text-gray-600 text-xs">{agent.agentId}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -329,14 +329,14 @@ export function UnifiedProgressDashboard({
                     <div className="space-y-3">
                       <div>
                         <div className="font-medium text-sm">{agent.currentTask.name}</div>
-                        <div className="text-xs text-gray-600">{agent.currentTask.description}</div>
+                        <div className="text-gray-600 text-xs">{agent.currentTask.description}</div>
                       </div>
                       <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-xs text-gray-600">Progress</span>
-                          <span className="text-xs font-medium">{agent.currentTask.progress}%</span>
+                        <div className="mb-1 flex justify-between">
+                          <span className="text-gray-600 text-xs">Progress</span>
+                          <span className="font-medium text-xs">{agent.currentTask.progress}%</span>
                         </div>
-                        <Progress value={agent.currentTask.progress} className="h-2" />
+                        <Progress className="h-2" value={agent.currentTask.progress} />
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
@@ -352,22 +352,22 @@ export function UnifiedProgressDashboard({
                       </div>
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-600">No active task</div>
+                    <div className="text-gray-600 text-sm">No active task</div>
                   )}
 
                   {/* Resource Usage */}
-                  <div className="mt-4 pt-4 border-t">
+                  <div className="mt-4 border-t pt-4">
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="text-center">
-                        <Cpu className="w-4 h-4 mx-auto mb-1 text-blue-600" />
+                        <Cpu className="mx-auto mb-1 h-4 w-4 text-blue-600" />
                         <div>{agent.metrics.resourceUsage.cpu.toFixed(1)}%</div>
                       </div>
                       <div className="text-center">
-                        <HardDrive className="w-4 h-4 mx-auto mb-1 text-green-600" />
+                        <HardDrive className="mx-auto mb-1 h-4 w-4 text-green-600" />
                         <div>{agent.metrics.resourceUsage.memory.toFixed(1)}%</div>
                       </div>
                       <div className="text-center">
-                        <Network className="w-4 h-4 mx-auto mb-1 text-purple-600" />
+                        <Network className="mx-auto mb-1 h-4 w-4 text-purple-600" />
                         <div>{agent.metrics.resourceUsage.network.toFixed(1)}%</div>
                       </div>
                     </div>

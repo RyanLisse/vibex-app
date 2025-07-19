@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Basic Migration Test Script
  *
@@ -6,9 +7,9 @@
  * to verify the basic data transformation and database operations work.
  */
 
-import { db } from '../db/config'
-import { tasks, environments } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import { db } from '../db/config'
+import { environments, tasks } from '../db/schema'
 
 // Sample test data
 const sampleTask = {

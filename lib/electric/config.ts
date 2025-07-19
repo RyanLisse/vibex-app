@@ -292,7 +292,7 @@ class ElectricDB {
     table: string,
     operation: string,
     data: any,
-    realtime: boolean = true
+    realtime = true
   ): Promise<any> {
     try {
       this.realtimeStats.totalOperations++
@@ -321,10 +321,9 @@ class ElectricDB {
         }
 
         return result.data
-      } else {
-        this.realtimeStats.failedOperations++
-        throw new Error(result.error || 'Operation failed')
       }
+      this.realtimeStats.failedOperations++
+      throw new Error(result.error || 'Operation failed')
     } catch (error) {
       this.realtimeStats.failedOperations++
       throw error

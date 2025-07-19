@@ -5,7 +5,7 @@
  * Provides type safety and validation for migration operations.
  */
 
-import type { Task as DbTask, Environment as DbEnvironment } from '@/db/schema'
+import type { Environment as DbEnvironment, Task as DbTask } from '@/db/schema'
 
 // LocalStorage Data Types (matching Zustand store structures)
 export interface LocalStorageTask {

@@ -5,10 +5,10 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { z } from 'zod'
-import {
-  EnvironmentSchema,
+import type { z } from 'zod'
+import type {
   CreateEnvironmentSchema,
+  EnvironmentSchema,
   UpdateEnvironmentSchema,
 } from '@/src/schemas/api-routes'
 

@@ -11,7 +11,7 @@ export function StaleDataBadge({ isStale, className = '' }: StaleDataBadgeProps)
   if (!isStale) return null
 
   return (
-    <Badge variant="outline" className={`text-xs ${className}`}>
+    <Badge className={`text-xs ${className}`} variant="outline">
       Stale Data
     </Badge>
   )

@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
 import { useAuthBase } from '@/hooks/use-auth-base'
@@ -19,7 +18,7 @@ describe('useAnthropicAuth', () => {
   }
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     ;(useAuthBase as any).mockReturnValue(mockBaseAuth)
   })
 

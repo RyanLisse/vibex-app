@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
 import React from 'react'
+import { vi } from 'vitest'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 // Mock Radix UI ScrollArea components

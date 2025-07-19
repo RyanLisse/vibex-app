@@ -6,21 +6,21 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { migrationService } from '../../lib/migration/migration-service'
+import { backupService } from '../../lib/migration/backup-service'
 import { dataExtractor } from '../../lib/migration/data-extractor'
 import { dataMapper } from '../../lib/migration/data-mapper'
-import { backupService } from '../../lib/migration/backup-service'
+import { migrationService } from '../../lib/migration/migration-service'
 import type {
-  MigrationConfig,
-  LocalStorageTask,
   LocalStorageEnvironment,
+  LocalStorageTask,
+  MigrationConfig,
 } from '../../lib/migration/types'
 
 // Performance test configuration
 const PERFORMANCE_THRESHOLDS = {
   SMALL_DATASET_TIME: 1000, // 1 second for <100 items
   MEDIUM_DATASET_TIME: 5000, // 5 seconds for <1000 items
-  LARGE_DATASET_TIME: 30000, // 30 seconds for <10000 items
+  LARGE_DATASET_TIME: 30_000, // 30 seconds for <10000 items
   MEMORY_USAGE_LIMIT: 100 * 1024 * 1024, // 100MB memory limit
   BACKUP_COMPRESSION_RATIO: 0.7, // At least 30% compression
 }
@@ -192,7 +192,7 @@ const runPerformanceTest = async <T>(
 ): Promise<{ result: T; averageDuration: number; memoryDelta: any }> => {
   const durations: number[] = []
   let lastResult: T
-  let totalMemoryDelta = { heapUsedDelta: 0, heapTotalDelta: 0, rssDelta: 0 }
+  const totalMemoryDelta = { heapUsedDelta: 0, heapTotalDelta: 0, rssDelta: 0 }
 
   for (let i = 0; i < iterations; i++) {
     const memoryDelta = await measureMemoryDelta(async () => {
@@ -340,7 +340,7 @@ describe('Migration System Performance Tests', () => {
     })
 
     it('should transform large dataset efficiently', async () => {
-      const tasks = generateTaskData(10000)
+      const tasks = generateTaskData(10_000)
 
       await runPerformanceTest(
         'Large Dataset Transformation',
@@ -581,7 +581,7 @@ describe('Migration System Performance Tests', () => {
     it('should handle large datasets without memory leaks', async () => {
       const largeTaskSet = generateTaskData(2000)
 
-      let initialMemory = getMemoryUsage()
+      const initialMemory = getMemoryUsage()
 
       // Perform multiple operations to test for memory leaks
       for (let iteration = 0; iteration < 5; iteration++) {

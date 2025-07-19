@@ -8,21 +8,21 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import { Archive, Check, Dot, Trash2, RefreshCw, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import { AlertCircle, Archive, Check, Dot, RefreshCw, Trash2, Wifi, WifiOff } from 'lucide-react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useElectricContext } from '@/components/providers/electric-provider'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TextShimmer } from '@/components/ui/text-shimmer'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
+  useDeleteTaskMutation,
   useTasksQuery,
   useUpdateTaskMutation,
-  useDeleteTaskMutation,
 } from '@/hooks/use-task-queries'
-import { useElectricContext } from '@/components/providers/electric-provider'
 import { observability } from '@/lib/observability'
 
 interface EnhancedTaskListProps {
@@ -144,7 +144,7 @@ export function EnhancedTaskList({
 
   // Connection status indicator
   const ConnectionStatus = () => (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex items-center gap-2 text-muted-foreground text-sm">
       {isConnected ? (
         <>
           <Wifi className="h-4 w-4 text-green-500" />
@@ -162,11 +162,11 @@ export function EnhancedTaskList({
 
   // Error display component
   const ErrorDisplay = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
-    <Alert variant="destructive" className="mb-4">
+    <Alert className="mb-4" variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>Failed to load tasks: {error.message}</span>
-        <Button variant="outline" size="sm" onClick={onRetry}>
+        <Button onClick={onRetry} size="sm" variant="outline">
           Retry
         </Button>
       </AlertDescription>
@@ -177,7 +177,7 @@ export function EnhancedTaskList({
   const LoadingSkeleton = () => (
     <div className="flex flex-col gap-1">
       {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="rounded-lg border bg-background p-4">
+        <div className="rounded-lg border bg-background p-4" key={index}>
           <div className="flex items-center justify-between">
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-3/4" />
@@ -220,14 +220,14 @@ export function EnhancedTaskList({
               {task.status.replace('_', ' ')}
             </Badge>
             {task.priority === 'high' && (
-              <Badge variant="destructive" className="text-xs">
+              <Badge className="text-xs" variant="destructive">
                 High
               </Badge>
             )}
           </div>
 
           {task.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+            <p className="mt-1 line-clamp-2 text-muted-foreground text-sm">{task.description}</p>
           )}
 
           {task.status === 'in_progress' ? (
@@ -237,7 +237,7 @@ export function EnhancedTaskList({
               </TextShimmer>
             </div>
           ) : (
-            <div className="flex items-center gap-0 mt-1">
+            <div className="mt-1 flex items-center gap-0">
               <p className="text-muted-foreground text-sm">
                 {task.createdAt
                   ? formatDistanceToNow(new Date(task.createdAt), {
@@ -270,20 +270,20 @@ export function EnhancedTaskList({
       <div className="flex items-center gap-2">
         {task.status === 'completed' && onDelete && (
           <Button
+            disabled={deleteTaskMutation.isPending}
             onClick={() => onDelete(task.id)}
             size="icon"
             variant="outline"
-            disabled={deleteTaskMutation.isPending}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         )}
         {(task.status === 'pending' || task.status === 'in_progress') && onArchive && (
           <Button
+            disabled={updateTaskMutation.isPending}
             onClick={() => onArchive(task.id)}
             size="icon"
             variant="outline"
-            disabled={updateTaskMutation.isPending}
           >
             <Archive className="h-4 w-4" />
           </Button>
@@ -302,15 +302,15 @@ export function EnhancedTaskList({
         <ConnectionStatus />
         <div className="flex items-center gap-2">
           {(activeStale || archivedStale) && (
-            <Badge variant="outline" className="text-xs">
+            <Badge className="text-xs" variant="outline">
               Stale Data
             </Badge>
           )}
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
             disabled={activeFetching || archivedFetching}
+            onClick={handleRefresh}
+            size="sm"
+            variant="ghost"
           >
             <RefreshCw
               className={`h-4 w-4 ${activeFetching || archivedFetching ? 'animate-spin' : ''}`}
@@ -320,8 +320,8 @@ export function EnhancedTaskList({
       </div>
 
       <Tabs
-        value={activeTab}
         onValueChange={(value) => setActiveTab(value as 'active' | 'archived')}
+        value={activeTab}
       >
         <TabsList>
           <TabsTrigger value="active">
@@ -355,7 +355,7 @@ export function EnhancedTaskList({
               <p className="p-2 text-muted-foreground">No active tasks yet.</p>
             ) : (
               activeTasks?.map((task) => (
-                <TaskItem key={task.id} task={task} onArchive={handleArchiveTask} />
+                <TaskItem key={task.id} onArchive={handleArchiveTask} task={task} />
               ))
             )}
           </div>
@@ -372,7 +372,7 @@ export function EnhancedTaskList({
                 <p className="p-2 text-muted-foreground">No archived tasks yet.</p>
               ) : (
                 archivedTasks?.map((task) => (
-                  <TaskItem key={task.id} task={task} onDelete={handleDeleteTask} />
+                  <TaskItem key={task.id} onDelete={handleDeleteTask} task={task} />
                 ))
               )}
             </div>

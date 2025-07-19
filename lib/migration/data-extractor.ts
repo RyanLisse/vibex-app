@@ -7,8 +7,8 @@
 
 import type {
   LocalStorageData,
-  LocalStorageTask,
   LocalStorageEnvironment,
+  LocalStorageTask,
   MigrationError,
   ValidationResult,
 } from './types'
@@ -377,24 +377,28 @@ export class DataExtractor {
     }
 
     // Date validations
-    if (t.createdAt && typeof t.createdAt === 'string') {
-      if (isNaN(Date.parse(t.createdAt as string))) {
-        errors.push({
-          field: 'createdAt',
-          message: 'Invalid date format',
-          severity: 'ERROR',
-        })
-      }
+    if (
+      t.createdAt &&
+      typeof t.createdAt === 'string' &&
+      isNaN(Date.parse(t.createdAt as string))
+    ) {
+      errors.push({
+        field: 'createdAt',
+        message: 'Invalid date format',
+        severity: 'ERROR',
+      })
     }
 
-    if (t.updatedAt && typeof t.updatedAt === 'string') {
-      if (isNaN(Date.parse(t.updatedAt as string))) {
-        errors.push({
-          field: 'updatedAt',
-          message: 'Invalid date format',
-          severity: 'ERROR',
-        })
-      }
+    if (
+      t.updatedAt &&
+      typeof t.updatedAt === 'string' &&
+      isNaN(Date.parse(t.updatedAt as string))
+    ) {
+      errors.push({
+        field: 'updatedAt',
+        message: 'Invalid date format',
+        severity: 'ERROR',
+      })
     }
 
     // Status validation

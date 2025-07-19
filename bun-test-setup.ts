@@ -3,7 +3,7 @@
  * Global test setup for Bun test runner (logic tests only)
  */
 
-import { beforeEach, afterEach, mock } from 'bun:test'
+import { afterEach, beforeEach, mock } from 'bun:test'
 
 // Store original environment for restoration
 const originalEnv = { ...process.env }

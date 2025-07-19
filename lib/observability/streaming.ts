@@ -5,11 +5,11 @@
  * filtering, and subscription management for live monitoring and debugging.
  */
 
+import { and, desc, eq, gte, inArray } from 'drizzle-orm'
 import { EventEmitter } from 'events'
-import { ObservabilityEvent, ObservabilityEventType, EventSeverity } from './events'
 import { db } from '@/db/config'
 import { observabilityEvents } from '@/db/schema'
-import { eq, and, gte, inArray, desc } from 'drizzle-orm'
+import type { EventSeverity, ObservabilityEvent, ObservabilityEventType } from './events'
 
 // Event stream filter
 export interface EventStreamFilter {
@@ -38,7 +38,7 @@ export class EventStreamManager extends EventEmitter {
   private static instance: EventStreamManager
   private subscriptions: Map<string, EventStreamSubscription> = new Map()
   private eventBuffer: ObservabilityEvent[] = []
-  private readonly MAX_BUFFER_SIZE = 10000
+  private readonly MAX_BUFFER_SIZE = 10_000
   private pollingInterval: NodeJS.Timeout | null = null
   private readonly POLLING_INTERVAL = 1000 // 1 second
   private lastPolledTimestamp: Date = new Date()
@@ -208,7 +208,7 @@ export class EventStreamManager extends EventEmitter {
    */
   private async getRecentEventsFromDb(
     filter: EventStreamFilter,
-    limit: number = 100
+    limit = 100
   ): Promise<ObservabilityEvent[]> {
     let query = db.select().from(observabilityEvents)
 

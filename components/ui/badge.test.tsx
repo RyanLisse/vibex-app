@@ -1,5 +1,5 @@
+import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect, mock } from 'bun:test'
 import React from 'react'
 import { Badge, badgeVariants } from '@/components/ui/badge'
 

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import { vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import {
   CodeBlock,
   CodeBlockBody,
@@ -21,10 +21,10 @@ import {
 // Mock dependencies
 vi.mock('@radix-ui/react-use-controllable-state', () => ({
   useControllableState: ({ prop, defaultProp, onChange }: any) => {
-    const React = require('react')
-    const [state, setState] = React.useState(prop ?? defaultProp)
+    const { useState, useEffect } = vi.importActual('react') as any
+    const [state, setState] = useState(prop ?? defaultProp)
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (prop !== undefined) {
         setState(prop)
       }
@@ -91,24 +91,71 @@ vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }))
 
-// Mock icon-pack icons
-vi.mock('@icons-pack/react-simple-icons', () => ({
-  SiJavascript: ({ className }: any) => (
-    <span className={className} data-testid="js-icon">
-      JS
+// Mock icon-pack icons - comprehensive mock for all used icons
+vi.mock('@icons-pack/react-simple-icons', () => {
+  const MockIcon = ({ className }: any) => (
+    <span className={className} data-testid="mock-icon">
+      🔸
     </span>
-  ),
-  SiTypescript: ({ className }: any) => (
-    <span className={className} data-testid="ts-icon">
-      TS
-    </span>
-  ),
-  SiPython: ({ className }: any) => (
-    <span className={className} data-testid="py-icon">
-      PY
-    </span>
-  ),
-}))
+  )
+  
+  return {
+    SiDotenv: MockIcon,
+    SiAstro: MockIcon,
+    SiBiome: MockIcon,
+    SiBower: MockIcon,
+    SiBun: MockIcon,
+    SiC: MockIcon,
+    SiCplusplus: MockIcon,
+    SiCircleci: MockIcon,
+    SiCoffeescript: MockIcon,
+    SiCssmodules: MockIcon,
+    SiCss: MockIcon,
+    SiDart: MockIcon,
+    SiDocker: MockIcon,
+    SiDocusaurus: MockIcon,
+    SiEditorconfig: MockIcon,
+    SiEslint: MockIcon,
+    SiGatsby: MockIcon,
+    SiGitignoredotio: MockIcon,
+    SiGo: MockIcon,
+    SiGraphql: MockIcon,
+    SiJavascript: MockIcon,
+    SiTypescript: MockIcon,
+    SiPython: MockIcon,
+    SiHtml5: MockIcon,
+    SiJson: MockIcon,
+    SiMarkdown: MockIcon,
+    SiPhp: MockIcon,
+    SiRust: MockIcon,
+    SiSwift: MockIcon,
+    SiVuedotjs: MockIcon,
+    SiReact: MockIcon,
+    SiNextdotjs: MockIcon,
+    SiNodedotjs: MockIcon,
+    SiYarn: MockIcon,
+    SiNpm: MockIcon,
+    SiWebpack: MockIcon,
+    SiVite: MockIcon,
+    SiTailwindcss: MockIcon,
+    SiSass: MockIcon,
+    SiLess: MockIcon,
+    SiStylus: MockIcon,
+    SiPostcss: MockIcon,
+    SiBootstrap: MockIcon,
+    SiBulma: MockIcon,
+    SiMaterialui: MockIcon,
+    SiChakraui: MockIcon,
+    SiAntdesign: MockIcon,
+    SiStorybook: MockIcon,
+    SiJest: MockIcon,
+    SiCypress: MockIcon,
+    SiPlaywright: MockIcon,
+    SiVitest: MockIcon,
+    SiMocha: MockIcon,
+    SiJasmine: MockIcon,
+  }
+})
 
 vi.mock('lucide-react', () => ({
   CheckIcon: ({ className, size }: any) => (
@@ -463,8 +510,8 @@ describe('CodeBlockContent', () => {
       </CodeBlockContent>
     )
 
-    await waitFor(() => {
-      const { codeToHtml } = require('shiki')
+    await waitFor(async () => {
+      const { codeToHtml } = await import('shiki')
       expect(codeToHtml).toHaveBeenCalledWith(
         'console.log("test");',
         expect.objectContaining({

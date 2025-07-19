@@ -33,9 +33,9 @@ export default defineConfig({
       'src/**/*.test.*',
       'stores/**/*.test.*',
     ],
-    testTimeout: 30000, // Longer timeout for integration tests
-    hookTimeout: 10000,
-    teardownTimeout: 10000,
+    testTimeout: 30_000, // Longer timeout for integration tests
+    hookTimeout: 10_000,
+    teardownTimeout: 10_000,
     isolate: true,
     restoreMocks: true,
     clearMocks: true,

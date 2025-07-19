@@ -1,4 +1,4 @@
-import { RedisConfig, RedisServiceConfig } from './types'
+import type { RedisConfig, RedisServiceConfig } from './types'
 
 /**
  * Redis/Valkey Configuration
@@ -16,9 +16,9 @@ export function getRedisConfig(): RedisConfig {
     const config: RedisConfig = {
       primary: {
         host: url.hostname,
-        port: parseInt(url.port) || 6379,
+        port: Number.parseInt(url.port) || 6379,
         password: url.password || undefined,
-        database: parseInt(url.pathname.slice(1)) || 0,
+        database: Number.parseInt(url.pathname.slice(1)) || 0,
         type: 'standalone',
       },
     }
@@ -27,7 +27,7 @@ export function getRedisConfig(): RedisConfig {
     if (process.env.REDIS_CLUSTER_NODES) {
       const nodes = process.env.REDIS_CLUSTER_NODES.split(',').map((node) => {
         const [host, port] = node.trim().split(':')
-        return { host, port: parseInt(port) || 6379 }
+        return { host, port: Number.parseInt(port) || 6379 }
       })
 
       config.primary = {
@@ -44,18 +44,18 @@ export function getRedisConfig(): RedisConfig {
   const defaultConfig: RedisConfig = {
     primary: {
       host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
+      port: Number.parseInt(process.env.REDIS_PORT || '6379'),
       password: process.env.REDIS_PASSWORD,
-      database: parseInt(process.env.REDIS_DB || '0'),
+      database: Number.parseInt(process.env.REDIS_DB || '0'),
       type: 'standalone',
       options: {
         // Connection options
-        connectTimeout: 10000,
+        connectTimeout: 10_000,
         commandTimeout: 5000,
         retryDelayOnFailover: 100,
         maxRetriesPerRequest: 3,
         lazyConnect: true,
-        keepAlive: 30000,
+        keepAlive: 30_000,
 
         // Production optimizations
         ...(isProduction && {
@@ -72,9 +72,9 @@ export function getRedisConfig(): RedisConfig {
     defaultConfig.replicas = {
       read: {
         host: process.env.REDIS_REPLICA_HOST,
-        port: parseInt(process.env.REDIS_REPLICA_PORT || '6379'),
+        port: Number.parseInt(process.env.REDIS_REPLICA_PORT || '6379'),
         password: process.env.REDIS_REPLICA_PASSWORD || process.env.REDIS_PASSWORD,
-        database: parseInt(process.env.REDIS_REPLICA_DB || process.env.REDIS_DB || '0'),
+        database: Number.parseInt(process.env.REDIS_REPLICA_DB || process.env.REDIS_DB || '0'),
         type: 'standalone',
       },
     }
@@ -84,9 +84,9 @@ export function getRedisConfig(): RedisConfig {
   if (process.env.REDIS_PUBSUB_HOST || isProduction) {
     defaultConfig.pubsub = {
       host: process.env.REDIS_PUBSUB_HOST || defaultConfig.primary.host,
-      port: parseInt(process.env.REDIS_PUBSUB_PORT || process.env.REDIS_PORT || '6379'),
+      port: Number.parseInt(process.env.REDIS_PUBSUB_PORT || process.env.REDIS_PORT || '6379'),
       password: process.env.REDIS_PUBSUB_PASSWORD || process.env.REDIS_PASSWORD,
-      database: parseInt(process.env.REDIS_PUBSUB_DB || '1'), // Use different DB for pub/sub
+      database: Number.parseInt(process.env.REDIS_PUBSUB_DB || '1'), // Use different DB for pub/sub
       type: 'standalone',
     }
   }
@@ -100,43 +100,43 @@ export function getRedisServiceConfig(): RedisServiceConfig {
   return {
     redis: getRedisConfig(),
     cache: {
-      defaultTTL: parseInt(process.env.REDIS_CACHE_TTL || '3600'), // 1 hour
-      maxKeyLength: parseInt(process.env.REDIS_MAX_KEY_LENGTH || '250'),
+      defaultTTL: Number.parseInt(process.env.REDIS_CACHE_TTL || '3600'), // 1 hour
+      maxKeyLength: Number.parseInt(process.env.REDIS_MAX_KEY_LENGTH || '250'),
       enableCompression: process.env.REDIS_ENABLE_COMPRESSION === 'true',
-      compressionThreshold: parseInt(process.env.REDIS_COMPRESSION_THRESHOLD || '1024'), // 1KB
+      compressionThreshold: Number.parseInt(process.env.REDIS_COMPRESSION_THRESHOLD || '1024'), // 1KB
     },
     session: {
-      defaultTTL: parseInt(process.env.REDIS_SESSION_TTL || '86400'), // 24 hours
+      defaultTTL: Number.parseInt(process.env.REDIS_SESSION_TTL || '86400'), // 24 hours
       cookieName: process.env.SESSION_COOKIE_NAME || 'session_id',
       autoExtend: process.env.REDIS_SESSION_AUTO_EXTEND !== 'false',
       slidingExpiration: process.env.REDIS_SESSION_SLIDING !== 'false',
     },
     pubsub: {
-      maxSubscriptions: parseInt(process.env.REDIS_MAX_SUBSCRIPTIONS || '1000'),
-      messageTimeout: parseInt(process.env.REDIS_MESSAGE_TIMEOUT || '30000'), // 30 seconds
+      maxSubscriptions: Number.parseInt(process.env.REDIS_MAX_SUBSCRIPTIONS || '1000'),
+      messageTimeout: Number.parseInt(process.env.REDIS_MESSAGE_TIMEOUT || '30000'), // 30 seconds
       enablePatterns: process.env.REDIS_ENABLE_PATTERNS !== 'false',
     },
     locks: {
-      defaultTTL: parseInt(process.env.REDIS_LOCK_TTL || '30'), // 30 seconds
-      maxRetries: parseInt(process.env.REDIS_LOCK_MAX_RETRIES || '10'),
-      retryDelay: parseInt(process.env.REDIS_LOCK_RETRY_DELAY || '100'), // 100ms
+      defaultTTL: Number.parseInt(process.env.REDIS_LOCK_TTL || '30'), // 30 seconds
+      maxRetries: Number.parseInt(process.env.REDIS_LOCK_MAX_RETRIES || '10'),
+      retryDelay: Number.parseInt(process.env.REDIS_LOCK_RETRY_DELAY || '100'), // 100ms
     },
     rateLimiting: {
-      defaultWindowSize: parseInt(process.env.REDIS_RATE_LIMIT_WINDOW || '60'), // 1 minute
-      defaultMaxRequests: parseInt(process.env.REDIS_RATE_LIMIT_MAX || '100'),
+      defaultWindowSize: Number.parseInt(process.env.REDIS_RATE_LIMIT_WINDOW || '60'), // 1 minute
+      defaultMaxRequests: Number.parseInt(process.env.REDIS_RATE_LIMIT_MAX || '100'),
       enableDistributed: isProduction,
     },
     jobs: {
-      defaultPriority: parseInt(process.env.REDIS_JOB_PRIORITY || '0'),
-      defaultMaxAttempts: parseInt(process.env.REDIS_JOB_MAX_ATTEMPTS || '3'),
-      cleanupInterval: parseInt(process.env.REDIS_JOB_CLEANUP_INTERVAL || '300000'), // 5 minutes
-      retentionTime: parseInt(process.env.REDIS_JOB_RETENTION || '86400'), // 24 hours
+      defaultPriority: Number.parseInt(process.env.REDIS_JOB_PRIORITY || '0'),
+      defaultMaxAttempts: Number.parseInt(process.env.REDIS_JOB_MAX_ATTEMPTS || '3'),
+      cleanupInterval: Number.parseInt(process.env.REDIS_JOB_CLEANUP_INTERVAL || '300000'), // 5 minutes
+      retentionTime: Number.parseInt(process.env.REDIS_JOB_RETENTION || '86400'), // 24 hours
     },
     monitoring: {
       enableMetrics: process.env.REDIS_ENABLE_METRICS !== 'false',
-      metricsInterval: parseInt(process.env.REDIS_METRICS_INTERVAL || '60000'), // 1 minute
+      metricsInterval: Number.parseInt(process.env.REDIS_METRICS_INTERVAL || '60000'), // 1 minute
       enableHealthChecks: process.env.REDIS_ENABLE_HEALTH_CHECKS !== 'false',
-      healthCheckInterval: parseInt(process.env.REDIS_HEALTH_CHECK_INTERVAL || '30000'), // 30 seconds
+      healthCheckInterval: Number.parseInt(process.env.REDIS_HEALTH_CHECK_INTERVAL || '30000'), // 30 seconds
     },
   }
 }
@@ -149,7 +149,7 @@ export function validateRedisEnvironment(): {
   const errors: string[] = []
 
   // Check required environment variables
-  if (!process.env.REDIS_URL && !process.env.REDIS_HOST) {
+  if (!(process.env.REDIS_URL || process.env.REDIS_HOST)) {
     errors.push('Either REDIS_URL or REDIS_HOST must be provided')
   }
 
@@ -170,8 +170,8 @@ export function validateRedisEnvironment(): {
   ].filter(Boolean)
 
   for (const port of ports) {
-    const portNum = parseInt(port!)
-    if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+    const portNum = Number.parseInt(port!)
+    if (isNaN(portNum) || portNum < 1 || portNum > 65_535) {
       errors.push(`Invalid port number: ${port}`)
     }
   }
@@ -184,7 +184,7 @@ export function validateRedisEnvironment(): {
   ].filter(Boolean)
 
   for (const db of databases) {
-    const dbNum = parseInt(db!)
+    const dbNum = Number.parseInt(db!)
     if (isNaN(dbNum) || dbNum < 0 || dbNum > 15) {
       errors.push(`Invalid database number: ${db}`)
     }

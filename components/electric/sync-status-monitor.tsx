@@ -1,28 +1,28 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Wifi,
-  WifiOff,
-  RefreshCw,
+  Activity,
   AlertCircle,
   CheckCircle2,
   Clock,
-  Users,
-  Activity,
   Database,
-  Zap,
   Pause,
   Play,
+  RefreshCw,
+  Users,
+  Wifi,
+  WifiOff,
+  Zap,
 } from 'lucide-react'
-import { electricDb, SyncEvent } from '@/lib/electric/config'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import React, { useEffect, useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
+import { electricDb, type SyncEvent } from '@/lib/electric/config'
 
 interface SyncStatusMonitorProps {
   compact?: boolean
@@ -202,10 +202,10 @@ export function SyncStatusMonitor({
         <connectionStatus.icon
           className={`h-4 w-4 ${connectionStatus.color} ${connectionStatus.icon === RefreshCw ? 'animate-spin' : ''}`}
         />
-        <span className="text-sm text-muted-foreground">{connectionStatus.label}</span>
-        {syncState === 'syncing' && <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />}
+        <span className="text-muted-foreground text-sm">{connectionStatus.label}</span>
+        {syncState === 'syncing' && <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />}
         {realtimeStats.offlineQueueSize > 0 && (
-          <Badge variant="outline" className="text-xs">
+          <Badge className="text-xs" variant="outline">
             {realtimeStats.offlineQueueSize} queued
           </Badge>
         )}
@@ -218,20 +218,20 @@ export function SyncStatusMonitor({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Database className="h-5 w-5" />
               Real-time Sync Status
             </CardTitle>
             <CardDescription>ElectricSQL synchronization and collaboration status</CardDescription>
           </div>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={handleManualSync}
             disabled={!isOnline || syncState === 'syncing'}
+            onClick={handleManualSync}
+            size="sm"
+            variant="outline"
           >
             <RefreshCw
-              className={`h-4 w-4 mr-1 ${syncState === 'syncing' ? 'animate-spin' : ''}`}
+              className={`mr-1 h-4 w-4 ${syncState === 'syncing' ? 'animate-spin' : ''}`}
             />
             Sync
           </Button>
@@ -248,8 +248,8 @@ export function SyncStatusMonitor({
             <span className="font-medium">{connectionStatus.label}</span>
           </div>
           <Badge
-            variant={isOnline ? 'default' : 'secondary'}
             className={isOnline ? 'bg-green-100 text-green-800' : ''}
+            variant={isOnline ? 'default' : 'secondary'}
           >
             {isOnline ? 'Online' : 'Offline'}
           </Badge>
@@ -264,7 +264,7 @@ export function SyncStatusMonitor({
             <span className="font-medium">{syncStatus.label}</span>
           </div>
           {lastSyncTime && (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               {lastSyncTime.toLocaleTimeString()}
             </span>
           )}
@@ -277,7 +277,7 @@ export function SyncStatusMonitor({
               <span>Sync Progress</span>
               <span>{Math.round(syncProgress)}%</span>
             </div>
-            <Progress value={syncProgress} className="h-2" />
+            <Progress className="h-2" value={syncProgress} />
           </div>
         )}
 
@@ -316,22 +316,22 @@ export function SyncStatusMonitor({
         {/* Recent Sync Events */}
         {recentEvents.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium flex items-center gap-2">
+            <h4 className="flex items-center gap-2 font-medium text-sm">
               <Activity className="h-4 w-4" />
               Recent Activity
             </h4>
-            <div className="space-y-1 max-h-32 overflow-y-auto">
+            <div className="max-h-32 space-y-1 overflow-y-auto">
               <AnimatePresence>
                 {recentEvents.slice(0, 5).map((event, index) => (
                   <motion.div
-                    key={`${event.table}-${event.timestamp.getTime()}-${index}`}
-                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-2 rounded bg-muted/50 p-2 text-xs"
                     exit={{ opacity: 0, x: 20 }}
-                    className="flex items-center gap-2 text-xs bg-muted/50 rounded p-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    key={`${event.table}-${event.timestamp.getTime()}-${index}`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full ${
+                      className={`h-2 w-2 rounded-full ${
                         event.type === 'insert'
                           ? 'bg-green-500'
                           : event.type === 'update'
@@ -341,7 +341,7 @@ export function SyncStatusMonitor({
                     />
                     <span className="font-mono">{event.table}</span>
                     <span className="capitalize">{event.type}</span>
-                    <span className="text-muted-foreground ml-auto">
+                    <span className="ml-auto text-muted-foreground">
                       {event.timestamp.toLocaleTimeString()}
                     </span>
                   </motion.div>
@@ -354,17 +354,17 @@ export function SyncStatusMonitor({
         {/* Presence Information */}
         {showPresence && Object.keys(activeUsers).length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium flex items-center gap-2">
+            <h4 className="flex items-center gap-2 font-medium text-sm">
               <Users className="h-4 w-4" />
               Active Users ({Object.keys(activeUsers).length})
             </h4>
             <div className="space-y-1">
               {Object.entries(activeUsers).map(([userId, userData]: [string, any]) => (
-                <div key={userId} className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                <div className="flex items-center gap-2 text-xs" key={userId}>
+                  <div className="h-2 w-2 rounded-full bg-green-500" />
                   <span>{userId}</span>
                   <span className="text-muted-foreground">{userData.activity}</span>
-                  <span className="text-muted-foreground ml-auto">
+                  <span className="ml-auto text-muted-foreground">
                     {new Date(userData.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
@@ -377,32 +377,32 @@ export function SyncStatusMonitor({
         {errors.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-red-600 flex items-center gap-2">
+              <h4 className="flex items-center gap-2 font-medium text-red-600 text-sm">
                 <AlertCircle className="h-4 w-4" />
                 Errors ({errors.length})
               </h4>
               <Button
-                variant="ghost"
-                size="sm"
                 onClick={() => setShowErrorDetails(!showErrorDetails)}
+                size="sm"
+                variant="ghost"
               >
                 {showErrorDetails ? 'Hide' : 'Show'}
               </Button>
             </div>
 
             {showErrorDetails && (
-              <div className="space-y-1 max-h-32 overflow-y-auto">
+              <div className="max-h-32 space-y-1 overflow-y-auto">
                 {errors.slice(0, 3).map((error, index) => (
-                  <div key={index} className="text-xs bg-red-50 border border-red-200 rounded p-2">
+                  <div className="rounded border border-red-200 bg-red-50 p-2 text-xs" key={index}>
                     <p className="text-red-800">{error.message}</p>
-                    <p className="text-red-600 mt-1">{error.timestamp.toLocaleString()}</p>
+                    <p className="mt-1 text-red-600">{error.timestamp.toLocaleString()}</p>
                   </div>
                 ))}
               </div>
             )}
 
             {errors.length > 3 && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 And {errors.length - 3} more errors...
               </p>
             )}
@@ -439,7 +439,7 @@ export function SyncIndicator({ className = '' }: { className?: string }) {
         <WifiOff className="h-4 w-4 text-gray-500" />
       )}
 
-      {syncState === 'syncing' && <RefreshCw className="h-3 w-3 text-blue-500 animate-spin" />}
+      {syncState === 'syncing' && <RefreshCw className="h-3 w-3 animate-spin text-blue-500" />}
     </div>
   )
 }

@@ -5,10 +5,10 @@
  * offline/online transitions, and subscription management
  */
 
-import { beforeAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
-import { electricDb, type ElectricDatabaseManager } from '../../../lib/electric/config'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { NewAgentExecution, NewEnvironment, NewTask } from '../../../db/schema'
+import { type ElectricDatabaseManager, electricDb } from '../../../lib/electric/config'
 import { electricSchema } from '../../../lib/electric/schema'
-import type { NewTask, NewEnvironment, NewAgentExecution } from '../../../db/schema'
 
 // Mock ElectricSQL client for testing
 const mockElectricClient = {
@@ -67,13 +67,13 @@ const createTestEnvironment = (overrides: Partial<NewEnvironment> = {}): NewEnvi
 })
 
 // Mock data stores for simulating sync states
-let localData = {
+const localData = {
   tasks: new Map<string, any>(),
   environments: new Map<string, any>(),
   executions: new Map<string, any>(),
 }
 
-let serverData = {
+const serverData = {
   tasks: new Map<string, any>(),
   environments: new Map<string, any>(),
   executions: new Map<string, any>(),
@@ -141,7 +141,7 @@ describe('ElectricSQL Synchronization Tests', () => {
       vi.mocked(mockElectricClient.connect).mockResolvedValue(undefined)
 
       // Replace the actual electric client with our mock
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
 
       await dbManager.initialize()
@@ -155,7 +155,7 @@ describe('ElectricSQL Synchronization Tests', () => {
       const connectionError = new Error('Failed to connect to Electric sync service')
       vi.mocked(mockElectricClient.connect).mockRejectedValue(connectionError)
 
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
 
       await expect(dbManager.initialize()).rejects.toThrow(connectionError)
@@ -164,7 +164,7 @@ describe('ElectricSQL Synchronization Tests', () => {
     })
 
     it('should reconnect automatically after disconnection', async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
 
       await dbManager.initialize()
@@ -182,7 +182,7 @@ describe('ElectricSQL Synchronization Tests', () => {
       const stateListener = vi.fn()
       dbManager.addStateListener(stateListener)
 
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
 
       await dbManager.initialize()
@@ -202,7 +202,7 @@ describe('ElectricSQL Synchronization Tests', () => {
 
   describe('Real-time Synchronization', () => {
     beforeEach(async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
       await dbManager.initialize()
     })
@@ -325,7 +325,7 @@ describe('ElectricSQL Synchronization Tests', () => {
 
   describe('Conflict Resolution', () => {
     beforeEach(async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
       await dbManager.initialize()
     })
@@ -475,7 +475,7 @@ describe('ElectricSQL Synchronization Tests', () => {
 
   describe('Offline/Online Transitions', () => {
     beforeEach(async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
       await dbManager.initialize()
     })
@@ -607,7 +607,7 @@ describe('ElectricSQL Synchronization Tests', () => {
 
   describe('Subscription Management', () => {
     beforeEach(async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
       await dbManager.initialize()
     })
@@ -703,9 +703,8 @@ describe('ElectricSQL Synchronization Tests', () => {
           return Promise.resolve({
             unsubscribe: () => subscriptionCallbacks.delete(filter),
           })
-        } else {
-          throw new Error('Not connected')
         }
+        throw new Error('Not connected')
       })
 
       // Initial subscription
@@ -725,7 +724,7 @@ describe('ElectricSQL Synchronization Tests', () => {
 
   describe('Data Validation and Consistency', () => {
     beforeEach(async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
       await dbManager.initialize()
     })
@@ -848,7 +847,7 @@ describe('ElectricSQL Synchronization Tests', () => {
 
   describe('Performance and Scalability', () => {
     beforeEach(async () => {
-      // @ts-ignore - Mock replacement
+      // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
       await dbManager.initialize()
     })

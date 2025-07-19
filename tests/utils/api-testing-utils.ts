@@ -177,9 +177,13 @@ export class ResponseAssertions {
   /**
    * Assert error response
    */
-  static async assertErrorResponse(response: Response, expectedStatus: number, expectedMessage?: string) {
+  static async assertErrorResponse(
+    response: Response,
+    expectedStatus: number,
+    expectedMessage?: string
+  ) {
     expect(response.status).toBe(expectedStatus)
-    
+
     if (expectedMessage) {
       const data = await response.json()
       expect(data.error || data.message).toContain(expectedMessage)
@@ -189,7 +193,7 @@ export class ResponseAssertions {
   /**
    * Assert CORS headers
    */
-  static assertCorsHeaders(response: Response, allowedOrigin: string = '*') {
+  static assertCorsHeaders(response: Response, allowedOrigin = '*') {
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe(allowedOrigin)
     expect(response.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
     expect(response.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
@@ -220,7 +224,7 @@ export class ApiRouteTestRunner {
   private baseUrl: string
   private defaultHeaders: Record<string, string>
 
-  constructor(baseUrl: string = 'http://localhost:3000', defaultHeaders: Record<string, string> = {}) {
+  constructor(baseUrl = 'http://localhost:3000', defaultHeaders: Record<string, string> = {}) {
     this.baseUrl = baseUrl
     this.defaultHeaders = defaultHeaders
   }
@@ -231,15 +235,15 @@ export class ApiRouteTestRunner {
   async testGet(
     path: string,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
     const request = MockRequestFactory.createGetRequest(url, { ...this.defaultHeaders, ...headers })
-    
+
     const response = await handler(request)
     ResponseAssertions.assertStatus(response, expectedStatus)
-    
+
     return response
   }
 
@@ -250,15 +254,18 @@ export class ApiRouteTestRunner {
     path: string,
     body: any,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
-    const request = MockRequestFactory.createPostRequest(url, body, { ...this.defaultHeaders, ...headers })
-    
+    const request = MockRequestFactory.createPostRequest(url, body, {
+      ...this.defaultHeaders,
+      ...headers,
+    })
+
     const response = await handler(request)
     ResponseAssertions.assertStatus(response, expectedStatus)
-    
+
     return response
   }
 
@@ -269,15 +276,18 @@ export class ApiRouteTestRunner {
     path: string,
     body: any,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
-    const request = MockRequestFactory.createPutRequest(url, body, { ...this.defaultHeaders, ...headers })
-    
+    const request = MockRequestFactory.createPutRequest(url, body, {
+      ...this.defaultHeaders,
+      ...headers,
+    })
+
     const response = await handler(request)
     ResponseAssertions.assertStatus(response, expectedStatus)
-    
+
     return response
   }
 
@@ -287,15 +297,18 @@ export class ApiRouteTestRunner {
   async testDelete(
     path: string,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200,
+    expectedStatus = 200,
     headers: Record<string, string> = {}
   ) {
     const url = `${this.baseUrl}${path}`
-    const request = MockRequestFactory.createDeleteRequest(url, { ...this.defaultHeaders, ...headers })
-    
+    const request = MockRequestFactory.createDeleteRequest(url, {
+      ...this.defaultHeaders,
+      ...headers,
+    })
+
     const response = await handler(request)
     ResponseAssertions.assertStatus(response, expectedStatus)
-    
+
     return response
   }
 
@@ -308,14 +321,20 @@ export class ApiRouteTestRunner {
     token: string,
     handler: (request: NextRequest) => Promise<Response>,
     body?: any,
-    expectedStatus: number = 200
+    expectedStatus = 200
   ) {
     const url = `${this.baseUrl}${path}`
-    const request = MockRequestFactory.createAuthenticatedRequest(method, url, token, body, this.defaultHeaders)
-    
+    const request = MockRequestFactory.createAuthenticatedRequest(
+      method,
+      url,
+      token,
+      body,
+      this.defaultHeaders
+    )
+
     const response = await handler(request)
     ResponseAssertions.assertStatus(response, expectedStatus)
-    
+
     return response
   }
 
@@ -327,14 +346,19 @@ export class ApiRouteTestRunner {
     path: string,
     params: Record<string, string>,
     handler: (request: NextRequest) => Promise<Response>,
-    expectedStatus: number = 200
+    expectedStatus = 200
   ) {
     const url = `${this.baseUrl}${path}`
-    const request = MockRequestFactory.createRequestWithQuery(method, url, params, this.defaultHeaders)
-    
+    const request = MockRequestFactory.createRequestWithQuery(
+      method,
+      url,
+      params,
+      this.defaultHeaders
+    )
+
     const response = await handler(request)
     ResponseAssertions.assertStatus(response, expectedStatus)
-    
+
     return response
   }
 }
@@ -346,7 +370,7 @@ export class DatabaseTestHelpers {
   /**
    * Create test data setup
    */
-  static createTestData<T>(factory: () => T, count: number = 1): T[] {
+  static createTestData<T>(factory: () => T, count = 1): T[] {
     return Array.from({ length: count }, () => factory())
   }
 
@@ -360,7 +384,7 @@ export class DatabaseTestHelpers {
       // Find operations
       find: (table: string, query: any = {}) => {
         const items = data.get(table) || []
-        return items.filter(item => 
+        return items.filter((item) =>
           Object.entries(query).every(([key, value]) => item[key] === value)
         )
       },
@@ -368,7 +392,7 @@ export class DatabaseTestHelpers {
       // Find by ID
       findById: (table: string, id: string) => {
         const items = data.get(table) || []
-        return items.find(item => item.id === id)
+        return items.find((item) => item.id === id)
       },
 
       // Insert operations
@@ -385,7 +409,7 @@ export class DatabaseTestHelpers {
       // Update operations
       update: (table: string, id: string, updates: any) => {
         const items = data.get(table) || []
-        const index = items.findIndex(item => item.id === id)
+        const index = items.findIndex((item) => item.id === id)
         if (index >= 0) {
           items[index] = { ...items[index], ...updates }
           return items[index]
@@ -396,7 +420,7 @@ export class DatabaseTestHelpers {
       // Delete operations
       delete: (table: string, id: string) => {
         const items = data.get(table) || []
-        const index = items.findIndex(item => item.id === id)
+        const index = items.findIndex((item) => item.id === id)
         if (index >= 0) {
           return items.splice(index, 1)[0]
         }
@@ -464,12 +488,7 @@ export class E2EApiMockPatterns {
       '/api/ai/stream': {
         POST: {
           stream: true,
-          chunks: [
-            'Hello',
-            ' ',
-            'World',
-            '!',
-          ],
+          chunks: ['Hello', ' ', 'World', '!'],
         },
       },
     }

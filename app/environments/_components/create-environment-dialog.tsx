@@ -1,5 +1,7 @@
 'use client'
+import { AlertCircle, RefreshCw } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
@@ -9,10 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, RefreshCw } from 'lucide-react'
-import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { useCreateEnvironmentMutation } from '@/hooks/use-environment-queries'
+import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { observability } from '@/lib/observability'
 
 interface CreateEnvironmentDialogProps {
@@ -209,7 +209,7 @@ export function CreateEnvironmentDialog({
             >
               {isCreating || createEnvironmentMutation.isPending ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : (

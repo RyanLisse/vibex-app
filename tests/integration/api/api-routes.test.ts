@@ -5,15 +5,15 @@
  * error handling, data validation, rate limiting, and performance
  */
 
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createServer } from 'http'
+import type { createServer } from 'http'
 import type { AddressInfo } from 'net'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { checkDatabaseHealth, db } from '../../../db/config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
-import { tasks, environments, agentExecutions } from '../../../db/schema'
+import { agentExecutions, environments, tasks } from '../../../db/schema'
 
 // Test server configuration
-let testServer: ReturnType<typeof createServer> | null = null
+const testServer: ReturnType<typeof createServer> | null = null
 let testServerUrl: string | null = null
 
 // Mock authentication tokens
@@ -56,7 +56,7 @@ const makeRequest = async (endpoint: string, options: RequestInit = {}, token?: 
   return {
     status: response.status,
     data: response.ok ? await response.json() : null,
-    error: !response.ok ? await response.text() : null,
+    error: response.ok ? null : await response.text(),
     headers: response.headers,
   }
 }
@@ -1041,7 +1041,7 @@ describe('API Routes Integration Tests', () => {
 
       const largePayload = {
         title: 'Test Task',
-        description: 'x'.repeat(10000000), // Very large description
+        description: 'x'.repeat(10_000_000), // Very large description
       }
 
       const response = await makeRequest(

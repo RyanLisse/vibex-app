@@ -1,11 +1,11 @@
+import { AsyncLocalStorage } from 'async_hooks'
 import winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
-import { AsyncLocalStorage } from 'async_hooks'
-import { LoggingConfig, LogContext, LogLevel, LoggingMetrics } from './types'
 import { CorrelationIdManager } from './correlation-id-manager'
 import { MetadataEnricher } from './metadata-enricher'
-import { SensitiveDataRedactor } from './sensitive-data-redactor'
 import { PerformanceTracker } from './performance-tracker'
+import { SensitiveDataRedactor } from './sensitive-data-redactor'
+import type { LogContext, LoggingConfig, LoggingMetrics, LogLevel } from './types'
 
 export class LoggerFactory {
   private static instance: LoggerFactory
@@ -45,7 +45,7 @@ export class LoggerFactory {
       format,
       transports,
       exitOnError: false,
-      silent: this.config.silent || false,
+      silent: this.config.silent,
     })
   }
 

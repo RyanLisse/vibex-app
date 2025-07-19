@@ -1,7 +1,7 @@
-import { LettaClient, Message } from './client'
-import { OrchestratorAgent, OrchestratorConfig } from './agents/orchestrator'
-import { BrainstormAgent, BrainstormConfig, BrainstormSession } from './agents/brainstorm'
 import { z } from 'zod'
+import { BrainstormAgent, BrainstormConfig, type BrainstormSession } from './agents/brainstorm'
+import { OrchestratorAgent, OrchestratorConfig } from './agents/orchestrator'
+import { LettaClient, type Message } from './client'
 
 // Multi-Agent System Configuration
 export const MultiAgentConfigSchema = z.object({

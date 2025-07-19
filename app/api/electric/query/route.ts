@@ -5,15 +5,15 @@
  * when local PGlite queries fail or when using server-first sync mode.
  */
 
+import { SpanStatusCode, trace } from '@opentelemetry/api'
+import { sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
 import { db } from '@/db/config'
-import { sql } from 'drizzle-orm'
 import { observability } from '@/lib/observability'
 import {
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   validateApiRequest,
 } from '@/src/schemas/api-routes'
 
@@ -161,7 +161,7 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         config: {
           allowedQueryTypes: ['SELECT'],
-          maxQueryLength: 10000,
+          maxQueryLength: 10_000,
           supportedSyncModes: ['local-first', 'server-first', 'hybrid'],
         },
         message: 'ElectricSQL query endpoint is operational',

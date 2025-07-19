@@ -1,19 +1,19 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  useTasksQuery,
-  useTaskSearchQuery,
-  useCreateTaskMutation,
-  useUpdateTaskMutation,
-  useBulkTaskMutation,
-} from '@/hooks/use-task-queries'
-import { useExecutionsQuery, useExecutionAnalyticsQuery } from '@/hooks/use-execution-queries'
-import {
-  QueryPerformanceMonitor,
   QueryCacheStatus,
+  QueryPerformanceMonitor,
   WASMOptimizationStatus,
 } from '@/components/providers/query-provider'
+import { useExecutionAnalyticsQuery, useExecutionsQuery } from '@/hooks/use-execution-queries'
+import {
+  useBulkTaskMutation,
+  useCreateTaskMutation,
+  useTaskSearchQuery,
+  useTasksQuery,
+  useUpdateTaskMutation,
+} from '@/hooks/use-task-queries'
 
 /**
  * Demo component showcasing Enhanced TanStack Query integration
@@ -126,10 +126,10 @@ export function EnhancedQueryDemo() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
+    <div className="mx-auto max-w-6xl space-y-8 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Enhanced TanStack Query Demo</h1>
+        <h1 className="font-bold text-3xl">Enhanced TanStack Query Demo</h1>
         <div className="flex items-center space-x-4">
           <QueryCacheStatus />
         </div>
@@ -139,30 +139,30 @@ export function EnhancedQueryDemo() {
       <WASMOptimizationStatus />
 
       {/* Search Section */}
-      <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Smart Search</h2>
+      <div className="rounded-lg border bg-white p-6">
+        <h2 className="mb-4 font-semibold text-xl">Smart Search</h2>
         <div className="space-y-4">
           <div className="flex space-x-4">
             <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
+              className="flex-1 rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search tasks..."
+              type="text"
+              value={searchQuery}
             />
             <label className="flex items-center space-x-2">
               <input
-                type="checkbox"
                 checked={useSemanticSearch}
-                onChange={(e) => setUseSemanticSearch(e.target.checked)}
                 className="rounded"
+                onChange={(e) => setUseSemanticSearch(e.target.checked)}
+                type="checkbox"
               />
               <span className="text-sm">Semantic Search (WASM)</span>
             </label>
           </div>
 
           {searchQuery && (
-            <div className="text-sm text-gray-600">
+            <div className="text-gray-600 text-sm">
               {searchLoading ? (
                 <span>Searching...</span>
               ) : (
@@ -177,17 +177,17 @@ export function EnhancedQueryDemo() {
       </div>
 
       {/* Filters Section */}
-      <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Filters</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="rounded-lg border bg-white p-6">
+        <h2 className="mb-4 font-semibold text-xl">Filters</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium mb-2">Status</label>
+            <label className="mb-2 block font-medium text-sm">Status</label>
             <div className="space-y-2">
               {['pending', 'in_progress', 'completed', 'cancelled'].map((status) => (
-                <label key={status} className="flex items-center space-x-2">
+                <label className="flex items-center space-x-2" key={status}>
                   <input
-                    type="checkbox"
                     checked={taskFilters.status.includes(status)}
+                    className="rounded"
                     onChange={(e) => {
                       setTaskFilters((prev) => ({
                         ...prev,
@@ -196,7 +196,7 @@ export function EnhancedQueryDemo() {
                           : prev.status.filter((s) => s !== status),
                       }))
                     }}
-                    className="rounded"
+                    type="checkbox"
                   />
                   <span className="text-sm capitalize">{status.replace('_', ' ')}</span>
                 </label>
@@ -205,13 +205,13 @@ export function EnhancedQueryDemo() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Priority</label>
+            <label className="mb-2 block font-medium text-sm">Priority</label>
             <div className="space-y-2">
               {['low', 'medium', 'high'].map((priority) => (
-                <label key={priority} className="flex items-center space-x-2">
+                <label className="flex items-center space-x-2" key={priority}>
                   <input
-                    type="checkbox"
                     checked={taskFilters.priority.includes(priority)}
+                    className="rounded"
                     onChange={(e) => {
                       setTaskFilters((prev) => ({
                         ...prev,
@@ -220,7 +220,7 @@ export function EnhancedQueryDemo() {
                           : prev.priority.filter((p) => p !== priority),
                       }))
                     }}
-                    className="rounded"
+                    type="checkbox"
                   />
                   <span className="text-sm capitalize">{priority}</span>
                 </label>
@@ -231,49 +231,49 @@ export function EnhancedQueryDemo() {
       </div>
 
       {/* Task Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">{taskStats.total}</div>
-          <div className="text-sm text-gray-600">Total Tasks</div>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="rounded-lg border bg-white p-4 text-center">
+          <div className="font-bold text-2xl text-blue-600">{taskStats.total}</div>
+          <div className="text-gray-600 text-sm">Total Tasks</div>
         </div>
-        <div className="bg-white rounded-lg border p-4 text-center">
-          <div className="text-2xl font-bold text-yellow-600">{taskStats.pending}</div>
-          <div className="text-sm text-gray-600">Pending</div>
+        <div className="rounded-lg border bg-white p-4 text-center">
+          <div className="font-bold text-2xl text-yellow-600">{taskStats.pending}</div>
+          <div className="text-gray-600 text-sm">Pending</div>
         </div>
-        <div className="bg-white rounded-lg border p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">{taskStats.inProgress}</div>
-          <div className="text-sm text-gray-600">In Progress</div>
+        <div className="rounded-lg border bg-white p-4 text-center">
+          <div className="font-bold text-2xl text-blue-600">{taskStats.inProgress}</div>
+          <div className="text-gray-600 text-sm">In Progress</div>
         </div>
-        <div className="bg-white rounded-lg border p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">{taskStats.completed}</div>
-          <div className="text-sm text-gray-600">Completed</div>
+        <div className="rounded-lg border bg-white p-4 text-center">
+          <div className="font-bold text-2xl text-green-600">{taskStats.completed}</div>
+          <div className="text-gray-600 text-sm">Completed</div>
         </div>
       </div>
 
       {/* Create Task Form */}
-      <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Create New Task (with Optimistic Updates)</h2>
-        <form onSubmit={handleCreateTask} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="rounded-lg border bg-white p-6">
+        <h2 className="mb-4 font-semibold text-xl">Create New Task (with Optimistic Updates)</h2>
+        <form className="space-y-4" onSubmit={handleCreateTask}>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <input
-              type="text"
-              placeholder="Task title"
-              value={newTaskTitle}
+              className="rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => setNewTaskTitle(e.target.value)}
-              className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Task title"
+              type="text"
+              value={newTaskTitle}
             />
             <input
-              type="text"
-              placeholder="Task description (optional)"
-              value={newTaskDescription}
+              className="rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => setNewTaskDescription(e.target.value)}
-              className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Task description (optional)"
+              type="text"
+              value={newTaskDescription}
             />
           </div>
           <button
-            type="submit"
+            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
             disabled={!newTaskTitle.trim() || createTaskMutation.isPending}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            type="submit"
           >
             {createTaskMutation.isPending ? 'Creating...' : 'Create Task'}
           </button>
@@ -282,29 +282,29 @@ export function EnhancedQueryDemo() {
 
       {/* Bulk Operations */}
       {selectedTasks.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">
+            <span className="font-medium text-sm">
               {selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''} selected
             </span>
             <div className="space-x-2">
               <button
-                onClick={() => handleBulkStatusUpdate('completed')}
+                className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:bg-gray-300"
                 disabled={bulkTaskMutation.isPending}
-                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300"
+                onClick={() => handleBulkStatusUpdate('completed')}
               >
                 Mark Completed
               </button>
               <button
-                onClick={() => handleBulkStatusUpdate('cancelled')}
+                className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:bg-gray-300"
                 disabled={bulkTaskMutation.isPending}
-                className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-300"
+                onClick={() => handleBulkStatusUpdate('cancelled')}
               >
                 Cancel
               </button>
               <button
+                className="rounded bg-gray-600 px-3 py-1 text-sm text-white hover:bg-gray-700"
                 onClick={() => setSelectedTasks([])}
-                className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
               >
                 Clear Selection
               </button>
@@ -314,16 +314,16 @@ export function EnhancedQueryDemo() {
       )}
 
       {/* Tasks List */}
-      <div className="bg-white rounded-lg border p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">
-            Tasks {tasksStale && <span className="text-sm text-orange-600">(stale)</span>}
+      <div className="rounded-lg border bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-semibold text-xl">
+            Tasks {tasksStale && <span className="text-orange-600 text-sm">(stale)</span>}
           </h2>
           <div className="flex items-center space-x-2">
-            {tasksFetching && <div className="text-sm text-blue-600">Fetching...</div>}
+            {tasksFetching && <div className="text-blue-600 text-sm">Fetching...</div>}
             <button
+              className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
               onClick={() => refetchTasks()}
-              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Refresh
             </button>
@@ -331,37 +331,33 @@ export function EnhancedQueryDemo() {
         </div>
 
         {tasksLoading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="py-8 text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-blue-600 border-b-2" />
             <p className="text-gray-600">Loading tasks...</p>
           </div>
         ) : tasksError ? (
-          <div className="text-center py-8 text-red-600">
+          <div className="py-8 text-center text-red-600">
             Error loading tasks: {tasksError.message}
           </div>
-        ) : !displayTasks?.length ? (
-          <div className="text-center py-8 text-gray-500">
-            No tasks found. Create your first task above!
-          </div>
-        ) : (
+        ) : displayTasks?.length ? (
           <div className="space-y-3">
             {displayTasks.map((task) => (
-              <div key={task.id} className="border rounded-lg p-4">
+              <div className="rounded-lg border p-4" key={task.id}>
                 <div className="flex items-start space-x-3">
                   <input
-                    type="checkbox"
                     checked={selectedTasks.includes(task.id)}
-                    onChange={(e) => handleTaskSelection(task.id, e.target.checked)}
                     className="mt-1 rounded"
+                    onChange={(e) => handleTaskSelection(task.id, e.target.checked)}
+                    type="checkbox"
                   />
                   <div className="flex-1">
                     <h4 className="font-medium">{task.title}</h4>
                     {task.description && (
-                      <p className="text-gray-600 text-sm mt-1">{task.description}</p>
+                      <p className="mt-1 text-gray-600 text-sm">{task.description}</p>
                     )}
-                    <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                    <div className="mt-2 flex items-center space-x-4 text-gray-500 text-xs">
                       <span
-                        className={`px-2 py-1 rounded ${
+                        className={`rounded px-2 py-1 ${
                           task.status === 'completed'
                             ? 'bg-green-100 text-green-800'
                             : task.status === 'in_progress'
@@ -374,7 +370,7 @@ export function EnhancedQueryDemo() {
                         {task.status.replace('_', ' ')}
                       </span>
                       <span
-                        className={`px-2 py-1 rounded ${
+                        className={`rounded px-2 py-1 ${
                           task.priority === 'high'
                             ? 'bg-red-100 text-red-800'
                             : task.priority === 'medium'
@@ -391,33 +387,37 @@ export function EnhancedQueryDemo() {
               </div>
             ))}
           </div>
+        ) : (
+          <div className="py-8 text-center text-gray-500">
+            No tasks found. Create your first task above!
+          </div>
         )}
       </div>
 
       {/* Analytics Section */}
       {analytics && (
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Execution Analytics (WASM Optimized)</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="rounded-lg border bg-white p-6">
+          <h2 className="mb-4 font-semibold text-xl">Execution Analytics (WASM Optimized)</h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{analytics.totalExecutions}</div>
-              <div className="text-sm text-gray-600">Total Executions</div>
+              <div className="font-bold text-2xl text-blue-600">{analytics.totalExecutions}</div>
+              <div className="text-gray-600 text-sm">Total Executions</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{analytics.successRate}%</div>
-              <div className="text-sm text-gray-600">Success Rate</div>
+              <div className="font-bold text-2xl text-green-600">{analytics.successRate}%</div>
+              <div className="text-gray-600 text-sm">Success Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="font-bold text-2xl text-purple-600">
                 {analytics.averageExecutionTime}ms
               </div>
-              <div className="text-sm text-gray-600">Avg Time</div>
+              <div className="text-gray-600 text-sm">Avg Time</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="font-bold text-2xl text-orange-600">
                 {Object.keys(analytics.executionsByAgent).length}
               </div>
-              <div className="text-sm text-gray-600">Agent Types</div>
+              <div className="text-gray-600 text-sm">Agent Types</div>
             </div>
           </div>
         </div>

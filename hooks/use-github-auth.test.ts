@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
@@ -17,7 +16,7 @@ describe('useGitHubAuth', () => {
   const mockRouter = { push: mockPush }
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     ;(useRouter as any).mockReturnValue(mockRouter as any)
     window.location.href = 'http://localhost:3000'
   })

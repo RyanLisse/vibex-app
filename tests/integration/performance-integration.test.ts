@@ -5,15 +5,14 @@
  * optimizations work correctly across integrated components
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useTasks, useCreateTask, useUpdateTask } from '@/lib/query/hooks'
-import type { Task } from '@/db/schema'
-
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { delay, HttpResponse, http } from 'msw'
 // Mock server setup with timing controls
 import { setupServer } from 'msw/node'
-import { http, HttpResponse, delay } from 'msw'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Task } from '@/db/schema'
+import { useCreateTask, useTasks, useUpdateTask } from '@/lib/query/hooks'
 
 const server = setupServer()
 
@@ -159,8 +158,8 @@ describe('Performance Integration Tests', () => {
       server.use(
         http.get('/api/tasks', ({ request }) => {
           const url = new URL(request.url)
-          const page = parseInt(url.searchParams.get('page') || '1')
-          const limit = parseInt(url.searchParams.get('limit') || '20')
+          const page = Number.parseInt(url.searchParams.get('page') || '1')
+          const limit = Number.parseInt(url.searchParams.get('limit') || '20')
 
           const startIndex = (page - 1) * limit
           const endIndex = startIndex + limit
@@ -602,7 +601,7 @@ describe('Performance Integration Tests', () => {
     // Log performance metrics for debugging
     const metrics = monitor.getMetrics('large-dataset-load')
     if (metrics.count > 0) {
-      console.log(`Performance metrics:`, metrics)
+      console.log('Performance metrics:', metrics)
     }
   })
 })

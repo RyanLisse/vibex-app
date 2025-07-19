@@ -19,7 +19,7 @@ export function LoadingSkeleton({
     return (
       <div className={`flex flex-col gap-4 ${className}`}>
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index} className="rounded-lg border bg-background p-4">
+          <div className="rounded-lg border bg-background p-4" key={index}>
             <div className="flex items-center justify-between">
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-5 w-3/4" />
@@ -37,7 +37,7 @@ export function LoadingSkeleton({
     return (
       <div className={`flex flex-col gap-1 ${className}`}>
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index} className="rounded-lg border bg-background p-4">
+          <div className="rounded-lg border bg-background p-4" key={index}>
             <div className="flex items-center justify-between">
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-4 w-3/4" />
@@ -54,7 +54,7 @@ export function LoadingSkeleton({
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       {Array.from({ length: count }).map((_, index) => (
-        <Skeleton key={index} className={`${height} w-full`} />
+        <Skeleton className={`${height} w-full`} key={index} />
       ))}
     </div>
   )

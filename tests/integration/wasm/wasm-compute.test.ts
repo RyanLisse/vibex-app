@@ -5,17 +5,17 @@
  * performance benchmarks, fallback scenarios, and statistical operations
  */
 
-import { beforeAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  type AnalyticsData,
+  type ComputeResult,
+  type ComputeTask,
   ComputeWASM,
+  type ComputeWASMConfig,
   computeManager,
   createComputeEngine,
   getComputeEngine,
-  type ComputeWASMConfig,
-  type AnalyticsData,
   type StatisticalSummary,
-  type ComputeTask,
-  type ComputeResult,
 } from '../../../lib/wasm/compute'
 import { wasmDetector } from '../../../lib/wasm/detection'
 
@@ -212,13 +212,13 @@ describe('WASM Compute Module Tests', () => {
     })
 
     it('should calculate statistics for large datasets efficiently', async () => {
-      const largeDataset = generateRandomDataset(100000)
+      const largeDataset = generateRandomDataset(100_000)
       const startTime = performance.now()
 
       const stats = await computeEngine.calculateStatistics(largeDataset)
       const executionTime = performance.now() - startTime
 
-      expect(stats.count).toBe(100000)
+      expect(stats.count).toBe(100_000)
       expect(stats.mean).toBeGreaterThan(0)
       expect(stats.mean).toBeLessThan(100)
       expect(executionTime).toBeLessThan(5000) // Should complete within 5 seconds
@@ -272,7 +272,7 @@ describe('WASM Compute Module Tests', () => {
     })
 
     it('should compare WASM vs JavaScript performance', async () => {
-      const dataset = generateRandomDataset(50000)
+      const dataset = generateRandomDataset(50_000)
 
       // Force WASM calculation
       const wasmStartTime = performance.now()
@@ -378,8 +378,8 @@ describe('WASM Compute Module Tests', () => {
     it('should handle time series analysis performance benchmarks', async () => {
       const performanceTests = [
         { size: 1000, expectedTime: 500 },
-        { size: 10000, expectedTime: 2000 },
-        { size: 50000, expectedTime: 10000 },
+        { size: 10_000, expectedTime: 2000 },
+        { size: 50_000, expectedTime: 10_000 },
       ]
 
       for (const test of performanceTests) {
@@ -397,7 +397,7 @@ describe('WASM Compute Module Tests', () => {
 
   describe('Parallel Processing', () => {
     it('should process large datasets in parallel chunks', async () => {
-      const largeDataset = generateRandomDataset(10000)
+      const largeDataset = generateRandomDataset(10_000)
       const chunkSize = 1000
 
       const results = await computeEngine.processLargeDataset(
@@ -504,17 +504,17 @@ describe('WASM Compute Module Tests', () => {
 
   describe('Memory Management and Performance', () => {
     it('should efficiently manage memory for large computations', async () => {
-      const memoryTestSizes = [1000, 10000, 100000]
+      const memoryTestSizes = [1000, 10_000, 100_000]
       const memoryUsage: number[] = []
 
       for (const size of memoryTestSizes) {
-        // @ts-ignore - Access memory for testing
+        // @ts-expect-error - Access memory for testing
         const initialMemory = process.memoryUsage?.()?.heapUsed || 0
 
         const data = generateRandomDataset(size)
         await computeEngine.calculateStatistics(data)
 
-        // @ts-ignore - Access memory for testing
+        // @ts-expect-error - Access memory for testing
         const finalMemory = process.memoryUsage?.()?.heapUsed || 0
         memoryUsage.push(finalMemory - initialMemory)
       }
@@ -540,7 +540,7 @@ describe('WASM Compute Module Tests', () => {
       const totalTime = performance.now() - startTime
 
       expect(results).toHaveLength(concurrentOperations)
-      expect(totalTime).toBeLessThan(10000) // Should handle concurrent ops efficiently
+      expect(totalTime).toBeLessThan(10_000) // Should handle concurrent ops efficiently
 
       // Verify all operations completed successfully
       results.forEach((result, index) => {
@@ -570,7 +570,7 @@ describe('WASM Compute Module Tests', () => {
     it('should handle performance degradation gracefully', async () => {
       // Simulate system under load
       const heavyLoad = Array.from({ length: 3 }, () =>
-        computeEngine.calculateStatistics(generateRandomDataset(50000))
+        computeEngine.calculateStatistics(generateRandomDataset(50_000))
       )
 
       const lightLoad = computeEngine.calculateStatistics(generateRandomDataset(1000))
@@ -580,7 +580,7 @@ describe('WASM Compute Module Tests', () => {
       // Light load should still complete successfully despite heavy operations
       expect(lightResult.count).toBe(1000)
       heavyResults.forEach((result) => {
-        expect(result.count).toBe(50000)
+        expect(result.count).toBe(50_000)
       })
     })
   })
@@ -638,8 +638,10 @@ describe('WASM Compute Module Tests', () => {
       // Test with various invalid inputs
       await expect(computeEngine.calculateStatistics(null as any)).rejects.toThrow()
       await expect(computeEngine.calculateStatistics(undefined as any)).rejects.toThrow()
-      await expect(computeEngine.calculateStatistics([NaN, 1, 2])).rejects.toThrow()
-      await expect(computeEngine.calculateStatistics([Infinity, 1, 2])).rejects.toThrow()
+      await expect(computeEngine.calculateStatistics([Number.NaN, 1, 2])).rejects.toThrow()
+      await expect(
+        computeEngine.calculateStatistics([Number.POSITIVE_INFINITY, 1, 2])
+      ).rejects.toThrow()
     })
 
     it('should recover from WASM module errors', async () => {

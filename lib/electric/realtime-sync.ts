@@ -6,9 +6,9 @@
  */
 
 import { ObservabilityService } from '@/lib/observability'
-import { electricDatabaseClient } from './database-client'
-import { conflictResolutionService } from './conflict-resolution'
 import type { SyncEvent } from './config'
+import { conflictResolutionService } from './conflict-resolution'
+import { electricDatabaseClient } from './database-client'
 
 interface WebSocketMessage {
   type: 'sync' | 'conflict' | 'heartbeat' | 'auth' | 'error'
@@ -163,7 +163,7 @@ export class RealtimeSyncService {
    * Handle sync messages from server
    */
   private async handleSyncMessage(message: WebSocketMessage): Promise<void> {
-    if (!message.table || !message.operation) return
+    if (!(message.table && message.operation)) return
 
     const syncEvent: SyncEvent = {
       id: message.messageId || crypto.randomUUID(),
@@ -330,7 +330,7 @@ export class RealtimeSyncService {
    * Send message to WebSocket server
    */
   private sendMessage(message: WebSocketMessage): void {
-    if (!this.isConnected || !this.websocket) {
+    if (!(this.isConnected && this.websocket)) {
       // Queue message for later
       this.messageQueue.push(message)
       return
@@ -397,7 +397,7 @@ export class RealtimeSyncService {
     console.log('WebSocket disconnected:', event.reason)
 
     // Attempt reconnection if not intentional
-    if (!event.wasClean && !this.isReconnecting) {
+    if (!(event.wasClean || this.isReconnecting)) {
       this.attemptReconnection()
     }
   }
@@ -413,7 +413,7 @@ export class RealtimeSyncService {
     this.isReconnecting = true
     this.reconnectAttempts++
 
-    const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000)
+    const delay = Math.min(this.reconnectDelay * 2 ** (this.reconnectAttempts - 1), 30_000)
 
     console.log(
       `Attempting reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`
@@ -465,7 +465,7 @@ export class RealtimeSyncService {
           timestamp: new Date().toISOString(),
         })
       }
-    }, 30000) // 30 seconds
+    }, 30_000) // 30 seconds
   }
 
   /**

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import * as cryptoModule from 'node:crypto'
+import { vi } from 'vitest'
 import { generateCodeChallenge, generateCodeVerifier } from '@/src/lib/auth/pkce'
 
 // Mock crypto module

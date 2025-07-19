@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
+import { vi } from 'vitest'
 
 // Mock the POST function since it doesn't exist in the route
 const POST = vi.fn()

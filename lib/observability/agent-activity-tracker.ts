@@ -6,8 +6,8 @@
  */
 
 import { EventEmitter } from 'events'
-import { observability } from './index'
 import { snapshotManager } from '@/lib/time-travel/execution-snapshots'
+import { observability } from './index'
 
 // Agent types
 export type AgentType =
@@ -317,7 +317,7 @@ export class AgentActivityTracker extends EventEmitter {
   /**
    * Get agent coordination events
    */
-  getCoordinationEvents(limit: number = 100): CoordinationEvent[] {
+  getCoordinationEvents(limit = 100): CoordinationEvent[] {
     return this.coordinationEvents.slice(-limit)
   }
 
@@ -346,7 +346,7 @@ export class AgentActivityTracker extends EventEmitter {
 
     const recentErrors = agents.reduce((sum, a) => {
       const recentErrorCount = a.errors.filter(
-        (e) => Date.now() - e.timestamp.getTime() < 3600000 // Last hour
+        (e) => Date.now() - e.timestamp.getTime() < 3_600_000 // Last hour
       ).length
       return sum + recentErrorCount
     }, 0)
@@ -420,7 +420,7 @@ export class AgentActivityTracker extends EventEmitter {
     // Start periodic status updates
     this.updateInterval = setInterval(() => {
       this.checkAgentHealth()
-    }, 30000) // Every 30 seconds
+    }, 30_000) // Every 30 seconds
   }
 
   /**
@@ -446,7 +446,7 @@ export class AgentActivityTracker extends EventEmitter {
    * Update average task time
    */
   private updateAverageTaskTime(agent: AgentActivity): void {
-    if (!agent.currentTask || !agent.currentTask.startTime) return
+    if (!(agent.currentTask && agent.currentTask.startTime)) return
 
     const taskDuration = Date.now() - agent.currentTask.startTime.getTime()
     const totalTasks = agent.metrics.tasksCompleted + agent.metrics.tasksFailed

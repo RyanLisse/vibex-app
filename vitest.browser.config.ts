@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vitest/config'
 
 // Browser tests config for E2E and browser-specific testing
 export default defineConfig({
@@ -20,9 +20,9 @@ export default defineConfig({
       '**/*.bun.test.*',
       'tests/bun-*.test.*',
     ],
-    testTimeout: 30000,
-    hookTimeout: 10000,
-    teardownTimeout: 10000,
+    testTimeout: 30_000,
+    hookTimeout: 10_000,
+    teardownTimeout: 10_000,
     retry: 1, // Allow retry for browser tests
     bail: 1,
     watch: false,

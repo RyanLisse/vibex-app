@@ -1,6 +1,6 @@
+import { createDefaultLoggingConfig } from './config'
 import { LoggerFactory } from './logger-factory'
 import { PerformanceTracker } from './performance-tracker'
-import { createDefaultLoggingConfig } from './config'
 
 export interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy'
@@ -38,7 +38,7 @@ export class LoggingHealthMonitor {
     this.performanceTracker = new PerformanceTracker()
   }
 
-  startMonitoring(intervalMs: number = 60000): void {
+  startMonitoring(intervalMs = 60_000): void {
     if (this.checkInterval) {
       clearInterval(this.checkInterval)
     }
@@ -191,13 +191,14 @@ export class LoggingHealthMonitor {
 
     if (failCount > 0) {
       return 'unhealthy'
-    } else if (warnCount > 1) {
-      return 'degraded'
-    } else if (warnCount === 1) {
-      return 'degraded'
-    } else {
-      return 'healthy'
     }
+    if (warnCount > 1) {
+      return 'degraded'
+    }
+    if (warnCount === 1) {
+      return 'degraded'
+    }
+    return 'healthy'
   }
 
   private reportHealth(status: HealthStatus): void {

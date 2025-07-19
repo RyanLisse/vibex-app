@@ -5,21 +5,20 @@
  * UI behavior, error handling, and state consistency
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import {
-  useTasks,
-  useCreateTask,
-  useUpdateTask,
-  useDeleteTask,
-  useBatchUpdateTasks,
-} from '@/lib/query/hooks'
-import type { Task } from '@/db/schema'
-
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { delay, HttpResponse, http } from 'msw'
 // Mock server setup
 import { setupServer } from 'msw/node'
-import { http, HttpResponse, delay } from 'msw'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Task } from '@/db/schema'
+import {
+  useBatchUpdateTasks,
+  useCreateTask,
+  useDeleteTask,
+  useTasks,
+  useUpdateTask,
+} from '@/lib/query/hooks'
 
 const server = setupServer()
 

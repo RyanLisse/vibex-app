@@ -1,13 +1,13 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+import type { AgentConfig, LettaConfig, Message } from './client'
 import {
-  LettaClient,
-  LettaConfigSchema,
   AgentConfigSchema,
-  MessageSchema,
   AgentTypeSchema,
   createLettaClient,
+  LettaClient,
+  LettaConfigSchema,
+  MessageSchema,
 } from './client'
-import type { LettaConfig, AgentConfig, Message } from './client'
 
 // Mock fetch globally
 const mockFetch = (globalThis.fetch =

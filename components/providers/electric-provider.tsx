@@ -1,10 +1,10 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { PGliteProvider } from '@electric-sql/pglite-react'
 import { PGlite } from '@electric-sql/pglite'
-import { electricDb, pgliteConfig } from '@/lib/electric/config'
+import { PGliteProvider } from '@electric-sql/pglite-react'
+import React, { createContext, type ReactNode, useContext, useEffect, useState } from 'react'
 import { useElectric } from '@/hooks/use-electric'
+import { electricDb, pgliteConfig } from '@/lib/electric/config'
 
 // ElectricSQL context
 interface ElectricContextValue {
@@ -97,12 +97,12 @@ export function ElectricProvider({ children, fallback, onError }: ElectricProvid
   }
 
   // Show fallback while initializing
-  if (!pglite || !isInitialized) {
+  if (!(pglite && isInitialized)) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         {fallback || (
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-blue-600 border-b-2" />
             <p className="text-gray-600">Initializing database...</p>
           </div>
         )}
@@ -113,13 +113,13 @@ export function ElectricProvider({ children, fallback, onError }: ElectricProvid
   // Show error state
   if (initError) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center text-red-600">
           <p className="mb-4">Failed to initialize database</p>
-          <p className="text-sm text-gray-600">{initError.message}</p>
+          <p className="text-gray-600 text-sm">{initError.message}</p>
           <button
+            className="mt-4 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Retry
           </button>
@@ -152,9 +152,9 @@ export function ElectricConnectionStatus() {
   if (error) {
     return (
       <div className="flex items-center space-x-2 text-red-600 text-sm">
-        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+        <div className="h-2 w-2 rounded-full bg-red-500" />
         <span>Database error</span>
-        <button onClick={reconnect} className="text-red-600 hover:text-red-800 underline">
+        <button className="text-red-600 underline hover:text-red-800" onClick={reconnect}>
           Retry
         </button>
       </div>
@@ -164,10 +164,10 @@ export function ElectricConnectionStatus() {
   if (isOffline) {
     return (
       <div className="flex items-center space-x-2 text-orange-600 text-sm">
-        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+        <div className="h-2 w-2 rounded-full bg-orange-500" />
         <span>Offline</span>
         {pendingChanges > 0 && (
-          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+          <span className="rounded bg-orange-100 px-2 py-1 text-orange-800 text-xs">
             {pendingChanges} pending
           </span>
         )}
@@ -178,7 +178,7 @@ export function ElectricConnectionStatus() {
   if (isSyncing) {
     return (
       <div className="flex items-center space-x-2 text-blue-600 text-sm">
-        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
         <span>Syncing...</span>
       </div>
     )
@@ -187,7 +187,7 @@ export function ElectricConnectionStatus() {
   if (isConnected) {
     return (
       <div className="flex items-center space-x-2 text-green-600 text-sm">
-        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+        <div className="h-2 w-2 rounded-full bg-green-500" />
         <span>Connected</span>
       </div>
     )
@@ -195,7 +195,7 @@ export function ElectricConnectionStatus() {
 
   return (
     <div className="flex items-center space-x-2 text-gray-600 text-sm">
-      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+      <div className="h-2 w-2 rounded-full bg-gray-400" />
       <span>Connecting...</span>
     </div>
   )
@@ -221,20 +221,17 @@ export function ElectricSyncButton() {
 
   return (
     <button
-      onClick={handleSync}
+      className={`rounded px-3 py-1 text-sm transition-colors ${
+        isConnected && !syncing && !isSyncing
+          ? 'bg-blue-600 text-white hover:bg-blue-700'
+          : 'cursor-not-allowed bg-gray-300 text-gray-500'
+      } `}
       disabled={!isConnected || syncing || isSyncing}
-      className={`
-        px-3 py-1 text-sm rounded transition-colors
-        ${
-          isConnected && !syncing && !isSyncing
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-        }
-      `}
+      onClick={handleSync}
     >
       {syncing || isSyncing ? (
         <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+          <div className="h-3 w-3 animate-spin rounded-full border border-white border-t-transparent" />
           <span>Syncing...</span>
         </div>
       ) : (
@@ -251,13 +248,13 @@ export function ElectricOfflineIndicator() {
   if (!isOffline) return null
 
   return (
-    <div className="fixed bottom-4 right-4 bg-orange-100 border border-orange-300 text-orange-800 px-4 py-2 rounded-lg shadow-lg">
+    <div className="fixed right-4 bottom-4 rounded-lg border border-orange-300 bg-orange-100 px-4 py-2 text-orange-800 shadow-lg">
       <div className="flex items-center space-x-2">
-        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+        <div className="h-2 w-2 rounded-full bg-orange-500" />
         <span className="font-medium">You're offline</span>
       </div>
       {pendingChanges > 0 && (
-        <p className="text-sm mt-1">
+        <p className="mt-1 text-sm">
           {pendingChanges} change{pendingChanges !== 1 ? 's' : ''} will sync when you're back online
         </p>
       )}
