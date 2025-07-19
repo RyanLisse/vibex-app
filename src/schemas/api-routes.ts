@@ -270,7 +270,11 @@ export const CreateUserSchema = z.object({
 })
 
 export const UpdateUserSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(255, 'Name must be less than 255 characters').optional(),
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(255, 'Name must be less than 255 characters')
+    .optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
   preferences: z.record(z.any()).optional(),
   isActive: z.boolean().optional(),

@@ -11,12 +11,7 @@ interface AppProvidersProps {
 
 export function AppProviders({ children }: AppProvidersProps) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      disableTransitionOnChange
-      enableSystem
-    >
+    <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
       <QueryProvider>
         <ElectricProvider
           fallback={
@@ -31,9 +26,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             console.error('ElectricSQL error:', error)
           }}
         >
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </ElectricProvider>
       </QueryProvider>
     </ThemeProvider>

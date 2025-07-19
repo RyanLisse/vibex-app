@@ -9,11 +9,11 @@ interface LoadingSkeletonProps {
   variant?: 'default' | 'card' | 'list'
 }
 
-export function LoadingSkeleton({ 
-  count = 3, 
-  height = 'h-16', 
+export function LoadingSkeleton({
+  count = 3,
+  height = 'h-16',
   className = '',
-  variant = 'default' 
+  variant = 'default',
 }: LoadingSkeletonProps) {
   if (variant === 'card') {
     return (

@@ -1,6 +1,6 @@
 /**
  * Simplified Environment Hooks
- * 
+ *
  * Basic TanStack Query hooks for environment management without complex Electric services
  */
 
@@ -53,7 +53,9 @@ async function fetchEnvironment(id: string): Promise<ElectricEnvironment> {
   return data
 }
 
-async function createEnvironment(data: CreateElectricEnvironmentInput): Promise<ElectricEnvironment> {
+async function createEnvironment(
+  data: CreateElectricEnvironmentInput
+): Promise<ElectricEnvironment> {
   const response = await fetch('/api/environments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -68,7 +70,10 @@ async function createEnvironment(data: CreateElectricEnvironmentInput): Promise<
   return result.data
 }
 
-async function updateEnvironment(id: string, data: UpdateElectricEnvironmentInput): Promise<ElectricEnvironment> {
+async function updateEnvironment(
+  id: string,
+  data: UpdateElectricEnvironmentInput
+): Promise<ElectricEnvironment> {
   const response = await fetch(`/api/environments/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -120,12 +125,9 @@ export function useCreateElectricEnvironment() {
     onSuccess: (newEnvironment) => {
       // Update the environments list
       queryClient.invalidateQueries({ queryKey: electricEnvironmentKeys.lists() })
-      
+
       // Add the new environment to cache
-      queryClient.setQueryData(
-        electricEnvironmentKeys.detail(newEnvironment.id),
-        newEnvironment
-      )
+      queryClient.setQueryData(electricEnvironmentKeys.detail(newEnvironment.id), newEnvironment)
     },
   })
 }
@@ -142,7 +144,7 @@ export function useUpdateElectricEnvironment() {
         electricEnvironmentKeys.detail(updatedEnvironment.id),
         updatedEnvironment
       )
-      
+
       // Invalidate and refetch environments list
       queryClient.invalidateQueries({ queryKey: electricEnvironmentKeys.lists() })
     },
@@ -157,7 +159,7 @@ export function useDeleteElectricEnvironment() {
     onSuccess: (_, deletedId) => {
       // Remove from cache
       queryClient.removeQueries({ queryKey: electricEnvironmentKeys.detail(deletedId) })
-      
+
       // Invalidate lists
       queryClient.invalidateQueries({ queryKey: electricEnvironmentKeys.lists() })
     },

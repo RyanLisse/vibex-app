@@ -30,7 +30,9 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
   const [syncStatus, setSyncStatus] = useState<any>(null)
   const [isManualSyncing, setIsManualSyncing] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
-  const [syncHistory, setSyncHistory] = useState<Array<{ timestamp: Date; status: 'success' | 'failure' }>>([])
+  const [syncHistory, setSyncHistory] = useState<
+    Array<{ timestamp: Date; status: 'success' | 'failure' }>
+  >([])
 
   // Fetch sync status
   const fetchSyncStatus = async () => {
@@ -41,12 +43,12 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
 
       // Add to history
       if (status.metrics.lastSyncTime) {
-        setSyncHistory(prev => [
+        setSyncHistory((prev) => [
           ...prev.slice(-9),
           {
             timestamp: status.metrics.lastSyncTime,
-            status: status.metrics.failedSyncs > 0 ? 'failure' : 'success'
-          }
+            status: status.metrics.failedSyncs > 0 ? 'failure' : 'success',
+          },
         ])
       }
     } catch (error) {
@@ -90,11 +92,11 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
     )
   }
 
-  const { isInitialized, isSyncing, config, metrics, connectionStatus, offlineQueueStatus } = syncStatus
+  const { isInitialized, isSyncing, config, metrics, connectionStatus, offlineQueueStatus } =
+    syncStatus
   const isConnected = connectionStatus.isConnected
-  const syncSuccessRate = metrics.totalSyncs > 0 
-    ? Math.round((metrics.successfulSyncs / metrics.totalSyncs) * 100) 
-    : 100
+  const syncSuccessRate =
+    metrics.totalSyncs > 0 ? Math.round((metrics.successfulSyncs / metrics.totalSyncs) * 100) : 100
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -110,9 +112,7 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
               )}
               ElectricSQL Sync Status
             </CardTitle>
-            <CardDescription>
-              Real-time synchronization monitoring
-            </CardDescription>
+            <CardDescription>Real-time synchronization monitoring</CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant={isConnected ? 'default' : 'destructive'}>
@@ -136,8 +136,8 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Last Sync</p>
               <p className="text-lg font-medium">
-                {metrics.lastSyncTime 
-                  ? new Date(metrics.lastSyncTime).toLocaleTimeString() 
+                {metrics.lastSyncTime
+                  ? new Date(metrics.lastSyncTime).toLocaleTimeString()
                   : 'Never'}
               </p>
             </div>
@@ -162,11 +162,7 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={triggerManualSync}
-              disabled={isManualSyncing || isSyncing}
-            >
+            <Button size="sm" onClick={triggerManualSync} disabled={isManualSyncing || isSyncing}>
               {isManualSyncing ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
@@ -181,7 +177,7 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
             </Button>
             <Button
               size="sm"
-              variant={config.autoSync ? "secondary" : "outline"}
+              variant={config.autoSync ? 'secondary' : 'outline'}
               onClick={() => updateSyncConfig({ autoSync: !config.autoSync })}
             >
               {config.autoSync ? (
@@ -258,8 +254,9 @@ export function SyncStatusMonitor({ className, refreshInterval = 5000 }: SyncSta
         <Alert>
           <Database className="h-4 w-4" />
           <AlertDescription>
-            <strong>Offline Queue:</strong> {offlineQueueStatus.pendingOperations} pending, {' '}
-            {offlineQueueStatus.failedOperations} failed operations out of {offlineQueueStatus.totalOperations} total.
+            <strong>Offline Queue:</strong> {offlineQueueStatus.pendingOperations} pending,{' '}
+            {offlineQueueStatus.failedOperations} failed operations out of{' '}
+            {offlineQueueStatus.totalOperations} total.
           </AlertDescription>
         </Alert>
       )}

@@ -101,12 +101,15 @@ export function useTasksSubscription(userId?: string) {
     // Setup real-time event listener using ElectricDB
     const { electricDb } = require('@/lib/electric/config')
     electricDb.addSyncEventListener('tasks', handleSyncEvent)
-    
+
     // Subscribe to real-time updates
     let unsubscribeRealtime: (() => void) | null = null
-    electricDb.subscribeToTable('tasks', { user_id: userId }).then((unsub: () => void) => {
-      unsubscribeRealtime = unsub
-    }).catch(console.error)
+    electricDb
+      .subscribeToTable('tasks', { user_id: userId })
+      .then((unsub: () => void) => {
+        unsubscribeRealtime = unsub
+      })
+      .catch(console.error)
 
     // Fallback: periodic refetch for when real-time fails
     const interval = setInterval(fetchTasks, 60000) // Refetch every 60 seconds as fallback
@@ -229,12 +232,15 @@ export function useEnvironmentsSubscription(userId?: string) {
     // Setup real-time event listener using ElectricDB
     const { electricDb } = require('@/lib/electric/config')
     electricDb.addSyncEventListener('environments', handleSyncEvent)
-    
+
     // Subscribe to real-time updates
     let unsubscribeRealtime: (() => void) | null = null
-    electricDb.subscribeToTable('environments', { user_id: userId }).then((unsub: () => void) => {
-      unsubscribeRealtime = unsub
-    }).catch(console.error)
+    electricDb
+      .subscribeToTable('environments', { user_id: userId })
+      .then((unsub: () => void) => {
+        unsubscribeRealtime = unsub
+      })
+      .catch(console.error)
 
     // Fallback: periodic refetch for when real-time fails
     const interval = setInterval(fetchEnvironments, 60000) // Refetch every 60 seconds as fallback

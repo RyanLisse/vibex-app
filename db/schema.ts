@@ -373,7 +373,9 @@ export const githubBranches = pgTable(
   'github_branches',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    repositoryId: uuid('repository_id').references(() => githubRepositories.id, { onDelete: 'cascade' }),
+    repositoryId: uuid('repository_id').references(() => githubRepositories.id, {
+      onDelete: 'cascade',
+    }),
     name: varchar('name', { length: 255 }).notNull(),
     commitSha: varchar('commit_sha', { length: 40 }).notNull(),
     commitUrl: text('commit_url').notNull(),
@@ -387,7 +389,10 @@ export const githubBranches = pgTable(
     nameIdx: index('github_branches_name_idx').on(table.name),
     isDefaultIdx: index('github_branches_is_default_idx').on(table.isDefault),
     lastSyncIdx: index('github_branches_last_sync_idx').on(table.lastSyncAt),
-    uniqueRepoBranch: unique('github_branches_repo_branch_unique').on(table.repositoryId, table.name),
+    uniqueRepoBranch: unique('github_branches_repo_branch_unique').on(
+      table.repositoryId,
+      table.name
+    ),
   })
 )
 

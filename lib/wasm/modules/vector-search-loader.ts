@@ -61,7 +61,7 @@ async function loadModule(): Promise<VectorSearchModule> {
     }
   } catch (error) {
     console.warn('WASM module not available, using fallback:', error)
-    
+
     // Return mock implementation for development
     return {
       VectorSearch: class MockVectorSearch {
@@ -72,14 +72,18 @@ async function loadModule(): Promise<VectorSearchModule> {
         }
       } as any,
       VectorBenchmark: class MockVectorBenchmark {
-        benchmarkOperations(_dims: number, _iters: number): string { return 'mock' }
-        benchmarkSIMD(_dims: number, _iters: number): string { return 'mock' }
+        benchmarkOperations(_dims: number, _iters: number): string {
+          return 'mock'
+        }
+        benchmarkSIMD(_dims: number, _iters: number): string {
+          return 'mock'
+        }
       } as any,
       MemoryUtils: {
-        getMemorySize: () => 0
+        getMemorySize: () => 0,
       } as any,
       memory: {
-        buffer: new ArrayBuffer(0)
+        buffer: new ArrayBuffer(0),
       } as any,
     }
   }

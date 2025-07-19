@@ -1,6 +1,6 @@
 /**
  * Database Query Analyzer
- * 
+ *
  * Comprehensive tool for analyzing database query performance, identifying bottlenecks,
  * and generating optimization recommendations for the ElectricSQL + Drizzle + Neon setup.
  */
@@ -89,7 +89,7 @@ export class DatabaseQueryAnalyzer {
       // Run EXPLAIN ANALYZE
       const explainQuery = `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${query}`
       const explainResult = await db.execute(sql.raw(explainQuery, params))
-      
+
       const executionTime = performance.now() - startTime
       const planData = explainResult.rows[0]['QUERY PLAN'][0]
 
@@ -105,7 +105,7 @@ export class DatabaseQueryAnalyzer {
         executionPlan: planData.Plan ? [planData.Plan] : [],
         bottlenecks: this.identifyBottlenecks(planData),
         recommendations: [],
-        indexSuggestions: []
+        indexSuggestions: [],
       }
 
       // Generate recommendations
@@ -118,7 +118,6 @@ export class DatabaseQueryAnalyzer {
 
       span.setStatus({ code: SpanStatusCode.OK })
       return analysis
-
     } catch (error) {
       span.recordException(error as Error)
       span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
@@ -137,26 +136,26 @@ export class DatabaseQueryAnalyzer {
       `SELECT * FROM tasks WHERE user_id = $1 AND status = $2 ORDER BY created_at DESC LIMIT 20`,
       `SELECT * FROM tasks WHERE user_id = $1 AND status IN ($2, $3) AND priority = $4`,
       `SELECT * FROM tasks WHERE user_id = $1 AND title ILIKE $2`,
-      
+
       // Environment queries
       `SELECT * FROM environments WHERE user_id = $1 AND is_active = true`,
       `SELECT * FROM environments WHERE user_id = $1 ORDER BY created_at DESC`,
-      
+
       // Agent execution queries
       `SELECT ae.*, t.title FROM agent_executions ae JOIN tasks t ON ae.task_id = t.id WHERE t.user_id = $1`,
       `SELECT * FROM agent_executions WHERE task_id = $1 ORDER BY started_at DESC`,
-      
+
       // Observability queries
       `SELECT * FROM observability_events WHERE execution_id = $1 ORDER BY timestamp DESC`,
       `SELECT COUNT(*) FROM observability_events WHERE timestamp > $1`,
-      
+
       // Vector search queries
       `SELECT *, embedding <-> $1 as distance FROM tasks WHERE user_id = $2 ORDER BY distance LIMIT 10`,
-      `SELECT *, embedding <-> $1 as distance FROM agent_memory WHERE agent_type = $2 ORDER BY distance LIMIT 5`
+      `SELECT *, embedding <-> $1 as distance FROM agent_memory WHERE agent_type = $2 ORDER BY distance LIMIT 5`,
     ]
 
     const analyses: QueryAnalysis[] = []
-    
+
     for (const query of criticalQueries) {
       try {
         const analysis = await this.analyzeQuery(query, this.generateSampleParams(query))
@@ -179,40 +178,42 @@ export class DatabaseQueryAnalyzer {
     try {
       // Analyze critical queries
       const criticalAnalyses = await this.analyzeCriticalQueries()
-      
+
       // Get database statistics
       const dbStats = await this.getDatabaseStatistics()
-      
+
       // Analyze ElectricSQL performance
       const electricSqlAnalysis = await this.analyzeElectricSqlPerformance()
 
       // Calculate performance metrics
-      const executionTimes = criticalAnalyses.map(a => a.executionTime)
+      const executionTimes = criticalAnalyses.map((a) => a.executionTime)
       const performanceMetrics = {
         averageQueryTime: executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length,
         p95QueryTime: this.calculatePercentile(executionTimes, 95),
         p99QueryTime: this.calculatePercentile(executionTimes, 99),
         totalExecutionTime: executionTimes.reduce((a, b) => a + b, 0),
-        cacheHitRatio: dbStats.cacheHitRatio
+        cacheHitRatio: dbStats.cacheHitRatio,
       }
 
       // Identify slow queries (>100ms)
-      const slowQueries = criticalAnalyses.filter(a => a.executionTime > 100)
+      const slowQueries = criticalAnalyses.filter((a) => a.executionTime > 100)
 
       // Collect all index suggestions
       const missingIndexes = criticalAnalyses
-        .flatMap(a => a.indexSuggestions)
-        .filter((index, i, arr) => 
-          arr.findIndex(other => 
-            other.table === index.table && 
-            JSON.stringify(other.columns) === JSON.stringify(index.columns)
-          ) === i
+        .flatMap((a) => a.indexSuggestions)
+        .filter(
+          (index, i, arr) =>
+            arr.findIndex(
+              (other) =>
+                other.table === index.table &&
+                JSON.stringify(other.columns) === JSON.stringify(index.columns)
+            ) === i
         )
 
       // Generate recommendations
       const recommendations = this.generateGlobalRecommendations(
-        criticalAnalyses, 
-        dbStats, 
+        criticalAnalyses,
+        dbStats,
         electricSqlAnalysis
       )
 
@@ -223,12 +224,11 @@ export class DatabaseQueryAnalyzer {
         missingIndexes,
         performanceMetrics,
         recommendations,
-        electricSqlOptimizations: electricSqlAnalysis
+        electricSqlOptimizations: electricSqlAnalysis,
       }
 
       span.setStatus({ code: SpanStatusCode.OK })
       return report
-
     } catch (error) {
       span.recordException(error as Error)
       span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message })
@@ -269,15 +269,15 @@ export class DatabaseQueryAnalyzer {
    */
   private extractBufferMetric(node: any, metric: string): number {
     if (!node) return 0
-    
+
     let total = node[metric] || 0
-    
+
     if (node.Plans) {
       for (const child of node.Plans) {
         total += this.extractBufferMetric(child, metric)
       }
     }
-    
+
     return total
   }
 
@@ -286,25 +286,25 @@ export class DatabaseQueryAnalyzer {
    */
   private identifyBottlenecks(planData: any): string[] {
     const bottlenecks: string[] = []
-    
+
     if (planData['Execution Time'] > 100) {
       bottlenecks.push('High execution time (>100ms)')
     }
-    
+
     if (planData['Planning Time'] > 10) {
       bottlenecks.push('High planning time (>10ms)')
     }
-    
+
     // Check for sequential scans
     if (this.hasSequentialScan(planData.Plan)) {
       bottlenecks.push('Sequential scan detected - missing index')
     }
-    
+
     // Check for nested loops with high cost
     if (this.hasExpensiveNestedLoop(planData.Plan)) {
       bottlenecks.push('Expensive nested loop - consider index or join optimization')
     }
-    
+
     return bottlenecks
   }
 
@@ -313,15 +313,15 @@ export class DatabaseQueryAnalyzer {
    */
   private hasSequentialScan(plan: any): boolean {
     if (!plan) return false
-    
+
     if (plan['Node Type'] === 'Seq Scan') {
       return true
     }
-    
+
     if (plan.Plans) {
       return plan.Plans.some((child: any) => this.hasSequentialScan(child))
     }
-    
+
     return false
   }
 
@@ -330,15 +330,15 @@ export class DatabaseQueryAnalyzer {
    */
   private hasExpensiveNestedLoop(plan: any): boolean {
     if (!plan) return false
-    
+
     if (plan['Node Type'] === 'Nested Loop' && plan['Total Cost'] > 1000) {
       return true
     }
-    
+
     if (plan.Plans) {
       return plan.Plans.some((child: any) => this.hasExpensiveNestedLoop(child))
     }
-    
+
     return false
   }
 
@@ -347,23 +347,25 @@ export class DatabaseQueryAnalyzer {
    */
   private generateRecommendations(analysis: QueryAnalysis): string[] {
     const recommendations: string[] = []
-    
+
     if (analysis.executionTime > 100) {
       recommendations.push('Consider adding appropriate indexes to reduce execution time')
     }
-    
+
     if (analysis.bottlenecks.includes('Sequential scan detected - missing index')) {
       recommendations.push('Add indexes for WHERE clause columns to avoid sequential scans')
     }
-    
+
     if (analysis.queryType === 'SELECT' && analysis.rows > 1000) {
       recommendations.push('Consider adding LIMIT clause or pagination for large result sets')
     }
-    
+
     if (analysis.bufferReads > analysis.bufferHits) {
-      recommendations.push('Low cache hit ratio - consider increasing shared_buffers or optimizing query')
+      recommendations.push(
+        'Low cache hit ratio - consider increasing shared_buffers or optimizing query'
+      )
     }
-    
+
     return recommendations
   }
 
@@ -382,7 +384,7 @@ export class DatabaseQueryAnalyzer {
   private generateSampleParams(query: string): any[] {
     const paramCount = (query.match(/\$\d+/g) || []).length
     const params: any[] = []
-    
+
     for (let i = 0; i < paramCount; i++) {
       // Generate appropriate sample data based on common patterns
       if (query.includes('user_id')) {
@@ -399,7 +401,7 @@ export class DatabaseQueryAnalyzer {
         params.push('sample-value')
       }
     }
-    
+
     return params
   }
 
@@ -411,7 +413,9 @@ export class DatabaseQueryAnalyzer {
     const query = analysis.query.toLowerCase()
 
     // Analyze WHERE clauses for index opportunities
-    const whereMatches = query.match(/where\s+(.+?)(?:\s+order\s+by|\s+group\s+by|\s+limit|\s+offset|$)/i)
+    const whereMatches = query.match(
+      /where\s+(.+?)(?:\s+order\s+by|\s+group\s+by|\s+limit|\s+offset|$)/i
+    )
     if (whereMatches) {
       const whereClause = whereMatches[1]
 
@@ -426,7 +430,7 @@ export class DatabaseQueryAnalyzer {
             type: 'btree',
             reason: `Frequent filtering on ${column}`,
             estimatedImprovement: '30-50% faster WHERE queries',
-            priority: 'high'
+            priority: 'high',
           })
         }
       }
@@ -441,7 +445,7 @@ export class DatabaseQueryAnalyzer {
           type: 'btree',
           reason: `Multiple column filtering on ${multiMatch[1]} and ${multiMatch[2]}`,
           estimatedImprovement: '50-70% faster complex WHERE queries',
-          priority: 'high'
+          priority: 'high',
         })
       }
     }
@@ -454,7 +458,7 @@ export class DatabaseQueryAnalyzer {
         type: 'hnsw',
         reason: 'Vector similarity search optimization',
         estimatedImprovement: '80-90% faster vector searches',
-        priority: 'high'
+        priority: 'high',
       })
     }
 
@@ -467,7 +471,7 @@ export class DatabaseQueryAnalyzer {
         type: 'btree',
         reason: `Sorting optimization for ${orderByMatch[1]}`,
         estimatedImprovement: '40-60% faster ORDER BY queries',
-        priority: 'medium'
+        priority: 'medium',
       })
     }
 
@@ -528,14 +532,14 @@ export class DatabaseQueryAnalyzer {
       return {
         cacheHitRatio: cacheStats.rows[0]?.cache_hit_ratio || 0,
         indexUsage: indexStats.rows,
-        tableStats: tableStats.rows
+        tableStats: tableStats.rows,
       }
     } catch (error) {
       console.warn('Failed to get database statistics:', error)
       return {
         cacheHitRatio: 0,
         indexUsage: [],
-        tableStats: []
+        tableStats: [],
       }
     }
   }
@@ -558,8 +562,8 @@ export class DatabaseQueryAnalyzer {
       recommendations: [
         'Consider increasing batch size for bulk operations',
         'Implement delta sync for large tables',
-        'Optimize conflict resolution strategies'
-      ]
+        'Optimize conflict resolution strategies',
+      ],
     }
   }
 
@@ -580,7 +584,7 @@ export class DatabaseQueryAnalyzer {
     const longTerm: string[] = []
 
     // Immediate recommendations
-    const slowQueries = analyses.filter(a => a.executionTime > 100)
+    const slowQueries = analyses.filter((a) => a.executionTime > 100)
     if (slowQueries.length > 0) {
       immediate.push(`Optimize ${slowQueries.length} slow queries (>100ms execution time)`)
     }
@@ -590,7 +594,7 @@ export class DatabaseQueryAnalyzer {
     }
 
     // Short-term recommendations
-    const missingIndexes = analyses.flatMap(a => a.indexSuggestions).length
+    const missingIndexes = analyses.flatMap((a) => a.indexSuggestions).length
     if (missingIndexes > 0) {
       shortTerm.push(`Add ${missingIndexes} recommended indexes for better performance`)
     }

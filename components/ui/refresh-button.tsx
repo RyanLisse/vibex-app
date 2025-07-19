@@ -12,13 +12,13 @@ interface RefreshButtonProps {
   className?: string
 }
 
-export function RefreshButton({ 
-  onClick, 
-  isFetching = false, 
+export function RefreshButton({
+  onClick,
+  isFetching = false,
   disabled = false,
   size = 'sm',
   variant = 'ghost',
-  className = ''
+  className = '',
 }: RefreshButtonProps) {
   return (
     <Button

@@ -1,6 +1,6 @@
 /**
  * Storage Mode Feature Flag
- * 
+ *
  * Controls whether the application uses localStorage or database as the primary storage.
  * Enables gradual rollout and fallback capabilities during migration.
  */

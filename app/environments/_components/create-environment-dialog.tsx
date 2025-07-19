@@ -88,11 +88,11 @@ export function CreateEnvironmentDialog({
         'user_action',
         'info',
         `Environment created: ${formData.name.trim()}`,
-        { 
+        {
           environmentName: formData.name.trim(),
           repository: formData.selectedRepository,
           userId,
-          action: 'create'
+          action: 'create',
         },
         'ui',
         ['environment', 'create']
@@ -203,7 +203,10 @@ export function CreateEnvironmentDialog({
             >
               Cancel
             </Button>
-            <Button disabled={!isFormValid || isCreating || createEnvironmentMutation.isPending} type="submit">
+            <Button
+              disabled={!isFormValid || isCreating || createEnvironmentMutation.isPending}
+              type="submit"
+            >
               {isCreating || createEnvironmentMutation.isPending ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin mr-2" />

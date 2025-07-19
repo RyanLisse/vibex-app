@@ -2,7 +2,7 @@
 
 /**
  * Comprehensive Observability Dashboard
- * 
+ *
  * Master dashboard combining time-travel debugging, migration monitoring,
  * agent coordination, performance metrics, and system health visualization.
  */
@@ -13,12 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  Monitor, 
-  Activity, 
-  Database, 
-  Users, 
-  Clock, 
+import {
+  Monitor,
+  Activity,
+  Database,
+  Users,
+  Clock,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
@@ -32,7 +32,7 @@ import {
   Cpu,
   MemoryStick,
   HardDrive,
-  Wifi
+  Wifi,
 } from 'lucide-react'
 import { TimelineVisualization } from './timeline-visualization'
 import { MigrationProgressMonitor } from './migration-progress-monitor'
@@ -107,7 +107,7 @@ export function ComprehensiveObservabilityDashboard({
   defaultTab = 'overview',
   autoRefresh = true,
   refreshInterval = 10000,
-  className = ''
+  className = '',
 }: ComprehensiveObservabilityDashboardProps) {
   const [activeTab, setActiveTab] = useState(defaultTab)
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null)
@@ -132,7 +132,7 @@ export function ComprehensiveObservabilityDashboard({
           migration: 78,
           agents: 89,
           timeTravel: 95,
-          network: 84
+          network: 84,
         },
         alerts: [
           {
@@ -140,51 +140,51 @@ export function ComprehensiveObservabilityDashboard({
             severity: 'warning',
             message: 'Migration task_004 failed - retrying automatically',
             timestamp: new Date(Date.now() - 120000),
-            component: 'migration'
+            component: 'migration',
           },
           {
             id: 'alert_002',
             severity: 'info',
             message: 'Agent coordination efficiency above 85%',
             timestamp: new Date(Date.now() - 300000),
-            component: 'agents'
+            component: 'agents',
           },
           {
             id: 'alert_003',
             severity: 'error',
             message: 'Database connection pool near capacity',
             timestamp: new Date(Date.now() - 60000),
-            component: 'database'
-          }
-        ]
+            component: 'database',
+          },
+        ],
       }
 
       const mockPerformanceMetrics: PerformanceMetrics = {
         cpu: {
           usage: 34,
           cores: 8,
-          temperature: 68
+          temperature: 68,
         },
         memory: {
           used: 6.2,
           total: 16,
-          percentage: 38.8
+          percentage: 38.8,
         },
         disk: {
           used: 245,
           total: 512,
-          percentage: 47.9
+          percentage: 47.9,
         },
         network: {
           bytesIn: 1247369,
           bytesOut: 892456,
-          latency: 23
+          latency: 23,
         },
         database: {
           connections: 47,
           queryRate: 234,
-          avgResponseTime: 45
-        }
+          avgResponseTime: 45,
+        },
       }
 
       const mockSystemOverview: SystemOverview = {
@@ -194,7 +194,7 @@ export function ComprehensiveObservabilityDashboard({
         lastUpdate: new Date(Date.now() - 3600000), // 1 hour ago
         activeProcesses: 156,
         totalRequests: 45672,
-        errorRate: 0.23
+        errorRate: 0.23,
       }
 
       setSystemHealth(mockSystemHealth)
@@ -206,9 +206,8 @@ export function ComprehensiveObservabilityDashboard({
       await observability.recordEvent('dashboard_data_fetched', {
         systemHealth: mockSystemHealth.overall,
         alertCount: mockSystemHealth.alerts.length,
-        criticalAlerts: mockSystemHealth.alerts.filter(a => a.severity === 'critical').length
+        criticalAlerts: mockSystemHealth.alerts.filter((a) => a.severity === 'critical').length,
       })
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data')
       console.error('Failed to fetch dashboard data:', err)
@@ -221,7 +220,7 @@ export function ComprehensiveObservabilityDashboard({
   // Auto refresh effect
   useEffect(() => {
     fetchDashboardData()
-    
+
     if (autoRefresh) {
       const interval = setInterval(fetchDashboardData, refreshInterval)
       return () => clearInterval(interval)
@@ -233,7 +232,7 @@ export function ComprehensiveObservabilityDashboard({
     const days = Math.floor(seconds / 86400)
     const hours = Math.floor((seconds % 86400) / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
-    
+
     if (days > 0) {
       return `${days}d ${hours}h ${minutes}m`
     } else if (hours > 0) {
@@ -317,9 +316,7 @@ export function ComprehensiveObservabilityDashboard({
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline">
-                Last updated: {lastRefresh.toLocaleTimeString()}
-              </Badge>
+              <Badge variant="outline">Last updated: {lastRefresh.toLocaleTimeString()}</Badge>
               <Button
                 variant="outline"
                 size="sm"
@@ -381,9 +378,11 @@ export function ComprehensiveObservabilityDashboard({
               <div className="space-y-3">
                 <h3 className="font-medium">Recent Alerts</h3>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {systemHealth.alerts.slice(0, 3).map(alert => (
+                  {systemHealth.alerts.slice(0, 3).map((alert) => (
                     <div key={alert.id} className="flex items-start space-x-2 text-sm">
-                      <div className={`w-2 h-2 rounded-full mt-1.5 ${getAlertColor(alert.severity)}`} />
+                      <div
+                        className={`w-2 h-2 rounded-full mt-1.5 ${getAlertColor(alert.severity)}`}
+                      />
                       <div className="flex-1">
                         <div className="font-medium">{alert.message}</div>
                         <div className="text-gray-500 text-xs">
@@ -455,7 +454,8 @@ export function ComprehensiveObservabilityDashboard({
                 <div className="text-2xl font-bold">{performanceMetrics.network.latency}ms</div>
                 <div className="text-sm text-gray-600">Network Latency</div>
                 <div className="text-xs text-gray-500">
-                  ↓{formatBytes(performanceMetrics.network.bytesIn)} ↑{formatBytes(performanceMetrics.network.bytesOut)}
+                  ↓{formatBytes(performanceMetrics.network.bytesIn)} ↑
+                  {formatBytes(performanceMetrics.network.bytesOut)}
                 </div>
               </div>
             </div>
@@ -483,7 +483,9 @@ export function ComprehensiveObservabilityDashboard({
                 <div className="text-sm text-gray-600">Version</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">{systemOverview.totalRequests.toLocaleString()}</div>
+                <div className="text-2xl font-bold">
+                  {systemOverview.totalRequests.toLocaleString()}
+                </div>
                 <div className="text-sm text-gray-600">Total Requests</div>
               </div>
               <div>
@@ -559,15 +561,21 @@ export function ComprehensiveObservabilityDashboard({
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <span>Active Connections:</span>
-                          <span className="font-medium">{performanceMetrics.database.connections}</span>
+                          <span className="font-medium">
+                            {performanceMetrics.database.connections}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Query Rate:</span>
-                          <span className="font-medium">{performanceMetrics.database.queryRate}/sec</span>
+                          <span className="font-medium">
+                            {performanceMetrics.database.queryRate}/sec
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Avg Response Time:</span>
-                          <span className="font-medium">{performanceMetrics.database.avgResponseTime}ms</span>
+                          <span className="font-medium">
+                            {performanceMetrics.database.avgResponseTime}ms
+                          </span>
                         </div>
                       </div>
                     )}
@@ -587,11 +595,15 @@ export function ComprehensiveObservabilityDashboard({
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Environment:</span>
-                          <span className="font-medium capitalize">{systemOverview.environment}</span>
+                          <span className="font-medium capitalize">
+                            {systemOverview.environment}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Last Update:</span>
-                          <span className="font-medium">{systemOverview.lastUpdate.toLocaleString()}</span>
+                          <span className="font-medium">
+                            {systemOverview.lastUpdate.toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     )}

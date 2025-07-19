@@ -206,10 +206,10 @@ class ElectricDB {
       // Initialize real-time sync service
       const { realtimeSyncService } = await import('./realtime-sync')
       const { electricAuthService } = await import('./auth')
-      
+
       const authToken = electricAuthService.getAuthToken()
       await realtimeSyncService.initialize(authToken || undefined)
-      
+
       console.log('✅ ElectricDB initialized with real-time sync')
     } catch (error) {
       console.warn('⚠️ Failed to initialize real-time sync, using fallback mode:', error)
@@ -264,20 +264,24 @@ class ElectricDB {
   async subscribeToTable(table: string, filters?: any): Promise<() => void> {
     try {
       const { realtimeSyncService } = await import('./realtime-sync')
-      
-      return realtimeSyncService.subscribeToTable(table, (event) => {
-        // Notify local listeners
-        const listeners = this.syncEventListeners.get(table)
-        if (listeners) {
-          listeners.forEach(handler => {
-            try {
-              handler(event)
-            } catch (error) {
-              console.error('Sync event listener error:', error)
-            }
-          })
-        }
-      }, filters)
+
+      return realtimeSyncService.subscribeToTable(
+        table,
+        (event) => {
+          // Notify local listeners
+          const listeners = this.syncEventListeners.get(table)
+          if (listeners) {
+            listeners.forEach((handler) => {
+              try {
+                handler(event)
+              } catch (error) {
+                console.error('Sync event listener error:', error)
+              }
+            })
+          }
+        },
+        filters
+      )
     } catch (error) {
       console.error('Failed to subscribe to table:', error)
       return () => {} // Return no-op unsubscribe
@@ -305,7 +309,7 @@ class ElectricDB {
 
       if (result.success) {
         this.realtimeStats.successfulOperations++
-        
+
         // Send to real-time sync if enabled
         if (realtime) {
           try {
@@ -315,7 +319,7 @@ class ElectricDB {
             console.warn('Failed to send real-time update:', error)
           }
         }
-        
+
         return result.data
       } else {
         this.realtimeStats.failedOperations++
@@ -337,7 +341,7 @@ class ElectricDB {
     try {
       const { conflictResolutionService } = await import('./conflict-resolution')
       await conflictResolutionService.processOfflineQueue()
-      
+
       // Notify state listeners
       this.notifyStateListeners()
     } catch (error) {
@@ -363,8 +367,8 @@ class ElectricDB {
       connection: this.getConnectionState(),
       sync: this.getSyncState(),
     }
-    
-    this.stateListeners.forEach(handler => {
+
+    this.stateListeners.forEach((handler) => {
       try {
         handler(state)
       } catch (error) {

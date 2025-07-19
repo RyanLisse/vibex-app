@@ -263,10 +263,7 @@ class UserService {
 /**
  * GET /api/users/[id] - Get user by ID
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
 
@@ -298,10 +295,7 @@ export async function GET(
 /**
  * PUT /api/users/[id] - Update user
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
     const body = await request.json()
@@ -345,10 +339,7 @@ export async function PUT(
 /**
  * DELETE /api/users/[id] - Deactivate user (soft delete)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
 

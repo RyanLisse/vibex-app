@@ -59,7 +59,7 @@ export class RealtimeSyncService {
   async initialize(authToken?: string): Promise<void> {
     return this.observability.trackOperation('realtime-sync.initialize', async () => {
       const wsUrl = this.buildWebSocketUrl()
-      
+
       try {
         await this.connect(wsUrl, authToken)
         this.setupHeartbeat()
@@ -75,10 +75,11 @@ export class RealtimeSyncService {
    * Build WebSocket URL from configuration
    */
   private buildWebSocketUrl(): string {
-    const baseUrl = process.env.ELECTRIC_WEBSOCKET_URL || 
-                   process.env.ELECTRIC_URL?.replace(/^http/, 'ws') ||
-                   'ws://localhost:5133'
-    
+    const baseUrl =
+      process.env.ELECTRIC_WEBSOCKET_URL ||
+      process.env.ELECTRIC_URL?.replace(/^http/, 'ws') ||
+      'ws://localhost:5133'
+
     return `${baseUrl}/ws`
   }
 
@@ -90,22 +91,22 @@ export class RealtimeSyncService {
       try {
         // Add auth token to URL if available
         const wsUrl = authToken ? `${url}?token=${authToken}` : url
-        
+
         this.websocket = new WebSocket(wsUrl)
 
         this.websocket.onopen = () => {
           this.isConnected = true
           this.isReconnecting = false
           this.reconnectAttempts = 0
-          
+
           // Process queued messages
           this.processMessageQueue()
-          
+
           this.observability.recordEvent('realtime-sync.connected', {
             url,
             reconnectAttempts: this.reconnectAttempts,
           })
-          
+
           resolve()
         }
 
@@ -118,10 +119,12 @@ export class RealtimeSyncService {
         }
 
         this.websocket.onerror = (error) => {
-          this.observability.recordError('realtime-sync.connection', new Error(`WebSocket error: ${error}`))
+          this.observability.recordError(
+            'realtime-sync.connection',
+            new Error(`WebSocket error: ${error}`)
+          )
           reject(new Error(`WebSocket connection failed: ${error}`))
         }
-
       } catch (error) {
         reject(error)
       }
@@ -134,7 +137,7 @@ export class RealtimeSyncService {
   private handleMessage(data: string): void {
     try {
       const message: WebSocketMessage = JSON.parse(data)
-      
+
       switch (message.type) {
         case 'sync':
           this.handleSyncMessage(message)
@@ -206,7 +209,7 @@ export class RealtimeSyncService {
    */
   private async handleConflictMessage(message: WebSocketMessage): Promise<void> {
     console.log('🔥 Conflict detected:', message)
-    
+
     this.observability.recordEvent('realtime-sync.conflict-detected', {
       table: message.table,
       conflictId: message.conflictId,
@@ -251,7 +254,7 @@ export class RealtimeSyncService {
     }
 
     const result = await electricDatabaseClient.executeOperation(dbOperation)
-    
+
     if (!result.success) {
       throw new Error(`Failed to apply remote change: ${result.error}`)
     }
@@ -269,7 +272,7 @@ export class RealtimeSyncService {
     } = {}
   ): () => void {
     const subscriptionId = crypto.randomUUID()
-    
+
     const subscription: RealtimeSubscription = {
       id: subscriptionId,
       table,
@@ -295,7 +298,7 @@ export class RealtimeSyncService {
     // Return unsubscribe function
     return () => {
       this.subscriptions.delete(subscriptionId)
-      
+
       // Send unsubscribe message to server
       this.sendMessage({
         type: 'sync',
@@ -359,10 +362,10 @@ export class RealtimeSyncService {
   private notifySubscribers(event: SyncEvent): void {
     for (const subscription of this.subscriptions.values()) {
       if (subscription.table !== event.table) continue
-      
+
       // Filter by user if specified
       if (subscription.userId && subscription.userId !== event.userId) continue
-      
+
       // Apply filters if specified
       if (subscription.filters && event.record) {
         const matchesFilters = Object.entries(subscription.filters).every(
@@ -384,7 +387,7 @@ export class RealtimeSyncService {
    */
   private handleDisconnection(event: CloseEvent): void {
     this.isConnected = false
-    
+
     this.observability.recordEvent('realtime-sync.disconnected', {
       code: event.code,
       reason: event.reason,
@@ -411,14 +414,16 @@ export class RealtimeSyncService {
     this.reconnectAttempts++
 
     const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 30000)
-    
-    console.log(`Attempting reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`)
+
+    console.log(
+      `Attempting reconnection ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`
+    )
 
     setTimeout(async () => {
       try {
         const wsUrl = this.buildWebSocketUrl()
         await this.connect(wsUrl)
-        
+
         // Re-establish subscriptions
         for (const subscription of this.subscriptions.values()) {
           this.sendMessage({
@@ -432,11 +437,10 @@ export class RealtimeSyncService {
             },
           })
         }
-
       } catch (error) {
         console.error('Reconnection attempt failed:', error)
         this.isReconnecting = false
-        
+
         // Try again if we haven't exceeded max attempts
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.attemptReconnection()

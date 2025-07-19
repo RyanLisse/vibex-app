@@ -7,7 +7,13 @@ export { ElectricSyncService, electricSyncService } from './sync-service'
 export { EnhancedElectricSyncService, enhancedElectricSyncService } from './enhanced-sync-service'
 export { ConflictResolutionService, conflictResolutionService } from './conflict-resolution'
 export { ElectricAuthService, electricAuthService } from './auth'
-export { electricConfig, getFinalConfig, validateElectricConfig, electricDb, type SyncEvent } from './config'
+export {
+  electricConfig,
+  getFinalConfig,
+  validateElectricConfig,
+  electricDb,
+  type SyncEvent,
+} from './config'
 export { pgliteConfig, getPGliteInstance } from './simple-config'
 
 // Re-export types from schema

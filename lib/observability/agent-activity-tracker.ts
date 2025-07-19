@@ -1,6 +1,6 @@
 /**
  * Agent Activity Tracker
- * 
+ *
  * Monitors and tracks all agent activities across the system,
  * providing real-time insights and progress reporting.
  */
@@ -10,7 +10,7 @@ import { observability } from './index'
 import { snapshotManager } from '@/lib/time-travel/execution-snapshots'
 
 // Agent types
-export type AgentType = 
+export type AgentType =
   | 'frontend_developer'
   | 'backend_systems'
   | 'data_migration'
@@ -21,7 +21,7 @@ export type AgentType =
   | 'performance_optimizer'
 
 // Agent status
-export type AgentStatus = 
+export type AgentStatus =
   | 'idle'
   | 'initializing'
   | 'active'
@@ -31,12 +31,7 @@ export type AgentStatus =
   | 'completed'
 
 // Task status
-export type TaskStatus =
-  | 'pending'
-  | 'in_progress'
-  | 'blocked'
-  | 'completed'
-  | 'failed'
+export type TaskStatus = 'pending' | 'in_progress' | 'blocked' | 'completed' | 'failed'
 
 // Agent activity interface
 export interface AgentActivity {
@@ -75,7 +70,12 @@ export interface AgentActivity {
 export interface CoordinationEvent {
   id: string
   timestamp: Date
-  type: 'task_assigned' | 'task_completed' | 'dependency_resolved' | 'collaboration_request' | 'status_update'
+  type:
+    | 'task_assigned'
+    | 'task_completed'
+    | 'dependency_resolved'
+    | 'collaboration_request'
+    | 'status_update'
   sourceAgent: string
   targetAgent?: string
   data: any
@@ -120,11 +120,11 @@ export class AgentActivityTracker extends EventEmitter {
         resourceUsage: {
           cpu: 0,
           memory: 0,
-          network: 0
-        }
+          network: 0,
+        },
       },
       lastActivity: new Date(),
-      errors: []
+      errors: [],
     }
 
     this.agents.set(agentId, activity)
@@ -134,7 +134,7 @@ export class AgentActivityTracker extends EventEmitter {
     observability.recordEvent('agent_registered', {
       agentId,
       agentType,
-      status: initialStatus
+      status: initialStatus,
     })
   }
 
@@ -232,11 +232,11 @@ export class AgentActivityTracker extends EventEmitter {
     const errorRecord = {
       timestamp: new Date(),
       message: error,
-      context
+      context,
     }
 
     agent.errors.push(errorRecord)
-    
+
     // Keep only last 50 errors
     if (agent.errors.length > 50) {
       agent.errors = agent.errors.slice(-50)
@@ -265,7 +265,7 @@ export class AgentActivityTracker extends EventEmitter {
       type,
       sourceAgent,
       targetAgent,
-      data
+      data,
     }
 
     this.coordinationEvents.push(event)
@@ -302,15 +302,15 @@ export class AgentActivityTracker extends EventEmitter {
    * Get agents by type
    */
   getAgentsByType(agentType: AgentType): AgentActivity[] {
-    return Array.from(this.agents.values()).filter(agent => agent.agentType === agentType)
+    return Array.from(this.agents.values()).filter((agent) => agent.agentType === agentType)
   }
 
   /**
    * Get active agents
    */
   getActiveAgents(): AgentActivity[] {
-    return Array.from(this.agents.values()).filter(
-      agent => ['active', 'processing'].includes(agent.status)
+    return Array.from(this.agents.values()).filter((agent) =>
+      ['active', 'processing'].includes(agent.status)
     )
   }
 
@@ -338,7 +338,7 @@ export class AgentActivityTracker extends EventEmitter {
     coordinationEvents: number
   } {
     const agents = Array.from(this.agents.values())
-    const activeAgents = agents.filter(a => ['active', 'processing'].includes(a.status))
+    const activeAgents = agents.filter((a) => ['active', 'processing'].includes(a.status))
 
     const totalCpu = agents.reduce((sum, a) => sum + a.metrics.resourceUsage.cpu, 0)
     const totalMemory = agents.reduce((sum, a) => sum + a.metrics.resourceUsage.memory, 0)
@@ -346,7 +346,7 @@ export class AgentActivityTracker extends EventEmitter {
 
     const recentErrors = agents.reduce((sum, a) => {
       const recentErrorCount = a.errors.filter(
-        e => Date.now() - e.timestamp.getTime() < 3600000 // Last hour
+        (e) => Date.now() - e.timestamp.getTime() < 3600000 // Last hour
       ).length
       return sum + recentErrorCount
     }, 0)
@@ -359,10 +359,10 @@ export class AgentActivityTracker extends EventEmitter {
       averageResourceUsage: {
         cpu: agents.length > 0 ? totalCpu / agents.length : 0,
         memory: agents.length > 0 ? totalMemory / agents.length : 0,
-        network: agents.length > 0 ? totalNetwork / agents.length : 0
+        network: agents.length > 0 ? totalNetwork / agents.length : 0,
       },
       recentErrors,
-      coordinationEvents: this.coordinationEvents.length
+      coordinationEvents: this.coordinationEvents.length,
     }
   }
 
@@ -382,34 +382,34 @@ export class AgentActivityTracker extends EventEmitter {
     estimatedCompletion?: Date
   } {
     const migrationAgents = Array.from(this.agents.values()).filter(
-      agent => agent.currentTask && agent.currentTask.name.toLowerCase().includes('migration')
+      (agent) => agent.currentTask && agent.currentTask.name.toLowerCase().includes('migration')
     )
 
-    const agentProgress = migrationAgents.map(agent => ({
+    const agentProgress = migrationAgents.map((agent) => ({
       agentId: agent.agentId,
       agentType: agent.agentType,
       taskName: agent.currentTask!.name,
       progress: agent.currentTask!.progress,
-      status: agent.currentTask!.status
+      status: agent.currentTask!.status,
     }))
 
     const totalProgress = agentProgress.reduce((sum, a) => sum + a.progress, 0)
     const overallProgress = agentProgress.length > 0 ? totalProgress / agentProgress.length : 0
 
     const blockers = migrationAgents
-      .filter(a => a.currentTask?.blockers && a.currentTask.blockers.length > 0)
-      .flatMap(a => a.currentTask!.blockers!)
+      .filter((a) => a.currentTask?.blockers && a.currentTask.blockers.length > 0)
+      .flatMap((a) => a.currentTask!.blockers!)
 
     const latestEstimation = migrationAgents
-      .filter(a => a.currentTask?.estimatedCompletion)
-      .map(a => a.currentTask!.estimatedCompletion!)
+      .filter((a) => a.currentTask?.estimatedCompletion)
+      .map((a) => a.currentTask!.estimatedCompletion!)
       .sort((a, b) => b.getTime() - a.getTime())[0]
 
     return {
       overallProgress,
       agentProgress,
       blockers: [...new Set(blockers)], // Unique blockers
-      estimatedCompletion: latestEstimation
+      estimatedCompletion: latestEstimation,
     }
   }
 
@@ -449,7 +449,7 @@ export class AgentActivityTracker extends EventEmitter {
     const taskDuration = Date.now() - agent.currentTask.startTime.getTime()
     const totalTasks = agent.metrics.tasksCompleted + agent.metrics.tasksFailed
 
-    agent.metrics.averageTaskTime = 
+    agent.metrics.averageTaskTime =
       (agent.metrics.averageTaskTime * (totalTasks - 1) + taskDuration) / totalTasks
   }
 
@@ -466,11 +466,7 @@ export class AgentActivityTracker extends EventEmitter {
   /**
    * Capture agent snapshot
    */
-  private async captureAgentSnapshot(
-    agentId: string,
-    reason: string,
-    context: any
-  ): Promise<void> {
+  private async captureAgentSnapshot(agentId: string, reason: string, context: any): Promise<void> {
     const agent = this.agents.get(agentId)
     if (!agent) return
 
@@ -487,27 +483,27 @@ export class AgentActivityTracker extends EventEmitter {
             shortTerm: {},
             longTerm: {},
             context: { agent },
-            variables: {}
+            variables: {},
           },
           context: {
             environment: {},
             tools: [],
             permissions: [],
-            constraints: {}
+            constraints: {},
           },
           outputs: {
             messages: [],
             artifacts: [],
             sideEffects: [],
-            metrics: agent.metrics
+            metrics: agent.metrics,
           },
           performance: {
             memoryUsage: agent.metrics.resourceUsage.memory,
             cpuTime: agent.metrics.resourceUsage.cpu,
             networkCalls: agent.metrics.resourceUsage.network,
             databaseQueries: 0,
-            wasmOperations: 0
-          }
+            wasmOperations: 0,
+          },
         },
         `Agent snapshot: ${reason}`,
         ['agent', agentId, reason]

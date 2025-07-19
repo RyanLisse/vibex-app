@@ -2,7 +2,7 @@
 
 /**
  * Unified Progress Dashboard
- * 
+ *
  * Comprehensive dashboard for monitoring all agent activities,
  * migration progress, and system performance in real-time.
  */
@@ -28,9 +28,13 @@ import {
   Play,
   Pause,
   Eye,
-  GitBranch
+  GitBranch,
 } from 'lucide-react'
-import { agentActivityTracker, type AgentActivity, type AgentType } from '@/lib/observability/agent-activity-tracker'
+import {
+  agentActivityTracker,
+  type AgentActivity,
+  type AgentType,
+} from '@/lib/observability/agent-activity-tracker'
 import { MigrationProgressMonitor } from './migration-progress-monitor'
 import { TimelineVisualization } from './timeline-visualization'
 import { AgentCoordinationMonitor } from './agent-coordination-monitor'
@@ -44,7 +48,7 @@ interface UnifiedProgressDashboardProps {
 export function UnifiedProgressDashboard({
   className = '',
   autoRefresh = true,
-  refreshInterval = 5000
+  refreshInterval = 5000,
 }: UnifiedProgressDashboardProps) {
   const [agents, setAgents] = useState<AgentActivity[]>([])
   const [systemOverview, setSystemOverview] = useState<any>(null)
@@ -97,7 +101,7 @@ export function UnifiedProgressDashboard({
       observability_engineer: 'bg-pink-500',
       quality_assurance: 'bg-yellow-500',
       security_specialist: 'bg-red-500',
-      performance_optimizer: 'bg-indigo-500'
+      performance_optimizer: 'bg-indigo-500',
     }
     return colors[type] || 'bg-gray-500'
   }, [])
@@ -122,9 +126,10 @@ export function UnifiedProgressDashboard({
 
   // Format agent type for display
   const formatAgentType = (type: AgentType): string => {
-    return type.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ')
+    return type
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
   }
 
   if (loading) {
@@ -151,23 +156,10 @@ export function UnifiedProgressDashboard({
               Unified Progress Dashboard
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPaused(!isPaused)}
-              >
-                {isPaused ? (
-                  <Play className="w-4 h-4" />
-                ) : (
-                  <Pause className="w-4 h-4" />
-                )}
+              <Button variant="outline" size="sm" onClick={() => setIsPaused(!isPaused)}>
+                {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchData}
-                disabled={loading}
-              >
+              <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
@@ -188,11 +180,15 @@ export function UnifiedProgressDashboard({
                 <div className="text-sm text-gray-600">Total Agents</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">{systemOverview.activeAgents}</div>
+                <div className="text-3xl font-bold text-blue-600">
+                  {systemOverview.activeAgents}
+                </div>
                 <div className="text-sm text-gray-600">Active Agents</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">{systemOverview.completedTasks}</div>
+                <div className="text-3xl font-bold text-green-600">
+                  {systemOverview.completedTasks}
+                </div>
                 <div className="text-sm text-gray-600">Completed Tasks</div>
               </div>
               <div className="text-center">
@@ -270,7 +266,8 @@ export function UnifiedProgressDashboard({
 
                   {migrationProgress.estimatedCompletion && (
                     <div className="text-sm text-gray-600">
-                      Estimated Completion: {migrationProgress.estimatedCompletion.toLocaleTimeString()}
+                      Estimated Completion:{' '}
+                      {migrationProgress.estimatedCompletion.toLocaleTimeString()}
                     </div>
                   )}
 
@@ -296,20 +293,22 @@ export function UnifiedProgressDashboard({
         <TabsContent value="agents">
           {/* Agent Activities Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {agents.map(agent => (
-              <Card 
+            {agents.map((agent) => (
+              <Card
                 key={agent.agentId}
                 className={`cursor-pointer transition-all ${
                   selectedAgent === agent.agentId ? 'ring-2 ring-blue-500' : ''
                 }`}
-                onClick={() => setSelectedAgent(
-                  selectedAgent === agent.agentId ? null : agent.agentId
-                )}
+                onClick={() =>
+                  setSelectedAgent(selectedAgent === agent.agentId ? null : agent.agentId)
+                }
               >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getAgentTypeColor(agent.agentType)}`}>
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getAgentTypeColor(agent.agentType)}`}
+                      >
                         {agent.agentType.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -346,7 +345,9 @@ export function UnifiedProgressDashboard({
                         </div>
                         <div>
                           <span className="text-gray-600">Tasks Failed:</span>
-                          <span className="ml-1 font-medium text-red-600">{agent.metrics.tasksFailed}</span>
+                          <span className="ml-1 font-medium text-red-600">
+                            {agent.metrics.tasksFailed}
+                          </span>
                         </div>
                       </div>
                     </div>

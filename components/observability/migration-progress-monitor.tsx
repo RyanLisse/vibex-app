@@ -2,7 +2,7 @@
 
 /**
  * Migration Progress Monitor Component
- * 
+ *
  * Real-time monitoring of database migration progress with detailed tracking,
  * performance metrics, and comprehensive status reporting.
  */
@@ -12,19 +12,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  Activity, 
-  Database, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  Activity,
+  Database,
+  CheckCircle,
+  XCircle,
+  Clock,
   Zap,
   TrendingUp,
   AlertTriangle,
   Pause,
   Play,
   RefreshCw,
-  BarChart3
+  BarChart3,
 } from 'lucide-react'
 import { observability } from '@/lib/observability'
 
@@ -75,7 +75,7 @@ export function MigrationProgressMonitor({
   migrationId,
   autoRefresh = true,
   refreshInterval = 5000,
-  className = ''
+  className = '',
 }: MigrationProgressMonitorProps) {
   const [migrations, setMigrations] = useState<MigrationStatus[]>([])
   const [selectedMigration, setSelectedMigration] = useState<MigrationStatus | null>(null)
@@ -90,7 +90,7 @@ export function MigrationProgressMonitor({
 
     try {
       setError(null)
-      
+
       // Simulate fetching migration data
       // In real implementation, this would call your migration service
       const mockMigrations: MigrationStatus[] = [
@@ -115,8 +115,8 @@ export function MigrationProgressMonitor({
                 recordsProcessed: 15,
                 totalRecords: 15,
                 throughput: 0.125,
-                errorCount: 0
-              }
+                errorCount: 0,
+              },
             },
             {
               id: 'step_002',
@@ -129,8 +129,8 @@ export function MigrationProgressMonitor({
                 recordsProcessed: 36500,
                 totalRecords: 50000,
                 throughput: 21.7,
-                errorCount: 3
-              }
+                errorCount: 3,
+              },
             },
             {
               id: 'step_003',
@@ -142,8 +142,8 @@ export function MigrationProgressMonitor({
                 recordsProcessed: 0,
                 totalRecords: 8,
                 throughput: 0,
-                errorCount: 0
-              }
+                errorCount: 0,
+              },
             },
             {
               id: 'step_004',
@@ -155,24 +155,24 @@ export function MigrationProgressMonitor({
                 recordsProcessed: 0,
                 totalRecords: 50000,
                 throughput: 0,
-                errorCount: 0
-              }
-            }
+                errorCount: 0,
+              },
+            },
           ],
           metrics: {
             totalRecords: 100023,
             processedRecords: 72515,
             errorCount: 3,
             averageThroughput: 18.4,
-            peakThroughput: 34.2
-          }
-        }
+            peakThroughput: 34.2,
+          },
+        },
       ]
 
       setMigrations(mockMigrations)
-      
+
       if (migrationId) {
-        const specific = mockMigrations.find(m => m.id === migrationId)
+        const specific = mockMigrations.find((m) => m.id === migrationId)
         setSelectedMigration(specific || null)
       } else if (!selectedMigration && mockMigrations.length > 0) {
         setSelectedMigration(mockMigrations[0])
@@ -181,9 +181,8 @@ export function MigrationProgressMonitor({
       // Record observability event
       await observability.recordEvent('migration_status_fetched', {
         migrationCount: mockMigrations.length,
-        activeMigrations: mockMigrations.filter(m => m.status === 'running').length
+        activeMigrations: mockMigrations.filter((m) => m.status === 'running').length,
       })
-      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch migration status')
       console.error('Failed to fetch migration status:', err)
@@ -195,7 +194,7 @@ export function MigrationProgressMonitor({
   // Auto refresh effect
   useEffect(() => {
     fetchMigrationStatus()
-    
+
     if (autoRefresh && !isPaused) {
       const interval = setInterval(fetchMigrationStatus, refreshInterval)
       return () => clearInterval(interval)
@@ -211,7 +210,7 @@ export function MigrationProgressMonitor({
     const elapsed = Date.now() - migration.startTime.getTime()
     const remaining = (elapsed / migration.overallProgress) * (100 - migration.overallProgress)
     const eta = new Date(Date.now() + remaining)
-    
+
     return eta.toLocaleTimeString()
   }, [])
 
@@ -220,7 +219,7 @@ export function MigrationProgressMonitor({
     const seconds = Math.floor(milliseconds / 1000)
     const minutes = Math.floor(seconds / 60)
     const hours = Math.floor(minutes / 60)
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes % 60}m ${seconds % 60}s`
     } else if (minutes > 0) {
@@ -299,43 +298,26 @@ export function MigrationProgressMonitor({
               Migration Progress Monitor
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPaused(!isPaused)}
-              >
-                {isPaused ? (
-                  <Play className="w-4 h-4" />
-                ) : (
-                  <Pause className="w-4 h-4" />
-                )}
+              <Button variant="outline" size="sm" onClick={() => setIsPaused(!isPaused)}>
+                {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchMigrationStatus}
-                disabled={loading}
-              >
+              <Button variant="outline" size="sm" onClick={fetchMigrationStatus} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowMetrics(!showMetrics)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setShowMetrics(!showMetrics)}>
                 <BarChart3 className="w-4 h-4" />
               </Button>
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
-          {migrations.map(migration => (
+          {migrations.map((migration) => (
             <div
               key={migration.id}
               className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                selectedMigration?.id === migration.id 
-                  ? 'border-blue-500 bg-blue-50' 
+                selectedMigration?.id === migration.id
+                  ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
               onClick={() => setSelectedMigration(migration)}
@@ -357,9 +339,9 @@ export function MigrationProgressMonitor({
                   </p>
                 </div>
               </div>
-              
+
               <Progress value={migration.overallProgress} className="mb-3" />
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Started:</span>
@@ -372,7 +354,8 @@ export function MigrationProgressMonitor({
                 <div>
                   <span className="text-gray-600">Records:</span>
                   <span className="ml-1">
-                    {migration.metrics.processedRecords.toLocaleString()} / {migration.metrics.totalRecords.toLocaleString()}
+                    {migration.metrics.processedRecords.toLocaleString()} /{' '}
+                    {migration.metrics.totalRecords.toLocaleString()}
                   </span>
                 </div>
                 <div>
@@ -380,7 +363,7 @@ export function MigrationProgressMonitor({
                   <span className="ml-1">{migration.metrics.averageThroughput} rec/s</span>
                 </div>
               </div>
-              
+
               {migration.metrics.errorCount > 0 && (
                 <div className="mt-2 p-2 bg-red-50 rounded text-red-700 text-sm">
                   <AlertTriangle className="w-4 h-4 inline mr-1" />
@@ -404,7 +387,9 @@ export function MigrationProgressMonitor({
                 <div key={step.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-medium ${getStatusColor(step.status)}`}>
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-medium ${getStatusColor(step.status)}`}
+                      >
                         {index + 1}
                       </div>
                       <div>
@@ -417,14 +402,15 @@ export function MigrationProgressMonitor({
                       <p className="text-sm text-gray-600 mt-1">{step.progress}%</p>
                     </div>
                   </div>
-                  
+
                   <Progress value={step.progress} className="mb-3" />
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600">Records:</span>
                       <span className="ml-1">
-                        {step.metrics.recordsProcessed.toLocaleString()} / {step.metrics.totalRecords.toLocaleString()}
+                        {step.metrics.recordsProcessed.toLocaleString()} /{' '}
+                        {step.metrics.totalRecords.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -444,7 +430,7 @@ export function MigrationProgressMonitor({
                       </div>
                     )}
                   </div>
-                  
+
                   {step.error && (
                     <div className="mt-3 p-2 bg-red-50 rounded text-red-700 text-sm">
                       <strong>Error:</strong> {step.error}
@@ -471,23 +457,36 @@ export function MigrationProgressMonitor({
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Average Throughput</label>
-                  <div className="text-2xl font-bold">{selectedMigration.metrics.averageThroughput} rec/s</div>
+                  <div className="text-2xl font-bold">
+                    {selectedMigration.metrics.averageThroughput} rec/s
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Peak Throughput</label>
-                  <div className="text-2xl font-bold text-green-600">{selectedMigration.metrics.peakThroughput} rec/s</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {selectedMigration.metrics.peakThroughput} rec/s
+                  </div>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Total Records</label>
-                  <div className="text-2xl font-bold">{selectedMigration.metrics.totalRecords.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">
+                    {selectedMigration.metrics.totalRecords.toLocaleString()}
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Error Rate</label>
-                  <div className={`text-2xl font-bold ${selectedMigration.metrics.errorCount > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    {((selectedMigration.metrics.errorCount / selectedMigration.metrics.processedRecords) * 100).toFixed(2)}%
+                  <div
+                    className={`text-2xl font-bold ${selectedMigration.metrics.errorCount > 0 ? 'text-red-600' : 'text-green-600'}`}
+                  >
+                    {(
+                      (selectedMigration.metrics.errorCount /
+                        selectedMigration.metrics.processedRecords) *
+                      100
+                    ).toFixed(2)}
+                    %
                   </div>
                 </div>
               </div>

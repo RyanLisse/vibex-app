@@ -252,13 +252,15 @@ class UsersService {
       const [existingUser] = await db
         .select()
         .from(users)
-        .where(and(eq(users.provider, userData.provider), eq(users.providerId, userData.providerId)))
+        .where(
+          and(eq(users.provider, userData.provider), eq(users.providerId, userData.providerId))
+        )
         .limit(1)
 
       let user
       if (existingUser) {
         // Update existing user
-        [user] = await db
+        ;[user] = await db
           .update(users)
           .set({
             ...userData,
@@ -269,21 +271,23 @@ class UsersService {
           .returning()
       } else {
         // Create new user
-        const newUser = {
+        const newUser = ({
           id: ulid(),
           ...userData,
           lastLoginAt: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
-        }
-
-        [user] = await db.insert(users).values(newUser).returning()
+        }[user] = await db.insert(users).values(newUser).returning())
       }
 
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.queryDuration(duration, existingUser ? 'update_user' : 'insert_user', true)
+      observability.metrics.queryDuration(
+        duration,
+        existingUser ? 'update_user' : 'insert_user',
+        true
+      )
 
       // Record event
       await observability.events.collector.collectEvent(

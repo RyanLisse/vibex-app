@@ -189,7 +189,12 @@ class GitHubRepositoriesService {
     const [recentSync] = await db
       .select({ lastSyncAt: githubRepositories.lastSyncAt })
       .from(githubRepositories)
-      .where(and(eq(githubRepositories.userId, userId), gte(githubRepositories.lastSyncAt, thresholdTime)))
+      .where(
+        and(
+          eq(githubRepositories.userId, userId),
+          gte(githubRepositories.lastSyncAt, thresholdTime)
+        )
+      )
       .limit(1)
 
     return !recentSync
@@ -306,7 +311,11 @@ class GitHubRepositoriesService {
       .limit(1)
 
     if (!userSession) {
-      throw new GitHubRepositoriesAPIError('Authentication session not found', 401, 'AUTH_SESSION_NOT_FOUND')
+      throw new GitHubRepositoriesAPIError(
+        'Authentication session not found',
+        401,
+        'AUTH_SESSION_NOT_FOUND'
+      )
     }
 
     return userSession.userId
@@ -334,7 +343,11 @@ export async function GET(request: NextRequest) {
     const validatedParams = GetRepositoriesQuerySchema.parse(queryParams)
 
     // Get repositories from database with sync if needed
-    const result = await GitHubRepositoriesService.getRepositories(userId, accessToken, validatedParams)
+    const result = await GitHubRepositoriesService.getRepositories(
+      userId,
+      accessToken,
+      validatedParams
+    )
 
     return NextResponse.json(
       createPaginatedResponse(

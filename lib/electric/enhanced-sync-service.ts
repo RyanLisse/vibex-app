@@ -1,6 +1,6 @@
 /**
  * Enhanced ElectricSQL Sync Service
- * 
+ *
  * Provides comprehensive real-time synchronization with:
  * - Bidirectional sync between ElectricSQL and PostgreSQL
  * - Conflict resolution with multiple strategies
@@ -65,7 +65,7 @@ export class EnhancedSyncService {
   private syncInterval: NodeJS.Timeout | null = null
   private isInitialized = false
   private isSyncing = false
-  
+
   private config: SyncConfiguration = {
     autoSync: true,
     syncInterval: 30000, // 30 seconds
@@ -75,7 +75,7 @@ export class EnhancedSyncService {
     cacheEnabled: true,
     cacheTTL: 300, // 5 minutes
   }
-  
+
   private metrics: SyncMetrics = {
     totalSyncs: 0,
     successfulSyncs: 0,
@@ -135,8 +135,8 @@ export class EnhancedSyncService {
   private setupRealtimeHandlers(): void {
     // Handle ElectricSQL events
     const tables = ['tasks', 'environments', 'agent_executions', 'observability_events']
-    
-    tables.forEach(table => {
+
+    tables.forEach((table) => {
       // Subscribe to ElectricSQL changes
       this.electricClient.subscribe(table, async (data) => {
         await this.handleElectricChange(table, data)
@@ -158,22 +158,25 @@ export class EnhancedSyncService {
         // Sync changes to PostgreSQL database
         for (const record of data) {
           const operation = this.detectOperation(record)
-          
-          await conflictResolutionService.executeOperationWithConflictResolution({
-            table,
-            operation,
-            data: record,
-            where: { id: record.id },
-            options: {
-              userId: record.userId,
-              realtime: true,
-              cache: this.config.cacheEnabled,
-              ttl: this.config.cacheTTL,
+
+          await conflictResolutionService.executeOperationWithConflictResolution(
+            {
+              table,
+              operation,
+              data: record,
+              where: { id: record.id },
+              options: {
+                userId: record.userId,
+                realtime: true,
+                cache: this.config.cacheEnabled,
+                ttl: this.config.cacheTTL,
+              },
+            },
+            {
+              conflictStrategy: this.config.conflictStrategy,
+              offlineSupport: true,
             }
-          }, {
-            conflictStrategy: this.config.conflictStrategy,
-            offlineSupport: true,
-          })
+          )
         }
 
         // Emit sync events
@@ -200,10 +203,10 @@ export class EnhancedSyncService {
       try {
         // Sync changes to ElectricSQL
         const { operation, data, userId } = event
-        
+
         // Apply changes to ElectricSQL local database
         const pglite = this.electricClient.db
-        
+
         switch (operation) {
           case 'insert':
             await pglite.execute(`INSERT INTO ${table} VALUES ($1)`, [data])
@@ -255,7 +258,7 @@ export class EnhancedSyncService {
 
         // Sync each table
         const tables = ['tasks', 'environments', 'agent_executions', 'observability_events']
-        
+
         for (const table of tables) {
           await this.syncTable(table)
         }
@@ -296,37 +299,46 @@ export class EnhancedSyncService {
 
       // Apply changes with conflict resolution
       for (const record of toInsert) {
-        await conflictResolutionService.executeOperationWithConflictResolution({
-          table,
-          operation: 'insert',
-          data: record,
-          options: { realtime: false }
-        }, {
-          conflictStrategy: this.config.conflictStrategy,
-        })
+        await conflictResolutionService.executeOperationWithConflictResolution(
+          {
+            table,
+            operation: 'insert',
+            data: record,
+            options: { realtime: false },
+          },
+          {
+            conflictStrategy: this.config.conflictStrategy,
+          }
+        )
       }
 
       for (const record of toUpdate) {
-        await conflictResolutionService.executeOperationWithConflictResolution({
-          table,
-          operation: 'update',
-          data: record,
-          where: { id: record.id },
-          options: { realtime: false }
-        }, {
-          conflictStrategy: this.config.conflictStrategy,
-        })
+        await conflictResolutionService.executeOperationWithConflictResolution(
+          {
+            table,
+            operation: 'update',
+            data: record,
+            where: { id: record.id },
+            options: { realtime: false },
+          },
+          {
+            conflictStrategy: this.config.conflictStrategy,
+          }
+        )
       }
 
       for (const record of toDelete) {
-        await conflictResolutionService.executeOperationWithConflictResolution({
-          table,
-          operation: 'delete',
-          where: { id: record.id },
-          options: { realtime: false }
-        }, {
-          conflictStrategy: this.config.conflictStrategy,
-        })
+        await conflictResolutionService.executeOperationWithConflictResolution(
+          {
+            table,
+            operation: 'delete',
+            where: { id: record.id },
+            options: { realtime: false },
+          },
+          {
+            conflictStrategy: this.config.conflictStrategy,
+          }
+        )
       }
     })
   }
@@ -343,7 +355,7 @@ export class EnhancedSyncService {
     }
   ): string {
     const subscriptionId = `sub-${Date.now()}-${Math.random()}`
-    
+
     const subscription: RealtimeSubscription = {
       id: subscriptionId,
       table,
@@ -373,7 +385,7 @@ export class EnhancedSyncService {
    * Emit sync event to subscribers
    */
   private emitSyncEvent(event: SyncEvent): void {
-    this.subscriptions.forEach(subscription => {
+    this.subscriptions.forEach((subscription) => {
       if (!subscription.active || subscription.table !== event.table) return
 
       // Check user filter
@@ -475,7 +487,7 @@ export class EnhancedSyncService {
     const result = await electricDatabaseClient.executeOperation({
       table,
       operation: 'select',
-      options: { cache: false }
+      options: { cache: false },
     })
     return result.success ? result.data : []
   }
@@ -483,27 +495,30 @@ export class EnhancedSyncService {
   /**
    * Helper: Find differences between datasets
    */
-  private findDifferences(local: any[], remote: any[]): {
+  private findDifferences(
+    local: any[],
+    remote: any[]
+  ): {
     toInsert: any[]
     toUpdate: any[]
     toDelete: any[]
   } {
-    const localMap = new Map(local.map(item => [item.id, item]))
-    const remoteMap = new Map(remote.map(item => [item.id, item]))
+    const localMap = new Map(local.map((item) => [item.id, item]))
+    const remoteMap = new Map(remote.map((item) => [item.id, item]))
 
     const toInsert: any[] = []
     const toUpdate: any[] = []
     const toDelete: any[] = []
 
     // Find records to insert (in remote but not in local)
-    remote.forEach(remoteItem => {
+    remote.forEach((remoteItem) => {
       if (!localMap.has(remoteItem.id)) {
         toInsert.push(remoteItem)
       }
     })
 
     // Find records to update or delete
-    local.forEach(localItem => {
+    local.forEach((localItem) => {
       const remoteItem = remoteMap.get(localItem.id)
       if (!remoteItem) {
         toDelete.push(localItem)

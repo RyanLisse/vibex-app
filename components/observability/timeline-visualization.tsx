@@ -2,7 +2,7 @@
 
 /**
  * Timeline Visualization Component
- * 
+ *
  * Interactive timeline for time-travel debugging with execution snapshots,
  * step-by-step replay, and diff visualization capabilities.
  */
@@ -12,13 +12,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Play, 
-  Pause, 
-  Stop, 
-  SkipForward, 
-  SkipBack, 
-  StepForward, 
+import {
+  Play,
+  Pause,
+  Stop,
+  SkipForward,
+  SkipBack,
+  StepForward,
   StepBack,
   Clock,
   GitCommit,
@@ -26,10 +26,16 @@ import {
   CheckCircle,
   XCircle,
   Activity,
-  Zap
+  Zap,
 } from 'lucide-react'
 import { timeTravel } from '@/lib/time-travel'
-import { ExecutionSnapshot, SnapshotType, ReplaySession, ReplayState, ReplaySpeed } from '@/lib/time-travel'
+import {
+  ExecutionSnapshot,
+  SnapshotType,
+  ReplaySession,
+  ReplayState,
+  ReplaySpeed,
+} from '@/lib/time-travel'
 
 interface TimelineVisualizationProps {
   executionId: string
@@ -47,7 +53,7 @@ const SNAPSHOT_ICONS: Record<SnapshotType, React.ReactNode> = {
   error_state: <XCircle className="w-4 h-4" />,
   execution_end: <Stop className="w-4 h-4" />,
   checkpoint: <Clock className="w-4 h-4" />,
-  rollback_point: <SkipBack className="w-4 h-4" />
+  rollback_point: <SkipBack className="w-4 h-4" />,
 }
 
 // Snapshot type to color mapping
@@ -59,14 +65,14 @@ const SNAPSHOT_COLORS: Record<SnapshotType, string> = {
   error_state: 'bg-red-500',
   execution_end: 'bg-gray-500',
   checkpoint: 'bg-purple-500',
-  rollback_point: 'bg-orange-500'
+  rollback_point: 'bg-orange-500',
 }
 
 export function TimelineVisualization({
   executionId,
   onSnapshotSelected,
   onStateChanged,
-  className = ''
+  className = '',
 }: TimelineVisualizationProps) {
   const [snapshots, setSnapshots] = useState<ExecutionSnapshot[]>([])
   const [replaySession, setReplaySession] = useState<ReplaySession | null>(null)
@@ -87,7 +93,7 @@ export function TimelineVisualization({
 
       const executionSnapshots = await timeTravel.system.getExecutionSnapshots(executionId, {
         limit: 500,
-        checkpointsOnly: false
+        checkpointsOnly: false,
       })
 
       setSnapshots(executionSnapshots)
@@ -118,74 +124,84 @@ export function TimelineVisualization({
   }, [executionId])
 
   // Control replay playback
-  const controlReplay = useCallback(async (
-    action: 'start' | 'pause' | 'stop' | 'step-forward' | 'step-backward'
-  ) => {
-    if (!replaySession) return
+  const controlReplay = useCallback(
+    async (action: 'start' | 'pause' | 'stop' | 'step-forward' | 'step-backward') => {
+      if (!replaySession) return
 
-    try {
-      await timeTravel.controlReplay(replaySession.id, action)
-      
-      const updatedSession = timeTravel.replay.getSession(replaySession.id)
-      if (updatedSession) {
-        setReplaySession(updatedSession)
-        setReplayState(updatedSession.state)
-        
-        const currentSnap = updatedSession.snapshots[updatedSession.currentIndex]
-        if (currentSnap) {
-          setCurrentSnapshot(currentSnap)
-          onSnapshotSelected?.(currentSnap)
-          onStateChanged?.(currentSnap.state)
+      try {
+        await timeTravel.controlReplay(replaySession.id, action)
+
+        const updatedSession = timeTravel.replay.getSession(replaySession.id)
+        if (updatedSession) {
+          setReplaySession(updatedSession)
+          setReplayState(updatedSession.state)
+
+          const currentSnap = updatedSession.snapshots[updatedSession.currentIndex]
+          if (currentSnap) {
+            setCurrentSnapshot(currentSnap)
+            onSnapshotSelected?.(currentSnap)
+            onStateChanged?.(currentSnap.state)
+          }
+
+          setProgress((updatedSession.currentIndex / (updatedSession.snapshots.length - 1)) * 100)
         }
-        
-        setProgress((updatedSession.currentIndex / (updatedSession.snapshots.length - 1)) * 100)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to control replay')
+        console.error('Failed to control replay:', err)
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to control replay')
-      console.error('Failed to control replay:', err)
-    }
-  }, [replaySession, onSnapshotSelected, onStateChanged])
+    },
+    [replaySession, onSnapshotSelected, onStateChanged]
+  )
 
   // Jump to specific snapshot
-  const jumpToSnapshot = useCallback(async (snapshot: ExecutionSnapshot) => {
-    if (!replaySession) return
+  const jumpToSnapshot = useCallback(
+    async (snapshot: ExecutionSnapshot) => {
+      if (!replaySession) return
 
-    try {
-      const index = replaySession.snapshots.findIndex(s => s.id === snapshot.id)
-      if (index === -1) return
+      try {
+        const index = replaySession.snapshots.findIndex((s) => s.id === snapshot.id)
+        if (index === -1) return
 
-      await timeTravel.controlReplay(replaySession.id, 'step-forward', { index })
-      
-      const updatedSession = timeTravel.replay.getSession(replaySession.id)
-      if (updatedSession) {
-        setReplaySession(updatedSession)
-        setCurrentSnapshot(snapshot)
-        onSnapshotSelected?.(snapshot)
-        onStateChanged?.(snapshot.state)
-        setProgress((index / (updatedSession.snapshots.length - 1)) * 100)
+        await timeTravel.controlReplay(replaySession.id, 'step-forward', { index })
+
+        const updatedSession = timeTravel.replay.getSession(replaySession.id)
+        if (updatedSession) {
+          setReplaySession(updatedSession)
+          setCurrentSnapshot(snapshot)
+          onSnapshotSelected?.(snapshot)
+          onStateChanged?.(snapshot.state)
+          setProgress((index / (updatedSession.snapshots.length - 1)) * 100)
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to jump to snapshot')
+        console.error('Failed to jump to snapshot:', err)
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to jump to snapshot')
-      console.error('Failed to jump to snapshot:', err)
-    }
-  }, [replaySession, onSnapshotSelected, onStateChanged])
+    },
+    [replaySession, onSnapshotSelected, onStateChanged]
+  )
 
   // Set replay speed
-  const setSpeed = useCallback(async (speed: ReplaySpeed) => {
-    if (!replaySession) return
+  const setSpeed = useCallback(
+    async (speed: ReplaySpeed) => {
+      if (!replaySession) return
 
-    try {
-      await timeTravel.controlReplay(replaySession.id, 'start', { speed })
-      setReplaySpeed(speed)
-    } catch (err) {
-      console.error('Failed to set replay speed:', err)
-    }
-  }, [replaySession])
+      try {
+        await timeTravel.controlReplay(replaySession.id, 'start', { speed })
+        setReplaySpeed(speed)
+      } catch (err) {
+        console.error('Failed to set replay speed:', err)
+      }
+    },
+    [replaySession]
+  )
 
   // Calculate diff between snapshots
-  const calculateDiff = useCallback((snapshot1: ExecutionSnapshot, snapshot2: ExecutionSnapshot) => {
-    return timeTravel.snapshots.compareSnapshots(snapshot1, snapshot2)
-  }, [])
+  const calculateDiff = useCallback(
+    (snapshot1: ExecutionSnapshot, snapshot2: ExecutionSnapshot) => {
+      return timeTravel.snapshots.compareSnapshots(snapshot1, snapshot2)
+    },
+    []
+  )
 
   // Load data on mount
   useEffect(() => {
@@ -195,11 +211,12 @@ export function TimelineVisualization({
 
   // Timeline statistics
   const timelineStats = useMemo(() => {
-    const checkpoints = snapshots.filter(s => s.metadata.isCheckpoint).length
-    const errors = snapshots.filter(s => s.type === 'error_state').length
-    const duration = snapshots.length > 1 
-      ? snapshots[snapshots.length - 1].timestamp.getTime() - snapshots[0].timestamp.getTime()
-      : 0
+    const checkpoints = snapshots.filter((s) => s.metadata.isCheckpoint).length
+    const errors = snapshots.filter((s) => s.type === 'error_state').length
+    const duration =
+      snapshots.length > 1
+        ? snapshots[snapshots.length - 1].timestamp.getTime() - snapshots[0].timestamp.getTime()
+        : 0
 
     return { checkpoints, errors, duration, totalSteps: snapshots.length }
   }, [snapshots])
@@ -241,21 +258,15 @@ export function TimelineVisualization({
               Time-Travel Debug Timeline
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline">
-                {timelineStats.totalSteps} steps
-              </Badge>
-              <Badge variant="outline">
-                {timelineStats.checkpoints} checkpoints
-              </Badge>
+              <Badge variant="outline">{timelineStats.totalSteps} steps</Badge>
+              <Badge variant="outline">{timelineStats.checkpoints} checkpoints</Badge>
               {timelineStats.errors > 0 && (
-                <Badge variant="destructive">
-                  {timelineStats.errors} errors
-                </Badge>
+                <Badge variant="destructive">{timelineStats.errors} errors</Badge>
               )}
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {/* Playback Controls */}
           <div className="flex items-center justify-between">
@@ -268,7 +279,7 @@ export function TimelineVisualization({
               >
                 <StepBack className="w-4 h-4" />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -281,7 +292,7 @@ export function TimelineVisualization({
                   <Play className="w-4 h-4" />
                 )}
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -290,12 +301,15 @@ export function TimelineVisualization({
               >
                 <Stop className="w-4 h-4" />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => controlReplay('step-forward')}
-                disabled={!replaySession || replaySession.currentIndex === replaySession.snapshots.length - 1}
+                disabled={
+                  !replaySession ||
+                  replaySession.currentIndex === replaySession.snapshots.length - 1
+                }
               >
                 <StepForward className="w-4 h-4" />
               </Button>
@@ -304,10 +318,10 @@ export function TimelineVisualization({
             {/* Speed Controls */}
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">Speed:</span>
-              {([0.25, 0.5, 1, 2, 4] as ReplaySpeed[]).map(speed => (
+              {([0.25, 0.5, 1, 2, 4] as ReplaySpeed[]).map((speed) => (
                 <Button
                   key={speed}
-                  variant={replaySpeed === speed ? "default" : "outline"}
+                  variant={replaySpeed === speed ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSpeed(speed)}
                   className="px-2"
@@ -332,7 +346,9 @@ export function TimelineVisualization({
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${SNAPSHOT_COLORS[currentSnapshot.type]}`} />
+                  <div
+                    className={`w-3 h-3 rounded-full ${SNAPSHOT_COLORS[currentSnapshot.type]}`}
+                  />
                   <span className="font-medium">Step {currentSnapshot.stepNumber}</span>
                   <Badge variant="outline">{currentSnapshot.type}</Badge>
                 </div>
@@ -366,23 +382,27 @@ export function TimelineVisualization({
                   {index < snapshots.length - 1 && (
                     <div className="absolute top-3 left-6 w-8 h-0.5 bg-gray-300" />
                   )}
-                  
+
                   {/* Snapshot marker */}
-                  <div className={`
+                  <div
+                    className={`
                     relative z-10 w-6 h-6 rounded-full border-2 border-white shadow-sm
                     ${SNAPSHOT_COLORS[snapshot.type]}
                     ${currentSnapshot?.id === snapshot.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
                     hover:scale-110 transition-transform
-                  `}>
+                  `}
+                  >
                     <div className="absolute inset-0 flex items-center justify-center text-white">
                       {SNAPSHOT_ICONS[snapshot.type]}
                     </div>
                   </div>
-                  
+
                   {/* Tooltip */}
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 
+                  <div
+                    className="absolute bottom-8 left-1/2 transform -translate-x-1/2 
                                   bg-black text-white text-xs rounded px-2 py-1 opacity-0 
-                                  group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                  group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+                  >
                     <div>{snapshot.type}</div>
                     <div>Step {snapshot.stepNumber}</div>
                     {snapshot.metadata.description && (
@@ -418,7 +438,7 @@ export function TimelineVisualization({
                   </div>
                 </div>
               </div>
-              
+
               {(() => {
                 const diff = calculateDiff(compareSnapshot, currentSnapshot)
                 return (
@@ -428,7 +448,9 @@ export function TimelineVisualization({
                       <div>State Changes: {diff.summary.stateChanges}</div>
                       <div>Memory Changes: {diff.summary.memoryChanges}</div>
                       <div>Output Changes: {diff.summary.outputChanges}</div>
-                      <div>Performance Impact: {Object.keys(diff.summary.performanceChanges).length}</div>
+                      <div>
+                        Performance Impact: {Object.keys(diff.summary.performanceChanges).length}
+                      </div>
                     </div>
                   </div>
                 )
@@ -449,7 +471,7 @@ export function TimelineVisualization({
           <Zap className="w-4 h-4 mr-2" />
           {showDiff ? 'Hide' : 'Show'} Diff
         </Button>
-        
+
         {currentSnapshot && (
           <Button
             variant="outline"

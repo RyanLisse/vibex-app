@@ -249,7 +249,7 @@ export function DatabasePerformanceDashboard() {
               {metrics.slowQueries === 0 ? (
                 <span className="text-green-600">No slow queries detected</span>
               ) : (
-                <span className="text-yellow-600">Queries > 100ms</span>
+                <span className="text-yellow-600">Queries &gt; 100ms</span>
               )}
             </p>
           </CardContent>

@@ -8,7 +8,10 @@ interface ConnectionStatusProps {
   showSyncIndicator?: boolean
 }
 
-export function ConnectionStatus({ className = '', showSyncIndicator = true }: ConnectionStatusProps) {
+export function ConnectionStatus({
+  className = '',
+  showSyncIndicator = true,
+}: ConnectionStatusProps) {
   const { isConnected, isSyncing } = useElectricContext()
 
   return (
