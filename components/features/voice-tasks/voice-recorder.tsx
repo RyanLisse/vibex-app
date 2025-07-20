@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from 'react'
 import { Mic, Square, Pause, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'

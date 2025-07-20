@@ -35,7 +35,7 @@ vi.mock('@/lib/utils', () => ({
 
 describe('ChatMessage', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render user message', () => {

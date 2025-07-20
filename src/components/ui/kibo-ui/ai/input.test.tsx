@@ -90,7 +90,7 @@ vi.mock('lucide-react', () => ({
 
 describe('AIInput Components', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     // Mock window.addEventListener for resize events
     Object.defineProperty(window, 'addEventListener', {
       value: vi.fn(),

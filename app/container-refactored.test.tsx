@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
@@ -24,7 +25,7 @@ mock.module('@/components/error-boundary', () => ({
 
 describe('Container Component (Refactored)', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('renders children wrapped in provider components', () => {

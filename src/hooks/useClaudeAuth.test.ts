@@ -42,7 +42,7 @@ describe('useClaudeAuth', () => {
   const MockedClaudeAuthClient = ClaudeAuthClient as unknown as ReturnType<typeof mock>
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockAuthClient = {
       getAuthorizationUrl: vi.fn(),
       exchangeCodeForToken: vi.fn(),
@@ -56,7 +56,7 @@ describe('useClaudeAuth', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('initialization', () => {

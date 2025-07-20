@@ -31,7 +31,7 @@ mock.module('@/lib/inngest', () => ({
 
 describe('inngest simple mock test (Bun)', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should complete without hanging', async () => {

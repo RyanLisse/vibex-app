@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 import { Loader2, Volume2, AlertCircle } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'

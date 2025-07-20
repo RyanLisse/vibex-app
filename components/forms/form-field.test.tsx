@@ -15,7 +15,7 @@ describe('FormField', () => {
   }
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('Rendering', () => {

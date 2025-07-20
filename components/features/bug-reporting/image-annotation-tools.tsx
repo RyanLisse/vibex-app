@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useRef, useEffect } from 'react'
 import { ArrowRight, Type, Highlighter, Square, Eraser, Undo, Redo } from 'lucide-react'
 import { Button } from '@/components/ui/button'

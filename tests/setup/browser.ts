@@ -3,7 +3,7 @@ import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 // Browser test specific setup
 beforeAll(async () => {
   console.log('🌐 Starting browser tests...')
-  
+
   // Set up test environment variables
   process.env.NODE_ENV = 'test'
   process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000'

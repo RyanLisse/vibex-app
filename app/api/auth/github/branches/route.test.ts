@@ -27,7 +27,7 @@ const mockNextResponse = (await import('next/server' as any)).NextResponse
 
 describe('GET /api/auth/github/branches', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should return branches for valid repository', async () => {

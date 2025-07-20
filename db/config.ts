@@ -12,7 +12,7 @@ if (!DATABASE_URL && process.env.NODE_ENV !== 'test') {
 }
 
 // Create Neon connection
-const sql = neon(DATABASE_URL || 'file::memory:?cache=shared')
+const sql = neon(DATABASE_URL || 'postgresql://test:test@localhost:5432/test')
 
 // Create Drizzle instance with schema
 export const db = drizzle(sql, { schema })
@@ -22,7 +22,7 @@ export { sql }
 
 // Connection configuration
 export const dbConfig = {
-  connectionString: DATABASE_URL || 'file::memory:?cache=shared',
+  connectionString: DATABASE_URL || 'postgresql://test:test@localhost:5432/test',
   ssl: process.env.NODE_ENV === 'production',
   maxConnections: 20,
   idleTimeout: 30_000,

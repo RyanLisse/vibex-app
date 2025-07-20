@@ -121,7 +121,7 @@ Object.assign(navigator, {
 
 describe('Markdown Component', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     vi.useFakeTimers()
     mockUseTheme.mockReturnValue({
       theme: 'light',
@@ -130,7 +130,7 @@ describe('Markdown Component', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render simple markdown text', () => {
@@ -276,7 +276,7 @@ describe('Markdown Component', () => {
 
 describe('CodeComponent', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     vi.useFakeTimers()
     mockUseTheme.mockReturnValue({
       theme: 'light',
@@ -285,7 +285,7 @@ describe('CodeComponent', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render inline code', () => {
