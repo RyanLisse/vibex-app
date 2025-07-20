@@ -1,5 +1,5 @@
+import { Edge, Node } from '@xyflow/react'
 import { useCallback, useState } from 'react'
-import { Node, Edge } from '@xyflow/react'
 
 export interface VisualizationState {
   viewMode: 'agent-centric' | 'task-centric' | 'event-centric' | 'memory-centric'

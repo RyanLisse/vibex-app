@@ -1,18 +1,18 @@
+import { Handle, type NodeProps, Position } from '@xyflow/react'
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  GitBranch,
+  Pause,
+  Play,
+  User,
+  XCircle,
+} from 'lucide-react'
 import React, { memo, useCallback } from 'react'
-import { Handle, Position, NodeProps } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import {
-  Play,
-  Pause,
-  CheckCircle,
-  XCircle,
-  Clock,
-  User,
-  GitBranch,
-  AlertTriangle,
-} from 'lucide-react'
 
 export interface TaskNodeData {
   task: {
@@ -40,15 +40,15 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
   const getStatusIcon = useCallback(() => {
     switch (task.status) {
       case 'pending':
-        return <Pause className="w-4 h-4 text-yellow-500" />
+        return <Pause className="h-4 w-4 text-yellow-500" />
       case 'running':
-        return <Play className="w-4 h-4 text-blue-500" />
+        return <Play className="h-4 w-4 text-blue-500" />
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-500" />
+        return <CheckCircle className="h-4 w-4 text-green-500" />
       case 'failed':
-        return <XCircle className="w-4 h-4 text-red-500" />
+        return <XCircle className="h-4 w-4 text-red-500" />
       default:
-        return <Clock className="w-4 h-4 text-gray-500" />
+        return <Clock className="h-4 w-4 text-gray-500" />
     }
   }, [task.status])
 
@@ -85,8 +85,8 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
   const formatDuration = useCallback((ms?: number) => {
     if (!ms) return 'N/A'
     if (ms < 1000) return `${ms}ms`
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
-    return `${(ms / 60000).toFixed(1)}m`
+    if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
+    return `${(ms / 60_000).toFixed(1)}m`
   }, [])
 
   const getExecutionTime = useCallback(() => {
@@ -97,39 +97,35 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
     if (task.startTime && task.status === 'running') {
       return Date.now() - new Date(task.startTime).getTime()
     }
-    return undefined
+    return
   }, [task, metrics])
 
   return (
     <Card
-      className={`
-        w-72 transition-all duration-200 cursor-pointer
-        ${getStatusColor()}
-        ${selected ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-md hover:shadow-lg'}
-      `}
+      className={`w-72 cursor-pointer transition-all duration-200 ${getStatusColor()} ${selected ? 'shadow-lg ring-2 ring-blue-500' : 'shadow-md hover:shadow-lg'} `}
     >
       {/* Input/Output handles for connections */}
-      <Handle type="target" position={Position.Top} className="w-3 h-3 bg-blue-500" />
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-blue-500" />
+      <Handle className="h-3 w-3 bg-blue-500" position={Position.Top} type="target" />
+      <Handle className="h-3 w-3 bg-blue-500" position={Position.Bottom} type="source" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {getStatusIcon()}
-            <h3 className="font-semibold text-sm truncate">{task.name}</h3>
+            <h3 className="truncate font-semibold text-sm">{task.name}</h3>
           </div>
-          <Badge variant="secondary" className={getPriorityColor()}>
+          <Badge className={getPriorityColor()} variant="secondary">
             {task.priority}
           </Badge>
         </div>
 
         <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="text-xs">
+          <Badge className="text-xs" variant="outline">
             {task.status}
           </Badge>
           {task.dependencies.length > 0 && (
-            <Badge variant="outline" className="text-xs flex items-center space-x-1">
-              <GitBranch className="w-3 h-3" />
+            <Badge className="flex items-center space-x-1 text-xs" variant="outline">
+              <GitBranch className="h-3 w-3" />
               <span>{task.dependencies.length} deps</span>
             </Badge>
           )}
@@ -144,48 +140,48 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
               <span className="font-medium">Progress</span>
               <span className="text-gray-500">{task.progress}%</span>
             </div>
-            <Progress value={task.progress} className="h-2" />
+            <Progress className="h-2" value={task.progress} />
           </div>
         )}
 
         {/* Task details */}
         <div className="grid grid-cols-2 gap-2 text-xs">
           {task.assignedAgent && (
-            <div className="flex items-center space-x-1 col-span-2">
-              <User className="w-3 h-3 text-blue-500" />
+            <div className="col-span-2 flex items-center space-x-1">
+              <User className="h-3 w-3 text-blue-500" />
               <span className="truncate">Agent: {task.assignedAgent}</span>
             </div>
           )}
 
           <div className="flex items-center space-x-1">
-            <Clock className="w-3 h-3 text-purple-500" />
+            <Clock className="h-3 w-3 text-purple-500" />
             <span>{formatDuration(getExecutionTime())}</span>
           </div>
 
           {task.estimatedDuration && (
             <div className="flex items-center space-x-1">
-              <Clock className="w-3 h-3 text-gray-500" />
+              <Clock className="h-3 w-3 text-gray-500" />
               <span>Est: {formatDuration(task.estimatedDuration)}</span>
             </div>
           )}
 
           {metrics?.retryCount && metrics.retryCount > 0 && (
             <div className="flex items-center space-x-1">
-              <AlertTriangle className="w-3 h-3 text-yellow-500" />
+              <AlertTriangle className="h-3 w-3 text-yellow-500" />
               <span>{metrics.retryCount} retries</span>
             </div>
           )}
 
           {metrics?.resourceUsage && (
             <div className="flex items-center space-x-1">
-              <GitBranch className="w-3 h-3 text-indigo-500" />
+              <GitBranch className="h-3 w-3 text-indigo-500" />
               <span>{metrics.resourceUsage}% resources</span>
             </div>
           )}
         </div>
 
         {/* Timestamps */}
-        <div className="text-xs text-gray-600">
+        <div className="text-gray-600 text-xs">
           {task.startTime && <div>Started: {new Date(task.startTime).toLocaleTimeString()}</div>}
           {task.endTime && <div>Ended: {new Date(task.endTime).toLocaleTimeString()}</div>}
         </div>

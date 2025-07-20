@@ -4,10 +4,10 @@
  * Test-driven development for Redis/Valkey rate limiting
  */
 
-import { describe, test, expect, beforeEach, afterEach, beforeAll, afterAll } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { testRedisConfig } from './config'
 import { RateLimitService } from './rate-limit-service'
 import { RedisClientManager } from './redis-client'
-import { testRedisConfig } from './config'
 import type { RateLimitOptions, RateLimitResult } from './types'
 
 describe('RateLimitService', () => {

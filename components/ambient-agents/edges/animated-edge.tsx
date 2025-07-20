@@ -1,5 +1,5 @@
+import { EdgeLabelRenderer, type EdgeProps, getBezierPath } from '@xyflow/react'
 import React, { memo } from 'react'
-import { EdgeProps, getBezierPath, EdgeLabelRenderer } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 
 export interface AnimatedEdgeData {
@@ -50,24 +50,24 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(
       return baseWidth + throughputScale
     }
 
-    const isAnimated = data?.animated || data?.communication?.isActive || false
+    const isAnimated = data?.animated || data?.communication?.isActive
 
     return (
       <>
         <defs>
-          <linearGradient id={`gradient-${id}`} gradientUnits="userSpaceOnUse">
+          <linearGradient gradientUnits="userSpaceOnUse" id={`gradient-${id}`}>
             <stop offset="0%" stopColor={getEdgeColor()} stopOpacity={0.8} />
             <stop offset="100%" stopColor={getEdgeColor()} stopOpacity={0.3} />
           </linearGradient>
         </defs>
 
         <path
-          id={id}
           className={`react-flow__edge-path ${selected ? 'selected' : ''}`}
           d={edgePath}
+          fill="none"
+          id={id}
           stroke={isAnimated ? `url(#gradient-${id})` : getEdgeColor()}
           strokeWidth={getEdgeWidth()}
-          fill="none"
           style={{
             animation: isAnimated ? 'dash 2s linear infinite' : 'none',
             strokeDasharray: isAnimated ? '5,5' : 'none',
@@ -76,8 +76,8 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(
 
         {/* Animated flow particles */}
         {isAnimated && data?.communication?.isActive && (
-          <circle r="3" fill={getEdgeColor()} className="animate-pulse">
-            <animateMotion dur="2s" repeatCount="indefinite" path={edgePath} />
+          <circle className="animate-pulse" fill={getEdgeColor()} r="3">
+            <animateMotion dur="2s" path={edgePath} repeatCount="indefinite" />
           </circle>
         )}
 
@@ -85,14 +85,14 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(
         {data?.communication && (
           <EdgeLabelRenderer>
             <div
+              className="nodrag nopan"
               style={{
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
                 pointerEvents: 'all',
               }}
-              className="nodrag nopan"
             >
-              <Badge variant="secondary" className="text-xs bg-white shadow-md border">
+              <Badge className="border bg-white text-xs shadow-md" variant="secondary">
                 {data.communication.throughput} ops/s
                 {data.communication.latency > 0 && (
                   <span className="ml-1 text-gray-500">({data.communication.latency}ms)</span>
@@ -106,14 +106,14 @@ export const AnimatedEdge = memo<EdgeProps<AnimatedEdgeData>>(
         {data?.label && !data?.communication && (
           <EdgeLabelRenderer>
             <div
+              className="nodrag nopan"
               style={{
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
                 pointerEvents: 'all',
               }}
-              className="nodrag nopan"
             >
-              <Badge variant="outline" className="text-xs">
+              <Badge className="text-xs" variant="outline">
                 {data.label}
               </Badge>
             </div>

@@ -21,8 +21,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
 import { getLogger } from '@/lib/logging'
+import { cn } from '@/lib/utils'
 
 const logger = getLogger('multi-agent-chat')
 

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { getLogger } from '@/lib/logging'
 
 const logger = getLogger('client-error-logging')
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const { level, message, error, timestamp } = body
 
     // Validate the request
-    if (!level || !message) {
+    if (!(level && message)) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 

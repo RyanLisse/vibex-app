@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // Note: Next.js doesn't natively support WebSocket in API routes
 // This is a placeholder implementation that would typically use a different approach

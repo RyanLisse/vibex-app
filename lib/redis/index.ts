@@ -360,6 +360,8 @@ export async function shutdownRedis(): Promise<void> {
 
 // Export all services
 export { CacheService } from './cache-service'
+// Export configuration and utilities
+export * from './config'
 export { JobQueueService } from './job-queue-service'
 export { LockService } from './lock-service'
 export { MetricsService } from './metrics-service'
@@ -367,9 +369,6 @@ export { PubSubService } from './pubsub-service'
 export { RateLimitService } from './rate-limit-service'
 export { RedisClientManager } from './redis-client'
 export { SessionService } from './session-service'
-
-// Export configuration and utilities
-export * from './config'
 export * from './types'
 
 // Convenience getters for individual services

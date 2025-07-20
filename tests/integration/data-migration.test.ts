@@ -4,7 +4,7 @@
  * Tests to verify data migration from Zustand stores to database works correctly
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock types for testing
 interface MockTask {
@@ -283,7 +283,7 @@ describe('Data Migration Tests', () => {
             total: totalItems,
             processed: currentBatch * batchSize,
             progress: ((currentBatch * batchSize) / totalItems) * 100,
-            estimatedTimeRemaining: 30000, // 30 seconds
+            estimatedTimeRemaining: 30_000, // 30 seconds
             currentBatch,
             totalBatches: Math.ceil(totalItems / batchSize),
           },

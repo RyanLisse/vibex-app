@@ -1,8 +1,8 @@
 'use client'
 
 import * as Sentry from '@sentry/nextjs'
-import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 /**
  * Component to add Sentry instrumentation to UI interactions

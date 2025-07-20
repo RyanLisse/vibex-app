@@ -256,7 +256,7 @@ export class RateLimitService {
       return {
         allowed: isAllowed,
         remaining,
-        resetTime: new Date(Date.now() + 60000), // Rough estimate
+        resetTime: new Date(Date.now() + 60_000), // Rough estimate
         totalRequests: tokens,
         windowStart: new Date(),
       }
@@ -298,7 +298,7 @@ export class RateLimitService {
       remaining: budget,
       spent: 0,
     })
-    await client.expire(budgetKey, 86400) // 24 hours TTL
+    await client.expire(budgetKey, 86_400) // 24 hours TTL
   }
 
   async checkCostLimit(key: string, cost: number): Promise<RateLimitResult> {
@@ -346,7 +346,7 @@ export class RateLimitService {
       return {
         allowed: isAllowed,
         remaining,
-        resetTime: new Date(Date.now() + 86400000), // 24 hours
+        resetTime: new Date(Date.now() + 86_400_000), // 24 hours
         totalRequests: cost,
         windowStart: new Date(),
       }

@@ -2,8 +2,8 @@
 
 import * as Sentry from '@sentry/nextjs'
 import { ThemeProvider } from 'next-themes'
-import { ErrorBoundary } from '@/components/providers/error-boundary'
 import { ElectricProvider } from '@/components/providers/electric-provider'
+import { ErrorBoundary } from '@/components/providers/error-boundary'
 import { QueryProvider } from '@/components/providers/query-provider'
 
 interface AppProvidersProps {

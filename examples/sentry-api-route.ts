@@ -2,13 +2,13 @@
  * Example API route with Sentry instrumentation
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
+import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { instrumentApiRoute, instrumentDatabaseOperation } from '@/lib/sentry/instrumentation'
-import { enhancedObservability } from '@/lib/observability/enhanced'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
+import { enhancedObservability } from '@/lib/observability/enhanced'
+import { instrumentApiRoute, instrumentDatabaseOperation } from '@/lib/sentry/instrumentation'
 
 const logger = enhancedObservability.getLogger('api.example')
 
@@ -238,4 +238,4 @@ async function handleAnalyzeAction(userId: string) {
   )
 }
 
-import { sql, eq, and, count } from 'drizzle-orm'
+import { and, count, eq, sql } from 'drizzle-orm'

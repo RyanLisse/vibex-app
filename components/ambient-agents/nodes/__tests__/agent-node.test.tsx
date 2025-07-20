@@ -1,8 +1,8 @@
-import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { AgentNode } from '../agent-node'
 import type { NodeProps } from '@xyflow/react'
+import React from 'react'
 import type { AgentNodeData } from '../agent-node'
+import { AgentNode } from '../agent-node'
 
 // Mock React Flow components
 jest.mock('@xyflow/react', () => ({

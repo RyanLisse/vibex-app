@@ -26,7 +26,7 @@ export class SessionService {
   private static instance: SessionService
   private redisManager: RedisClientManager
   private observability = ObservabilityService.getInstance()
-  private defaultTTL = 86400 // 24 hours
+  private defaultTTL = 86_400 // 24 hours
   private sessionPrefix = 'session:'
   private userSessionsPrefix = 'user_sessions:'
   private sessionLimits = new Map<string, number>()
@@ -390,7 +390,7 @@ export class SessionService {
 
     // Check for unusual activity patterns
     const rapidActions = activities.filter(
-      (a) => Date.now() - a.timestamp.getTime() < 60000 // Last minute
+      (a) => Date.now() - a.timestamp.getTime() < 60_000 // Last minute
     ).length
     if (rapidActions > 20) {
       reasons.push('rapid_activity')

@@ -1,5 +1,5 @@
-import * as Sentry from '@sentry/nextjs'
 import { type Span as OtelSpan, trace } from '@opentelemetry/api'
+import * as Sentry from '@sentry/nextjs'
 
 /**
  * Wrapper utility to create both Sentry and OpenTelemetry spans
@@ -84,7 +84,7 @@ export async function instrumentApiRoute<T>(
   path: string,
   handler: () => Promise<T>
 ): Promise<T> {
-  return startDualSpan(`http.server`, `${method} ${path}`, async (sentrySpan, otelSpan) => {
+  return startDualSpan('http.server', `${method} ${path}`, async (sentrySpan, otelSpan) => {
     const startTime = Date.now()
 
     try {

@@ -3,8 +3,8 @@
  */
 
 import * as Sentry from '@sentry/nextjs'
-import { observability } from './index'
 import { getSentryLogger } from '@/lib/sentry/logger'
+import { observability } from './index'
 
 /**
  * Enhanced observability service that includes Sentry
@@ -36,7 +36,7 @@ export class EnhancedObservability {
   /**
    * Track an increment metric
    */
-  trackIncrement(name: string, value: number = 1, tags?: Record<string, string>) {
+  trackIncrement(name: string, value = 1, tags?: Record<string, string>) {
     // Track in existing observability system
     observability.metrics.requestCount(value, name)
 

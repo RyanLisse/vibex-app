@@ -1,5 +1,5 @@
+import { EdgeLabelRenderer, type EdgeProps, getBezierPath, MarkerType } from '@xyflow/react'
 import React, { memo } from 'react'
-import { EdgeProps, getBezierPath, EdgeLabelRenderer, MarkerType } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 
 export interface DataFlowEdgeData {
@@ -76,7 +76,7 @@ export const DataFlowEdge = memo<EdgeProps<DataFlowEdgeData>>(
       const k = 1024
       const sizes = ['B', 'KB', 'MB', 'GB']
       const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+      return Number.parseFloat((bytes / k ** i).toFixed(1)) + ' ' + sizes[i]
     }
 
     const isBidirectional = data?.dataFlow.type === 'bidirectional'
@@ -85,7 +85,7 @@ export const DataFlowEdge = memo<EdgeProps<DataFlowEdgeData>>(
     return (
       <>
         <defs>
-          <linearGradient id={`dataflow-gradient-${id}`} gradientUnits="userSpaceOnUse">
+          <linearGradient gradientUnits="userSpaceOnUse" id={`dataflow-gradient-${id}`}>
             <stop offset="0%" stopColor={getProtocolColor()} stopOpacity={0.8} />
             <stop offset="50%" stopColor={getProtocolColor()} stopOpacity={0.5} />
             <stop offset="100%" stopColor={getProtocolColor()} stopOpacity={0.8} />
@@ -94,42 +94,42 @@ export const DataFlowEdge = memo<EdgeProps<DataFlowEdgeData>>(
           {/* Arrow marker for data flow direction */}
           <marker
             id={`dataflow-arrow-${id}`}
-            markerWidth="10"
             markerHeight="10"
+            markerUnits="strokeWidth"
+            markerWidth="10"
+            orient="auto"
             refX="8"
             refY="3"
-            orient="auto"
-            markerUnits="strokeWidth"
           >
-            <polygon points="0,0 0,6 9,3" fill={getProtocolColor()} />
+            <polygon fill={getProtocolColor()} points="0,0 0,6 9,3" />
           </marker>
 
           {/* Bidirectional arrow marker */}
           {isBidirectional && (
             <marker
               id={`dataflow-arrow-reverse-${id}`}
-              markerWidth="10"
               markerHeight="10"
+              markerUnits="strokeWidth"
+              markerWidth="10"
+              orient="auto"
               refX="2"
               refY="3"
-              orient="auto"
-              markerUnits="strokeWidth"
             >
-              <polygon points="9,0 9,6 0,3" fill={getProtocolColor()} />
+              <polygon fill={getProtocolColor()} points="9,0 9,6 0,3" />
             </marker>
           )}
         </defs>
 
         {/* Main edge path */}
         <path
-          id={id}
           className={`react-flow__edge-path ${selected ? 'selected' : ''}`}
           d={edgePath}
-          stroke={isActive ? `url(#dataflow-gradient-${id})` : getProtocolColor()}
-          strokeWidth={getEdgeWidth()}
           fill="none"
+          id={id}
           markerEnd={`url(#dataflow-arrow-${id})`}
           markerStart={isBidirectional ? `url(#dataflow-arrow-reverse-${id})` : undefined}
+          stroke={isActive ? `url(#dataflow-gradient-${id})` : getProtocolColor()}
+          strokeWidth={getEdgeWidth()}
           style={{
             animation: isActive ? 'dataflow-pulse 2s ease-in-out infinite' : 'none',
             filter: isActive ? 'drop-shadow(0 0 4px rgba(59, 130, 246, 0.5))' : 'none',
@@ -140,20 +140,20 @@ export const DataFlowEdge = memo<EdgeProps<DataFlowEdgeData>>(
         {isActive && data?.dataFlow.volume > 0 && (
           <>
             {/* Forward flow */}
-            <circle r="2" fill={getProtocolColor()} opacity="0.8">
-              <animateMotion dur="3s" repeatCount="indefinite" path={edgePath} />
+            <circle fill={getProtocolColor()} opacity="0.8" r="2">
+              <animateMotion dur="3s" path={edgePath} repeatCount="indefinite" />
             </circle>
 
             {/* Reverse flow for bidirectional */}
             {isBidirectional && (
-              <circle r="2" fill={getProtocolColor()} opacity="0.6">
+              <circle fill={getProtocolColor()} opacity="0.6" r="2">
                 <animateMotion
-                  dur="3s"
-                  repeatCount="indefinite"
-                  path={edgePath}
                   begin="1.5s"
+                  dur="3s"
                   keyPoints="1;0"
                   keyTimes="0;1"
+                  path={edgePath}
+                  repeatCount="indefinite"
                 />
               </circle>
             )}
@@ -164,20 +164,20 @@ export const DataFlowEdge = memo<EdgeProps<DataFlowEdgeData>>(
         {data?.dataFlow && (
           <EdgeLabelRenderer>
             <div
+              className="nodrag nopan"
               style={{
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
                 pointerEvents: 'all',
               }}
-              className="nodrag nopan"
             >
-              <div className="bg-white shadow-lg border rounded-md p-2 text-xs space-y-1">
+              <div className="space-y-1 rounded-md border bg-white p-2 text-xs shadow-lg">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className={`text-xs`}>
+                  <Badge className={'text-xs'} variant="outline">
                     {data.dataFlow.protocol?.toUpperCase() || 'DATA'}
                   </Badge>
                   {isBidirectional && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge className="text-xs" variant="outline">
                       ⟷
                     </Badge>
                   )}
@@ -210,14 +210,14 @@ export const DataFlowEdge = memo<EdgeProps<DataFlowEdgeData>>(
         {data?.label && (
           <EdgeLabelRenderer>
             <div
+              className="nodrag nopan"
               style={{
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY - 30}px)`,
                 pointerEvents: 'all',
               }}
-              className="nodrag nopan"
             >
-              <Badge variant="outline" className="text-xs">
+              <Badge className="text-xs" variant="outline">
                 {data.label}
               </Badge>
             </div>

@@ -1,6 +1,25 @@
+import {
+  Download,
+  Eye,
+  EyeOff,
+  Filter,
+  GitBranch,
+  LayoutGrid,
+  Maximize2,
+  Network,
+  RotateCcw,
+  Search,
+  Settings,
+  Share2,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react'
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -8,26 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import {
-  LayoutGrid,
-  Network,
-  GitBranch,
-  Search,
-  Filter,
-  Settings,
-  Eye,
-  EyeOff,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  RotateCcw,
-  Download,
-  Share2,
-} from 'lucide-react'
 
 export interface VisualizationControlsProps {
   viewMode: 'agent-centric' | 'task-centric' | 'event-centric' | 'memory-centric'
@@ -93,10 +93,10 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
   ]
 
   return (
-    <Card className="w-80 bg-white/95 backdrop-blur-sm shadow-lg">
+    <Card className="w-80 bg-white/95 shadow-lg backdrop-blur-sm">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center space-x-2 text-sm">
-          <Settings className="w-4 h-4" />
+          <Settings className="h-4 w-4" />
           <span>Visualization Controls</span>
         </CardTitle>
       </CardHeader>
@@ -104,33 +104,33 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
       <CardContent className="space-y-4">
         {/* View Mode Selection */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">View Mode</Label>
-          <Select value={viewMode} onValueChange={onViewModeChange}>
+          <Label className="font-medium text-xs">View Mode</Label>
+          <Select onValueChange={onViewModeChange} value={viewMode}>
             <SelectTrigger className="h-8">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="agent-centric">
                 <div className="flex items-center space-x-2">
-                  <Network className="w-3 h-3" />
+                  <Network className="h-3 w-3" />
                   <span>Agent Network</span>
                 </div>
               </SelectItem>
               <SelectItem value="task-centric">
                 <div className="flex items-center space-x-2">
-                  <GitBranch className="w-3 h-3" />
+                  <GitBranch className="h-3 w-3" />
                   <span>Task Flow</span>
                 </div>
               </SelectItem>
               <SelectItem value="event-centric">
                 <div className="flex items-center space-x-2">
-                  <LayoutGrid className="w-3 h-3" />
+                  <LayoutGrid className="h-3 w-3" />
                   <span>Event Stream</span>
                 </div>
               </SelectItem>
               <SelectItem value="memory-centric">
                 <div className="flex items-center space-x-2">
-                  <LayoutGrid className="w-3 h-3" />
+                  <LayoutGrid className="h-3 w-3" />
                   <span>Memory Graph</span>
                 </div>
               </SelectItem>
@@ -140,8 +140,8 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
         {/* Layout Algorithm Selection */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Layout Algorithm</Label>
-          <Select value={layoutAlgorithm} onValueChange={onLayoutChange}>
+          <Label className="font-medium text-xs">Layout Algorithm</Label>
+          <Select onValueChange={onLayoutChange} value={layoutAlgorithm}>
             <SelectTrigger className="h-8">
               <SelectValue />
             </SelectTrigger>
@@ -159,29 +159,28 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
         {/* Search and Filter */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Search</Label>
+          <Label className="font-medium text-xs">Search</Label>
           <div className="relative">
-            <Search className="absolute left-2 top-2 w-3 h-3 text-gray-400" />
+            <Search className="absolute top-2 left-2 h-3 w-3 text-gray-400" />
             <Input
+              className="h-8 pl-7 text-xs"
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search agents, tasks..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-7 h-8 text-xs"
             />
           </div>
         </div>
 
         {/* Status Filters */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Filter by Status</Label>
+          <Label className="font-medium text-xs">Filter by Status</Label>
           <div className="flex flex-wrap gap-1">
             {statusOptions.map((status) => (
               <Badge
-                key={status.value}
-                variant={selectedStatuses.includes(status.value) ? 'default' : 'outline'}
-                className={`text-xs cursor-pointer ${
+                className={`cursor-pointer text-xs ${
                   selectedStatuses.includes(status.value) ? status.color : ''
                 }`}
+                key={status.value}
                 onClick={() => {
                   setSelectedStatuses((prev) =>
                     prev.includes(status.value)
@@ -189,6 +188,7 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
                       : [...prev, status.value]
                   )
                 }}
+                variant={selectedStatuses.includes(status.value) ? 'default' : 'outline'}
               >
                 {status.label}
               </Badge>
@@ -198,18 +198,18 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
         {/* Node Type Filters */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Show Node Types</Label>
+          <Label className="font-medium text-xs">Show Node Types</Label>
           <div className="grid grid-cols-2 gap-1">
             {nodeTypeOptions.map((type) => {
               const Icon = type.icon
               return (
                 <div
-                  key={type.value}
-                  className={`flex items-center space-x-2 p-2 rounded border text-xs cursor-pointer transition-colors ${
+                  className={`flex cursor-pointer items-center space-x-2 rounded border p-2 text-xs transition-colors ${
                     selectedTypes.includes(type.value) || selectedTypes.length === 0
-                      ? 'bg-blue-50 border-blue-200'
-                      : 'bg-gray-50 border-gray-200'
+                      ? 'border-blue-200 bg-blue-50'
+                      : 'border-gray-200 bg-gray-50'
                   }`}
+                  key={type.value}
                   onClick={() => {
                     setSelectedTypes((prev) =>
                       prev.includes(type.value)
@@ -218,13 +218,13 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
                     )
                   }}
                 >
-                  <Icon className="w-3 h-3" />
+                  <Icon className="h-3 w-3" />
                   <span>{type.label}</span>
                   {(selectedTypes.includes(type.value) || selectedTypes.length === 0) && (
-                    <Eye className="w-3 h-3 ml-auto" />
+                    <Eye className="ml-auto h-3 w-3" />
                   )}
                   {selectedTypes.length > 0 && !selectedTypes.includes(type.value) && (
-                    <EyeOff className="w-3 h-3 ml-auto text-gray-400" />
+                    <EyeOff className="ml-auto h-3 w-3 text-gray-400" />
                   )}
                 </div>
               )
@@ -234,18 +234,18 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
         {/* Display Options */}
         <div className="space-y-3">
-          <Label className="text-xs font-medium">Display Options</Label>
+          <Label className="font-medium text-xs">Display Options</Label>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {showInactive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+              {showInactive ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
               <span className="text-xs">Show Inactive</span>
             </div>
             <Button
-              variant="ghost"
-              size="sm"
               className="h-6"
               onClick={() => setShowInactive(!showInactive)}
+              size="sm"
+              variant="ghost"
             >
               {showInactive ? 'Hide' : 'Show'}
             </Button>
@@ -253,14 +253,14 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <LayoutGrid className="w-3 h-3" />
+              <LayoutGrid className="h-3 w-3" />
               <span className="text-xs">Show Metrics</span>
             </div>
             <Button
-              variant="ghost"
-              size="sm"
               className="h-6"
               onClick={() => setShowMetrics(!showMetrics)}
+              size="sm"
+              variant="ghost"
             >
               {showMetrics ? 'Hide' : 'Show'}
             </Button>
@@ -271,22 +271,22 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
         {/* Navigation Controls */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Navigation</Label>
+          <Label className="font-medium text-xs">Navigation</Label>
           <div className="grid grid-cols-2 gap-1">
-            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onZoomIn}>
-              <ZoomIn className="w-3 h-3 mr-1" />
+            <Button className="h-8 text-xs" onClick={onZoomIn} size="sm" variant="outline">
+              <ZoomIn className="mr-1 h-3 w-3" />
               Zoom In
             </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onZoomOut}>
-              <ZoomOut className="w-3 h-3 mr-1" />
+            <Button className="h-8 text-xs" onClick={onZoomOut} size="sm" variant="outline">
+              <ZoomOut className="mr-1 h-3 w-3" />
               Zoom Out
             </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onFitView}>
-              <Maximize2 className="w-3 h-3 mr-1" />
+            <Button className="h-8 text-xs" onClick={onFitView} size="sm" variant="outline">
+              <Maximize2 className="mr-1 h-3 w-3" />
               Fit View
             </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onReset}>
-              <RotateCcw className="w-3 h-3 mr-1" />
+            <Button className="h-8 text-xs" onClick={onReset} size="sm" variant="outline">
+              <RotateCcw className="mr-1 h-3 w-3" />
               Reset
             </Button>
           </div>
@@ -294,14 +294,14 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
 
         {/* Export and Share */}
         <div className="space-y-2">
-          <Label className="text-xs font-medium">Export & Share</Label>
+          <Label className="font-medium text-xs">Export & Share</Label>
           <div className="flex space-x-1">
-            <Button variant="outline" size="sm" className="h-8 text-xs flex-1" onClick={onExport}>
-              <Download className="w-3 h-3 mr-1" />
+            <Button className="h-8 flex-1 text-xs" onClick={onExport} size="sm" variant="outline">
+              <Download className="mr-1 h-3 w-3" />
               Export
             </Button>
-            <Button variant="outline" size="sm" className="h-8 text-xs flex-1" onClick={onShare}>
-              <Share2 className="w-3 h-3 mr-1" />
+            <Button className="h-8 flex-1 text-xs" onClick={onShare} size="sm" variant="outline">
+              <Share2 className="mr-1 h-3 w-3" />
               Share
             </Button>
           </div>

@@ -143,41 +143,41 @@ function ExampleComponent({ userId }: ExampleComponentProps) {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-2xl font-bold">Sentry Instrumented Component Example</h2>
+    <div className="space-y-4 p-4">
+      <h2 className="font-bold text-2xl">Sentry Instrumented Component Example</h2>
 
-      {error && <div className="p-4 bg-red-100 text-red-700 rounded">Error: {error}</div>}
+      {error && <div className="rounded bg-red-100 p-4 text-red-700">Error: {error}</div>}
 
       <div className="space-x-4">
         <button
-          onClick={handleButtonClick}
+          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
           disabled={isLoading}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          onClick={handleButtonClick}
         >
           {isLoading ? 'Processing...' : 'Process Data'}
         </button>
 
         <button
+          className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
           onClick={handleComplexOperation}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Complex Operation
         </button>
 
         <button
+          className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
           onClick={() => {
             // Intentionally throw an error to test error boundary
             throw new Error('Test error boundary')
           }}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
           Trigger Error
         </button>
       </div>
 
-      <div className="text-sm text-gray-600">
+      <div className="text-gray-600 text-sm">
         <p>This component demonstrates:</p>
-        <ul className="list-disc ml-5 mt-2">
+        <ul className="mt-2 ml-5 list-disc">
           <li>Sentry performance monitoring with spans</li>
           <li>Error tracking and exception capture</li>
           <li>Custom metrics and events</li>

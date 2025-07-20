@@ -4,7 +4,7 @@
  * Integration test that verifies all services can be imported and instantiated
  */
 
-import { describe, test, expect } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 
 describe('Redis/Valkey Integration', () => {
   test('should export all Redis services', async () => {

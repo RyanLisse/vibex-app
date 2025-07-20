@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest'
 import * as Sentry from '@sentry/nextjs'
-import { enhancedObservability } from '@/lib/observability/enhanced'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { observability } from '@/lib/observability'
+import { enhancedObservability } from '@/lib/observability/enhanced'
 
 // Mock Sentry
 vi.mock('@sentry/nextjs', () => ({

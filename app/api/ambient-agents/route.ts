@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // Sample data for demonstration - in production, this would come from your database/services
 const generateSampleData = (swarmId?: string) => {

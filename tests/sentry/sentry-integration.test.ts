@@ -1,13 +1,13 @@
-import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest'
 import * as Sentry from '@sentry/nextjs'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  addBreadcrumb,
+  clearSentryUser,
   instrumentApiRoute,
   instrumentDatabaseOperation,
-  instrumentServerAction,
   instrumentInngestFunction,
-  addBreadcrumb,
+  instrumentServerAction,
   setSentryUser,
-  clearSentryUser,
 } from '@/lib/sentry/instrumentation'
 
 // Mock Sentry

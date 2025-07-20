@@ -4,10 +4,10 @@
  * Test-driven development for Redis/Valkey session management
  */
 
-import { describe, test, expect, beforeEach, afterEach, beforeAll, afterAll } from 'bun:test'
-import { SessionService } from './session-service'
-import { RedisClientManager } from './redis-client'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
 import { testRedisConfig } from './config'
+import { RedisClientManager } from './redis-client'
+import { SessionService } from './session-service'
 import type { SessionData, SessionOptions } from './types'
 
 describe('SessionService', () => {
@@ -452,7 +452,7 @@ describe('SessionService', () => {
         provider: 'google',
         accessToken: 'access-token-xyz',
         refreshToken: 'refresh-token-abc',
-        tokenExpiresAt: new Date(Date.now() + 3600000), // 1 hour
+        tokenExpiresAt: new Date(Date.now() + 3_600_000), // 1 hour
         scope: ['read', 'write'],
       }
 
@@ -467,7 +467,7 @@ describe('SessionService', () => {
       const refreshed = await sessionService.refreshOAuthTokens(sessionId, {
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
-        expiresAt: new Date(Date.now() + 3600000),
+        expiresAt: new Date(Date.now() + 3_600_000),
       })
 
       expect(refreshed).toBe(true)

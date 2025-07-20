@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Basic E2E Setup Verification', () => {
   test('playwright is properly configured', async () => {
