@@ -4,11 +4,14 @@ let loggingModule: any = null
 
 // Only load the real module on the server
 if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
-  try {
-    loggingModule = require('./index')
-  } catch (e) {
-    // Fallback during build
-  }
+  // Use dynamic import for ESM compatibility
+  import('./index')
+    .then((module) => {
+      loggingModule = module
+    })
+    .catch(() => {
+      // Fallback during build
+    })
 }
 
 // Default implementations

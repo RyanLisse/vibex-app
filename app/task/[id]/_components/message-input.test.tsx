@@ -43,7 +43,7 @@ describe('MessageInput', () => {
   const user = userEvent.setup()
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mocked(useTaskStore).mockReturnValue({
       updateTask: mockUpdateTask,
       tasks: [mockTask],

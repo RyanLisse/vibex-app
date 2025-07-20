@@ -40,7 +40,7 @@ const mockNextResponse = (await import('next/server' as any)).NextResponse
 
 describe('GET /api/auth/anthropic/callback', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockValidateOAuthState.mockReturnValue(true)
     mockSanitizeRedirectUrl.mockImplementation((url) => url)
     mockHandleAuthError.mockImplementation((error) => error.toString())

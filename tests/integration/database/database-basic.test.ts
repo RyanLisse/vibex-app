@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { db } from '../../../db/config'
+import { db } from '../../../db/test-config'
 import { migrations } from '../../../db/schema'
 
 describe('Basic Database Operations', () => {

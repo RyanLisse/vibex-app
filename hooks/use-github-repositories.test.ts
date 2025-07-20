@@ -16,7 +16,7 @@ vi.mock('./use-github-auth', () => ({
 
 describe('useGitHubRepositories', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should initialize with default state', () => {

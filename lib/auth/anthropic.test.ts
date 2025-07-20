@@ -51,7 +51,7 @@ vi.mock('next/server', () => ({
 
 describe('Anthropic Auth', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('generateCodeVerifier', () => {

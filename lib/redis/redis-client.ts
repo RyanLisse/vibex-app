@@ -1,5 +1,6 @@
 import Redis, { Cluster, type ClusterOptions, type RedisOptions } from 'ioredis'
 import { ObservabilityService } from '../observability'
+import { getRedisConfig } from './config'
 import {
   ClientHealthStatus,
   type RedisConfig,

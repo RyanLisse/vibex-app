@@ -37,7 +37,7 @@ vi.mock('@/lib/env', () => ({
 
 describe('useOpenAIAuthRefactored', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     // Reset mock state
     mockUseAuthBase.state = {
       authenticated: false,

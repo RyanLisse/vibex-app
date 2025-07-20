@@ -58,7 +58,7 @@ global.URL.revokeObjectURL = vi.fn()
 
 describe('useAudioRecorder', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockGetUserMedia.mockResolvedValue({
       getTracks: () => [{ stop: vi.fn() }],
     })

@@ -16,8 +16,8 @@ import type {
 import { dataProcessor } from './data-processor'
 import { moduleLoader } from './module-loader'
 import { wasmPerformanceTracker } from './performance-tracker'
-import { wasmServices } from './services'
 import type { VectorDocument } from './vector-search'
+import type { WASMServices } from './services'
 
 export interface WASMObservabilityConfig {
   enablePerformanceTracking: boolean
@@ -73,6 +73,7 @@ export class WASMObservabilityIntegration {
   private monitoringInterval: NodeJS.Timeout | null = null
   private eventBuffer: ObservabilityEvent[] = []
   private isInitialized = false
+  private wasmServices: WASMServices | null = null
 
   constructor(config: Partial<WASMObservabilityConfig> = {}) {
     this.config = {
@@ -95,14 +96,23 @@ export class WASMObservabilityIntegration {
   }
 
   /**
+   * Set the WASM services instance (to avoid circular dependency)
+   */
+  setWASMServices(services: WASMServices): void {
+    this.wasmServices = services
+  }
+
+  /**
    * Initialize observability integration
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) return
 
     await observability.trackOperation('wasm.observability.initialize', async () => {
-      // Initialize WASM services with observability tracking
-      await wasmServices.initialize()
+      // Initialize WASM services with observability tracking if instance is set
+      if (this.wasmServices) {
+        await this.wasmServices.initialize()
+      }
 
       // Start monitoring if enabled
       if (this.config.enablePerformanceTracking || this.config.enableMemoryMonitoring) {
@@ -169,7 +179,17 @@ export class WASMObservabilityIntegration {
    */
   private collectPerformanceMetrics(): PerformanceMetrics {
     const wasmMetrics = wasmPerformanceTracker.getMetrics()
-    const servicesStats = wasmServices.getStats()
+    const servicesStats = this.wasmServices?.getStats() || {
+      capabilities: { supported: false },
+      vectorSearch: {},
+      sqlite: {},
+      compute: {},
+      dataProcessing: {},
+      performance: {},
+      observability: {},
+      initializationTime: 0,
+      isFullyInitialized: false,
+    }
 
     return {
       executionTime: wasmMetrics.averageWASMTime,
@@ -186,7 +206,17 @@ export class WASMObservabilityIntegration {
    * Collect memory metrics
    */
   private collectMemoryMetrics(): MemoryHealth {
-    const stats = wasmServices.getStats()
+    const stats = this.wasmServices?.getStats() || {
+      capabilities: { supported: false },
+      vectorSearch: {},
+      sqlite: {},
+      compute: {},
+      dataProcessing: {},
+      performance: {},
+      observability: {},
+      initializationTime: 0,
+      isFullyInitialized: false,
+    }
     const vectorSearchStats = stats.vectorSearch || {}
     const sqliteStats = stats.sqlite || {}
     const computeStats = stats.compute || {}
@@ -267,7 +297,7 @@ export class WASMObservabilityIntegration {
   async searchAgentMemory(query: MemorySearchQuery): Promise<MemorySearchResult[]> {
     return observability.trackOperation('wasm.memory.search', async () => {
       // Convert agent memories to vector documents
-      const vectorSearch = wasmServices.getVectorSearch()
+      const vectorSearch = this.wasmServices?.getVectorSearch()
 
       // This is a simplified implementation - in production, you'd integrate
       // with the actual database and embedding generation
@@ -326,7 +356,18 @@ export class WASMObservabilityIntegration {
    * Get comprehensive health status
    */
   async getHealthStatus(): Promise<WASMHealthStatus> {
-    const healthCheckResult = await wasmServices.healthCheck()
+    const healthCheckResult = this.wasmServices
+      ? await this.wasmServices.healthCheck()
+      : {
+          healthy: false,
+          services: {
+            vectorSearch: { healthy: false, message: 'WASM services not initialized' },
+            sqlite: { healthy: false, message: 'WASM services not initialized' },
+            compute: { healthy: false, message: 'WASM services not initialized' },
+            dataProcessor: { healthy: false, message: 'WASM services not initialized' },
+          },
+          initializationComplete: false,
+        }
     const performanceReport = wasmPerformanceTracker.generateReport()
     const memoryMetrics = this.collectMemoryMetrics()
 
@@ -549,7 +590,7 @@ export class WASMObservabilityIntegration {
   cleanup(): void {
     this.stopMonitoring()
     this.flushEventBuffer()
-    wasmServices.cleanup()
+    this.wasmServices?.cleanup()
   }
 }
 

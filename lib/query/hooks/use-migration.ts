@@ -13,7 +13,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useEnvironmentStore } from '@/stores/environments'
 import { useTaskStore } from '@/stores/tasks'
-import { environmentKeys, taskKeys, useEnvironments, useTasks } from './index'
+import { environmentKeys } from './use-environments'
+import { taskKeys } from './use-tasks'
+import { useEnvironments } from './use-environments'
+import { useTasks } from './use-tasks'
 
 interface MigrationStatus {
   isUsingDatabase: boolean

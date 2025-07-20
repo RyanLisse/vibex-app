@@ -114,13 +114,13 @@ vi.mock('next/link', () => ({
 
 describe('NewTaskForm', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockAddTask.mockReturnValue({ id: 'task-123' })
     mockCreateTaskAction.mockResolvedValue({ success: true })
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render the form title', () => {

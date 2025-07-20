@@ -1,17 +1,27 @@
-let AsyncLocalStorage: any
-if (typeof window === 'undefined') {
-  AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
-} else {
-  AsyncLocalStorage = class {
-    private store: any = null
-    run(store: any, callback: () => any) {
-      this.store = store
-      return callback()
-    }
-    getStore() {
-      return this.store
-    }
+// AsyncLocalStorage compatibility layer
+class BrowserAsyncLocalStorage {
+  private store: any = null
+  run(store: any, callback: () => any) {
+    this.store = store
+    return callback()
   }
+  getStore() {
+    return this.store
+  }
+}
+
+// Use dynamic import pattern that's ESM-compatible
+let AsyncLocalStorage: any = BrowserAsyncLocalStorage
+
+if (typeof window === 'undefined' && typeof process !== 'undefined') {
+  // Lazy load in Node.js environment
+  import('async_hooks')
+    .then((asyncHooks) => {
+      AsyncLocalStorage = asyncHooks.AsyncLocalStorage
+    })
+    .catch(() => {
+      // Keep using browser fallback if async_hooks is not available
+    })
 }
 import winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
@@ -25,7 +35,7 @@ export class LoggerFactory {
   private static instance: LoggerFactory
   private winston: winston.Logger
   private config: LoggingConfig
-  private contextStorage = new AsyncLocalStorage<LogContext>()
+  private contextStorage: any
   private correlationManager = CorrelationIdManager.getInstance()
   private metadataEnricher = new MetadataEnricher()
   private redactor: SensitiveDataRedactor
@@ -37,6 +47,19 @@ export class LoggerFactory {
       config.redaction.customFields,
       config.redaction.customPatterns
     )
+    // Initialize contextStorage based on the current AsyncLocalStorage implementation
+    if (typeof window === 'undefined' && typeof process !== 'undefined') {
+      try {
+        // In Node.js, AsyncLocalStorage will be the real one from async_hooks
+        this.contextStorage = new AsyncLocalStorage()
+      } catch {
+        // Fallback to browser implementation
+        this.contextStorage = new BrowserAsyncLocalStorage()
+      }
+    } else {
+      // In browser, use the fallback
+      this.contextStorage = new BrowserAsyncLocalStorage()
+    }
     this.winston = this.createWinstonLogger()
   }
 
@@ -182,7 +205,7 @@ export class ComponentLogger {
   constructor(
     private component: string,
     private winston: winston.Logger,
-    private contextStorage: AsyncLocalStorage<LogContext>,
+    private contextStorage: any,
     private correlationManager: CorrelationIdManager,
     private performanceTracker: PerformanceTracker,
     private config: LoggingConfig

@@ -51,7 +51,7 @@ const mockNextResponse = (await import('next/server' as unknown as string)).Next
 
 describe('POST /api/auth/openai/logout', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should handle successful logout', async () => {

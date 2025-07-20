@@ -6,7 +6,7 @@
 
 import { observability } from '@/lib/observability'
 import { notificationManager } from '../notifications'
-import { metrics } from '../prometheus'
+import { recordError } from '../prometheus'
 
 export interface Alert {
   id: string
@@ -399,7 +399,7 @@ class AlertManager {
     console.warn(`   Value: ${alert.value.toFixed(2)}, Threshold: ${alert.threshold}`)
 
     // Record alert metric
-    metrics.recordError('alert', alert.severity, alert.labels.component || 'unknown')
+    recordError('alert', alert.severity, alert.labels.component || 'unknown')
 
     // Send notifications
     await notificationManager.sendNotification({

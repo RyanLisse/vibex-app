@@ -28,7 +28,7 @@ vi.mock('@/lib/env', () => ({
 
 describe('OpenAI Codex Auth', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('generateCodexAuthUrl', () => {

@@ -35,7 +35,7 @@ describe('Auth', () => {
   let chmodMock: ReturnType<typeof mock>
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     // Set up mock references
     mkdirMock = fs.mkdir as ReturnType<typeof mock>
     readFileMock = fs.readFile as ReturnType<typeof mock>
@@ -48,7 +48,7 @@ describe('Auth', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('get', () => {

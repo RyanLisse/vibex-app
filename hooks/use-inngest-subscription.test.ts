@@ -25,7 +25,7 @@ const mockConsoleError = spyOn(console, 'error').mockImplementation(() => {})
 
 describe('useInngestSubscriptionManagement', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockFetchRealtimeSubscriptionToken.mockResolvedValue({
       token: 'test-token',
       channel: 'tasks',
@@ -38,7 +38,7 @@ describe('useInngestSubscriptionManagement', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should return subscription management functions', () => {

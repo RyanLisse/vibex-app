@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // Transcription Configuration
 export const TranscriptionConfigSchema = z.object({
-  apiKey: z.string(),
+  apiKey: z.string().min(1, 'API key is required'),
   model: z.string().default('whisper-1'),
   language: z.string().optional(),
   prompt: z.string().optional(),

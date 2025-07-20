@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
@@ -68,7 +69,7 @@ describe('useZodForm', () => {
   }
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockLocalStorage.getItem.mockImplementation(() => null)
   })
 
@@ -874,7 +875,7 @@ describe('useZodFormPersistence', () => {
   })
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should load data on mount', async () => {
@@ -945,7 +946,7 @@ describe('useZodFormValidation', () => {
   })
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should not validate when realTimeValidation is false', () => {

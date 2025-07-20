@@ -1,4 +1,4 @@
-import { AlertTransport } from './alert-transport-service'
+import { AlertTransport } from './types'
 import { AlertChannel, CriticalError, AlertNotification } from '../types'
 import { ComponentLogger } from '../../logging/logger-factory'
 

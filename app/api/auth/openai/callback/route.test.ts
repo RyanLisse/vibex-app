@@ -46,7 +46,7 @@ const mockNextResponse = NextResponse as any
 
 describe('GET /api/auth/openai/callback', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockValidateOAuthState.mockReturnValue(true)
     mockSanitizeRedirectUrl.mockImplementation((url) => url)
     mockHandleAuthError.mockImplementation((error: unknown) => error?.toString() || 'Unknown error')

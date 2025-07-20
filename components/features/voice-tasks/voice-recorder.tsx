@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Mic, Square, Pause, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -35,7 +35,7 @@ export function VoiceRecorder({
     } else if (!isRecording && mediaRecorder) {
       stopRecording()
     }
-  }, [isRecording, mediaRecorder])
+  }, [isRecording, mediaRecorder, startRecording, stopRecording])
 
   // Timer for recording duration
   useEffect(() => {
@@ -65,9 +65,9 @@ export function VoiceRecorder({
         clearInterval(intervalRef.current)
       }
     }
-  }, [isRecording, isPaused, maxDuration])
+  }, [isRecording, isPaused, maxDuration, stopRecording])
 
-  const startRecording = async () => {
+  const startRecording = useCallback(async () => {
     try {
       // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -142,13 +142,13 @@ export function VoiceRecorder({
       onError?.(errorMessage)
       cleanup()
     }
-  }
+  }, [onError, duration, onRecordingComplete])
 
-  const stopRecording = () => {
+  const stopRecording = useCallback(() => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop()
     }
-  }
+  }, [mediaRecorder])
 
   const pauseRecording = () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { ArrowRight, Type, Highlighter, Square, Eraser, Undo, Redo } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -63,7 +63,7 @@ export function ImageAnnotationTools({
     return () => {
       URL.revokeObjectURL(img.src)
     }
-  }, [screenshot.imageBlob])
+  }, [screenshot.imageBlob, annotations, drawAnnotations])
 
   // Redraw canvas when annotations change
   useEffect(() => {
@@ -83,32 +83,35 @@ export function ImageAnnotationTools({
     img.src = URL.createObjectURL(screenshot.imageBlob)
 
     onAnnotationsChange(annotations)
-  }, [annotations, imageLoaded, onAnnotationsChange, screenshot.imageBlob])
+  }, [annotations, imageLoaded, onAnnotationsChange, screenshot.imageBlob, drawAnnotations])
 
-  const drawAnnotations = (ctx: CanvasRenderingContext2D, annotationsToRender: Annotation[]) => {
-    annotationsToRender.forEach((annotation) => {
-      const { type, position, data } = annotation
+  const drawAnnotations = useCallback(
+    (ctx: CanvasRenderingContext2D, annotationsToRender: Annotation[]) => {
+      annotationsToRender.forEach((annotation) => {
+        const { type, position, data } = annotation
 
-      ctx.save()
+        ctx.save()
 
-      switch (type) {
-        case 'arrow':
-          drawArrow(ctx, position)
-          break
-        case 'text':
-          drawText(ctx, position, data as string)
-          break
-        case 'highlight':
-          drawHighlight(ctx, position, data as { width: number; height: number })
-          break
-        case 'rectangle':
-          drawRectangle(ctx, position, data as { width: number; height: number })
-          break
-      }
+        switch (type) {
+          case 'arrow':
+            drawArrow(ctx, position)
+            break
+          case 'text':
+            drawText(ctx, position, data as string)
+            break
+          case 'highlight':
+            drawHighlight(ctx, position, data as { width: number; height: number })
+            break
+          case 'rectangle':
+            drawRectangle(ctx, position, data as { width: number; height: number })
+            break
+        }
 
-      ctx.restore()
-    })
-  }
+        ctx.restore()
+      })
+    },
+    []
+  )
 
   const drawArrow = (ctx: CanvasRenderingContext2D, position: { x: number; y: number }) => {
     ctx.strokeStyle = '#ef4444'

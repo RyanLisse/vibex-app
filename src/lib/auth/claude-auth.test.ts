@@ -15,7 +15,7 @@ describe('ClaudeAuthClient', () => {
   const mockGenerateCodeChallenge = pkce.generateCodeChallenge as ReturnType<typeof mock>
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     client = new ClaudeAuthClient({
       clientId: 'test-client-id',
       redirectUri: 'https://app.example.com/callback',

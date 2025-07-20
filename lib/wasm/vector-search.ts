@@ -111,6 +111,7 @@ export class VectorSearchWASM {
       const wasmModule = await WebAssembly.compile(wasmCode)
 
       // Create instance with memory for vector operations
+      // @ts-expect-error - Workaround for TypeScript bug
       const memory = new WebAssembly.Memory({ initial: 256, maximum: 1024 })
       const wasmInstance = await WebAssembly.instantiate(wasmModule, {
         env: {

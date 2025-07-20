@@ -48,7 +48,7 @@ describe('State Management Integration Template', () => {
   let uiStore: MockStore<any>
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
 
     // Initialize mock stores
     taskStore = createMockStore({

@@ -8,11 +8,11 @@
 
 import { and, count, eq, exists, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { checkDatabaseHealth, db } from '../../../db/config'
+import { checkDatabaseHealth, db } from '../../../db/test-config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
 import {
   agentExecutions,
-  apiKeys,
+  authSessions,
   environments,
   observabilityEvents,
   tasks,
@@ -89,7 +89,7 @@ describe('Data Integrity Validation Tests', () => {
     try {
       // Clean up in dependency order
       await db.delete(observabilityEvents)
-      await db.delete(apiKeys)
+      await db.delete(authSessions)
       await db.delete(agentExecutions)
       await db.delete(environments)
       await db.delete(tasks)
@@ -174,17 +174,16 @@ describe('Data Integrity Validation Tests', () => {
 
     const createdEvents = await db.insert(observabilityEvents).values(eventData).returning()
 
-    // Create test API keys
-    const apiKeyData = createdUsers.map((user, i) => ({
-      name: `Test API Key ${i}`,
+    // Create test auth sessions
+    const sessionData = createdUsers.map((user, i) => ({
+      id: `session-${i}`,
       userId: user.id,
-      keyHash: `hash-${i}`,
-      lastUsed: i % 2 === 0 ? new Date() : null,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      scopes: ['read', i % 2 === 0 ? 'write' : 'read'].filter(Boolean),
+      sessionToken: `token-${i}`,
+      lastActivity: i % 2 === 0 ? new Date() : null,
     }))
 
-    const createdApiKeys = await db.insert(apiKeys).values(apiKeyData).returning()
+    const createdSessions = await db.insert(authSessions).values(sessionData).returning()
 
     return {
       userIds: createdUsers.map((u) => u.id),
@@ -192,7 +191,7 @@ describe('Data Integrity Validation Tests', () => {
       environmentIds: createdEnvs.map((e) => e.id),
       executionIds: createdExecutions.map((e) => e.id),
       eventIds: createdEvents.map((e) => e.id),
-      apiKeyIds: createdApiKeys.map((k) => k.id),
+      sessionIds: createdSessions.map((s) => s.id),
     }
   }
 
@@ -261,8 +260,8 @@ describe('Data Integrity Validation Tests', () => {
         .where(eq(environments.userId, userId))
       const keysBefore = await db
         .select({ count: count() })
-        .from(apiKeys)
-        .where(eq(apiKeys.userId, userId))
+        .from(authSessions)
+        .where(eq(authSessions.userId, userId))
 
       expect(tasksBefore[0].count).toBeGreaterThan(0)
 
@@ -280,8 +279,8 @@ describe('Data Integrity Validation Tests', () => {
         .where(eq(environments.userId, userId))
       const keysAfter = await db
         .select({ count: count() })
-        .from(apiKeys)
-        .where(eq(apiKeys.userId, userId))
+        .from(authSessions)
+        .where(eq(authSessions.userId, userId))
 
       expect(tasksAfter[0].count).toBe(0)
       expect(envsAfter[0].count).toBe(0)

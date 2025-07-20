@@ -59,7 +59,7 @@ const { GET, POST, PUT } = await import('@/app/api/inngest/route')
 
 describe('Inngest API Routes', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('GET /api/inngest', () => {

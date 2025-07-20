@@ -66,7 +66,7 @@ describe('OpenAIAuthStatus', () => {
   const mockLogout = vi.fn()
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render loading state', () => {

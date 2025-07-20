@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
 import { ErrorBoundary, useErrorBoundary } from '@/components/error-boundary'
 
@@ -23,11 +24,11 @@ const ThrowStreamError = ({ shouldThrow = false }: { shouldThrow?: boolean }) =>
 
 describe('ErrorBoundary', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render children when no error occurs', () => {
@@ -227,11 +228,11 @@ describe('ErrorBoundary', () => {
 
 describe('useErrorBoundary', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should provide captureError and resetError functions', () => {
