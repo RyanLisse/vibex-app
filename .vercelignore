@@ -1,0 +1,184 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+__mocks__/
+tests/
+vitest.*.config.ts
+playwright.config.ts
+jest.config.js
+
+# Development
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
+
+# Debug
+debug/
+tmp/
+
+# Local env files
+.env
+.env.development
+.env.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Storybook
+.storybook/
+storybook-static/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Scripts (except needed for build)
+scripts/
+!scripts/typecheck-workaround.sh
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+
+# Other
+.git/
+.gitignore
+.prettierrc
+.eslintrc*
+.babelrc
+tsconfig.tsbuildinfo
+.husky/
+.lefthook.yml
+lefthook.yml
+commitlint.config.js
+.commitlintrc*
+
+# WASM build files (should be pre-built)
+wasm-modules/**/target/
+wasm-modules/**/Cargo.lock
+wasm-modules/**/*.rs
+
+# Database files
+*.db
+*.sqlite
+migrations/
+db/
+
+# Bun specific
+# Note: bun.lockb is needed for deployment, don't ignore it
+
+# Performance monitoring
+scripts/performance-monitor.js
+scripts/vitals-monitor.js
+
+# Test data
+test-data/
+fixtures/
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.turbo/
+.next/cache/
+
+# Types (generated)
+types/generated/
+
+# Biome
+biome.json
+
+# Semantic Release
+.releaserc*
+release.config.js
+
+# Bundle analysis
+.bundle-stats/
+bundle-report.html
+
+# Temp files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Electric SQL local files
+electric-local/
+pglite-data/
+
+# Development databases
+dev.db
+test.db
+
+# Sentry
+.sentryclirc
+sentry.properties
+
+# Monitoring tunnel files (handled by rewrites)
+monitoring/
+
+# AI/LLM test files
+ai-tests/
+llm-fixtures/
+
+# Stagehand browser contexts
+browser-contexts/
+browser-downloads/
+
+# Performance profiling
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot
+
+# Generated documentation
+.claudedocs/
+generated-docs/
+
+# Backup files
+*.backup
+*.bak
+backup/
+
+# OS files
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Package manager files (keep package.json)
+pnpm-lock.yaml
+yarn.lock
+!package-lock.json
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Next.js telemetry
+.next-telemetry/

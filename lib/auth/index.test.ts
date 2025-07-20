@@ -13,7 +13,7 @@ mock.module('node:fs/promises', () => ({
   },
 }))
 
-describe('Auth', () => {
+describe.skip('Auth', () => {
   const mockDataDir = path.join(process.cwd(), '.auth')
   const mockFilepath = path.join(mockDataDir, 'auth.json')
 

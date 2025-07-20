@@ -23,7 +23,7 @@ export function getAlertService(): AlertService {
       throw new Error('AlertService does not support Redis Cluster mode')
     }
 
-    alertService = new AlertService(redisClient as Redis, redisConfig.alerting)
+    alertService = new AlertService(redisClient as Redis)
   }
   return alertService
 }

@@ -6,7 +6,7 @@ export function createDefaultLoggingConfig(): LoggingConfig {
 
   return {
     level: isDev ? 'debug' : 'info',
-    serviceName: process.env.SERVICE_NAME || 'codex-clone',
+    serviceName: process.env.SERVICE_NAME || 'vibex',
     serviceVersion: process.env.SERVICE_VERSION || '1.0.0',
     environment: process.env.NODE_ENV || 'development',
     silent: false,

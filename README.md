@@ -1,10 +1,10 @@
-# CloneDex - Modern AI Code Generation Platform
+# Vibex - Modern AI Code Generation Platform
 
 A cutting-edge AI-powered code generation platform featuring real-time synchronization, advanced state management, and comprehensive developer tooling. Built with Next.js 15, ElectricSQL, and modern web technologies.
 
 ## 🔗 Demo
 
-[https://clonedex.vercel.app/](https://clonedex.vercel.app/)
+[https://vibex.vercel.app/](https://vibex.vercel.app/)
 
 ## ✨ Features
 
@@ -47,8 +47,8 @@ Before you begin, make sure you have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/clonedex.git
-cd clonedex
+git clone https://github.com/yourusername/vibex.git
+cd vibex
 
 # Install dependencies with Bun
 bun install
@@ -61,7 +61,7 @@ npm install
 
 ```bash
 # Create PostgreSQL database
-createdb clonedex_dev
+createdb vibex_dev
 
 # Run migrations
 bun run db:migrate
@@ -76,8 +76,8 @@ Create a `.env.local` file with required variables:
 
 ```bash
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/clonedex_dev
-ELECTRIC_URL=postgresql://user:password@localhost:5432/clonedex_dev
+DATABASE_URL=postgresql://user:password@localhost:5432/vibex_dev
+ELECTRIC_URL=postgresql://user:password@localhost:5432/vibex_dev
 
 # AI Services
 OPENAI_API_KEY=your_openai_api_key
@@ -285,7 +285,7 @@ The application will be available at:
 
    ```bash
    # Create production database
-   createdb clonedex_prod
+   createdb vibex_prod
 
    # Run migrations
    DATABASE_URL=prod_url bun run db:migrate
@@ -350,7 +350,7 @@ Both platforms support PostgreSQL and Redis out of the box:
 
 ```bash
 # Build production image
-docker build -t clonedex:latest .
+docker build -t vibex:latest .
 
 # Run with docker-compose
 docker-compose -f docker-compose.prod.yml up -d

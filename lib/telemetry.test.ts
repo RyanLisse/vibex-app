@@ -51,7 +51,7 @@ describe('telemetry', () => {
       expect(config).toEqual({
         isEnabled: true,
         endpoint: 'http://localhost:4317',
-        serviceName: 'codex-clone',
+        serviceName: 'vibex',
         serviceVersion: '1.0.0',
         samplingRatio: 1.0,
       })

@@ -51,6 +51,8 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
       limit: number
       total: number
       totalPages: number
+      hasNext: boolean
+      hasPrev: boolean
     }
     syncPerformed: boolean
     lastSync?: Date
@@ -130,7 +132,11 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 
       return {
         repositories: result.items,
-        pagination: result.pagination,
+        pagination: {
+          ...result.pagination,
+          hasNext: result.pagination.page < result.pagination.totalPages,
+          hasPrev: result.pagination.page > 1,
+        },
         syncPerformed: syncNeeded,
         lastSync: result.items[0]?.lastSyncAt,
       }

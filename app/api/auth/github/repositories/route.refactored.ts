@@ -110,6 +110,7 @@ class GitHubRepositoriesService extends BaseAPIService {
           limit: params.limit,
           total: countResult.length,
           totalPages: Math.ceil(countResult.length / params.limit),
+          hasMore: params.page < Math.ceil(countResult.length / params.limit),
         },
         total: countResult.length,
       }

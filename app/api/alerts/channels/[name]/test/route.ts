@@ -21,7 +21,7 @@ function getAlertService(): AlertService {
     throw new Error('AlertService does not support Redis Cluster mode')
   }
 
-  return new AlertService(redisClient as Redis, redisConfig.alerting)
+  return new AlertService(redisClient as Redis)
 }
 
 const alertService = getAlertService()

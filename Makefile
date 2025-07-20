@@ -1,4 +1,4 @@
-# Codex Clone - Development Makefile
+# Vibex - Development Makefile
 # Common tasks for agent-driven development
 
 # Common ports used by the application

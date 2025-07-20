@@ -13,7 +13,7 @@ export function getTelemetryConfig(): TelemetryConfig {
   const config: TelemetryConfig = {
     isEnabled,
     endpoint: process.env.OTEL_ENDPOINT,
-    serviceName: process.env.OTEL_SERVICE_NAME || 'codex-clone',
+    serviceName: process.env.OTEL_SERVICE_NAME || 'vibex',
     serviceVersion: process.env.OTEL_SERVICE_VERSION || '1.0.0',
     samplingRatio: process.env.OTEL_SAMPLING_RATIO
       ? Number.parseFloat(process.env.OTEL_SAMPLING_RATIO)

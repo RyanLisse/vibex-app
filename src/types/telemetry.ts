@@ -13,7 +13,7 @@ export interface TelemetryConfig {
 
   /**
    * Service name for identification
-   * @default "codex-clone"
+   * @default "vibex"
    */
   serviceName?: string
 

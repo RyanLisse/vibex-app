@@ -569,22 +569,76 @@ export class WorkflowExecutionEngine {
   }
 
   /**
-   * Evaluate simple conditions
+   * Evaluate simple conditions safely without Function() constructor
    */
   private evaluateCondition(condition: string, variables: Record<string, any>): boolean {
-    // Simple condition evaluation - can be extended with a proper expression parser
+    // Safe condition evaluation without eval or Function()
     try {
-      // Replace variable references with actual values
-      let expression = condition
-      Object.keys(variables).forEach((key) => {
-        expression = expression.replace(
-          new RegExp(`\\$${key}\\b`, 'g'),
-          JSON.stringify(variables[key])
-        )
-      })
+      // Support basic comparison operators
+      const operators = ['===', '!==', '==', '!=', '>=', '<=', '>', '<', '&&', '||']
 
-      // Evaluate the expression (be careful with eval in production)
-      return new Function('return ' + expression)()
+      // Find the operator in the condition
+      let operator = ''
+      let parts: string[] = []
+
+      for (const op of operators) {
+        if (condition.includes(op)) {
+          operator = op
+          parts = condition.split(op).map((p) => p.trim())
+          break
+        }
+      }
+
+      if (!operator || parts.length !== 2) {
+        console.warn('Unsupported condition format:', condition)
+        return false
+      }
+
+      // Resolve variable references safely
+      const resolveValue = (expr: string): any => {
+        // Check if it's a variable reference
+        if (expr.startsWith('$')) {
+          const varName = expr.substring(1)
+          return variables[varName]
+        }
+
+        // Try to parse as JSON (handles strings, numbers, booleans)
+        try {
+          return JSON.parse(expr)
+        } catch {
+          // If not valid JSON, treat as string
+          return expr
+        }
+      }
+
+      const leftValue = resolveValue(parts[0])
+      const rightValue = resolveValue(parts[1])
+
+      // Perform safe comparison
+      switch (operator) {
+        case '===':
+          return leftValue === rightValue
+        case '!==':
+          return leftValue !== rightValue
+        case '==':
+          return leftValue == rightValue
+        case '!=':
+          return leftValue != rightValue
+        case '>=':
+          return Number(leftValue) >= Number(rightValue)
+        case '<=':
+          return Number(leftValue) <= Number(rightValue)
+        case '>':
+          return Number(leftValue) > Number(rightValue)
+        case '<':
+          return Number(leftValue) < Number(rightValue)
+        case '&&':
+          return Boolean(leftValue) && Boolean(rightValue)
+        case '||':
+          return Boolean(leftValue) || Boolean(rightValue)
+        default:
+          return false
+      }
     } catch (error) {
       console.warn('Condition evaluation failed:', error)
       return false
