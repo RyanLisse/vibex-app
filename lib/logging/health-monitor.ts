@@ -1,4 +1,4 @@
-import { createDefaultLoggingConfig } from './config'
+import { createDefaultLoggingConfig } from './defaults'
 import { LoggerFactory } from './logger-factory'
 import { PerformanceTracker } from './performance-tracker'
 

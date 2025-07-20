@@ -42,6 +42,7 @@ export class PrometheusMetricsCollector {
   private featureUsageTotal!: Counter<string>
 
   private constructor() {
+    // @ts-expect-error - Workaround for TypeScript bug with constructor overloads
     this.registry = new PrometheusRegistry()
     this.initializeMetrics()
     // Collect default Node.js metrics

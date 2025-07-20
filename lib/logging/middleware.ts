@@ -1,4 +1,4 @@
-import { createDefaultLoggingConfig } from './config'
+import { createDefaultLoggingConfig } from './defaults'
 import type { NextRequest, NextResponse } from 'next/server'
 
 import { CorrelationIdManager } from './correlation-id-manager'

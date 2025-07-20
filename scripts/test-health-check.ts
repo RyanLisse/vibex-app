@@ -19,34 +19,34 @@ async function runTestProject(project: string): Promise<TestResult> {
     const startTime = Date.now()
     const errors: string[] = []
     let output = ''
-    
+
     const proc = spawn('bun', ['run', 'vitest', 'run', `--project=${project}`, '--reporter=json'], {
       cwd: process.cwd(),
       env: { ...process.env, CI: 'true' },
     })
-    
+
     proc.stdout.on('data', (data) => {
       output += data.toString()
     })
-    
+
     proc.stderr.on('data', (data) => {
       const error = data.toString()
       if (!error.includes('DEPRECATED')) {
         errors.push(error)
       }
     })
-    
+
     proc.on('close', (code) => {
       const duration = Date.now() - startTime
-      
+
       try {
         // Parse last line as JSON
         const lines = output.trim().split('\n')
         const jsonLine = lines[lines.length - 1]
         const result = JSON.parse(jsonLine)
-        
+
         const passed = result.numTotalTests - result.numFailedTests - result.numTodoTests
-        
+
         resolve({
           project,
           success: code === 0,
@@ -61,7 +61,7 @@ async function runTestProject(project: string): Promise<TestResult> {
         const passMatch = output.match(/(\d+) pass/)
         const failMatch = output.match(/(\d+) fail/)
         const skipMatch = output.match(/(\d+) skip/)
-        
+
         resolve({
           project,
           success: code === 0,
@@ -73,7 +73,7 @@ async function runTestProject(project: string): Promise<TestResult> {
         })
       }
     })
-    
+
     // Timeout after 2 minutes
     setTimeout(() => {
       proc.kill()
@@ -99,9 +99,9 @@ async function checkSkippedTests() {
     'tests/integration/database/data-integrity.test.ts',
     'db/schema.test.ts',
   ]
-  
+
   const skippedFiles: string[] = []
-  
+
   for (const file of testFiles) {
     try {
       const content = await fs.readFile(path.join(process.cwd(), file), 'utf-8')
@@ -112,56 +112,58 @@ async function checkSkippedTests() {
       // File doesn't exist
     }
   }
-  
+
   return skippedFiles
 }
 
 async function main() {
   console.log('🏥 Test Framework Health Check\n')
-  
+
   // Check for skipped tests
   console.log('📋 Checking for skipped tests...')
   const skippedFiles = await checkSkippedTests()
-  
+
   if (skippedFiles.length > 0) {
     console.log(`❌ Found ${skippedFiles.length} files with skipped tests:`)
-    skippedFiles.forEach(file => console.log(`   - ${file}`))
+    skippedFiles.forEach((file) => console.log(`   - ${file}`))
   } else {
     console.log('✅ No skipped tests found!')
   }
-  
+
   console.log('\n🧪 Running test projects...\n')
-  
+
   const projects = ['unit', 'components', 'integration']
   const results: TestResult[] = []
-  
+
   for (const project of projects) {
     console.log(`Running ${project} tests...`)
     const result = await runTestProject(project)
     results.push(result)
-    
+
     const status = result.success ? '✅' : '❌'
-    console.log(`${status} ${project}: ${result.passed} passed, ${result.failed} failed, ${result.skipped} skipped (${(result.duration / 1000).toFixed(1)}s)`)
-    
+    console.log(
+      `${status} ${project}: ${result.passed} passed, ${result.failed} failed, ${result.skipped} skipped (${(result.duration / 1000).toFixed(1)}s)`
+    )
+
     if (result.errors.length > 0) {
       console.log(`   Errors:`)
-      result.errors.forEach(error => console.log(`   - ${error.trim()}`))
+      result.errors.forEach((error) => console.log(`   - ${error.trim()}`))
     }
   }
-  
+
   // Summary
   console.log('\n📊 Summary:')
   const totalPassed = results.reduce((sum, r) => sum + r.passed, 0)
   const totalFailed = results.reduce((sum, r) => sum + r.failed, 0)
   const totalSkipped = results.reduce((sum, r) => sum + r.skipped, 0)
   const totalDuration = results.reduce((sum, r) => sum + r.duration, 0)
-  
+
   console.log(`   Total tests: ${totalPassed + totalFailed + totalSkipped}`)
   console.log(`   ✅ Passed: ${totalPassed}`)
   console.log(`   ❌ Failed: ${totalFailed}`)
   console.log(`   ⏭️  Skipped: ${totalSkipped}`)
   console.log(`   ⏱️  Duration: ${(totalDuration / 1000).toFixed(1)}s`)
-  
+
   // Configuration status
   console.log('\n🔧 Configuration Status:')
   const configs = [
@@ -172,7 +174,7 @@ async function main() {
     'vitest.shared.config.ts',
     'vitest.workspace.ts',
   ]
-  
+
   for (const config of configs) {
     try {
       await fs.access(path.join(process.cwd(), config))
@@ -181,7 +183,7 @@ async function main() {
       console.log(`   ❌ ${config} (missing)`)
     }
   }
-  
+
   // Recommendations
   if (totalFailed > 0 || totalSkipped > 0) {
     console.log('\n💡 Recommendations:')

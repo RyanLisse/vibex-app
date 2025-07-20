@@ -1,24 +1,24 @@
 #!/usr/bin/env bun
 
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'fs'
+import { join } from 'path'
 
 interface CoverageConfig {
-  enabled: boolean;
-  provider: 'v8' | 'istanbul' | 'c8';
-  reporter: string[];
-  include: string[];
-  exclude: string[];
+  enabled: boolean
+  provider: 'v8' | 'istanbul' | 'c8'
+  reporter: string[]
+  include: string[]
+  exclude: string[]
   thresholds: {
-    lines: number;
-    functions: number;
-    branches: number;
-    statements: number;
-  };
-  reportOnFailure: boolean;
-  clean: boolean;
-  reportsDirectory: string;
-  skipFull: boolean;
+    lines: number
+    functions: number
+    branches: number
+    statements: number
+  }
+  reportOnFailure: boolean
+  clean: boolean
+  reportsDirectory: string
+  skipFull: boolean
 }
 
 const defaultCoverageConfig: CoverageConfig = {
@@ -61,38 +61,35 @@ const defaultCoverageConfig: CoverageConfig = {
   clean: true,
   reportsDirectory: './coverage',
   skipFull: false,
-};
+}
 
 async function updateVitestConfig(configPath: string, coverageConfig: CoverageConfig) {
   try {
-    const content = await fs.readFile(configPath, 'utf-8');
-    
+    const content = await fs.readFile(configPath, 'utf-8')
+
     // Check if coverage is already configured
     if (content.includes('coverage:')) {
-      console.log(`Coverage already configured in ${configPath}`);
-      return;
+      console.log(`Coverage already configured in ${configPath}`)
+      return
     }
-    
+
     // Find the test configuration object
-    const testConfigMatch = content.match(/test:\s*{([^}]+)}/s);
+    const testConfigMatch = content.match(/test:\s*{([^}]+)}/s)
     if (!testConfigMatch) {
-      console.error(`Could not find test configuration in ${configPath}`);
-      return;
+      console.error(`Could not find test configuration in ${configPath}`)
+      return
     }
-    
+
     // Insert coverage configuration
     const coverageConfigStr = `
-    coverage: ${JSON.stringify(coverageConfig, null, 6).replace(/^/gm, '    ').trim()},`;
-    
-    const updatedContent = content.replace(
-      /test:\s*{/,
-      `test: {${coverageConfigStr}`
-    );
-    
-    await fs.writeFile(configPath, updatedContent);
-    console.log(`Updated ${configPath} with coverage configuration`);
+    coverage: ${JSON.stringify(coverageConfig, null, 6).replace(/^/gm, '    ').trim()},`
+
+    const updatedContent = content.replace(/test:\s*{/, `test: {${coverageConfigStr}`)
+
+    await fs.writeFile(configPath, updatedContent)
+    console.log(`Updated ${configPath} with coverage configuration`)
   } catch (error) {
-    console.error(`Error updating ${configPath}:`, error);
+    console.error(`Error updating ${configPath}:`, error)
   }
 }
 
@@ -125,12 +122,12 @@ echo "Generating final coverage report..."
 bunx nyc report --reporter=html --reporter=text --reporter=lcov --report-dir=coverage/final
 
 echo "Coverage report generated at coverage/final/index.html"
-`;
+`
 
-  const scriptPath = join(process.cwd(), 'scripts/generate-coverage.sh');
-  await fs.writeFile(scriptPath, scriptContent);
-  await fs.chmod(scriptPath, '755');
-  console.log('Created coverage generation script at scripts/generate-coverage.sh');
+  const scriptPath = join(process.cwd(), 'scripts/generate-coverage.sh')
+  await fs.writeFile(scriptPath, scriptContent)
+  await fs.chmod(scriptPath, '755')
+  console.log('Created coverage generation script at scripts/generate-coverage.sh')
 }
 
 async function createCoverageAnalyzer() {
@@ -219,40 +216,40 @@ async function analyzeCoverage() {
 }
 
 analyzeCoverage();
-`;
+`
 
-  const analyzerPath = join(process.cwd(), 'scripts/analyze-coverage.ts');
-  await fs.writeFile(analyzerPath, analyzerContent);
-  console.log('Created coverage analyzer at scripts/analyze-coverage.ts');
+  const analyzerPath = join(process.cwd(), 'scripts/analyze-coverage.ts')
+  await fs.writeFile(analyzerPath, analyzerContent)
+  console.log('Created coverage analyzer at scripts/analyze-coverage.ts')
 }
 
 async function main() {
-  console.log('Setting up coverage configuration...\n');
-  
+  console.log('Setting up coverage configuration...\n')
+
   // Update vitest configs
   const configs = [
     'vitest.config.ts',
     'vitest.components.config.ts',
     'vitest.integration.config.ts',
     'vitest.browser.config.ts',
-  ];
-  
+  ]
+
   for (const config of configs) {
-    const configPath = join(process.cwd(), config);
+    const configPath = join(process.cwd(), config)
     try {
-      await fs.access(configPath);
-      await updateVitestConfig(configPath, defaultCoverageConfig);
+      await fs.access(configPath)
+      await updateVitestConfig(configPath, defaultCoverageConfig)
     } catch {
-      console.log(`Skipping ${config} (not found)`);
+      console.log(`Skipping ${config} (not found)`)
     }
   }
-  
+
   // Create helper scripts
-  await createCoverageScript();
-  await createCoverageAnalyzer();
-  
-  console.log('\nCoverage setup complete!');
-  console.log('Run ./scripts/generate-coverage.sh to generate coverage reports');
+  await createCoverageScript()
+  await createCoverageAnalyzer()
+
+  console.log('\nCoverage setup complete!')
+  console.log('Run ./scripts/generate-coverage.sh to generate coverage reports')
 }
 
-main().catch(console.error);
+main().catch(console.error)

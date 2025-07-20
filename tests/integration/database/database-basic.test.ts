@@ -1,11 +1,11 @@
 /**
  * Basic Database Operations Test
- * 
+ *
  * Simple test to verify database configuration is working
  */
 
 import { describe, expect, it } from 'vitest'
-import { db } from '../../../db/config'
+import { db } from '../../../db/test-config'
 import { migrations } from '../../../db/schema'
 
 describe('Basic Database Operations', () => {
@@ -17,14 +17,14 @@ describe('Basic Database Operations', () => {
   it('should have working database mock', () => {
     // Verify db object exists
     expect(db).toBeDefined()
-    
+
     // Verify key methods exist
     expect(typeof db.select).toBe('function')
     expect(typeof db.insert).toBe('function')
     expect(typeof db.update).toBe('function')
     expect(typeof db.delete).toBe('function')
   })
-  
+
   it('should handle basic select operations', async () => {
     // Since we're using mocks, we just verify the chain works
     try {

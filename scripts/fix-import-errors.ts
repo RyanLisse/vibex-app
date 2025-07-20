@@ -89,7 +89,7 @@ if (!existsSync(wasmModulePath)) {
   // Create a stub module
   const stubContent = `// Stub for vector search WASM module
 export default {
-  memory: new WebAssembly.Memory({ initial: 1 }),
+  memory: new WebAssembly.Memory({ initial: 1 } as WebAssembly.MemoryDescriptor),
   search: () => { throw new Error('WASM module not built') },
   index: () => { throw new Error('WASM module not built') },
   delete: () => { throw new Error('WASM module not built') },

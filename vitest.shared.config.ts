@@ -20,6 +20,14 @@ export const sharedConfig = defineConfig({
       '@/src': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    exclude: ['fsevents', 'playwright', 'playwright-core', 'chromium-bidi'],
+  },
+  build: {
+    rollupOptions: {
+      external: ['fsevents', 'playwright', 'playwright-core', 'chromium-bidi'],
+    },
+  },
   esbuild: {
     target: 'es2022',
     format: 'esm',
