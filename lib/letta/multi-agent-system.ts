@@ -183,7 +183,7 @@ export class MultiAgentSystem {
       // Extract topic from message or ask user
       const topic = this.extractTopicFromMessage(message) || 'General Brainstorming'
       const session = this.sessions.get(sessionId)!
-      brainstormSession = await this.brainstormAgent.startBrainstormSession(session.userId, topic)
+      brainstormSession = await this.brainstormAgent.startBrainstormSession(session.userId, topic, sessionId)
     }
 
     return this.brainstormAgent.processMessage(sessionId, message, streaming)
@@ -263,7 +263,7 @@ export class MultiAgentSystem {
       // Start or continue brainstorm session
       let brainstormSession = this.brainstormAgent.getActiveSession(fromSessionId)
       if (!brainstormSession) {
-        brainstormSession = await this.brainstormAgent.startBrainstormSession(session.userId, task)
+        brainstormSession = await this.brainstormAgent.startBrainstormSession(session.userId, task, fromSessionId)
       }
 
       return this.brainstormAgent.processMessage(fromSessionId, task) as Promise<Message>
@@ -286,7 +286,7 @@ export class MultiAgentSystem {
     session.updatedAt = new Date()
     this.sessions.set(sessionId, session)
 
-    return this.brainstormAgent.startBrainstormSession(session.userId, topic)
+    return this.brainstormAgent.startBrainstormSession(session.userId, topic, sessionId)
   }
 
   async getBrainstormSummary(sessionId: string) {

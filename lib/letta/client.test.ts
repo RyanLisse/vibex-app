@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentConfig, LettaConfig, Message } from './client'
 import {
   AgentConfigSchema,
@@ -10,14 +10,8 @@ import {
 } from './client'
 
 // Mock fetch globally
-const mockFetch = (globalThis.fetch =
-  globalThis.fetch ||
-  (() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve({}),
-      body: new ReadableStream(),
-    })))
+const mockFetch = vi.fn()
+global.fetch = mockFetch
 
 describe('LettaClient', () => {
   let client: LettaClient
@@ -137,7 +131,7 @@ describe('LettaClient', () => {
     })
 
     it('should validate config on creation', () => {
-      expect(() => new LettaClient({ apiKey: '' } as any)).toThrow()
+      expect(() => new LettaClient({ apiKey: '' })).toThrow()
     })
 
     it('should set up base headers', () => {
