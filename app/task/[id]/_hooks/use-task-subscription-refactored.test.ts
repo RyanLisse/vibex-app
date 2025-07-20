@@ -82,7 +82,7 @@ describe('useTaskSubscription', () => {
     )
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/test-inngest')
+      expect(mockFetch).toHaveBeenCalledWith('/api/inngest')
     })
   })
 

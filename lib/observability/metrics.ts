@@ -362,6 +362,14 @@ export const metrics = {
   analyzer: MetricsAnalyzer,
 
   // API Request metrics
+  httpRequestDuration: (duration: number, method: string, route: string, statusCode: number) =>
+    PerformanceMetricsCollector.getInstance().recordMetric('query_duration', duration, {
+      method,
+      route,
+      statusCode: statusCode.toString(),
+      event: 'http_request',
+    }),
+
   apiRequestStart: (method: string, route: string) =>
     PerformanceMetricsCollector.getInstance().recordMetric('throughput', 1, {
       method,

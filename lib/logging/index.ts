@@ -28,13 +28,12 @@ export type {
 
 // Convenience function to create a logger
 export function createLogger(component: string) {
-  // During build, return a no-op logger
   try {
-    const { createDefaultLoggingConfig } = require('./defaults')
-    const config = createDefaultLoggingConfig()
+    const { createDefaultLoggingConfig: createConfig } = require('./config')
+    const config = createConfig()
     const factory = LoggerFactory.getInstance(config)
     return factory.createLogger(component)
-  } catch (error) {
+  } catch {
     return getLogger(component)
   }
 }
@@ -58,6 +57,7 @@ export function getLogger(component: string) {
     const factory = LoggerFactory.getInstance()
     return factory.createLogger(component)
   } catch (error) {
+<<<<<<< HEAD
     // If LoggerFactory not initialized, initialize with defaults
     try {
       const { createDefaultLoggingConfig } = require('./defaults')
@@ -68,15 +68,38 @@ export function getLogger(component: string) {
       // Final fallback
       const { createBuildLogger } = require('./build-logger')
       return createBuildLogger(component)
+=======
+    // Fallback if not initialized
+    try {
+      const { createDefaultLoggingConfig: createConfig } = require('./config')
+      const config = createConfig()
+      const factory = LoggerFactory.getInstance(config)
+      return factory.createLogger(component)
+    } catch {
+      // Return basic console logger as last resort
+      return {
+        debug: (...args: any[]) => console.debug(`[${component}]`, ...args),
+        info: (...args: any[]) => console.info(`[${component}]`, ...args),
+        warn: (...args: any[]) => console.warn(`[${component}]`, ...args),
+        error: (...args: any[]) => console.error(`[${component}]`, ...args),
+        child: () => getLogger(component),
+        startTimer: () => ({ done: () => {} }),
+        profile: () => {},
+      }
+>>>>>>> origin/main
     }
   }
 }
 
 // Initialize logging system
 export function initializeLogging(config?: Partial<LoggingConfig>) {
+<<<<<<< HEAD
   const { createDefaultLoggingConfig } = require('./defaults')
+=======
+  const { createDefaultLoggingConfig: createConfig } = require('./config')
+>>>>>>> origin/main
   const fullConfig = {
-    ...createDefaultLoggingConfig(),
+    ...createConfig(),
     ...config,
   }
 

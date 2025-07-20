@@ -90,7 +90,7 @@ beforeEach(() => {
   vi.stubEnv('VITEST_POOL_ID', '1')
   vi.stubEnv('DATABASE_URL', 'postgresql://test:test@localhost:5432/test')
   vi.stubEnv('OPENAI_API_KEY', 'test-key')
-  vi.stubEnv('INNGEST_EVENT_KEY', 'test-inngest-key')
+  vi.stubEnv('INNGEST_EVENT_KEY', 'test-event-key')
   vi.stubEnv('NEXTAUTH_SECRET', 'test-secret')
   vi.stubEnv('NEXTAUTH_URL', 'http://localhost:3000')
 
