@@ -398,11 +398,12 @@ export class AgentActivityTracker extends EventEmitter {
 
     const blockers = migrationAgents
       .filter((a) => a.currentTask?.blockers && a.currentTask.blockers.length > 0)
-      .flatMap((a) => a.currentTask!.blockers!)
+      .flatMap((a) => a.currentTask?.blockers || [])
 
     const latestEstimation = migrationAgents
       .filter((a) => a.currentTask?.estimatedCompletion)
-      .map((a) => a.currentTask!.estimatedCompletion!)
+      .map((a) => a.currentTask?.estimatedCompletion)
+      .filter((date): date is Date => date !== undefined)
       .sort((a, b) => b.getTime() - a.getTime())[0]
 
     return {

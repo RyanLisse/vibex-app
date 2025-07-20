@@ -9,6 +9,16 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['./tests/setup/integration.ts'],
+    env: {
+      DATABASE_URL: 'file::memory:?cache=shared',
+      ELECTRIC_URL: 'http://localhost:5133',
+      ELECTRIC_WEBSOCKET_URL: 'ws://localhost:5133',
+      ELECTRIC_AUTH_TOKEN: 'test_auth_token',
+      ELECTRIC_USER_ID: 'test_user_id',
+      ELECTRIC_API_KEY: 'test_api_key',
+      AUTH_SECRET: 'test_auth_secret',
+      NODE_ENV: 'test',
+    },
     pool: 'threads',
     include: [
       'tests/integration/**/*.test.{js,ts,jsx,tsx}',
