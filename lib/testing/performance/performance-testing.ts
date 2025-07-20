@@ -73,7 +73,7 @@ export class PerformanceBenchmark {
     fn: () => T | Promise<T>,
     options: BenchmarkOptions = {}
   ): Promise<BenchmarkResult> {
-    const { iterations = 10, warmupIterations = 3, thresholds, timeout = 30000 } = options
+    const { iterations = 10, warmupIterations = 3, thresholds, timeout = 30_000 } = options
 
     // Warmup iterations
     for (let i = 0; i < warmupIterations; i++) {
@@ -95,8 +95,7 @@ export class PerformanceBenchmark {
     const averageTime = times.reduce((sum, time) => sum + time, 0) / times.length
     const minTime = Math.min(...times)
     const maxTime = Math.max(...times)
-    const variance =
-      times.reduce((sum, time) => sum + Math.pow(time - averageTime, 2), 0) / times.length
+    const variance = times.reduce((sum, time) => sum + (time - averageTime) ** 2, 0) / times.length
     const standardDeviation = Math.sqrt(variance)
 
     // Check thresholds
@@ -339,7 +338,7 @@ export class MemoryProfiler {
       majorCollections: Math.floor(Math.random() * 10),
       minorCollections: Math.floor(Math.random() * 50),
       totalGCTime: Math.random() * 100,
-      lastGCTime: Date.now() - Math.random() * 60000,
+      lastGCTime: Date.now() - Math.random() * 60_000,
     }
   }
 

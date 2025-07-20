@@ -1,5 +1,5 @@
 // Comprehensive coverage tests for auth.ts uncovered lines
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Import the functions we need to test
 describe('Auth Coverage Tests', () => {
@@ -168,7 +168,7 @@ describe('Auth Coverage Tests', () => {
         body: new URLSearchParams({
           client_id: clientId,
           client_secret: clientSecret,
-          code: code,
+          code,
         }),
       })
 
@@ -269,7 +269,7 @@ describe('Auth Coverage Tests', () => {
 
   describe('state validation edge cases', () => {
     const validateState = (receivedState: string, expectedState: string): boolean => {
-      if (!receivedState || !expectedState) {
+      if (!(receivedState && expectedState)) {
         return false
       }
 

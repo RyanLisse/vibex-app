@@ -6,7 +6,7 @@
  */
 
 import { type NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
+import type { z } from 'zod'
 import { BaseAPIError, ValidationError } from './errors'
 import { ResponseBuilder } from './response-builder'
 
@@ -55,7 +55,7 @@ export class BaseAPIHandler {
     try {
       // Check authentication if required
       if (options.requireAuth) {
-        const authResult = await this.checkAuth(request)
+        const authResult = await BaseAPIHandler.checkAuth(request)
         if (!authResult.isAuthenticated) {
           throw new BaseAPIError('Authentication required', {
             statusCode: 401,
@@ -198,22 +198,22 @@ export class BaseAPIHandler {
    * Create standard HTTP method handlers
    */
   static GET(handler: (context: RequestContext) => Promise<any>, options?: HandlerOptions) {
-    return (request: NextRequest) => this.handle(request, handler, options)
+    return (request: NextRequest) => BaseAPIHandler.handle(request, handler, options)
   }
 
   static POST(handler: (context: RequestContext) => Promise<any>, options?: HandlerOptions) {
-    return (request: NextRequest) => this.handle(request, handler, options)
+    return (request: NextRequest) => BaseAPIHandler.handle(request, handler, options)
   }
 
   static PUT(handler: (context: RequestContext) => Promise<any>, options?: HandlerOptions) {
-    return (request: NextRequest) => this.handle(request, handler, options)
+    return (request: NextRequest) => BaseAPIHandler.handle(request, handler, options)
   }
 
   static DELETE(handler: (context: RequestContext) => Promise<any>, options?: HandlerOptions) {
-    return (request: NextRequest) => this.handle(request, handler, options)
+    return (request: NextRequest) => BaseAPIHandler.handle(request, handler, options)
   }
 
   static PATCH(handler: (context: RequestContext) => Promise<any>, options?: HandlerOptions) {
-    return (request: NextRequest) => this.handle(request, handler, options)
+    return (request: NextRequest) => BaseAPIHandler.handle(request, handler, options)
   }
 }

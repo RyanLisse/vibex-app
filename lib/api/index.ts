@@ -5,7 +5,7 @@
  */
 
 export * from './base-error'
-export * from './base-service'
 export * from './base-handler'
+export * from './base-service'
 export * from './query-builder'
 export * from './response-builder'

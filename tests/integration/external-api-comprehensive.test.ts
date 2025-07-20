@@ -11,11 +11,11 @@
  * - Error handling and fallbacks
  */
 
-import { describe, test, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest'
-import { openai } from '@/lib/openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { observability } from '@/lib/observability'
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
+import { observability } from '@/lib/observability'
+import { openai } from '@/lib/openai'
 
 // Mock responses for testing
 const mockResponses = {
@@ -60,7 +60,7 @@ const mockResponses = {
   github: {
     user: {
       login: 'testuser',
-      id: 12345,
+      id: 12_345,
       email: 'test@example.com',
     },
     repos: [
@@ -543,9 +543,9 @@ describe('External API Comprehensive Integration', () => {
   describe('5. Rate Limiting and Retry Mechanisms', () => {
     test('should respect rate limits across APIs', async () => {
       const rateLimiter = {
-        openai: { remaining: 10, reset: Date.now() + 60000 },
-        github: { remaining: 5000, reset: Date.now() + 3600000 },
-        gemini: { remaining: 50, reset: Date.now() + 60000 },
+        openai: { remaining: 10, reset: Date.now() + 60_000 },
+        github: { remaining: 5000, reset: Date.now() + 3_600_000 },
+        gemini: { remaining: 50, reset: Date.now() + 60_000 },
       }
 
       const checkRateLimit = (api: string) => {
@@ -597,7 +597,7 @@ describe('External API Comprehensive Integration', () => {
             return await fn()
           } catch (error) {
             lastError = error
-            const delay = Math.min(1000 * Math.pow(2, i), 10000)
+            const delay = Math.min(1000 * 2 ** i, 10_000)
             attemptDelays.push(delay)
             await new Promise((resolve) => setTimeout(resolve, delay))
           }
@@ -679,7 +679,7 @@ describe('External API Comprehensive Integration', () => {
 
         constructor(
           private threshold = 5,
-          private timeout = 60000
+          private timeout = 60_000
         ) {}
 
         async execute(fn: Function) {

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import './custom-matchers'
-import { UserBuilder, ProjectBuilder } from '../builders/test-data-builder'
+import { ProjectBuilder, UserBuilder } from '../builders/test-data-builder'
 
 describe('Custom Matchers', () => {
   beforeAll(() => {

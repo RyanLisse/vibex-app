@@ -8,7 +8,6 @@
 
 import { and, count, eq, exists, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { checkDatabaseHealth, db } from '../../../db/test-config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
 import {
   agentExecutions,
@@ -18,6 +17,7 @@ import {
   tasks,
   users,
 } from '../../../db/schema'
+import { checkDatabaseHealth, db } from '../../../db/test-config'
 
 // Data integrity types
 interface IntegrityViolation {

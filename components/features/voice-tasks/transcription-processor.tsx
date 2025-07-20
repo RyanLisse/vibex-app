@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { Loader2, Volume2, AlertCircle } from 'lucide-react'
-import { Progress } from '@/components/ui/progress'
+import { AlertCircle, Loader2, Volume2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import type { VoiceRecording, TranscriptionResult } from '@/src/schemas/enhanced-task-schemas'
+import { Progress } from '@/components/ui/progress'
+import type { TranscriptionResult, VoiceRecording } from '@/src/schemas/enhanced-task-schemas'
 
 interface TranscriptionProcessorProps {
   recording: VoiceRecording
@@ -80,7 +80,7 @@ export function TranscriptionProcessor({
               text: transcript,
               start: i * 2, // Approximate timing
               end: (i + 1) * 2,
-              confidence: confidence,
+              confidence,
             })
 
             setProgress(Math.min(30 + segments.length * 10, 90))
@@ -185,7 +185,7 @@ export function TranscriptionProcessor({
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center gap-2">
         <Volume2 className="h-5 w-5 text-blue-500" />
-        <h3 className="text-lg font-semibold">
+        <h3 className="font-semibold text-lg">
           {isTranscribing ? 'Transcribing Audio...' : 'Transcription Complete'}
         </h3>
       </div>
@@ -206,12 +206,12 @@ export function TranscriptionProcessor({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm text-muted-foreground">Processing speech...</span>
+            <span className="text-muted-foreground text-sm">Processing speech...</span>
           </div>
 
-          <Progress value={progress} className="w-full" role="progressbar" />
+          <Progress className="w-full" role="progressbar" value={progress} />
 
-          <div className="text-xs text-muted-foreground text-center">
+          <div className="text-center text-muted-foreground text-xs">
             {progress < 30 && 'Initializing speech recognition...'}
             {progress >= 30 && progress < 70 && 'Converting speech to text...'}
             {progress >= 70 && progress < 100 && 'Finalizing transcription...'}
@@ -222,15 +222,15 @@ export function TranscriptionProcessor({
 
       {transcriptionText && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Live Transcription:</h4>
-          <div className="p-3 bg-muted/50 rounded-lg border min-h-[60px]">
+          <h4 className="font-medium text-muted-foreground text-sm">Live Transcription:</h4>
+          <div className="min-h-[60px] rounded-lg border bg-muted/50 p-3">
             <p className="text-sm leading-relaxed">{transcriptionText}</p>
           </div>
         </div>
       )}
 
-      {!isTranscribing && !error && (
-        <div className="text-sm text-muted-foreground">
+      {!(isTranscribing || error) && (
+        <div className="text-muted-foreground text-sm">
           <p>
             <strong>Language:</strong> {language}
           </p>

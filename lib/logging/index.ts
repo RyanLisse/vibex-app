@@ -2,8 +2,8 @@
 
 // Configuration
 export { validateLoggingConfig } from './config'
-export { createDefaultLoggingConfig } from './defaults'
 export { CorrelationIdManager } from './correlation-id-manager'
+export { createDefaultLoggingConfig } from './defaults'
 export { ComponentLogger, LoggerFactory } from './logger-factory'
 export { MetadataEnricher } from './metadata-enricher'
 // Middleware

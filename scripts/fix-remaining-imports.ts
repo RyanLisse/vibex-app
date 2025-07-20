@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { join, dirname } from 'path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, join } from 'path'
 
 const fixes = []
 
@@ -23,7 +23,7 @@ if (existsSync(visualizationPath)) {
 const redisClientPath = join(process.cwd(), 'lib/redis/redis-client.ts')
 if (existsSync(redisClientPath)) {
   let content = readFileSync(redisClientPath, 'utf-8')
-  if (!content.includes('export { redis }') && !content.includes('export const redis')) {
+  if (!(content.includes('export { redis }') || content.includes('export const redis'))) {
     // Find the redis instance and export it
     if (content.includes('const redis =')) {
       content = content.replace(/const redis =/, 'export const redis =')

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { TDDFramework, TestCase, TestSuite, TestResult } from './core'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { TDDFramework, TestCase, TestResult, TestSuite } from './core'
 
 describe('TDDFramework', () => {
   let framework: TDDFramework

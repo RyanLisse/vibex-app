@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 
-import { promises as fs } from 'fs'
-import { join, dirname } from 'path'
-import { glob } from 'glob'
 import { spawn } from 'child_process'
+import { promises as fs } from 'fs'
+import { glob } from 'glob'
+import { dirname, join } from 'path'
 
 interface OptimizationTask {
   type: 'split' | 'parallelize' | 'mock' | 'dedupe' | 'cleanup'

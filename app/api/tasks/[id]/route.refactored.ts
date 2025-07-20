@@ -8,14 +8,14 @@ export const runtime = 'nodejs'
  * Enhanced API route using base utilities for consistency and reduced duplication
  */
 
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
 import { eq } from 'drizzle-orm'
+import type { NextRequest } from 'next/server'
+import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { NotFoundError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { ResponseBuilder } from '@/lib/api/response-builder'
 import { UpdateTaskSchema } from '@/src/schemas/api-routes'
 
@@ -32,7 +32,7 @@ class TaskService extends BaseAPIService {
    * Get a single task by ID
    */
   static async getTask(id: string) {
-    return this.withTracing(
+    return TaskService.withTracing(
       'getTask',
       async () => {
         const [task] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1)
@@ -42,7 +42,9 @@ class TaskService extends BaseAPIService {
         }
 
         // Log operation
-        await this.logOperation('get_task', 'task', task.id, task.userId, { title: task.title })
+        await TaskService.logOperation('get_task', 'task', task.id, task.userId, {
+          title: task.title,
+        })
 
         return task
       },
@@ -54,10 +56,10 @@ class TaskService extends BaseAPIService {
    * Update a task
    */
   static async updateTask(id: string, updates: z.infer<typeof UpdateTaskSchema>) {
-    return this.withTracing(
+    return TaskService.withTracing(
       'updateTask',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return TaskService.withTransaction(async (tx) => {
           // First check if task exists
           const [existingTask] = await tx.select().from(tasks).where(eq(tasks.id, id)).limit(1)
 
@@ -79,11 +81,17 @@ class TaskService extends BaseAPIService {
             .returning()
 
           // Log operation with detailed metadata
-          await this.logOperation('update_task', 'task', updatedTask.id, updatedTask.userId, {
-            updates,
-            previousStatus: existingTask.status,
-            newStatus: updatedTask.status,
-          })
+          await TaskService.logOperation(
+            'update_task',
+            'task',
+            updatedTask.id,
+            updatedTask.userId,
+            {
+              updates,
+              previousStatus: existingTask.status,
+              newStatus: updatedTask.status,
+            }
+          )
 
           return updatedTask
         })
@@ -96,10 +104,10 @@ class TaskService extends BaseAPIService {
    * Delete a task
    */
   static async deleteTask(id: string) {
-    return this.withTracing(
+    return TaskService.withTracing(
       'deleteTask',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return TaskService.withTransaction(async (tx) => {
           // First check if task exists
           const [existingTask] = await tx.select().from(tasks).where(eq(tasks.id, id)).limit(1)
 
@@ -110,10 +118,16 @@ class TaskService extends BaseAPIService {
           const [deletedTask] = await tx.delete(tasks).where(eq(tasks.id, id)).returning()
 
           // Log operation
-          await this.logOperation('delete_task', 'task', deletedTask.id, deletedTask.userId, {
-            title: deletedTask.title,
-            status: deletedTask.status,
-          })
+          await TaskService.logOperation(
+            'delete_task',
+            'task',
+            deletedTask.id,
+            deletedTask.userId,
+            {
+              title: deletedTask.title,
+              status: deletedTask.status,
+            }
+          )
 
           return deletedTask
         })

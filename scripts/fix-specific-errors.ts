@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { execSync } from 'child_process'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 
 // Specific file fixes
 const fileFixes = [
@@ -107,7 +107,7 @@ const alertManager = new AlertManager({
     fixes: [
       { find: /(\w+)\.type\s*===\s*['"](\w+)['"]/g, replace: '($1 as any).type === "$2"' },
       {
-        find: /(\w+)\.(session|spokenSummary|keyPoints|nextSteps)(?=\s*[;,\)}])/g,
+        find: /(\w+)\.(session|spokenSummary|keyPoints|nextSteps)(?=\s*[;,)}])/g,
         replace: '($1 as any).$2',
       },
     ],

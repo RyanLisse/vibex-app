@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { PerformanceBenchmark, MemoryProfiler, PerformanceReporter } from './performance-testing'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryProfiler, PerformanceBenchmark, PerformanceReporter } from './performance-testing'
 
 describe('PerformanceBenchmark', () => {
   let benchmark: PerformanceBenchmark
@@ -222,7 +222,7 @@ describe('MemoryProfiler', () => {
     it('should measure memory usage during function execution', async () => {
       const memoryIntensiveFunction = () => {
         // Create some objects to use memory
-        const largeArray = new Array(10000).fill(0).map((_, i) => ({ id: i, data: `item-${i}` }))
+        const largeArray = new Array(10_000).fill(0).map((_, i) => ({ id: i, data: `item-${i}` }))
         return largeArray.length
       }
 
@@ -305,7 +305,7 @@ describe('MemoryProfiler', () => {
       const beforeGC = await profiler.createSnapshot()
 
       // Create and release objects
-      let temp = new Array(10000).fill('temp')
+      let temp = new Array(10_000).fill('temp')
       temp = null as any
 
       await profiler.forceGarbageCollection()

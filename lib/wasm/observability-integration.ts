@@ -16,8 +16,8 @@ import type {
 import { dataProcessor } from './data-processor'
 import { moduleLoader } from './module-loader'
 import { wasmPerformanceTracker } from './performance-tracker'
-import type { VectorDocument } from './vector-search'
 import type { WASMServices } from './services'
+import type { VectorDocument } from './vector-search'
 
 export interface WASMObservabilityConfig {
   enablePerformanceTracking: boolean

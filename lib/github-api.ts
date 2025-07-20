@@ -37,9 +37,8 @@ export class GitHubAPI {
       // Throw error with appropriate message format
       if (errorMessage === `${response.status} ${response.statusText}`) {
         throw new Error(`HTTP error: ${errorMessage}`)
-      } else {
-        throw new Error(`GitHub API error: ${errorMessage}`)
       }
+      throw new Error(`GitHub API error: ${errorMessage}`)
     }
 
     return response

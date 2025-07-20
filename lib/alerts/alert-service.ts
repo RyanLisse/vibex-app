@@ -1,10 +1,10 @@
-import Redis from 'ioredis'
+import type Redis from 'ioredis'
 import { ComponentLogger } from '../logging/logger-factory'
-import { CriticalErrorDetector } from './critical-error-detector'
 import { AlertManager } from './alert-manager'
-import { AlertTransportService } from './transport/alert-transport-service'
 import { AlertWinstonTransport } from './alert-winston-transport'
-import { AlertConfig, AlertChannel, AlertChannelType, CriticalErrorType } from './types'
+import { CriticalErrorDetector } from './critical-error-detector'
+import { AlertTransportService } from './transport/alert-transport-service'
+import { type AlertChannel, AlertChannelType, type AlertConfig, CriticalErrorType } from './types'
 
 export class AlertService {
   private readonly logger: ComponentLogger
@@ -33,16 +33,16 @@ export class AlertService {
       enabled: process.env.ALERTS_ENABLED !== 'false',
       channels: this.getDefaultChannels(),
       rateLimiting: {
-        maxAlertsPerHour: parseInt(process.env.ALERTS_MAX_PER_HOUR || '10'),
-        cooldownMinutes: parseInt(process.env.ALERTS_COOLDOWN_MINUTES || '15'),
+        maxAlertsPerHour: Number.parseInt(process.env.ALERTS_MAX_PER_HOUR || '10'),
+        cooldownMinutes: Number.parseInt(process.env.ALERTS_COOLDOWN_MINUTES || '15'),
       },
       deduplication: {
         enabled: process.env.ALERTS_DEDUPLICATION_ENABLED !== 'false',
-        windowMinutes: parseInt(process.env.ALERTS_DEDUPLICATION_WINDOW || '60'),
+        windowMinutes: Number.parseInt(process.env.ALERTS_DEDUPLICATION_WINDOW || '60'),
       },
       escalation: {
         enabled: process.env.ALERTS_ESCALATION_ENABLED === 'true',
-        escalateAfterMinutes: parseInt(process.env.ALERTS_ESCALATION_AFTER_MINUTES || '30'),
+        escalateAfterMinutes: Number.parseInt(process.env.ALERTS_ESCALATION_AFTER_MINUTES || '30'),
         escalationChannels: [],
       },
     }
@@ -75,7 +75,7 @@ export class AlertService {
         config: {
           url: process.env.ALERTS_WEBHOOK_URL,
           method: 'POST',
-          timeout: 30000,
+          timeout: 30_000,
           retries: 3,
           ...(process.env.ALERTS_WEBHOOK_TOKEN && {
             authentication: {
@@ -136,7 +136,7 @@ export class AlertService {
       if (process.env.ALERTS_EMAIL_PROVIDER === 'smtp') {
         emailConfig.smtp = {
           host: process.env.ALERTS_SMTP_HOST,
-          port: parseInt(process.env.ALERTS_SMTP_PORT || '587'),
+          port: Number.parseInt(process.env.ALERTS_SMTP_PORT || '587'),
           secure: process.env.ALERTS_SMTP_SECURE === 'true',
           username: process.env.ALERTS_SMTP_USERNAME,
           password: process.env.ALERTS_SMTP_PASSWORD,

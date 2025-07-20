@@ -5,21 +5,21 @@
  * for consistent error handling, tracing, and observability.
  */
 
+import { and, desc, eq, like } from 'drizzle-orm'
 import { ulid } from 'ulid'
 import { z } from 'zod'
-import { and, eq, like, desc } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { authSessions, users } from '@/db/schema'
 import {
   BaseAPIService,
   BaseCRUDService,
-  type ServiceContext,
-  NotFoundError,
-  DatabaseError,
   ConflictError,
+  DatabaseError,
+  NotFoundError,
+  type ServiceContext,
 } from '@/lib/api/base'
 import { QueryBuilder } from '@/lib/api/base/query-builder'
-import { CreateUserSchema, UpdateUserSchema } from '@/src/schemas/api-routes'
+import type { CreateUserSchema, UpdateUserSchema } from '@/src/schemas/api-routes'
 
 // Query schemas
 export const GetUsersQuerySchema = z.object({

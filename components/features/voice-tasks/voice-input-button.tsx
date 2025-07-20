@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Mic, MicOff, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Loader2, Mic, MicOff } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 
 interface VoiceInputButtonProps {
   onStartRecording: () => void | Promise<void>
@@ -90,16 +90,16 @@ export function VoiceInputButton({
     return (
       <div className="space-y-2">
         <Button
-          onClick={handleClick}
-          disabled={true}
-          variant="outline"
-          size={size}
           className="gap-2"
+          disabled={true}
+          onClick={handleClick}
+          size={size}
+          variant="outline"
         >
           <MicOff className="h-4 w-4" />
           Microphone Unavailable
         </Button>
-        <Alert variant="destructive" className="text-sm">
+        <Alert className="text-sm" variant="destructive">
           <AlertDescription>{permissionError}</AlertDescription>
         </Alert>
       </div>
@@ -109,18 +109,18 @@ export function VoiceInputButton({
   return (
     <div className="space-y-2">
       <Button
-        onClick={handleClick}
+        className="relative gap-2"
         disabled={disabled || isLoading}
-        variant={isRecording ? 'destructive' : variant}
+        onClick={handleClick}
         size={size}
-        className="gap-2 relative"
+        variant={isRecording ? 'destructive' : variant}
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : isRecording ? (
           <>
             <div
-              className="h-4 w-4 rounded-full bg-white animate-pulse"
+              className="h-4 w-4 animate-pulse rounded-full bg-white"
               data-testid="recording-indicator"
             />
             Recording...
@@ -134,7 +134,7 @@ export function VoiceInputButton({
       </Button>
 
       {isRecording && (
-        <div className="text-xs text-muted-foreground text-center">
+        <div className="text-center text-muted-foreground text-xs">
           <span data-testid="recording-status">🔴 Recording in progress...</span>
         </div>
       )}

@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { promises as fs } from 'fs'
-import { join, relative } from 'path'
 import { glob } from 'glob'
+import { join, relative } from 'path'
 
 interface TestRelevance {
   testPath: string
@@ -45,11 +45,13 @@ async function analyzeTestRelevance(testPath: string): Promise<TestRelevance> {
   let sourcePath: string | undefined
   const sourceImports = imports.filter(
     (imp) =>
-      (!imp.includes('test') &&
-        !imp.includes('mock') &&
-        !imp.includes('vitest') &&
-        !imp.includes('jest') &&
-        !imp.includes('@testing-library') &&
+      (!(
+        imp.includes('test') ||
+        imp.includes('mock') ||
+        imp.includes('vitest') ||
+        imp.includes('jest') ||
+        imp.includes('@testing-library')
+      ) &&
         imp.startsWith('.')) ||
       imp.startsWith('@/')
   )

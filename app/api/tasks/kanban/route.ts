@@ -15,7 +15,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { BaseAPIHandler } from '@/lib/api/base'
 import { ResponseBuilder } from '@/lib/api/base/response-builder'
 import { KanbanBoardConfigSchema, KanbanMoveSchema } from '@/src/schemas/enhanced-task-schemas'
-import { tasksKanbanService, GetKanbanQuerySchema } from './service'
+import { GetKanbanQuerySchema, tasksKanbanService } from './service'
 
 /**
  * GET /api/tasks/kanban - Get kanban board data

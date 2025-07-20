@@ -1,22 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import {
-  GitPullRequest,
-  ExternalLink,
-  Clock,
-  CheckCircle2,
-  XCircle,
   AlertCircle,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  GitPullRequest,
+  XCircle,
 } from 'lucide-react'
-import { PRStatusBadge } from './pr-status-badge'
-import { PRReviewSummary } from './pr-review-summary'
-import { PRActionButtons } from './pr-action-buttons'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { PRStatus, TaskPRLink } from '@/src/schemas/enhanced-task-schemas'
+import { PRActionButtons } from './pr-action-buttons'
+import { PRReviewSummary } from './pr-review-summary'
+import { PRStatusBadge } from './pr-status-badge'
 
 interface PRStatusCardProps {
   prStatus: PRStatus
@@ -127,15 +127,15 @@ export function PRStatusCard({
             <GitPullRequest className="h-5 w-5 text-blue-500" />
             <div>
               <h3 className="font-semibold">{currentPRStatus.title}</h3>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="mt-1 flex items-center gap-2">
                 <Badge variant="outline">PR #{currentPRStatus.prId.replace('pr-', '')}</Badge>
-                <span className="text-sm text-muted-foreground">{taskPRLink.repository}</span>
+                <span className="text-muted-foreground text-sm">{taskPRLink.repository}</span>
               </div>
             </div>
           </div>
 
-          <Button variant="ghost" size="sm" asChild className="gap-2">
-            <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+          <Button asChild className="gap-2" size="sm" variant="ghost">
+            <a href={githubUrl} rel="noopener noreferrer" target="_blank">
               <ExternalLink className="h-4 w-4" />
               View on GitHub
             </a>
@@ -155,23 +155,23 @@ export function PRStatusCard({
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <PRStatusBadge
-              status={currentPRStatus.status}
               reviewStatus={currentPRStatus.reviewStatus}
+              status={currentPRStatus.status}
             />
-            <p className="text-sm text-muted-foreground">
-              Branch: <code className="text-xs bg-muted px-1 rounded">{taskPRLink.branch}</code>
+            <p className="text-muted-foreground text-sm">
+              Branch: <code className="rounded bg-muted px-1 text-xs">{taskPRLink.branch}</code>
             </p>
           </div>
 
           <div className="text-right">
-            <p className="text-sm font-medium">
+            <p className="font-medium text-sm">
               {currentPRStatus.reviewStatus === 'approved'
                 ? 'Review Approved'
                 : currentPRStatus.reviewStatus === 'changes_requested'
                   ? 'Changes Requested'
                   : 'Review Pending'}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {currentPRStatus.reviewers.filter((r) => r.status === 'approved').length} of{' '}
               {currentPRStatus.reviewers.length} approved
             </p>
@@ -180,15 +180,17 @@ export function PRStatusCard({
 
         {/* Checks Status */}
         <div className="space-y-2">
-          <h4 className="text-sm font-medium">Checks</h4>
+          <h4 className="font-medium text-sm">Checks</h4>
           <div className="space-y-1">
             {currentPRStatus.checks.map((check) => (
-              <div key={check.name} className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-sm" key={check.name}>
                 <div className="flex items-center gap-2">
                   {getCheckIcon(check.status)}
                   <span>{check.name}</span>
                 </div>
                 <Badge
+                  className="text-xs"
+                  data-testid={`check-${check.status}`}
                   variant={
                     check.status === 'success'
                       ? 'default'
@@ -196,8 +198,6 @@ export function PRStatusCard({
                         ? 'destructive'
                         : 'secondary'
                   }
-                  className="text-xs"
-                  data-testid={`check-${check.status}`}
                 >
                   {check.status}
                 </Badge>
@@ -207,22 +207,22 @@ export function PRStatusCard({
         </div>
 
         {/* Merge Readiness */}
-        <div className="p-3 rounded-lg border">
+        <div className="rounded-lg border p-3">
           {currentPRStatus.mergeable &&
           currentPRStatus.reviewStatus === 'approved' &&
           currentPRStatus.checks.every((check) => check.status === 'success') ? (
             <div className="flex items-center gap-2 text-green-700" data-testid="merge-ready">
               <CheckCircle2 className="h-4 w-4" />
-              <span className="text-sm font-medium">Ready to merge</span>
+              <span className="font-medium text-sm">Ready to merge</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-yellow-700" data-testid="merge-blocked">
               <AlertCircle className="h-4 w-4" />
-              <span className="text-sm font-medium">Not ready to merge</span>
+              <span className="font-medium text-sm">Not ready to merge</span>
             </div>
           )}
 
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="mt-1 text-muted-foreground text-xs">
             {!currentPRStatus.mergeable && 'Has merge conflicts • '}
             {currentPRStatus.reviewStatus !== 'approved' && 'Requires approval • '}
             {currentPRStatus.checks.some((check) => check.status !== 'success') &&
@@ -236,10 +236,10 @@ export function PRStatusCard({
 
         {/* Action Buttons */}
         <PRActionButtons
-          prStatus={currentPRStatus}
+          isLoading={isLoading}
           onMerge={handleMerge}
           onUpdate={handleRefresh}
-          isLoading={isLoading}
+          prStatus={currentPRStatus}
         />
       </CardContent>
     </Card>

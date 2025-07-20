@@ -5,8 +5,8 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { db } from '../../../db/test-config'
 import { migrations } from '../../../db/schema'
+import { db } from '../../../db/test-config'
 
 describe('Basic Database Operations', () => {
   it('should have migrations table defined', () => {

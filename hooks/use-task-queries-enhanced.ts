@@ -1,13 +1,13 @@
 'use client'
 
-import { useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import type { NewTask, Task } from '@/db/schema'
 import { invalidateQueries, mutationKeys, queryKeys } from '@/lib/query/config'
 import { useElectricTasks } from './use-electric-tasks'
 import {
-  useEnhancedQuery,
   useEnhancedMutation,
+  useEnhancedQuery,
   useVectorSearchQuery,
 } from './use-enhanced-query-new'
 

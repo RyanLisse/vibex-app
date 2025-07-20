@@ -190,12 +190,11 @@ export class TDDCli {
         componentName: options.name,
         ...options,
       })
-    } else {
-      return await generator.generateUnitTest('', {
-        functionName: options.name,
-        ...options,
-      })
     }
+    return await generator.generateUnitTest('', {
+      functionName: options.name,
+      ...options,
+    })
   }
 
   private async runTDD(options: any): Promise<string> {
@@ -370,13 +369,12 @@ describe('{{endpoint}}', () => {
         fileName: this.kebabCase(options.className),
         methods: options.methods || [],
       })
-    } else {
-      return this.generateFromTemplate('unit-function', {
-        functionName: options.functionName,
-        fileName: this.kebabCase(options.functionName || ''),
-        testCases: options.testCases || [],
-      })
     }
+    return this.generateFromTemplate('unit-function', {
+      functionName: options.functionName,
+      fileName: this.kebabCase(options.functionName || ''),
+      testCases: options.testCases || [],
+    })
   }
 
   async generateComponentTest(
@@ -398,7 +396,8 @@ describe('{{endpoint}}', () => {
         methods: options.methods || ['GET'],
         authentication: options.authentication,
       })
-    } else if (options.type === 'database') {
+    }
+    if (options.type === 'database') {
       return this.generateDatabaseTest(options)
     }
 

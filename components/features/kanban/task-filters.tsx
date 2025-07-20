@@ -1,10 +1,13 @@
 'use client'
 
+import { Filter, Search, X } from 'lucide-react'
 import { useState } from 'react'
-import { Search, Filter, X } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -12,9 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 interface FilterState {
   assignee?: string
@@ -75,24 +75,24 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
   return (
     <div className={`flex items-center gap-4 ${className}`}>
       {/* Search Input */}
-      <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="relative max-w-md flex-1">
+        <Search className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-muted-foreground" />
         <Input
+          className="pl-9"
+          onChange={(e) => updateFilters({ search: e.target.value })}
           placeholder="Search tasks..."
           value={filters.search}
-          onChange={(e) => updateFilters({ search: e.target.value })}
-          className="pl-9"
         />
       </div>
 
       {/* Quick Assignee Filter */}
       <div className="flex items-center gap-2">
-        <Label htmlFor="assignee" className="text-sm font-medium whitespace-nowrap">
+        <Label className="whitespace-nowrap font-medium text-sm" htmlFor="assignee">
           Assignee:
         </Label>
         <Select
-          value={filters.assignee || ''}
           onValueChange={(value) => updateFilters({ assignee: value || undefined })}
+          value={filters.assignee || ''}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="All assignees" />
@@ -110,12 +110,12 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
 
       {/* Quick Priority Filter */}
       <div className="flex items-center gap-2">
-        <Label htmlFor="priority" className="text-sm font-medium whitespace-nowrap">
+        <Label className="whitespace-nowrap font-medium text-sm" htmlFor="priority">
           Priority:
         </Label>
         <Select
-          value={filters.priority || ''}
           onValueChange={(value) => updateFilters({ priority: value || undefined })}
+          value={filters.priority || ''}
         >
           <SelectTrigger className="w-32">
             <SelectValue placeholder="All priorities" />
@@ -131,28 +131,28 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
       </div>
 
       {/* Advanced Filters */}
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="gap-2 relative">
+          <Button className="relative gap-2" variant="outline">
             <Filter className="h-4 w-4" />
             Tags
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+              <Badge className="ml-1 h-5 w-5 rounded-full p-0 text-xs" variant="secondary">
                 {activeFilterCount}
               </Badge>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80" align="end">
+        <PopoverContent align="end" className="w-80">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Filter by Tags</h4>
               {hasActiveFilters && (
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
                   className="h-6 px-2 text-xs"
+                  onClick={clearFilters}
+                  size="sm"
+                  variant="ghost"
                 >
                   Clear All
                 </Button>
@@ -161,21 +161,21 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
 
             {/* Tags Filter */}
             <div className="space-y-2">
-              <Label htmlFor="tags" className="text-sm font-medium">
+              <Label className="font-medium text-sm" htmlFor="tags">
                 Tags:
               </Label>
-              <div className="max-h-40 overflow-y-auto space-y-2">
+              <div className="max-h-40 space-y-2 overflow-y-auto">
                 {tags.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No tags available</p>
+                  <p className="text-muted-foreground text-sm">No tags available</p>
                 ) : (
                   tags.map((tag) => (
-                    <div key={tag} className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2" key={tag}>
                       <Checkbox
-                        id={`tag-${tag}`}
                         checked={filters.tags.includes(tag)}
+                        id={`tag-${tag}`}
                         onCheckedChange={(checked) => handleTagToggle(tag, checked as boolean)}
                       />
-                      <Label htmlFor={`tag-${tag}`} className="text-sm cursor-pointer flex-1">
+                      <Label className="flex-1 cursor-pointer text-sm" htmlFor={`tag-${tag}`}>
                         {tag}
                       </Label>
                     </div>
@@ -192,13 +192,13 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
         <div className="flex items-center gap-2">
           <div className="flex flex-wrap gap-1">
             {filters.assignee && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge className="gap-1" variant="secondary">
                 Assignee: {filters.assignee}
                 <Button
-                  variant="ghost"
-                  size="sm"
                   className="h-4 w-4 p-0 hover:bg-transparent"
                   onClick={() => updateFilters({ assignee: undefined })}
+                  size="sm"
+                  variant="ghost"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -206,13 +206,13 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
             )}
 
             {filters.priority && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge className="gap-1" variant="secondary">
                 Priority: {filters.priority}
                 <Button
-                  variant="ghost"
-                  size="sm"
                   className="h-4 w-4 p-0 hover:bg-transparent"
                   onClick={() => updateFilters({ priority: undefined })}
+                  size="sm"
+                  variant="ghost"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -220,13 +220,13 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
             )}
 
             {filters.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="gap-1">
+              <Badge className="gap-1" key={tag} variant="secondary">
                 Tag: {tag}
                 <Button
-                  variant="ghost"
-                  size="sm"
                   className="h-4 w-4 p-0 hover:bg-transparent"
                   onClick={() => handleTagToggle(tag, false)}
+                  size="sm"
+                  variant="ghost"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -235,10 +235,10 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = '' }:
           </div>
 
           <Button
-            variant="ghost"
-            size="sm"
+            className="h-6 gap-1 px-2 text-xs"
             onClick={clearFilters}
-            className="h-6 px-2 text-xs gap-1"
+            size="sm"
+            variant="ghost"
           >
             <X className="h-3 w-3" />
             Clear Filters

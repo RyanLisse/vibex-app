@@ -9,10 +9,10 @@
  * - Performance optimization
  */
 
-// app/api/products/route.ts
-import { BaseAPIHandler, ResponseBuilder, RateLimitError } from '@/lib/api/base'
-import { productService } from '@/services/product-service'
 import { z } from 'zod'
+// app/api/products/route.ts
+import { BaseAPIHandler, RateLimitError, ResponseBuilder } from '@/lib/api/base'
+import { productService } from '@/services/product-service'
 
 // Advanced query schema with multiple filters
 const ProductQuerySchema = z.object({
@@ -102,18 +102,18 @@ export const POST = BaseAPIHandler.POST(
   { requireAuth: true }
 )
 
+import { and, eq, gte, inArray, lte, sql } from 'drizzle-orm'
+import { LRUCache } from 'lru-cache'
+import { db } from '@/db/config'
+import { products, productTags } from '@/db/schema'
 // services/product-service.ts
 import {
   BaseAPIService,
-  NotFoundError,
-  ValidationError,
   createQueryBuilder,
+  NotFoundError,
   type ServiceContext,
+  ValidationError,
 } from '@/lib/api/base'
-import { db } from '@/db/config'
-import { products, productTags } from '@/db/schema'
-import { eq, and, gte, lte, inArray, sql } from 'drizzle-orm'
-import { LRUCache } from 'lru-cache'
 import { uploadToS3 } from '@/lib/storage'
 
 interface Product {

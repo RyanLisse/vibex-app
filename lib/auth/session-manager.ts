@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose'
+import { jwtVerify, SignJWT } from 'jose'
 import { cookies } from 'next/headers'
 import { redis } from '@/lib/redis'
 
@@ -65,7 +65,7 @@ export class SecureSessionManager {
       })
 
       // Additional validation
-      if (!payload.userId || !payload.sessionId) {
+      if (!(payload.userId && payload.sessionId)) {
         return null
       }
 
@@ -126,7 +126,7 @@ export class SecureSessionManager {
 
   async revokeAllUserSessions(userId: string): Promise<void> {
     // Get all session keys for user
-    const keys = await redis.keys(`session:*`)
+    const keys = await redis.keys('session:*')
 
     for (const key of keys) {
       const sessionData = await redis.get(key)
@@ -142,7 +142,7 @@ export class SecureSessionManager {
 
   async getActiveSessions(userId: string): Promise<string[]> {
     const sessions: string[] = []
-    const keys = await redis.keys(`session:*`)
+    const keys = await redis.keys('session:*')
 
     for (const key of keys) {
       const sessionData = await redis.get(key)

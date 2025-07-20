@@ -65,9 +65,9 @@ async function runTestProject(project: string): Promise<TestResult> {
         resolve({
           project,
           success: code === 0,
-          passed: passMatch ? parseInt(passMatch[1]) : 0,
-          failed: failMatch ? parseInt(failMatch[1]) : 0,
-          skipped: skipMatch ? parseInt(skipMatch[1]) : 0,
+          passed: passMatch ? Number.parseInt(passMatch[1]) : 0,
+          failed: failMatch ? Number.parseInt(failMatch[1]) : 0,
+          skipped: skipMatch ? Number.parseInt(skipMatch[1]) : 0,
           duration,
           errors,
         })
@@ -83,10 +83,10 @@ async function runTestProject(project: string): Promise<TestResult> {
         passed: 0,
         failed: 0,
         skipped: 0,
-        duration: 120000,
+        duration: 120_000,
         errors: ['Test timeout after 2 minutes'],
       })
-    }, 120000)
+    }, 120_000)
   })
 }
 
@@ -146,7 +146,7 @@ async function main() {
     )
 
     if (result.errors.length > 0) {
-      console.log(`   Errors:`)
+      console.log('   Errors:')
       result.errors.forEach((error) => console.log(`   - ${error.trim()}`))
     }
   }

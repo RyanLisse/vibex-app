@@ -5,19 +5,19 @@
  * for consistent error handling, tracing, and observability.
  */
 
-import { z } from 'zod'
 import { and, desc, eq, gte, like } from 'drizzle-orm'
+import { z } from 'zod'
 import { db } from '@/db/config'
 import { authSessions, githubRepositories, users } from '@/db/schema'
-import { githubAuth } from '@/lib/github'
 import {
   BaseAPIService,
-  type ServiceContext,
-  NotFoundError,
-  UnauthorizedError,
   ExternalServiceError,
+  NotFoundError,
+  type ServiceContext,
+  UnauthorizedError,
 } from '@/lib/api/base'
 import { QueryBuilder } from '@/lib/api/base/query-builder'
+import { githubAuth } from '@/lib/github'
 
 // Query schemas
 export const GetRepositoriesQuerySchema = z.object({

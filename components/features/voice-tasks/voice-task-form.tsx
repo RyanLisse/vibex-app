@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AlertTriangle, Edit, Send, Volume2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Send, Edit, Volume2, AlertTriangle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -16,8 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Textarea } from '@/components/ui/textarea'
 import type { TranscriptionResult } from '@/src/schemas/enhanced-task-schemas'
 
 const voiceTaskSchema = z.object({
@@ -129,16 +129,16 @@ export function VoiceTaskForm({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div className="flex items-center gap-2 mb-6">
+      <div className="mb-6 flex items-center gap-2">
         <Volume2 className="h-6 w-6 text-blue-500" />
-        <h2 className="text-2xl font-bold">Create Task from Voice</h2>
+        <h2 className="font-bold text-2xl">Create Task from Voice</h2>
       </div>
 
       {/* Transcription Quality Indicator */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Transcription Quality:</span>
+            <span className="font-medium text-sm">Transcription Quality:</span>
             <Badge variant={transcription.confidence >= 0.8 ? 'default' : 'secondary'}>
               <span className={confidenceColor}>
                 {confidenceLevel} ({Math.round(transcription.confidence * 100)}%)
@@ -147,9 +147,9 @@ export function VoiceTaskForm({
           </div>
 
           <Button
-            variant="outline"
-            size="sm"
             onClick={() => setShowTranscription(!showTranscription)}
+            size="sm"
+            variant="outline"
           >
             {showTranscription ? 'Hide' : 'Show'} Transcription
           </Button>
@@ -166,28 +166,28 @@ export function VoiceTaskForm({
         )}
 
         {showTranscription && (
-          <div className="p-3 bg-muted/50 rounded-lg border">
-            <h4 className="text-sm font-medium mb-2">Original Transcription:</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">"{transcription.text}"</p>
+          <div className="rounded-lg border bg-muted/50 p-3">
+            <h4 className="mb-2 font-medium text-sm">Original Transcription:</h4>
+            <p className="text-muted-foreground text-sm leading-relaxed">"{transcription.text}"</p>
           </div>
         )}
       </div>
 
       {/* Extracted Data Preview */}
       {isExtracting ? (
-        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-full bg-blue-500 animate-pulse" />
-            <span className="text-sm text-blue-700">
+            <div className="h-4 w-4 animate-pulse rounded-full bg-blue-500" />
+            <span className="text-blue-700 text-sm">
               Extracting task information from your voice input...
             </span>
           </div>
         </div>
       ) : (
         extractedData && (
-          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-            <h4 className="text-sm font-medium text-green-800 mb-2">AI Extracted Information:</h4>
-            <div className="space-y-1 text-sm text-green-700">
+          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+            <h4 className="mb-2 font-medium text-green-800 text-sm">AI Extracted Information:</h4>
+            <div className="space-y-1 text-green-700 text-sm">
               {extractedData.title && (
                 <p>
                   <strong>Title:</strong> {extractedData.title}
@@ -208,7 +208,7 @@ export function VoiceTaskForm({
         )
       )}
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSubmit(onFormSubmit)}>
         {/* Task Information */}
         <div className="space-y-4">
           <div>
@@ -216,10 +216,10 @@ export function VoiceTaskForm({
             <Input
               id="title"
               {...register('title')}
-              placeholder="Brief description of the task"
               className={errors.title ? 'border-red-500' : ''}
+              placeholder="Brief description of the task"
             />
-            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
+            {errors.title && <p className="mt-1 text-red-500 text-sm">{errors.title.message}</p>}
           </div>
 
           <div>
@@ -227,12 +227,12 @@ export function VoiceTaskForm({
             <Textarea
               id="description"
               {...register('description')}
+              className={errors.description ? 'border-red-500' : ''}
               placeholder="Detailed description of the task..."
               rows={4}
-              className={errors.description ? 'border-red-500' : ''}
             />
             {errors.description && (
-              <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+              <p className="mt-1 text-red-500 text-sm">{errors.description.message}</p>
             )}
           </div>
 
@@ -240,8 +240,8 @@ export function VoiceTaskForm({
             <div>
               <Label htmlFor="priority">Priority</Label>
               <Select
-                onValueChange={(value) => setValue('priority', value as any)}
                 defaultValue="medium"
+                onValueChange={(value) => setValue('priority', value as any)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
@@ -263,8 +263,8 @@ export function VoiceTaskForm({
         </div>
 
         {/* Voice Metadata Display */}
-        <div className="p-3 bg-muted/30 rounded-lg border border-dashed">
-          <h4 className="text-sm font-medium mb-2">Voice Task Metadata:</h4>
+        <div className="rounded-lg border border-dashed bg-muted/30 p-3">
+          <h4 className="mb-2 font-medium text-sm">Voice Task Metadata:</h4>
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">voice-created</Badge>
             <Badge variant="outline">{transcription.language}</Badge>
@@ -275,25 +275,25 @@ export function VoiceTaskForm({
         {/* Form Actions */}
         <div className="flex gap-3 pt-4">
           <Button
-            type="submit"
-            disabled={!isValid || isSubmitting || isExtracting}
             className="gap-2"
+            disabled={!isValid || isSubmitting || isExtracting}
+            type="submit"
           >
             <Send className="h-4 w-4" />
             {isSubmitting ? 'Creating Task...' : 'Create Task'}
           </Button>
 
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            <Button disabled={isSubmitting} onClick={onCancel} type="button" variant="outline">
               Cancel
             </Button>
           )}
 
           <Button
+            className="gap-2"
+            onClick={() => setShowTranscription(true)}
             type="button"
             variant="ghost"
-            onClick={() => setShowTranscription(true)}
-            className="gap-2"
           >
             <Edit className="h-4 w-4" />
             Review Transcription

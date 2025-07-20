@@ -1,5 +1,5 @@
-import { expect } from 'vitest'
 import type { MatcherFunction } from 'expect'
+import { expect } from 'vitest'
 
 // Extend Vitest's expect interface
 interface CustomMatchers<R = unknown> {
@@ -123,7 +123,7 @@ const toHaveValidSchema: MatcherFunction<[received: unknown, schema: any]> = fun
       throw new Error(`Expected ${JSON.stringify(received)} not to match schema`)
     }
 
-    if (!isNot && !pass) {
+    if (!(isNot || pass)) {
       throw new Error(
         `Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`
       )
@@ -197,8 +197,8 @@ const toHaveValidApiResponse: MatcherFunction<[received: unknown]> = function (r
     typeof received === 'object' &&
     typeof (received as any).success === 'boolean' &&
     typeof (received as any).status === 'number' &&
-    (received as any).hasOwnProperty('data') &&
-    (received as any).hasOwnProperty('error') &&
+    Object.hasOwn(received as any, 'data') &&
+    Object.hasOwn(received as any, 'error') &&
     ((received as any).success
       ? (received as any).error === null
       : typeof (received as any).error === 'string')
@@ -242,7 +242,7 @@ const toBeAccessible: MatcherFunction<[received: unknown]> = function (received)
   const element = received as any
   const hasAriaLabel = element.attributes && element.attributes['aria-label']
   const hasRole = element.attributes && element.attributes['role']
-  const hasTabIndex = element.attributes && element.attributes.hasOwnProperty('tabindex')
+  const hasTabIndex = element.attributes && Object.hasOwn(element.attributes, 'tabindex')
 
   const pass =
     element &&
@@ -255,8 +255,8 @@ const toBeAccessible: MatcherFunction<[received: unknown]> = function (received)
     pass,
     message: () =>
       isNot
-        ? `Expected element not to be accessible`
-        : `Expected element to be accessible with proper ARIA attributes and focusable state`,
+        ? 'Expected element not to be accessible'
+        : 'Expected element to be accessible with proper ARIA attributes and focusable state',
   }
 }
 
@@ -293,7 +293,7 @@ const toHavePerformanceMetrics: MatcherFunction<
     pass,
     message: () =>
       isNot
-        ? `Expected performance metrics not to meet thresholds`
+        ? 'Expected performance metrics not to meet thresholds'
         : `Performance thresholds exceeded: ${failures.join(', ')}`,
   }
 }

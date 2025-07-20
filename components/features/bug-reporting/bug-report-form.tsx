@@ -1,13 +1,13 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
+import { AlertCircle, Bug, Send } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Bug, Send, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -16,9 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Textarea } from '@/components/ui/textarea'
+import type { BugReport, ScreenshotData } from '@/src/schemas/enhanced-task-schemas'
 import { ImageAnnotationTools } from './image-annotation-tools'
-import type { ScreenshotData, BugReport } from '@/src/schemas/enhanced-task-schemas'
 
 const bugReportSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
@@ -105,9 +105,9 @@ export function BugReportForm({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div className="flex items-center gap-2 mb-6">
+      <div className="mb-6 flex items-center gap-2">
         <Bug className="h-6 w-6 text-red-500" />
-        <h2 className="text-2xl font-bold">Create Bug Report</h2>
+        <h2 className="font-bold text-2xl">Create Bug Report</h2>
       </div>
 
       {submitError && (
@@ -117,7 +117,7 @@ export function BugReportForm({
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSubmit(onFormSubmit)}>
         {/* Basic Information */}
         <div className="space-y-4">
           <div>
@@ -125,10 +125,10 @@ export function BugReportForm({
             <Input
               id="title"
               {...register('title')}
-              placeholder="Brief description of the bug"
               className={errors.title ? 'border-red-500' : ''}
+              placeholder="Brief description of the bug"
             />
-            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
+            {errors.title && <p className="mt-1 text-red-500 text-sm">{errors.title.message}</p>}
           </div>
 
           <div>
@@ -136,20 +136,20 @@ export function BugReportForm({
             <Textarea
               id="description"
               {...register('description')}
+              className={errors.description ? 'border-red-500' : ''}
               placeholder="Detailed description of the bug..."
               rows={4}
-              className={errors.description ? 'border-red-500' : ''}
             />
             {errors.description && (
-              <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+              <p className="mt-1 text-red-500 text-sm">{errors.description.message}</p>
             )}
           </div>
 
           <div>
             <Label htmlFor="priority">Priority *</Label>
             <Select
-              onValueChange={(value) => setValue('priority', value as any)}
               defaultValue="medium"
+              onValueChange={(value) => setValue('priority', value as any)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select priority" />
@@ -159,7 +159,7 @@ export function BugReportForm({
                   <SelectItem key={option.value} value={option.value}>
                     <div>
                       <div className="font-medium">{option.label}</div>
-                      <div className="text-sm text-muted-foreground">{option.description}</div>
+                      <div className="text-muted-foreground text-sm">{option.description}</div>
                     </div>
                   </SelectItem>
                 ))}
@@ -170,7 +170,7 @@ export function BugReportForm({
 
         {/* Detailed Information */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Additional Details</h3>
+          <h3 className="font-semibold text-lg">Additional Details</h3>
 
           <div>
             <Label htmlFor="stepsToReproduce">Steps to Reproduce</Label>
@@ -205,26 +205,26 @@ export function BugReportForm({
 
         {/* Screenshot with Annotations */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Screenshot Preview</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="font-semibold text-lg">Screenshot Preview</h3>
+          <p className="text-muted-foreground text-sm">
             Use the annotation tools to highlight important areas in your screenshot.
           </p>
 
           <ImageAnnotationTools
-            screenshot={annotatedScreenshot}
             onAnnotationsChange={handleAnnotationsChange}
+            screenshot={annotatedScreenshot}
           />
         </div>
 
         {/* Form Actions */}
         <div className="flex gap-3 pt-4">
-          <Button type="submit" disabled={!isValid || isSubmitting} className="gap-2">
+          <Button className="gap-2" disabled={!isValid || isSubmitting} type="submit">
             <Send className="h-4 w-4" />
             {isSubmitting ? 'Creating Bug Report...' : 'Create Bug Report'}
           </Button>
 
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            <Button disabled={isSubmitting} onClick={onCancel} type="button" variant="outline">
               Cancel
             </Button>
           )}
@@ -232,7 +232,7 @@ export function BugReportForm({
       </form>
 
       {/* Auto-applied Tags Info */}
-      <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+      <div className="rounded-lg bg-muted/50 p-3 text-muted-foreground text-sm">
         <p>
           <strong>Note:</strong> This report will be automatically tagged as "bug" and created with
           the specified priority level.

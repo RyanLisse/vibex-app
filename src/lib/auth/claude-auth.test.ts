@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, type mock, spyOn, test } from 'bun:test'
 import { vi } from 'vitest'
 import { ClaudeAuthClient } from '@/src/lib/auth/claude-auth'
 import * as pkce from '@/src/lib/auth/pkce'

@@ -1,6 +1,21 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { Activity, AlertTriangle, Clock, TrendingUp } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
@@ -9,22 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { AlertMetrics, CriticalErrorType, AlertChannelType } from '@/lib/alerts/types'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-} from 'recharts'
-import { TrendingUp, AlertTriangle, Clock, Activity } from 'lucide-react'
+import { AlertChannelType, type AlertMetrics, CriticalErrorType } from '@/lib/alerts/types'
 
 interface AlertMetricsChartProps {
   className?: string
@@ -59,14 +59,14 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
     loadMetrics()
 
     // Refresh metrics every minute
-    const interval = setInterval(loadMetrics, 60000)
+    const interval = setInterval(loadMetrics, 60_000)
     return () => clearInterval(interval)
   }, [loadMetrics])
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-gray-900 border-b-2" />
       </div>
     )
   }
@@ -104,19 +104,19 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
   const CHANNEL_COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']
 
   const formatDuration = (ms: number) => {
-    if (ms < 60000) return `${Math.round(ms / 1000)}s`
-    if (ms < 3600000) return `${Math.round(ms / 60000)}m`
-    return `${Math.round(ms / 3600000)}h`
+    if (ms < 60_000) return `${Math.round(ms / 1000)}s`
+    if (ms < 3_600_000) return `${Math.round(ms / 60_000)}m`
+    return `${Math.round(ms / 3_600_000)}h`
   }
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium">Alert Analytics</h3>
+          <h3 className="font-medium text-lg">Alert Analytics</h3>
           <p className="text-gray-600">Detailed metrics and visualizations</p>
         </div>
-        <Select value={timeframe} onValueChange={setTimeframe}>
+        <Select onValueChange={setTimeframe} value={timeframe}>
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
@@ -129,55 +129,55 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
         </Select>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="mb-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Resolution Time</CardTitle>
+            <CardTitle className="font-medium text-sm">Resolution Time</CardTitle>
             <Clock className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="font-bold text-2xl">
               {metrics.averageResolutionTime
                 ? formatDuration(metrics.averageResolutionTime)
                 : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground">Average time to resolve</p>
+            <p className="text-muted-foreground text-xs">Average time to resolve</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alert Rate</CardTitle>
+            <CardTitle className="font-medium text-sm">Alert Rate</CardTitle>
             <TrendingUp className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="font-bold text-2xl">
               {timeframe === '24h' ? metrics.alertsLast24Hours : metrics.totalAlerts}
             </div>
-            <p className="text-xs text-muted-foreground">Alerts in {timeframe}</p>
+            <p className="text-muted-foreground text-xs">Alerts in {timeframe}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mean Time to Alert</CardTitle>
+            <CardTitle className="font-medium text-sm">Mean Time to Alert</CardTitle>
             <Activity className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="font-bold text-2xl">
               {metrics.meanTimeToAlert ? formatDuration(metrics.meanTimeToAlert) : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground">Detection to notification</p>
+            <p className="text-muted-foreground text-xs">Detection to notification</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Resolution Rate</CardTitle>
+            <CardTitle className="font-medium text-sm">Resolution Rate</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="font-bold text-2xl">
               {metrics.totalAlerts > 0
                 ? Math.round(
                     ((metrics.totalAlerts - metrics.unresolvedAlerts) / metrics.totalAlerts) * 100
@@ -185,12 +185,12 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
                 : 0}
               %
             </div>
-            <p className="text-xs text-muted-foreground">Alerts resolved</p>
+            <p className="text-muted-foreground text-xs">Alerts resolved</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mb-6">
+      <div className="mb-6 grid gap-6 md:grid-cols-2">
         {/* Alerts by Type */}
         <Card>
           <CardHeader>
@@ -199,17 +199,17 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
           </CardHeader>
           <CardContent>
             {alertsByTypeData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer height={300} width="100%">
                 <BarChart data={alertsByTypeData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
+                  <XAxis angle={-45} dataKey="name" fontSize={12} height={80} textAnchor="end" />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="value" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="flex h-64 items-center justify-center text-gray-500">
                 No alerts in selected timeframe
               </div>
             )}
@@ -224,21 +224,21 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
           </CardHeader>
           <CardContent>
             {alertsByChannelData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer height={300} width="100%">
                 <PieChart>
                   <Pie
-                    data={alertsByChannelData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
-                    fill="#8884d8"
+                    data={alertsByChannelData}
                     dataKey="value"
+                    fill="#8884d8"
                     label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={80}
                   >
                     {alertsByChannelData.map((entry, index) => (
                       <Cell
-                        key={`cell-${index}`}
                         fill={CHANNEL_COLORS[index % CHANNEL_COLORS.length]}
+                        key={`cell-${index}`}
                       />
                     ))}
                   </Pie>
@@ -246,7 +246,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="flex h-64 items-center justify-center text-gray-500">
                 No channel data available
               </div>
             )}
@@ -264,15 +264,15 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
           <CardContent>
             <div className="space-y-3">
               {alertsByTypeData.map((item, index) => (
-                <div key={item.type} className="flex items-center justify-between">
+                <div className="flex items-center justify-between" key={item.type}>
                   <div className="flex items-center gap-2">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: SEVERITY_COLORS[index % SEVERITY_COLORS.length] }}
                     />
-                    <span className="text-sm font-medium">{item.name}</span>
+                    <span className="font-medium text-sm">{item.name}</span>
                   </div>
-                  <div className="text-sm text-gray-600">{item.value}</div>
+                  <div className="text-gray-600 text-sm">{item.value}</div>
                 </div>
               ))}
             </div>
@@ -286,25 +286,25 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Mean Time to Resolution</span>
-                <span className="text-sm text-gray-600">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-sm">Mean Time to Resolution</span>
+                <span className="text-gray-600 text-sm">
                   {metrics.meanTimeToResolution
                     ? formatDuration(metrics.meanTimeToResolution)
                     : 'N/A'}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Total Alerts</span>
-                <span className="text-sm text-gray-600">{metrics.totalAlerts}</span>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-sm">Total Alerts</span>
+                <span className="text-gray-600 text-sm">{metrics.totalAlerts}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Unresolved Alerts</span>
-                <span className="text-sm text-gray-600">{metrics.unresolvedAlerts}</span>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-sm">Unresolved Alerts</span>
+                <span className="text-gray-600 text-sm">{metrics.unresolvedAlerts}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Last 7 Days</span>
-                <span className="text-sm text-gray-600">{metrics.alertsLast7Days}</span>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-sm">Last 7 Days</span>
+                <span className="text-gray-600 text-sm">{metrics.alertsLast7Days}</span>
               </div>
             </div>
           </CardContent>

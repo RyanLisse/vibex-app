@@ -382,7 +382,7 @@ export class LifecyclePatterns {
     }
   }
 
-  static httpServerSetup(port: number = 3000) {
+  static httpServerSetup(port = 3000) {
     return {
       setup: async () => {
         // Mock HTTP server setup

@@ -289,7 +289,7 @@ export class TestSpecificationGenerator {
     }
 
     if (sourceCode.includes('throw')) {
-      testCases.push(`should throw error for invalid input`)
+      testCases.push('should throw error for invalid input')
     }
 
     if (sourceCode.includes('premium')) {
@@ -307,7 +307,7 @@ export class TestSpecificationGenerator {
     }
 
     // Add basic test cases
-    testCases.push(`should work correctly with valid input`)
+    testCases.push('should work correctly with valid input')
 
     return testCases
   }

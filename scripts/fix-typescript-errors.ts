@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs'
-import { join, dirname, relative } from 'path'
 import { execSync } from 'child_process'
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
+import { dirname, join, relative } from 'path'
 
 interface ErrorPattern {
   code: string
@@ -125,8 +125,8 @@ const errorPatterns: ErrorPattern[] = [
     description: 'Wrong number of arguments',
     pattern: /Expected (\d+)(?:-(\d+))? arguments?, but got (\d+)/,
     fix: (content, match, filePath, error) => {
-      const expectedMin = parseInt(match[1])
-      const got = parseInt(match[3])
+      const expectedMin = Number.parseInt(match[1])
+      const got = Number.parseInt(match[3])
 
       // AlertManager constructor fix
       if (error.message.includes('AlertManager') && expectedMin === 6 && got === 1) {
@@ -275,8 +275,8 @@ function parseTypeScriptErrors(output: string): FileError[] {
       const [, file, lineStr, columnStr, code, message] = match
       errors.push({
         file: file.trim(),
-        line: parseInt(lineStr),
-        column: parseInt(columnStr),
+        line: Number.parseInt(lineStr),
+        column: Number.parseInt(columnStr),
         code,
         message: message.trim(),
       })
@@ -484,12 +484,12 @@ async function main() {
 
   // Step 5: Summary
   console.log('\n' + '━'.repeat(50))
-  console.log(`\n📊 Summary:`)
+  console.log('\n📊 Summary:')
   console.log(`   Total errors: ${errorCount}`)
   console.log(`   Fixed: ${totalFixed}`)
   console.log(`   Remaining: ${errorCount - totalFixed}`)
   console.log(`   Files processed: ${results.length}`)
-  console.log(`   Backups saved to: .typescript-fixes-backup/`)
+  console.log('   Backups saved to: .typescript-fixes-backup/')
 
   // Step 6: Re-run TypeScript check
   console.log('\n🔄 Running TypeScript check again...')

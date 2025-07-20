@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { readFile, writeFile } from 'fs/promises'
 import { execSync } from 'child_process'
+import { readFile, writeFile } from 'fs/promises'
 import path from 'path'
 
 interface TypeScriptError {
@@ -21,8 +21,8 @@ function parseTypeScriptErrors(output: string): TypeScriptError[] {
     if (match) {
       errors.push({
         file: match[1],
-        line: parseInt(match[2]),
-        column: parseInt(match[3]),
+        line: Number.parseInt(match[2]),
+        column: Number.parseInt(match[3]),
         code: match[4],
         message: match[5],
       })

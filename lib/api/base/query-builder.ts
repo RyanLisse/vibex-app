@@ -5,7 +5,7 @@
  * automatic pagination, filtering, and sorting support.
  */
 
-import { and, desc, asc, eq, like, gte, lte, ne, or, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, like, lte, ne, or, type SQL } from 'drizzle-orm'
 import { db } from '@/db/config'
 
 export interface QueryOptions {

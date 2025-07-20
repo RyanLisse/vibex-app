@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { redis } from '@/lib/redis'
 
 export interface RateLimiterOptions {
@@ -133,11 +133,7 @@ export class ApiRateLimiter extends RateLimiter {
 }
 
 // Utility function for creating custom rate limiters
-export function createRateLimiter(
-  windowMs: number,
-  max: number,
-  keyPrefix: string = ''
-): RateLimiter {
+export function createRateLimiter(windowMs: number, max: number, keyPrefix = ''): RateLimiter {
   return new RateLimiter({
     windowMs,
     max,

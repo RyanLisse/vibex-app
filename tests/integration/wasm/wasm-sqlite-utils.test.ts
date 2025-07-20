@@ -352,7 +352,7 @@ const createMockSQLiteUtils = () => {
     // Transaction support
     beginTransaction: vi.fn(async (connectionId: string): Promise<void> => {
       const connection = connections.get(connectionId)
-      if (!connection || !connection.isOpen) {
+      if (!(connection && connection.isOpen)) {
         throw new Error('Database connection not found or closed')
       }
       // Simply validate connection, no actual transaction needed for mock
@@ -360,7 +360,7 @@ const createMockSQLiteUtils = () => {
 
     commitTransaction: vi.fn(async (connectionId: string): Promise<void> => {
       const connection = connections.get(connectionId)
-      if (!connection || !connection.isOpen) {
+      if (!(connection && connection.isOpen)) {
         throw new Error('Database connection not found or closed')
       }
       // Simply validate connection, no actual commit needed for mock
@@ -368,7 +368,7 @@ const createMockSQLiteUtils = () => {
 
     rollbackTransaction: vi.fn(async (connectionId: string): Promise<void> => {
       const connection = connections.get(connectionId)
-      if (!connection || !connection.isOpen) {
+      if (!(connection && connection.isOpen)) {
         throw new Error('Database connection not found or closed')
       }
       // Simply validate connection, no actual rollback needed for mock

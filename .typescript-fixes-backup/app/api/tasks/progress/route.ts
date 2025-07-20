@@ -20,24 +20,24 @@ class ProgressNotificationManager {
   private static connections = new Map<string, Set<string>>() // userId -> Set of connectionIds
 
   static addConnection(userId: string, connectionId: string) {
-    if (!this.connections.has(userId)) {
-      this.connections.set(userId, new Set())
+    if (!ProgressNotificationManager.connections.has(userId)) {
+      ProgressNotificationManager.connections.set(userId, new Set())
     }
-    this.connections.get(userId)!.add(connectionId)
+    ProgressNotificationManager.connections.get(userId)!.add(connectionId)
   }
 
   static removeConnection(userId: string, connectionId: string) {
-    const userConnections = this.connections.get(userId)
+    const userConnections = ProgressNotificationManager.connections.get(userId)
     if (userConnections) {
       userConnections.delete(connectionId)
       if (userConnections.size === 0) {
-        this.connections.delete(userId)
+        ProgressNotificationManager.connections.delete(userId)
       }
     }
   }
 
   static async notifyProgress(userId: string, progressData: any) {
-    const userConnections = this.connections.get(userId)
+    const userConnections = ProgressNotificationManager.connections.get(userId)
     if (userConnections && userConnections.size > 0) {
       // In real implementation, would send WebSocket messages
       console.log(`Notifying ${userConnections.size} connections for user ${userId}:`, progressData)
@@ -46,7 +46,7 @@ class ProgressNotificationManager {
 
   static async notifyMilestone(userIds: string[], milestone: any) {
     for (const userId of userIds) {
-      await this.notifyProgress(userId, {
+      await ProgressNotificationManager.notifyProgress(userId, {
         type: 'milestone_reached',
         milestone,
       })
@@ -267,7 +267,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId')
     const timeframe = searchParams.get('timeframe') || '30'
 
-    const daysAgo = parseInt(timeframe)
+    const daysAgo = Number.parseInt(timeframe)
     const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
 
     let query = db.select().from(tasks).where(gte(tasks.createdAt, startDate))

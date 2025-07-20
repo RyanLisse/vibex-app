@@ -1,6 +1,6 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthCardBase } from '@/components/auth/auth-card-base'
 
 // Mock date-fns

@@ -76,15 +76,15 @@ export function PRStatusBadge({ status, reviewStatus, className = '' }: PRStatus
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <Badge
-        variant={statusConfig.variant}
         className={statusConfig.className}
         data-testid="pr-status-badge"
+        variant={statusConfig.variant}
       >
         {statusConfig.label}
       </Badge>
 
       {status === 'open' && (
-        <Badge variant="outline" className={reviewConfig.className} data-testid="review-status">
+        <Badge className={reviewConfig.className} data-testid="review-status" variant="outline">
           {reviewConfig.label}
         </Badge>
       )}

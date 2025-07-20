@@ -17,9 +17,9 @@ import { BaseAPIHandler } from '@/lib/api/base'
 import { ResponseBuilder } from '@/lib/api/base/response-builder'
 import { CreateEnvironmentSchema } from '@/src/schemas/api-routes'
 import {
+  ActivateEnvironmentSchema,
   environmentsService,
   GetEnvironmentsQuerySchema,
-  ActivateEnvironmentSchema,
 } from './service'
 
 /**

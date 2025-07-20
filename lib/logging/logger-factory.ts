@@ -23,6 +23,7 @@ if (typeof window === 'undefined' && typeof process !== 'undefined') {
       // Keep using browser fallback if async_hooks is not available
     })
 }
+
 import winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import { CorrelationIdManager } from './correlation-id-manager'

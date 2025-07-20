@@ -2,18 +2,17 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { AlertSystem } from '@/components/features/progress/alert-system'
 // Components to be implemented
 import { ProgressDashboard } from '@/components/features/progress/progress-dashboard'
-import { TaskProgressCard } from '@/components/features/progress/task-progress-card'
 import { ProgressIndicator } from '@/components/features/progress/progress-indicator'
-import { AlertSystem } from '@/components/features/progress/alert-system'
+import { TaskProgressCard } from '@/components/features/progress/task-progress-card'
 
 // Types
-import type { TaskProgress, ProgressMetrics } from '@/src/schemas/enhanced-task-schemas'
+import type { ProgressMetrics, TaskProgress } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock WebSocket for real-time updates
 const mockWebSocket = {
@@ -81,7 +80,7 @@ describe('Real-time Progress Monitoring Feature', () => {
 
   describe('ProgressDashboard', () => {
     it('should render progress dashboard with metrics', () => {
-      render(<ProgressDashboard taskProgress={mockTaskProgress} metrics={mockProgressMetrics} />)
+      render(<ProgressDashboard metrics={mockProgressMetrics} taskProgress={mockTaskProgress} />)
 
       expect(screen.getByText('Progress Dashboard')).toBeInTheDocument()
       expect(screen.getByText('10 Total Tasks')).toBeInTheDocument()
@@ -91,7 +90,7 @@ describe('Real-time Progress Monitoring Feature', () => {
     })
 
     it('should display real-time progress indicators', () => {
-      render(<ProgressDashboard taskProgress={mockTaskProgress} metrics={mockProgressMetrics} />)
+      render(<ProgressDashboard metrics={mockProgressMetrics} taskProgress={mockTaskProgress} />)
 
       // Should show progress for each task
       expect(screen.getByText('75%')).toBeInTheDocument()
@@ -101,7 +100,7 @@ describe('Real-time Progress Monitoring Feature', () => {
 
     it('should update progress without page refresh', async () => {
       const { rerender } = render(
-        <ProgressDashboard taskProgress={mockTaskProgress} metrics={mockProgressMetrics} />
+        <ProgressDashboard metrics={mockProgressMetrics} taskProgress={mockTaskProgress} />
       )
 
       // Simulate real-time update
@@ -109,14 +108,14 @@ describe('Real-time Progress Monitoring Feature', () => {
         task.taskId === 'task-1' ? { ...task, completionPercentage: 90 } : task
       )
 
-      rerender(<ProgressDashboard taskProgress={updatedProgress} metrics={mockProgressMetrics} />)
+      rerender(<ProgressDashboard metrics={mockProgressMetrics} taskProgress={updatedProgress} />)
 
       expect(screen.getByText('90%')).toBeInTheDocument()
       expect(screen.queryByText('75%')).not.toBeInTheDocument()
     })
 
     it('should highlight overdue tasks', () => {
-      render(<ProgressDashboard taskProgress={mockTaskProgress} metrics={mockProgressMetrics} />)
+      render(<ProgressDashboard metrics={mockProgressMetrics} taskProgress={mockTaskProgress} />)
 
       const overdueTask = screen.getByTestId('task-progress-task-2')
       expect(overdueTask).toHaveClass('overdue')
@@ -124,7 +123,7 @@ describe('Real-time Progress Monitoring Feature', () => {
     })
 
     it('should flag potentially blocked tasks', () => {
-      render(<ProgressDashboard taskProgress={mockTaskProgress} metrics={mockProgressMetrics} />)
+      render(<ProgressDashboard metrics={mockProgressMetrics} taskProgress={mockTaskProgress} />)
 
       const blockedTask = screen.getByTestId('task-progress-task-3')
       expect(blockedTask).toHaveClass('blocked')
@@ -138,7 +137,7 @@ describe('Real-time Progress Monitoring Feature', () => {
       }))
 
       render(
-        <ProgressDashboard taskProgress={progressWithAssignees} metrics={mockProgressMetrics} />
+        <ProgressDashboard metrics={mockProgressMetrics} taskProgress={progressWithAssignees} />
       )
 
       expect(screen.getByText('John Doe')).toBeInTheDocument()
@@ -197,9 +196,9 @@ describe('Real-time Progress Monitoring Feature', () => {
 
       render(
         <TaskProgressCard
+          onProgressUpdate={mockOnProgressUpdate}
           progress={taskProgress}
           taskTitle="Fix login bug"
-          onProgressUpdate={mockOnProgressUpdate}
         />
       )
 
@@ -226,7 +225,7 @@ describe('Real-time Progress Monitoring Feature', () => {
 
   describe('ProgressIndicator', () => {
     it('should render circular progress indicator', () => {
-      render(<ProgressIndicator percentage={75} size="large" color="blue" />)
+      render(<ProgressIndicator color="blue" percentage={75} size="large" />)
 
       const progressIndicator = screen.getByRole('progressbar')
       expect(progressIndicator).toBeInTheDocument()
@@ -246,9 +245,9 @@ describe('Real-time Progress Monitoring Feature', () => {
     })
 
     it('should animate progress changes', async () => {
-      const { rerender } = render(<ProgressIndicator percentage={0} animated />)
+      const { rerender } = render(<ProgressIndicator animated percentage={0} />)
 
-      rerender(<ProgressIndicator percentage={75} animated />)
+      rerender(<ProgressIndicator animated percentage={75} />)
 
       // Should have animation class
       expect(screen.getByTestId('progress-indicator')).toHaveClass('animated')
@@ -266,14 +265,14 @@ describe('Real-time Progress Monitoring Feature', () => {
 
   describe('AlertSystem', () => {
     it('should show overdue task notifications', () => {
-      render(<AlertSystem taskProgress={mockTaskProgress} onDismiss={vi.fn()} />)
+      render(<AlertSystem onDismiss={vi.fn()} taskProgress={mockTaskProgress} />)
 
       expect(screen.getByText(/task is overdue/i)).toBeInTheDocument()
       expect(screen.getByTestId('overdue-alert')).toBeInTheDocument()
     })
 
     it('should show blocked task alerts', () => {
-      render(<AlertSystem taskProgress={mockTaskProgress} onDismiss={vi.fn()} />)
+      render(<AlertSystem onDismiss={vi.fn()} taskProgress={mockTaskProgress} />)
 
       expect(screen.getByText(/task appears to be blocked/i)).toBeInTheDocument()
       expect(screen.getByTestId('blocked-alert')).toBeInTheDocument()
@@ -282,7 +281,7 @@ describe('Real-time Progress Monitoring Feature', () => {
     it('should allow dismissing alerts', async () => {
       const mockOnDismiss = vi.fn()
 
-      render(<AlertSystem taskProgress={mockTaskProgress} onDismiss={mockOnDismiss} />)
+      render(<AlertSystem onDismiss={mockOnDismiss} taskProgress={mockTaskProgress} />)
 
       const dismissButton = screen.getByRole('button', { name: /dismiss/i })
       await userEvent.click(dismissButton)
@@ -300,13 +299,13 @@ describe('Real-time Progress Monitoring Feature', () => {
         },
       ]
 
-      render(<AlertSystem taskProgress={multipleOverdueTasks} onDismiss={vi.fn()} />)
+      render(<AlertSystem onDismiss={vi.fn()} taskProgress={multipleOverdueTasks} />)
 
       expect(screen.getByText(/2 tasks are overdue/i)).toBeInTheDocument()
     })
 
     it('should prioritize alerts by severity', () => {
-      render(<AlertSystem taskProgress={mockTaskProgress} onDismiss={vi.fn()} />)
+      render(<AlertSystem onDismiss={vi.fn()} taskProgress={mockTaskProgress} />)
 
       const alerts = screen.getAllByTestId(/alert/)
       // Blocked alerts should come before overdue alerts
@@ -319,9 +318,9 @@ describe('Real-time Progress Monitoring Feature', () => {
     it('should establish WebSocket connection for real-time updates', () => {
       render(
         <ProgressDashboard
-          taskProgress={mockTaskProgress}
-          metrics={mockProgressMetrics}
           enableRealTime
+          metrics={mockProgressMetrics}
+          taskProgress={mockTaskProgress}
         />
       )
 
@@ -331,9 +330,9 @@ describe('Real-time Progress Monitoring Feature', () => {
     it('should handle incoming progress updates', async () => {
       const { rerender } = render(
         <ProgressDashboard
-          taskProgress={mockTaskProgress}
-          metrics={mockProgressMetrics}
           enableRealTime
+          metrics={mockProgressMetrics}
+          taskProgress={mockTaskProgress}
         />
       )
 
@@ -363,9 +362,9 @@ describe('Real-time Progress Monitoring Feature', () => {
     it('should handle WebSocket connection errors gracefully', () => {
       render(
         <ProgressDashboard
-          taskProgress={mockTaskProgress}
-          metrics={mockProgressMetrics}
           enableRealTime
+          metrics={mockProgressMetrics}
+          taskProgress={mockTaskProgress}
         />
       )
 
@@ -382,9 +381,9 @@ describe('Real-time Progress Monitoring Feature', () => {
     it('should retry WebSocket connection on failure', async () => {
       render(
         <ProgressDashboard
-          taskProgress={mockTaskProgress}
-          metrics={mockProgressMetrics}
           enableRealTime
+          metrics={mockProgressMetrics}
+          taskProgress={mockTaskProgress}
         />
       )
 
@@ -410,9 +409,9 @@ describe('Real-time Progress Monitoring Feature', () => {
 
       render(
         <ProgressDashboard
-          taskProgress={mockTaskProgress}
-          metrics={mockProgressMetrics}
           autoTimeTracking
+          metrics={mockProgressMetrics}
+          taskProgress={mockTaskProgress}
         />
       )
 
@@ -439,7 +438,7 @@ describe('Real-time Progress Monitoring Feature', () => {
 
   describe('Performance Monitoring', () => {
     it('should calculate team productivity metrics', () => {
-      render(<ProgressDashboard taskProgress={mockTaskProgress} metrics={mockProgressMetrics} />)
+      render(<ProgressDashboard metrics={mockProgressMetrics} taskProgress={mockTaskProgress} />)
 
       expect(screen.getByText(/4h average completion/i)).toBeInTheDocument()
       expect(screen.getByText(/70% team velocity/i)).toBeInTheDocument()
@@ -452,7 +451,7 @@ describe('Real-time Progress Monitoring Feature', () => {
         overdueTasks: 5, // High number of overdue tasks
       }
 
-      render(<ProgressDashboard taskProgress={mockTaskProgress} metrics={bottleneckMetrics} />)
+      render(<ProgressDashboard metrics={bottleneckMetrics} taskProgress={mockTaskProgress} />)
 
       expect(screen.getByText(/productivity concern/i)).toBeInTheDocument()
       expect(screen.getByTestId('bottleneck-warning')).toBeInTheDocument()
@@ -466,11 +465,11 @@ describe('Real-time Progress Monitoring Feature', () => {
       render(
         <div>
           <ProgressDashboard
-            taskProgress={mockTaskProgress}
-            metrics={mockProgressMetrics}
             enableRealTime
+            metrics={mockProgressMetrics}
+            taskProgress={mockTaskProgress}
           />
-          <AlertSystem taskProgress={mockTaskProgress} onDismiss={vi.fn()} />
+          <AlertSystem onDismiss={vi.fn()} taskProgress={mockTaskProgress} />
         </div>
       )
 

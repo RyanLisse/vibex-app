@@ -14,7 +14,7 @@ export const runtime = 'nodejs'
 import { type NextRequest, NextResponse } from 'next/server'
 import { BaseAPIHandler } from '@/lib/api/base'
 import { ResponseBuilder } from '@/lib/api/base/response-builder'
-import { prIntegrationService, MergePRSchema } from '../service'
+import { MergePRSchema, prIntegrationService } from '../service'
 
 /**
  * POST /api/tasks/pr-integration/merge - Merge PR and update linked tasks

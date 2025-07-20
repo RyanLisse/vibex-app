@@ -25,10 +25,10 @@ async function runTestSuite(suite: string, command: string): Promise<TestResult>
     const skipMatch = output.match(/(\d+) skipped/)
     const totalMatch = output.match(/(\d+) test/)
 
-    const passed = passMatch ? parseInt(passMatch[1]) : 0
-    const failed = failMatch ? parseInt(failMatch[1]) : 0
-    const skipped = skipMatch ? parseInt(skipMatch[1]) : 0
-    const total = totalMatch ? parseInt(totalMatch[1]) : passed + failed + skipped
+    const passed = passMatch ? Number.parseInt(passMatch[1]) : 0
+    const failed = failMatch ? Number.parseInt(failMatch[1]) : 0
+    const skipped = skipMatch ? Number.parseInt(skipMatch[1]) : 0
+    const total = totalMatch ? Number.parseInt(totalMatch[1]) : passed + failed + skipped
 
     return { suite, passed, failed, skipped, total, output }
   } catch (error) {

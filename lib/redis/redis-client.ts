@@ -21,7 +21,9 @@ export class RedisClientManager {
 
   static getInstance(config?: RedisConfig): RedisClientManager {
     if (!RedisClientManager.instance) {
-      if (!config) {
+      if (config) {
+        RedisClientManager.instance = new RedisClientManager(config)
+      } else {
         // During build or when Redis is disabled, return a mock instance
         if (process.env.NODE_ENV === 'production' || process.env.REDIS_ENABLED === 'false') {
           // Create a minimal config for build time
@@ -38,8 +40,6 @@ export class RedisClientManager {
         } else {
           throw new Error('RedisClientManager requires configuration on first initialization')
         }
-      } else {
-        RedisClientManager.instance = new RedisClientManager(config)
       }
     }
     return RedisClientManager.instance

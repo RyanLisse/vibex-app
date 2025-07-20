@@ -2,22 +2,22 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Components to be implemented
 import { KanbanBoard } from '@/components/features/kanban/kanban-board'
-import { KanbanColumn } from '@/components/features/kanban/kanban-column'
 import { KanbanCard } from '@/components/features/kanban/kanban-card'
+import { KanbanColumn } from '@/components/features/kanban/kanban-column'
 import { TaskFilters } from '@/components/features/kanban/task-filters'
 
 // Types
 import type {
-  KanbanTask,
   KanbanColumn as KanbanColumnType,
+  KanbanTask,
 } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock data
@@ -79,7 +79,7 @@ describe('Kanban Board Feature', () => {
     it('should render kanban board with columns', () => {
       render(
         <DnDWrapper>
-          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
+          <KanbanBoard columns={mockColumns} onTaskMove={vi.fn()} tasks={mockTasks} />
         </DnDWrapper>
       )
 
@@ -92,7 +92,7 @@ describe('Kanban Board Feature', () => {
     it('should organize tasks by column', () => {
       render(
         <DnDWrapper>
-          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
+          <KanbanBoard columns={mockColumns} onTaskMove={vi.fn()} tasks={mockTasks} />
         </DnDWrapper>
       )
 
@@ -110,7 +110,7 @@ describe('Kanban Board Feature', () => {
     it('should show task count for each column', () => {
       render(
         <DnDWrapper>
-          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
+          <KanbanBoard columns={mockColumns} onTaskMove={vi.fn()} tasks={mockTasks} />
         </DnDWrapper>
       )
 
@@ -124,7 +124,7 @@ describe('Kanban Board Feature', () => {
 
       render(
         <DnDWrapper>
-          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+          <KanbanBoard columns={mockColumns} onTaskMove={mockOnTaskMove} tasks={mockTasks} />
         </DnDWrapper>
       )
 
@@ -180,9 +180,9 @@ describe('Kanban Board Feature', () => {
       render(
         <DnDWrapper>
           <KanbanBoard
-            tasks={tasksWithFullColumn}
             columns={mockColumns}
             onTaskMove={mockOnTaskMove}
+            tasks={tasksWithFullColumn}
           />
         </DnDWrapper>
       )
@@ -207,7 +207,7 @@ describe('Kanban Board Feature', () => {
     it('should render column with tasks', () => {
       render(
         <DnDWrapper>
-          <KanbanColumn column={todoColumn} tasks={todoTasks} onTaskMove={vi.fn()} />
+          <KanbanColumn column={todoColumn} onTaskMove={vi.fn()} tasks={todoTasks} />
         </DnDWrapper>
       )
 
@@ -229,7 +229,7 @@ describe('Kanban Board Feature', () => {
 
       render(
         <DnDWrapper>
-          <KanbanColumn column={inProgressColumn} tasks={tooManyTasks} onTaskMove={vi.fn()} />
+          <KanbanColumn column={inProgressColumn} onTaskMove={vi.fn()} tasks={tooManyTasks} />
         </DnDWrapper>
       )
 
@@ -244,9 +244,9 @@ describe('Kanban Board Feature', () => {
         <DnDWrapper>
           <KanbanColumn
             column={todoColumn}
-            tasks={todoTasks}
-            onTaskMove={mockOnTaskMove}
             onDrop={mockOnTaskMove}
+            onTaskMove={mockOnTaskMove}
+            tasks={todoTasks}
           />
         </DnDWrapper>
       )
@@ -262,7 +262,7 @@ describe('Kanban Board Feature', () => {
     it('should render task card with all information', () => {
       render(
         <DnDWrapper>
-          <KanbanCard task={task} onEdit={vi.fn()} />
+          <KanbanCard onEdit={vi.fn()} task={task} />
         </DnDWrapper>
       )
 
@@ -276,7 +276,7 @@ describe('Kanban Board Feature', () => {
     it('should show due date when present', () => {
       render(
         <DnDWrapper>
-          <KanbanCard task={task} onEdit={vi.fn()} />
+          <KanbanCard onEdit={vi.fn()} task={task} />
         </DnDWrapper>
       )
 
@@ -291,7 +291,7 @@ describe('Kanban Board Feature', () => {
 
       render(
         <DnDWrapper>
-          <KanbanCard task={overdueTask} onEdit={vi.fn()} />
+          <KanbanCard onEdit={vi.fn()} task={overdueTask} />
         </DnDWrapper>
       )
 
@@ -301,7 +301,7 @@ describe('Kanban Board Feature', () => {
     it('should be draggable', () => {
       render(
         <DnDWrapper>
-          <KanbanCard task={task} onEdit={vi.fn()} />
+          <KanbanCard onEdit={vi.fn()} task={task} />
         </DnDWrapper>
       )
 
@@ -314,7 +314,7 @@ describe('Kanban Board Feature', () => {
 
       render(
         <DnDWrapper>
-          <KanbanCard task={task} onEdit={mockOnEdit} />
+          <KanbanCard onEdit={mockOnEdit} task={task} />
         </DnDWrapper>
       )
 
@@ -329,7 +329,7 @@ describe('Kanban Board Feature', () => {
 
       render(
         <DnDWrapper>
-          <KanbanCard task={urgentTask} onEdit={vi.fn()} />
+          <KanbanCard onEdit={vi.fn()} task={urgentTask} />
         </DnDWrapper>
       )
 
@@ -342,8 +342,8 @@ describe('Kanban Board Feature', () => {
     it('should render filter controls', () => {
       render(
         <TaskFilters
-          onFilterChange={vi.fn()}
           assignees={['John Doe', 'Jane Smith', 'Bob Wilson']}
+          onFilterChange={vi.fn()}
           tags={['bug', 'feature', 'docs']}
         />
       )
@@ -359,8 +359,8 @@ describe('Kanban Board Feature', () => {
 
       render(
         <TaskFilters
-          onFilterChange={mockOnFilterChange}
           assignees={['John Doe', 'Jane Smith']}
+          onFilterChange={mockOnFilterChange}
           tags={['bug', 'feature']}
         />
       )
@@ -381,8 +381,8 @@ describe('Kanban Board Feature', () => {
 
       render(
         <TaskFilters
-          onFilterChange={mockOnFilterChange}
           assignees={[]}
+          onFilterChange={mockOnFilterChange}
           tags={['bug', 'feature', 'docs']}
         />
       )
@@ -405,7 +405,7 @@ describe('Kanban Board Feature', () => {
     it('should filter by search text', async () => {
       const mockOnFilterChange = vi.fn()
 
-      render(<TaskFilters onFilterChange={mockOnFilterChange} assignees={[]} tags={[]} />)
+      render(<TaskFilters assignees={[]} onFilterChange={mockOnFilterChange} tags={[]} />)
 
       const searchInput = screen.getByPlaceholderText(/search tasks/i)
       await userEvent.type(searchInput, 'login')
@@ -422,7 +422,7 @@ describe('Kanban Board Feature', () => {
       const mockOnFilterChange = vi.fn()
 
       render(
-        <TaskFilters onFilterChange={mockOnFilterChange} assignees={['John Doe']} tags={['bug']} />
+        <TaskFilters assignees={['John Doe']} onFilterChange={mockOnFilterChange} tags={['bug']} />
       )
 
       const clearButton = screen.getByText(/clear filters/i)
@@ -443,7 +443,7 @@ describe('Kanban Board Feature', () => {
 
       const { rerender } = render(
         <DnDWrapper>
-          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+          <KanbanBoard columns={mockColumns} onTaskMove={mockOnTaskMove} tasks={mockTasks} />
         </DnDWrapper>
       )
 
@@ -454,7 +454,7 @@ describe('Kanban Board Feature', () => {
 
       rerender(
         <DnDWrapper>
-          <KanbanBoard tasks={updatedTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+          <KanbanBoard columns={mockColumns} onTaskMove={mockOnTaskMove} tasks={updatedTasks} />
         </DnDWrapper>
       )
 
@@ -473,11 +473,11 @@ describe('Kanban Board Feature', () => {
         <DnDWrapper>
           <div>
             <TaskFilters
-              onFilterChange={vi.fn()}
               assignees={['John Doe', 'Jane Smith']}
+              onFilterChange={vi.fn()}
               tags={['bug', 'feature']}
             />
-            <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+            <KanbanBoard columns={mockColumns} onTaskMove={mockOnTaskMove} tasks={mockTasks} />
           </div>
         </DnDWrapper>
       )

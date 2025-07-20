@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
+import { spawn } from 'child_process'
 import { promises as fs } from 'fs'
 import { join } from 'path'
-import { spawn } from 'child_process'
 import { promisify } from 'util'
 
 const execAsync = promisify(spawn)

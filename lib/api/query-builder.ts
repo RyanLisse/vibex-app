@@ -4,8 +4,9 @@
  * Provides standardized database query building functionality
  * Reduces duplication in filter, sort, and pagination logic
  */
-import { and, or, eq, like, gte, lte, desc, asc, sql } from 'drizzle-orm'
+
 import type { SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, like, lte, or, sql } from 'drizzle-orm'
 
 export interface QueryFilters {
   [key: string]: any
@@ -74,7 +75,7 @@ export class QueryBuilder {
     const field = sortBy || defaultSort?.field
     const order = sortOrder || defaultSort?.order || 'desc'
 
-    if (!field || !table[field]) {
+    if (!(field && table[field])) {
       return defaultSort && table[defaultSort.field]
         ? order === 'asc'
           ? asc(table[defaultSort.field])
@@ -115,20 +116,29 @@ export class QueryBuilder {
     let query = baseQuery
 
     // Apply filters
-    const conditions = this.buildConditions(options.filters || {}, table, options.searchFields)
+    const conditions = QueryBuilder.buildConditions(
+      options.filters || {},
+      table,
+      options.searchFields
+    )
     if (conditions) {
       query = query.where(conditions)
     }
 
     // Apply sorting
-    const orderBy = this.buildOrderBy(options.sortBy, options.sortOrder, table, options.defaultSort)
+    const orderBy = QueryBuilder.buildOrderBy(
+      options.sortBy,
+      options.sortOrder,
+      table,
+      options.defaultSort
+    )
     if (orderBy) {
       query = query.orderBy(orderBy)
     }
 
     // Apply pagination
     if (options.page !== undefined || options.limit !== undefined) {
-      const { limit, offset } = this.buildPagination({
+      const { limit, offset } = QueryBuilder.buildPagination({
         page: options.page,
         limit: options.limit,
       })
@@ -147,7 +157,7 @@ export class QueryBuilder {
     filters?: QueryFilters,
     searchFields?: string[]
   ): Promise<number> {
-    const conditions = this.buildConditions(filters || {}, table, searchFields)
+    const conditions = QueryBuilder.buildConditions(filters || {}, table, searchFields)
 
     const query = db.select({ count: sql<number>`count(*)::int` }).from(table)
 
@@ -186,7 +196,7 @@ export class QueryBuilder {
     }
   }> {
     // Get pagination params
-    const { limit, page } = this.buildPagination({
+    const { limit, page } = QueryBuilder.buildPagination({
       page: options.page,
       limit: options.limit,
     })
@@ -196,7 +206,7 @@ export class QueryBuilder {
       ? db.select(options.select).from(table)
       : db.select().from(table)
 
-    const query = this.buildQuery(baseQuery, table, {
+    const query = QueryBuilder.buildQuery(baseQuery, table, {
       ...options,
       page,
       limit,
@@ -204,7 +214,7 @@ export class QueryBuilder {
 
     const [data, total] = await Promise.all([
       query,
-      this.getCount(db, table, options.filters, options.searchFields),
+      QueryBuilder.getCount(db, table, options.filters, options.searchFields),
     ])
 
     // Calculate pagination info

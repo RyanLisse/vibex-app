@@ -1,6 +1,6 @@
-import { AlertTransport } from './types'
-import { AlertChannel, CriticalError, AlertNotification } from '../types'
 import { ComponentLogger } from '../../logging/logger-factory'
+import type { AlertChannel, AlertNotification, CriticalError } from '../types'
+import type { AlertTransport } from './types'
 
 interface LogConfig {
   level?: 'error' | 'warn' | 'info'

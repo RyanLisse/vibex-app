@@ -17,7 +17,7 @@ export class LoggerFactory {
         info: (...args: any[]) => {},
         warn: (...args: any[]) => {},
         error: (...args: any[]) => {},
-        child: () => this,
+        child: () => LoggerFactory,
         startTimer: () => ({ done: () => {} }),
         profile: () => {},
       }),

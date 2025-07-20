@@ -5,7 +5,7 @@
  * pagination support, and standardized error responses.
  */
 
-import { BaseAPIError } from './errors'
+import type { BaseAPIError } from './errors'
 
 export interface SuccessResponse<T = any> {
   success: true
@@ -62,7 +62,7 @@ export class ResponseBuilder {
       message,
       meta: {
         timestamp: new Date().toISOString(),
-        version: this.API_VERSION,
+        version: ResponseBuilder.API_VERSION,
         requestId,
       },
     }
@@ -81,7 +81,7 @@ export class ResponseBuilder {
       timestamp: error.timestamp.toISOString(),
       meta: {
         requestId,
-        version: this.API_VERSION,
+        version: ResponseBuilder.API_VERSION,
       },
     }
   }
@@ -109,7 +109,7 @@ export class ResponseBuilder {
       pagination,
       meta: {
         timestamp: new Date().toISOString(),
-        version: this.API_VERSION,
+        version: ResponseBuilder.API_VERSION,
         requestId,
       },
     }
@@ -133,7 +133,7 @@ export class ResponseBuilder {
     message?: string,
     requestId = crypto.randomUUID()
   ): PaginatedResponse<T> {
-    return this.paginated(result.items, result.pagination, message, requestId)
+    return ResponseBuilder.paginated(result.items, result.pagination, message, requestId)
   }
 
   /**
@@ -144,7 +144,7 @@ export class ResponseBuilder {
     message = 'Resource created successfully',
     requestId = crypto.randomUUID()
   ): SuccessResponse<T> {
-    return this.success(data, message, requestId)
+    return ResponseBuilder.success(data, message, requestId)
   }
 
   /**
@@ -155,7 +155,7 @@ export class ResponseBuilder {
     message = 'Resource updated successfully',
     requestId = crypto.randomUUID()
   ): SuccessResponse<T> {
-    return this.success(data, message, requestId)
+    return ResponseBuilder.success(data, message, requestId)
   }
 
   /**
@@ -165,14 +165,14 @@ export class ResponseBuilder {
     message = 'Resource deleted successfully',
     requestId = crypto.randomUUID()
   ): SuccessResponse<null> {
-    return this.success(null, message, requestId)
+    return ResponseBuilder.success(null, message, requestId)
   }
 
   /**
    * Create a no content response (204)
    */
   static noContent(requestId = crypto.randomUUID()): SuccessResponse<null> {
-    return this.success(null, undefined, requestId)
+    return ResponseBuilder.success(null, undefined, requestId)
   }
 
   /**
@@ -183,7 +183,7 @@ export class ResponseBuilder {
     message = 'Request accepted for processing',
     requestId = crypto.randomUUID()
   ): SuccessResponse<T> {
-    return this.success(data, message, requestId)
+    return ResponseBuilder.success(data, message, requestId)
   }
 
   /**
@@ -201,7 +201,7 @@ export class ResponseBuilder {
     const succeeded = results.filter((r) => r.success).length
     const failed = results.filter((r) => !r.success).length
 
-    return this.success(
+    return ResponseBuilder.success(
       {
         succeeded,
         failed,

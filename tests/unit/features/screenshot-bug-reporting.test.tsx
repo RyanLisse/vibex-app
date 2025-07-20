@@ -2,18 +2,17 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { BugReportForm } from '@/components/features/bug-reporting/bug-report-form'
+import { ImageAnnotationTools } from '@/components/features/bug-reporting/image-annotation-tools'
 // Components to be implemented
 import { QuickBugReportButton } from '@/components/features/bug-reporting/quick-bug-report-button'
 import { ScreenshotCapture } from '@/components/features/bug-reporting/screenshot-capture'
-import { BugReportForm } from '@/components/features/bug-reporting/bug-report-form'
-import { ImageAnnotationTools } from '@/components/features/bug-reporting/image-annotation-tools'
 
 // Types
-import type { ScreenshotData, BugReport } from '@/src/schemas/enhanced-task-schemas'
+import type { BugReport, ScreenshotData } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock the screen capture API
 const mockGetDisplayMedia = vi.fn()
@@ -169,7 +168,7 @@ describe('Screenshot Bug Reporting Feature', () => {
     }
 
     it('should render annotation tools', () => {
-      render(<ImageAnnotationTools screenshot={mockScreenshotData} onAnnotationsChange={vi.fn()} />)
+      render(<ImageAnnotationTools onAnnotationsChange={vi.fn()} screenshot={mockScreenshotData} />)
 
       expect(screen.getByText(/arrow/i)).toBeInTheDocument()
       expect(screen.getByText(/text/i)).toBeInTheDocument()
@@ -182,8 +181,8 @@ describe('Screenshot Bug Reporting Feature', () => {
 
       render(
         <ImageAnnotationTools
-          screenshot={mockScreenshotData}
           onAnnotationsChange={mockOnAnnotationsChange}
+          screenshot={mockScreenshotData}
         />
       )
 
@@ -209,8 +208,8 @@ describe('Screenshot Bug Reporting Feature', () => {
 
       render(
         <ImageAnnotationTools
-          screenshot={mockScreenshotData}
           onAnnotationsChange={mockOnAnnotationsChange}
+          screenshot={mockScreenshotData}
         />
       )
 
@@ -241,8 +240,8 @@ describe('Screenshot Bug Reporting Feature', () => {
 
       render(
         <ImageAnnotationTools
-          screenshot={mockScreenshotData}
           onAnnotationsChange={mockOnAnnotationsChange}
+          screenshot={mockScreenshotData}
         />
       )
 
@@ -268,7 +267,7 @@ describe('Screenshot Bug Reporting Feature', () => {
     }
 
     it('should render bug report form with screenshot preview', () => {
-      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={vi.fn()} />)
+      render(<BugReportForm onSubmit={vi.fn()} screenshot={mockScreenshotData} />)
 
       expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/description/i)).toBeInTheDocument()
@@ -279,7 +278,7 @@ describe('Screenshot Bug Reporting Feature', () => {
     it('should validate required fields', async () => {
       const mockOnSubmit = vi.fn()
 
-      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />)
+      render(<BugReportForm onSubmit={mockOnSubmit} screenshot={mockScreenshotData} />)
 
       const submitButton = screen.getByText(/create bug report/i)
       await userEvent.click(submitButton)
@@ -291,7 +290,7 @@ describe('Screenshot Bug Reporting Feature', () => {
     it('should submit bug report with correct data', async () => {
       const mockOnSubmit = vi.fn()
 
-      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />)
+      render(<BugReportForm onSubmit={mockOnSubmit} screenshot={mockScreenshotData} />)
 
       // Fill form
       await userEvent.type(screen.getByLabelText(/title/i), 'Button not working')
@@ -319,7 +318,7 @@ describe('Screenshot Bug Reporting Feature', () => {
     it('should auto-tag as bug and set appropriate priority', async () => {
       const mockOnSubmit = vi.fn()
 
-      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />)
+      render(<BugReportForm onSubmit={mockOnSubmit} screenshot={mockScreenshotData} />)
 
       // Fill minimal form
       await userEvent.type(screen.getByLabelText(/title/i), 'Test bug')

@@ -6,12 +6,12 @@
  */
 
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { neon } from '@neondatabase/serverless'
+import { cleanup } from '@testing-library/react'
 import { drizzle } from 'drizzle-orm/neon-serverless'
-import * as schema from '@/db/schema'
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { MigrationRunner } from '@/db/migrations/migration-runner'
+import * as schema from '@/db/schema'
 
 // Store original environment
 const originalEnv = { ...process.env }

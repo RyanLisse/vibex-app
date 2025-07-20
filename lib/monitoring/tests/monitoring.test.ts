@@ -67,6 +67,7 @@ vi.mock('nodemailer', () => ({
     sendMail: vi.fn().mockResolvedValue({ messageId: 'test-message-id' }),
   }),
 }))
+
 import { alertManager } from '../alerts'
 import { capacityPlanningManager, getCapacityReport } from '../capacity'
 import { getHealthStatus, healthCheckManager } from '../health'
@@ -87,7 +88,7 @@ describe('Monitoring System', () => {
 
     // Mock process methods
     if (typeof process.cpuUsage === 'undefined') {
-      process.cpuUsage = vi.fn().mockReturnValue({ user: 100000, system: 50000 })
+      process.cpuUsage = vi.fn().mockReturnValue({ user: 100_000, system: 50_000 })
     }
 
     // Mock fetch for notifications

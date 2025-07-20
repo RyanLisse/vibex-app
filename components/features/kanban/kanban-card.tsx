@@ -1,8 +1,8 @@
 'use client'
 
-import { useDrag } from 'react-dnd'
 import { format, isAfter } from 'date-fns'
-import { Calendar, User, Tag, AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Calendar, Tag, User } from 'lucide-react'
+import { useDrag } from 'react-dnd'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import type { KanbanTask } from '@/src/schemas/enhanced-task-schemas'
@@ -44,21 +44,21 @@ export function KanbanCard({ task, index, onEdit, className = '' }: KanbanCardPr
 
   return (
     <div
-      ref={drag}
+      className={cardClassName}
       data-testid={`task-card-${task.id}`}
       draggable
-      className={cardClassName}
       onClick={() => onEdit?.(task)}
+      ref={drag}
     >
       {/* Task Header */}
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="font-medium text-sm leading-tight flex-1 pr-2">{task.name}</h3>
+      <div className="mb-3 flex items-start justify-between">
+        <h3 className="flex-1 pr-2 font-medium text-sm leading-tight">{task.name}</h3>
 
         <div className="flex items-center gap-1">
           {/* Priority Badge */}
           <Badge
+            className={`px-2 py-0.5 text-xs ${priorityColors[task.priority]}`}
             variant="outline"
-            className={`text-xs px-2 py-0.5 ${priorityColors[task.priority]}`}
           >
             {task.priority.toUpperCase()}
           </Badge>
@@ -76,7 +76,7 @@ export function KanbanCard({ task, index, onEdit, className = '' }: KanbanCardPr
       <div className="space-y-2">
         {/* Assignee */}
         {task.assignee && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs">
             <User className="h-3 w-3" />
             <span>{task.assignee}</span>
           </div>
@@ -101,12 +101,12 @@ export function KanbanCard({ task, index, onEdit, className = '' }: KanbanCardPr
             <Tag className="h-3 w-3 text-muted-foreground" />
             <div className="flex flex-wrap gap-1">
               {task.tags.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5">
+                <Badge className="px-1.5 py-0.5 text-xs" key={tag} variant="secondary">
                   {tag}
                 </Badge>
               ))}
               {task.tags.length > 3 && (
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                <Badge className="px-1.5 py-0.5 text-xs" variant="secondary">
                   +{task.tags.length - 3}
                 </Badge>
               )}
@@ -116,19 +116,19 @@ export function KanbanCard({ task, index, onEdit, className = '' }: KanbanCardPr
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-3 pt-3 border-t border-muted/30">
+      <div className="mt-3 border-muted/30 border-t pt-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">ID: {task.id.slice(-6)}</span>
+          <span className="text-muted-foreground text-xs">ID: {task.id.slice(-6)}</span>
 
           {onEdit && (
             <Button
-              variant="ghost"
-              size="sm"
               className="h-6 px-2 text-xs"
               onClick={(e) => {
                 e.stopPropagation()
                 onEdit(task)
               }}
+              size="sm"
+              variant="ghost"
             >
               Edit
             </Button>
@@ -137,10 +137,10 @@ export function KanbanCard({ task, index, onEdit, className = '' }: KanbanCardPr
       </div>
 
       {/* Drag Handle Indicator */}
-      <div className="absolute top-2 right-2 opacity-30 hover:opacity-60 transition-opacity">
-        <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+      <div className="absolute top-2 right-2 opacity-30 transition-opacity hover:opacity-60">
+        <div className="grid h-4 w-4 grid-cols-2 gap-0.5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="w-1 h-1 bg-muted-foreground rounded-full" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground" key={i} />
           ))}
         </div>
       </div>

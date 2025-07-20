@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
 import { execSync } from 'child_process'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { join } from 'path'
 
 interface BatchFix {
   files: string[]
@@ -188,10 +188,8 @@ function getMatchingFiles(patterns: string[]): string[] {
           .split('\n')
           .filter(Boolean)
           .forEach((f) => files.add(f))
-      } else {
-        if (existsSync(pattern)) {
-          files.add(pattern)
-        }
+      } else if (existsSync(pattern)) {
+        files.add(pattern)
       }
     } catch {}
   }

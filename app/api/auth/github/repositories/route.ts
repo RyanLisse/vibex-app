@@ -15,7 +15,7 @@ export const runtime = 'nodejs'
 import { type NextRequest, NextResponse } from 'next/server'
 import { BaseAPIHandler, UnauthorizedError } from '@/lib/api/base'
 import { ResponseBuilder } from '@/lib/api/base/response-builder'
-import { githubRepositoriesService, GetRepositoriesQuerySchema } from './service'
+import { GetRepositoriesQuerySchema, githubRepositoriesService } from './service'
 
 /**
  * GET /api/auth/github/repositories - Get GitHub repositories with optional sync

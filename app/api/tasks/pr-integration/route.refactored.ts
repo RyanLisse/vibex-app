@@ -8,14 +8,14 @@ export const runtime = 'nodejs'
  * Enhanced GitHub PR integration using base utilities for consistency and reduced duplication
  */
 
+import { eq } from 'drizzle-orm'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { NotFoundError, ValidationError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { ResponseBuilder } from '@/lib/api/response-builder'
 import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
 
@@ -101,10 +101,10 @@ class PRIntegrationService extends BaseAPIService {
    * Link task to PR
    */
   static async linkTaskToPR(linkData: z.infer<typeof TaskPRLinkSchema>) {
-    return this.withTracing(
+    return PRIntegrationService.withTracing(
       'linkTaskToPR',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return PRIntegrationService.withTransaction(async (tx) => {
           // Get the task
           const [task] = await tx.select().from(tasks).where(eq(tasks.id, linkData.taskId))
 
@@ -154,12 +154,18 @@ class PRIntegrationService extends BaseAPIService {
             .returning()
 
           // Log operation
-          await this.logOperation('link_pr', 'task', linkData.taskId, linkData.userId, {
-            prId: prStatus.prId,
-            repository: linkData.repository,
-            prNumber: linkData.prNumber,
-            autoUpdate: linkData.autoUpdateStatus,
-          })
+          await PRIntegrationService.logOperation(
+            'link_pr',
+            'task',
+            linkData.taskId,
+            linkData.userId,
+            {
+              prId: prStatus.prId,
+              repository: linkData.repository,
+              prNumber: linkData.prNumber,
+              autoUpdate: linkData.autoUpdateStatus,
+            }
+          )
 
           return {
             task: updatedTask,
@@ -176,8 +182,8 @@ class PRIntegrationService extends BaseAPIService {
    * Update PR status
    */
   static async updatePRStatus(statusData: z.infer<typeof PRStatusSchema>) {
-    return this.withTracing('updatePRStatus', async () => {
-      return this.withTransaction(async (tx) => {
+    return PRIntegrationService.withTracing('updatePRStatus', async () => {
+      return PRIntegrationService.withTransaction(async (tx) => {
         // Get all tasks with this PR linked
         const allTasks = await tx.select().from(tasks)
         const tasksWithPR = allTasks.filter((task) => {
@@ -228,7 +234,7 @@ class PRIntegrationService extends BaseAPIService {
         const updatedTasks = await Promise.all(updatePromises)
 
         // Log operation
-        await this.logOperation('update_pr_status', 'pr', statusData.prId, null, {
+        await PRIntegrationService.logOperation('update_pr_status', 'pr', statusData.prId, null, {
           newStatus: prStatus.status,
           reviewStatus: prStatus.reviewStatus,
           tasksUpdated: updatedTasks.length,
@@ -248,7 +254,7 @@ class PRIntegrationService extends BaseAPIService {
    * Get PR integration data
    */
   static async getPRIntegrationData(params: z.infer<typeof GetPRIntegrationQuerySchema>) {
-    return this.withTracing('getPRIntegrationData', async () => {
+    return PRIntegrationService.withTracing('getPRIntegrationData', async () => {
       let query = db.select().from(tasks)
 
       if (params.taskId) {
@@ -293,11 +299,17 @@ class PRIntegrationService extends BaseAPIService {
       })
 
       // Log operation
-      await this.logOperation('get_pr_integration_data', 'pr', null, params.userId, {
-        tasksWithPRs: tasksWithPRs.length,
-        totalLinkedPRs: prStats.totalLinkedPRs,
-        filters: params,
-      })
+      await PRIntegrationService.logOperation(
+        'get_pr_integration_data',
+        'pr',
+        null,
+        params.userId,
+        {
+          tasksWithPRs: tasksWithPRs.length,
+          totalLinkedPRs: prStats.totalLinkedPRs,
+          filters: params,
+        }
+      )
 
       return {
         tasks: tasksWithPRs,

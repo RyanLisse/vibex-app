@@ -11,22 +11,22 @@
  * - Caching strategies
  */
 
-import { describe, test, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import {
-  RedisService,
   CacheService,
-  PubSubService,
-  LockService,
-  RateLimitService,
-  JobQueueService,
-  MetricsService,
-  SessionService,
-  MockRedisService,
-  MockRedisCache,
   getRedisConfig,
+  JobQueueService,
+  LockService,
+  MetricsService,
+  MockRedisCache,
+  MockRedisService,
+  PubSubService,
+  RateLimitService,
+  type RedisService,
+  SessionService,
   validateRedisEnvironment,
 } from '@/lib/redis'
-import type { RedisCache, Job, JobProcessor } from '@/lib/redis/types'
+import type { Job, JobProcessor, RedisCache } from '@/lib/redis/types'
 
 // Performance monitoring
 class IntegrationMonitor {
@@ -419,7 +419,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       const endTimer = monitor.startOperation('ratelimit-info')
 
       const key = 'info:user:789'
-      await rateLimit.configure(key, { limit: 10, window: 60000 })
+      await rateLimit.configure(key, { limit: 10, window: 60_000 })
 
       // Consume some limit
       for (let i = 0; i < 3; i++) {
@@ -561,7 +561,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
         await metrics.recordDuration('api.response_time', Math.random() * 100, {
           endpoint: '/users',
         })
-        await metrics.gauge('system.memory', Math.random() * 1000000000)
+        await metrics.gauge('system.memory', Math.random() * 1_000_000_000)
       }
 
       // Get aggregated metrics
@@ -605,7 +605,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       // Record some metrics
       await metrics.increment('http_requests_total', { method: 'GET', status: '200' })
       await metrics.recordDuration('http_request_duration_seconds', 0.123)
-      await metrics.gauge('node_memory_usage_bytes', 123456789)
+      await metrics.gauge('node_memory_usage_bytes', 123_456_789)
 
       // Export metrics
       const exported = await metrics.export()

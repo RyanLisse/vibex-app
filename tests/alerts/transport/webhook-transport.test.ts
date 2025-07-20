@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WebhookTransport } from '@/lib/alerts/transport/webhook-transport'
 import {
-  AlertChannel,
-  CriticalError,
-  AlertNotification,
+  type AlertChannel,
   AlertChannelType,
+  type AlertNotification,
+  type CriticalError,
   CriticalErrorType,
 } from '@/lib/alerts/types'
 
@@ -29,7 +29,7 @@ describe('WebhookTransport', () => {
       config: {
         url: 'https://example.com/webhook',
         method: 'POST',
-        timeout: 30000,
+        timeout: 30_000,
         retries: 3,
       },
       errorTypes: [CriticalErrorType.DATABASE_CONNECTION_FAILURE],
@@ -181,7 +181,7 @@ describe('WebhookTransport', () => {
       const validConfig = {
         url: 'https://example.com/webhook',
         method: 'POST',
-        timeout: 30000,
+        timeout: 30_000,
       }
 
       const result = transport.validateConfig(validConfig)

@@ -1,11 +1,10 @@
 'use client'
 
+import { ExternalLink, GitBranch, Link, Search, Unlink } from 'lucide-react'
 import { useState } from 'react'
-import { Link, Unlink, Search, GitBranch, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
@@ -14,7 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import type { TaskPRLink } from '@/src/schemas/enhanced-task-schemas'
 
 interface TaskPRLinkerProps {
@@ -84,7 +84,7 @@ export function TaskPRLinker({
   }
 
   const handleLinkSubmit = async () => {
-    if (!linkForm.repository || !linkForm.prNumber) {
+    if (!(linkForm.repository && linkForm.prNumber)) {
       setLinkError('Repository and PR number are required')
       return
     }
@@ -132,8 +132,8 @@ export function TaskPRLinker({
             <div className="space-y-3">
               {existingLinks.map((link) => (
                 <div
+                  className="flex items-center justify-between rounded-lg border p-3"
                   key={link.prId}
-                  className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <GitBranch className="h-4 w-4 text-blue-500" />
@@ -142,24 +142,24 @@ export function TaskPRLinker({
                         <span className="font-medium">PR #{link.prId.replace('pr-', '')}</span>
                         <Badge variant="outline">{link.repository}</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Branch: <code className="text-xs bg-muted px-1 rounded">{link.branch}</code>
+                      <p className="text-muted-foreground text-sm">
+                        Branch: <code className="rounded bg-muted px-1 text-xs">{link.branch}</code>
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {link.autoUpdateStatus && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge className="text-xs" variant="secondary">
                         Auto-sync
                       </Badge>
                     )}
 
-                    <Button variant="ghost" size="sm" asChild className="gap-1">
+                    <Button asChild className="gap-1" size="sm" variant="ghost">
                       <a
                         href={`https://github.com/${link.repository}/pull/${link.prId.replace('pr-', '')}`}
-                        target="_blank"
                         rel="noopener noreferrer"
+                        target="_blank"
                       >
                         <ExternalLink className="h-3 w-3" />
                         View
@@ -168,10 +168,10 @@ export function TaskPRLinker({
 
                     {onUnlink && (
                       <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleUnlink(link.prId)}
                         className="gap-1 text-red-600 hover:text-red-700"
+                        onClick={() => handleUnlink(link.prId)}
+                        size="sm"
+                        variant="ghost"
                       >
                         <Unlink className="h-3 w-3" />
                         Unlink
@@ -186,7 +186,7 @@ export function TaskPRLinker({
       )}
 
       {/* Link New PR */}
-      <Dialog open={isLinkModalOpen} onOpenChange={setIsLinkModalOpen}>
+      <Dialog onOpenChange={setIsLinkModalOpen} open={isLinkModalOpen}>
         <DialogTrigger asChild>
           <Button className="gap-2">
             <Link className="h-4 w-4" />
@@ -208,15 +208,15 @@ export function TaskPRLinker({
             {/* Auto-detect */}
             {currentBranch && (
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Current branch:{' '}
-                  <code className="text-xs bg-muted px-1 rounded">{currentBranch}</code>
+                  <code className="rounded bg-muted px-1 text-xs">{currentBranch}</code>
                 </p>
                 <Button
-                  variant="outline"
-                  onClick={handleAutoDetect}
-                  disabled={isAutoDetecting}
                   className="w-full gap-2"
+                  disabled={isAutoDetecting}
+                  onClick={handleAutoDetect}
+                  variant="outline"
                 >
                   {isAutoDetecting ? (
                     <>
@@ -239,14 +239,14 @@ export function TaskPRLinker({
                 <Label htmlFor="repository">Repository *</Label>
                 <Input
                   id="repository"
-                  placeholder="e.g., company/web-app"
-                  value={linkForm.repository}
                   onChange={(e) =>
                     setLinkForm((prev) => ({
                       ...prev,
                       repository: e.target.value,
                     }))
                   }
+                  placeholder="e.g., company/web-app"
+                  value={linkForm.repository}
                 />
               </div>
 
@@ -254,30 +254,30 @@ export function TaskPRLinker({
                 <Label htmlFor="prNumber">PR Number *</Label>
                 <Input
                   id="prNumber"
-                  placeholder="e.g., 123"
-                  value={linkForm.prNumber}
                   onChange={(e) =>
                     setLinkForm((prev) => ({
                       ...prev,
                       prNumber: e.target.value,
                     }))
                   }
+                  placeholder="e.g., 123"
+                  value={linkForm.prNumber}
                 />
               </div>
 
               <div className="flex items-center gap-2">
                 <input
-                  type="checkbox"
-                  id="autoUpdate"
                   checked={linkForm.autoUpdateStatus}
+                  id="autoUpdate"
                   onChange={(e) =>
                     setLinkForm((prev) => ({
                       ...prev,
                       autoUpdateStatus: e.target.checked,
                     }))
                   }
+                  type="checkbox"
                 />
-                <Label htmlFor="autoUpdate" className="text-sm">
+                <Label className="text-sm" htmlFor="autoUpdate">
                   Automatically update task status when PR is merged
                 </Label>
               </div>
@@ -286,19 +286,19 @@ export function TaskPRLinker({
             {/* Actions */}
             <div className="flex gap-2 pt-4">
               <Button
-                onClick={handleLinkSubmit}
-                disabled={!linkForm.repository || !linkForm.prNumber}
                 className="flex-1"
+                disabled={!(linkForm.repository && linkForm.prNumber)}
+                onClick={handleLinkSubmit}
               >
                 Link PR
               </Button>
               <Button
-                variant="outline"
+                className="flex-1"
                 onClick={() => {
                   setIsLinkModalOpen(false)
                   setLinkError(null)
                 }}
-                className="flex-1"
+                variant="outline"
               >
                 Cancel
               </Button>
@@ -308,7 +308,7 @@ export function TaskPRLinker({
       </Dialog>
 
       {/* Help Text */}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         Link pull requests to automatically sync status updates and track code review progress.
       </p>
     </div>

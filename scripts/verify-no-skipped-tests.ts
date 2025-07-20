@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { promises as fs } from 'fs'
-import path from 'path'
 import { glob } from 'glob'
+import path from 'path'
 
 async function findSkippedTests() {
   console.log('🔍 Searching for skipped tests...\n')

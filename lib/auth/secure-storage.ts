@@ -1,4 +1,4 @@
-import { seal, unseal, defaults } from '@hapi/iron'
+import { defaults, seal, unseal } from '@hapi/iron'
 import { db } from '@/lib/db'
 
 const SECRET = process.env.ENCRYPTION_SECRET!

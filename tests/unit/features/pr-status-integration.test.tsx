@@ -2,15 +2,14 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { PRActionButtons } from '@/components/features/pr-integration/pr-action-buttons'
+import { PRReviewSummary } from '@/components/features/pr-integration/pr-review-summary'
+import { PRStatusBadge } from '@/components/features/pr-integration/pr-status-badge'
 // Components to be implemented
 import { PRStatusCard } from '@/components/features/pr-integration/pr-status-card'
-import { PRStatusBadge } from '@/components/features/pr-integration/pr-status-badge'
-import { PRReviewSummary } from '@/components/features/pr-integration/pr-review-summary'
-import { PRActionButtons } from '@/components/features/pr-integration/pr-action-buttons'
 import { TaskPRLinker } from '@/components/features/pr-integration/task-pr-linker'
 
 // Types
@@ -139,7 +138,7 @@ describe('PR Status Integration Feature', () => {
       const statuses: PRStatus['status'][] = ['draft', 'open', 'merged', 'closed']
 
       statuses.forEach((status) => {
-        const { rerender } = render(<PRStatusBadge status={status} reviewStatus="pending" />)
+        const { rerender } = render(<PRStatusBadge reviewStatus="pending" status={status} />)
 
         expect(screen.getByTestId('pr-status-badge')).toHaveClass(`status-${status}`)
 
@@ -148,14 +147,14 @@ describe('PR Status Integration Feature', () => {
     })
 
     it('should show review status for open PRs', () => {
-      render(<PRStatusBadge status="open" reviewStatus="approved" />)
+      render(<PRStatusBadge reviewStatus="approved" status="open" />)
 
       expect(screen.getByText(/approved/i)).toBeInTheDocument()
       expect(screen.getByTestId('review-status')).toHaveClass('review-approved')
     })
 
     it('should indicate changes requested', () => {
-      render(<PRStatusBadge status="open" reviewStatus="changes_requested" />)
+      render(<PRStatusBadge reviewStatus="changes_requested" status="open" />)
 
       expect(screen.getByText(/changes requested/i)).toBeInTheDocument()
       expect(screen.getByTestId('review-status')).toHaveClass('review-changes-requested')
@@ -207,7 +206,7 @@ describe('PR Status Integration Feature', () => {
     it('should allow requesting additional reviews', async () => {
       const mockOnRequestReview = vi.fn()
 
-      render(<PRReviewSummary prStatus={mockPRStatus} onRequestReview={mockOnRequestReview} />)
+      render(<PRReviewSummary onRequestReview={mockOnRequestReview} prStatus={mockPRStatus} />)
 
       const requestReviewButton = screen.getByText(/request review/i)
       await userEvent.click(requestReviewButton)
@@ -227,7 +226,7 @@ describe('PR Status Integration Feature', () => {
 
   describe('PRActionButtons', () => {
     it('should render action buttons based on PR status', () => {
-      render(<PRActionButtons prStatus={mockPRStatus} onMerge={vi.fn()} onUpdate={vi.fn()} />)
+      render(<PRActionButtons onMerge={vi.fn()} onUpdate={vi.fn()} prStatus={mockPRStatus} />)
 
       expect(screen.getByText(/view pr/i)).toBeInTheDocument()
       expect(screen.getByText(/refresh status/i)).toBeInTheDocument()
@@ -248,7 +247,7 @@ describe('PR Status Integration Feature', () => {
         })),
       }
 
-      render(<PRActionButtons prStatus={readyPR} onMerge={vi.fn()} onUpdate={vi.fn()} />)
+      render(<PRActionButtons onMerge={vi.fn()} onUpdate={vi.fn()} prStatus={readyPR} />)
 
       const mergeButton = screen.getByText(/merge pr/i)
       expect(mergeButton).not.toBeDisabled()
@@ -262,7 +261,7 @@ describe('PR Status Integration Feature', () => {
         mergeable: true,
       }
 
-      render(<PRActionButtons prStatus={readyPR} onMerge={mockOnMerge} onUpdate={vi.fn()} />)
+      render(<PRActionButtons onMerge={mockOnMerge} onUpdate={vi.fn()} prStatus={readyPR} />)
 
       const mergeButton = screen.getByText(/merge pr/i)
       await userEvent.click(mergeButton)
@@ -279,7 +278,7 @@ describe('PR Status Integration Feature', () => {
     it('should refresh PR status', async () => {
       const mockOnUpdate = vi.fn()
 
-      render(<PRActionButtons prStatus={mockPRStatus} onMerge={vi.fn()} onUpdate={mockOnUpdate} />)
+      render(<PRActionButtons onMerge={vi.fn()} onUpdate={mockOnUpdate} prStatus={mockPRStatus} />)
 
       const refreshButton = screen.getByText(/refresh status/i)
       await userEvent.click(refreshButton)
@@ -292,7 +291,7 @@ describe('PR Status Integration Feature', () => {
     it('should allow linking tasks to PRs', async () => {
       const mockOnLink = vi.fn()
 
-      render(<TaskPRLinker taskId="task-456" onLink={mockOnLink} />)
+      render(<TaskPRLinker onLink={mockOnLink} taskId="task-456" />)
 
       const linkButton = screen.getByText(/link pr/i)
       await userEvent.click(linkButton)
@@ -319,9 +318,9 @@ describe('PR Status Integration Feature', () => {
     it('should auto-detect PR from branch name', async () => {
       render(
         <TaskPRLinker
-          taskId="task-456"
           currentBranch="feature/task-456-fix-login"
           onLink={vi.fn()}
+          taskId="task-456"
         />
       )
 
@@ -335,7 +334,7 @@ describe('PR Status Integration Feature', () => {
     })
 
     it('should show existing PR links', () => {
-      render(<TaskPRLinker taskId="task-456" existingLinks={[mockTaskPRLink]} onLink={vi.fn()} />)
+      render(<TaskPRLinker existingLinks={[mockTaskPRLink]} onLink={vi.fn()} taskId="task-456" />)
 
       expect(screen.getByText('Linked PRs (1)')).toBeInTheDocument()
       expect(screen.getByText('PR #123')).toBeInTheDocument()
@@ -347,10 +346,10 @@ describe('PR Status Integration Feature', () => {
 
       render(
         <TaskPRLinker
-          taskId="task-456"
           existingLinks={[mockTaskPRLink]}
           onLink={vi.fn()}
           onUnlink={mockOnUnlink}
+          taskId="task-456"
         />
       )
 
@@ -373,9 +372,9 @@ describe('PR Status Integration Feature', () => {
 
       render(
         <PRStatusCard
+          onTaskStatusUpdate={mockUpdateTaskStatus}
           prStatus={mergedPR}
           taskPRLink={mockTaskPRLink}
-          onTaskStatusUpdate={mockUpdateTaskStatus}
         />
       )
 
@@ -398,9 +397,9 @@ describe('PR Status Integration Feature', () => {
 
       render(
         <PRStatusCard
+          onNotifyAssignee={mockNotifyAssignee}
           prStatus={readyPR}
           taskPRLink={mockTaskPRLink}
-          onNotifyAssignee={mockNotifyAssignee}
         />
       )
 
@@ -442,7 +441,7 @@ describe('PR Status Integration Feature', () => {
         checks: [],
       })
 
-      render(<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount />)
+      render(<PRStatusCard prStatus={mockPRStatus} refreshOnMount taskPRLink={mockTaskPRLink} />)
 
       await waitFor(() => {
         expect(mockGitHubAPI.getPullRequest).toHaveBeenCalledWith('company/web-app', 123)
@@ -452,7 +451,7 @@ describe('PR Status Integration Feature', () => {
     it('should handle GitHub API errors gracefully', async () => {
       mockGitHubAPI.getPullRequest.mockRejectedValue(new Error('API rate limit'))
 
-      render(<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount />)
+      render(<PRStatusCard prStatus={mockPRStatus} refreshOnMount taskPRLink={mockTaskPRLink} />)
 
       await waitFor(() => {
         expect(screen.getByText(/unable to fetch pr status/i)).toBeInTheDocument()
@@ -462,7 +461,7 @@ describe('PR Status Integration Feature', () => {
     it('should respect API rate limits', async () => {
       mockGitHubAPI.getPullRequest.mockRejectedValue(new Error('API rate limit exceeded'))
 
-      render(<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount />)
+      render(<PRStatusCard prStatus={mockPRStatus} refreshOnMount taskPRLink={mockTaskPRLink} />)
 
       await waitFor(() => {
         expect(screen.getByText(/rate limit exceeded/i)).toBeInTheDocument()
@@ -478,7 +477,7 @@ describe('PR Status Integration Feature', () => {
       // Start with task linking
       render(
         <div>
-          <TaskPRLinker taskId="task-456" onLink={mockCreateTaskPRLink} />
+          <TaskPRLinker onLink={mockCreateTaskPRLink} taskId="task-456" />
         </div>
       )
 
@@ -497,9 +496,9 @@ describe('PR Status Integration Feature', () => {
       // Now show PR status
       const { rerender } = render(
         <PRStatusCard
+          onTaskStatusUpdate={mockUpdateTaskStatus}
           prStatus={mockPRStatus}
           taskPRLink={mockTaskPRLink}
-          onTaskStatusUpdate={mockUpdateTaskStatus}
         />
       )
 
@@ -511,9 +510,9 @@ describe('PR Status Integration Feature', () => {
 
       rerender(
         <PRStatusCard
+          onTaskStatusUpdate={mockUpdateTaskStatus}
           prStatus={mergedPR}
           taskPRLink={mockTaskPRLink}
-          onTaskStatusUpdate={mockUpdateTaskStatus}
         />
       )
 

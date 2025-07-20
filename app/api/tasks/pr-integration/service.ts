@@ -5,20 +5,20 @@
  * for consistent error handling, tracing, and observability.
  */
 
-import { z } from 'zod'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import {
   BaseAPIService,
-  type ServiceContext,
-  NotFoundError,
   ConflictError,
-  ValidationError,
   ExternalServiceError,
+  NotFoundError,
+  type ServiceContext,
+  ValidationError,
 } from '@/lib/api/base'
 import { QueryBuilder } from '@/lib/api/base/query-builder'
-import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
+import type { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Query schemas
 export const GetPRIntegrationQuerySchema = z.object({

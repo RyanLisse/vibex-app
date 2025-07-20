@@ -4,7 +4,7 @@
  * Provides common functionality for all API service classes
  * Includes tracing, error handling, and database query helpers
  */
-import { trace, SpanStatusCode } from '@opentelemetry/api'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { db } from '@/db/config'
 import { observability } from '@/lib/observability'
 import { BaseAPIError } from './base-error'
@@ -32,7 +32,7 @@ export abstract class BaseAPIService {
    * Get tracer for this service
    */
   protected static getTracer() {
-    return trace.getTracer(this.serviceName || this.name)
+    return trace.getTracer(BaseAPIService.serviceName || BaseAPIService.name)
   }
 
   /**
@@ -43,8 +43,8 @@ export abstract class BaseAPIService {
     operation: () => Promise<T>,
     attributes?: Record<string, any>
   ): Promise<T> {
-    const tracer = this.getTracer()
-    const span = tracer.startSpan(`${this.serviceName}.${operationName}`)
+    const tracer = BaseAPIService.getTracer()
+    const span = tracer.startSpan(`${BaseAPIService.serviceName}.${operationName}`)
     const startTime = Date.now()
 
     if (attributes) {
@@ -75,7 +75,7 @@ export abstract class BaseAPIService {
 
       // Record error metrics
       observability.metrics.queryDuration(duration, operationName, false)
-      observability.metrics.errorRate(1, this.serviceName)
+      observability.metrics.errorRate(1, BaseAPIService.serviceName)
 
       throw error
     } finally {
@@ -120,7 +120,7 @@ export abstract class BaseAPIService {
    * Execute a database transaction with proper error handling
    */
   protected static async withTransaction<T>(operation: (tx: typeof db) => Promise<T>): Promise<T> {
-    return this.withTracing('transaction', async () => {
+    return BaseAPIService.withTracing('transaction', async () => {
       try {
         return await db.transaction(async (tx) => {
           return await operation(tx)

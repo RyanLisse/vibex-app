@@ -13,7 +13,7 @@ import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
 import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
-import { KanbanMoveSchema, KanbanBoardConfigSchema } from '@/src/schemas/enhanced-task-schemas'
+import { KanbanBoardConfigSchema, KanbanMoveSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Default kanban columns configuration
 const DEFAULT_COLUMNS = [

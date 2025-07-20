@@ -1,11 +1,11 @@
 'use client'
 
 import { useDrop } from 'react-dnd'
-import { KanbanCard } from './kanban-card'
 import type {
-  KanbanTask,
   KanbanColumn as KanbanColumnType,
+  KanbanTask,
 } from '@/src/schemas/enhanced-task-schemas'
+import { KanbanCard } from './kanban-card'
 
 interface KanbanColumnProps {
   column: KanbanColumnType
@@ -61,21 +61,21 @@ export function KanbanColumn({
 
   return (
     <div
-      ref={drop}
-      data-testid={`column-${column.id}`}
-      data-droppable="true"
       className={`${dropZoneClassName} ${className}`}
+      data-droppable="true"
+      data-testid={`column-${column.id}`}
+      ref={drop}
     >
       {/* Drop indicator */}
       {isOver && (
-        <div className="mb-4 p-2 text-center text-sm rounded-lg bg-blue-100 text-blue-700">
+        <div className="mb-4 rounded-lg bg-blue-100 p-2 text-center text-blue-700 text-sm">
           {canDrop ? 'Drop task here' : 'Column is full'}
         </div>
       )}
 
       {/* Column full warning */}
       {isOverloaded && (
-        <div className="mb-4 p-2 text-center text-sm rounded-lg bg-red-100 text-red-700">
+        <div className="mb-4 rounded-lg bg-red-100 p-2 text-center text-red-700 text-sm">
           Column is over capacity
         </div>
       )}
@@ -83,27 +83,27 @@ export function KanbanColumn({
       {/* Tasks */}
       <div className="space-y-3">
         {tasks.length === 0 && !isOver ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="py-8 text-center text-muted-foreground">
             <p className="text-sm">No tasks in this column</p>
-            <p className="text-xs mt-1">Drag tasks here to move them</p>
+            <p className="mt-1 text-xs">Drag tasks here to move them</p>
           </div>
         ) : (
           tasks.map((task, index) => (
-            <KanbanCard key={task.id} task={task} index={index} onEdit={onTaskEdit} />
+            <KanbanCard index={index} key={task.id} onEdit={onTaskEdit} task={task} />
           ))
         )}
       </div>
 
       {/* Column capacity indicator */}
       {column.maxItems && (
-        <div className="mt-4 pt-3 border-t border-muted-foreground/20">
-          <div className="flex justify-between items-center text-xs text-muted-foreground">
+        <div className="mt-4 border-muted-foreground/20 border-t pt-3">
+          <div className="flex items-center justify-between text-muted-foreground text-xs">
             <span>Capacity</span>
-            <span className={tasks.length > column.maxItems ? 'text-red-500 font-medium' : ''}>
+            <span className={tasks.length > column.maxItems ? 'font-medium text-red-500' : ''}>
               {tasks.length} / {column.maxItems}
             </span>
           </div>
-          <div className="mt-1 h-1 bg-muted rounded-full overflow-hidden">
+          <div className="mt-1 h-1 overflow-hidden rounded-full bg-muted">
             <div
               className={`h-full transition-all duration-300 ${
                 tasks.length > column.maxItems ? 'bg-red-500' : 'bg-blue-500'

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Mic, Square, Pause, Play } from 'lucide-react'
+import { Mic, Pause, Play, Square } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import type { VoiceRecording } from '@/src/schemas/enhanced-task-schemas'
@@ -53,11 +53,9 @@ export function VoiceRecorder({
           return newDuration
         })
       }, 1000)
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
     }
 
     return () => {
@@ -194,20 +192,20 @@ export function VoiceRecorder({
   }
 
   return (
-    <div className={`space-y-4 p-4 bg-muted/50 rounded-lg border ${className}`}>
+    <div className={`space-y-4 rounded-lg border bg-muted/50 p-4 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-sm font-medium">{isPaused ? 'Paused' : 'Recording'}</span>
+          <div className="h-3 w-3 animate-pulse rounded-full bg-red-500" />
+          <span className="font-medium text-sm">{isPaused ? 'Paused' : 'Recording'}</span>
         </div>
 
-        <div className="text-lg font-mono">{formatTime(duration)}</div>
+        <div className="font-mono text-lg">{formatTime(duration)}</div>
       </div>
 
       {/* Progress bar */}
       <div className="space-y-1">
-        <Progress value={progressPercentage} className="h-2" />
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <Progress className="h-2" value={progressPercentage} />
+        <div className="flex justify-between text-muted-foreground text-xs">
           <span>0:00</span>
           <span>{formatTime(maxDuration)}</span>
         </div>
@@ -215,19 +213,19 @@ export function VoiceRecorder({
 
       {/* Recording controls */}
       <div className="flex items-center justify-center gap-2">
-        {!isPaused ? (
-          <Button onClick={pauseRecording} variant="outline" size="sm" className="gap-1">
-            <Pause className="h-4 w-4" />
-            Pause
-          </Button>
-        ) : (
-          <Button onClick={resumeRecording} variant="outline" size="sm" className="gap-1">
+        {isPaused ? (
+          <Button className="gap-1" onClick={resumeRecording} size="sm" variant="outline">
             <Play className="h-4 w-4" />
             Resume
           </Button>
+        ) : (
+          <Button className="gap-1" onClick={pauseRecording} size="sm" variant="outline">
+            <Pause className="h-4 w-4" />
+            Pause
+          </Button>
         )}
 
-        <Button onClick={stopRecording} variant="destructive" size="sm" className="gap-1">
+        <Button className="gap-1" onClick={stopRecording} size="sm" variant="destructive">
           <Square className="h-4 w-4" />
           Stop
         </Button>
@@ -238,13 +236,13 @@ export function VoiceRecorder({
         <div className="flex items-center gap-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
-              key={i}
               className={`h-8 w-1 rounded-full transition-all duration-150 ${
-                !isPaused ? 'bg-red-500 animate-pulse' : 'bg-muted-foreground/30'
+                isPaused ? 'bg-muted-foreground/30' : 'animate-pulse bg-red-500'
               }`}
+              key={i}
               style={{
                 animationDelay: `${i * 100}ms`,
-                height: !isPaused ? `${20 + Math.random() * 20}px` : '8px',
+                height: isPaused ? '8px' : `${20 + Math.random() * 20}px`,
               }}
             />
           ))}

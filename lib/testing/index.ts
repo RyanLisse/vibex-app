@@ -1,84 +1,80 @@
 // TDD Framework - Main Export File
 // This file provides a comprehensive TDD testing framework implementation
 
-// Core TDD Framework
-export {
-  TDDFramework,
-  TestCase,
-  TestSuite,
-  TDDWorkflow,
-  VitestRunner,
-  type TestStatus,
-  type LifecycleState,
-  type TestResult,
-  type TestRunner,
-} from './tdd-framework/core'
-
-// Test Data Builders
-export {
-  TestDataBuilder,
-  UserBuilder,
-  ProjectBuilder,
-  ApiResponseBuilder,
-  BuilderFactory,
-  TestDataGenerator,
-  type User,
-  type Project,
-  type ApiResponse,
-} from './builders/test-data-builder'
-
 // Custom Assertions
 export * from './assertions/custom-matchers'
 
-// Test Lifecycle Management
+// Test Data Builders
 export {
-  TestLifecycleManager,
-  ResourceManager,
-  SetupTeardownOrchestrator,
-  LifecyclePatterns,
-  type TestHook,
-  type Resource,
-  type TestContext,
-} from './lifecycle/test-lifecycle'
-
+  type ApiResponse,
+  ApiResponseBuilder,
+  BuilderFactory,
+  type Project,
+  ProjectBuilder,
+  TestDataBuilder,
+  TestDataGenerator,
+  type User,
+  UserBuilder,
+} from './builders/test-data-builder'
 // CLI Tools
 export {
-  TDDCli,
-  TestGenerator,
-  WorkflowAutomation,
   type CLICommand,
-  type TestGenerationOptions,
   type IntegrationTestOptions,
-  type TDDCycleOptions,
   type ScaffoldOptions,
   type ScaffoldResult,
+  TDDCli,
+  type TDDCycleOptions,
+  type TestGenerationOptions,
+  TestGenerator,
+  WorkflowAutomation,
 } from './cli/tdd-cli'
+// Test Documentation
+export {
+  type CoverageAnalysis,
+  type CoverageData,
+  type CoverageSummary,
+  CoverageVisualizer,
+  DocumentationGenerator,
+  type TestDocumentation,
+  type TestSpecification,
+  TestSpecificationGenerator,
+} from './documentation/test-documentation'
+// Test Lifecycle Management
+export {
+  LifecyclePatterns,
+  type Resource,
+  ResourceManager,
+  SetupTeardownOrchestrator,
+  type TestContext,
+  type TestHook,
+  TestLifecycleManager,
+} from './lifecycle/test-lifecycle'
 
 // Performance Testing
 export {
-  PerformanceBenchmark,
-  MemoryProfiler,
-  PerformanceReporter,
   type BenchmarkOptions,
   type BenchmarkResult,
-  type MemoryUsage,
+  type CoverageReport,
+  MemoryProfiler,
   type MemorySnapshot,
+  type MemoryUsage,
+  PerformanceBenchmark,
+  PerformanceReporter,
   type PerformanceThresholds,
   type RegressionResult,
-  type CoverageReport,
 } from './performance/performance-testing'
-
-// Test Documentation
+// Core TDD Framework
 export {
-  TestSpecificationGenerator,
-  CoverageVisualizer,
-  DocumentationGenerator,
-  type TestSpecification,
-  type TestDocumentation,
-  type CoverageData,
-  type CoverageSummary,
-  type CoverageAnalysis,
-} from './documentation/test-documentation'
+  type LifecycleState,
+  TDDFramework,
+  TDDWorkflow,
+  TestCase,
+  type TestResult,
+  type TestRunner,
+  type TestStatus,
+  TestSuite,
+  VitestRunner,
+} from './tdd-framework/core'
 
 // Utility Functions and Helpers
 export const TDDTestingFramework = {
@@ -125,33 +121,31 @@ export const TDDTestingFramework = {
   },
 }
 
-// Re-export Vitest types for convenience
-export type {
-  MockedFunction,
-  MockedObject,
-  MockedClass,
-} from 'vitest'
-
-// Convenience re-exports from testing libraries
 export {
-  describe,
-  it,
-  test,
-  expect,
-  beforeAll,
-  beforeEach,
-  afterAll,
-  afterEach,
-  vi,
-} from 'vitest'
-
-export {
+  cleanup,
+  fireEvent,
   render,
   screen,
-  fireEvent,
   waitFor,
-  cleanup,
 } from '@testing-library/react'
+// Re-export Vitest types for convenience
+export type {
+  MockedClass,
+  MockedFunction,
+  MockedObject,
+} from 'vitest'
+// Convenience re-exports from testing libraries
+export {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  test,
+  vi,
+} from 'vitest'
 
 // Default configuration
 export const TDDConfig = {
@@ -167,7 +161,7 @@ export const TDDConfig = {
   benchmarkOptions: {
     iterations: 10,
     warmupIterations: 3,
-    timeout: 30000,
+    timeout: 30_000,
   },
 
   // Coverage thresholds

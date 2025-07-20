@@ -1,16 +1,16 @@
-import Redis from 'ioredis'
 import { randomUUID } from 'crypto'
+import type Redis from 'ioredis'
 import { ComponentLogger } from '../logging/logger-factory'
+import type { AlertTransportService } from './transport/alert-transport-service'
 import {
-  CriticalError,
-  AlertConfig,
-  AlertChannel,
-  AlertNotification,
-  AlertNotificationStatus,
-  CriticalErrorType,
+  type AlertChannel,
   AlertChannelType,
+  type AlertConfig,
+  type AlertNotification,
+  AlertNotificationStatus,
+  type CriticalError,
+  CriticalErrorType,
 } from './types'
-import { AlertTransportService } from './transport/alert-transport-service'
 
 export class AlertManager {
   private readonly logger: ComponentLogger
@@ -166,7 +166,7 @@ export class AlertManager {
     const key = `alert_rate_limit:${criticalError.type}:${criticalError.source}`
     const count = await this.redis.get(key)
 
-    if (count && parseInt(count) >= rateLimiting.maxAlertsPerHour) {
+    if (count && Number.parseInt(count) >= rateLimiting.maxAlertsPerHour) {
       return true
     }
 
@@ -271,7 +271,7 @@ export class AlertManager {
 
     await this.redis
       .multi()
-      .setex(key, 86400, JSON.stringify(alert)) // Store for 24 hours
+      .setex(key, 86_400, JSON.stringify(alert)) // Store for 24 hours
       .setex(deduplicationKey, 3600, alert.id) // Deduplication window of 1 hour
       .zadd('alert_timeline', alert.timestamp.getTime(), alert.id)
       .exec()
@@ -279,7 +279,7 @@ export class AlertManager {
 
   private async storeNotification(notification: AlertNotification): Promise<void> {
     const key = `notification:${notification.id}`
-    await this.redis.setex(key, 86400, JSON.stringify(notification))
+    await this.redis.setex(key, 86_400, JSON.stringify(notification))
   }
 
   async resolveAlert(alertId: string, resolvedBy: string): Promise<boolean> {
@@ -308,7 +308,7 @@ export class AlertManager {
     return Array.from(this.alerts.values()).filter((alert) => !alert.resolved)
   }
 
-  async getAlertHistory(limit: number = 100): Promise<CriticalError[]> {
+  async getAlertHistory(limit = 100): Promise<CriticalError[]> {
     const alertIds = await this.redis.zrevrange('alert_timeline', 0, limit - 1)
     const alerts: CriticalError[] = []
 

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { RateLimiter } from '@/lib/security/rate-limiter'
+import { type NextRequest, NextResponse } from 'next/server'
 import { sessionManager } from '@/lib/auth/session-manager'
+import { RateLimiter } from '@/lib/security/rate-limiter'
 
 // Initialize rate limiter
 const rateLimiter = new RateLimiter({

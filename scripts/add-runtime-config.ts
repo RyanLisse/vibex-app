@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { glob } from 'glob'
+import { join } from 'path'
 
 // Find all API routes
 const routes = glob.sync('app/api/**/route.ts', { cwd: process.cwd() })

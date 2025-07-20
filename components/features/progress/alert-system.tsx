@@ -1,10 +1,10 @@
 'use client'
 
+import { AlertTriangle, Bell, Clock, Lock, X } from 'lucide-react'
 import { useState } from 'react'
-import { AlertTriangle, Clock, Lock, X, Bell } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { TaskProgress } from '@/src/schemas/enhanced-task-schemas'
 
@@ -133,11 +133,11 @@ export function AlertSystem({ taskProgress, onDismiss, className = '' }: AlertSy
 
   if (alerts.length === 0) {
     return (
-      <div className={`text-center py-8 ${className}`}>
-        <div className="text-green-600 mb-2">
-          <Bell className="h-12 w-12 mx-auto" />
+      <div className={`py-8 text-center ${className}`}>
+        <div className="mb-2 text-green-600">
+          <Bell className="mx-auto h-12 w-12" />
         </div>
-        <h3 className="text-lg font-semibold text-green-800">All Clear!</h3>
+        <h3 className="font-semibold text-green-800 text-lg">All Clear!</h3>
         <p className="text-muted-foreground">No active alerts for your tasks.</p>
       </div>
     )
@@ -156,13 +156,13 @@ export function AlertSystem({ taskProgress, onDismiss, className = '' }: AlertSy
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(alertGroups).map(([type, typeAlerts]) => (
-              <div key={type} className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="text-center" key={type}>
+                <div className="mb-2 flex items-center justify-center gap-2">
                   {getAlertIcon(type)}
                   <span className="font-medium capitalize">{type}</span>
                 </div>
-                <div className="text-2xl font-bold text-red-600">{typeAlerts.length}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="font-bold text-2xl text-red-600">{typeAlerts.length}</div>
+                <p className="text-muted-foreground text-xs">
                   {type === 'overdue' && typeAlerts.length > 1
                     ? `${typeAlerts.length} tasks are overdue`
                     : type === 'blocked' && typeAlerts.length > 1
@@ -181,33 +181,33 @@ export function AlertSystem({ taskProgress, onDismiss, className = '' }: AlertSy
       <div className="space-y-3">
         {alerts.map((alert) => (
           <Alert
+            data-testid={alert.id}
             key={alert.id}
             variant={getAlertColor(alert.severity) as any}
-            data-testid={alert.id}
           >
-            <div className="flex items-start justify-between w-full">
+            <div className="flex w-full items-start justify-between">
               <div className="flex items-start gap-3">
                 {getAlertIcon(alert.type)}
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="mb-1 flex items-center gap-2">
                     <h4 className="font-medium">{alert.title}</h4>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge className="text-xs" variant="outline">
                       {alert.severity}
                     </Badge>
                   </div>
                   <AlertDescription className="mb-2">{alert.description}</AlertDescription>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     Task ID: {alert.taskId.slice(-6)} • {alert.timestamp.toLocaleTimeString()}
                   </div>
                 </div>
               </div>
 
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDismiss(alert.id)}
-                className="h-6 w-6 p-0 hover:bg-transparent"
                 aria-label="Dismiss alert"
+                className="h-6 w-6 p-0 hover:bg-transparent"
+                onClick={() => handleDismiss(alert.id)}
+                size="sm"
+                variant="ghost"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -218,13 +218,13 @@ export function AlertSystem({ taskProgress, onDismiss, className = '' }: AlertSy
 
       {/* Bulk Actions */}
       {alerts.length > 3 && (
-        <div className="text-center pt-4">
+        <div className="pt-4 text-center">
           <Button
-            variant="outline"
+            className="gap-2"
             onClick={() => {
               alerts.forEach((alert) => handleDismiss(alert.id))
             }}
-            className="gap-2"
+            variant="outline"
           >
             <X className="h-4 w-4" />
             Dismiss All Alerts

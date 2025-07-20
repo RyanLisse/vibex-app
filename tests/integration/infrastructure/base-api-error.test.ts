@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { SpanStatusCode } from '@opentelemetry/api'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   BaseAPIError,
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-  ForbiddenError,
   ConflictError,
-  RateLimitError,
   DatabaseError,
   ExternalServiceError,
+  ForbiddenError,
+  NotFoundError,
+  RateLimitError,
+  UnauthorizedError,
+  ValidationError,
 } from '@/lib/api/base/errors'
 import { observability } from '@/lib/observability'
 

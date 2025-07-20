@@ -1,9 +1,9 @@
 'use client'
 
+import { AlertCircle, Camera, Monitor } from 'lucide-react'
 import { useState } from 'react'
-import { Camera, Monitor, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import type { ScreenshotData } from '@/src/schemas/enhanced-task-schemas'
 
 interface ScreenshotCaptureProps {
@@ -111,20 +111,20 @@ export function ScreenshotCapture({ onCapture, onError, className = '' }: Screen
       )}
 
       <div className="flex flex-col items-center space-y-4">
-        <div className="rounded-lg border border-dashed border-muted-foreground/25 p-8 text-center">
+        <div className="rounded-lg border border-muted-foreground/25 border-dashed p-8 text-center">
           <Monitor className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="mt-4 text-lg font-medium">Capture Screenshot</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h3 className="mt-4 font-medium text-lg">Capture Screenshot</h3>
+          <p className="mt-2 text-muted-foreground text-sm">
             Click the button below to capture your screen for the bug report
           </p>
         </div>
 
-        <Button onClick={captureScreenshot} disabled={isCapturing} size="lg" className="gap-2">
+        <Button className="gap-2" disabled={isCapturing} onClick={captureScreenshot} size="lg">
           <Camera className="h-4 w-4" />
           {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
         </Button>
 
-        <p className="text-xs text-muted-foreground text-center max-w-md">
+        <p className="max-w-md text-center text-muted-foreground text-xs">
           Your browser will ask for permission to capture your screen. Choose the window or screen
           you want to include in the bug report.
         </p>

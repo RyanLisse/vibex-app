@@ -24,7 +24,9 @@ for (const route of routes) {
   const hasDynamic = content.includes('export const dynamic')
   const hasRuntime = content.includes('export const runtime')
 
-  if (!hasDynamic || !hasRuntime) {
+  if (hasDynamic && hasRuntime) {
+    skipped++
+  } else {
     // Remove existing partial exports
     content = content.replace(/export const dynamic = ['"]force-dynamic['"]\n?/g, '')
     content = content.replace(/export const runtime = ['"]nodejs['"]\n?/g, '')
@@ -47,12 +49,10 @@ for (const route of routes) {
     writeFileSync(filePath, content)
     console.log(`✅ Updated ${route}`)
     updated++
-  } else {
-    skipped++
   }
 }
 
-console.log(`\n✨ Results:`)
+console.log('\n✨ Results:')
 console.log(`   - Updated: ${updated} routes`)
 console.log(`   - Already configured: ${skipped} routes`)
 console.log(`   - Total API routes: ${routes.length}`)

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { ArrowRight, Type, Highlighter, Square, Eraser, Undo, Redo } from 'lucide-react'
+import { ArrowRight, Eraser, Highlighter, Redo, Square, Type, Undo } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,7 +38,7 @@ export function ImageAnnotationTools({
   // Load image onto canvas
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || !screenshot.imageBlob) return
+    if (!(canvas && screenshot.imageBlob)) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -68,7 +68,7 @@ export function ImageAnnotationTools({
   // Redraw canvas when annotations change
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || !imageLoaded) return
+    if (!(canvas && imageLoaded)) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -193,7 +193,7 @@ export function ImageAnnotationTools({
         }
         break
 
-      case 'text':
+      case 'text': {
         const text = window.prompt('Enter text for annotation:')
         if (!text) return
 
@@ -203,6 +203,7 @@ export function ImageAnnotationTools({
           data: text,
         }
         break
+      }
 
       case 'highlight':
         newAnnotation = {
@@ -261,52 +262,52 @@ export function ImageAnnotationTools({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Toolbar */}
-      <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg">
-        <Label className="text-sm font-medium">Tools:</Label>
+      <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-4">
+        <Label className="font-medium text-sm">Tools:</Label>
 
         {tools.map((tool) => (
           <Button
-            key={tool.type}
-            variant={selectedTool === tool.type ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedTool(tool.type)}
             className="gap-1"
+            key={tool.type}
+            onClick={() => setSelectedTool(tool.type)}
+            size="sm"
+            variant={selectedTool === tool.type ? 'default' : 'outline'}
           >
             <tool.icon className="h-4 w-4" />
             {tool.label}
           </Button>
         ))}
 
-        <Separator orientation="vertical" className="mx-2 h-6" />
+        <Separator className="mx-2 h-6" orientation="vertical" />
 
         <Button
-          variant="outline"
-          size="sm"
-          onClick={undo}
-          disabled={undoStack.length === 0}
           className="gap-1"
+          disabled={undoStack.length === 0}
+          onClick={undo}
+          size="sm"
+          variant="outline"
         >
           <Undo className="h-4 w-4" />
           Undo
         </Button>
 
         <Button
-          variant="outline"
-          size="sm"
-          onClick={redo}
-          disabled={redoStack.length === 0}
           className="gap-1"
+          disabled={redoStack.length === 0}
+          onClick={redo}
+          size="sm"
+          variant="outline"
         >
           <Redo className="h-4 w-4" />
           Redo
         </Button>
 
         <Button
-          variant="outline"
-          size="sm"
-          onClick={clearAnnotations}
-          disabled={annotations.length === 0}
           className="gap-1"
+          disabled={annotations.length === 0}
+          onClick={clearAnnotations}
+          size="sm"
+          variant="outline"
         >
           <Eraser className="h-4 w-4" />
           Clear
@@ -314,23 +315,23 @@ export function ImageAnnotationTools({
       </div>
 
       {/* Canvas */}
-      <div className="border rounded-lg overflow-hidden bg-muted/25">
+      <div className="overflow-hidden rounded-lg border bg-muted/25">
         <canvas
-          ref={canvasRef}
-          onClick={handleCanvasClick}
-          className="max-w-full h-auto cursor-crosshair"
-          role="img"
           aria-label="Screenshot with annotations"
+          className="h-auto max-w-full cursor-crosshair"
+          onClick={handleCanvasClick}
+          ref={canvasRef}
+          role="img"
           style={{ display: 'block' }}
         />
       </div>
 
       {/* Instructions */}
-      <div className="text-sm text-muted-foreground space-y-1">
+      <div className="space-y-1 text-muted-foreground text-sm">
         <p>
           <strong>Instructions:</strong> Select a tool and click on the image to add annotations.
         </p>
-        <ul className="list-disc list-inside space-y-1 ml-4">
+        <ul className="ml-4 list-inside list-disc space-y-1">
           <li>
             <strong>Arrow:</strong> Click to place an arrow pointing to important areas
           </li>

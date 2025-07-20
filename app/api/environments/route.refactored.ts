@@ -8,15 +8,15 @@ export const runtime = 'nodejs'
  * Enhanced environment management using base utilities for consistency and reduced duplication
  */
 
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
 import { and, desc, eq, like } from 'drizzle-orm'
+import { NextRequest } from 'next/server'
 import { ulid } from 'ulid'
+import { z } from 'zod'
 import { db } from '@/db/config'
 import { environments } from '@/db/schema'
 import { NotFoundError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { ResponseBuilder } from '@/lib/api/response-builder'
 import { CreateEnvironmentSchema } from '@/src/schemas/api-routes'
 
@@ -44,7 +44,7 @@ class EnvironmentsService extends BaseAPIService {
    * Get environments with filtering and pagination
    */
   static async getEnvironments(params: z.infer<typeof GetEnvironmentsQuerySchema>) {
-    return this.withTracing('getEnvironments', async () => {
+    return EnvironmentsService.withTracing('getEnvironments', async () => {
       // Build query conditions
       const conditions = []
 
@@ -106,11 +106,17 @@ class EnvironmentsService extends BaseAPIService {
       }
 
       // Log operation
-      await this.logOperation('get_environments', 'environments', null, params.userId, {
-        resultCount: result.data.length,
-        totalCount: result.total,
-        filters: params,
-      })
+      await EnvironmentsService.logOperation(
+        'get_environments',
+        'environments',
+        null,
+        params.userId,
+        {
+          resultCount: result.data.length,
+          totalCount: result.total,
+          filters: params,
+        }
+      )
 
       return result
     })
@@ -121,10 +127,10 @@ class EnvironmentsService extends BaseAPIService {
    */
   static async createEnvironment(
     envData: z.infer<typeof CreateEnvironmentSchema>,
-    userId: string = 'system'
+    userId = 'system'
   ) {
-    return this.withTracing('createEnvironment', async () => {
-      return this.withTransaction(async (tx) => {
+    return EnvironmentsService.withTracing('createEnvironment', async () => {
+      return EnvironmentsService.withTransaction(async (tx) => {
         // By default, first environment is active
         const isActive = true
 
@@ -157,7 +163,7 @@ class EnvironmentsService extends BaseAPIService {
           .returning()
 
         // Log operation
-        await this.logOperation(
+        await EnvironmentsService.logOperation(
           'create_environment',
           'environment',
           createdEnvironment.id,
@@ -177,10 +183,10 @@ class EnvironmentsService extends BaseAPIService {
    * Activate an environment (deactivate others for the same user)
    */
   static async activateEnvironment(id: string, userId: string) {
-    return this.withTracing(
+    return EnvironmentsService.withTracing(
       'activateEnvironment',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return EnvironmentsService.withTransaction(async (tx) => {
           // First, deactivate all environments for this user
           await tx
             .update(environments)
@@ -199,7 +205,7 @@ class EnvironmentsService extends BaseAPIService {
           }
 
           // Log operation
-          await this.logOperation(
+          await EnvironmentsService.logOperation(
             'activate_environment',
             'environment',
             activatedEnvironment.id,

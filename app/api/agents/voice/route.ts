@@ -2,15 +2,15 @@
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-import { type NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
 import {
-  withApiHandler,
-  createBadRequestResponse,
   createApiResponse,
+  createBadRequestResponse,
+  withApiHandler,
 } from '@/lib/api/common-handlers'
 import { handleApiError } from '@/lib/api/error-handler'
+import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
 import { getLogger } from '@/lib/logging/safe-wrapper'
 
 const VoiceMessageSchema = z.object({

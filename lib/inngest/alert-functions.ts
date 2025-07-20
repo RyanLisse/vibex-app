@@ -1,8 +1,8 @@
-import { inngest } from './client'
 import { AlertService } from '../alerts/alert-service'
-import { redis } from '../redis/redis-client'
+import { AlertNotificationStatus, type CriticalError } from '../alerts/types'
 import { ComponentLogger } from '../logging/logger-factory'
-import { CriticalError, AlertNotificationStatus } from '../alerts/types'
+import { redis } from '../redis/redis-client'
+import { inngest } from './client'
 
 const logger = new ComponentLogger('AlertFunctions')
 const alertService = new AlertService(redis)
@@ -202,12 +202,12 @@ export const retryFailedNotification = inngest.createFunction(
 
         // Schedule another retry if we haven't hit max retries
         if (notificationData.retryCount + 1 < maxRetries) {
-          const delayMinutes = Math.pow(2, notificationData.retryCount + 1) // Exponential backoff
+          const delayMinutes = 2 ** (notificationData.retryCount + 1) // Exponential backoff
 
           await step.sendEvent('schedule-retry', {
             name: 'alert/retry-notification',
             data: { notificationId, alertId, channel, maxRetries },
-            timestamp: new Date(Date.now() + delayMinutes * 60000),
+            timestamp: new Date(Date.now() + delayMinutes * 60_000),
           })
         }
 
@@ -297,7 +297,7 @@ export const cleanupOldAlerts = inngest.createFunction(
 
     const result = await step.run('cleanup-alerts', async () => {
       try {
-        const retentionDays = parseInt(process.env.ALERTS_RETENTION_DAYS || '30')
+        const retentionDays = Number.parseInt(process.env.ALERTS_RETENTION_DAYS || '30')
         const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000)
 
         // Clean up old alerts from Redis

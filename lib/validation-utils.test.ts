@@ -1,5 +1,5 @@
 // Test coverage for validation utilities
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('Validation Utilities', () => {
   describe('string validation', () => {
@@ -104,7 +104,7 @@ describe('Validation Utilities', () => {
       expect(isPositiveNumber(100)).toBe(true)
       expect(isPositiveNumber(0)).toBe(false)
       expect(isPositiveNumber(-1)).toBe(false)
-      expect(isPositiveNumber(NaN)).toBe(false)
+      expect(isPositiveNumber(Number.NaN)).toBe(false)
       expect(isPositiveNumber('123')).toBe(false)
       expect(isPositiveNumber(null)).toBe(false)
     })
@@ -122,7 +122,7 @@ describe('Validation Utilities', () => {
       expect(isInteger(0)).toBe(true)
       expect(isInteger(-1)).toBe(true)
       expect(isInteger(1.5)).toBe(false)
-      expect(isInteger(NaN)).toBe(false)
+      expect(isInteger(Number.NaN)).toBe(false)
       expect(isInteger('1')).toBe(false)
     })
   })

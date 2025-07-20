@@ -5,9 +5,9 @@
  */
 
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { glob } from 'glob'
+import { join } from 'path'
 
 console.log('🔧 Starting comprehensive test fix...\n')
 
@@ -201,8 +201,8 @@ try {
 console.log('\n✅ Test fix script completed!')
 console.log('\n📊 Summary:')
 console.log(`- Fixed ${mockRestoreCount} mock.restore() issues`)
-console.log(`- Updated database connection strings`)
-console.log(`- Fixed import paths`)
-console.log(`- Added Redis mocks`)
-console.log(`- Fixed async test timeouts`)
+console.log('- Updated database connection strings')
+console.log('- Fixed import paths')
+console.log('- Added Redis mocks')
+console.log('- Fixed async test timeouts')
 console.log('\n🚀 Run "bun run test" to see current test status')

@@ -7,10 +7,10 @@ export default function AmbientAgentsPage() {
   return (
     <div className="h-screen w-full bg-gray-50">
       {/* Header */}
-      <div className="h-16 bg-white border-b border-gray-200 flex items-center px-6">
+      <div className="flex h-16 items-center border-gray-200 border-b bg-white px-6">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-900">Ambient Agent Visualization</h1>
-          <div className="text-sm text-gray-600">
+          <h1 className="font-bold text-2xl text-gray-900">Ambient Agent Visualization</h1>
+          <div className="text-gray-600 text-sm">
             Real-time monitoring and management of AI agent workflows
           </div>
         </div>
@@ -19,11 +19,11 @@ export default function AmbientAgentsPage() {
       {/* Main visualization area */}
       <div className="h-[calc(100vh-4rem)]">
         <VisualizationEngineWithProvider
-          viewMode="agent-centric"
+          className="h-full w-full"
+          enableCollaboration={false}
           layoutAlgorithm="force-directed"
           showPerformanceMetrics={true}
-          enableCollaboration={false}
-          className="w-full h-full"
+          viewMode="agent-centric"
         />
       </div>
     </div>

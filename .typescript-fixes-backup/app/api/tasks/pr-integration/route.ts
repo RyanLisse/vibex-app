@@ -13,7 +13,7 @@ import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
 import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
-import { TaskPRLinkSchema, PRStatusUpdateSchema } from '@/src/schemas/enhanced-task-schemas'
+import { PRStatusUpdateSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock GitHub API client
 class GitHubAPIClient {
@@ -26,7 +26,7 @@ class GitHubAPIClient {
 
     return {
       prId: `pr-${prNumber}`,
-      title: `Feature: Add new task management functionality`,
+      title: 'Feature: Add new task management functionality',
       status: 'open' as const,
       reviewStatus: 'pending' as const,
       mergeable: true,

@@ -6,8 +6,8 @@
  */
 import { NextResponse } from 'next/server'
 import {
-  createApiSuccessResponse,
   createApiErrorResponse,
+  createApiSuccessResponse,
   createPaginatedResponse,
 } from '@/src/schemas/api-routes'
 
@@ -26,7 +26,7 @@ export class ResponseBuilder {
   static success<T>(data: T, message?: string, statusCode = 200): NextResponse {
     return NextResponse.json(createApiSuccessResponse(data, message), {
       status: statusCode,
-      headers: this.getDefaultHeaders(),
+      headers: ResponseBuilder.getDefaultHeaders(),
     })
   }
 
@@ -36,7 +36,7 @@ export class ResponseBuilder {
   static paginated<T>(data: T[], pagination: PaginationInfo, message?: string): NextResponse {
     return NextResponse.json(createPaginatedResponse(data, pagination, message), {
       status: 200,
-      headers: this.getDefaultHeaders(),
+      headers: ResponseBuilder.getDefaultHeaders(),
     })
   }
 
@@ -51,7 +51,7 @@ export class ResponseBuilder {
   ): NextResponse {
     return NextResponse.json(createApiErrorResponse(message, statusCode, code, details), {
       status: statusCode,
-      headers: this.getDefaultHeaders(),
+      headers: ResponseBuilder.getDefaultHeaders(),
     })
   }
 
@@ -59,7 +59,7 @@ export class ResponseBuilder {
    * Create a validation error response
    */
   static validationError(errors: any[]): NextResponse {
-    return this.error('Validation failed', 400, 'VALIDATION_ERROR', errors)
+    return ResponseBuilder.error('Validation failed', 400, 'VALIDATION_ERROR', errors)
   }
 
   /**
@@ -68,28 +68,28 @@ export class ResponseBuilder {
   static notFound(resource: string, id?: string): NextResponse {
     const message = id ? `${resource} with id ${id} not found` : `${resource} not found`
 
-    return this.error(message, 404, 'NOT_FOUND')
+    return ResponseBuilder.error(message, 404, 'NOT_FOUND')
   }
 
   /**
    * Create an unauthorized response
    */
   static unauthorized(message = 'Unauthorized'): NextResponse {
-    return this.error(message, 401, 'UNAUTHORIZED')
+    return ResponseBuilder.error(message, 401, 'UNAUTHORIZED')
   }
 
   /**
    * Create a forbidden response
    */
   static forbidden(message = 'Forbidden'): NextResponse {
-    return this.error(message, 403, 'FORBIDDEN')
+    return ResponseBuilder.error(message, 403, 'FORBIDDEN')
   }
 
   /**
    * Create a rate limit response
    */
   static rateLimitExceeded(retryAfter?: number): NextResponse {
-    const headers = this.getDefaultHeaders()
+    const headers = ResponseBuilder.getDefaultHeaders()
 
     if (retryAfter) {
       headers['Retry-After'] = retryAfter.toString()
@@ -106,21 +106,21 @@ export class ResponseBuilder {
    * Create a conflict response
    */
   static conflict(message: string, details?: any): NextResponse {
-    return this.error(message, 409, 'CONFLICT', details)
+    return ResponseBuilder.error(message, 409, 'CONFLICT', details)
   }
 
   /**
    * Create a bad request response
    */
   static badRequest(message: string, details?: any): NextResponse {
-    return this.error(message, 400, 'BAD_REQUEST', details)
+    return ResponseBuilder.error(message, 400, 'BAD_REQUEST', details)
   }
 
   /**
    * Create a created response (201)
    */
   static created<T>(data: T, message?: string): NextResponse {
-    return this.success(data, message, 201)
+    return ResponseBuilder.success(data, message, 201)
   }
 
   /**
@@ -129,7 +129,7 @@ export class ResponseBuilder {
   static noContent(): NextResponse {
     return new NextResponse(null, {
       status: 204,
-      headers: this.getDefaultHeaders(),
+      headers: ResponseBuilder.getDefaultHeaders(),
     })
   }
 
@@ -137,7 +137,7 @@ export class ResponseBuilder {
    * Create an accepted response (202)
    */
   static accepted<T>(data?: T, message?: string): NextResponse {
-    return this.success(data || {}, message, 202)
+    return ResponseBuilder.success(data || {}, message, 202)
   }
 
   /**

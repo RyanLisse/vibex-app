@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 const files = [
@@ -21,8 +21,10 @@ for (const file of files) {
 
     // First, restore the import if it was removed
     if (
-      !content.includes('import { createDefaultLoggingConfig') &&
-      !content.includes('import { ComponentLogger')
+      !(
+        content.includes('import { createDefaultLoggingConfig') ||
+        content.includes('import { ComponentLogger')
+      )
     ) {
       // Find the import from './config' and add createDefaultLoggingConfig
       content = content.replace(

@@ -11,7 +11,7 @@
  */
 
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import path from 'path'
 
 interface SetupConfig {
@@ -165,7 +165,7 @@ class AlertSetup {
         config: {
           url: process.env.ALERTS_WEBHOOK_URL,
           method: 'POST',
-          timeout: 30000,
+          timeout: 30_000,
           retries: 3,
           ...(process.env.ALERTS_WEBHOOK_TOKEN && {
             authentication: {

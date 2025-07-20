@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { promises as fs } from 'fs'
-import { join, dirname, basename } from 'path'
 import { glob } from 'glob'
+import { basename, dirname, join } from 'path'
 
 interface TestCategory {
   name: string
@@ -42,12 +42,10 @@ async function categorizeTest(testPath: string): Promise<CategorizedTest> {
   let priority = 4
 
   for (const cat of testCategories) {
-    if (cat.pattern.test(testPath)) {
-      if (!cat.directory || testPath.includes(cat.directory)) {
-        category = cat.name
-        priority = cat.priority
-        break
-      }
+    if (cat.pattern.test(testPath) && (!cat.directory || testPath.includes(cat.directory))) {
+      category = cat.name
+      priority = cat.priority
+      break
     }
   }
 

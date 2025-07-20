@@ -7,7 +7,6 @@
 
 import { and, asc, count, desc, eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { checkDatabaseHealth, db, initializeExtensions } from '../../../db/test-config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
 import {
   agentExecutions,
@@ -27,6 +26,7 @@ import {
   workflowExecutions,
   workflows,
 } from '../../../db/schema'
+import { checkDatabaseHealth, db, initializeExtensions } from '../../../db/test-config'
 
 // Skip tests if no database URL is provided
 const skipTests = !process.env.DATABASE_URL

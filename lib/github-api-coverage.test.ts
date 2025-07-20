@@ -1,5 +1,5 @@
 // Comprehensive coverage tests for GitHub API uncovered lines
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GitHubAPI } from './github-api'
 
 describe('GitHubAPI Coverage Tests', () => {

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { Camera, Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { ScreenshotData } from '@/src/schemas/enhanced-task-schemas'
 
@@ -27,7 +27,7 @@ export function QuickBugReportButton({
 
     try {
       // Check if screen capture is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      if (!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
         throw new Error('Screen capture is not supported in this browser')
       }
 
@@ -90,11 +90,11 @@ export function QuickBugReportButton({
 
   return (
     <Button
-      onClick={handleCapture}
-      disabled={disabled || isCapturing}
-      variant={variant}
-      size={size}
       className="gap-2"
+      disabled={disabled || isCapturing}
+      onClick={handleCapture}
+      size={size}
+      variant={variant}
     >
       {isCapturing ? (
         <>

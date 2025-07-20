@@ -1,10 +1,10 @@
 'use client'
 
+import { CheckCircle, Clock, MessageSquare, Users, XCircle } from 'lucide-react'
 import { useState } from 'react'
-import { Users, MessageSquare, CheckCircle, Clock, XCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -97,15 +97,15 @@ export function PRReviewSummary({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4" />
-          <h4 className="text-sm font-medium">
+          <h4 className="font-medium text-sm">
             Reviews ({approvedCount}/{totalReviewers})
           </h4>
         </div>
 
         {onRequestReview && (
-          <Dialog open={isRequestModalOpen} onOpenChange={setIsRequestModalOpen}>
+          <Dialog onOpenChange={setIsRequestModalOpen} open={isRequestModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button size="sm" variant="outline">
                 Request Review
               </Button>
             </DialogTrigger>
@@ -139,16 +139,16 @@ export function PRReviewSummary({
                 {/* Selected Reviewers */}
                 {selectedReviewers.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Selected:</p>
+                    <p className="font-medium text-sm">Selected:</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedReviewers.map((reviewer) => (
-                        <Badge key={reviewer} variant="secondary" className="gap-1">
+                        <Badge className="gap-1" key={reviewer} variant="secondary">
                           {reviewer}
                           <button
+                            className="ml-1 hover:text-red-500"
                             onClick={() =>
                               setSelectedReviewers((prev) => prev.filter((r) => r !== reviewer))
                             }
-                            className="ml-1 hover:text-red-500"
                           >
                             ×
                           </button>
@@ -160,16 +160,16 @@ export function PRReviewSummary({
 
                 <div className="flex gap-2 pt-4">
                   <Button
-                    onClick={handleRequestReview}
-                    disabled={selectedReviewers.length === 0}
                     className="flex-1"
+                    disabled={selectedReviewers.length === 0}
+                    onClick={handleRequestReview}
                   >
                     Send Request
                   </Button>
                   <Button
-                    variant="outline"
-                    onClick={() => setIsRequestModalOpen(false)}
                     className="flex-1"
+                    onClick={() => setIsRequestModalOpen(false)}
+                    variant="outline"
                   >
                     Cancel
                   </Button>
@@ -184,9 +184,9 @@ export function PRReviewSummary({
       <div className="space-y-2">
         {prStatus.reviewers.map((reviewer) => (
           <div
-            key={reviewer.login}
-            className={`flex items-center gap-3 p-2 rounded-lg border ${getReviewerClassName(reviewer.status)}`}
+            className={`flex items-center gap-3 rounded-lg border p-2 ${getReviewerClassName(reviewer.status)}`}
             data-testid={`reviewer-${reviewer.login}`}
+            key={reviewer.login}
           >
             <Avatar className="h-6 w-6">
               <AvatarFallback className="text-xs">
@@ -195,7 +195,7 @@ export function PRReviewSummary({
             </Avatar>
 
             <div className="flex-1">
-              <p className="text-sm font-medium">{reviewer.login}</p>
+              <p className="font-medium text-sm">{reviewer.login}</p>
             </div>
 
             <div className="flex items-center gap-1">
@@ -208,35 +208,35 @@ export function PRReviewSummary({
 
       {/* Review Comments */}
       {reviewComments && reviewComments.length > 0 && (
-        <Dialog open={isCommentsModalOpen} onOpenChange={setIsCommentsModalOpen}>
+        <Dialog onOpenChange={setIsCommentsModalOpen} open={isCommentsModalOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full gap-2">
+            <Button className="w-full gap-2" size="sm" variant="outline">
               <MessageSquare className="h-4 w-4" />
               View Comments ({reviewComments.length})
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
+          <DialogContent className="max-h-96 max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Review Comments</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">
               {reviewComments.map((comment) => (
-                <div key={comment.id} className="border rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="rounded-lg border p-3" key={comment.id}>
+                  <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6">
                         <AvatarFallback className="text-xs">
                           {comment.author.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium">{comment.author}</span>
+                      <span className="font-medium text-sm">{comment.author}</span>
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge className="text-xs" variant="outline">
                       {comment.file}:{comment.line}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">{comment.body}</p>
+                  <p className="text-muted-foreground text-sm">{comment.body}</p>
                 </div>
               ))}
             </div>
@@ -245,7 +245,7 @@ export function PRReviewSummary({
       )}
 
       {/* Summary Stats */}
-      <div className="text-xs text-muted-foreground">
+      <div className="text-muted-foreground text-xs">
         <p>
           {approvedCount > 0 && `${approvedCount} approved • `}
           {prStatus.reviewers.filter((r) => r.status === 'changes_requested').length > 0 &&

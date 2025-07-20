@@ -5,11 +5,11 @@
  * services and components in your Claude Flow application.
  */
 
-import { initializeAlerts, getAlertService } from './index'
-import { AlertWinstonTransport } from './alert-winston-transport'
-import { LoggerFactory } from '../logging/logger-factory'
-import { CriticalErrorType } from './types'
 import type { LogEntry } from 'winston'
+import { LoggerFactory } from '../logging/logger-factory'
+import { AlertWinstonTransport } from './alert-winston-transport'
+import { getAlertService, initializeAlerts } from './index'
+import { CriticalErrorType } from './types'
 
 /**
  * Example 1: Basic Integration with Existing Logger
@@ -101,7 +101,7 @@ export class DatabaseWithAlerts {
         error: error instanceof Error ? error.message : 'Unknown error',
         type: 'database_connection_failure',
         retries: 3,
-        timeout: 10000,
+        timeout: 10_000,
       })
       throw error
     }

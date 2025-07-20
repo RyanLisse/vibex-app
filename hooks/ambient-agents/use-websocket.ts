@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseWebSocketOptions {
   onOpen?: (event: Event) => void
@@ -48,7 +48,7 @@ export const useWebSocket = (
     try {
       // Use Server-Sent Events instead of WebSocket for Next.js compatibility
       const sseUrl = url.replace('/ws', '/sse')
-      // @ts-ignore - Workaround for TypeScript bug
+      // @ts-expect-error - Workaround for TypeScript bug
       eventSourceRef.current = new EventSource(sseUrl)
 
       eventSourceRef.current.onopen = (event) => {
@@ -113,7 +113,7 @@ export const useWebSocket = (
       setConnectionStatus('Closed')
 
       // Simulate close event for compatibility
-      // @ts-ignore - Temporary workaround for TypeScript bug
+      // @ts-expect-error - Temporary workaround for TypeScript bug
       const closeEvent = new CloseEvent('close', {
         wasClean: true,
         code: 1000,

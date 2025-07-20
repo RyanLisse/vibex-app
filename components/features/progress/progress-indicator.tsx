@@ -73,37 +73,37 @@ export function ProgressIndicator({
       data-testid="progress-indicator"
     >
       <svg
-        width={config.size}
-        height={config.size}
-        className={`transform -rotate-90 ${animated ? 'animated' : ''} ${size === 'small' ? 'size-small' : 'size-large'} ${progressClasses[actualColor]}`}
-        role="progressbar"
-        aria-valuenow={clampedPercentage}
-        aria-valuemin={0}
         aria-valuemax={100}
+        aria-valuemin={0}
+        aria-valuenow={clampedPercentage}
+        className={`-rotate-90 transform ${animated ? 'animated' : ''} ${size === 'small' ? 'size-small' : 'size-large'} ${progressClasses[actualColor]}`}
+        height={config.size}
+        role="progressbar"
+        width={config.size}
       >
         {/* Background circle */}
         <circle
+          className="text-muted-foreground/20"
           cx={config.size / 2}
           cy={config.size / 2}
+          fill="none"
           r={radius}
           stroke="currentColor"
           strokeWidth={config.strokeWidth}
-          fill="none"
-          className="text-muted-foreground/20"
         />
 
         {/* Progress circle */}
         <circle
+          className={`${colorClasses[actualColor]} transition-all duration-500 ease-in-out`}
           cx={config.size / 2}
           cy={config.size / 2}
+          fill="none"
           r={radius}
           stroke="currentColor"
-          strokeWidth={config.strokeWidth}
-          fill="none"
-          strokeLinecap="round"
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
-          className={`${colorClasses[actualColor]} transition-all duration-500 ease-in-out`}
+          strokeLinecap="round"
+          strokeWidth={config.strokeWidth}
           style={{
             transformOrigin: 'center',
           }}

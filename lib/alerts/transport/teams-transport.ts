@@ -1,6 +1,6 @@
-import { AlertTransport } from './alert-transport-service'
-import { AlertChannel, CriticalError, AlertNotification } from '../types'
 import { ComponentLogger } from '../../logging/logger-factory'
+import type { AlertChannel, AlertNotification, CriticalError } from '../types'
+import type { AlertTransport } from './alert-transport-service'
 
 interface TeamsConfig {
   webhookUrl: string
@@ -60,7 +60,7 @@ export class TeamsTransport implements AlertTransport {
             'User-Agent': 'ClaudeFlow-AlertSystem/1.0',
           },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(30000),
+          signal: AbortSignal.timeout(30_000),
         })
 
         if (!response.ok) {
@@ -89,7 +89,7 @@ export class TeamsTransport implements AlertTransport {
 
         if (attempt < maxRetries) {
           // Exponential backoff: 1s, 2s, 4s
-          const delay = Math.pow(2, attempt - 1) * 1000
+          const delay = 2 ** (attempt - 1) * 1000
           await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
@@ -229,17 +229,15 @@ export class TeamsTransport implements AlertTransport {
 
     try {
       const url = new URL(teamsConfig.webhookUrl)
-      if (!url.hostname.includes('office.com') && !url.hostname.includes('outlook.com')) {
+      if (!(url.hostname.includes('office.com') || url.hostname.includes('outlook.com'))) {
         return false
       }
     } catch {
       return false
     }
 
-    if (teamsConfig.mentionUsers) {
-      if (!Array.isArray(teamsConfig.mentionUsers)) {
-        return false
-      }
+    if (teamsConfig.mentionUsers && !Array.isArray(teamsConfig.mentionUsers)) {
+      return false
     }
 
     return true

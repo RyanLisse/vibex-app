@@ -15,10 +15,10 @@ vi.mock('@/components/ui/avatar', () => ({
   ),
   AvatarImage: ({ src, alt, className, ...props }: any) => (
     <div
+      aria-label={alt}
       className={className}
       data-src={src}
       data-testid="avatar-image"
-      aria-label={alt}
       {...props}
     />
   ),

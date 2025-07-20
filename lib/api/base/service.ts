@@ -5,7 +5,7 @@
  * error handling, and observability integration.
  */
 
-import { trace, SpanStatusCode, type Span } from '@opentelemetry/api'
+import { type Span, SpanStatusCode, trace } from '@opentelemetry/api'
 import { BaseAPIError, DatabaseError } from './errors'
 
 export interface ServiceOptions {

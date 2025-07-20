@@ -8,17 +8,17 @@ export const runtime = 'nodejs'
  * Enhanced user management using base utilities for consistency and reduced duplication
  */
 
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
 import { and, desc, eq, like } from 'drizzle-orm'
+import { NextRequest } from 'next/server'
 import { ulid } from 'ulid'
+import { z } from 'zod'
 import { db } from '@/db/config'
 import { authSessions, users } from '@/db/schema'
 import { NotFoundError, UnauthorizedError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { ResponseBuilder } from '@/lib/api/response-builder'
-import { CreateUserSchema, UpdateUserSchema } from '@/src/schemas/api-routes'
+import { CreateUserSchema, type UpdateUserSchema } from '@/src/schemas/api-routes'
 
 // Request validation schemas
 const GetUsersQuerySchema = z.object({
@@ -39,7 +39,7 @@ class UsersService extends BaseAPIService {
    * Get users with filtering and pagination
    */
   static async getUsers(params: z.infer<typeof GetUsersQuerySchema>) {
-    return this.withTracing('getUsers', async () => {
+    return UsersService.withTracing('getUsers', async () => {
       // Build query conditions
       const conditions = []
 
@@ -101,7 +101,7 @@ class UsersService extends BaseAPIService {
       }
 
       // Log operation
-      await this.logOperation('get_users', 'users', null, null, {
+      await UsersService.logOperation('get_users', 'users', null, null, {
         resultCount: result.data.length,
         totalCount: result.total,
         filters: params,
@@ -115,7 +115,7 @@ class UsersService extends BaseAPIService {
    * Get user by ID with auth sessions
    */
   static async getUserById(id: string) {
-    return this.withTracing(
+    return UsersService.withTracing(
       'getUserById',
       async () => {
         const [user] = await db
@@ -156,7 +156,7 @@ class UsersService extends BaseAPIService {
           .orderBy(authSessions.lastUsedAt)
 
         // Log operation
-        await this.logOperation('get_user', 'user', user.id, user.id, {
+        await UsersService.logOperation('get_user', 'user', user.id, user.id, {
           activeSessions: activeSessions.length,
         })
 
@@ -173,8 +173,8 @@ class UsersService extends BaseAPIService {
    * Create or update user (upsert based on provider + providerId)
    */
   static async upsertUser(userData: z.infer<typeof CreateUserSchema>) {
-    return this.withTracing('upsertUser', async () => {
-      return this.withTransaction(async (tx) => {
+    return UsersService.withTracing('upsertUser', async () => {
+      return UsersService.withTransaction(async (tx) => {
         // Check if user exists
         const [existingUser] = await tx
           .select()
@@ -209,7 +209,7 @@ class UsersService extends BaseAPIService {
         }
 
         // Log operation
-        await this.logOperation(
+        await UsersService.logOperation(
           existingUser ? 'update_user' : 'create_user',
           'user',
           user.id,
@@ -229,10 +229,10 @@ class UsersService extends BaseAPIService {
    * Update user preferences and profile
    */
   static async updateUser(id: string, updates: z.infer<typeof UpdateUserSchema>) {
-    return this.withTracing(
+    return UsersService.withTracing(
       'updateUser',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return UsersService.withTransaction(async (tx) => {
           const [updatedUser] = await tx
             .update(users)
             .set({
@@ -247,7 +247,7 @@ class UsersService extends BaseAPIService {
           }
 
           // Log operation
-          await this.logOperation('update_user', 'user', updatedUser.id, updatedUser.id, {
+          await UsersService.logOperation('update_user', 'user', updatedUser.id, updatedUser.id, {
             updates,
           })
 

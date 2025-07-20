@@ -8,14 +8,14 @@ export const runtime = 'nodejs'
  * Enhanced API route using base utilities for consistency and reduced duplication
  */
 
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { ulid } from 'ulid'
 import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
-import { BaseAPIError, NotFoundError, InternalServerError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
+import { BaseAPIError, InternalServerError, NotFoundError } from '@/lib/api/base-error'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { QueryBuilder } from '@/lib/api/query-builder'
 import { ResponseBuilder } from '@/lib/api/response-builder'
 import { CreateTaskSchema, UpdateTaskSchema } from '@/src/schemas/api-routes'
@@ -43,7 +43,7 @@ class TasksService extends BaseAPIService {
    * Get tasks with filtering and pagination
    */
   static async getTasks(params: z.infer<typeof GetTasksQuerySchema>) {
-    return this.withTracing('getTasks', async () => {
+    return TasksService.withTracing('getTasks', async () => {
       // Use QueryBuilder for consistent query construction
       const filters = {
         status: params.status,
@@ -68,7 +68,7 @@ class TasksService extends BaseAPIService {
       )
 
       // Log operation for audit trail
-      await this.logOperation('query_tasks', 'tasks', 'multiple', params.userId, {
+      await TasksService.logOperation('query_tasks', 'tasks', 'multiple', params.userId, {
         resultCount: result.data.length,
         filters: params,
       })
@@ -81,10 +81,10 @@ class TasksService extends BaseAPIService {
    * Create a new task
    */
   static async createTask(taskData: z.infer<typeof CreateTaskSchema>) {
-    return this.withTracing(
+    return TasksService.withTracing(
       'createTask',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return TasksService.withTransaction(async (tx) => {
           const newTask = {
             id: ulid(),
             ...taskData,
@@ -95,9 +95,15 @@ class TasksService extends BaseAPIService {
           const [createdTask] = await tx.insert(tasks).values(newTask).returning()
 
           // Log operation
-          await this.logOperation('create_task', 'task', createdTask.id, createdTask.userId, {
-            title: createdTask.title,
-          })
+          await TasksService.logOperation(
+            'create_task',
+            'task',
+            createdTask.id,
+            createdTask.userId,
+            {
+              title: createdTask.title,
+            }
+          )
 
           return createdTask
         })
@@ -110,10 +116,10 @@ class TasksService extends BaseAPIService {
    * Update a task
    */
   static async updateTask(id: string, updates: z.infer<typeof UpdateTaskSchema>) {
-    return this.withTracing(
+    return TasksService.withTracing(
       'updateTask',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return TasksService.withTransaction(async (tx) => {
           const [updatedTask] = await tx
             .update(tasks)
             .set({
@@ -129,9 +135,15 @@ class TasksService extends BaseAPIService {
           }
 
           // Log operation
-          await this.logOperation('update_task', 'task', updatedTask.id, updatedTask.userId, {
-            updates,
-          })
+          await TasksService.logOperation(
+            'update_task',
+            'task',
+            updatedTask.id,
+            updatedTask.userId,
+            {
+              updates,
+            }
+          )
 
           return updatedTask
         })
@@ -144,10 +156,10 @@ class TasksService extends BaseAPIService {
    * Delete a task
    */
   static async deleteTask(id: string) {
-    return this.withTracing(
+    return TasksService.withTracing(
       'deleteTask',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return TasksService.withTransaction(async (tx) => {
           const [deletedTask] = await tx.delete(tasks).where(eq(tasks.id, id)).returning()
 
           if (!deletedTask) {
@@ -155,9 +167,15 @@ class TasksService extends BaseAPIService {
           }
 
           // Log operation
-          await this.logOperation('delete_task', 'task', deletedTask.id, deletedTask.userId, {
-            title: deletedTask.title,
-          })
+          await TasksService.logOperation(
+            'delete_task',
+            'task',
+            deletedTask.id,
+            deletedTask.userId,
+            {
+              title: deletedTask.title,
+            }
+          )
 
           return deletedTask
         })

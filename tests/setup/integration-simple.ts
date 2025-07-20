@@ -292,10 +292,10 @@ beforeAll(async () => {
         console.log(`Running ${status.pending.length} pending migrations...`)
         const result = await migrationRunner.migrate()
 
-        if (!result.success) {
-          console.error('Migration failed:', result.errors)
-        } else {
+        if (result.success) {
           console.log('Migrations completed successfully')
+        } else {
+          console.error('Migration failed:', result.errors)
         }
       }
     } catch (error) {

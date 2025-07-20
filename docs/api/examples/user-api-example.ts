@@ -5,10 +5,10 @@
  * using the base infrastructure patterns.
  */
 
+import { z } from 'zod'
 // app/api/users/route.ts
 import { BaseAPIHandler, ResponseBuilder, ValidationError } from '@/lib/api/base'
 import { userService } from '@/services/user-service'
-import { z } from 'zod'
 
 // Validation schemas
 const GetUsersQuerySchema = z.object({
@@ -53,19 +53,19 @@ export const POST = BaseAPIHandler.POST(async (context) => {
   return ResponseBuilder.created(user, `User ${user.email} created successfully`)
 })
 
+import bcrypt from 'bcrypt'
+import { eq } from 'drizzle-orm'
+import { db } from '@/db/config'
+import { users } from '@/db/schema'
 // services/user-service.ts
 import {
   BaseAPIService,
   BaseCRUDService,
-  NotFoundError,
   ConflictError,
   createQueryBuilder,
+  NotFoundError,
   type ServiceContext,
 } from '@/lib/api/base'
-import { db } from '@/db/config'
-import { users } from '@/db/schema'
-import { eq } from 'drizzle-orm'
-import bcrypt from 'bcrypt'
 
 interface User {
   id: string

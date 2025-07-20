@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { TestLifecycleManager, ResourceManager, SetupTeardownOrchestrator } from './test-lifecycle'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ResourceManager, SetupTeardownOrchestrator, TestLifecycleManager } from './test-lifecycle'
 
 describe('TestLifecycleManager', () => {
   let manager: TestLifecycleManager

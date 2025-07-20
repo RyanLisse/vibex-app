@@ -36,7 +36,7 @@ async function cleanupConfigs() {
     }
   }
 
-  console.log(`\n✨ Cleanup completed!`)
+  console.log('\n✨ Cleanup completed!')
   console.log(`   - Removed ${removedCount} redundant configs`)
   console.log(`   - Kept ${configsToKeep.length} essential configs:`)
   configsToKeep.forEach((config) => console.log(`     • ${config}`))

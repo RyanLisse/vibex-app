@@ -41,15 +41,15 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     return (
       <div className={cn('relative flex w-full touch-none select-none items-center', className)}>
         <input
-          ref={ref}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={currentValue[0]}
-          onChange={handleChange}
+          className="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
           disabled={disabled}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          max={max}
+          min={min}
+          onChange={handleChange}
+          ref={ref}
+          step={step}
+          type="range"
+          value={currentValue[0]}
           {...props}
         />
         <style jsx>{`

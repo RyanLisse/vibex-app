@@ -8,16 +8,16 @@ export const runtime = 'nodejs'
  * Enhanced GitHub repository management using base utilities for consistency and reduced duplication
  */
 
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
 import { and, desc, eq, gte, like } from 'drizzle-orm'
+import type { NextRequest } from 'next/server'
+import { z } from 'zod'
 import { db } from '@/db/config'
 import { authSessions, githubRepositories, users } from '@/db/schema'
-import { githubAuth } from '@/lib/github'
 import { UnauthorizedError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { ResponseBuilder } from '@/lib/api/response-builder'
+import { githubAuth } from '@/lib/github'
 
 // Request validation schemas
 const GetRepositoriesQuerySchema = z.object({
@@ -42,12 +42,16 @@ class GitHubRepositoriesService extends BaseAPIService {
     accessToken: string,
     params: z.infer<typeof GetRepositoriesQuerySchema>
   ) {
-    return this.withTracing('getRepositories', async () => {
+    return GitHubRepositoriesService.withTracing('getRepositories', async () => {
       // Check if sync is needed
-      const syncNeeded = await this.isSyncNeeded(userId, params.syncThreshold, params.forceSync)
+      const syncNeeded = await GitHubRepositoriesService.isSyncNeeded(
+        userId,
+        params.syncThreshold,
+        params.forceSync
+      )
 
       if (syncNeeded) {
-        await this.syncRepositories(userId, accessToken)
+        await GitHubRepositoriesService.syncRepositories(userId, accessToken)
       }
 
       // Build query conditions
@@ -116,12 +120,18 @@ class GitHubRepositoriesService extends BaseAPIService {
       }
 
       // Log operation
-      await this.logOperation('get_repositories', 'github_repositories', null, userId, {
-        resultCount: result.data.length,
-        totalCount: result.total,
-        syncPerformed: syncNeeded,
-        filters: params,
-      })
+      await GitHubRepositoriesService.logOperation(
+        'get_repositories',
+        'github_repositories',
+        null,
+        userId,
+        {
+          resultCount: result.data.length,
+          totalCount: result.total,
+          syncPerformed: syncNeeded,
+          filters: params,
+        }
+      )
 
       return {
         repositories: result.data,
@@ -164,8 +174,8 @@ class GitHubRepositoriesService extends BaseAPIService {
    * Sync repositories from GitHub API to database
    */
   private static async syncRepositories(userId: string, accessToken: string) {
-    return this.withTracing('syncRepositories', async () => {
-      return this.withTransaction(async (tx) => {
+    return GitHubRepositoriesService.withTracing('syncRepositories', async () => {
+      return GitHubRepositoriesService.withTransaction(async (tx) => {
         // Fetch repositories from GitHub API
         const apiRepositories = await githubAuth.getUserRepositories(accessToken)
 
@@ -208,9 +218,15 @@ class GitHubRepositoriesService extends BaseAPIService {
         }
 
         // Log operation
-        await this.logOperation('sync_repositories', 'github_repositories', null, userId, {
-          repositoryCount: repoData.length,
-        })
+        await GitHubRepositoriesService.logOperation(
+          'sync_repositories',
+          'github_repositories',
+          null,
+          userId,
+          {
+            repositoryCount: repoData.length,
+          }
+        )
 
         return repoData.length
       })

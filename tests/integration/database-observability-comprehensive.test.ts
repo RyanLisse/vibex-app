@@ -11,11 +11,11 @@
  * - Metrics export to Prometheus/Grafana
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'bun:test'
-import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
-import { GrafanaDashboardBuilder } from '@/lib/metrics/grafana-dashboards'
-import { AlertRuleBuilder } from '@/lib/metrics/alert-rules'
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
 import type { Database } from '@/db'
+import { AlertRuleBuilder } from '@/lib/metrics/alert-rules'
+import { GrafanaDashboardBuilder } from '@/lib/metrics/grafana-dashboards'
+import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
 import { observability } from '@/lib/observability'
 
 // Mock database operations for testing
@@ -649,7 +649,7 @@ describe('Database Observability Comprehensive Integration', () => {
               type: 'database_error',
               duration: Date.now() - start,
               success: false,
-              error: error,
+              error,
             })
           }
 

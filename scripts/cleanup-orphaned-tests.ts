@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { promises as fs } from 'fs'
-import { join, dirname, basename } from 'path'
 import { glob } from 'glob'
+import { basename, dirname, join } from 'path'
 
 interface OrphanedTest {
   testPath: string

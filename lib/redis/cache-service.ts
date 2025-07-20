@@ -1,5 +1,5 @@
 import { ObservabilityService } from '../observability'
-import { RedisClientManager } from './redis-client'
+import type { RedisClientManager } from './redis-client'
 import type { CacheKey, CacheMetrics, CacheOptions, CacheValue } from './types'
 
 export class CacheService {

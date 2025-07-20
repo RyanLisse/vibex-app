@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { BaseAPIHandler } from '@/lib/api/base/handler'
-import { BaseAPIService, BaseCRUDService, type ServiceContext } from '@/lib/api/base/service'
-import { QueryBuilder, createQueryBuilder } from '@/lib/api/base/query-builder'
-import { ResponseBuilder } from '@/lib/api/base/response-builder'
-import { BaseAPIError, ValidationError, NotFoundError, DatabaseError } from '@/lib/api/base/errors'
 import { db } from '@/db/config'
+import { BaseAPIError, DatabaseError, NotFoundError, ValidationError } from '@/lib/api/base/errors'
+import { BaseAPIHandler } from '@/lib/api/base/handler'
+import { createQueryBuilder, QueryBuilder } from '@/lib/api/base/query-builder'
+import { ResponseBuilder } from '@/lib/api/base/response-builder'
+import { BaseAPIService, BaseCRUDService, type ServiceContext } from '@/lib/api/base/service'
 import { observability } from '@/lib/observability'
 
 // Mock dependencies
@@ -318,7 +318,7 @@ function createRequest(
       if (name === 'auth_token' && options.headers?.['x-auth-token']) {
         return { value: options.headers['x-auth-token'] }
       }
-      return undefined
+      return
     }),
   }
 
@@ -380,8 +380,8 @@ describe('Base API Infrastructure End-to-End Tests', () => {
       const handler = BaseAPIHandler.GET(
         async (context) => {
           const queryParams = new URLSearchParams(context.query as any)
-          const page = parseInt(queryParams.get('page') || '1')
-          const limit = parseInt(queryParams.get('limit') || '10')
+          const page = Number.parseInt(queryParams.get('page') || '1')
+          const limit = Number.parseInt(queryParams.get('limit') || '10')
 
           const result = await taskService.getAll(
             {},

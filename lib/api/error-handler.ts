@@ -1,7 +1,7 @@
+import { SpanStatusCode, type trace } from '@opentelemetry/api'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { getLogger } from '@/lib/logging/safe-wrapper'
+import type { getLogger } from '@/lib/logging/safe-wrapper'
 
 interface ErrorHandlerOptions {
   span?: ReturnType<ReturnType<typeof trace.getTracer>>
@@ -60,7 +60,7 @@ export function createApiResponse<T>(data: T, options: { status?: number } = {})
 
 export function createErrorResponse(
   message: string,
-  status: number = 500,
+  status = 500,
   details?: unknown
 ): NextResponse {
   return NextResponse.json(

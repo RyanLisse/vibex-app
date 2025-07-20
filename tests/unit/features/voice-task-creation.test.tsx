@@ -2,20 +2,19 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { TranscriptionProcessor } from '@/components/features/voice-tasks/transcription-processor'
 // Components to be implemented
 import { VoiceInputButton } from '@/components/features/voice-tasks/voice-input-button'
 import { VoiceRecorder } from '@/components/features/voice-tasks/voice-recorder'
-import { TranscriptionProcessor } from '@/components/features/voice-tasks/transcription-processor'
 import { VoiceTaskForm } from '@/components/features/voice-tasks/voice-task-form'
 
 // Types
 import type {
-  VoiceRecording,
   TranscriptionResult,
+  VoiceRecording,
   VoiceTask,
 } from '@/src/schemas/enhanced-task-schemas'
 
@@ -95,7 +94,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
     })
 
     it('should show recording state with visual feedback', async () => {
-      render(<VoiceInputButton onStartRecording={vi.fn()} isRecording={true} />)
+      render(<VoiceInputButton isRecording={true} onStartRecording={vi.fn()} />)
 
       expect(screen.getByTestId('recording-indicator')).toBeInTheDocument()
       expect(screen.getByText(/recording/i)).toBeInTheDocument()
@@ -105,7 +104,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
       const mockOnError = vi.fn()
       mockGetUserMedia.mockRejectedValue(new Error('Permission denied'))
 
-      render(<VoiceInputButton onStartRecording={vi.fn()} onError={mockOnError} />)
+      render(<VoiceInputButton onError={mockOnError} onStartRecording={vi.fn()} />)
 
       const button = screen.getByRole('button')
       await userEvent.click(button)
@@ -123,7 +122,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
       const mockOnRecordingComplete = vi.fn()
 
-      render(<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={true} />)
+      render(<VoiceRecorder isRecording={true} onRecordingComplete={mockOnRecordingComplete} />)
 
       expect(mockGetUserMedia).toHaveBeenCalledWith({ audio: true })
       expect(global.MediaRecorder).toHaveBeenCalledWith(mockStream)
@@ -136,11 +135,11 @@ describe('Voice-Dictated Task Creation Feature', () => {
       const mockOnRecordingComplete = vi.fn()
 
       const { rerender } = render(
-        <VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={true} />
+        <VoiceRecorder isRecording={true} onRecordingComplete={mockOnRecordingComplete} />
       )
 
       // Simulate stop recording
-      rerender(<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={false} />)
+      rerender(<VoiceRecorder isRecording={false} onRecordingComplete={mockOnRecordingComplete} />)
 
       // Simulate MediaRecorder ondataavailable event
       const audioBlob = new Blob(['audio-data'], { type: 'audio/webm' })
@@ -162,7 +161,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
     it('should show recording duration', async () => {
       vi.useFakeTimers()
 
-      render(<VoiceRecorder onRecordingComplete={vi.fn()} isRecording={true} />)
+      render(<VoiceRecorder isRecording={true} onRecordingComplete={vi.fn()} />)
 
       // Advance timer
       vi.advanceTimersByTime(5000)
@@ -177,7 +176,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
       mockGetUserMedia.mockRejectedValue(new Error('Microphone not available'))
 
       render(
-        <VoiceRecorder onRecordingComplete={vi.fn()} onError={mockOnError} isRecording={true} />
+        <VoiceRecorder isRecording={true} onError={mockOnError} onRecordingComplete={vi.fn()} />
       )
 
       await waitFor(() => {
@@ -201,8 +200,8 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
       render(
         <TranscriptionProcessor
-          recording={mockVoiceRecording}
           onTranscriptionComplete={mockOnTranscriptionComplete}
+          recording={mockVoiceRecording}
         />
       )
 
@@ -241,9 +240,9 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
       render(
         <TranscriptionProcessor
-          recording={mockVoiceRecording}
-          onTranscriptionComplete={vi.fn()}
           onError={mockOnError}
+          onTranscriptionComplete={vi.fn()}
+          recording={mockVoiceRecording}
         />
       )
 
@@ -258,7 +257,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
     it('should show transcription progress', () => {
       render(
-        <TranscriptionProcessor recording={mockVoiceRecording} onTranscriptionComplete={vi.fn()} />
+        <TranscriptionProcessor onTranscriptionComplete={vi.fn()} recording={mockVoiceRecording} />
       )
 
       expect(screen.getByText(/transcribing/i)).toBeInTheDocument()
@@ -268,9 +267,9 @@ describe('Voice-Dictated Task Creation Feature', () => {
     it('should support different languages', async () => {
       render(
         <TranscriptionProcessor
-          recording={mockVoiceRecording}
-          onTranscriptionComplete={vi.fn()}
           language="es-ES"
+          onTranscriptionComplete={vi.fn()}
+          recording={mockVoiceRecording}
         />
       )
 
@@ -290,7 +289,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
     }
 
     it('should extract task data from transcription', () => {
-      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />)
+      render(<VoiceTaskForm onSubmit={vi.fn()} transcription={mockTranscriptionResult} />)
 
       // Should auto-populate fields based on transcription
       expect(screen.getByDisplayValue(/fix the login bug/i)).toBeInTheDocument()
@@ -299,7 +298,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
     })
 
     it('should allow manual editing of extracted data', async () => {
-      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />)
+      render(<VoiceTaskForm onSubmit={vi.fn()} transcription={mockTranscriptionResult} />)
 
       const titleField = screen.getByLabelText(/title/i)
       await userEvent.clear(titleField)
@@ -309,7 +308,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
     })
 
     it('should show confidence indicators for extracted data', () => {
-      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />)
+      render(<VoiceTaskForm onSubmit={vi.fn()} transcription={mockTranscriptionResult} />)
 
       expect(screen.getByText(/confidence: 95%/i)).toBeInTheDocument()
     })
@@ -322,7 +321,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
         segments: [],
       }
 
-      render(<VoiceTaskForm transcription={poorTranscription} onSubmit={vi.fn()} />)
+      render(<VoiceTaskForm onSubmit={vi.fn()} transcription={poorTranscription} />)
 
       expect(screen.getByText(/low confidence/i)).toBeInTheDocument()
       expect(screen.getByText(/please review/i)).toBeInTheDocument()
@@ -331,7 +330,7 @@ describe('Voice-Dictated Task Creation Feature', () => {
     it('should submit voice task with correct metadata', async () => {
       const mockOnSubmit = vi.fn()
 
-      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={mockOnSubmit} />)
+      render(<VoiceTaskForm onSubmit={mockOnSubmit} transcription={mockTranscriptionResult} />)
 
       const submitButton = screen.getByText(/create task/i)
       await userEvent.click(submitButton)

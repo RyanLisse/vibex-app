@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { promises as fs } from 'fs'
-import { join, relative, dirname } from 'path'
 import { glob } from 'glob'
+import { dirname, join, relative } from 'path'
 
 interface TestFileInfo {
   path: string
@@ -104,10 +104,12 @@ async function analyzeTestFiles(): Promise<TestAnalysis> {
 
   const missingTests = allSourceFiles.filter(
     (file) =>
-      !sourceFiles.has(file) &&
-      !file.includes('types/') &&
-      !file.includes('__generated__/') &&
-      !file.includes('.stories.')
+      !(
+        sourceFiles.has(file) ||
+        file.includes('types/') ||
+        file.includes('__generated__/') ||
+        file.includes('.stories.')
+      )
   )
 
   // Categorize results

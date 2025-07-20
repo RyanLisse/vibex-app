@@ -1,15 +1,15 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { KanbanColumn } from './kanban-column'
-import { TaskFilters } from './task-filters'
 import type {
-  KanbanTask,
   KanbanColumn as KanbanColumnType,
+  KanbanTask,
   MoveKanbanTask,
 } from '@/src/schemas/enhanced-task-schemas'
+import { KanbanColumn } from './kanban-column'
+import { TaskFilters } from './task-filters'
 
 interface KanbanBoardProps {
   tasks: KanbanTask[]
@@ -128,8 +128,8 @@ export function KanbanBoard({
         {/* Filters */}
         {enableFilters && (
           <TaskFilters
-            onFilterChange={handleFilterChange}
             assignees={uniqueAssignees}
+            onFilterChange={handleFilterChange}
             tags={uniqueTags}
           />
         )}
@@ -141,10 +141,10 @@ export function KanbanBoard({
             const isOverloaded = column.maxItems && columnTasks.length > column.maxItems
 
             return (
-              <div key={column.id} className="space-y-1">
+              <div className="space-y-1" key={column.id}>
                 <h3 className="font-medium text-sm">{column.name}</h3>
                 <p
-                  className={`text-2xl font-bold ${isOverloaded ? 'text-red-500' : 'text-muted-foreground'}`}
+                  className={`font-bold text-2xl ${isOverloaded ? 'text-red-500' : 'text-muted-foreground'}`}
                 >
                   {columnTasks.length}
                   {column.maxItems && ` / ${column.maxItems}`}
@@ -161,11 +161,11 @@ export function KanbanBoard({
             const isOverloaded = column.maxItems && columnTasks.length > column.maxItems
 
             return (
-              <div key={column.id} className="flex-shrink-0 w-80">
-                <div className="flex items-center justify-between mb-4">
+              <div className="w-80 flex-shrink-0" key={column.id}>
+                <div className="mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: column.color }}
                     />
                     <h2 className="font-semibold text-lg">
@@ -175,7 +175,7 @@ export function KanbanBoard({
 
                   {isOverloaded && (
                     <div
-                      className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full"
+                      className="rounded-full bg-red-100 px-2 py-1 text-red-700 text-xs"
                       data-testid="overload-indicator"
                     >
                       {columnTasks.length}/{column.maxItems} tasks
@@ -185,10 +185,10 @@ export function KanbanBoard({
 
                 <KanbanColumn
                   column={column}
-                  tasks={columnTasks}
-                  onTaskMove={handleTaskMove}
-                  onTaskEdit={onTaskEdit}
                   isOverloaded={isOverloaded}
+                  onTaskEdit={onTaskEdit}
+                  onTaskMove={handleTaskMove}
+                  tasks={columnTasks}
                 />
               </div>
             )
@@ -197,7 +197,7 @@ export function KanbanBoard({
 
         {/* Summary */}
         <div className="border-t pt-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             <p>
               Showing {filteredTasks.length} of {tasks.length} tasks
               {filters.search && ` matching "${filters.search}"`}

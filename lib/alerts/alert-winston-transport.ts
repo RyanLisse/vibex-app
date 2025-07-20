@@ -1,9 +1,9 @@
-import Transport from 'winston-transport'
 import type { LogEntry } from 'winston'
-import { CriticalErrorDetector } from './critical-error-detector'
-import { AlertManager } from './alert-manager'
-import { AlertConfig } from './types'
+import Transport from 'winston-transport'
 import { ComponentLogger } from '../logging/logger-factory'
+import type { AlertManager } from './alert-manager'
+import { CriticalErrorDetector } from './critical-error-detector'
+import type { AlertConfig } from './types'
 
 interface AlertTransportOptions extends Transport.TransportStreamOptions {
   alertManager: AlertManager

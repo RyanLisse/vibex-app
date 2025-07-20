@@ -141,7 +141,7 @@ export class AlertSystemHealthMonitor {
       // Check if we can get the configuration
       const config = alertService.getConfig()
 
-      if (!config || !config.channels || config.channels.length === 0) {
+      if (!(config && config.channels) || config.channels.length === 0) {
         return {
           name: 'alert_processing',
           status: 'warn',

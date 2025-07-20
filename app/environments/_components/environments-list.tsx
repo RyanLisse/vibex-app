@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
+  type Environment,
   useActivateEnvironmentMutation,
   useDeleteEnvironmentMutation,
   useEnvironmentsQuery,
@@ -29,7 +30,6 @@ import {
 import { useGitHubAuth } from '@/hooks/use-github-auth'
 import { getLogger } from '@/lib/logging/safe-wrapper'
 import { observability } from '@/lib/observability'
-import { Environment } from '@/hooks/use-environment-queries'
 
 const logger = getLogger('environments-list')
 

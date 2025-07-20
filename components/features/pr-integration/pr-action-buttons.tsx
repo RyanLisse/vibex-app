@@ -1,17 +1,17 @@
 'use client'
 
+import { AlertTriangle, ExternalLink, GitMerge, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
-import { GitMerge, RefreshCw, ExternalLink, AlertTriangle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
 } from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { PRStatus } from '@/src/schemas/enhanced-task-schemas'
 
 interface PRActionButtonsProps {
@@ -82,8 +82,8 @@ export function PRActionButtons({
   return (
     <div className={`flex gap-2 ${className}`}>
       {/* View PR Button */}
-      <Button variant="outline" size="sm" asChild className="gap-2">
-        <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+      <Button asChild className="gap-2" size="sm" variant="outline">
+        <a href={githubUrl} rel="noopener noreferrer" target="_blank">
           <ExternalLink className="h-4 w-4" />
           View PR
         </a>
@@ -91,11 +91,11 @@ export function PRActionButtons({
 
       {/* Refresh Status Button */}
       <Button
-        variant="outline"
-        size="sm"
-        onClick={handleRefresh}
-        disabled={isLoading}
         className="gap-2"
+        disabled={isLoading}
+        onClick={handleRefresh}
+        size="sm"
+        variant="outline"
       >
         <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         Refresh Status
@@ -103,13 +103,13 @@ export function PRActionButtons({
 
       {/* Merge PR Button */}
       {prStatus.status === 'open' && (
-        <Dialog open={isMergeModalOpen} onOpenChange={setIsMergeModalOpen}>
+        <Dialog onOpenChange={setIsMergeModalOpen} open={isMergeModalOpen}>
           <DialogTrigger asChild>
             <Button
-              size="sm"
-              disabled={!canMerge || isLoading}
-              variant={canMerge ? 'default' : 'secondary'}
               className="gap-2"
+              disabled={!canMerge || isLoading}
+              size="sm"
+              variant={canMerge ? 'default' : 'secondary'}
             >
               <GitMerge className="h-4 w-4" />
               Merge PR
@@ -154,9 +154,9 @@ export function PRActionButtons({
               {/* Action Buttons */}
               <div className="flex gap-2 pt-4">
                 <Button
-                  onClick={handleMerge}
-                  disabled={!canMerge || isMerging}
                   className="flex-1 gap-2"
+                  disabled={!canMerge || isMerging}
+                  onClick={handleMerge}
                 >
                   {isMerging ? (
                     <>
@@ -171,10 +171,10 @@ export function PRActionButtons({
                   )}
                 </Button>
                 <Button
-                  variant="outline"
-                  onClick={() => setIsMergeModalOpen(false)}
-                  disabled={isMerging}
                   className="flex-1"
+                  disabled={isMerging}
+                  onClick={() => setIsMergeModalOpen(false)}
+                  variant="outline"
                 >
                   Cancel
                 </Button>

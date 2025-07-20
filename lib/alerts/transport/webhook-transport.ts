@@ -1,6 +1,6 @@
-import { AlertTransport } from './types'
-import { AlertChannel, CriticalError, AlertNotification } from '../types'
 import { ComponentLogger } from '../../logging/logger-factory'
+import type { AlertChannel, AlertNotification, CriticalError } from '../types'
+import type { AlertTransport } from './types'
 
 interface WebhookConfig {
   url: string
@@ -41,7 +41,7 @@ export class WebhookTransport implements AlertTransport {
         ...config.headers,
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(config.timeout || 30000),
+      signal: AbortSignal.timeout(config.timeout || 30_000),
     }
 
     // Add authentication headers
@@ -81,7 +81,7 @@ export class WebhookTransport implements AlertTransport {
 
         if (attempt < maxRetries) {
           // Exponential backoff: 1s, 2s, 4s
-          const delay = Math.pow(2, attempt - 1) * 1000
+          const delay = 2 ** (attempt - 1) * 1000
           await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
@@ -94,7 +94,7 @@ export class WebhookTransport implements AlertTransport {
     requestInit: RequestInit,
     auth: WebhookConfig['authentication']
   ): void {
-    if (!auth || !requestInit.headers) return
+    if (!(auth && requestInit.headers)) return
 
     const headers = requestInit.headers as Record<string, string>
 
@@ -168,7 +168,7 @@ export class WebhookTransport implements AlertTransport {
       return false
     }
 
-    if (webhookConfig.timeout && (webhookConfig.timeout < 1000 || webhookConfig.timeout > 60000)) {
+    if (webhookConfig.timeout && (webhookConfig.timeout < 1000 || webhookConfig.timeout > 60_000)) {
       return false
     }
 
@@ -183,10 +183,10 @@ export class WebhookTransport implements AlertTransport {
           if (!auth.token) return false
           break
         case 'basic':
-          if (!auth.username || !auth.password) return false
+          if (!(auth.username && auth.password)) return false
           break
         case 'api-key':
-          if (!auth.apiKey || !auth.apiKeyHeader) return false
+          if (!(auth.apiKey && auth.apiKeyHeader)) return false
           break
       }
     }

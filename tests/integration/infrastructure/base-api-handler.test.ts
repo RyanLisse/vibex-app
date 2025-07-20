@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { BaseAPIHandler, type RequestContext, type HandlerOptions } from '@/lib/api/base/handler'
 import { BaseAPIError, ValidationError } from '@/lib/api/base/errors'
+import { BaseAPIHandler, type HandlerOptions, type RequestContext } from '@/lib/api/base/handler'
 import { ResponseBuilder } from '@/lib/api/base/response-builder'
 import { observability } from '@/lib/observability'
 
@@ -72,7 +72,7 @@ function createRequest(
       if (name === 'auth_token' && options.headers?.['x-auth-token']) {
         return { value: options.headers['x-auth-token'] }
       }
-      return undefined
+      return
     }),
   }
 

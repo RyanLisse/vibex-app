@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
 
 // Browser test specific setup
 beforeAll(async () => {

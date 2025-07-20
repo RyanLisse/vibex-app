@@ -161,7 +161,7 @@ export class ApiResponseBuilder<T = any> extends TestDataBuilder<ApiResponse<T>>
     return this.with('success', true).with('status', 200).with('error', null)
   }
 
-  error(message: string, status: number = 400): this {
+  error(message: string, status = 400): this {
     return this.with('success', false)
       .with('status', status)
       .with('error', message)
@@ -206,7 +206,7 @@ export class BuilderFactory {
   }
 
   // Scenario builders for common test scenarios
-  userWithProjects(projectCount: number = 3): { user: User; projects: Project[] } {
+  userWithProjects(projectCount = 3): { user: User; projects: Project[] } {
     const user = this.user().build()
     const projects = Array.from({ length: projectCount }, () =>
       this.project().withOwner(user).build()
@@ -214,7 +214,7 @@ export class BuilderFactory {
     return { user, projects }
   }
 
-  teamScenario(memberCount: number = 5): { admin: User; members: User[]; project: Project } {
+  teamScenario(memberCount = 5): { admin: User; members: User[]; project: Project } {
     const admin = this.user().asAdmin().build()
     const members = UserBuilder.createMany(memberCount)
     const project = this.project().withOwner(admin).withCollaborators(memberCount).build()
@@ -237,16 +237,16 @@ export class BuilderFactory {
 
 // Utility functions for random data generation
 export class TestDataGenerator {
-  static randomString(length: number = 10): string {
+  static randomString(length = 10): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
   }
 
   static randomEmail(): string {
-    return `${this.randomString(8)}@${this.randomString(6)}.com`
+    return `${TestDataGenerator.randomString(8)}@${TestDataGenerator.randomString(6)}.com`
   }
 
-  static randomDate(daysBack: number = 30): Date {
+  static randomDate(daysBack = 30): Date {
     const now = new Date()
     const randomDays = Math.floor(Math.random() * daysBack)
     return new Date(now.getTime() - randomDays * 24 * 60 * 60 * 1000)
@@ -256,7 +256,7 @@ export class TestDataGenerator {
     return choices[Math.floor(Math.random() * choices.length)]
   }
 
-  static randomNumber(min: number = 1, max: number = 100): number {
+  static randomNumber(min = 1, max = 100): number {
     return Math.floor(Math.random() * (max - min + 1)) + min
   }
 }

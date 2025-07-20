@@ -369,14 +369,13 @@ export * from './config'
 export { JobQueueService } from './job-queue-service'
 export { LockService } from './lock-service'
 export { MetricsService } from './metrics-service'
+// Export mock implementations for testing
+export { MockRedisCache, MockRedisService } from './mock-redis'
 export { PubSubService } from './pubsub-service'
 export { RateLimitService } from './rate-limit-service'
 export { RedisClientManager } from './redis-client'
 export { SessionService } from './session-service'
 export * from './types'
-
-// Export mock implementations for testing
-export { MockRedisService, MockRedisCache } from './mock-redis'
 
 // Convenience getters for individual services
 export function getRedisPubSub() {

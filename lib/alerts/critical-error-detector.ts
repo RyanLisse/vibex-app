@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import type { LogEntry } from 'winston'
-import { CriticalError, CriticalErrorType, type AlertTemplate } from './types'
 import type { EventSeverity } from '../observability/types'
+import { type AlertTemplate, type CriticalError, CriticalErrorType } from './types'
 
 export class CriticalErrorDetector {
   private readonly errorPatterns: Map<CriticalErrorType, RegExp[]>

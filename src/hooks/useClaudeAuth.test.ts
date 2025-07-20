@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, type mock, spyOn, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
 import { ClaudeAuthClient } from '@/lib/auth/claude-auth'

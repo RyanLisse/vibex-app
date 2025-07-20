@@ -8,13 +8,13 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { checkDatabaseHealth, db, sql } from '../../../db/test-config'
 // Import types only, not the actual module to avoid db/config issues
 import type {
   MigrationExecutionResult,
   MigrationFile,
   MigrationValidationResult,
 } from '../../../db/migrations/migration-runner'
+import { checkDatabaseHealth, db, sql } from '../../../db/test-config'
 
 // Mock MigrationRunner class for tests
 class MigrationRunner {
@@ -131,8 +131,9 @@ class MigrationRunner {
 }
 
 const migrationRunner = new MigrationRunner('./db/migrations')
-import { migrations } from '../../../db/schema'
+
 import { sql as sqlOperator } from 'drizzle-orm'
+import { migrations } from '../../../db/schema'
 
 // Skip tests if no database URL is provided
 const skipTests = false // Always run tests with mocks

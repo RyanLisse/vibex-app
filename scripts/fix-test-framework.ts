@@ -198,11 +198,11 @@ async function main() {
   // Create global test setup
   await createGlobalTestSetup()
 
-  console.log(`\n✨ Test framework fixes completed!`)
+  console.log('\n✨ Test framework fixes completed!')
   console.log(`   - Fixed ${fixedCount} test files`)
-  console.log(`   - Created .env.test`)
-  console.log(`   - Updated package.json scripts`)
-  console.log(`   - Created global test setup`)
+  console.log('   - Created .env.test')
+  console.log('   - Updated package.json scripts')
+  console.log('   - Created global test setup')
   console.log('\nRun "bun run test:all" to execute all tests')
 }
 

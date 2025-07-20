@@ -1,6 +1,6 @@
-import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import { config } from 'dotenv'
 import path from 'path'
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
 
 // Load test environment variables
 config({ path: path.resolve(process.cwd(), '.env.test') })
@@ -25,6 +25,6 @@ afterEach(() => {
 // Increase test timeout for CI environments
 if (process.env.CI) {
   beforeAll(() => {
-    vi.setConfig({ testTimeout: 30000 })
+    vi.setConfig({ testTimeout: 30_000 })
   })
 }

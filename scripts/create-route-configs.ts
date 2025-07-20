@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 
-import { writeFileSync } from 'fs'
-import { join, dirname } from 'path'
-import { mkdirSync } from 'fs'
+import { mkdirSync, writeFileSync } from 'fs'
+import { dirname, join } from 'path'
 
 // Create route.config.ts files for problematic routes to skip static generation
 const routes = [

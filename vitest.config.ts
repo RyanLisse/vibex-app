@@ -1,6 +1,7 @@
-import { defineConfig } from 'vitest/config'
 import path from 'node:path'
+import { defineConfig } from 'vitest/config'
 
+// Unit tests config - for business logic, utilities, schemas, and pure functions
 export default defineConfig({
   resolve: {
     alias: {
@@ -19,11 +20,22 @@ export default defineConfig({
       '@/src': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    exclude: ['fsevents', 'playwright', 'playwright-core', 'chromium-bidi'],
+  },
+  build: {
+    rollupOptions: {
+      external: ['fsevents', 'playwright', 'playwright-core', 'chromium-bidi'],
+    },
+  },
   esbuild: {
     target: 'es2022',
     format: 'esm',
   },
   test: {
+    name: 'unit',
+    environment: 'node',
+    setupFiles: ['./tests/setup/unit.ts'],
     globals: true,
     restoreMocks: true,
     clearMocks: true,
@@ -37,47 +49,54 @@ export default defineConfig({
         isolate: true,
       },
     },
+    include: [
+      'lib/**/*.test.{js,ts}',
+      'src/lib/**/*.test.{js,ts}',
+      'src/schemas/**/*.test.{js,ts}',
+      'src/shared/**/*.test.{js,ts}',
+      'src/features/**/*.test.{js,ts}',
+      'src/types/**/*.test.{js,ts}',
+      'stores/**/*.test.{js,ts}',
+      'src/hooks/useZodForm/**/*.test.{js,ts}',
+    ],
+    exclude: [
+      'node_modules',
+      'dist',
+      '.next',
+      '**/*.integration.test.*',
+      '**/*.e2e.test.*',
+      '**/*.browser.test.*',
+      '**/*.bun.test.*',
+      'tests/bun-*.test.*',
+      'components/**/*.test.*',
+      'hooks/**/*.test.*',
+      'app/**/*.test.*',
+      'tests/integration/**',
+      'tests/e2e/**',
+      'tests/browser/**',
+    ],
     testTimeout: 15_000,
     hookTimeout: 10_000,
     teardownTimeout: 10_000,
     bail: 0,
     retry: process.env.CI ? 2 : 0,
     reporters: process.env.CI ? ['verbose', 'json'] : ['verbose'],
-    outputFile: process.env.CI ? './test-results/results.json' : undefined,
-    projects: [
-      {
-        name: 'unit',
-        testMatch: [
-          'lib/**/*.test.{js,ts}',
-          'src/lib/**/*.test.{js,ts}',
-          'src/schemas/**/*.test.{js,ts}',
-          'src/shared/**/*.test.{js,ts}',
-          'src/features/**/*.test.{js,ts}',
-          'src/types/**/*.test.{js,ts}',
-          'stores/**/*.test.{js,ts}',
-          'src/hooks/useZodForm/**/*.test.{js,ts}',
-        ],
-        environment: 'node',
-      },
-      {
-        name: 'integration',
-        testMatch: ['tests/integration/**/*.test.{js,ts}', 'db/**/*.test.{js,ts}'],
-        environment: 'node',
-      },
-      {
-        name: 'components',
-        testMatch: [
-          'components/**/*.test.{js,ts,jsx,tsx}',
-          'hooks/**/*.test.{js,ts}',
-          'app/**/*.test.{js,ts,jsx,tsx}',
-        ],
-        environment: 'jsdom',
-      },
-      {
-        name: 'browser',
-        testMatch: ['tests/e2e/**/*.test.{js,ts}', 'tests/browser/**/*.test.{js,ts}'],
-        environment: 'jsdom',
-      },
-    ],
+    outputFile: process.env.CI ? './test-results/unit-results.json' : undefined,
+    coverage: {
+      enabled: true,
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage/unit',
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        '.next/**',
+        'coverage/**',
+        'tests/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        'scripts/**',
+      ],
+    },
   },
 })

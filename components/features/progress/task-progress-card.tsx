@@ -1,14 +1,10 @@
 'use client'
 
+import { AlertTriangle, Clock, Edit3, Lock, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
-import { Clock, AlertTriangle, Lock, Edit3, TrendingUp } from 'lucide-react'
-import { ProgressIndicator } from './progress-indicator'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -16,7 +12,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import type { TaskProgress, UpdateTaskProgress } from '@/src/schemas/enhanced-task-schemas'
+import { ProgressIndicator } from './progress-indicator'
 
 interface TaskProgressCardProps {
   progress: TaskProgress
@@ -101,12 +101,12 @@ export function TaskProgressCard({
           <div className="flex items-center gap-2">
             {/* Progress Percentage */}
             <div
-              className={`text-2xl font-bold ${getProgressColor(progress.completionPercentage)}`}
+              className={`font-bold text-2xl ${getProgressColor(progress.completionPercentage)}`}
             >
               {progress.completionPercentage}%
             </div>
 
-            <ProgressIndicator percentage={progress.completionPercentage} size="large" animated />
+            <ProgressIndicator animated percentage={progress.completionPercentage} size="large" />
           </div>
         </div>
       </CardHeader>
@@ -117,8 +117,8 @@ export function TaskProgressCard({
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-sm font-medium">Time Spent</p>
-              <p className="text-lg font-bold">{formatTime(progress.timeSpent)}</p>
+              <p className="font-medium text-sm">Time Spent</p>
+              <p className="font-bold text-lg">{formatTime(progress.timeSpent)}</p>
             </div>
           </div>
 
@@ -126,8 +126,8 @@ export function TaskProgressCard({
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Remaining</p>
-                <p className="text-lg font-bold">{formatTime(progress.estimatedTimeRemaining)}</p>
+                <p className="font-medium text-sm">Remaining</p>
+                <p className="font-bold text-lg">{formatTime(progress.estimatedTimeRemaining)}</p>
               </div>
             </div>
           )}
@@ -138,18 +138,18 @@ export function TaskProgressCard({
           {progress.isOverdue && (
             <div className="flex items-center gap-2" data-testid="overdue-warning">
               <AlertTriangle className="h-4 w-4 text-red-500" />
-              <span className="text-sm text-red-600 font-medium">Overdue</span>
+              <span className="font-medium text-red-600 text-sm">Overdue</span>
             </div>
           )}
 
           {progress.isBlocked && (
             <div className="flex items-center gap-2" data-testid="blocked-indicator">
               <Lock className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm text-yellow-600 font-medium">Blocked</span>
+              <span className="font-medium text-sm text-yellow-600">Blocked</span>
             </div>
           )}
 
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             Last updated: {new Date(progress.lastUpdated).toLocaleString()}
           </div>
         </div>
@@ -160,8 +160,10 @@ export function TaskProgressCard({
             <span>Progress</span>
             <span>{progress.completionPercentage}% complete</span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
             <div
+              aria-valuemax={100}
+              aria-valuenow={progress.completionPercentage}
               className={`h-full transition-all duration-500 ${
                 progress.completionPercentage >= 80
                   ? 'bg-green-500'
@@ -171,19 +173,17 @@ export function TaskProgressCard({
                       ? 'bg-yellow-500'
                       : 'bg-red-500'
               }`}
-              style={{ width: `${progress.completionPercentage}%` }}
               role="progressbar"
-              aria-valuenow={progress.completionPercentage}
-              aria-valuemax={100}
+              style={{ width: `${progress.completionPercentage}%` }}
             />
           </div>
         </div>
 
         {/* Update Progress Button */}
         {onProgressUpdate && (
-          <Dialog open={isUpdateModalOpen} onOpenChange={setIsUpdateModalOpen}>
+          <Dialog onOpenChange={setIsUpdateModalOpen} open={isUpdateModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="w-full gap-2">
+              <Button className="w-full gap-2" variant="outline">
                 <Edit3 className="h-4 w-4" />
                 Update Progress
               </Button>
@@ -198,16 +198,16 @@ export function TaskProgressCard({
                   <Label htmlFor="completion">Completion Percentage</Label>
                   <Input
                     id="completion"
-                    type="number"
-                    min="0"
                     max="100"
-                    value={updateForm.completionPercentage}
+                    min="0"
                     onChange={(e) =>
                       setUpdateForm((prev) => ({
                         ...prev,
-                        completionPercentage: parseInt(e.target.value) || 0,
+                        completionPercentage: Number.parseInt(e.target.value) || 0,
                       }))
                     }
+                    type="number"
+                    value={updateForm.completionPercentage}
                   />
                 </div>
 
@@ -215,15 +215,15 @@ export function TaskProgressCard({
                   <Label htmlFor="timeSpent">Time Spent (minutes)</Label>
                   <Input
                     id="timeSpent"
-                    type="number"
                     min="0"
-                    value={updateForm.timeSpent}
                     onChange={(e) =>
                       setUpdateForm((prev) => ({
                         ...prev,
-                        timeSpent: parseInt(e.target.value) || 0,
+                        timeSpent: Number.parseInt(e.target.value) || 0,
                       }))
                     }
+                    type="number"
+                    value={updateForm.timeSpent}
                   />
                 </div>
 
@@ -231,15 +231,15 @@ export function TaskProgressCard({
                   <Label htmlFor="timeRemaining">Estimated Time Remaining (minutes)</Label>
                   <Input
                     id="timeRemaining"
-                    type="number"
                     min="0"
-                    value={updateForm.estimatedTimeRemaining}
                     onChange={(e) =>
                       setUpdateForm((prev) => ({
                         ...prev,
-                        estimatedTimeRemaining: parseInt(e.target.value) || 0,
+                        estimatedTimeRemaining: Number.parseInt(e.target.value) || 0,
                       }))
                     }
+                    type="number"
+                    value={updateForm.estimatedTimeRemaining}
                   />
                 </div>
 
@@ -247,40 +247,40 @@ export function TaskProgressCard({
                   <Label htmlFor="statusMessage">Status Message</Label>
                   <Textarea
                     id="statusMessage"
-                    placeholder="Optional status update..."
-                    value={updateForm.statusMessage}
                     onChange={(e) =>
                       setUpdateForm((prev) => ({
                         ...prev,
                         statusMessage: e.target.value,
                       }))
                     }
+                    placeholder="Optional status update..."
+                    value={updateForm.statusMessage}
                   />
                 </div>
 
                 <div className="flex items-center gap-2">
                   <input
-                    type="checkbox"
-                    id="isBlocked"
                     checked={updateForm.isBlocked}
+                    id="isBlocked"
                     onChange={(e) =>
                       setUpdateForm((prev) => ({
                         ...prev,
                         isBlocked: e.target.checked,
                       }))
                     }
+                    type="checkbox"
                   />
                   <Label htmlFor="isBlocked">Task is blocked</Label>
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button onClick={handleProgressUpdate} className="flex-1">
+                  <Button className="flex-1" onClick={handleProgressUpdate}>
                     Save
                   </Button>
                   <Button
-                    variant="outline"
-                    onClick={() => setIsUpdateModalOpen(false)}
                     className="flex-1"
+                    onClick={() => setIsUpdateModalOpen(false)}
+                    variant="outline"
                   >
                     Cancel
                   </Button>

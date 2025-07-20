@@ -1,6 +1,6 @@
-import { AlertTransport } from './alert-transport-service'
-import { AlertChannel, CriticalError, AlertNotification } from '../types'
 import { ComponentLogger } from '../../logging/logger-factory'
+import type { AlertChannel, AlertNotification, CriticalError } from '../types'
+import type { AlertTransport } from './alert-transport-service'
 
 interface DiscordConfig {
   webhookUrl: string
@@ -53,7 +53,7 @@ export class DiscordTransport implements AlertTransport {
             'User-Agent': 'ClaudeFlow-AlertSystem/1.0',
           },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(30000),
+          signal: AbortSignal.timeout(30_000),
         })
 
         if (!response.ok) {
@@ -82,7 +82,7 @@ export class DiscordTransport implements AlertTransport {
 
         if (attempt < maxRetries) {
           // Exponential backoff: 1s, 2s, 4s
-          const delay = Math.pow(2, attempt - 1) * 1000
+          const delay = 2 ** (attempt - 1) * 1000
           await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
@@ -183,15 +183,15 @@ export class DiscordTransport implements AlertTransport {
   private getSeverityColor(severity: string): number {
     switch (severity) {
       case 'critical':
-        return 0xff0000 // Red
+        return 0xff_00_00 // Red
       case 'high':
-        return 0xff6600 // Orange
+        return 0xff_66_00 // Orange
       case 'medium':
-        return 0xffcc00 // Yellow
+        return 0xff_cc_00 // Yellow
       case 'low':
-        return 0x00ccff // Light Blue
+        return 0x00_cc_ff // Light Blue
       default:
-        return 0x808080 // Gray
+        return 0x80_80_80 // Gray
     }
   }
 
@@ -219,23 +219,19 @@ export class DiscordTransport implements AlertTransport {
 
     try {
       const url = new URL(discordConfig.webhookUrl)
-      if (!url.hostname.includes('discord.com') && !url.hostname.includes('discordapp.com')) {
+      if (!(url.hostname.includes('discord.com') || url.hostname.includes('discordapp.com'))) {
         return false
       }
     } catch {
       return false
     }
 
-    if (discordConfig.mentionRoles) {
-      if (!Array.isArray(discordConfig.mentionRoles)) {
-        return false
-      }
+    if (discordConfig.mentionRoles && !Array.isArray(discordConfig.mentionRoles)) {
+      return false
     }
 
-    if (discordConfig.mentionUsers) {
-      if (!Array.isArray(discordConfig.mentionUsers)) {
-        return false
-      }
+    if (discordConfig.mentionUsers && !Array.isArray(discordConfig.mentionUsers)) {
+      return false
     }
 
     return true

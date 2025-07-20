@@ -1,6 +1,6 @@
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { observability } from '@/lib/observability'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { getLogger } from '@/lib/logging/safe-wrapper'
+import { observability } from '@/lib/observability'
 
 export interface ServiceOptions {
   serviceName: string

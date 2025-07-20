@@ -1,6 +1,6 @@
-import { AlertTransport } from './types'
-import { AlertChannel, CriticalError, AlertNotification } from '../types'
 import { ComponentLogger } from '../../logging/logger-factory'
+import type { AlertChannel, AlertNotification, CriticalError } from '../types'
+import type { AlertTransport } from './types'
 
 interface SlackConfig {
   webhookUrl?: string
@@ -246,7 +246,7 @@ export class SlackTransport implements AlertTransport {
       return false
     }
 
-    if (!slackConfig.webhookUrl && !slackConfig.botToken) {
+    if (!(slackConfig.webhookUrl || slackConfig.botToken)) {
       return false
     }
 
@@ -261,10 +261,8 @@ export class SlackTransport implements AlertTransport {
       }
     }
 
-    if (slackConfig.mentionUsers) {
-      if (!Array.isArray(slackConfig.mentionUsers)) {
-        return false
-      }
+    if (slackConfig.mentionUsers && !Array.isArray(slackConfig.mentionUsers)) {
+      return false
     }
 
     return true

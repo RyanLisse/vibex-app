@@ -8,14 +8,14 @@ export const runtime = 'nodejs'
  * Enhanced kanban operations using base utilities for consistency and reduced duplication
  */
 
+import { and, eq } from 'drizzle-orm'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { and, eq } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { NotFoundError, ValidationError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
+import { BaseAPIService } from '@/lib/api/base-service'
 import { ResponseBuilder } from '@/lib/api/response-builder'
 import { KanbanBoardConfigSchema, KanbanMoveSchema } from '@/src/schemas/enhanced-task-schemas'
 
@@ -51,7 +51,7 @@ class KanbanService extends BaseAPIService {
    * Get kanban board data
    */
   static async getKanbanBoard(params: z.infer<typeof GetKanbanQuerySchema>) {
-    return this.withTracing('getKanbanBoard', async () => {
+    return KanbanService.withTracing('getKanbanBoard', async () => {
       // Build query conditions
       const conditions = []
       if (params.userId) {
@@ -120,7 +120,7 @@ class KanbanService extends BaseAPIService {
       }
 
       // Log operation
-      await this.logOperation('get_kanban_board', 'kanban', null, params.userId, {
+      await KanbanService.logOperation('get_kanban_board', 'kanban', null, params.userId, {
         totalTasks: metrics.totalTasks,
         columns: columns.length,
         wipViolations: metrics.wipLimitViolations,
@@ -138,10 +138,10 @@ class KanbanService extends BaseAPIService {
    * Move task between columns
    */
   static async moveTask(moveData: z.infer<typeof KanbanMoveSchema>) {
-    return this.withTracing(
+    return KanbanService.withTracing(
       'moveTask',
       async () => {
-        return this.withTransaction(async (tx) => {
+        return KanbanService.withTransaction(async (tx) => {
           // Get the task to move
           const [task] = await tx.select().from(tasks).where(eq(tasks.id, moveData.taskId))
 
@@ -216,7 +216,7 @@ class KanbanService extends BaseAPIService {
             .returning()
 
           // Log operation
-          await this.logOperation('move_task', 'task', moveData.taskId, moveData.userId, {
+          await KanbanService.logOperation('move_task', 'task', moveData.taskId, moveData.userId, {
             fromColumn: STATUS_COLUMN_MAP[task.status],
             toColumn: moveData.targetColumn,
             fromStatus: task.status,
@@ -241,12 +241,12 @@ class KanbanService extends BaseAPIService {
    * Update kanban board configuration
    */
   static async updateConfig(config: z.infer<typeof KanbanBoardConfigSchema>) {
-    return this.withTracing('updateConfig', async () => {
+    return KanbanService.withTracing('updateConfig', async () => {
       // In a real implementation, would save to database
       // For now, we'll just validate and return the config
 
       // Log operation
-      await this.logOperation('update_kanban_config', 'kanban', null, null, {
+      await KanbanService.logOperation('update_kanban_config', 'kanban', null, null, {
         columnsCount: config.columns.length,
         wipLimitsEnabled: config.settings.enableWipLimits,
       })

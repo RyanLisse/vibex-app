@@ -15,7 +15,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { BaseAPIHandler } from '@/lib/api/base'
 import { ResponseBuilder } from '@/lib/api/base/response-builder'
 import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
-import { prIntegrationService, GetPRIntegrationQuerySchema } from './service'
+import { GetPRIntegrationQuerySchema, prIntegrationService } from './service'
 
 /**
  * POST /api/tasks/pr-integration/link - Link task to PR

@@ -5,11 +5,11 @@
  * and operational, providing a comprehensive health check.
  */
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest'
-import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
-import { GrafanaDashboardBuilder } from '@/lib/metrics/grafana-dashboards'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { AlertRuleBuilder } from '@/lib/metrics/alert-rules'
-import { validateRedisEnvironment, getRedisConfig, redisFeatures } from '@/lib/redis/config'
+import { GrafanaDashboardBuilder } from '@/lib/metrics/grafana-dashboards'
+import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
+import { getRedisConfig, redisFeatures, validateRedisEnvironment } from '@/lib/redis/config'
 
 // Integration Health Report Builder
 class IntegrationHealthReport {
@@ -371,7 +371,7 @@ describe('System Integration Validation', () => {
           .filter((c) => c.passed)
           .reduce((sum, c) => {
             const match = c.message?.match(/(\d+) alert rules/)
-            return sum + (match ? parseInt(match[1]) : 0)
+            return sum + (match ? Number.parseInt(match[1]) : 0)
           }, 0),
       })
     })
