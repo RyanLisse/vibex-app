@@ -70,12 +70,12 @@ describe('ElectricSQL Integration', () => {
 
   describe('Configuration', () => {
     it('should validate configuration', async () => {
-      const { validateElectricConfig } = await import('./config')
+      const { validateElectricConfig } = await import('@/lib/electric/config')
       expect(() => validateElectricConfig()).not.toThrow()
     })
 
     it('should get final configuration', async () => {
-      const { getFinalConfig } = await import('./config')
+      const { getFinalConfig } = await import('@/lib/electric/config')
       const config = getFinalConfig()
       expect(config).toHaveProperty('url')
       expect(config).toHaveProperty('sync')
@@ -85,14 +85,14 @@ describe('ElectricSQL Integration', () => {
 
   describe('ObservabilityService', () => {
     it('should create singleton instance', async () => {
-      const { ObservabilityService } = await import('../observability')
+      const { ObservabilityService } = await import('@/lib/observability')
       const obs1 = ObservabilityService.getInstance()
       const obs2 = ObservabilityService.getInstance()
       expect(obs1).toBe(obs2)
     })
 
     it('should track operations', async () => {
-      const { ObservabilityService } = await import('../observability')
+      const { ObservabilityService } = await import('@/lib/observability')
       const obs = ObservabilityService.getInstance()
 
       const result = await obs.trackOperation('test-operation', async () => {
@@ -103,7 +103,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should record events', async () => {
-      const { ObservabilityService } = await import('../observability')
+      const { ObservabilityService } = await import('@/lib/observability')
       const obs = ObservabilityService.getInstance()
 
       obs.recordEvent('test-event', { data: 'test' })
@@ -114,7 +114,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should record errors', async () => {
-      const { ObservabilityService } = await import('../observability')
+      const { ObservabilityService } = await import('@/lib/observability')
       const obs = ObservabilityService.getInstance()
 
       const testError = new Error('Test error')
@@ -126,7 +126,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should provide health status', async () => {
-      const { ObservabilityService } = await import('../observability')
+      const { ObservabilityService } = await import('@/lib/observability')
       const obs = ObservabilityService.getInstance()
 
       const health = obs.getHealthStatus()
@@ -138,14 +138,14 @@ describe('ElectricSQL Integration', () => {
 
   describe('ElectricClient', () => {
     it('should create singleton instance', async () => {
-      const { ElectricClient } = await import('./client')
+      const { ElectricClient } = await import('@/lib/electric/client')
       const client1 = ElectricClient.getInstance()
       const client2 = ElectricClient.getInstance()
       expect(client1).toBe(client2)
     })
 
     it('should provide connection status', async () => {
-      const { ElectricClient } = await import('./client')
+      const { ElectricClient } = await import('@/lib/electric/client')
       const client = ElectricClient.getInstance()
 
       const status = client.getConnectionStatus()
@@ -157,7 +157,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should handle subscriptions', async () => {
-      const { ElectricClient } = await import('./client')
+      const { ElectricClient } = await import('@/lib/electric/client')
       const client = ElectricClient.getInstance()
 
       const callback = vi.fn()
@@ -168,7 +168,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should provide conflict log', async () => {
-      const { ElectricClient } = await import('./client')
+      const { ElectricClient } = await import('@/lib/electric/client')
       const client = ElectricClient.getInstance()
 
       const conflicts = client.getConflictLog()
@@ -178,14 +178,14 @@ describe('ElectricSQL Integration', () => {
 
   describe('ElectricAuthService', () => {
     it('should create singleton instance', async () => {
-      const { ElectricAuthService } = await import('./auth')
+      const { ElectricAuthService } = await import('@/lib/electric/auth')
       const auth1 = ElectricAuthService.getInstance()
       const auth2 = ElectricAuthService.getInstance()
       expect(auth1).toBe(auth2)
     })
 
     it('should provide token information', async () => {
-      const { ElectricAuthService } = await import('./auth')
+      const { ElectricAuthService } = await import('@/lib/electric/auth')
       const auth = ElectricAuthService.getInstance()
 
       const tokenInfo = auth.getTokenInfo()
@@ -196,7 +196,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should check authentication status', async () => {
-      const { ElectricAuthService } = await import('./auth')
+      const { ElectricAuthService } = await import('@/lib/electric/auth')
       const auth = ElectricAuthService.getInstance()
 
       const isAuth = auth.isAuthenticated()
@@ -204,7 +204,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should validate permissions', async () => {
-      const { ElectricAuthService } = await import('./auth')
+      const { ElectricAuthService } = await import('@/lib/electric/auth')
       const auth = ElectricAuthService.getInstance()
 
       const hasRead = auth.hasPermission('read')
@@ -215,7 +215,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should provide auth headers', async () => {
-      const { ElectricAuthService } = await import('./auth')
+      const { ElectricAuthService } = await import('@/lib/electric/auth')
       const auth = ElectricAuthService.getInstance()
 
       const headers = auth.getAuthHeaders()
@@ -225,14 +225,14 @@ describe('ElectricSQL Integration', () => {
 
   describe('ElectricSyncService', () => {
     it('should create singleton instance', async () => {
-      const { ElectricSyncService } = await import('./sync-service')
+      const { ElectricSyncService } = await import('@/lib/electric/sync-service')
       const sync1 = ElectricSyncService.getInstance()
       const sync2 = ElectricSyncService.getInstance()
       expect(sync1).toBe(sync2)
     })
 
     it('should provide sync status', async () => {
-      const { ElectricSyncService } = await import('./sync-service')
+      const { ElectricSyncService } = await import('@/lib/electric/sync-service')
       const sync = ElectricSyncService.getInstance()
 
       const status = sync.getSyncStatus()
@@ -242,7 +242,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should handle table subscriptions', async () => {
-      const { ElectricSyncService } = await import('./sync-service')
+      const { ElectricSyncService } = await import('@/lib/electric/sync-service')
       const sync = ElectricSyncService.getInstance()
 
       const callback = vi.fn()
@@ -253,7 +253,7 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should provide conflict log', async () => {
-      const { ElectricSyncService } = await import('./sync-service')
+      const { ElectricSyncService } = await import('@/lib/electric/sync-service')
       const sync = ElectricSyncService.getInstance()
 
       const conflicts = sync.getConflictLog()
@@ -263,7 +263,7 @@ describe('ElectricSQL Integration', () => {
 
   describe('Integration Functions', () => {
     it('should initialize ElectricSQL', async () => {
-      const { initializeElectricSQL } = await import('./index')
+      const { initializeElectricSQL } = await import('@/lib/electric/index')
 
       // Should not throw in test environment
       await expect(
@@ -274,13 +274,13 @@ describe('ElectricSQL Integration', () => {
     })
 
     it('should cleanup ElectricSQL', async () => {
-      const { cleanupElectricSQL } = await import('./index')
+      const { cleanupElectricSQL } = await import('@/lib/electric/index')
 
       await expect(cleanupElectricSQL()).resolves.not.toThrow()
     })
 
     it('should provide health status', async () => {
-      const { getElectricSQLHealth } = await import('./index')
+      const { getElectricSQLHealth } = await import('@/lib/electric/index')
 
       const health = getElectricSQLHealth()
       expect(health).toHaveProperty('auth')
@@ -290,7 +290,7 @@ describe('ElectricSQL Integration', () => {
 
   describe('Utility Functions', () => {
     it('should provide ElectricSQLUtils', async () => {
-      const { ElectricSQLUtils } = await import('./index')
+      const { ElectricSQLUtils } = await import('@/lib/electric/index')
 
       expect(ElectricSQLUtils).toBeDefined()
       expect(typeof ElectricSQLUtils.subscribeToTable).toBe('function')
@@ -308,7 +308,7 @@ describe('ElectricSQL Integration', () => {
         ElectricSQLAuthError,
         ElectricSQLSyncError,
         ElectricSQLConflictError,
-      } = await import('./index')
+      } = await import('@/lib/electric/index')
 
       const baseError = new ElectricSQLError('Base error')
       expect(baseError.name).toBe('ElectricSQLError')
@@ -326,7 +326,7 @@ describe('ElectricSQL Integration', () => {
 
   describe('React Hooks', () => {
     it('should provide status hooks', async () => {
-      const { useElectricSQLStatus, useElectricSQLAuth } = await import('./index')
+      const { useElectricSQLStatus, useElectricSQLAuth } = await import('@/lib/electric/index')
 
       const status = useElectricSQLStatus()
       expect(status).toHaveProperty('isConnected')

@@ -9,6 +9,7 @@ import { AgentMemorySystem } from './memory-system'
 import { memoryRepository } from './repository'
 import { memorySearchService } from './search-service'
 import { memorySharingService } from './sharing-service'
+import { memorySuggestionEngine } from './suggestion-engine'
 import type { CreateMemoryInput, MemoryEntry } from './types'
 
 // Mock dependencies
@@ -17,6 +18,7 @@ vi.mock('./search-service')
 vi.mock('./context-manager')
 vi.mock('./sharing-service')
 vi.mock('./lifecycle-manager')
+vi.mock('./suggestion-engine')
 vi.mock('@/lib/observability', () => ({
   observability: {
     metrics: {
@@ -32,12 +34,21 @@ describe('AgentMemorySystem', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Reset the singleton instance for each test
+    // @ts-ignore - accessing private property for testing
+    AgentMemorySystem.instance = undefined
     memorySystem = AgentMemorySystem.getInstance()
   })
 
   describe('initialization', () => {
     it('should initialize the memory system', async () => {
       const startMaintenanceSpy = vi.spyOn(memoryLifecycleManager, 'startMaintenance')
+      // Mock runMaintenance to return a promise
+      vi.spyOn(memoryLifecycleManager, 'runMaintenance').mockResolvedValue({
+        expired: 0,
+        archived: 0,
+        optimized: 0,
+      })
       const warmUpSpy = vi.spyOn(memorySearchService, 'warmUp').mockResolvedValue(undefined)
 
       await memorySystem.initialize()
@@ -50,6 +61,13 @@ describe('AgentMemorySystem', () => {
 
     it('should not initialize twice', async () => {
       const startMaintenanceSpy = vi.spyOn(memoryLifecycleManager, 'startMaintenance')
+      // Mock runMaintenance to return a promise
+      vi.spyOn(memoryLifecycleManager, 'runMaintenance').mockResolvedValue({
+        expired: 0,
+        archived: 0,
+        optimized: 0,
+      })
+      const warmUpSpy = vi.spyOn(memorySearchService, 'warmUp').mockResolvedValue(undefined)
 
       await memorySystem.initialize()
       await memorySystem.initialize()

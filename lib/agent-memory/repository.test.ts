@@ -204,18 +204,17 @@ describe('MemoryRepository', () => {
         },
       ]
 
-      const whereMock = vi.fn().mockReturnValue({
-        orderBy: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue({
-            offset: vi.fn().mockResolvedValue(mockResults),
-          }),
-        }),
-      })
+      // Create a mock query that can be awaited
+      const mockQuery = {
+        where: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        offset: vi.fn().mockReturnThis(),
+        then: (resolve: any) => resolve(mockResults),
+      }
 
       mockDb.select.mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: whereMock,
-        }),
+        from: vi.fn().mockReturnValue(mockQuery),
       })
 
       const results = await repository.search({
@@ -224,10 +223,23 @@ describe('MemoryRepository', () => {
       })
 
       expect(results).toHaveLength(1)
-      expect(whereMock).toHaveBeenCalled()
+      expect(mockQuery.where).toHaveBeenCalled()
     })
 
     it('should search with importance range', async () => {
+      // Create a mock query that can be awaited
+      const mockQuery = {
+        where: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        offset: vi.fn().mockReturnThis(),
+        then: (resolve: any) => resolve([]),
+      }
+
+      mockDb.select.mockReturnValue({
+        from: vi.fn().mockReturnValue(mockQuery),
+      })
+
       await repository.search({
         importance: { min: 5, max: 8 },
       })
@@ -236,6 +248,19 @@ describe('MemoryRepository', () => {
     })
 
     it('should exclude expired memories by default', async () => {
+      // Create a mock query that can be awaited
+      const mockQuery = {
+        where: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        offset: vi.fn().mockReturnThis(),
+        then: (resolve: any) => resolve([]),
+      }
+
+      mockDb.select.mockReturnValue({
+        from: vi.fn().mockReturnValue(mockQuery),
+      })
+
       await repository.search({})
 
       const selectCall = mockDb.select.mock.calls[0]

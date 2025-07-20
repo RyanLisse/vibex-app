@@ -289,6 +289,3 @@ export class RedisClientManager {
 
 // Export redis client getter function
 export const getRedis = () => RedisClientManager.getInstance()
-
-// Auto-generated export
-export const redis = createRedisClient()

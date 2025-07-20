@@ -171,6 +171,9 @@ export async function startPrometheusExporter(config: PrometheusConfig): Promise
 
   // Collect default Node.js metrics
   collectDefaultMetrics({ register: prometheusRegistry })
+  
+  // Collect custom system metrics immediately
+  updateSystemMetrics()
 
   // Start metrics collection from observability system
   startMetricsCollection()
@@ -202,7 +205,7 @@ function startMetricsCollection(): void {
 }
 
 // Update system metrics
-function updateSystemMetrics(): void {
+export function updateSystemMetrics(): void {
   const memoryUsage = process.memoryUsage()
   metrics.memoryUsageBytes.set({ type: 'heapUsed' }, memoryUsage.heapUsed)
   metrics.memoryUsageBytes.set({ type: 'heapTotal' }, memoryUsage.heapTotal)
@@ -216,7 +219,7 @@ function updateSystemMetrics(): void {
 }
 
 // Update database metrics
-function updateDatabaseMetrics(): void {
+export function updateDatabaseMetrics(): void {
   // Get performance metrics from query monitor
   const perfMetrics = queryPerformanceMonitor.getCurrentMetrics()
 
@@ -240,7 +243,7 @@ function updateDatabaseMetrics(): void {
 }
 
 // Update business metrics
-function updateBusinessMetrics(): void {
+export function updateBusinessMetrics(): void {
   // Get metrics from observability system
   const stats = observability.getOperationStats()
   const health = observability.getHealthStatus()

@@ -8,7 +8,13 @@ describe('Validation Utilities', () => {
     }
 
     const isEmail = (email: string): boolean => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      // More comprehensive email validation regex
+      // - No spaces or @ in local part (before @)
+      // - No consecutive dots
+      // - No dot at start or end of local part
+      // - Valid domain with at least one dot
+      // - No dot at start of domain
+      const emailRegex = /^[^\s@.]+([.][^\s@.]+)*@[^\s@.]+\.[^\s@]+$/
       return emailRegex.test(email)
     }
 
@@ -44,6 +50,8 @@ describe('Validation Utilities', () => {
         '@example.com',
         'test@',
         'test..test@example.com',
+        'test@.example.com',
+        'test.@example.com',
         'test@example',
         '',
       ]

@@ -1,85 +1,89 @@
 /**
  * Comprehensive tests for monitoring system components
+ * This version uses manual mocking to avoid import issues
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock modules before imports
-vi.mock('@/db/config', () => ({
-  db: {
-    execute: vi.fn().mockResolvedValue({ rows: [{ health_check: 1 }] }),
-    select: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  },
-  sql: vi.fn((strings: TemplateStringsArray, ...values: any[]) => {
-    // Always succeed for health checks
-    return Promise.resolve({ rows: [{ health_check: 1 }] })
+// Create mocks for all dependencies
+const mockDb = {
+  execute: vi.fn().mockResolvedValue({ rows: [{ health_check: 1 }] }),
+  select: vi.fn(),
+  insert: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+}
+
+const mockSql = vi.fn((strings: TemplateStringsArray, ...values: any[]) => {
+  return Promise.resolve({ rows: [{ health_check: 1 }] })
+})
+
+const mockObservability = {
+  recordEvent: vi.fn(),
+  recordError: vi.fn(),
+  getOperationStats: vi.fn().mockReturnValue({
+    totalOperations: 1000,
+    successRate: 95,
+    averageResponseTime: 150,
   }),
+  getHealthStatus: vi.fn().mockReturnValue({
+    isHealthy: true,
+    recentErrorRate: 2.5,
+    averageResponseTime: 150,
+  }),
+}
+
+const mockQueryPerformanceMonitor = {
+  getCurrentMetrics: vi.fn().mockReturnValue({
+    totalQueries: 500,
+    averageExecutionTime: 25,
+    slowQueries: 5,
+    errorRate: 1.5,
+  }),
+}
+
+const mockExecSync = vi.fn().mockReturnValue(`
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/disk1s1   500G  200G  300G  40% /
+`)
+
+const mockTransporter = {
+  sendMail: vi.fn().mockResolvedValue({ messageId: 'test-message-id' }),
+}
+
+const mockCreateTransport = vi.fn().mockReturnValue(mockTransporter)
+
+// Mock all modules
+vi.mock('@/db/config', () => ({
+  db: mockDb,
+  sql: mockSql,
   checkDatabaseHealth: vi.fn().mockResolvedValue(true),
-  dbConfig: {
-    connectionString: 'postgresql://test:test@localhost:5432/test',
-    ssl: false,
-    maxConnections: 20,
-    idleTimeout: 30_000,
-    connectionTimeout: 10_000,
-  },
 }))
 
 vi.mock('@/lib/observability', () => ({
-  observability: {
-    recordEvent: vi.fn(),
-    recordError: vi.fn(),
-    getOperationStats: vi.fn().mockReturnValue({
-      totalOperations: 1000,
-      successRate: 95,
-      averageResponseTime: 150,
-    }),
-    getHealthStatus: vi.fn().mockReturnValue({
-      isHealthy: true,
-      recentErrorRate: 2.5,
-      averageResponseTime: 150,
-    }),
-  },
+  observability: mockObservability,
 }))
 
 vi.mock('@/lib/performance/query-performance-monitor', () => ({
-  queryPerformanceMonitor: {
-    getCurrentMetrics: vi.fn().mockReturnValue({
-      totalQueries: 500,
-      averageExecutionTime: 25,
-      slowQueries: 5,
-      errorRate: 1.5,
-    }),
-  },
+  queryPerformanceMonitor: mockQueryPerformanceMonitor,
 }))
 
 vi.mock('child_process', () => ({
-  execSync: vi.fn().mockReturnValue(`
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/disk1s1   500G  200G  300G  40% /
-  `),
+  execSync: mockExecSync,
 }))
 
 vi.mock('nodemailer', () => ({
-  createTransport: vi.fn().mockReturnValue({
-    sendMail: vi.fn().mockResolvedValue({ messageId: 'test-message-id' }),
-  }),
+  createTransport: mockCreateTransport,
 }))
-import { alertManager } from '../alerts'
-import { capacityPlanningManager, getCapacityReport } from '../capacity'
-import { getHealthStatus, healthCheckManager } from '../health'
-import { initializeMonitoring } from '../index'
-import { EmailChannel, notificationManager, SlackChannel } from '../notifications'
-import {
-  metrics,
-  prometheusRegistry,
-  recordAgentExecution,
-  recordDatabaseQuery,
-  recordHttpRequest,
-} from '../prometheus'
-import { getSLAReport, slaMonitor } from '../sla'
+
+// Import modules after mocks are set up
+const { prometheusRegistry, recordHttpRequest, recordDatabaseQuery, recordAgentExecution } = await import('../prometheus')
+const { alertManager } = await import('../alerts')
+const { notificationManager, EmailChannel, SlackChannel } = await import('../notifications')
+const { healthCheckManager, getHealthStatus } = await import('../health')
+const { slaMonitor, getSLAReport } = await import('../sla')
+const { capacityPlanningManager, getCapacityReport } = await import('../capacity')
+const { initializeMonitoring } = await import('../index')
 
 describe('Monitoring System', () => {
   beforeEach(() => {
@@ -105,15 +109,6 @@ describe('Monitoring System', () => {
     healthCheckManager.stop()
     slaMonitor.stop()
     capacityPlanningManager.stop()
-    
-    // Clear notification channels
-    const nm = notificationManager as any
-    if (nm.channels) {
-      nm.channels = []
-    }
-    if (nm.rateLimits) {
-      nm.rateLimits.clear()
-    }
   })
 
   describe('Prometheus Metrics', () => {
@@ -155,15 +150,20 @@ describe('Monitoring System', () => {
     })
 
     it('should export system metrics', async () => {
-      // Import and initialize default metrics collection
-      const { collectDefaultMetrics } = await import('prom-client')
-      collectDefaultMetrics({ register: prometheusRegistry })
+      // Import prometheus module to ensure metrics are initialized
+      const { startPrometheusExporter } = await import('../prometheus')
       
-      // Ensure custom metrics are collected
-      const { updateSystemMetrics } = await import('../prometheus/index')
-      // @ts-ignore - accessing private function for testing
-      updateSystemMetrics()
-      
+      // Mock process.memoryUsage for this test
+      const memoryUsageMock = vi.fn().mockReturnValue({
+        rss: 100 * 1024 * 1024,
+        heapTotal: 80 * 1024 * 1024,
+        heapUsed: 60 * 1024 * 1024,
+        external: 10 * 1024 * 1024,
+        arrayBuffers: 5 * 1024 * 1024,
+      })
+      process.memoryUsage = memoryUsageMock
+
+      // Collect metrics
       const metricsText = await prometheusRegistry.metrics()
 
       // Default Node.js metrics
@@ -184,14 +184,8 @@ describe('Monitoring System', () => {
         alertRules: [],
       })
 
-      // Since we can't control mock metrics, alerts might fire
-      // Just verify the manager initialized successfully
       const alerts = alertManager.getActiveAlerts()
-      expect(Array.isArray(alerts)).toBe(true)
-      
-      // Verify we can get alert history
-      const history = alertManager.getAlertHistory()
-      expect(Array.isArray(history)).toBe(true)
+      expect(alerts).toEqual([])
     })
 
     it('should add custom alert rule', () => {
@@ -244,31 +238,23 @@ describe('Monitoring System', () => {
   })
 
   describe('Notification System', () => {
-    it.skip('should send notifications to multiple channels', async () => {
-      // Test the notification manager can add channels and they get called
-      const sentNotifications: any[] = []
-      
-      // Clear existing channels
-      const nm = notificationManager as any
-      nm.channels = []
-      nm.rateLimits.clear()
+    it('should send notifications to multiple channels', async () => {
+      const mockEmailSend = vi.fn().mockResolvedValue(undefined)
+      const mockSlackSend = vi.fn().mockResolvedValue(undefined)
 
-      // Create test channels that record calls
-      const emailChannel = {
-        name: 'email',
+      const emailChannel = new EmailChannel({
         enabled: true,
-        send: async (notification: any) => {
-          sentNotifications.push({ channel: 'email', notification })
-        },
-      }
+        smtp: { host: 'localhost', port: 25, secure: false, auth: { user: '', pass: '' } },
+        from: 'test@example.com',
+        to: ['recipient@example.com'],
+      })
+      emailChannel.send = mockEmailSend
 
-      const slackChannel = {
-        name: 'slack',
+      const slackChannel = new SlackChannel({
         enabled: true,
-        send: async (notification: any) => {
-          sentNotifications.push({ channel: 'slack', notification })
-        },
-      }
+        webhookUrl: 'https://hooks.slack.com/test',
+      })
+      slackChannel.send = mockSlackSend
 
       notificationManager.addChannel(emailChannel)
       notificationManager.addChannel(slackChannel)
@@ -279,25 +265,16 @@ describe('Monitoring System', () => {
         severity: 'medium',
       })
 
-      // Check that both channels received the notification
-      expect(sentNotifications.length).toBe(2)
-      expect(sentNotifications.some(n => n.channel === 'email')).toBe(true)
-      expect(sentNotifications.some(n => n.channel === 'slack')).toBe(true)
+      expect(mockEmailSend).toHaveBeenCalled()
+      expect(mockSlackSend).toHaveBeenCalled()
     })
 
-    it.skip('should respect rate limits', async () => {
-      // Clear existing state
-      const nm = notificationManager as any
-      nm.channels = []
-      nm.rateLimits.clear()
-      
-      let sendCount = 0
+    it('should respect rate limits', async () => {
+      const mockSend = vi.fn().mockResolvedValue(undefined)
       const testChannel = {
         name: 'test',
         enabled: true,
-        send: async () => {
-          sendCount++
-        },
+        send: mockSend,
       }
 
       notificationManager.addChannel(testChannel)
@@ -312,7 +289,7 @@ describe('Monitoring System', () => {
       }
 
       // Should be limited to 100 per hour
-      expect(sendCount).toBe(100)
+      expect(mockSend).toHaveBeenCalledTimes(100)
     })
 
     it('should handle notification digest', async () => {
@@ -401,24 +378,9 @@ describe('Monitoring System', () => {
     })
 
     it('should calculate overall health status correctly', async () => {
-      // Stop any existing health checks first
-      healthCheckManager.stop()
-      
-      // Clear existing state by accessing private properties
-      const hcm = healthCheckManager as any
-      hcm.checks.clear()
-      hcm.results.clear()
-      hcm.intervals.clear()
-      
       await healthCheckManager.initialize({
         enabled: false,
         checks: [],
-      })
-
-      // Remove built-in checks
-      const builtInChecks = ['database', 'memory', 'disk_space', 'query_performance', 'observability']
-      builtInChecks.forEach(name => {
-        healthCheckManager.removeCheck(name)
       })
 
       // Add checks with different statuses
@@ -438,25 +400,11 @@ describe('Monitoring System', () => {
         check: async () => ({ status: 'degraded', message: 'Performance degraded' }),
       })
 
-      // Wait for checks to complete  
-      await new Promise((resolve) => setTimeout(resolve, 200))
+      // Wait for checks to run
+      await new Promise((resolve) => setTimeout(resolve, 150))
 
       const status = getHealthStatus()
-      // Check that our custom checks are present
-      const checkNames = status.checks.map(c => c.name)
-      expect(checkNames).toContain('healthy_check')
-      expect(checkNames).toContain('degraded_check')
-      
-      // Find our specific checks
-      const healthyCheck = status.checks.find(c => c.name === 'healthy_check')
-      const degradedCheck = status.checks.find(c => c.name === 'degraded_check')
-      
-      expect(healthyCheck?.status).toBe('healthy')
-      expect(degradedCheck?.status).toBe('degraded')
-      
-      // Overall status should be degraded or unhealthy (worst status wins)
-      // Since we can't control all built-in checks, accept either
-      expect(['degraded', 'unhealthy']).toContain(status.status)
+      expect(status.status).toBe('degraded') // Worst status wins
     })
   })
 
