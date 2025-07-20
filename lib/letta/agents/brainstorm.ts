@@ -1,105 +1,112 @@
-import { z } from 'zod'
-import type { AgentConfig, LettaClient, Message } from '../client'
+import { z } from "zod";
+import type { AgentConfig, LettaClient, Message } from "../client";
 
 // Brainstorm Agent Configuration
 export const BrainstormConfigSchema = z.object({
-  name: z.string().default('Brainstorm Guide'),
-  model: z.string().default('gemini-1.5-pro'),
-  creativityLevel: z.enum(['conservative', 'balanced', 'creative', 'wild']).default('balanced'),
-  focusAreas: z
-    .array(z.string())
-    .default(['problem_solving', 'innovation', 'strategic_thinking', 'creative_exploration']),
-})
+	name: z.string().default("Brainstorm Guide"),
+	model: z.string().default("gemini-1.5-pro"),
+	creativityLevel: z
+		.enum(["conservative", "balanced", "creative", "wild"])
+		.default("balanced"),
+	focusAreas: z
+		.array(z.string())
+		.default([
+			"problem_solving",
+			"innovation",
+			"strategic_thinking",
+			"creative_exploration",
+		]),
+});
 
-export type BrainstormConfig = z.infer<typeof BrainstormConfigSchema>
+export type BrainstormConfig = z.infer<typeof BrainstormConfigSchema>;
 
 // Brainstorm Session Types
 export const BrainstormSessionSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  topic: z.string(),
-  stage: z.enum([
-    'exploration',
-    'clarification',
-    'expansion',
-    'evaluation',
-    'refinement',
-    'action_planning',
-  ]),
-  ideas: z.array(
-    z.object({
-      id: z.string(),
-      content: z.string(),
-      category: z.string(),
-      score: z.number().min(0).max(10),
-      pros: z.array(z.string()),
-      cons: z.array(z.string()),
-    })
-  ),
-  insights: z.array(z.string()),
-  nextSteps: z.array(z.string()),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
+	id: z.string(),
+	userId: z.string(),
+	topic: z.string(),
+	stage: z.enum([
+		"exploration",
+		"clarification",
+		"expansion",
+		"evaluation",
+		"refinement",
+		"action_planning",
+	]),
+	ideas: z.array(
+		z.object({
+			id: z.string(),
+			content: z.string(),
+			category: z.string(),
+			score: z.number().min(0).max(10),
+			pros: z.array(z.string()),
+			cons: z.array(z.string()),
+		}),
+	),
+	insights: z.array(z.string()),
+	nextSteps: z.array(z.string()),
+	createdAt: z.date(),
+	updatedAt: z.date(),
+});
 
-export type BrainstormSession = z.infer<typeof BrainstormSessionSchema>
+export type BrainstormSession = z.infer<typeof BrainstormSessionSchema>;
 
 export class BrainstormAgent {
-  private client: LettaClient
-  private agentId: string | null = null
-  private config: BrainstormConfig
-  private activeSessions: Map<string, BrainstormSession> = new Map()
-  private sessionIdMap: Map<string, string> = new Map() // Maps external sessionId to internal brainstorm sessionId
+	private client: LettaClient;
+	private agentId: string | null = null;
+	private config: BrainstormConfig;
+	private activeSessions: Map<string, BrainstormSession> = new Map();
+	private sessionIdMap: Map<string, string> = new Map(); // Maps external sessionId to internal brainstorm sessionId
 
-  constructor(client: LettaClient, config: Partial<BrainstormConfig> = {}) {
-    this.client = client
-    this.config = BrainstormConfigSchema.parse(config)
-  }
+	constructor(client: LettaClient, config: Partial<BrainstormConfig> = {}) {
+		this.client = client;
+		this.config = BrainstormConfigSchema.parse(config);
+	}
 
-  async initialize(): Promise<string> {
-    const systemPrompt = this.generateSystemPrompt()
+	async initialize(): Promise<string> {
+		const systemPrompt = this.generateSystemPrompt();
 
-    const agentConfig: AgentConfig = {
-      id: '',
-      name: this.config.name,
-      type: 'memgpt',
-      model: this.config.model,
-      systemPrompt,
-      tools: [
-        'idea_generation',
-        'concept_mapping',
-        'swot_analysis',
-        'mind_mapping',
-        'scenario_planning',
-      ],
-      memoryBlocks: [
-        'session_context',
-        'user_preferences',
-        'idea_repository',
-        'brainstorm_history',
-      ],
-      voiceEnabled: true,
-      lowLatency: false,
-    }
+		const agentConfig: AgentConfig = {
+			id: "",
+			name: this.config.name,
+			type: "memgpt",
+			model: this.config.model,
+			systemPrompt,
+			tools: [
+				"idea_generation",
+				"concept_mapping",
+				"swot_analysis",
+				"mind_mapping",
+				"scenario_planning",
+			],
+			memoryBlocks: [
+				"session_context",
+				"user_preferences",
+				"idea_repository",
+				"brainstorm_history",
+			],
+			voiceEnabled: true,
+			lowLatency: false,
+		};
 
-    const result = await this.client.createAgent(agentConfig)
-    this.agentId = result.id
+		const result = await this.client.createAgent(agentConfig);
+		this.agentId = result.id;
 
-    return this.agentId
-  }
+		return this.agentId;
+	}
 
-  private generateSystemPrompt(): string {
-    const creativityInstructions = {
-      conservative:
-        'Focus on practical, proven approaches. Prioritize feasibility and risk mitigation.',
-      balanced:
-        'Balance creativity with practicality. Explore both innovative and traditional solutions.',
-      creative:
-        'Encourage bold thinking and novel approaches. Push boundaries while maintaining some grounding.',
-      wild: 'Embrace radical thinking and unconventional ideas. Challenge all assumptions and explore the impossible.',
-    }
+	private generateSystemPrompt(): string {
+		const creativityInstructions = {
+			conservative:
+				"Focus on practical, proven approaches. Prioritize feasibility and risk mitigation.",
+			balanced:
+				"Balance creativity with practicality. Explore both innovative and traditional solutions.",
+			creative:
+				"Encourage bold thinking and novel approaches. Push boundaries while maintaining some grounding.",
+			wild: "Embrace radical thinking and unconventional ideas. Challenge all assumptions and explore the impossible.",
+		};
 
-    return `
+		return `
 You are the Brainstorm Guide, a specialized AI agent designed to help users refine, expand, and develop their ideas through structured brainstorming sessions.
 
 ## Core Mission:
@@ -174,38 +181,38 @@ ${creativityInstructions[this.config.creativityLevel]}
 - Maintain context across multiple sessions
 
 Always maintain an encouraging, curious, and non-judgmental attitude. Every idea has potential value, and your role is to help users discover and develop that potential.
-    `.trim()
-  }
+    `.trim();
+	}
 
-  async startBrainstormSession(
-    userId: string,
-    topic: string,
-    externalSessionId?: string
-  ): Promise<BrainstormSession> {
-    const brainstormSessionId = `brainstorm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+	async startBrainstormSession(
+		userId: string,
+		topic: string,
+		externalSessionId?: string,
+	): Promise<BrainstormSession> {
+		const brainstormSessionId = `brainstorm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    const session: BrainstormSession = {
-      id: brainstormSessionId,
-      userId,
-      topic,
-      stage: 'exploration',
-      ideas: [],
-      insights: [],
-      nextSteps: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+		const session: BrainstormSession = {
+			id: brainstormSessionId,
+			userId,
+			topic,
+			stage: "exploration",
+			ideas: [],
+			insights: [],
+			nextSteps: [],
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
 
-    this.activeSessions.set(brainstormSessionId, session)
+		this.activeSessions.set(brainstormSessionId, session);
 
-    // Map external sessionId to internal brainstorm sessionId if provided
-    if (externalSessionId) {
-      this.sessionIdMap.set(externalSessionId, brainstormSessionId)
-    }
+		// Map external sessionId to internal brainstorm sessionId if provided
+		if (externalSessionId) {
+			this.sessionIdMap.set(externalSessionId, brainstormSessionId);
+		}
 
-    // Initialize the brainstorming session with the agent
-    if (this.agentId) {
-      const initMessage = `
+		// Initialize the brainstorming session with the agent
+		if (this.agentId) {
+			const initMessage = `
 Starting a new brainstorming session:
 - User ID: ${userId}
 - Topic: ${topic}
@@ -220,32 +227,32 @@ Ask engaging questions to understand:
 4. What's the desired outcome?
 
 Keep the conversation flowing naturally while gathering this foundational information.
-      `.trim()
+      `.trim();
 
-      await this.client.sendMessage(this.agentId, initMessage)
-    }
+			await this.client.sendMessage(this.agentId, initMessage);
+		}
 
-    return session
-  }
+		return session;
+	}
 
-  async processMessage(
-    sessionId: string,
-    message: string,
-    streaming = false
-  ): Promise<Message | ReadableStream> {
-    if (!this.agentId) {
-      throw new Error('Brainstorm agent not initialized')
-    }
+	async processMessage(
+		sessionId: string,
+		message: string,
+		streaming = false,
+	): Promise<Message | ReadableStream> {
+		if (!this.agentId) {
+			throw new Error("Brainstorm agent not initialized");
+		}
 
-    // Check if this is an external sessionId that needs to be mapped
-    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
-    const session = this.activeSessions.get(brainstormSessionId)
-    if (!session) {
-      throw new Error('Brainstorm session not found')
-    }
+		// Check if this is an external sessionId that needs to be mapped
+		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
+		const session = this.activeSessions.get(brainstormSessionId);
+		if (!session) {
+			throw new Error("Brainstorm session not found");
+		}
 
-    // Update session context
-    const contextMessage = `
+		// Update session context
+		const contextMessage = `
 Session Context:
 - Session ID: ${brainstormSessionId}
 - Current Stage: ${session.stage}
@@ -254,43 +261,47 @@ Session Context:
 - User Message: "${message}"
 
 Continue guiding the brainstorming process based on the current stage and user input.
-    `.trim()
+    `.trim();
 
-    const response = await this.client.sendMessage(this.agentId, contextMessage, streaming)
+		const response = await this.client.sendMessage(
+			this.agentId,
+			contextMessage,
+			streaming,
+		);
 
-    // Update session timestamp
-    session.updatedAt = new Date()
-    this.activeSessions.set(sessionId, session)
+		// Update session timestamp
+		session.updatedAt = new Date();
+		this.activeSessions.set(sessionId, session);
 
-    return response
-  }
+		return response;
+	}
 
-  async advanceStage(sessionId: string): Promise<BrainstormSession> {
-    // Check if this is an external sessionId that needs to be mapped
-    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
-    const session = this.activeSessions.get(brainstormSessionId)
-    if (!session) {
-      throw new Error('Brainstorm session not found')
-    }
+	async advanceStage(sessionId: string): Promise<BrainstormSession> {
+		// Check if this is an external sessionId that needs to be mapped
+		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
+		const session = this.activeSessions.get(brainstormSessionId);
+		if (!session) {
+			throw new Error("Brainstorm session not found");
+		}
 
-    const stageOrder: BrainstormSession['stage'][] = [
-      'exploration',
-      'clarification',
-      'expansion',
-      'evaluation',
-      'refinement',
-      'action_planning',
-    ]
+		const stageOrder: BrainstormSession["stage"][] = [
+			"exploration",
+			"clarification",
+			"expansion",
+			"evaluation",
+			"refinement",
+			"action_planning",
+		];
 
-    const currentIndex = stageOrder.indexOf(session.stage)
-    if (currentIndex < stageOrder.length - 1) {
-      session.stage = stageOrder[currentIndex + 1]
-      session.updatedAt = new Date()
-      this.activeSessions.set(sessionId, session)
+		const currentIndex = stageOrder.indexOf(session.stage);
+		if (currentIndex < stageOrder.length - 1) {
+			session.stage = stageOrder[currentIndex + 1];
+			session.updatedAt = new Date();
+			this.activeSessions.set(sessionId, session);
 
-      // Notify the agent about stage advancement
-      if (this.agentId) {
-        const stageMessage = `
+			// Notify the agent about stage advancement
+			if (this.agentId) {
+				const stageMessage = `
 The brainstorming session has advanced to the ${session.stage.toUpperCase()} stage.
 
 Please guide the user through this new stage according to the framework:
@@ -299,100 +310,106 @@ Please guide the user through this new stage according to the framework:
 - Ideas so far: ${session.ideas.length}
 
 Transition smoothly and explain what we'll focus on in this stage.
-        `.trim()
+        `.trim();
 
-        await this.client.sendMessage(this.agentId, stageMessage)
-      }
-    }
+				await this.client.sendMessage(this.agentId, stageMessage);
+			}
+		}
 
-    return session
-  }
+		return session;
+	}
 
-  async addIdea(sessionId: string, content: string, category = 'general'): Promise<void> {
-    const session = this.activeSessions.get(sessionId)
-    if (!session) {
-      throw new Error('Brainstorm session not found')
-    }
+	async addIdea(
+		sessionId: string,
+		content: string,
+		category = "general",
+	): Promise<void> {
+		const session = this.activeSessions.get(sessionId);
+		if (!session) {
+			throw new Error("Brainstorm session not found");
+		}
 
-    const idea = {
-      id: `idea_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-      content,
-      category,
-      score: 5, // Default neutral score
-      pros: [],
-      cons: [],
-    }
+		const idea = {
+			id: `idea_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+			content,
+			category,
+			score: 5, // Default neutral score
+			pros: [],
+			cons: [],
+		};
 
-    session.ideas.push(idea)
-    session.updatedAt = new Date()
-    this.activeSessions.set(sessionId, session)
-  }
+		session.ideas.push(idea);
+		session.updatedAt = new Date();
+		this.activeSessions.set(sessionId, session);
+	}
 
-  async evaluateIdea(
-    sessionId: string,
-    ideaId: string,
-    score: number,
-    pros: string[] = [],
-    cons: string[] = []
-  ): Promise<void> {
-    const session = this.activeSessions.get(sessionId)
-    if (!session) {
-      throw new Error('Brainstorm session not found')
-    }
+	async evaluateIdea(
+		sessionId: string,
+		ideaId: string,
+		score: number,
+		pros: string[] = [],
+		cons: string[] = [],
+	): Promise<void> {
+		const session = this.activeSessions.get(sessionId);
+		if (!session) {
+			throw new Error("Brainstorm session not found");
+		}
 
-    const idea = session.ideas.find((i) => i.id === ideaId)
-    if (!idea) {
-      throw new Error('Idea not found')
-    }
+		const idea = session.ideas.find((i) => i.id === ideaId);
+		if (!idea) {
+			throw new Error("Idea not found");
+		}
 
-    idea.score = Math.max(0, Math.min(10, score))
-    idea.pros = [...idea.pros, ...pros]
-    idea.cons = [...idea.cons, ...cons]
+		idea.score = Math.max(0, Math.min(10, score));
+		idea.pros = [...idea.pros, ...pros];
+		idea.cons = [...idea.cons, ...cons];
 
-    session.updatedAt = new Date()
-    this.activeSessions.set(sessionId, session)
-  }
+		session.updatedAt = new Date();
+		this.activeSessions.set(sessionId, session);
+	}
 
-  async getSessionSummary(sessionId: string): Promise<{
-    session: BrainstormSession
-    topIdeas: BrainstormSession['ideas']
-    recommendations: string[]
-  }> {
-    // Check if this is an external sessionId that needs to be mapped
-    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
-    const session = this.activeSessions.get(brainstormSessionId)
-    if (!session) {
-      throw new Error('Brainstorm session not found')
-    }
+	async getSessionSummary(sessionId: string): Promise<{
+		session: BrainstormSession;
+		topIdeas: BrainstormSession["ideas"];
+		recommendations: string[];
+	}> {
+		// Check if this is an external sessionId that needs to be mapped
+		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
+		const session = this.activeSessions.get(brainstormSessionId);
+		if (!session) {
+			throw new Error("Brainstorm session not found");
+		}
 
-    const topIdeas = session.ideas.sort((a, b) => b.score - a.score).slice(0, 5)
+		const topIdeas = session.ideas
+			.sort((a, b) => b.score - a.score)
+			.slice(0, 5);
 
-    const recommendations = [
-      'Consider combining your top-rated ideas for a hybrid approach',
-      'Prototype the most feasible idea first to validate assumptions',
-      'Seek feedback from potential users or stakeholders',
-      'Research similar solutions to identify differentiation opportunities',
-      'Create a detailed implementation plan for your chosen direction',
-    ]
+		const recommendations = [
+			"Consider combining your top-rated ideas for a hybrid approach",
+			"Prototype the most feasible idea first to validate assumptions",
+			"Seek feedback from potential users or stakeholders",
+			"Research similar solutions to identify differentiation opportunities",
+			"Create a detailed implementation plan for your chosen direction",
+		];
 
-    return {
-      session,
-      topIdeas,
-      recommendations,
-    }
-  }
+		return {
+			session,
+			topIdeas,
+			recommendations,
+		};
+	}
 
-  async endSession(sessionId: string): Promise<BrainstormSession> {
-    // Check if this is an external sessionId that needs to be mapped
-    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
-    const session = this.activeSessions.get(brainstormSessionId)
-    if (!session) {
-      throw new Error('Brainstorm session not found')
-    }
+	async endSession(sessionId: string): Promise<BrainstormSession> {
+		// Check if this is an external sessionId that needs to be mapped
+		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
+		const session = this.activeSessions.get(brainstormSessionId);
+		if (!session) {
+			throw new Error("Brainstorm session not found");
+		}
 
-    // Generate final summary and next steps
-    if (this.agentId) {
-      const summaryMessage = `
+		// Generate final summary and next steps
+		if (this.agentId) {
+			const summaryMessage = `
 Brainstorming session ending. Please provide a comprehensive summary:
 
 Session Details:
@@ -407,22 +424,22 @@ Please summarize:
 4. Any additional considerations
 
 Make this a valuable conclusion to the brainstorming process.
-      `.trim()
+      `.trim();
 
-      await this.client.sendMessage(this.agentId, summaryMessage)
-    }
+			await this.client.sendMessage(this.agentId, summaryMessage);
+		}
 
-    // Keep session in memory but mark as completed
-    session.updatedAt = new Date()
+		// Keep session in memory but mark as completed
+		session.updatedAt = new Date();
 
-    return session
-  }
+		return session;
+	}
 
-  getActiveSession(sessionId: string): BrainstormSession | undefined {
-    return this.activeSessions.get(sessionId)
-  }
+	getActiveSession(sessionId: string): BrainstormSession | undefined {
+		return this.activeSessions.get(sessionId);
+	}
 
-  getAgentId(): string | null {
-    return this.agentId
-  }
+	getAgentId(): string | null {
+		return this.agentId;
+	}
 }

@@ -5,171 +5,175 @@
  * when Redis is not available.
  */
 
-import type { CacheKey, CacheOptions, CacheValue } from './types'
+import type { CacheKey, CacheOptions, CacheValue } from "./types";
 
 export class MockRedisCache {
-  private cache = new Map<string, { value: any; expiry?: number }>()
+	private cache = new Map<string, { value: any; expiry?: number }>();
 
-  async get<T>(key: CacheKey): Promise<T | null> {
-    const fullKey = this.buildKey(key)
-    const item = this.cache.get(fullKey)
+	async get<T>(key: CacheKey): Promise<T | null> {
+		const fullKey = this.buildKey(key);
+		const item = this.cache.get(fullKey);
 
-    if (!item) {
-      return null
-    }
+		if (!item) {
+			return null;
+		}
 
-    // Check expiry
-    if (item.expiry && Date.now() > item.expiry) {
-      this.cache.delete(fullKey)
-      return null
-    }
+		// Check expiry
+		if (item.expiry && Date.now() > item.expiry) {
+			this.cache.delete(fullKey);
+			return null;
+		}
 
-    return item.value as T
-  }
+		return item.value as T;
+	}
 
-  async set<T>(key: CacheKey, value: CacheValue<T>, options?: CacheOptions): Promise<boolean> {
-    const fullKey = this.buildKey(key)
-    const ttl = options?.ttl || 3600 // Default 1 hour
-    const expiry = Date.now() + ttl * 1000
+	async set<T>(
+		key: CacheKey,
+		value: CacheValue<T>,
+		options?: CacheOptions,
+	): Promise<boolean> {
+		const fullKey = this.buildKey(key);
+		const ttl = options?.ttl || 3600; // Default 1 hour
+		const expiry = Date.now() + ttl * 1000;
 
-    this.cache.set(fullKey, {
-      value,
-      expiry,
-    })
+		this.cache.set(fullKey, {
+			value,
+			expiry,
+		});
 
-    return true
-  }
+		return true;
+	}
 
-  async delete(key: CacheKey): Promise<boolean> {
-    const fullKey = this.buildKey(key)
-    return this.cache.delete(fullKey)
-  }
+	async delete(key: CacheKey): Promise<boolean> {
+		const fullKey = this.buildKey(key);
+		return this.cache.delete(fullKey);
+	}
 
-  async clear(): Promise<boolean> {
-    this.cache.clear()
-    return true
-  }
+	async clear(): Promise<boolean> {
+		this.cache.clear();
+		return true;
+	}
 
-  async exists(key: CacheKey): Promise<boolean> {
-    const fullKey = this.buildKey(key)
-    const item = this.cache.get(fullKey)
+	async exists(key: CacheKey): Promise<boolean> {
+		const fullKey = this.buildKey(key);
+		const item = this.cache.get(fullKey);
 
-    if (!item) {
-      return false
-    }
+		if (!item) {
+			return false;
+		}
 
-    // Check expiry
-    if (item.expiry && Date.now() > item.expiry) {
-      this.cache.delete(fullKey)
-      return false
-    }
+		// Check expiry
+		if (item.expiry && Date.now() > item.expiry) {
+			this.cache.delete(fullKey);
+			return false;
+		}
 
-    return true
-  }
+		return true;
+	}
 
-  async keys(pattern: string): Promise<string[]> {
-    const regex = new RegExp(pattern.replace(/\*/g, '.*'))
-    return Array.from(this.cache.keys()).filter((key) => regex.test(key))
-  }
+	async keys(pattern: string): Promise<string[]> {
+		const regex = new RegExp(pattern.replace(/\*/g, ".*"));
+		return Array.from(this.cache.keys()).filter((key) => regex.test(key));
+	}
 
-  async ttl(key: CacheKey): Promise<number> {
-    const fullKey = this.buildKey(key)
-    const item = this.cache.get(fullKey)
+	async ttl(key: CacheKey): Promise<number> {
+		const fullKey = this.buildKey(key);
+		const item = this.cache.get(fullKey);
 
-    if (!(item && item.expiry)) {
-      return -1
-    }
+		if (!(item && item.expiry)) {
+			return -1;
+		}
 
-    const remaining = Math.max(0, item.expiry - Date.now())
-    return Math.floor(remaining / 1000)
-  }
+		const remaining = Math.max(0, item.expiry - Date.now());
+		return Math.floor(remaining / 1000);
+	}
 
-  async expire(key: CacheKey, ttl: number): Promise<boolean> {
-    const fullKey = this.buildKey(key)
-    const item = this.cache.get(fullKey)
+	async expire(key: CacheKey, ttl: number): Promise<boolean> {
+		const fullKey = this.buildKey(key);
+		const item = this.cache.get(fullKey);
 
-    if (!item) {
-      return false
-    }
+		if (!item) {
+			return false;
+		}
 
-    item.expiry = Date.now() + ttl * 1000
-    return true
-  }
+		item.expiry = Date.now() + ttl * 1000;
+		return true;
+	}
 
-  // Utility methods
-  private buildKey(key: CacheKey): string {
-    if (typeof key === 'string') {
-      return `mock:${key}`
-    }
-    return `mock:${key.join(':')}`
-  }
+	// Utility methods
+	private buildKey(key: CacheKey): string {
+		if (typeof key === "string") {
+			return `mock:${key}`;
+		}
+		return `mock:${key.join(":")}`;
+	}
 
-  // Mock-specific methods
-  size(): number {
-    return this.cache.size
-  }
+	// Mock-specific methods
+	size(): number {
+		return this.cache.size;
+	}
 
-  getAllKeys(): string[] {
-    return Array.from(this.cache.keys())
-  }
+	getAllKeys(): string[] {
+		return Array.from(this.cache.keys());
+	}
 
-  getStats() {
-    return {
-      size: this.cache.size,
-      keys: this.getAllKeys(),
-    }
-  }
+	getStats() {
+		return {
+			size: this.cache.size,
+			keys: this.getAllKeys(),
+		};
+	}
 }
 
 export class MockRedisService {
-  private static instance: MockRedisService
-  public cache: MockRedisCache
-  private isInitialized = false
+	private static instance: MockRedisService;
+	public cache: MockRedisCache;
+	private isInitialized = false;
 
-  private constructor() {
-    this.cache = new MockRedisCache()
-  }
+	private constructor() {
+		this.cache = new MockRedisCache();
+	}
 
-  static getInstance(): MockRedisService {
-    if (!MockRedisService.instance) {
-      MockRedisService.instance = new MockRedisService()
-    }
-    return MockRedisService.instance
-  }
+	static getInstance(): MockRedisService {
+		if (!MockRedisService.instance) {
+			MockRedisService.instance = new MockRedisService();
+		}
+		return MockRedisService.instance;
+	}
 
-  async initialize(): Promise<void> {
-    console.log('🔧 Using Mock Redis (Redis not available)')
-    this.isInitialized = true
-  }
+	async initialize(): Promise<void> {
+		console.log("🔧 Using Mock Redis (Redis not available)");
+		this.isInitialized = true;
+	}
 
-  async shutdown(): Promise<void> {
-    await this.cache.clear()
-    this.isInitialized = false
-  }
+	async shutdown(): Promise<void> {
+		await this.cache.clear();
+		this.isInitialized = false;
+	}
 
-  isReady(): boolean {
-    return this.isInitialized
-  }
+	isReady(): boolean {
+		return this.isInitialized;
+	}
 
-  getHealthStatus() {
-    return {
-      status: 'healthy',
-      type: 'mock',
-      uptime: 0,
-      memory: {
-        used: 0,
-        peak: 0,
-      },
-      stats: this.cache.getStats(),
-    }
-  }
+	getHealthStatus() {
+		return {
+			status: "healthy",
+			type: "mock",
+			uptime: 0,
+			memory: {
+				used: 0,
+				peak: 0,
+			},
+			stats: this.cache.getStats(),
+		};
+	}
 }
 
 // Export singleton instance
-export const mockRedisService = MockRedisService.getInstance()
-export const mockRedisCache = mockRedisService.cache
+export const mockRedisService = MockRedisService.getInstance();
+export const mockRedisCache = mockRedisService.cache;
 
 // Mock initialization function
 export async function initializeMockRedis(): Promise<void> {
-  await mockRedisService.initialize()
+	await mockRedisService.initialize();
 }

@@ -1,38 +1,40 @@
-import type { Meta, StoryObj } from '@storybook/nextjs'
-import { Markdown } from '@/components/markdown'
+import type { Meta, StoryObj } from "@storybook/nextjs";
+import { Markdown } from "@/components/markdown";
 
 const meta = {
-  title: 'Components/Markdown',
-  component: Markdown,
-  parameters: {
-    layout: 'padded',
-    docs: {
-      description: {
-        component: 'A markdown renderer component with syntax highlighting and custom styling.',
-      },
-    },
-  },
-  tags: ['autodocs'],
-  argTypes: {
-    children: {
-      control: 'text',
-      description: 'The markdown content to render',
-    },
-  },
-} satisfies Meta<typeof Markdown>
+	title: "Components/Markdown",
+	component: Markdown,
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"A markdown renderer component with syntax highlighting and custom styling.",
+			},
+		},
+	},
+	tags: ["autodocs"],
+	argTypes: {
+		children: {
+			control: "text",
+			description: "The markdown content to render",
+		},
+	},
+} satisfies Meta<typeof Markdown>;
 
-export default meta
-type Story = StoryObj<typeof meta>
+export default meta;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    children: '# Hello World\n\nThis is a **markdown** example with *italic* text.',
-  },
-}
+	args: {
+		children:
+			"# Hello World\n\nThis is a **markdown** example with *italic* text.",
+	},
+};
 
 export const WithCodeBlock: Story = {
-  args: {
-    children: `# Code Example
+	args: {
+		children: `# Code Example
 
 Here's some JavaScript code:
 
@@ -43,12 +45,12 @@ function hello() {
 \`\`\`
 
 And some inline code: \`const x = 42;\``,
-  },
-}
+	},
+};
 
 export const WithList: Story = {
-  args: {
-    children: `# Features
+	args: {
+		children: `# Features
 
 - **Bold** text support
 - *Italic* text support
@@ -58,29 +60,29 @@ export const WithList: Story = {
   - Nested item 1
   - Nested item 2
 - Links and images`,
-  },
-}
+	},
+};
 
 export const WithTable: Story = {
-  args: {
-    children: `# Data Table
+	args: {
+		children: `# Data Table
 
 | Name | Age | City |
 |------|-----|------|
 | John | 30 | New York |
 | Jane | 25 | London |
 | Bob | 35 | Paris |`,
-  },
-}
+	},
+};
 
 export const WithBlockquote: Story = {
-  args: {
-    children: `# Quotes
+	args: {
+		children: `# Quotes
 
 > This is a blockquote with some important information.
 > 
 > It can span multiple lines and contain **formatting**.
 
 Regular text continues here.`,
-  },
-}
+	},
+};

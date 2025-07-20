@@ -29,7 +29,7 @@ fi
 
 # Run unit tests (using bun for better performance)
 echo "🧪 Running unit tests..."
-npm run test:unit:logic
+npm run test:unit
 if [ $? -ne 0 ]; then
   echo "❌ Unit tests failed. Please fix them before committing."
   exit 1

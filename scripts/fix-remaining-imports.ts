@@ -1,65 +1,74 @@
 #!/usr/bin/env bun
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
-import { dirname, join } from 'path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 
-const fixes = []
+const fixes = [];
 
 // Fix 1: ReactFlow import - seems the script didn't run properly
-const visualizationPath = join(process.cwd(), 'components/ambient-agents/visualization-engine.tsx')
+const visualizationPath = join(
+	process.cwd(),
+	"components/ambient-agents/visualization-engine.tsx",
+);
 if (existsSync(visualizationPath)) {
-  let content = readFileSync(visualizationPath, 'utf-8')
-  if (content.includes('import ReactFlow from')) {
-    content = content.replace(
-      /import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-      "import { ReactFlow } from '@xyflow/react'"
-    )
-    writeFileSync(visualizationPath, content)
-    fixes.push('ReactFlow import in visualization-engine.tsx')
-  }
+	let content = readFileSync(visualizationPath, "utf-8");
+	if (content.includes("import ReactFlow from")) {
+		content = content.replace(
+			/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
+			"import { ReactFlow } from '@xyflow/react'",
+		);
+		writeFileSync(visualizationPath, content);
+		fixes.push("ReactFlow import in visualization-engine.tsx");
+	}
 }
 
 // Fix 2: Redis exports
-const redisClientPath = join(process.cwd(), 'lib/redis/redis-client.ts')
+const redisClientPath = join(process.cwd(), "lib/redis/redis-client.ts");
 if (existsSync(redisClientPath)) {
-  let content = readFileSync(redisClientPath, 'utf-8')
-  if (!(content.includes('export { redis }') || content.includes('export const redis'))) {
-    // Find the redis instance and export it
-    if (content.includes('const redis =')) {
-      content = content.replace(/const redis =/, 'export const redis =')
-    } else {
-      // Add a default export
-      content += '\n\n// Export redis client instance\nexport const redis = redisClient\n'
-    }
-    writeFileSync(redisClientPath, content)
-    fixes.push('redis export in redis-client.ts')
-  }
+	let content = readFileSync(redisClientPath, "utf-8");
+	if (
+		!(
+			content.includes("export { redis }") ||
+			content.includes("export const redis")
+		)
+	) {
+		// Find the redis instance and export it
+		if (content.includes("const redis =")) {
+			content = content.replace(/const redis =/, "export const redis =");
+		} else {
+			// Add a default export
+			content +=
+				"\n\n// Export redis client instance\nexport const redis = redisClient\n";
+		}
+		writeFileSync(redisClientPath, content);
+		fixes.push("redis export in redis-client.ts");
+	}
 }
 
 // Fix 3: metricsCollector export
-const metricsPath = join(process.cwd(), 'lib/observability/metrics.ts')
+const metricsPath = join(process.cwd(), "lib/observability/metrics.ts");
 if (existsSync(metricsPath)) {
-  let content = readFileSync(metricsPath, 'utf-8')
-  if (!content.includes('export const metricsCollector')) {
-    // Add the export
-    content +=
-      '\n\n// Export metrics collector instance\nexport const metricsCollector = PerformanceMetricsCollector.getInstance()\n'
-    writeFileSync(metricsPath, content)
-    fixes.push('metricsCollector export in metrics.ts')
-  }
+	let content = readFileSync(metricsPath, "utf-8");
+	if (!content.includes("export const metricsCollector")) {
+		// Add the export
+		content +=
+			"\n\n// Export metrics collector instance\nexport const metricsCollector = PerformanceMetricsCollector.getInstance()\n";
+		writeFileSync(metricsPath, content);
+		fixes.push("metricsCollector export in metrics.ts");
+	}
 }
 
 // Fix 4: Enhanced task schemas
-const schemasPath = join(process.cwd(), 'src/schemas/enhanced-task-schemas.ts')
+const schemasPath = join(process.cwd(), "src/schemas/enhanced-task-schemas.ts");
 if (!existsSync(schemasPath)) {
-  // Create the directory if it doesn't exist
-  const dir = dirname(schemasPath)
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true })
-  }
+	// Create the directory if it doesn't exist
+	const dir = dirname(schemasPath);
+	if (!existsSync(dir)) {
+		mkdirSync(dir, { recursive: true });
+	}
 
-  // Create the schema file with all needed exports
-  const schemaContent = `import { z } from 'zod'
+	// Create the schema file with all needed exports
+	const schemaContent = `import { z } from 'zod'
 
 // Kanban Move Schema
 export const KanbanMoveSchema = z.object({
@@ -106,46 +115,52 @@ export type KanbanMove = z.infer<typeof KanbanMoveSchema>
 export type KanbanBoardConfig = z.infer<typeof KanbanBoardConfigSchema>
 export type PRStatusUpdate = z.infer<typeof PRStatusUpdateSchema>
 export type TaskProgressUpdate = z.infer<typeof TaskProgressUpdateSchema>
-`
-  writeFileSync(schemasPath, schemaContent)
-  fixes.push('enhanced-task-schemas.ts file created')
+`;
+	writeFileSync(schemasPath, schemaContent);
+	fixes.push("enhanced-task-schemas.ts file created");
 }
 
 // Fix 5: Check for other ReactFlow imports
-const files = ['components/ambient-agents/visualization-engine.tsx', 'app/ambient-agents/page.tsx']
+const files = [
+	"components/ambient-agents/visualization-engine.tsx",
+	"app/ambient-agents/page.tsx",
+];
 
 for (const file of files) {
-  const filePath = join(process.cwd(), file)
-  if (existsSync(filePath)) {
-    let content = readFileSync(filePath, 'utf-8')
-    let modified = false
+	const filePath = join(process.cwd(), file);
+	if (existsSync(filePath)) {
+		let content = readFileSync(filePath, "utf-8");
+		let modified = false;
 
-    // Fix ReactFlow imports
-    if (content.includes('import ReactFlow')) {
-      content = content.replace(
-        /import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-        "import { ReactFlow } from '@xyflow/react'"
-      )
-      modified = true
-    }
+		// Fix ReactFlow imports
+		if (content.includes("import ReactFlow")) {
+			content = content.replace(
+				/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
+				"import { ReactFlow } from '@xyflow/react'",
+			);
+			modified = true;
+		}
 
-    // Fix any default imports from @xyflow/react
-    if (content.includes("from '@xyflow/react'") && content.includes('import {')) {
-      // Make sure ReactFlow is imported as named export
-      content = content.replace(
-        /import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-        "import { $1, ReactFlow } from '@xyflow/react'"
-      )
-      modified = true
-    }
+		// Fix any default imports from @xyflow/react
+		if (
+			content.includes("from '@xyflow/react'") &&
+			content.includes("import {")
+		) {
+			// Make sure ReactFlow is imported as named export
+			content = content.replace(
+				/import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
+				"import { $1, ReactFlow } from '@xyflow/react'",
+			);
+			modified = true;
+		}
 
-    if (modified) {
-      writeFileSync(filePath, content)
-      fixes.push(`ReactFlow imports in ${file}`)
-    }
-  }
+		if (modified) {
+			writeFileSync(filePath, content);
+			fixes.push(`ReactFlow imports in ${file}`);
+		}
+	}
 }
 
-console.log('✅ Fixed the following issues:')
-fixes.forEach((fix) => console.log(`  - ${fix}`))
-console.log(`\n✨ Total fixes applied: ${fixes.length}`)
+console.log("✅ Fixed the following issues:");
+fixes.forEach((fix) => console.log(`  - ${fix}`));
+console.log(`\n✨ Total fixes applied: ${fixes.length}`);

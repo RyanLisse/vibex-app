@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'node:crypto'
+import { createHash, randomBytes } from "node:crypto";
 
 /**
  * Generates a secure random string for PKCE code verifier
@@ -6,8 +6,8 @@ import { createHash, randomBytes } from 'node:crypto'
  * @returns Base64URL-encoded random string
  */
 export function generateCodeVerifier(length = 32): string {
-  const randomBytesBuffer = randomBytes(length)
-  return base64URLEncode(randomBytesBuffer)
+	const randomBytesBuffer = randomBytes(length);
+	return base64URLEncode(randomBytesBuffer);
 }
 
 /**
@@ -16,8 +16,8 @@ export function generateCodeVerifier(length = 32): string {
  * @returns Base64URL-encoded SHA-256 hash of the code verifier
  */
 export function generateCodeChallenge(codeVerifier: string): string {
-  const hash = createHash('sha256').update(codeVerifier).digest()
-  return base64URLEncode(hash)
+	const hash = createHash("sha256").update(codeVerifier).digest();
+	return base64URLEncode(hash);
 }
 
 /**
@@ -26,5 +26,9 @@ export function generateCodeChallenge(codeVerifier: string): string {
  * @returns Base64URL-encoded string
  */
 function base64URLEncode(buffer: Buffer): string {
-  return buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+	return buffer
+		.toString("base64")
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/, "");
 }

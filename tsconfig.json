@@ -1,73 +1,24 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": false,
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"],
-      "@/app/*": ["./app/*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/stores/*": ["./stores/*"],
-      "@/types/*": ["./types/*"],
-      "@/features/*": ["./src/features/*"],
-      "@/shared/*": ["./src/shared/*"],
-      "@/test/*": ["./tests/*"],
-      "@/src/*": ["./src/*"]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
-  },
-  "include": [
-    "next-env.d.ts",
-    "app/**/*.ts",
-    "app/**/*.tsx",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "components/**/*.ts",
-    "components/**/*.tsx",
-    "hooks/**/*.ts",
-    "hooks/**/*.tsx",
-    "lib/**/*.ts",
-    "lib/**/*.tsx",
-    "db/**/*.ts",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next",
-    "out",
-    "dist",
-    "build",
-    "coverage",
-    "playwright-report",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx",
-    "tests/**/*",
-    "scripts/**/*",
-    "vitest.*.config.ts",
-    "playwright.config.ts",
-    "lib/queries/**/*",
-    "lib/query/**/*"
-  ]
+	"compilerOptions": {
+		"target": "ES2017",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": false,
+		"noEmit": true,
+		"incremental": true,
+		"module": "esnext",
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"plugins": [
+			{
+				"name": "next"
+			}
+		]
+	},
+	"include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
+	"exclude": ["node_modules"]
 }

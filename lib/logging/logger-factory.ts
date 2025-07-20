@@ -1,340 +1,364 @@
 // AsyncLocalStorage compatibility layer
 class BrowserAsyncLocalStorage {
-  private store: any = null
-  run(store: any, callback: () => any) {
-    this.store = store
-    return callback()
-  }
-  getStore() {
-    return this.store
-  }
+	private store: any = null;
+	run(store: any, callback: () => any) {
+		this.store = store;
+		return callback();
+	}
+	getStore() {
+		return this.store;
+	}
 }
 
 // Use dynamic import pattern that's ESM-compatible
-let AsyncLocalStorage: any = BrowserAsyncLocalStorage
+let AsyncLocalStorage: any = BrowserAsyncLocalStorage;
 
-if (typeof window === 'undefined' && typeof process !== 'undefined') {
-  // Lazy load in Node.js environment
-  import('async_hooks')
-    .then((asyncHooks) => {
-      AsyncLocalStorage = asyncHooks.AsyncLocalStorage
-    })
-    .catch(() => {
-      // Keep using browser fallback if async_hooks is not available
-    })
+if (typeof window === "undefined" && typeof process !== "undefined") {
+	// Lazy load in Node.js environment
+	import("async_hooks")
+		.then((asyncHooks) => {
+			AsyncLocalStorage = asyncHooks.AsyncLocalStorage;
+		})
+		.catch(() => {
+			// Keep using browser fallback if async_hooks is not available
+		});
 }
 
-import winston from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file'
-import { CorrelationIdManager } from './correlation-id-manager'
-import { MetadataEnricher } from './metadata-enricher'
-import { PerformanceTracker } from './performance-tracker'
-import { SensitiveDataRedactor } from './sensitive-data-redactor'
-import type { LogContext, LoggingConfig, LoggingMetrics, LogLevel } from './types'
+import winston from "winston";
+import DailyRotateFile from "winston-daily-rotate-file";
+import { CorrelationIdManager } from "./correlation-id-manager";
+import { MetadataEnricher } from "./metadata-enricher";
+import { PerformanceTracker } from "./performance-tracker";
+import { SensitiveDataRedactor } from "./sensitive-data-redactor";
+import type {
+	LogContext,
+	LoggingConfig,
+	LoggingMetrics,
+	LogLevel,
+} from "./types";
 
 export class LoggerFactory {
-  private static instance: LoggerFactory
-  private winston: winston.Logger
-  private config: LoggingConfig
-  private contextStorage: any
-  private correlationManager = CorrelationIdManager.getInstance()
-  private metadataEnricher = new MetadataEnricher()
-  private redactor: SensitiveDataRedactor
-  private performanceTracker = new PerformanceTracker()
+	private static instance: LoggerFactory;
+	private winston: winston.Logger;
+	private config: LoggingConfig;
+	private contextStorage: any;
+	private correlationManager = CorrelationIdManager.getInstance();
+	private metadataEnricher = new MetadataEnricher();
+	private redactor: SensitiveDataRedactor;
+	private performanceTracker = new PerformanceTracker();
 
-  private constructor(config: LoggingConfig) {
-    this.config = config
-    this.redactor = new SensitiveDataRedactor(
-      config.redaction.customFields,
-      config.redaction.customPatterns
-    )
-    // Initialize contextStorage based on the current AsyncLocalStorage implementation
-    if (typeof window === 'undefined' && typeof process !== 'undefined') {
-      try {
-        // In Node.js, AsyncLocalStorage will be the real one from async_hooks
-        this.contextStorage = new AsyncLocalStorage()
-      } catch {
-        // Fallback to browser implementation
-        this.contextStorage = new BrowserAsyncLocalStorage()
-      }
-    } else {
-      // In browser, use the fallback
-      this.contextStorage = new BrowserAsyncLocalStorage()
-    }
-    this.winston = this.createWinstonLogger()
-  }
+	private constructor(config: LoggingConfig) {
+		this.config = config;
+		this.redactor = new SensitiveDataRedactor(
+			config.redaction.customFields,
+			config.redaction.customPatterns,
+		);
+		// Initialize contextStorage based on the current AsyncLocalStorage implementation
+		if (typeof window === "undefined" && typeof process !== "undefined") {
+			try {
+				// In Node.js, AsyncLocalStorage will be the real one from async_hooks
+				this.contextStorage = new AsyncLocalStorage();
+			} catch {
+				// Fallback to browser implementation
+				this.contextStorage = new BrowserAsyncLocalStorage();
+			}
+		} else {
+			// In browser, use the fallback
+			this.contextStorage = new BrowserAsyncLocalStorage();
+		}
+		this.winston = this.createWinstonLogger();
+	}
 
-  static getInstance(config?: LoggingConfig): LoggerFactory {
-    if (!LoggerFactory.instance) {
-      if (!config) {
-        throw new Error('LoggerFactory requires configuration on first initialization')
-      }
-      LoggerFactory.instance = new LoggerFactory(config)
-    }
-    return LoggerFactory.instance
-  }
+	static getInstance(config?: LoggingConfig): LoggerFactory {
+		if (!LoggerFactory.instance) {
+			if (!config) {
+				throw new Error(
+					"LoggerFactory requires configuration on first initialization",
+				);
+			}
+			LoggerFactory.instance = new LoggerFactory(config);
+		}
+		return LoggerFactory.instance;
+	}
 
-  private createWinstonLogger(): winston.Logger {
-    const transports = this.createTransports()
-    const format = this.createLogFormat()
+	private createWinstonLogger(): winston.Logger {
+		const transports = this.createTransports();
+		const format = this.createLogFormat();
 
-    return winston.createLogger({
-      level: this.config.level,
-      format,
-      transports,
-      exitOnError: false,
-      silent: this.config.silent,
-    })
-  }
+		return winston.createLogger({
+			level: this.config.level,
+			format,
+			transports,
+			exitOnError: false,
+			silent: this.config.silent,
+		});
+	}
 
-  private createTransports(): winston.transport[] {
-    const transports: winston.transport[] = []
+	private createTransports(): winston.transport[] {
+		const transports: winston.transport[] = [];
 
-    if (this.config.console.enabled) {
-      transports.push(
-        new winston.transports.Console({
-          format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-          level: this.config.console.level || this.config.level,
-        })
-      )
-    }
+		if (this.config.console.enabled) {
+			transports.push(
+				new winston.transports.Console({
+					format: winston.format.combine(
+						winston.format.colorize(),
+						winston.format.simple(),
+					),
+					level: this.config.console.level || this.config.level,
+				}),
+			);
+		}
 
-    if (this.config.file.enabled) {
-      transports.push(
-        new DailyRotateFile({
-          filename: this.config.file.filename.replace('.log', '-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          maxSize: this.config.file.maxSize,
-          maxFiles: this.config.file.maxFiles,
-          level: this.config.file.level || this.config.level,
-          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-        })
-      )
+		if (this.config.file.enabled) {
+			transports.push(
+				new DailyRotateFile({
+					filename: this.config.file.filename.replace(".log", "-%DATE%.log"),
+					datePattern: "YYYY-MM-DD",
+					maxSize: this.config.file.maxSize,
+					maxFiles: this.config.file.maxFiles,
+					level: this.config.file.level || this.config.level,
+					format: winston.format.combine(
+						winston.format.timestamp(),
+						winston.format.json(),
+					),
+				}),
+			);
 
-      transports.push(
-        new DailyRotateFile({
-          filename: this.config.file.errorFilename.replace('.log', '-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          level: 'error',
-          maxSize: this.config.file.maxSize,
-          maxFiles: this.config.file.maxFiles,
-          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-        })
-      )
-    }
+			transports.push(
+				new DailyRotateFile({
+					filename: this.config.file.errorFilename.replace(
+						".log",
+						"-%DATE%.log",
+					),
+					datePattern: "YYYY-MM-DD",
+					level: "error",
+					maxSize: this.config.file.maxSize,
+					maxFiles: this.config.file.maxFiles,
+					format: winston.format.combine(
+						winston.format.timestamp(),
+						winston.format.json(),
+					),
+				}),
+			);
+		}
 
-    if (this.config.http.enabled && this.config.http.host) {
-      transports.push(
-        new winston.transports.Http({
-          host: this.config.http.host,
-          port: this.config.http.port,
-          path: this.config.http.path,
-          ssl: this.config.http.ssl,
-          level: this.config.http.level || this.config.level,
-        })
-      )
-    }
+		if (this.config.http.enabled && this.config.http.host) {
+			transports.push(
+				new winston.transports.Http({
+					host: this.config.http.host,
+					port: this.config.http.port,
+					path: this.config.http.path,
+					ssl: this.config.http.ssl,
+					level: this.config.http.level || this.config.level,
+				}),
+			);
+		}
 
-    return transports
-  }
+		return transports;
+	}
 
-  private createLogFormat(): winston.Logform.Format {
-    return winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.errors({ stack: true }),
-      winston.format.printf((info) => {
-        const logEntry = this.enrichLogEntry(info)
-        return JSON.stringify(logEntry)
-      })
-    )
-  }
+	private createLogFormat(): winston.Logform.Format {
+		return winston.format.combine(
+			winston.format.timestamp(),
+			winston.format.errors({ stack: true }),
+			winston.format.printf((info) => {
+				const logEntry = this.enrichLogEntry(info);
+				return JSON.stringify(logEntry);
+			}),
+		);
+	}
 
-  private enrichLogEntry(info: any): any {
-    const context = this.contextStorage.getStore()
-    const correlationId = this.correlationManager.getCurrentId()
-    const metadata = this.metadataEnricher.enrich(info, context)
+	private enrichLogEntry(info: any): any {
+		const context = this.contextStorage.getStore();
+		const correlationId = this.correlationManager.getCurrentId();
+		const metadata = this.metadataEnricher.enrich(info, context);
 
-    const enrichedEntry = {
-      timestamp: info.timestamp,
-      level: info.level,
-      message: info.message,
-      correlationId,
-      service: this.config.serviceName,
-      version: this.config.serviceVersion,
-      environment: this.config.environment,
-      ...metadata,
-      ...info,
-    }
+		const enrichedEntry = {
+			timestamp: info.timestamp,
+			level: info.level,
+			message: info.message,
+			correlationId,
+			service: this.config.serviceName,
+			version: this.config.serviceVersion,
+			environment: this.config.environment,
+			...metadata,
+			...info,
+		};
 
-    return this.config.redaction.enabled ? this.redactor.redact(enrichedEntry) : enrichedEntry
-  }
+		return this.config.redaction.enabled
+			? this.redactor.redact(enrichedEntry)
+			: enrichedEntry;
+	}
 
-  createLogger(component: string): ComponentLogger {
-    return new ComponentLogger(
-      component,
-      this.winston,
-      this.contextStorage,
-      this.correlationManager,
-      this.performanceTracker,
-      this.config
-    )
-  }
+	createLogger(component: string): ComponentLogger {
+		return new ComponentLogger(
+			component,
+			this.winston,
+			this.contextStorage,
+			this.correlationManager,
+			this.performanceTracker,
+			this.config,
+		);
+	}
 
-  withContext<T>(context: LogContext, fn: () => T): T {
-    return this.contextStorage.run(context, fn)
-  }
+	withContext<T>(context: LogContext, fn: () => T): T {
+		return this.contextStorage.run(context, fn);
+	}
 
-  async withContextAsync<T>(context: LogContext, fn: () => Promise<T>): Promise<T> {
-    return this.contextStorage.run(context, fn)
-  }
+	async withContextAsync<T>(
+		context: LogContext,
+		fn: () => Promise<T>,
+	): Promise<T> {
+		return this.contextStorage.run(context, fn);
+	}
 
-  updateLogLevel(level: LogLevel): void {
-    this.winston.level = level
-    this.config.level = level
-  }
+	updateLogLevel(level: LogLevel): void {
+		this.winston.level = level;
+		this.config.level = level;
+	}
 
-  getMetrics(): LoggingMetrics {
-    return this.performanceTracker.getMetrics()
-  }
+	getMetrics(): LoggingMetrics {
+		return this.performanceTracker.getMetrics();
+	}
 
-  getConfig(): LoggingConfig {
-    return { ...this.config }
-  }
+	getConfig(): LoggingConfig {
+		return { ...this.config };
+	}
 }
 
 export class ComponentLogger {
-  constructor(
-    private component: string,
-    private winston: winston.Logger,
-    private contextStorage: any,
-    private correlationManager: CorrelationIdManager,
-    private performanceTracker: PerformanceTracker,
-    private config: LoggingConfig
-  ) {}
+	constructor(
+		private component: string,
+		private winston: winston.Logger,
+		private contextStorage: any,
+		private correlationManager: CorrelationIdManager,
+		private performanceTracker: PerformanceTracker,
+		private config: LoggingConfig,
+	) {}
 
-  error(message: string, error?: Error, metadata?: any): void {
-    this.performanceTracker.recordError()
-    this.log('error', message, { error, ...metadata })
-  }
+	error(message: string, error?: Error, metadata?: any): void {
+		this.performanceTracker.recordError();
+		this.log("error", message, { error, ...metadata });
+	}
 
-  warn(message: string, metadata?: any): void {
-    this.log('warn', message, metadata)
-  }
+	warn(message: string, metadata?: any): void {
+		this.log("warn", message, metadata);
+	}
 
-  info(message: string, metadata?: any): void {
-    this.log('info', message, metadata)
-  }
+	info(message: string, metadata?: any): void {
+		this.log("info", message, metadata);
+	}
 
-  debug(message: string, metadata?: any): void {
-    this.log('debug', message, metadata)
-  }
+	debug(message: string, metadata?: any): void {
+		this.log("debug", message, metadata);
+	}
 
-  trace(message: string, metadata?: any): void {
-    this.log('trace', message, metadata)
-  }
+	trace(message: string, metadata?: any): void {
+		this.log("trace", message, metadata);
+	}
 
-  apiRequest(req: any, res: any, duration: number): void {
-    this.info('API Request', {
-      method: req.method,
-      url: req.url,
-      statusCode: res.statusCode,
-      duration,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
-      userId: req.user?.id,
-    })
-  }
+	apiRequest(req: any, res: any, duration: number): void {
+		this.info("API Request", {
+			method: req.method,
+			url: req.url,
+			statusCode: res.statusCode,
+			duration,
+			userAgent: req.headers["user-agent"],
+			ip: req.ip,
+			userId: req.user?.id,
+		});
+	}
 
-  apiError(req: any, error: Error): void {
-    this.error('API Error', error, {
-      method: req.method,
-      url: req.url,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
-      userId: req.user?.id,
-    })
-  }
+	apiError(req: any, error: Error): void {
+		this.error("API Error", error, {
+			method: req.method,
+			url: req.url,
+			userAgent: req.headers["user-agent"],
+			ip: req.ip,
+			userId: req.user?.id,
+		});
+	}
 
-  agentOperation(agentId: string, operation: string, metadata: any): void {
-    this.info('Agent Operation', {
-      agentId,
-      operation,
-      component: 'agent-system',
-      ...metadata,
-    })
-  }
+	agentOperation(agentId: string, operation: string, metadata: any): void {
+		this.info("Agent Operation", {
+			agentId,
+			operation,
+			component: "agent-system",
+			...metadata,
+		});
+	}
 
-  agentError(agentId: string, error: Error, context: any): void {
-    this.error('Agent Error', error, {
-      agentId,
-      component: 'agent-system',
-      context,
-    })
-  }
+	agentError(agentId: string, error: Error, context: any): void {
+		this.error("Agent Error", error, {
+			agentId,
+			component: "agent-system",
+			context,
+		});
+	}
 
-  databaseQuery(query: string, duration: number, metadata?: any): void {
-    this.debug('Database Query', {
-      query: this.sanitizeQuery(query),
-      duration,
-      component: 'database',
-      ...metadata,
-    })
-  }
+	databaseQuery(query: string, duration: number, metadata?: any): void {
+		this.debug("Database Query", {
+			query: this.sanitizeQuery(query),
+			duration,
+			component: "database",
+			...metadata,
+		});
+	}
 
-  databaseError(query: string, error: Error): void {
-    this.error('Database Error', error, {
-      query: this.sanitizeQuery(query),
-      component: 'database',
-    })
-  }
+	databaseError(query: string, error: Error): void {
+		this.error("Database Error", error, {
+			query: this.sanitizeQuery(query),
+			component: "database",
+		});
+	}
 
-  performance(operation: string, duration: number, metadata?: any): void {
-    this.info('Performance Metric', {
-      operation,
-      duration,
-      component: 'performance',
-      ...metadata,
-    })
+	performance(operation: string, duration: number, metadata?: any): void {
+		this.info("Performance Metric", {
+			operation,
+			duration,
+			component: "performance",
+			...metadata,
+		});
 
-    this.performanceTracker.recordOperation(operation, duration)
-  }
+		this.performanceTracker.recordOperation(operation, duration);
+	}
 
-  private log(level: LogLevel, message: string, metadata?: any): void {
-    const startTime = Date.now()
+	private log(level: LogLevel, message: string, metadata?: any): void {
+		const startTime = Date.now();
 
-    try {
-      if (this.shouldSample()) {
-        const context = this.contextStorage.getStore()
-        const logData = {
-          message,
-          component: this.component,
-          ...metadata,
-          ...(context && { context }),
-        }
+		try {
+			if (this.shouldSample()) {
+				const context = this.contextStorage.getStore();
+				const logData = {
+					message,
+					component: this.component,
+					...metadata,
+					...(context && { context }),
+				};
 
-        this.winston.log(level, logData)
-      }
-    } catch (error) {
-      console.error('Logging error:', error)
-      console.log(`[${level.toUpperCase()}] ${this.component}: ${message}`)
-    } finally {
-      const duration = Date.now() - startTime
-      this.performanceTracker.recordLoggingOperation(duration, level)
-    }
-  }
+				this.winston.log(level, logData);
+			}
+		} catch (error) {
+			console.error("Logging error:", error);
+			console.log(`[${level.toUpperCase()}] ${this.component}: ${message}`);
+		} finally {
+			const duration = Date.now() - startTime;
+			this.performanceTracker.recordLoggingOperation(duration, level);
+		}
+	}
 
-  private shouldSample(): boolean {
-    if (!this.config.sampling.enabled) {
-      return true
-    }
+	private shouldSample(): boolean {
+		if (!this.config.sampling.enabled) {
+			return true;
+		}
 
-    return Math.random() < this.config.sampling.rate
-  }
+		return Math.random() < this.config.sampling.rate;
+	}
 
-  private sanitizeQuery(query: string): string {
-    return query
-      .replace(/password\s*=\s*'[^']*'/gi, "password='***'")
-      .replace(/token\s*=\s*'[^']*'/gi, "token='***'")
-      .substring(0, 1000)
-  }
+	private sanitizeQuery(query: string): string {
+		return query
+			.replace(/password\s*=\s*'[^']*'/gi, "password='***'")
+			.replace(/token\s*=\s*'[^']*'/gi, "token='***'")
+			.substring(0, 1000);
+	}
 }

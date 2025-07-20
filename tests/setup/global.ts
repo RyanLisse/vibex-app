@@ -1,30 +1,30 @@
-import { config } from 'dotenv'
-import path from 'path'
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
+import { config } from "dotenv";
+import path from "path";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 
 // Load test environment variables
-config({ path: path.resolve(process.cwd(), '.env.test') })
+config({ path: path.resolve(process.cwd(), ".env.test") });
 
 // Global test hooks
 beforeAll(() => {
-  console.log('🧪 Starting test suite...')
-})
+	console.log("🧪 Starting test suite...");
+});
 
 afterAll(() => {
-  console.log('✅ Test suite completed')
-})
+	console.log("✅ Test suite completed");
+});
 
 beforeEach(() => {
-  // Reset any global state if needed
-})
+	// Reset any global state if needed
+});
 
 afterEach(() => {
-  // Cleanup after each test
-})
+	// Cleanup after each test
+});
 
 // Increase test timeout for CI environments
 if (process.env.CI) {
-  beforeAll(() => {
-    vi.setConfig({ testTimeout: 30_000 })
-  })
+	beforeAll(() => {
+		vi.setConfig({ testTimeout: 30_000 });
+	});
 }

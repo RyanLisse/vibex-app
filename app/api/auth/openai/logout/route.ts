@@ -1,27 +1,27 @@
 // Force dynamic rendering to avoid build-time issues
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-import { NextResponse } from 'next/server'
-import { CodexAuthenticator } from '@/lib/auth/openai-codex'
+import { NextResponse } from "next/server";
+import { CodexAuthenticator } from "@/lib/auth/openai-codex";
 
 export async function POST() {
-  try {
-    const authenticator = new CodexAuthenticator()
+	try {
+		const authenticator = new CodexAuthenticator();
 
-    await authenticator.disconnect()
+		await authenticator.disconnect();
 
-    return NextResponse.json({
-      success: true,
-      message: 'Logged out successfully',
-    })
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Logout failed',
-      },
-      { status: 500 }
-    )
-  }
+		return NextResponse.json({
+			success: true,
+			message: "Logged out successfully",
+		});
+	} catch (error) {
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : "Logout failed",
+			},
+			{ status: 500 },
+		);
+	}
 }

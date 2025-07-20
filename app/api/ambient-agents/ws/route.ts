@@ -1,8 +1,8 @@
 // Force dynamic rendering to avoid build-time issues
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-import { type NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from "next/server";
 
 // Note: Next.js doesn't natively support WebSocket in API routes
 // This is a placeholder implementation that would typically use a different approach
@@ -13,38 +13,41 @@ import { type NextRequest, NextResponse } from 'next/server'
 // 4. Serverless WebSocket solutions
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const swarmId = searchParams.get('swarmId')
+	const { searchParams } = new URL(request.url);
+	const swarmId = searchParams.get("swarmId");
 
-  // For now, we'll return information about WebSocket connection
-  // In a real implementation, this would establish a WebSocket connection
-  return NextResponse.json({
-    message: 'WebSocket endpoint for ambient agents',
-    swarmId,
-    note: 'This is a placeholder. In production, use Server-Sent Events or a dedicated WebSocket server.',
-    alternatives: {
-      sse: '/api/ambient-agents/sse',
-      documentation: 'See README for WebSocket implementation options',
-    },
-  })
+	// For now, we'll return information about WebSocket connection
+	// In a real implementation, this would establish a WebSocket connection
+	return NextResponse.json({
+		message: "WebSocket endpoint for ambient agents",
+		swarmId,
+		note: "This is a placeholder. In production, use Server-Sent Events or a dedicated WebSocket server.",
+		alternatives: {
+			sse: "/api/ambient-agents/sse",
+			documentation: "See README for WebSocket implementation options",
+		},
+	});
 }
 
 // Alternative: Server-Sent Events implementation
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
+	try {
+		const body = await request.json();
 
-    // In a real implementation, this would broadcast to connected clients
-    const response = {
-      type: 'message_received',
-      timestamp: new Date().toISOString(),
-      data: body,
-    }
+		// In a real implementation, this would broadcast to connected clients
+		const response = {
+			type: "message_received",
+			timestamp: new Date().toISOString(),
+			data: body,
+		};
 
-    return NextResponse.json(response)
-  } catch (_error) {
-    return NextResponse.json({ error: 'Failed to handle WebSocket message' }, { status: 500 })
-  }
+		return NextResponse.json(response);
+	} catch (_error) {
+		return NextResponse.json(
+			{ error: "Failed to handle WebSocket message" },
+			{ status: 500 },
+		);
+	}
 }
 
 // Implementation note for production:

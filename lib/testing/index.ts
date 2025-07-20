@@ -2,182 +2,182 @@
 // This file provides a comprehensive TDD testing framework implementation
 
 // Custom Assertions
-export * from './assertions/custom-matchers'
+export * from "./assertions/custom-matchers";
 
 // Test Data Builders
 export {
-  type ApiResponse,
-  ApiResponseBuilder,
-  BuilderFactory,
-  type Project,
-  ProjectBuilder,
-  TestDataBuilder,
-  TestDataGenerator,
-  type User,
-  UserBuilder,
-} from './builders/test-data-builder'
+	type ApiResponse,
+	ApiResponseBuilder,
+	BuilderFactory,
+	type Project,
+	ProjectBuilder,
+	TestDataBuilder,
+	TestDataGenerator,
+	type User,
+	UserBuilder,
+} from "./builders/test-data-builder";
 // CLI Tools
 export {
-  type CLICommand,
-  type IntegrationTestOptions,
-  type ScaffoldOptions,
-  type ScaffoldResult,
-  TDDCli,
-  type TDDCycleOptions,
-  type TestGenerationOptions,
-  TestGenerator,
-  WorkflowAutomation,
-} from './cli/tdd-cli'
+	type CLICommand,
+	type IntegrationTestOptions,
+	type ScaffoldOptions,
+	type ScaffoldResult,
+	TDDCli,
+	type TDDCycleOptions,
+	type TestGenerationOptions,
+	TestGenerator,
+	WorkflowAutomation,
+} from "./cli/tdd-cli";
 // Test Documentation
 export {
-  type CoverageAnalysis,
-  type CoverageData,
-  type CoverageSummary,
-  CoverageVisualizer,
-  DocumentationGenerator,
-  type TestDocumentation,
-  type TestSpecification,
-  TestSpecificationGenerator,
-} from './documentation/test-documentation'
+	type CoverageAnalysis,
+	type CoverageData,
+	type CoverageSummary,
+	CoverageVisualizer,
+	DocumentationGenerator,
+	type TestDocumentation,
+	type TestSpecification,
+	TestSpecificationGenerator,
+} from "./documentation/test-documentation";
 // Test Lifecycle Management
 export {
-  LifecyclePatterns,
-  type Resource,
-  ResourceManager,
-  SetupTeardownOrchestrator,
-  type TestContext,
-  type TestHook,
-  TestLifecycleManager,
-} from './lifecycle/test-lifecycle'
+	LifecyclePatterns,
+	type Resource,
+	ResourceManager,
+	SetupTeardownOrchestrator,
+	type TestContext,
+	type TestHook,
+	TestLifecycleManager,
+} from "./lifecycle/test-lifecycle";
 
 // Performance Testing
 export {
-  type BenchmarkOptions,
-  type BenchmarkResult,
-  type CoverageReport,
-  MemoryProfiler,
-  type MemorySnapshot,
-  type MemoryUsage,
-  PerformanceBenchmark,
-  PerformanceReporter,
-  type PerformanceThresholds,
-  type RegressionResult,
-} from './performance/performance-testing'
+	type BenchmarkOptions,
+	type BenchmarkResult,
+	type CoverageReport,
+	MemoryProfiler,
+	type MemorySnapshot,
+	type MemoryUsage,
+	PerformanceBenchmark,
+	PerformanceReporter,
+	type PerformanceThresholds,
+	type RegressionResult,
+} from "./performance/performance-testing";
 // Core TDD Framework
 export {
-  type LifecycleState,
-  TDDFramework,
-  TDDWorkflow,
-  TestCase,
-  type TestResult,
-  type TestRunner,
-  type TestStatus,
-  TestSuite,
-  VitestRunner,
-} from './tdd-framework/core'
+	type LifecycleState,
+	TDDFramework,
+	TDDWorkflow,
+	TestCase,
+	type TestResult,
+	type TestRunner,
+	type TestStatus,
+	TestSuite,
+	VitestRunner,
+} from "./tdd-framework/core";
 
 // Utility Functions and Helpers
 export const TDDTestingFramework = {
-  // Quick setup for common TDD patterns
-  createTestSuite: (name: string) => {
-    const framework = new TDDFramework()
-    return framework.createTestSuite(name)
-  },
+	// Quick setup for common TDD patterns
+	createTestSuite: (name: string) => {
+		const framework = new TDDFramework();
+		return framework.createTestSuite(name);
+	},
 
-  // Factory for test data
-  createDataFactory: () => {
-    return TestDataBuilder.createFactory()
-  },
+	// Factory for test data
+	createDataFactory: () => {
+		return TestDataBuilder.createFactory();
+	},
 
-  // Setup TDD workflow
-  createWorkflow: () => {
-    const framework = new TDDFramework()
-    return framework.createWorkflow()
-  },
+	// Setup TDD workflow
+	createWorkflow: () => {
+		const framework = new TDDFramework();
+		return framework.createWorkflow();
+	},
 
-  // Performance benchmarking
-  createBenchmark: () => {
-    return new PerformanceBenchmark()
-  },
+	// Performance benchmarking
+	createBenchmark: () => {
+		return new PerformanceBenchmark();
+	},
 
-  // Memory profiling
-  createMemoryProfiler: () => {
-    return new MemoryProfiler()
-  },
+	// Memory profiling
+	createMemoryProfiler: () => {
+		return new MemoryProfiler();
+	},
 
-  // CLI for test generation
-  createCLI: () => {
-    return new TDDCli()
-  },
+	// CLI for test generation
+	createCLI: () => {
+		return new TDDCli();
+	},
 
-  // Test specification generator
-  createSpecGenerator: () => {
-    return new TestSpecificationGenerator()
-  },
+	// Test specification generator
+	createSpecGenerator: () => {
+		return new TestSpecificationGenerator();
+	},
 
-  // Coverage visualization
-  createCoverageVisualizer: () => {
-    return new CoverageVisualizer()
-  },
-}
+	// Coverage visualization
+	createCoverageVisualizer: () => {
+		return new CoverageVisualizer();
+	},
+};
 
 export {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react'
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 // Re-export Vitest types for convenience
 export type {
-  MockedClass,
-  MockedFunction,
-  MockedObject,
-} from 'vitest'
+	MockedClass,
+	MockedFunction,
+	MockedObject,
+} from "vitest";
 // Convenience re-exports from testing libraries
 export {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  test,
-  vi,
-} from 'vitest'
+	afterAll,
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	test,
+	vi,
+} from "vitest";
 
 // Default configuration
 export const TDDConfig = {
-  // Default performance thresholds
-  performanceThresholds: {
-    maxTime: 100, // 100ms
-    targetTime: 50, // 50ms
-    maxMemory: 100 * 1024 * 1024, // 100MB
-    targetMemory: 50 * 1024 * 1024, // 50MB
-  },
+	// Default performance thresholds
+	performanceThresholds: {
+		maxTime: 100, // 100ms
+		targetTime: 50, // 50ms
+		maxMemory: 100 * 1024 * 1024, // 100MB
+		targetMemory: 50 * 1024 * 1024, // 50MB
+	},
 
-  // Default benchmark options
-  benchmarkOptions: {
-    iterations: 10,
-    warmupIterations: 3,
-    timeout: 30_000,
-  },
+	// Default benchmark options
+	benchmarkOptions: {
+		iterations: 10,
+		warmupIterations: 3,
+		timeout: 30_000,
+	},
 
-  // Coverage thresholds
-  coverageThresholds: {
-    statements: 80,
-    branches: 80,
-    functions: 80,
-    lines: 80,
-  },
+	// Coverage thresholds
+	coverageThresholds: {
+		statements: 80,
+		branches: 80,
+		functions: 80,
+		lines: 80,
+	},
 
-  // Test generation templates
-  testTemplates: {
-    component: 'react-component',
-    hook: 'react-hook',
-    service: 'service-class',
-    api: 'api-endpoint',
-    utility: 'utility-function',
-  },
-}
+	// Test generation templates
+	testTemplates: {
+		component: "react-component",
+		hook: "react-hook",
+		service: "service-class",
+		api: "api-endpoint",
+		utility: "utility-function",
+	},
+};

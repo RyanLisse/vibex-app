@@ -1,1 +1,1 @@
-console.log('Coverage optimizer placeholder')
+console.log("Coverage optimizer placeholder");

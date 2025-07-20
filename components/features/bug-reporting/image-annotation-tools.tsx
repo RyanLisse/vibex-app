@@ -1,351 +1,387 @@
-'use client'
+"use client";
 
-import { ArrowRight, Eraser, Highlighter, Redo, Square, Type, Undo } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import type { ScreenshotData } from '@/src/schemas/enhanced-task-schemas'
+import {
+	ArrowRight,
+	Eraser,
+	Highlighter,
+	Redo,
+	Square,
+	Type,
+	Undo,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import type { ScreenshotData } from "@/src/schemas/enhanced-task-schemas";
 
-type AnnotationType = 'arrow' | 'text' | 'highlight' | 'rectangle'
+type AnnotationType = "arrow" | "text" | "highlight" | "rectangle";
 
 interface Annotation {
-  type: AnnotationType
-  position: { x: number; y: number }
-  data: string | Record<string, any>
+	type: AnnotationType;
+	position: { x: number; y: number };
+	data: string | Record<string, any>;
 }
 
 interface ImageAnnotationToolsProps {
-  screenshot: ScreenshotData
-  onAnnotationsChange: (annotations: Annotation[]) => void
-  className?: string
+	screenshot: ScreenshotData;
+	onAnnotationsChange: (annotations: Annotation[]) => void;
+	className?: string;
 }
 
 export function ImageAnnotationTools({
-  screenshot,
-  onAnnotationsChange,
-  className = '',
+	screenshot,
+	onAnnotationsChange,
+	className = "",
 }: ImageAnnotationToolsProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [selectedTool, setSelectedTool] = useState<AnnotationType>('arrow')
-  const [annotations, setAnnotations] = useState<Annotation[]>(screenshot.annotations || [])
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [undoStack, setUndoStack] = useState<Annotation[][]>([])
-  const [redoStack, setRedoStack] = useState<Annotation[][]>([])
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [selectedTool, setSelectedTool] = useState<AnnotationType>("arrow");
+	const [annotations, setAnnotations] = useState<Annotation[]>(
+		screenshot.annotations || [],
+	);
+	const [isDrawing, setIsDrawing] = useState(false);
+	const [imageLoaded, setImageLoaded] = useState(false);
+	const [undoStack, setUndoStack] = useState<Annotation[][]>([]);
+	const [redoStack, setRedoStack] = useState<Annotation[][]>([]);
 
-  // Load image onto canvas
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!(canvas && screenshot.imageBlob)) return
+	// Load image onto canvas
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!(canvas && screenshot.imageBlob)) return;
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
 
-    const img = new Image()
-    img.onload = () => {
-      // Set canvas size to match image
-      canvas.width = img.width
-      canvas.height = img.height
+		const img = new Image();
+		img.onload = () => {
+			// Set canvas size to match image
+			canvas.width = img.width;
+			canvas.height = img.height;
 
-      // Draw the screenshot
-      ctx.drawImage(img, 0, 0)
+			// Draw the screenshot
+			ctx.drawImage(img, 0, 0);
 
-      // Draw existing annotations
-      drawAnnotations(ctx, annotations)
+			// Draw existing annotations
+			drawAnnotations(ctx, annotations);
 
-      setImageLoaded(true)
-    }
+			setImageLoaded(true);
+		};
 
-    img.src = URL.createObjectURL(screenshot.imageBlob)
+		img.src = URL.createObjectURL(screenshot.imageBlob);
 
-    return () => {
-      URL.revokeObjectURL(img.src)
-    }
-  }, [screenshot.imageBlob, annotations, drawAnnotations])
+		return () => {
+			URL.revokeObjectURL(img.src);
+		};
+	}, [screenshot.imageBlob, annotations, drawAnnotations]);
 
-  // Redraw canvas when annotations change
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!(canvas && imageLoaded)) return
+	// Redraw canvas when annotations change
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!(canvas && imageLoaded)) return;
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
 
-    // Clear canvas and redraw image
-    const img = new Image()
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.drawImage(img, 0, 0)
-      drawAnnotations(ctx, annotations)
-    }
-    img.src = URL.createObjectURL(screenshot.imageBlob)
+		// Clear canvas and redraw image
+		const img = new Image();
+		img.onload = () => {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(img, 0, 0);
+			drawAnnotations(ctx, annotations);
+		};
+		img.src = URL.createObjectURL(screenshot.imageBlob);
 
-    onAnnotationsChange(annotations)
-  }, [annotations, imageLoaded, onAnnotationsChange, screenshot.imageBlob, drawAnnotations])
+		onAnnotationsChange(annotations);
+	}, [
+		annotations,
+		imageLoaded,
+		onAnnotationsChange,
+		screenshot.imageBlob,
+		drawAnnotations,
+	]);
 
-  const drawAnnotations = useCallback(
-    (ctx: CanvasRenderingContext2D, annotationsToRender: Annotation[]) => {
-      annotationsToRender.forEach((annotation) => {
-        const { type, position, data } = annotation
+	const drawAnnotations = useCallback(
+		(ctx: CanvasRenderingContext2D, annotationsToRender: Annotation[]) => {
+			annotationsToRender.forEach((annotation) => {
+				const { type, position, data } = annotation;
 
-        ctx.save()
+				ctx.save();
 
-        switch (type) {
-          case 'arrow':
-            drawArrow(ctx, position)
-            break
-          case 'text':
-            drawText(ctx, position, data as string)
-            break
-          case 'highlight':
-            drawHighlight(ctx, position, data as { width: number; height: number })
-            break
-          case 'rectangle':
-            drawRectangle(ctx, position, data as { width: number; height: number })
-            break
-        }
+				switch (type) {
+					case "arrow":
+						drawArrow(ctx, position);
+						break;
+					case "text":
+						drawText(ctx, position, data as string);
+						break;
+					case "highlight":
+						drawHighlight(
+							ctx,
+							position,
+							data as { width: number; height: number },
+						);
+						break;
+					case "rectangle":
+						drawRectangle(
+							ctx,
+							position,
+							data as { width: number; height: number },
+						);
+						break;
+				}
 
-        ctx.restore()
-      })
-    },
-    []
-  )
+				ctx.restore();
+			});
+		},
+		[],
+	);
 
-  const drawArrow = (ctx: CanvasRenderingContext2D, position: { x: number; y: number }) => {
-    ctx.strokeStyle = '#ef4444'
-    ctx.fillStyle = '#ef4444'
-    ctx.lineWidth = 3
+	const drawArrow = (
+		ctx: CanvasRenderingContext2D,
+		position: { x: number; y: number },
+	) => {
+		ctx.strokeStyle = "#ef4444";
+		ctx.fillStyle = "#ef4444";
+		ctx.lineWidth = 3;
 
-    const arrowLength = 40
-    const arrowWidth = 12
+		const arrowLength = 40;
+		const arrowWidth = 12;
 
-    // Draw arrow line
-    ctx.beginPath()
-    ctx.moveTo(position.x, position.y)
-    ctx.lineTo(position.x + arrowLength, position.y + arrowLength)
-    ctx.stroke()
+		// Draw arrow line
+		ctx.beginPath();
+		ctx.moveTo(position.x, position.y);
+		ctx.lineTo(position.x + arrowLength, position.y + arrowLength);
+		ctx.stroke();
 
-    // Draw arrow head
-    ctx.beginPath()
-    ctx.moveTo(position.x + arrowLength, position.y + arrowLength)
-    ctx.lineTo(position.x + arrowLength - arrowWidth, position.y + arrowLength - 4)
-    ctx.lineTo(position.x + arrowLength - 4, position.y + arrowLength - arrowWidth)
-    ctx.closePath()
-    ctx.fill()
-  }
+		// Draw arrow head
+		ctx.beginPath();
+		ctx.moveTo(position.x + arrowLength, position.y + arrowLength);
+		ctx.lineTo(
+			position.x + arrowLength - arrowWidth,
+			position.y + arrowLength - 4,
+		);
+		ctx.lineTo(
+			position.x + arrowLength - 4,
+			position.y + arrowLength - arrowWidth,
+		);
+		ctx.closePath();
+		ctx.fill();
+	};
 
-  const drawText = (
-    ctx: CanvasRenderingContext2D,
-    position: { x: number; y: number },
-    text: string
-  ) => {
-    ctx.font = '16px Arial'
-    ctx.fillStyle = '#ef4444'
-    ctx.strokeStyle = '#ffffff'
-    ctx.lineWidth = 3
+	const drawText = (
+		ctx: CanvasRenderingContext2D,
+		position: { x: number; y: number },
+		text: string,
+	) => {
+		ctx.font = "16px Arial";
+		ctx.fillStyle = "#ef4444";
+		ctx.strokeStyle = "#ffffff";
+		ctx.lineWidth = 3;
 
-    // Draw text with white outline for better visibility
-    ctx.strokeText(text, position.x, position.y)
-    ctx.fillText(text, position.x, position.y)
-  }
+		// Draw text with white outline for better visibility
+		ctx.strokeText(text, position.x, position.y);
+		ctx.fillText(text, position.x, position.y);
+	};
 
-  const drawHighlight = (
-    ctx: CanvasRenderingContext2D,
-    position: { x: number; y: number },
-    size: { width: number; height: number }
-  ) => {
-    ctx.fillStyle = 'rgba(255, 255, 0, 0.3)'
-    ctx.fillRect(position.x, position.y, size.width, size.height)
-  }
+	const drawHighlight = (
+		ctx: CanvasRenderingContext2D,
+		position: { x: number; y: number },
+		size: { width: number; height: number },
+	) => {
+		ctx.fillStyle = "rgba(255, 255, 0, 0.3)";
+		ctx.fillRect(position.x, position.y, size.width, size.height);
+	};
 
-  const drawRectangle = (
-    ctx: CanvasRenderingContext2D,
-    position: { x: number; y: number },
-    size: { width: number; height: number }
-  ) => {
-    ctx.strokeStyle = '#ef4444'
-    ctx.lineWidth = 2
-    ctx.strokeRect(position.x, position.y, size.width, size.height)
-  }
+	const drawRectangle = (
+		ctx: CanvasRenderingContext2D,
+		position: { x: number; y: number },
+		size: { width: number; height: number },
+	) => {
+		ctx.strokeStyle = "#ef4444";
+		ctx.lineWidth = 2;
+		ctx.strokeRect(position.x, position.y, size.width, size.height);
+	};
 
-  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+	const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+		const rect = canvas.getBoundingClientRect();
+		const x = event.clientX - rect.left;
+		const y = event.clientY - rect.top;
 
-    // Save current state for undo
-    setUndoStack((prev) => [...prev, [...annotations]])
-    setRedoStack([]) // Clear redo stack when new action is made
+		// Save current state for undo
+		setUndoStack((prev) => [...prev, [...annotations]]);
+		setRedoStack([]); // Clear redo stack when new action is made
 
-    let newAnnotation: Annotation
+		let newAnnotation: Annotation;
 
-    switch (selectedTool) {
-      case 'arrow':
-        newAnnotation = {
-          type: 'arrow',
-          position: { x, y },
-          data: { direction: 'down-right' },
-        }
-        break
+		switch (selectedTool) {
+			case "arrow":
+				newAnnotation = {
+					type: "arrow",
+					position: { x, y },
+					data: { direction: "down-right" },
+				};
+				break;
 
-      case 'text': {
-        const text = window.prompt('Enter text for annotation:')
-        if (!text) return
+			case "text": {
+				const text = window.prompt("Enter text for annotation:");
+				if (!text) return;
 
-        newAnnotation = {
-          type: 'text',
-          position: { x, y },
-          data: text,
-        }
-        break
-      }
+				newAnnotation = {
+					type: "text",
+					position: { x, y },
+					data: text,
+				};
+				break;
+			}
 
-      case 'highlight':
-        newAnnotation = {
-          type: 'highlight',
-          position: { x, y },
-          data: { width: 100, height: 20 },
-        }
-        break
+			case "highlight":
+				newAnnotation = {
+					type: "highlight",
+					position: { x, y },
+					data: { width: 100, height: 20 },
+				};
+				break;
 
-      case 'rectangle':
-        newAnnotation = {
-          type: 'rectangle',
-          position: { x, y },
-          data: { width: 100, height: 60 },
-        }
-        break
+			case "rectangle":
+				newAnnotation = {
+					type: "rectangle",
+					position: { x, y },
+					data: { width: 100, height: 60 },
+				};
+				break;
 
-      default:
-        return
-    }
+			default:
+				return;
+		}
 
-    setAnnotations((prev) => [...prev, newAnnotation])
-  }
+		setAnnotations((prev) => [...prev, newAnnotation]);
+	};
 
-  const clearAnnotations = () => {
-    setUndoStack((prev) => [...prev, [...annotations]])
-    setRedoStack([])
-    setAnnotations([])
-  }
+	const clearAnnotations = () => {
+		setUndoStack((prev) => [...prev, [...annotations]]);
+		setRedoStack([]);
+		setAnnotations([]);
+	};
 
-  const undo = () => {
-    if (undoStack.length === 0) return
+	const undo = () => {
+		if (undoStack.length === 0) return;
 
-    const previousState = undoStack[undoStack.length - 1]
-    setRedoStack((prev) => [annotations, ...prev])
-    setUndoStack((prev) => prev.slice(0, -1))
-    setAnnotations(previousState)
-  }
+		const previousState = undoStack[undoStack.length - 1];
+		setRedoStack((prev) => [annotations, ...prev]);
+		setUndoStack((prev) => prev.slice(0, -1));
+		setAnnotations(previousState);
+	};
 
-  const redo = () => {
-    if (redoStack.length === 0) return
+	const redo = () => {
+		if (redoStack.length === 0) return;
 
-    const nextState = redoStack[0]
-    setUndoStack((prev) => [...prev, annotations])
-    setRedoStack((prev) => prev.slice(1))
-    setAnnotations(nextState)
-  }
+		const nextState = redoStack[0];
+		setUndoStack((prev) => [...prev, annotations]);
+		setRedoStack((prev) => prev.slice(1));
+		setAnnotations(nextState);
+	};
 
-  const tools = [
-    { type: 'arrow' as const, icon: ArrowRight, label: 'Arrow' },
-    { type: 'text' as const, icon: Type, label: 'Text' },
-    { type: 'highlight' as const, icon: Highlighter, label: 'Highlight' },
-    { type: 'rectangle' as const, icon: Square, label: 'Rectangle' },
-  ]
+	const tools = [
+		{ type: "arrow" as const, icon: ArrowRight, label: "Arrow" },
+		{ type: "text" as const, icon: Type, label: "Text" },
+		{ type: "highlight" as const, icon: Highlighter, label: "Highlight" },
+		{ type: "rectangle" as const, icon: Square, label: "Rectangle" },
+	];
 
-  return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-4">
-        <Label className="font-medium text-sm">Tools:</Label>
+	return (
+		<div className={`space-y-4 ${className}`}>
+			{/* Toolbar */}
+			<div className="flex items-center gap-2 rounded-lg bg-muted/50 p-4">
+				<Label className="font-medium text-sm">Tools:</Label>
 
-        {tools.map((tool) => (
-          <Button
-            className="gap-1"
-            key={tool.type}
-            onClick={() => setSelectedTool(tool.type)}
-            size="sm"
-            variant={selectedTool === tool.type ? 'default' : 'outline'}
-          >
-            <tool.icon className="h-4 w-4" />
-            {tool.label}
-          </Button>
-        ))}
+				{tools.map((tool) => (
+					<Button
+						className="gap-1"
+						key={tool.type}
+						onClick={() => setSelectedTool(tool.type)}
+						size="sm"
+						variant={selectedTool === tool.type ? "default" : "outline"}
+					>
+						<tool.icon className="h-4 w-4" />
+						{tool.label}
+					</Button>
+				))}
 
-        <Separator className="mx-2 h-6" orientation="vertical" />
+				<Separator className="mx-2 h-6" orientation="vertical" />
 
-        <Button
-          className="gap-1"
-          disabled={undoStack.length === 0}
-          onClick={undo}
-          size="sm"
-          variant="outline"
-        >
-          <Undo className="h-4 w-4" />
-          Undo
-        </Button>
+				<Button
+					className="gap-1"
+					disabled={undoStack.length === 0}
+					onClick={undo}
+					size="sm"
+					variant="outline"
+				>
+					<Undo className="h-4 w-4" />
+					Undo
+				</Button>
 
-        <Button
-          className="gap-1"
-          disabled={redoStack.length === 0}
-          onClick={redo}
-          size="sm"
-          variant="outline"
-        >
-          <Redo className="h-4 w-4" />
-          Redo
-        </Button>
+				<Button
+					className="gap-1"
+					disabled={redoStack.length === 0}
+					onClick={redo}
+					size="sm"
+					variant="outline"
+				>
+					<Redo className="h-4 w-4" />
+					Redo
+				</Button>
 
-        <Button
-          className="gap-1"
-          disabled={annotations.length === 0}
-          onClick={clearAnnotations}
-          size="sm"
-          variant="outline"
-        >
-          <Eraser className="h-4 w-4" />
-          Clear
-        </Button>
-      </div>
+				<Button
+					className="gap-1"
+					disabled={annotations.length === 0}
+					onClick={clearAnnotations}
+					size="sm"
+					variant="outline"
+				>
+					<Eraser className="h-4 w-4" />
+					Clear
+				</Button>
+			</div>
 
-      {/* Canvas */}
-      <div className="overflow-hidden rounded-lg border bg-muted/25">
-        <canvas
-          aria-label="Screenshot with annotations"
-          className="h-auto max-w-full cursor-crosshair"
-          onClick={handleCanvasClick}
-          ref={canvasRef}
-          role="img"
-          style={{ display: 'block' }}
-        />
-      </div>
+			{/* Canvas */}
+			<div className="overflow-hidden rounded-lg border bg-muted/25">
+				<canvas
+					aria-label="Screenshot with annotations"
+					className="h-auto max-w-full cursor-crosshair"
+					onClick={handleCanvasClick}
+					ref={canvasRef}
+					role="img"
+					style={{ display: "block" }}
+				/>
+			</div>
 
-      {/* Instructions */}
-      <div className="space-y-1 text-muted-foreground text-sm">
-        <p>
-          <strong>Instructions:</strong> Select a tool and click on the image to add annotations.
-        </p>
-        <ul className="ml-4 list-inside list-disc space-y-1">
-          <li>
-            <strong>Arrow:</strong> Click to place an arrow pointing to important areas
-          </li>
-          <li>
-            <strong>Text:</strong> Click to add text labels (you'll be prompted for text)
-          </li>
-          <li>
-            <strong>Highlight:</strong> Click to add yellow highlight boxes
-          </li>
-          <li>
-            <strong>Rectangle:</strong> Click to add red border rectangles
-          </li>
-        </ul>
-      </div>
-    </div>
-  )
+			{/* Instructions */}
+			<div className="space-y-1 text-muted-foreground text-sm">
+				<p>
+					<strong>Instructions:</strong> Select a tool and click on the image to
+					add annotations.
+				</p>
+				<ul className="ml-4 list-inside list-disc space-y-1">
+					<li>
+						<strong>Arrow:</strong> Click to place an arrow pointing to
+						important areas
+					</li>
+					<li>
+						<strong>Text:</strong> Click to add text labels (you'll be prompted
+						for text)
+					</li>
+					<li>
+						<strong>Highlight:</strong> Click to add yellow highlight boxes
+					</li>
+					<li>
+						<strong>Rectangle:</strong> Click to add red border rectangles
+					</li>
+				</ul>
+			</div>
+		</div>
+	);
 }

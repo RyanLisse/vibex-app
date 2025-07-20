@@ -1,41 +1,44 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { ThemeProvider } from 'next-themes'
-import './globals.css'
-import './streaming.css'
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import "./globals.css";
+import "./streaming.css";
 
-import Container from '@/app/container'
-import { AppProviders } from '@/components/providers/app-providers'
-import { getLogger } from '@/lib/logging/safe-wrapper'
+import Container from "@/app/container";
+import { AppProviders } from "@/components/providers/app-providers";
+import { getLogger } from "@/lib/logging/safe-wrapper";
 
-const logger = getLogger('app-layout')
+const logger = getLogger("app-layout");
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
+	variable: "--font-geist-sans",
+	subsets: ["latin"],
+});
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
+	variable: "--font-geist-mono",
+	subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'VibeX | An open-source OpenAI Codex clone',
-  description: 'Codex UI is a modern, open-source, and fully customizable UI for OpenAI Codex.',
-}
+	title: "VibeX | An open-source OpenAI Codex clone",
+	description:
+		"Codex UI is a modern, open-source, and fully customizable UI for OpenAI Codex.",
+};
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body
+				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+			>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `
               // Global error handler for unhandled promise rejections
               window.addEventListener('unhandledrejection', function(event) {
                 if (event.reason && event.reason.message) {
@@ -96,12 +99,12 @@ export default function RootLayout({
                 }
               });
             `,
-          }}
-        />
-        <AppProviders>
-          <Container>{children}</Container>
-        </AppProviders>
-      </body>
-    </html>
-  )
+					}}
+				/>
+				<AppProviders>
+					<Container>{children}</Container>
+				</AppProviders>
+			</body>
+		</html>
+	);
 }

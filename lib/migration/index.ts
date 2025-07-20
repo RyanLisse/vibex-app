@@ -7,79 +7,83 @@
 
 // Additional types from services
 export type {
-  DetectionConfig,
-  DetectionResult,
-} from './auto-detector'
-export { autoDetector } from './auto-detector'
+	DetectionConfig,
+	DetectionResult,
+} from "./auto-detector";
+export { autoDetector } from "./auto-detector";
 export type {
-  BackupOptions,
-  BackupResult,
-} from './backup-service'
-export { backupService } from './backup-service'
+	BackupOptions,
+	BackupResult,
+} from "./backup-service";
+export { backupService } from "./backup-service";
 // Data extraction and mapping services
-export { DataExtractor } from './data-extractor'
-export { DataMapper } from './data-mapper'
-export { dataMigrationManager } from './data-migration'
+export { DataExtractor } from "./data-extractor";
+export { DataMapper } from "./data-mapper";
+export { dataMigrationManager } from "./data-migration";
 export type {
-  MigrationPlan,
-  OrchestrationConfig,
-} from './migration-orchestrator'
+	MigrationPlan,
+	OrchestrationConfig,
+} from "./migration-orchestrator";
 // Core services
-export { migrationOrchestrator } from './migration-orchestrator'
-export { migrationService } from './migration-service'
+export { migrationOrchestrator } from "./migration-orchestrator";
+export { migrationService } from "./migration-service";
 export type {
-  ProgressConfig,
-  ProgressMetrics,
-  ProgressSnapshot,
-} from './progress-tracker'
-export { progressTracker } from './progress-tracker'
+	ProgressConfig,
+	ProgressMetrics,
+	ProgressSnapshot,
+} from "./progress-tracker";
+export { progressTracker } from "./progress-tracker";
 export type {
-  RollbackError,
-  RollbackOptions,
-  RollbackPoint,
-  RollbackResult,
-} from './rollback-service'
-export { rollbackService } from './rollback-service'
+	RollbackError,
+	RollbackOptions,
+	RollbackPoint,
+	RollbackResult,
+} from "./rollback-service";
+export { rollbackService } from "./rollback-service";
 // Types
 export type {
-  // Backup types
-  BackupData,
-  BackupManifest,
-  DataConflict,
-  LocalStorageData,
-  LocalStorageEnvironment,
-  // Data types
-  LocalStorageTask,
-  // API types
-  MigrationApiResponse,
-  // Core types
-  MigrationConfig,
-  MigrationError,
-  MigrationEvent,
-  MigrationHistoryEntry,
-  MigrationProgress,
-  MigrationResult,
-  MigrationState,
-  MigrationStatusResponse,
-  MigrationStrategy,
-  ValidationError,
-  // Validation types
-  ValidationResult,
-} from './types'
+	// Backup types
+	BackupData,
+	BackupManifest,
+	DataConflict,
+	LocalStorageData,
+	LocalStorageEnvironment,
+	// Data types
+	LocalStorageTask,
+	// API types
+	MigrationApiResponse,
+	// Core types
+	MigrationConfig,
+	MigrationError,
+	MigrationEvent,
+	MigrationHistoryEntry,
+	MigrationProgress,
+	MigrationResult,
+	MigrationState,
+	MigrationStatusResponse,
+	MigrationStrategy,
+	ValidationError,
+	// Validation types
+	ValidationResult,
+} from "./types";
 // Utility functions
-export { checkMigrationStatus, createMigrationPlan, startMigration } from './utils'
+export {
+	checkMigrationStatus,
+	createMigrationPlan,
+	startMigration,
+} from "./utils";
 export type {
-  DataComparisonResult,
-  DataDifference,
-  ValidationOptions,
-} from './validation-service'
-export { validationService } from './validation-service'
+	DataComparisonResult,
+	DataDifference,
+	ValidationOptions,
+} from "./validation-service";
+export { validationService } from "./validation-service";
 export type {
-  MigrationMode,
-  SystemHealth,
-  ZeroDowntimeConfig,
-} from './zero-downtime-coordinator'
-export { zeroDowntimeCoordinator } from './zero-downtime-coordinator'
+	MigrationMode,
+	SystemHealth,
+	ZeroDowntimeConfig,
+} from "./zero-downtime-coordinator";
+export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
 
 /**
  * Quick start guide:

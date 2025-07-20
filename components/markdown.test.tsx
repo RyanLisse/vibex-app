@@ -1,404 +1,434 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
-import { CodeComponent, Markdown } from '@/components/markdown'
+import { fireEvent, render, screen } from "@testing-library/react";
+import { vi } from "vitest";
+import { CodeComponent, Markdown } from "@/components/markdown";
 
 // Mock next-themes
-const mockUseTheme = vi.fn()
-vi.mock('next-themes', () => ({
-  useTheme: () => mockUseTheme(),
-}))
+const mockUseTheme = vi.fn();
+vi.mock("next-themes", () => ({
+	useTheme: () => mockUseTheme(),
+}));
 
 // Mock Lucide React icons
-vi.mock('lucide-react', () => ({
-  CopyIcon: ({ className, ...props }: any) => (
-    <svg className={className} data-testid="copy-icon" {...props} />
-  ),
-  CheckIcon: ({ className, ...props }: any) => (
-    <svg className={className} data-testid="check-icon" {...props} />
-  ),
-}))
+vi.mock("lucide-react", () => ({
+	CopyIcon: ({ className, ...props }: any) => (
+		<svg className={className} data-testid="copy-icon" {...props} />
+	),
+	CheckIcon: ({ className, ...props }: any) => (
+		<svg className={className} data-testid="check-icon" {...props} />
+	),
+}));
 
 // Mock react-syntax-highlighter
-vi.mock('react-syntax-highlighter', () => ({
-  Prism: ({ children, language, style, ...props }: any) => (
-    <pre data-language={language} data-testid="syntax-highlighter" {...props}>
-      {children}
-    </pre>
-  ),
-}))
+vi.mock("react-syntax-highlighter", () => ({
+	Prism: ({ children, language, style, ...props }: any) => (
+		<pre data-language={language} data-testid="syntax-highlighter" {...props}>
+			{children}
+		</pre>
+	),
+}));
 
-vi.mock('react-syntax-highlighter/dist/cjs/styles/prism', () => ({
-  oneDark: { background: '#1e1e1e' },
-  oneLight: { background: '#fafafa' },
-}))
+vi.mock("react-syntax-highlighter/dist/cjs/styles/prism", () => ({
+	oneDark: { background: "#1e1e1e" },
+	oneLight: { background: "#fafafa" },
+}));
 
 // Mock UI components
-vi.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, variant, size, className, ...props }: any) => (
-    <button
-      className={className}
-      data-size={size}
-      data-testid="button"
-      data-variant={variant}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  ),
-}))
+vi.mock("@/components/ui/button", () => ({
+	Button: ({ children, onClick, variant, size, className, ...props }: any) => (
+		<button
+			className={className}
+			data-size={size}
+			data-testid="button"
+			data-variant={variant}
+			onClick={onClick}
+			{...props}
+		>
+			{children}
+		</button>
+	),
+}));
 
-vi.mock('@/components/ui/separator', () => ({
-  Separator: ({ className, ...props }: any) => (
-    <hr className={className} data-testid="separator" {...props} />
-  ),
-}))
+vi.mock("@/components/ui/separator", () => ({
+	Separator: ({ className, ...props }: any) => (
+		<hr className={className} data-testid="separator" {...props} />
+	),
+}));
 
-vi.mock('@/components/ui/table', () => ({
-  Table: ({ children, className, ...props }: any) => (
-    <table className={className} data-testid="table" {...props}>
-      {children}
-    </table>
-  ),
-  TableHeader: ({ children, ...props }: any) => (
-    <thead data-testid="table-header" {...props}>
-      {children}
-    </thead>
-  ),
-  TableBody: ({ children, ...props }: any) => (
-    <tbody data-testid="table-body" {...props}>
-      {children}
-    </tbody>
-  ),
-  TableFooter: ({ children, ...props }: any) => (
-    <tfoot data-testid="table-footer" {...props}>
-      {children}
-    </tfoot>
-  ),
-  TableHead: ({ children, ...props }: any) => (
-    <th data-testid="table-head" {...props}>
-      {children}
-    </th>
-  ),
-  TableRow: ({ children, ...props }: any) => (
-    <tr data-testid="table-row" {...props}>
-      {children}
-    </tr>
-  ),
-  TableCell: ({ children, ...props }: any) => (
-    <td data-testid="table-cell" {...props}>
-      {children}
-    </td>
-  ),
-}))
+vi.mock("@/components/ui/table", () => ({
+	Table: ({ children, className, ...props }: any) => (
+		<table className={className} data-testid="table" {...props}>
+			{children}
+		</table>
+	),
+	TableHeader: ({ children, ...props }: any) => (
+		<thead data-testid="table-header" {...props}>
+			{children}
+		</thead>
+	),
+	TableBody: ({ children, ...props }: any) => (
+		<tbody data-testid="table-body" {...props}>
+			{children}
+		</tbody>
+	),
+	TableFooter: ({ children, ...props }: any) => (
+		<tfoot data-testid="table-footer" {...props}>
+			{children}
+		</tfoot>
+	),
+	TableHead: ({ children, ...props }: any) => (
+		<th data-testid="table-head" {...props}>
+			{children}
+		</th>
+	),
+	TableRow: ({ children, ...props }: any) => (
+		<tr data-testid="table-row" {...props}>
+			{children}
+		</tr>
+	),
+	TableCell: ({ children, ...props }: any) => (
+		<td data-testid="table-cell" {...props}>
+			{children}
+		</td>
+	),
+}));
 
-vi.mock('@/components/ui/scroll-area', () => ({
-  ScrollArea: ({ children, className, ...props }: any) => (
-    <div className={className} data-testid="scroll-area" {...props}>
-      {children}
-    </div>
-  ),
-  ScrollBar: ({ orientation, ...props }: any) => (
-    <div data-orientation={orientation} data-testid="scroll-bar" {...props} />
-  ),
-}))
+vi.mock("@/components/ui/scroll-area", () => ({
+	ScrollArea: ({ children, className, ...props }: any) => (
+		<div className={className} data-testid="scroll-area" {...props}>
+			{children}
+		</div>
+	),
+	ScrollBar: ({ orientation, ...props }: any) => (
+		<div data-orientation={orientation} data-testid="scroll-bar" {...props} />
+	),
+}));
 
-vi.mock('next/link', () => ({
-  default: ({ children, href, className, ...props }: any) => (
-    <a className={className} data-testid="next-link" href={href} {...props}>
-      {children}
-    </a>
-  ),
-}))
+vi.mock("next/link", () => ({
+	default: ({ children, href, className, ...props }: any) => (
+		<a className={className} data-testid="next-link" href={href} {...props}>
+			{children}
+		</a>
+	),
+}));
 
 // Mock navigator.clipboard
-const mockWriteText = vi.fn()
+const mockWriteText = vi.fn();
 Object.assign(navigator, {
-  clipboard: {
-    writeText: mockWriteText,
-  },
-})
+	clipboard: {
+		writeText: mockWriteText,
+	},
+});
 
-describe('Markdown Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.useFakeTimers()
-    mockUseTheme.mockReturnValue({
-      theme: 'light',
-    })
-  })
+describe("Markdown Component", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.useFakeTimers();
+		mockUseTheme.mockReturnValue({
+			theme: "light",
+		});
+	});
 
-  afterEach(() => {
-    vi.useRealTimers()
-    vi.clearAllMocks()
-  })
+	afterEach(() => {
+		vi.useRealTimers();
+		vi.clearAllMocks();
+	});
 
-  it('should render simple markdown text', () => {
-    render(<Markdown>Hello **world**</Markdown>)
+	it("should render simple markdown text", () => {
+		render(<Markdown>Hello **world**</Markdown>);
 
-    expect(screen.getByText('Hello')).toBeInTheDocument()
-    expect(screen.getByText('world')).toBeInTheDocument()
-  })
+		expect(screen.getByText("Hello")).toBeInTheDocument();
+		expect(screen.getByText("world")).toBeInTheDocument();
+	});
 
-  it('should render headings', () => {
-    const markdown = `
+	it("should render headings", () => {
+		const markdown = `
 # Heading 1
 ## Heading 2
 ### Heading 3
 #### Heading 4
 ##### Heading 5
 ###### Heading 6
-`
-    render(<Markdown>{markdown}</Markdown>)
+`;
+		render(<Markdown>{markdown}</Markdown>);
 
-    expect(screen.getByText('Heading 1')).toBeInTheDocument()
-    expect(screen.getByText('Heading 2')).toBeInTheDocument()
-    expect(screen.getByText('Heading 3')).toBeInTheDocument()
-    expect(screen.getByText('Heading 4')).toBeInTheDocument()
-    expect(screen.getByText('Heading 5')).toBeInTheDocument()
-    expect(screen.getByText('Heading 6')).toBeInTheDocument()
-  })
+		expect(screen.getByText("Heading 1")).toBeInTheDocument();
+		expect(screen.getByText("Heading 2")).toBeInTheDocument();
+		expect(screen.getByText("Heading 3")).toBeInTheDocument();
+		expect(screen.getByText("Heading 4")).toBeInTheDocument();
+		expect(screen.getByText("Heading 5")).toBeInTheDocument();
+		expect(screen.getByText("Heading 6")).toBeInTheDocument();
+	});
 
-  it('should render lists', () => {
-    const markdown = `
+	it("should render lists", () => {
+		const markdown = `
 - Item 1
 - Item 2
 
 1. Ordered item 1
 2. Ordered item 2
-`
-    render(<Markdown>{markdown}</Markdown>)
+`;
+		render(<Markdown>{markdown}</Markdown>);
 
-    expect(screen.getByText('Item 1')).toBeInTheDocument()
-    expect(screen.getByText('Item 2')).toBeInTheDocument()
-    expect(screen.getByText('Ordered item 1')).toBeInTheDocument()
-    expect(screen.getByText('Ordered item 2')).toBeInTheDocument()
-  })
+		expect(screen.getByText("Item 1")).toBeInTheDocument();
+		expect(screen.getByText("Item 2")).toBeInTheDocument();
+		expect(screen.getByText("Ordered item 1")).toBeInTheDocument();
+		expect(screen.getByText("Ordered item 2")).toBeInTheDocument();
+	});
 
-  it('should render blockquotes', () => {
-    const markdown = '> This is a blockquote'
-    render(<Markdown>{markdown}</Markdown>)
+	it("should render blockquotes", () => {
+		const markdown = "> This is a blockquote";
+		render(<Markdown>{markdown}</Markdown>);
 
-    expect(screen.getByText('This is a blockquote')).toBeInTheDocument()
-  })
+		expect(screen.getByText("This is a blockquote")).toBeInTheDocument();
+	});
 
-  it('should render external links', () => {
-    const markdown = '[External Link](https://example.com)'
-    render(<Markdown>{markdown}</Markdown>)
+	it("should render external links", () => {
+		const markdown = "[External Link](https://example.com)";
+		render(<Markdown>{markdown}</Markdown>);
 
-    const link = screen.getByText('External Link')
-    expect(link).toBeInTheDocument()
-    expect(link.closest('a')).toHaveAttribute('href', 'https://example.com')
-    expect(link.closest('a')).toHaveAttribute('target', '_blank')
-    expect(link.closest('a')).toHaveAttribute('rel', 'noreferrer')
-  })
+		const link = screen.getByText("External Link");
+		expect(link).toBeInTheDocument();
+		expect(link.closest("a")).toHaveAttribute("href", "https://example.com");
+		expect(link.closest("a")).toHaveAttribute("target", "_blank");
+		expect(link.closest("a")).toHaveAttribute("rel", "noreferrer");
+	});
 
-  it('should render internal links with Next.js Link', () => {
-    const markdown = '[Internal Link](/internal)'
-    render(<Markdown>{markdown}</Markdown>)
+	it("should render internal links with Next.js Link", () => {
+		const markdown = "[Internal Link](/internal)";
+		render(<Markdown>{markdown}</Markdown>);
 
-    const link = screen.getByTestId('next-link')
-    expect(link).toHaveAttribute('href', '/internal')
-  })
+		const link = screen.getByTestId("next-link");
+		expect(link).toHaveAttribute("href", "/internal");
+	});
 
-  it('should render tables', () => {
-    const markdown = `
+	it("should render tables", () => {
+		const markdown = `
 | Header 1 | Header 2 |
 |----------|----------|
 | Cell 1   | Cell 2   |
-`
-    render(<Markdown>{markdown}</Markdown>)
+`;
+		render(<Markdown>{markdown}</Markdown>);
 
-    expect(screen.getByTestId('table')).toBeInTheDocument()
-    expect(screen.getByTestId('scroll-area')).toBeInTheDocument()
-    expect(screen.getByTestId('scroll-bar')).toBeInTheDocument()
-  })
+		expect(screen.getByTestId("table")).toBeInTheDocument();
+		expect(screen.getByTestId("scroll-area")).toBeInTheDocument();
+		expect(screen.getByTestId("scroll-bar")).toBeInTheDocument();
+	});
 
-  it('should render separator for horizontal rules', () => {
-    const markdown = '---'
-    render(<Markdown>{markdown}</Markdown>)
+	it("should render separator for horizontal rules", () => {
+		const markdown = "---";
+		render(<Markdown>{markdown}</Markdown>);
 
-    expect(screen.getByTestId('separator')).toBeInTheDocument()
-  })
+		expect(screen.getByTestId("separator")).toBeInTheDocument();
+	});
 
-  it('should process citations', () => {
-    const markdown = 'Check this 【F:src/file.ts†L10-L15】 code'
-    render(
-      <Markdown branch="main" repoUrl="https://github.com/user/repo">
-        {markdown}
-      </Markdown>
-    )
+	it("should process citations", () => {
+		const markdown = "Check this 【F:src/file.ts†L10-L15】 code";
+		render(
+			<Markdown branch="main" repoUrl="https://github.com/user/repo">
+				{markdown}
+			</Markdown>,
+		);
 
-    expect(screen.getByText('Check this')).toBeInTheDocument()
-    expect(screen.getByText('code')).toBeInTheDocument()
+		expect(screen.getByText("Check this")).toBeInTheDocument();
+		expect(screen.getByText("code")).toBeInTheDocument();
 
-    const citationLink = screen.getByText('src/file.ts:10-15')
-    expect(citationLink).toBeInTheDocument()
-    expect(citationLink.closest('a')).toHaveAttribute(
-      'href',
-      'https://github.com/user/repo/blob/main/src/file.ts#L10-L15'
-    )
-  })
+		const citationLink = screen.getByText("src/file.ts:10-15");
+		expect(citationLink).toBeInTheDocument();
+		expect(citationLink.closest("a")).toHaveAttribute(
+			"href",
+			"https://github.com/user/repo/blob/main/src/file.ts#L10-L15",
+		);
+	});
 
-  it('should process single line citations', () => {
-    const markdown = 'Check this 【F:src/file.ts†L10-L10】 code'
-    render(<Markdown repoUrl="https://github.com/user/repo">{markdown}</Markdown>)
+	it("should process single line citations", () => {
+		const markdown = "Check this 【F:src/file.ts†L10-L10】 code";
+		render(
+			<Markdown repoUrl="https://github.com/user/repo">{markdown}</Markdown>,
+		);
 
-    const citationLink = screen.getByText('src/file.ts:10')
-    expect(citationLink).toBeInTheDocument()
-    expect(citationLink.closest('a')).toHaveAttribute(
-      'href',
-      'https://github.com/user/repo/blob/main/src/file.ts#L10'
-    )
-  })
+		const citationLink = screen.getByText("src/file.ts:10");
+		expect(citationLink).toBeInTheDocument();
+		expect(citationLink.closest("a")).toHaveAttribute(
+			"href",
+			"https://github.com/user/repo/blob/main/src/file.ts#L10",
+		);
+	});
 
-  it('should handle citations without repo URL', () => {
-    const markdown = 'Check this 【F:src/file.ts†L10-L15】 code'
-    render(<Markdown>{markdown}</Markdown>)
+	it("should handle citations without repo URL", () => {
+		const markdown = "Check this 【F:src/file.ts†L10-L15】 code";
+		render(<Markdown>{markdown}</Markdown>);
 
-    const citationLink = screen.getByText('src/file.ts:10-15')
-    expect(citationLink).toBeInTheDocument()
-    expect(citationLink.closest('a')).toHaveAttribute('href', '#')
-  })
+		const citationLink = screen.getByText("src/file.ts:10-15");
+		expect(citationLink).toBeInTheDocument();
+		expect(citationLink.closest("a")).toHaveAttribute("href", "#");
+	});
 
-  it('should memoize correctly', () => {
-    const { rerender } = render(<Markdown>Initial content</Markdown>)
+	it("should memoize correctly", () => {
+		const { rerender } = render(<Markdown>Initial content</Markdown>);
 
-    // Re-render with same props
-    rerender(<Markdown>Initial content</Markdown>)
+		// Re-render with same props
+		rerender(<Markdown>Initial content</Markdown>);
 
-    // Re-render with different props
-    rerender(<Markdown>Different content</Markdown>)
+		// Re-render with different props
+		rerender(<Markdown>Different content</Markdown>);
 
-    expect(screen.getByText('Different content')).toBeInTheDocument()
-  })
-})
+		expect(screen.getByText("Different content")).toBeInTheDocument();
+	});
+});
 
-describe('CodeComponent', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.useFakeTimers()
-    mockUseTheme.mockReturnValue({
-      theme: 'light',
-    })
-  })
+describe("CodeComponent", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.useFakeTimers();
+		mockUseTheme.mockReturnValue({
+			theme: "light",
+		});
+	});
 
-  afterEach(() => {
-    vi.useRealTimers()
-    vi.clearAllMocks()
-  })
+	afterEach(() => {
+		vi.useRealTimers();
+		vi.clearAllMocks();
+	});
 
-  it('should render inline code', () => {
-    render(<CodeComponent inline>const x = 1</CodeComponent>)
+	it("should render inline code", () => {
+		render(<CodeComponent inline>const x = 1</CodeComponent>);
 
-    const code = screen.getByText('const x = 1')
-    expect(code).toBeInTheDocument()
-    expect(code.tagName).toBe('CODE')
-  })
+		const code = screen.getByText("const x = 1");
+		expect(code).toBeInTheDocument();
+		expect(code.tagName).toBe("CODE");
+	});
 
-  it('should render code block with language', () => {
-    render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
+	it("should render code block with language", () => {
+		render(
+			<CodeComponent className="language-javascript">
+				const x = 1;
+			</CodeComponent>,
+		);
 
-    const syntaxHighlighter = screen.getByTestId('syntax-highlighter')
-    expect(syntaxHighlighter).toBeInTheDocument()
-    expect(syntaxHighlighter).toHaveAttribute('data-language', 'javascript')
+		const syntaxHighlighter = screen.getByTestId("syntax-highlighter");
+		expect(syntaxHighlighter).toBeInTheDocument();
+		expect(syntaxHighlighter).toHaveAttribute("data-language", "javascript");
 
-    const languageLabel = screen.getByText('javascript')
-    expect(languageLabel).toBeInTheDocument()
+		const languageLabel = screen.getByText("javascript");
+		expect(languageLabel).toBeInTheDocument();
 
-    const copyButton = screen.getByTestId('button')
-    expect(copyButton).toBeInTheDocument()
-  })
+		const copyButton = screen.getByTestId("button");
+		expect(copyButton).toBeInTheDocument();
+	});
 
-  it('should handle copy button click', async () => {
-    render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
+	it("should handle copy button click", async () => {
+		render(
+			<CodeComponent className="language-javascript">
+				const x = 1;
+			</CodeComponent>,
+		);
 
-    const copyButton = screen.getByTestId('button')
-    fireEvent.click(copyButton)
+		const copyButton = screen.getByTestId("button");
+		fireEvent.click(copyButton);
 
-    expect(mockWriteText).toHaveBeenCalledWith('        const x = 1;\n      ')
+		expect(mockWriteText).toHaveBeenCalledWith("        const x = 1;\n      ");
 
-    // Should show check icon
-    expect(screen.getByTestId('check-icon')).toBeInTheDocument()
+		// Should show check icon
+		expect(screen.getByTestId("check-icon")).toBeInTheDocument();
 
-    // Should revert to copy icon after timeout
-    vi.advanceTimersByTime(2000)
-    expect(screen.getByTestId('copy-icon')).toBeInTheDocument()
-  })
+		// Should revert to copy icon after timeout
+		vi.advanceTimersByTime(2000);
+		expect(screen.getByTestId("copy-icon")).toBeInTheDocument();
+	});
 
-  it('should render code block without language', () => {
-    render(<CodeComponent>const x = 1</CodeComponent>)
+	it("should render code block without language", () => {
+		render(<CodeComponent>const x = 1</CodeComponent>);
 
-    const code = screen.getByText('const x = 1')
-    expect(code).toBeInTheDocument()
-    expect(code.tagName).toBe('CODE')
-  })
+		const code = screen.getByText("const x = 1");
+		expect(code).toBeInTheDocument();
+		expect(code.tagName).toBe("CODE");
+	});
 
-  it('should use dark theme styles', () => {
-    mockUseTheme.mockReturnValue({
-      theme: 'dark',
-    })
+	it("should use dark theme styles", () => {
+		mockUseTheme.mockReturnValue({
+			theme: "dark",
+		});
 
-    render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
+		render(
+			<CodeComponent className="language-javascript">
+				const x = 1;
+			</CodeComponent>,
+		);
 
-    const syntaxHighlighter = screen.getByTestId('syntax-highlighter')
-    expect(syntaxHighlighter).toBeInTheDocument()
-  })
+		const syntaxHighlighter = screen.getByTestId("syntax-highlighter");
+		expect(syntaxHighlighter).toBeInTheDocument();
+	});
 
-  it('should handle multiple copy operations', async () => {
-    render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
+	it("should handle multiple copy operations", async () => {
+		render(
+			<CodeComponent className="language-javascript">
+				const x = 1;
+			</CodeComponent>,
+		);
 
-    const copyButton = screen.getByTestId('button')
+		const copyButton = screen.getByTestId("button");
 
-    fireEvent.click(copyButton)
-    expect(mockWriteText).toHaveBeenCalledTimes(1)
+		fireEvent.click(copyButton);
+		expect(mockWriteText).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(copyButton)
-    expect(mockWriteText).toHaveBeenCalledTimes(2)
+		fireEvent.click(copyButton);
+		expect(mockWriteText).toHaveBeenCalledTimes(2);
 
-    fireEvent.click(copyButton)
-    expect(mockWriteText).toHaveBeenCalledTimes(3)
-  })
+		fireEvent.click(copyButton);
+		expect(mockWriteText).toHaveBeenCalledTimes(3);
+	});
 
-  it('should handle code with special characters', () => {
-    const codeContent = 'const str = "Hello <world> & others";'
-    render(<CodeComponent className="language-javascript">{codeContent}</CodeComponent>)
+	it("should handle code with special characters", () => {
+		const codeContent = 'const str = "Hello <world> & others";';
+		render(
+			<CodeComponent className="language-javascript">
+				{codeContent}
+			</CodeComponent>,
+		);
 
-    const copyButton = screen.getByTestId('button')
-    fireEvent.click(copyButton)
+		const copyButton = screen.getByTestId("button");
+		fireEvent.click(copyButton);
 
-    expect(mockWriteText).toHaveBeenCalledWith(codeContent)
-  })
+		expect(mockWriteText).toHaveBeenCalledWith(codeContent);
+	});
 
-  it('should apply correct styling to inline code', () => {
-    render(<CodeComponent inline>inline code</CodeComponent>)
+	it("should apply correct styling to inline code", () => {
+		render(<CodeComponent inline>inline code</CodeComponent>);
 
-    const code = screen.getByText('inline code')
-    expect(code).toHaveAttribute('style', 'word-break: break-all;')
-  })
+		const code = screen.getByText("inline code");
+		expect(code).toHaveAttribute("style", "word-break: break-all;");
+	});
 
-  it('should remove trailing newlines from code blocks', () => {
-    render(<CodeComponent className="language-javascript">const x = 1;</CodeComponent>)
+	it("should remove trailing newlines from code blocks", () => {
+		render(
+			<CodeComponent className="language-javascript">
+				const x = 1;
+			</CodeComponent>,
+		);
 
-    const syntaxHighlighter = screen.getByTestId('syntax-highlighter')
-    expect(syntaxHighlighter).toHaveTextContent('const x = 1;')
-  })
+		const syntaxHighlighter = screen.getByTestId("syntax-highlighter");
+		expect(syntaxHighlighter).toHaveTextContent("const x = 1;");
+	});
 
-  it('should handle empty code content', () => {
-    render(<CodeComponent className="language-javascript" />)
+	it("should handle empty code content", () => {
+		render(<CodeComponent className="language-javascript" />);
 
-    const syntaxHighlighter = screen.getByTestId('syntax-highlighter')
-    expect(syntaxHighlighter).toBeInTheDocument()
-    expect(syntaxHighlighter).toHaveTextContent('')
-  })
+		const syntaxHighlighter = screen.getByTestId("syntax-highlighter");
+		expect(syntaxHighlighter).toBeInTheDocument();
+		expect(syntaxHighlighter).toHaveTextContent("");
+	});
 
-  it('should handle code with numbers and special syntax', () => {
-    const codeContent = 'function test() { return 42; }'
-    render(<CodeComponent className="language-javascript">{codeContent}</CodeComponent>)
+	it("should handle code with numbers and special syntax", () => {
+		const codeContent = "function test() { return 42; }";
+		render(
+			<CodeComponent className="language-javascript">
+				{codeContent}
+			</CodeComponent>,
+		);
 
-    const copyButton = screen.getByTestId('button')
-    fireEvent.click(copyButton)
+		const copyButton = screen.getByTestId("button");
+		fireEvent.click(copyButton);
 
-    expect(mockWriteText).toHaveBeenCalledWith(codeContent)
-  })
-})
+		expect(mockWriteText).toHaveBeenCalledWith(codeContent);
+	});
+});

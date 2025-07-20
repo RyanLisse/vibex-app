@@ -1,6 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 /**
  * GitHub Repositories API Route
@@ -12,55 +12,58 @@ export const runtime = 'nodejs'
  * error handling, request processing, and response formatting.
  */
 
-import { type NextRequest, NextResponse } from 'next/server'
-import { BaseAPIHandler, UnauthorizedError } from '@/lib/api/base'
-import { ResponseBuilder } from '@/lib/api/base/response-builder'
-import { GetRepositoriesQuerySchema, githubRepositoriesService } from './service'
+import { type NextRequest, NextResponse } from "next/server";
+import { BaseAPIHandler, UnauthorizedError } from "@/lib/api/base";
+import { ResponseBuilder } from "@/lib/api/base/response-builder";
+import {
+	GetRepositoriesQuerySchema,
+	githubRepositoriesService,
+} from "./service";
 
 /**
  * GET /api/auth/github/repositories - Get GitHub repositories with optional sync
  */
 export async function GET(request: NextRequest) {
-  return BaseAPIHandler.handle(request, async (context) => {
-    // Get the access token from the httpOnly cookie
-    const accessToken = request.cookies.get('github_access_token')?.value
+	return BaseAPIHandler.handle(request, async (context) => {
+		// Get the access token from the httpOnly cookie
+		const accessToken = request.cookies.get("github_access_token")?.value;
 
-    if (!accessToken) {
-      throw new UnauthorizedError('Not authenticated')
-    }
+		if (!accessToken) {
+			throw new UnauthorizedError("Not authenticated");
+		}
 
-    // Get user ID from authentication
-    const userId = await githubRepositoriesService.getUserFromAuth(accessToken)
+		// Get user ID from authentication
+		const userId = await githubRepositoriesService.getUserFromAuth(accessToken);
 
-    // Validate query parameters
-    const queryParams = GetRepositoriesQuerySchema.parse(context.query)
+		// Validate query parameters
+		const queryParams = GetRepositoriesQuerySchema.parse(context.query);
 
-    // Get repositories from service
-    const result = await githubRepositoriesService.getRepositories(
-      userId,
-      accessToken,
-      queryParams,
-      context
-    )
+		// Get repositories from service
+		const result = await githubRepositoriesService.getRepositories(
+			userId,
+			accessToken,
+			queryParams,
+			context,
+		);
 
-    // Return paginated response with additional metadata
-    const response = ResponseBuilder.paginated(
-      result.repositories,
-      result.pagination,
-      'Repositories retrieved successfully',
-      context.requestId
-    )
+		// Return paginated response with additional metadata
+		const response = ResponseBuilder.paginated(
+			result.repositories,
+			result.pagination,
+			"Repositories retrieved successfully",
+			context.requestId,
+		);
 
-    // Add sync metadata to response
-    const enhancedResponse = {
-      ...response,
-      meta: {
-        ...response.meta,
-        syncPerformed: result.syncPerformed,
-        lastSync: result.lastSync,
-      },
-    }
+		// Add sync metadata to response
+		const enhancedResponse = {
+			...response,
+			meta: {
+				...response.meta,
+				syncPerformed: result.syncPerformed,
+				lastSync: result.lastSync,
+			},
+		};
 
-    return NextResponse.json(enhancedResponse)
-  })
+		return NextResponse.json(enhancedResponse);
+	});
 }

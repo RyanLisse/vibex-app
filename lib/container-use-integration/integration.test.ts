@@ -8,309 +8,311 @@ import { ContainerUseIntegration } from "./index";
 import type { ContainerUseConfig } from "./index";
 
 describe("ContainerUseIntegration", () => {
-  let integration: ContainerUseIntegration;
-  let config: ContainerUseConfig;
+	let integration: ContainerUseIntegration;
+	let config: ContainerUseConfig;
 
-  beforeEach(() => {
-    config = {
-      modal: {
-        apiKey: "test-modal-key",
-        workspace: "test-workspace",
-      },
-      git: {
-        repositoryPath: "/tmp/test-repo",
-        baseBranch: "main",
-        worktreeBaseDir: "/tmp/worktrees",
-      },
-      taskCreator: {
-        openaiApiKey: "test-openai-key",
-        githubToken: "test-github-token",
-        webhookSecret: "test-webhook-secret",
-      },
-    };
+	beforeEach(() => {
+		config = {
+			modal: {
+				apiKey: "test-modal-key",
+				workspace: "test-workspace",
+			},
+			git: {
+				repositoryPath: "/tmp/test-repo",
+				baseBranch: "main",
+				worktreeBaseDir: "/tmp/worktrees",
+			},
+			taskCreator: {
+				openaiApiKey: "test-openai-key",
+				githubToken: "test-github-token",
+				webhookSecret: "test-webhook-secret",
+			},
+		};
 
-    integration = new ContainerUseIntegration(config);
-  });
+		integration = new ContainerUseIntegration(config);
+	});
 
-  describe("initialization", () => {
-    test("should initialize all managers successfully", async () => {
-      expect(integration.modalManager).toBeDefined();
-      expect(integration.worktreeManager).toBeDefined();
-      expect(integration.taskCreator).toBeDefined();
-    });
+	describe("initialization", () => {
+		test("should initialize all managers successfully", async () => {
+			expect(integration.modalManager).toBeDefined();
+			expect(integration.worktreeManager).toBeDefined();
+			expect(integration.taskCreator).toBeDefined();
+		});
 
-    test("should verify configuration on initialize", async () => {
-      const result = await integration.initialize();
-      
-      // May fail due to missing external dependencies, but should return proper structure
-      expect(result).toHaveProperty("success");
-      expect(typeof result.success).toBe("boolean");
-      
-      if (!result.success) {
-        expect(result.errors).toBeInstanceOf(Array);
-      }
-    });
-  });
+		test("should verify configuration on initialize", async () => {
+			const result = await integration.initialize();
 
-  describe("complete agent task workflow", () => {
-    test("should create complete agent task from GitHub issue", async () => {
-      const issueData = {
-        id: 123,
-        title: "Add user authentication",
-        body: "Implement JWT-based authentication",
-        labels: [{ name: "feature" }],
-        repository: { full_name: "test/repo" },
-      };
+			// May fail due to missing external dependencies, but should return proper structure
+			expect(result).toHaveProperty("success");
+			expect(typeof result.success).toBe("boolean");
 
-      const result = await integration.createAgentTask({
-        source: "issue",
-        sourceData: issueData,
-        taskConfig: {
-          priority: "high",
-          estimatedDuration: 3600,
-        },
-      });
+			if (!result.success) {
+				expect(result.errors).toBeInstanceOf(Array);
+			}
+		});
+	});
 
-      expect(result.success).toBe(true);
-      expect(result.task).toBeDefined();
-      expect(result.environment).toBeDefined();
-      expect(result.worktree).toBeDefined();
-      
-      if (result.task) {
-        expect(result.task.title).toBe(issueData.title);
-        expect(result.task.source).toBe("issue");
-      }
-      
-      if (result.environment) {
-        expect(result.environment.taskId).toBe(result.task?.id);
-        expect(result.environment.status).toBe("initializing");
-      }
-      
-      if (result.worktree) {
-        expect(result.worktree.taskId).toBe(result.task?.id);
-        expect(result.worktree.status).toBe("active");
-      }
-    });
+	describe("complete agent task workflow", () => {
+		test("should create complete agent task from GitHub issue", async () => {
+			const issueData = {
+				id: 123,
+				title: "Add user authentication",
+				body: "Implement JWT-based authentication",
+				labels: [{ name: "feature" }],
+				repository: { full_name: "test/repo" },
+			};
 
-    test("should create agent task from voice command", async () => {
-      const voiceFile = new File(["test audio"], "command.wav", {
-        type: "audio/wav",
-      });
+			const result = await integration.createAgentTask({
+				source: "issue",
+				sourceData: issueData,
+				taskConfig: {
+					priority: "high",
+					estimatedDuration: 3600,
+				},
+			});
 
-      const result = await integration.createAgentTask({
-        source: "voice",
-        sourceData: voiceFile,
-      });
+			expect(result.success).toBe(true);
+			expect(result.task).toBeDefined();
+			expect(result.environment).toBeDefined();
+			expect(result.worktree).toBeDefined();
 
-      expect(result.success).toBe(true);
-      expect(result.task?.source).toBe("voice");
-    });
+			if (result.task) {
+				expect(result.task.title).toBe(issueData.title);
+				expect(result.task.source).toBe("issue");
+			}
 
-    test("should handle task creation failures gracefully", async () => {
-      const invalidData = {};
+			if (result.environment) {
+				expect(result.environment.taskId).toBe(result.task?.id);
+				expect(result.environment.status).toBe("initializing");
+			}
 
-      const result = await integration.createAgentTask({
-        source: "issue",
-        sourceData: invalidData,
-      });
+			if (result.worktree) {
+				expect(result.worktree.taskId).toBe(result.task?.id);
+				expect(result.worktree.status).toBe("active");
+			}
+		});
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
-    });
-  });
+		test("should create agent task from voice command", async () => {
+			const voiceFile = new File(["test audio"], "command.wav", {
+				type: "audio/wav",
+			});
 
-  describe("task completion workflow", () => {
-    test("should complete agent task and create PR", async () => {
-      // First create a task
-      const issueData = {
-        id: 456,
-        title: "Fix bug in login",
-        body: "User cannot login with valid credentials",
-        repository: { full_name: "test/repo" },
-      };
+			const result = await integration.createAgentTask({
+				source: "voice",
+				sourceData: voiceFile,
+			});
 
-      const createResult = await integration.createAgentTask({
-        source: "issue",
-        sourceData: issueData,
-      });
+			expect(result.success).toBe(true);
+			expect(result.task?.source).toBe("voice");
+		});
 
-      expect(createResult.success).toBe(true);
-      expect(createResult.task).toBeDefined();
+		test("should handle task creation failures gracefully", async () => {
+			const invalidData = {};
 
-      if (createResult.task) {
-        // Complete the task
-        const completeResult = await integration.completeAgentTask(createResult.task.id);
+			const result = await integration.createAgentTask({
+				source: "issue",
+				sourceData: invalidData,
+			});
 
-        expect(completeResult.success).toBe(true);
-        expect(completeResult.pullRequest).toBeDefined();
-        
-        if (completeResult.pullRequest) {
-          expect(completeResult.pullRequest.taskId).toBe(createResult.task.id);
-          expect(completeResult.pullRequest.status).toBe("ready");
-        }
-      }
-    });
+			expect(result.success).toBe(false);
+			expect(result.error).toBeDefined();
+		});
+	});
 
-    test("should handle completion of nonexistent task", async () => {
-      const result = await integration.completeAgentTask("nonexistent-task");
+	describe("task completion workflow", () => {
+		test("should complete agent task and create PR", async () => {
+			// First create a task
+			const issueData = {
+				id: 456,
+				title: "Fix bug in login",
+				body: "User cannot login with valid credentials",
+				repository: { full_name: "test/repo" },
+			};
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("No worktree found");
-    });
-  });
+			const createResult = await integration.createAgentTask({
+				source: "issue",
+				sourceData: issueData,
+			});
 
-  describe("status monitoring", () => {
-    test("should provide comprehensive task status", async () => {
-      const status = await integration.getAgentTasksStatus();
+			expect(createResult.success).toBe(true);
+			expect(createResult.task).toBeDefined();
 
-      expect(status).toHaveProperty("activeTasks");
-      expect(status).toHaveProperty("activeEnvironments");
-      expect(status).toHaveProperty("activeWorktrees");
-      expect(status).toHaveProperty("totalCost");
-      expect(status).toHaveProperty("tasks");
-      
-      expect(typeof status.activeTasks).toBe("number");
-      expect(typeof status.activeEnvironments).toBe("number");
-      expect(typeof status.activeWorktrees).toBe("number");
-      expect(typeof status.totalCost).toBe("number");
-      expect(status.tasks).toBeInstanceOf(Array);
-    });
+			if (createResult.task) {
+				// Complete the task
+				const completeResult = await integration.completeAgentTask(
+					createResult.task.id,
+				);
 
-    test("should track costs across multiple tasks", async () => {
-      // Create multiple tasks
-      const tasks = [
-        {
-          id: 1,
-          title: "Task 1",
-          body: "First task",
-          repository: { full_name: "test/repo" },
-        },
-        {
-          id: 2,
-          title: "Task 2",
-          body: "Second task",
-          repository: { full_name: "test/repo" },
-        },
-      ];
+				expect(completeResult.success).toBe(true);
+				expect(completeResult.pullRequest).toBeDefined();
 
-      for (const taskData of tasks) {
-        await integration.createAgentTask({
-          source: "issue",
-          sourceData: taskData,
-        });
-      }
+				if (completeResult.pullRequest) {
+					expect(completeResult.pullRequest.taskId).toBe(createResult.task.id);
+					expect(completeResult.pullRequest.status).toBe("ready");
+				}
+			}
+		});
 
-      const status = await integration.getAgentTasksStatus();
-      expect(status.totalCost).toBeGreaterThanOrEqual(0);
-      expect(status.tasks.length).toBeGreaterThanOrEqual(0);
-    });
-  });
+		test("should handle completion of nonexistent task", async () => {
+			const result = await integration.completeAgentTask("nonexistent-task");
 
-  describe("error handling", () => {
-    test("should handle Modal API failures", async () => {
-      const invalidConfig = {
-        ...config,
-        modal: {
-          apiKey: "",
-          workspace: "",
-        },
-      };
+			expect(result.success).toBe(false);
+			expect(result.error).toContain("No worktree found");
+		});
+	});
 
-      const invalidIntegration = new ContainerUseIntegration(invalidConfig);
+	describe("status monitoring", () => {
+		test("should provide comprehensive task status", async () => {
+			const status = await integration.getAgentTasksStatus();
 
-      const result = await invalidIntegration.createAgentTask({
-        source: "manual",
-        sourceData: {
-          title: "Test task",
-          description: "Test description",
-          source: "manual",
-        },
-      });
+			expect(status).toHaveProperty("activeTasks");
+			expect(status).toHaveProperty("activeEnvironments");
+			expect(status).toHaveProperty("activeWorktrees");
+			expect(status).toHaveProperty("totalCost");
+			expect(status).toHaveProperty("tasks");
 
-      // Should handle gracefully without throwing
-      expect(typeof result.success).toBe("boolean");
-    });
+			expect(typeof status.activeTasks).toBe("number");
+			expect(typeof status.activeEnvironments).toBe("number");
+			expect(typeof status.activeWorktrees).toBe("number");
+			expect(typeof status.totalCost).toBe("number");
+			expect(status.tasks).toBeInstanceOf(Array);
+		});
 
-    test("should handle Git repository access failures", async () => {
-      const invalidConfig = {
-        ...config,
-        git: {
-          repositoryPath: "/nonexistent/path",
-          baseBranch: "main",
-          worktreeBaseDir: "/nonexistent/worktrees",
-        },
-      };
+		test("should track costs across multiple tasks", async () => {
+			// Create multiple tasks
+			const tasks = [
+				{
+					id: 1,
+					title: "Task 1",
+					body: "First task",
+					repository: { full_name: "test/repo" },
+				},
+				{
+					id: 2,
+					title: "Task 2",
+					body: "Second task",
+					repository: { full_name: "test/repo" },
+				},
+			];
 
-      const invalidIntegration = new ContainerUseIntegration(invalidConfig);
+			for (const taskData of tasks) {
+				await integration.createAgentTask({
+					source: "issue",
+					sourceData: taskData,
+				});
+			}
 
-      const result = await invalidIntegration.createAgentTask({
-        source: "manual",
-        sourceData: {
-          title: "Test task",
-          description: "Test description",
-          source: "manual",
-        },
-      });
+			const status = await integration.getAgentTasksStatus();
+			expect(status.totalCost).toBeGreaterThanOrEqual(0);
+			expect(status.tasks.length).toBeGreaterThanOrEqual(0);
+		});
+	});
 
-      // Should handle gracefully
-      expect(typeof result.success).toBe("boolean");
-    });
-  });
+	describe("error handling", () => {
+		test("should handle Modal API failures", async () => {
+			const invalidConfig = {
+				...config,
+				modal: {
+					apiKey: "",
+					workspace: "",
+				},
+			};
 
-  describe("configuration validation", () => {
-    test("should validate required configuration fields", () => {
-      expect(() => {
-        new ContainerUseIntegration(config);
-      }).not.toThrow();
-    });
+			const invalidIntegration = new ContainerUseIntegration(invalidConfig);
 
-    test("should handle partial configuration", () => {
-      const partialConfig = {
-        modal: config.modal,
-        git: config.git,
-        taskCreator: {
-          openaiApiKey: "",
-          githubToken: "",
-          webhookSecret: "",
-        },
-      };
+			const result = await invalidIntegration.createAgentTask({
+				source: "manual",
+				sourceData: {
+					title: "Test task",
+					description: "Test description",
+					source: "manual",
+				},
+			});
 
-      expect(() => {
-        new ContainerUseIntegration(partialConfig);
-      }).not.toThrow();
-    });
-  });
+			// Should handle gracefully without throwing
+			expect(typeof result.success).toBe("boolean");
+		});
 
-  describe("parallel agent execution", () => {
-    test("should support multiple concurrent agents", async () => {
-      const tasks = Array.from({ length: 3 }, (_, i) => ({
-        id: i + 100,
-        title: `Concurrent task ${i}`,
-        body: `Task ${i} description`,
-        repository: { full_name: "test/repo" },
-      }));
+		test("should handle Git repository access failures", async () => {
+			const invalidConfig = {
+				...config,
+				git: {
+					repositoryPath: "/nonexistent/path",
+					baseBranch: "main",
+					worktreeBaseDir: "/nonexistent/worktrees",
+				},
+			};
 
-      const results = await Promise.all(
-        tasks.map(taskData =>
-          integration.createAgentTask({
-            source: "issue",
-            sourceData: taskData,
-          })
-        )
-      );
+			const invalidIntegration = new ContainerUseIntegration(invalidConfig);
 
-      // All tasks should be created successfully
-      results.forEach(result => {
-        expect(result.success).toBe(true);
-        expect(result.task).toBeDefined();
-        expect(result.environment).toBeDefined();
-        expect(result.worktree).toBeDefined();
-      });
+			const result = await invalidIntegration.createAgentTask({
+				source: "manual",
+				sourceData: {
+					title: "Test task",
+					description: "Test description",
+					source: "manual",
+				},
+			});
 
-      // Each should have unique IDs and isolated environments
-      const taskIds = results.map(r => r.task?.id).filter(Boolean);
-      const uniqueTaskIds = new Set(taskIds);
-      expect(uniqueTaskIds.size).toBe(tasks.length);
-    });
-  });
+			// Should handle gracefully
+			expect(typeof result.success).toBe("boolean");
+		});
+	});
+
+	describe("configuration validation", () => {
+		test("should validate required configuration fields", () => {
+			expect(() => {
+				new ContainerUseIntegration(config);
+			}).not.toThrow();
+		});
+
+		test("should handle partial configuration", () => {
+			const partialConfig = {
+				modal: config.modal,
+				git: config.git,
+				taskCreator: {
+					openaiApiKey: "",
+					githubToken: "",
+					webhookSecret: "",
+				},
+			};
+
+			expect(() => {
+				new ContainerUseIntegration(partialConfig);
+			}).not.toThrow();
+		});
+	});
+
+	describe("parallel agent execution", () => {
+		test("should support multiple concurrent agents", async () => {
+			const tasks = Array.from({ length: 3 }, (_, i) => ({
+				id: i + 100,
+				title: `Concurrent task ${i}`,
+				body: `Task ${i} description`,
+				repository: { full_name: "test/repo" },
+			}));
+
+			const results = await Promise.all(
+				tasks.map((taskData) =>
+					integration.createAgentTask({
+						source: "issue",
+						sourceData: taskData,
+					}),
+				),
+			);
+
+			// All tasks should be created successfully
+			results.forEach((result) => {
+				expect(result.success).toBe(true);
+				expect(result.task).toBeDefined();
+				expect(result.environment).toBeDefined();
+				expect(result.worktree).toBeDefined();
+			});
+
+			// Each should have unique IDs and isolated environments
+			const taskIds = results.map((r) => r.task?.id).filter(Boolean);
+			const uniqueTaskIds = new Set(taskIds);
+			expect(uniqueTaskIds.size).toBe(tasks.length);
+		});
+	});
 });
