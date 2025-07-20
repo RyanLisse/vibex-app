@@ -37,10 +37,17 @@ vi.mock("@/lib/utils", () => ({
 	cn: (...args: any[]) => args.filter(Boolean).join(" "),
 }));
 
+<<<<<<< HEAD
 describe("ChatMessage", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+describe('ChatMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should render user message", () => {
 		render(<ChatMessage role="user" text="Hello, this is a test message" />);

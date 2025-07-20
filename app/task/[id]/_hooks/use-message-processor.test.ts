@@ -39,6 +39,7 @@ const mockMessageGuards = (await import(
 	"@/app/task/[id]/_utils/message-guards"
 )) as any;
 
+<<<<<<< HEAD
 describe("useMessageProcessor", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -47,6 +48,16 @@ describe("useMessageProcessor", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+describe('useMessageProcessor', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should initialize with processMessage function", () => {
 		const mockTaskMessages: Array<{

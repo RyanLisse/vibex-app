@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthCardBase } from "@/components/auth/auth-card-base";
+=======
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { AuthCardBase } from '@/components/auth/auth-card-base'
+>>>>>>> ryan-lisse/review-this-pr
 
 // Mock date-fns
 const formatDistanceToNowMock = mock((_date: any, options?: any) => {
@@ -22,9 +29,15 @@ describe("AuthCardBase", () => {
 	const mockOnLogout = mock();
 	const mockOnRetry = mock();
 
+<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should render loading state", () => {
 		render(

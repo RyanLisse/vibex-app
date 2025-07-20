@@ -119,6 +119,7 @@ Object.assign(navigator, {
 	},
 });
 
+<<<<<<< HEAD
 describe("Markdown Component", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -132,6 +133,21 @@ describe("Markdown Component", () => {
 		vi.useRealTimers();
 		vi.clearAllMocks();
 	});
+=======
+describe('Markdown Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    mockUseTheme.mockReturnValue({
+      theme: 'light',
+    })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should render simple markdown text", () => {
 		render(<Markdown>Hello **world**</Markdown>);
@@ -276,6 +292,7 @@ describe("Markdown Component", () => {
 	});
 });
 
+<<<<<<< HEAD
 describe("CodeComponent", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -289,6 +306,21 @@ describe("CodeComponent", () => {
 		vi.useRealTimers();
 		vi.clearAllMocks();
 	});
+=======
+describe('CodeComponent', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    mockUseTheme.mockReturnValue({
+      theme: 'light',
+    })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should render inline code", () => {
 		render(<CodeComponent inline>const x = 1</CodeComponent>);

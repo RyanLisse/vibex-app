@@ -50,6 +50,7 @@ describe("useTaskSubscription", () => {
 		{ role: "user" as const, type: "message", data: { text: "Hello" } },
 	];
 
+<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockFetch.mockResolvedValue({
@@ -65,6 +66,23 @@ describe("useTaskSubscription", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          status: 'ok',
+          config: { isDev: true },
+        }),
+    })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should initialize with correct default state", () => {
 		const { result } = renderHook(() =>

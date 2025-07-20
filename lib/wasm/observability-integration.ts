@@ -7,6 +7,7 @@
 
 import { observability } from "../observability";
 import type {
+<<<<<<< HEAD
 	AgentMemory,
 	MemorySearchQuery,
 	MemorySearchResult,
@@ -18,6 +19,19 @@ import { moduleLoader } from "./module-loader";
 import { wasmPerformanceTracker } from "./performance-tracker";
 import type { WASMServices } from "./services";
 import type { VectorDocument } from "./vector-search";
+=======
+  AgentMemory,
+  MemorySearchQuery,
+  MemorySearchResult,
+  ObservabilityEvent,
+  PerformanceMetrics,
+} from '../observability/types'
+import { dataProcessor } from './data-processor'
+import { moduleLoader } from './module-loader'
+import { wasmPerformanceTracker } from './performance-tracker'
+import type { VectorDocument } from './vector-search'
+import type { WASMServices } from './services'
+>>>>>>> ryan-lisse/review-this-pr
 
 export interface WASMObservabilityConfig {
 	enablePerformanceTracking: boolean;
@@ -68,12 +82,21 @@ interface MemoryHealth {
  * WASM Observability Integration Service
  */
 export class WASMObservabilityIntegration {
+<<<<<<< HEAD
 	private static instance: WASMObservabilityIntegration;
 	private config: WASMObservabilityConfig;
 	private monitoringInterval: NodeJS.Timeout | null = null;
 	private eventBuffer: ObservabilityEvent[] = [];
 	private isInitialized = false;
 	private wasmServices: WASMServices | null = null;
+=======
+  private static instance: WASMObservabilityIntegration
+  private config: WASMObservabilityConfig
+  private monitoringInterval: NodeJS.Timeout | null = null
+  private eventBuffer: ObservabilityEvent[] = []
+  private isInitialized = false
+  private wasmServices: WASMServices | null = null
+>>>>>>> ryan-lisse/review-this-pr
 
 	constructor(config: Partial<WASMObservabilityConfig> = {}) {
 		this.config = {
@@ -99,6 +122,7 @@ export class WASMObservabilityIntegration {
 		return WASMObservabilityIntegration.instance;
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Set the WASM services instance (to avoid circular dependency)
 	 */
@@ -111,6 +135,26 @@ export class WASMObservabilityIntegration {
 	 */
 	async initialize(): Promise<void> {
 		if (this.isInitialized) return;
+=======
+  /**
+   * Set the WASM services instance (to avoid circular dependency)
+   */
+  setWASMServices(services: WASMServices): void {
+    this.wasmServices = services
+  }
+
+  /**
+   * Initialize observability integration
+   */
+  async initialize(): Promise<void> {
+    if (this.isInitialized) return
+
+    await observability.trackOperation('wasm.observability.initialize', async () => {
+      // Initialize WASM services with observability tracking if instance is set
+      if (this.wasmServices) {
+        await this.wasmServices.initialize()
+      }
+>>>>>>> ryan-lisse/review-this-pr
 
 		await observability.trackOperation(
 			"wasm.observability.initialize",
@@ -175,6 +219,7 @@ export class WASMObservabilityIntegration {
 				await this.reportMemoryMetrics(memoryMetrics);
 			}
 
+<<<<<<< HEAD
 			// Process event buffer
 			if (this.eventBuffer.length > 0) {
 				await this.flushEventBuffer();
@@ -183,6 +228,24 @@ export class WASMObservabilityIntegration {
 			console.error("Failed to collect WASM metrics:", error);
 		}
 	}
+=======
+  /**
+   * Collect performance metrics from all WASM services
+   */
+  private collectPerformanceMetrics(): PerformanceMetrics {
+    const wasmMetrics = wasmPerformanceTracker.getMetrics()
+    const servicesStats = this.wasmServices?.getStats() || {
+      capabilities: { supported: false },
+      vectorSearch: {},
+      sqlite: {},
+      compute: {},
+      dataProcessing: {},
+      performance: {},
+      observability: {},
+      initializationTime: 0,
+      isFullyInitialized: false,
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 	/**
 	 * Collect performance metrics from all WASM services
@@ -201,6 +264,7 @@ export class WASMObservabilityIntegration {
 			isFullyInitialized: false,
 		};
 
+<<<<<<< HEAD
 		return {
 			executionTime: wasmMetrics.averageWASMTime,
 			memoryUsage: wasmMetrics.wasmMemoryUsage,
@@ -211,6 +275,26 @@ export class WASMObservabilityIntegration {
 			cacheMisses: 0,
 		};
 	}
+=======
+  /**
+   * Collect memory metrics
+   */
+  private collectMemoryMetrics(): MemoryHealth {
+    const stats = this.wasmServices?.getStats() || {
+      capabilities: { supported: false },
+      vectorSearch: {},
+      sqlite: {},
+      compute: {},
+      dataProcessing: {},
+      performance: {},
+      observability: {},
+      initializationTime: 0,
+      isFullyInitialized: false,
+    }
+    const vectorSearchStats = stats.vectorSearch || {}
+    const sqliteStats = stats.sqlite || {}
+    const computeStats = stats.compute || {}
+>>>>>>> ryan-lisse/review-this-pr
 
 	/**
 	 * Collect memory metrics
@@ -299,6 +383,7 @@ export class WASMObservabilityIntegration {
 
 		this.bufferEvent(event);
 
+<<<<<<< HEAD
 		// Alert if memory threshold exceeded
 		if (metrics.wasmMemoryUsage > this.config.memoryThreshold) {
 			observability.recordEvent("wasm.memory.threshold_exceeded", {
@@ -308,6 +393,15 @@ export class WASMObservabilityIntegration {
 			});
 		}
 	}
+=======
+  /**
+   * Track WASM-accelerated vector search for agent memory
+   */
+  async searchAgentMemory(query: MemorySearchQuery): Promise<MemorySearchResult[]> {
+    return observability.trackOperation('wasm.memory.search', async () => {
+      // Convert agent memories to vector documents
+      const vectorSearch = this.wasmServices?.getVectorSearch()
+>>>>>>> ryan-lisse/review-this-pr
 
 	/**
 	 * Track WASM-accelerated vector search for agent memory
@@ -360,6 +454,7 @@ export class WASMObservabilityIntegration {
 					transformations: [{ field: "data", operation: "normalize" }],
 				});
 
+<<<<<<< HEAD
 				return processed.result[0];
 			},
 			{
@@ -371,6 +466,26 @@ export class WASMObservabilityIntegration {
 			},
 		);
 	}
+=======
+  /**
+   * Get comprehensive health status
+   */
+  async getHealthStatus(): Promise<WASMHealthStatus> {
+    const healthCheckResult = this.wasmServices
+      ? await this.wasmServices.healthCheck()
+      : {
+          healthy: false,
+          services: {
+            vectorSearch: { healthy: false, message: 'WASM services not initialized' },
+            sqlite: { healthy: false, message: 'WASM services not initialized' },
+            compute: { healthy: false, message: 'WASM services not initialized' },
+            dataProcessor: { healthy: false, message: 'WASM services not initialized' },
+          },
+          initializationComplete: false,
+        }
+    const performanceReport = wasmPerformanceTracker.generateReport()
+    const memoryMetrics = this.collectMemoryMetrics()
+>>>>>>> ryan-lisse/review-this-pr
 
 	/**
 	 * Get comprehensive health status
@@ -619,6 +734,7 @@ export class WASMObservabilityIntegration {
 		const healthStatus = await this.getHealthStatus();
 		const moduleStats = moduleLoader.getStats();
 
+<<<<<<< HEAD
 		return {
 			summary: {
 				...performanceReport.summary,
@@ -646,6 +762,16 @@ export class WASMObservabilityIntegration {
 		this.flushEventBuffer();
 		this.wasmServices?.cleanup();
 	}
+=======
+  /**
+   * Cleanup resources
+   */
+  cleanup(): void {
+    this.stopMonitoring()
+    this.flushEventBuffer()
+    this.wasmServices?.cleanup()
+  }
+>>>>>>> ryan-lisse/review-this-pr
 }
 
 // Export singleton instance

@@ -52,11 +52,19 @@ export const BrainstormSessionSchema = z.object({
 export type BrainstormSession = z.infer<typeof BrainstormSessionSchema>;
 
 export class BrainstormAgent {
+<<<<<<< HEAD
 	private client: LettaClient;
 	private agentId: string | null = null;
 	private config: BrainstormConfig;
 	private activeSessions: Map<string, BrainstormSession> = new Map();
 	private sessionIdMap: Map<string, string> = new Map(); // Maps external sessionId to internal brainstorm sessionId
+=======
+  private client: LettaClient
+  private agentId: string | null = null
+  private config: BrainstormConfig
+  private activeSessions: Map<string, BrainstormSession> = new Map()
+  private sessionIdMap: Map<string, string> = new Map() // Maps external sessionId to internal brainstorm sessionId
+>>>>>>> ryan-lisse/review-this-pr
 
 	constructor(client: LettaClient, config: Partial<BrainstormConfig> = {}) {
 		this.client = client;
@@ -184,6 +192,7 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
     `.trim();
 	}
 
+<<<<<<< HEAD
 	async startBrainstormSession(
 		userId: string,
 		topic: string,
@@ -204,6 +213,33 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
 		};
 
 		this.activeSessions.set(brainstormSessionId, session);
+=======
+  async startBrainstormSession(
+    userId: string,
+    topic: string,
+    externalSessionId?: string
+  ): Promise<BrainstormSession> {
+    const brainstormSessionId = `brainstorm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    const session: BrainstormSession = {
+      id: brainstormSessionId,
+      userId,
+      topic,
+      stage: 'exploration',
+      ideas: [],
+      insights: [],
+      nextSteps: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    this.activeSessions.set(brainstormSessionId, session)
+
+    // Map external sessionId to internal brainstorm sessionId if provided
+    if (externalSessionId) {
+      this.sessionIdMap.set(externalSessionId, brainstormSessionId)
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 		// Map external sessionId to internal brainstorm sessionId if provided
 		if (externalSessionId) {
@@ -244,12 +280,21 @@ Keep the conversation flowing naturally while gathering this foundational inform
 			throw new Error("Brainstorm agent not initialized");
 		}
 
+<<<<<<< HEAD
 		// Check if this is an external sessionId that needs to be mapped
 		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
 		const session = this.activeSessions.get(brainstormSessionId);
 		if (!session) {
 			throw new Error("Brainstorm session not found");
 		}
+=======
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
+    if (!session) {
+      throw new Error('Brainstorm session not found')
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 		// Update session context
 		const contextMessage = `
@@ -276,6 +321,7 @@ Continue guiding the brainstorming process based on the current stage and user i
 		return response;
 	}
 
+<<<<<<< HEAD
 	async advanceStage(sessionId: string): Promise<BrainstormSession> {
 		// Check if this is an external sessionId that needs to be mapped
 		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
@@ -283,6 +329,15 @@ Continue guiding the brainstorming process based on the current stage and user i
 		if (!session) {
 			throw new Error("Brainstorm session not found");
 		}
+=======
+  async advanceStage(sessionId: string): Promise<BrainstormSession> {
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
+    if (!session) {
+      throw new Error('Brainstorm session not found')
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 		const stageOrder: BrainstormSession["stage"][] = [
 			"exploration",
@@ -368,6 +423,7 @@ Transition smoothly and explain what we'll focus on in this stage.
 		this.activeSessions.set(sessionId, session);
 	}
 
+<<<<<<< HEAD
 	async getSessionSummary(sessionId: string): Promise<{
 		session: BrainstormSession;
 		topIdeas: BrainstormSession["ideas"];
@@ -379,6 +435,19 @@ Transition smoothly and explain what we'll focus on in this stage.
 		if (!session) {
 			throw new Error("Brainstorm session not found");
 		}
+=======
+  async getSessionSummary(sessionId: string): Promise<{
+    session: BrainstormSession
+    topIdeas: BrainstormSession['ideas']
+    recommendations: string[]
+  }> {
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
+    if (!session) {
+      throw new Error('Brainstorm session not found')
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 		const topIdeas = session.ideas
 			.sort((a, b) => b.score - a.score)
@@ -399,6 +468,7 @@ Transition smoothly and explain what we'll focus on in this stage.
 		};
 	}
 
+<<<<<<< HEAD
 	async endSession(sessionId: string): Promise<BrainstormSession> {
 		// Check if this is an external sessionId that needs to be mapped
 		const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId;
@@ -406,6 +476,15 @@ Transition smoothly and explain what we'll focus on in this stage.
 		if (!session) {
 			throw new Error("Brainstorm session not found");
 		}
+=======
+  async endSession(sessionId: string): Promise<BrainstormSession> {
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
+    if (!session) {
+      throw new Error('Brainstorm session not found')
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 		// Generate final summary and next steps
 		if (this.agentId) {

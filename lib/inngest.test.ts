@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // This test file uses Vitest runner
+<<<<<<< HEAD
 describe("inngest tests", () => {
 	// Create inline mocks without any imports to avoid side effects
 	let mockInngest: any;
@@ -45,6 +46,52 @@ describe("inngest tests", () => {
 			createFunction: vi.fn(),
 		}));
 	});
+=======
+describe('inngest tests', () => {
+  // Create inline mocks without any imports to avoid side effects
+  let mockInngest: any
+  let mockTaskChannel: any
+  let mockTaskControl: any
+  let mockCreateTask: any
+  let mockGetInngestApp: any
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+
+    mockInngest = {
+      id: 'clonedex',
+      send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
+      createFunction: vi.fn((config) => ({
+        ...config,
+        handler: vi.fn(() => Promise.resolve(undefined)),
+      })),
+    }
+
+    mockTaskChannel = vi.fn((taskId: string) => ({
+      status: vi.fn(),
+      update: vi.fn(),
+      control: vi.fn(),
+    }))
+
+    mockTaskControl = {
+      id: 'task-control',
+      trigger: { event: 'clonedx/task.control' },
+      handler: vi.fn(() => Promise.resolve(undefined)),
+    }
+
+    mockCreateTask = {
+      id: 'create-task',
+      trigger: { event: 'clonedx/create.task' },
+      handler: vi.fn(() => Promise.resolve(undefined)),
+    }
+
+    mockGetInngestApp = vi.fn(() => ({
+      id: typeof window !== 'undefined' ? 'client' : 'server',
+      send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
+      createFunction: vi.fn(),
+    }))
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should have correct inngest client properties", () => {
 		expect(mockInngest.id).toBe("clonedex");
@@ -95,10 +142,17 @@ describe("inngest tests", () => {
 		const event = { name: "test.event", data: { foo: "bar" } };
 		const result = await mockInngest.send(event);
 
+<<<<<<< HEAD
 		expect(result).toEqual({ ids: ["test-id"] });
 		expect(mockInngest.send).toHaveBeenCalledWith(event);
 		expect(mockInngest.send).toHaveBeenCalledTimes(1);
 	});
+=======
+    expect(result).toEqual({ ids: ['test-id'] })
+    expect(mockInngest.send).toHaveBeenCalledWith(event)
+    expect(mockInngest.send).toHaveBeenCalledTimes(1)
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should handle task control actions", async () => {
 		const result = await mockTaskControl.handler();

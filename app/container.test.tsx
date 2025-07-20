@@ -47,6 +47,7 @@ const _mockConsoleError = mock
 	.spyOn(console, "error")
 	.mockImplementation(() => {});
 
+<<<<<<< HEAD
 describe("Container", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -60,6 +61,21 @@ describe("Container", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+describe('Container', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockUseInngestSubscription.mockReturnValue({
+      latestData: null,
+      error: null,
+      state: 'open',
+    })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should render children", () => {
 		render(

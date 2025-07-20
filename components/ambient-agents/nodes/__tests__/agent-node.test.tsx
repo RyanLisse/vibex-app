@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import { render, screen } from "@testing-library/react";
 import type { NodeProps } from "@xyflow/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AgentNodeData } from "../agent-node";
 import { AgentNode } from "../agent-node";
+=======
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import { AgentNode } from '../agent-node'
+import type { NodeProps } from '@xyflow/react'
+import type { AgentNodeData } from '../agent-node'
+>>>>>>> ryan-lisse/review-this-pr
 
 // Mock React Flow components
 vi.mock("@xyflow/react", () => ({

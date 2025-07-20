@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import { AlertCircle, Loader2, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -9,6 +10,15 @@ import type {
 	TranscriptionResult,
 	VoiceRecording,
 } from "@/src/schemas/enhanced-task-schemas";
+=======
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from 'react'
+import { Loader2, Volume2, AlertCircle } from 'lucide-react'
+import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import type { VoiceRecording, TranscriptionResult } from '@/src/schemas/enhanced-task-schemas'
+>>>>>>> ryan-lisse/review-this-pr
 
 interface TranscriptionProcessorProps {
 	recording: VoiceRecording;

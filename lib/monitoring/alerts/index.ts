@@ -4,9 +4,15 @@
  * Manages alerts, rules, and integrations with Prometheus Alert Manager
  */
 
+<<<<<<< HEAD
 import { observability } from "@/lib/observability";
 import { notificationManager } from "../notifications";
 import { recordError } from "../prometheus";
+=======
+import { observability } from '@/lib/observability'
+import { notificationManager } from '../notifications'
+import { recordError } from '../prometheus'
+>>>>>>> ryan-lisse/review-this-pr
 
 export interface Alert {
 	id: string;
@@ -414,8 +420,13 @@ class AlertManager {
 			`   Value: ${alert.value.toFixed(2)}, Threshold: ${alert.threshold}`,
 		);
 
+<<<<<<< HEAD
 		// Record alert metric
 		recordError("alert", alert.severity, alert.labels.component || "unknown");
+=======
+    // Record alert metric
+    recordError('alert', alert.severity, alert.labels.component || 'unknown')
+>>>>>>> ryan-lisse/review-this-pr
 
 		// Send notifications
 		await notificationManager.sendNotification({

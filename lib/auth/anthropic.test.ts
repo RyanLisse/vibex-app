@@ -58,10 +58,17 @@ vi.mock("next/server", () => ({
 	},
 }));
 
+<<<<<<< HEAD
 describe("Anthropic Auth", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+describe('Anthropic Auth', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	describe("generateCodeVerifier", () => {
 		it("should generate a code verifier", () => {

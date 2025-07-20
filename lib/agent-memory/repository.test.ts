@@ -204,6 +204,7 @@ describe("MemoryRepository", () => {
 				},
 			];
 
+<<<<<<< HEAD
 			// Create a mock query that can be awaited
 			const mockQuery = {
 				where: vi.fn().mockReturnThis(),
@@ -216,12 +217,27 @@ describe("MemoryRepository", () => {
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue(mockQuery),
 			});
+=======
+      // Create a mock query that can be awaited
+      const mockQuery = {
+        where: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        offset: vi.fn().mockReturnThis(),
+        then: (resolve: any) => resolve(mockResults),
+      }
+
+      mockDb.select.mockReturnValue({
+        from: vi.fn().mockReturnValue(mockQuery),
+      })
+>>>>>>> ryan-lisse/review-this-pr
 
 			const results = await repository.search({
 				agentType: "test-agent",
 				limit: 10,
 			});
 
+<<<<<<< HEAD
 			expect(results).toHaveLength(1);
 			expect(mockQuery.where).toHaveBeenCalled();
 		});
@@ -235,14 +251,55 @@ describe("MemoryRepository", () => {
 				offset: vi.fn().mockReturnThis(),
 				then: (resolve: any) => resolve([]),
 			};
+=======
+      expect(results).toHaveLength(1)
+      expect(mockQuery.where).toHaveBeenCalled()
+    })
+
+    it('should search with importance range', async () => {
+      // Create a mock query that can be awaited
+      const mockQuery = {
+        where: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        offset: vi.fn().mockReturnThis(),
+        then: (resolve: any) => resolve([]),
+      }
+
+      mockDb.select.mockReturnValue({
+        from: vi.fn().mockReturnValue(mockQuery),
+      })
+
+      await repository.search({
+        importance: { min: 5, max: 8 },
+      })
+>>>>>>> ryan-lisse/review-this-pr
 
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue(mockQuery),
 			});
 
+<<<<<<< HEAD
 			await repository.search({
 				importance: { min: 5, max: 8 },
 			});
+=======
+    it('should exclude expired memories by default', async () => {
+      // Create a mock query that can be awaited
+      const mockQuery = {
+        where: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        offset: vi.fn().mockReturnThis(),
+        then: (resolve: any) => resolve([]),
+      }
+
+      mockDb.select.mockReturnValue({
+        from: vi.fn().mockReturnValue(mockQuery),
+      })
+
+      await repository.search({})
+>>>>>>> ryan-lisse/review-this-pr
 
 			expect(mockDb.select).toHaveBeenCalled();
 		});

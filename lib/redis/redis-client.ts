@@ -314,6 +314,7 @@ export class RedisClientManager {
 }
 
 // Export redis client getter function
+<<<<<<< HEAD
 export const getRedis = () => RedisClientManager.getInstance();
 
 // Export a default redis instance getter
@@ -323,3 +324,6 @@ export const redis = {
 		return manager.getClient("primary");
 	},
 };
+=======
+export const getRedis = () => RedisClientManager.getInstance()
+>>>>>>> ryan-lisse/review-this-pr

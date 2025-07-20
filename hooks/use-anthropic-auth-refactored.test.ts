@@ -44,6 +44,7 @@ vi.mock("@/lib/env", () => ({
 	},
 }));
 
+<<<<<<< HEAD
 describe("useAnthropicAuthRefactored", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -56,6 +57,20 @@ describe("useAnthropicAuthRefactored", () => {
 			token: null,
 		};
 	});
+=======
+describe('useAnthropicAuthRefactored', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Reset mock state
+    mockUseAuthBase.state = {
+      authenticated: false,
+      loading: false,
+      error: null,
+      user: null,
+      token: null,
+    }
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should initialize with base auth state", () => {
 		const { result } = renderHook(() => useAnthropicAuthRefactored());

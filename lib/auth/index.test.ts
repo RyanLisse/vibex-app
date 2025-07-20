@@ -34,6 +34,7 @@ describe.skip("Auth", () => {
 	let writeFileMock: ReturnType<typeof mock>;
 	let chmodMock: ReturnType<typeof mock>;
 
+<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// Set up mock references
@@ -41,15 +42,30 @@ describe.skip("Auth", () => {
 		readFileMock = fs.readFile as ReturnType<typeof mock>;
 		writeFileMock = fs.writeFile as ReturnType<typeof mock>;
 		chmodMock = fs.chmod as ReturnType<typeof mock>;
+=======
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Set up mock references
+    mkdirMock = fs.mkdir as ReturnType<typeof mock>
+    readFileMock = fs.readFile as ReturnType<typeof mock>
+    writeFileMock = fs.writeFile as ReturnType<typeof mock>
+    chmodMock = fs.chmod as ReturnType<typeof mock>
+>>>>>>> ryan-lisse/review-this-pr
 
 		// Set default mock behaviors
 		mkdirMock.mockResolvedValue(undefined);
 		chmodMock.mockResolvedValue(undefined);
 	});
 
+<<<<<<< HEAD
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	describe("get", () => {
 		it("should return OAuth auth info when provider exists", async () => {

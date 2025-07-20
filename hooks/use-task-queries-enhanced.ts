@@ -6,10 +6,18 @@ import type { NewTask, Task } from "@/db/schema";
 import { invalidateQueries, mutationKeys, queryKeys } from "@/lib/query/config";
 import { useElectricTasks } from "./use-electric-tasks";
 import {
+<<<<<<< HEAD
 	useEnhancedMutation,
 	useEnhancedQuery,
 	useVectorSearchQuery,
 } from "./use-enhanced-query-new";
+=======
+  useEnhancedQuery,
+  useEnhancedMutation,
+  useEnhancedInfiniteQuery,
+  useVectorSearchQuery,
+} from './use-enhanced-query-new'
+>>>>>>> ryan-lisse/review-this-pr
 
 /**
  * Enhanced task queries with comprehensive database integration, WASM optimization, and real-time sync

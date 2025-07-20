@@ -3,6 +3,7 @@
 let loggingModule: any = null;
 
 // Only load the real module on the server
+<<<<<<< HEAD
 if (typeof window === "undefined" && process.env.NODE_ENV !== "production") {
 	// Use dynamic import for ESM compatibility
 	import("./index")
@@ -12,6 +13,17 @@ if (typeof window === "undefined" && process.env.NODE_ENV !== "production") {
 		.catch(() => {
 			// Fallback during build
 		});
+=======
+if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+  // Use dynamic import for ESM compatibility
+  import('./index')
+    .then((module) => {
+      loggingModule = module
+    })
+    .catch(() => {
+      // Fallback during build
+    })
+>>>>>>> ryan-lisse/review-this-pr
 }
 
 // Default implementations

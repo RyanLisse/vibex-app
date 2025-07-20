@@ -7,6 +7,7 @@ describe("Validation Utilities", () => {
 			return typeof value === "string" && value.trim().length > 0;
 		};
 
+<<<<<<< HEAD
 		const isEmail = (email: string): boolean => {
 			// More comprehensive email validation regex
 			// - No spaces or @ in local part (before @)
@@ -17,6 +18,18 @@ describe("Validation Utilities", () => {
 			const emailRegex = /^[^\s@.]+([.][^\s@.]+)*@[^\s@.]+\.[^\s@]+$/;
 			return emailRegex.test(email);
 		};
+=======
+    const isEmail = (email: string): boolean => {
+      // More comprehensive email validation regex
+      // - No spaces or @ in local part (before @)
+      // - No consecutive dots
+      // - No dot at start or end of local part
+      // - Valid domain with at least one dot
+      // - No dot at start of domain
+      const emailRegex = /^[^\s@.]+([.][^\s@.]+)*@[^\s@.]+\.[^\s@]+$/
+      return emailRegex.test(email)
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 		const isURL = (url: string): boolean => {
 			try {
@@ -45,6 +58,7 @@ describe("Validation Utilities", () => {
 				"firstname.lastname@company.co.uk",
 			];
 
+<<<<<<< HEAD
 			const invalidEmails = [
 				"invalid.email",
 				"@example.com",
@@ -55,6 +69,18 @@ describe("Validation Utilities", () => {
 				"test@example",
 				"",
 			];
+=======
+      const invalidEmails = [
+        'invalid.email',
+        '@example.com',
+        'test@',
+        'test..test@example.com',
+        'test@.example.com',
+        'test.@example.com',
+        'test@example',
+        '',
+      ]
+>>>>>>> ryan-lisse/review-this-pr
 
 			validEmails.forEach((email) => {
 				expect(isEmail(email)).toBe(true);

@@ -32,6 +32,7 @@ vi.mock("@/app/actions/inngest", () => ({
 const mockConsoleLog = spyOn(console, "log").mockImplementation(() => {});
 const mockConsoleError = spyOn(console, "error").mockImplementation(() => {});
 
+<<<<<<< HEAD
 describe("useInngestSubscriptionManagement", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -49,6 +50,25 @@ describe("useInngestSubscriptionManagement", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+describe('useInngestSubscriptionManagement', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFetchRealtimeSubscriptionToken.mockResolvedValue({
+      token: 'test-token',
+      channel: 'tasks',
+    })
+    mockUseInngestSubscription.mockReturnValue({
+      latestData: null,
+      error: null,
+      state: 'open',
+    })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	it("should return subscription management functions", () => {
 		const { result } = renderHook(() => useInngestSubscriptionManagement());

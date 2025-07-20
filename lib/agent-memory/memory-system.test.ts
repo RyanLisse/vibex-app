@@ -2,6 +2,7 @@
  * Agent Memory System Tests
  */
 
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { memoryContextManager } from "./context-manager";
 import { memoryLifecycleManager } from "./lifecycle-manager";
@@ -28,10 +29,39 @@ vi.mock("@/lib/observability", () => ({
 		recordError: vi.fn(),
 	},
 }));
+=======
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { memoryContextManager } from './context-manager'
+import { memoryLifecycleManager } from './lifecycle-manager'
+import { AgentMemorySystem } from './memory-system'
+import { memoryRepository } from './repository'
+import { memorySearchService } from './search-service'
+import { memorySharingService } from './sharing-service'
+import { memorySuggestionEngine } from './suggestion-engine'
+import type { CreateMemoryInput, MemoryEntry } from './types'
+
+// Mock dependencies
+vi.mock('./repository')
+vi.mock('./search-service')
+vi.mock('./context-manager')
+vi.mock('./sharing-service')
+vi.mock('./lifecycle-manager')
+vi.mock('./suggestion-engine')
+vi.mock('@/lib/observability', () => ({
+  observability: {
+    metrics: {
+      recordOperation: vi.fn(),
+    },
+    recordEvent: vi.fn(),
+    recordError: vi.fn(),
+  },
+}))
+>>>>>>> ryan-lisse/review-this-pr
 
 describe("AgentMemorySystem", () => {
 	let memorySystem: AgentMemorySystem;
 
+<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// Reset the singleton instance for each test
@@ -55,6 +85,26 @@ describe("AgentMemorySystem", () => {
 			const warmUpSpy = vi
 				.spyOn(memorySearchService, "warmUp")
 				.mockResolvedValue(undefined);
+=======
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Reset the singleton instance for each test
+    // @ts-expect-error - accessing private property for testing
+    AgentMemorySystem.instance = undefined
+    memorySystem = AgentMemorySystem.getInstance()
+  })
+
+  describe('initialization', () => {
+    it('should initialize the memory system', async () => {
+      const startMaintenanceSpy = vi.spyOn(memoryLifecycleManager, 'startMaintenance')
+      // Mock runMaintenance to return a promise
+      vi.spyOn(memoryLifecycleManager, 'runMaintenance').mockResolvedValue({
+        expired: 0,
+        archived: 0,
+        optimized: 0,
+      })
+      const warmUpSpy = vi.spyOn(memorySearchService, 'warmUp').mockResolvedValue(undefined)
+>>>>>>> ryan-lisse/review-this-pr
 
 			await memorySystem.initialize();
 
@@ -64,6 +114,7 @@ describe("AgentMemorySystem", () => {
 			expect(warmUpSpy).toHaveBeenCalledWith("workflow_orchestrator");
 		});
 
+<<<<<<< HEAD
 		it("should not initialize twice", async () => {
 			const startMaintenanceSpy = vi.spyOn(
 				memoryLifecycleManager,
@@ -78,6 +129,17 @@ describe("AgentMemorySystem", () => {
 			const warmUpSpy = vi
 				.spyOn(memorySearchService, "warmUp")
 				.mockResolvedValue(undefined);
+=======
+    it('should not initialize twice', async () => {
+      const startMaintenanceSpy = vi.spyOn(memoryLifecycleManager, 'startMaintenance')
+      // Mock runMaintenance to return a promise
+      vi.spyOn(memoryLifecycleManager, 'runMaintenance').mockResolvedValue({
+        expired: 0,
+        archived: 0,
+        optimized: 0,
+      })
+      const warmUpSpy = vi.spyOn(memorySearchService, 'warmUp').mockResolvedValue(undefined)
+>>>>>>> ryan-lisse/review-this-pr
 
 			await memorySystem.initialize();
 			await memorySystem.initialize();

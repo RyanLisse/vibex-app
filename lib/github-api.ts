@@ -8,6 +8,7 @@ export class GitHubAPI {
 		this.token = token;
 	}
 
+<<<<<<< HEAD
 	private async makeRequest(
 		url: string,
 		options: RequestInit = {},
@@ -36,6 +37,41 @@ export class GitHubAPI {
 				// If parsing fails, use HTTP error format
 				errorMessage = `${response.status} ${response.statusText}`;
 			}
+=======
+  private async makeRequest(url: string, options: RequestInit = {}): Promise<Response> {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        Authorization: `token ${this.token}`,
+        Accept: 'application/vnd.github.v3+json',
+        ...options.headers,
+      },
+    })
+
+    if (!response.ok) {
+      // Try to parse error message from response body
+      let errorMessage = `${response.status} ${response.statusText}`
+      try {
+        const errorText = await response.text()
+        if (errorText) {
+          const errorData = JSON.parse(errorText)
+          if (errorData.message) {
+            errorMessage = errorData.message
+          }
+        }
+      } catch {
+        // If parsing fails, use HTTP error format
+        errorMessage = `${response.status} ${response.statusText}`
+      }
+
+      // Throw error with appropriate message format
+      if (errorMessage === `${response.status} ${response.statusText}`) {
+        throw new Error(`HTTP error: ${errorMessage}`)
+      } else {
+        throw new Error(`GitHub API error: ${errorMessage}`)
+      }
+    }
+>>>>>>> ryan-lisse/review-this-pr
 
 			// Throw error with appropriate message format
 			if (errorMessage === `${response.status} ${response.statusText}`) {
@@ -47,10 +83,35 @@ export class GitHubAPI {
 		return response;
 	}
 
+<<<<<<< HEAD
 	async getUser(): Promise<GitHubUser> {
 		const response = await this.makeRequest("https://api.github.com/user");
 		return response.json();
 	}
+=======
+  async getRepositories(
+    options: {
+      type?: string
+      sort?: string
+      direction?: string
+      per_page?: number
+      page?: number
+    } = {}
+  ): Promise<GitHubRepository[]> {
+    const params = new URLSearchParams()
+
+    // Add all provided parameters to the query string
+    if (options.type) params.append('type', options.type)
+    if (options.sort) params.append('sort', options.sort)
+    if (options.direction) params.append('direction', options.direction)
+    if (options.per_page) params.append('per_page', options.per_page.toString())
+    if (options.page) params.append('page', options.page.toString())
+
+    const url = `https://api.github.com/user/repos${params.toString() ? '?' + params.toString() : ''}`
+    const response = await this.makeRequest(url)
+    return response.json()
+  }
+>>>>>>> ryan-lisse/review-this-pr
 
 	async getRepositories(
 		options: {
@@ -63,6 +124,7 @@ export class GitHubAPI {
 	): Promise<GitHubRepository[]> {
 		const params = new URLSearchParams();
 
+<<<<<<< HEAD
 		// Add all provided parameters to the query string
 		if (options.type) params.append("type", options.type);
 		if (options.sort) params.append("sort", options.sort);
@@ -102,6 +164,25 @@ export class GitHubAPI {
 		);
 		return response.json();
 	}
+=======
+  async createRepository(data: {
+    name: string
+    description?: string
+    private?: boolean
+    auto_init?: boolean
+    gitignore_template?: string
+    license_template?: string
+  }): Promise<GitHubRepository> {
+    const response = await this.makeRequest('https://api.github.com/user/repos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  }
+>>>>>>> ryan-lisse/review-this-pr
 }
 
 export async function checkAuthStatus(signal?: AbortSignal) {

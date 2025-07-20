@@ -27,6 +27,7 @@ describe("ClaudeAuthClient", () => {
 		typeof mock
 	>;
 
+<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 		client = new ClaudeAuthClient({
@@ -34,6 +35,15 @@ describe("ClaudeAuthClient", () => {
 			redirectUri: "https://app.example.com/callback",
 		});
 	});
+=======
+  beforeEach(() => {
+    vi.clearAllMocks()
+    client = new ClaudeAuthClient({
+      clientId: 'test-client-id',
+      redirectUri: 'https://app.example.com/callback',
+    })
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	describe("constructor", () => {
 		it("should initialize with provided config", () => {

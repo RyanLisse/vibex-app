@@ -26,9 +26,15 @@ describe("PKCE utilities", () => {
 		typeof cryptoModule.createHash
 	>;
 
+<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
+=======
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+>>>>>>> ryan-lisse/review-this-pr
 
 	describe("generateCodeVerifier", () => {
 		it("should generate a code verifier with default length", () => {

@@ -2,12 +2,21 @@ import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 
 // Browser test specific setup
 beforeAll(async () => {
+<<<<<<< HEAD
 	console.log("🌐 Starting browser tests...");
 
 	// Set up test environment variables
 	process.env.NODE_ENV = "test";
 	process.env.NEXT_PUBLIC_API_URL = "http://localhost:3000";
 });
+=======
+  console.log('🌐 Starting browser tests...')
+
+  // Set up test environment variables
+  process.env.NODE_ENV = 'test'
+  process.env.NEXT_PUBLIC_API_URL = 'http://localhost:3000'
+})
+>>>>>>> ryan-lisse/review-this-pr
 
 afterAll(async () => {
 	console.log("✅ Browser tests completed");
@@ -65,6 +74,12 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+<<<<<<< HEAD
 	console.error = originalError;
 	console.warn = originalWarn;
 });
+=======
+  console.error = originalError
+  console.warn = originalWarn
+})
+>>>>>>> ryan-lisse/review-this-pr
