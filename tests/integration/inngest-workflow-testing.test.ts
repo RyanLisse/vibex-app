@@ -10,7 +10,7 @@ import {
   InngestTestHelpers,
   InngestWorkflowTester,
   MockInngestClient,
-} from '@/lib/inngest/testing/inngest-test-utils'
+} from '../../lib/inngest/testing/inngest-test-utils'
 
 // Mock Inngest functions for testing
 const mockTaskFunction = {

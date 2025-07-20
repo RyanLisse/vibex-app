@@ -1,11 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, test } from 'vitest'
 import { vi } from 'vitest'
-import type {
-  ExampleFilter,
-  ExampleFormData,
-  ExampleItem,
-  ExampleStore,
-} from '@/src/features/example-feature/types'
+import type { ExampleFilter, ExampleFormData, ExampleItem, ExampleStore } from './types'
 
 describe('ExampleItem type', () => {
   it('should create valid ExampleItem with all required properties', () => {

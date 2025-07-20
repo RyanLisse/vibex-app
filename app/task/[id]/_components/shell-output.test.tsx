@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { ShellOutput } from '@/app/task/[id]/_components/shell-output'
+import { ShellOutput } from './shell-output'
 
 // Mock the ScrollArea component
 vi.mock('@/components/ui/scroll-area', () => ({

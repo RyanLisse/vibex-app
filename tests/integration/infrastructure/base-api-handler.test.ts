@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { BaseAPIHandler, type RequestContext, type HandlerOptions } from '@/lib/api/base/handler'
-import { BaseAPIError, ValidationError } from '@/lib/api/base/errors'
-import { ResponseBuilder } from '@/lib/api/base/response-builder'
-import { observability } from '@/lib/observability'
+import {
+  BaseAPIHandler,
+  type RequestContext,
+  type HandlerOptions,
+} from '../../../lib/api/base/handler'
+import { BaseAPIError, ValidationError } from '../../../lib/api/base/errors'
+import { ResponseBuilder } from '../../../lib/api/base/response-builder'
+import { observability } from '../../../lib/observability'
 
 // Mock observability
 vi.mock('@/lib/observability', () => ({

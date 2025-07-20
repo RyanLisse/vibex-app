@@ -5,11 +5,7 @@ export const runtime = 'nodejs'
 import { type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
-import {
-  withApiHandler,
-  createBadRequestResponse,
-  createApiResponse,
-} from '@/lib/api/common-handlers'
+import { createApiResponse, createErrorResponse } from '@/lib/api/error-handler'
 import { handleApiError } from '@/lib/api/error-handler'
 import { getLogger } from '@/lib/logging/safe-wrapper'
 
@@ -27,7 +23,7 @@ export async function POST(request: NextRequest) {
     const audioFile = formData.get('audio') as File
 
     if (!(sessionId && audioFile)) {
-      return createBadRequestResponse('Missing sessionId or audio file')
+      return createErrorResponse('Missing sessionId or audio file', 400)
     }
 
     // Validate sessionId

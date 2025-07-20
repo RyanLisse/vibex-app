@@ -4,7 +4,7 @@
  * Test-driven development for Redis/Valkey session management
  */
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { testRedisConfig } from './config'
 import { RedisClientManager } from './redis-client'
 import { SessionService } from './session-service'

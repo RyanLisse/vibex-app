@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AnthropicAuthProvider, useAuth } from '@/components/auth/anthropic-auth-provider'
-import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
+import { AnthropicAuthProvider, useAuth } from './anthropic-auth-provider'
+import { useAnthropicAuth } from '../../hooks/use-anthropic-auth'
 
 // Mock the useAnthropicAuth hook
 vi.mock('@/hooks/use-anthropic-auth', () => ({

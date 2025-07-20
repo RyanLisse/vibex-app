@@ -75,7 +75,14 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Validation failed',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
@@ -83,8 +90,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       createApiErrorResponse(
         error instanceof Error ? error.message : 'Failed to check migration status',
-        500,
-        'MIGRATION_CHECK_ERROR'
+        500
       ),
       { status: 500 }
     )
@@ -104,12 +110,9 @@ export async function POST(request: NextRequest) {
     // Check if migration is already in progress
     const currentMigration = dataMigrationManager.getCurrentMigration()
     if (currentMigration && currentMigration.status === 'in_progress') {
-      return NextResponse.json(
-        createApiErrorResponse('Migration already in progress', 409, 'MIGRATION_IN_PROGRESS', {
-          migrationId: currentMigration.id,
-        }),
-        { status: 409 }
-      )
+      return NextResponse.json(createApiErrorResponse('Migration already in progress', 409), {
+        status: 409,
+      })
     }
 
     // Start migration
@@ -122,7 +125,14 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Validation failed',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
@@ -130,8 +140,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       createApiErrorResponse(
         error instanceof Error ? error.message : 'Failed to start migration',
-        500,
-        'MIGRATION_START_ERROR'
+        500
       ),
       { status: 500 }
     )
@@ -148,7 +157,7 @@ export function DELETE(_request: NextRequest) {
 
     if (process.env.NODE_ENV === 'production') {
       return NextResponse.json(
-        createApiErrorResponse('Migration cleanup not allowed in production', 403, 'FORBIDDEN'),
+        createApiErrorResponse('Migration cleanup not allowed in production', 403),
         { status: 403 }
       )
     }
@@ -168,8 +177,7 @@ export function DELETE(_request: NextRequest) {
     return NextResponse.json(
       createApiErrorResponse(
         error instanceof Error ? error.message : 'Failed to clean up migration data',
-        500,
-        'MIGRATION_CLEANUP_ERROR'
+        500
       ),
       { status: 500 }
     )

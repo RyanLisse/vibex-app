@@ -1,10 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import {
-  AIConversation,
-  AIConversationContent,
-  AIConversationScrollButton,
-} from '@/src/components/ui/kibo-ui/ai/conversation'
+import { AIConversation, AIConversationContent, AIConversationScrollButton } from './conversation'
 
 // Mock the Button component
 vi.mock('@/components/ui/button', () => ({

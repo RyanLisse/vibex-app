@@ -7,13 +7,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // Components to be implemented
-import { ProgressDashboard } from '@/components/features/progress/progress-dashboard'
-import { TaskProgressCard } from '@/components/features/progress/task-progress-card'
-import { ProgressIndicator } from '@/components/features/progress/progress-indicator'
-import { AlertSystem } from '@/components/features/progress/alert-system'
+import { ProgressDashboard } from '../../../components/features/progress/progress-dashboard'
+import { TaskProgressCard } from '../../../components/features/progress/task-progress-card'
+import { ProgressIndicator } from '../../../components/features/progress/progress-indicator'
+import { AlertSystem } from '../../../components/features/progress/alert-system'
 
 // Types
-import type { TaskProgress, ProgressMetrics } from '@/src/schemas/enhanced-task-schemas'
+import type { TaskProgress, ProgressMetrics } from '../../../src/schemas/enhanced-task-schemas'
 
 // Mock WebSocket for real-time updates
 const mockWebSocket = {

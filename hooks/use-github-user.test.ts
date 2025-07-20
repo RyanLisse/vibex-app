@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGitHubUser } from '@/hooks/use-github-user'
+import { useGitHubUser } from './use-github-user'
 
 // Mock fetch
 global.fetch = vi.fn()

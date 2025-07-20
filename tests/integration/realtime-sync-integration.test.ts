@@ -8,12 +8,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Task } from '@/db/schema'
-import { useElectricSync } from '@/hooks/use-electric-sync'
-import { useOfflineQueue } from '@/hooks/use-offline-queue'
-import { electricDb } from '@/lib/electric/config'
-import type { ConflictResolution, SyncEvent } from '@/lib/electric/types'
-import { useTask, useTasks } from '@/lib/query/hooks'
+import React from 'react'
+import type { Task } from '../../db/schema'
+import { useElectricSync } from '../../hooks/use-electric-sync'
+import { useOfflineQueue } from '../../hooks/use-offline-queue'
+import { electricDb } from '../../lib/electric/config'
+import type { ConflictResolution, SyncEvent } from '../../lib/electric/types'
+import { useTask, useTasks } from '../../lib/query/hooks'
 
 // Mock ElectricSQL
 vi.mock('@/lib/electric/config', () => ({

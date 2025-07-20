@@ -1,10 +1,10 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { AuthCardBase } from '@/components/auth/auth-card-base'
+import { AuthCardBase } from './auth-card-base'
 
 // Mock date-fns
-const formatDistanceToNowMock = mock((_date: any, options?: any) => {
+const formatDistanceToNowMock = vi.fn((_date: any, options?: any) => {
   if (options?.addSuffix) {
     return 'in 30 minutes'
   }
@@ -12,15 +12,15 @@ const formatDistanceToNowMock = mock((_date: any, options?: any) => {
 })
 
 // Mock window.location.reload
-const mockReload = mock()
+const mockReload = vi.fn()
 Object.defineProperty(window, 'location', {
   value: { reload: mockReload },
   writable: true,
 })
 
 describe('AuthCardBase', () => {
-  const mockOnLogout = mock()
-  const mockOnRetry = mock()
+  const mockOnLogout = vi.fn()
+  const mockOnRetry = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()

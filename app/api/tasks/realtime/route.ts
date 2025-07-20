@@ -213,7 +213,7 @@ export class TaskRealtimeNotifier {
 
     // Record event
     await observability.events.collector.collectEvent(
-      'realtime_notification',
+      'user_action',
       'debug',
       `Real-time update sent: ${updateType}`,
       {
@@ -322,10 +322,9 @@ export async function GET(request: NextRequest) {
     span.recordException(error as Error)
     span.setStatus({ code: SpanStatusCode.ERROR })
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to get real-time stats', 500, 'REALTIME_STATS_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to get real-time stats', 500), {
+      status: 500,
+    })
   } finally {
     span.end()
   }
@@ -374,15 +373,21 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Validation failed',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to establish connection', 500, 'CONNECTION_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to establish connection', 500), {
+      status: 500,
+    })
   } finally {
     span.end()
   }
@@ -400,10 +405,9 @@ export async function DELETE(request: NextRequest) {
     const connectionId = searchParams.get('connectionId')
 
     if (!connectionId) {
-      return NextResponse.json(
-        createApiErrorResponse('Connection ID is required', 400, 'MISSING_CONNECTION_ID'),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Connection ID is required', 400), {
+        status: 400,
+      })
     }
 
     RealTimeConnectionManager.removeConnection(connectionId)
@@ -422,10 +426,7 @@ export async function DELETE(request: NextRequest) {
     span.recordException(error as Error)
     span.setStatus({ code: SpanStatusCode.ERROR })
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to disconnect', 500, 'DISCONNECT_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to disconnect', 500), { status: 500 })
   } finally {
     span.end()
   }

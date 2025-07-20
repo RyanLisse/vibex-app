@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { TaskLoadingState } from '@/app/task/[id]/_components/task-loading-state'
+import { TaskLoadingState } from './task-loading-state'
 
 // Mock the TextShimmer component
 vi.mock('@/components/ui/text-shimmer', () => ({

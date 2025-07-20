@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import NewTaskForm from '@/components/forms/new-task-form'
+import NewTaskForm from '../../../components/forms/new-task-form'
 
 // Mock the hooks
 vi.mock('@/hooks/use-github-auth', () => ({

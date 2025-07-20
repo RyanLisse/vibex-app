@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 import { vi } from 'vitest'
-import { Input } from '@/components/ui/input'
+import { Input } from './input'
 
 describe('Input', () => {
   it('should render input element', () => {

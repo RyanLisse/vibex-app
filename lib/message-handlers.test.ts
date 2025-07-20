@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import type { StatusData, UpdateData } from '@/lib/container-types'
-import { MessageHandlers } from '@/lib/message-handlers'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from 'vitest'
+import type { StatusData, UpdateData } from './container-types'
+import { MessageHandlers } from './message-handlers'
 
 describe('MessageHandlers', () => {
   let mockUpdateTask: ReturnType<typeof mock>
@@ -9,8 +9,8 @@ describe('MessageHandlers', () => {
 
   beforeEach(() => {
     // Create fresh mock functions for each test
-    mockUpdateTask = mock()
-    mockGetTaskById = mock()
+    mockUpdateTask = vi.fn()
+    mockGetTaskById = vi.fn()
 
     handlers = new MessageHandlers({
       updateTask: mockUpdateTask,

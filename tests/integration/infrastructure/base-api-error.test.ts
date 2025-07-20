@@ -10,8 +10,8 @@ import {
   RateLimitError,
   DatabaseError,
   ExternalServiceError,
-} from '@/lib/api/base/errors'
-import { observability } from '@/lib/observability'
+} from '../../../lib/api/base/errors'
+import { observability } from '../../../lib/observability'
 
 // Mock observability
 vi.mock('@/lib/observability', () => ({

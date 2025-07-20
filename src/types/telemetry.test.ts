@@ -1,9 +1,5 @@
-import { describe, expect, it, test } from 'bun:test'
-import type {
-  TelemetryBackend,
-  TelemetryConfig,
-  TelemetryEnvironmentConfig,
-} from '@/src/types/telemetry'
+import { describe, expect, it, test } from 'vitest'
+import type { TelemetryBackend, TelemetryConfig, TelemetryEnvironmentConfig } from './telemetry'
 
 describe('TelemetryConfig interface', () => {
   it('should accept valid telemetry configuration', () => {

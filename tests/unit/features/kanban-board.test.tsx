@@ -9,16 +9,16 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
 // Components to be implemented
-import { KanbanBoard } from '@/components/features/kanban/kanban-board'
-import { KanbanColumn } from '@/components/features/kanban/kanban-column'
-import { KanbanCard } from '@/components/features/kanban/kanban-card'
-import { TaskFilters } from '@/components/features/kanban/task-filters'
+import { KanbanBoard } from '../../../components/features/kanban/kanban-board'
+import { KanbanColumn } from '../../../components/features/kanban/kanban-column'
+import { KanbanCard } from '../../../components/features/kanban/kanban-card'
+import { TaskFilters } from '../../../components/features/kanban/task-filters'
 
 // Types
 import type {
   KanbanTask,
   KanbanColumn as KanbanColumnType,
-} from '@/src/schemas/enhanced-task-schemas'
+} from '../../../src/schemas/enhanced-task-schemas'
 
 // Mock data
 const mockTasks: KanbanTask[] = [

@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
-import type { TelemetryBackend, TelemetryConfig } from '@/src/types/telemetry'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { TelemetryBackend, TelemetryConfig } from '../src/types/telemetry'
 import {
   getDefaultEndpoint,
   getTelemetryConfig,
@@ -10,14 +10,14 @@ import {
 describe('telemetry', () => {
   // Store original env vars
   const originalEnv = process.env
-  let consoleSpy: ReturnType<typeof spyOn>
+  let consoleSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     // Reset environment variables
     process.env = { ...originalEnv }
 
     // Set up console spy using spyOn
-    consoleSpy = spyOn(console, 'log').mockImplementation(() => {})
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 
   afterEach(() => {

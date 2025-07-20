@@ -100,7 +100,14 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid parameters', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Invalid parameters',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
@@ -180,7 +187,14 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Invalid request body',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
@@ -251,7 +265,14 @@ export async function PUT(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Invalid request body',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }

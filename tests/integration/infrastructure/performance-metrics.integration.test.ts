@@ -7,8 +7,8 @@
 
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import { ulid } from 'ulid'
-import { db } from '@/db/config'
-import { observabilityEvents as observabilityEventsTable } from '@/db/schema'
+import { db } from '../../../db/config'
+import { observabilityEvents as observabilityEventsTable } from '../../../db/schema'
 import {
   PerformanceMetricsCollector,
   MetricsAnalyzer,
@@ -16,7 +16,7 @@ import {
   type MetricType,
   type MetricDataPoint,
   type AggregatedMetric,
-} from '@/lib/observability/metrics'
+} from '../../../lib/observability/metrics'
 
 describe('PerformanceMetricsCollector Integration Tests', () => {
   let collector: PerformanceMetricsCollector

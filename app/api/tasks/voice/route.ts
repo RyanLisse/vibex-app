@@ -199,10 +199,9 @@ export async function POST(request: NextRequest) {
     span.setStatus({ code: SpanStatusCode.ERROR })
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400, error.issues), {
+        status: 400,
+      })
     }
 
     observability.metrics.errorRate(1, 'voice_api')

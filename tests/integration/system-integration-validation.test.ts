@@ -6,10 +6,10 @@
  */
 
 import { describe, test, expect, beforeAll, afterAll } from 'vitest'
-import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
-import { GrafanaDashboardBuilder } from '@/lib/metrics/grafana-dashboards'
-import { AlertRuleBuilder } from '@/lib/metrics/alert-rules'
-import { validateRedisEnvironment, getRedisConfig, redisFeatures } from '@/lib/redis/config'
+import { PrometheusMetricsCollector } from '../../lib/metrics/prometheus-client'
+import { GrafanaDashboardBuilder } from '../../lib/metrics/grafana-dashboards'
+import { AlertRuleBuilder } from '../../lib/metrics/alert-rules'
+import { validateRedisEnvironment, getRedisConfig, redisFeatures } from '../../lib/redis/config'
 
 // Integration Health Report Builder
 class IntegrationHealthReport {

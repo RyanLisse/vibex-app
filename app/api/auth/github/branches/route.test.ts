@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
 import { vi } from 'vitest'
-import { GET } from '@/app/api/auth/github/branches/route'
+import { GET } from './route'
 
 // Mock GitHub auth utilities
 vi.mock('@/lib/github', () => ({

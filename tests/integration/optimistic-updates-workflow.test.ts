@@ -11,14 +11,15 @@ import { delay, HttpResponse, http } from 'msw'
 // Mock server setup
 import { setupServer } from 'msw/node'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Task } from '@/db/schema'
+import React from 'react'
+import type { Task } from '../../db/schema'
 import {
   useBatchUpdateTasks,
   useCreateTask,
   useDeleteTask,
   useTasks,
   useUpdateTask,
-} from '@/lib/query/hooks'
+} from '../../lib/query/hooks'
 
 const server = setupServer()
 

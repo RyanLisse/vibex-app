@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { AlertManager } from '@/lib/alerts/alert-manager'
-import { AlertTransportService } from '@/lib/alerts/transport/alert-transport-service'
-import { CriticalError, CriticalErrorType, AlertConfig, AlertChannelType } from '@/lib/alerts/types'
+import { AlertManager } from '../../lib/alerts/alert-manager'
+import { AlertTransportService } from '../../lib/alerts/transport/alert-transport-service'
+import {
+  CriticalError,
+  CriticalErrorType,
+  AlertConfig,
+  AlertChannelType,
+} from '../../lib/alerts/types'
 import Redis from 'ioredis'
 
 // Mock Redis

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import NewTaskForm from '@/components/forms/new-task-form'
+import NewTaskForm from './new-task-form'
 
 // Mock functions at the top level
 vi.mock('@/app/actions/inngest', () => ({

@@ -12,7 +12,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MultiAgentChat } from '@/components/agents/multi-agent-chat'
 import { VoiceBrainstorm } from '@/components/agents/voice-brainstorm'
 import { Badge } from '@/components/ui/badge'
@@ -299,8 +299,8 @@ export default function VoiceBrainstormPage() {
                   desc: 'Insights generated',
                 },
                 { icon: Rocket, title: 'Act', desc: 'Next steps planned' },
-              ].map((step, index) => (
-                <div className="text-center" key={index}>
+              ].map((step) => (
+                <div className="text-center" key={step.title}>
                   <div className="mx-auto mb-2 w-fit rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 p-3">
                     <step.icon className="h-6 w-6 text-blue-600" />
                   </div>
@@ -331,8 +331,8 @@ export default function VoiceBrainstormPage() {
                 { name: 'WebSockets', desc: 'Live communication' },
                 { name: 'Tailwind CSS', desc: 'Modern styling' },
                 { name: 'TypeScript', desc: 'Type safety' },
-              ].map((tech, index) => (
-                <div className="rounded-lg bg-muted/30 p-3 text-center" key={index}>
+              ].map((tech) => (
+                <div className="rounded-lg bg-muted/30 p-3 text-center" key={tech.name}>
                   <Badge className="mb-2" variant="outline">
                     {tech.name}
                   </Badge>

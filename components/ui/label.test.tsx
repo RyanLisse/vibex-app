@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { vi } from 'vitest'
-import { Label } from '@/components/ui/label'
+import { Label } from './label'
 
 // Mock Radix UI Label
 vi.mock('@radix-ui/react-label', () => ({

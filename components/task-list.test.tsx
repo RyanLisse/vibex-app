@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import TaskList from '@/components/task-list'
+import TaskList from './task-list'
 
 // Mock TanStack Query hooks
 const mockTasksQuery = {

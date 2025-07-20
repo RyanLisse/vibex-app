@@ -7,8 +7,8 @@
 
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 import { ulid } from 'ulid'
-import { db } from '@/db/config'
-import { observabilityEvents as observabilityEventsTable } from '@/db/schema'
+import { db } from '../../../db/config'
+import { observabilityEvents as observabilityEventsTable } from '../../../db/schema'
 import {
   ObservabilityEventCollector,
   ObservabilityEventQuery,
@@ -16,7 +16,7 @@ import {
   type ObservabilityEventType,
   type EventSeverity,
   type EventMetadata,
-} from '@/lib/observability/events'
+} from '../../../lib/observability/events'
 import { trace, SpanKind, context } from '@opentelemetry/api'
 
 // Mock OpenTelemetry

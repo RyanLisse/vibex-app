@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
 import { vi } from 'vitest'
 
@@ -39,7 +39,7 @@ import {
   clearStoredToken,
   getStoredToken,
   revokeToken,
-} from '@/lib/auth/openai-codex'
+} from '../../../../../lib/auth/openai-codex'
 
 const mockClearStoredToken = clearStoredToken as any
 const mockRevokeToken = revokeToken as any

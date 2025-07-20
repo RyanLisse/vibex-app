@@ -1,11 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
-import type { ExampleFilter, ExampleItem } from '@/src/features/example-feature/types'
-import {
-  filterItems,
-  getPriorityColor,
-  getStatusIcon,
-  sortItems,
-} from '@/src/features/example-feature/utils/example-utils'
+import { afterEach, beforeEach, describe, expect, it, test } from 'vitest'
+import type { ExampleFilter, ExampleItem } from '../types'
+import { filterItems, getPriorityColor, getStatusIcon, sortItems } from './example-utils'
 
 describe('filterItems', () => {
   const mockItems: ExampleItem[] = [

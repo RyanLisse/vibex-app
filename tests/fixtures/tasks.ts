@@ -5,12 +5,17 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
     id: 'mock-task-id',
     title: 'Mock Task',
     description: 'This is a mock task for testing',
+    messages: [],
     status: 'IN_PROGRESS',
-    statusMessage: 'Task is in progress',
+    branch: 'main',
     sessionId: 'mock-session-id',
+    repository: 'mock-repo',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    statusMessage: 'Task is in progress',
     isArchived: false,
+    mode: 'code',
+    hasChanges: false,
     ...overrides,
   }
 }

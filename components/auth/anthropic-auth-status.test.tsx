@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { AnthropicAuthStatus } from '@/components/auth/anthropic-auth-status'
+import { AnthropicAuthStatus } from './anthropic-auth-status'
 
 // Mock the anthropic auth hook
 const mockUseAnthropicAuth = vi.fn()

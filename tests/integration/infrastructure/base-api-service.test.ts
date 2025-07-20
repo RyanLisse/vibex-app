@@ -5,9 +5,9 @@ import {
   BaseCRUDService,
   type ServiceContext,
   type ServiceOptions,
-} from '@/lib/api/base/service'
-import { BaseAPIError, DatabaseError, ValidationError } from '@/lib/api/base/errors'
-import { observability } from '@/lib/observability'
+} from '../../../lib/api/base/service'
+import { BaseAPIError, DatabaseError, ValidationError } from '../../../lib/api/base/errors'
+import { observability } from '../../../lib/observability'
 
 // Mock observability
 vi.mock('@/lib/observability', () => ({

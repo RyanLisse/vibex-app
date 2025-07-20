@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useAuthBase } from '@/hooks/use-auth-base'
+import { useAuthBase } from './use-auth-base'
 
 // Mock fetch
 const mockFetch = vi.fn()

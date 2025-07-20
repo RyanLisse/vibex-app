@@ -12,10 +12,10 @@
  */
 
 import { describe, test, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest'
-import { openai } from '@/lib/openai'
+import { openai } from '../../lib/openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { observability } from '@/lib/observability'
-import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
+import { observability } from '../../lib/observability'
+import { PrometheusMetricsCollector } from '../../lib/metrics/prometheus-client'
 
 // Mock responses for testing
 const mockResponses = {

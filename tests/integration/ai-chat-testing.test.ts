@@ -11,7 +11,7 @@ import {
   createSlowTestChatModel,
   createStaticTestChatModel,
   createTestChatModel,
-} from '@/lib/ai/testing/mock-language-model'
+} from '../../lib/ai/testing/mock-language-model'
 
 describe('AI Chat Testing Patterns', () => {
   describe('Mock Language Model', () => {

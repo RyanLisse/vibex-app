@@ -307,7 +307,7 @@ export function parseJWT(token: string): any {
     const payload = parts[1]
     const decoded = atob(payload)
     return JSON.parse(decoded)
-  } catch (error) {
+  } catch {
     throw new Error('Invalid JWT token')
   }
 }
@@ -340,7 +340,7 @@ export function sanitizeRedirectUrl(url: string): string {
     }
 
     return url
-  } catch (error) {
+  } catch {
     throw new Error('Invalid redirect URL')
   }
 }

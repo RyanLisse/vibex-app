@@ -23,14 +23,14 @@ import {
 // Request validation schema
 const ElectricQueryRequestSchema = z.object({
   query: z.string().min(1, 'Query is required'),
-  params: z.array(z.unknown()).optional().default([]),
+  params: z.array(z.unknown()).default([]).optional(),
   userId: z.string().optional(),
-  syncMode: z.enum(['local-first', 'server-first', 'hybrid']).optional().default('hybrid'),
+  syncMode: z.enum(['local-first', 'server-first', 'hybrid']).default('hybrid').optional(),
 })
 
 // Response schema
 const ElectricQueryResponseSchema = z.object({
-  data: z.array(z.record(z.unknown())),
+  data: z.array(z.record(z.string(), z.unknown())),
   rowCount: z.number(),
   syncTimestamp: z.string(),
   source: z.literal('server'),
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
           code: SpanStatusCode.ERROR,
           message: 'Validation failed',
         })
-        return createApiErrorResponse(validationResult.error, 400)
+        return createApiErrorResponse(validationResult.error, 400, [])
       }
 
       const { query, params, userId, syncMode } = validationResult.data
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           code: SpanStatusCode.ERROR,
           message: 'Invalid query type',
         })
-        return createApiErrorResponse('Only SELECT queries are allowed', 400)
+        return createApiErrorResponse('Only SELECT queries are allowed', 400, [])
       }
 
       // Add user filtering if userId is provided
@@ -97,10 +97,7 @@ export async function POST(request: NextRequest) {
       // Execute query against the server database
       const startTime = Date.now()
       // Create parameterized query
-      const parameterizedQuery =
-        finalParams.length > 0
-          ? sql.raw(finalQuery.replace(/\?/g, (_, index) => `$${index + 1}`))
-          : sql.raw(finalQuery)
+      const parameterizedQuery = sql`${sql.raw(finalQuery)}`
       const result = await db.execute(parameterizedQuery)
       const executionTime = Date.now() - startTime
 

@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { vi } from 'vitest'
-import { ClaudeAuthClient } from '@/src/lib/auth/claude-auth'
-import * as pkce from '@/src/lib/auth/pkce'
+import { ClaudeAuthClient } from './claude-auth'
+import * as pkce from './pkce'
 
 // Mock PKCE module
 vi.mock('./pkce')

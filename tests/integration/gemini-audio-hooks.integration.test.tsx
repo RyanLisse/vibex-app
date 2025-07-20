@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAudioRecorder } from '@/hooks/use-audio-recorder'
-import { useGeminiAudio } from '@/hooks/use-gemini-audio'
+import { useAudioRecorder } from '../../hooks/use-audio-recorder'
+import { useGeminiAudio } from '../../hooks/use-gemini-audio'
 
 // Mock the Gemini session
 vi.mock('@/lib/ai/gemini-realtime', () => ({

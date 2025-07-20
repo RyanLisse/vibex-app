@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { OpenAIAuthButton } from '@/components/auth/openai-auth-button'
+import { OpenAIAuthButton } from './openai-auth-button'
 
 // Mock the openai auth hook
 const mockUseOpenAIAuth = vi.fn()

@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
-import { ErrorBoundary, useErrorBoundary } from '@/components/error-boundary'
+import { ErrorBoundary, useErrorBoundary } from './error-boundary'
 
 // Mock console methods
 const mockConsoleError = mock.spyOn(console, 'error').mockImplementation(() => {})

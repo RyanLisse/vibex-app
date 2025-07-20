@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useAudioRecorder } from '@/hooks/use-audio-recorder'
+import { useAudioRecorder } from './use-audio-recorder'
 
 // Mock MediaRecorder
 class MockMediaRecorder {
@@ -248,7 +248,7 @@ describe('useAudioRecorder', () => {
       download: '',
       click: vi.fn(),
     }
-    spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
+    vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
 
     const { result } = renderHook(() => useAudioRecorder())
 

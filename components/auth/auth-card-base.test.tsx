@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { AuthCardBase } from '@/components/auth/auth-card-base'
+import { AuthCardBase } from './auth-card-base'
 
 // Mock date-fns
 vi.mock('date-fns', () => ({

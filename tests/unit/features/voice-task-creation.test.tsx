@@ -7,17 +7,17 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // Components to be implemented
-import { VoiceInputButton } from '@/components/features/voice-tasks/voice-input-button'
-import { VoiceRecorder } from '@/components/features/voice-tasks/voice-recorder'
-import { TranscriptionProcessor } from '@/components/features/voice-tasks/transcription-processor'
-import { VoiceTaskForm } from '@/components/features/voice-tasks/voice-task-form'
+import { VoiceInputButton } from '../../../components/features/voice-tasks/voice-input-button'
+import { VoiceRecorder } from '../../../components/features/voice-tasks/voice-recorder'
+import { TranscriptionProcessor } from '../../../components/features/voice-tasks/transcription-processor'
+import { VoiceTaskForm } from '../../../components/features/voice-tasks/voice-task-form'
 
 // Types
 import type {
   VoiceRecording,
   TranscriptionResult,
   VoiceTask,
-} from '@/src/schemas/enhanced-task-schemas'
+} from '../../../src/schemas/enhanced-task-schemas'
 
 // Mock Web Speech API
 const mockSpeechRecognition = {

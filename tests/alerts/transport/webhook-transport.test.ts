@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { WebhookTransport } from '@/lib/alerts/transport/webhook-transport'
+import { WebhookTransport } from '../../../lib/alerts/transport/webhook-transport'
 import {
   AlertChannel,
   CriticalError,
   AlertNotification,
   AlertChannelType,
   CriticalErrorType,
-} from '@/lib/alerts/types'
+} from '../../../lib/alerts/types'
 
 // Mock fetch
 global.fetch = vi.fn()

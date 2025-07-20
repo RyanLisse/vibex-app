@@ -4,7 +4,7 @@
 
 import { and, eq, gte, inArray, lte, sql } from 'drizzle-orm'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { db } from '@/db/config'
+import { db } from '../../db/config'
 import { MemoryRepository } from './repository'
 import type { CreateMemoryInput, MemoryEntry } from './types'
 

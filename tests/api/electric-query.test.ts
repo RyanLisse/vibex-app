@@ -7,8 +7,8 @@
 import { sql } from 'drizzle-orm'
 import { createMocks } from 'node-mocks-http'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { GET, POST } from '@/app/api/electric/query/route'
-import { db } from '@/db/config'
+import { GET, POST } from '../../app/api/electric/query/route'
+import { db } from '../../db/config'
 
 // Mock database
 vi.mock('@/db/config', () => ({

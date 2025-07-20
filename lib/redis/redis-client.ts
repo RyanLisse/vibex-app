@@ -94,6 +94,25 @@ export class RedisClientManager {
       keepAlive: 30_000,
       connectTimeout: 10_000,
       commandTimeout: 5000,
+      // Enhanced connection pooling configuration
+      enableReadyCheck: true,
+      enableOfflineQueue: true,
+      // Connection pool settings for better performance
+      minIdleTime: 10000, // 10 seconds
+      connectionPoolSize: 10, // Default pool size
+      // Reconnection strategy
+      reconnectOnError: (err) => {
+        const targetError = 'READONLY'
+        if (err.message.includes(targetError)) {
+          // Only reconnect when the error contains "READONLY"
+          return true
+        }
+        return false
+      },
+      retryStrategy: (times: number) => {
+        const delay = Math.min(times * 50, 2000)
+        return delay
+      },
       ...config.options,
     }
 

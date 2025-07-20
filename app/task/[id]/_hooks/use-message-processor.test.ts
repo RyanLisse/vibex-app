@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useMessageProcessor } from '@/app/task/[id]/_hooks/use-message-processor'
-import type { IncomingMessage, StreamingMessage } from '@/app/task/[id]/_types/message-types'
+import { useMessageProcessor } from './use-message-processor'
+import type { IncomingMessage, StreamingMessage } from '../_types/message-types'
 
 // Mock the message guards
 vi.mock('../_utils/message-guards', () => ({

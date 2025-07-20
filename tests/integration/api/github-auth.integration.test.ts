@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
-import { GET } from '@/app/api/auth/github/url/route'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { GET } from '../../../app/api/auth/github/url/route'
 
 describe('GitHub Auth API Integration Tests', () => {
   beforeEach(() => {

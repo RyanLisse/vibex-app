@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAnthropicAuth } from '@/hooks/use-anthropic-auth'
-import { useAuthBase } from '@/hooks/use-auth-base'
+import { useAnthropicAuth } from './use-anthropic-auth'
+import { useAuthBase } from './use-auth-base'
 
 // Mock the base auth hook
 vi.mock('./use-auth-base', () => ({

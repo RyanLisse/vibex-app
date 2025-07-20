@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { FormField } from '@/components/forms/form-field'
+import { FormField } from './form-field'
 
 describe('FormField', () => {
   const defaultProps = {

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useGitHubAuth } from '@/hooks/use-github-auth'
+import { useGitHubAuth } from './use-github-auth'
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({

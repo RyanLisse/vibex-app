@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
-import { Badge, badgeVariants } from '@/components/ui/badge'
+import { Badge, badgeVariants } from './badge'
 
 describe('Badge', () => {
   it('should render badge with default variant', () => {
@@ -77,7 +77,7 @@ describe('Badge', () => {
   })
 
   it('should handle onClick events', () => {
-    const handleClick = mock()
+    const handleClick = vi.fn()
     render(<Badge onClick={handleClick}>Clickable Badge</Badge>)
 
     const badge = screen.getByText('Clickable Badge')

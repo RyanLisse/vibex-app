@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import Container from '@/app/container'
+import Container from './container'
 
 // Mock the dependencies
 const mockUpdateTask = vi.fn()

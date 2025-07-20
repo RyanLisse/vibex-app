@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { vi } from 'vitest'
-import { Separator } from '@/components/ui/separator'
+import { Separator } from './separator'
 
 // Mock Radix UI Separator
 vi.mock('@radix-ui/react-separator', () => ({

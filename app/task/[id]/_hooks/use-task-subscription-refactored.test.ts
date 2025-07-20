@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useTaskSubscription } from '@/app/task/[id]/_hooks/use-task-subscription-refactored'
+import { useTaskSubscription } from './use-task-subscription-refactored'
 
 // Mock the dependencies
 vi.mock('@inngest/realtime/hooks', () => ({

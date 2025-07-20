@@ -4,28 +4,28 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 mock.module('@/lib/inngest', () => ({
   inngest: {
     id: 'clonedex',
-    send: mock(() => Promise.resolve({ ids: ['test-id'] })),
+    send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
   },
-  taskChannel: mock(() => {
-    const channel = mock()
-    channel.status = mock()
-    channel.update = mock()
-    channel.control = mock()
+  taskChannel: vi.fn(() => {
+    const channel = vi.fn()
+    channel.status = vi.fn()
+    channel.update = vi.fn()
+    channel.control = vi.fn()
     return channel
   }),
   taskControl: {
     id: 'task-control',
     trigger: { event: 'clonedx/task.control' },
-    handler: mock(() => Promise.resolve({ success: true })),
+    handler: vi.fn(() => Promise.resolve({ success: true })),
   },
   createTask: {
     id: 'create-task',
     trigger: { event: 'clonedx/create.task' },
-    handler: mock(() => Promise.resolve({ message: 'Task created' })),
+    handler: vi.fn(() => Promise.resolve({ message: 'Task created' })),
   },
-  getInngestApp: mock(() => ({
+  getInngestApp: vi.fn(() => ({
     id: 'server',
-    send: mock(() => Promise.resolve({ ids: ['test-id'] })),
+    send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
   })),
 }))
 

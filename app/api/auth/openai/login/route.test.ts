@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { NextRequest } from 'next/server'
 import { vi } from 'vitest'
 
@@ -37,7 +37,7 @@ import {
   generateCodeChallenge,
   generateCodeVerifier,
   generateState,
-} from '@/lib/auth/openai-codex'
+} from '../../../../../lib/auth/openai-codex'
 
 const mockGenerateAuthUrl = generateAuthUrl as any
 const mockGenerateCodeChallenge = generateCodeChallenge as any

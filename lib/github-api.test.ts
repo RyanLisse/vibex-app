@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, type mock } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { vi } from 'vitest'
-import { GitHubAPI } from '@/lib/github-api'
+import { GitHubAPI } from './github-api'
 
 describe.skip('GitHubAPI', () => {
   let api: GitHubAPI

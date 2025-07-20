@@ -11,9 +11,9 @@
  * - Performance regression detection
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'bun:test'
-import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
-import { observability } from '@/lib/observability'
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { PrometheusMetricsCollector } from '../../lib/metrics/prometheus-client'
+import { observability } from '../../lib/observability'
 
 // Performance testing utilities
 class LoadTester {

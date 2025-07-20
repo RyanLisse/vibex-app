@@ -4,7 +4,7 @@
  * Test-driven development for Redis/Valkey job queue functionality
  */
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { testRedisConfig } from './config'
 import { JobQueueService } from './job-queue-service'
 import { RedisClientManager } from './redis-client'

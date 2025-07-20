@@ -653,6 +653,30 @@ export const executionSnapshotsRelations = relations(executionSnapshots, ({ one 
   }),
 }))
 
+// Auth Tokens Table (for secure token storage)
+export const authTokens = pgTable(
+  'auth_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: varchar('user_id', { length: 255 }).notNull(),
+    providerId: varchar('provider_id', { length: 255 }).notNull(),
+    encryptedToken: text('encrypted_token').notNull(),
+    tokenType: varchar('token_type', { length: 20 }).notNull(), // 'oauth' or 'api'
+    expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userProviderUnique: unique('auth_tokens_user_provider_unique').on(
+      table.userId,
+      table.providerId
+    ),
+    userIdIdx: index('auth_tokens_user_id_idx').on(table.userId),
+    providerIdIdx: index('auth_tokens_provider_id_idx').on(table.providerId),
+    expiresAtIdx: index('auth_tokens_expires_at_idx').on(table.expiresAt),
+  })
+)
+
 // Type exports
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
@@ -684,3 +708,5 @@ export type ExecutionSnapshot = typeof executionSnapshots.$inferSelect
 export type NewExecutionSnapshot = typeof executionSnapshots.$inferInsert
 export type Migration = typeof migrations.$inferSelect
 export type NewMigration = typeof migrations.$inferInsert
+export type AuthToken = typeof authTokens.$inferSelect
+export type NewAuthToken = typeof authTokens.$inferInsert

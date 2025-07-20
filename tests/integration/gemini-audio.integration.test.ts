@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
+import { GeminiRealtimeSession } from '../../lib/ai/gemini-realtime'
 
 // Mock the @google/genai module
 vi.mock('@google/genai', () => ({

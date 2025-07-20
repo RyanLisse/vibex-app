@@ -4,7 +4,7 @@
  * Test-driven development for Redis/Valkey real-time analytics and metrics
  */
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { testRedisConfig } from './config'
 import { MetricsService } from './metrics-service'
 import { RedisClientManager } from './redis-client'

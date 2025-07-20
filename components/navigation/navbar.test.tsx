@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import Navbar from '@/components/navigation/navbar'
+import Navbar from './navbar'
 
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({

@@ -92,16 +92,15 @@ export abstract class BaseAPIHandler {
   static handleError(error: unknown): NextResponse {
     // Zod validation errors
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400, error.issues), {
+        status: 400,
+      })
     }
 
     // Our custom API errors
     if (error instanceof BaseAPIError) {
       return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code, error.details),
+        createApiErrorResponse(error.message, error.statusCode, error.details),
         { status: error.statusCode }
       )
     }
@@ -114,17 +113,14 @@ export abstract class BaseAPIHandler {
       const message =
         process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
 
-      return NextResponse.json(createApiErrorResponse(message, 500, 'INTERNAL_ERROR'), {
+      return NextResponse.json(createApiErrorResponse(message, 500), {
         status: 500,
       })
     }
 
     // Unknown errors
     console.error('Unknown error:', error)
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 
   /**

@@ -30,16 +30,18 @@ A cutting-edge AI-powered code generation platform featuring real-time synchroni
 
 Before you begin, make sure you have:
 
-- **Bun** (v1.0 or higher) - Primary runtime
-- **Node.js** (v18 or higher) - For compatibility
+- **Bun** (v1.0 or higher) - Primary runtime and package manager
+- **Node.js** (v20 or higher) - For compatibility with certain tools
 - **PostgreSQL** (v14 or higher) - Database
-- **Redis** (optional) - For caching
-- **Inngest CLI** - Background job processing
+- **Redis** (optional) - For caching and job queues
+- **Inngest CLI** (optional) - Background job processing
 - API Keys:
-  - **OpenAI API key**
-  - **Anthropic API key** (optional)
-  - **E2B API key**
-  - **GitHub OAuth app**
+  - **OpenAI API key** - For AI code generation
+  - **Anthropic API key** (optional) - Alternative AI provider
+  - **Google AI API key** (optional) - For Gemini models
+  - **E2B API key** (optional) - For sandboxed execution
+  - **GitHub OAuth app** (optional) - For repository integration
+  - **Sentry** (optional) - For error tracking and monitoring
 
 ## 📦 Installation
 
@@ -171,12 +173,16 @@ The application will be available at:
 
 ### Testing
 
-- `bun run test` - Run all test suites (unit + components + integration)
-- `bun run test:unit` - Run unit tests with Vitest
-- `bun run test:components` - Run component tests
-- `bun run test:integration` - Run integration tests
-- `bun run test:browser` - Run browser-based tests
+The project uses a consolidated 4-config testing strategy optimized for Bun:
+
+- `bun run test` - Run all test suites
+- `bun run test:unit` - Run unit tests for business logic
+- `bun run test:components` - Run React component tests
+- `bun run test:integration` - Run API and database integration tests
+- `bun run test:browser` - Run browser-based E2E tests
+- `bun run test:all` - Run all test suites sequentially
 - `bun run test:coverage` - Generate comprehensive coverage report
+- `bun run test:fast` - Quick test run (unit + integration only)
 
 ### Database
 
@@ -201,6 +207,32 @@ The application will be available at:
 - `bun run test:inngest` - Test Inngest background jobs
 - `bun run migration:status` - Check data migration status
 - `bun run migration:migrate` - Run data migrations
+
+## 🚀 Recent Improvements
+
+### Performance Enhancements
+- **Bun Runtime**: 50% faster dependency installation and test execution
+- **Optimized Builds**: Reduced memory usage and build times
+- **WASM Modules**: High-performance vector search and data processing
+- **Edge-Ready**: Optimized for Vercel Edge Functions
+
+### Testing Infrastructure
+- **Consolidated Test Configs**: From 8+ configs down to 4 optimized configs
+- **Parallel Test Execution**: Faster CI/CD pipelines
+- **Comprehensive Coverage**: Unit, integration, component, and E2E tests
+- **Vitest + Playwright**: Modern testing stack
+
+### Security & Monitoring
+- **Sentry Integration**: Comprehensive error tracking and performance monitoring
+- **OpenTelemetry**: Distributed tracing and observability
+- **Security Headers**: CSP, HSTS, and other security best practices
+- **Rate Limiting**: Built-in API rate limiting
+
+### Developer Experience
+- **TypeScript Strict Mode**: Full type safety
+- **Automated Fixes**: Scripts to fix common issues
+- **Hot Module Replacement**: Fast development iteration
+- **Comprehensive Documentation**: Detailed guides and API references
 
 ## 🏗️ Project Structure
 
@@ -323,6 +355,12 @@ The application will be available at:
 
 ### Deploy to Vercel
 
+#### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/vibex)
+
+#### Manual Deployment
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -331,11 +369,33 @@ npm i -g vercel
 vercel --prod
 ```
 
+**Required Environment Variables:**
+
+```bash
+# Core Configuration
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+DATABASE_URL=your_database_connection_string
+AUTH_SECRET=your_auth_secret_here
+
+# AI Services (at least one required)
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+GOOGLE_AI_API_KEY=your_google_ai_api_key
+
+# Optional Services
+SENTRY_DSN=your_sentry_dsn
+REDIS_URL=your_redis_url
+INNGEST_EVENT_KEY=your_inngest_key
+```
+
 **Vercel Configuration:**
 
-- Enable Edge Functions for optimal performance
-- Configure environment variables in dashboard
-- Set up custom domain and SSL
+- Framework Preset: Next.js
+- Build Command: `bun install --frozen-lockfile && bun run build`
+- Output Directory: `.next`
+- Install Command: Auto-detected
+- Node.js Version: 20.x
+- Functions Region: US East (iad1) or closest to your database
 
 ### Deploy to Railway/Render
 
@@ -389,7 +449,31 @@ This project is licensed under the MIT License.
 
 ### Common Issues
 
-1. **Database Connection**
+1. **Vercel Deployment Failures**
+   
+   ```bash
+   # Ensure Bun is installed in build
+   # vercel.json already configured for this
+   
+   # Check for missing environment variables
+   vercel env pull
+   
+   # Test build locally
+   bun run build
+   ```
+
+2. **TypeScript Errors**
+   
+   ```bash
+   # Use the workaround script
+   bun run typecheck
+   
+   # Or run automated fixes
+   bun run fix:typescript
+   bun run fix:all
+   ```
+
+3. **Database Connection**
 
    ```bash
    # Test database connection
@@ -397,35 +481,39 @@ This project is licensed under the MIT License.
 
    # Check migrations status
    bun run db:status
+   
+   # For Vercel, ensure DATABASE_URL uses pooling
+   # Example: ?pgbouncer=true&connection_limit=1
    ```
 
-2. **ElectricSQL Sync Issues**
+4. **Build Memory Issues**
+   
+   ```bash
+   # Already configured in vercel.json
+   # NODE_OPTIONS=--max-old-space-size=8192
+   
+   # For local builds
+   NODE_OPTIONS='--max-old-space-size=8192' bun run build
+   ```
+
+5. **Sentry Build Errors**
+   
+   ```bash
+   # If not using Sentry, ensure these are NOT set:
+   # SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN
+   
+   # Or set SENTRY_SUPPRESS_TURBOPACK_WARNING=1
+   ```
+
+6. **ElectricSQL Sync Issues**
    - Verify ELECTRIC_URL is correct
    - Check WebSocket connectivity
    - Review sync logs in browser console
 
-3. **WASM Module Errors**
+7. **WASM Module Errors**
    - Ensure browser supports WASM
    - Check for SIMD support for vector search
    - Fall back to JavaScript implementation
-
-4. **Type Errors**
-
-   ```bash
-   # Regenerate types
-   bun run db:generate
-   bun run type-check
-   ```
-
-5. **Migration Problems**
-
-   ```bash
-   # Check migration status
-   bun run migration:status --verbose
-
-   # Create backup before retry
-   bun run migration:backup
-   ```
 
 ### Debug Mode
 

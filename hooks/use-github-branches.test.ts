@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useGitHubBranches } from '@/hooks/use-github-branches'
+import { useGitHubBranches } from './use-github-branches'
 
 // Mock fetch
 global.fetch = vi.fn()

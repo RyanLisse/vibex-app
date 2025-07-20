@@ -1,12 +1,13 @@
 # Vercel Deployment Configuration
 
-This document outlines the required configuration for deploying the Codex Clone application to Vercel.
+This document provides comprehensive guidance for deploying the Claude Flow (Vibex) application to Vercel.
 
 ## Prerequisites
 
-1. A Vercel account and project set up
-2. Required API keys and services configured
-3. Bun installed locally for development
+1. A Vercel account (free tier works for testing)
+2. Required API keys for AI services
+3. PostgreSQL database (Vercel Postgres, Neon, or Supabase recommended)
+4. Bun installed locally for development (v1.0+)
 
 ## Environment Variables
 
@@ -70,23 +71,28 @@ INNGEST_ENABLED=false  # Set to true if using Inngest
 
 ## Build Configuration
 
-The project uses the following build configuration:
+The project is optimized for Vercel deployment with the following settings:
 
-- **Framework**: Next.js
-- **Build Command**: `bun run build`
-- **Install Command**: `bun install`
+- **Framework Preset**: Next.js
+- **Build Command**: `bun install --frozen-lockfile && bun run build`
+- **Install Command**: Automatically installs Bun via curl
 - **Output Directory**: `.next`
-- **Node Version**: 20.x (recommended)
+- **Node Version**: 20.x (required)
+- **Package Manager**: Bun (auto-installed during build)
+- **Functions Region**: `iad1` (US East) or closest to your database
 
 ## Performance Optimizations
 
-The deployment configuration includes:
+The deployment is optimized with:
 
-- Node.js memory optimization (`--max-old-space-size=4096`)
-- Disabled Next.js telemetry for faster builds
-- Security headers for production
-- Sentry tunnel route for bypassing ad blockers
-- Regional deployment (US East by default)
+- **Memory Allocation**: 8GB for builds (`--max-old-space-size=8192`)
+- **Build Caching**: Leverages Vercel's build cache
+- **Edge Functions**: Optimized for edge runtime where applicable
+- **Security Headers**: Comprehensive CSP and security policies
+- **Sentry Integration**: Optional error tracking with tunnel route
+- **Regional Deployment**: Configurable based on user base
+- **Static Optimization**: Automatic static page generation
+- **Image Optimization**: Next.js Image component with WebP/AVIF
 
 ## Function Configuration
 
@@ -97,13 +103,45 @@ The deployment configuration includes:
 
 ### Build Failures
 
-1. **Sentry Build Errors**: If you see Sentry-related errors and don't need Sentry, ensure all Sentry environment variables are undefined (not empty strings)
+1. **Bun Installation**: The build automatically installs Bun. If this fails:
+   ```bash
+   # Test locally with same command
+   curl -fsSL https://bun.sh/install | bash
+   ```
 
-2. **Memory Issues**: The build is configured with 4GB of memory. If you encounter out-of-memory errors, contact Vercel support to increase limits
+2. **TypeScript Errors**: 
+   ```bash
+   # Use the workaround script locally
+   bun run typecheck
+   
+   # Or skip type checking in production
+   SKIP_ENV_VALIDATION=true vercel --prod
+   ```
 
-3. **TypeScript Errors**: Run `bun run typecheck` locally before deploying
+3. **Memory Issues**: Already configured for 8GB. For larger projects:
+   - Split the build into smaller chunks
+   - Use Vercel's Enterprise plan for more resources
+   - Optimize imports and tree shaking
 
-4. **Missing Dependencies**: Ensure all dependencies are listed in `package.json` and not in `devDependencies` if needed for production
+4. **Sentry Build Errors**: 
+   - If not using Sentry, don't set ANY Sentry variables
+   - If using Sentry, ensure all required vars are set:
+     - `SENTRY_ORG`
+     - `SENTRY_PROJECT`
+     - `SENTRY_AUTH_TOKEN`
+     - `SENTRY_DSN` or `NEXT_PUBLIC_SENTRY_DSN`
+
+5. **Database Connection**:
+   - Use connection pooling for serverless
+   - Add `?pgbouncer=true` to DATABASE_URL
+   - Set `connection_limit=1` for Vercel Functions
+
+6. **Module Resolution**:
+   ```bash
+   # Clear cache and reinstall
+   rm -rf node_modules bun.lockb
+   bun install --frozen-lockfile
+   ```
 
 ### Runtime Issues
 
@@ -126,10 +164,47 @@ If Sentry is configured:
 - Source maps are uploaded for better error tracking
 - Vercel Cron Monitors are automatically instrumented
 
+## Quick Deployment Checklist
+
+- [ ] Fork/clone the repository
+- [ ] Create a new Vercel project
+- [ ] Connect your GitHub repository
+- [ ] Set up PostgreSQL database (Vercel Postgres recommended)
+- [ ] Add all required environment variables
+- [ ] Deploy and check build logs
+- [ ] Test the deployed application
+- [ ] Configure custom domain (optional)
+
+## Deployment Commands
+
+```bash
+# Local testing before deployment
+bun install --frozen-lockfile
+bun run typecheck
+bun run test:fast
+bun run build
+
+# Deploy to Vercel
+vercel --prod
+
+# Check deployment
+vercel logs
+vercel env pull
+```
+
 ## Support
 
 For deployment issues:
-1. Check Vercel deployment logs
-2. Verify all environment variables are set
-3. Run `bun run build` locally to catch build errors
-4. Check the Vercel status page for platform issues
+1. Check Vercel deployment logs in the dashboard
+2. Verify all environment variables are correctly set
+3. Test the build locally with `bun run build`
+4. Check the [Vercel status page](https://www.vercel-status.com/)
+5. Review the [troubleshooting guide](./docs/troubleshooting.md)
+6. Check recent [GitHub issues](https://github.com/yourusername/vibex/issues)
+
+## Additional Resources
+
+- [Vercel Documentation](https://vercel.com/docs)
+- [Next.js Deployment Guide](https://nextjs.org/docs/deployment)
+- [Bun Documentation](https://bun.sh/docs)
+- [Project Architecture Guide](./docs/ARCHITECTURE.md)

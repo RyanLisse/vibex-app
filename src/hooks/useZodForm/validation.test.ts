@@ -1,12 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import type { UseFormReturn } from 'react-hook-form'
 import { vi } from 'vitest'
 import { z } from 'zod'
-import {
-  createSchemaValidator,
-  validateAllFormFields,
-  validateSingleField,
-} from '@/src/hooks/useZodForm/validation'
+import { createSchemaValidator, validateAllFormFields, validateSingleField } from './validation'
 
 // Mock react-hook-form
 vi.mock('react-hook-form', () => ({

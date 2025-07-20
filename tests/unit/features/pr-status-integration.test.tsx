@@ -7,14 +7,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // Components to be implemented
-import { PRStatusCard } from '@/components/features/pr-integration/pr-status-card'
-import { PRStatusBadge } from '@/components/features/pr-integration/pr-status-badge'
-import { PRReviewSummary } from '@/components/features/pr-integration/pr-review-summary'
-import { PRActionButtons } from '@/components/features/pr-integration/pr-action-buttons'
-import { TaskPRLinker } from '@/components/features/pr-integration/task-pr-linker'
+import { PRStatusCard } from '../../../components/features/pr-integration/pr-status-card'
+import { PRStatusBadge } from '../../../components/features/pr-integration/pr-status-badge'
+import { PRReviewSummary } from '../../../components/features/pr-integration/pr-review-summary'
+import { PRActionButtons } from '../../../components/features/pr-integration/pr-action-buttons'
+import { TaskPRLinker } from '../../../components/features/pr-integration/task-pr-linker'
 
 // Types
-import type { PRStatus, TaskPRLink } from '@/src/schemas/enhanced-task-schemas'
+import type { PRStatus, TaskPRLink } from '../../../src/schemas/enhanced-task-schemas'
 
 // Mock GitHub API
 const mockGitHubAPI = {

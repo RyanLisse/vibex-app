@@ -198,11 +198,11 @@ export class MemoryContextManager {
   /**
    * Generate context summary
    */
-  private async generateContextSummary(
+  private generateContextSummary(
     recentMemories: MemoryEntry[],
     relevantMemories: MemoryEntry[],
     sharedMemories: MemoryEntry[]
-  ): Promise<string> {
+  ): string {
     const allMemories = [...recentMemories, ...relevantMemories, ...sharedMemories]
 
     if (allMemories.length === 0) {

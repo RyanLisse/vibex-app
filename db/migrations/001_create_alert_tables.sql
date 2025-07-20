@@ -1,3 +1,4 @@
+-- Up
 -- Migration: Create Alert System Tables
 -- Description: Creates the database schema for the critical error alert system
 -- Date: 2024-01-01
@@ -128,3 +129,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON alerts TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON alert_channels TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON alert_notifications TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON alert_metrics TO authenticated;
+
+-- Down
+DROP TABLE IF EXISTS alert_metrics;
+DROP TABLE IF EXISTS alert_notifications;
+DROP TABLE IF EXISTS alert_channels;
+DROP TABLE IF EXISTS alerts;

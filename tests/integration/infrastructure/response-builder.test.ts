@@ -4,8 +4,8 @@ import {
   type SuccessResponse,
   type ErrorResponse,
   type PaginatedResponse,
-} from '@/lib/api/base/response-builder'
-import { BaseAPIError, ValidationError, NotFoundError } from '@/lib/api/base/errors'
+} from '../../../lib/api/base/response-builder'
+import { BaseAPIError, ValidationError, NotFoundError } from '../../../lib/api/base/errors'
 
 // Mock crypto.randomUUID
 const mockUUID = 'test-uuid-1234-5678-90ab-cdef'

@@ -8,7 +8,7 @@ import {
   instrumentInngestFunction,
   instrumentServerAction,
   setSentryUser,
-} from '@/lib/sentry/instrumentation'
+} from '../../lib/sentry/instrumentation'
 
 // Mock Sentry
 vi.mock('@sentry/nextjs', () => ({

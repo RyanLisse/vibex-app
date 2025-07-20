@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { ChatMessage } from '@/app/task/[id]/_components/chat-message'
+import { ChatMessage } from './chat-message'
 
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({

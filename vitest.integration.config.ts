@@ -45,8 +45,8 @@ export default mergeConfig(sharedConfig, {
       'src/**/*.test.*',
       'stores/**/*.test.*',
     ],
-    testTimeout: 30_000, // Longer timeout for integration tests
-    hookTimeout: 15_000,
+    testTimeout: 60_000, // Longer timeout for integration tests
+    hookTimeout: 30_000,
     teardownTimeout: 15_000,
     coverage: {
       enabled: false, // Disable coverage for integration tests

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { StreamingIndicator } from '@/components/streaming-indicator'
+import { StreamingIndicator } from './streaming-indicator'
 
 // Mock the cn utility
 vi.mock('@/lib/utils', () => ({

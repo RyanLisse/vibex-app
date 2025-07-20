@@ -21,9 +21,9 @@ vi.mock('next/server', () => ({
   NextResponse: mockNextResponse,
 }))
 
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { vi } from 'vitest'
-import { GET } from '@/app/api/auth/openai/status/route'
+import { GET } from './route'
 
 describe('GET /api/auth/openai/status', () => {
   beforeEach(() => {

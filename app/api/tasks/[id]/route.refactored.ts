@@ -70,10 +70,6 @@ class TaskService extends BaseAPIService {
             .set({
               ...updates,
               updatedAt: new Date(),
-              ...(updates.status === 'completed' &&
-                !existingTask.completedAt && {
-                  completedAt: new Date(),
-                }),
             })
             .where(eq(tasks.id, id))
             .returning()

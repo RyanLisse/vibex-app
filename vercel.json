@@ -1,8 +1,8 @@
 {
   "framework": "nextjs",
-  "buildCommand": "bun run build",
+  "buildCommand": "bun install --frozen-lockfile && bun run build",
   "outputDirectory": ".next",
-  "installCommand": "bun install --frozen-lockfile",
+  "installCommand": "curl -fsSL https://bun.sh/install | bash && ~/.bun/bin/bun install --frozen-lockfile",
   "devCommand": "bun run dev",
   "env": {
     "NODE_ENV": "production",
@@ -34,10 +34,11 @@
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=4096",
+      "NODE_OPTIONS": "--max-old-space-size=8192",
       "NEXT_TELEMETRY_DISABLED": "1",
       "SKIP_ENV_VALIDATION": "true",
-      "SENTRY_SUPPRESS_TURBOPACK_WARNING": "1"
+      "SENTRY_SUPPRESS_TURBOPACK_WARNING": "1",
+      "SKIP_BUILD_PRODUCT_REDIRECTS": "1"
     }
   },
   "functions": {

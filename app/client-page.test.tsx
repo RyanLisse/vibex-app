@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import ClientPage from '@/app/client-page'
+import ClientPage from './client-page'
 
 // Mock the imported components
 vi.mock('@/components/navigation/navbar', () => ({

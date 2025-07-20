@@ -61,9 +61,10 @@ const calculateProgressMetrics = (tasks: any[]) => {
   const completed = tasks.filter((t) => t.status === 'completed').length
   const inProgress = tasks.filter((t) => t.status === 'in_progress').length
   const blocked = tasks.filter((t) => t.status === 'blocked').length
-  const overdue = tasks.filter(
-    (t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed'
-  ).length
+  const overdue = tasks.filter((t) => {
+    const metadata = t.metadata as any
+    return metadata?.dueDate && new Date(metadata.dueDate) < new Date() && t.status !== 'completed'
+  }).length
 
   const completionRate = total > 0 ? (completed / total) * 100 : 0
   const velocity = calculateVelocity(tasks)
@@ -86,10 +87,14 @@ const calculateVelocity = (tasks: any[]) => {
   const now = new Date()
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-  const recentlyCompleted = tasks.filter(
-    (t) =>
-      t.completedAt && new Date(t.completedAt) >= sevenDaysAgo && new Date(t.completedAt) <= now
-  )
+  const recentlyCompleted = tasks.filter((t) => {
+    const metadata = t.metadata as any
+    return (
+      metadata?.completedAt &&
+      new Date(metadata.completedAt) >= sevenDaysAgo &&
+      new Date(metadata.completedAt) <= now
+    )
+  })
 
   return recentlyCompleted.length / 7
 }
@@ -101,9 +106,10 @@ const calculateBurndown = (tasks: any[]) => {
 
   for (let i = 29; i >= 0; i--) {
     const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-    const completedByDate = tasks.filter(
-      (t) => t.completedAt && new Date(t.completedAt) <= date
-    ).length
+    const completedByDate = tasks.filter((t) => {
+      const metadata = t.metadata as any
+      return metadata?.completedAt && new Date(metadata.completedAt) <= date
+    }).length
     const totalByDate = tasks.filter((t) => new Date(t.createdAt) <= date).length
 
     days.push({
@@ -132,13 +138,13 @@ export async function POST(request: NextRequest) {
     const [task] = await db.select().from(tasks).where(eq(tasks.id, validatedData.taskId))
 
     if (!task) {
-      return NextResponse.json(createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'), {
+      return NextResponse.json(createApiErrorResponse('Task not found', 404), {
         status: 404,
       })
     }
 
     // Calculate time tracking
-    const currentMetadata = task.metadata || {}
+    const currentMetadata = (task.metadata as any) || {}
     const timeTracking = currentMetadata.timeTracking || {
       estimatedHours: 0,
       actualHours: 0,
@@ -150,18 +156,18 @@ export async function POST(request: NextRequest) {
       timeTracking.sessions.push({
         duration: validatedData.timeSpent,
         timestamp: new Date().toISOString(),
-        description: validatedData.notes || 'Progress update',
+        description: (validatedData as any).notes || 'Progress update',
       })
     }
 
     // Update progress
     const progressData = {
-      percentage: validatedData.percentage,
-      milestones: validatedData.milestones || currentMetadata.progress?.milestones || [],
-      blockers: validatedData.blockers || [],
+      percentage: validatedData.completionPercentage,
+      milestones: (validatedData as any).milestones || currentMetadata.progress?.milestones || [],
+      blockers: (validatedData as any).blockers || [],
       timeTracking,
       lastUpdated: new Date().toISOString(),
-      updatedBy: validatedData.userId,
+      updatedBy: (validatedData as any).userId || 'system',
     }
 
     // Check for milestone completion
@@ -175,7 +181,7 @@ export async function POST(request: NextRequest) {
       .update(tasks)
       .set({
         metadata: {
-          ...currentMetadata,
+          ...(currentMetadata as any),
           progress: progressData,
         },
         updatedAt: new Date(),
@@ -206,9 +212,9 @@ export async function POST(request: NextRequest) {
       `Task progress updated: ${task.title}`,
       {
         taskId: validatedData.taskId,
-        userId: validatedData.userId,
+        userId: (validatedData as any).userId || 'system',
         previousProgress: currentMetadata.progress?.percentage || 0,
-        newProgress: validatedData.percentage,
+        newProgress: validatedData.completionPercentage,
         milestonesCompleted: newMilestones.length,
         timeSpent: validatedData.timeSpent,
       },
@@ -218,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     span.setAttributes({
       'task.id': validatedData.taskId,
-      'progress.percentage': validatedData.percentage,
+      'progress.percentage': validatedData.completionPercentage,
       'progress.milestones_completed': newMilestones.length,
       'progress.time_spent': validatedData.timeSpent || 0,
     })
@@ -239,17 +245,23 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Validation failed',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
 
     observability.metrics.errorRate(1, 'progress_api')
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to update progress', 500, 'UPDATE_PROGRESS_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to update progress', 500), {
+      status: 500,
+    })
   } finally {
     span.end()
   }
@@ -271,30 +283,37 @@ export async function GET(request: NextRequest) {
     const daysAgo = Number.parseInt(timeframe, 10)
     const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
 
-    let query = db.select().from(tasks).where(gte(tasks.createdAt, startDate))
-
+    const conditions = [gte(tasks.createdAt, startDate)]
     if (userId) {
-      query = query.where(and(gte(tasks.createdAt, startDate), eq(tasks.userId, userId)))
+      conditions.push(eq(tasks.userId, userId))
     }
 
-    const tasks = await query
+    const query = db
+      .select()
+      .from(tasks)
+      .where(and(...conditions))
+
+    const taskResults = await query
 
     // Calculate metrics
-    const metrics = calculateProgressMetrics(tasks)
+    const metrics = calculateProgressMetrics(taskResults)
 
     // Find overdue tasks requiring attention
-    const overdueTasks = tasks.filter(
-      (t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed'
-    )
+    const overdueTasks = taskResults.filter((t) => {
+      const metadata = t.metadata as any
+      return (
+        metadata?.dueDate && new Date(metadata.dueDate) < new Date() && t.status !== 'completed'
+      )
+    })
 
     // Find blocked tasks
-    const blockedTasks = tasks.filter((t) => t.status === 'blocked')
+    const blockedTasks = taskResults.filter((t) => t.status === 'blocked')
 
     // Calculate team productivity
     const teamStats = {
-      totalActiveUsers: new Set(tasks.map((t) => t.userId)).size,
-      averageCompletionTime: calculateAverageCompletionTime(tasks),
-      mostProductiveDay: findMostProductiveDay(tasks),
+      totalActiveUsers: new Set(taskResults.map((t) => t.userId)).size,
+      averageCompletionTime: calculateAverageCompletionTime(taskResults),
+      mostProductiveDay: findMostProductiveDay(taskResults),
     }
 
     span.setAttributes({
@@ -321,10 +340,9 @@ export async function GET(request: NextRequest) {
     span.recordException(error as Error)
     span.setStatus({ code: SpanStatusCode.ERROR })
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to fetch progress analytics', 500, 'FETCH_ANALYTICS_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to fetch progress analytics', 500), {
+      status: 500,
+    })
   } finally {
     span.end()
   }
@@ -332,7 +350,10 @@ export async function GET(request: NextRequest) {
 
 // Helper functions
 const calculateAverageCompletionTime = (tasks: any[]) => {
-  const completedTasks = tasks.filter((t) => t.completedAt && t.createdAt)
+  const completedTasks = tasks.filter((t) => {
+    const metadata = t.metadata as any
+    return metadata?.completedAt && t.createdAt
+  })
 
   if (completedTasks.length === 0) {
     return 0
@@ -340,7 +361,8 @@ const calculateAverageCompletionTime = (tasks: any[]) => {
 
   const totalTime = completedTasks.reduce((sum, task) => {
     const created = new Date(task.createdAt).getTime()
-    const completed = new Date(task.completedAt).getTime()
+    const metadata = task.metadata as any
+    const completed = new Date(metadata.completedAt).getTime()
     return sum + (completed - created)
   }, 0)
 
@@ -351,14 +373,19 @@ const findMostProductiveDay = (tasks: any[]) => {
   const dayCompletion = {}
 
   tasks
-    .filter((t) => t.completedAt)
+    .filter((t) => {
+      const metadata = t.metadata as any
+      return metadata?.completedAt
+    })
     .forEach((task) => {
-      const day = new Date(task.completedAt).toLocaleDateString('en-US', { weekday: 'long' })
+      const metadata = task.metadata as any
+      const day = new Date(metadata.completedAt).toLocaleDateString('en-US', { weekday: 'long' })
       dayCompletion[day] = (dayCompletion[day] || 0) + 1
     })
 
   return Object.entries(dayCompletion).reduce(
-    (most, [day, count]) => (count > most.count ? { day, count } : most),
+    (most, [day, count]) =>
+      (count as number) > most.count ? { day, count: count as number } : most,
     { day: 'No data', count: 0 }
   )
 }

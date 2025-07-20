@@ -1,15 +1,8 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card'
 
 describe('Card Components', () => {
   describe('Card', () => {

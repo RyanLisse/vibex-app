@@ -24,6 +24,7 @@ import {
   createPaginatedResponse,
   type UpdateTaskSchema,
 } from '@/src/schemas/api-routes'
+import { withCache, generateETag, checkETag, notModifiedResponse } from '@/lib/api/cache-headers'
 
 // Request validation schemas
 const GetTasksQuerySchema = z.object({
@@ -79,9 +80,11 @@ class TasksService {
         conditions.push(eq(tasks.priority, params.priority as any))
       }
 
-      if (params.assignee) {
-        conditions.push(eq(tasks.assignee, params.assignee))
-      }
+      // Note: assignee might be stored in metadata
+      // Commented out as tasks table doesn't have assignee field
+      // if (params.assignee) {
+      //   conditions.push(eq(tasks.assignee, params.assignee))
+      // }
 
       if (params.userId) {
         conditions.push(eq(tasks.userId, params.userId))
@@ -91,9 +94,24 @@ class TasksService {
         conditions.push(like(tasks.title, `%${params.search}%`))
       }
 
-      // Build sort order
-      const sortColumn = tasks[params.sortBy as keyof typeof tasks]
-      const orderBy = params.sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn)
+      // Build sort order - handle fields that might not exist
+      let orderBy
+      switch (params.sortBy) {
+        case 'created_at':
+          orderBy = params.sortOrder === 'asc' ? asc(tasks.createdAt) : desc(tasks.createdAt)
+          break
+        case 'updated_at':
+          orderBy = params.sortOrder === 'asc' ? asc(tasks.updatedAt) : desc(tasks.updatedAt)
+          break
+        case 'title':
+          orderBy = params.sortOrder === 'asc' ? asc(tasks.title) : desc(tasks.title)
+          break
+        case 'priority':
+          orderBy = params.sortOrder === 'asc' ? asc(tasks.priority) : desc(tasks.priority)
+          break
+        default:
+          orderBy = desc(tasks.createdAt)
+      }
 
       // Execute query with pagination
       const offset = (params.page - 1) * params.limit
@@ -360,15 +378,28 @@ export async function GET(request: NextRequest) {
     // Get tasks from database
     const result = await TasksService.getTasks(validatedParams)
 
-    return NextResponse.json(
-      createPaginatedResponse(result.tasks, result.pagination, 'Tasks retrieved successfully')
+    // Generate ETag based on result
+    const etag = generateETag(result)
+
+    // Check if client has current version
+    if (checkETag(request, etag)) {
+      return notModifiedResponse(etag)
+    }
+
+    // Create response with pagination
+    const responseData = createPaginatedResponse(
+      result.tasks,
+      result.pagination,
+      'Tasks retrieved successfully'
     )
+
+    // Return cached response with appropriate cache headers
+    return withCache.tasksList(responseData)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400, error.issues), {
+        status: 400,
+      })
     }
 
     if (error instanceof TasksAPIError) {
@@ -403,10 +434,9 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400, error.issues), {
+        status: 400,
+      })
     }
 
     if (error instanceof TasksAPIError) {

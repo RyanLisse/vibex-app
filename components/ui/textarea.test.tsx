@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 import { vi } from 'vitest'
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from './textarea'
 
 describe('Textarea', () => {
   it('should render textarea element', () => {

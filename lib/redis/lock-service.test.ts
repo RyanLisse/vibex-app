@@ -4,7 +4,7 @@
  * Test-driven development for Redis/Valkey distributed locks
  */
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { testRedisConfig } from './config'
 import { LockService } from './lock-service'
 import { RedisClientManager } from './redis-client'

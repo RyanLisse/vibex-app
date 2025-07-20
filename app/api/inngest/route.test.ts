@@ -1,31 +1,31 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 // Mock Inngest
 const mockHandler = {
-  GET: mock(() => Promise.resolve(new Response('Inngest endpoint ready'))),
-  POST: mock(() => Promise.resolve(new Response('Inngest webhook handled'))),
-  PUT: mock(() => Promise.resolve(new Response('Inngest function updated'))),
+  GET: vi.fn(() => Promise.resolve(new Response('Inngest endpoint ready'))),
+  POST: vi.fn(() => Promise.resolve(new Response('Inngest webhook handled'))),
+  PUT: vi.fn(() => Promise.resolve(new Response('Inngest function updated'))),
 }
 
 mock.module('inngest/next', () => ({
-  serve: mock(() => mockHandler),
+  serve: vi.fn(() => mockHandler),
 }))
 
 mock.module('@/lib/inngest', () => ({
   inngest: {
-    createFunction: mock(() => ({
+    createFunction: vi.fn(() => ({
       id: 'test-function',
       name: 'Test Function',
     })),
-    send: mock(() => Promise.resolve({ id: 'test-event-id' })),
+    send: vi.fn(() => Promise.resolve({ id: 'test-event-id' })),
   },
-  createTask: mock(() => Promise.resolve({ success: true })),
-  taskControl: mock(() => Promise.resolve({ success: true })),
-  taskChannel: mock(() => ({
-    status: mock(),
-    update: mock(),
-    control: mock(),
+  createTask: vi.fn(() => Promise.resolve({ success: true })),
+  taskControl: vi.fn(() => Promise.resolve({ success: true })),
+  taskChannel: vi.fn(() => ({
+    status: vi.fn(),
+    update: vi.fn(),
+    control: vi.fn(),
   })),
 }))
 
@@ -38,11 +38,11 @@ mock.module('next/server', () => ({
     ) {}
   },
   NextResponse: {
-    json: mock((data, init) => ({
+    json: vi.fn((data, init) => ({
       json: () => Promise.resolve(data),
       ...init,
     })),
-    text: mock(),
+    text: vi.fn(),
   },
 }))
 

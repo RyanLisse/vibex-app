@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
-import { useInngestSubscriptionManagement } from '@/hooks/use-inngest-subscription'
+import { useInngestSubscriptionManagement } from './use-inngest-subscription'
 
 // Mock dependencies
 const mockFetchRealtimeSubscriptionToken = vi.fn()
@@ -20,8 +20,8 @@ vi.mock('@/app/actions/inngest', () => ({
   fetchRealtimeSubscriptionToken: () => mockFetchRealtimeSubscriptionToken(),
 }))
 
-const mockConsoleLog = spyOn(console, 'log').mockImplementation(() => {})
-const mockConsoleError = spyOn(console, 'error').mockImplementation(() => {})
+const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
+const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('useInngestSubscriptionManagement', () => {
   beforeEach(() => {

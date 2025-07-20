@@ -72,8 +72,8 @@ export const contactFormSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(1000, 'Message must be less than 1000 characters'),
 
-  priority: z.enum(['low', 'medium', 'high'], {
-    required_error: 'Please select a priority level',
+  priority: z.enum(['low', 'medium', 'high']).refine((val) => val !== undefined, {
+    message: 'Please select a priority level',
   }),
 
   attachments: z.array(z.instanceof(File)).max(5, 'Maximum 5 attachments allowed').optional(),
@@ -95,9 +95,12 @@ export const searchSchema = z.object({
     .min(1, 'Search query is required')
     .max(200, 'Search query must be less than 200 characters'),
 
-  category: z.enum(['all', 'posts', 'users', 'products', 'documentation']).default('all'),
+  category: z
+    .enum(['all', 'posts', 'users', 'products', 'documentation'])
+    .default('all')
+    .optional(),
 
-  sortBy: z.enum(['relevance', 'date', 'popularity']).default('relevance'),
+  sortBy: z.enum(['relevance', 'date', 'popularity']).default('relevance').optional(),
 
   dateRange: z
     .object({
@@ -165,23 +168,35 @@ export const profileUpdateSchema = z.object({
 
   preferences: z
     .object({
-      theme: z.enum(['light', 'dark', 'system']).default('system'),
+      theme: z.enum(['light', 'dark', 'system']).default('system').optional(),
       notifications: z
         .object({
-          email: z.boolean().default(true),
-          push: z.boolean().default(true),
-          sms: z.boolean().default(false),
+          email: z.boolean().default(true).optional(),
+          push: z.boolean().default(true).optional(),
+          sms: z.boolean().default(false).optional(),
         })
         .default({}),
       privacy: z
         .object({
-          profileVisibility: z.enum(['public', 'private', 'friends']).default('public'),
-          showEmail: z.boolean().default(false),
-          showLocation: z.boolean().default(true),
+          profileVisibility: z.enum(['public', 'private', 'friends']).default('public').optional(),
+          showEmail: z.boolean().default(false).optional(),
+          showLocation: z.boolean().default(true).optional(),
         })
         .default({}),
     })
-    .default({}),
+    .default(() => ({
+      theme: 'system' as const,
+      notifications: {
+        email: true,
+        push: true,
+        sms: false,
+      },
+      privacy: {
+        profileVisibility: 'public' as const,
+        showEmail: false,
+        showLocation: true,
+      },
+    })),
 })
 
 // Type exports

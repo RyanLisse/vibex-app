@@ -25,8 +25,8 @@ import {
   MockRedisCache,
   getRedisConfig,
   validateRedisEnvironment,
-} from '@/lib/redis'
-import type { RedisCache, Job, JobProcessor } from '@/lib/redis/types'
+} from '../../lib/redis'
+import type { RedisCache, Job, JobProcessor } from '../../lib/redis/types'
 
 // Performance monitoring
 class IntegrationMonitor {

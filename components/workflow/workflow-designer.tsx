@@ -423,8 +423,11 @@ export function WorkflowDesigner() {
 
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-1 block font-medium text-sm">Name</label>
+                    <label htmlFor="node-name" className="mb-1 block font-medium text-sm">
+                      Name
+                    </label>
                     <Input
+                      id="node-name"
                       onChange={(e) => updateSelectedNode({ label: e.target.value })}
                       value={selectedNode.data.label}
                     />
@@ -440,8 +443,11 @@ export function WorkflowDesigner() {
                       {selectedNode.data.type === 'api' && (
                         <>
                           <div>
-                            <label className="mb-1 block font-medium text-sm">URL</label>
+                            <label htmlFor="api-url" className="mb-1 block font-medium text-sm">
+                              URL
+                            </label>
                             <Input
+                              id="api-url"
                               onChange={(e) =>
                                 updateSelectedNode({
                                   config: { ...selectedNode.data.config, url: e.target.value },
@@ -477,8 +483,11 @@ export function WorkflowDesigner() {
 
                       {selectedNode.data.type === 'code' && (
                         <div>
-                          <label className="mb-1 block font-medium text-sm">Code</label>
+                          <label htmlFor="code-textarea" className="mb-1 block font-medium text-sm">
+                            Code
+                          </label>
                           <Textarea
+                            id="code-textarea"
                             onChange={(e) =>
                               updateSelectedNode({
                                 config: { ...selectedNode.data.config, code: e.target.value },
@@ -494,8 +503,14 @@ export function WorkflowDesigner() {
                       {selectedNode.data.type === 'notification' && (
                         <>
                           <div>
-                            <label className="mb-1 block font-medium text-sm">Message</label>
+                            <label
+                              htmlFor="message-textarea"
+                              className="mb-1 block font-medium text-sm"
+                            >
+                              Message
+                            </label>
                             <Textarea
+                              id="message-textarea"
                               onChange={(e) =>
                                 updateSelectedNode({
                                   config: { ...selectedNode.data.config, message: e.target.value },

@@ -9,15 +9,21 @@ import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
-import {
-  BaseAPIService,
-  type ServiceContext,
-  NotFoundError,
-  ConflictError,
-  ValidationError,
-  ExternalServiceError,
-} from '@/lib/api/base'
-import { QueryBuilder } from '@/lib/api/base/query-builder'
+import { trace, SpanStatusCode } from '@opentelemetry/api'
+import { observability } from '@/lib/observability'
+import { NotFoundError, ConflictError, ValidationError } from '@/lib/api/base/errors'
+
+export interface ServiceContext {
+  userId?: string
+  requestId?: string
+}
+
+export class ExternalServiceError extends Error {
+  constructor(service: string, error: Error) {
+    super(`External service error (${service}): ${error.message}`)
+    this.name = 'ExternalServiceError'
+  }
+}
 import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Query schemas
@@ -109,9 +115,8 @@ class GitHubAPIClient {
   }
 }
 
-export class PRIntegrationAPIService extends BaseAPIService {
-  protected serviceName = 'pr-integration'
-  private queryBuilder = new QueryBuilder(tasks)
+export class PRIntegrationAPIService {
+  protected static serviceName = 'pr-integration'
 
   /**
    * Link task to PR
@@ -124,13 +129,13 @@ export class PRIntegrationAPIService extends BaseAPIService {
     prStatus: any
     link: any
   }> {
-    return this.executeWithTracing('linkTaskToPR', context, async (span) => {
-      // Get the task
-      const task = await this.executeDatabase('getTask', async () => {
-        const result = await db.select().from(tasks).where(eq(tasks.id, linkData.taskId)).limit(1)
+    // Execute with manual tracing
+    const tracer = trace.getTracer('pr-integration-api')
+    const span = tracer.startSpan('linkTaskToPR')
 
-        return result[0]
-      })
+    try {
+      // Get the task
+      const [task] = await db.select().from(tasks).where(eq(tasks.id, linkData.taskId)).limit(1)
 
       if (!task) {
         throw new NotFoundError('Task', linkData.taskId)
@@ -139,7 +144,10 @@ export class PRIntegrationAPIService extends BaseAPIService {
       // Fetch PR status from GitHub
       let prStatus
       try {
-        prStatus = await GitHubAPIClient.getPRStatus(linkData.repository, linkData.prNumber)
+        prStatus = await GitHubAPIClient.getPRStatus(
+          linkData.repository,
+          linkData.prId.replace('pr-', '')
+        )
       } catch (error) {
         throw new ExternalServiceError('GitHub API', error as Error)
       }
@@ -151,11 +159,11 @@ export class PRIntegrationAPIService extends BaseAPIService {
         branch: prStatus.branch,
         autoUpdateStatus: linkData.autoUpdateStatus,
         linkedAt: new Date().toISOString(),
-        linkedBy: linkData.userId,
+        linkedBy: 'system', // userId not available in linkData
       }
 
       // Update task metadata with PR link
-      const currentMetadata = task.metadata || {}
+      const currentMetadata = (task.metadata as any) || {}
       const existingPRLinks = currentMetadata.prLinks || []
 
       // Check if PR is already linked
@@ -173,41 +181,52 @@ export class PRIntegrationAPIService extends BaseAPIService {
         },
       }
 
-      const updatedTask = await this.executeDatabase('updateTask', async () => {
-        const result = await db
-          .update(tasks)
-          .set({
-            metadata: updatedMetadata,
-            updatedAt: new Date(),
-          })
-          .where(eq(tasks.id, linkData.taskId))
-          .returning()
+      const [updatedTask] = await db
+        .update(tasks)
+        .set({
+          metadata: updatedMetadata,
+          updatedAt: new Date(),
+        })
+        .where(eq(tasks.id, linkData.taskId))
+        .returning()
 
-        return result[0]
-      })
+      // Log operation
+      await observability.events.collector.collectEvent(
+        'user_action',
+        'info',
+        `PR linked to task: ${task.title}`,
+        {
+          taskId: linkData.taskId,
+          prId: prStatus.prId,
+          repository: linkData.repository,
+          prNumber: linkData.prId.replace('pr-', ''),
+          autoUpdate: linkData.autoUpdateStatus,
+          userId: context.userId,
+        },
+        'api',
+        ['pr', 'link']
+      )
 
       span.setAttributes({
         'task.id': linkData.taskId,
         'pr.id': prStatus.prId,
         'pr.repository': linkData.repository,
-        'pr.number': linkData.prNumber,
-        'pr.auto_update': linkData.autoUpdateStatus,
       })
 
-      await this.recordEvent('user_action', 'info', `PR linked to task: ${task.title}`, {
-        taskId: linkData.taskId,
-        prId: prStatus.prId,
-        repository: linkData.repository,
-        prNumber: linkData.prNumber,
-        autoUpdate: linkData.autoUpdateStatus,
-      })
+      span.setStatus({ code: SpanStatusCode.OK })
 
       return {
         task: updatedTask,
         prStatus,
         link: prLink,
       }
-    })
+    } catch (error) {
+      span.recordException(error as Error)
+      span.setStatus({ code: SpanStatusCode.ERROR })
+      throw error
+    } finally {
+      span.end()
+    }
   }
 
   /**
@@ -221,14 +240,16 @@ export class PRIntegrationAPIService extends BaseAPIService {
     updatedTasks: any[]
     autoUpdatedCount: number
   }> {
-    return this.executeWithTracing('updatePRStatus', context, async (span) => {
+    // Execute with manual tracing
+    const tracer = trace.getTracer('pr-integration-api')
+    const span = tracer.startSpan('updatePRStatus')
+
+    try {
       // Get all tasks with this PR linked
-      const allTasks = await this.executeDatabase('getAllTasks', async () => {
-        return db.select().from(tasks)
-      })
+      const allTasks = await db.select().from(tasks)
 
       const tasksWithPR = allTasks.filter((task) => {
-        const prLinks = task.metadata?.prLinks || []
+        const prLinks = (task.metadata as any)?.prLinks || []
         return prLinks.some((link) => link.prId === prStatusData.prId)
       })
 
@@ -238,7 +259,9 @@ export class PRIntegrationAPIService extends BaseAPIService {
 
       // Fetch updated PR status from GitHub
       const taskWithPR = tasksWithPR[0]
-      const prLink = taskWithPR.metadata.prLinks.find((link) => link.prId === prStatusData.prId)
+      const prLink = ((taskWithPR as any).metadata as any).prLinks.find(
+        (link: any) => link.prId === prStatusData.prId
+      )
 
       let prStatus
       try {
@@ -252,7 +275,7 @@ export class PRIntegrationAPIService extends BaseAPIService {
 
       // Update all linked tasks
       const updatePromises = tasksWithPR.map(async (task) => {
-        const currentMetadata = task.metadata || {}
+        const currentMetadata = (task.metadata as any) || {}
         const updatedMetadata = {
           ...currentMetadata,
           prStatuses: {
@@ -275,42 +298,54 @@ export class PRIntegrationAPIService extends BaseAPIService {
           updates.completedAt = new Date()
         }
 
-        return this.executeDatabase('updateTask', async () => {
-          const result = await db
-            .update(tasks)
-            .set(updates)
-            .where(eq(tasks.id, task.id))
-            .returning()
-
-          return result[0]
-        })
+        const [result] = await db
+          .update(tasks)
+          .set(updates)
+          .where(eq(tasks.id, task.id))
+          .returning()
+        return result
       })
 
       const updatedTasks = await Promise.all(updatePromises)
       const autoUpdatedCount = updatedTasks.filter((task) => task.status === 'completed').length
 
+      // Log operation
+      await observability.events.collector.collectEvent(
+        'user_action',
+        'info',
+        `PR status updated: ${prStatus.title}`,
+        {
+          prId: prStatusData.prId,
+          newStatus: prStatus.status,
+          reviewStatus: prStatus.reviewStatus,
+          tasksUpdated: updatedTasks.length,
+          autoUpdatedTasks: autoUpdatedCount,
+          userId: context.userId,
+        },
+        'api',
+        ['pr', 'status']
+      )
+
       span.setAttributes({
         'pr.id': prStatusData.prId,
         'pr.status': prStatus.status,
-        'pr.review_status': prStatus.reviewStatus,
         'tasks.updated': updatedTasks.length,
-        'tasks.auto_updated': autoUpdatedCount,
       })
 
-      await this.recordEvent('pr_status_update', 'info', `PR status updated: ${prStatus.title}`, {
-        prId: prStatusData.prId,
-        newStatus: prStatus.status,
-        reviewStatus: prStatus.reviewStatus,
-        tasksUpdated: updatedTasks.length,
-        autoUpdatedTasks: autoUpdatedCount,
-      })
+      span.setStatus({ code: SpanStatusCode.OK })
 
       return {
         prStatus,
         updatedTasks,
         autoUpdatedCount,
       }
-    })
+    } catch (error) {
+      span.recordException(error as Error)
+      span.setStatus({ code: SpanStatusCode.ERROR })
+      throw error
+    } finally {
+      span.end()
+    }
   }
 
   /**
@@ -323,21 +358,29 @@ export class PRIntegrationAPIService extends BaseAPIService {
     tasks: any[]
     statistics: any
   }> {
-    return this.executeWithTracing('getPRIntegrationData', context, async (span) => {
-      // Build query
-      const query = this.queryBuilder
+    // Execute with manual tracing
+    const tracer = trace.getTracer('pr-integration-api')
+    const span = tracer.startSpan('getPRIntegrationData')
 
+    try {
+      // Build query conditions
+      const conditions = []
       if (params.taskId) {
-        query.where(tasks.id, params.taskId)
+        conditions.push(eq(tasks.id, params.taskId))
       } else if (params.userId) {
-        query.where(tasks.userId, params.userId)
+        conditions.push(eq(tasks.userId, params.userId))
       }
 
-      const allTasks = await query.execute()
+      const query = db.select().from(tasks)
+      if (conditions.length > 0) {
+        query.where(conditions[0])
+      }
+
+      const allTasks = await query
 
       // Filter tasks that have PR links
       const tasksWithPRs = allTasks.filter(
-        (task) => task.metadata?.prLinks && task.metadata.prLinks.length > 0
+        (task) => (task.metadata as any)?.prLinks && (task.metadata as any).prLinks.length > 0
       )
 
       // Aggregate PR statistics
@@ -350,7 +393,7 @@ export class PRIntegrationAPIService extends BaseAPIService {
       }
 
       tasksWithPRs.forEach((task) => {
-        const prStatuses = task.metadata.prStatuses || {}
+        const prStatuses = (task.metadata as any).prStatuses || {}
         Object.values(prStatuses).forEach((prStatus: any) => {
           prStats.totalLinkedPRs++
           if (prStatus.status === 'open') {
@@ -368,18 +411,25 @@ export class PRIntegrationAPIService extends BaseAPIService {
         })
       })
 
+      // Return results
       span.setAttributes({
         'tasks.with_prs': tasksWithPRs.length,
         'pr.total_linked': prStats.totalLinkedPRs,
-        'pr.open': prStats.openPRs,
-        'pr.merged': prStats.mergedPRs,
       })
+
+      span.setStatus({ code: SpanStatusCode.OK })
 
       return {
         tasks: tasksWithPRs,
         statistics: prStats,
       }
-    })
+    } catch (error) {
+      span.recordException(error as Error)
+      span.setStatus({ code: SpanStatusCode.ERROR })
+      throw error
+    } finally {
+      span.end()
+    }
   }
 
   /**
@@ -395,14 +445,16 @@ export class PRIntegrationAPIService extends BaseAPIService {
     autoCompletedTasks: any[]
     summary: any
   }> {
-    return this.executeWithTracing('mergePR', context, async (span) => {
+    // Execute with manual tracing
+    const tracer = trace.getTracer('pr-integration-api')
+    const span = tracer.startSpan('mergePR')
+
+    try {
       // Find all tasks linked to this PR
-      const allTasks = await this.executeDatabase('getAllTasks', async () => {
-        return db.select().from(tasks)
-      })
+      const allTasks = await db.select().from(tasks)
 
       const linkedTasks = allTasks.filter((task) => {
-        const prLinks = task.metadata?.prLinks || []
+        const prLinks = (task.metadata as any)?.prLinks || []
         return prLinks.some((link) => link.prId === mergeData.prId)
       })
 
@@ -412,8 +464,10 @@ export class PRIntegrationAPIService extends BaseAPIService {
 
       // Get PR details from the first linked task
       const firstTask = linkedTasks[0]
-      const prLink = firstTask.metadata.prLinks.find((link) => link.prId === mergeData.prId)
-      const prStatus = firstTask.metadata.prStatuses?.[mergeData.prId]
+      const prLink = (firstTask.metadata as any).prLinks.find(
+        (link: any) => link.prId === mergeData.prId
+      )
+      const prStatus = (firstTask.metadata as any).prStatuses?.[mergeData.prId]
 
       if (!prStatus) {
         throw new NotFoundError('PR status not found')
@@ -424,7 +478,7 @@ export class PRIntegrationAPIService extends BaseAPIService {
         prStatus.status === 'open' &&
         prStatus.reviewStatus === 'approved' &&
         prStatus.mergeable &&
-        prStatus.checks.every((check) => check.status === 'success')
+        prStatus.checks.every((check: any) => check.status === 'success')
 
       if (!canMerge) {
         const reasons = []
@@ -437,7 +491,7 @@ export class PRIntegrationAPIService extends BaseAPIService {
         if (!prStatus.mergeable) {
           reasons.push('Merge conflicts exist')
         }
-        if (prStatus.checks.some((check) => check.status !== 'success')) {
+        if (prStatus.checks.some((check: any) => check.status !== 'success')) {
           reasons.push('Checks must pass')
         }
 
@@ -469,8 +523,10 @@ export class PRIntegrationAPIService extends BaseAPIService {
 
       // Update all linked tasks
       const updatePromises = linkedTasks.map(async (task) => {
-        const currentMetadata = task.metadata || {}
-        const prLink = currentMetadata.prLinks.find((link) => link.prId === mergeData.prId)
+        const currentMetadata = (task.metadata as any) || {}
+        const prLink = (currentMetadata as any).prLinks?.find(
+          (link: any) => link.prId === mergeData.prId
+        )
 
         const updatedMetadata = {
           ...currentMetadata,
@@ -493,38 +549,43 @@ export class PRIntegrationAPIService extends BaseAPIService {
           updates.completedAt = new Date()
         }
 
-        return this.executeDatabase('updateTask', async () => {
-          const result = await db
-            .update(tasks)
-            .set(updates)
-            .where(eq(tasks.id, task.id))
-            .returning()
-
-          return result[0]
-        })
+        const [result] = await db
+          .update(tasks)
+          .set(updates)
+          .where(eq(tasks.id, task.id))
+          .returning()
+        return result
       })
 
       const updatedTasks = await Promise.all(updatePromises)
       const autoCompletedTasks = updatedTasks.filter((task) => task.status === 'completed')
 
+      // Log operation
+      await observability.events.collector.collectEvent(
+        'user_action',
+        'info',
+        `PR merged successfully: ${prStatus.title}`,
+        {
+          prId: mergeData.prId,
+          repository: prLink.repository,
+          mergeMethod: mergeData.mergeMethod,
+          mergeCommitSha: mergeResult.mergeCommitSha,
+          linkedTasksCount: linkedTasks.length,
+          autoCompletedTasksCount: autoCompletedTasks.length,
+          mergedBy: mergeData.userId,
+          sourceBranchDeleted: mergeData.deleteSourceBranch,
+        },
+        'api',
+        ['pr', 'merge']
+      )
+
       span.setAttributes({
         'pr.id': mergeData.prId,
         'pr.merge_method': mergeData.mergeMethod,
-        'pr.merge_commit_sha': mergeResult.mergeCommitSha,
         'tasks.linked_count': linkedTasks.length,
-        'tasks.auto_completed_count': autoCompletedTasks.length,
       })
 
-      await this.recordEvent('pr_merged', 'info', `PR merged successfully: ${prStatus.title}`, {
-        prId: mergeData.prId,
-        repository: prLink.repository,
-        mergeMethod: mergeData.mergeMethod,
-        mergeCommitSha: mergeResult.mergeCommitSha,
-        linkedTasksCount: linkedTasks.length,
-        autoCompletedTasksCount: autoCompletedTasks.length,
-        mergedBy: mergeData.userId,
-        sourceBranchDeleted: mergeData.deleteSourceBranch,
-      })
+      span.setStatus({ code: SpanStatusCode.OK })
 
       return {
         mergeResult,
@@ -537,11 +598,15 @@ export class PRIntegrationAPIService extends BaseAPIService {
           mergeCommitSha: mergeResult.mergeCommitSha,
         },
       }
-    })
+    } catch (error) {
+      span.recordException(error as Error)
+      span.setStatus({ code: SpanStatusCode.ERROR })
+      throw error
+    } finally {
+      span.end()
+    }
   }
 }
 
 // Export singleton instance
-export const prIntegrationService = new PRIntegrationAPIService({
-  serviceName: 'pr-integration',
-})
+export const prIntegrationService = new PRIntegrationAPIService()

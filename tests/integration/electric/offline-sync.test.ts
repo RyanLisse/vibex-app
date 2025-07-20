@@ -7,8 +7,8 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useOfflineSync } from '@/hooks/use-offline-sync'
-import { electricDb } from '@/lib/electric/config'
+import { useOfflineSync } from '../../../hooks/use-offline-sync'
+import { electricDb } from '../../../lib/electric/config'
 
 // Mock ElectricSQL
 vi.mock('@/lib/electric/config', () => ({

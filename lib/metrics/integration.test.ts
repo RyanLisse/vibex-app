@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AlertRuleBuilder } from './alert-rules'
 import { GrafanaDashboardBuilder } from './grafana-dashboards'
 import { PrometheusMetricsCollector } from './prometheus-client'

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { vi } from 'vitest'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from './skeleton'
 
 describe('Skeleton', () => {
   it('should render skeleton element', () => {

@@ -49,51 +49,67 @@ export class MigrationRunner {
   /**
    * Load migration files from filesystem
    */
-  private loadMigrationFiles(): MigrationFile[] {
-    try {
-      const files = readdirSync(this.migrationsPath)
-        .filter((file) => file.endsWith('.sql'))
-        .sort()
+  private loadMigrationFiles(dir: string): MigrationFile[] {
+    const files = readdirSync(dir).filter((file) => file.endsWith('.sql'))
+    const migrationRegex = /^\d{3}_[a-z0-9_-]+\.sql$/i
 
-      return files.map((file) => {
-        const filePath = join(this.migrationsPath, file)
+    return files
+      .filter((file) => migrationRegex.test(file))
+      .sort()
+      .map((file) => {
+        const filePath = join(dir, file)
         const content = readFileSync(filePath, 'utf-8')
-
-        // Parse migration file format:
-        // -- Migration: migration_name
-        // -- Up
-        // SQL statements...
-        // -- Down
-        // SQL statements...
-
         const lines = content.split('\n')
+
+        // Try to find Up/Down sections
         const upStartIndex = lines.findIndex((line) => line.trim() === '-- Up')
         const downStartIndex = lines.findIndex((line) => line.trim() === '-- Down')
 
-        if (upStartIndex === -1 || downStartIndex === -1) {
-          throw new Error(`Invalid migration file format: ${file}`)
+        let upSql: string
+        let downSql: string
+
+        if (upStartIndex !== -1 && downStartIndex !== -1) {
+          // File has proper Up/Down sections
+          upSql = lines
+            .slice(upStartIndex + 1, downStartIndex)
+            .join('\n')
+            .trim()
+
+          downSql = lines
+            .slice(downStartIndex + 1)
+            .join('\n')
+            .trim()
+        } else {
+          // Legacy format - treat entire file as Up, generate simple Down
+          upSql = content.trim()
+
+          // Extract table names for Down section
+          const tableMatches = content.match(/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/gi)
+          const tables = tableMatches
+            ? tableMatches
+                .map((match) => {
+                  const tableMatch = match.match(/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/i)
+                  return tableMatch ? tableMatch[1] : null
+                })
+                .filter(Boolean)
+            : []
+
+          // Generate Down SQL
+          downSql = tables
+            .reverse()
+            .map((table) => `DROP TABLE IF EXISTS ${table};`)
+            .join('\n')
         }
 
-        const upSql = lines
-          .slice(upStartIndex + 1, downStartIndex)
-          .join('\n')
-          .trim()
-        const downSql = lines
-          .slice(downStartIndex + 1)
-          .join('\n')
-          .trim()
+        const checksum = this.generateChecksum(upSql)
 
         return {
           name: file.replace('.sql', ''),
           up: upSql,
           down: downSql,
-          checksum: this.generateChecksum(upSql + downSql),
+          checksum,
         }
       })
-    } catch (error) {
-      console.error('Failed to load migration files:', error)
-      return []
-    }
   }
 
   /**
@@ -341,7 +357,8 @@ export class MigrationRunner {
           .filter((stmt) => stmt.length > 0)
 
         for (const statement of statements) {
-          await sql(statement)
+          // Execute raw SQL statement using drizzle's sql operator
+          await db.execute(sqlOperator.raw(statement))
         }
 
         // Record migration execution
@@ -601,7 +618,8 @@ export class MigrationRunner {
           .filter((stmt) => stmt.length > 0)
 
         for (const statement of statements) {
-          await sql(statement)
+          // Execute raw SQL statement using drizzle's sql operator
+          await db.execute(sqlOperator.raw(statement))
         }
 
         // Remove migration record

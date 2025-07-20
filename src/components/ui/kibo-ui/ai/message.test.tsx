@@ -1,10 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import {
-  AIMessage,
-  AIMessageAvatar,
-  AIMessageContent,
-} from '@/src/components/ui/kibo-ui/ai/message'
+import { AIMessage, AIMessageAvatar, AIMessageContent } from './message'
 
 // Mock the Avatar components
 vi.mock('@/components/ui/avatar', () => ({

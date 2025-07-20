@@ -1,8 +1,8 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import React from 'react'
-import Container from '@/app/container'
+import Container from './container'
 
 // Mock the hooks and components
 mock.module('@/components/providers/realtime-provider', () => ({

@@ -104,7 +104,7 @@ export class EnvironmentsAPIService extends BaseCRUDService<any, CreateEnvironme
         'environments.filters.search': params.search || 'none',
       })
 
-      await this.recordEvent('query_end', 'debug', 'Environments query completed', {
+      await this.recordEvent('query_end', 'Environments query completed', {
         resultCount: result.items.length,
         totalCount: result.pagination.total,
         filters: params,
@@ -191,7 +191,7 @@ export class EnvironmentsAPIService extends BaseCRUDService<any, CreateEnvironme
         'environment.isActive': environment.isActive,
       })
 
-      await this.recordEvent('user_action', 'info', `Environment created: ${environment.name}`, {
+      await this.recordEvent('user_action', `Environment created: ${environment.name}`, {
         environmentId: environment.id,
         userId: environment.userId,
         isActive: environment.isActive,
@@ -257,15 +257,10 @@ export class EnvironmentsAPIService extends BaseCRUDService<any, CreateEnvironme
         'environment.userId': userId,
       })
 
-      await this.recordEvent(
-        'user_action',
-        'info',
-        `Environment activated: ${activatedEnvironment.name}`,
-        {
-          environmentId: activatedEnvironment.id,
-          userId: activatedEnvironment.userId,
-        }
-      )
+      await this.recordEvent('user_action', `Environment activated: ${activatedEnvironment.name}`, {
+        environmentId: activatedEnvironment.id,
+        userId: activatedEnvironment.userId,
+      })
 
       return activatedEnvironment
     })

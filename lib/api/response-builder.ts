@@ -49,7 +49,7 @@ export class ResponseBuilder {
     code = 'INTERNAL_ERROR',
     details?: any
   ): NextResponse {
-    return NextResponse.json(createApiErrorResponse(message, statusCode, code, details), {
+    return NextResponse.json(createApiErrorResponse(message, statusCode, details), {
       status: statusCode,
       headers: this.getDefaultHeaders(),
     })
@@ -96,10 +96,10 @@ export class ResponseBuilder {
       headers['X-RateLimit-Reset'] = new Date(Date.now() + retryAfter * 1000).toISOString()
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Rate limit exceeded', 429, 'RATE_LIMIT_EXCEEDED', { retryAfter }),
-      { status: 429, headers }
-    )
+    return NextResponse.json(createApiErrorResponse('Rate limit exceeded', 429, { retryAfter }), {
+      status: 429,
+      headers,
+    })
   }
 
   /**

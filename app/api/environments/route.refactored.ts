@@ -94,13 +94,15 @@ class EnvironmentsService extends BaseAPIService {
           .where(conditions.length > 0 ? and(...conditions) : undefined),
       ])
 
+      const totalPages = Math.ceil(countResult.length / params.limit)
       const result = {
         data: envResults,
         pagination: {
           page: params.page,
           limit: params.limit,
           total: countResult.length,
-          totalPages: Math.ceil(countResult.length / params.limit),
+          totalPages,
+          hasMore: params.page < totalPages,
         },
         total: countResult.length,
       }

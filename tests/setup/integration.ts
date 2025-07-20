@@ -187,7 +187,7 @@ vi.mock('drizzle-orm/pg-core', () => {
 // Mock the db/config module directly
 vi.mock('../../db/config', () => {
   const mockDb = createMockDb()
-  const mockSql = vi.fn().mockImplementation(async (query: any) => {
+  const mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {
     if (Array.isArray(query) && query[0] === 'SELECT 1') {
       return [{ '?column?': 1 }]
     }

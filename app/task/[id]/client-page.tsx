@@ -16,7 +16,7 @@ interface TaskClientPageProps {
 }
 
 export default function TaskClientPage({ id }: TaskClientPageProps) {
-  const { task, loading, error } = useTaskQuery(id)
+  const { task } = useTaskQuery(id)
   const { streamingMessages } = useTaskSubscription({
     taskId: id,
     taskMessages: task?.messages,

@@ -21,6 +21,7 @@ import {
   createApiSuccessResponse,
   UpdateTaskSchema,
 } from '@/src/schemas/api-routes'
+import { withCache, generateETag, checkETag, notModifiedResponse } from '@/lib/api/cache-headers'
 
 // Route parameters schema
 const TaskParamsSchema = z.object({
@@ -118,10 +119,6 @@ class TaskService {
         .set({
           ...updates,
           updatedAt: new Date(),
-          ...(updates.status === 'completed' &&
-            !existingTask.completedAt && {
-              completedAt: new Date(),
-            }),
         })
         .where(eq(tasks.id, id))
         .returning()
@@ -237,7 +234,7 @@ class TaskService {
 /**
  * GET /api/tasks/[id] - Get a specific task
  */
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Validate route parameters
     const { id } = TaskParamsSchema.parse(params)
@@ -245,26 +242,41 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
     // Get task from database
     const task = await TaskService.getTask(id)
 
-    return NextResponse.json(createApiSuccessResponse(task, 'Task retrieved successfully'))
+    // Generate ETag based on task data
+    const etag = generateETag(task)
+
+    // Check if client has current version
+    if (checkETag(request, etag)) {
+      return notModifiedResponse(etag)
+    }
+
+    // Create response data
+    const responseData = createApiSuccessResponse(task, 'Task retrieved successfully')
+
+    // Return cached response with appropriate cache headers
+    return withCache.task(responseData)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid task ID', 400, 'INVALID_TASK_ID', error.issues),
+        createApiErrorResponse(
+          'Invalid task ID',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
 
     if (error instanceof TaskAPIError) {
-      return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
-        { status: error.statusCode }
-      )
+      return NextResponse.json(createApiErrorResponse(error.message, error.statusCode), {
+        status: error.statusCode,
+      })
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }
 
@@ -287,22 +299,25 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
+        createApiErrorResponse(
+          'Validation failed',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
 
     if (error instanceof TaskAPIError) {
-      return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
-        { status: error.statusCode }
-      )
+      return NextResponse.json(createApiErrorResponse(error.message, error.statusCode), {
+        status: error.statusCode,
+      })
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }
 
@@ -321,21 +336,24 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid task ID', 400, 'INVALID_TASK_ID', error.issues),
+        createApiErrorResponse(
+          'Invalid task ID',
+          400,
+          error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          }))
+        ),
         { status: 400 }
       )
     }
 
     if (error instanceof TaskAPIError) {
-      return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
-        { status: error.statusCode }
-      )
+      return NextResponse.json(createApiErrorResponse(error.message, error.statusCode), {
+        status: error.statusCode,
+      })
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }

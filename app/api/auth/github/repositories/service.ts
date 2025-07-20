@@ -123,7 +123,7 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
         'repositories.filters.search': params.search || 'none',
       })
 
-      await this.recordEvent('query_end', 'debug', 'GitHub repositories query completed', {
+      await this.recordEvent('query_end', 'GitHub repositories query completed', {
         resultCount: result.items.length,
         totalCount: result.pagination.total,
         syncPerformed: syncNeeded,
@@ -138,7 +138,7 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
           hasPrev: result.pagination.page > 1,
         },
         syncPerformed: syncNeeded,
-        lastSync: result.items[0]?.lastSyncAt,
+        lastSync: (result.items[0] as any)?.lastSyncAt,
       }
     })
   }
@@ -236,7 +236,6 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 
         await this.recordEvent(
           'sync_complete',
-          'info',
           `GitHub repositories synced: ${repoData.length} repositories`,
           {
             userId,

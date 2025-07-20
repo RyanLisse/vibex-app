@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import type { UseGeminiAudioOptions } from '@/hooks/use-gemini-audio'
-import { useGeminiAudio } from '@/hooks/use-gemini-audio'
+import type { UseGeminiAudioOptions } from './use-gemini-audio'
+import { useGeminiAudio } from './use-gemini-audio'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -11,7 +11,7 @@ describe('useGeminiAudio', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mock.useFakeTimers()
-    const fetchMock = mock(global.fetch)
+    const fetchMock = vi.fn(global.fetch)
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({}),
@@ -45,7 +45,7 @@ describe('useGeminiAudio', () => {
       expect(result.current.isLoading).toBe(false)
       expect(result.current.error).toBeNull()
 
-      const fetchCall = mock(global.fetch).mock.calls[0]
+      const fetchCall = vi.fn(global.fetch).mock.calls[0]
       expect(fetchCall[0]).toBe('/api/ai/gemini/session')
       expect(fetchCall[1]).toEqual({
         method: 'POST',
@@ -68,14 +68,14 @@ describe('useGeminiAudio', () => {
         await result.current.connect()
       })
 
-      const body = JSON.parse(mock(global.fetch).mock.calls[0][1].body)
+      const body = JSON.parse(vi.fn(global.fetch).mock.calls[0][1].body)
       expect(body.voiceName).toBe('en-US-Neural2-A')
       expect(body.tools).toEqual(options.tools)
     })
 
     it('should handle connection errors', async () => {
       const onError = vi.fn()
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -96,7 +96,7 @@ describe('useGeminiAudio', () => {
     it('should handle network errors', async () => {
       const onError = vi.fn()
       const networkError = new Error('Network error')
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       fetchMock.mockRejectedValueOnce(networkError)
 
       const { result } = renderHook(() => useGeminiAudio({ onError }))
@@ -115,7 +115,7 @@ describe('useGeminiAudio', () => {
       const promise = new Promise((resolve) => {
         resolvePromise = resolve
       })
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       fetchMock.mockReturnValueOnce(promise)
 
       const { result } = renderHook(() => useGeminiAudio())
@@ -151,7 +151,7 @@ describe('useGeminiAudio', () => {
 
       expect(result.current.isConnected).toBe(false)
 
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       const disconnectCall = fetchMock.mock.calls[1]
       expect(disconnectCall[0]).toMatch(/\/api\/ai\/gemini\/session\?sessionId=session-/)
       expect(disconnectCall[1]).toEqual({ method: 'DELETE' })
@@ -168,7 +168,7 @@ describe('useGeminiAudio', () => {
     })
 
     it('should handle disconnect errors gracefully', async () => {
-      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const { result } = renderHook(() => useGeminiAudio())
 
       // Connect first
@@ -177,7 +177,7 @@ describe('useGeminiAudio', () => {
       })
 
       // Mock error on disconnect
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       fetchMock.mockRejectedValueOnce(new Error('Disconnect failed'))
 
       await act(async () => {
@@ -214,7 +214,7 @@ describe('useGeminiAudio', () => {
       expect(onMessage).toHaveBeenCalledWith(result.current.messages[0])
 
       // Check API call
-      const sendCall = mock(global.fetch).mock.calls[1]
+      const sendCall = vi.fn(global.fetch).mock.calls[1]
       expect(sendCall[0]).toBe('/api/ai/gemini/audio')
       expect(JSON.parse(sendCall[1].body)).toMatchObject({
         sessionId: expect.stringContaining('session-'),
@@ -269,7 +269,7 @@ describe('useGeminiAudio', () => {
         await result.current.connect()
       })
 
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -350,7 +350,7 @@ describe('useGeminiAudio', () => {
       }
       global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any
 
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       fetchMock.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -397,7 +397,7 @@ describe('useGeminiAudio', () => {
 
       unmount()
 
-      const fetchMock = mock(global.fetch)
+      const fetchMock = vi.fn(global.fetch)
       const disconnectCall = fetchMock.mock.calls[1]
       expect(disconnectCall[0]).toMatch(/\/api\/ai\/gemini\/session\?sessionId=/)
       expect(disconnectCall[1]).toEqual({ method: 'DELETE' })

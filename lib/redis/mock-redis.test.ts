@@ -4,7 +4,7 @@
  * This test verifies our Redis services can work without a real Redis server
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 
 // Mock ioredis before importing Redis services
 const mockRedisClient = {

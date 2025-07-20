@@ -4,7 +4,7 @@
  * Test-driven development for Redis/Valkey pub/sub functionality
  */
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { testRedisConfig } from './config'
 import { PubSubService } from './pubsub-service'
 import { RedisClientManager } from './redis-client'
@@ -167,7 +167,7 @@ describe('PubSubService', () => {
 
   describe('Error Handling', () => {
     test('should handle subscription errors gracefully', async () => {
-      const errorCallback = mock(() => {
+      const errorCallback = vi.fn(() => {
         throw new Error('Callback error')
       })
 

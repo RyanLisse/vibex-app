@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
-import { CodeComponent, Markdown } from '@/components/markdown'
+import { CodeComponent, Markdown } from './markdown'
 
 // Mock next-themes
 const mockUseTheme = vi.fn()

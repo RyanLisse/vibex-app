@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { CriticalErrorDetector } from '@/lib/alerts/critical-error-detector'
-import { CriticalErrorType } from '@/lib/alerts/types'
+import { CriticalErrorDetector } from '../../lib/alerts/critical-error-detector'
+import { CriticalErrorType } from '../../lib/alerts/types'
 import type { LogEntry } from 'winston'
 
 describe('CriticalErrorDetector', () => {

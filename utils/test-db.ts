@@ -294,22 +294,22 @@ export class NeonTestDatabase {
 export const testDb = new NeonTestDatabase()
 
 // Helper functions for easy use
-export async function createTestBranch(testName?: string): Promise<string> {
+export function createTestBranch(testName?: string): Promise<string> {
   return testDb.createTestBranch(testName)
 }
 
-export async function deleteTestBranch(branchId: string): Promise<void> {
+export function deleteTestBranch(branchId: string): Promise<void> {
   return testDb.deleteTestBranch(branchId)
 }
 
-export async function getTestDatabaseUrl(branchId: string): Promise<string> {
+export function getTestDatabaseUrl(branchId: string): Promise<string> {
   return testDb.getTestDatabaseUrl(branchId)
 }
 
-export async function cleanupAllTestBranches(): Promise<void> {
+export function cleanupAllTestBranches(): Promise<void> {
   return testDb.cleanupAllBranches()
 }
 
-export async function cleanupOldTestBranches(): Promise<void> {
+export function cleanupOldTestBranches(): Promise<void> {
   return testDb.cleanupOldTestBranches()
 }

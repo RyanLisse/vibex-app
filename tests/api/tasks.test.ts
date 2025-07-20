@@ -11,11 +11,11 @@ import {
   DELETE as deleteTaskById,
   GET as getTaskById,
   PUT as updateTaskById,
-} from '@/app/api/tasks/[id]/route'
-import { DELETE, GET, POST, PUT } from '@/app/api/tasks/route'
-import { db } from '@/db/config'
-import type { Task } from '@/db/schema'
-import { tasks } from '@/db/schema'
+} from '../../app/api/tasks/[id]/route'
+import { DELETE, GET, POST, PUT } from '../../app/api/tasks/route'
+import { db } from '../../db/config'
+import type { Task } from '../../db/schema'
+import { tasks } from '../../db/schema'
 
 // Mock database
 vi.mock('@/db/config', () => ({

@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useAuthBase } from '@/hooks/use-auth-base'
-import { useOpenAIAuth } from '@/hooks/use-openai-auth'
+import { useAuthBase } from './use-auth-base'
+import { useOpenAIAuth } from './use-openai-auth'
 
 // Mock the base auth hook
 vi.mock('./use-auth-base', () => ({
@@ -78,7 +78,7 @@ describe('useOpenAIAuth', () => {
     })
 
     it('should handle refresh errors', async () => {
-      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const fetchMock = mock(global.fetch)
       fetchMock.mockResolvedValueOnce({
         ok: false,
@@ -98,7 +98,7 @@ describe('useOpenAIAuth', () => {
     })
 
     it('should handle network errors', async () => {
-      const consoleSpy = spyOn(console, 'error').mockImplementation(() => {})
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const networkError = new Error('Network error')
       const fetchMock = mock(global.fetch)
       fetchMock.mockRejectedValueOnce(networkError)
