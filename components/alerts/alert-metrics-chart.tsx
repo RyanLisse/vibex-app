@@ -36,14 +36,6 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
   const [timeframe, setTimeframe] = useState('24h')
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadMetrics()
-
-    // Refresh metrics every minute
-    const interval = setInterval(loadMetrics, 60000)
-    return () => clearInterval(interval)
-  }, [timeframe, loadMetrics])
-
   const loadMetrics = useCallback(async () => {
     try {
       setLoading(true)
@@ -62,6 +54,14 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
       setLoading(false)
     }
   }, [timeframe])
+
+  useEffect(() => {
+    loadMetrics()
+
+    // Refresh metrics every minute
+    const interval = setInterval(loadMetrics, 60000)
+    return () => clearInterval(interval)
+  }, [loadMetrics])
 
   if (loading) {
     return (

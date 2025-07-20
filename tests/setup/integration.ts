@@ -33,61 +33,8 @@ vi.mock('ioredis', () => ({
   })),
 }))
 
-import { vi } from 'vitest'
-
-// Mock @/db/config before any other imports
-vi.mock('@/db/config', () => {
-  const mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {
-    // Handle template literal calls
-    if (Array.isArray(query)) {
-      const queryStr = query[0]
-      if (queryStr === 'SELECT 1') {
-        return [{ '?column?': 1 }]
-      }
-      if (queryStr === 'SELECT 1 as value') {
-        return [{ value: 1 }]
-      }
-      if (queryStr.includes('SELECT current_timestamp')) {
-        return [{ now: new Date().toISOString() }]
-      }
-      if (queryStr === 'BEGIN' || queryStr === 'COMMIT' || queryStr === 'ROLLBACK') {
-        return []
-      }
-      if (queryStr === 'ANALYZE') {
-        return []
-      }
-    }
-
-    // Handle direct string queries
-    if (typeof query === 'string') {
-      // For migration-related queries
-      if (
-        query.includes('pg_indexes') ||
-        query.includes('pg_tables') ||
-        query.includes('pg_stat_') ||
-        query.includes('pg_extension') ||
-        query.includes('information_schema')
-      ) {
-        return []
-      }
-      // For CREATE INDEX, CREATE EXTENSION etc.
-      if (
-        query.toLowerCase().includes('create') ||
-        query.toLowerCase().includes('drop') ||
-        query.toLowerCase().includes('alter') ||
-        query.toLowerCase().includes('vacuum') ||
-        query.toLowerCase().includes('reindex')
-      ) {
-        return []
-      }
-    }
-
-    return []
-  })
-
-  // Make the SQL function callable as a template literal tag
-  Object.setPrototypeOf(mockSql, Function.prototype)
-
+// Create a reusable mock database object
+const createMockDb = () => {
   const mockDb: any = {
     select: vi.fn(() => mockDb),
     where: vi.fn(() => mockDb),
@@ -102,143 +49,21 @@ vi.mock('@/db/config', () => {
     set: vi.fn(() => mockDb),
     delete: vi.fn((table) => mockDb),
     execute: vi.fn().mockResolvedValue([]),
-    from: vi.fn().mockImplementation((table: any) => {
-      // If querying migrations table, setup specific behavior
-      if (table?.name === 'migrations' || table?._?.name === 'migrations') {
-        mockDb.execute = vi.fn().mockResolvedValue([])
-        mockDb.orderBy = vi.fn(() => mockDb)
-        mockDb.limit = vi.fn().mockResolvedValue([])
-      }
-      return mockDb
-    }),
   }
 
-  return {
-    db: mockDb,
-    sql: mockSql,
-    dbConfig: {
-      connectionString: 'postgresql://test:test@localhost:5432/test',
-      ssl: false,
-      maxConnections: 20,
-      idleTimeout: 30_000,
-      connectionTimeout: 10_000,
-    },
-    checkDatabaseHealth: vi.fn().mockResolvedValue(true),
-    initializeExtensions: vi.fn().mockResolvedValue(undefined),
-    DatabasePool: vi.fn().mockImplementation(() => ({
-      getConnection: vi.fn().mockResolvedValue(mockSql),
-      releaseConnection: vi.fn(),
-      getConnectionCount: vi.fn().mockReturnValue(0),
-      getMaxConnections: vi.fn().mockReturnValue(20),
-      isConnectionPoolHealthy: vi.fn().mockReturnValue(true),
-      getLastHealthCheck: vi.fn().mockReturnValue(new Date()),
-      getPoolStats: vi.fn().mockReturnValue({
-        activeConnections: 0,
-        maxConnections: 20,
-        utilizationPercent: 0,
-        isHealthy: true,
-        lastHealthCheck: new Date(),
-      }),
-      destroy: vi.fn(),
-    })),
-    DatabaseMonitor: vi.fn().mockImplementation(() => ({
-      recordQuery: vi.fn(),
-      recordError: vi.fn(),
-      getMetrics: vi.fn().mockReturnValue({
-        queryCount: 0,
-        errorCount: 0,
-        averageResponseTime: 0,
-        errorRate: 0,
-        slowQueries: [],
-      }),
-      resetMetrics: vi.fn(),
-    })),
-  }
-})
+  // Add from method with special handling for migrations table
+  mockDb.from = vi.fn().mockImplementation((table: any) => {
+    // If querying migrations table, setup specific behavior
+    if (table?.name === 'migrations' || table?._?.name === 'migrations') {
+      mockDb.execute = vi.fn().mockResolvedValue([])
+      mockDb.orderBy = vi.fn(() => mockDb)
+      mockDb.limit = vi.fn().mockResolvedValue([])
+    }
+    return mockDb
+  })
 
-// Mock migration runner module
-vi.mock('@/db/migrations/migration-runner', () => {
-  return {
-    MigrationRunner: vi.fn().mockImplementation((path) => ({
-      migrate: vi.fn().mockResolvedValue({
-        success: true,
-        executed: [],
-        errors: [],
-        warnings: [],
-        executionTime: 100,
-      }),
-      rollback: vi.fn().mockResolvedValue({
-        success: true,
-        rolledBack: 'test-migration',
-      }),
-      getStatus: vi.fn().mockResolvedValue({
-        executed: [],
-        pending: [],
-        total: 0,
-      }),
-      createMigration: vi.fn().mockResolvedValue('/path/to/migration.sql'),
-      validateSchema: vi.fn().mockResolvedValue({
-        valid: true,
-        issues: [],
-        recommendations: [],
-      }),
-      getDatabaseStats: vi.fn().mockResolvedValue({
-        tables: [],
-        totalSize: '0 MB',
-        connectionCount: 0,
-        extensions: [],
-      }),
-      optimizeDatabase: vi.fn().mockResolvedValue({
-        success: true,
-        operations: ['Updated table statistics (ANALYZE)'],
-      }),
-      loadMigrationFiles: vi.fn().mockReturnValue([]),
-      validateMigrations: vi.fn().mockResolvedValue({
-        valid: true,
-        errors: [],
-        warnings: [],
-      }),
-    })),
-    migrationRunner: {
-      migrate: vi.fn().mockResolvedValue({
-        success: true,
-        executed: [],
-        errors: [],
-        warnings: [],
-        executionTime: 100,
-      }),
-      rollback: vi.fn().mockResolvedValue({
-        success: true,
-        rolledBack: 'test-migration',
-      }),
-      getStatus: vi.fn().mockResolvedValue({
-        executed: [],
-        pending: [],
-        total: 0,
-      }),
-    },
-  }
-})
-
-// Mock database schema module
-vi.mock('@/db/schema', () => ({
-  migrations: {},
-  tasks: {},
-  messages: {},
-  deployments: {},
-  logs: {},
-  users: {},
-  accounts: {},
-  sessions: {},
-  verificationTokens: {},
-  authenticators: {},
-  aiChat: {},
-  eventLogs: {},
-  observabilityRuns: {},
-  observabilityLogs: {},
-  observabilityTraces: {},
-  // Add any other schema exports that are used in tests
-}))
+  return mockDb
+}
 
 // Mock database modules before any other imports
 vi.mock('@neondatabase/serverless', () => ({
@@ -360,39 +185,152 @@ vi.mock('drizzle-orm/pg-core', () => {
   }
 })
 
+// Mock the db/config module directly
+vi.mock('../../db/config', () => {
+  const mockDb = createMockDb()
+  const mockSql = vi.fn().mockImplementation(async (query: any) => {
+    if (Array.isArray(query) && query[0] === 'SELECT 1') {
+      return [{ '?column?': 1 }]
+    }
+    return []
+  })
+
+  return {
+    db: mockDb,
+    sql: mockSql,
+    checkDatabaseHealth: vi.fn().mockResolvedValue(true),
+    DatabasePool: vi.fn().mockImplementation(() => ({
+      getInstance: vi.fn().mockReturnThis(),
+      getConnection: vi.fn().mockResolvedValue(mockSql),
+      releaseConnection: vi.fn(),
+      getConnectionCount: vi.fn().mockReturnValue(0),
+      getMaxConnections: vi.fn().mockReturnValue(20),
+      isConnectionPoolHealthy: vi.fn().mockReturnValue(true),
+      getLastHealthCheck: vi.fn().mockReturnValue(new Date()),
+      getPoolStats: vi.fn().mockReturnValue({
+        activeConnections: 0,
+        maxConnections: 20,
+        utilizationPercent: 0,
+        isHealthy: true,
+        lastHealthCheck: new Date(),
+      }),
+      destroy: vi.fn(),
+    })),
+    DatabaseMonitor: vi.fn().mockImplementation(() => ({
+      getInstance: vi.fn().mockReturnThis(),
+      recordQuery: vi.fn(),
+      recordError: vi.fn(),
+      getMetrics: vi.fn().mockReturnValue({
+        queryCount: 0,
+        errorCount: 0,
+        averageResponseTime: 0,
+        errorRate: 0,
+        slowQueries: [],
+      }),
+      resetMetrics: vi.fn(),
+    })),
+    dbConfig: {
+      connectionString: 'postgresql://test:test@localhost:5432/test',
+      ssl: false,
+      maxConnections: 20,
+      idleTimeout: 30_000,
+      connectionTimeout: 10_000,
+    },
+    initializeExtensions: vi.fn().mockResolvedValue(undefined),
+  }
+})
+
+// Also mock at the relative path used by migration runner
+vi.mock('../../../db/config', () => {
+  const mockDb = createMockDb()
+  const mockSql = vi.fn().mockImplementation(async (query: any) => {
+    if (Array.isArray(query) && query[0] === 'SELECT 1') {
+      return [{ '?column?': 1 }]
+    }
+    return []
+  })
+
+  return {
+    db: mockDb,
+    sql: mockSql,
+    checkDatabaseHealth: vi.fn().mockResolvedValue(true),
+    DatabasePool: vi.fn().mockImplementation(() => ({
+      getInstance: vi.fn().mockReturnThis(),
+      getConnection: vi.fn().mockResolvedValue(mockSql),
+      releaseConnection: vi.fn(),
+      getConnectionCount: vi.fn().mockReturnValue(0),
+      getMaxConnections: vi.fn().mockReturnValue(20),
+      isConnectionPoolHealthy: vi.fn().mockReturnValue(true),
+      getLastHealthCheck: vi.fn().mockReturnValue(new Date()),
+      getPoolStats: vi.fn().mockReturnValue({
+        activeConnections: 0,
+        maxConnections: 20,
+        utilizationPercent: 0,
+        isHealthy: true,
+        lastHealthCheck: new Date(),
+      }),
+      destroy: vi.fn(),
+    })),
+    DatabaseMonitor: vi.fn().mockImplementation(() => ({
+      getInstance: vi.fn().mockReturnThis(),
+      recordQuery: vi.fn(),
+      recordError: vi.fn(),
+      getMetrics: vi.fn().mockReturnValue({
+        queryCount: 0,
+        errorCount: 0,
+        averageResponseTime: 0,
+        errorRate: 0,
+        slowQueries: [],
+      }),
+      resetMetrics: vi.fn(),
+    })),
+    dbConfig: {
+      connectionString: 'postgresql://test:test@localhost:5432/test',
+      ssl: false,
+      maxConnections: 20,
+      idleTimeout: 30_000,
+      connectionTimeout: 10_000,
+    },
+    initializeExtensions: vi.fn().mockResolvedValue(undefined),
+  }
+})
+
 // Mock drizzle-orm
 vi.mock('drizzle-orm/neon-serverless', () => ({
-  drizzle: vi.fn(() => {
-    const mockDb: any = {
-      select: vi.fn(() => mockDb),
-      where: vi.fn(() => mockDb),
-      orderBy: vi.fn(() => mockDb),
-      limit: vi.fn(() => mockDb),
-      insert: vi.fn((table) => mockDb),
-      values: vi.fn().mockImplementation(async () => {
-        // Return successful insert
-        return { rowCount: 1 }
-      }),
-      update: vi.fn((table) => mockDb),
-      set: vi.fn(() => mockDb),
-      delete: vi.fn((table) => mockDb),
-      execute: vi.fn().mockResolvedValue([]),
+  drizzle: vi.fn(() => createMockDb()),
+}))
+
+// Mock the migration runner module
+vi.mock('../../../db/migrations/migration-runner', () => {
+  class MockMigrationRunner {
+    constructor(public migrationsPath: string) {}
+
+    async loadMigrations() {
+      return []
     }
 
-    // Add from method with special handling for migrations table
-    mockDb.from = vi.fn().mockImplementation((table: any) => {
-      // If querying migrations table, setup specific behavior
-      if (table?.name === 'migrations' || table?._?.name === 'migrations') {
-        mockDb.execute = vi.fn().mockResolvedValue([])
-        mockDb.orderBy = vi.fn(() => mockDb)
-        mockDb.limit = vi.fn().mockResolvedValue([])
-      }
-      return mockDb
-    })
+    async validateMigrations() {
+      return { valid: true, errors: [], warnings: [] }
+    }
 
-    return mockDb
-  }),
-}))
+    async executeMigrations() {
+      return { success: true, executed: [], errors: [] }
+    }
+
+    async rollbackMigration() {
+      return { success: true, rolledBack: 'test', error: null }
+    }
+
+    generateChecksum(content: string) {
+      return 'mock-checksum'
+    }
+  }
+
+  return {
+    MigrationRunner: MockMigrationRunner,
+    migrationRunner: new MockMigrationRunner('./db/migrations'),
+  }
+})
 
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'

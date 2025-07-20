@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { checkDatabaseHealth, db } from '../../../db/config'
+import { checkDatabaseHealth, db } from '../../../db/test-config'
 
 describe('Database Connection', () => {
   it('should check database health', async () => {

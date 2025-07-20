@@ -10,7 +10,7 @@ export default mergeConfig(sharedConfig, {
     environment: 'node',
     setupFiles: ['./tests/setup/integration.ts'],
     env: {
-      DATABASE_URL: 'file::memory:?cache=shared',
+      DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
       ELECTRIC_URL: 'http://localhost:5133',
       ELECTRIC_WEBSOCKET_URL: 'ws://localhost:5133',
       ELECTRIC_AUTH_TOKEN: 'test_auth_token',

@@ -1,7 +1,6 @@
 'use client'
 
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Volume2, AlertCircle } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -28,11 +27,7 @@ export function TranscriptionProcessor({
   const [error, setError] = useState<string | null>(null)
   const [transcriptionText, setTranscriptionText] = useState('')
 
-  useEffect(() => {
-    startTranscription()
-  }, [recording])
-
-  const startTranscription = async () => {
+  const startTranscription = useCallback(async () => {
     setIsTranscribing(true)
     setError(null)
     setProgress(0)
@@ -176,7 +171,11 @@ export function TranscriptionProcessor({
       onError?.(errorMessage)
       setIsTranscribing(false)
     }
-  }
+  }, [recording, language, onTranscriptionComplete, onError])
+
+  useEffect(() => {
+    startTranscription()
+  }, [startTranscription])
 
   const retryTranscription = () => {
     startTranscription()

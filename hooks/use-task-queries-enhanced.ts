@@ -1,6 +1,6 @@
 'use client'
 
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import type { NewTask, Task } from '@/db/schema'
 import { invalidateQueries, mutationKeys, queryKeys } from '@/lib/query/config'
@@ -8,7 +8,6 @@ import { useElectricTasks } from './use-electric-tasks'
 import {
   useEnhancedQuery,
   useEnhancedMutation,
-  useEnhancedInfiniteQuery,
   useVectorSearchQuery,
 } from './use-enhanced-query-new'
 
@@ -149,9 +148,9 @@ export function useTasksQuery(filters: TaskFilters = {}) {
  * Hook for infinite task queries with virtualization support
  */
 export function useInfiniteTasksQuery(filters: TaskFilters = {}, pageSize = 50) {
-  return useEnhancedInfiniteQuery(
-    queryKeys.tasks.infinite(filters),
-    async ({ pageParam = 0 }) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.tasks.infinite(filters),
+    queryFn: async ({ pageParam = 0 }) => {
       const searchParams = new URLSearchParams()
       searchParams.append('page', pageParam.toString())
       searchParams.append('limit', pageSize.toString())
@@ -174,16 +173,10 @@ export function useInfiniteTasksQuery(filters: TaskFilters = {}, pageSize = 50) 
         total: result.total,
       }
     },
-    {
-      initialPageParam: 0,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      enableVirtualization: true,
-      enableWASMOptimization: true,
-      enableRealTimeSync: true,
-      syncTable: 'tasks',
-      staleTime: 2 * 60 * 1000, // 2 minutes
-    }
-  )
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
 }
 
 /**

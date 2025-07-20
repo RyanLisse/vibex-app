@@ -1,5 +1,6 @@
 import Redis, { Cluster, type ClusterOptions, type RedisOptions } from 'ioredis'
 import { ObservabilityService } from '../observability'
+import { getRedisConfig } from './config'
 import {
   ClientHealthStatus,
   type RedisConfig,
@@ -289,3 +290,21 @@ export class RedisClientManager {
 
 // Export redis client getter function
 export const getRedis = () => RedisClientManager.getInstance()
+
+// Default redis client instance (for backward compatibility)
+export const redis = (() => {
+  try {
+    const config = getRedisConfig()
+    const manager = RedisClientManager.getInstance(config)
+    return manager.getClient('primary')
+  } catch (error) {
+    console.error('Failed to create default Redis client:', error)
+    // Return a mock client during build
+    return {
+      get: async () => null,
+      set: async () => 'OK',
+      del: async () => 0,
+      exists: async () => 0,
+    }
+  }
+})()
