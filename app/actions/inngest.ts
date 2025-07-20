@@ -2,8 +2,8 @@
 import { getSubscriptionToken, type Realtime } from '@inngest/realtime'
 import { cookies } from 'next/headers'
 import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
-import { getTelemetryConfig } from '@/lib/telemetry'
 import { getLogger } from '@/lib/logging'
+import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/types/task'
 
 const logger = getLogger('inngest-actions')

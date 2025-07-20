@@ -240,7 +240,9 @@ export class DataMigrationManager {
       const localTasks = taskStoreData ? JSON.parse(taskStoreData)?.state?.tasks || [] : []
 
       step.totalRecords = localTasks.length
-      this.currentMigration!.summary.totalRecords += localTasks.length
+      if (this.currentMigration) {
+        this.currentMigration.summary.totalRecords += localTasks.length
+      }
 
       if (localTasks.length === 0) {
         step.status = 'completed'
@@ -290,13 +292,17 @@ export class DataMigrationManager {
           }
 
           step.recordsProcessed++
-          this.currentMigration!.summary.migratedRecords++
+          if (this.currentMigration) {
+            this.currentMigration.summary.migratedRecords++
+          }
         } catch (error) {
           console.error(`Failed to migrate task ${localTask.id}:`, error)
-          this.currentMigration!.summary.failedRecords++
-          this.currentMigration!.errors.push(
-            `Task ${localTask.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-          )
+          if (this.currentMigration) {
+            this.currentMigration.summary.failedRecords++
+            this.currentMigration.errors.push(
+              `Task ${localTask.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+            )
+          }
         }
       }
 
@@ -374,11 +380,14 @@ export class DataMigrationManager {
           }
 
           step.recordsProcessed++
-          this.currentMigration!.summary.migratedRecords++
+          if (this.currentMigration) {
+            this.currentMigration.summary.migratedRecords++
+          }
         } catch (error) {
           console.error(`Failed to migrate environment ${localEnv.id}:`, error)
-          this.currentMigration!.summary.failedRecords++
-          this.currentMigration!.errors.push(
+          if (this.currentMigration) {
+            this.currentMigration.summary.failedRecords++
+            this.currentMigration.errors.push(
             `Environment ${localEnv.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
           )
         }
