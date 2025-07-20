@@ -14,6 +14,129 @@ import {
   vector,
 } from 'drizzle-orm/pg-core'
 
+// Alert System Tables
+export const alerts = pgTable(
+  'alerts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    timestamp: timestamp('timestamp').defaultNow().notNull(),
+    severity: varchar('severity', { length: 20 }).notNull(),
+    type: varchar('type', { length: 100 }).notNull(),
+    message: text('message').notNull(),
+    source: varchar('source', { length: 255 }).notNull(),
+    metadata: jsonb('metadata'),
+    stackTrace: text('stack_trace'),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    environment: varchar('environment', { length: 50 }).notNull(),
+    userId: varchar('user_id', { length: 255 }),
+    sessionId: varchar('session_id', { length: 255 }),
+    resolved: boolean('resolved').default(false),
+    resolvedAt: timestamp('resolved_at'),
+    resolvedBy: varchar('resolved_by', { length: 255 }),
+    occurrenceCount: integer('occurrence_count').default(1),
+    lastOccurrence: timestamp('last_occurrence').defaultNow().notNull(),
+    firstOccurrence: timestamp('first_occurrence').defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull()
+  },
+  (table) => ({
+    severityIdx: index('alerts_severity_idx').on(table.severity),
+    typeIdx: index('alerts_type_idx').on(table.type),
+    sourceIdx: index('alerts_source_idx').on(table.source),
+    environmentIdx: index('alerts_environment_idx').on(table.environment),
+    resolvedIdx: index('alerts_resolved_idx').on(table.resolved),
+    timestampIdx: index('alerts_timestamp_idx').on(table.timestamp),
+    correlationIdIdx: index('alerts_correlation_id_idx').on(table.correlationId),
+    userIdIdx: index('alerts_user_id_idx').on(table.userId)
+  })
+)
+
+export const alertChannels = pgTable(
+  'alert_channels',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 255 }).notNull(),
+    type: varchar('type', { length: 50 }).notNull(),
+    enabled: boolean('enabled').default(true),
+    config: jsonb('config').notNull(),
+    errorTypes: jsonb('error_types'), // Array of CriticalErrorType
+    priority: varchar('priority', { length: 20 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull()
+  },
+  (table) => ({
+    nameIdx: index('alert_channels_name_idx').on(table.name),
+    typeIdx: index('alert_channels_type_idx').on(table.type),
+    enabledIdx: index('alert_channels_enabled_idx').on(table.enabled),
+    uniqueName: unique('alert_channels_name_unique').on(table.name)
+  })
+)
+
+export const alertNotifications = pgTable(
+  'alert_notifications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    alertId: uuid('alert_id').references(() => alerts.id).notNull(),
+    channelId: uuid('channel_id').references(() => alertChannels.id),
+    channelType: varchar('channel_type', { length: 50 }).notNull(),
+    channelName: varchar('channel_name', { length: 255 }).notNull(),
+    status: varchar('status', { length: 20 }).notNull(),
+    sentAt: timestamp('sent_at'),
+    deliveredAt: timestamp('delivered_at'),
+    failedAt: timestamp('failed_at'),
+    errorMessage: text('error_message'),
+    retryCount: integer('retry_count').default(0),
+    maxRetries: integer('max_retries').default(3),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull()
+  },
+  (table) => ({
+    alertIdIdx: index('alert_notifications_alert_id_idx').on(table.alertId),
+    statusIdx: index('alert_notifications_status_idx').on(table.status),
+    channelTypeIdx: index('alert_notifications_channel_type_idx').on(table.channelType),
+    sentAtIdx: index('alert_notifications_sent_at_idx').on(table.sentAt)
+  })
+)
+
+export const alertMetrics = pgTable(
+  'alert_metrics',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    date: timestamp('date').defaultNow().notNull(),
+    totalAlerts: integer('total_alerts').default(0),
+    alertsByType: jsonb('alerts_by_type'), // Record<CriticalErrorType, number>
+    alertsByChannel: jsonb('alerts_by_channel'), // Record<AlertChannelType, number>
+    averageResolutionTime: integer('average_resolution_time'), // in milliseconds
+    unresolvedAlerts: integer('unresolved_alerts').default(0),
+    meanTimeToAlert: integer('mean_time_to_alert'), // in milliseconds
+    meanTimeToResolution: integer('mean_time_to_resolution'), // in milliseconds
+    createdAt: timestamp('created_at').defaultNow().notNull()
+  },
+  (table) => ({
+    dateIdx: index('alert_metrics_date_idx').on(table.date)
+  })
+)
+
+// Alert Relations
+export const alertsRelations = relations(alerts, ({ many }) => ({
+  notifications: many(alertNotifications)
+}))
+
+export const alertChannelsRelations = relations(alertChannels, ({ many }) => ({
+  notifications: many(alertNotifications)
+}))
+
+export const alertNotificationsRelations = relations(alertNotifications, ({ one }) => ({
+  alert: one(alerts, {
+    fields: [alertNotifications.alertId],
+    references: [alerts.id]
+  }),
+  channel: one(alertChannels, {
+    fields: [alertNotifications.channelId],
+    references: [alertChannels.id]
+  })
+}))
+
 // Core Tables
 export const tasks = pgTable(
   'tasks',

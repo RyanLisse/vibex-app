@@ -219,12 +219,14 @@ export class LoggingHealthMonitor {
   }
 
   private triggerAlert(status: HealthStatus): void {
-    // In a real implementation, this would integrate with alerting systems
-    // like PagerDuty, Slack, email, etc.
-    this.logger.error('ALERT: Logging System Unhealthy', {
+    // Create a critical error that will be picked up by the alert system
+    this.logger.error('system health unhealthy', {
       status,
       alert: true,
       severity: 'critical',
+      healthChecks: status.checks,
+      metrics: status.metrics,
+      event: 'system_health_failure'
     })
   }
 
