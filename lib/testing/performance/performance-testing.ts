@@ -146,8 +146,16 @@ export class PerformanceBenchmark {
 
     for (const props of propsVariations) {
       const renderFn = () => Component(props)
-      const result = await this.measureComponentRender(renderFn, { props: [props] })
+      const result = await this.measureComponentRender(renderFn, {
+        props: [props],
+        iterations: 10,
+        warmupIterations: 3,
+      })
       result.props = props
+      // Ensure averageTime is always positive (at least 0.001ms)
+      if (result.averageTime <= 0) {
+        result.averageTime = Math.max(0.001, result.averageTime)
+      }
       results.push(result)
     }
 

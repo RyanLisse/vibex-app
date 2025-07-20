@@ -11,6 +11,7 @@ import {
   TrendingDown,
   AlertTriangle,
   CheckCircle,
+  HardDrive,
 } from 'lucide-react'
 
 export interface PerformanceMetrics {
@@ -167,7 +168,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ classNam
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-1">
-                  <MemoryStick className="w-3 h-3 text-indigo-500" />
+                  <HardDrive className="w-3 h-3 text-indigo-500" />
                   <span>Memory Usage</span>
                   {getTrendIcon(metrics.memory.trend)}
                 </div>

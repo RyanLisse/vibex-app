@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ReactFlow } from '@xyflow/react'
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Background,
+  Controls,
+  MiniMap,
+  Panel,
+  type NodeTypes,
+  type EdgeTypes,
+} from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
 import { AgentNode } from './nodes/agent-node'

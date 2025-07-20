@@ -253,7 +253,7 @@ describe('Custom Matchers', () => {
       })
 
       it('should timeout if value never matches', async () => {
-        let value = 'initial'
+        const value = 'initial'
 
         try {
           await expect(() => value).toEventuallyEqual('final', { timeout: 100 })
