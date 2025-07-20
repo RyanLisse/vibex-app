@@ -39,7 +39,7 @@ vi.mock('@/components/ui/button', () => ({
 
 describe('ThemeToggle', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockUseTheme.mockReturnValue({
       theme: 'light',
       setTheme: mockSetTheme,
@@ -47,7 +47,7 @@ describe('ThemeToggle', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render with disabled state before mounting', () => {

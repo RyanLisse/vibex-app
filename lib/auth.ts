@@ -329,8 +329,11 @@ export function sanitizeRedirectUrl(url: string): string {
 
     // Block dangerous protocols
     if (
+      // @ts-expect-error - intentional security check for dangerous protocols
       parsed.protocol === 'javascript:' ||
+      // @ts-expect-error - intentional security check for dangerous protocols
       parsed.protocol === 'data:' ||
+      // @ts-expect-error - intentional security check for dangerous protocols
       parsed.protocol === 'file:'
     ) {
       throw new Error('Dangerous redirect URL protocol')
