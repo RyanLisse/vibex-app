@@ -1,6 +1,6 @@
-# CloneDex - Modern AI Code Generation Platform
+# CloneDex - Enterprise AI Code Generation Platform
 
-A cutting-edge AI-powered code generation platform featuring real-time synchronization, advanced state management, and comprehensive developer tooling. Built with Next.js 15, ElectricSQL, and modern web technologies.
+A cutting-edge AI-powered code generation platform featuring real-time synchronization, advanced state management, and comprehensive developer tooling. Built with Next.js 15, ElectricSQL, and modern web technologies with enterprise-grade base infrastructure.
 
 ## 🔗 Demo
 
