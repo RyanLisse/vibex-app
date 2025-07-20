@@ -1,6 +1,6 @@
 /**
  * Base API Error Class
- * 
+ *
  * Standardized error handling for all API routes
  * Reduces code duplication across route-specific error classes
  */
@@ -9,12 +9,7 @@ export class BaseAPIError extends Error {
   public readonly code: string
   public readonly details?: any
 
-  constructor(
-    message: string,
-    statusCode = 500,
-    code = 'INTERNAL_ERROR',
-    details?: any
-  ) {
+  constructor(message: string, statusCode = 500, code = 'INTERNAL_ERROR', details?: any) {
     super(message)
     this.name = this.constructor.name
     this.statusCode = statusCode

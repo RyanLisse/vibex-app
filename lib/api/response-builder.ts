@@ -1,6 +1,6 @@
 /**
  * Response Builder Utilities
- * 
+ *
  * Provides standardized API response creation
  * Ensures consistent response format across all endpoints
  */
@@ -23,35 +23,21 @@ export class ResponseBuilder {
   /**
    * Create a successful response
    */
-  static success<T>(
-    data: T,
-    message?: string,
-    statusCode = 200
-  ): NextResponse {
-    return NextResponse.json(
-      createApiSuccessResponse(data, message),
-      { 
-        status: statusCode,
-        headers: this.getDefaultHeaders(),
-      }
-    )
+  static success<T>(data: T, message?: string, statusCode = 200): NextResponse {
+    return NextResponse.json(createApiSuccessResponse(data, message), {
+      status: statusCode,
+      headers: this.getDefaultHeaders(),
+    })
   }
 
   /**
    * Create a paginated response
    */
-  static paginated<T>(
-    data: T[],
-    pagination: PaginationInfo,
-    message?: string
-  ): NextResponse {
-    return NextResponse.json(
-      createPaginatedResponse(data, pagination, message),
-      { 
-        status: 200,
-        headers: this.getDefaultHeaders(),
-      }
-    )
+  static paginated<T>(data: T[], pagination: PaginationInfo, message?: string): NextResponse {
+    return NextResponse.json(createPaginatedResponse(data, pagination, message), {
+      status: 200,
+      headers: this.getDefaultHeaders(),
+    })
   }
 
   /**
@@ -63,35 +49,25 @@ export class ResponseBuilder {
     code = 'INTERNAL_ERROR',
     details?: any
   ): NextResponse {
-    return NextResponse.json(
-      createApiErrorResponse(message, statusCode, code, details),
-      { 
-        status: statusCode,
-        headers: this.getDefaultHeaders(),
-      }
-    )
+    return NextResponse.json(createApiErrorResponse(message, statusCode, code, details), {
+      status: statusCode,
+      headers: this.getDefaultHeaders(),
+    })
   }
 
   /**
    * Create a validation error response
    */
   static validationError(errors: any[]): NextResponse {
-    return this.error(
-      'Validation failed',
-      400,
-      'VALIDATION_ERROR',
-      errors
-    )
+    return this.error('Validation failed', 400, 'VALIDATION_ERROR', errors)
   }
 
   /**
    * Create a not found response
    */
   static notFound(resource: string, id?: string): NextResponse {
-    const message = id 
-      ? `${resource} with id ${id} not found`
-      : `${resource} not found`
-    
+    const message = id ? `${resource} with id ${id} not found` : `${resource} not found`
+
     return this.error(message, 404, 'NOT_FOUND')
   }
 
@@ -114,21 +90,14 @@ export class ResponseBuilder {
    */
   static rateLimitExceeded(retryAfter?: number): NextResponse {
     const headers = this.getDefaultHeaders()
-    
+
     if (retryAfter) {
       headers['Retry-After'] = retryAfter.toString()
-      headers['X-RateLimit-Reset'] = new Date(
-        Date.now() + retryAfter * 1000
-      ).toISOString()
+      headers['X-RateLimit-Reset'] = new Date(Date.now() + retryAfter * 1000).toISOString()
     }
 
     return NextResponse.json(
-      createApiErrorResponse(
-        'Rate limit exceeded',
-        429,
-        'RATE_LIMIT_EXCEEDED',
-        { retryAfter }
-      ),
+      createApiErrorResponse('Rate limit exceeded', 429, 'RATE_LIMIT_EXCEEDED', { retryAfter }),
       { status: 429, headers }
     )
   }
@@ -158,7 +127,7 @@ export class ResponseBuilder {
    * Create a no content response (204)
    */
   static noContent(): NextResponse {
-    return new NextResponse(null, { 
+    return new NextResponse(null, {
       status: 204,
       headers: this.getDefaultHeaders(),
     })
@@ -194,12 +163,9 @@ export class ResponseBuilder {
   ): NextResponse {
     response.headers.set('Access-Control-Allow-Origin', origin)
     response.headers.set('Access-Control-Allow-Methods', methods.join(', '))
-    response.headers.set(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization'
-    )
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     response.headers.set('Access-Control-Max-Age', '86400')
-    
+
     return response
   }
 }

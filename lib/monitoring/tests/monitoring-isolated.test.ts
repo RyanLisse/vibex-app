@@ -77,7 +77,8 @@ vi.mock('nodemailer', () => ({
 }))
 
 // Import modules after mocks are set up
-const { prometheusRegistry, recordHttpRequest, recordDatabaseQuery, recordAgentExecution } = await import('../prometheus')
+const { prometheusRegistry, recordHttpRequest, recordDatabaseQuery, recordAgentExecution } =
+  await import('../prometheus')
 const { alertManager } = await import('../alerts')
 const { notificationManager, EmailChannel, SlackChannel } = await import('../notifications')
 const { healthCheckManager, getHealthStatus } = await import('../health')
@@ -88,12 +89,12 @@ const { initializeMonitoring } = await import('../index')
 describe('Monitoring System', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock process methods
     if (typeof process.cpuUsage === 'undefined') {
       process.cpuUsage = vi.fn().mockReturnValue({ user: 100000, system: 50000 })
     }
-    
+
     // Mock fetch for notifications
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -152,7 +153,7 @@ describe('Monitoring System', () => {
     it('should export system metrics', async () => {
       // Import prometheus module to ensure metrics are initialized
       const { startPrometheusExporter } = await import('../prometheus')
-      
+
       // Mock process.memoryUsage for this test
       const memoryUsageMock = vi.fn().mockReturnValue({
         rss: 100 * 1024 * 1024,

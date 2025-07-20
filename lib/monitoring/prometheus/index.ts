@@ -171,7 +171,7 @@ export async function startPrometheusExporter(config: PrometheusConfig): Promise
 
   // Collect default Node.js metrics
   collectDefaultMetrics({ register: prometheusRegistry })
-  
+
   // Collect custom system metrics immediately
   updateSystemMetrics()
 

@@ -33,10 +33,11 @@ describe('Auth Coverage Tests', () => {
 
         return url
       } catch (error) {
-        if (error instanceof Error && (
-          error.message === 'Invalid redirect URL protocol' ||
-          error.message === 'Dangerous redirect URL protocol'
-        )) {
+        if (
+          error instanceof Error &&
+          (error.message === 'Invalid redirect URL protocol' ||
+            error.message === 'Dangerous redirect URL protocol')
+        ) {
           throw error
         }
         throw new Error('Invalid redirect URL')

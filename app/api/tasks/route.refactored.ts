@@ -13,11 +13,7 @@ import { ulid } from 'ulid'
 import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
-import { 
-  BaseAPIError, 
-  NotFoundError,
-  InternalServerError 
-} from '@/lib/api/base-error'
+import { BaseAPIError, NotFoundError, InternalServerError } from '@/lib/api/base-error'
 import { BaseAPIService } from '@/lib/api/base-service'
 import { BaseAPIHandler } from '@/lib/api/base-handler'
 import { QueryBuilder } from '@/lib/api/query-builder'
@@ -72,16 +68,10 @@ class TasksService extends BaseAPIService {
       )
 
       // Log operation for audit trail
-      await this.logOperation(
-        'query_tasks',
-        'tasks',
-        'multiple',
-        params.userId,
-        {
-          resultCount: result.data.length,
-          filters: params,
-        }
-      )
+      await this.logOperation('query_tasks', 'tasks', 'multiple', params.userId, {
+        resultCount: result.data.length,
+        filters: params,
+      })
 
       return result
     })
@@ -91,117 +81,107 @@ class TasksService extends BaseAPIService {
    * Create a new task
    */
   static async createTask(taskData: z.infer<typeof CreateTaskSchema>) {
-    return this.withTracing('createTask', async () => {
-      return this.withTransaction(async (tx) => {
-        const newTask = {
-          id: ulid(),
-          ...taskData,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
+    return this.withTracing(
+      'createTask',
+      async () => {
+        return this.withTransaction(async (tx) => {
+          const newTask = {
+            id: ulid(),
+            ...taskData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
 
-        const [createdTask] = await tx.insert(tasks).values(newTask).returning()
+          const [createdTask] = await tx.insert(tasks).values(newTask).returning()
 
-        // Log operation
-        await this.logOperation(
-          'create_task',
-          'task',
-          createdTask.id,
-          createdTask.userId,
-          { title: createdTask.title }
-        )
+          // Log operation
+          await this.logOperation('create_task', 'task', createdTask.id, createdTask.userId, {
+            title: createdTask.title,
+          })
 
-        return createdTask
-      })
-    }, { 'task.title': taskData.title })
+          return createdTask
+        })
+      },
+      { 'task.title': taskData.title }
+    )
   }
 
   /**
    * Update a task
    */
   static async updateTask(id: string, updates: z.infer<typeof UpdateTaskSchema>) {
-    return this.withTracing('updateTask', async () => {
-      return this.withTransaction(async (tx) => {
-        const [updatedTask] = await tx
-          .update(tasks)
-          .set({
-            ...updates,
-            updatedAt: new Date(),
-            ...(updates.status === 'completed' && { completedAt: new Date() }),
+    return this.withTracing(
+      'updateTask',
+      async () => {
+        return this.withTransaction(async (tx) => {
+          const [updatedTask] = await tx
+            .update(tasks)
+            .set({
+              ...updates,
+              updatedAt: new Date(),
+              ...(updates.status === 'completed' && { completedAt: new Date() }),
+            })
+            .where(eq(tasks.id, id))
+            .returning()
+
+          if (!updatedTask) {
+            throw new NotFoundError('Task', id)
+          }
+
+          // Log operation
+          await this.logOperation('update_task', 'task', updatedTask.id, updatedTask.userId, {
+            updates,
           })
-          .where(eq(tasks.id, id))
-          .returning()
 
-        if (!updatedTask) {
-          throw new NotFoundError('Task', id)
-        }
-
-        // Log operation
-        await this.logOperation(
-          'update_task',
-          'task',
-          updatedTask.id,
-          updatedTask.userId,
-          { updates }
-        )
-
-        return updatedTask
-      })
-    }, { 'task.id': id })
+          return updatedTask
+        })
+      },
+      { 'task.id': id }
+    )
   }
 
   /**
    * Delete a task
    */
   static async deleteTask(id: string) {
-    return this.withTracing('deleteTask', async () => {
-      return this.withTransaction(async (tx) => {
-        const [deletedTask] = await tx.delete(tasks).where(eq(tasks.id, id)).returning()
+    return this.withTracing(
+      'deleteTask',
+      async () => {
+        return this.withTransaction(async (tx) => {
+          const [deletedTask] = await tx.delete(tasks).where(eq(tasks.id, id)).returning()
 
-        if (!deletedTask) {
-          throw new NotFoundError('Task', id)
-        }
+          if (!deletedTask) {
+            throw new NotFoundError('Task', id)
+          }
 
-        // Log operation
-        await this.logOperation(
-          'delete_task',
-          'task',
-          deletedTask.id,
-          deletedTask.userId,
-          { title: deletedTask.title }
-        )
+          // Log operation
+          await this.logOperation('delete_task', 'task', deletedTask.id, deletedTask.userId, {
+            title: deletedTask.title,
+          })
 
-        return deletedTask
-      })
-    }, { 'task.id': id })
+          return deletedTask
+        })
+      },
+      { 'task.id': id }
+    )
   }
 }
 
 /**
  * GET /api/tasks - Get tasks with filtering and pagination
  */
-export const GET = BaseAPIHandler.createHandler(
-  { schema: GetTasksQuerySchema },
-  async (params) => {
-    const result = await TasksService.getTasks(params)
-    return ResponseBuilder.paginated(
-      result.data,
-      result.pagination,
-      'Tasks retrieved successfully'
-    )
-  }
-)
+export const GET = BaseAPIHandler.createHandler({ schema: GetTasksQuerySchema }, async (params) => {
+  const result = await TasksService.getTasks(params)
+  return ResponseBuilder.paginated(result.data, result.pagination, 'Tasks retrieved successfully')
+})
 
 /**
  * POST /api/tasks - Create a new task
  */
-export const POST = BaseAPIHandler.createHandler(
-  { schema: CreateTaskSchema },
-  async (params) => {
-    const task = await TasksService.createTask(params)
-    return ResponseBuilder.created(task, 'Task created successfully')
-  }
-)
+export const POST = BaseAPIHandler.createHandler({ schema: CreateTaskSchema }, async (params) => {
+  const task = await TasksService.createTask(params)
+  return ResponseBuilder.created(task, 'Task created successfully')
+})
 
 /**
  * PUT /api/tasks/[id] - Update a task

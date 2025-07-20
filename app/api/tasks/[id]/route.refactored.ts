@@ -32,134 +32,110 @@ class TaskService extends BaseAPIService {
    * Get a single task by ID
    */
   static async getTask(id: string) {
-    return this.withTracing('getTask', async () => {
-      const [task] = await db
-        .select()
-        .from(tasks)
-        .where(eq(tasks.id, id))
-        .limit(1)
+    return this.withTracing(
+      'getTask',
+      async () => {
+        const [task] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1)
 
-      if (!task) {
-        throw new NotFoundError('Task', id)
-      }
+        if (!task) {
+          throw new NotFoundError('Task', id)
+        }
 
-      // Log operation
-      await this.logOperation(
-        'get_task',
-        'task',
-        task.id,
-        task.userId,
-        { title: task.title }
-      )
+        // Log operation
+        await this.logOperation('get_task', 'task', task.id, task.userId, { title: task.title })
 
-      return task
-    }, { 'task.id': id })
+        return task
+      },
+      { 'task.id': id }
+    )
   }
 
   /**
    * Update a task
    */
   static async updateTask(id: string, updates: z.infer<typeof UpdateTaskSchema>) {
-    return this.withTracing('updateTask', async () => {
-      return this.withTransaction(async (tx) => {
-        // First check if task exists
-        const [existingTask] = await tx
-          .select()
-          .from(tasks)
-          .where(eq(tasks.id, id))
-          .limit(1)
+    return this.withTracing(
+      'updateTask',
+      async () => {
+        return this.withTransaction(async (tx) => {
+          // First check if task exists
+          const [existingTask] = await tx.select().from(tasks).where(eq(tasks.id, id)).limit(1)
 
-        if (!existingTask) {
-          throw new NotFoundError('Task', id)
-        }
+          if (!existingTask) {
+            throw new NotFoundError('Task', id)
+          }
 
-        const [updatedTask] = await tx
-          .update(tasks)
-          .set({
-            ...updates,
-            updatedAt: new Date(),
-            ...(updates.status === 'completed' &&
-              !existingTask.completedAt && {
-                completedAt: new Date(),
-              }),
-          })
-          .where(eq(tasks.id, id))
-          .returning()
+          const [updatedTask] = await tx
+            .update(tasks)
+            .set({
+              ...updates,
+              updatedAt: new Date(),
+              ...(updates.status === 'completed' &&
+                !existingTask.completedAt && {
+                  completedAt: new Date(),
+                }),
+            })
+            .where(eq(tasks.id, id))
+            .returning()
 
-        // Log operation with detailed metadata
-        await this.logOperation(
-          'update_task',
-          'task',
-          updatedTask.id,
-          updatedTask.userId,
-          {
+          // Log operation with detailed metadata
+          await this.logOperation('update_task', 'task', updatedTask.id, updatedTask.userId, {
             updates,
             previousStatus: existingTask.status,
             newStatus: updatedTask.status,
-          }
-        )
+          })
 
-        return updatedTask
-      })
-    }, { 'task.id': id })
+          return updatedTask
+        })
+      },
+      { 'task.id': id }
+    )
   }
 
   /**
    * Delete a task
    */
   static async deleteTask(id: string) {
-    return this.withTracing('deleteTask', async () => {
-      return this.withTransaction(async (tx) => {
-        // First check if task exists
-        const [existingTask] = await tx
-          .select()
-          .from(tasks)
-          .where(eq(tasks.id, id))
-          .limit(1)
+    return this.withTracing(
+      'deleteTask',
+      async () => {
+        return this.withTransaction(async (tx) => {
+          // First check if task exists
+          const [existingTask] = await tx.select().from(tasks).where(eq(tasks.id, id)).limit(1)
 
-        if (!existingTask) {
-          throw new NotFoundError('Task', id)
-        }
+          if (!existingTask) {
+            throw new NotFoundError('Task', id)
+          }
 
-        const [deletedTask] = await tx
-          .delete(tasks)
-          .where(eq(tasks.id, id))
-          .returning()
+          const [deletedTask] = await tx.delete(tasks).where(eq(tasks.id, id)).returning()
 
-        // Log operation
-        await this.logOperation(
-          'delete_task',
-          'task',
-          deletedTask.id,
-          deletedTask.userId,
-          {
+          // Log operation
+          await this.logOperation('delete_task', 'task', deletedTask.id, deletedTask.userId, {
             title: deletedTask.title,
             status: deletedTask.status,
-          }
-        )
+          })
 
-        return deletedTask
-      })
-    }, { 'task.id': id })
+          return deletedTask
+        })
+      },
+      { 'task.id': id }
+    )
   }
 }
 
 /**
  * GET /api/tasks/[id] - Get a specific task
  */
-export const GET = BaseAPIHandler.createHandler(
-  { schema: TaskParamsSchema },
-  async (params) => {
-    const task = await TaskService.getTask(params.id)
-    return ResponseBuilder.success(task, 'Task retrieved successfully')
-  }
-)
+export const GET = BaseAPIHandler.createHandler({ schema: TaskParamsSchema }, async (params) => {
+  const task = await TaskService.getTask(params.id)
+  return ResponseBuilder.success(task, 'Task retrieved successfully')
+})
 
 /**
  * PUT /api/tasks/[id] - Update a specific task
  */
 export const PUT = BaseAPIHandler.createHandler(
-  { 
+  {
     // Note: We need to combine params and body validation
     // This is a limitation of the current BaseAPIHandler
     // In a real scenario, we might extend BaseAPIHandler to handle this better
@@ -169,14 +145,14 @@ export const PUT = BaseAPIHandler.createHandler(
     const url = new URL(request.url)
     const pathParts = url.pathname.split('/')
     const id = pathParts[pathParts.indexOf('tasks') + 1]
-    
+
     // Validate ID
     const { id: validatedId } = TaskParamsSchema.parse({ id })
-    
+
     // Parse and validate body
     const body = await request.json()
     const validatedData = UpdateTaskSchema.parse(body)
-    
+
     // Update task
     const task = await TaskService.updateTask(validatedId, validatedData)
     return ResponseBuilder.success(task, 'Task updated successfully')
@@ -186,13 +162,10 @@ export const PUT = BaseAPIHandler.createHandler(
 /**
  * DELETE /api/tasks/[id] - Delete a specific task
  */
-export const DELETE = BaseAPIHandler.createHandler(
-  { schema: TaskParamsSchema },
-  async (params) => {
-    await TaskService.deleteTask(params.id)
-    return ResponseBuilder.noContent()
-  }
-)
+export const DELETE = BaseAPIHandler.createHandler({ schema: TaskParamsSchema }, async (params) => {
+  await TaskService.deleteTask(params.id)
+  return ResponseBuilder.noContent()
+})
 
 // Alternative approach for handling route params with body validation
 // This demonstrates a more elegant solution by extending the handler
@@ -210,9 +183,9 @@ function createRouteHandler<TParams = any, TBody = any, TOutput = any>(
   return async (request: NextRequest, context: { params: any }) => {
     try {
       // Validate params if schema provided
-      const params = options.paramsSchema 
+      const params = options.paramsSchema
         ? options.paramsSchema.parse(context.params)
-        : context.params as TParams
+        : (context.params as TParams)
 
       // Validate body if schema provided and method requires body
       let body: TBody = {} as TBody

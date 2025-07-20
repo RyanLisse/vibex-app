@@ -35,7 +35,7 @@ describe('AgentMemorySystem', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset the singleton instance for each test
-    // @ts-ignore - accessing private property for testing
+    // @ts-expect-error - accessing private property for testing
     AgentMemorySystem.instance = undefined
     memorySystem = AgentMemorySystem.getInstance()
   })

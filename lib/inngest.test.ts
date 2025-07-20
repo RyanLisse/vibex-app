@@ -8,10 +8,10 @@ describe('inngest tests', () => {
   let mockTaskControl: any
   let mockCreateTask: any
   let mockGetInngestApp: any
-  
+
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockInngest = {
       id: 'clonedex',
       send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
@@ -20,7 +20,7 @@ describe('inngest tests', () => {
         handler: vi.fn(() => Promise.resolve(undefined)),
       })),
     }
-    
+
     mockTaskChannel = vi.fn((taskId: string) => ({
       status: vi.fn(),
       update: vi.fn(),

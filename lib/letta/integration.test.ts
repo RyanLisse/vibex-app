@@ -251,35 +251,44 @@ describe('Voice Brainstorming Integration', () => {
         // updateMemory call from updateUserContext for session creation
         { ok: true, json: async () => ({}) },
         // sendMessage for brainstorm session start
-        { ok: true, json: async () => ({ 
-          id: 'msg-1',
-          role: 'assistant',
-          content: 'Started brainstorm session',
-          timestamp: new Date(),
-          agentId: 'brainstorm-456'
-        }) },
+        {
+          ok: true,
+          json: async () => ({
+            id: 'msg-1',
+            role: 'assistant',
+            content: 'Started brainstorm session',
+            timestamp: new Date(),
+            agentId: 'brainstorm-456',
+          }),
+        },
         // sendMessage for processing message
-        { ok: true, json: async () => ({ 
-          id: 'msg-2',
-          role: 'assistant',
-          content: 'Great start! Let me help you explore that idea.',
-          timestamp: new Date(),
-          agentId: 'brainstorm-456'
-        }) },
+        {
+          ok: true,
+          json: async () => ({
+            id: 'msg-2',
+            role: 'assistant',
+            content: 'Great start! Let me help you explore that idea.',
+            timestamp: new Date(),
+            agentId: 'brainstorm-456',
+          }),
+        },
         // sendMessage for advance stage
-        { ok: true, json: async () => ({ 
-          id: 'msg-3',
-          role: 'assistant',
-          content: 'Moving to clarification stage',
-          timestamp: new Date(),
-          agentId: 'brainstorm-456'
-        }) },
+        {
+          ok: true,
+          json: async () => ({
+            id: 'msg-3',
+            role: 'assistant',
+            content: 'Moving to clarification stage',
+            timestamp: new Date(),
+            agentId: 'brainstorm-456',
+          }),
+        },
       ]
 
       mockResponses.forEach((response, index) => {
         mockFetch.mockResolvedValueOnce(response)
       })
-      
+
       // Add extra mocks just in case
       for (let i = 0; i < 5; i++) {
         mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) })

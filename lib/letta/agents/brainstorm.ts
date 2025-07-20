@@ -177,7 +177,11 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
     `.trim()
   }
 
-  async startBrainstormSession(userId: string, topic: string, externalSessionId?: string): Promise<BrainstormSession> {
+  async startBrainstormSession(
+    userId: string,
+    topic: string,
+    externalSessionId?: string
+  ): Promise<BrainstormSession> {
     const brainstormSessionId = `brainstorm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     const session: BrainstormSession = {
@@ -193,7 +197,7 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
     }
 
     this.activeSessions.set(brainstormSessionId, session)
-    
+
     // Map external sessionId to internal brainstorm sessionId if provided
     if (externalSessionId) {
       this.sessionIdMap.set(externalSessionId, brainstormSessionId)

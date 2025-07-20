@@ -33,7 +33,7 @@ export class GitHubAPI {
         // If parsing fails, use HTTP error format
         errorMessage = `${response.status} ${response.statusText}`
       }
-      
+
       // Throw error with appropriate message format
       if (errorMessage === `${response.status} ${response.statusText}`) {
         throw new Error(`HTTP error: ${errorMessage}`)
@@ -51,17 +51,23 @@ export class GitHubAPI {
   }
 
   async getRepositories(
-    options: { type?: string; sort?: string; direction?: string; per_page?: number; page?: number } = {}
+    options: {
+      type?: string
+      sort?: string
+      direction?: string
+      per_page?: number
+      page?: number
+    } = {}
   ): Promise<GitHubRepository[]> {
     const params = new URLSearchParams()
-    
+
     // Add all provided parameters to the query string
     if (options.type) params.append('type', options.type)
     if (options.sort) params.append('sort', options.sort)
     if (options.direction) params.append('direction', options.direction)
     if (options.per_page) params.append('per_page', options.per_page.toString())
     if (options.page) params.append('page', options.page.toString())
-    
+
     const url = `https://api.github.com/user/repos${params.toString() ? '?' + params.toString() : ''}`
     const response = await this.makeRequest(url)
     return response.json()

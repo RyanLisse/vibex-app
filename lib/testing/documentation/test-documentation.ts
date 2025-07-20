@@ -345,7 +345,7 @@ export class TestSpecificationGenerator {
   ): Array<{ name: string; parameters?: ParameterSpecification[] }> {
     // Improved method extraction for class methods
     const methods: Array<{ name: string; parameters?: ParameterSpecification[] }> = []
-    
+
     // Match class methods with better precision
     const methodRegex = /(?:async\s+)?(\w+)\s*\([^)]*\)\s*:\s*(?:Promise<[^>]+>|[^{]+)\s*{/gm
     let match
@@ -354,7 +354,7 @@ export class TestSpecificationGenerator {
       const methodName = match[1]
       // Filter out keywords and constructor
       if (
-        methodName !== 'constructor' && 
+        methodName !== 'constructor' &&
         !methodName.startsWith('_') &&
         methodName !== 'if' &&
         methodName !== 'while' &&
@@ -974,31 +974,29 @@ export class DocumentationGenerator {
     coverageData: CoverageData | { files: Array<{ path: string; coverage: number }> }
   ): Promise<TestDocumentation> {
     const visualizer = new CoverageVisualizer()
-    
+
     // Ensure testDocs has proper structure
     const fullTestDocs: TestDocumentation = {
       title: (testDocs as TestDocumentation).title || 'Test Documentation',
       suites: testDocs.suites,
-      generatedAt: (testDocs as TestDocumentation).generatedAt || new Date().toISOString()
+      generatedAt: (testDocs as TestDocumentation).generatedAt || new Date().toISOString(),
     }
-    
+
     // Handle both CoverageData and simplified coverage format
     let summary: CoverageSummary
     if ('statements' in coverageData && 'branches' in coverageData) {
       summary = await visualizer.generateSummary(coverageData as CoverageData)
     } else {
       // Create a dummy summary for simplified coverage data
-      const overallCoverage = coverageData.files.reduce(
-        (sum, file) => sum + file.coverage,
-        0
-      ) / coverageData.files.length
-      
+      const overallCoverage =
+        coverageData.files.reduce((sum, file) => sum + file.coverage, 0) / coverageData.files.length
+
       summary = {
         statements: { percentage: overallCoverage, covered: 0, total: 0 },
         branches: { percentage: overallCoverage, covered: 0, total: 0 },
         functions: { percentage: overallCoverage, covered: 0, total: 0 },
         lines: { percentage: overallCoverage, covered: 0, total: 0 },
-        overall: { percentage: overallCoverage }
+        overall: { percentage: overallCoverage },
       }
     }
 
@@ -1009,25 +1007,27 @@ export class DocumentationGenerator {
     if ('files' in coverageData && coverageData.files) {
       for (const suite of fullTestDocs.suites) {
         const suiteNameLower = suite.name.toLowerCase()
-        const relatedFile = coverageData.files.find(
-          (file: any) => {
-            const filePath = file.path.toLowerCase()
-            // More flexible matching - convert suite name to common file naming patterns
-            const suiteDashed = suiteNameLower.replace(/service$/i, '-service')
-                                              .replace(/component$/i, '-component')
-                                              .replace(/([a-z])([A-Z])/g, '$1-$2')
-                                              .toLowerCase()
-            const suiteUnderscored = suiteNameLower.replace(/service$/i, '_service')
-                                                   .replace(/component$/i, '_component')
-                                                   .replace(/([a-z])([A-Z])/g, '$1_$2')
-                                                   .toLowerCase()
-            
-            return filePath.includes(suiteDashed) ||
-                   filePath.includes(suiteUnderscored) ||
-                   filePath.includes(suiteNameLower) ||
-                   filePath.includes('user-service') // Specific match for this test case
-          }
-        )
+        const relatedFile = coverageData.files.find((file: any) => {
+          const filePath = file.path.toLowerCase()
+          // More flexible matching - convert suite name to common file naming patterns
+          const suiteDashed = suiteNameLower
+            .replace(/service$/i, '-service')
+            .replace(/component$/i, '-component')
+            .replace(/([a-z])([A-Z])/g, '$1-$2')
+            .toLowerCase()
+          const suiteUnderscored = suiteNameLower
+            .replace(/service$/i, '_service')
+            .replace(/component$/i, '_component')
+            .replace(/([a-z])([A-Z])/g, '$1_$2')
+            .toLowerCase()
+
+          return (
+            filePath.includes(suiteDashed) ||
+            filePath.includes(suiteUnderscored) ||
+            filePath.includes(suiteNameLower) ||
+            filePath.includes('user-service')
+          ) // Specific match for this test case
+        })
 
         if (relatedFile) {
           // Handle both full FileCoverage and simplified coverage format
@@ -1039,9 +1039,8 @@ export class DocumentationGenerator {
         }
       }
     }
-
     // Add overall coverage info
-    (fullTestDocs as any).overall = { coverage: summary.overall.percentage }
+    ;(fullTestDocs as any).overall = { coverage: summary.overall.percentage }
 
     return fullTestDocs
   }

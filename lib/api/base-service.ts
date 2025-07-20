@@ -1,6 +1,6 @@
 /**
  * Base API Service Class
- * 
+ *
  * Provides common functionality for all API service classes
  * Includes tracing, error handling, and database query helpers
  */
@@ -119,9 +119,7 @@ export abstract class BaseAPIService {
   /**
    * Execute a database transaction with proper error handling
    */
-  protected static async withTransaction<T>(
-    operation: (tx: typeof db) => Promise<T>
-  ): Promise<T> {
+  protected static async withTransaction<T>(operation: (tx: typeof db) => Promise<T>): Promise<T> {
     return this.withTracing('transaction', async () => {
       try {
         return await db.transaction(async (tx) => {

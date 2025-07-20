@@ -1,6 +1,6 @@
 /**
  * Base API Handler
- * 
+ *
  * Provides standardized request handling for all API routes
  * Includes validation, error handling, and response formatting
  */
@@ -50,22 +50,19 @@ export abstract class BaseAPIHandler {
   /**
    * Parse request input based on method
    */
-  private static async parseInput<T>(
-    request: NextRequest,
-    schema?: z.ZodSchema<T>
-  ): Promise<T> {
+  private static async parseInput<T>(request: NextRequest, schema?: z.ZodSchema<T>): Promise<T> {
     let input: any = {}
 
     if (request.method === 'GET' || request.method === 'DELETE') {
       const { searchParams } = new URL(request.url)
       input = Object.fromEntries(searchParams.entries())
-      
+
       // Convert numeric strings to numbers for common params
       if ('page' in input) input.page = parseInt(input.page, 10)
       if ('limit' in input) input.limit = parseInt(input.limit, 10)
     } else {
       const contentType = request.headers.get('content-type')
-      
+
       if (contentType?.includes('application/json')) {
         input = await request.json()
       } else if (contentType?.includes('multipart/form-data')) {
@@ -86,10 +83,7 @@ export abstract class BaseAPIHandler {
    * Create success response
    */
   static successResponse<T>(data: T, statusCode = 200): NextResponse {
-    return NextResponse.json(
-      createApiSuccessResponse(data),
-      { status: statusCode }
-    )
+    return NextResponse.json(createApiSuccessResponse(data), { status: statusCode })
   }
 
   /**
@@ -99,12 +93,7 @@ export abstract class BaseAPIHandler {
     // Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse(
-          'Validation failed',
-          400,
-          'VALIDATION_ERROR',
-          error.issues
-        ),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -112,12 +101,7 @@ export abstract class BaseAPIHandler {
     // Our custom API errors
     if (error instanceof BaseAPIError) {
       return NextResponse.json(
-        createApiErrorResponse(
-          error.message,
-          error.statusCode,
-          error.code,
-          error.details
-        ),
+        createApiErrorResponse(error.message, error.statusCode, error.code, error.details),
         { status: error.statusCode }
       )
     }
@@ -127,14 +111,12 @@ export abstract class BaseAPIHandler {
       console.error('Unhandled error:', error)
 
       // Don't expose internal error details in production
-      const message = process.env.NODE_ENV === 'production'
-        ? 'Internal server error'
-        : error.message
+      const message =
+        process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
 
-      return NextResponse.json(
-        createApiErrorResponse(message, 500, 'INTERNAL_ERROR'),
-        { status: 500 }
-      )
+      return NextResponse.json(createApiErrorResponse(message, 500, 'INTERNAL_ERROR'), {
+        status: 500,
+      })
     }
 
     // Unknown errors

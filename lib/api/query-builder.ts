@@ -1,6 +1,6 @@
 /**
  * Query Builder Utilities
- * 
+ *
  * Provides standardized database query building functionality
  * Reduces duplication in filter, sort, and pagination logic
  */
@@ -34,9 +34,7 @@ export class QueryBuilder {
 
       // Handle special cases
       if (key === 'search' && searchFields && value) {
-        const searchConditions = searchFields.map(field => 
-          like(table[field], `%${value}%`)
-        )
+        const searchConditions = searchFields.map((field) => like(table[field], `%${value}%`))
         if (searchConditions.length > 0) {
           conditions.push(or(...searchConditions))
         }
@@ -78,7 +76,7 @@ export class QueryBuilder {
 
     if (!field || !table[field]) {
       return defaultSort && table[defaultSort.field]
-        ? order === 'asc' 
+        ? order === 'asc'
           ? asc(table[defaultSort.field])
           : desc(table[defaultSort.field])
         : undefined
@@ -117,22 +115,13 @@ export class QueryBuilder {
     let query = baseQuery
 
     // Apply filters
-    const conditions = this.buildConditions(
-      options.filters || {},
-      table,
-      options.searchFields
-    )
+    const conditions = this.buildConditions(options.filters || {}, table, options.searchFields)
     if (conditions) {
       query = query.where(conditions)
     }
 
     // Apply sorting
-    const orderBy = this.buildOrderBy(
-      options.sortBy,
-      options.sortOrder,
-      table,
-      options.defaultSort
-    )
+    const orderBy = this.buildOrderBy(options.sortBy, options.sortOrder, table, options.defaultSort)
     if (orderBy) {
       query = query.orderBy(orderBy)
     }
@@ -159,10 +148,8 @@ export class QueryBuilder {
     searchFields?: string[]
   ): Promise<number> {
     const conditions = this.buildConditions(filters || {}, table, searchFields)
-    
-    const query = db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(table)
+
+    const query = db.select({ count: sql<number>`count(*)::int` }).from(table)
 
     if (conditions) {
       query.where(conditions)
@@ -205,7 +192,7 @@ export class QueryBuilder {
     })
 
     // Build and execute main query
-    const baseQuery = options.select 
+    const baseQuery = options.select
       ? db.select(options.select).from(table)
       : db.select().from(table)
 

@@ -84,12 +84,12 @@ import { getSLAReport, slaMonitor } from '../sla'
 describe('Monitoring System', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock process methods
     if (typeof process.cpuUsage === 'undefined') {
       process.cpuUsage = vi.fn().mockReturnValue({ user: 100000, system: 50000 })
     }
-    
+
     // Mock fetch for notifications
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -105,7 +105,7 @@ describe('Monitoring System', () => {
     healthCheckManager.stop()
     slaMonitor.stop()
     capacityPlanningManager.stop()
-    
+
     // Clear notification channels
     const nm = notificationManager as any
     if (nm.channels) {
@@ -158,12 +158,12 @@ describe('Monitoring System', () => {
       // Import and initialize default metrics collection
       const { collectDefaultMetrics } = await import('prom-client')
       collectDefaultMetrics({ register: prometheusRegistry })
-      
+
       // Ensure custom metrics are collected
       const { updateSystemMetrics } = await import('../prometheus/index')
-      // @ts-ignore - accessing private function for testing
+      // @ts-expect-error - accessing private function for testing
       updateSystemMetrics()
-      
+
       const metricsText = await prometheusRegistry.metrics()
 
       // Default Node.js metrics
@@ -188,7 +188,7 @@ describe('Monitoring System', () => {
       // Just verify the manager initialized successfully
       const alerts = alertManager.getActiveAlerts()
       expect(Array.isArray(alerts)).toBe(true)
-      
+
       // Verify we can get alert history
       const history = alertManager.getAlertHistory()
       expect(Array.isArray(history)).toBe(true)
@@ -247,7 +247,7 @@ describe('Monitoring System', () => {
     it.skip('should send notifications to multiple channels', async () => {
       // Test the notification manager can add channels and they get called
       const sentNotifications: any[] = []
-      
+
       // Clear existing channels
       const nm = notificationManager as any
       nm.channels = []
@@ -281,8 +281,8 @@ describe('Monitoring System', () => {
 
       // Check that both channels received the notification
       expect(sentNotifications.length).toBe(2)
-      expect(sentNotifications.some(n => n.channel === 'email')).toBe(true)
-      expect(sentNotifications.some(n => n.channel === 'slack')).toBe(true)
+      expect(sentNotifications.some((n) => n.channel === 'email')).toBe(true)
+      expect(sentNotifications.some((n) => n.channel === 'slack')).toBe(true)
     })
 
     it.skip('should respect rate limits', async () => {
@@ -290,7 +290,7 @@ describe('Monitoring System', () => {
       const nm = notificationManager as any
       nm.channels = []
       nm.rateLimits.clear()
-      
+
       let sendCount = 0
       const testChannel = {
         name: 'test',
@@ -403,21 +403,27 @@ describe('Monitoring System', () => {
     it('should calculate overall health status correctly', async () => {
       // Stop any existing health checks first
       healthCheckManager.stop()
-      
+
       // Clear existing state by accessing private properties
       const hcm = healthCheckManager as any
       hcm.checks.clear()
       hcm.results.clear()
       hcm.intervals.clear()
-      
+
       await healthCheckManager.initialize({
         enabled: false,
         checks: [],
       })
 
       // Remove built-in checks
-      const builtInChecks = ['database', 'memory', 'disk_space', 'query_performance', 'observability']
-      builtInChecks.forEach(name => {
+      const builtInChecks = [
+        'database',
+        'memory',
+        'disk_space',
+        'query_performance',
+        'observability',
+      ]
+      builtInChecks.forEach((name) => {
         healthCheckManager.removeCheck(name)
       })
 
@@ -438,22 +444,22 @@ describe('Monitoring System', () => {
         check: async () => ({ status: 'degraded', message: 'Performance degraded' }),
       })
 
-      // Wait for checks to complete  
+      // Wait for checks to complete
       await new Promise((resolve) => setTimeout(resolve, 200))
 
       const status = getHealthStatus()
       // Check that our custom checks are present
-      const checkNames = status.checks.map(c => c.name)
+      const checkNames = status.checks.map((c) => c.name)
       expect(checkNames).toContain('healthy_check')
       expect(checkNames).toContain('degraded_check')
-      
+
       // Find our specific checks
-      const healthyCheck = status.checks.find(c => c.name === 'healthy_check')
-      const degradedCheck = status.checks.find(c => c.name === 'degraded_check')
-      
+      const healthyCheck = status.checks.find((c) => c.name === 'healthy_check')
+      const degradedCheck = status.checks.find((c) => c.name === 'degraded_check')
+
       expect(healthyCheck?.status).toBe('healthy')
       expect(degradedCheck?.status).toBe('degraded')
-      
+
       // Overall status should be degraded or unhealthy (worst status wins)
       // Since we can't control all built-in checks, accept either
       expect(['degraded', 'unhealthy']).toContain(status.status)
