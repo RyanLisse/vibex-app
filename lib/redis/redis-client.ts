@@ -290,5 +290,10 @@ export class RedisClientManager {
 // Export redis client getter function
 export const getRedis = () => RedisClientManager.getInstance()
 
-// Auto-generated export
-export const redis = createRedisClient()
+// Export a default redis instance getter
+export const redis = {
+  get client() {
+    const manager = RedisClientManager.getInstance()
+    return manager.getClient('primary')
+  },
+}

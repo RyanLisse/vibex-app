@@ -80,7 +80,7 @@ test.describe('Task Page Structure E2E Tests', () => {
       if (
         request.url().includes('inngest') ||
         request.url().includes('subscription') ||
-        request.url().includes('test-inngest')
+        request.url().includes('inngest')
       ) {
         subscriptionRequests.push(request.url())
       }

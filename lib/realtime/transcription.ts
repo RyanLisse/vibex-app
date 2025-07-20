@@ -109,17 +109,17 @@ export class RealtimeTranscription {
       })
 
       // Setup audio context for level monitoring
-      this.audioContext = new AudioContext({ sampleRate: 16_000 })
+      this.audioContext = new (AudioContext as any)({ sampleRate: 16_000 }) as AudioContext
       const source = this.audioContext.createMediaStreamSource(stream)
       this.analyser = this.audioContext.createAnalyser()
       this.analyser.fftSize = 256
       source.connect(this.analyser)
 
       // Setup media recorder
-      this.mediaRecorder = new MediaRecorder(stream, {
+      this.mediaRecorder = new (MediaRecorder as any)(stream, {
         mimeType: 'audio/webm;codecs=opus',
         audioBitsPerSecond: 16_000,
-      })
+      }) as MediaRecorder
 
       const audioChunks: Blob[] = []
 
@@ -268,7 +268,7 @@ export class RealtimeTranscription {
       })
 
       // Setup WebSocket connection for streaming
-      const ws = new WebSocket('wss://api.openai.com/v1/realtime')
+      const ws = new (WebSocket as any)('wss://api.openai.com/v1/realtime') as WebSocket
 
       ws.onopen = () => {
         // Send configuration
@@ -311,7 +311,7 @@ export class RealtimeTranscription {
       }
 
       // Setup audio streaming
-      this.audioContext = new AudioContext({ sampleRate: 16_000 })
+      this.audioContext = new (AudioContext as any)({ sampleRate: 16_000 }) as AudioContext
       const source = this.audioContext.createMediaStreamSource(stream)
 
       // Create a script processor for real-time audio data

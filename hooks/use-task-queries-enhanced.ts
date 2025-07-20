@@ -8,7 +8,6 @@ import { useElectricTasks } from './use-electric-tasks'
 import {
   useEnhancedQuery,
   useEnhancedMutation,
-  useEnhancedQuery,
   useVectorSearchQuery,
 } from './use-enhanced-query-new'
 

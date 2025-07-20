@@ -9,6 +9,11 @@ let alertService: AlertService | null = null
 
 export function getAlertService(): AlertService {
   if (!alertService) {
+    // Skip initialization during build
+    if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+      throw new Error('AlertService not available during build')
+    }
+
     const redisConfig = getRedisConfig()
     const redisManager = RedisClientManager.getInstance(redisConfig)
     const redisClient = redisManager.getClient('primary')

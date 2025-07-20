@@ -24,25 +24,31 @@ vi.mock('@neondatabase/serverless', () => ({
           return []
         }
       }
-      
+
       // Handle direct string queries
       if (typeof query === 'string') {
         // For migration-related queries
-        if (query.includes('pg_indexes') || query.includes('pg_tables') || 
-            query.includes('pg_stat_') || query.includes('pg_extension') ||
-            query.includes('information_schema')) {
+        if (
+          query.includes('pg_indexes') ||
+          query.includes('pg_tables') ||
+          query.includes('pg_stat_') ||
+          query.includes('pg_extension') ||
+          query.includes('information_schema')
+        ) {
           return []
         }
         // For CREATE INDEX, CREATE EXTENSION etc.
-        if (query.toLowerCase().includes('create') || 
-            query.toLowerCase().includes('drop') ||
-            query.toLowerCase().includes('alter') ||
-            query.toLowerCase().includes('vacuum') ||
-            query.toLowerCase().includes('reindex')) {
+        if (
+          query.toLowerCase().includes('create') ||
+          query.toLowerCase().includes('drop') ||
+          query.toLowerCase().includes('alter') ||
+          query.toLowerCase().includes('vacuum') ||
+          query.toLowerCase().includes('reindex')
+        ) {
           return []
         }
       }
-      
+
       return []
     })
 
@@ -52,8 +58,8 @@ vi.mock('@neondatabase/serverless', () => ({
     return mockSql
   }),
   neonConfig: {
-    fetchConnectionCache: true
-  }
+    fetchConnectionCache: true,
+  },
 }))
 
 // Mock drizzle-orm operators
@@ -132,7 +138,7 @@ vi.mock('drizzle-orm/neon-serverless', () => ({
       delete: vi.fn((table) => mockDb),
       execute: vi.fn().mockResolvedValue([]),
     }
-    
+
     // Add from method with special handling for migrations table
     mockDb.from = vi.fn().mockImplementation((table: any) => {
       // If querying migrations table, setup specific behavior
@@ -143,7 +149,7 @@ vi.mock('drizzle-orm/neon-serverless', () => ({
       }
       return mockDb
     })
-    
+
     return mockDb
   }),
 }))

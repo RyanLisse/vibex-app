@@ -38,7 +38,7 @@ export function ProgressDashboard({
 
     const connectWebSocket = () => {
       try {
-        const ws = new WebSocket('ws://localhost:3000/ws/progress')
+        const ws = new (WebSocket as any)('ws://localhost:3000/ws/progress') as WebSocket
         wsRef.current = ws
 
         ws.onopen = () => {

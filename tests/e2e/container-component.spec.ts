@@ -45,7 +45,7 @@ test.describe('Container Component E2E Tests', () => {
       if (
         request.url().includes('inngest') ||
         request.url().includes('subscription') ||
-        request.url().includes('test-inngest')
+        request.url().includes('inngest')
       ) {
         requests.push(request.url())
       }

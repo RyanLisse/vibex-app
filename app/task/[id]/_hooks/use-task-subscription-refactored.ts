@@ -69,7 +69,7 @@ function subscriptionReducer(
   }
 }
 
-const CONNECTION_CHECK_ENDPOINT = '/api/test-inngest'
+const CONNECTION_CHECK_ENDPOINT = '/api/inngest'
 const ERROR_RETRY_DELAY = 5000
 
 export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscriptionProps) {
