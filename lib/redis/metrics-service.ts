@@ -1,6 +1,6 @@
 /**
  * MetricsService - Redis/Valkey Real-time Analytics Implementation
- *
+ * 
  * Provides comprehensive metrics collection, aggregation, and analytics
  */
 
@@ -60,23 +60,18 @@ export class MetricsService {
 
     try {
       await client.incrby(key, value)
-
+      
       this.observability.recordEvent('metrics.counter.incremented', 1, {
         name,
         value: value.toString(),
-        tags: JSON.stringify(tags || {}),
+        tags: JSON.stringify(tags || {})
       })
     } catch (error) {
       this.observability.recordError('metrics.counter.error', error as Error)
     }
   }
 
-  async incrementCounterWithTTL(
-    name: string,
-    value = 1,
-    ttl: number,
-    tags?: Record<string, string>
-  ): Promise<void> {
+  async incrementCounterWithTTL(name: string, value = 1, ttl: number, tags?: Record<string, string>): Promise<void> {
     const client = this.redisManager.getClient()
     const key = this.buildCounterKey(name, tags)
 
@@ -103,25 +98,24 @@ export class MetricsService {
     }
   }
 
-  async getTopCounters(
-    pattern: string,
-    limit = 10
-  ): Promise<Array<{ key: string; value: number }>> {
+  async getTopCounters(pattern: string, limit = 10): Promise<Array<{ key: string; value: number }>> {
     const client = this.redisManager.getClient()
 
     try {
       const keys = await client.keys(pattern)
       const pipeline = client.pipeline()
-
-      keys.forEach((key) => pipeline.get(key))
+      
+      keys.forEach(key => pipeline.get(key))
       const results = await pipeline.exec()
 
       const counters = keys.map((key, index) => ({
         key: key.replace('counter:', ''),
-        value: parseInt((results?.[index]?.[1] as string) || '0'),
+        value: parseInt((results?.[index]?.[1] as string) || '0')
       }))
 
-      return counters.sort((a, b) => b.value - a.value).slice(0, limit)
+      return counters
+        .sort((a, b) => b.value - a.value)
+        .slice(0, limit)
     } catch (error) {
       this.observability.recordError('metrics.counter.top.error', error as Error)
       return []
@@ -138,11 +132,11 @@ export class MetricsService {
 
     try {
       await client.set(key, value.toString())
-
+      
       this.observability.recordEvent('metrics.gauge.set', 1, {
         name,
         value: value.toString(),
-        tags: JSON.stringify(tags || {}),
+        tags: JSON.stringify(tags || {})
       })
     } catch (error) {
       this.observability.recordError('metrics.gauge.error', error as Error)
@@ -177,17 +171,13 @@ export class MetricsService {
     await this.incrementGauge(name, -value, tags)
   }
 
-  async setGaugeWithHistory(
-    name: string,
-    value: number,
-    tags?: Record<string, string>
-  ): Promise<void> {
+  async setGaugeWithHistory(name: string, value: number, tags?: Record<string, string>): Promise<void> {
     await this.setGauge(name, value, tags)
-
+    
     // Store in time series for history
     const historyKey = this.buildTimeSeriesKey(name, tags)
     const client = this.redisManager.getClient()
-
+    
     try {
       await client.zadd(historyKey, Date.now(), `${Date.now()}:${value}`)
       // Keep only last 1000 entries
@@ -197,22 +187,18 @@ export class MetricsService {
     }
   }
 
-  async getGaugeHistory(
-    name: string,
-    limit = 100,
-    tags?: Record<string, string>
-  ): Promise<Array<{ value: number; timestamp: Date }>> {
+  async getGaugeHistory(name: string, limit = 100, tags?: Record<string, string>): Promise<Array<{ value: number; timestamp: Date }>> {
     const client = this.redisManager.getClient()
     const historyKey = this.buildTimeSeriesKey(name, tags)
 
     try {
       const entries = await client.zrevrange(historyKey, 0, limit - 1)
-
-      return entries.map((entry) => {
+      
+      return entries.map(entry => {
         const [timestamp, value] = entry.split(':')
         return {
           timestamp: new Date(parseInt(timestamp)),
-          value: parseFloat(value),
+          value: parseFloat(value)
         }
       })
     } catch (error) {
@@ -224,7 +210,7 @@ export class MetricsService {
   // Histogram Operations
   async recordHistogram(name: string, value: number, tags?: Record<string, string>): Promise<void> {
     this.validateMetricName(name)
-
+    
     if (value < 0) {
       throw new Error('Histogram values must be non-negative')
     }
@@ -237,27 +223,27 @@ export class MetricsService {
       pipeline.hincrbyfloat(key, 'sum', value)
       pipeline.hincrby(key, 'count', 1)
       pipeline.zadd(`${key}:values`, Date.now(), value)
-
+      
       // Update min/max
       const currentStats = await client.hmget(key, 'min', 'max')
       const currentMin = currentStats[0] ? parseFloat(currentStats[0]) : value
       const currentMax = currentStats[1] ? parseFloat(currentStats[1]) : value
-
+      
       if (value < currentMin) {
         pipeline.hset(key, 'min', value.toString())
       }
       if (value > currentMax) {
         pipeline.hset(key, 'max', value.toString())
       }
-
+      
       await pipeline.exec()
-
+      
       // Keep only last 10000 values for percentile calculations
       await client.zremrangebyrank(`${key}:values`, 0, -10001)
-
+      
       this.observability.recordEvent('metrics.histogram.recorded', 1, {
         name,
-        value: value.toString(),
+        value: value.toString()
       })
     } catch (error) {
       this.observability.recordError('metrics.histogram.error', error as Error)
@@ -278,8 +264,8 @@ export class MetricsService {
 
       // Get percentiles from sorted values
       const values = await client.zrange(`${key}:values`, 0, -1)
-      const numericValues = values.map((v) => parseFloat(v)).sort((a, b) => a - b)
-
+      const numericValues = values.map(v => parseFloat(v)).sort((a, b) => a - b)
+      
       const p50 = this.calculatePercentile(numericValues, 0.5)
       const p95 = this.calculatePercentile(numericValues, 0.95)
       const p99 = this.calculatePercentile(numericValues, 0.99)
@@ -298,7 +284,7 @@ export class MetricsService {
     try {
       // Initialize bucket counts
       const pipeline = client.pipeline()
-      buckets.forEach((bucket) => {
+      buckets.forEach(bucket => {
         pipeline.hset(bucketsKey, bucket.toString(), '0')
       })
       pipeline.hset(bucketsKey, 'Infinity', '0')
@@ -339,14 +325,14 @@ export class MetricsService {
 
     try {
       await client.zadd(key, ts, `${ts}:${value}`)
-
+      
       // Optionally limit the number of data points
       const maxPoints = 100000
       const currentCount = await client.zcard(key)
       if (currentCount > maxPoints) {
         await client.zremrangebyrank(key, 0, currentCount - maxPoints - 1)
       }
-
+      
       this.observability.recordEvent('metrics.timeseries.recorded', 1, { name })
     } catch (error) {
       this.observability.recordError('metrics.timeseries.error', error as Error)
@@ -359,12 +345,12 @@ export class MetricsService {
 
     try {
       const entries = await client.zrangebyscore(key, startTime, endTime)
-
-      return entries.map((entry) => {
+      
+      return entries.map(entry => {
         const [timestamp, value] = entry.split(':')
         return {
           timestamp: parseInt(timestamp),
-          value: parseFloat(value),
+          value: parseFloat(value)
         }
       })
     } catch (error) {
@@ -374,39 +360,38 @@ export class MetricsService {
   }
 
   async aggregateTimeSeries(
-    name: string,
-    startTime: number,
-    endTime: number,
-    intervalMs: number,
+    name: string, 
+    startTime: number, 
+    endTime: number, 
+    intervalMs: number, 
     aggregation: 'sum' | 'avg' | 'min' | 'max' | 'count'
   ): Promise<TimeSeries[]> {
     const data = await this.getTimeSeries(name, startTime, endTime)
     const result: TimeSeries[] = []
 
     let currentWindow = Math.floor(startTime / intervalMs) * intervalMs
-
+    
     while (currentWindow < endTime) {
       const windowEnd = currentWindow + intervalMs
-      const windowData = data.filter(
-        (point) => point.timestamp >= currentWindow && point.timestamp < windowEnd
+      const windowData = data.filter(point => 
+        point.timestamp >= currentWindow && point.timestamp < windowEnd
       )
 
       if (windowData.length > 0) {
         let aggregatedValue = 0
-
+        
         switch (aggregation) {
           case 'sum':
             aggregatedValue = windowData.reduce((sum, point) => sum + point.value, 0)
             break
           case 'avg':
-            aggregatedValue =
-              windowData.reduce((sum, point) => sum + point.value, 0) / windowData.length
+            aggregatedValue = windowData.reduce((sum, point) => sum + point.value, 0) / windowData.length
             break
           case 'min':
-            aggregatedValue = Math.min(...windowData.map((point) => point.value))
+            aggregatedValue = Math.min(...windowData.map(point => point.value))
             break
           case 'max':
-            aggregatedValue = Math.max(...windowData.map((point) => point.value))
+            aggregatedValue = Math.max(...windowData.map(point => point.value))
             break
           case 'count':
             aggregatedValue = windowData.length
@@ -415,7 +400,7 @@ export class MetricsService {
 
         result.push({
           timestamp: currentWindow,
-          value: aggregatedValue,
+          value: aggregatedValue
         })
       }
 
@@ -436,20 +421,20 @@ export class MetricsService {
           metrics[name] = {
             type: 'counter',
             value: await this.getCounter(name),
-            timestamp: new Date(),
+            timestamp: new Date()
           }
         } else if (name.includes('gauge')) {
           metrics[name] = {
             type: 'gauge',
             value: await this.getGauge(name),
-            timestamp: new Date(),
+            timestamp: new Date()
           }
         } else {
           // Default to histogram
           metrics[name] = {
             type: 'histogram',
             stats: await this.getHistogramStats(name),
-            timestamp: new Date(),
+            timestamp: new Date()
           }
         }
       } catch (error) {
@@ -461,13 +446,10 @@ export class MetricsService {
     return metrics
   }
 
-  async subscribeToMetrics(
-    streamName: string,
-    callback: (metric: any) => void
-  ): Promise<{ id: string }> {
+  async subscribeToMetrics(streamName: string, callback: (metric: any) => void): Promise<{ id: string }> {
     const subscriptionId = randomUUID()
     this.metricSubscriptions.set(subscriptionId, { id: subscriptionId, callback })
-
+    
     return { id: subscriptionId }
   }
 
@@ -585,23 +567,14 @@ export class MetricsService {
   }
 
   async calculateCustomerLifetimeValue(customerId: string): Promise<any> {
-    return {
-      totalRevenue: 0,
-      averageOrderValue: 0,
-      purchaseFrequency: 0,
-      estimatedLifetimeValue: 0,
-    }
+    return { totalRevenue: 0, averageOrderValue: 0, purchaseFrequency: 0, estimatedLifetimeValue: 0 }
   }
 
   async addUserToCohort(cohortMonth: string, userId: string): Promise<void> {
     // Implementation would add user to cohort
   }
 
-  async recordCohortRetention(
-    cohortMonth: string,
-    monthsAfter: number,
-    retainedUsers: number
-  ): Promise<void> {
+  async recordCohortRetention(cohortMonth: string, monthsAfter: number, retainedUsers: number): Promise<void> {
     // Implementation would record retention data
   }
 
@@ -652,29 +625,17 @@ export class MetricsService {
   }
 
   private buildCounterKey(name: string, tags?: Record<string, string>): string {
-    const tagString = tags
-      ? `:${Object.entries(tags)
-          .map(([k, v]) => `${k}=${v}`)
-          .join(',')}`
-      : ''
+    const tagString = tags ? `:${Object.entries(tags).map(([k, v]) => `${k}=${v}`).join(',')}` : ''
     return `counter:${name}${tagString}`
   }
 
   private buildGaugeKey(name: string, tags?: Record<string, string>): string {
-    const tagString = tags
-      ? `:${Object.entries(tags)
-          .map(([k, v]) => `${k}=${v}`)
-          .join(',')}`
-      : ''
+    const tagString = tags ? `:${Object.entries(tags).map(([k, v]) => `${k}=${v}`).join(',')}` : ''
     return `gauge:${name}${tagString}`
   }
 
   private buildHistogramKey(name: string, tags?: Record<string, string>): string {
-    const tagString = tags
-      ? `:${Object.entries(tags)
-          .map(([k, v]) => `${k}=${v}`)
-          .join(',')}`
-      : ''
+    const tagString = tags ? `:${Object.entries(tags).map(([k, v]) => `${k}=${v}`).join(',')}` : ''
     return `histogram:${name}${tagString}`
   }
 
@@ -683,11 +644,7 @@ export class MetricsService {
   }
 
   private buildTimeSeriesKey(name: string, tags?: Record<string, string>): string {
-    const tagString = tags
-      ? `:${Object.entries(tags)
-          .map(([k, v]) => `${k}=${v}`)
-          .join(',')}`
-      : ''
+    const tagString = tags ? `:${Object.entries(tags).map(([k, v]) => `${k}=${v}`).join(',')}` : ''
     return `timeseries:${name}${tagString}`
   }
 
@@ -697,7 +654,7 @@ export class MetricsService {
 
   private calculatePercentile(values: number[], percentile: number): number {
     if (values.length === 0) return 0
-
+    
     const index = Math.ceil(values.length * percentile) - 1
     return values[Math.max(0, Math.min(index, values.length - 1))]
   }

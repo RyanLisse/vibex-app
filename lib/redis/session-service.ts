@@ -1,6 +1,6 @@
 /**
  * SessionService - Redis/Valkey Session Management Implementation
- *
+ * 
  * Provides secure session management with multi-device support and analytics
  */
 
@@ -42,7 +42,10 @@ export class SessionService {
     return SessionService.instance
   }
 
-  async createSession<T extends SessionData>(data: T, options?: SessionOptions): Promise<string> {
+  async createSession<T extends SessionData>(
+    data: T,
+    options?: SessionOptions
+  ): Promise<string> {
     return this.observability.trackOperation('session.create', async () => {
       const sessionId = randomUUID()
       const client = this.redisManager.getClient(options?.clientName)
@@ -64,7 +67,7 @@ export class SessionService {
         // Track user sessions if userId is provided
         if (data.userId) {
           await this.addUserSession(data.userId, sessionId, ttl)
-
+          
           // Check session limits
           const limit = this.sessionLimits.get(data.userId)
           if (limit) {
@@ -74,7 +77,7 @@ export class SessionService {
 
         this.observability.recordEvent('session.created', 1, {
           ttl: ttl.toString(),
-          hasUserId: (!!data.userId).toString(),
+          hasUserId: (!!data.userId).toString()
         })
 
         return sessionId
@@ -152,7 +155,11 @@ export class SessionService {
         }
 
         const ttl = await client.ttl(key)
-        await client.setex(key, ttl > 0 ? ttl : this.defaultTTL, JSON.stringify(updatedData))
+        await client.setex(
+          key,
+          ttl > 0 ? ttl : this.defaultTTL,
+          JSON.stringify(updatedData)
+        )
 
         this.observability.recordEvent('session.updated', 1, {
           sessionId,
@@ -169,7 +176,10 @@ export class SessionService {
     })
   }
 
-  async deleteSession(sessionId: string, options?: SessionOptions): Promise<boolean> {
+  async deleteSession(
+    sessionId: string,
+    options?: SessionOptions
+  ): Promise<boolean> {
     return this.observability.trackOperation('session.delete', async () => {
       const client = this.redisManager.getClient(options?.clientName)
       const key = this.buildSessionKey(sessionId)
@@ -307,7 +317,7 @@ export class SessionService {
 
     this.observability.recordEvent('session.revoke_all', 1, {
       userId,
-      count: revokedCount.toString(),
+      count: revokedCount.toString()
     })
 
     return revokedCount
@@ -325,7 +335,7 @@ export class SessionService {
     const activity: SessionActivity = {
       action,
       data,
-      timestamp: new Date(),
+      timestamp: new Date()
     }
 
     try {
@@ -335,7 +345,7 @@ export class SessionService {
     } catch (error) {
       this.observability.recordError('session.activity.error', error as Error, {
         sessionId,
-        action,
+        action
       })
     }
   }
@@ -346,10 +356,10 @@ export class SessionService {
 
     try {
       const activities = await client.lrange(activityKey, 0, -1)
-      return activities.map((activity) => JSON.parse(activity))
+      return activities.map(activity => JSON.parse(activity))
     } catch (error) {
       this.observability.recordError('session.get_activity.error', error as Error, {
-        sessionId,
+        sessionId
       })
       return []
     }
@@ -368,7 +378,7 @@ export class SessionService {
     return {
       totalSessions: activeSessions,
       averageSessionDuration: 0,
-      activeSessions,
+      activeSessions
     }
   }
 
@@ -382,15 +392,15 @@ export class SessionService {
     let riskScore = 0
 
     // Check for multiple failed login attempts
-    const failedAttempts = activities.filter((a) => a.action === 'failed_login_attempt').length
+    const failedAttempts = activities.filter(a => a.action === 'failed_login_attempt').length
     if (failedAttempts > 5) {
       reasons.push('multiple_failed_attempts')
       riskScore += 0.4
     }
 
     // Check for unusual activity patterns
-    const rapidActions = activities.filter(
-      (a) => Date.now() - a.timestamp.getTime() < 60000 // Last minute
+    const rapidActions = activities.filter(a => 
+      Date.now() - a.timestamp.getTime() < 60000 // Last minute
     ).length
     if (rapidActions > 20) {
       reasons.push('rapid_activity')
@@ -400,7 +410,7 @@ export class SessionService {
     return {
       isSuspicious: riskScore > 0.5,
       reasons,
-      riskScore,
+      riskScore
     }
   }
 
@@ -409,7 +419,7 @@ export class SessionService {
     return this.updateSession(sessionId, {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      tokenExpiresAt: tokens.expiresAt,
+      tokenExpiresAt: tokens.expiresAt
     })
   }
 
@@ -428,7 +438,7 @@ export class SessionService {
   async cleanupExpiredSessions(): Promise<number> {
     return this.observability.trackOperation('session.cleanup', async () => {
       const client = this.redisManager.getClient()
-
+      
       // This is a simplified cleanup - in practice you'd scan with patterns
       // and check TTLs or use Redis expiration events
       const cleanedCount = 0
@@ -436,7 +446,7 @@ export class SessionService {
       try {
         // Implementation would scan for expired sessions
         this.observability.recordEvent('session.cleanup', 1, {
-          cleaned: cleanedCount.toString(),
+          cleaned: cleanedCount.toString()
         })
 
         return cleanedCount
@@ -458,7 +468,7 @@ export class SessionService {
       totalActiveSessions: 0,
       memoryUsage: 0,
       averageSessionAge: 0,
-      cleanupNeeded: false,
+      cleanupNeeded: false
     }
   }
 
@@ -487,7 +497,7 @@ export class SessionService {
     } catch (error) {
       this.observability.recordError('session.add_user_session.error', error as Error, {
         userId,
-        sessionId,
+        sessionId
       })
     }
   }
@@ -501,22 +511,22 @@ export class SessionService {
     } catch (error) {
       this.observability.recordError('session.remove_user_session.error', error as Error, {
         userId,
-        sessionId,
+        sessionId
       })
     }
   }
 
   private async enforceSessionLimit(userId: string, limit: number): Promise<void> {
     const sessions = await this.getUserSessions(userId)
-
+    
     if (sessions.length > limit) {
       // Sort by creation time and remove oldest sessions
-      const sortedSessions = sessions.sort(
-        (a, b) => a.createdAt!.getTime() - b.createdAt!.getTime()
+      const sortedSessions = sessions.sort((a, b) => 
+        a.createdAt!.getTime() - b.createdAt!.getTime()
       )
 
       const sessionsToRemove = sortedSessions.slice(0, sessions.length - limit)
-
+      
       for (const session of sessionsToRemove) {
         await this.deleteSession(session.id!)
       }

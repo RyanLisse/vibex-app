@@ -1,6 +1,6 @@
 /**
  * Redis/Valkey Integration Test
- *
+ * 
  * Integration test that verifies all services can be imported and instantiated
  */
 
@@ -9,7 +9,7 @@ import { describe, test, expect } from 'bun:test'
 describe('Redis/Valkey Integration', () => {
   test('should export all Redis services', async () => {
     // Test that all services can be imported
-    const {
+    const { 
       RedisService,
       CacheService,
       PubSubService,
@@ -25,7 +25,7 @@ describe('Redis/Valkey Integration', () => {
       getRedisRateLimit,
       getRedisJobQueue,
       getRedisMetrics,
-      getRedisSessions,
+      getRedisSessions
     } = await import('./index')
 
     // Verify all classes exist
@@ -54,14 +54,14 @@ describe('Redis/Valkey Integration', () => {
   })
 
   test('should provide service instances via singleton pattern', async () => {
-    const {
+    const { 
       CacheService,
       PubSubService,
       LockService,
       RateLimitService,
       JobQueueService,
       MetricsService,
-      SessionService,
+      SessionService
     } = await import('./index')
 
     // Test singleton pattern - multiple calls should return same instance
@@ -121,20 +121,20 @@ describe('Redis/Valkey Integration', () => {
     // Test that types can be imported (compilation check)
     const types = await import('./types')
     expect(types).toBeDefined()
-
+    
     // These should not throw TypeScript errors if types are properly exported
     expect(typeof types).toBe('object')
   })
 
   test('should handle service cleanup gracefully', async () => {
-    const {
+    const { 
       CacheService,
       PubSubService,
       LockService,
       RateLimitService,
       JobQueueService,
       MetricsService,
-      SessionService,
+      SessionService
     } = await import('./index')
 
     // Test that cleanup methods exist and can be called
@@ -144,7 +144,7 @@ describe('Redis/Valkey Integration', () => {
       RateLimitService.getInstance(),
       JobQueueService.getInstance(),
       MetricsService.getInstance(),
-      SessionService.getInstance(),
+      SessionService.getInstance()
     ]
 
     for (const service of services) {
@@ -156,7 +156,7 @@ describe('Redis/Valkey Integration', () => {
 
   test('should provide mock Redis fallback capability', async () => {
     const { MockRedisService, MockRedisCache } = await import('./mock-redis')
-
+    
     expect(MockRedisService).toBeDefined()
     expect(MockRedisCache).toBeDefined()
 
@@ -175,12 +175,12 @@ describe('Redis/Valkey Integration', () => {
   })
 
   test('should provide Redis configuration utilities', async () => {
-    const {
-      getRedisConfig,
-      getRedisServiceConfig,
+    const { 
+      getRedisConfig, 
+      getRedisServiceConfig, 
       validateRedisEnvironment,
       testRedisConfig,
-      redisFeatures,
+      redisFeatures 
     } = await import('./config')
 
     expect(getRedisConfig).toBeDefined()

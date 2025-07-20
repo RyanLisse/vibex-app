@@ -1,6 +1,6 @@
 /**
  * JobQueueService Tests
- *
+ * 
  * Test-driven development for Redis/Valkey job queue functionality
  */
 
@@ -67,17 +67,17 @@ describe('JobQueueService', () => {
         priority: 5,
         delay: 1000, // 1 second delay
         maxAttempts: 5,
-        removeOnComplete: false,
+        removeOnComplete: false
       }
 
       const jobId = await jobQueueService.addJob(queueName, 'important', jobPayload, options)
-
+      
       // Job should not be available immediately due to delay
       const immediateJob = await jobQueueService.getNextJob(queueName)
       expect(immediateJob).toBeNull()
 
       // Wait for delay
-      await new Promise((resolve) => setTimeout(resolve, 1100))
+      await new Promise(resolve => setTimeout(resolve, 1100))
 
       // Now job should be available
       const delayedJob = await jobQueueService.getNextJob(queueName)
@@ -91,26 +91,11 @@ describe('JobQueueService', () => {
 
     test('should handle job priorities', async () => {
       const queueName = 'test:priority-queue'
-
+      
       // Add jobs with different priorities
-      const lowPriorityId = await jobQueueService.addJob(
-        queueName,
-        'low',
-        { data: 'low' },
-        { priority: 1 }
-      )
-      const highPriorityId = await jobQueueService.addJob(
-        queueName,
-        'high',
-        { data: 'high' },
-        { priority: 10 }
-      )
-      const mediumPriorityId = await jobQueueService.addJob(
-        queueName,
-        'medium',
-        { data: 'medium' },
-        { priority: 5 }
-      )
+      const lowPriorityId = await jobQueueService.addJob(queueName, 'low', { data: 'low' }, { priority: 1 })
+      const highPriorityId = await jobQueueService.addJob(queueName, 'high', { data: 'high' }, { priority: 10 })
+      const mediumPriorityId = await jobQueueService.addJob(queueName, 'medium', { data: 'medium' }, { priority: 5 })
 
       // Jobs should be processed in priority order (high to low)
       const firstJob = await jobQueueService.getNextJob(queueName)
@@ -139,11 +124,11 @@ describe('JobQueueService', () => {
       const options: JobOptions = { maxAttempts: 3 }
 
       const jobId = await jobQueueService.addJob(queueName, 'retry-test', jobPayload, options)
-
+      
       // First attempt
       const attempt1 = await jobQueueService.getNextJob(queueName)
       expect(attempt1!.attempts).toBe(0)
-
+      
       const failed1 = await jobQueueService.failJob(attempt1!, new Error('First failure'))
       expect(failed1).toBe(true)
 
@@ -151,14 +136,14 @@ describe('JobQueueService', () => {
       const attempt2 = await jobQueueService.getNextJob(queueName)
       expect(attempt2!.id).toBe(jobId)
       expect(attempt2!.attempts).toBe(1)
-
+      
       const failed2 = await jobQueueService.failJob(attempt2!, new Error('Second failure'))
       expect(failed2).toBe(true)
 
       // Third attempt
       const attempt3 = await jobQueueService.getNextJob(queueName)
       expect(attempt3!.attempts).toBe(2)
-
+      
       // This time succeed
       const completed = await jobQueueService.completeJob(attempt3!)
       expect(completed).toBe(true)
@@ -170,7 +155,7 @@ describe('JobQueueService', () => {
       const options: JobOptions = { maxAttempts: 2 }
 
       const jobId = await jobQueueService.addJob(queueName, 'always-fails', jobPayload, options)
-
+      
       // Fail job twice
       for (let i = 0; i < 2; i++) {
         const job = await jobQueueService.getNextJob(queueName)
@@ -192,13 +177,13 @@ describe('JobQueueService', () => {
 
     test('should implement exponential backoff for retries', async () => {
       const queueName = 'test:backoff'
-      const options: JobOptions = {
-        maxAttempts: 3,
-        backoff: 'exponential',
+      const options: JobOptions = { 
+        maxAttempts: 3, 
+        backoff: 'exponential' 
       }
 
       const jobId = await jobQueueService.addJob(queueName, 'backoff-test', {}, options)
-
+      
       // First failure
       const attempt1 = await jobQueueService.getNextJob(queueName)
       const failTime1 = Date.now()
@@ -209,7 +194,7 @@ describe('JobQueueService', () => {
       expect(immediateRetry).toBeNull()
 
       // Wait for backoff period (should be ~1 second for first retry)
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      await new Promise(resolve => setTimeout(resolve, 1200))
 
       const attempt2 = await jobQueueService.getNextJob(queueName)
       expect(attempt2).not.toBeNull()
@@ -220,7 +205,7 @@ describe('JobQueueService', () => {
       await jobQueueService.failJob(attempt2!, new Error('Second failure'))
 
       // Second backoff should be longer (~2 seconds)
-      await new Promise((resolve) => setTimeout(resolve, 2200))
+      await new Promise(resolve => setTimeout(resolve, 2200))
 
       const attempt3 = await jobQueueService.getNextJob(queueName)
       expect(attempt3).not.toBeNull()
@@ -233,16 +218,16 @@ describe('JobQueueService', () => {
   describe('Queue Management', () => {
     test('should get queue statistics', async () => {
       const queueName = 'test:stats-queue'
-
+      
       // Add various jobs
       await jobQueueService.addJob(queueName, 'job1', {})
       await jobQueueService.addJob(queueName, 'job2', {}, { delay: 5000 }) // delayed
-
+      
       const job = await jobQueueService.getNextJob(queueName)
       // Leave job in active state
 
       const stats = await jobQueueService.getQueueStats(queueName)
-
+      
       expect(stats.waiting).toBeGreaterThanOrEqual(0)
       expect(stats.active).toBeGreaterThanOrEqual(1)
       expect(stats.completed).toBeGreaterThanOrEqual(0)
@@ -257,10 +242,10 @@ describe('JobQueueService', () => {
 
     test('should pause and resume queues', async () => {
       const queueName = 'test:pause-queue'
-
+      
       // Add job to queue
       await jobQueueService.addJob(queueName, 'test', {})
-
+      
       // Pause queue
       const paused = await jobQueueService.pauseQueue(queueName)
       expect(paused).toBe(true)
@@ -282,7 +267,7 @@ describe('JobQueueService', () => {
 
     test('should clean up old jobs', async () => {
       const queueName = 'test:cleanup-queue'
-
+      
       // Add and complete some jobs
       for (let i = 0; i < 5; i++) {
         const jobId = await jobQueueService.addJob(queueName, 'cleanup-test', { index: i })
@@ -292,12 +277,7 @@ describe('JobQueueService', () => {
 
       // Add and fail some jobs
       for (let i = 0; i < 3; i++) {
-        const jobId = await jobQueueService.addJob(
-          queueName,
-          'cleanup-fail',
-          { index: i },
-          { maxAttempts: 1 }
-        )
+        const jobId = await jobQueueService.addJob(queueName, 'cleanup-fail', { index: i }, { maxAttempts: 1 })
         const job = await jobQueueService.getNextJob(queueName)
         await jobQueueService.failJob(job!, new Error('Cleanup test failure'))
       }
@@ -316,7 +296,7 @@ describe('JobQueueService', () => {
     test('should schedule jobs for future execution', async () => {
       const queueName = 'test:schedule-queue'
       const futureTime = new Date(Date.now() + 2000) // 2 seconds in future
-
+      
       const jobId = await jobQueueService.scheduleJob(queueName, 'scheduled-task', {}, futureTime)
       expect(jobId).toBeDefined()
 
@@ -325,7 +305,7 @@ describe('JobQueueService', () => {
       expect(immediateJob).toBeNull()
 
       // Wait for scheduled time
-      await new Promise((resolve) => setTimeout(resolve, 2200))
+      await new Promise(resolve => setTimeout(resolve, 2200))
 
       // Job should now be available
       const scheduledJob = await jobQueueService.getNextJob(queueName)
@@ -338,19 +318,19 @@ describe('JobQueueService', () => {
     test('should support cron-like recurring jobs', async () => {
       const queueName = 'test:recurring-queue'
       const cronExpression = '*/2 * * * * *' // Every 2 seconds
-
+      
       // This would test cron job scheduling
       const recurringJobId = await jobQueueService.addRecurringJob(
-        queueName,
-        'recurring-task',
-        {},
+        queueName, 
+        'recurring-task', 
+        {}, 
         cronExpression
       )
-
+      
       expect(recurringJobId).toBeDefined()
 
       // Wait for first execution
-      await new Promise((resolve) => setTimeout(resolve, 2500))
+      await new Promise(resolve => setTimeout(resolve, 2500))
 
       const firstExecution = await jobQueueService.getNextJob(queueName)
       expect(firstExecution).not.toBeNull()
@@ -359,7 +339,7 @@ describe('JobQueueService', () => {
       await jobQueueService.completeJob(firstExecution!)
 
       // Wait for second execution
-      await new Promise((resolve) => setTimeout(resolve, 2500))
+      await new Promise(resolve => setTimeout(resolve, 2500))
 
       const secondExecution = await jobQueueService.getNextJob(queueName)
       expect(secondExecution).not.toBeNull()
@@ -379,7 +359,7 @@ describe('JobQueueService', () => {
 
       const jobId = await jobQueueService.addJob(queueName, 'progress-test', jobPayload)
       const job = await jobQueueService.getNextJob(queueName)
-
+      
       expect(job).not.toBeNull()
 
       // Update progress
@@ -458,20 +438,20 @@ describe('JobQueueService', () => {
       const workerId = 'failing-worker'
 
       await jobQueueService.registerWorker(queueName, workerId)
-
+      
       // Add job and simulate worker picking it up
       const jobId = await jobQueueService.addJob(queueName, 'worker-test', {})
       const job = await jobQueueService.getNextJob(queueName)
-
+      
       // Simulate worker crash (no heartbeat)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Clean up stale workers
       const cleanedWorkers = await jobQueueService.cleanupStaleWorkers(queueName, 500) // 500ms timeout
       expect(cleanedWorkers).toBeGreaterThanOrEqual(1)
 
       // Job should be available again for other workers
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
       const retriedJob = await jobQueueService.getNextJob(queueName)
       expect(retriedJob).not.toBeNull()
 
@@ -522,7 +502,7 @@ describe('JobQueueService', () => {
       const workflowPayload = {
         workflowId: 'wf-123',
         stepId: 'step-1',
-        data: { userId: 'user-456' },
+        data: { userId: 'user-456' }
       }
 
       const jobId = await jobQueueService.addJob(queueName, 'inngest-workflow', workflowPayload)
@@ -562,7 +542,7 @@ describe('JobQueueService', () => {
 
     test('should support distributed job processing across multiple instances', async () => {
       const queueName = 'test:distributed-processing'
-
+      
       // Simulate multiple worker instances
       const worker1Id = 'instance-1-worker-1'
       const worker2Id = 'instance-2-worker-1'

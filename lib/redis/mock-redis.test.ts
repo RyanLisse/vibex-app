@@ -1,6 +1,6 @@
 /**
  * Mock Redis Test - Verify Redis Services Work With Mock Implementation
- *
+ * 
  * This test verifies our Redis services can work without a real Redis server
  */
 
@@ -70,7 +70,7 @@ const mockRedisClient = {
   srem: async () => 1,
   smembers: async () => [],
   keys: async () => [],
-  setex: async () => 'OK',
+  setex: async () => 'OK'
 }
 
 // Mock the redis client manager
@@ -81,11 +81,11 @@ const mockRedisClientManager = {
   healthCheck: async () => ({
     overall: 'healthy' as const,
     clients: {},
-    timestamp: new Date(),
+    timestamp: new Date()
   }),
   shutdown: async () => {},
   getConnectedClients: () => [],
-  flushAll: async () => {},
+  flushAll: async () => {}
 }
 
 // Mock the observability service
@@ -93,7 +93,7 @@ const mockObservability = {
   trackOperation: async (name: string, fn: () => Promise<any>) => fn(),
   recordEvent: () => {},
   recordError: () => {},
-  getInstance: () => mockObservability,
+  getInstance: () => mockObservability
 }
 
 // Apply mocks globally
@@ -105,10 +105,10 @@ describe('Redis Services with Mock', () => {
     // Just verify the classes can be imported and have expected methods
     // without instantiating them (which requires Redis config)
     const { MetricsService } = await import('./metrics-service')
-
+    
     expect(MetricsService).toBeDefined()
     expect(typeof MetricsService.getInstance).toBe('function')
-
+    
     // Check prototype has expected methods
     const prototype = MetricsService.prototype
     expect(typeof prototype.incrementCounter).toBe('function')
@@ -119,10 +119,10 @@ describe('Redis Services with Mock', () => {
 
   test('should verify SessionService class definition', async () => {
     const { SessionService } = await import('./session-service')
-
+    
     expect(SessionService).toBeDefined()
     expect(typeof SessionService.getInstance).toBe('function')
-
+    
     const prototype = SessionService.prototype
     expect(typeof prototype.createSession).toBe('function')
     expect(typeof prototype.getSession).toBe('function')
@@ -132,10 +132,10 @@ describe('Redis Services with Mock', () => {
 
   test('should verify PubSubService class definition', async () => {
     const { PubSubService } = await import('./pubsub-service')
-
+    
     expect(PubSubService).toBeDefined()
     expect(typeof PubSubService.getInstance).toBe('function')
-
+    
     const prototype = PubSubService.prototype
     expect(typeof prototype.publish).toBe('function')
     expect(typeof prototype.subscribe).toBe('function')
@@ -144,10 +144,10 @@ describe('Redis Services with Mock', () => {
 
   test('should verify LockService class definition', async () => {
     const { LockService } = await import('./lock-service')
-
+    
     expect(LockService).toBeDefined()
     expect(typeof LockService.getInstance).toBe('function')
-
+    
     const prototype = LockService.prototype
     expect(typeof prototype.acquireLock).toBe('function')
     expect(typeof prototype.releaseLock).toBe('function')
@@ -156,10 +156,10 @@ describe('Redis Services with Mock', () => {
 
   test('should verify RateLimitService class definition', async () => {
     const { RateLimitService } = await import('./rate-limit-service')
-
+    
     expect(RateLimitService).toBeDefined()
     expect(typeof RateLimitService.getInstance).toBe('function')
-
+    
     const prototype = RateLimitService.prototype
     expect(typeof prototype.checkLimit).toBe('function')
     expect(typeof prototype.checkSlidingWindowLimit).toBe('function')
@@ -168,10 +168,10 @@ describe('Redis Services with Mock', () => {
 
   test('should verify JobQueueService class definition', async () => {
     const { JobQueueService } = await import('./job-queue-service')
-
+    
     expect(JobQueueService).toBeDefined()
     expect(typeof JobQueueService.getInstance).toBe('function')
-
+    
     const prototype = JobQueueService.prototype
     expect(typeof prototype.addJob).toBe('function')
     expect(typeof prototype.getNextJob).toBe('function')
@@ -182,7 +182,7 @@ describe('Redis Services with Mock', () => {
     // Test the main index exports without initialization
     try {
       const redisModule = await import('./index')
-
+      
       // Check that classes are exported
       expect(redisModule.MetricsService).toBeDefined()
       expect(redisModule.SessionService).toBeDefined()
@@ -192,7 +192,7 @@ describe('Redis Services with Mock', () => {
       expect(redisModule.JobQueueService).toBeDefined()
       expect(redisModule.CacheService).toBeDefined()
       expect(redisModule.RedisService).toBeDefined()
-
+      
       // Check that convenience functions are exported
       expect(redisModule.getRedisCache).toBeDefined()
       expect(redisModule.getRedisPubSub).toBeDefined()
@@ -201,6 +201,7 @@ describe('Redis Services with Mock', () => {
       expect(redisModule.getRedisJobQueue).toBeDefined()
       expect(redisModule.getRedisMetrics).toBeDefined()
       expect(redisModule.getRedisSessions).toBeDefined()
+      
     } catch (error) {
       // If there are import errors due to dependencies, that's expected
       // We just want to verify the structure is correct
@@ -210,21 +211,21 @@ describe('Redis Services with Mock', () => {
 
   test('should have comprehensive service structure', async () => {
     const fs = require('fs')
-
+    
     // Verify all service files exist
     const serviceFiles = [
       'metrics-service.ts',
-      'session-service.ts',
+      'session-service.ts', 
       'pubsub-service.ts',
       'lock-service.ts',
       'rate-limit-service.ts',
-      'job-queue-service.ts',
+      'job-queue-service.ts'
     ]
-
+    
     for (const file of serviceFiles) {
       const path = `/root/repo/lib/redis/${file}`
       expect(fs.existsSync(path)).toBe(true)
-
+      
       const content = fs.readFileSync(path, 'utf8')
       expect(content).toContain('export class')
       expect(content).toContain('static getInstance')
@@ -235,26 +236,26 @@ describe('Redis Services with Mock', () => {
 
   test('should have comprehensive test structure', async () => {
     const fs = require('fs')
-
+    
     // Verify all test files exist
     const testFiles = [
       'metrics-service.test.ts',
       'session-service.test.ts',
-      'pubsub-service.test.ts',
+      'pubsub-service.test.ts', 
       'lock-service.test.ts',
       'rate-limit-service.test.ts',
-      'job-queue-service.test.ts',
+      'job-queue-service.test.ts'
     ]
-
+    
     for (const file of testFiles) {
       const path = `/root/repo/lib/redis/${file}`
       expect(fs.existsSync(path)).toBe(true)
-
+      
       const content = fs.readFileSync(path, 'utf8')
       expect(content).toContain('describe(')
       expect(content).toContain('test(')
       expect(content).toContain('expect(')
-
+      
       // Ensure substantial test coverage (at least 1KB of test code)
       const stats = fs.statSync(path)
       expect(stats.size).toBeGreaterThan(1000)

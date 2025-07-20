@@ -1,6 +1,6 @@
 /**
  * LockService - Redis/Valkey Distributed Locks Implementation
- *
+ * 
  * Provides distributed locking for coordination across multiple instances
  */
 
@@ -21,7 +21,7 @@ export class LockService {
     activeLocks: 0,
     releasedLocks: 0,
     expiredLocks: 0,
-    totalHoldTime: 0,
+    totalHoldTime: 0
   }
 
   private constructor() {
@@ -55,7 +55,7 @@ export class LockService {
         try {
           // Try to acquire lock using SET with NX and EX
           const result = await client.set(lockKey, lockValue, 'EX', ttl, 'NX')
-
+          
           if (result === 'OK') {
             const lock: DistributedLock = {
               key,
@@ -63,7 +63,7 @@ export class LockService {
               ttl,
               acquiredAt: new Date(),
               expiresAt: new Date(Date.now() + ttl * 1000),
-              clientId: this.clientId,
+              clientId: this.clientId
             }
 
             this.activeLocks.set(key, lock)
@@ -73,7 +73,7 @@ export class LockService {
             this.observability.recordEvent('lock.acquired', 1, {
               key,
               ttl: ttl.toString(),
-              attempts: attempts.toString(),
+              attempts: attempts.toString()
             })
 
             return lock
@@ -82,14 +82,14 @@ export class LockService {
           // Lock is held by someone else, retry if configured
           if (attempts < maxRetries) {
             attempts++
-            await new Promise((resolve) => setTimeout(resolve, retryDelay))
+            await new Promise(resolve => setTimeout(resolve, retryDelay))
           } else {
             break
           }
         } catch (error) {
           this.observability.recordError('lock.acquire.error', error as Error, {
             key,
-            attempt: attempts.toString(),
+            attempt: attempts.toString()
           })
           break
         }
@@ -98,7 +98,7 @@ export class LockService {
       this.observability.recordEvent('lock.acquire.failed', 1, {
         key,
         attempts: attempts.toString(),
-        duration: (Date.now() - startTime).toString(),
+        duration: (Date.now() - startTime).toString()
       })
 
       return null
@@ -120,7 +120,7 @@ export class LockService {
           end
         `
 
-        const result = (await client.eval(luaScript, 1, lockKey, lock.value)) as number
+        const result = await client.eval(luaScript, 1, lockKey, lock.value) as number
 
         if (result === 1) {
           const holdTime = Date.now() - lock.acquiredAt.getTime()
@@ -132,7 +132,7 @@ export class LockService {
 
           this.observability.recordEvent('lock.released', 1, {
             key: lock.key,
-            holdTime: holdTime.toString(),
+            holdTime: holdTime.toString()
           })
 
           return true
@@ -141,13 +141,13 @@ export class LockService {
         // Lock was not owned by this client or already expired
         this.observability.recordEvent('lock.release.failed', 1, {
           key: lock.key,
-          reason: 'not_owned_or_expired',
+          reason: 'not_owned_or_expired'
         })
 
         return false
       } catch (error) {
         this.observability.recordError('lock.release.error', error as Error, {
-          key: lock.key,
+          key: lock.key
         })
         return false
       }
@@ -169,7 +169,7 @@ export class LockService {
           end
         `
 
-        const result = (await client.eval(luaScript, 1, lockKey, lock.value, newTtl)) as number
+        const result = await client.eval(luaScript, 1, lockKey, lock.value, newTtl) as number
 
         if (result === 1) {
           lock.ttl = newTtl
@@ -177,7 +177,7 @@ export class LockService {
 
           this.observability.recordEvent('lock.renewed', 1, {
             key: lock.key,
-            newTtl: newTtl.toString(),
+            newTtl: newTtl.toString()
           })
 
           return true
@@ -186,7 +186,7 @@ export class LockService {
         return false
       } catch (error) {
         this.observability.recordError('lock.renew.error', error as Error, {
-          key: lock.key,
+          key: lock.key
         })
         return false
       }
@@ -213,7 +213,7 @@ export class LockService {
 
       try {
         const result = await client.del(lockKey)
-
+        
         if (result === 1) {
           this.activeLocks.delete(key)
           this.stats.activeLocks--
@@ -247,7 +247,7 @@ export class LockService {
       }
 
       this.observability.recordEvent('lock.multiple_acquired', 1, {
-        count: acquiredLocks.length.toString(),
+        count: acquiredLocks.length.toString()
       })
 
       return acquiredLocks
@@ -255,21 +255,21 @@ export class LockService {
       // Release any acquired locks in case of error
       await this.releaseMultipleLocks(acquiredLocks)
       this.observability.recordError('lock.multiple_acquire.error', error as Error, {
-        keys: keys.join(','),
+        keys: keys.join(',')
       })
       return []
     }
   }
 
   async releaseMultipleLocks(locks: DistributedLock[]): Promise<boolean> {
-    const releasePromises = locks.map((lock) => this.releaseLock(lock))
+    const releasePromises = locks.map(lock => this.releaseLock(lock))
     const results = await Promise.all(releasePromises)
-
-    const allReleased = results.every((result) => result)
-
+    
+    const allReleased = results.every(result => result)
+    
     this.observability.recordEvent('lock.multiple_released', 1, {
       count: locks.length.toString(),
-      success: allReleased.toString(),
+      success: allReleased.toString()
     })
 
     return allReleased
@@ -292,22 +292,24 @@ export class LockService {
     }
 
     // Simple deadlock detection - clients with multiple locks
-    const potentialDeadlocks = Object.values(locksByClient).filter((count) => count > 1).length
+    const potentialDeadlocks = Object.values(locksByClient)
+      .filter(count => count > 1).length
 
     return {
       activeLocks: activeLocks.length,
       potentialDeadlocks,
-      locksByClient,
+      locksByClient
     }
   }
 
   async getStats(): Promise<typeof this.stats & { averageHoldTime: number }> {
-    const averageHoldTime =
-      this.stats.releasedLocks > 0 ? this.stats.totalHoldTime / this.stats.releasedLocks : 0
+    const averageHoldTime = this.stats.releasedLocks > 0 
+      ? this.stats.totalHoldTime / this.stats.releasedLocks 
+      : 0
 
     return {
       ...this.stats,
-      averageHoldTime,
+      averageHoldTime
     }
   }
 
@@ -319,14 +321,14 @@ export class LockService {
     await this.releaseMultipleLocks(activeLocks)
 
     this.activeLocks.clear()
-
+    
     // Reset stats
     this.stats = {
       totalLocks: 0,
       activeLocks: 0,
       releasedLocks: 0,
       expiredLocks: 0,
-      totalHoldTime: 0,
+      totalHoldTime: 0
     }
 
     console.log('Lock service cleaned up successfully')

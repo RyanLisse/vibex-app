@@ -1,6 +1,6 @@
 /**
  * RateLimitService Tests
- *
+ * 
  * Test-driven development for Redis/Valkey rate limiting
  */
 
@@ -36,13 +36,13 @@ describe('RateLimitService', () => {
       const key = 'test:fixed-window'
       const options: RateLimitOptions = {
         windowSize: 60, // 1 minute
-        maxRequests: 5,
+        maxRequests: 5
       }
 
       // Make requests within limit
       for (let i = 0; i < 5; i++) {
         const result = await rateLimitService.checkLimit(key, options)
-
+        
         expect(result.allowed).toBe(true)
         expect(result.remaining).toBe(4 - i)
         expect(result.totalRequests).toBe(i + 1)
@@ -55,7 +55,7 @@ describe('RateLimitService', () => {
       const key = 'test:fixed-window-exceed'
       const options: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 3,
+        maxRequests: 3
       }
 
       // Exhaust the limit
@@ -75,18 +75,18 @@ describe('RateLimitService', () => {
       const key = 'test:window-reset'
       const options: RateLimitOptions = {
         windowSize: 2, // 2 seconds
-        maxRequests: 2,
+        maxRequests: 2
       }
 
       // Exhaust limit
       await rateLimitService.checkLimit(key, options)
       await rateLimitService.checkLimit(key, options)
-
+      
       const blockedResult = await rateLimitService.checkLimit(key, options)
       expect(blockedResult.allowed).toBe(false)
 
       // Wait for window reset
-      await new Promise((resolve) => setTimeout(resolve, 2500))
+      await new Promise(resolve => setTimeout(resolve, 2500))
 
       // Should be allowed again
       const resetResult = await rateLimitService.checkLimit(key, options)
@@ -101,7 +101,7 @@ describe('RateLimitService', () => {
       const key = 'test:sliding-window'
       const options: RateLimitOptions = {
         windowSize: 10, // 10 seconds
-        maxRequests: 3,
+        maxRequests: 3
       }
 
       // Use sliding window algorithm
@@ -109,8 +109,8 @@ describe('RateLimitService', () => {
       expect(result1.allowed).toBe(true)
 
       // Wait a bit and make another request
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       const result2 = await rateLimitService.checkSlidingWindowLimit(key, options)
       expect(result2.allowed).toBe(true)
 
@@ -126,25 +126,25 @@ describe('RateLimitService', () => {
       const key = 'test:sliding-forward'
       const options: RateLimitOptions = {
         windowSize: 5, // 5 seconds
-        maxRequests: 2,
+        maxRequests: 2
       }
 
       // Exhaust limit
       await rateLimitService.checkSlidingWindowLimit(key, options)
       await rateLimitService.checkSlidingWindowLimit(key, options)
-
+      
       const blockedResult = await rateLimitService.checkSlidingWindowLimit(key, options)
       expect(blockedResult.allowed).toBe(false)
 
       // Wait for partial window slide
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Should still be blocked (window hasn't fully slid)
       const stillBlockedResult = await rateLimitService.checkSlidingWindowLimit(key, options)
       expect(stillBlockedResult.allowed).toBe(false)
 
       // Wait for full window slide
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Should be allowed now
       const allowedResult = await rateLimitService.checkSlidingWindowLimit(key, options)
@@ -183,12 +183,12 @@ describe('RateLimitService', () => {
 
       // Exhaust bucket
       await rateLimitService.consumeTokens(key, 3)
-
+      
       const emptyResult = await rateLimitService.consumeTokens(key, 1)
       expect(emptyResult.allowed).toBe(false)
 
       // Wait for refill (1 second = 2 tokens)
-      await new Promise((resolve) => setTimeout(resolve, 1100))
+      await new Promise(resolve => setTimeout(resolve, 1100))
 
       const refilledResult = await rateLimitService.consumeTokens(key, 2)
       expect(refilledResult.allowed).toBe(true)
@@ -218,15 +218,15 @@ describe('RateLimitService', () => {
     test('should enforce multiple rate limit tiers', async () => {
       const userId = 'user123'
       const ipAddress = '192.168.1.1'
-
+      
       const userLimits: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 100,
+        maxRequests: 100
       }
-
+      
       const ipLimits: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 50,
+        maxRequests: 50
       }
 
       // Check both user and IP limits
@@ -255,12 +255,12 @@ describe('RateLimitService', () => {
 
       const basicLimits: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 10,
+        maxRequests: 10
       }
 
       const premiumLimits: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 100,
+        maxRequests: 100
       }
 
       // Basic user hits limit quickly
@@ -288,7 +288,7 @@ describe('RateLimitService', () => {
       const key = 'test:adaptive'
       const baseOptions: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 100,
+        maxRequests: 100
       }
 
       // Simulate high system load
@@ -306,7 +306,7 @@ describe('RateLimitService', () => {
       const key = 'test:adaptive-low'
       const baseOptions: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 50,
+        maxRequests: 50
       }
 
       // Simulate low system load
@@ -330,7 +330,7 @@ describe('RateLimitService', () => {
     test('should implement cost-aware rate limiting', async () => {
       const apiKey = 'api:expensive-calls'
       const budget = 1000 // $10.00 in cents
-
+      
       await rateLimitService.initializeBudget(apiKey, budget)
 
       // Make expensive API calls
@@ -352,9 +352,9 @@ describe('RateLimitService', () => {
 
     test('should handle different cost tiers for LLM providers', async () => {
       const userKey = 'llm:user123'
-
+      
       const gpt4Cost = 50 // Higher cost
-      const gpt3Cost = 5 // Lower cost
+      const gpt3Cost = 5  // Lower cost
 
       await rateLimitService.initializeBudget(userKey, 200) // $2.00 budget
 
@@ -380,7 +380,7 @@ describe('RateLimitService', () => {
       const key = 'test:stats'
       const options: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 5,
+        maxRequests: 5
       }
 
       // Generate some activity
@@ -389,7 +389,7 @@ describe('RateLimitService', () => {
       }
 
       const stats = await rateLimitService.getStats()
-
+      
       expect(stats.totalRequests).toBeGreaterThanOrEqual(7)
       expect(stats.blockedRequests).toBeGreaterThanOrEqual(2)
       expect(stats.allowedRequests).toBeGreaterThanOrEqual(5)
@@ -401,7 +401,7 @@ describe('RateLimitService', () => {
       const key = 'test:key-stats'
       const options: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 3,
+        maxRequests: 3
       }
 
       // Generate activity
@@ -410,7 +410,7 @@ describe('RateLimitService', () => {
       }
 
       const keyStats = await rateLimitService.getKeyStats(key)
-
+      
       expect(keyStats.totalRequests).toBe(5)
       expect(keyStats.allowedRequests).toBe(3)
       expect(keyStats.blockedRequests).toBe(2)
@@ -426,14 +426,14 @@ describe('RateLimitService', () => {
       expect(async () => {
         await rateLimitService.checkLimit(key, {
           windowSize: 0,
-          maxRequests: 10,
+          maxRequests: 10
         })
       }).rejects.toThrow('Window size must be greater than 0')
 
       expect(async () => {
         await rateLimitService.checkLimit(key, {
           windowSize: 60,
-          maxRequests: 0,
+          maxRequests: 0
         })
       }).rejects.toThrow('Max requests must be greater than 0')
     })
@@ -441,7 +441,7 @@ describe('RateLimitService', () => {
     test('should handle empty or invalid keys', async () => {
       const options: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 10,
+        maxRequests: 10
       }
 
       expect(async () => {
@@ -453,7 +453,7 @@ describe('RateLimitService', () => {
       const key = 'test:connection-failure'
       const options: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 10,
+        maxRequests: 10
       }
 
       // This would test Redis connection failures - implementation specific
@@ -471,7 +471,7 @@ describe('RateLimitService', () => {
 
       const options: RateLimitOptions = {
         windowSize: 60,
-        maxRequests: 100,
+        maxRequests: 100
       }
 
       const result = await rateLimitService.checkLimit(rateLimitKey, options)
@@ -485,12 +485,12 @@ describe('RateLimitService', () => {
 
       const connectionLimits: RateLimitOptions = {
         windowSize: 3600, // 1 hour
-        maxRequests: 10, // 10 connections per hour
+        maxRequests: 10   // 10 connections per hour
       }
 
       const messageLimits: RateLimitOptions = {
-        windowSize: 60, // 1 minute
-        maxRequests: 50, // 50 messages per minute
+        windowSize: 60,   // 1 minute
+        maxRequests: 50   // 50 messages per minute
       }
 
       // Check connection limit

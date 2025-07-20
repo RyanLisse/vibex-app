@@ -1,6 +1,6 @@
 /**
  * PubSubService Tests
- *
+ * 
  * Test-driven development for Redis/Valkey pub/sub functionality
  */
 
@@ -47,14 +47,14 @@ describe('PubSubService', () => {
       expect(subscription.isActive).toBe(true)
 
       // Wait for subscription to be ready
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Publish message
       const published = await pubsubService.publish(channel, testData)
       expect(published).toBe(true)
 
       // Wait for message delivery
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       expect(messages).toHaveLength(1)
       expect(messages[0].channel).toBe(channel)
@@ -76,18 +76,18 @@ describe('PubSubService', () => {
       expect(subscription.pattern).toBe(pattern)
       expect(subscription.isActive).toBe(true)
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Publish to matching channels
       await pubsubService.publish(channels[0], { data: 'one' })
       await pubsubService.publish(channels[1], { data: 'two' })
       await pubsubService.publish(channels[2], { data: 'other' })
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should only receive messages from matching channels
       expect(messages).toHaveLength(2)
-      expect(messages.map((m) => m.channel)).toEqual([channels[0], channels[1]])
+      expect(messages.map(m => m.channel)).toEqual([channels[0], channels[1]])
     })
 
     test('should unsubscribe from channels', async () => {
@@ -98,11 +98,11 @@ describe('PubSubService', () => {
         messages.push(message)
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Publish first message
       await pubsubService.publish(channel, { data: 'first' })
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await new Promise(resolve => setTimeout(resolve, 50))
 
       // Unsubscribe
       const unsubscribed = await pubsubService.unsubscribe(subscription.id)
@@ -111,7 +111,7 @@ describe('PubSubService', () => {
 
       // Publish second message (should not be received)
       await pubsubService.publish(channel, { data: 'second' })
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await new Promise(resolve => setTimeout(resolve, 50))
 
       expect(messages).toHaveLength(1)
       expect(messages[0].data.data).toBe('first')
@@ -129,11 +129,11 @@ describe('PubSubService', () => {
       const sub1 = await pubsubService.subscribe(channel, (msg) => messages1.push(msg))
       const sub2 = await pubsubService.subscribe(channel, (msg) => messages2.push(msg))
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Publish message
       await pubsubService.publish(channel, testData)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Both subscribers should receive the message
       expect(messages1).toHaveLength(1)
@@ -150,14 +150,14 @@ describe('PubSubService', () => {
       const sub1 = await pubsubService.subscribe(channel, (msg) => messages1.push(msg))
       const sub2 = await pubsubService.subscribe(channel, (msg) => messages2.push(msg))
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Unsubscribe only first subscriber
       await pubsubService.unsubscribe(sub1.id)
 
       // Publish message
       await pubsubService.publish(channel, { data: 'test' })
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Only second subscriber should receive message
       expect(messages1).toHaveLength(0)
@@ -172,13 +172,13 @@ describe('PubSubService', () => {
       })
 
       const subscription = await pubsubService.subscribe('test:error', errorCallback)
-
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should not throw when publishing to channel with error callback
       expect(async () => {
         await pubsubService.publish('test:error', { data: 'test' })
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, 100))
       }).not.toThrow()
 
       // Subscription should still be active
@@ -208,24 +208,20 @@ describe('PubSubService', () => {
       const options: PubSubOptions = {
         retryOnError: true,
         maxRetries: 3,
-        retryDelay: 50,
+        retryDelay: 50
       }
 
-      const subscription = await pubsubService.subscribe(
-        'test:retry',
-        (message) => {
-          attempts++
-          if (attempts < 3) {
-            throw new Error('Temporary error')
-          }
-        },
-        options
-      )
+      const subscription = await pubsubService.subscribe('test:retry', (message) => {
+        attempts++
+        if (attempts < 3) {
+          throw new Error('Temporary error')
+        }
+      }, options)
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       await pubsubService.publish('test:retry', { data: 'test' })
-      await new Promise((resolve) => setTimeout(resolve, 300))
+      await new Promise(resolve => setTimeout(resolve, 300))
 
       // Should have retried 3 times
       expect(attempts).toBe(3)
@@ -239,14 +235,14 @@ describe('PubSubService', () => {
         receivedMessages.push(message.data.order)
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Publish messages in order
       for (let i = 1; i <= 5; i++) {
         await pubsubService.publish(channel, { order: i })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 200))
+      await new Promise(resolve => setTimeout(resolve, 200))
 
       expect(receivedMessages).toEqual([1, 2, 3, 4, 5])
     })
@@ -265,9 +261,9 @@ describe('PubSubService', () => {
       const subscriptions = pubsubService.getActiveSubscriptions()
 
       expect(subscriptions).toHaveLength(3)
-      expect(subscriptions.some((s) => s.channel === channel1)).toBe(true)
-      expect(subscriptions.some((s) => s.channel === channel2)).toBe(true)
-      expect(subscriptions.some((s) => s.pattern === pattern)).toBe(true)
+      expect(subscriptions.some(s => s.channel === channel1)).toBe(true)
+      expect(subscriptions.some(s => s.channel === channel2)).toBe(true)
+      expect(subscriptions.some(s => s.pattern === pattern)).toBe(true)
     })
 
     test('should get subscription statistics', async () => {
@@ -304,23 +300,23 @@ describe('PubSubService', () => {
         events.push(message.data)
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Simulate real-time events
       const eventTypes = ['user_joined', 'message_sent', 'user_left']
-
+      
       for (const eventType of eventTypes) {
         await pubsubService.publish(eventChannel, {
           type: eventType,
           userId: 'user123',
-          timestamp: Date.now(),
+          timestamp: Date.now()
         })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       expect(events).toHaveLength(3)
-      expect(events.map((e) => e.type)).toEqual(eventTypes)
+      expect(events.map(e => e.type)).toEqual(eventTypes)
     })
 
     test('should support dashboard real-time updates', async () => {
@@ -331,7 +327,7 @@ describe('PubSubService', () => {
         dashboardUpdates.push(message.data)
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Publish dashboard metrics
       await pubsubService.publish(dashboardChannel, {
@@ -339,11 +335,11 @@ describe('PubSubService', () => {
         metrics: {
           activeUsers: 150,
           cpuUsage: 45.2,
-          memoryUsage: 67.8,
-        },
+          memoryUsage: 67.8
+        }
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       expect(dashboardUpdates).toHaveLength(1)
       expect(dashboardUpdates[0].type).toBe('metrics_update')

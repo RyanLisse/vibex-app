@@ -1,6 +1,6 @@
 /**
  * LockService Tests
- *
+ * 
  * Test-driven development for Redis/Valkey distributed locks
  */
 
@@ -38,7 +38,7 @@ describe('LockService', () => {
 
       // Acquire lock
       const lock = await lockService.acquireLock(lockKey, options)
-
+      
       expect(lock).not.toBeNull()
       expect(lock!.key).toBe(lockKey)
       expect(lock!.value).toBeDefined()
@@ -91,7 +91,7 @@ describe('LockService', () => {
       expect(lock).not.toBeNull()
 
       // Wait for expiration
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      await new Promise(resolve => setTimeout(resolve, 1200))
 
       // Lock should be expired
       const isLocked = await lockService.isLocked(lockKey)
@@ -109,10 +109,10 @@ describe('LockService', () => {
     test('should retry lock acquisition with specified options', async () => {
       const lockKey = 'test:retry-lock'
       const shortLockOptions: LockOptions = { ttl: 1 }
-      const retryOptions: LockOptions = {
-        ttl: 30,
-        maxRetries: 5,
-        retryDelay: 200,
+      const retryOptions: LockOptions = { 
+        ttl: 30, 
+        maxRetries: 5, 
+        retryDelay: 200 
       }
 
       // Acquire initial lock with short TTL
@@ -123,7 +123,7 @@ describe('LockService', () => {
 
       // Try to acquire with retry (should succeed after initial lock expires)
       const retryLock = await lockService.acquireLock(lockKey, retryOptions)
-
+      
       const endTime = Date.now()
       const waitTime = endTime - startTime
 
@@ -136,10 +136,10 @@ describe('LockService', () => {
     test('should fail after max retries exceeded', async () => {
       const lockKey = 'test:max-retries'
       const longLockOptions: LockOptions = { ttl: 60 } // Long lock
-      const retryOptions: LockOptions = {
-        ttl: 30,
-        maxRetries: 2,
-        retryDelay: 100,
+      const retryOptions: LockOptions = { 
+        ttl: 30, 
+        maxRetries: 2, 
+        retryDelay: 100 
       }
 
       // Acquire long-running lock
@@ -150,7 +150,7 @@ describe('LockService', () => {
 
       // Try to acquire with limited retries (should fail)
       const retryLock = await lockService.acquireLock(lockKey, retryOptions)
-
+      
       const endTime = Date.now()
       const waitTime = endTime - startTime
 
@@ -171,15 +171,15 @@ describe('LockService', () => {
       expect(lock).not.toBeNull()
 
       // Wait a bit
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
       // Renew lock
       const renewed = await lockService.renewLock(lock!, 10)
       expect(renewed).toBe(true)
 
       // Lock should still be active after original TTL
-      await new Promise((resolve) => setTimeout(resolve, 4000))
-
+      await new Promise(resolve => setTimeout(resolve, 4000))
+      
       const isStillLocked = await lockService.isLocked(lockKey)
       expect(isStillLocked).toBe(true)
 
@@ -194,7 +194,7 @@ describe('LockService', () => {
       expect(lock).not.toBeNull()
 
       // Wait for expiration
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      await new Promise(resolve => setTimeout(resolve, 1200))
 
       // Try to renew expired lock
       const renewed = await lockService.renewLock(lock!, 10)
@@ -211,7 +211,7 @@ describe('LockService', () => {
       // Create fake lock with wrong value
       const fakeLock: DistributedLock = {
         ...lock!,
-        value: 'wrong-value',
+        value: 'wrong-value'
       }
 
       // Try to renew with wrong value
@@ -285,7 +285,7 @@ describe('LockService', () => {
       const activeLocks = await lockService.getActiveLocks()
       expect(activeLocks.length).toBeGreaterThanOrEqual(3)
 
-      const acquiredKeys = activeLocks.map((l) => l.key)
+      const acquiredKeys = activeLocks.map(l => l.key)
       for (const key of lockKeys) {
         expect(acquiredKeys).toContain(key)
       }
@@ -318,7 +318,7 @@ describe('LockService', () => {
       expect(lock).not.toBeNull()
 
       // Hold lock for a specific time
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       const released = await lockService.releaseLock(lock!)
       expect(released).toBe(true)
@@ -336,9 +336,9 @@ describe('LockService', () => {
 
       // Acquire all locks atomically
       const locks = await lockService.acquireMultipleLocks(lockKeys, options)
-
+      
       expect(locks).toHaveLength(3)
-      expect(locks.every((lock) => lock !== null)).toBe(true)
+      expect(locks.every(lock => lock !== null)).toBe(true)
 
       // Verify all locks are acquired
       for (const key of lockKeys) {
@@ -372,7 +372,7 @@ describe('LockService', () => {
       // Verify no locks were acquired
       const lock1Available = !(await lockService.isLocked(lockKeys[0]))
       const lock3Available = !(await lockService.isLocked(lockKeys[2]))
-
+      
       expect(lock1Available).toBe(true)
       expect(lock3Available).toBe(true)
 
