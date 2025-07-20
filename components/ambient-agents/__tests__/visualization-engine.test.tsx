@@ -1,10 +1,11 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import type React from 'react'
 import { VisualizationEngineWithProvider } from '../visualization-engine'
 
 // Mock ReactFlow since it requires DOM APIs not available in test environment
-jest.mock('@xyflow/react', () => ({
+vi.mock('@xyflow/react', () => ({
   ReactFlowProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="react-flow-provider">{children}</div>
   ),
@@ -13,14 +14,14 @@ jest.mock('@xyflow/react', () => ({
   MiniMap: () => <div data-testid="minimap">MiniMap Mock</div>,
   Background: () => <div data-testid="background">Background Mock</div>,
   Panel: ({ children }: { children: React.ReactNode }) => <div data-testid="panel">{children}</div>,
-  useNodesState: () => [[], jest.fn(), jest.fn()],
-  useEdgesState: () => [[], jest.fn(), jest.fn()],
+  useNodesState: () => [[], vi.fn(), vi.fn()],
+  useEdgesState: () => [[], vi.fn(), vi.fn()],
   useReactFlow: () => ({
-    zoomIn: jest.fn(),
-    zoomOut: jest.fn(),
-    fitView: jest.fn(),
+    zoomIn: vi.fn(),
+    zoomOut: vi.fn(),
+    fitView: vi.fn(),
   }),
-  addEdge: jest.fn(),
+  addEdge: vi.fn(),
   getBezierPath: () => ['M0,0 L100,100', 50, 50],
   EdgeLabelRenderer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Handle: () => <div data-testid="handle">Handle Mock</div>,
@@ -33,7 +34,7 @@ jest.mock('@xyflow/react', () => ({
 }))
 
 // Mock the ambient agent data hook
-jest.mock('../../../hooks/ambient-agents/use-ambient-agent-data', () => ({
+vi.mock('../../../hooks/ambient-agents/use-ambient-agent-data', () => ({
   useAmbientAgentData: () => ({
     agentData: [
       {

@@ -30,7 +30,7 @@ describe('GitHub Authentication', () => {
   const originalEnv = process.env
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     ;(cookies as any).mockResolvedValue(mockCookies as any)
     process.env = {
       ...originalEnv,

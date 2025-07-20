@@ -217,6 +217,8 @@ export class WASMServices {
    */
   private async initializeObservability(): Promise<void> {
     try {
+      // Set the WASMServices instance to avoid circular dependency
+      wasmObservability.setWASMServices(this)
       await wasmObservability.initialize()
       console.log('✅ WASM Observability Integration initialized')
     } catch (error) {

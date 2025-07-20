@@ -91,7 +91,7 @@ function subscriptionReducer(
 // Constants for better maintainability
 const RECONNECT_DELAY = 1000
 const ERROR_RECONNECT_DELAY = 5000
-const CONNECTION_CHECK_ENDPOINT = '/api/test-inngest'
+const CONNECTION_CHECK_ENDPOINT = '/api/inngest'
 
 export function useTaskSubscription({ taskId, taskMessages = [] }: UseTaskSubscriptionProps) {
   // Consolidated state management with reducer

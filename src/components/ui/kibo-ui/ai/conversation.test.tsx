@@ -45,7 +45,7 @@ vi.mock('lucide-react', () => ({
 
 describe('AIConversation Components', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockStickToBottomContext.isAtBottom = false
   })
 

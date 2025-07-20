@@ -27,7 +27,7 @@ import { GET } from '@/app/api/auth/openai/status/route'
 
 describe('GET /api/auth/openai/status', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should return authenticated status with valid config', async () => {

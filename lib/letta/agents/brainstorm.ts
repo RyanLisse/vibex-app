@@ -49,6 +49,7 @@ export class BrainstormAgent {
   private agentId: string | null = null
   private config: BrainstormConfig
   private activeSessions: Map<string, BrainstormSession> = new Map()
+  private sessionIdMap: Map<string, string> = new Map() // Maps external sessionId to internal brainstorm sessionId
 
   constructor(client: LettaClient, config: Partial<BrainstormConfig> = {}) {
     this.client = client
@@ -176,11 +177,15 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
     `.trim()
   }
 
-  async startBrainstormSession(userId: string, topic: string): Promise<BrainstormSession> {
-    const sessionId = `brainstorm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  async startBrainstormSession(
+    userId: string,
+    topic: string,
+    externalSessionId?: string
+  ): Promise<BrainstormSession> {
+    const brainstormSessionId = `brainstorm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     const session: BrainstormSession = {
-      id: sessionId,
+      id: brainstormSessionId,
       userId,
       topic,
       stage: 'exploration',
@@ -191,7 +196,12 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
       updatedAt: new Date(),
     }
 
-    this.activeSessions.set(sessionId, session)
+    this.activeSessions.set(brainstormSessionId, session)
+
+    // Map external sessionId to internal brainstorm sessionId if provided
+    if (externalSessionId) {
+      this.sessionIdMap.set(externalSessionId, brainstormSessionId)
+    }
 
     // Initialize the brainstorming session with the agent
     if (this.agentId) {
@@ -199,7 +209,7 @@ Always maintain an encouraging, curious, and non-judgmental attitude. Every idea
 Starting a new brainstorming session:
 - User ID: ${userId}
 - Topic: ${topic}
-- Session ID: ${sessionId}
+- Session ID: ${brainstormSessionId}
 
 Begin with the EXPLORATION stage. Help the user articulate and explore their idea about: "${topic}"
 
@@ -227,7 +237,9 @@ Keep the conversation flowing naturally while gathering this foundational inform
       throw new Error('Brainstorm agent not initialized')
     }
 
-    const session = this.activeSessions.get(sessionId)
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
     if (!session) {
       throw new Error('Brainstorm session not found')
     }
@@ -235,7 +247,7 @@ Keep the conversation flowing naturally while gathering this foundational inform
     // Update session context
     const contextMessage = `
 Session Context:
-- Session ID: ${sessionId}
+- Session ID: ${brainstormSessionId}
 - Current Stage: ${session.stage}
 - Topic: ${session.topic}
 - Ideas Generated: ${session.ideas.length}
@@ -254,7 +266,9 @@ Continue guiding the brainstorming process based on the current stage and user i
   }
 
   async advanceStage(sessionId: string): Promise<BrainstormSession> {
-    const session = this.activeSessions.get(sessionId)
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
     if (!session) {
       throw new Error('Brainstorm session not found')
     }
@@ -281,7 +295,7 @@ The brainstorming session has advanced to the ${session.stage.toUpperCase()} sta
 
 Please guide the user through this new stage according to the framework:
 - Current stage: ${session.stage}
-- Session ID: ${sessionId}
+- Session ID: ${brainstormSessionId}
 - Ideas so far: ${session.ideas.length}
 
 Transition smoothly and explain what we'll focus on in this stage.
@@ -344,7 +358,9 @@ Transition smoothly and explain what we'll focus on in this stage.
     topIdeas: BrainstormSession['ideas']
     recommendations: string[]
   }> {
-    const session = this.activeSessions.get(sessionId)
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
     if (!session) {
       throw new Error('Brainstorm session not found')
     }
@@ -367,7 +383,9 @@ Transition smoothly and explain what we'll focus on in this stage.
   }
 
   async endSession(sessionId: string): Promise<BrainstormSession> {
-    const session = this.activeSessions.get(sessionId)
+    // Check if this is an external sessionId that needs to be mapped
+    const brainstormSessionId = this.sessionIdMap.get(sessionId) || sessionId
+    const session = this.activeSessions.get(brainstormSessionId)
     if (!session) {
       throw new Error('Brainstorm session not found')
     }

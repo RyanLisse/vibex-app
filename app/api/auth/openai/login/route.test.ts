@@ -48,7 +48,7 @@ const mockNextResponse = (await import('next/server' as any)).NextResponse
 
 describe('POST /api/auth/openai/login', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should generate auth URL and redirect', async () => {

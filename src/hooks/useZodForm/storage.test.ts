@@ -26,7 +26,7 @@ describe('storage helpers', () => {
   let mockForm: UseFormReturn<any>
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockForm = {
       getValues: vi.fn(),
       reset: vi.fn(),

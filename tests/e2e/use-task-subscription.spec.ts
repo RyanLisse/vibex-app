@@ -31,7 +31,6 @@ test.describe('useTaskSubscription Hook E2E Tests', () => {
       if (
         request.url().includes('token') ||
         request.url().includes('subscription') ||
-        request.url().includes('test-inngest') ||
         request.url().includes('inngest')
       ) {
         requests.push({

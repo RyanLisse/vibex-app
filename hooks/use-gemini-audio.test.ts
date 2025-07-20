@@ -9,7 +9,7 @@ global.fetch = vi.fn()
 
 describe('useGeminiAudio', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mock.useFakeTimers()
     const fetchMock = mock(global.fetch)
     fetchMock.mockResolvedValue({

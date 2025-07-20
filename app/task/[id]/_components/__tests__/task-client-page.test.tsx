@@ -92,7 +92,7 @@ const mockUseAutoScroll = {
 
 describe('TaskClientPage', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     ;(useTaskStore as any).mockReturnValue(mockUseTaskStore)
     ;(useTaskSubscription as any).mockReturnValue(mockUseTaskSubscription)
     ;(useAutoScroll as any).mockReturnValue(mockUseAutoScroll)

@@ -1,3 +1,38 @@
+// Mock Redis before any imports
+import { vi } from 'vitest'
+
+vi.mock('redis', () => ({
+  createClient: vi.fn(() => ({
+    connect: vi.fn().mockResolvedValue(undefined),
+    disconnect: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue('OK'),
+    del: vi.fn().mockResolvedValue(1),
+    exists: vi.fn().mockResolvedValue(0),
+    expire: vi.fn().mockResolvedValue(1),
+    ttl: vi.fn().mockResolvedValue(-1),
+    ping: vi.fn().mockResolvedValue('PONG'),
+    on: vi.fn(),
+    off: vi.fn(),
+  })),
+}))
+
+vi.mock('ioredis', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    connect: vi.fn().mockResolvedValue(undefined),
+    disconnect: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue('OK'),
+    del: vi.fn().mockResolvedValue(1),
+    exists: vi.fn().mockResolvedValue(0),
+    expire: vi.fn().mockResolvedValue(1),
+    ttl: vi.fn().mockResolvedValue(-1),
+    ping: vi.fn().mockResolvedValue('PONG'),
+    on: vi.fn(),
+    off: vi.fn(),
+  })),
+}))
+
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
@@ -55,7 +90,7 @@ beforeEach(() => {
   vi.stubEnv('VITEST_POOL_ID', '1')
   vi.stubEnv('DATABASE_URL', 'postgresql://test:test@localhost:5432/test')
   vi.stubEnv('OPENAI_API_KEY', 'test-key')
-  vi.stubEnv('INNGEST_EVENT_KEY', 'test-inngest-key')
+  vi.stubEnv('INNGEST_EVENT_KEY', 'test-event-key')
   vi.stubEnv('NEXTAUTH_SECRET', 'test-secret')
   vi.stubEnv('NEXTAUTH_URL', 'http://localhost:3000')
 

@@ -109,8 +109,6 @@ export function getElectricSQLHealth(): {
     activeSubscriptions: number
   }
 } {
-  const { electricAuthService, electricSyncService } = require('./index')
-
   return {
     auth: electricAuthService.getTokenInfo(),
     sync: electricSyncService.getSyncStatus(),
@@ -131,7 +129,6 @@ export class ElectricSQLUtils {
       limit?: number
     }
   ): () => void {
-    const { electricSyncService } = require('./index')
     return electricSyncService.subscribeToTable(tableName, callback, options)
   }
 
@@ -139,7 +136,6 @@ export class ElectricSQLUtils {
    * Force sync for all tables
    */
   static async forceSyncAll(): Promise<void> {
-    const { electricSyncService } = require('./index')
     return electricSyncService.forceSyncAll()
   }
 
@@ -153,7 +149,6 @@ export class ElectricSQLUtils {
     resolution: any
     timestamp: Date
   }> {
-    const { electricSyncService } = require('./index')
     return electricSyncService.getConflictLog()
   }
 
@@ -161,7 +156,6 @@ export class ElectricSQLUtils {
    * Check if user has specific permission
    */
   static hasPermission(operation: 'read' | 'write' | 'delete' | 'admin'): boolean {
-    const { electricAuthService } = require('./index')
     return electricAuthService.hasPermission(operation)
   }
 
@@ -169,7 +163,6 @@ export class ElectricSQLUtils {
    * Get authorization headers for API requests
    */
   static getAuthHeaders(): Record<string, string> {
-    const { electricAuthService } = require('./index')
     return electricAuthService.getAuthHeaders()
   }
 }
@@ -187,7 +180,6 @@ export const useElectricSQLStatus = () => {
     }
   }
 
-  const { electricSyncService } = require('./index')
   return electricSyncService.getSyncStatus()
 }
 
@@ -201,7 +193,6 @@ export const useElectricSQLAuth = () => {
     }
   }
 
-  const { electricAuthService } = require('./index')
   return electricAuthService.getTokenInfo()
 }
 

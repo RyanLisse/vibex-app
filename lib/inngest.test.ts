@@ -1,45 +1,49 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// This test file uses Bun's native test runner
-// Run with: bun run test:inngest
-
+// This test file uses Vitest runner
 describe('inngest tests', () => {
   // Create inline mocks without any imports to avoid side effects
-  const mockInngest = {
-    id: 'clonedex',
-    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
-    createFunction: vi.fn().mockImplementation((config) => ({
-      ...config,
-      handler: vi.fn().mockResolvedValue(undefined),
-    })),
-  }
-
-  const mockTaskChannel = vi.fn((taskId: string) => ({
-    status: vi.fn(),
-    update: vi.fn(),
-    control: vi.fn(),
-  }))
-
-  const mockTaskControl = {
-    id: 'task-control',
-    trigger: { event: 'clonedx/task.control' },
-    handler: vi.fn().mockResolvedValue(undefined),
-  }
-
-  const mockCreateTask = {
-    id: 'create-task',
-    trigger: { event: 'clonedx/create.task' },
-    handler: vi.fn().mockResolvedValue(undefined),
-  }
-
-  const mockGetInngestApp = vi.fn(() => ({
-    id: typeof window !== 'undefined' ? 'client' : 'server',
-    send: vi.fn().mockResolvedValue({ ids: ['test-id'] }),
-    createFunction: vi.fn(),
-  }))
+  let mockInngest: any
+  let mockTaskChannel: any
+  let mockTaskControl: any
+  let mockCreateTask: any
+  let mockGetInngestApp: any
 
   beforeEach(() => {
     vi.clearAllMocks()
+
+    mockInngest = {
+      id: 'clonedex',
+      send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
+      createFunction: vi.fn((config) => ({
+        ...config,
+        handler: vi.fn(() => Promise.resolve(undefined)),
+      })),
+    }
+
+    mockTaskChannel = vi.fn((taskId: string) => ({
+      status: vi.fn(),
+      update: vi.fn(),
+      control: vi.fn(),
+    }))
+
+    mockTaskControl = {
+      id: 'task-control',
+      trigger: { event: 'clonedx/task.control' },
+      handler: vi.fn(() => Promise.resolve(undefined)),
+    }
+
+    mockCreateTask = {
+      id: 'create-task',
+      trigger: { event: 'clonedx/create.task' },
+      handler: vi.fn(() => Promise.resolve(undefined)),
+    }
+
+    mockGetInngestApp = vi.fn(() => ({
+      id: typeof window !== 'undefined' ? 'client' : 'server',
+      send: vi.fn(() => Promise.resolve({ ids: ['test-id'] })),
+      createFunction: vi.fn(),
+    }))
   })
 
   it('should have correct inngest client properties', () => {
@@ -93,6 +97,7 @@ describe('inngest tests', () => {
 
     expect(result).toEqual({ ids: ['test-id'] })
     expect(mockInngest.send).toHaveBeenCalledWith(event)
+    expect(mockInngest.send).toHaveBeenCalledTimes(1)
   })
 
   it('should handle task control actions', async () => {

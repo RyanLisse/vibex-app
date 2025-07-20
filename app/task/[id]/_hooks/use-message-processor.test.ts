@@ -27,11 +27,11 @@ const mockMessageGuards = (await import('@/app/task/[id]/_utils/message-guards')
 
 describe('useMessageProcessor', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should initialize with processMessage function', () => {

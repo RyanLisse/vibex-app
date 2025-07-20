@@ -12,7 +12,7 @@ describe('GitHub Auth API Integration Tests', () => {
 
   afterEach(() => {
     // Cleanup
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should return GitHub OAuth URL successfully', async () => {

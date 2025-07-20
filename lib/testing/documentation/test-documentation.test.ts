@@ -37,7 +37,7 @@ describe('TestSpecificationGenerator', () => {
       })
 
       expect(spec.title).toBe('UserService Test Specification')
-      expect(spec.methods).toHaveLength(6) // Mock generates more methods than expected
+      expect(spec.methods).toHaveLength(2) // UserService has 2 methods: createUser and getUserById
       expect(spec.methods[0].name).toBe('createUser')
       expect(spec.methods[0].testCases).toContain('should create user with valid data')
       expect(spec.methods[0].testCases).toContain('should throw error when email is missing')

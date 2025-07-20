@@ -45,7 +45,7 @@ describe('ClaudeAuthButton', () => {
   }
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('rendering', () => {

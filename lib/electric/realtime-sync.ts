@@ -92,7 +92,7 @@ export class RealtimeSyncService {
         // Add auth token to URL if available
         const wsUrl = authToken ? `${url}?token=${authToken}` : url
 
-        this.websocket = new WebSocket(wsUrl)
+        this.websocket = new (WebSocket as any)(wsUrl) as WebSocket
 
         this.websocket.onopen = () => {
           this.isConnected = true

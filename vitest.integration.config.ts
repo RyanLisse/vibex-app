@@ -29,7 +29,6 @@ export default mergeConfig(sharedConfig, {
       'app/actions/inngest.test.ts',
       'app/actions/vibekit.test.ts',
       'app/api/inngest/route.test.ts',
-      'app/api/test-inngest/route.test.ts',
       'db/**/*.test.ts',
     ],
     exclude: [

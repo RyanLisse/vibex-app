@@ -8,7 +8,7 @@ global.fetch = vi.fn()
 
 describe('useFileUpload', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should initialize with default state', () => {

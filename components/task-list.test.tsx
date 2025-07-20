@@ -158,7 +158,7 @@ describe('TaskList', () => {
   ]
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockTaskStore.getActiveTasks.mockReturnValue(mockActiveTasks)
     mockTaskStore.getArchivedTasks.mockReturnValue(mockArchivedTasks)
     vi.useFakeTimers()
@@ -166,7 +166,7 @@ describe('TaskList', () => {
 
   afterEach(() => {
     vi.useRealTimers()
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render tabs structure', () => {

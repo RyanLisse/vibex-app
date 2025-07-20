@@ -31,12 +31,12 @@ describe('useAuthBase', () => {
   }
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockLocation.href = ''
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should initialize with initial state', () => {

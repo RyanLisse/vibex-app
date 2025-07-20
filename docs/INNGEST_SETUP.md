@@ -45,7 +45,7 @@ bun dev
 
 1. Visit http://localhost:8288 - You should see the Inngest dev dashboard
 2. Your app should auto-register at http://localhost:3000/api/inngest
-3. Test the configuration: `curl http://localhost:3000/api/test-inngest`
+3. Test the configuration: `curl http://localhost:3000/api/inngest`
 
 ## Production Setup
 

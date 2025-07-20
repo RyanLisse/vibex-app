@@ -40,7 +40,7 @@ describe('useTaskSubscription', () => {
   const mockTaskMessages = [{ role: 'user' as const, type: 'message', data: { text: 'Hello' } }]
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockFetch.mockResolvedValue({
       ok: true,
       json: () =>
@@ -52,7 +52,7 @@ describe('useTaskSubscription', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should initialize with correct default state', () => {
@@ -82,7 +82,7 @@ describe('useTaskSubscription', () => {
     )
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/test-inngest')
+      expect(mockFetch).toHaveBeenCalledWith('/api/inngest')
     })
   })
 

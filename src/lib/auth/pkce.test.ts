@@ -13,7 +13,7 @@ describe('PKCE utilities', () => {
   const mockCreateHash = cryptoModule.createHash as MockedFunction<typeof cryptoModule.createHash>
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   describe('generateCodeVerifier', () => {

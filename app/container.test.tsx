@@ -47,7 +47,7 @@ const _mockConsoleError = mock.spyOn(console, 'error').mockImplementation(() => 
 
 describe('Container', () => {
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
     mockUseInngestSubscription.mockReturnValue({
       latestData: null,
       error: null,
@@ -56,7 +56,7 @@ describe('Container', () => {
   })
 
   afterEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
   })
 
   it('should render children', () => {

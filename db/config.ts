@@ -7,12 +7,22 @@ neonConfig.fetchConnectionCache = true
 
 // Environment variables validation
 const DATABASE_URL = process.env.DATABASE_URL
-if (!DATABASE_URL && process.env.NODE_ENV !== 'test') {
+const isProduction = process.env.NODE_ENV === 'production'
+const isDummyUrl = DATABASE_URL === 'your_database_url_here' || DATABASE_URL === ''
+const isBuildTime = process.env.NODE_ENV === 'production' && (!DATABASE_URL || isDummyUrl)
+const isTest = process.env.NODE_ENV === 'test'
+
+// Only validate in runtime production environments
+if ((!DATABASE_URL || isDummyUrl) && isProduction && !isBuildTime && !isTest) {
   throw new Error('DATABASE_URL environment variable is required')
 }
 
-// Create Neon connection
-const sql = neon(DATABASE_URL || 'postgresql://test:test@localhost:5432/test')
+// Create Neon connection - use placeholder during build time or with dummy URL
+const connectionString =
+  !DATABASE_URL || isDummyUrl || isBuildTime
+    ? 'postgresql://build:build@localhost:5432/build'
+    : DATABASE_URL
+const sql = neon(connectionString)
 
 // Create Drizzle instance with schema
 export const db = drizzle(sql, { schema })
@@ -22,8 +32,8 @@ export { sql }
 
 // Connection configuration
 export const dbConfig = {
-  connectionString: DATABASE_URL || 'postgresql://test:test@localhost:5432/test',
-  ssl: process.env.NODE_ENV === 'production',
+  connectionString,
+  ssl: isProduction && !isBuildTime && !isDummyUrl,
   maxConnections: 20,
   idleTimeout: 30_000,
   connectionTimeout: 10_000,

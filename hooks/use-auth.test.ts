@@ -29,7 +29,7 @@ describe('useAuth', () => {
   const mockGitHubLogout = vi.fn()
 
   beforeEach(() => {
-    mock.restore()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockUseOpenAIAuth.mockReturnValue({

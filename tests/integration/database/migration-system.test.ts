@@ -135,7 +135,7 @@ import { migrations } from '../../../db/schema'
 import { sql as sqlOperator } from 'drizzle-orm'
 
 // Skip tests if no database URL is provided
-const skipTests = !process.env.DATABASE_URL
+const skipTests = false // Always run tests with mocks
 
 // Test migration directory
 const testMigrationsPath = join(process.cwd(), 'tests/fixtures/migrations')
@@ -748,7 +748,8 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(existsSync(backupPath)).toBe(true)
 
       // Check for backup files
-      const backupFiles = require('fs')
+      const fs = await import('fs')
+      const backupFiles = fs
         .readdirSync(backupPath)
         .filter((file: string) => file.startsWith('backup-') && file.endsWith('.json'))
 
@@ -772,7 +773,8 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       await testRunner.migrate()
 
       // Check that old backups were cleaned up (should keep only 5)
-      const remainingFiles = require('fs')
+      const fs = await import('fs')
+      const remainingFiles = fs
         .readdirSync(backupPath)
         .filter((file: string) => file.startsWith('backup-') && file.endsWith('.json'))
 

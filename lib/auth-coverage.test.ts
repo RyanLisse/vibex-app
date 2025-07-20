@@ -14,6 +14,15 @@ describe('Auth Coverage Tests', () => {
       try {
         const parsed = new URL(url)
 
+        // Block dangerous protocols first
+        if (
+          parsed.protocol === 'javascript:' ||
+          parsed.protocol === 'data:' ||
+          parsed.protocol === 'file:'
+        ) {
+          throw new Error('Dangerous redirect URL protocol')
+        }
+
         // Block non-HTTPS URLs (except localhost HTTP)
         if (
           parsed.protocol !== 'https:' &&
@@ -22,17 +31,15 @@ describe('Auth Coverage Tests', () => {
           throw new Error('Invalid redirect URL protocol')
         }
 
-        // Block dangerous protocols
-        if (
-          (parsed.protocol as string) === 'javascript:' ||
-          (parsed.protocol as string) === 'data:' ||
-          (parsed.protocol as string) === 'file:'
-        ) {
-          throw new Error('Dangerous redirect URL protocol')
-        }
-
         return url
       } catch (error) {
+        if (
+          error instanceof Error &&
+          (error.message === 'Invalid redirect URL protocol' ||
+            error.message === 'Dangerous redirect URL protocol')
+        ) {
+          throw error
+        }
         throw new Error('Invalid redirect URL')
       }
     }
@@ -116,7 +123,7 @@ describe('Auth Coverage Tests', () => {
 
       expect(url).toContain('client_id=test-client')
       expect(url).toContain(encodeURIComponent('https://example.com/callback?foo=bar&baz=qux'))
-      expect(url).toContain(encodeURIComponent('state-with-special-chars!@#$%^&*()'))
+      expect(url).toContain('state=state-with-special-chars%21%40%23%24%25%5E%26*%28%29')
       expect(url).toContain('scope=repo+user%3Aemail')
     })
 
