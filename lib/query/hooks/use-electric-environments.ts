@@ -7,7 +7,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { z } from "zod";
 import type { Environment, NewEnvironment } from "@/db/schema";
-import type {
 	CreateEnvironmentSchema,
 	EnvironmentSchema,
 	UpdateEnvironmentSchema,

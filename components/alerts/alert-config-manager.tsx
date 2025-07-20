@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	AlertTriangle,
 	CheckCircle,
 	Edit,
@@ -14,14 +13,12 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
@@ -32,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -42,7 +38,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import {
 	type AlertChannel,
 	AlertChannelType,
 	type AlertConfig,

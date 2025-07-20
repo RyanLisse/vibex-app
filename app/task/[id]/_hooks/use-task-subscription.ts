@@ -1,6 +1,5 @@
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import {
 	fetchRealtimeSubscriptionToken,
 	type TaskChannelToken,
 } from "@/app/actions/inngest";

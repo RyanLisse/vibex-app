@@ -14,7 +14,7 @@ describe("Auth Coverage Tests", () => {
 			try {
 				const parsed = new URL(url);
 
-<<<<<<< HEAD
+
 				// Block dangerous protocols first
 				if (
 					parsed.protocol === "javascript:" ||
@@ -44,37 +44,7 @@ describe("Auth Coverage Tests", () => {
 				throw new Error("Invalid redirect URL");
 			}
 		};
-=======
-        // Block dangerous protocols first
-        if (
-          parsed.protocol === 'javascript:' ||
-          parsed.protocol === 'data:' ||
-          parsed.protocol === 'file:'
-        ) {
-          throw new Error('Dangerous redirect URL protocol')
-        }
 
-        // Block non-HTTPS URLs (except localhost HTTP)
-        if (
-          parsed.protocol !== 'https:' &&
-          !(parsed.protocol === 'http:' && parsed.hostname === 'localhost')
-        ) {
-          throw new Error('Invalid redirect URL protocol')
-        }
-
-        return url
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          (error.message === 'Invalid redirect URL protocol' ||
-            error.message === 'Dangerous redirect URL protocol')
-        ) {
-          throw error
-        }
-        throw new Error('Invalid redirect URL')
-      }
-    }
->>>>>>> ryan-lisse/review-this-pr
 
 		it("should allow HTTPS URLs", () => {
 			expect(() =>
@@ -164,7 +134,7 @@ describe("Auth Coverage Tests", () => {
 				scope: "repo user:email",
 			});
 
-<<<<<<< HEAD
+
 			expect(url).toContain("client_id=test-client");
 			expect(url).toContain(
 				encodeURIComponent("https://example.com/callback?foo=bar&baz=qux"),
@@ -174,13 +144,7 @@ describe("Auth Coverage Tests", () => {
 			);
 			expect(url).toContain("scope=repo+user%3Aemail");
 		});
-=======
-      expect(url).toContain('client_id=test-client')
-      expect(url).toContain(encodeURIComponent('https://example.com/callback?foo=bar&baz=qux'))
-      expect(url).toContain('state=state-with-special-chars%21%40%23%24%25%5E%26*%28%29')
-      expect(url).toContain('scope=repo+user%3Aemail')
-    })
->>>>>>> ryan-lisse/review-this-pr
+
 
 		it("should handle empty parameters", () => {
 			const url = buildAuthURL("https://github.com/login/oauth/authorize", {

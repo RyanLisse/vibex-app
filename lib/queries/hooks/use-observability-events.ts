@@ -2,7 +2,6 @@
  * TanStack Query hooks for Observability Events with infinite queries and aggregation
  */
 
-import {
 	type InfiniteData,
 	type UseMutationOptions,
 	type UseQueryOptions,
@@ -576,4 +575,3 @@ export async function prefetchEventTimeline(
 }
 
 import type { QueryClient } from "@tanstack/react-query";
-import { useState } from "react";

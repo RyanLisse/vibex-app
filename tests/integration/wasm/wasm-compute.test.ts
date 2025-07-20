@@ -5,7 +5,6 @@
  * performance benchmarks, fallback scenarios, and statistical operations
  */
 
-import {
 	afterEach,
 	beforeAll,
 	beforeEach,
@@ -14,7 +13,6 @@ import {
 	it,
 	vi,
 } from "vitest";
-import {
 	type AnalyticsData,
 	type ComputeResult,
 	type ComputeTask,

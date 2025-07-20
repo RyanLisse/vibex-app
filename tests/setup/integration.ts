@@ -1,5 +1,5 @@
 // Mock Redis before any imports
-<<<<<<< HEAD
+
 import { vi } from "vitest";
 
 vi.mock("redis", () => ({
@@ -64,9 +64,7 @@ const createMockDb = () => {
 
 	return mockDb;
 };
-=======
-import { vi } from 'vitest'
->>>>>>> ryan-lisse/review-this-pr
+
 
 vi.mock('redis', () => ({
   createClient: vi.fn(() => ({
@@ -100,7 +98,6 @@ vi.mock('ioredis', () => ({
   })),
 }))
 
-import { vi } from 'vitest'
 
 // Mock @/db/config before any other imports
 vi.mock('@/db/config', () => {
@@ -308,7 +305,7 @@ vi.mock('@/db/schema', () => ({
 }))
 
 // Mock database modules before any other imports
-<<<<<<< HEAD
+
 vi.mock("@neondatabase/serverless", () => ({
 	neon: vi.fn(() => {
 		// Create a mock SQL function that handles both template literal and direct string calls
@@ -338,58 +335,7 @@ vi.mock("@neondatabase/serverless", () => ({
 						return [];
 					}
 				}
-=======
-vi.mock('@neondatabase/serverless', () => ({
-  neon: vi.fn(() => {
-    // Create a mock SQL function that handles both template literal and direct string calls
-    const mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {
-      // Handle template literal calls
-      if (Array.isArray(query)) {
-        const queryStr = query[0]
-        if (queryStr === 'SELECT 1') {
-          return [{ '?column?': 1 }]
-        }
-        if (queryStr === 'SELECT 1 as value') {
-          return [{ value: 1 }]
-        }
-        if (queryStr.includes('SELECT current_timestamp')) {
-          return [{ now: new Date().toISOString() }]
-        }
-        if (queryStr === 'BEGIN' || queryStr === 'COMMIT' || queryStr === 'ROLLBACK') {
-          return []
-        }
-        if (queryStr === 'ANALYZE') {
-          return []
-        }
-      }
 
-      // Handle direct string queries
-      if (typeof query === 'string') {
-        // For migration-related queries
-        if (
-          query.includes('pg_indexes') ||
-          query.includes('pg_tables') ||
-          query.includes('pg_stat_') ||
-          query.includes('pg_extension') ||
-          query.includes('information_schema')
-        ) {
-          return []
-        }
-        // For CREATE INDEX, CREATE EXTENSION etc.
-        if (
-          query.toLowerCase().includes('create') ||
-          query.toLowerCase().includes('drop') ||
-          query.toLowerCase().includes('alter') ||
-          query.toLowerCase().includes('vacuum') ||
-          query.toLowerCase().includes('reindex')
-        ) {
-          return []
-        }
-      }
-
-      return []
-    })
->>>>>>> ryan-lisse/review-this-pr
 
 				// Handle direct string queries
 				if (typeof query === "string") {
@@ -415,7 +361,7 @@ vi.mock('@neondatabase/serverless', () => ({
 					}
 				}
 
-<<<<<<< HEAD
+
 				return [];
 			});
 
@@ -428,14 +374,7 @@ vi.mock('@neondatabase/serverless', () => ({
 		fetchConnectionCache: true,
 	},
 }));
-=======
-    return mockSql
-  }),
-  neonConfig: {
-    fetchConnectionCache: true,
-  },
-}))
->>>>>>> ryan-lisse/review-this-pr
+
 
 // Mock drizzle-orm operators
 vi.mock("drizzle-orm", () => ({
@@ -611,44 +550,11 @@ vi.mock("../../../db/config", () => {
 });
 
 // Mock drizzle-orm
-<<<<<<< HEAD
+
 vi.mock("drizzle-orm/neon-serverless", () => ({
 	drizzle: vi.fn(() => createMockDb()),
 }));
-=======
-vi.mock('drizzle-orm/neon-serverless', () => ({
-  drizzle: vi.fn(() => {
-    const mockDb: any = {
-      select: vi.fn(() => mockDb),
-      where: vi.fn(() => mockDb),
-      orderBy: vi.fn(() => mockDb),
-      limit: vi.fn(() => mockDb),
-      insert: vi.fn((table) => mockDb),
-      values: vi.fn().mockImplementation(async () => {
-        // Return successful insert
-        return { rowCount: 1 }
-      }),
-      update: vi.fn((table) => mockDb),
-      set: vi.fn(() => mockDb),
-      delete: vi.fn((table) => mockDb),
-      execute: vi.fn().mockResolvedValue([]),
-    }
 
-    // Add from method with special handling for migrations table
-    mockDb.from = vi.fn().mockImplementation((table: any) => {
-      // If querying migrations table, setup specific behavior
-      if (table?.name === 'migrations' || table?._?.name === 'migrations') {
-        mockDb.execute = vi.fn().mockResolvedValue([])
-        mockDb.orderBy = vi.fn(() => mockDb)
-        mockDb.limit = vi.fn().mockResolvedValue([])
-      }
-      return mockDb
-    })
-
-    return mockDb
-  }),
-}))
->>>>>>> ryan-lisse/review-this-pr
 
 // Mock the migration runner module
 vi.mock("../../../db/migrations/migration-runner", () => {
@@ -682,9 +588,7 @@ vi.mock("../../../db/migrations/migration-runner", () => {
 	};
 });
 
-import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach, beforeEach } from "vitest";
 
 // Store original environment
 const originalEnv = { ...process.env };

@@ -7,7 +7,6 @@
 import { inngest } from "@/lib/inngest";
 import { observability } from "@/lib/observability";
 import { workflowEngine } from "./engine";
-import type {
 	WorkflowDefinition,
 	WorkflowExecutionState,
 	WorkflowTrigger,

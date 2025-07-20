@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -8,7 +7,6 @@ import {
 	spyOn,
 	test,
 } from "bun:test";
-import {
 	buildAuthUrl,
 	createAuthHeaders,
 	exchangeCodeForToken,

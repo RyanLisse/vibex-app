@@ -15,12 +15,12 @@ function resolveMergeConflicts(content: string): string {
 		content
 			// Remove lines with conflict markers and what's between =======... >>>>>>> main
 			.replace(
-				/<<<<<<< HEAD\n([\s\S]*?)\n=======\n[\s\S]*?\n>>>>>>> main/g,
+				/\n([\s\S]*?)\n
 				"$1",
 			)
 			// Handle any remaining conflict markers
-			.replace(/<<<<<<< HEAD\n/g, "")
-			.replace(/\n=======\n[\s\S]*?\n>>>>>>> main/g, "")
+			.replace(/\n/g, "")
+			.replace(/\n
 			.replace(/\n>>>>>>> main/g, "")
 			.replace(/=======\n[\s\S]*?\n>>>>>>> main/g, "")
 	);

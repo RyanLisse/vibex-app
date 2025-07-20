@@ -12,7 +12,6 @@ import { memoryRepository } from "./repository";
 import { memorySearchService } from "./search-service";
 import { memorySharingService } from "./sharing-service";
 import { memorySuggestionEngine } from "./suggestion-engine";
-import type {
 	CreateMemoryInput,
 	MemoryContext,
 	MemoryEntry,

@@ -5,7 +5,6 @@
  * Handles Zustand store data formats and provides normalized output.
  */
 
-import type {
 	LocalStorageData,
 	LocalStorageEnvironment,
 	LocalStorageTask,

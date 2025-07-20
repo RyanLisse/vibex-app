@@ -109,22 +109,17 @@ export function getElectricSQLHealth(): {
 		activeSubscriptions: number;
 	};
 } {
-<<<<<<< HEAD
+
 	return {
 		auth: electricAuthService.getTokenInfo(),
 		sync: electricSyncService.getSyncStatus(),
 	};
-=======
-  return {
-    auth: electricAuthService.getTokenInfo(),
-    sync: electricSyncService.getSyncStatus(),
-  }
->>>>>>> ryan-lisse/review-this-pr
+
 }
 
 // Utility functions for common operations
 export class ElectricSQLUtils {
-<<<<<<< HEAD
+
 	/**
 	 * Subscribe to real-time updates for a specific table
 	 */
@@ -175,56 +170,7 @@ export class ElectricSQLUtils {
 	static getAuthHeaders(): Record<string, string> {
 		return electricAuthService.getAuthHeaders();
 	}
-=======
-  /**
-   * Subscribe to real-time updates for a specific table
-   */
-  static subscribeToTable<T>(
-    tableName: string,
-    callback: (data: T[]) => void,
-    options?: {
-      where?: any
-      orderBy?: any
-      limit?: number
-    }
-  ): () => void {
-    return electricSyncService.subscribeToTable(tableName, callback, options)
-  }
 
-  /**
-   * Force sync for all tables
-   */
-  static async forceSyncAll(): Promise<void> {
-    return electricSyncService.forceSyncAll()
-  }
-
-  /**
-   * Get conflict log for debugging
-   */
-  static getConflictLog(): Array<{
-    table: string
-    id: string
-    conflict: any
-    resolution: any
-    timestamp: Date
-  }> {
-    return electricSyncService.getConflictLog()
-  }
-
-  /**
-   * Check if user has specific permission
-   */
-  static hasPermission(operation: 'read' | 'write' | 'delete' | 'admin'): boolean {
-    return electricAuthService.hasPermission(operation)
-  }
-
-  /**
-   * Get authorization headers for API requests
-   */
-  static getAuthHeaders(): Record<string, string> {
-    return electricAuthService.getAuthHeaders()
-  }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 // React hooks for ElectricSQL integration (to be used with TanStack Query)
@@ -240,13 +186,10 @@ export const useElectricSQLStatus = () => {
 		};
 	}
 
-<<<<<<< HEAD
+
 	return electricSyncService.getSyncStatus();
 };
-=======
-  return electricSyncService.getSyncStatus()
-}
->>>>>>> ryan-lisse/review-this-pr
+
 
 export const useElectricSQLAuth = () => {
 	if (typeof window === "undefined") {
@@ -258,13 +201,10 @@ export const useElectricSQLAuth = () => {
 		};
 	}
 
-<<<<<<< HEAD
+
 	return electricAuthService.getTokenInfo();
 };
-=======
-  return electricAuthService.getTokenInfo()
-}
->>>>>>> ryan-lisse/review-this-pr
+
 
 // Error classes
 export class ElectricSQLError extends Error {

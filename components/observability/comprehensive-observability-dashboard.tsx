@@ -7,7 +7,6 @@
  * agent coordination, performance metrics, and system health visualization.
  */
 
-import {
 	Activity,
 	AlertTriangle,
 	BarChart3,

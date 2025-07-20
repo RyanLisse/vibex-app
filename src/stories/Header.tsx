@@ -1,8 +1,6 @@
-import {
 	HeaderContent,
 	type HeaderContentProps,
 } from "@/src/stories/HeaderContent";
-import "./header.css";
 
 export type HeaderProps = HeaderContentProps;
 

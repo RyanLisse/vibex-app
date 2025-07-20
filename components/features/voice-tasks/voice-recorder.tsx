@@ -1,19 +1,12 @@
 "use client";
 
-<<<<<<< HEAD
+
 import { Mic, Pause, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { VoiceRecording } from "@/src/schemas/enhanced-task-schemas";
-=======
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useRef } from 'react'
-import { Mic, Square, Pause, Play } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import type { VoiceRecording } from '@/src/schemas/enhanced-task-schemas'
->>>>>>> ryan-lisse/review-this-pr
+
 
 interface VoiceRecorderProps {
 	onRecordingComplete: (recording: VoiceRecording) => void;

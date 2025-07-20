@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import {
 	ElectricConnectionStatus,
 	ElectricOfflineIndicator,
 	ElectricSyncButton,
 	useElectricContext,
 } from "@/components/providers/electric-provider";
-import {
 	useElectricEnvironments,
 	useElectricTasks,
 } from "@/hooks/use-electric-tasks";

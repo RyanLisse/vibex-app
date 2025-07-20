@@ -38,7 +38,6 @@ const mockHandleAuthError = vi.fn();
 
 const mockNextResponse = (await import("next/server" as any)).NextResponse;
 
-<<<<<<< HEAD
 describe("GET /api/auth/anthropic/callback", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -46,7 +45,6 @@ describe("GET /api/auth/anthropic/callback", () => {
 		mockSanitizeRedirectUrl.mockImplementation((url) => url);
 		mockHandleAuthError.mockImplementation((error) => error.toString());
 	});
-=======
 describe('GET /api/auth/anthropic/callback', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -54,7 +52,6 @@ describe('GET /api/auth/anthropic/callback', () => {
     mockSanitizeRedirectUrl.mockImplementation((url) => url)
     mockHandleAuthError.mockImplementation((error) => error.toString())
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("should handle successful callback", async () => {
 		const mockToken = {

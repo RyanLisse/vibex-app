@@ -25,17 +25,14 @@ const mockFetchGitHubBranches = vi.fn();
 
 const mockNextResponse = (await import("next/server" as any)).NextResponse;
 
-<<<<<<< HEAD
 describe("GET /api/auth/github/branches", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
 describe('GET /api/auth/github/branches', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("should return branches for valid repository", async () => {
 		const mockBranches = [

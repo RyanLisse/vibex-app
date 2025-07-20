@@ -9,7 +9,6 @@
 
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import {
 	Activity,
 	AlertCircle,
 	CheckCircle,
@@ -28,14 +27,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import {
 	SyncIndicator,
 	SyncStatusMonitor,
 } from "@/components/electric/sync-status-monitor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Card,
 	CardContent,
 	CardDescription,

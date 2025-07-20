@@ -6,7 +6,6 @@
  */
 
 import { shouldUseWASMOptimization, wasmDetector } from "./detection";
-import {
 	batchSimilaritySearch,
 	createVectorSearchInstance,
 	loadVectorSearchWASM,

@@ -4,7 +4,6 @@
  */
 
 import type { CoreMessage, LanguageModelV1CallOptions } from "ai";
-import { simulateReadableStream } from "ai";
 import { MockLanguageModelV1 } from "ai/test";
 
 /**

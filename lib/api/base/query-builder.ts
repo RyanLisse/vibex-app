@@ -5,7 +5,6 @@
  * automatic pagination, filtering, and sorting support.
  */
 
-import {
 	and,
 	asc,
 	desc,

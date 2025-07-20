@@ -4,7 +4,6 @@
  * Tests for database branching functionality using Neon's branching API
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,
@@ -12,7 +11,6 @@ import {
 	expect,
 	it,
 } from "bun:test";
-import {
 	createNeonBranchingManager,
 	createNeonTestUtils,
 	type NeonBranch,

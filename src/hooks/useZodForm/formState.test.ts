@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import {
+
 	afterEach,
 	beforeEach,
 	describe,
@@ -13,13 +12,7 @@ import { renderHook } from "@testing-library/react";
 import type { UseFormReturn } from "react-hook-form";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useFormState } from "@/src/hooks/useZodForm/formState";
-=======
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn, test } from 'bun:test'
-import { renderHook } from '@testing-library/react'
-import type { UseFormReturn } from 'react-hook-form'
-import { useFormState } from '@/src/hooks/useZodForm/formState'
->>>>>>> ryan-lisse/review-this-pr
+
 
 describe("useFormState", () => {
 	const createMockForm = (overrides = {}): UseFormReturn<any> =>

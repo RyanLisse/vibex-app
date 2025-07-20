@@ -1,5 +1,4 @@
 import type { Page } from "@playwright/test";
-import { test as base } from "@playwright/test";
 
 // Define fixtures with mock server capabilities
 type Fixtures = {

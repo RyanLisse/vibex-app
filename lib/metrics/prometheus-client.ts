@@ -1,4 +1,3 @@
-import {
 	Counter,
 	collectDefaultMetrics,
 	Gauge,

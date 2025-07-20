@@ -5,7 +5,6 @@
  * in different scenarios within the codex-clone application.
  */
 
-import {
 	AgentLogger,
 	createApiRouteLogger,
 	createLogger,

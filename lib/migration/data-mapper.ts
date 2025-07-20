@@ -6,13 +6,11 @@
  */
 
 import { ulid } from "ulid";
-import type {
 	Environment as DbEnvironment,
 	Task as DbTask,
 	NewEnvironment,
 	NewTask,
 } from "@/db/schema";
-import type {
 	DataConflict,
 	DataMapping,
 	LocalStorageEnvironment,

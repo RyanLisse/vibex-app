@@ -1,16 +1,10 @@
-<<<<<<< HEAD
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import type React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VisualizationEngineWithProvider } from "../visualization-engine";
-=======
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { VisualizationEngineWithProvider } from '../visualization-engine'
->>>>>>> ryan-lisse/review-this-pr
+
 
 // Mock ReactFlow since it requires DOM APIs not available in test environment
 vi.mock("@xyflow/react", () => ({

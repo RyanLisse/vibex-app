@@ -1,11 +1,9 @@
 import { type Span, SpanStatusCode, trace } from "@opentelemetry/api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
 	BaseAPIError,
 	DatabaseError,
 	ValidationError,
 } from "@/lib/api/base/errors";
-import {
 	BaseAPIService,
 	BaseCRUDService,
 	type ServiceContext,

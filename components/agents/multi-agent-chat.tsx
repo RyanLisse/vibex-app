@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	Brain,
 	MessageSquare,
 	Mic,
@@ -14,7 +13,6 @@ import {
 	VolumeX,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -7,13 +7,11 @@
 
 "use client";
 
-import {
 	QueryClient,
 	QueryClientProvider,
 	useQueryClient,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import React, {
 	createContext,
 	type ReactNode,
 	useContext,
@@ -21,7 +19,6 @@ import React, {
 	useState,
 } from "react";
 import { observability } from "@/lib/observability";
-import {
 	type ElectricBridgeConfig,
 	electricQueryBridge,
 } from "./electric-bridge";

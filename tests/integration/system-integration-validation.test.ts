@@ -9,7 +9,6 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AlertRuleBuilder } from "@/lib/metrics/alert-rules";
 import { GrafanaDashboardBuilder } from "@/lib/metrics/grafana-dashboards";
 import { PrometheusMetricsCollector } from "@/lib/metrics/prometheus-client";
-import {
 	getRedisConfig,
 	redisFeatures,
 	validateRedisEnvironment,

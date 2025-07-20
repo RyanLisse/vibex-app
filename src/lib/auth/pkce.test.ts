@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -10,7 +9,6 @@ import {
 } from "bun:test";
 import * as cryptoModule from "node:crypto";
 import { vi } from "vitest";
-import {
 	generateCodeChallenge,
 	generateCodeVerifier,
 } from "@/src/lib/auth/pkce";
@@ -26,15 +24,11 @@ describe("PKCE utilities", () => {
 		typeof cryptoModule.createHash
 	>;
 
-<<<<<<< HEAD
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 	describe("generateCodeVerifier", () => {
 		it("should generate a code verifier with default length", () => {

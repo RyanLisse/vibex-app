@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
 	Activity,
 	AlertCircle,
 	CheckCircle2,
@@ -19,7 +18,6 @@ import React, { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Card,
 	CardContent,
 	CardDescription,

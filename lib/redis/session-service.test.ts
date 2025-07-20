@@ -4,7 +4,6 @@
  * Test-driven development for Redis/Valkey session management
  */
 
-import {
 	afterAll,
 	afterEach,
 	beforeAll,

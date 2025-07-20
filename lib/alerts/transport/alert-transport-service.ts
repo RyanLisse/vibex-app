@@ -1,6 +1,5 @@
-<<<<<<< HEAD
+
 import { ComponentLogger } from "../../logging/logger-factory";
-import {
 	type AlertChannel,
 	AlertChannelType,
 	type AlertNotification,
@@ -11,15 +10,7 @@ import { LogTransport } from "./log-transport";
 import { SlackTransport } from "./slack-transport";
 import type { AlertTransport } from "./types";
 import { WebhookTransport } from "./webhook-transport";
-=======
-import { ComponentLogger } from '../../logging/logger-factory'
-import { AlertChannel, CriticalError, AlertNotification, AlertChannelType } from '../types'
-import { AlertTransport } from './types'
-import { WebhookTransport } from './webhook-transport'
-import { EmailTransport } from './email-transport'
-import { SlackTransport } from './slack-transport'
-import { LogTransport } from './log-transport'
->>>>>>> ryan-lisse/review-this-pr
+
 
 export class AlertTransportService {
 	private readonly logger: ComponentLogger;

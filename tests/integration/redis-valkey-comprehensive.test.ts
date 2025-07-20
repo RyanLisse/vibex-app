@@ -12,7 +12,6 @@
  */
 
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "vitest";
-import {
 	CacheService,
 	getRedisConfig,
 	JobQueueService,

@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	Activity,
 	AlertTriangle,
 	Clock,
@@ -12,7 +11,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type {
 	ProgressMetrics,
 	TaskProgress,
 } from "@/src/schemas/enhanced-task-schemas";

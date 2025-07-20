@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -9,7 +8,6 @@ import {
 	test,
 } from "bun:test";
 import { vi } from "vitest";
-import {
 	clearStoredToken,
 	exchangeCodeForToken,
 	generateAuthUrl,
@@ -58,17 +56,12 @@ vi.mock("next/server", () => ({
 	},
 }));
 
-<<<<<<< HEAD
+
 describe("Anthropic Auth", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
-describe('Anthropic Auth', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 	describe("generateCodeVerifier", () => {
 		it("should generate a code verifier", () => {

@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -11,7 +10,6 @@ import {
 import { act, renderHook } from "@testing-library/react";
 import { vi } from "vitest";
 import { useMessageProcessor } from "@/app/task/[id]/_hooks/use-message-processor";
-import type {
 	IncomingMessage,
 	StreamingMessage,
 } from "@/app/task/[id]/_types/message-types";
@@ -39,7 +37,6 @@ const mockMessageGuards = (await import(
 	"@/app/task/[id]/_utils/message-guards"
 )) as any;
 
-<<<<<<< HEAD
 describe("useMessageProcessor", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -48,7 +45,6 @@ describe("useMessageProcessor", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
-=======
 describe('useMessageProcessor', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -57,7 +53,6 @@ describe('useMessageProcessor', () => {
   afterEach(() => {
     vi.clearAllMocks()
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("should initialize with processMessage function", () => {
 		const mockTaskMessages: Array<{

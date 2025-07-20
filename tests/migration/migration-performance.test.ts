@@ -10,7 +10,6 @@ import { backupService } from "../../lib/migration/backup-service";
 import { dataExtractor } from "../../lib/migration/data-extractor";
 import { dataMapper } from "../../lib/migration/data-mapper";
 import { migrationService } from "../../lib/migration/migration-service";
-import type {
 	LocalStorageEnvironment,
 	LocalStorageTask,
 	MigrationConfig,

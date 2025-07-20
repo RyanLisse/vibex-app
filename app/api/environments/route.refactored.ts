@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * Environments API Route - Refactored Version
@@ -13,7 +8,6 @@ export const runtime = 'nodejs'
  * Enhanced environment management using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import { and, desc, eq, like } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { ulid } from "ulid";
@@ -237,18 +231,6 @@ class EnvironmentsService extends BaseAPIService {
 			{ "environment.id": id, "user.id": userId },
 		);
 	}
-=======
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { and, desc, eq, like } from 'drizzle-orm'
-import { ulid } from 'ulid'
-import { db } from '@/db/config'
-import { environments } from '@/db/schema'
-import { NotFoundError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { ResponseBuilder } from '@/lib/api/response-builder'
-import { CreateEnvironmentSchema } from '@/src/schemas/api-routes'
 
 // Request validation schemas
 const GetEnvironmentsQuerySchema = z.object({
@@ -445,14 +427,12 @@ class EnvironmentsService extends BaseAPIService {
       { 'environment.id': id, 'user.id': userId }
     )
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * GET /api/environments - Get environments with filtering and pagination
  */
 export const GET = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: GetEnvironmentsQuerySchema },
 	async (params) => {
 		const result = await EnvironmentsService.getEnvironments(params);
@@ -463,7 +443,6 @@ export const GET = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: GetEnvironmentsQuerySchema },
   async (params) => {
     const result = await EnvironmentsService.getEnvironments(params)
@@ -474,13 +453,11 @@ export const GET = BaseAPIHandler.createHandler(
     )
   }
 )
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * POST /api/environments - Create a new environment
  */
 export const POST = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: CreateEnvironmentSchema },
 	async (data) => {
 		// In a real implementation, would get userId from auth context
@@ -491,7 +468,6 @@ export const POST = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: CreateEnvironmentSchema },
   async (data) => {
     // In a real implementation, would get userId from auth context
@@ -499,13 +475,11 @@ export const POST = BaseAPIHandler.createHandler(
     return ResponseBuilder.created(environment, 'Environment created successfully')
   }
 )
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * PUT /api/environments/activate - Activate an environment
  */
 export const PUT = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: ActivateEnvironmentSchema },
 	async (data) => {
 		const environment = await EnvironmentsService.activateEnvironment(
@@ -518,7 +492,6 @@ export const PUT = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: ActivateEnvironmentSchema },
   async (data) => {
     const environment = await EnvironmentsService.activateEnvironment(
@@ -528,4 +501,3 @@ export const PUT = BaseAPIHandler.createHandler(
     return ResponseBuilder.success(environment, 'Environment activated successfully')
   }
 )
->>>>>>> ryan-lisse/review-this-pr

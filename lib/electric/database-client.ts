@@ -7,7 +7,6 @@
 
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/config";
-import type {
 	AgentExecution,
 	Environment,
 	NewAgentExecution,
@@ -17,7 +16,6 @@ import type {
 	ObservabilityEvent,
 	Task,
 } from "@/db/schema";
-import {
 	agentExecutions,
 	environments,
 	observabilityEvents,

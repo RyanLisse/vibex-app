@@ -1,13 +1,11 @@
 "use client";
 
-import type {
 	Announcements,
 	DndContextProps,
 	DragEndEvent,
 	DragOverEvent,
 	DragStartEvent,
 } from "@dnd-kit/core";
-import {
 	closestCenter,
 	DndContext,
 	DragOverlay,
@@ -20,7 +18,6 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
 	createContext,
 	type HTMLAttributes,
 	type ReactNode,

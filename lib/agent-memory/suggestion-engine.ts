@@ -8,7 +8,6 @@
 import { observability } from "@/lib/observability";
 import { memoryRepository } from "./repository";
 import { memorySearchService } from "./search-service";
-import type {
 	MemoryContext,
 	MemoryEntry,
 	MemorySuggestion,

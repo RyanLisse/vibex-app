@@ -5,7 +5,6 @@
  */
 
 import { EventEmitter } from "events";
-import type {
 	WorkflowError,
 	WorkflowEvent,
 	WorkflowExecutionState,

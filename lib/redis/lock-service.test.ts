@@ -4,7 +4,6 @@
  * Test-driven development for Redis/Valkey distributed locks
  */
 
-import {
 	afterAll,
 	afterEach,
 	beforeAll,

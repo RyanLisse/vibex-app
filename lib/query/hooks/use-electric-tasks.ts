@@ -5,7 +5,6 @@
  * with Redis caching and conflict resolution.
  */
 
-import {
 	useInfiniteQuery,
 	useMutation,
 	useQuery,
@@ -17,7 +16,6 @@ import type { NewTask, Task } from "@/db/schema";
 import { conflictResolutionService } from "@/lib/electric/conflict-resolution";
 import { electricDatabaseClient } from "@/lib/electric/database-client";
 import { enhancedElectricSyncService } from "@/lib/electric/enhanced-sync-service";
-import type {
 	CreateTaskSchema,
 	TaskSchema,
 	UpdateTaskSchema,

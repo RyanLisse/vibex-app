@@ -11,7 +11,6 @@
 
 import { z } from "zod";
 // app/api/products/route.ts
-import {
 	BaseAPIHandler,
 	RateLimitError,
 	ResponseBuilder,
@@ -116,7 +115,6 @@ import { LRUCache } from "lru-cache";
 import { db } from "@/db/config";
 import { products, productTags } from "@/db/schema";
 // services/product-service.ts
-import {
 	BaseAPIService,
 	createQueryBuilder,
 	NotFoundError,
@@ -474,7 +472,6 @@ class ProductService extends BaseAPIService {
 export const productService = new ProductService();
 
 // app/api/products/batch/route.ts - Batch operations
-export const POST = BaseAPIHandler.POST(
 	async (context) => {
 		const BatchUpdateSchema = z.object({
 			updates: z

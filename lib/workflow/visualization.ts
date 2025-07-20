@@ -4,7 +4,6 @@
  * Utilities for visualizing workflow definitions and executions
  */
 
-import type {
 	StepConfig,
 	StepExecutionState,
 	StepStatus,

@@ -7,7 +7,6 @@
  * task distribution visualization, performance tracking, and status updates.
  */
 
-import {
 	Activity,
 	AlertTriangle,
 	CheckCircle,

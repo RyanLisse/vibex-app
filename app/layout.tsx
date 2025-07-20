@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import "./globals.css";
-import "./streaming.css";
 
 import Container from "@/app/container";
 import { AppProviders } from "@/components/providers/app-providers";

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
 	CoverageVisualizer,
 	DocumentationGenerator,
 	TestSpecificationGenerator,
@@ -36,7 +35,7 @@ describe("TestSpecificationGenerator", () => {
 				className: "UserService",
 			});
 
-<<<<<<< HEAD
+
 			expect(spec.title).toBe("UserService Test Specification");
 			expect(spec.methods).toHaveLength(2); // UserService has 2 methods: createUser and getUserById
 			expect(spec.methods[0].name).toBe("createUser");
@@ -48,15 +47,7 @@ describe("TestSpecificationGenerator", () => {
 			);
 			expect(spec.methods[1].name).toBe("getUserById");
 		});
-=======
-      expect(spec.title).toBe('UserService Test Specification')
-      expect(spec.methods).toHaveLength(2) // UserService has 2 methods: createUser and getUserById
-      expect(spec.methods[0].name).toBe('createUser')
-      expect(spec.methods[0].testCases).toContain('should create user with valid data')
-      expect(spec.methods[0].testCases).toContain('should throw error when email is missing')
-      expect(spec.methods[1].name).toBe('getUserById')
-    })
->>>>>>> ryan-lisse/review-this-pr
+
 
 		it("should generate specification for React component", async () => {
 			const componentCode = `

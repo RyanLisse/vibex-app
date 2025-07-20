@@ -2,10 +2,8 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import type React from "react";
-import { memo, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
 	oneDark,
 	oneLight,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -14,7 +12,6 @@ import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
 	Table,
 	TableBody,
 	TableCell,

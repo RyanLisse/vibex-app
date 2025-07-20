@@ -1,13 +1,9 @@
 "use client";
 
-<<<<<<< HEAD
+
 import { Activity, AlertTriangle, Clock, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-=======
-import { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
->>>>>>> ryan-lisse/review-this-pr
-import {
+
 	Bar,
 	BarChart,
 	CartesianGrid,
@@ -21,21 +17,18 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
 	AlertChannelType,
 	type AlertMetrics,
 	CriticalErrorType,
@@ -58,7 +51,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 				`/api/alerts/metrics?timeframe=${timeframe}`,
 			);
 
-<<<<<<< HEAD
+
 			if (!response.ok) {
 				throw new Error("Failed to fetch metrics");
 			}
@@ -72,37 +65,17 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 			setLoading(false);
 		}
 	}, [timeframe]);
-=======
-    // Refresh metrics every minute
-    const interval = setInterval(loadMetrics, 60000)
-    return () => clearInterval(interval)
-  }, [timeframe, loadMetrics])
 
-  const loadMetrics = useCallback(async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/alerts/metrics?timeframe=${timeframe}`)
->>>>>>> ryan-lisse/review-this-pr
 
 	useEffect(() => {
 		loadMetrics();
 
-<<<<<<< HEAD
+
 		// Refresh metrics every minute
 		const interval = setInterval(loadMetrics, 60_000);
 		return () => clearInterval(interval);
 	}, [loadMetrics]);
-=======
-      const data = await response.json()
-      setMetrics(data)
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load metrics')
-    } finally {
-      setLoading(false)
-    }
-  }, [timeframe])
->>>>>>> ryan-lisse/review-this-pr
+
 
 	if (loading) {
 		return (

@@ -7,7 +7,6 @@
 import { eq } from "drizzle-orm";
 import { createMocks } from "node-mocks-http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
 	DELETE as deleteTaskById,
 	GET as getTaskById,
 	PUT as updateTaskById,
@@ -15,7 +14,6 @@ import {
 import { DELETE, GET, POST, PUT } from "@/app/api/tasks/route";
 import { db } from "@/db/config";
 import type { Task } from "@/db/schema";
-import { tasks } from "@/db/schema";
 
 // Mock database
 vi.mock("@/db/config", () => ({

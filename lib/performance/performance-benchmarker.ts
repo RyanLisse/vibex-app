@@ -8,7 +8,6 @@
 import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { and, desc, eq, like, sql } from "drizzle-orm";
 import { db } from "@/db/config";
-import {
 	agentExecutions,
 	environments,
 	observabilityEvents,

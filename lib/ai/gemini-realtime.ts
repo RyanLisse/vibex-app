@@ -1,5 +1,4 @@
 import type { FunctionCall, FunctionResponse } from "@google/genai";
-import {
 	GoogleGenAI,
 	type LiveServerMessage,
 	MediaResolution,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useDrop } from "react-dnd";
-import type {
 	KanbanColumn as KanbanColumnType,
 	KanbanTask,
 } from "@/src/schemas/enhanced-task-schemas";

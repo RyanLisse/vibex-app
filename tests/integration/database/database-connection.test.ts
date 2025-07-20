@@ -13,7 +13,7 @@ describe("Database Connection", () => {
 		expect(isHealthy).toBe(true);
 	});
 
-<<<<<<< HEAD
+
 	it("should have proper database configuration", async () => {
 		expect(db).toBeDefined();
 
@@ -35,26 +35,4 @@ describe("Database Connection", () => {
 		expect(typeof insertQuery.values).toBe("function");
 	});
 });
-=======
-  it('should have proper database configuration', async () => {
-    expect(db).toBeDefined()
 
-    // The db object should have methods like select, insert, etc.
-    expect(typeof db.select).toBe('function')
-    expect(typeof db.insert).toBe('function')
-    expect(typeof db.update).toBe('function')
-    expect(typeof db.delete).toBe('function')
-  })
-
-  it('should handle basic database operations', async () => {
-    // Test that we can call db methods without errors
-    const selectQuery = db.select()
-    expect(selectQuery).toBeDefined()
-    expect(typeof selectQuery.from).toBe('function')
-
-    const insertQuery = db.insert({ test: 'value' })
-    expect(insertQuery).toBeDefined()
-    expect(typeof insertQuery.values).toBe('function')
-  })
-})
->>>>>>> ryan-lisse/review-this-pr

@@ -7,7 +7,6 @@
 
 import { ObservabilityService } from "../observability";
 import { CacheService } from "./cache-service";
-import {
 	getRedisServiceConfig,
 	redisFeatures,
 	validateRedisEnvironment,

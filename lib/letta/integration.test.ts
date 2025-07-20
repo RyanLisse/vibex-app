@@ -4,7 +4,7 @@ import { MultiAgentSystem } from "./multi-agent-system";
 
 // Set up environment variables
 beforeEach(() => {
-<<<<<<< HEAD
+
 	process.env.LETTA_API_KEY = "test-letta-key";
 	process.env.LETTA_BASE_URL = "https://api.letta.com";
 	process.env.NEXT_PUBLIC_OPENAI_API_KEY = "test-openai-key";
@@ -24,27 +24,7 @@ describe("Voice Brainstorming Integration", () => {
 			enableLowLatency: true,
 		});
 	});
-=======
-  process.env.LETTA_API_KEY = 'test-letta-key'
-  process.env.LETTA_BASE_URL = 'https://api.letta.com'
-  process.env.NEXT_PUBLIC_OPENAI_API_KEY = 'test-openai-key'
-})
 
-// Mock fetch for API calls
-const mockFetch = vi.fn()
-global.fetch = mockFetch
-
-describe('Voice Brainstorming Integration', () => {
-  let multiAgentSystem: MultiAgentSystem
-
-  beforeEach(() => {
-    mockFetch.mockReset()
-    multiAgentSystem = new MultiAgentSystem({
-      enableVoice: true,
-      enableLowLatency: true,
-    })
-  })
->>>>>>> ryan-lisse/review-this-pr
 
 	afterEach(() => {
 		vi.clearAllMocks();
@@ -70,7 +50,7 @@ describe('Voice Brainstorming Integration', () => {
 			expect(status.agents.brainstorm.status).toBe("active");
 		});
 
-<<<<<<< HEAD
+
 		it("should create a brainstorm session", async () => {
 			// Mock agent initialization
 			mockFetch.mockResolvedValueOnce({
@@ -86,23 +66,7 @@ describe('Voice Brainstorming Integration', () => {
 				ok: true,
 				json: async () => ({}),
 			});
-=======
-    it('should create a brainstorm session', async () => {
-      // Mock agent initialization
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'orchestrator-123' }),
-      })
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'brainstorm-456' }),
-      })
-      // Mock updateUserContext call
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-      })
->>>>>>> ryan-lisse/review-this-pr
+
 
 			await multiAgentSystem.initialize();
 
@@ -116,7 +80,7 @@ describe('Voice Brainstorming Integration', () => {
 			expect(session.status).toBe("active");
 		});
 
-<<<<<<< HEAD
+
 		it("should process voice messages", async () => {
 			// Mock initialization
 			mockFetch.mockResolvedValueOnce({
@@ -132,23 +96,7 @@ describe('Voice Brainstorming Integration', () => {
 				ok: true,
 				json: async () => ({}),
 			});
-=======
-    it('should process voice messages', async () => {
-      // Mock initialization
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'orchestrator-123' }),
-      })
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 'brainstorm-456' }),
-      })
-      // Mock updateUserContext call
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-      })
->>>>>>> ryan-lisse/review-this-pr
+
 
 			await multiAgentSystem.initialize();
 			const session = await multiAgentSystem.createSession(
@@ -156,7 +104,7 @@ describe('Voice Brainstorming Integration', () => {
 				"brainstorm",
 			);
 
-<<<<<<< HEAD
+
 			// Mock createVoiceSession
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
@@ -170,21 +118,7 @@ describe('Voice Brainstorming Integration', () => {
 					text_response: "Great idea! Let me help you explore that further.",
 				}),
 			});
-=======
-      // Mock createVoiceSession
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ sessionId: 'voice-session-123' }),
-      })
-      // Mock voice processing response
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          audio_response: [1, 2, 3, 4],
-          text_response: 'Great idea! Let me help you explore that further.',
-        }),
-      })
->>>>>>> ryan-lisse/review-this-pr
+
 
 			const audioData = new ArrayBuffer(2048);
 			const response = await multiAgentSystem.processVoiceMessage(
@@ -326,7 +260,7 @@ describe('Voice Brainstorming Integration', () => {
 		});
 	});
 
-<<<<<<< HEAD
+
 	describe("End-to-End Workflow", () => {
 		it("should complete a full brainstorming session", async () => {
 			// Mock all necessary API calls
@@ -379,63 +313,7 @@ describe('Voice Brainstorming Integration', () => {
 			for (let i = 0; i < 5; i++) {
 				mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 			}
-=======
-  describe('End-to-End Workflow', () => {
-    it('should complete a full brainstorming session', async () => {
-      // Mock all necessary API calls
-      const mockResponses = [
-        // Initialize agents
-        { ok: true, json: async () => ({ id: 'orchestrator-123' }) },
-        { ok: true, json: async () => ({ id: 'brainstorm-456' }) },
-        // updateMemory call from updateUserContext for session creation
-        { ok: true, json: async () => ({}) },
-        // sendMessage for brainstorm session start
-        {
-          ok: true,
-          json: async () => ({
-            id: 'msg-1',
-            role: 'assistant',
-            content: 'Started brainstorm session',
-            timestamp: new Date(),
-            agentId: 'brainstorm-456',
-          }),
-        },
-        // sendMessage for processing message
-        {
-          ok: true,
-          json: async () => ({
-            id: 'msg-2',
-            role: 'assistant',
-            content: 'Great start! Let me help you explore that idea.',
-            timestamp: new Date(),
-            agentId: 'brainstorm-456',
-          }),
-        },
-        // sendMessage for advance stage
-        {
-          ok: true,
-          json: async () => ({
-            id: 'msg-3',
-            role: 'assistant',
-            content: 'Moving to clarification stage',
-            timestamp: new Date(),
-            agentId: 'brainstorm-456',
-          }),
-        },
-      ]
 
-      mockResponses.forEach((response, index) => {
-        mockFetch.mockResolvedValueOnce(response)
-      })
-
-      // Add extra mocks just in case
-      for (let i = 0; i < 5; i++) {
-        mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) })
-      }
-
-      // Initialize system
-      await multiAgentSystem.initialize()
->>>>>>> ryan-lisse/review-this-pr
 
 			// Initialize system
 			await multiAgentSystem.initialize();
@@ -446,19 +324,13 @@ describe('Voice Brainstorming Integration', () => {
 				"brainstorm",
 			);
 
-<<<<<<< HEAD
+
 			// Start brainstorming
 			const brainstormSession = await multiAgentSystem.startBrainstormSession(
 				session.id,
 				"Innovative Product Ideas",
 			);
-=======
-      // Process message input
-      const message = await multiAgentSystem.processMessage(
-        session.id,
-        'I have an idea for a smart home device'
-      )
->>>>>>> ryan-lisse/review-this-pr
+
 
 			// Process message input
 			const message = await multiAgentSystem.processMessage(
@@ -466,19 +338,12 @@ describe('Voice Brainstorming Integration', () => {
 				"I have an idea for a smart home device",
 			);
 
-<<<<<<< HEAD
+
 			// Advance stage
 			const advancedSession = await multiAgentSystem.advanceBrainstormStage(
 				session.id,
 			);
-=======
-      expect(session.type).toBe('brainstorm')
-      expect(brainstormSession.id).toBeDefined()
-      expect(message).toBeDefined()
-      expect(advancedSession.stage).toBe('clarification')
-    })
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 			expect(session.type).toBe("brainstorm");
 			expect(brainstormSession.id).toBeDefined();
@@ -510,20 +375,11 @@ describe('Voice Brainstorming Integration', () => {
 				error: "Audio processing failed",
 			});
 
-<<<<<<< HEAD
+
 			expect(errors).toHaveLength(1);
 			expect(errors[0].data.error).toBe("Audio processing failed");
 		});
-=======
-    it('should validate input parameters', () => {
-      expect(() => {
-        createRealtimeTranscription({
-          apiKey: '', // Invalid empty key
-        })
-      }).toThrow('API key is required')
-    })
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 		it("should validate input parameters", () => {
 			expect(() => {

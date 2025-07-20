@@ -5,7 +5,6 @@
 
 import { generateText, streamText } from "ai";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
 	AITestUtils,
 	createErrorTestChatModel,
 	createSlowTestChatModel,

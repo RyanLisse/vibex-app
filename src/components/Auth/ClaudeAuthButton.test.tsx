@@ -51,15 +51,11 @@ describe("ClaudeAuthButton", () => {
 		onError: vi.fn(),
 	};
 
-<<<<<<< HEAD
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 	describe("rendering", () => {
 		it("should render with default text", () => {

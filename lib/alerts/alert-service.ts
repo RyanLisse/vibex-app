@@ -4,7 +4,6 @@ import { AlertManager } from "./alert-manager";
 import { AlertWinstonTransport } from "./alert-winston-transport";
 import { CriticalErrorDetector } from "./critical-error-detector";
 import { AlertTransportService } from "./transport/alert-transport-service";
-import {
 	type AlertChannel,
 	AlertChannelType,
 	type AlertConfig,

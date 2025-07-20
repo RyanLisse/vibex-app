@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * Tasks API Route - Refactored Version
@@ -13,13 +8,11 @@ export const runtime = 'nodejs'
  * Enhanced API route using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import type { NextRequest } from "next/server";
 import { ulid } from "ulid";
 import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
-import {
 	BaseAPIError,
 	InternalServerError,
 	NotFoundError,
@@ -208,18 +201,7 @@ class TasksService extends BaseAPIService {
 			{ "task.id": id },
 		);
 	}
-=======
-import { NextRequest } from 'next/server'
-import { ulid } from 'ulid'
-import { z } from 'zod'
-import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
 import { BaseAPIError, NotFoundError, InternalServerError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { QueryBuilder } from '@/lib/api/query-builder'
-import { ResponseBuilder } from '@/lib/api/response-builder'
-import { CreateTaskSchema, UpdateTaskSchema } from '@/src/schemas/api-routes'
 
 // Request validation schemas
 const GetTasksQuerySchema = z.object({
@@ -366,13 +348,11 @@ class TasksService extends BaseAPIService {
       { 'task.id': id }
     )
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * GET /api/tasks - Get tasks with filtering and pagination
  */
-<<<<<<< HEAD
 export const GET = BaseAPIHandler.createHandler(
 	{ schema: GetTasksQuerySchema },
 	async (params) => {
@@ -384,17 +364,13 @@ export const GET = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
-export const GET = BaseAPIHandler.createHandler({ schema: GetTasksQuerySchema }, async (params) => {
   const result = await TasksService.getTasks(params)
   return ResponseBuilder.paginated(result.data, result.pagination, 'Tasks retrieved successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * POST /api/tasks - Create a new task
  */
-<<<<<<< HEAD
 export const POST = BaseAPIHandler.createHandler(
 	{ schema: CreateTaskSchema },
 	async (params) => {
@@ -402,19 +378,15 @@ export const POST = BaseAPIHandler.createHandler(
 		return ResponseBuilder.created(task, "Task created successfully");
 	},
 );
-=======
-export const POST = BaseAPIHandler.createHandler({ schema: CreateTaskSchema }, async (params) => {
   const task = await TasksService.createTask(params)
   return ResponseBuilder.created(task, 'Task created successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * PUT /api/tasks/[id] - Update a task
  * Note: This would typically be in a separate [id]/route.ts file
  */
 export async function PUT(request: NextRequest) {
-<<<<<<< HEAD
 	try {
 		// Extract ID from URL
 		const url = new URL(request.url);
@@ -436,7 +408,6 @@ export async function PUT(request: NextRequest) {
 	} catch (error) {
 		return BaseAPIHandler.handleError(error);
 	}
-=======
   try {
     // Extract ID from URL
     const url = new URL(request.url)
@@ -458,7 +429,6 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     return BaseAPIHandler.handleError(error)
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
@@ -466,7 +436,6 @@ export async function PUT(request: NextRequest) {
  * Note: This would typically be in a separate [id]/route.ts file
  */
 export async function DELETE(request: NextRequest) {
-<<<<<<< HEAD
 	try {
 		// Extract ID from URL
 		const url = new URL(request.url);
@@ -484,7 +453,6 @@ export async function DELETE(request: NextRequest) {
 	} catch (error) {
 		return BaseAPIHandler.handleError(error);
 	}
-=======
   try {
     // Extract ID from URL
     const url = new URL(request.url)
@@ -502,5 +470,4 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     return BaseAPIHandler.handleError(error)
   }
->>>>>>> ryan-lisse/review-this-pr
 }

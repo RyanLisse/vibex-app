@@ -4,7 +4,6 @@
  * Test-driven development for Redis/Valkey pub/sub functionality
  */
 
-import {
 	afterAll,
 	afterEach,
 	beforeAll,

@@ -55,7 +55,6 @@ const { NextResponse } = await import("next/server");
 const _mockNextResponse = NextResponse as any;
 
 // Import the route functions after mocks are set up
-<<<<<<< HEAD
 const { GET, POST, PUT } = await import("@/app/api/inngest/route");
 
 describe("Inngest API Routes", () => {
@@ -314,14 +313,12 @@ describe("Inngest API Routes", () => {
 			expect(mockHandler.GET).toHaveBeenCalled();
 		});
 	});
-=======
 const { GET, POST, PUT } = await import('@/app/api/inngest/route')
 
 describe('Inngest API Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	describe("Function Registration", () => {
 		it("should register all functions correctly", async () => {

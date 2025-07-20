@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-<<<<<<< HEAD
+
 import { promises as fs } from "fs";
 import { glob } from "glob";
 import { join } from "path";
@@ -133,127 +133,7 @@ async function generateDashboard() {
 	const health = await collectTestHealth();
 
 	const dashboard = `# Test Health Dashboard
-=======
-import { promises as fs } from 'fs'
-import { join } from 'path'
-import { glob } from 'glob'
 
-interface TestHealth {
-  totalTests: number
-  passingTests: number
-  failingTests: number
-  skippedTests: number
-  coverage: {
-    lines: number
-    functions: number
-    branches: number
-    statements: number
-  }
-  performance: {
-    averageDuration: number
-    slowestTests: Array<{ file: string; duration: number }>
-  }
-  quality: {
-    orphanedTests: number
-    missingTests: number
-    outdatedTests: number
-    largeTests: number
-  }
-  recommendations: string[]
-}
-
-async function collectTestHealth(): Promise<TestHealth> {
-  const projectRoot = process.cwd()
-
-  // Initialize health metrics
-  const health: TestHealth = {
-    totalTests: 0,
-    passingTests: 0,
-    failingTests: 0,
-    skippedTests: 0,
-    coverage: {
-      lines: 0,
-      functions: 0,
-      branches: 0,
-      statements: 0,
-    },
-    performance: {
-      averageDuration: 0,
-      slowestTests: [],
-    },
-    quality: {
-      orphanedTests: 0,
-      missingTests: 0,
-      outdatedTests: 0,
-      largeTests: 0,
-    },
-    recommendations: [],
-  }
-
-  // Load test analysis reports if they exist
-  try {
-    const analysisReport = JSON.parse(
-      await fs.readFile(join(projectRoot, 'test-analysis-report.json'), 'utf-8')
-    )
-    health.totalTests = analysisReport.totalTests
-    health.quality.orphanedTests = analysisReport.orphanedTests.length
-    health.quality.missingTests = analysisReport.missingTests.length
-    health.quality.largeTests = analysisReport.largeTests.length
-    health.quality.outdatedTests = analysisReport.oldTests.length
-  } catch {}
-
-  try {
-    const relevanceReport = JSON.parse(
-      await fs.readFile(join(projectRoot, 'test-relevance-report.json'), 'utf-8')
-    )
-    const criticalTests = relevanceReport.tests.filter((t: any) => t.relevanceScore < 30)
-    if (criticalTests.length > 0) {
-      health.recommendations.push(
-        `Fix ${criticalTests.length} critical test issues (relevance score < 30)`
-      )
-    }
-  } catch {}
-
-  try {
-    const optimizationReport = JSON.parse(
-      await fs.readFile(join(projectRoot, 'test-optimization-report.json'), 'utf-8')
-    )
-    if (optimizationReport.estimatedTimeSaving > 20) {
-      health.recommendations.push(
-        `Optimize tests for ${optimizationReport.estimatedTimeSaving}% performance improvement`
-      )
-    }
-  } catch {}
-
-  // Generate recommendations based on metrics
-  if (health.quality.orphanedTests > 10) {
-    health.recommendations.push(
-      `Remove ${health.quality.orphanedTests} orphaned tests without source files`
-    )
-  }
-
-  if (health.quality.missingTests > 50) {
-    health.recommendations.push(
-      `Add tests for ${health.quality.missingTests} untested source files`
-    )
-  }
-
-  if (health.quality.largeTests > 5) {
-    health.recommendations.push(`Split ${health.quality.largeTests} large test files (>500 lines)`)
-  }
-
-  if (health.coverage.lines < 80) {
-    health.recommendations.push('Increase code coverage to meet 80% threshold')
-  }
-
-  return health
-}
-
-async function generateDashboard() {
-  const health = await collectTestHealth()
-
-  const dashboard = `# Test Health Dashboard
->>>>>>> ryan-lisse/review-this-pr
 
 Generated: ${new Date().toISOString()}
 
@@ -276,15 +156,11 @@ Generated: ${new Date().toISOString()}
 - **Average Test Duration**: ${health.performance.averageDuration}ms
 - **Slowest Tests**:
 ${health.performance.slowestTests
-<<<<<<< HEAD
+
 	.slice(0, 5)
 	.map((t) => `  - ${t.file}: ${t.duration}ms`)
 	.join("\n")}
-=======
-  .slice(0, 5)
-  .map((t) => `  - ${t.file}: ${t.duration}ms`)
-  .join('\n')}
->>>>>>> ryan-lisse/review-this-pr
+
 
 ## 🔍 Quality Metrics
 
@@ -344,7 +220,7 @@ Track your test health improvements:
 ---
 
 *Dashboard will be updated automatically as test metrics improve*
-<<<<<<< HEAD
+
 `;
 
 	const dashboardPath = join(process.cwd(), "test-health-dashboard.md");
@@ -385,45 +261,4 @@ Track your test health improvements:
 
 // Generate dashboard
 generateDashboard().catch(console.error);
-=======
-`
 
-  const dashboardPath = join(process.cwd(), 'test-health-dashboard.md')
-  await fs.writeFile(dashboardPath, dashboard)
-
-  console.log('=== TEST HEALTH DASHBOARD ===\n')
-  console.log(`Total Tests: ${health.totalTests}`)
-  console.log(
-    `Quality Issues: ${health.quality.orphanedTests + health.quality.missingTests + health.quality.largeTests}`
-  )
-  console.log(`Recommendations: ${health.recommendations.length}`)
-  console.log(`\nDashboard saved to: ${dashboardPath}`)
-
-  // Generate summary for CI/CD
-  const ciSummary = {
-    timestamp: new Date().toISOString(),
-    metrics: {
-      totalTests: health.totalTests,
-      qualityScore: Math.max(
-        0,
-        100 - (health.quality.orphanedTests + health.quality.missingTests) / 10
-      ),
-      readyForCoverage: false, // Will be true when tests pass
-    },
-    nextSteps: [
-      'Wait for test framework stabilization',
-      'Run coverage analysis',
-      'Execute optimization scripts',
-      'Achieve 100% test pass rate',
-    ],
-  }
-
-  await fs.writeFile(
-    join(process.cwd(), 'test-health-ci-summary.json'),
-    JSON.stringify(ciSummary, null, 2)
-  )
-}
-
-// Generate dashboard
-generateDashboard().catch(console.error)
->>>>>>> ryan-lisse/review-this-pr

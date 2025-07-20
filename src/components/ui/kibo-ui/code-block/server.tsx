@@ -1,4 +1,3 @@
-import {
 	transformerNotationDiff,
 	transformerNotationErrorLevel,
 	transformerNotationFocus,
@@ -6,7 +5,6 @@ import {
 	transformerNotationWordHighlight,
 } from "@shikijs/transformers";
 import type { HTMLAttributes } from "react";
-import {
 	type BundledLanguage,
 	type CodeOptionsMultipleThemes,
 	codeToHtml,

@@ -1,7 +1,6 @@
 import { randomUUID } from "crypto";
 import type { LogEntry } from "winston";
 import type { EventSeverity } from "../observability/types";
-import {
 	type AlertTemplate,
 	type CriticalError,
 	CriticalErrorType,

@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * PR Status Integration API Route - Refactored Version
@@ -13,7 +8,6 @@ export const runtime = 'nodejs'
  * Enhanced GitHub PR integration using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -23,7 +17,6 @@ import { NotFoundError, ValidationError } from "@/lib/api/base-error";
 import { BaseAPIHandler } from "@/lib/api/base-handler";
 import { BaseAPIService } from "@/lib/api/base-service";
 import { ResponseBuilder } from "@/lib/api/response-builder";
-import {
 	PRStatusSchema,
 	TaskPRLinkSchema,
 } from "@/src/schemas/enhanced-task-schemas";
@@ -104,16 +97,6 @@ class GitHubAPIClient {
 			requestedAt: new Date().toISOString(),
 		};
 	}
-=======
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { eq } from 'drizzle-orm'
-import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
-import { NotFoundError, ValidationError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { ResponseBuilder } from '@/lib/api/response-builder'
 import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Request validation schemas
@@ -188,12 +171,10 @@ class GitHubAPIClient {
       requestedAt: new Date().toISOString(),
     }
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 // Service class extending BaseAPIService
 class PRIntegrationService extends BaseAPIService {
-<<<<<<< HEAD
 	protected static serviceName = "pr-integration-api";
 
 	/**
@@ -448,7 +429,6 @@ class PRIntegrationService extends BaseAPIService {
 			},
 		);
 	}
-=======
   protected static serviceName = 'pr-integration-api'
 
   /**
@@ -659,13 +639,11 @@ class PRIntegrationService extends BaseAPIService {
       }
     })
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * POST /api/tasks/pr-integration/link - Link task to PR
  */
-<<<<<<< HEAD
 export const POST = BaseAPIHandler.createHandler(
 	{ schema: TaskPRLinkSchema },
 	async (data) => {
@@ -673,17 +651,13 @@ export const POST = BaseAPIHandler.createHandler(
 		return ResponseBuilder.created(result, "PR linked successfully");
 	},
 );
-=======
-export const POST = BaseAPIHandler.createHandler({ schema: TaskPRLinkSchema }, async (data) => {
   const result = await PRIntegrationService.linkTaskToPR(data)
   return ResponseBuilder.created(result, 'PR linked successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * PUT /api/tasks/pr-integration/status - Update PR status
  */
-<<<<<<< HEAD
 export const PUT = BaseAPIHandler.createHandler(
 	{ schema: PRStatusSchema },
 	async (data) => {
@@ -691,18 +665,14 @@ export const PUT = BaseAPIHandler.createHandler(
 		return ResponseBuilder.success(result, "PR status updated successfully");
 	},
 );
-=======
-export const PUT = BaseAPIHandler.createHandler({ schema: PRStatusSchema }, async (data) => {
   const result = await PRIntegrationService.updatePRStatus(data)
   return ResponseBuilder.success(result, 'PR status updated successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * GET /api/tasks/pr-integration - Get PR integration data
  */
 export const GET = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: GetPRIntegrationQuerySchema },
 	async (params) => {
 		const result = await PRIntegrationService.getPRIntegrationData(params);
@@ -712,11 +682,9 @@ export const GET = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: GetPRIntegrationQuerySchema },
   async (params) => {
     const result = await PRIntegrationService.getPRIntegrationData(params)
     return ResponseBuilder.success(result, 'PR integration data retrieved successfully')
   }
 )
->>>>>>> ryan-lisse/review-this-pr

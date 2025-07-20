@@ -6,7 +6,6 @@
  */
 
 import { observability } from "../../observability";
-import type {
 	AgentMemory,
 	CreateMemoryRequest,
 } from "../../observability/types";

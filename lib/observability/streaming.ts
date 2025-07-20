@@ -9,7 +9,6 @@ import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { EventEmitter } from "events";
 import { db } from "@/db/config";
 import { observabilityEvents } from "@/db/schema";
-import type {
 	EventSeverity,
 	ObservabilityEvent,
 	ObservabilityEventType,

@@ -1,9 +1,7 @@
 "use client";
-import {
 	InngestSubscriptionState,
 	useInngestSubscription,
 } from "@inngest/realtime/hooks";
-import React, {
 	createContext,
 	type ReactNode,
 	useCallback,

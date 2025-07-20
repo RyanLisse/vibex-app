@@ -11,7 +11,6 @@
  * - Metrics export to Prometheus/Grafana
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,

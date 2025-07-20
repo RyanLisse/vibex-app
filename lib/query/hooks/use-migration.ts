@@ -9,23 +9,14 @@
  * needed, this file can be removed entirely.
  */
 
-<<<<<<< HEAD
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useEnvironmentStore } from "@/stores/environments";
 import { useTaskStore } from "@/stores/tasks";
 import { environmentKeys, useEnvironments } from "./use-environments";
 import { taskKeys, useTasks } from "./use-tasks";
-=======
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { useEnvironmentStore } from '@/stores/environments'
-import { useTaskStore } from '@/stores/tasks'
-import { environmentKeys } from './use-environments'
-import { taskKeys } from './use-tasks'
-import { useEnvironments } from './use-environments'
-import { useTasks } from './use-tasks'
->>>>>>> ryan-lisse/review-this-pr
+
 
 interface MigrationStatus {
 	isUsingDatabase: boolean;

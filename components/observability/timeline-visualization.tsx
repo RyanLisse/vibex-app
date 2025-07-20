@@ -7,7 +7,6 @@
  * step-by-step replay, and diff visualization capabilities.
  */
 
-import {
 	Activity,
 	AlertTriangle,
 	CheckCircle,
@@ -24,12 +23,10 @@ import {
 	Zap,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
 	type ExecutionSnapshot,
 	type ReplaySession,
 	type ReplaySpeed,

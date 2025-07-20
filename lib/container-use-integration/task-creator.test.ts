@@ -6,7 +6,6 @@
 
 import { describe, test, expect, beforeEach } from "bun:test";
 import { MultiSourceTaskCreator } from "./task-creator";
-import type {
 	Task,
 	VoiceCommand,
 	ScreenshotAnalysis,

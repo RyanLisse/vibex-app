@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from "react";
 import type { StreamingMessage } from "@/app/task/[id]/_types/message-types";
 import type { Task } from "@/db/schema";
 import { useUpdateTask } from "@/lib/query/hooks";
-import {
 	filterChatMessages,
 	filterShellMessages,
 	hasStreamingMessages,

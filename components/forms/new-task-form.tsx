@@ -1,5 +1,4 @@
 "use client";
-import {
 	AlertCircle,
 	HardDrive,
 	RefreshCw,
@@ -14,7 +13,6 @@ import { useElectricContext } from "@/components/providers/electric-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Select,
 	SelectContent,
 	SelectItem,

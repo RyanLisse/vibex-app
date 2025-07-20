@@ -5,7 +5,6 @@
  * memory usage monitoring, response time validation, and system health checks
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,
@@ -16,7 +15,6 @@ import {
 } from "vitest";
 import { checkDatabaseHealth, db } from "../../../db/config";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
-import {
 	agentExecutions,
 	environments,
 	observabilityEvents,

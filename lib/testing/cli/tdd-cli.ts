@@ -270,8 +270,6 @@ describe('{{functionName}}', () => {
 		this.templates.set(
 			"unit-class",
 			`
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { {{className}} } from './{{fileName}}'
 
 describe('{{className}}', () => {
   let {{instanceName}}: {{className}}
@@ -297,7 +295,6 @@ describe('{{className}}', () => {
 		this.templates.set(
 			"component",
 			`
-import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { {{componentName}} } from './{{componentName}}'
 
@@ -329,7 +326,6 @@ describe('{{componentName}}', () => {
 		this.templates.set(
 			"integration-api",
 			`
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { setupTestServer } from '../setup/test-server'
 
 describe('{{endpoint}}', () => {
@@ -428,7 +424,6 @@ describe('{{endpoint}}', () => {
 		];
 
 		return `
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { setupTestDatabase, cleanupTestDatabase } from '../setup/test-database'
 
 describe('${options.table} table', () => {
@@ -791,7 +786,6 @@ export class WorkflowAutomation {
 	private generateTestContent(options: ScaffoldOptions): string {
 		// Simplified test content generation
 		return `
-import { describe, it, expect } from 'vitest'
 ${options.type === "component" ? "import { render, screen } from '@testing-library/react'" : ""}
 import { ${options.name} } from './${this.kebabCase(options.name)}'
 
@@ -827,7 +821,6 @@ export const Default: Story = {
 
 	private generateIntegrationTestContent(serviceName: string): string {
 		return `
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { ${serviceName} } from './${this.kebabCase(serviceName)}'
 
 describe('${serviceName} Integration', () => {

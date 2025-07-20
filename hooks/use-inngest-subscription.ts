@@ -1,9 +1,7 @@
-import {
 	InngestSubscriptionState,
 	useInngestSubscription,
 } from "@inngest/realtime/hooks";
 import { useCallback, useEffect, useState } from "react";
-import {
 	fetchRealtimeSubscriptionToken,
 	type TaskChannelToken,
 } from "@/app/actions/inngest";

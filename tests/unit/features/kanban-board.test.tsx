@@ -15,7 +15,6 @@ import { KanbanColumn } from "@/components/features/kanban/kanban-column";
 import { TaskFilters } from "@/components/features/kanban/task-filters";
 
 // Types
-import type {
 	KanbanColumn as KanbanColumnType,
 	KanbanTask,
 } from "@/src/schemas/enhanced-task-schemas";

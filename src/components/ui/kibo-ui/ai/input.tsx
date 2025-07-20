@@ -1,14 +1,12 @@
 "use client";
 
 import { Loader2Icon, SendIcon, SquareIcon, XIcon } from "lucide-react";
-import type {
 	ComponentProps,
 	HTMLAttributes,
 	KeyboardEventHandler,
 } from "react";
 import { Children, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import {
 	Select,
 	SelectContent,
 	SelectItem,

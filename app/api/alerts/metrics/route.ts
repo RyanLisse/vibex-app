@@ -4,7 +4,6 @@ export const runtime = "nodejs";
 
 import { type NextRequest, NextResponse } from "next/server";
 import { getAlertService, logger } from "@/app/api/alerts/_lib/setup";
-import type {
 	AlertChannelType,
 	AlertMetrics,
 	CriticalErrorType,

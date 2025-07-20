@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * Users API Route - Refactored Version
@@ -13,7 +8,6 @@ export const runtime = 'nodejs'
  * Enhanced user management using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import { and, desc, eq, like } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { ulid } from "ulid";
@@ -24,7 +18,6 @@ import { NotFoundError, UnauthorizedError } from "@/lib/api/base-error";
 import { BaseAPIHandler } from "@/lib/api/base-handler";
 import { BaseAPIService } from "@/lib/api/base-service";
 import { ResponseBuilder } from "@/lib/api/response-builder";
-import {
 	CreateUserSchema,
 	type UpdateUserSchema,
 } from "@/src/schemas/api-routes";
@@ -283,17 +276,6 @@ class UsersService extends BaseAPIService {
 			{ "user.id": id },
 		);
 	}
-=======
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { and, desc, eq, like } from 'drizzle-orm'
-import { ulid } from 'ulid'
-import { db } from '@/db/config'
-import { authSessions, users } from '@/db/schema'
-import { NotFoundError, UnauthorizedError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { ResponseBuilder } from '@/lib/api/response-builder'
 import { CreateUserSchema, UpdateUserSchema } from '@/src/schemas/api-routes'
 
 // Request validation schemas
@@ -533,13 +515,11 @@ class UsersService extends BaseAPIService {
       { 'user.id': id }
     )
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * GET /api/users - Get users with filtering and pagination
  */
-<<<<<<< HEAD
 export const GET = BaseAPIHandler.createHandler(
 	{ schema: GetUsersQuerySchema },
 	async (params) => {
@@ -551,17 +531,13 @@ export const GET = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
-export const GET = BaseAPIHandler.createHandler({ schema: GetUsersQuerySchema }, async (params) => {
   const result = await UsersService.getUsers(params)
   return ResponseBuilder.paginated(result.data, result.pagination, 'Users retrieved successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * POST /api/users - Create or update user (upsert)
  */
-<<<<<<< HEAD
 export const POST = BaseAPIHandler.createHandler(
 	{ schema: CreateUserSchema },
 	async (data) => {
@@ -569,9 +545,6 @@ export const POST = BaseAPIHandler.createHandler(
 		return ResponseBuilder.created(user, "User created/updated successfully");
 	},
 );
-=======
-export const POST = BaseAPIHandler.createHandler({ schema: CreateUserSchema }, async (data) => {
   const user = await UsersService.upsertUser(data)
   return ResponseBuilder.created(user, 'User created/updated successfully')
 })
->>>>>>> ryan-lisse/review-this-pr

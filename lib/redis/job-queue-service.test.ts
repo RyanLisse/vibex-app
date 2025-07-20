@@ -4,7 +4,6 @@
  * Test-driven development for Redis/Valkey job queue functionality
  */
 
-import {
 	afterAll,
 	afterEach,
 	beforeAll,

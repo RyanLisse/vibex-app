@@ -2,7 +2,6 @@ import { randomUUID } from "crypto";
 import type Redis from "ioredis";
 import { ComponentLogger } from "../logging/logger-factory";
 import type { AlertTransportService } from "./transport/alert-transport-service";
-import {
 	type AlertChannel,
 	AlertChannelType,
 	type AlertConfig,

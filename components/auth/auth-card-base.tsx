@@ -5,7 +5,6 @@ import { AlertCircle, Clock, LogOut, Shield, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Card,
 	CardContent,
 	CardDescription,

@@ -6,7 +6,6 @@
  */
 
 import { createServer } from "node:http";
-import {
 	Counter,
 	collectDefaultMetrics,
 	Gauge,
@@ -181,16 +180,10 @@ export async function startPrometheusExporter(
 	// Collect default Node.js metrics
 	collectDefaultMetrics({ register: prometheusRegistry });
 
-<<<<<<< HEAD
+
 	// Collect custom system metrics immediately
 	updateSystemMetrics();
-=======
-  // Collect custom system metrics immediately
-  updateSystemMetrics()
 
-  // Start metrics collection from observability system
-  startMetricsCollection()
->>>>>>> ryan-lisse/review-this-pr
 
 	// Start metrics collection from observability system
 	startMetricsCollection();
@@ -225,19 +218,13 @@ function startMetricsCollection(): void {
 
 // Update system metrics
 export function updateSystemMetrics(): void {
-<<<<<<< HEAD
+
 	const memoryUsage = process.memoryUsage();
 	metrics.memoryUsageBytes.set({ type: "heapUsed" }, memoryUsage.heapUsed);
 	metrics.memoryUsageBytes.set({ type: "heapTotal" }, memoryUsage.heapTotal);
 	metrics.memoryUsageBytes.set({ type: "rss" }, memoryUsage.rss);
 	metrics.memoryUsageBytes.set({ type: "external" }, memoryUsage.external);
-=======
-  const memoryUsage = process.memoryUsage()
-  metrics.memoryUsageBytes.set({ type: 'heapUsed' }, memoryUsage.heapUsed)
-  metrics.memoryUsageBytes.set({ type: 'heapTotal' }, memoryUsage.heapTotal)
-  metrics.memoryUsageBytes.set({ type: 'rss' }, memoryUsage.rss)
-  metrics.memoryUsageBytes.set({ type: 'external' }, memoryUsage.external)
->>>>>>> ryan-lisse/review-this-pr
+
 
 	// CPU usage (simplified - in production use more sophisticated measurement)
 	const cpuUsage = process.cpuUsage();
@@ -247,13 +234,10 @@ export function updateSystemMetrics(): void {
 
 // Update database metrics
 export function updateDatabaseMetrics(): void {
-<<<<<<< HEAD
+
 	// Get performance metrics from query monitor
 	const perfMetrics = queryPerformanceMonitor.getCurrentMetrics();
-=======
-  // Get performance metrics from query monitor
-  const perfMetrics = queryPerformanceMonitor.getCurrentMetrics()
->>>>>>> ryan-lisse/review-this-pr
+
 
 	// Update connection pool metrics (example values - integrate with actual pool)
 	metrics.dbConnectionPoolSize.set({ state: "active" }, 5);
@@ -276,15 +260,11 @@ export function updateDatabaseMetrics(): void {
 
 // Update business metrics
 export function updateBusinessMetrics(): void {
-<<<<<<< HEAD
+
 	// Get metrics from observability system
 	const stats = observability.getOperationStats();
 	const health = observability.getHealthStatus();
-=======
-  // Get metrics from observability system
-  const stats = observability.getOperationStats()
-  const health = observability.getHealthStatus()
->>>>>>> ryan-lisse/review-this-pr
+
 
 	// Update active users (example - integrate with actual user tracking)
 	metrics.activeUsers.set(

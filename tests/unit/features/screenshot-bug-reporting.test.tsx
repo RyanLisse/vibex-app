@@ -12,7 +12,6 @@ import { QuickBugReportButton } from "@/components/features/bug-reporting/quick-
 import { ScreenshotCapture } from "@/components/features/bug-reporting/screenshot-capture";
 
 // Types
-import type {
 	BugReport,
 	ScreenshotData,
 } from "@/src/schemas/enhanced-task-schemas";

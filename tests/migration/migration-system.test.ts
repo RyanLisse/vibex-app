@@ -5,7 +5,6 @@
  * transformation, validation, conflict resolution, backup/restore, and CLI operations.
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,
@@ -18,7 +17,6 @@ import { backupService } from "../../lib/migration/backup-service";
 import { dataExtractor } from "../../lib/migration/data-extractor";
 import { dataMapper } from "../../lib/migration/data-mapper";
 import { migrationService } from "../../lib/migration/migration-service";
-import type {
 	BackupManifest,
 	LocalStorageData,
 	LocalStorageEnvironment,

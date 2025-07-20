@@ -9,7 +9,6 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 // Import types only, not the actual module to avoid db/config issues
-import type {
 	MigrationExecutionResult,
 	MigrationFile,
 	MigrationValidationResult,
@@ -145,11 +144,9 @@ import { sql as sqlOperator } from "drizzle-orm";
 import { migrations } from "../../../db/schema";
 
 // Skip tests if no database URL is provided
-<<<<<<< HEAD
+
 const skipTests = false; // Always run tests with mocks
-=======
-const skipTests = false // Always run tests with mocks
->>>>>>> ryan-lisse/review-this-pr
+
 
 // Test migration directory
 const testMigrationsPath = join(process.cwd(), "tests/fixtures/migrations");
@@ -495,19 +492,13 @@ CREATE TABLE something;
 
 			expect(tableCheck).toHaveLength(2);
 
-<<<<<<< HEAD
+
 			// Verify migration records were created
 			const migrationRecords = await db
 				.select()
 				.from(migrations)
 				.where(sqlOperator`name LIKE '00%'`);
-=======
-      // Verify migration records were created
-      const migrationRecords = await db
-        .select()
-        .from(migrations)
-        .where(sqlOperator`name LIKE '00%'`)
->>>>>>> ryan-lisse/review-this-pr
+
 
 			expect(migrationRecords).toHaveLength(3);
 		});
@@ -541,19 +532,13 @@ CREATE TABLE something;
 			expect(result.success).toBe(false);
 			expect(result.errors.length).toBeGreaterThan(0);
 
-<<<<<<< HEAD
+
 			// Verify partial rollback occurred
 			const migrationRecords = await db
 				.select()
 				.from(migrations)
 				.where(sqlOperator`name LIKE '00%'`);
-=======
-      // Verify partial rollback occurred
-      const migrationRecords = await db
-        .select()
-        .from(migrations)
-        .where(sqlOperator`name LIKE '00%'`)
->>>>>>> ryan-lisse/review-this-pr
+
 
 			// Should have no successful migrations due to rollback
 			expect(migrationRecords).toHaveLength(0);
@@ -601,19 +586,13 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 			expect(result.success).toBe(true);
 			expect(result.executionTime).toBeGreaterThan(0);
 
-<<<<<<< HEAD
+
 			// Check migration metadata in database
 			const migrationRecords = await db
 				.select()
 				.from(migrations)
 				.where(sqlOperator`name LIKE '00%'`);
-=======
-      // Check migration metadata in database
-      const migrationRecords = await db
-        .select()
-        .from(migrations)
-        .where(sqlOperator`name LIKE '00%'`)
->>>>>>> ryan-lisse/review-this-pr
+
 
 			migrationRecords.forEach((record) => {
 				expect(record.metadata).toBeDefined();
@@ -636,7 +615,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 			await testRunner.migrate();
 		});
 
-<<<<<<< HEAD
+
 		it("should rollback last migration successfully", async () => {
 			// Verify initial state
 			const initialMigrations = await db
@@ -644,15 +623,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 				.from(migrations)
 				.where(sqlOperator`name LIKE '00%'`);
 			expect(initialMigrations).toHaveLength(3);
-=======
-    it('should rollback last migration successfully', async () => {
-      // Verify initial state
-      const initialMigrations = await db
-        .select()
-        .from(migrations)
-        .where(sqlOperator`name LIKE '00%'`)
-      expect(initialMigrations).toHaveLength(3)
->>>>>>> ryan-lisse/review-this-pr
+
 
 			// Rollback last migration
 			const rollbackResult = await testRunner.rollback();
@@ -660,21 +631,14 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 			expect(rollbackResult.success).toBe(true);
 			expect(rollbackResult.rolledBack).toBe("003_add_user_preferences");
 
-<<<<<<< HEAD
+
 			// Verify migration was removed from database
 			const remainingMigrations = await db
 				.select()
 				.from(migrations)
 				.where(sqlOperator`name LIKE '00%'`);
 			expect(remainingMigrations).toHaveLength(2);
-=======
-      // Verify migration was removed from database
-      const remainingMigrations = await db
-        .select()
-        .from(migrations)
-        .where(sqlOperator`name LIKE '00%'`)
-      expect(remainingMigrations).toHaveLength(2)
->>>>>>> ryan-lisse/review-this-pr
+
 
 			// Verify schema changes were rolled back
 			const columnCheck = await sql`
@@ -842,7 +806,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 			const backupPath = join(testMigrationsPath, "..", "backup");
 			expect(existsSync(backupPath)).toBe(true);
 
-<<<<<<< HEAD
+
 			// Check for backup files
 			const fs = await import("fs");
 			const backupFiles = fs
@@ -851,13 +815,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 					(file: string) =>
 						file.startsWith("backup-") && file.endsWith(".json"),
 				);
-=======
-      // Check for backup files
-      const fs = await import('fs')
-      const backupFiles = fs
-        .readdirSync(backupPath)
-        .filter((file: string) => file.startsWith('backup-') && file.endsWith('.json'))
->>>>>>> ryan-lisse/review-this-pr
+
 
 			expect(backupFiles.length).toBeGreaterThan(0);
 		});
@@ -881,7 +839,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 			// Run migration to trigger cleanup
 			await testRunner.migrate();
 
-<<<<<<< HEAD
+
 			// Check that old backups were cleaned up (should keep only 5)
 			const fs = await import("fs");
 			const remainingFiles = fs
@@ -890,13 +848,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 					(file: string) =>
 						file.startsWith("backup-") && file.endsWith(".json"),
 				);
-=======
-      // Check that old backups were cleaned up (should keep only 5)
-      const fs = await import('fs')
-      const remainingFiles = fs
-        .readdirSync(backupPath)
-        .filter((file: string) => file.startsWith('backup-') && file.endsWith('.json'))
->>>>>>> ryan-lisse/review-this-pr
+
 
 			expect(remainingFiles.length).toBeLessThanOrEqual(5);
 		});

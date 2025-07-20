@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
 	Activity,
 	AlertCircle,
 	CheckCircle,
@@ -22,7 +21,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Card,
 	CardContent,
 	CardDescription,
@@ -31,7 +29,6 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
-import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,

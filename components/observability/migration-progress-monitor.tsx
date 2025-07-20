@@ -7,7 +7,6 @@
  * performance metrics, and comprehensive status reporting.
  */
 
-import {
 	Activity,
 	AlertTriangle,
 	BarChart3,

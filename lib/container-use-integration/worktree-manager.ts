@@ -4,7 +4,6 @@
  * Following TDD approach - minimal implementation to make tests pass
  */
 
-import type {
 	GitWorktree,
 	WorktreeOperationResult,
 	GitCommit,

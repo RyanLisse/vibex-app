@@ -1,10 +1,8 @@
 import { useCallback } from "react";
-import type {
 	IncomingMessage,
 	StreamingMessage,
 } from "@/app/task/[id]/_types/message-types";
 import { useUpdateTask } from "@/lib/query/hooks";
-import {
 	isCompletedStreamMessage,
 	isStreamingMessage,
 	isValidIncomingMessage,

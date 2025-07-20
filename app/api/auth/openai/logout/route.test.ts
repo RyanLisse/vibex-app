@@ -33,8 +33,6 @@ vi.mock("@/lib/env", () => ({
 	},
 }));
 
-import {
-<<<<<<< HEAD
 	clearStoredCodeVerifier,
 	clearStoredState,
 	clearStoredToken,
@@ -456,7 +454,6 @@ describe("POST /api/auth/openai/logout", () => {
 		expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true });
 	});
 });
-=======
   clearStoredCodeVerifier,
   clearStoredState,
   clearStoredToken,
@@ -836,4 +833,3 @@ describe('POST /api/auth/openai/logout', () => {
     expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true })
   })
 })
->>>>>>> ryan-lisse/review-this-pr

@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * Individual Task API Route - Refactored Version
@@ -13,7 +8,6 @@ export const runtime = 'nodejs'
  * Enhanced API route using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import { eq } from "drizzle-orm";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
@@ -165,17 +159,6 @@ class TaskService extends BaseAPIService {
 			{ "task.id": id },
 		);
 	}
-=======
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { eq } from 'drizzle-orm'
-import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
-import { NotFoundError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { ResponseBuilder } from '@/lib/api/response-builder'
-import { UpdateTaskSchema } from '@/src/schemas/api-routes'
 
 // Route parameters schema
 const TaskParamsSchema = z.object({
@@ -279,13 +262,11 @@ class TaskService extends BaseAPIService {
       { 'task.id': id }
     )
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * GET /api/tasks/[id] - Get a specific task
  */
-<<<<<<< HEAD
 export const GET = BaseAPIHandler.createHandler(
 	{ schema: TaskParamsSchema },
 	async (params) => {
@@ -293,18 +274,14 @@ export const GET = BaseAPIHandler.createHandler(
 		return ResponseBuilder.success(task, "Task retrieved successfully");
 	},
 );
-=======
-export const GET = BaseAPIHandler.createHandler({ schema: TaskParamsSchema }, async (params) => {
   const task = await TaskService.getTask(params.id)
   return ResponseBuilder.success(task, 'Task retrieved successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * PUT /api/tasks/[id] - Update a specific task
  */
 export const PUT = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{
 		// Note: We need to combine params and body validation
 		// This is a limitation of the current BaseAPIHandler
@@ -328,7 +305,6 @@ export const PUT = BaseAPIHandler.createHandler(
 		return ResponseBuilder.success(task, "Task updated successfully");
 	},
 );
-=======
   {
     // Note: We need to combine params and body validation
     // This is a limitation of the current BaseAPIHandler
@@ -352,12 +328,10 @@ export const PUT = BaseAPIHandler.createHandler(
     return ResponseBuilder.success(task, 'Task updated successfully')
   }
 )
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * DELETE /api/tasks/[id] - Delete a specific task
  */
-<<<<<<< HEAD
 export const DELETE = BaseAPIHandler.createHandler(
 	{ schema: TaskParamsSchema },
 	async (params) => {
@@ -365,12 +339,9 @@ export const DELETE = BaseAPIHandler.createHandler(
 		return ResponseBuilder.noContent();
 	},
 );
-=======
-export const DELETE = BaseAPIHandler.createHandler({ schema: TaskParamsSchema }, async (params) => {
   await TaskService.deleteTask(params.id)
   return ResponseBuilder.noContent()
 })
->>>>>>> ryan-lisse/review-this-pr
 
 // Alternative approach for handling route params with body validation
 // This demonstrates a more elegant solution by extending the handler
@@ -379,7 +350,6 @@ export const DELETE = BaseAPIHandler.createHandler({ schema: TaskParamsSchema },
  * Enhanced handler that can handle both route params and body
  */
 function createRouteHandler<TParams = any, TBody = any, TOutput = any>(
-<<<<<<< HEAD
 	options: {
 		paramsSchema?: z.ZodSchema<TParams>;
 		bodySchema?: z.ZodSchema<TBody>;
@@ -421,7 +391,6 @@ function createRouteHandler<TParams = any, TBody = any, TOutput = any>(
 			return BaseAPIHandler.handleError(error);
 		}
 	};
-=======
   options: {
     paramsSchema?: z.ZodSchema<TParams>
     bodySchema?: z.ZodSchema<TBody>
@@ -456,12 +425,10 @@ function createRouteHandler<TParams = any, TBody = any, TOutput = any>(
       return BaseAPIHandler.handleError(error)
     }
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 // Example of using the enhanced handler
 export const PUT_V2 = createRouteHandler(
-<<<<<<< HEAD
 	{
 		paramsSchema: TaskParamsSchema,
 		bodySchema: UpdateTaskSchema,
@@ -471,7 +438,6 @@ export const PUT_V2 = createRouteHandler(
 		return task;
 	},
 );
-=======
   {
     paramsSchema: TaskParamsSchema,
     bodySchema: UpdateTaskSchema,
@@ -481,4 +447,3 @@ export const PUT_V2 = createRouteHandler(
     return task
   }
 )
->>>>>>> ryan-lisse/review-this-pr

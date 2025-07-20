@@ -8,7 +8,6 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db/config";
 import { observability } from "@/lib/observability";
 import { notificationManager } from "../notifications";
-import {
 	metrics as prometheusMetrics,
 	prometheusRegistry,
 } from "../prometheus";

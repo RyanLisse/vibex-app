@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WebhookTransport } from "@/lib/alerts/transport/webhook-transport";
-import {
 	type AlertChannel,
 	AlertChannelType,
 	type AlertNotification,

@@ -49,7 +49,6 @@ const mockHandleAuthError = ((await import("@/lib/auth/openai-codex")) as any)
 const { NextResponse } = await import("next/server");
 const mockNextResponse = NextResponse as any;
 
-<<<<<<< HEAD
 describe("GET /api/auth/openai/callback", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -59,7 +58,6 @@ describe("GET /api/auth/openai/callback", () => {
 			(error: unknown) => error?.toString() || "Unknown error",
 		);
 	});
-=======
 describe('GET /api/auth/openai/callback', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -67,7 +65,6 @@ describe('GET /api/auth/openai/callback', () => {
     mockSanitizeRedirectUrl.mockImplementation((url) => url)
     mockHandleAuthError.mockImplementation((error: unknown) => error?.toString() || 'Unknown error')
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("should handle successful callback", async () => {
 		const mockToken = {

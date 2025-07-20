@@ -1,4 +1,3 @@
-import type {
 	ExampleFilter,
 	ExampleItem,
 } from "@/src/features/example-feature/types";

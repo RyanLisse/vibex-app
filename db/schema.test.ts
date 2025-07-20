@@ -3,7 +3,6 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { DatabaseSchemas } from "../lib/validation/database-schemas";
 import { checkDatabaseHealth, db, initializeExtensions } from "./config";
 import { migrationRunner } from "./migrations/migration-runner";
-import {
 	agentExecutions,
 	agentMemory,
 	environments,

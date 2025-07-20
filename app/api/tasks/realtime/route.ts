@@ -12,7 +12,6 @@ import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { observability } from "@/lib/observability";
-import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
 } from "@/src/schemas/api-routes";

@@ -44,15 +44,11 @@ describe("OpenAIAuthButton", () => {
 	const mockLogin = vi.fn();
 	const mockLogout = vi.fn();
 
-<<<<<<< HEAD
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 	it("should render loading state", () => {
 		mockUseOpenAIAuth.mockReturnValue({

@@ -6,7 +6,6 @@
  * consistency validation across the entire database schema.
  */
 
-import {
 	and,
 	count,
 	eq,
@@ -16,7 +15,6 @@ import {
 	isNull,
 	sql,
 } from "drizzle-orm";
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,
@@ -26,7 +24,6 @@ import {
 	vi,
 } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
-import {
 	agentExecutions,
 	authSessions,
 	environments,

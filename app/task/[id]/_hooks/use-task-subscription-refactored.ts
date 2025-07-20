@@ -1,6 +1,5 @@
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import {
 	type ConnectionState,
 	useConnectionState,
 } from "@/app/task/[id]/_hooks/use-connection-state";

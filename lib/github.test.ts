@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -10,7 +9,6 @@ import {
 } from "bun:test";
 import { cookies } from "next/headers";
 import { vi } from "vitest";
-import {
 	clearGitHubAuth,
 	createRepository,
 	exchangeCodeForToken,
@@ -38,7 +36,7 @@ describe("GitHub Authentication", () => {
 
 	const originalEnv = process.env;
 
-<<<<<<< HEAD
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 		(cookies as any).mockResolvedValue(mockCookies as any);
@@ -49,18 +47,7 @@ describe("GitHub Authentication", () => {
 			NEXT_PUBLIC_APP_URL: "http://localhost:3000",
 		};
 	});
-=======
-  beforeEach(() => {
-    vi.clearAllMocks()
-    ;(cookies as any).mockResolvedValue(mockCookies as any)
-    process.env = {
-      ...originalEnv,
-      GITHUB_CLIENT_ID: 'test-client-id',
-      GITHUB_CLIENT_SECRET: 'test-client-secret',
-      NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
-    }
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 	afterEach(() => {
 		process.env = originalEnv;

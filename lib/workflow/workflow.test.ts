@@ -4,13 +4,11 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { recoveryExecutor, WorkflowErrorClassifier } from "./error-recovery";
-import {
 	stepExecutorRegistry,
 	templateRegistry,
 	workflowEngine,
 } from "./index";
 import { createWorkflowStateMachine, StateValidation } from "./state-machine";
-import type {
 	ActionStepConfig,
 	ConditionStepConfig,
 	ParallelStepConfig,

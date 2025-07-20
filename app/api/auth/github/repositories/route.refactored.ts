@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * GitHub Repositories API Route - Refactored Version
@@ -13,7 +8,6 @@ export const runtime = 'nodejs'
  * Enhanced GitHub repository management using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import { and, desc, eq, gte, like } from "drizzle-orm";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
@@ -278,17 +272,6 @@ class GitHubRepositoriesService extends BaseAPIService {
 
 		return userSession.userId;
 	}
-=======
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { and, desc, eq, gte, like } from 'drizzle-orm'
-import { db } from '@/db/config'
-import { authSessions, githubRepositories, users } from '@/db/schema'
-import { githubAuth } from '@/lib/github'
-import { UnauthorizedError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { ResponseBuilder } from '@/lib/api/response-builder'
 
 // Request validation schemas
 const GetRepositoriesQuerySchema = z.object({
@@ -513,14 +496,12 @@ class GitHubRepositoriesService extends BaseAPIService {
 
     return userSession.userId
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * GET /api/auth/github/repositories - Get GitHub repositories
  */
 export const GET = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: GetRepositoriesQuerySchema },
 	async (params, request: NextRequest) => {
 		// Get the access token from the httpOnly cookie
@@ -547,7 +528,6 @@ export const GET = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: GetRepositoriesQuerySchema },
   async (params, request: NextRequest) => {
     // Get the access token from the httpOnly cookie
@@ -570,4 +550,3 @@ export const GET = BaseAPIHandler.createHandler(
     )
   }
 )
->>>>>>> ryan-lisse/review-this-pr

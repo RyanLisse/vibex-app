@@ -1,16 +1,8 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Container from "@/app/container";
-=======
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { render, screen } from '@testing-library/react'
-import React from 'react'
-import Container from '@/app/container'
->>>>>>> ryan-lisse/review-this-pr
 
 // Mock the hooks and components
 mock.module("@/components/providers/realtime-provider", () => ({
@@ -31,17 +23,14 @@ mock.module("@/components/error-boundary", () => ({
 	),
 }));
 
-<<<<<<< HEAD
 describe("Container Component (Refactored)", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
 describe('Container Component (Refactored)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("renders children wrapped in provider components", () => {
 		render(

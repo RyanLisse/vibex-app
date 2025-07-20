@@ -5,7 +5,6 @@
  * time-travel debugging, and performance monitoring integration.
  */
 
-import {
 	useInfiniteQuery,
 	useMutation,
 	useQuery,

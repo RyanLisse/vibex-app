@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	type IconType,
 	SiAstro,
 	SiBiome,
@@ -72,7 +71,6 @@ import {
 	SiWebassembly,
 } from "@icons-pack/react-simple-icons";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import {
 	transformerNotationDiff,
 	transformerNotationErrorLevel,
 	transformerNotationFocus,
@@ -80,26 +78,22 @@ import {
 	transformerNotationWordHighlight,
 } from "@shikijs/transformers";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import type {
 	ComponentProps,
 	HTMLAttributes,
 	ReactElement,
 	ReactNode,
 } from "react";
-import {
 	cloneElement,
 	createContext,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
-import {
 	type BundledLanguage,
 	type CodeOptionsMultipleThemes,
 	codeToHtml,
 } from "shiki";
 import { Button } from "@/components/ui/button";
-import {
 	Select,
 	SelectContent,
 	SelectItem,

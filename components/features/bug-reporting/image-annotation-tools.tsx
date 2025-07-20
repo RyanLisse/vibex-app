@@ -1,7 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import {
+
 	ArrowRight,
 	Eraser,
 	Highlighter,
@@ -16,16 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import type { ScreenshotData } from "@/src/schemas/enhanced-task-schemas";
-=======
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useRef, useEffect } from 'react'
-import { ArrowRight, Type, Highlighter, Square, Eraser, Undo, Redo } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import type { ScreenshotData } from '@/src/schemas/enhanced-task-schemas'
->>>>>>> ryan-lisse/review-this-pr
+
 
 type AnnotationType = "arrow" | "text" | "highlight" | "rectangle";
 

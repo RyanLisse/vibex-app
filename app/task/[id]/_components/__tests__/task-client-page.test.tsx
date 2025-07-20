@@ -98,7 +98,6 @@ const mockUseAutoScroll = {
 	current: null,
 };
 
-<<<<<<< HEAD
 describe("TaskClientPage", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -107,7 +106,6 @@ describe("TaskClientPage", () => {
 		(useAutoScroll as any).mockReturnValue(mockUseAutoScroll);
 		(useTaskData as any).mockReturnValue(mockUseTaskData);
 	});
-=======
 describe('TaskClientPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -116,7 +114,6 @@ describe('TaskClientPage', () => {
     ;(useAutoScroll as any).mockReturnValue(mockUseAutoScroll)
     ;(useTaskData as any).mockReturnValue(mockUseTaskData)
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("renders task not found when task is undefined", async () => {
 		mockUseTaskStore.getTaskById.mockReturnValue(undefined);

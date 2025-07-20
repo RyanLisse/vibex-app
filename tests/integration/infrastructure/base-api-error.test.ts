@@ -1,6 +1,5 @@
 import { SpanStatusCode } from "@opentelemetry/api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
 	BaseAPIError,
 	ConflictError,
 	DatabaseError,

@@ -7,7 +7,6 @@
 
 import { z } from "zod";
 // app/api/users/route.ts
-import {
 	BaseAPIHandler,
 	ResponseBuilder,
 	ValidationError,
@@ -71,7 +70,6 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/config";
 import { users } from "@/db/schema";
 // services/user-service.ts
-import {
 	BaseAPIService,
 	BaseCRUDService,
 	ConflictError,
@@ -314,7 +312,6 @@ export const userService = new UserService();
 
 // app/api/users/[id]/route.ts - Dynamic routes
 import { BaseAPIHandler, ResponseBuilder } from "@/lib/api/base";
-import { userService } from "@/services/user-service";
 
 const UpdateUserSchema = z.object({
 	email: z.string().email().optional(),
@@ -323,7 +320,6 @@ const UpdateUserSchema = z.object({
 	role: z.enum(["user", "admin"]).optional(),
 });
 
-export const GET = BaseAPIHandler.GET(async (context) => {
 	const { id } = context.params;
 	const user = await userService.getById(id, context);
 	return ResponseBuilder.success(user);

@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import type { TelemetryBackend, TelemetryConfig } from "@/src/types/telemetry";
-import {
 	getDefaultEndpoint,
 	getTelemetryConfig,
 	logTelemetryConfig,

@@ -10,7 +10,6 @@ import { type ComputeWASM, createComputeEngine } from "./compute";
 import { wasmDetector } from "./detection";
 import { WASMServices, wasmServices } from "./services";
 import { createSQLiteWASMUtils, type SQLiteWASMUtils } from "./sqlite-utils";
-import {
 	calculateFastSimilarity,
 	createOptimizedEmbedding,
 	VectorSearchWASM,

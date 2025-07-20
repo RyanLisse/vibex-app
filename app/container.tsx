@@ -1,6 +1,5 @@
 "use client";
 import type React from "react";
-import { memo } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { RealtimeProvider } from "@/components/providers/realtime-provider";
 import { TaskMessageProcessor } from "@/components/providers/task-message-processor";

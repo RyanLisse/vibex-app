@@ -11,7 +11,6 @@
  * - Performance regression detection
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,

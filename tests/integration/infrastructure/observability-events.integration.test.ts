@@ -10,7 +10,6 @@ import { ulid } from "ulid";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/db/config";
 import { observabilityEvents as observabilityEventsTable } from "@/db/schema";
-import {
 	type EventMetadata,
 	type EventSeverity,
 	ObservabilityEventCollector,

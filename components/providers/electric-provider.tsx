@@ -2,7 +2,6 @@
 
 import { PGlite } from "@electric-sql/pglite";
 import { PGliteProvider } from "@electric-sql/pglite-react";
-import React, {
 	createContext,
 	type ReactNode,
 	useContext,

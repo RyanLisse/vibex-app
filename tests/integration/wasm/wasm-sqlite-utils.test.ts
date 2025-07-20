@@ -6,7 +6,6 @@
  * cross-platform compatibility for client-side database operations.
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,

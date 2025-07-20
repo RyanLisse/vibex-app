@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -37,13 +36,10 @@ describe("useAuth", () => {
 	const mockGitHubLogin = vi.fn();
 	const mockGitHubLogout = vi.fn();
 
-<<<<<<< HEAD
+
 	beforeEach(() => {
 		vi.clearAllMocks();
-=======
-  beforeEach(() => {
-    vi.clearAllMocks()
->>>>>>> ryan-lisse/review-this-pr
+
 
 		// Default mock implementations
 		mockUseOpenAIAuth.mockReturnValue({

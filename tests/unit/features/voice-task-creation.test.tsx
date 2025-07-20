@@ -12,7 +12,6 @@ import { VoiceRecorder } from "@/components/features/voice-tasks/voice-recorder"
 import { VoiceTaskForm } from "@/components/features/voice-tasks/voice-task-form";
 
 // Types
-import type {
 	TranscriptionResult,
 	VoiceRecording,
 	VoiceTask,

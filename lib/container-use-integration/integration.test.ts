@@ -5,7 +5,6 @@
 
 import { describe, test, expect, beforeEach } from "bun:test";
 import { ContainerUseIntegration } from "./index";
-import type { ContainerUseConfig } from "./index";
 
 describe("ContainerUseIntegration", () => {
 	let integration: ContainerUseIntegration;

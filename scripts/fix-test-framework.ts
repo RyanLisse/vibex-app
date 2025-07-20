@@ -58,7 +58,7 @@ const fixes: TestFix[] = [
 ];
 
 async function fixTestFile(fix: TestFix) {
-<<<<<<< HEAD
+
 	try {
 		const filePath = path.join(process.cwd(), fix.file);
 		const content = await fs.readFile(filePath, "utf-8");
@@ -76,25 +76,7 @@ async function fixTestFile(fix: TestFix) {
 		console.error(`✗ Error fixing ${fix.file}:`, error);
 		return false;
 	}
-=======
-  try {
-    const filePath = path.join(process.cwd(), fix.file)
-    const content = await fs.readFile(filePath, 'utf-8')
 
-    if (content.match(fix.pattern)) {
-      const updatedContent = content.replace(fix.pattern, fix.replacement)
-      await fs.writeFile(filePath, updatedContent, 'utf-8')
-      console.log(`✓ Fixed: ${fix.description} in ${fix.file}`)
-      return true
-    }
-
-    console.log(`- No changes needed: ${fix.file}`)
-    return false
-  } catch (error) {
-    console.error(`✗ Error fixing ${fix.file}:`, error)
-    return false
-  }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 async function createTestEnvironmentFile() {
@@ -133,7 +115,7 @@ OTEL_ENABLED=false
 }
 
 async function updatePackageJsonScripts() {
-<<<<<<< HEAD
+
 	const packageJsonPath = path.join(process.cwd(), "package.json");
 	const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
 
@@ -162,38 +144,12 @@ async function updatePackageJsonScripts() {
 	);
 
 	console.log("✓ Updated package.json test scripts");
-=======
-  const packageJsonPath = path.join(process.cwd(), 'package.json')
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
 
-  // Update test scripts for better organization
-  const updatedScripts = {
-    ...packageJson.scripts,
-    test: 'vitest run',
-    'test:watch': 'vitest',
-    'test:ui': 'vitest --ui',
-    'test:coverage': 'vitest run --coverage',
-    'test:unit': 'vitest run --project=unit',
-    'test:components': 'vitest run --project=components',
-    'test:integration': 'vitest run --project=integration',
-    'test:browser': 'vitest run --project=browser',
-    'test:all': 'vitest run --workspace',
-    'test:all:watch': 'vitest --workspace',
-    'test:ci': 'CI=true vitest run --workspace --coverage',
-  }
-
-  packageJson.scripts = updatedScripts
-
-  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf-8')
-
-  console.log('✓ Updated package.json test scripts')
->>>>>>> ryan-lisse/review-this-pr
 }
 
 async function createGlobalTestSetup() {
 	const setupContent = `import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import { config } from 'dotenv'
-import path from 'path'
 
 // Load test environment variables
 config({ path: path.resolve(process.cwd(), '.env.test') })
@@ -229,7 +185,7 @@ if (process.env.CI) {
 }
 
 async function main() {
-<<<<<<< HEAD
+
 	console.log("🔧 Fixing test framework configuration...\n");
 
 	let fixedCount = 0;
@@ -262,37 +218,4 @@ main().catch((error) => {
 	console.error("Failed to fix test framework:", error);
 	process.exit(1);
 });
-=======
-  console.log('🔧 Fixing test framework configuration...\n')
 
-  let fixedCount = 0
-
-  // Fix skipped tests
-  for (const fix of fixes) {
-    if (await fixTestFile(fix)) {
-      fixedCount++
-    }
-  }
-
-  // Create test environment file
-  await createTestEnvironmentFile()
-
-  // Update package.json scripts
-  await updatePackageJsonScripts()
-
-  // Create global test setup
-  await createGlobalTestSetup()
-
-  console.log(`\n✨ Test framework fixes completed!`)
-  console.log(`   - Fixed ${fixedCount} test files`)
-  console.log(`   - Created .env.test`)
-  console.log(`   - Updated package.json scripts`)
-  console.log(`   - Created global test setup`)
-  console.log('\nRun "bun run test:all" to execute all tests')
-}
-
-main().catch((error) => {
-  console.error('Failed to fix test framework:', error)
-  process.exit(1)
-})
->>>>>>> ryan-lisse/review-this-pr

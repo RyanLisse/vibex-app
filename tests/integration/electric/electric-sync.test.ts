@@ -5,7 +5,6 @@
  * offline/online transitions, and subscription management
  */
 
-import {
 	afterEach,
 	beforeAll,
 	beforeEach,
@@ -14,12 +13,10 @@ import {
 	it,
 	vi,
 } from "vitest";
-import type {
 	NewAgentExecution,
 	NewEnvironment,
 	NewTask,
 } from "../../../db/schema";
-import {
 	type ElectricDatabaseManager,
 	electricDb,
 } from "../../../lib/electric/config";

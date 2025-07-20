@@ -61,7 +61,7 @@ vi.mock("lucide-react", () => ({
 }));
 
 // Mock UI components
-<<<<<<< HEAD
+
 vi.mock("@/components/ui/button", () => ({
 	Button: ({ children, onClick, variant, className, ...props }: any) => (
 		<button
@@ -373,150 +373,7 @@ describe("NewTaskForm", () => {
 
 	it("should handle component initialization", () => {
 		render(<NewTaskForm />);
-=======
-vi.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, variant, className, ...props }: any) => (
-    <button
-      className={className}
-      data-testid="button"
-      data-variant={variant}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  ),
-}))
 
-vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, onValueChange, value, ...props }: any) => (
-    <div data-testid="select" data-value={value} {...props}>
-      <button data-testid="select-trigger" onClick={() => onValueChange?.('test-value')}>
-        Select Trigger
-      </button>
-      {children}
-    </div>
-  ),
-  SelectContent: ({ children, ...props }: any) => (
-    <div data-testid="select-content" {...props}>
-      {children}
-    </div>
-  ),
-  SelectItem: ({ children, value, ...props }: any) => (
-    <div data-testid="select-item" data-value={value} {...props}>
-      {children}
-    </div>
-  ),
-  SelectTrigger: ({ children, ...props }: any) => (
-    <div data-testid="select-trigger" {...props}>
-      {children}
-    </div>
-  ),
-  SelectValue: ({ placeholder, ...props }: any) => (
-    <div data-testid="select-value" {...props}>
-      {placeholder}
-    </div>
-  ),
-}))
-
-vi.mock('next/link', () => ({
-  default: ({ children, href, passHref, ...props }: any) => (
-    <a data-testid="link" href={href} {...props}>
-      {children}
-    </a>
-  ),
-}))
-
-describe('NewTaskForm', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockAddTask.mockReturnValue({ id: 'task-123' })
-    mockCreateTaskAction.mockResolvedValue({ success: true })
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should render the form title', () => {
-    render(<NewTaskForm />)
-
-    expect(screen.getByText('Ready to ship something new?')).toBeInTheDocument()
-  })
-
-  it('should render the textarea', () => {
-    render(<NewTaskForm />)
-
-    const textarea = screen.getByPlaceholderText('Describe a task you want to ship...')
-    expect(textarea).toBeInTheDocument()
-    expect(textarea).toHaveClass('w-full', 'min-h-[100px]', 'resize-none')
-  })
-
-  it('should render environment select when environments exist', () => {
-    render(<NewTaskForm />)
-
-    expect(screen.getByTestId('select')).toBeInTheDocument()
-    expect(screen.getByTestId('hard-drive-icon')).toBeInTheDocument()
-    expect(screen.getByText('Choose a repository')).toBeInTheDocument()
-  })
-
-  it('should render create environment link when no environments exist', () => {
-    mocked(require('@/stores/environments').useEnvironmentStore).mockReturnValue({
-      environments: [],
-    })
-
-    render(<NewTaskForm />)
-
-    const link = screen.getByTestId('link')
-    expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', '/environments')
-    expect(screen.getByText('Create an environment')).toBeInTheDocument()
-  })
-
-  it('should render branch select when environment is selected', () => {
-    render(<NewTaskForm />)
-
-    // Should render branch select by default since environment is available
-    expect(screen.getAllByTestId('select')).toHaveLength(2) // Environment + Branch
-    expect(screen.getByTestId('split-icon')).toBeInTheDocument()
-  })
-
-  it('should handle textarea input', () => {
-    render(<NewTaskForm />)
-
-    const textarea = screen.getByPlaceholderText('Describe a task you want to ship...')
-    fireEvent.change(textarea, { target: { value: 'Test task description' } })
-
-    expect(textarea).toHaveValue('Test task description')
-  })
-
-  it('should show action buttons when textarea has value', () => {
-    render(<NewTaskForm />)
-
-    const textarea = screen.getByPlaceholderText('Describe a task you want to ship...')
-    fireEvent.change(textarea, { target: { value: 'Test task' } })
-
-    const buttons = screen.getAllByTestId('button')
-    const askButton = buttons.find((button) => button.textContent === 'Ask')
-    const codeButton = buttons.find((button) => button.textContent === 'Code')
-
-    expect(askButton).toBeInTheDocument()
-    expect(codeButton).toBeInTheDocument()
-  })
-
-  it('should not show action buttons when textarea is empty', () => {
-    render(<NewTaskForm />)
-
-    const askButton = screen.queryByText('Ask')
-    const codeButton = screen.queryByText('Code')
-
-    expect(askButton).not.toBeInTheDocument()
-    expect(codeButton).not.toBeInTheDocument()
-  })
-
-  it('should handle ask button click', async () => {
-    render(<NewTaskForm />)
->>>>>>> ryan-lisse/review-this-pr
 
 		expect(
 			screen.getByText("Ready to ship something new?"),

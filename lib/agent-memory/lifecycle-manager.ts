@@ -6,7 +6,6 @@
 
 import { observability } from "@/lib/observability";
 import { memoryRepository } from "./repository";
-import type {
 	MemoryEntry,
 	MemoryImportance,
 	MemoryLifecycleEvent,

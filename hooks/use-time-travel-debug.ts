@@ -3,13 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { comparisonEngine } from "@/lib/debug/execution-comparison";
-import {
 	type DebugSession,
 	debugSessionManager,
 } from "@/lib/debug/session-manager";
 import { observability } from "@/lib/observability";
 import type { ExecutionSnapshot, ReplaySpeed } from "@/lib/time-travel";
-import { timeTravel } from "@/lib/time-travel";
 
 // Query keys
 const debugQueryKeys = {

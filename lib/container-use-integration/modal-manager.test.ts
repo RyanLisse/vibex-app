@@ -6,7 +6,6 @@
 
 import { describe, test, expect, beforeEach } from "bun:test";
 import { ModalFunctionManager } from "./modal-manager";
-import type {
 	ModalFunctionConfig,
 	AgentEnvironment,
 	ModalFunctionResponse,

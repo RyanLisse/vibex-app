@@ -1,4 +1,3 @@
-import {
 	Background,
 	Controls,
 	type EdgeTypes,
@@ -9,8 +8,6 @@ import {
 	ReactFlowProvider,
 } from "@xyflow/react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import "@xyflow/react/dist/style.css";
 
 import { useAmbientAgentData } from "../../hooks/ambient-agents/use-ambient-agent-data";
 import { useVisualizationState } from "../../hooks/ambient-agents/use-visualization-state";

@@ -4,7 +4,6 @@
  * Advanced extraction with better pattern matching and normalization.
  */
 
-import type {
 	LocalStorageData,
 	LocalStorageEnvironment,
 	LocalStorageTask,

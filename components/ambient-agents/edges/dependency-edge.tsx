@@ -1,4 +1,3 @@
-import {
 	EdgeLabelRenderer,
 	type EdgeProps,
 	getBezierPath,

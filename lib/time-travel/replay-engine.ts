@@ -7,7 +7,6 @@
 
 import { EventEmitter } from "events";
 import { observability } from "@/lib/observability";
-import {
 	type ExecutionSnapshot,
 	ExecutionState,
 	SnapshotType,

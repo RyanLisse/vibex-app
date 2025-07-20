@@ -6,7 +6,6 @@
  * compatibility validation.
  */
 
-import {
 	afterAll,
 	beforeAll,
 	beforeEach,

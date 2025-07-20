@@ -8,7 +8,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/config";
 import { environments, tasks } from "@/db/schema";
-import type {
 	LocalStorageData,
 	LocalStorageEnvironment,
 	LocalStorageTask,

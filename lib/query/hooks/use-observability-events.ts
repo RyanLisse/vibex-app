@@ -5,7 +5,6 @@
  * and WASM-optimized search capabilities.
  */
 
-import {
 	useInfiniteQuery,
 	useQuery,
 	useQueryClient,

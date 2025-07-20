@@ -16,7 +16,6 @@ import { type NextRequest, NextResponse } from "next/server";
 import { BaseAPIHandler, ValidationError } from "@/lib/api/base";
 import { ResponseBuilder } from "@/lib/api/base/response-builder";
 import { CreateUserSchema } from "@/src/schemas/api-routes";
-import {
 	type GetUsersQuery,
 	GetUsersQuerySchema,
 	usersService,

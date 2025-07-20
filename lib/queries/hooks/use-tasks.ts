@@ -2,7 +2,6 @@
  * TanStack Query hooks for Tasks with optimistic updates and real-time sync
  */
 
-import {
 	type InfiniteData,
 	type QueryClient,
 	type UseMutationOptions,

@@ -7,7 +7,6 @@
  * and system health metrics with interactive visualizations.
  */
 
-import {
 	Activity,
 	AlertTriangle,
 	BarChart3,
@@ -23,7 +22,6 @@ import React, { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
 	Card,
 	CardContent,
 	CardDescription,

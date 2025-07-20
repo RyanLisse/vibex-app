@@ -3,8 +3,6 @@
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-import { createContext, memo, useContext, useEffect, useState } from "react";
-import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,

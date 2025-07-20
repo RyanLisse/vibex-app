@@ -11,7 +11,6 @@ import { db } from "@/db/config";
 import { agentExecutions, executionSnapshots, users } from "@/db/schema";
 import { observability } from "@/lib/observability";
 import type { ExecutionSnapshot, ExecutionState } from "@/lib/time-travel";
-import { timeTravel } from "@/lib/time-travel";
 
 // Debug session status
 export type DebugSessionStatus = "active" | "paused" | "completed" | "archived";

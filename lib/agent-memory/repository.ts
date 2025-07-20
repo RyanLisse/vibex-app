@@ -4,7 +4,6 @@
  * Handles database operations for agent memory storage and retrieval.
  */
 
-import {
 	and,
 	cosineDistance,
 	desc,
@@ -17,7 +16,6 @@ import {
 import { ulid } from "ulid";
 import { db } from "@/db/config";
 import { agentMemory } from "@/db/schema";
-import type {
 	CreateMemoryInput,
 	MemoryBatchResult,
 	MemoryEntry,

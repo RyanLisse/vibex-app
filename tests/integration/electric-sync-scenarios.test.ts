@@ -8,7 +8,6 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Environment, Task } from "@/db/schema";
 import { useElectric } from "@/hooks/use-electric";
-import {
 	useElectricEnvironments,
 	useElectricTasks,
 } from "@/hooks/use-electric-tasks";

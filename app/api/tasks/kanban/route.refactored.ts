@@ -1,11 +1,6 @@
 // Force dynamic rendering to avoid build-time issues
-<<<<<<< HEAD
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-=======
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * Kanban Board API Route - Refactored Version
@@ -13,7 +8,6 @@ export const runtime = 'nodejs'
  * Enhanced kanban operations using base utilities for consistency and reduced duplication
  */
 
-<<<<<<< HEAD
 import { and, eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -23,7 +17,6 @@ import { NotFoundError, ValidationError } from "@/lib/api/base-error";
 import { BaseAPIHandler } from "@/lib/api/base-handler";
 import { BaseAPIService } from "@/lib/api/base-service";
 import { ResponseBuilder } from "@/lib/api/response-builder";
-import {
 	KanbanBoardConfigSchema,
 	KanbanMoveSchema,
 } from "@/src/schemas/enhanced-task-schemas";
@@ -294,16 +287,6 @@ class KanbanService extends BaseAPIService {
 			return config;
 		});
 	}
-=======
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { and, eq } from 'drizzle-orm'
-import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
-import { NotFoundError, ValidationError } from '@/lib/api/base-error'
-import { BaseAPIService } from '@/lib/api/base-service'
-import { BaseAPIHandler } from '@/lib/api/base-handler'
-import { ResponseBuilder } from '@/lib/api/response-builder'
 import { KanbanBoardConfigSchema, KanbanMoveSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Request validation schemas
@@ -541,14 +524,12 @@ class KanbanService extends BaseAPIService {
       return config
     })
   }
->>>>>>> ryan-lisse/review-this-pr
 }
 
 /**
  * GET /api/tasks/kanban - Get kanban board data
  */
 export const GET = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: GetKanbanQuerySchema },
 	async (params) => {
 		const result = await KanbanService.getKanbanBoard(params);
@@ -558,19 +539,16 @@ export const GET = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: GetKanbanQuerySchema },
   async (params) => {
     const result = await KanbanService.getKanbanBoard(params)
     return ResponseBuilder.success(result, 'Kanban board data retrieved successfully')
   }
 )
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * POST /api/tasks/kanban/move - Move task between columns
  */
-<<<<<<< HEAD
 export const POST = BaseAPIHandler.createHandler(
 	{ schema: KanbanMoveSchema },
 	async (data) => {
@@ -578,18 +556,14 @@ export const POST = BaseAPIHandler.createHandler(
 		return ResponseBuilder.success(result, "Task moved successfully");
 	},
 );
-=======
-export const POST = BaseAPIHandler.createHandler({ schema: KanbanMoveSchema }, async (data) => {
   const result = await KanbanService.moveTask(data)
   return ResponseBuilder.success(result, 'Task moved successfully')
 })
->>>>>>> ryan-lisse/review-this-pr
 
 /**
  * PUT /api/tasks/kanban/config - Update kanban board configuration
  */
 export const PUT = BaseAPIHandler.createHandler(
-<<<<<<< HEAD
 	{ schema: KanbanBoardConfigSchema },
 	async (data) => {
 		const config = await KanbanService.updateConfig(data);
@@ -599,11 +573,9 @@ export const PUT = BaseAPIHandler.createHandler(
 		);
 	},
 );
-=======
   { schema: KanbanBoardConfigSchema },
   async (data) => {
     const config = await KanbanService.updateConfig(data)
     return ResponseBuilder.success(config, 'Kanban configuration updated successfully')
   }
 )
->>>>>>> ryan-lisse/review-this-pr

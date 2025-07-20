@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 import type Redis from "ioredis";
-import { Cluster } from "ioredis";
 import { type NextRequest, NextResponse } from "next/server";
 import { AlertService } from "@/lib/alerts/alert-service";
 import { getLogger } from "@/lib/logging";

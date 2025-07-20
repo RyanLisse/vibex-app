@@ -12,7 +12,6 @@ import { ProgressIndicator } from "@/components/features/progress/progress-indic
 import { TaskProgressCard } from "@/components/features/progress/task-progress-card";
 
 // Types
-import type {
 	ProgressMetrics,
 	TaskProgress,
 } from "@/src/schemas/enhanced-task-schemas";

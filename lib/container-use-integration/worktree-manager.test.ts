@@ -6,7 +6,6 @@
 
 import { describe, test, expect, beforeEach } from "bun:test";
 import { GitWorktreeManager } from "./worktree-manager";
-import type {
 	GitWorktree,
 	WorktreeOperationResult,
 	GitCommit,

@@ -6,7 +6,6 @@
 
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import {
 	GoogleGenAI,
 	type LiveServerMessage,
 	MediaResolution,

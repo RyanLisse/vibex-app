@@ -5,7 +5,6 @@
  */
 
 import { evaluate } from "mathjs";
-import type {
 	ActionStepConfig,
 	AggregateStepConfig,
 	BranchStepConfig,

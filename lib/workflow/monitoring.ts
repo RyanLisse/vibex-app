@@ -9,7 +9,6 @@ import { EventEmitter } from "events";
 import { db } from "@/db/config";
 import { observabilityEvents, workflowExecutions } from "@/db/schema";
 import { observability } from "@/lib/observability";
-import type {
 	PerformanceMetrics,
 	ResourceUsage,
 	StepMetrics,

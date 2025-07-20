@@ -1,6 +1,6 @@
 // AsyncLocalStorage compatibility layer
 class BrowserAsyncLocalStorage {
-<<<<<<< HEAD
+
 	private store: any = null;
 	run(store: any, callback: () => any) {
 		this.store = store;
@@ -9,30 +9,7 @@ class BrowserAsyncLocalStorage {
 	getStore() {
 		return this.store;
 	}
-=======
-  private store: any = null
-  run(store: any, callback: () => any) {
-    this.store = store
-    return callback()
-  }
-  getStore() {
-    return this.store
-  }
-}
 
-// Use dynamic import pattern that's ESM-compatible
-let AsyncLocalStorage: any = BrowserAsyncLocalStorage
-
-if (typeof window === 'undefined' && typeof process !== 'undefined') {
-  // Lazy load in Node.js environment
-  import('async_hooks')
-    .then((asyncHooks) => {
-      AsyncLocalStorage = asyncHooks.AsyncLocalStorage
-    })
-    .catch(() => {
-      // Keep using browser fallback if async_hooks is not available
-    })
->>>>>>> ryan-lisse/review-this-pr
 }
 
 // Use dynamic import pattern that's ESM-compatible
@@ -55,7 +32,6 @@ import { CorrelationIdManager } from "./correlation-id-manager";
 import { MetadataEnricher } from "./metadata-enricher";
 import { PerformanceTracker } from "./performance-tracker";
 import { SensitiveDataRedactor } from "./sensitive-data-redactor";
-import type {
 	LogContext,
 	LoggingConfig,
 	LoggingMetrics,
@@ -63,7 +39,7 @@ import type {
 } from "./types";
 
 export class LoggerFactory {
-<<<<<<< HEAD
+
 	private static instance: LoggerFactory;
 	private winston: winston.Logger;
 	private config: LoggingConfig;
@@ -94,38 +70,7 @@ export class LoggerFactory {
 		}
 		this.winston = this.createWinstonLogger();
 	}
-=======
-  private static instance: LoggerFactory
-  private winston: winston.Logger
-  private config: LoggingConfig
-  private contextStorage: any
-  private correlationManager = CorrelationIdManager.getInstance()
-  private metadataEnricher = new MetadataEnricher()
-  private redactor: SensitiveDataRedactor
-  private performanceTracker = new PerformanceTracker()
 
-  private constructor(config: LoggingConfig) {
-    this.config = config
-    this.redactor = new SensitiveDataRedactor(
-      config.redaction.customFields,
-      config.redaction.customPatterns
-    )
-    // Initialize contextStorage based on the current AsyncLocalStorage implementation
-    if (typeof window === 'undefined' && typeof process !== 'undefined') {
-      try {
-        // In Node.js, AsyncLocalStorage will be the real one from async_hooks
-        this.contextStorage = new AsyncLocalStorage()
-      } catch {
-        // Fallback to browser implementation
-        this.contextStorage = new BrowserAsyncLocalStorage()
-      }
-    } else {
-      // In browser, use the fallback
-      this.contextStorage = new BrowserAsyncLocalStorage()
-    }
-    this.winston = this.createWinstonLogger()
-  }
->>>>>>> ryan-lisse/review-this-pr
 
 	static getInstance(config?: LoggingConfig): LoggerFactory {
 		if (!LoggerFactory.instance) {
@@ -285,7 +230,7 @@ export class LoggerFactory {
 }
 
 export class ComponentLogger {
-<<<<<<< HEAD
+
 	constructor(
 		private component: string,
 		private winston: winston.Logger,
@@ -294,16 +239,7 @@ export class ComponentLogger {
 		private performanceTracker: PerformanceTracker,
 		private config: LoggingConfig,
 	) {}
-=======
-  constructor(
-    private component: string,
-    private winston: winston.Logger,
-    private contextStorage: any,
-    private correlationManager: CorrelationIdManager,
-    private performanceTracker: PerformanceTracker,
-    private config: LoggingConfig
-  ) {}
->>>>>>> ryan-lisse/review-this-pr
+
 
 	error(message: string, error?: Error, metadata?: any): void {
 		this.performanceTracker.recordError();

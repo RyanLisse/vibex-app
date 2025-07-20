@@ -4,7 +4,6 @@
  * Test-driven development for Redis/Valkey real-time analytics and metrics
  */
 
-import {
 	afterAll,
 	afterEach,
 	beforeAll,

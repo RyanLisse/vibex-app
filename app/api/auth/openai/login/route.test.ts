@@ -32,8 +32,6 @@ vi.mock("@/lib/env", () => ({
 	},
 }));
 
-import {
-<<<<<<< HEAD
 	generateAuthUrl,
 	generateCodeChallenge,
 	generateCodeVerifier,
@@ -393,7 +391,6 @@ describe("POST /api/auth/openai/login", () => {
 		});
 	});
 });
-=======
   generateAuthUrl,
   generateCodeChallenge,
   generateCodeVerifier,
@@ -724,4 +721,3 @@ describe('POST /api/auth/openai/login', () => {
     })
   })
 })
->>>>>>> ryan-lisse/review-this-pr

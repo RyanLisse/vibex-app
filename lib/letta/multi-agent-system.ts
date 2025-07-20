@@ -1,5 +1,4 @@
 import { z } from "zod";
-import {
 	BrainstormAgent,
 	BrainstormConfig,
 	type BrainstormSession,
@@ -196,7 +195,7 @@ export class MultiAgentSystem {
 		// Check if there's an active brainstorm session
 		let brainstormSession = this.brainstormAgent.getActiveSession(sessionId);
 
-<<<<<<< HEAD
+
 		if (!brainstormSession) {
 			// Extract topic from message or ask user
 			const topic =
@@ -208,18 +207,7 @@ export class MultiAgentSystem {
 				sessionId,
 			);
 		}
-=======
-    if (!brainstormSession) {
-      // Extract topic from message or ask user
-      const topic = this.extractTopicFromMessage(message) || 'General Brainstorming'
-      const session = this.sessions.get(sessionId)!
-      brainstormSession = await this.brainstormAgent.startBrainstormSession(
-        session.userId,
-        topic,
-        sessionId
-      )
-    }
->>>>>>> ryan-lisse/review-this-pr
+
 
 		return this.brainstormAgent.processMessage(sessionId, message, streaming);
 	}
@@ -293,7 +281,7 @@ export class MultiAgentSystem {
 
 		this.eventQueue.push(event);
 
-<<<<<<< HEAD
+
 		// Execute delegation
 		if (toAgent === "brainstorm") {
 			// Start or continue brainstorm session
@@ -306,19 +294,7 @@ export class MultiAgentSystem {
 					fromSessionId,
 				);
 			}
-=======
-    // Execute delegation
-    if (toAgent === 'brainstorm') {
-      // Start or continue brainstorm session
-      let brainstormSession = this.brainstormAgent.getActiveSession(fromSessionId)
-      if (!brainstormSession) {
-        brainstormSession = await this.brainstormAgent.startBrainstormSession(
-          session.userId,
-          task,
-          fromSessionId
-        )
-      }
->>>>>>> ryan-lisse/review-this-pr
+
 
 			return this.brainstormAgent.processMessage(
 				fromSessionId,
@@ -346,17 +322,14 @@ export class MultiAgentSystem {
 		session.updatedAt = new Date();
 		this.sessions.set(sessionId, session);
 
-<<<<<<< HEAD
+
 		return this.brainstormAgent.startBrainstormSession(
 			session.userId,
 			topic,
 			sessionId,
 		);
 	}
-=======
-    return this.brainstormAgent.startBrainstormSession(session.userId, topic, sessionId)
-  }
->>>>>>> ryan-lisse/review-this-pr
+
 
 	async getBrainstormSummary(sessionId: string) {
 		return this.brainstormAgent.getSessionSummary(sessionId);

@@ -4,7 +4,6 @@
  * Test-driven development for Redis/Valkey rate limiting
  */
 
-import {
 	afterAll,
 	afterEach,
 	beforeAll,

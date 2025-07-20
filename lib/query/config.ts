@@ -1,10 +1,8 @@
-import {
 	type DefaultOptions,
 	MutationCache,
 	QueryCache,
 	QueryClient,
 } from "@tanstack/react-query";
-import {
 	type WASMOptimizationConfig,
 	wasmDetector,
 } from "@/lib/wasm/detection";

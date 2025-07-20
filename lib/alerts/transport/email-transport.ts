@@ -1,12 +1,8 @@
-<<<<<<< HEAD
+
 import { ComponentLogger } from "../../logging/logger-factory";
 import type { AlertChannel, AlertNotification, CriticalError } from "../types";
 import type { AlertTransport } from "./types";
-=======
-import { AlertTransport } from './types'
-import { AlertChannel, CriticalError, AlertNotification } from '../types'
-import { ComponentLogger } from '../../logging/logger-factory'
->>>>>>> ryan-lisse/review-this-pr
+
 
 interface EmailConfig {
 	provider: "smtp" | "sendgrid" | "ses" | "resend";

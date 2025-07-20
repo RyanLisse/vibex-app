@@ -7,7 +7,6 @@
  * migration progress, and system performance in real-time.
  */
 
-import {
 	Activity,
 	AlertTriangle,
 	CheckCircle,
@@ -30,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
 	type AgentActivity,
 	type AgentType,
 	agentActivityTracker,

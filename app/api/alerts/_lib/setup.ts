@@ -1,5 +1,4 @@
 import type Redis from "ioredis";
-import { Cluster } from "ioredis";
 import { AlertService } from "@/lib/alerts/alert-service";
 import { getLogger } from "@/lib/logging";
 import { getRedisConfig } from "@/lib/redis/config";

@@ -18,23 +18,13 @@ interface CustomMatchers<R = unknown> {
 	): R;
 }
 
-<<<<<<< HEAD
+
 declare module "vitest" {
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	interface Assertion<T = any> extends CustomMatchers<T> {}
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	interface AsymmetricMatchersContaining extends CustomMatchers {}
-=======
-declare module 'vitest' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Assertion<T = any> extends CustomMatchers<T> {
-    // Extending Vitest's Assertion interface with custom matchers
-  }
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface AsymmetricMatchersContaining extends CustomMatchers {
-    // Extending asymmetric matchers for custom matchers
-  }
->>>>>>> ryan-lisse/review-this-pr
+
 }
 
 // Type definitions

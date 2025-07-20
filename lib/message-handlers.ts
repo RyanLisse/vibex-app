@@ -1,5 +1,4 @@
 import type { Task } from "@/types/task";
-import {
 	hasMessageContent,
 	hasShellAction,
 	isCompletedAssistantMessage,

@@ -408,8 +408,6 @@ export type { AggregatedMetric, MetricDataPoint, MetricType } from "./metrics";
 export { MetricsAnalyzer, PerformanceMetricsCollector } from "./metrics";
 
 // Re-export for backwards compatibility
-<<<<<<< HEAD
+
 export { observability as observabilityService };
-=======
-export { observability as observabilityService }
->>>>>>> ryan-lisse/review-this-pr
+

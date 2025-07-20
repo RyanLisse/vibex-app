@@ -11,12 +11,10 @@ import { type WASMCapabilities, wasmDetector } from "./detection";
 import { moduleLoader } from "./module-loader";
 import { wasmObservability } from "./observability-integration";
 import { wasmPerformanceTracker } from "./performance-tracker";
-import {
 	type SQLiteWASMConfig,
 	SQLiteWASMUtils,
 	sqliteWASMUtils,
 } from "./sqlite-utils";
-import {
 	type VectorSearchConfig,
 	VectorSearchWASM,
 	vectorSearchManager,
@@ -224,7 +222,7 @@ export class WASMServices {
 		}
 	}
 
-<<<<<<< HEAD
+
 	/**
 	 * Initialize Observability Integration
 	 */
@@ -238,21 +236,7 @@ export class WASMServices {
 			console.warn("⚠️ WASM Observability initialization failed:", error);
 		}
 	}
-=======
-  /**
-   * Initialize Observability Integration
-   */
-  private async initializeObservability(): Promise<void> {
-    try {
-      // Set the WASMServices instance to avoid circular dependency
-      wasmObservability.setWASMServices(this)
-      await wasmObservability.initialize()
-      console.log('✅ WASM Observability Integration initialized')
-    } catch (error) {
-      console.warn('⚠️ WASM Observability initialization failed:', error)
-    }
-  }
->>>>>>> ryan-lisse/review-this-pr
+
 
 	/**
 	 * Initialize fallback implementations

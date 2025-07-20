@@ -1,5 +1,4 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import "./custom-matchers";
 import { ProjectBuilder, UserBuilder } from "../builders/test-data-builder";
 
 describe("Custom Matchers", () => {

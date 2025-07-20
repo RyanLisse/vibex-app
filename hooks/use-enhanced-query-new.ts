@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	type InfiniteData,
 	type UseInfiniteQueryOptions,
 	type UseMutationOptions,
@@ -13,7 +12,6 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { useElectricContext } from "@/components/providers/electric-provider";
 import { ObservabilityService } from "@/lib/observability";
-import {
 	getOptimizedQueryConfig,
 	mutationKeys,
 	queryKeys,

@@ -9,7 +9,6 @@ import { context, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { ulid } from "ulid";
 import { db } from "@/db/config";
-import {
 	agentExecutions,
 	observabilityEvents as observabilityEventsTable,
 } from "@/db/schema";

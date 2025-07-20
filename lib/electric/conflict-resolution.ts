@@ -6,7 +6,6 @@
  */
 
 import { ObservabilityService } from "@/lib/observability";
-import {
 	type DatabaseOperation,
 	electricDatabaseClient,
 } from "./database-client";

@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -8,7 +7,6 @@ import {
 	test,
 } from "bun:test";
 import { vi } from "vitest";
-import type {
 	ExampleFilter,
 	ExampleFormData,
 	ExampleItem,

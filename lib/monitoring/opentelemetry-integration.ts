@@ -4,7 +4,6 @@
  * Integrates the monitoring system with existing OpenTelemetry infrastructure
  */
 
-import {
 	ConsoleMetricExporter,
 	context,
 	MeterProvider,
@@ -23,20 +22,17 @@ import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { Resource } from "@opentelemetry/resources";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-import {
 	SEMRESATTRS_SERVICE_NAME,
 	SEMRESATTRS_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
 import { getTelemetryConfig } from "@/lib/telemetry";
 import { alertManager } from "./alerts";
 import { notificationManager } from "./notifications";
-import {
 	metrics as prometheusMetrics,
 	recordAgentExecution,
 	recordDatabaseQuery,
 	recordHttpRequest,
 } from "./prometheus";
-import {
 	dbObservabilityMetrics,
 	otelMetrics as otelExportMetrics,
 } from "./prometheus/custom-metrics";

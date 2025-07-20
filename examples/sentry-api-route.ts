@@ -8,7 +8,6 @@ import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import { enhancedObservability } from "@/lib/observability/enhanced";
-import {
 	instrumentApiRoute,
 	instrumentDatabaseOperation,
 } from "@/lib/sentry/instrumentation";

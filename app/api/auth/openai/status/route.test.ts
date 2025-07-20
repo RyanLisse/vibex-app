@@ -25,17 +25,14 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { vi } from "vitest";
 import { GET } from "@/app/api/auth/openai/status/route";
 
-<<<<<<< HEAD
 describe("GET /api/auth/openai/status", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-=======
 describe('GET /api/auth/openai/status', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("should return authenticated status with valid config", async () => {
 		const mockConfig = {

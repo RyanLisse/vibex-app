@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -65,7 +64,7 @@ global.navigator = {
 global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
 global.URL.revokeObjectURL = vi.fn();
 
-<<<<<<< HEAD
+
 describe("useAudioRecorder", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -73,15 +72,7 @@ describe("useAudioRecorder", () => {
 			getTracks: () => [{ stop: vi.fn() }],
 		});
 	});
-=======
-describe('useAudioRecorder', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockGetUserMedia.mockResolvedValue({
-      getTracks: () => [{ stop: vi.fn() }],
-    })
-  })
->>>>>>> ryan-lisse/review-this-pr
+
 
 	it("should initialize with default state", () => {
 		const { result } = renderHook(() => useAudioRecorder());

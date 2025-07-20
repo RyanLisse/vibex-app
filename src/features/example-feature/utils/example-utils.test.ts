@@ -1,4 +1,3 @@
-import {
 	afterEach,
 	beforeEach,
 	describe,
@@ -7,11 +6,9 @@ import {
 	mock,
 	test,
 } from "bun:test";
-import type {
 	ExampleFilter,
 	ExampleItem,
 } from "@/src/features/example-feature/types";
-import {
 	filterItems,
 	getPriorityColor,
 	getStatusIcon,

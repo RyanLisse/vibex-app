@@ -1,6 +1,5 @@
 import { MicIcon, SendIcon, StopCircleIcon } from "lucide-react";
 import type React from "react";
-import { memo, useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface ChatInputAreaProps {

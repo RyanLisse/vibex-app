@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	addEdge,
 	Background,
 	BackgroundVariant,
@@ -18,8 +17,6 @@ import {
 	useNodesState,
 } from "@xyflow/react";
 import { useCallback, useEffect, useState } from "react";
-import "@xyflow/react/dist/style.css";
-import {
 	AlertCircle,
 	CheckCircle,
 	Clock,
@@ -47,7 +44,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
 	Select,
 	SelectContent,
 	SelectItem,

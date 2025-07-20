@@ -4,7 +4,6 @@ import { vi } from "vitest";
 import { createTaskAction } from "@/app/actions/inngest";
 import MessageInput from "@/app/task/[id]/_components/message-input";
 import type { Task } from "@/stores/tasks";
-import { useTaskStore } from "@/stores/tasks";
 
 // Mock the actions and store
 vi.mock("@/app/actions/inngest", () => ({
@@ -42,7 +41,6 @@ describe("MessageInput", () => {
 	const mockUpdateTask = vi.fn();
 	const user = userEvent.setup();
 
-<<<<<<< HEAD
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mocked(useTaskStore).mockReturnValue({
@@ -66,7 +64,6 @@ describe("MessageInput", () => {
 		});
 		mocked(createTaskAction).mockResolvedValue();
 	});
-=======
   beforeEach(() => {
     vi.clearAllMocks()
     mocked(useTaskStore).mockReturnValue({
@@ -90,7 +87,6 @@ describe("MessageInput", () => {
     })
     mocked(createTaskAction).mockResolvedValue()
   })
->>>>>>> ryan-lisse/review-this-pr
 
 	it("should render message input with placeholder", () => {
 		render(<MessageInput task={mockTask} />);

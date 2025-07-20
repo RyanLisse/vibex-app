@@ -13,7 +13,6 @@ import { dataMigrationManager } from "./data-migration";
 import { migrationService } from "./migration-service";
 import { progressTracker } from "./progress-tracker";
 import { rollbackService } from "./rollback-service";
-import type {
 	MigrationConfig,
 	MigrationEvent,
 	MigrationProgress,

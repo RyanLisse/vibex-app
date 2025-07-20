@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Environment, NewEnvironment, NewTask, Task } from "@/db/schema";
 import { electricDb, type SyncEvent } from "@/lib/electric/config";
 import { useElectricQuery, useElectricSubscription } from "./use-electric";
-import {
 	useEnvironmentsSubscription,
 	useTasksSubscription,
 } from "./use-electric-subscriptions";

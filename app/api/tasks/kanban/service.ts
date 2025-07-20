@@ -9,7 +9,6 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
-import {
 	BaseAPIService,
 	ConflictError,
 	NotFoundError,
@@ -17,7 +16,6 @@ import {
 	ValidationError,
 } from "@/lib/api/base";
 import { QueryBuilder } from "@/lib/api/base/query-builder";
-import type {
 	KanbanBoardConfigSchema,
 	KanbanMoveSchema,
 } from "@/src/schemas/enhanced-task-schemas";

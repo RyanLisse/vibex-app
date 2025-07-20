@@ -8,7 +8,6 @@
 import { EventEmitter } from "events";
 import { observability } from "@/lib/observability";
 import { backupService } from "./backup-service";
-import type {
 	LocalStorageEnvironment,
 	LocalStorageTask,
 	MigrationConfig,

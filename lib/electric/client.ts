@@ -1,11 +1,9 @@
-import {
 	ElectricClient as BaseElectricClient,
 	type ElectricDatabase,
 } from "@electric-sql/client";
 import { PGlite } from "@electric-sql/pglite";
 import type * as schema from "../../db/schema";
 import { ObservabilityService } from "../observability";
-import {
 	electricConfig,
 	getFinalConfig,
 	validateElectricConfig,

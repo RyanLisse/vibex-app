@@ -1,6 +1,5 @@
 "use client";
 
-import {
 	Activity,
 	ArrowRight,
 	Brain,
@@ -20,7 +19,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
 	createRealtimeTranscription,
 	type TranscriptionEvent,
 	type TranscriptionResult,
