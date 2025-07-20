@@ -419,3 +419,6 @@ export const metrics = {
       component,
     }),
 }
+
+// Export metrics collector instance
+export const metricsCollector = PerformanceMetricsCollector.getInstance()

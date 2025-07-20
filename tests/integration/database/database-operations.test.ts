@@ -7,7 +7,7 @@
 
 import { and, asc, count, desc, eq, sql } from 'drizzle-orm'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { checkDatabaseHealth, db, initializeExtensions } from '../../../db/config'
+import { checkDatabaseHealth, db, initializeExtensions } from '../../../db/test-config'
 import { migrationRunner } from '../../../db/migrations/migration-runner'
 import {
   agentExecutions,
@@ -63,7 +63,7 @@ const createTestExecution = (
   ...overrides,
 })
 
-describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
+describe('Database Operations Integration Tests', () => {
   let testTaskId: string
   let testEnvironmentId: string
   let testExecutionId: string

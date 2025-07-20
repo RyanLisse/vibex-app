@@ -1,18 +1,18 @@
-import { Handle, type NodeProps, Position } from '@xyflow/react'
+import React, { memo, useCallback } from 'react'
+import { Handle, Position, NodeProps } from '@xyflow/react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
-  AlertTriangle,
-  Archive,
-  Clock,
   Database,
   HardDrive,
   Network,
   Users,
+  Clock,
   Zap,
+  Archive,
+  AlertTriangle,
 } from 'lucide-react'
-import React, { memo, useCallback } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 
 export interface MemoryNodeData {
   memory: {
@@ -42,15 +42,15 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
   const getTypeIcon = useCallback(() => {
     switch (memory.type) {
       case 'shared':
-        return <Users className="h-4 w-4 text-blue-500" />
+        return <Users className="w-4 h-4 text-blue-500" />
       case 'private':
-        return <Database className="h-4 w-4 text-green-500" />
+        return <Database className="w-4 h-4 text-green-500" />
       case 'cache':
-        return <Zap className="h-4 w-4 text-yellow-500" />
+        return <Zap className="w-4 h-4 text-yellow-500" />
       case 'persistent':
-        return <Archive className="h-4 w-4 text-purple-500" />
+        return <Archive className="w-4 h-4 text-purple-500" />
       default:
-        return <HardDrive className="h-4 w-4 text-gray-500" />
+        return <HardDrive className="w-4 h-4 text-gray-500" />
     }
   }, [memory.type])
 
@@ -82,7 +82,7 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / k ** i).toFixed(1)) + ' ' + sizes[i]
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
   }, [])
 
   const formatTimeAgo = useCallback((date: Date) => {
@@ -90,10 +90,10 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
     const diff = now.getTime() - new Date(date).getTime()
 
     if (diff < 1000) return 'Just now'
-    if (diff < 60_000) return `${Math.floor(diff / 1000)}s ago`
-    if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`
-    if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`
-    return `${Math.floor(diff / 86_400_000)}d ago`
+    if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+    return `${Math.floor(diff / 86400000)}d ago`
   }, [])
 
   const getProgressColor = useCallback(() => {
@@ -105,31 +105,35 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
 
   return (
     <Card
-      className={`w-72 cursor-pointer transition-all duration-200 ${getUsageColor()} ${selected ? 'shadow-lg ring-2 ring-blue-500' : 'shadow-md hover:shadow-lg'} `}
+      className={`
+        w-72 transition-all duration-200 cursor-pointer
+        ${getUsageColor()}
+        ${selected ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-md hover:shadow-lg'}
+      `}
     >
       {/* Input/Output handles for connections */}
-      <Handle className="h-3 w-3 bg-purple-500" position={Position.Left} type="target" />
-      <Handle className="h-3 w-3 bg-purple-500" position={Position.Right} type="source" />
+      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-purple-500" />
+      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-purple-500" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {getTypeIcon()}
-            <h3 className="truncate font-semibold text-sm">{memory.name}</h3>
+            <h3 className="font-semibold text-sm truncate">{memory.name}</h3>
           </div>
-          <Badge className={getTypeColor()} variant="secondary">
+          <Badge variant="secondary" className={getTypeColor()}>
             {memory.type}
           </Badge>
         </div>
 
         <div className="flex items-center space-x-2">
-          <Badge className="flex items-center space-x-1 text-xs" variant="outline">
-            <Network className="h-3 w-3" />
+          <Badge variant="outline" className="text-xs flex items-center space-x-1">
+            <Network className="w-3 h-3" />
             <span>{memory.connections.length} connections</span>
           </Badge>
           {memory.usage.percentage >= 90 && (
-            <Badge className="flex items-center space-x-1 text-xs" variant="destructive">
-              <AlertTriangle className="h-3 w-3" />
+            <Badge variant="destructive" className="text-xs flex items-center space-x-1">
+              <AlertTriangle className="w-3 h-3" />
               <span>High usage</span>
             </Badge>
           )}
@@ -143,8 +147,8 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
             <span className="font-medium">Memory Usage</span>
             <span className="text-gray-500">{memory.usage.percentage.toFixed(1)}%</span>
           </div>
-          <Progress className={`h-2 ${getProgressColor()}`} value={memory.usage.percentage} />
-          <div className="flex justify-between text-gray-600 text-xs">
+          <Progress value={memory.usage.percentage} className={`h-2 ${getProgressColor()}`} />
+          <div className="flex justify-between text-xs text-gray-600">
             <span>{formatBytes(memory.usage.used)} used</span>
             <span>{formatBytes(memory.usage.total)} total</span>
           </div>
@@ -153,31 +157,31 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
         {/* Access statistics */}
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex items-center space-x-1">
-            <Clock className="h-3 w-3 text-blue-500" />
+            <Clock className="w-3 h-3 text-blue-500" />
             <span>{formatTimeAgo(memory.lastAccessed)}</span>
           </div>
           <div className="flex items-center space-x-1">
-            <Zap className="h-3 w-3 text-yellow-500" />
+            <Zap className="w-3 h-3 text-yellow-500" />
             <span>{memory.accessCount} accesses</span>
           </div>
 
           {metrics && (
             <>
               <div className="flex items-center space-x-1">
-                <HardDrive className="h-3 w-3 text-green-500" />
+                <HardDrive className="w-3 h-3 text-green-500" />
                 <span>{metrics.readOps} reads</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Database className="h-3 w-3 text-purple-500" />
+                <Database className="w-3 h-3 text-purple-500" />
                 <span>{metrics.writeOps} writes</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3 text-indigo-500" />
+                <Clock className="w-3 h-3 text-indigo-500" />
                 <span>{metrics.averageLatency}ms avg</span>
               </div>
               {metrics.hitRate !== undefined && (
                 <div className="flex items-center space-x-1">
-                  <Zap className="h-3 w-3 text-orange-500" />
+                  <Zap className="w-3 h-3 text-orange-500" />
                   <span>{metrics.hitRate.toFixed(1)}% hit</span>
                 </div>
               )}
@@ -188,15 +192,15 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
         {/* Connected agents/systems */}
         {memory.connections.length > 0 && (
           <div className="space-y-1">
-            <div className="font-medium text-gray-700 text-xs">Connected to:</div>
+            <div className="text-xs font-medium text-gray-700">Connected to:</div>
             <div className="flex flex-wrap gap-1">
               {memory.connections.slice(0, 3).map((connection, index) => (
-                <Badge className="text-xs" key={index} variant="outline">
+                <Badge key={index} variant="outline" className="text-xs">
                   {connection}
                 </Badge>
               ))}
               {memory.connections.length > 3 && (
-                <Badge className="text-xs" variant="outline">
+                <Badge variant="outline" className="text-xs">
                   +{memory.connections.length - 3} more
                 </Badge>
               )}

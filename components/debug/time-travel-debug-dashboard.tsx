@@ -93,8 +93,8 @@ function SessionInfoCard({ session }: { session: any }) {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Errors:</span>
-          <span className={cn(session.errors.length > 0 && 'text-red-600')}>
-            {session.errors.length}
+          <span className={cn(session.issues.length > 0 && 'text-red-600')}>
+            {session.issues.length}
           </span>
         </div>
       </CardContent>
@@ -355,7 +355,7 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
             breakpoints={breakpoints}
             checkpoints={session.checkpoints}
             currentIndex={currentIndex}
-            errors={session.errors.map((e) => e.stepNumber)}
+            errors={session.issues.map((e) => e.stepNumber)}
             isPlaying={isPlaying}
             onBreakpointToggle={toggleBreakpoint}
             onPlayPause={togglePlayback}
@@ -399,11 +399,11 @@ export function TimeTravelDebugDashboard({ sessionId, className }: TimeTravelDeb
                   <CardDescription>Errors encountered during agent execution</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {session.errors.length === 0 ? (
+                  {session.issues.length === 0 ? (
                     <p className="text-center text-muted-foreground">No errors detected</p>
                   ) : (
                     <div className="space-y-3">
-                      {session.errors.map((error, index) => (
+                      {session.issues.map((error, index) => (
                         <div className="rounded-lg border border-red-200 bg-red-50 p-3" key={index}>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">

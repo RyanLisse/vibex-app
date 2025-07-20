@@ -76,7 +76,7 @@ export const PaginationSchema = z.object({
 // Search schema
 export const SearchSchema = z.object({
   q: z.string().min(1, 'Search query is required').max(200),
-  filters: z.record(z.string()).optional(),
+  filters: z.record(z.string(), z.string()).optional(),
   ...PaginationSchema.shape,
 })
 
@@ -117,7 +117,7 @@ export const ApiResponseSchema = z.object({
 export const ApiErrorSchema = z.object({
   success: z.literal(false),
   error: z.string(),
-  details: z.record(z.any()).optional(),
+  details: z.record(z.string(), z.any()).optional(),
   statusCode: z.number().optional(),
 })
 
@@ -140,7 +140,7 @@ export const createOptionalFormSchema = <T extends z.ZodRawShape>(shape: T) => {
 
 // Validation error formatting
 export const formatZodError = (error: z.ZodError) => {
-  return error.errors.reduce(
+  return error.issues.reduce(
     (acc, err) => {
       const path = err.path.join('.')
       acc[path] = err.message

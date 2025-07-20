@@ -1,8 +1,8 @@
 import { createHash } from 'crypto'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, sql as sqlOperator } from 'drizzle-orm'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import { db } from '../config'
+import { db, sql } from '../config'
 import { migrations, type NewMigration } from '../schema'
 
 export interface MigrationFile {
@@ -243,10 +243,83 @@ export class MigrationRunner {
       'copy',
       'lock',
       'unlock',
+      'do',
+      'declare',
+      'return',
+      'if',
+      'for',
+      'while',
+      'loop',
+      'case',
+      'when',
+      'else',
+      'elseif',
+      'elsif',
+      'perform',
+      'raise',
+      'notice',
+      'warning',
+      'exception',
+      'language',
+      'plpgsql',
+      'sql',
+      'function',
+      'procedure',
+      'trigger',
+      'extension',
+      'schema',
+      'domain',
+      'type',
+      'sequence',
+      'view',
+      'materialized',
+      'index',
+      'unique',
+      'primary',
+      'foreign',
+      'check',
+      'constraint',
+      'column',
+      'table',
+      'database',
+      'tablespace',
+      'role',
+      'user',
+      'group',
+      'policy',
+      'rule',
+      'operator',
+      'cast',
+      'aggregate',
+      'collation',
+      'conversion',
+      'statistics',
+      'publication',
+      'subscription',
     ]
 
-    const firstWord = statement.split(/\s+/)[0]
-    return validKeywords.includes(firstWord) || statement.startsWith('--')
+    const firstWord = statement.split(/\s+/)[0].toLowerCase()
+
+    // Allow comments
+    if (statement.startsWith('--') || statement.startsWith('/*')) {
+      return true
+    }
+
+    // Allow PostgreSQL $$ syntax for functions/procedures
+    if (
+      statement.includes('$$') ||
+      statement.includes('$function$') ||
+      statement.includes('$procedure$')
+    ) {
+      return true
+    }
+
+    // Allow plpgsql blocks that start with variable declarations or control structures
+    if (statement.match(/^\s*(declare|begin|if|for|while|case|return|perform|raise)/i)) {
+      return true
+    }
+
+    return validKeywords.includes(firstWord)
   }
 
   /**
@@ -256,8 +329,11 @@ export class MigrationRunner {
     const startTime = Date.now()
 
     try {
-      // Execute migration SQL
-      await db.transaction(async (tx) => {
+      // Since Neon serverless doesn't support traditional transactions in the same way,
+      // we'll execute statements within a BEGIN/COMMIT block
+      await sql`BEGIN`
+
+      try {
         // Split SQL by semicolon and execute each statement
         const statements = migration.up
           .split(';')
@@ -265,11 +341,11 @@ export class MigrationRunner {
           .filter((stmt) => stmt.length > 0)
 
         for (const statement of statements) {
-          await tx.execute(statement)
+          await sql(statement)
         }
 
         // Record migration execution
-        await tx.insert(migrations).values({
+        await db.insert(migrations).values({
           name: migration.name,
           checksum: migration.checksum,
           rollbackSql: migration.down,
@@ -278,7 +354,12 @@ export class MigrationRunner {
             statementsCount: statements.length,
           },
         })
-      })
+
+        await sql`COMMIT`
+      } catch (error) {
+        await sql`ROLLBACK`
+        throw error
+      }
 
       console.log(
         `✅ Migration ${migration.name} executed successfully (${Date.now() - startTime}ms)`
@@ -452,18 +533,25 @@ export class MigrationRunner {
           .limit(1)
 
         if (migration.length > 0 && migration[0].rollbackSql) {
-          await db.transaction(async (tx) => {
+          await sql`BEGIN`
+
+          try {
             const statements = migration[0].rollbackSql
               .split(';')
               .map((stmt) => stmt.trim())
               .filter((stmt) => stmt.length > 0)
 
             for (const statement of statements) {
-              await tx.execute(statement)
+              await sql(statement)
             }
 
-            await tx.delete(migrations).where(eq(migrations.id, migration[0].id))
-          })
+            await db.delete(migrations).where(eq(migrations.id, migration[0].id))
+
+            await sql`COMMIT`
+          } catch (error) {
+            await sql`ROLLBACK`
+            throw error
+          }
 
           console.log(`✅ Rolled back migration: ${name}`)
         }
@@ -503,7 +591,9 @@ export class MigrationRunner {
         }
       }
 
-      await db.transaction(async (tx) => {
+      await sql`BEGIN`
+
+      try {
         // Execute rollback SQL
         const statements = migration.rollbackSql
           .split(';')
@@ -511,12 +601,17 @@ export class MigrationRunner {
           .filter((stmt) => stmt.length > 0)
 
         for (const statement of statements) {
-          await tx.execute(statement)
+          await sql(statement)
         }
 
         // Remove migration record
-        await tx.delete(migrations).where(eq(migrations.id, migration.id))
-      })
+        await db.delete(migrations).where(eq(migrations.id, migration.id))
+
+        await sql`COMMIT`
+      } catch (error) {
+        await sql`ROLLBACK`
+        throw error
+      }
 
       console.log(`✅ Migration ${migration.name} rolled back successfully`)
       return { success: true, rolledBack: migration.name }
@@ -621,18 +716,18 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         WHERE tc.constraint_type = 'FOREIGN KEY'
       `
 
-      const foreignKeys = await db.execute(foreignKeyQuery)
+      const foreignKeys = await sql(foreignKeyQuery)
 
-      for (const fk of foreignKeys.rows) {
+      for (const fk of foreignKeys) {
         const indexQuery = `
           SELECT indexname 
           FROM pg_indexes 
-          WHERE tablename = $1 
+          WHERE tablename = '${fk.table_name}' 
           AND indexdef LIKE '%${fk.column_name}%'
         `
 
-        const indexes = await db.execute(indexQuery, [fk.table_name])
-        if (indexes.rows.length === 0) {
+        const indexes = await sql(indexQuery)
+        if (indexes.length === 0) {
           recommendations.push(
             `Consider adding index on ${fk.table_name}.${fk.column_name} (foreign key)`
           )
@@ -652,8 +747,8 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         )
       `
 
-      const tablesWithoutPK = await db.execute(tablesQuery)
-      tablesWithoutPK.rows.forEach((row) => {
+      const tablesWithoutPK = await sql(tablesQuery)
+      tablesWithoutPK.forEach((row) => {
         issues.push(`Table ${row.table_name} has no primary key`)
       })
 
@@ -670,8 +765,8 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
           WHERE idx_tup_read = 0 AND idx_tup_fetch = 0
         `
 
-        const unusedIndexes = await db.execute(unusedIndexQuery)
-        unusedIndexes.rows.forEach((row) => {
+        const unusedIndexes = await sql(unusedIndexQuery)
+        unusedIndexes.forEach((row) => {
           recommendations.push(`Index ${row.indexname} on ${row.tablename} appears unused`)
         })
       } catch (error) {
@@ -719,7 +814,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         ORDER BY total_operations DESC
       `
 
-      const tableStats = await db.execute(tableStatsQuery)
+      const tableStats = await sql(tableStatsQuery)
 
       // Get index count per table
       const indexCountQuery = `
@@ -731,31 +826,31 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         GROUP BY tablename
       `
 
-      const indexCounts = await db.execute(indexCountQuery)
-      const indexCountMap = new Map(indexCounts.rows.map((row) => [row.tablename, row.index_count]))
+      const indexCounts = await sql(indexCountQuery)
+      const indexCountMap = new Map(indexCounts.map((row) => [row.tablename, row.index_count]))
 
       // Get total database size
       const dbSizeQuery = 'SELECT pg_size_pretty(pg_database_size(current_database())) as size'
-      const dbSize = await db.execute(dbSizeQuery)
+      const dbSize = await sql(dbSizeQuery)
 
       // Get connection count
       const connectionQuery = 'SELECT count(*) as count FROM pg_stat_activity'
-      const connections = await db.execute(connectionQuery)
+      const connections = await sql(connectionQuery)
 
       // Get installed extensions
       const extensionsQuery = 'SELECT extname FROM pg_extension ORDER BY extname'
-      const extensions = await db.execute(extensionsQuery)
+      const extensions = await sql(extensionsQuery)
 
       return {
-        tables: tableStats.rows.map((row) => ({
+        tables: tableStats.map((row) => ({
           name: row.tablename,
           rowCount: Number.parseInt(row.live_tuples) || 0,
           size: row.size || '0 bytes',
           indexes: indexCountMap.get(row.tablename) || 0,
         })),
-        totalSize: dbSize.rows[0]?.size || '0 bytes',
-        connectionCount: Number.parseInt(connections.rows[0]?.count) || 0,
-        extensions: extensions.rows.map((row) => row.extname),
+        totalSize: dbSize[0]?.size || '0 bytes',
+        connectionCount: Number.parseInt(connections[0]?.count) || 0,
+        extensions: extensions.map((row) => row.extname),
       }
     } catch (error) {
       console.error('Failed to get database stats:', error)
@@ -782,7 +877,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
     try {
       // Update table statistics
       console.log('📊 Updating table statistics...')
-      await db.execute('ANALYZE')
+      await sql`ANALYZE`
       operations.push('Updated table statistics (ANALYZE)')
 
       // Vacuum tables to reclaim space
@@ -792,11 +887,11 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         FROM pg_tables 
         WHERE schemaname = 'public'
       `
-      const tables = await db.execute(tablesQuery)
+      const tables = await sql(tablesQuery)
 
-      for (const table of tables.rows) {
+      for (const table of tables) {
         try {
-          await db.execute(`VACUUM ${table.tablename}`)
+          await sql(`VACUUM ${table.tablename}`)
           operations.push(`Vacuumed table: ${table.tablename}`)
         } catch (error) {
           errors.push(`Failed to vacuum ${table.tablename}: ${error.message}`)
@@ -807,13 +902,13 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
       if (process.env.NODE_ENV !== 'production') {
         console.log('🔄 Reindexing database...')
         try {
-          await db.execute('REINDEX DATABASE CONCURRENTLY')
+          await sql`REINDEX DATABASE CONCURRENTLY`
           operations.push('Reindexed database')
         } catch (error) {
           // REINDEX DATABASE might not be supported, try individual tables
-          for (const table of tables.rows) {
+          for (const table of tables) {
             try {
-              await db.execute(`REINDEX TABLE ${table.tablename}`)
+              await sql(`REINDEX TABLE ${table.tablename}`)
               operations.push(`Reindexed table: ${table.tablename}`)
             } catch (tableError) {
               errors.push(`Failed to reindex ${table.tablename}: ${tableError.message}`)

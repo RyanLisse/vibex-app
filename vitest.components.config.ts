@@ -1,16 +1,15 @@
-import path from 'node:path'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import { defineConfig } from 'vitest/config'
+import { mergeConfig } from 'vitest/config'
+import { sharedConfig } from './vitest.shared.config'
 
 // Component tests config for React components and hooks
-export default defineConfig({
+export default mergeConfig(sharedConfig, {
   plugins: [react(), tsconfigPaths()],
   test: {
+    name: 'components',
     environment: 'jsdom',
-    globals: true,
-    setupFiles: ['./tests/setup/unit.ts'],
-    pool: 'threads',
+    setupFiles: ['./tests/setup/components.ts'],
     css: true,
     include: [
       'components/**/*.test.{jsx,tsx}',
@@ -32,33 +31,12 @@ export default defineConfig({
       'stores/**/*.test.*',
       'src/schemas/**/*.test.*',
       'src/hooks/useZodForm/**/*.test.{js,ts}',
+      'app/api/**/*.test.*',
     ],
-    testTimeout: 10_000,
-    hookTimeout: 5000,
-    teardownTimeout: 5000,
-    isolate: true,
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-    retry: 0,
-    bail: 1,
-    watch: false,
-    passWithNoTests: true,
+    testTimeout: 15_000,
+    hookTimeout: 10_000,
+    teardownTimeout: 10_000,
     allowOnly: false,
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './'),
-      '@/components': path.resolve(__dirname, './components'),
-      '@/lib': path.resolve(__dirname, './lib'),
-      '@/hooks': path.resolve(__dirname, './hooks'),
-      '@/app': path.resolve(__dirname, './app'),
-      '@/features': path.resolve(__dirname, './src/features'),
-      '@/shared': path.resolve(__dirname, './src/shared'),
-      '@/test': path.resolve(__dirname, './tests'),
-      '@/fixtures': path.resolve(__dirname, './tests/fixtures'),
-      '@/mocks': path.resolve(__dirname, './tests/mocks'),
-    },
   },
   esbuild: {
     target: 'es2022',

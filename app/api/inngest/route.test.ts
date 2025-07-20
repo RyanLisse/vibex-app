@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock, test } from 'bun:test'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import { NextRequest } from 'next/server'
 
 // Mock Inngest
@@ -98,7 +98,7 @@ describe('Inngest API Routes', () => {
         const _response = await GET(request)
         // If no error is thrown, the function should still work
         expect(mockHandler.GET).toHaveBeenCalled()
-      } catch (error) {
+      } catch (_error) {
         // If an error is thrown, that's also acceptable behavior
         expect(mockHandler.GET).toHaveBeenCalled()
       }

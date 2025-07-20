@@ -24,6 +24,14 @@ export class ObservabilityService {
     getErrorCount: () => this.errors.length,
   }
 
+  public recordOperation = (name: string, duration: number) => {
+    this.operations.set(`${name}_${Date.now()}`, {
+      startTime: new Date(Date.now() - duration),
+      endTime: new Date(),
+      duration,
+    })
+  }
+
   public getTracer() {
     return this.tracer
   }
@@ -356,6 +364,10 @@ export const observability = {
 
 // Re-export event types
 export type { EventFilter, EventSeverity, ObservabilityEvent } from './events'
+
 // Re-export types and utilities from metrics
 export type { AggregatedMetric, MetricDataPoint, MetricType } from './metrics'
 export { MetricsAnalyzer, PerformanceMetricsCollector } from './metrics'
+
+// Re-export for backwards compatibility
+export { observability as observabilityService }

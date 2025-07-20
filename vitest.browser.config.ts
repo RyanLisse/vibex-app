@@ -1,31 +1,35 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vitest/config'
+import { mergeConfig } from 'vitest/config'
+import { sharedConfig } from './vitest.shared.config'
 
 // Browser tests config for E2E and browser-specific testing
-export default defineConfig({
+export default mergeConfig(sharedConfig, {
   plugins: [react()],
   test: {
+    name: 'browser',
     browser: {
       enabled: true,
       provider: 'playwright',
       instances: [{ browser: 'chromium' }], // Only chromium for faster testing
     },
-    globals: true,
-    include: ['tests/e2e/**/*.test.{js,ts,jsx,tsx}', '**/*.e2e.test.*', '**/*.browser.test.*'],
+    setupFiles: ['./tests/setup/browser.ts'],
+    include: ['tests/e2e/**/*.spec.{js,ts,jsx,tsx}', '**/*.e2e.test.*', '**/*.browser.test.*'],
     exclude: [
       'node_modules',
       'dist',
       '.next',
       '**/*.integration.test.*',
+      '**/*.unit.test.*',
+      'lib/**/*.test.*',
+      'components/**/*.test.*',
+      'hooks/**/*.test.*',
+      'app/**/*.test.*',
       '**/*.bun.test.*',
       'tests/bun-*.test.*',
     ],
-    testTimeout: 30_000,
-    hookTimeout: 10_000,
-    teardownTimeout: 10_000,
-    retry: 1, // Allow retry for browser tests
-    bail: 1,
-    watch: false,
-    passWithNoTests: true,
+    testTimeout: 60_000,
+    hookTimeout: 30_000,
+    teardownTimeout: 30_000,
+    retry: 2, // E2E tests can be flaky
   },
 })

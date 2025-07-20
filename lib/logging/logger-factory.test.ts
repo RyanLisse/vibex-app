@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createDefaultLoggingConfig } from './config'
+
 import { ComponentLogger, LoggerFactory } from './logger-factory'
+import { createDefaultLoggingConfig } from './defaults'
 import type { LoggingConfig } from './types'
 
 describe('LoggerFactory', () => {

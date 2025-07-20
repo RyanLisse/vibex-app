@@ -23,7 +23,7 @@ export const TranscriptionEventSchema = z.object({
     'silence_detected',
   ]),
   timestamp: z.date(),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
 })
 
 export type TranscriptionEvent = z.infer<typeof TranscriptionEventSchema>

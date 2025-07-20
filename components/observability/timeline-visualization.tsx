@@ -264,7 +264,7 @@ export function TimelineVisualization({
               <Badge variant="outline">{timelineStats.totalSteps} steps</Badge>
               <Badge variant="outline">{timelineStats.checkpoints} checkpoints</Badge>
               {timelineStats.errors > 0 && (
-                <Badge variant="destructive">{timelineStats.errors} errors</Badge>
+                <Badge variant="destructive">{timelineStats.issues} errors</Badge>
               )}
             </div>
           </div>

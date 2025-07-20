@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -13,12 +13,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": false,
-    "types": ["vitest/globals", "bun-types"],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
@@ -33,10 +30,42 @@
       "@/test/*": ["./tests/*"],
       "@/src/*": ["./src/*"]
     },
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "noImplicitAny": false
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "hooks/**/*.ts",
+    "hooks/**/*.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "db/**/*.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "out",
+    "dist",
+    "build",
+    "coverage",
+    "playwright-report",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "tests/**/*",
+    "scripts/**/*",
+    "vitest.*.config.ts",
+    "playwright.config.ts"
+  ]
 }

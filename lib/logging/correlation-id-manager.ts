@@ -1,4 +1,19 @@
-import { AsyncLocalStorage } from 'async_hooks'
+let AsyncLocalStorage: any
+if (typeof window === 'undefined') {
+  AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
+} else {
+  // Browser fallback
+  AsyncLocalStorage = class {
+    private store: any = null
+    run(store: any, callback: () => any) {
+      this.store = store
+      return callback()
+    }
+    getStore() {
+      return this.store
+    }
+  }
+}
 import { randomUUID } from 'crypto'
 import type { NextRequest } from 'next/server'
 

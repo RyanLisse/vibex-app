@@ -75,9 +75,36 @@ const createMockVectorSearch = () => {
 
     batchCreateEmbeddings: vi.fn(
       async (texts: string[], model = 'default'): Promise<VectorEmbedding[]> => {
-        const embeddings = await Promise.all(
-          texts.map((text) => createMockVectorSearch().createEmbedding(text, model))
-        )
+        // Generate embeddings directly without recursive calls
+        const embeddings: VectorEmbedding[] = []
+        for (const text of texts) {
+          const dimensions = model === 'large' ? 1536 : 384
+          const vector = new Float32Array(dimensions)
+
+          // Generate pseudo-random but deterministic embedding based on text
+          const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+          for (let i = 0; i < dimensions; i++) {
+            vector[i] = Math.sin(hash + i) * 0.5
+          }
+
+          // Normalize vector
+          let norm = 0
+          for (let i = 0; i < vector.length; i++) {
+            norm += vector[i] * vector[i]
+          }
+          norm = Math.sqrt(norm)
+          for (let i = 0; i < vector.length; i++) {
+            vector[i] /= norm
+          }
+
+          embeddings.push({
+            id: `emb-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            vector,
+            dimensions,
+            norm: 1.0,
+            metadata: { text, model, length: text.length },
+          })
+        }
         return embeddings
       }
     ),
@@ -123,7 +150,7 @@ const createMockVectorSearch = () => {
               id,
               score,
               metadata: embedding.metadata,
-              distance: 1 - score,
+              distance: Math.max(0, 1 - score), // Ensure distance is never negative
             })
           }
         }
@@ -142,8 +169,52 @@ const createMockVectorSearch = () => {
           filter?: (metadata: any) => boolean
         } = {}
       ): Promise<SimilarityResult[]> => {
-        const queryEmbedding = await createMockVectorSearch().createEmbedding(query, options.model)
-        return createMockVectorSearch().search(queryEmbedding.vector, options)
+        const { k = 10, threshold = 0.0, filter, model = 'default' } = options
+
+        // Create embedding directly without recursive calls
+        const dimensions = model === 'large' ? 1536 : 384
+        const queryVector = new Float32Array(dimensions)
+
+        // Generate pseudo-random but deterministic embedding based on text
+        const hash = query.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        for (let i = 0; i < dimensions; i++) {
+          queryVector[i] = Math.sin(hash + i) * 0.5
+        }
+
+        // Normalize vector
+        let norm = 0
+        for (let i = 0; i < queryVector.length; i++) {
+          norm += queryVector[i] * queryVector[i]
+        }
+        norm = Math.sqrt(norm)
+        for (let i = 0; i < queryVector.length; i++) {
+          queryVector[i] /= norm
+        }
+
+        // Search using the current instance's vectors
+        const results: SimilarityResult[] = []
+
+        for (const [id, embedding] of vectors.entries()) {
+          if (filter && !filter(embedding.metadata)) continue
+
+          // Calculate cosine similarity
+          let dotProduct = 0
+          for (let i = 0; i < Math.min(queryVector.length, embedding.vector.length); i++) {
+            dotProduct += queryVector[i] * embedding.vector[i]
+          }
+
+          const score = dotProduct // Assuming normalized vectors
+          if (score >= threshold) {
+            results.push({
+              id,
+              score,
+              metadata: embedding.metadata,
+              distance: Math.max(0, 1 - score), // Ensure distance is never negative
+            })
+          }
+        }
+
+        return results.sort((a, b) => b.score - a.score).slice(0, k)
       }
     ),
 
@@ -195,10 +266,27 @@ const createMockVectorSearch = () => {
 
     euclideanDistance: vi.fn((a: Float32Array, b: Float32Array): number => {
       let sum = 0
-      for (let i = 0; i < Math.min(a.length, b.length); i++) {
+      const minLength = Math.min(a.length, b.length)
+      const maxLength = Math.max(a.length, b.length)
+
+      // Calculate distance for common dimensions
+      for (let i = 0; i < minLength; i++) {
         const diff = a[i] - b[i]
         sum += diff * diff
       }
+
+      // Add squared values for extra dimensions (treating missing values as 0)
+      if (a.length > minLength) {
+        for (let i = minLength; i < a.length; i++) {
+          sum += a[i] * a[i]
+        }
+      }
+      if (b.length > minLength) {
+        for (let i = minLength; i < b.length; i++) {
+          sum += b[i] * b[i]
+        }
+      }
+
       return Math.sqrt(sum)
     }),
 
@@ -383,6 +471,9 @@ describe('WASM Vector Search Integration Tests', () => {
     })
 
     it('should handle large vector sets efficiently', async () => {
+      // Clear existing test data for this specific test
+      await vectorSearch.clear()
+
       // Create large dataset
       const largeTexts = Array.from(
         { length: 1000 },

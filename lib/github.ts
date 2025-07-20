@@ -183,7 +183,7 @@ export const githubAuth = new GitHubAuth()
 import { cookies } from 'next/headers'
 
 export async function getGitHubUser(): Promise<GitHubUser | null> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('github_access_token')?.value
 
   if (!token) {
@@ -217,7 +217,7 @@ export async function exchangeCodeForToken(code: string): Promise<string> {
 }
 
 export async function getUserRepositories(token?: string): Promise<GitHubRepository[]> {
-  const accessToken = token || cookies().get('github_access_token')?.value
+  const accessToken = token || (await cookies()).get('github_access_token')?.value
 
   if (!accessToken) {
     throw new Error('GitHub authentication required')
@@ -231,7 +231,7 @@ export async function getRepoBranches(
   repo: string,
   token?: string
 ): Promise<GitHubBranch[]> {
-  const accessToken = token || cookies().get('github_access_token')?.value
+  const accessToken = token || (await cookies()).get('github_access_token')?.value
 
   if (!accessToken) {
     throw new Error('GitHub authentication required')
@@ -259,7 +259,7 @@ export async function createRepository(
   },
   token?: string
 ): Promise<GitHubRepository> {
-  const accessToken = token || cookies().get('github_access_token')?.value
+  const accessToken = token || (await cookies()).get('github_access_token')?.value
 
   if (!accessToken) {
     throw new Error('GitHub authentication required')
@@ -283,7 +283,7 @@ export async function createRepository(
 }
 
 export async function clearGitHubAuth(): Promise<void> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   cookieStore.delete('github_access_token')
 }
 

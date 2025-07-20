@@ -1,3 +1,7 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 import { type NextRequest, NextResponse } from 'next/server'
 
 // Note: Next.js doesn't natively support WebSocket in API routes
@@ -30,9 +34,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Simulate WebSocket message handling
-    console.log('Simulated WebSocket message:', body)
-
     // In a real implementation, this would broadcast to connected clients
     const response = {
       type: 'message_received',
@@ -41,8 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(response)
-  } catch (error) {
-    console.error('Error handling WebSocket message:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to handle WebSocket message' }, { status: 500 })
   }
 }

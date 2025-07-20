@@ -1,3 +1,7 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Environments API Route
  *
@@ -18,9 +22,6 @@ import {
   createApiErrorResponse,
   createApiSuccessResponse,
   createPaginatedResponse,
-  EnvironmentSchema,
-  EnvironmentsRequestSchema,
-  UpdateEnvironmentSchema,
 } from '@/src/schemas/api-routes'
 
 // Request validation schemas
@@ -74,8 +75,21 @@ class EnvironmentsService {
       }
 
       // Build sort order
-      const sortColumn = environments[params.sortBy as keyof typeof environments]
-      const orderBy = params.sortOrder === 'asc' ? sortColumn : desc(sortColumn)
+      let orderByColumn
+      switch (params.sortBy) {
+        case 'name':
+          orderByColumn = environments.name
+          break
+        case 'createdAt':
+          orderByColumn = environments.createdAt
+          break
+        case 'updatedAt':
+          orderByColumn = environments.updatedAt
+          break
+        default:
+          orderByColumn = environments.createdAt
+      }
+      const orderBy = params.sortOrder === 'asc' ? orderByColumn : desc(orderByColumn)
 
       // Execute query with pagination
       const offset = (params.page - 1) * params.limit
@@ -97,7 +111,7 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordOperation('select_environments', duration)
+      observability.recordOperation('select_environments', duration)
 
       // Record event
       observability.recordEvent('environments_query', {
@@ -155,10 +169,13 @@ class EnvironmentsService {
       const startTime = Date.now()
 
       // Extract userId from request context or set as needed
-      const userId = envData.userId || 'system' // This should come from auth context
+      const userId = 'system' // This should come from auth context
+
+      // By default, first environment is active
+      const isActive = true
 
       // If this environment should be active, deactivate others for the same user
-      if (envData.isActive) {
+      if (isActive) {
         await db
           .update(environments)
           .set({ isActive: false, updatedAt: new Date() })
@@ -167,8 +184,15 @@ class EnvironmentsService {
 
       const newEnvironment = {
         id: ulid(),
-        ...envData,
+        name: envData.name,
+        config: {
+          type: envData.type,
+          description: envData.description,
+          url: envData.url,
+          variables: envData.variables,
+        },
         userId,
+        isActive,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -178,7 +202,7 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordOperation('insert_environment', duration)
+      observability.recordOperation('insert_environment', duration)
 
       // Record event
       observability.recordEvent('environments_event', {
@@ -248,7 +272,7 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordOperation('activate_environment', duration)
+      observability.recordOperation('activate_environment', duration)
 
       // Record event
       observability.recordEvent('environments_event', {
@@ -314,23 +338,16 @@ export async function GET(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400), { status: 400 })
     }
 
     if (error instanceof EnvironmentsAPIError) {
-      return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
-        { status: error.statusCode }
-      )
+      return NextResponse.json(createApiErrorResponse(error.message, error.statusCode), {
+        status: error.statusCode,
+      })
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }
 
@@ -353,23 +370,16 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400), { status: 400 })
     }
 
     if (error instanceof EnvironmentsAPIError) {
-      return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
-        { status: error.statusCode }
-      )
+      return NextResponse.json(createApiErrorResponse(error.message, error.statusCode), {
+        status: error.statusCode,
+      })
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }
 
@@ -396,22 +406,15 @@ export async function PUT(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400), { status: 400 })
     }
 
     if (error instanceof EnvironmentsAPIError) {
-      return NextResponse.json(
-        createApiErrorResponse(error.message, error.statusCode, error.code),
-        { status: error.statusCode }
-      )
+      return NextResponse.json(createApiErrorResponse(error.message, error.statusCode), {
+        status: error.statusCode,
+      })
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500, 'INTERNAL_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }

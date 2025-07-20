@@ -20,7 +20,7 @@ import {
 // Skip tests if no database URL is provided
 const skipTests = !process.env.DATABASE_URL
 
-describe.skipIf(skipTests)('Database Schema and Migration Tests', () => {
+describe('Database Schema and Migration Tests', () => {
   beforeAll(async () => {
     // Ensure database is healthy
     const isHealthy = await checkDatabaseHealth()

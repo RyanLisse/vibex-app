@@ -7,7 +7,7 @@ export const CreateTaskSchema = z.object({
   status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).default('pending'),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
   userId: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const UpdateTaskSchema = CreateTaskSchema.partial().extend({
@@ -41,14 +41,14 @@ export const CreateAgentExecutionSchema = z.object({
   taskId: z.string().uuid('Invalid task ID').optional(),
   agentType: z.string().min(1, 'Agent type is required').max(100, 'Agent type too long'),
   status: z.enum(['pending', 'running', 'completed', 'failed', 'cancelled']),
-  input: z.record(z.any()).optional(),
-  output: z.record(z.any()).optional(),
+  input: z.record(z.string(), z.any()).optional(),
+  output: z.record(z.string(), z.any()).optional(),
   error: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   traceId: z.string().optional(),
   executionTimeMs: z.number().int().positive().optional(),
-  tokenUsage: z.record(z.any()).optional(),
-  cost: z.record(z.any()).optional(),
+  tokenUsage: z.record(z.string(), z.any()).optional(),
+  cost: z.record(z.string(), z.any()).optional(),
 })
 
 export const UpdateAgentExecutionSchema = CreateAgentExecutionSchema.partial().extend({
@@ -60,7 +60,7 @@ export const UpdateAgentExecutionSchema = CreateAgentExecutionSchema.partial().e
 export const CreateObservabilityEventSchema = z.object({
   executionId: z.string().uuid('Invalid execution ID'),
   eventType: z.string().min(1, 'Event type is required').max(100, 'Event type too long'),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.any()).optional(),
   traceId: z.string().optional(),
   spanId: z.string().optional(),
   severity: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).default('info'),
@@ -72,7 +72,7 @@ export const CreateAgentMemorySchema = z.object({
   agentType: z.string().min(1, 'Agent type is required').max(100, 'Agent type too long'),
   contextKey: z.string().min(1, 'Context key is required').max(255, 'Context key too long'),
   content: z.string().min(1, 'Content is required'),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   importance: z.number().int().min(1).max(10).default(1),
   expiresAt: z.date().optional(),
 })
@@ -110,7 +110,7 @@ export const CreateWorkflowExecutionSchema = z.object({
   status: z.enum(['pending', 'running', 'paused', 'completed', 'failed', 'cancelled']),
   currentStep: z.number().int().min(0).default(0),
   totalSteps: z.number().int().positive().optional(),
-  state: z.record(z.any()).optional(),
+  state: z.record(z.string(), z.any()).optional(),
   triggeredBy: z.string().optional(),
   parentExecutionId: z.string().uuid('Invalid parent execution ID').optional(),
 })
@@ -135,7 +135,7 @@ export const CreateMigrationSchema = z.object({
   name: z.string().min(1, 'Migration name is required').max(255, 'Name too long'),
   checksum: z.string().length(64, 'Invalid checksum format'),
   rollbackSql: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 // Database health check schema

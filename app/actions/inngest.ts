@@ -2,7 +2,7 @@
 import { getSubscriptionToken, type Realtime } from '@inngest/realtime'
 import { cookies } from 'next/headers'
 import { getInngestApp, inngest, taskChannel } from '@/lib/inngest'
-import { getLogger } from '@/lib/logging'
+import { getLogger } from '@/lib/logging/safe-wrapper'
 import { getTelemetryConfig } from '@/lib/telemetry'
 import type { Task } from '@/types/task'
 

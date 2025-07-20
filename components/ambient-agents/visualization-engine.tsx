@@ -1,36 +1,29 @@
-import ReactFlow, {
-  addEdge,
-  Background,
-  type Connection,
-  Controls,
-  type Edge,
-  type EdgeTypes,
-  MiniMap,
-  type Node,
-  type NodeTypes,
-  Panel,
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  ReactFlow,
   ReactFlowProvider,
-  useEdgesState,
-  useNodesState,
-  useReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  Panel,
+  type NodeTypes,
+  type EdgeTypes,
 } from '@xyflow/react'
-import type React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import '@xyflow/react/dist/style.css'
 
-import { useAmbientAgentData } from '../../hooks/ambient-agents/use-ambient-agent-data'
-import { useVisualizationState } from '../../hooks/ambient-agents/use-visualization-state'
-import { applyLayoutAlgorithm } from '../../lib/ambient-agents/layout-algorithms'
-import { VisualizationControls } from './controls/visualization-controls'
+import { AgentNode } from './nodes/agent-node'
+import { TaskNode } from './nodes/task-node'
+import { EventNode } from './nodes/event-node'
+import { MemoryNode } from './nodes/memory-node'
 import { AnimatedEdge } from './edges/animated-edge'
 import { DataFlowEdge } from './edges/data-flow-edge'
 import { DependencyEdge } from './edges/dependency-edge'
-import { PerformanceMonitor } from './monitors/performance-monitor'
-import { AgentNode } from './nodes/agent-node'
-import { EventNode } from './nodes/event-node'
-import { MemoryNode } from './nodes/memory-node'
-import { TaskNode } from './nodes/task-node'
+import { useAmbientAgentData } from '../../hooks/ambient-agents/use-ambient-agent-data'
+import { useVisualizationState } from '../../hooks/ambient-agents/use-visualization-state'
+import { VisualizationControls } from './controls/visualization-controls'
 import { AgentDetailPanel } from './panels/agent-detail-panel'
+import { PerformanceMonitor } from './monitors/performance-monitor'
+import { applyLayoutAlgorithm } from '../../lib/ambient-agents/layout-algorithms'
 
 // Custom node types for different agent system components
 const nodeTypes: NodeTypes = {
@@ -194,13 +187,13 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="space-y-4 text-center">
-          <div className="font-semibold text-lg text-red-500">Error loading ambient agent data</div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center space-y-4">
+          <div className="text-red-500 text-lg font-semibold">Error loading ambient agent data</div>
           <div className="text-gray-600">{error.message}</div>
           <button
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
             onClick={refreshData}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Retry
           </button>
@@ -210,67 +203,70 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
   }
 
   return (
-    <div className={`relative h-full w-full ${className}`}>
+    <div className={`w-full h-full relative ${className}`}>
       {/* Connection status indicator */}
       <div className="absolute top-4 left-4 z-10">
         <div
-          className={`rounded px-2 py-1 font-medium text-xs ${connectionStatus === 'Open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} `}
+          className={`
+          px-2 py-1 rounded text-xs font-medium
+          ${connectionStatus === 'Open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
+        `}
         >
           {connectionStatus === 'Open' ? '🟢 Connected' : '🔴 Disconnected'}
         </div>
       </div>
 
       <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeClick={onNodeClick}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        fitView
         attributionPosition="bottom-left"
         className="ambient-agent-visualization"
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
-        edges={edges}
-        edgeTypes={edgeTypes}
-        fitView
-        maxZoom={2}
         minZoom={0.1}
-        nodes={nodes}
-        nodeTypes={nodeTypes}
-        onConnect={onConnect}
-        onEdgesChange={onEdgesChange}
-        onNodeClick={onNodeClick}
-        onNodesChange={onNodesChange}
-        snapGrid={[15, 15]}
+        maxZoom={2}
         snapToGrid
+        snapGrid={[15, 15]}
       >
         {/* Background pattern */}
         <Background color="#aaa" gap={16} variant="dots" />
 
         {/* Navigation controls */}
-        <Controls position="bottom-right" showFitView showInteractive showZoom />
+        <Controls showZoom showFitView showInteractive position="bottom-right" />
 
         {/* Minimap for navigation */}
         <MiniMap
           nodeColor={(node) => getNodeColor(node)}
           nodeStrokeWidth={3}
+          zoomable
           pannable
           position="bottom-left"
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.9)',
             border: '1px solid #ccc',
           }}
-          zoomable
         />
 
         {/* Control panels */}
         <Panel position="top-left">
           <VisualizationControls
+            viewMode={visualizationState.viewMode}
             layoutAlgorithm={visualizationState.layoutAlgorithm}
-            onExport={handleExport}
-            onFilterChange={applyFilters}
-            onFitView={handleFitView}
-            onLayoutChange={handleLayoutChange}
-            onReset={handleReset}
-            onShare={handleShare}
             onViewModeChange={handleViewModeChange}
+            onLayoutChange={handleLayoutChange}
+            onFilterChange={applyFilters}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
-            viewMode={visualizationState.viewMode}
+            onFitView={handleFitView}
+            onReset={handleReset}
+            onExport={handleExport}
+            onShare={handleShare}
           />
         </Panel>
 
@@ -284,7 +280,7 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
         {/* Loading indicator */}
         {isLoading && (
           <Panel position="bottom-center">
-            <div className="rounded-md bg-white px-4 py-2 text-sm shadow-md">
+            <div className="bg-white shadow-md rounded-md px-4 py-2 text-sm">
               Loading ambient agent data...
             </div>
           </Panel>
@@ -293,13 +289,13 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
 
       {/* Detail panel for selected nodes */}
       <AgentDetailPanel
-        isOpen={isDetailPanelOpen}
         node={selectedNode}
+        isOpen={isDetailPanelOpen}
         onClose={() => setIsDetailPanelOpen(false)}
       />
 
       {/* Custom styles */}
-      <style global jsx>{`
+      <style jsx global>{`
         .ambient-agent-visualization {
           background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
@@ -450,7 +446,7 @@ function transformDataToEdges(
             volume: comm.volume || 0,
             bandwidth: comm.throughput || 0,
             latency: comm.latency || 0,
-            isActive: comm.isActive,
+            isActive: comm.isActive || false,
             protocol: comm.protocol || 'http',
           },
         },
@@ -473,7 +469,7 @@ function transformDataToEdges(
             status: dep.status || 'active',
             strength: dep.strength || 'medium',
             condition: dep.condition,
-            isOptional: dep.isOptional,
+            isOptional: dep.isOptional || false,
           },
         },
       })
@@ -495,7 +491,7 @@ function transformDataToEdges(
                 type: connection.type || 'data',
                 throughput: connection.throughput || 0,
                 latency: connection.latency || 0,
-                isActive: connection.isActive,
+                isActive: connection.isActive || false,
               },
               animated: connection.isActive,
             },
@@ -511,7 +507,7 @@ function transformDataToEdges(
 
 function getNodeColor(node: Node): string {
   switch (node.type) {
-    case 'agent': {
+    case 'agent':
       const agentStatus = node.data?.agent?.status
       switch (agentStatus) {
         case 'busy':
@@ -525,8 +521,7 @@ function getNodeColor(node: Node): string {
         default:
           return '#3b82f6'
       }
-    }
-    case 'task': {
+    case 'task':
       const taskStatus = node.data?.task?.status
       switch (taskStatus) {
         case 'running':
@@ -540,10 +535,9 @@ function getNodeColor(node: Node): string {
         default:
           return '#9ca3af'
       }
-    }
     case 'memory':
       return '#8b5cf6'
-    case 'event': {
+    case 'event':
       const eventSeverity = node.data?.event?.severity
       switch (eventSeverity) {
         case 'error':
@@ -555,7 +549,6 @@ function getNodeColor(node: Node): string {
         default:
           return '#3b82f6'
       }
-    }
     default:
       return '#6b7280'
   }

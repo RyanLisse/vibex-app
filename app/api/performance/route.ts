@@ -1,3 +1,7 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Performance Monitoring API Route
  *
@@ -13,11 +17,7 @@ import { databaseQueryAnalyzer } from '@/lib/performance/database-query-analyzer
 import { performanceBenchmarker } from '@/lib/performance/performance-benchmarker'
 import { withPerformanceMonitoring } from '@/lib/performance/performance-middleware'
 import { queryPerformanceMonitor } from '@/lib/performance/query-performance-monitor'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-  validateApiRequest,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 
 // Request schemas
 const PerformanceMetricsSchema = z.object({
@@ -77,9 +77,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
             return total
           }, 0),
         }
-      } catch (error) {
-        console.warn('Failed to get database stats:', error)
-      }
+      } catch (_error) {}
     }
 
     const response = {
@@ -102,7 +100,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid parameters', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Invalid parameters', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -150,7 +148,7 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
           .sort((a, b) => b.executionTime - a.executionTime)
           .slice(0, 5)
           .map((q) => ({
-            query: q.query.substring(0, 100) + '...',
+            query: `${q.query.substring(0, 100)}...`,
             executionTime: q.executionTime,
             bottlenecks: q.bottlenecks,
             recommendations: q.recommendations,
@@ -164,7 +162,7 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
         ...analysisReport,
         slowQueries: analysisReport.slowQueries.map((q) => ({
           ...q,
-          query: q.query.substring(0, 100) + '...', // Truncate for API response
+          query: `${q.query.substring(0, 100)}...`, // Truncate for API response
         })),
       },
       optimizationPlan,
@@ -182,7 +180,7 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -214,8 +212,7 @@ export async function PUT(request: NextRequest) {
     if (validatedBody.compareWithBaseline) {
       try {
         baselineComparison = await performanceBenchmarker.compareAgainstBaseline()
-      } catch (error) {
-        console.warn('Failed to compare with baseline:', error)
+      } catch (_error) {
         // Continue without baseline comparison
       }
     }
@@ -224,7 +221,7 @@ export async function PUT(request: NextRequest) {
     let filteredResults = benchmarkResults
     if (validatedBody.suites && validatedBody.suites.length > 0) {
       filteredResults = benchmarkResults.filter((suite) =>
-        validatedBody.suites!.includes(suite.name)
+        validatedBody.suites?.includes(suite.name)
       )
     }
 
@@ -254,7 +251,7 @@ export async function PUT(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

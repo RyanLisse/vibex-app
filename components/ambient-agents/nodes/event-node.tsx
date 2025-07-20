@@ -1,18 +1,18 @@
-import { Handle, type NodeProps, Position } from '@xyflow/react'
-import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Database,
-  Info,
-  Network,
-  User,
-  XCircle,
-  Zap,
-} from 'lucide-react'
 import React, { memo, useCallback } from 'react'
+import { Handle, Position, NodeProps } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Zap,
+  AlertCircle,
+  Info,
+  CheckCircle,
+  XCircle,
+  Clock,
+  User,
+  Database,
+  Network,
+} from 'lucide-react'
 
 export interface EventNodeData {
   event: {
@@ -44,35 +44,35 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
   const getEventIcon = useCallback(() => {
     switch (event.type) {
       case 'agent.created':
-        return <User className="h-4 w-4 text-blue-500" />
+        return <User className="w-4 h-4 text-blue-500" />
       case 'agent.status.changed':
-        return <Zap className="h-4 w-4 text-yellow-500" />
+        return <Zap className="w-4 h-4 text-yellow-500" />
       case 'task.started':
-        return <CheckCircle className="h-4 w-4 text-green-500" />
+        return <CheckCircle className="w-4 h-4 text-green-500" />
       case 'task.completed':
-        return <CheckCircle className="h-4 w-4 text-green-600" />
+        return <CheckCircle className="w-4 h-4 text-green-600" />
       case 'memory.updated':
-        return <Database className="h-4 w-4 text-purple-500" />
+        return <Database className="w-4 h-4 text-purple-500" />
       case 'system.error':
-        return <XCircle className="h-4 w-4 text-red-500" />
+        return <XCircle className="w-4 h-4 text-red-500" />
       case 'communication.established':
-        return <Network className="h-4 w-4 text-indigo-500" />
+        return <Network className="w-4 h-4 text-indigo-500" />
       default:
-        return <Info className="h-4 w-4 text-gray-500" />
+        return <Info className="w-4 h-4 text-gray-500" />
     }
   }, [event.type])
 
   const getSeverityIcon = useCallback(() => {
     switch (event.severity) {
       case 'error':
-        return <AlertCircle className="h-3 w-3 text-red-500" />
+        return <AlertCircle className="w-3 h-3 text-red-500" />
       case 'warning':
-        return <AlertCircle className="h-3 w-3 text-yellow-500" />
+        return <AlertCircle className="w-3 h-3 text-yellow-500" />
       case 'success':
-        return <CheckCircle className="h-3 w-3 text-green-500" />
+        return <CheckCircle className="w-3 h-3 text-green-500" />
       case 'info':
       default:
-        return <Info className="h-3 w-3 text-blue-500" />
+        return <Info className="w-3 h-3 text-blue-500" />
     }
   }, [event.severity])
 
@@ -121,10 +121,10 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
     const diff = now.getTime() - new Date(timestamp).getTime()
 
     if (diff < 1000) return 'Just now'
-    if (diff < 60_000) return `${Math.floor(diff / 1000)}s ago`
-    if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`
-    if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`
-    return `${Math.floor(diff / 86_400_000)}d ago`
+    if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+    return `${Math.floor(diff / 86400000)}d ago`
   }, [])
 
   const getEventData = useCallback(() => {
@@ -142,11 +142,15 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
 
   return (
     <Card
-      className={`w-64 cursor-pointer transition-all duration-200 ${getSeverityColor()} ${selected ? 'shadow-lg ring-2 ring-blue-500' : 'shadow-md hover:shadow-lg'} `}
+      className={`
+        w-64 transition-all duration-200 cursor-pointer
+        ${getSeverityColor()}
+        ${selected ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-md hover:shadow-lg'}
+      `}
     >
       {/* Input/Output handles for connections */}
-      <Handle className="h-2 w-2 bg-blue-500" position={Position.Left} type="target" />
-      <Handle className="h-2 w-2 bg-blue-500" position={Position.Right} type="source" />
+      <Handle type="target" position={Position.Left} className="w-2 h-2 bg-blue-500" />
+      <Handle type="source" position={Position.Right} className="w-2 h-2 bg-blue-500" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -154,20 +158,20 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
             {getEventIcon()}
             <div className="flex items-center space-x-1">
               {getSeverityIcon()}
-              <span className="font-medium text-xs">Event</span>
+              <span className="text-xs font-medium">Event</span>
             </div>
           </div>
-          <Badge className={getEventTypeColor()} variant="secondary">
+          <Badge variant="secondary" className={getEventTypeColor()}>
             {formatEventType(event.type)}
           </Badge>
         </div>
 
-        <div className="text-gray-600 text-xs">{formatTimeAgo(event.timestamp)}</div>
+        <div className="text-xs text-gray-600">{formatTimeAgo(event.timestamp)}</div>
       </CardHeader>
 
       <CardContent className="space-y-2">
         {/* Source and Target */}
-        <div className="space-y-1 text-xs">
+        <div className="text-xs space-y-1">
           <div className="flex items-center space-x-1">
             <span className="font-medium">From:</span>
             <span className="truncate">{event.source}</span>
@@ -183,10 +187,10 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
         {/* Event data preview */}
         {getEventData() && (
           <div className="space-y-1">
-            <div className="font-medium text-gray-700 text-xs">Data:</div>
-            <div className="space-y-1 text-xs">
+            <div className="text-xs font-medium text-gray-700">Data:</div>
+            <div className="text-xs space-y-1">
               {getEventData()?.map(({ key, value }) => (
-                <div className="flex space-x-1" key={key}>
+                <div key={key} className="flex space-x-1">
                   <span className="font-medium">{key}:</span>
                   <span className="truncate text-gray-600">{value}</span>
                 </div>
@@ -197,13 +201,13 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
 
         {/* Metrics */}
         {metrics && (
-          <div className="grid grid-cols-2 gap-2 border-t pt-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t">
             <div className="flex items-center space-x-1">
-              <Clock className="h-3 w-3 text-gray-500" />
+              <Clock className="w-3 h-3 text-gray-500" />
               <span>{metrics.frequency}/min</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Network className="h-3 w-3 text-gray-500" />
+              <Network className="w-3 h-3 text-gray-500" />
               <span>{metrics.relatedEvents} related</span>
             </div>
           </div>

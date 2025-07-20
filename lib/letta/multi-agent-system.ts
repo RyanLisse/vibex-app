@@ -21,7 +21,7 @@ export const SessionSchema = z.object({
   type: z.enum(['chat', 'voice', 'brainstorm', 'multi-agent']),
   status: z.enum(['active', 'paused', 'completed', 'error']),
   activeAgents: z.array(z.string()),
-  context: z.record(z.any()),
+  context: z.record(z.string(), z.any()),
   createdAt: z.date(),
   updatedAt: z.date(),
   lastActivity: z.date(),
@@ -41,7 +41,7 @@ export const AgentEventSchema = z.object({
   ]),
   fromAgent: z.string(),
   toAgent: z.string().optional(),
-  payload: z.record(z.any()),
+  payload: z.record(z.string(), z.any()),
   timestamp: z.date(),
   sessionId: z.string(),
 })

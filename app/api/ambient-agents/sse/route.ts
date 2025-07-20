@@ -1,3 +1,7 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 import type { NextRequest } from 'next/server'
 
 // Server-Sent Events implementation for real-time updates

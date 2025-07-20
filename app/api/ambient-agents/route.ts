@@ -1,7 +1,11 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 import { type NextRequest, NextResponse } from 'next/server'
 
 // Sample data for demonstration - in production, this would come from your database/services
-const generateSampleData = (swarmId?: string) => {
+const generateSampleData = (_swarmId?: string) => {
   const agents = [
     {
       id: 'agent-1',
@@ -289,8 +293,7 @@ export async function GET(request: NextRequest) {
         Expires: '0',
       },
     })
-  } catch (error) {
-    console.error('Error fetching ambient agent data:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch ambient agent data' }, { status: 500 })
   }
 }
@@ -302,18 +305,12 @@ export async function POST(request: NextRequest) {
     // Handle different types of updates
     switch (body.type) {
       case 'agent.update':
-        // Update agent status or configuration
-        console.log('Updating agent:', body.agentId, body.data)
         break
 
       case 'task.create':
-        // Create a new task
-        console.log('Creating task:', body.data)
         break
 
       case 'swarm.configure':
-        // Configure swarm settings
-        console.log('Configuring swarm:', body.swarmId, body.data)
         break
 
       default:
@@ -321,8 +318,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error updating ambient agent data:', error)
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to update ambient agent data' }, { status: 500 })
   }
 }

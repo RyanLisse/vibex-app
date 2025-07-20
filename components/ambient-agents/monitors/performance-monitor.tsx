@@ -1,19 +1,18 @@
+import React, { useEffect, useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import {
   Activity,
+  Cpu,
+  Network,
+  Clock,
+  TrendingUp,
+  TrendingDown,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  Cpu,
-  Memory,
-  Network,
-  TrendingDown,
-  TrendingUp,
+  HardDrive,
 } from 'lucide-react'
-import type React from 'react'
-import { useEffect, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 
 export interface PerformanceMetrics {
   cpu: {
@@ -107,40 +106,40 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ classNam
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
-        return <TrendingUp className="h-3 w-3 text-red-500" />
+        return <TrendingUp className="w-3 h-3 text-red-500" />
       case 'down':
-        return <TrendingDown className="h-3 w-3 text-green-500" />
+        return <TrendingDown className="w-3 h-3 text-green-500" />
       default:
-        return <Activity className="h-3 w-3 text-gray-500" />
+        return <Activity className="w-3 h-3 text-gray-500" />
     }
   }
 
   const getAlertIcon = (type: string) => {
     switch (type) {
       case 'error':
-        return <AlertTriangle className="h-3 w-3 text-red-500" />
+        return <AlertTriangle className="w-3 h-3 text-red-500" />
       case 'warning':
-        return <AlertTriangle className="h-3 w-3 text-yellow-500" />
+        return <AlertTriangle className="w-3 h-3 text-yellow-500" />
       default:
-        return <CheckCircle className="h-3 w-3 text-blue-500" />
+        return <CheckCircle className="w-3 h-3 text-blue-500" />
     }
   }
 
   const formatNumber = (num: number, decimals = 1) => {
-    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(decimals)}M`
+    if (num >= 1000000) return `${(num / 1000000).toFixed(decimals)}M`
     if (num >= 1000) return `${(num / 1000).toFixed(decimals)}K`
     return num.toFixed(decimals)
   }
 
   return (
-    <Card className={`w-80 bg-white/95 shadow-lg backdrop-blur-sm ${className}`}>
-      <CardHeader className="cursor-pointer pb-2" onClick={() => setIsCollapsed(!isCollapsed)}>
+    <Card className={`w-80 bg-white/95 backdrop-blur-sm shadow-lg ${className}`}>
+      <CardHeader className="pb-2 cursor-pointer" onClick={() => setIsCollapsed(!isCollapsed)}>
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-2">
-            <Activity className="h-4 w-4" />
+            <Activity className="w-4 h-4" />
             <span>Performance Monitor</span>
           </div>
-          <Badge className="text-xs" variant="outline">
+          <Badge variant="outline" className="text-xs">
             {isCollapsed ? '⊕' : '⊖'}
           </Badge>
         </CardTitle>
@@ -150,42 +149,42 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ classNam
         <CardContent className="space-y-4">
           {/* System Metrics */}
           <div className="space-y-3">
-            <div className="font-medium text-gray-700 text-xs">System Metrics</div>
+            <div className="text-xs font-medium text-gray-700">System Metrics</div>
 
             {/* CPU Usage */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-1">
-                  <Cpu className="h-3 w-3 text-purple-500" />
+                  <Cpu className="w-3 h-3 text-purple-500" />
                   <span>CPU Usage</span>
                   {getTrendIcon(metrics.cpu.trend)}
                 </div>
                 <span>{metrics.cpu.usage.toFixed(1)}%</span>
               </div>
-              <Progress className="h-1" value={metrics.cpu.usage} />
+              <Progress value={metrics.cpu.usage} className="h-1" />
             </div>
 
             {/* Memory Usage */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-1">
-                  <Memory className="h-3 w-3 text-indigo-500" />
+                  <HardDrive className="w-3 h-3 text-indigo-500" />
                   <span>Memory Usage</span>
                   {getTrendIcon(metrics.memory.trend)}
                 </div>
                 <span>{metrics.memory.usage.toFixed(1)}%</span>
               </div>
-              <Progress className="h-1" value={metrics.memory.usage} />
+              <Progress value={metrics.memory.usage} className="h-1" />
             </div>
 
             {/* Network */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center space-x-1">
-                <Network className="h-3 w-3 text-blue-500" />
+                <Network className="w-3 h-3 text-blue-500" />
                 <span>{formatNumber(metrics.network.throughput)} ops/s</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3 text-green-500" />
+                <Clock className="w-3 h-3 text-green-500" />
                 <span>{metrics.network.latency.toFixed(0)}ms</span>
               </div>
             </div>
@@ -193,7 +192,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ classNam
 
           {/* Rendering Performance */}
           <div className="space-y-3">
-            <div className="font-medium text-gray-700 text-xs">Visualization Performance</div>
+            <div className="text-xs font-medium text-gray-700">Visualization Performance</div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
@@ -230,17 +229,17 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ classNam
                   {metrics.rendering.fps.toFixed(0)} FPS
                 </span>
               </div>
-              <Progress className="h-1" value={(metrics.rendering.fps / 60) * 100} />
+              <Progress value={(metrics.rendering.fps / 60) * 100} className="h-1" />
             </div>
           </div>
 
           {/* Alerts */}
           {metrics.alerts.length > 0 && (
             <div className="space-y-2">
-              <div className="font-medium text-gray-700 text-xs">Recent Alerts</div>
-              <div className="max-h-20 space-y-1 overflow-y-auto">
+              <div className="text-xs font-medium text-gray-700">Recent Alerts</div>
+              <div className="space-y-1 max-h-20 overflow-y-auto">
                 {metrics.alerts.map((alert) => (
-                  <div className="flex items-start space-x-2 text-xs" key={alert.id}>
+                  <div key={alert.id} className="flex items-start space-x-2 text-xs">
                     {getAlertIcon(alert.type)}
                     <div className="flex-1">
                       <div className="text-gray-800">{alert.message}</div>
@@ -255,18 +254,18 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ classNam
           )}
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-2 border-t pt-2">
+          <div className="grid grid-cols-3 gap-2 pt-2 border-t">
             <div className="text-center">
-              <div className="text-gray-600 text-xs">Total Nodes</div>
-              <div className="font-medium text-sm">{metrics.rendering.nodeCount}</div>
+              <div className="text-xs text-gray-600">Total Nodes</div>
+              <div className="text-sm font-medium">{metrics.rendering.nodeCount}</div>
             </div>
             <div className="text-center">
-              <div className="text-gray-600 text-xs">Connections</div>
-              <div className="font-medium text-sm">{metrics.rendering.edgeCount}</div>
+              <div className="text-xs text-gray-600">Connections</div>
+              <div className="text-sm font-medium">{metrics.rendering.edgeCount}</div>
             </div>
             <div className="text-center">
-              <div className="text-gray-600 text-xs">Latency</div>
-              <div className="font-medium text-sm">{metrics.network.latency.toFixed(0)}ms</div>
+              <div className="text-xs text-gray-600">Latency</div>
+              <div className="text-sm font-medium">{metrics.network.latency.toFixed(0)}ms</div>
             </div>
           </div>
         </CardContent>

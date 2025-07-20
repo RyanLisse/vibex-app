@@ -1,3 +1,7 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { ObservabilityService } from '../../../../lib/observability'
@@ -108,7 +112,7 @@ export async function POST(request: NextRequest) {
     try {
       // Validate API key
       const authHeader = request.headers.get('authorization')
-      if (!(authHeader && authHeader.startsWith('Bearer '))) {
+      if (!authHeader?.startsWith('Bearer ')) {
         return NextResponse.json(
           { error: 'Missing or invalid authorization header' },
           { status: 401 }
@@ -128,7 +132,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
           },
           { status: 400 }
         )
@@ -153,7 +157,6 @@ export async function POST(request: NextRequest) {
       })
     } catch (error) {
       observability.recordError('api.auth.electric.generate', error as Error)
-      console.error('ElectricSQL auth error:', error)
 
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
@@ -174,7 +177,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
           },
           { status: 400 }
         )
@@ -218,7 +221,6 @@ export async function PUT(request: NextRequest) {
       })
     } catch (error) {
       observability.recordError('api.auth.electric.refresh', error as Error)
-      console.error('ElectricSQL auth refresh error:', error)
 
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
@@ -233,7 +235,7 @@ export async function GET(request: NextRequest) {
     try {
       // Get token from authorization header
       const authHeader = request.headers.get('authorization')
-      if (!(authHeader && authHeader.startsWith('Bearer '))) {
+      if (!authHeader?.startsWith('Bearer ')) {
         return NextResponse.json(
           { authenticated: false, error: 'No token provided' },
           { status: 200 }
@@ -269,7 +271,7 @@ export async function GET(request: NextRequest) {
           permissions: tokenData.permissions,
           expiresAt: tokenData.expiresAt.toISOString(),
         })
-      } catch (decodeError) {
+      } catch (_decodeError) {
         return NextResponse.json(
           { authenticated: false, error: 'Invalid token format' },
           { status: 200 }
@@ -277,7 +279,6 @@ export async function GET(request: NextRequest) {
       }
     } catch (error) {
       observability.recordError('api.auth.electric.status', error as Error)
-      console.error('ElectricSQL auth status error:', error)
 
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
@@ -292,7 +293,7 @@ export async function DELETE(request: NextRequest) {
     try {
       // Get token from authorization header
       const authHeader = request.headers.get('authorization')
-      if (!(authHeader && authHeader.startsWith('Bearer '))) {
+      if (!authHeader?.startsWith('Bearer ')) {
         return NextResponse.json({ message: 'No token to invalidate' }, { status: 200 })
       }
 
@@ -317,7 +318,7 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({
           message: 'Token invalidated successfully',
         })
-      } catch (decodeError) {
+      } catch (_decodeError) {
         return NextResponse.json(
           { message: 'Invalid token format, but logout successful' },
           { status: 200 }
@@ -325,7 +326,6 @@ export async function DELETE(request: NextRequest) {
       }
     } catch (error) {
       observability.recordError('api.auth.electric.logout', error as Error)
-      console.error('ElectricSQL auth logout error:', error)
 
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }

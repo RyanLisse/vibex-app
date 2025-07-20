@@ -1,5 +1,5 @@
-import { EdgeLabelRenderer, type EdgeProps, getBezierPath } from '@xyflow/react'
 import React, { memo } from 'react'
+import { EdgeProps, getBezierPath, EdgeLabelRenderer } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 
 export interface DependencyEdgeData {
@@ -105,46 +105,46 @@ export const DependencyEdge = memo<EdgeProps<DependencyEdgeData>>(
           {/* Arrow marker for dependency direction */}
           <marker
             id={`dependency-arrow-${id}`}
-            markerHeight="12"
-            markerUnits="strokeWidth"
             markerWidth="12"
-            orient="auto"
+            markerHeight="12"
             refX="10"
             refY="6"
+            orient="auto"
+            markerUnits="strokeWidth"
           >
             <polygon
+              points="0,0 0,12 12,6"
               fill={getStatusColor()}
               opacity={isBlocked || isFailed ? 0.6 : 1}
-              points="0,0 0,12 12,6"
             />
           </marker>
 
           {/* Blocked dependency pattern */}
           {isBlocked && (
             <pattern
-              height="8"
               id={`blocked-pattern-${id}`}
               patternUnits="userSpaceOnUse"
               width="8"
+              height="8"
             >
-              <rect fill={getStatusColor()} height="8" opacity="0.3" width="8" />
-              <line stroke="#f59e0b" strokeWidth="2" x1="0" x2="8" y1="0" y2="8" />
-              <line stroke="#f59e0b" strokeWidth="2" x1="8" x2="0" y1="0" y2="8" />
+              <rect width="8" height="8" fill={getStatusColor()} opacity="0.3" />
+              <line x1="0" y1="0" x2="8" y2="8" stroke="#f59e0b" strokeWidth="2" />
+              <line x1="8" y1="0" x2="0" y2="8" stroke="#f59e0b" strokeWidth="2" />
             </pattern>
           )}
         </defs>
 
         {/* Main dependency path */}
         <path
+          id={id}
           className={`react-flow__edge-path ${selected ? 'selected' : ''}`}
           d={edgePath}
+          stroke={isBlocked ? `url(#blocked-pattern-${id})` : getStatusColor()}
+          strokeWidth={getStrengthWidth()}
           fill="none"
-          id={id}
+          strokeDasharray={getEdgePattern()}
           markerEnd={`url(#dependency-arrow-${id})`}
           opacity={isFailed ? 0.5 : 1}
-          stroke={isBlocked ? `url(#blocked-pattern-${id})` : getStatusColor()}
-          strokeDasharray={getEdgePattern()}
-          strokeWidth={getStrengthWidth()}
           style={{
             animation: isBlocked ? 'dependency-blink 1s ease-in-out infinite' : 'none',
             filter:
@@ -157,13 +157,13 @@ export const DependencyEdge = memo<EdgeProps<DependencyEdgeData>>(
         {/* Dependency strength indicator */}
         {data?.dependency.strength === 'critical' && (
           <circle
-            className="animate-ping"
             cx={labelX}
             cy={labelY}
-            fill="none"
             r="6"
+            fill="none"
             stroke="#ef4444"
             strokeWidth="2"
+            className="animate-ping"
           />
         )}
 
@@ -171,20 +171,20 @@ export const DependencyEdge = memo<EdgeProps<DependencyEdgeData>>(
         {data?.dependency && (
           <EdgeLabelRenderer>
             <div
-              className="nodrag nopan"
               style={{
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
                 pointerEvents: 'all',
               }}
+              className="nodrag nopan"
             >
-              <div className="space-y-1 rounded-md border bg-white p-2 text-xs shadow-md">
+              <div className="bg-white shadow-md border rounded-md p-2 text-xs space-y-1">
                 <div className="flex items-center space-x-2">
                   <span className="text-lg">{getTypeIcon()}</span>
                   <Badge
+                    variant={data.dependency.status === 'completed' ? 'default' : 'secondary'}
                     className="text-xs"
                     style={{ backgroundColor: getStatusColor(), color: 'white' }}
-                    variant={data.dependency.status === 'completed' ? 'default' : 'secondary'}
                   >
                     {data.dependency.type}
                   </Badge>
@@ -211,7 +211,7 @@ export const DependencyEdge = memo<EdgeProps<DependencyEdgeData>>(
                   {data.dependency.condition && (
                     <div className="space-y-1">
                       <span className="text-gray-600">Condition:</span>
-                      <div className="rounded bg-gray-50 p-1 text-gray-800 text-xs">
+                      <div className="text-xs text-gray-800 bg-gray-50 p-1 rounded">
                         {data.dependency.condition}
                       </div>
                     </div>
@@ -226,14 +226,14 @@ export const DependencyEdge = memo<EdgeProps<DependencyEdgeData>>(
         {data?.label && (
           <EdgeLabelRenderer>
             <div
-              className="nodrag nopan"
               style={{
                 position: 'absolute',
                 transform: `translate(-50%, -50%) translate(${labelX}px,${labelY - 40}px)`,
                 pointerEvents: 'all',
               }}
+              className="nodrag nopan"
             >
-              <Badge className="text-xs" variant="outline">
+              <Badge variant="outline" className="text-xs">
                 {data.label}
               </Badge>
             </div>

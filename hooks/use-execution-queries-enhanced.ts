@@ -9,11 +9,7 @@ import type {
   ObservabilityEvent,
 } from '@/db/schema'
 import { invalidateQueries, mutationKeys, queryKeys } from '@/lib/query/config'
-import {
-  useEnhancedInfiniteQuery,
-  useEnhancedMutation,
-  useEnhancedQuery,
-} from './use-enhanced-query-new'
+import { useEnhancedQuery, useEnhancedMutation } from './use-enhanced-query-new'
 
 /**
  * Enhanced agent execution queries with comprehensive database integration, observability, and real-time sync

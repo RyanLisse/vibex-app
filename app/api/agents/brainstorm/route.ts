@@ -1,7 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getMultiAgentSystem } from '@/lib/letta/multi-agent-system'
-import { getLogger } from '@/lib/logging'
+import { getLogger } from '@/lib/logging/safe-wrapper'
+
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 const logger = getLogger('api-agents-brainstorm')
 
@@ -256,7 +260,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Invalid request data',
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 }
       )
@@ -419,7 +423,7 @@ function generateStageInsights(session: unknown, _transcript: string, ideas: unk
   const insights: string[] = []
 
   // Stage-specific insight generation
-  switch (session.type) {
+  switch ((session as any).type) {
     case 'exploration':
       insights.push("You're exploring the core concept well")
       if (ideas.length > 0) {
@@ -520,7 +524,7 @@ function generateVoiceFriendlySummary(summary: unknown): {
   nextSteps: string[]
 } {
   return {
-    spokenSummary: `Great brainstorming session! We explored ${summary?.session?.topic || 'your idea'} and generated several promising directions.`,
+    spokenSummary: `Great brainstorming session! We explored ${(summary as any)?.session?.topic || 'your idea'} and generated several promising directions.`,
     keyPoints: [
       'Identified core problem and opportunity',
       'Generated multiple solution approaches',
@@ -532,13 +536,13 @@ function generateVoiceFriendlySummary(summary: unknown): {
 
 function generateAudioScript(voiceSummary: unknown): string {
   return `
-${voiceSummary.spokenSummary}
+${(voiceSummary as any).spokenSummary}
 
 Here are the key points we covered:
-${voiceSummary.keyPoints.map((point: string, index: number) => `${index + 1}. ${point}`).join('\n')}
+${(voiceSummary as any).keyPoints.map((point: string, index: number) => `${index + 1}. ${point}`).join('\n')}
 
 For next steps, I recommend:
-${voiceSummary.nextSteps.map((step: string, index: number) => `${index + 1}. ${step}`).join('\n')}
+${(voiceSummary as any).nextSteps.map((step: string, index: number) => `${index + 1}. ${step}`).join('\n')}
 
 Would you like to continue exploring any of these areas further?
   `.trim()

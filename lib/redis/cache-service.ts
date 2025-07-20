@@ -18,7 +18,12 @@ export class CacheService {
   }
 
   private constructor() {
-    this.redisManager = RedisClientManager.getInstance()
+    // RedisManager will be set during initialization
+    this.redisManager = null as any
+  }
+
+  setRedisManager(manager: RedisClientManager): void {
+    this.redisManager = manager
   }
 
   static getInstance(): CacheService {

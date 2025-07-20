@@ -130,7 +130,7 @@ export const TaskSchema = z.object({
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   completed_at: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const CreateTaskSchema = z.object({
@@ -140,7 +140,7 @@ export const CreateTaskSchema = z.object({
   tags: z.array(z.string()).default([]),
   assignee: z.string().optional(),
   due_date: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const UpdateTaskSchema = z.object({
@@ -155,7 +155,7 @@ export const UpdateTaskSchema = z.object({
   tags: z.array(z.string()).optional(),
   assignee: z.string().optional(),
   due_date: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const TasksRequestSchema = z.object({
@@ -175,7 +175,7 @@ export const EnvironmentSchema = z.object({
   type: z.enum(['development', 'staging', 'production', 'testing']).default('development'),
   url: z.string().url('Invalid URL').optional(),
   status: z.enum(['active', 'inactive', 'maintenance']).default('active'),
-  variables: z.record(z.string()).default({}),
+  variables: z.record(z.string(), z.string()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 })
@@ -185,7 +185,7 @@ export const CreateEnvironmentSchema = z.object({
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
   type: z.enum(['development', 'staging', 'production', 'testing']).default('development'),
   url: z.string().url('Invalid URL').optional(),
-  variables: z.record(z.string()).default({}),
+  variables: z.record(z.string(), z.string()).default({}),
 })
 
 export const UpdateEnvironmentSchema = z.object({
@@ -198,7 +198,7 @@ export const UpdateEnvironmentSchema = z.object({
   type: z.enum(['development', 'staging', 'production', 'testing']).optional(),
   url: z.string().url('Invalid URL').optional(),
   status: z.enum(['active', 'inactive', 'maintenance']).optional(),
-  variables: z.record(z.string()).optional(),
+  variables: z.record(z.string(), z.string()).optional(),
 })
 
 export const EnvironmentsRequestSchema = z.object({
@@ -211,7 +211,7 @@ export const EnvironmentsRequestSchema = z.object({
 // Inngest event schemas
 export const InngestEventSchema = z.object({
   name: z.string().min(1, 'Event name is required'),
-  data: z.record(z.any()).default({}),
+  data: z.record(z.string(), z.any()).default({}),
   user: z
     .object({
       id: z.string(),
@@ -251,8 +251,8 @@ export const UserSchema = z.object({
   avatar: z.string().url('Invalid avatar URL').optional(),
   provider: z.enum(['github', 'openai', 'anthropic']),
   providerId: z.string().min(1, 'Provider ID is required'),
-  profile: z.record(z.any()).optional(),
-  preferences: z.record(z.any()).default({}),
+  profile: z.record(z.string(), z.any()).optional(),
+  preferences: z.record(z.string(), z.any()).default({}),
   isActive: z.boolean().default(true),
   lastLoginAt: z.string().datetime().optional(),
   createdAt: z.string().datetime(),
@@ -265,8 +265,8 @@ export const CreateUserSchema = z.object({
   avatar: z.string().url('Invalid avatar URL').optional(),
   provider: z.enum(['github', 'openai', 'anthropic']),
   providerId: z.string().min(1, 'Provider ID is required'),
-  profile: z.record(z.any()).optional(),
-  preferences: z.record(z.any()).default({}),
+  profile: z.record(z.string(), z.any()).optional(),
+  preferences: z.record(z.string(), z.any()).default({}),
 })
 
 export const UpdateUserSchema = z.object({
@@ -276,7 +276,7 @@ export const UpdateUserSchema = z.object({
     .max(255, 'Name must be less than 255 characters')
     .optional(),
   avatar: z.string().url('Invalid avatar URL').optional(),
-  preferences: z.record(z.any()).optional(),
+  preferences: z.record(z.string(), z.any()).optional(),
   isActive: z.boolean().optional(),
 })
 
@@ -293,7 +293,7 @@ export const AuthSessionSchema = z.object({
   scope: z.string().optional(),
   organizationId: z.string().optional(),
   creditsGranted: z.number().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   isActive: z.boolean().default(true),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -311,7 +311,7 @@ export const CreateAuthSessionSchema = z.object({
   scope: z.string().optional(),
   organizationId: z.string().optional(),
   creditsGranted: z.number().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 // Agent session schemas
@@ -319,32 +319,32 @@ export const AgentSessionSchema = z.object({
   id: IdSchema,
   userId: IdSchema,
   sessionType: z.enum(['chat', 'voice', 'brainstorm', 'multi-agent']),
-  sessionData: z.record(z.any()),
+  sessionData: z.record(z.string(), z.any()),
   currentStage: z.string().optional(),
   totalStages: z.number().optional(),
   isActive: z.boolean().default(true),
   startedAt: z.string().datetime(),
   endedAt: z.string().datetime().optional(),
   lastInteractionAt: z.string().datetime(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const CreateAgentSessionSchema = z.object({
   userId: IdSchema,
   sessionType: z.enum(['chat', 'voice', 'brainstorm', 'multi-agent']),
-  sessionData: z.record(z.any()),
+  sessionData: z.record(z.string(), z.any()),
   currentStage: z.string().optional(),
   totalStages: z.number().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const UpdateAgentSessionSchema = z.object({
-  sessionData: z.record(z.any()).optional(),
+  sessionData: z.record(z.string(), z.any()).optional(),
   currentStage: z.string().optional(),
   totalStages: z.number().optional(),
   isActive: z.boolean().optional(),
   endedAt: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 // GitHub repository schemas (already defined but enhanced)
@@ -363,7 +363,7 @@ export const GitHubBranchEnhancedSchema = GitHubBranchSchema.extend({
 export const WebhookPayloadSchema = z.object({
   event: z.string().min(1, 'Event type is required'),
   timestamp: z.string().datetime(),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
   source: z.string().optional(),
   version: z.string().optional(),
   signature: z.string().optional(),
@@ -454,7 +454,7 @@ export const createValidationErrorsFromStrings = (errors: string[]): ValidationE
 
 // Helper to create validation errors from Zod errors
 export const createValidationErrorsFromZod = (error: z.ZodError): ValidationError[] => {
-  return error.errors.map((err) => ({
+  return error.issues.map((err) => ({
     field: err.path.join('.') || 'unknown',
     message: err.message,
     code: err.code,
@@ -491,7 +491,7 @@ export async function validateApiRequest<T>(
     if (!result.success) {
       return {
         data: null,
-        error: result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
+        error: result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
       }
     }
 

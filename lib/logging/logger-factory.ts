@@ -1,4 +1,18 @@
-import { AsyncLocalStorage } from 'async_hooks'
+let AsyncLocalStorage: any
+if (typeof window === 'undefined') {
+  AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
+} else {
+  AsyncLocalStorage = class {
+    private store: any = null
+    run(store: any, callback: () => any) {
+      this.store = store
+      return callback()
+    }
+    getStore() {
+      return this.store
+    }
+  }
+}
 import winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import { CorrelationIdManager } from './correlation-id-manager'

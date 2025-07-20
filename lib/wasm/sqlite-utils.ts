@@ -158,6 +158,7 @@ export class SQLiteWASMUtils {
       this.wasmModule = await WebAssembly.compile(wasmCode)
 
       // Create instance with memory for query processing
+      // @ts-expect-error - Workaround for TypeScript bug
       const memory = new WebAssembly.Memory({ initial: 64, maximum: 256 })
       this.wasmInstance = await WebAssembly.instantiate(this.wasmModule, {
         env: {

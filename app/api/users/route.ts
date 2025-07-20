@@ -1,3 +1,7 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Users API Route
  *
@@ -6,7 +10,7 @@
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { and, desc, eq, inArray, like } from 'drizzle-orm'
+import { and, desc, eq, like } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { ulid } from 'ulid'
 import { z } from 'zod'
@@ -19,7 +23,6 @@ import {
   createApiSuccessResponse,
   createPaginatedResponse,
   type UpdateUserSchema,
-  UserSchema,
 } from '@/src/schemas/api-routes'
 
 // Request validation schemas
@@ -33,7 +36,7 @@ const GetUsersQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 })
 
-const GetUserParamsSchema = z.object({
+const _GetUserParamsSchema = z.object({
   id: z.string().min(1),
 })
 
@@ -413,7 +416,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -451,7 +454,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

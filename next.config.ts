@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
         dns: false,
         child_process: false,
         aws4: false,
+        async_hooks: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        buffer: false,
+        os: false,
+        path: false,
       }
     }
 
