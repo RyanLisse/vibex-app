@@ -1,5 +1,6 @@
 "use client";
 import { format } from "date-fns";
+import {
 	AlertCircle,
 	CheckCircle,
 	Dot,
@@ -18,6 +19,7 @@ import { useElectricContext } from "@/components/providers/electric-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
 	Card,
 	CardContent,
 	CardDescription,
@@ -25,6 +27,7 @@ import { Button } from "@/components/ui/button";
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
 	type Environment,
 	useActivateEnvironmentMutation,
 	useDeleteEnvironmentMutation,

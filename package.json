@@ -17,32 +17,26 @@
 		"test:coverage": "vitest run --coverage --config=vitest.config.ts",
 		"test:coverage:merge": "node scripts/merge-coverage.js",
 		"test:ui": "vitest --ui --config=vitest.config.ts",
-
 		"test:unit": "vitest run --config=vitest.config.ts",
 		"test:unit:watch": "vitest --watch --config=vitest.config.ts",
 		"test:unit:coverage": "vitest run --coverage --config=vitest.config.ts",
 		"test:unit:coverage:report": "bun run test:unit:coverage && open coverage/unit/index.html",
-
 		"test:components": "vitest run --config=vitest.components.config.ts",
 		"test:components:watch": "vitest --watch --config=vitest.components.config.ts",
 		"test:components:coverage": "vitest run --coverage --config=vitest.components.config.ts",
 		"test:components:coverage:report": "bun run test:components:coverage && open coverage/components/index.html",
-
 		"test:integration": "vitest run --config=vitest.integration.config.ts",
 		"test:integration:watch": "vitest --watch --config=vitest.integration.config.ts",
 		"test:integration:coverage": "vitest run --coverage --config=vitest.integration.config.ts",
 		"test:integration:coverage:report": "bun run test:integration:coverage && open coverage/integration/index.html",
-
 		"test:browser": "vitest run --config=vitest.browser.config.ts",
 		"test:browser:watch": "vitest --watch --config=vitest.browser.config.ts",
-
 		"test:e2e": "playwright test",
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:ai": "playwright test tests/e2e/ai-powered-advanced.spec.ts",
 		"test:e2e:visual": "playwright test tests/e2e/visual-regression-ai.spec.ts",
 		"test:e2e:stagehand": "STAGEHAND_DEBUG=true playwright test tests/e2e/ai-powered-advanced.spec.ts tests/e2e/visual-regression-ai.spec.ts",
-
 		"test:all": "bun run test:unit && bun run test:components && bun run test:integration && bun run test:browser",
 		"test:coverage:all": "bun run test:unit:coverage && bun run test:components:coverage && bun run test:integration:coverage",
 		"storybook": "storybook dev -p 6006",
@@ -183,6 +177,7 @@
 		"remark-gfm": "^4.0.1",
 		"shiki": "^3.8.0",
 		"tailwind-merge": "^3.3.1",
+		"tailwindcss-animate": "^1.0.7",
 		"tunnel-rat": "^0.1.2",
 		"use-stick-to-bottom": "^1.1.1",
 		"wa-sqlite": "^1.0.0",
