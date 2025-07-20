@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

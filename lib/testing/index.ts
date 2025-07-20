@@ -28,7 +28,7 @@ export {
 } from './builders/test-data-builder'
 
 // Custom Assertions
-export './assertions/custom-matchers'
+export * from './assertions/custom-matchers'
 
 // Test Lifecycle Management
 export {

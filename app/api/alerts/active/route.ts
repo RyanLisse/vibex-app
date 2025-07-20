@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AlertService } from '@/lib/alerts/alert-service'
-import { redis } from '@/lib/redis/redis-client'
-import { ComponentLogger } from '@/lib/logging/logger-factory'
+import { getAlertService, logger } from '@/app/api/alerts/_lib/setup'
 
-const logger = new ComponentLogger('AlertsActiveAPI')
-const alertService = new AlertService(redis)
 
 export async function GET(request: NextRequest) {
   try {
+    const alertService = getAlertService()
     await alertService.initialize()
     
     const activeAlerts = await alertService.getActiveAlerts()

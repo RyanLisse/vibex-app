@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Invalid request data',
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 }
       )
@@ -532,7 +532,7 @@ function generateVoiceFriendlySummary(summary: unknown): {
 
 function generateAudioScript(voiceSummary: unknown): string {
   return `
-${voiceSummary.spokenSummary}
+${(voiceSummary as any).spokenSummary}
 
 Here are the key points we covered:
 ${voiceSummary.keyPoints.map((point: string, index: number) => `${index + 1}. ${point}`).join('\n')}

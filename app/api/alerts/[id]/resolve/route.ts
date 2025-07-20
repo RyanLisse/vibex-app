@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AlertService } from '@/lib/alerts/alert-service'
-import { redis } from '@/lib/redis/redis-client'
-import { ComponentLogger } from '@/lib/logging/logger-factory'
-
-const logger = new ComponentLogger('AlertsResolveAPI')
-const alertService = new AlertService(redis)
+import { getAlertService, logger } from '@/app/api/alerts/_lib/setup'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const alertService = getAlertService()
     await alertService.initialize()
     
     const body = await request.json()

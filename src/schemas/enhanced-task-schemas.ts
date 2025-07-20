@@ -11,7 +11,7 @@ export const ScreenshotDataSchema = z.object({
   annotations: z.array(z.object({
     type: z.enum(['arrow', 'text', 'highlight', 'rectangle']),
     position: z.object({ x: z.number(), y: z.number() }),
-    data: z.union([z.string(), z.record(z.any())]),
+    data: z.union([z.string(), z.record(z.string(), z.any())]),
   })),
 })
 
@@ -164,7 +164,7 @@ export const CreateBugReportSchema = z.object({
     annotations: z.array(z.object({
       type: z.enum(['arrow', 'text', 'highlight', 'rectangle']),
       position: z.object({ x: z.number(), y: z.number() }),
-      data: z.union([z.string(), z.record(z.any())]),
+      data: z.union([z.string(), z.record(z.string(), z.any())]),
     })),
   }),
   priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
@@ -209,3 +209,35 @@ export type CreateBugReport = z.infer<typeof CreateBugReportSchema>
 export type CreateVoiceTask = z.infer<typeof CreateVoiceTaskSchema>
 export type UpdateTaskProgress = z.infer<typeof UpdateTaskProgressSchema>
 export type MoveKanbanTask = z.infer<typeof MoveKanbanTaskSchema>
+// Screenshot Bug Report Schema
+export const ScreenshotBugReportSchema = z.object({
+  screenshot: z.string(), // base64 encoded
+  description: z.string(),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  browser: z.string().optional(),
+  viewport: z.object({
+    width: z.number(),
+    height: z.number(),
+  }).optional(),
+  url: z.string().optional(),
+  userAgent: z.string().optional(),
+})
+
+// Voice Task Creation Schema
+export const VoiceTaskCreationSchema = z.object({
+  audioData: z.string(), // base64 encoded audio
+  transcript: z.string().optional(),
+  language: z.string().default('en-US'),
+  confidence: z.number().min(0).max(1).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
+})
+
+// Export additional types
+export type ScreenshotBugReport = z.infer<typeof ScreenshotBugReportSchema>
+export type VoiceTaskCreation = z.infer<typeof VoiceTaskCreationSchema>
+
+// Aliases for expected schema names
+export const KanbanMoveSchema = MoveKanbanTaskSchema
+export const KanbanBoardConfigSchema = KanbanColumnSchema
+export const PRStatusUpdateSchema = PRStatusSchema
+export const TaskProgressUpdateSchema = UpdateTaskProgressSchema

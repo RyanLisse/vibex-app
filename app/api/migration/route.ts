@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

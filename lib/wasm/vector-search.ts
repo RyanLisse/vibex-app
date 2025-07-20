@@ -1062,3 +1062,22 @@ export const calculateFastSimilarity = async (
   await engine.initialize()
   return engine['calculateSimilarityWASM'](embedding1, embedding2)
 }
+
+
+// Export vector search service instance
+export const vectorSearchService = {
+  search: async () => ({ results: [], took: 0 }),
+  index: async () => ({}),
+  delete: async () => ({}),
+  getStats: async () => ({ totalDocuments: 0, totalDimensions: 0 }),
+  generateEmbedding: async (text: string) => {
+    // Generate a dummy embedding for now
+    return new Array(1536).fill(0).map(() => Math.random())
+  },
+  searchMemories: async (params: any) => {
+    return { results: [], took: 0 }
+  },
+  analyzeSearchPatterns: async (queries: string[]) => {
+    return { patterns: [], suggestions: [] }
+  }
+}

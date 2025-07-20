@@ -24,6 +24,44 @@ afterEach(() => {
   }
 })
 
+// Mock the Neon database connection
+vi.mock('@neondatabase/serverless', () => ({
+  neon: vi.fn(() => {
+    // Create a mock SQL function that handles basic queries
+    const mockSql = vi.fn().mockImplementation(async (query: any) => {
+      // Handle template literal calls
+      if (Array.isArray(query) && query[0] === 'SELECT 1') {
+        return [{ '?column?': 1 }]
+      }
+      return []
+    })
+    
+    // Add additional properties/methods as needed
+    Object.assign(mockSql, {
+      begin: vi.fn().mockResolvedValue(undefined),
+      commit: vi.fn().mockResolvedValue(undefined),
+      rollback: vi.fn().mockResolvedValue(undefined),
+    })
+    
+    return mockSql
+  }),
+}))
+
+// Mock drizzle-orm
+vi.mock('drizzle-orm/neon-serverless', () => ({
+  drizzle: vi.fn(() => ({
+    select: vi.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    values: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    set: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    execute: vi.fn().mockResolvedValue([]),
+  })),
+}))
+
 // Integration test specific setup
 beforeEach(() => {
   // Set test environment

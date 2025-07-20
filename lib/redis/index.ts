@@ -36,7 +36,11 @@ export class RedisService {
   private constructor() {
     this.config = getRedisServiceConfig()
     this.clientManager = RedisClientManager.getInstance(this.config.redis)
+    
+    // Initialize services and set the Redis manager
     this.cacheService = CacheService.getInstance()
+    this.cacheService.setRedisManager(this.clientManager)
+    
     this.pubsubService = PubSubService.getInstance()
     this.lockService = LockService.getInstance()
     this.rateLimitService = RateLimitService.getInstance()
@@ -371,6 +375,9 @@ export { SessionService } from './session-service'
 // Export configuration and utilities
 export * from './config'
 export * from './types'
+
+// Export mock implementations for testing
+export { MockRedisService, MockRedisCache } from './mock-redis'
 
 // Convenience getters for individual services
 export function getRedisPubSub() {

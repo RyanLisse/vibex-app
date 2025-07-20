@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
           source: 'client',
           timestamp,
           userAgent: request.headers.get('user-agent'),
-          ip: request.ip,
+          ip: request.headers.get("x-forwarded-for") || "unknown",
         })
         break
       case 'warn':
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
           error: error instanceof Error ? error.message : String(error),
           timestamp,
           userAgent: request.headers.get('user-agent'),
-          ip: request.ip,
+          ip: request.headers.get("x-forwarded-for") || "unknown",
         })
         break
       case 'info':
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
           error: error instanceof Error ? error.message : String(error),
           timestamp,
           userAgent: request.headers.get('user-agent'),
-          ip: request.ip,
+          ip: request.headers.get("x-forwarded-for") || "unknown",
         })
         break
       default:
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
           error: error instanceof Error ? error.message : String(error),
           timestamp,
           userAgent: request.headers.get('user-agent'),
-          ip: request.ip,
+          ip: request.headers.get("x-forwarded-for") || "unknown",
         })
     }
 

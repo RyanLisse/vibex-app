@@ -17,40 +17,68 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": false,
-    "types": [],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@/app/*": [
+        "./app/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/stores/*": [
+        "./stores/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ],
+      "@/features/*": [
+        "./src/features/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ],
+      "@/test/*": [
+        "./tests/*"
+      ],
+      "@/src/*": [
+        "./src/*"
       ]
-    }
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     ".next",
+    "out",
+    "dist",
+    "build",
+    "coverage",
+    "playwright-report",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",
-    "**/*.spec.tsx",
-    "**/*inngest*",
-    "**/*vibekit*",
-    "**/*vibe-kit*",
-    "lib/",
-    "app/",
-    "components/",
-    "hooks/",
-    "stores/",
-    "types/",
-    "tests/",
-    "src/"
+    "**/*.spec.tsx"
   ]
 }

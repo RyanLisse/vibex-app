@@ -123,7 +123,9 @@ describe('Optimistic Updates Workflow', () => {
 
       // Track UI updates
       const uiUpdates: number[] = []
-      result.current.tasks.data && uiUpdates.push(result.current.tasks.data.tasks.length)
+      if (result.current.tasks.data) {
+        uiUpdates.push(result.current.tasks.data.tasks.length)
+      }
 
       // Create task
       act(() => {

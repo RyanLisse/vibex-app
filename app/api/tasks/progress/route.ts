@@ -16,7 +16,7 @@ import {
   createApiErrorResponse,
   createApiSuccessResponse,
 } from '@/src/schemas/api-routes'
-import { TaskProgressUpdateSchema } from '@/src/schemas/enhanced-task-schemas'
+import { TaskProgressSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // WebSocket connection manager (mock implementation)
 class ProgressNotificationManager {
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const validatedData = TaskProgressUpdateSchema.parse(body)
+    const validatedData = TaskProgressSchema.parse(body)
 
     // Get current task
     const [task] = await db.select().from(tasks).where(eq(tasks.id, validatedData.taskId))
@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

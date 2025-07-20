@@ -2,17 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import {
-  Activity,
-  Cpu,
-  Memory,
-  Network,
-  Clock,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle
-} from 'lucide-react'
+import { Activity, Cpu, Network, Clock, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react'
 
 export interface PerformanceMetrics {
   cpu: {
@@ -176,7 +166,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-1">
-                  <Memory className="w-3 h-3 text-indigo-500" />
+                  <MemoryStick className="w-3 h-3 text-indigo-500" />
                   <span>Memory Usage</span>
                   {getTrendIcon(metrics.memory.trend)}
                 </div>

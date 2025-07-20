@@ -16,11 +16,11 @@ const workflowQuerySchema = z.object({
 const createWorkflowSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  definition: z.record(z.any()),
+  definition: z.record(z.string(), z.any()),
   version: z.string().default('1.0.0'),
   status: z.enum(['draft', 'active', 'archived']).default('draft'),
   tags: z.array(z.string()).default([]),
-  config: z.record(z.any()).default({}),
+  config: z.record(z.string(), z.any()).default({}),
 })
 
 // GET /api/workflows - List workflows

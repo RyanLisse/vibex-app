@@ -16,7 +16,7 @@ const workflowStepSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.enum(['action', 'condition', 'loop', 'parallel', 'wait']),
-  config: z.record(z.any()).default({}),
+  config: z.record(z.string(), z.any()).default({}),
   inputs: z.array(z.string()).default([]),
   outputs: z.array(z.string()).default([]),
   dependencies: z.array(z.string()).default([]),
@@ -32,7 +32,7 @@ const workflowStepSchema = z.object({
 // Workflow definition
 const workflowDefinitionSchema = z.object({
   steps: z.array(workflowStepSchema),
-  variables: z.record(z.any()).default({}),
+  variables: z.record(z.string(), z.any()).default({}),
   config: z
     .object({
       timeout: z.number().optional(),

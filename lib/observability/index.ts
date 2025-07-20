@@ -360,3 +360,7 @@ export { PerformanceMetricsCollector, MetricsAnalyzer } from './metrics'
 
 // Re-export event types
 export type { ObservabilityEvent, EventSeverity, EventFilter } from './events'
+
+
+// Re-export for backwards compatibility
+export { observability as observabilityService }

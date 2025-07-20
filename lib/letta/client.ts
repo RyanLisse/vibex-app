@@ -27,7 +27,7 @@ export const MessageSchema = z.object({
   content: z.string(),
   timestamp: z.date(),
   agentId: z.string(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export type Message = z.infer<typeof MessageSchema>

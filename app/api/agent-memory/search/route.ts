@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Perform vector search
-    const searchResults = await vectorSearchService.searchMemories(searchRequest.query, {
+    const searchResults = await (vectorSearchService as any).searchMemories(searchRequest.query, {
       limit: searchRequest.limit,
       minSimilarity: searchRequest.minSimilarity,
       filters: {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Analyze search patterns
-    const patterns = await vectorSearchService.analyzeSearchPatterns(
+    const patterns = await (vectorSearchService as any).analyzeSearchPatterns(
       searchRequest.query,
       searchResults.memories
     )

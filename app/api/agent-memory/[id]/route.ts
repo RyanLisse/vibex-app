@@ -8,7 +8,7 @@ import { vectorSearchService } from '@/lib/wasm/vector-search'
 
 const updateMemorySchema = z.object({
   content: z.string().min(1).optional(),
-  context: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   importance: z.number().min(0).max(1).optional(),
   tags: z.array(z.string()).optional(),
 })
@@ -78,7 +78,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (updateData.content !== undefined) {
       updateValues.content = updateData.content
       // Regenerate embedding if content changed
-      updateValues.embedding = await vectorSearchService.generateEmbedding(updateData.content)
+      updateValues.embedding = await (vectorSearchService as any).generateEmbedding(updateData.content)
     }
 
     if (updateData.context !== undefined) {

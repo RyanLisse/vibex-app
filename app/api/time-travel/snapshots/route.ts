@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
     const createSchema = z.object({
       executionId: z.string().uuid(),
       stepIndex: z.number().min(0),
-      state: z.record(z.any()),
-      metadata: z.record(z.any()).optional(),
+      state: z.record(z.string(), z.any()),
+      metadata: z.record(z.string(), z.any()).optional(),
     })
 
     const data = createSchema.parse(body)

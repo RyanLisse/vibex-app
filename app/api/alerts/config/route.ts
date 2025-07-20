@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { AlertService } from '@/lib/alerts/alert-service'
-import { redis } from '@/lib/redis/redis-client'
-import { ComponentLogger } from '@/lib/logging/logger-factory'
+import { getAlertService, logger } from '@/app/api/alerts/_lib/setup'
 import { AlertConfig } from '@/lib/alerts/types'
 
-const logger = new ComponentLogger('AlertsConfigAPI')
-const alertService = new AlertService(redis)
 
 export async function GET(request: NextRequest) {
   try {
+    const alertService = getAlertService()
     await alertService.initialize()
     
     const config = alertService.getConfig()
@@ -44,6 +41,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const alertService = getAlertService()
     await alertService.initialize()
     
     const body = await request.json()

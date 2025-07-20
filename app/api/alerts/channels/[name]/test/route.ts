@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AlertService } from '@/lib/alerts/alert-service'
-import { redis } from '@/lib/redis/redis-client'
+import { getRedis } from '@/lib/redis/redis-client'
 import { ComponentLogger } from '@/lib/logging/logger-factory'
 
 const logger = new ComponentLogger('AlertsChannelTestAPI')
-const alertService = new AlertService(redis)
+const alertService = new AlertService(getRedis().getClient('primary'))
 
 export async function POST(
   request: NextRequest,

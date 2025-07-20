@@ -1,4 +1,5 @@
 import { and, desc, eq, gte, ilike, inArray, lte } from 'drizzle-orm'
+import { sql } from "drizzle-orm"
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/db/config'
@@ -25,7 +26,7 @@ const createEventSchema = z.object({
   executionId: z.string().uuid().optional(),
   traceId: z.string().optional(),
   spanId: z.string().optional(),
-  metadata: z.record(z.any()).default({}),
+  metadata: z.record(z.string(), z.any()).default({}),
 })
 
 // GET /api/observability/events - List observability events

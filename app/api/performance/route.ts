@@ -102,7 +102,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid parameters', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Invalid parameters', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -182,7 +182,7 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -254,7 +254,7 @@ export async function PUT(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Invalid request body', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

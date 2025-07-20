@@ -16,7 +16,7 @@ import {
   createApiErrorResponse,
   createApiSuccessResponse,
 } from '@/src/schemas/api-routes'
-import { TaskPRLinkSchema, PRStatusUpdateSchema } from '@/src/schemas/enhanced-task-schemas'
+import { TaskPRLinkSchema, PRStatusSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock GitHub API client
 class GitHubAPIClient {
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }
@@ -225,7 +225,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const validatedData = PRStatusUpdateSchema.parse(body)
+    const validatedData = PRStatusSchema.parse(body)
 
     // Get all tasks with this PR linked
     const allTasks = await db.select().from(tasks)
@@ -322,7 +322,7 @@ export async function PUT(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.errors),
+        createApiErrorResponse('Validation failed', 400, 'VALIDATION_ERROR', error.issues),
         { status: 400 }
       )
     }

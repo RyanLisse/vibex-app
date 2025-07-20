@@ -7,8 +7,8 @@ import { observabilityService } from '@/lib/observability'
 import { workflowEngine } from '@/lib/workflow/execution-engine'
 
 const executeRequestSchema = z.object({
-  input: z.record(z.any()).default({}),
-  config: z.record(z.any()).default({}),
+  input: z.record(z.string(), z.any()).default({}),
+  config: z.record(z.string(), z.any()).default({}),
   resumeFromStep: z.string().optional(),
   executionId: z.string().uuid().optional(), // For resuming existing execution
 })

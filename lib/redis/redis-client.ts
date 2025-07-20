@@ -252,3 +252,7 @@ export class RedisClientManager {
     console.log(`Flushed all data from Redis client '${clientName}'`)
   }
 }
+
+
+// Export redis client getter function
+export const getRedis = () => RedisClientManager.getInstance()

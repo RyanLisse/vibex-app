@@ -388,8 +388,9 @@ export class DataMigrationManager {
           if (this.currentMigration) {
             this.currentMigration.summary.failedRecords++
             this.currentMigration.errors.push(
-            `Environment ${localEnv.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-          )
+              `Environment ${localEnv.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+            )
+          }
         }
       }
 

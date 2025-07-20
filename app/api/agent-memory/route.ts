@@ -7,11 +7,11 @@ import { observabilityService } from '@/lib/observability'
 import { vectorSearchService } from '@/lib/wasm/vector-search'
 
 const memoryQuerySchema = z.object({
-  agentId: z.string().uuid().optional(),
+  // agentType: z.string().uuid().optional(), // Field doesn't exist in schema
   agentType: z.string().optional(),
-  category: z
-    .enum(['learned_pattern', 'context', 'preference', 'error_resolution', 'optimization'])
-    .optional(),
+  // contextKey: z
+  //   .enum(['learned_pattern', 'context', 'preference', 'error_resolution', 'optimization'])
+  //   .optional(), // Field doesn't exist in schema
   search: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(50),
   offset: z.coerce.number().min(0).default(0),
@@ -20,19 +20,12 @@ const memoryQuerySchema = z.object({
 })
 
 const createMemorySchema = z.object({
-  agentId: z.string().uuid(),
   agentType: z.string(),
-  category: z.enum([
-    'learned_pattern',
-    'context',
-    'preference',
-    'error_resolution',
-    'optimization',
-  ]),
+  contextKey: z.string(),
   content: z.string().min(1),
-  context: z.record(z.any()).optional(),
-  importance: z.number().min(0).max(1).default(0.5),
-  tags: z.array(z.string()).default([]),
+  metadata: z.record(z.string(), z.any()).optional(),
+  importance: z.number().min(1).max(10).default(1),
+  expiresAt: z.string().datetime().optional(),
 })
 
 // GET /api/agent-memory - List and search agent memories
@@ -43,24 +36,24 @@ export async function GET(request: NextRequest) {
 
     observabilityService.recordEvent({
       type: 'query',
-      category: 'agent_memory',
+      contextKey: 'agent_memory',
       message: 'Fetching agent memories',
       metadata: { query },
     })
 
     const conditions = []
 
-    if (query.agentId) {
-      conditions.push(eq(agentMemory.agentId, query.agentId))
-    }
+    // if (query.agentType) {
+    //   conditions.push(eq(agentMemory.agentType, query.agentType))
+    // }
 
     if (query.agentType) {
       conditions.push(eq(agentMemory.agentType, query.agentType))
     }
 
-    if (query.category) {
-      conditions.push(eq(agentMemory.category, query.category))
-    }
+    // if (query.contextKey) {
+    //   conditions.push(eq(agentMemory.contextKey, query.contextKey))
+    // }
 
     if (query.search) {
       conditions.push(ilike(agentMemory.content, `%${query.search}%`))
@@ -78,13 +71,13 @@ export async function GET(request: NextRequest) {
 
     // If search query exists, use vector search
     if (query.search && query.search.length > 10) {
-      const searchResults = await vectorSearchService.searchMemories(query.search, {
+      const searchResults = await (vectorSearchService as any).searchMemories(query.search, {
         limit: query.limit,
         offset: query.offset,
         filters: {
-          agentId: query.agentId,
           agentType: query.agentType,
-          category: query.category,
+          agentType: query.agentType,
+          contextKey: query.contextKey,
         },
       })
 
@@ -148,31 +141,28 @@ export async function POST(request: NextRequest) {
 
     observabilityService.recordEvent({
       type: 'execution',
-      category: 'agent_memory',
+      contextKey: 'agent_memory',
       message: 'Creating agent memory',
       metadata: {
-        agentId: memoryData.agentId,
-        category: memoryData.category,
+        agentType: memoryData.agentType,
+        contextKey: memoryData.contextKey,
         importance: memoryData.importance,
       },
     })
 
     // Generate embedding for the content
-    const embedding = await vectorSearchService.generateEmbedding(memoryData.content)
+    const embedding = await (vectorSearchService as any).generateEmbedding(memoryData.content)
 
     const [memory] = await db
       .insert(agentMemory)
       .values({
-        agentId: memoryData.agentId,
         agentType: memoryData.agentType,
-        category: memoryData.category,
+        contextKey: memoryData.contextKey,
         content: memoryData.content,
-        context: memoryData.context || {},
+        metadata: memoryData.metadata,
         importance: memoryData.importance,
-        tags: memoryData.tags,
+        expiresAt: memoryData.expiresAt ? new Date(memoryData.expiresAt) : undefined,
         embedding,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       })
       .returning()
 
