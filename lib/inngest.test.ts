@@ -47,7 +47,6 @@ describe("inngest tests", () => {
 		}));
 	});
 
-
 	it("should have correct inngest client properties", () => {
 		expect(mockInngest.id).toBe("clonedex");
 		expect(typeof mockInngest.send).toBe("function");
@@ -97,12 +96,10 @@ describe("inngest tests", () => {
 		const event = { name: "test.event", data: { foo: "bar" } };
 		const result = await mockInngest.send(event);
 
-
 		expect(result).toEqual({ ids: ["test-id"] });
 		expect(mockInngest.send).toHaveBeenCalledWith(event);
 		expect(mockInngest.send).toHaveBeenCalledTimes(1);
 	});
-
 
 	it("should handle task control actions", async () => {
 		const result = await mockTaskControl.handler();

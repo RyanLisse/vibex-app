@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { promises as fs } from "fs";
 import { glob } from "glob";
 import { join } from "path";
@@ -261,4 +260,3 @@ Track your test health improvements:
 
 // Generate dashboard
 generateDashboard().catch(console.error);
-

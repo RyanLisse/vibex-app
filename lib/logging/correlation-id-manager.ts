@@ -1,6 +1,5 @@
 // AsyncLocalStorage compatibility layer
 class BrowserAsyncLocalStorage {
-
 	private store: any = null;
 	run(store: any, callback: () => any) {
 		this.store = store;
@@ -9,7 +8,6 @@ class BrowserAsyncLocalStorage {
 	getStore() {
 		return this.store;
 	}
-
 }
 
 // Use dynamic import pattern that's ESM-compatible
@@ -30,10 +28,8 @@ import { randomUUID } from "crypto";
 import type { NextRequest } from "next/server";
 
 export class CorrelationIdManager {
-
 	private static instance: CorrelationIdManager;
 	private storage: any;
-
 
 	constructor() {
 		// Initialize storage based on the current AsyncLocalStorage implementation

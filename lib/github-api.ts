@@ -8,7 +8,6 @@ export class GitHubAPI {
 		this.token = token;
 	}
 
-
 	private async makeRequest(
 		url: string,
 		options: RequestInit = {},
@@ -38,7 +37,6 @@ export class GitHubAPI {
 				errorMessage = `${response.status} ${response.statusText}`;
 			}
 
-
 			// Throw error with appropriate message format
 			if (errorMessage === `${response.status} ${response.statusText}`) {
 				throw new Error(`HTTP error: ${errorMessage}`);
@@ -49,12 +47,10 @@ export class GitHubAPI {
 		return response;
 	}
 
-
 	async getUser(): Promise<GitHubUser> {
 		const response = await this.makeRequest("https://api.github.com/user");
 		return response.json();
 	}
-
 
 	async getRepositories(
 		options: {
@@ -66,7 +62,6 @@ export class GitHubAPI {
 		} = {},
 	): Promise<GitHubRepository[]> {
 		const params = new URLSearchParams();
-
 
 		// Add all provided parameters to the query string
 		if (options.type) params.append("type", options.type);
@@ -107,7 +102,6 @@ export class GitHubAPI {
 		);
 		return response.json();
 	}
-
 }
 
 export async function checkAuthStatus(signal?: AbortSignal) {

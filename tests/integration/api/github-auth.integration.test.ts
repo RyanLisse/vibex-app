@@ -10,12 +10,10 @@ describe("GitHub Auth API Integration Tests", () => {
 		process.env.NEXTAUTH_URL = "http://localhost:3000";
 	});
 
-
 	afterEach(() => {
 		// Cleanup
 		vi.clearAllMocks();
 	});
-
 
 	it("should return GitHub OAuth URL successfully", async () => {
 		const response = await GET();

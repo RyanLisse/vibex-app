@@ -204,7 +204,6 @@ describe("MemoryRepository", () => {
 				},
 			];
 
-
 			// Create a mock query that can be awaited
 			const mockQuery = {
 				where: vi.fn().mockReturnThis(),
@@ -218,12 +217,10 @@ describe("MemoryRepository", () => {
 				from: vi.fn().mockReturnValue(mockQuery),
 			});
 
-
 			const results = await repository.search({
 				agentType: "test-agent",
 				limit: 10,
 			});
-
 
 			expect(results).toHaveLength(1);
 			expect(mockQuery.where).toHaveBeenCalled();
@@ -239,16 +236,13 @@ describe("MemoryRepository", () => {
 				then: (resolve: any) => resolve([]),
 			};
 
-
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue(mockQuery),
 			});
 
-
 			await repository.search({
 				importance: { min: 5, max: 8 },
 			});
-
 
 			expect(mockDb.select).toHaveBeenCalled();
 		});

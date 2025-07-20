@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { promises as fs } from "fs";
 import { glob } from "glob";
 import { basename, dirname, join } from "path";
@@ -284,4 +283,3 @@ ${Array.from(testsByCategory.entries())
 
 // Run categorization
 generateTestConfigurations().catch(console.error);
-

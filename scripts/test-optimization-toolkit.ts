@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import { glob } from "glob";
@@ -222,7 +221,6 @@ async function generateOptimizationScripts(report: TestOptimizationReport) {
 
 
 const filesToSplit = ${JSON.stringify(
-
 			tasksByType.get("split")!.map((t) => t.file),
 			null,
 			2,
@@ -302,12 +300,10 @@ echo "Updating test files for parallel execution..."
 # Files that need parallelization
 FILES=(
 ${
-
 	tasksByType
 		.get("parallelize")
 		?.map((t) => `  "${t.file}"`)
 		.join("\n") || ""
-
 }
 )
 
@@ -382,4 +378,3 @@ async function generateReport() {
 
 // Run optimization analysis
 generateReport().catch(console.error);
-

@@ -36,7 +36,6 @@ vi.mock("ioredis", () => ({
 
 import { cleanup } from "@testing-library/react";
 
-
 // Store original environment
 const originalEnv = { ...process.env };
 

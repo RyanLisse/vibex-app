@@ -4,7 +4,6 @@ import { MultiAgentSystem } from "./multi-agent-system";
 
 // Set up environment variables
 beforeEach(() => {
-
 	process.env.LETTA_API_KEY = "test-letta-key";
 	process.env.LETTA_BASE_URL = "https://api.letta.com";
 	process.env.NEXT_PUBLIC_OPENAI_API_KEY = "test-openai-key";
@@ -24,7 +23,6 @@ describe("Voice Brainstorming Integration", () => {
 			enableLowLatency: true,
 		});
 	});
-
 
 	afterEach(() => {
 		vi.clearAllMocks();
@@ -50,7 +48,6 @@ describe("Voice Brainstorming Integration", () => {
 			expect(status.agents.brainstorm.status).toBe("active");
 		});
 
-
 		it("should create a brainstorm session", async () => {
 			// Mock agent initialization
 			mockFetch.mockResolvedValueOnce({
@@ -67,7 +64,6 @@ describe("Voice Brainstorming Integration", () => {
 				json: async () => ({}),
 			});
 
-
 			await multiAgentSystem.initialize();
 
 			const session = await multiAgentSystem.createSession(
@@ -79,7 +75,6 @@ describe("Voice Brainstorming Integration", () => {
 			expect(session.userId).toBe("user-123");
 			expect(session.status).toBe("active");
 		});
-
 
 		it("should process voice messages", async () => {
 			// Mock initialization
@@ -97,13 +92,11 @@ describe("Voice Brainstorming Integration", () => {
 				json: async () => ({}),
 			});
 
-
 			await multiAgentSystem.initialize();
 			const session = await multiAgentSystem.createSession(
 				"user-123",
 				"brainstorm",
 			);
-
 
 			// Mock createVoiceSession
 			mockFetch.mockResolvedValueOnce({
@@ -118,7 +111,6 @@ describe("Voice Brainstorming Integration", () => {
 					text_response: "Great idea! Let me help you explore that further.",
 				}),
 			});
-
 
 			const audioData = new ArrayBuffer(2048);
 			const response = await multiAgentSystem.processVoiceMessage(
@@ -260,7 +252,6 @@ describe("Voice Brainstorming Integration", () => {
 		});
 	});
 
-
 	describe("End-to-End Workflow", () => {
 		it("should complete a full brainstorming session", async () => {
 			// Mock all necessary API calls
@@ -314,7 +305,6 @@ describe("Voice Brainstorming Integration", () => {
 				mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 			}
 
-
 			// Initialize system
 			await multiAgentSystem.initialize();
 
@@ -324,13 +314,11 @@ describe("Voice Brainstorming Integration", () => {
 				"brainstorm",
 			);
 
-
 			// Start brainstorming
 			const brainstormSession = await multiAgentSystem.startBrainstormSession(
 				session.id,
 				"Innovative Product Ideas",
 			);
-
 
 			// Process message input
 			const message = await multiAgentSystem.processMessage(
@@ -338,12 +326,10 @@ describe("Voice Brainstorming Integration", () => {
 				"I have an idea for a smart home device",
 			);
 
-
 			// Advance stage
 			const advancedSession = await multiAgentSystem.advanceBrainstormStage(
 				session.id,
 			);
-
 
 			expect(session.type).toBe("brainstorm");
 			expect(brainstormSession.id).toBeDefined();
@@ -375,11 +361,9 @@ describe("Voice Brainstorming Integration", () => {
 				error: "Audio processing failed",
 			});
 
-
 			expect(errors).toHaveLength(1);
 			expect(errors[0].data.error).toBe("Audio processing failed");
 		});
-
 
 		it("should validate input parameters", () => {
 			expect(() => {

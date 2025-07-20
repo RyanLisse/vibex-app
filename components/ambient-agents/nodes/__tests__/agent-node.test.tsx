@@ -1,10 +1,8 @@
-
 import { render, screen } from "@testing-library/react";
 import type { NodeProps } from "@xyflow/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AgentNodeData } from "../agent-node";
-
 
 // Mock React Flow components
 vi.mock("@xyflow/react", () => ({

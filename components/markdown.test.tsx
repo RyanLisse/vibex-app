@@ -119,7 +119,6 @@ Object.assign(navigator, {
 	},
 });
 
-
 describe("Markdown Component", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -133,7 +132,6 @@ describe("Markdown Component", () => {
 		vi.useRealTimers();
 		vi.clearAllMocks();
 	});
-
 
 	it("should render simple markdown text", () => {
 		render(<Markdown>Hello **world**</Markdown>);
@@ -278,7 +276,6 @@ describe("Markdown Component", () => {
 	});
 });
 
-
 describe("CodeComponent", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -292,7 +289,6 @@ describe("CodeComponent", () => {
 		vi.useRealTimers();
 		vi.clearAllMocks();
 	});
-
 
 	it("should render inline code", () => {
 		render(<CodeComponent inline>const x = 1</CodeComponent>);

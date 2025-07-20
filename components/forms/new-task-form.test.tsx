@@ -374,7 +374,6 @@ describe("NewTaskForm", () => {
 	it("should handle component initialization", () => {
 		render(<NewTaskForm />);
 
-
 		expect(
 			screen.getByText("Ready to ship something new?"),
 		).toBeInTheDocument();

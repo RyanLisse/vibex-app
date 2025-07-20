@@ -7,7 +7,6 @@ describe("Validation Utilities", () => {
 			return typeof value === "string" && value.trim().length > 0;
 		};
 
-
 		const isEmail = (email: string): boolean => {
 			// More comprehensive email validation regex
 			// - No spaces or @ in local part (before @)
@@ -18,7 +17,6 @@ describe("Validation Utilities", () => {
 			const emailRegex = /^[^\s@.]+([.][^\s@.]+)*@[^\s@.]+\.[^\s@]+$/;
 			return emailRegex.test(email);
 		};
-
 
 		const isURL = (url: string): boolean => {
 			try {
@@ -47,7 +45,6 @@ describe("Validation Utilities", () => {
 				"firstname.lastname@company.co.uk",
 			];
 
-
 			const invalidEmails = [
 				"invalid.email",
 				"@example.com",
@@ -58,7 +55,6 @@ describe("Validation Utilities", () => {
 				"test@example",
 				"",
 			];
-
 
 			validEmails.forEach((email) => {
 				expect(isEmail(email)).toBe(true);

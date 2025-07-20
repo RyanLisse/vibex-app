@@ -14,7 +14,6 @@ describe("Basic Database Operations", () => {
 		expect(migrations.name).toBeDefined();
 	});
 
-
 	it("should have working database mock", () => {
 		// Verify db object exists
 		expect(db).toBeDefined();
@@ -39,4 +38,3 @@ describe("Basic Database Operations", () => {
 		}
 	});
 });
-

@@ -64,29 +64,29 @@ describe("MessageInput", () => {
 		});
 		mocked(createTaskAction).mockResolvedValue();
 	});
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mocked(useTaskStore).mockReturnValue({
-      updateTask: mockUpdateTask,
-      tasks: [mockTask],
-      addTask: vi.fn(),
-      setTasks: vi.fn(),
-      removeTask: vi.fn(),
-      archiveTask: vi.fn(),
-      unarchiveTask: vi.fn(),
-      pauseTask: vi.fn(),
-      resumeTask: vi.fn(),
-      cancelTask: vi.fn(),
-      clear: vi.fn(),
-      getTasks: vi.fn(),
-      getActiveTasks: vi.fn(),
-      getArchivedTasks: vi.fn(),
-      getTaskById: vi.fn(),
-      getTasksByStatus: vi.fn(),
-      getTasksBySessionId: vi.fn(),
-    })
-    mocked(createTaskAction).mockResolvedValue()
-  })
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mocked(useTaskStore).mockReturnValue({
+			updateTask: mockUpdateTask,
+			tasks: [mockTask],
+			addTask: vi.fn(),
+			setTasks: vi.fn(),
+			removeTask: vi.fn(),
+			archiveTask: vi.fn(),
+			unarchiveTask: vi.fn(),
+			pauseTask: vi.fn(),
+			resumeTask: vi.fn(),
+			cancelTask: vi.fn(),
+			clear: vi.fn(),
+			getTasks: vi.fn(),
+			getActiveTasks: vi.fn(),
+			getArchivedTasks: vi.fn(),
+			getTaskById: vi.fn(),
+			getTasksByStatus: vi.fn(),
+			getTasksBySessionId: vi.fn(),
+		});
+		mocked(createTaskAction).mockResolvedValue();
+	});
 
 	it("should render message input with placeholder", () => {
 		render(<MessageInput task={mockTask} />);

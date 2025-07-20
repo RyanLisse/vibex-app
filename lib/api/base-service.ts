@@ -180,5 +180,4 @@ export abstract class BaseAPIService {
 			console.error("Failed to log operation:", error);
 		}
 	}
-
 }

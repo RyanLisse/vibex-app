@@ -13,7 +13,6 @@ interface TypeScriptError {
 }
 
 function parseTypeScriptErrors(output: string): TypeScriptError[] {
-
 	const errors: TypeScriptError[] = [];
 	const lines = output.split("\n");
 
@@ -171,12 +170,10 @@ async function fixErrors() {
 	} catch (error) {
 		console.log("\n⚠️  Some errors remain. Manual intervention may be needed.");
 	}
-
 }
 
 // Additional focused fixes for specific patterns
 async function applyFocusedFixes() {
-
 	console.log("🎯 Applying focused fixes...\n");
 
 	const fixes = [
@@ -191,7 +188,6 @@ export const observability = {
   getTracer: (name: string) => trace.getTracer(name),
   recordMetric: metricsCollector.recordMetric.bind(metricsCollector),
 }`,
-
 		},
 
 		// Fix Redis client type issues
@@ -220,7 +216,6 @@ export const observability = {
 			console.error(`Error applying fix to ${fix.file}:`, err);
 		}
 	}
-
 }
 
 async function main() {
@@ -228,6 +223,4 @@ async function main() {
 	await fixErrors();
 }
 
-
 main().catch(console.error);
-

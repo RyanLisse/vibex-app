@@ -1,9 +1,7 @@
-
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthCardBase } from "@/components/auth/auth-card-base";
-
 
 // Mock date-fns
 const formatDistanceToNowMock = mock((_date: any, options?: any) => {
@@ -24,11 +22,9 @@ describe("AuthCardBase", () => {
 	const mockOnLogout = mock();
 	const mockOnRetry = mock();
 
-
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-
 
 	it("should render loading state", () => {
 		render(

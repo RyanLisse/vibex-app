@@ -86,11 +86,9 @@ describe("AnthropicAuthCard", () => {
 	const mockLogin = vi.fn();
 	const mockLogout = vi.fn();
 
-
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-
 
 	it("should render loading state", () => {
 		mockUseAnthropicAuth.mockReturnValue({

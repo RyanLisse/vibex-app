@@ -1,16 +1,13 @@
 #!/usr/bin/env bun
 
-
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import { join } from "path";
 import { promisify } from "util";
 
-
-const execAsync = promisify(spawn)
+const execAsync = promisify(spawn);
 
 interface TestPerformanceData {
-
 	file: string;
 	duration: number;
 	memory: number;
@@ -218,12 +215,9 @@ async function generatePerformanceReport() {
 			"  Consider checking for memory leaks or reducing test data size.\n",
 		);
 	}
-
 }
 
 // Run profiling if called directly
 if (import.meta.main) {
-
 	generatePerformanceReport().catch(console.error);
-
 }

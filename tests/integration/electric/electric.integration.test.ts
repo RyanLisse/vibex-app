@@ -1,4 +1,3 @@
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Set up test environment variables
@@ -347,4 +346,3 @@ describe("ElectricSQL Integration", () => {
 		});
 	});
 });
-

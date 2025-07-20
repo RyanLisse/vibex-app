@@ -6,7 +6,6 @@
  * isolation without the need for mocking.
  */
 
-
 import { randomBytes } from "crypto";
 
 interface NeonBranch {
@@ -317,5 +316,4 @@ export async function cleanupAllTestBranches(): Promise<void> {
 
 export async function cleanupOldTestBranches(): Promise<void> {
 	return testDb.cleanupOldTestBranches();
-
 }

@@ -1,4 +1,3 @@
-
 import type { AlertChannel, AlertNotification, CriticalError } from "../types";
 
 export interface AlertTransport {
@@ -8,5 +7,4 @@ export interface AlertTransport {
 		notification: AlertNotification,
 	): Promise<void>;
 	validateConfig(config: Record<string, any>): boolean;
-
 }

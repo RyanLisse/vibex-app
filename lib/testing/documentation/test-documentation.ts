@@ -352,7 +352,6 @@ export class TestSpecificationGenerator {
 		return edgeCases;
 	}
 
-
 	private extractMethods(
 		sourceCode: string,
 	): Array<{ name: string; parameters?: ParameterSpecification[] }> {
@@ -366,7 +365,6 @@ export class TestSpecificationGenerator {
 		const methodRegex =
 			/(?:async\s+)?(\w+)\s*\([^)]*\)\s*:\s*(?:Promise<[^>]+>|[^{]+)\s*{/gm;
 		let match;
-
 
 		while ((match = methodRegex.exec(sourceCode)) !== null) {
 			const methodName = match[1];
@@ -1009,7 +1007,6 @@ export class DocumentationGenerator {
 		return `PDF Report: ${documentation.title}\nGenerated at: ${documentation.generatedAt}`;
 	}
 
-
 	async integrateWithCoverage(
 		testDocs:
 			| TestDocumentation
@@ -1049,7 +1046,6 @@ export class DocumentationGenerator {
 
 		// Add coverage to overall documentation
 		fullTestDocs.coverage = summary;
-
 
 		// Add coverage to individual suites
 		if ("files" in coverageData && coverageData.files) {

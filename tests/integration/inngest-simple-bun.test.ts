@@ -29,12 +29,10 @@ mock.module("@/lib/inngest", () => ({
 	})),
 }));
 
-
 describe("inngest simple mock test (Bun)", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
-
 
 	it("should complete without hanging", async () => {
 		const startTime = Date.now();

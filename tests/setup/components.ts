@@ -36,7 +36,6 @@ vi.mock("ioredis", () => ({
 
 import { cleanup } from "@testing-library/react";
 
-
 // Force DOM environment validation
 if (typeof window === "undefined") {
 	throw new Error(

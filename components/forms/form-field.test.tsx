@@ -14,11 +14,9 @@ describe("FormField", () => {
 		onBlur: vi.fn(),
 	};
 
-
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
-
 
 	describe("Rendering", () => {
 		it("renders text input field correctly", () => {

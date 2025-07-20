@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { promises as fs } from "fs";
 import { join } from "path";
 
@@ -98,7 +97,6 @@ async function updateVitestConfig(
 	} catch (error) {
 		console.error(`Error updating ${configPath}:`, error);
 	}
-
 }
 
 async function createCoverageScript() {
@@ -130,8 +128,7 @@ echo "Generating final coverage report..."
 bunx nyc report --reporter=html --reporter=text --reporter=lcov --report-dir=coverage/final
 
 echo "Coverage report generated at coverage/final/index.html"
-`
-
+`;
 
 	const scriptPath = join(process.cwd(), "scripts/generate-coverage.sh");
 	await fs.writeFile(scriptPath, scriptContent);
@@ -139,7 +136,6 @@ echo "Coverage report generated at coverage/final/index.html"
 	console.log(
 		"Created coverage generation script at scripts/generate-coverage.sh",
 	);
-
 }
 
 async function createCoverageAnalyzer() {
@@ -226,8 +222,7 @@ async function analyzeCoverage() {
 }
 
 analyzeCoverage();
-`
-
+`;
 
 	const analyzerPath = join(process.cwd(), "scripts/analyze-coverage.ts");
 	await fs.writeFile(analyzerPath, analyzerContent);
@@ -266,4 +261,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

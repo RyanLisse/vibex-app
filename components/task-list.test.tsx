@@ -269,7 +269,6 @@ describe("TaskList", () => {
 	it("should handle archive button click", async () => {
 		render(<TaskList />);
 
-
 		vi.runAllTimers();
 
 		await waitFor(() => {

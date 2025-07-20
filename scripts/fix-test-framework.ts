@@ -58,7 +58,6 @@ const fixes: TestFix[] = [
 ];
 
 async function fixTestFile(fix: TestFix) {
-
 	try {
 		const filePath = path.join(process.cwd(), fix.file);
 		const content = await fs.readFile(filePath, "utf-8");
@@ -76,7 +75,6 @@ async function fixTestFile(fix: TestFix) {
 		console.error(`✗ Error fixing ${fix.file}:`, error);
 		return false;
 	}
-
 }
 
 async function createTestEnvironmentFile() {
@@ -115,7 +113,6 @@ OTEL_ENABLED=false
 }
 
 async function updatePackageJsonScripts() {
-
 	const packageJsonPath = path.join(process.cwd(), "package.json");
 	const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
 
@@ -144,7 +141,6 @@ async function updatePackageJsonScripts() {
 	);
 
 	console.log("✓ Updated package.json test scripts");
-
 }
 
 async function createGlobalTestSetup() {
@@ -185,7 +181,6 @@ if (process.env.CI) {
 }
 
 async function main() {
-
 	console.log("🔧 Fixing test framework configuration...\n");
 
 	let fixedCount = 0;
@@ -218,4 +213,3 @@ main().catch((error) => {
 	console.error("Failed to fix test framework:", error);
 	process.exit(1);
 });
-

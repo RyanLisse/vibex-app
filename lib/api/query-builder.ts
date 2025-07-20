@@ -5,7 +5,6 @@
  * Reduces duplication in filter, sort, and pagination logic
  */
 
-
 import type { SQL } from "drizzle-orm";
 
 export interface QueryFilters {
@@ -238,5 +237,4 @@ export class QueryBuilder {
 			},
 		};
 	}
-
 }

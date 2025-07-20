@@ -42,7 +42,6 @@ function createMockStore<T>(initialState: T): MockStore<T> {
 	};
 }
 
-
 describe("State Management Integration Template", () => {
 	let taskStore: MockStore<any>;
 	let authStore: MockStore<any>;
@@ -629,4 +628,3 @@ describe("State Management Integration Template", () => {
 		});
 	});
 });
-

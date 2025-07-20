@@ -14,7 +14,6 @@ describe("Auth Coverage Tests", () => {
 			try {
 				const parsed = new URL(url);
 
-
 				// Block dangerous protocols first
 				if (
 					parsed.protocol === "javascript:" ||
@@ -44,7 +43,6 @@ describe("Auth Coverage Tests", () => {
 				throw new Error("Invalid redirect URL");
 			}
 		};
-
 
 		it("should allow HTTPS URLs", () => {
 			expect(() =>
@@ -134,7 +132,6 @@ describe("Auth Coverage Tests", () => {
 				scope: "repo user:email",
 			});
 
-
 			expect(url).toContain("client_id=test-client");
 			expect(url).toContain(
 				encodeURIComponent("https://example.com/callback?foo=bar&baz=qux"),
@@ -144,7 +141,6 @@ describe("Auth Coverage Tests", () => {
 			);
 			expect(url).toContain("scope=repo+user%3Aemail");
 		});
-
 
 		it("should handle empty parameters", () => {
 			const url = buildAuthURL("https://github.com/login/oauth/authorize", {

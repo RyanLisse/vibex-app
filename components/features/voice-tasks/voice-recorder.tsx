@@ -1,12 +1,10 @@
 "use client";
 
-
 import { Mic, Pause, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { VoiceRecording } from "@/src/schemas/enhanced-task-schemas";
-
 
 interface VoiceRecorderProps {
 	onRecordingComplete: (recording: VoiceRecording) => void;

@@ -21,7 +21,6 @@ const configsToKeep = [
 ];
 
 async function cleanupConfigs() {
-
 	console.log("🧹 Cleaning up redundant test configurations...\n");
 
 	let removedCount = 0;
@@ -47,4 +46,3 @@ cleanupConfigs().catch((error) => {
 	console.error("Failed to cleanup configs:", error);
 	process.exit(1);
 });
-

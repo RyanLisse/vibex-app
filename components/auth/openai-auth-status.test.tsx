@@ -477,4 +477,3 @@ describe("OpenAIAuthStatus", () => {
 		expect(screen.getByText("Usage: 1000 tokens")).toBeInTheDocument();
 	});
 });
-

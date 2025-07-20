@@ -34,7 +34,6 @@ describe.skip("Auth", () => {
 	let writeFileMock: ReturnType<typeof mock>;
 	let chmodMock: ReturnType<typeof mock>;
 
-
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// Set up mock references
@@ -43,17 +42,14 @@ describe.skip("Auth", () => {
 		writeFileMock = fs.writeFile as ReturnType<typeof mock>;
 		chmodMock = fs.chmod as ReturnType<typeof mock>;
 
-
 		// Set default mock behaviors
 		mkdirMock.mockResolvedValue(undefined);
 		chmodMock.mockResolvedValue(undefined);
 	});
 
-
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
-
 
 	describe("get", () => {
 		it("should return OAuth auth info when provider exists", async () => {

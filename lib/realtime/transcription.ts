@@ -2,7 +2,6 @@ import { z } from "zod";
 
 // Transcription Configuration
 export const TranscriptionConfigSchema = z.object({
-
 	apiKey: z.string().min(1, "API key is required"),
 	model: z.string().default("whisper-1"),
 	language: z.string().optional(),
@@ -12,7 +11,6 @@ export const TranscriptionConfigSchema = z.object({
 		.enum(["json", "text", "srt", "verbose_json", "vtt"])
 		.default("json"),
 });
-
 
 export type TranscriptionConfig = z.infer<typeof TranscriptionConfigSchema>;
 

@@ -4,7 +4,6 @@
  * This module provides mocked database instances for testing
  */
 
-
 import { vi } from "vitest";
 
 // Create a mock database instance
@@ -42,12 +41,10 @@ export const sql = mockSql;
 // Mock health check
 export async function checkDatabaseHealth(): Promise<boolean> {
 	return true;
-
 }
 
 // Mock database configuration
 export const dbConfig = {
-
 	connectionString: "postgresql://test:test@localhost:5432/test",
 	ssl: false,
 	maxConnections: 20,
@@ -96,12 +93,10 @@ export class DatabasePool {
 	}
 
 	destroy() {}
-
 }
 
 // Mock monitor
 export class DatabaseMonitor {
-
 	static instance = new DatabaseMonitor();
 
 	static getInstance() {
@@ -122,11 +117,8 @@ export class DatabaseMonitor {
 	}
 
 	resetMetrics() {}
-
 }
 
 export async function initializeExtensions() {}
 
-
 export default db;
-

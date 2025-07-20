@@ -4,7 +4,6 @@
  * Systematically fixes all test issues
  */
 
-
 import { execSync } from "child_process";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { glob } from "glob";
@@ -222,4 +221,3 @@ console.log("- Fixed import paths");
 console.log("- Added Redis mocks");
 console.log("- Fixed async test timeouts");
 console.log('\n🚀 Run "bun run test" to see current test status');
-

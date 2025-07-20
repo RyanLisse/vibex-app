@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { promises as fs } from "fs";
 import { glob } from "glob";
 import { basename, dirname, join } from "path";
@@ -221,4 +220,3 @@ echo "  ${smallTests
 
 // Run analysis
 generateCleanupReport().catch(console.error);
-

@@ -13,7 +13,6 @@ describe("Database Connection", () => {
 		expect(isHealthy).toBe(true);
 	});
 
-
 	it("should have proper database configuration", async () => {
 		expect(db).toBeDefined();
 
@@ -35,4 +34,3 @@ describe("Database Connection", () => {
 		expect(typeof insertQuery.values).toBe("function");
 	});
 });
-

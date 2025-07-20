@@ -3,7 +3,6 @@
  * This version uses manual mocking to avoid import issues
  */
 
-
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Create mocks for all dependencies
@@ -42,7 +41,6 @@ const mockQueryPerformanceMonitor = {
 		errorRate: 1.5,
 	}),
 };
-
 
 const mockExecSync = vi.fn().mockReturnValue(`
 Filesystem      Size  Used Avail Use% Mounted on
@@ -565,4 +563,3 @@ describe("Monitoring System", () => {
 		});
 	});
 });
-

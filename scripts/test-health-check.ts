@@ -15,7 +15,6 @@ interface TestResult {
 }
 
 async function runTestProject(project: string): Promise<TestResult> {
-
 	return new Promise((resolve) => {
 		const startTime = Date.now();
 		const errors: string[] = [];
@@ -213,4 +212,3 @@ main().catch((error) => {
 	console.error("Health check failed:", error);
 	process.exit(1);
 });
-

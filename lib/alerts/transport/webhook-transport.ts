@@ -1,8 +1,6 @@
-
 import { ComponentLogger } from "../../logging/logger-factory";
 import type { AlertChannel, AlertNotification, CriticalError } from "../types";
 import type { AlertTransport } from "./types";
-
 
 interface WebhookConfig {
 	url: string;

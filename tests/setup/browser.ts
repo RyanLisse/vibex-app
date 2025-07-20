@@ -2,14 +2,12 @@ import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 
 // Browser test specific setup
 beforeAll(async () => {
-
 	console.log("🌐 Starting browser tests...");
 
 	// Set up test environment variables
 	process.env.NODE_ENV = "test";
 	process.env.NEXT_PUBLIC_API_URL = "http://localhost:3000";
 });
-
 
 afterAll(async () => {
 	console.log("✅ Browser tests completed");
@@ -67,8 +65,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-
 	console.error = originalError;
 	console.warn = originalWarn;
 });
-

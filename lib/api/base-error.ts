@@ -5,7 +5,6 @@
  * Reduces code duplication across route-specific error classes
  */
 export class BaseAPIError extends Error {
-
 	public readonly statusCode: number;
 	public readonly code: string;
 	public readonly details?: any;
@@ -40,14 +39,12 @@ export class BaseAPIError extends Error {
 			details: this.details,
 		};
 	}
-
 }
 
 /**
  * Common API Error Types
  */
 export class ValidationError extends BaseAPIError {
-
 	constructor(message: string, details?: any) {
 		super(message, 400, "VALIDATION_ERROR", details);
 	}
@@ -90,5 +87,4 @@ export class InternalServerError extends BaseAPIError {
 	constructor(message = "Internal server error", details?: any) {
 		super(message, 500, "INTERNAL_ERROR", details);
 	}
-
 }

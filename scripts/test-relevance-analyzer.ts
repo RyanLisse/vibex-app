@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { promises as fs } from "fs";
 import { glob } from "glob";
 import { join, relative } from "path";
@@ -283,4 +282,3 @@ ${criticalTests
 
 // Run analysis
 generateRelevanceReport().catch(console.error);
-

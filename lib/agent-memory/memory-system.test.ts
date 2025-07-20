@@ -2,7 +2,6 @@
  * Agent Memory System Tests
  */
 
-
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { memoryContextManager } from "./context-manager";
 import { memoryLifecycleManager } from "./lifecycle-manager";
@@ -30,10 +29,8 @@ vi.mock("@/lib/observability", () => ({
 	},
 }));
 
-
 describe("AgentMemorySystem", () => {
 	let memorySystem: AgentMemorySystem;
-
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -59,7 +56,6 @@ describe("AgentMemorySystem", () => {
 				.spyOn(memorySearchService, "warmUp")
 				.mockResolvedValue(undefined);
 
-
 			await memorySystem.initialize();
 
 			expect(startMaintenanceSpy).toHaveBeenCalled();
@@ -67,7 +63,6 @@ describe("AgentMemorySystem", () => {
 			expect(warmUpSpy).toHaveBeenCalledWith("task_executor");
 			expect(warmUpSpy).toHaveBeenCalledWith("workflow_orchestrator");
 		});
-
 
 		it("should not initialize twice", async () => {
 			const startMaintenanceSpy = vi.spyOn(
@@ -83,7 +78,6 @@ describe("AgentMemorySystem", () => {
 			const warmUpSpy = vi
 				.spyOn(memorySearchService, "warmUp")
 				.mockResolvedValue(undefined);
-
 
 			await memorySystem.initialize();
 			await memorySystem.initialize();

@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-
 import { promises as fs } from "fs";
 import { glob } from "glob";
 import { dirname, join, relative } from "path";
@@ -230,4 +229,3 @@ async function generateReport() {
 
 // Run the analysis
 generateReport().catch(console.error);
-

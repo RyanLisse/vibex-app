@@ -5,7 +5,6 @@ import { glob } from "glob";
 import path from "path";
 
 async function findSkippedTests() {
-
 	console.log("🔍 Searching for skipped tests...\n");
 
 	// Find all test files
@@ -87,4 +86,3 @@ main().catch((error) => {
 	console.error("Error:", error);
 	process.exit(1);
 });
-

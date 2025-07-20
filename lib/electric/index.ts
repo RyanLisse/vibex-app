@@ -109,17 +109,14 @@ export function getElectricSQLHealth(): {
 		activeSubscriptions: number;
 	};
 } {
-
 	return {
 		auth: electricAuthService.getTokenInfo(),
 		sync: electricSyncService.getSyncStatus(),
 	};
-
 }
 
 // Utility functions for common operations
 export class ElectricSQLUtils {
-
 	/**
 	 * Subscribe to real-time updates for a specific table
 	 */
@@ -170,7 +167,6 @@ export class ElectricSQLUtils {
 	static getAuthHeaders(): Record<string, string> {
 		return electricAuthService.getAuthHeaders();
 	}
-
 }
 
 // React hooks for ElectricSQL integration (to be used with TanStack Query)
@@ -186,10 +182,8 @@ export const useElectricSQLStatus = () => {
 		};
 	}
 
-
 	return electricSyncService.getSyncStatus();
 };
-
 
 export const useElectricSQLAuth = () => {
 	if (typeof window === "undefined") {
@@ -201,10 +195,8 @@ export const useElectricSQLAuth = () => {
 		};
 	}
 
-
 	return electricAuthService.getTokenInfo();
 };
-
 
 // Error classes
 export class ElectricSQLError extends Error {

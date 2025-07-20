@@ -2,12 +2,10 @@ import { z } from "zod";
 
 // Letta API Configuration
 export const LettaConfigSchema = z.object({
-
 	apiKey: z.string().min(1, "API key is required"),
 	baseUrl: z.string().default("https://api.letta.com"),
 	projectId: z.string().optional(),
 });
-
 
 export type LettaConfig = z.infer<typeof LettaConfigSchema>;
 
