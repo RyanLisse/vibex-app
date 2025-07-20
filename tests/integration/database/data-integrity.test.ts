@@ -52,7 +52,7 @@ interface ConstraintValidationResult {
 // Skip tests if no database URL is provided
 const skipTests = !process.env.DATABASE_URL
 
-describe.skipIf(skipTests)('Data Integrity Validation Tests', () => {
+describe('Data Integrity Validation Tests', () => {
   let testDataIds: {
     userIds: string[]
     taskIds: string[]

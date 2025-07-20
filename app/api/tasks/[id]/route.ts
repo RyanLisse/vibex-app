@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Individual Task API Route
  *
@@ -18,7 +19,6 @@ import { observability } from '@/lib/observability'
 import {
   createApiErrorResponse,
   createApiSuccessResponse,
-  TaskSchema,
   UpdateTaskSchema,
 } from '@/src/schemas/api-routes'
 
@@ -185,7 +185,7 @@ class TaskService {
       const startTime = Date.now()
 
       // First check if task exists
-      const existingTask = await TaskService.getTask(id)
+      const _existingTask = await TaskService.getTask(id)
 
       const [deletedTask] = await db.delete(tasks).where(eq(tasks.id, id)).returning()
 
@@ -237,7 +237,7 @@ class TaskService {
 /**
  * GET /api/tasks/[id] - Get a specific task
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Validate route parameters
     const { id } = TaskParamsSchema.parse(params)
@@ -309,7 +309,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 /**
  * DELETE /api/tasks/[id] - Delete a specific task
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Validate route parameters
     const { id } = TaskParamsSchema.parse(params)

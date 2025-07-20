@@ -2,11 +2,11 @@
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { getAlertService, logger } from '@/app/api/alerts/_lib/setup'
-import { AlertConfig } from '@/lib/alerts/types'
+import type { AlertConfig } from '@/lib/alerts/types'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const alertService = getAlertService()
     await alertService.initialize()
@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate configuration
-    if (!config.channels || !Array.isArray(config.channels)) {
+    if (!(config.channels && Array.isArray(config.channels))) {
       return NextResponse.json(
         {
           success: false,
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest) {
 
     // Validate each channel
     for (const channel of config.channels) {
-      if (!channel.name || !channel.type) {
+      if (!(channel.name && channel.type)) {
         return NextResponse.json(
           {
             success: false,

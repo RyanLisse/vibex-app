@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * PR Status Integration API Route
  *
@@ -8,20 +9,17 @@ export const runtime = 'nodejs'
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
-import { ulid } from 'ulid'
 import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
 import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
-import { TaskPRLinkSchema, PRStatusSchema } from '@/src/schemas/enhanced-task-schemas'
+import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock GitHub API client
 class GitHubAPIClient {
-  private static baseUrl = 'https://api.github.com'
-
   static async getPRStatus(repository: string, prNumber: string) {
     // In real implementation, would make actual GitHub API calls
     // For now, return mock data
@@ -29,7 +27,7 @@ class GitHubAPIClient {
 
     return {
       prId: `pr-${prNumber}`,
-      title: `Feature: Add new task management functionality`,
+      title: 'Feature: Add new task management functionality',
       status: 'open' as const,
       reviewStatus: 'pending' as const,
       mergeable: true,
@@ -71,7 +69,7 @@ class GitHubAPIClient {
     }
   }
 
-  static async mergePR(repository: string, prNumber: string) {
+  static async mergePR(_repository: string, _prNumber: string) {
     // Mock merge operation
     await new Promise((resolve) => setTimeout(resolve, 2000))
     return {
@@ -81,7 +79,7 @@ class GitHubAPIClient {
     }
   }
 
-  static async requestReview(repository: string, prNumber: string, reviewers: string[]) {
+  static async requestReview(_repository: string, _prNumber: string, reviewers: string[]) {
     // Mock review request
     await new Promise((resolve) => setTimeout(resolve, 1000))
     return {
@@ -372,9 +370,15 @@ export async function GET(request: NextRequest) {
       const prStatuses = task.metadata.prStatuses || {}
       Object.values(prStatuses).forEach((prStatus: any) => {
         prStats.totalLinkedPRs++
-        if (prStatus.status === 'open') prStats.openPRs++
-        if (prStatus.status === 'merged') prStats.mergedPRs++
-        if (prStatus.reviewStatus === 'pending') prStats.pendingReview++
+        if (prStatus.status === 'open') {
+          prStats.openPRs++
+        }
+        if (prStatus.status === 'merged') {
+          prStats.mergedPRs++
+        }
+        if (prStatus.reviewStatus === 'pending') {
+          prStats.pendingReview++
+        }
         if (prStatus.reviewStatus === 'approved' && prStatus.mergeable) {
           prStats.readyToMerge++
         }

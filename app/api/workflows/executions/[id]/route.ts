@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -19,7 +20,7 @@ const stopRequestSchema = z.object({
 })
 
 // GET /api/workflows/executions/[id] - Get execution details
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const executionId = params.id
 

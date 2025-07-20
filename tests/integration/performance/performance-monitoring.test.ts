@@ -189,7 +189,7 @@ class PerformanceMonitor {
 // Skip tests if no database URL is provided
 const skipTests = !process.env.DATABASE_URL
 
-describe.skipIf(skipTests)('Performance Monitoring Integration Tests', () => {
+describe('Performance Monitoring Integration Tests', () => {
   let performanceMonitor: PerformanceMonitor
   let testDataIds: {
     taskIds: string[]

@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Real-time Progress Monitoring API Route
  *
@@ -8,9 +9,8 @@ export const runtime = 'nodejs'
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { and, eq, gte, lte } from 'drizzle-orm'
+import { and, eq, gte } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
-import { ulid } from 'ulid'
 import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
@@ -23,33 +23,31 @@ class ProgressNotificationManager {
   private static connections = new Map<string, Set<string>>() // userId -> Set of connectionIds
 
   static addConnection(userId: string, connectionId: string) {
-    if (!this.connections.has(userId)) {
-      this.connections.set(userId, new Set())
+    if (!ProgressNotificationManager.connections.has(userId)) {
+      ProgressNotificationManager.connections.set(userId, new Set())
     }
-    this.connections.get(userId)!.add(connectionId)
+    ProgressNotificationManager.connections.get(userId)?.add(connectionId)
   }
 
   static removeConnection(userId: string, connectionId: string) {
-    const userConnections = this.connections.get(userId)
+    const userConnections = ProgressNotificationManager.connections.get(userId)
     if (userConnections) {
       userConnections.delete(connectionId)
       if (userConnections.size === 0) {
-        this.connections.delete(userId)
+        ProgressNotificationManager.connections.delete(userId)
       }
     }
   }
 
-  static async notifyProgress(userId: string, progressData: any) {
-    const userConnections = this.connections.get(userId)
+  static async notifyProgress(userId: string, _progressData: any) {
+    const userConnections = ProgressNotificationManager.connections.get(userId)
     if (userConnections && userConnections.size > 0) {
-      // In real implementation, would send WebSocket messages
-      console.log(`Notifying ${userConnections.size} connections for user ${userId}:`, progressData)
     }
   }
 
   static async notifyMilestone(userIds: string[], milestone: any) {
     for (const userId of userIds) {
-      await this.notifyProgress(userId, {
+      await ProgressNotificationManager.notifyProgress(userId, {
         type: 'milestone_reached',
         milestone,
       })
@@ -267,10 +265,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
-    const projectId = searchParams.get('projectId')
+    const _projectId = searchParams.get('projectId')
     const timeframe = searchParams.get('timeframe') || '30'
 
-    const daysAgo = parseInt(timeframe)
+    const daysAgo = Number.parseInt(timeframe, 10)
     const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
 
     let query = db.select().from(tasks).where(gte(tasks.createdAt, startDate))
@@ -336,7 +334,9 @@ export async function GET(request: NextRequest) {
 const calculateAverageCompletionTime = (tasks: any[]) => {
   const completedTasks = tasks.filter((t) => t.completedAt && t.createdAt)
 
-  if (completedTasks.length === 0) return 0
+  if (completedTasks.length === 0) {
+    return 0
+  }
 
   const totalTime = completedTasks.reduce((sum, task) => {
     const created = new Date(task.createdAt).getTime()

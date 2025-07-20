@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Tasks API Route
  *
@@ -9,7 +10,7 @@ export const runtime = 'nodejs'
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { and, asc, desc, eq, gte, inArray, like, lte } from 'drizzle-orm'
+import { and, asc, desc, eq, like } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { ulid } from 'ulid'
 import { z } from 'zod'
@@ -21,10 +22,7 @@ import {
   createApiErrorResponse,
   createApiSuccessResponse,
   createPaginatedResponse,
-  TaskSchema,
-  TasksRequestSchema,
   type UpdateTaskSchema,
-  validateApiRequest,
 } from '@/src/schemas/api-routes'
 
 // Request validation schemas
@@ -42,7 +40,7 @@ const GetTasksQuerySchema = z.object({
   userId: z.string().optional(),
 })
 
-const GetTaskParamsSchema = z.object({
+const _GetTaskParamsSchema = z.object({
   id: z.string().min(1),
 })
 

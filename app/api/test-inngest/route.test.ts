@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GET } from '@/app/api/test-inngest/route'
 
 // The inngest module is already mocked in vitest.setup.inngest.ts
@@ -9,9 +9,9 @@ describe('GET /api/test-inngest', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     // Clear environment variables
-    delete process.env.INNGEST_EVENT_KEY
-    delete process.env.INNGEST_SIGNING_KEY
-    delete process.env.INNGEST_DEV
+    process.env.INNGEST_EVENT_KEY = undefined
+    process.env.INNGEST_SIGNING_KEY = undefined
+    process.env.INNGEST_DEV = undefined
 
     // Get the mocked inngest
     const inngestModule = await import('@/lib/inngest')

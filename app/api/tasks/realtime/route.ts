@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Real-time Task Updates WebSocket API Route
  *
@@ -28,7 +29,7 @@ class RealTimeConnectionManager {
   private static subscriptions = new Map<string, Set<string>>() // subscriptionKey -> Set of connectionIds
 
   static addConnection(connectionId: string, userId: string) {
-    this.connections.set(connectionId, {
+    RealTimeConnectionManager.connections.set(connectionId, {
       userId,
       connectionId,
       subscriptions: [],
@@ -36,38 +37,40 @@ class RealTimeConnectionManager {
     })
 
     // Auto-subscribe to user's own tasks
-    this.subscribe(connectionId, `user:${userId}`)
+    RealTimeConnectionManager.subscribe(connectionId, `user:${userId}`)
 
-    return this.connections.get(connectionId)
+    return RealTimeConnectionManager.connections.get(connectionId)
   }
 
   static removeConnection(connectionId: string) {
-    const connection = this.connections.get(connectionId)
+    const connection = RealTimeConnectionManager.connections.get(connectionId)
     if (connection) {
       // Remove from all subscriptions
       connection.subscriptions.forEach((subscription) => {
-        const subscribers = this.subscriptions.get(subscription)
+        const subscribers = RealTimeConnectionManager.subscriptions.get(subscription)
         if (subscribers) {
           subscribers.delete(connectionId)
           if (subscribers.size === 0) {
-            this.subscriptions.delete(subscription)
+            RealTimeConnectionManager.subscriptions.delete(subscription)
           }
         }
       })
 
-      this.connections.delete(connectionId)
+      RealTimeConnectionManager.connections.delete(connectionId)
     }
   }
 
   static subscribe(connectionId: string, subscriptionKey: string) {
-    const connection = this.connections.get(connectionId)
-    if (!connection) return false
+    const connection = RealTimeConnectionManager.connections.get(connectionId)
+    if (!connection) {
+      return false
+    }
 
     // Add to subscription
-    if (!this.subscriptions.has(subscriptionKey)) {
-      this.subscriptions.set(subscriptionKey, new Set())
+    if (!RealTimeConnectionManager.subscriptions.has(subscriptionKey)) {
+      RealTimeConnectionManager.subscriptions.set(subscriptionKey, new Set())
     }
-    this.subscriptions.get(subscriptionKey)!.add(connectionId)
+    RealTimeConnectionManager.subscriptions.get(subscriptionKey)?.add(connectionId)
 
     // Add to connection's subscriptions
     connection.subscriptions.push(subscriptionKey)
@@ -77,15 +80,17 @@ class RealTimeConnectionManager {
   }
 
   static unsubscribe(connectionId: string, subscriptionKey: string) {
-    const connection = this.connections.get(connectionId)
-    if (!connection) return false
+    const connection = RealTimeConnectionManager.connections.get(connectionId)
+    if (!connection) {
+      return false
+    }
 
     // Remove from subscription
-    const subscribers = this.subscriptions.get(subscriptionKey)
+    const subscribers = RealTimeConnectionManager.subscriptions.get(subscriptionKey)
     if (subscribers) {
       subscribers.delete(connectionId)
       if (subscribers.size === 0) {
-        this.subscriptions.delete(subscriptionKey)
+        RealTimeConnectionManager.subscriptions.delete(subscriptionKey)
       }
     }
 
@@ -96,17 +101,17 @@ class RealTimeConnectionManager {
     return true
   }
 
-  static broadcast(subscriptionKey: string, message: any) {
-    const subscribers = this.subscriptions.get(subscriptionKey)
-    if (!subscribers || subscribers.size === 0) return 0
+  static broadcast(subscriptionKey: string, _message: any) {
+    const subscribers = RealTimeConnectionManager.subscriptions.get(subscriptionKey)
+    if (!subscribers || subscribers.size === 0) {
+      return 0
+    }
 
     let sentCount = 0
 
     subscribers.forEach((connectionId) => {
-      const connection = this.connections.get(connectionId)
+      const connection = RealTimeConnectionManager.connections.get(connectionId)
       if (connection) {
-        // In real implementation, would send WebSocket message
-        console.log(`Broadcasting to ${connectionId}:`, message)
         connection.lastActivity = new Date()
         sentCount++
       }
@@ -116,14 +121,14 @@ class RealTimeConnectionManager {
   }
 
   static getStats() {
-    const totalConnections = this.connections.size
-    const totalSubscriptions = this.subscriptions.size
-    const activeConnections = Array.from(this.connections.values()).filter(
+    const totalConnections = RealTimeConnectionManager.connections.size
+    const totalSubscriptions = RealTimeConnectionManager.subscriptions.size
+    const activeConnections = Array.from(RealTimeConnectionManager.connections.values()).filter(
       (conn) => Date.now() - conn.lastActivity.getTime() < 5 * 60 * 1000 // Active in last 5 minutes
     ).length
 
     const subscriptionBreakdown = {}
-    this.subscriptions.forEach((subscribers, key) => {
+    RealTimeConnectionManager.subscriptions.forEach((subscribers, key) => {
       subscriptionBreakdown[key] = subscribers.size
     })
 
@@ -141,14 +146,14 @@ class RealTimeConnectionManager {
     const now = Date.now()
 
     const staleConnections = []
-    this.connections.forEach((connection, connectionId) => {
+    RealTimeConnectionManager.connections.forEach((connection, connectionId) => {
       if (now - connection.lastActivity.getTime() > staleThreshold) {
         staleConnections.push(connectionId)
       }
     })
 
     staleConnections.forEach((connectionId) => {
-      this.removeConnection(connectionId)
+      RealTimeConnectionManager.removeConnection(connectionId)
     })
 
     return staleConnections.length
@@ -226,34 +231,59 @@ export class TaskRealtimeNotifier {
   }
 
   static async notifyProgressUpdate(taskId: string, userId: string, progressData: any) {
-    return this.notifyTaskUpdate(taskId, userId, REALTIME_MESSAGE_TYPES.PROGRESS_UPDATED, {
-      progress: progressData,
-    })
+    return TaskRealtimeNotifier.notifyTaskUpdate(
+      taskId,
+      userId,
+      REALTIME_MESSAGE_TYPES.PROGRESS_UPDATED,
+      {
+        progress: progressData,
+      }
+    )
   }
 
   static async notifyMilestoneReached(taskId: string, userId: string, milestone: any) {
-    return this.notifyTaskUpdate(taskId, userId, REALTIME_MESSAGE_TYPES.MILESTONE_REACHED, {
-      milestone,
-    })
+    return TaskRealtimeNotifier.notifyTaskUpdate(
+      taskId,
+      userId,
+      REALTIME_MESSAGE_TYPES.MILESTONE_REACHED,
+      {
+        milestone,
+      }
+    )
   }
 
   static async notifyKanbanMove(taskId: string, userId: string, moveData: any) {
-    return this.notifyTaskUpdate(taskId, userId, REALTIME_MESSAGE_TYPES.KANBAN_MOVED, {
-      movement: moveData,
-    })
+    return TaskRealtimeNotifier.notifyTaskUpdate(
+      taskId,
+      userId,
+      REALTIME_MESSAGE_TYPES.KANBAN_MOVED,
+      {
+        movement: moveData,
+      }
+    )
   }
 
   static async notifyPRStatusChange(taskId: string, userId: string, prData: any) {
-    return this.notifyTaskUpdate(taskId, userId, REALTIME_MESSAGE_TYPES.PR_STATUS_CHANGED, {
-      pr: prData,
-    })
+    return TaskRealtimeNotifier.notifyTaskUpdate(
+      taskId,
+      userId,
+      REALTIME_MESSAGE_TYPES.PR_STATUS_CHANGED,
+      {
+        pr: prData,
+      }
+    )
   }
 
   static async notifyOverdueAlert(taskId: string, userId: string, taskData: any) {
-    return this.notifyTaskUpdate(taskId, userId, REALTIME_MESSAGE_TYPES.OVERDUE_ALERT, {
-      task: taskData,
-      alertType: 'overdue',
-    })
+    return TaskRealtimeNotifier.notifyTaskUpdate(
+      taskId,
+      userId,
+      REALTIME_MESSAGE_TYPES.OVERDUE_ALERT,
+      {
+        task: taskData,
+        alertType: 'overdue',
+      }
+    )
   }
 }
 

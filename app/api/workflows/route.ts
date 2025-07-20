@@ -1,11 +1,12 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
-import { and, desc, eq, ilike, inArray } from 'drizzle-orm'
+
+import { and, desc, eq, ilike } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/db/config'
-import { workflowExecutions, workflows } from '@/db/schema'
+import { workflows } from '@/db/schema'
 import { observabilityService } from '@/lib/observability'
 
 const workflowQuerySchema = z.object({

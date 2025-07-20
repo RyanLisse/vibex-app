@@ -1,7 +1,8 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
-import { NextRequest } from 'next/server'
+
+import type { NextRequest } from 'next/server'
 
 // Server-Sent Events implementation for real-time updates
 export async function GET(request: NextRequest) {
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
           progress,
           status: progress === 100 ? 'completed' : 'running',
         })
-      }, 12000)
+      }, 12_000)
 
       // Communication updates
       const communicationInterval = setInterval(() => {
@@ -113,7 +114,7 @@ export async function GET(request: NextRequest) {
         }
 
         sendUpdate('event', { event })
-      }, 10000)
+      }, 10_000)
 
       // Memory usage updates
       const memoryUpdateInterval = setInterval(() => {
@@ -132,7 +133,7 @@ export async function GET(request: NextRequest) {
             averageLatency: Math.floor(Math.random() * 50),
           },
         })
-      }, 15000)
+      }, 15_000)
 
       // Performance metrics updates
       const performanceInterval = setInterval(() => {
@@ -158,7 +159,7 @@ export async function GET(request: NextRequest) {
           message: 'Connection alive',
           clientCount: Math.floor(Math.random() * 10) + 1,
         })
-      }, 30000)
+      }, 30_000)
 
       // Cleanup on client disconnect
       request.signal.addEventListener('abort', () => {

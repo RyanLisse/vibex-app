@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 import { serve } from 'inngest/next'
 import type { NextRequest } from 'next/server'
 import { createTask, inngest, taskControl } from '@/lib/inngest'

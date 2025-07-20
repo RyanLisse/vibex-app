@@ -8,7 +8,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { checkDatabaseHealth, db } from '../../../db/config'
+import { checkDatabaseHealth, db, sql } from '../../../db/config'
 import {
   type MigrationExecutionResult,
   type MigrationFile,
@@ -17,6 +17,7 @@ import {
   migrationRunner,
 } from '../../../db/migrations/migration-runner'
 import { migrations } from '../../../db/schema'
+import { sql as sqlOperator } from 'drizzle-orm'
 
 // Skip tests if no database URL is provided
 const skipTests = !process.env.DATABASE_URL
@@ -113,7 +114,7 @@ CREATE TABLE test_users (
   },
 }
 
-describe.skipIf(skipTests)('Migration System Integration Tests', () => {
+describe('Migration System Integration Tests', () => {
   let testRunner: MigrationRunner
 
   beforeAll(async () => {
@@ -151,12 +152,12 @@ describe.skipIf(skipTests)('Migration System Integration Tests', () => {
   async function cleanupTestData() {
     try {
       // Drop test tables if they exist
-      await db.execute('DROP TABLE IF EXISTS test_user_settings CASCADE')
-      await db.execute('DROP TABLE IF EXISTS test_users CASCADE')
-      await db.execute('DROP TABLE IF EXISTS invalid_table CASCADE')
+      await sql`DROP TABLE IF EXISTS test_user_settings CASCADE`
+      await sql`DROP TABLE IF EXISTS test_users CASCADE`
+      await sql`DROP TABLE IF EXISTS invalid_table CASCADE`
 
       // Clean up migration records for test migrations
-      await db.execute(`DELETE FROM migrations WHERE name LIKE '%test%' OR name LIKE '00%'`)
+      await sql`DELETE FROM migrations WHERE name LIKE '%test%' OR name LIKE '00%'`
     } catch (error) {
       console.warn('Cleanup warning:', error)
     }
@@ -339,17 +340,17 @@ CREATE TABLE something;
       expect(result.errors).toHaveLength(0)
 
       // Verify tables were created
-      const tableCheck = await db.execute(`
+      const tableCheck = await sql`
         SELECT table_name 
         FROM information_schema.tables 
         WHERE table_schema = 'public' 
         AND table_name IN ('test_users', 'test_user_settings')
-      `)
+      `
 
-      expect(tableCheck.rows).toHaveLength(2)
+      expect(tableCheck).toHaveLength(2)
 
       // Verify migration records were created
-      const migrationRecords = await db.select().from(migrations).where(sql`name LIKE '00%'`)
+      const migrationRecords = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
 
       expect(migrationRecords).toHaveLength(3)
     })
@@ -381,7 +382,7 @@ CREATE TABLE something;
       expect(result.errors.length).toBeGreaterThan(0)
 
       // Verify partial rollback occurred
-      const migrationRecords = await db.select().from(migrations).where(sql`name LIKE '00%'`)
+      const migrationRecords = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
 
       // Should have no successful migrations due to rollback
       expect(migrationRecords).toHaveLength(0)
@@ -416,8 +417,8 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       ])
 
       // Verify dependent data was created
-      const userCount = await db.execute('SELECT COUNT(*) as count FROM test_users')
-      expect(Number.parseInt(userCount.rows[0].count)).toBe(1)
+      const userCount = await sql`SELECT COUNT(*) as count FROM test_users`
+      expect(Number.parseInt(userCount[0].count)).toBe(1)
     })
 
     it('should track execution time and metadata', async () => {
@@ -427,7 +428,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(result.executionTime).toBeGreaterThan(0)
 
       // Check migration metadata in database
-      const migrationRecords = await db.select().from(migrations).where(sql`name LIKE '00%'`)
+      const migrationRecords = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
 
       migrationRecords.forEach((record) => {
         expect(record.metadata).toBeDefined()
@@ -452,7 +453,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 
     it('should rollback last migration successfully', async () => {
       // Verify initial state
-      const initialMigrations = await db.select().from(migrations).where(sql`name LIKE '00%'`)
+      const initialMigrations = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
       expect(initialMigrations).toHaveLength(3)
 
       // Rollback last migration
@@ -462,22 +463,22 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(rollbackResult.rolledBack).toBe('003_add_user_preferences')
 
       // Verify migration was removed from database
-      const remainingMigrations = await db.select().from(migrations).where(sql`name LIKE '00%'`)
+      const remainingMigrations = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
       expect(remainingMigrations).toHaveLength(2)
 
       // Verify schema changes were rolled back
-      const columnCheck = await db.execute(`
+      const columnCheck = await sql`
         SELECT column_name 
         FROM information_schema.columns 
         WHERE table_name = 'test_users' 
         AND column_name IN ('preferences', 'timezone')
-      `)
-      expect(columnCheck.rows).toHaveLength(0)
+      `
+      expect(columnCheck).toHaveLength(0)
     })
 
     it('should handle rollback when no migrations exist', async () => {
       // Clear all migrations first
-      await db.execute(`DELETE FROM migrations WHERE name LIKE '00%'`)
+      await sql`DELETE FROM migrations WHERE name LIKE '00%'`
 
       const rollbackResult = await testRunner.rollback()
 
@@ -701,8 +702,8 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(executionTime).toBeLessThan(30_000) // Should complete within 30 seconds
 
       // Verify data was inserted
-      const userCount = await db.execute('SELECT COUNT(*) as count FROM test_users')
-      expect(Number.parseInt(userCount.rows[0].count)).toBe(1000)
+      const userCount = await sql`SELECT COUNT(*) as count FROM test_users`
+      expect(Number.parseInt(userCount[0].count)).toBe(1000)
     })
 
     it('should handle concurrent migration attempts safely', async () => {
@@ -725,7 +726,7 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(successResults.length).toBeGreaterThanOrEqual(1)
 
       // Verify final state is consistent
-      const finalMigrations = await db.select().from(migrations).where(sql`name LIKE '00%'`)
+      const finalMigrations = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
       expect(finalMigrations).toHaveLength(3) // No duplicates
     })
   })

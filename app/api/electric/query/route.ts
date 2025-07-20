@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * ElectricSQL Query API Route
  *
@@ -10,10 +11,9 @@ export const runtime = 'nodejs'
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { sql } from 'drizzle-orm'
-import { type NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/db/config'
-import { observability } from '@/lib/observability'
 import {
   createApiErrorResponse,
   createApiSuccessResponse,
@@ -44,7 +44,7 @@ type ElectricQueryResponse = z.infer<typeof ElectricQueryResponseSchema>
  * Execute a query against the server database for ElectricSQL sync
  */
 export async function POST(request: NextRequest) {
-  const tracer = observability.getTracer('electric-query-api')
+  const tracer = trace.getTracer('electric-query-api')
 
   return tracer.startActiveSpan('electric-query-post', async (span) => {
     try {
@@ -55,13 +55,13 @@ export async function POST(request: NextRequest) {
 
       // Validate request
       const validationResult = await validateApiRequest(request, ElectricQueryRequestSchema)
-      if (!validationResult.success) {
+      if (validationResult.error) {
         span.recordException(new Error('Validation failed'))
         span.setStatus({
           code: SpanStatusCode.ERROR,
           message: 'Validation failed',
         })
-        return createApiErrorResponse('Invalid request data', 400)
+        return createApiErrorResponse(validationResult.error, 400)
       }
 
       const { query, params, userId, syncMode } = validationResult.data
@@ -96,7 +96,12 @@ export async function POST(request: NextRequest) {
 
       // Execute query against the server database
       const startTime = Date.now()
-      const result = await db.execute(sql.raw(finalQuery, finalParams))
+      // Create parameterized query
+      const parameterizedQuery =
+        finalParams.length > 0
+          ? sql.raw(finalQuery.replace(/\?/g, (_, index) => `$${index + 1}`))
+          : sql.raw(finalQuery)
+      const result = await db.execute(parameterizedQuery)
       const executionTime = Date.now() - startTime
 
       span.setAttributes({
@@ -113,26 +118,19 @@ export async function POST(request: NextRequest) {
       }
 
       span.setStatus({ code: SpanStatusCode.OK })
-      return createApiSuccessResponse(response, {
-        message: 'Query executed successfully',
-        metadata: {
-          executionTime,
-          syncMode,
-          source: 'server',
-        },
-      })
+      return createApiSuccessResponse(response, 'Query executed successfully')
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
 
       span.recordException(error as Error)
       span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage })
 
-      console.error('Electric query API error:', error)
-
       return createApiErrorResponse(
         'Failed to execute query',
         500,
-        process.env.NODE_ENV === 'development' ? [errorMessage] : undefined
+        process.env.NODE_ENV === 'development'
+          ? [{ field: 'query', message: errorMessage }]
+          : undefined
       )
     } finally {
       span.end()
@@ -145,7 +143,7 @@ export async function POST(request: NextRequest) {
  * Health check and configuration endpoint
  */
 export async function GET() {
-  const tracer = observability.getTracer('electric-query-api')
+  const tracer = trace.getTracer('electric-query-api')
 
   return tracer.startActiveSpan('electric-query-get', async (span) => {
     try {
@@ -156,7 +154,7 @@ export async function GET() {
 
       // Basic health check
       const healthCheck = await db.execute(sql`SELECT 1 as health`)
-      const isHealthy = healthCheck.length > 0
+      const isHealthy = Array.isArray(healthCheck) && healthCheck.length > 0
 
       const response = {
         status: 'ok',
@@ -178,7 +176,9 @@ export async function GET() {
       span.recordException(error as Error)
       span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage })
 
-      return createApiErrorResponse('Health check failed', 500, [errorMessage])
+      return createApiErrorResponse('Health check failed', 500, [
+        { field: 'health', message: errorMessage },
+      ])
     } finally {
       span.end()
     }

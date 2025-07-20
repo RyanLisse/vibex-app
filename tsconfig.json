@@ -46,6 +46,9 @@
     "components/**/*.tsx",
     "hooks/**/*.ts",
     "hooks/**/*.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "db/**/*.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
@@ -62,6 +65,7 @@
     "**/*.spec.tsx",
     "tests/**/*",
     "scripts/**/*",
-    "lib/**/*"
+    "vitest.*.config.ts",
+    "playwright.config.ts"
   ]
 }

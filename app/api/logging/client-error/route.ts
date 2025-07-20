@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 import { type NextRequest, NextResponse } from 'next/server'
 import { getLogger } from '@/lib/logging/safe-wrapper'
 
@@ -55,9 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    // Fallback to console if logging fails
-    console.error('Failed to log client error:', error)
+  } catch (_error) {
     return NextResponse.json({ success: false }, { status: 500 })
   }
 }

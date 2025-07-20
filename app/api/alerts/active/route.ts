@@ -2,10 +2,10 @@
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { getAlertService, logger } from '@/app/api/alerts/_lib/setup'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const alertService = getAlertService()
     await alertService.initialize()

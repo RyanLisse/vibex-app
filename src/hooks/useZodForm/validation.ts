@@ -9,7 +9,7 @@ export function createSchemaValidator<T extends FieldValues>(schema: z.ZodSchema
       return { success: true, data: result }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errors = error.errors.reduce(
+        const errors = error.issues.reduce(
           (acc, err) => {
             const field = err.path.join('.') as keyof T
             acc[field] = err.message
@@ -40,7 +40,7 @@ export async function validateSingleField<T extends FieldValues>(
     return true
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const fieldError = error.errors.find((err) => err.path.includes(field as string))
+      const fieldError = error.issues.find((err) => err.path.includes(field as string))
       if (fieldError) {
         form.setError(field, { message: fieldError.message })
       }
@@ -60,8 +60,8 @@ export async function validateAllFormFields<T extends FieldValues>(
   const data = form.getValues()
   const result = validateSchema(data)
 
-  if (!result.success && result.errors) {
-    Object.entries(result.errors).forEach(([field, error]) => {
+  if (!result.success && result.issues) {
+    Object.entries(result.issues).forEach(([field, error]) => {
       form.setError(field as keyof T, { message: error })
     })
     return false

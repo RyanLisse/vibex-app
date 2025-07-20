@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 import { asc, eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       const targetTime = new Date(replayRequest.targetTimestamp)
       targetSnapshot = snapshots.filter((s) => s.timestamp <= targetTime).pop() // Get the latest snapshot before target time
     } else {
-      targetSnapshot = snapshots[snapshots.length - 1] // Latest snapshot
+      targetSnapshot = snapshots.at(-1) // Latest snapshot
     }
 
     if (!targetSnapshot) {

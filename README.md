@@ -106,6 +106,10 @@ INNGEST_SIGNING_KEY=your_signing_key
 - **E2B API Key**: Sign up at [E2B](https://e2b.dev/) and get your API key
 - **GitHub OAuth**: Create a new OAuth app in your [GitHub Developer Settings](https://github.com/settings/developers)
 
+## 📊 TypeScript Status
+
+See [TypeScript Compilation Status](./docs/TYPESCRIPT_COMPILATION_STATUS.md) for detailed information about the current TypeScript compilation state and fixes applied.
+
 ## 🛠️ Development
 
 ### Quick Start (All Services)

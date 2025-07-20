@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Individual User API Route
  *
@@ -9,7 +10,7 @@ export const runtime = 'nodejs'
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/db/config'
@@ -266,7 +267,7 @@ class UserService {
 /**
  * GET /api/users/[id] - Get user by ID
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
 
@@ -342,7 +343,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 /**
  * DELETE /api/users/[id] - Deactivate user (soft delete)
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
 

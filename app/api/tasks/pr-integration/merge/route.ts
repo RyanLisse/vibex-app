@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * PR Merge API Route
  *
@@ -26,8 +27,8 @@ const MergePRSchema = z.object({
 // Mock GitHub API client for merge operations
 class GitHubMergeClient {
   static async mergePR(
-    repository: string,
-    prNumber: string,
+    _repository: string,
+    _prNumber: string,
     options: {
       mergeMethod: string
       deleteSourceBranch: boolean
@@ -93,9 +94,15 @@ export async function POST(request: NextRequest) {
 
     if (!canMerge) {
       const reasons = []
-      if (prStatus.status !== 'open') reasons.push(`PR is ${prStatus.status}`)
-      if (prStatus.reviewStatus !== 'approved') reasons.push('Review approval required')
-      if (!prStatus.mergeable) reasons.push('Merge conflicts exist')
+      if (prStatus.status !== 'open') {
+        reasons.push(`PR is ${prStatus.status}`)
+      }
+      if (prStatus.reviewStatus !== 'approved') {
+        reasons.push('Review approval required')
+      }
+      if (!prStatus.mergeable) {
+        reasons.push('Merge conflicts exist')
+      }
       if (prStatus.checks.some((check) => check.status !== 'success')) {
         reasons.push('Checks must pass')
       }

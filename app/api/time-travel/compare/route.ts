@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 import { eq, inArray } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
         totalComparisons: comparisons.length,
         timespan:
           snapshots.length > 1
-            ? snapshots[snapshots.length - 1].timestamp.getTime() - snapshots[0].timestamp.getTime()
+            ? snapshots.at(-1).timestamp.getTime() - snapshots[0].timestamp.getTime()
             : 0,
       },
     })

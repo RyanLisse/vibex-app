@@ -1,13 +1,13 @@
-import path from 'node:path'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vitest/config'
+import { mergeConfig } from 'vitest/config'
+import { sharedConfig } from './vitest.shared.config'
 
 // Integration tests config for API routes, database, and Inngest
-export default defineConfig({
+export default mergeConfig(sharedConfig, {
   plugins: [react()],
   test: {
+    name: 'integration',
     environment: 'node',
-    globals: true,
     setupFiles: ['./tests/setup/integration.ts'],
     env: {
       DATABASE_URL: 'file::memory:?cache=shared',
@@ -18,8 +18,9 @@ export default defineConfig({
       ELECTRIC_API_KEY: 'test_api_key',
       AUTH_SECRET: 'test_auth_secret',
       NODE_ENV: 'test',
+      INNGEST_SIGNING_KEY: 'test-signing-key',
+      INNGEST_EVENT_KEY: 'test-event-key',
     },
-    pool: 'threads',
     include: [
       'tests/integration/**/*.test.{js,ts,jsx,tsx}',
       'app/api/**/*.test.{js,ts}',
@@ -29,6 +30,7 @@ export default defineConfig({
       'app/actions/vibekit.test.ts',
       'app/api/inngest/route.test.ts',
       'app/api/test-inngest/route.test.ts',
+      'db/**/*.test.ts',
     ],
     exclude: [
       'node_modules',
@@ -40,41 +42,15 @@ export default defineConfig({
       'components/**/*.test.*',
       'hooks/**/*.test.*',
       'lib/**/*.test.{js,ts}',
+      '!lib/inngest*.test.ts',
       'src/**/*.test.*',
       'stores/**/*.test.*',
     ],
     testTimeout: 30_000, // Longer timeout for integration tests
-    hookTimeout: 10_000,
-    teardownTimeout: 10_000,
-    isolate: true,
-    restoreMocks: true,
-    clearMocks: true,
-    mockReset: true,
-    retry: 0,
-    bail: 1,
-    watch: false,
-    passWithNoTests: true,
-    logHeapUsage: true,
+    hookTimeout: 15_000,
+    teardownTimeout: 15_000,
     coverage: {
       enabled: false, // Disable coverage for integration tests
     },
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './'),
-      '@/components': path.resolve(__dirname, './components'),
-      '@/lib': path.resolve(__dirname, './lib'),
-      '@/hooks': path.resolve(__dirname, './hooks'),
-      '@/app': path.resolve(__dirname, './app'),
-      '@/features': path.resolve(__dirname, './src/features'),
-      '@/shared': path.resolve(__dirname, './src/shared'),
-      '@/test': path.resolve(__dirname, './tests'),
-      '@/fixtures': path.resolve(__dirname, './tests/fixtures'),
-      '@/mocks': path.resolve(__dirname, './tests/mocks'),
-    },
-  },
-  esbuild: {
-    target: 'es2022',
-    format: 'esm',
   },
 })

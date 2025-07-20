@@ -2,15 +2,31 @@
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-import { NextRequest, NextResponse } from 'next/server'
+import type Redis from 'ioredis'
+import { Cluster } from 'ioredis'
+import { type NextRequest, NextResponse } from 'next/server'
 import { AlertService } from '@/lib/alerts/alert-service'
-import { getRedis } from '@/lib/redis/redis-client'
-import { ComponentLogger } from '@/lib/logging/logger-factory'
+import { getLogger } from '@/lib/logging'
+import { getRedisConfig } from '@/lib/redis/config'
+import { RedisClientManager } from '@/lib/redis/redis-client'
 
-const logger = new ComponentLogger('AlertsChannelTestAPI')
-const alertService = new AlertService(getRedis().getClient('primary'))
+const logger = getLogger('AlertsChannelTestAPI')
 
-export async function POST(request: NextRequest, { params }: { params: { name: string } }) {
+function getAlertService(): AlertService {
+  const redisConfig = getRedisConfig()
+  const redisManager = RedisClientManager.getInstance(redisConfig)
+  const redisClient = redisManager.getClient('primary')
+
+  if (redisClient instanceof Cluster) {
+    throw new Error('AlertService does not support Redis Cluster mode')
+  }
+
+  return new AlertService(redisClient as Redis, redisConfig.alerting)
+}
+
+const alertService = getAlertService()
+
+export async function POST(_request: NextRequest, { params }: { params: { name: string } }) {
   try {
     await alertService.initialize()
 
@@ -40,21 +56,20 @@ export async function POST(request: NextRequest, { params }: { params: { name: s
         channelName,
         timestamp: new Date().toISOString(),
       })
-    } else {
-      logger.warn('Channel test failed', {
-        channelName,
-        endpoint: '/api/alerts/channels/[name]/test',
-      })
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Test alert failed to send',
-          channelName,
-        },
-        { status: 400 }
-      )
     }
+    logger.warn('Channel test failed', {
+      channelName,
+      endpoint: '/api/alerts/channels/[name]/test',
+    })
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Test alert failed to send',
+        channelName,
+      },
+      { status: 400 }
+    )
   } catch (error) {
     logger.error('Channel test error', {
       channelName: params.name,

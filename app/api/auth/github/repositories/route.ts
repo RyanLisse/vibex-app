@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * GitHub Repositories API Route
  *
@@ -16,11 +17,7 @@ import { db } from '@/db/config'
 import { authSessions, githubRepositories, users } from '@/db/schema'
 import { githubAuth } from '@/lib/github'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-  createPaginatedResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createPaginatedResponse } from '@/src/schemas/api-routes'
 
 // Request validation schemas
 const GetRepositoriesQuerySchema = z.object({
@@ -187,7 +184,9 @@ class GitHubRepositoriesService {
     syncThresholdMinutes: number,
     forceSync: boolean
   ): Promise<boolean> {
-    if (forceSync) return true
+    if (forceSync) {
+      return true
+    }
 
     const thresholdTime = new Date(Date.now() - syncThresholdMinutes * 60 * 1000)
 

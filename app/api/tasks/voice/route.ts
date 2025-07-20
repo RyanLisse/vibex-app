@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Voice Task Creation API Route
  *
@@ -8,7 +9,6 @@ export const runtime = 'nodejs'
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { ulid } from 'ulid'
 import { z } from 'zod'
@@ -63,11 +63,21 @@ const parseTaskFromTranscription = (text: string) => {
 
   // Extract potential labels
   const labels = []
-  if (/bug|fix|error|issue/i.test(text)) labels.push('bug')
-  if (/feature|enhancement|new/i.test(text)) labels.push('feature')
-  if (/frontend|ui|interface/i.test(text)) labels.push('frontend')
-  if (/backend|api|server/i.test(text)) labels.push('backend')
-  if (/testing|test|qa/i.test(text)) labels.push('testing')
+  if (/bug|fix|error|issue/i.test(text)) {
+    labels.push('bug')
+  }
+  if (/feature|enhancement|new/i.test(text)) {
+    labels.push('feature')
+  }
+  if (/frontend|ui|interface/i.test(text)) {
+    labels.push('frontend')
+  }
+  if (/backend|api|server/i.test(text)) {
+    labels.push('backend')
+  }
+  if (/testing|test|qa/i.test(text)) {
+    labels.push('testing')
+  }
 
   // Generate title from first sentence or key phrases
   const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0)

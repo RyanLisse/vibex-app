@@ -63,7 +63,7 @@ const createTestExecution = (
   ...overrides,
 })
 
-describe.skipIf(skipTests)('Database Operations Integration Tests', () => {
+describe('Database Operations Integration Tests', () => {
   let testTaskId: string
   let testEnvironmentId: string
   let testExecutionId: string

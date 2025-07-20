@@ -6,7 +6,7 @@ import type { NewTask, Task } from '@/db/schema'
 import { invalidateQueries, mutationKeys, queryKeys } from '@/lib/query/config'
 import { useElectricTasks } from './use-electric-tasks'
 import {
-  useEnhancedInfiniteQuery,
+  useEnhancedQuery,
   useEnhancedMutation,
   useEnhancedQuery,
   useVectorSearchQuery,

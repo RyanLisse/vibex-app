@@ -79,7 +79,7 @@ const serverData = {
   executions: new Map<string, any>(),
 }
 
-describe.skip('ElectricSQL Synchronization Tests', () => {
+describe('ElectricSQL Synchronization Tests', () => {
   // Skip all tests as they require a running ElectricSQL service
   let dbManager: ElectricDatabaseManager
   let eventListeners: Map<string, Function[]>
@@ -137,7 +137,7 @@ describe.skip('ElectricSQL Synchronization Tests', () => {
   })
 
   describe('Connection Management', () => {
-    it.skip('should establish connection to ElectricSQL sync service', async () => {
+    it('should establish connection to ElectricSQL sync service', async () => {
       // Skip this test as it requires a running ElectricSQL service
       // Mock successful connection
       vi.mocked(mockElectricClient.connect).mockResolvedValue(undefined)
@@ -153,7 +153,7 @@ describe.skip('ElectricSQL Synchronization Tests', () => {
       expect(dbManager.isReady()).toBe(true)
     })
 
-    it.skip('should handle connection failures gracefully', async () => {
+    it('should handle connection failures gracefully', async () => {
       // Skip this test as it requires a running ElectricSQL service
       const connectionError = new Error('Failed to connect to Electric sync service')
       vi.mocked(mockElectricClient.connect).mockRejectedValue(connectionError)
@@ -166,7 +166,7 @@ describe.skip('ElectricSQL Synchronization Tests', () => {
       expect(dbManager.isReady()).toBe(false)
     })
 
-    it.skip('should reconnect automatically after disconnection', async () => {
+    it('should reconnect automatically after disconnection', async () => {
       // Skip this test as it requires a running ElectricSQL service
       // @ts-expect-error - Mock replacement
       dbManager['electric'] = mockElectricClient
@@ -182,7 +182,7 @@ describe.skip('ElectricSQL Synchronization Tests', () => {
       expect(dbManager.getConnectionState()).toBe('connected')
     })
 
-    it.skip('should manage connection state listeners', async () => {
+    it('should manage connection state listeners', async () => {
       // Skip this test as it requires a running ElectricSQL service
       const stateListener = vi.fn()
       dbManager.addStateListener(stateListener)

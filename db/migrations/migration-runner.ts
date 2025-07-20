@@ -727,7 +727,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         `
 
         const indexes = await sql(indexQuery)
-        if (indexes.rows.length === 0) {
+        if (indexes.length === 0) {
           recommendations.push(
             `Consider adding index on ${fk.table_name}.${fk.column_name} (foreign key)`
           )
@@ -747,8 +747,8 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         )
       `
 
-      const tablesWithoutPK = await db.execute(tablesQuery)
-      tablesWithoutPK.rows.forEach((row) => {
+      const tablesWithoutPK = await sql(tablesQuery)
+      tablesWithoutPK.forEach((row) => {
         issues.push(`Table ${row.table_name} has no primary key`)
       })
 
@@ -765,8 +765,8 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
           WHERE idx_tup_read = 0 AND idx_tup_fetch = 0
         `
 
-        const unusedIndexes = await db.execute(unusedIndexQuery)
-        unusedIndexes.rows.forEach((row) => {
+        const unusedIndexes = await sql(unusedIndexQuery)
+        unusedIndexes.forEach((row) => {
           recommendations.push(`Index ${row.indexname} on ${row.tablename} appears unused`)
         })
       } catch (error) {
@@ -814,7 +814,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         ORDER BY total_operations DESC
       `
 
-      const tableStats = await db.execute(tableStatsQuery)
+      const tableStats = await sql(tableStatsQuery)
 
       // Get index count per table
       const indexCountQuery = `
@@ -826,31 +826,31 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         GROUP BY tablename
       `
 
-      const indexCounts = await db.execute(indexCountQuery)
-      const indexCountMap = new Map(indexCounts.rows.map((row) => [row.tablename, row.index_count]))
+      const indexCounts = await sql(indexCountQuery)
+      const indexCountMap = new Map(indexCounts.map((row) => [row.tablename, row.index_count]))
 
       // Get total database size
       const dbSizeQuery = 'SELECT pg_size_pretty(pg_database_size(current_database())) as size'
-      const dbSize = await db.execute(dbSizeQuery)
+      const dbSize = await sql(dbSizeQuery)
 
       // Get connection count
       const connectionQuery = 'SELECT count(*) as count FROM pg_stat_activity'
-      const connections = await db.execute(connectionQuery)
+      const connections = await sql(connectionQuery)
 
       // Get installed extensions
       const extensionsQuery = 'SELECT extname FROM pg_extension ORDER BY extname'
-      const extensions = await db.execute(extensionsQuery)
+      const extensions = await sql(extensionsQuery)
 
       return {
-        tables: tableStats.rows.map((row) => ({
+        tables: tableStats.map((row) => ({
           name: row.tablename,
           rowCount: Number.parseInt(row.live_tuples) || 0,
           size: row.size || '0 bytes',
           indexes: indexCountMap.get(row.tablename) || 0,
         })),
-        totalSize: dbSize.rows[0]?.size || '0 bytes',
-        connectionCount: Number.parseInt(connections.rows[0]?.count) || 0,
-        extensions: extensions.rows.map((row) => row.extname),
+        totalSize: dbSize[0]?.size || '0 bytes',
+        connectionCount: Number.parseInt(connections[0]?.count) || 0,
+        extensions: extensions.map((row) => row.extname),
       }
     } catch (error) {
       console.error('Failed to get database stats:', error)
@@ -877,7 +877,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
     try {
       // Update table statistics
       console.log('📊 Updating table statistics...')
-      await db.execute('ANALYZE')
+      await sql`ANALYZE`
       operations.push('Updated table statistics (ANALYZE)')
 
       // Vacuum tables to reclaim space
@@ -887,11 +887,11 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         FROM pg_tables 
         WHERE schemaname = 'public'
       `
-      const tables = await db.execute(tablesQuery)
+      const tables = await sql(tablesQuery)
 
-      for (const table of tables.rows) {
+      for (const table of tables) {
         try {
-          await db.execute(`VACUUM ${table.tablename}`)
+          await sql(`VACUUM ${table.tablename}`)
           operations.push(`Vacuumed table: ${table.tablename}`)
         } catch (error) {
           errors.push(`Failed to vacuum ${table.tablename}: ${error.message}`)
@@ -902,13 +902,13 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
       if (process.env.NODE_ENV !== 'production') {
         console.log('🔄 Reindexing database...')
         try {
-          await db.execute('REINDEX DATABASE CONCURRENTLY')
+          await sql`REINDEX DATABASE CONCURRENTLY`
           operations.push('Reindexed database')
         } catch (error) {
           // REINDEX DATABASE might not be supported, try individual tables
-          for (const table of tables.rows) {
+          for (const table of tables) {
             try {
-              await db.execute(`REINDEX TABLE ${table.tablename}`)
+              await sql(`REINDEX TABLE ${table.tablename}`)
               operations.push(`Reindexed table: ${table.tablename}`)
             } catch (tableError) {
               errors.push(`Failed to reindex ${table.tablename}: ${tableError.message}`)

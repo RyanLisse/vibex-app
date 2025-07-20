@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 /**
  * Kanban Board API Route
  *
@@ -8,15 +9,14 @@ export const runtime = 'nodejs'
  */
 
 import { SpanStatusCode, trace } from '@opentelemetry/api'
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
-import { ulid } from 'ulid'
 import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
 import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
-import { KanbanMoveSchema, KanbanBoardConfigSchema } from '@/src/schemas/enhanced-task-schemas'
+import { KanbanBoardConfigSchema, KanbanMoveSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Default kanban columns configuration
 const DEFAULT_COLUMNS = [
@@ -45,13 +45,17 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
-    const projectId = searchParams.get('projectId')
+    const _projectId = searchParams.get('projectId')
     const assignee = searchParams.get('assignee')
 
     // Build query conditions
     const conditions = []
-    if (userId) conditions.push(eq(tasks.userId, userId))
-    if (assignee) conditions.push(eq(tasks.assignee, assignee))
+    if (userId) {
+      conditions.push(eq(tasks.userId, userId))
+    }
+    if (assignee) {
+      conditions.push(eq(tasks.assignee, assignee))
+    }
 
     // Get all tasks
     let query = db.select().from(tasks)
@@ -83,7 +87,9 @@ export async function GET(request: NextRequest) {
       columnTasks.sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 }
         const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority]
-        if (priorityDiff !== 0) return priorityDiff
+        if (priorityDiff !== 0) {
+          return priorityDiff
+        }
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       })
 

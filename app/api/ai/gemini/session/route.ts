@@ -1,6 +1,7 @@
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
+
 import { type NextRequest, NextResponse } from 'next/server'
 import { GeminiRealtimeSession } from '@/lib/ai/gemini-realtime'
 import { getLogger } from '@/lib/logging/safe-wrapper'
