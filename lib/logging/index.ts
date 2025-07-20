@@ -27,13 +27,14 @@ export type {
 
 // Convenience function to create a logger
 export function createLogger(component: string) {
-  // During build, return a no-op logger
-  if (typeof createDefaultLoggingConfig === 'undefined') {
+  try {
+    const { createDefaultLoggingConfig: createConfig } = require('./config')
+    const config = createConfig()
+    const factory = LoggerFactory.getInstance(config)
+    return factory.createLogger(component)
+  } catch {
     return getLogger(component)
   }
-  const config = createDefaultLoggingConfig()
-  const factory = LoggerFactory.getInstance(config)
-  return factory.createLogger(component)
 }
 
 // Global logger instance getter
@@ -59,16 +60,31 @@ export function getLogger(component: string) {
     return factory.createLogger(component)
   } catch (error) {
     // Fallback if not initialized
-    const config = createDefaultLoggingConfig()
-    const factory = LoggerFactory.getInstance(config)
-    return factory.createLogger(component)
+    try {
+      const { createDefaultLoggingConfig: createConfig } = require('./config')
+      const config = createConfig()
+      const factory = LoggerFactory.getInstance(config)
+      return factory.createLogger(component)
+    } catch {
+      // Return basic console logger as last resort
+      return {
+        debug: (...args: any[]) => console.debug(`[${component}]`, ...args),
+        info: (...args: any[]) => console.info(`[${component}]`, ...args),
+        warn: (...args: any[]) => console.warn(`[${component}]`, ...args),
+        error: (...args: any[]) => console.error(`[${component}]`, ...args),
+        child: () => getLogger(component),
+        startTimer: () => ({ done: () => {} }),
+        profile: () => {},
+      }
+    }
   }
 }
 
 // Initialize logging system
 export function initializeLogging(config?: Partial<LoggingConfig>) {
+  const { createDefaultLoggingConfig: createConfig } = require('./config')
   const fullConfig = {
-    ...createDefaultLoggingConfig(),
+    ...createConfig(),
     ...config,
   }
 

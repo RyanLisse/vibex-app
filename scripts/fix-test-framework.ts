@@ -61,14 +61,14 @@ async function fixTestFile(fix: TestFix) {
   try {
     const filePath = path.join(process.cwd(), fix.file)
     const content = await fs.readFile(filePath, 'utf-8')
-    
+
     if (content.match(fix.pattern)) {
       const updatedContent = content.replace(fix.pattern, fix.replacement)
       await fs.writeFile(filePath, updatedContent, 'utf-8')
       console.log(`✓ Fixed: ${fix.description} in ${fix.file}`)
       return true
     }
-    
+
     console.log(`- No changes needed: ${fix.file}`)
     return false
   } catch (error) {
@@ -115,11 +115,11 @@ OTEL_ENABLED=false
 async function updatePackageJsonScripts() {
   const packageJsonPath = path.join(process.cwd(), 'package.json')
   const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
-  
+
   // Update test scripts for better organization
   const updatedScripts = {
     ...packageJson.scripts,
-    'test': 'vitest run',
+    test: 'vitest run',
     'test:watch': 'vitest',
     'test:ui': 'vitest --ui',
     'test:coverage': 'vitest run --coverage',
@@ -131,15 +131,11 @@ async function updatePackageJsonScripts() {
     'test:all:watch': 'vitest --workspace',
     'test:ci': 'CI=true vitest run --workspace --coverage',
   }
-  
+
   packageJson.scripts = updatedScripts
-  
-  await fs.writeFile(
-    packageJsonPath,
-    JSON.stringify(packageJson, null, 2) + '\n',
-    'utf-8'
-  )
-  
+
+  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf-8')
+
   console.log('✓ Updated package.json test scripts')
 }
 
@@ -183,25 +179,25 @@ if (process.env.CI) {
 
 async function main() {
   console.log('🔧 Fixing test framework configuration...\n')
-  
+
   let fixedCount = 0
-  
+
   // Fix skipped tests
   for (const fix of fixes) {
     if (await fixTestFile(fix)) {
       fixedCount++
     }
   }
-  
+
   // Create test environment file
   await createTestEnvironmentFile()
-  
+
   // Update package.json scripts
   await updatePackageJsonScripts()
-  
+
   // Create global test setup
   await createGlobalTestSetup()
-  
+
   console.log(`\n✨ Test framework fixes completed!`)
   console.log(`   - Fixed ${fixedCount} test files`)
   console.log(`   - Created .env.test`)

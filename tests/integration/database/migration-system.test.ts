@@ -350,7 +350,10 @@ CREATE TABLE something;
       expect(tableCheck).toHaveLength(2)
 
       // Verify migration records were created
-      const migrationRecords = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
+      const migrationRecords = await db
+        .select()
+        .from(migrations)
+        .where(sqlOperator`name LIKE '00%'`)
 
       expect(migrationRecords).toHaveLength(3)
     })
@@ -382,7 +385,10 @@ CREATE TABLE something;
       expect(result.errors.length).toBeGreaterThan(0)
 
       // Verify partial rollback occurred
-      const migrationRecords = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
+      const migrationRecords = await db
+        .select()
+        .from(migrations)
+        .where(sqlOperator`name LIKE '00%'`)
 
       // Should have no successful migrations due to rollback
       expect(migrationRecords).toHaveLength(0)
@@ -428,7 +434,10 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(result.executionTime).toBeGreaterThan(0)
 
       // Check migration metadata in database
-      const migrationRecords = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
+      const migrationRecords = await db
+        .select()
+        .from(migrations)
+        .where(sqlOperator`name LIKE '00%'`)
 
       migrationRecords.forEach((record) => {
         expect(record.metadata).toBeDefined()
@@ -453,7 +462,10 @@ DELETE FROM test_users WHERE email = 'test@example.com';
 
     it('should rollback last migration successfully', async () => {
       // Verify initial state
-      const initialMigrations = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
+      const initialMigrations = await db
+        .select()
+        .from(migrations)
+        .where(sqlOperator`name LIKE '00%'`)
       expect(initialMigrations).toHaveLength(3)
 
       // Rollback last migration
@@ -463,7 +475,10 @@ DELETE FROM test_users WHERE email = 'test@example.com';
       expect(rollbackResult.rolledBack).toBe('003_add_user_preferences')
 
       // Verify migration was removed from database
-      const remainingMigrations = await db.select().from(migrations).where(sqlOperator`name LIKE '00%'`)
+      const remainingMigrations = await db
+        .select()
+        .from(migrations)
+        .where(sqlOperator`name LIKE '00%'`)
       expect(remainingMigrations).toHaveLength(2)
 
       // Verify schema changes were rolled back

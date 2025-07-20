@@ -11,7 +11,7 @@ test.describe('Network Behavior E2E Tests', () => {
     const inngestResponses = []
 
     page.on('request', (request) => {
-      if (request.url().includes('inngest') || request.url().includes('test-inngest')) {
+      if (request.url().includes('inngest')) {
         inngestRequests.push({
           url: request.url(),
           method: request.method(),
@@ -20,7 +20,7 @@ test.describe('Network Behavior E2E Tests', () => {
     })
 
     page.on('response', (response) => {
-      if (response.url().includes('inngest') || response.url().includes('test-inngest')) {
+      if (response.url().includes('inngest')) {
         inngestResponses.push({
           url: response.url(),
           status: response.status(),

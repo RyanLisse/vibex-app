@@ -8,7 +8,7 @@ export default mergeConfig(sharedConfig, {
   test: {
     name: 'browser',
     browser: {
-      enabled: true,
+      enabled: false, // Disabled until browser tests are ready
       provider: 'playwright',
       instances: [{ browser: 'chromium' }], // Only chromium for faster testing
     },

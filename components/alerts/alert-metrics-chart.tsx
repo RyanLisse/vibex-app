@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
@@ -36,15 +36,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
   const [timeframe, setTimeframe] = useState('24h')
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadMetrics()
-
-    // Refresh metrics every minute
-    const interval = setInterval(loadMetrics, 60000)
-    return () => clearInterval(interval)
-  }, [timeframe])
-
-  const loadMetrics = async () => {
+  const loadMetrics = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/alerts/metrics?timeframe=${timeframe}`)
@@ -61,7 +53,15 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeframe])
+
+  useEffect(() => {
+    loadMetrics()
+
+    // Refresh metrics every minute
+    const interval = setInterval(loadMetrics, 60000)
+    return () => clearInterval(interval)
+  }, [loadMetrics])
 
   if (loading) {
     return (

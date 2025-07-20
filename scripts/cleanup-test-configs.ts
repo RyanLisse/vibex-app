@@ -22,9 +22,9 @@ const configsToKeep = [
 
 async function cleanupConfigs() {
   console.log('🧹 Cleaning up redundant test configurations...\n')
-  
+
   let removedCount = 0
-  
+
   for (const config of configsToRemove) {
     const filePath = path.join(process.cwd(), config)
     try {
@@ -35,11 +35,11 @@ async function cleanupConfigs() {
       // File doesn't exist, that's fine
     }
   }
-  
+
   console.log(`\n✨ Cleanup completed!`)
   console.log(`   - Removed ${removedCount} redundant configs`)
   console.log(`   - Kept ${configsToKeep.length} essential configs:`)
-  configsToKeep.forEach(config => console.log(`     • ${config}`))
+  configsToKeep.forEach((config) => console.log(`     • ${config}`))
 }
 
 cleanupConfigs().catch((error) => {
