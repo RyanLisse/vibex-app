@@ -1,8 +1,9 @@
 'use client'
 
+import * as Sentry from '@sentry/nextjs'
 import { ThemeProvider } from 'next-themes'
-import { ErrorBoundary } from '@/components/error-boundary'
 import { ElectricProvider } from '@/components/providers/electric-provider'
+import { ErrorBoundary } from '@/components/providers/error-boundary'
 import { QueryProvider } from '@/components/providers/query-provider'
 
 interface AppProvidersProps {
@@ -12,23 +13,30 @@ interface AppProvidersProps {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
-      <QueryProvider>
-        <ElectricProvider
-          fallback={
-            <div className="flex min-h-screen items-center justify-center">
-              <div className="text-center">
-                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-blue-600 border-b-2" />
-                <p className="text-gray-600">Initializing real-time sync...</p>
+      <ErrorBoundary>
+        <QueryProvider>
+          <ElectricProvider
+            fallback={
+              <div className="flex min-h-screen items-center justify-center">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-blue-600 border-b-2" />
+                  <p className="text-gray-600">Initializing real-time sync...</p>
+                </div>
               </div>
-            </div>
-          }
-          onError={(error) => {
-            console.error('ElectricSQL error:', error)
-          }}
-        >
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </ElectricProvider>
-      </QueryProvider>
+            }
+            onError={(error) => {
+              console.error('ElectricSQL error:', error)
+              // Also log to Sentry
+              Sentry.captureException(error, {
+                tags: { component: 'ElectricProvider' },
+                extra: { errorType: 'electric-sync' },
+              })
+            }}
+          >
+            {children}
+          </ElectricProvider>
+        </QueryProvider>
+      </ErrorBoundary>
     </ThemeProvider>
   )
 }

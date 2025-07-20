@@ -96,7 +96,7 @@ export class MetricsService {
 
     try {
       const value = await client.get(key)
-      return value ? parseInt(value) : 0
+      return value ? Number.parseInt(value) : 0
     } catch (error) {
       this.observability.recordError('metrics.counter.get.error', error as Error)
       return 0
@@ -118,7 +118,7 @@ export class MetricsService {
 
       const counters = keys.map((key, index) => ({
         key: key.replace('counter:', ''),
-        value: parseInt((results?.[index]?.[1] as string) || '0'),
+        value: Number.parseInt((results?.[index]?.[1] as string) || '0'),
       }))
 
       return counters.sort((a, b) => b.value - a.value).slice(0, limit)
@@ -155,7 +155,7 @@ export class MetricsService {
 
     try {
       const value = await client.get(key)
-      return value ? parseFloat(value) : 0
+      return value ? Number.parseFloat(value) : 0
     } catch (error) {
       this.observability.recordError('metrics.gauge.get.error', error as Error)
       return 0
@@ -211,8 +211,8 @@ export class MetricsService {
       return entries.map((entry) => {
         const [timestamp, value] = entry.split(':')
         return {
-          timestamp: new Date(parseInt(timestamp)),
-          value: parseFloat(value),
+          timestamp: new Date(Number.parseInt(timestamp)),
+          value: Number.parseFloat(value),
         }
       })
     } catch (error) {
@@ -240,8 +240,8 @@ export class MetricsService {
 
       // Update min/max
       const currentStats = await client.hmget(key, 'min', 'max')
-      const currentMin = currentStats[0] ? parseFloat(currentStats[0]) : value
-      const currentMax = currentStats[1] ? parseFloat(currentStats[1]) : value
+      const currentMin = currentStats[0] ? Number.parseFloat(currentStats[0]) : value
+      const currentMax = currentStats[1] ? Number.parseFloat(currentStats[1]) : value
 
       if (value < currentMin) {
         pipeline.hset(key, 'min', value.toString())
@@ -253,7 +253,7 @@ export class MetricsService {
       await pipeline.exec()
 
       // Keep only last 10000 values for percentile calculations
-      await client.zremrangebyrank(`${key}:values`, 0, -10001)
+      await client.zremrangebyrank(`${key}:values`, 0, -10_001)
 
       this.observability.recordEvent('metrics.histogram.recorded', 1, {
         name,
@@ -270,15 +270,15 @@ export class MetricsService {
 
     try {
       const stats = await client.hmget(key, 'count', 'sum', 'min', 'max')
-      const count = parseInt(stats[0] || '0')
-      const sum = parseFloat(stats[1] || '0')
-      const min = parseFloat(stats[2] || '0')
-      const max = parseFloat(stats[3] || '0')
+      const count = Number.parseInt(stats[0] || '0')
+      const sum = Number.parseFloat(stats[1] || '0')
+      const min = Number.parseFloat(stats[2] || '0')
+      const max = Number.parseFloat(stats[3] || '0')
       const avg = count > 0 ? sum / count : 0
 
       // Get percentiles from sorted values
       const values = await client.zrange(`${key}:values`, 0, -1)
-      const numericValues = values.map((v) => parseFloat(v)).sort((a, b) => a - b)
+      const numericValues = values.map((v) => Number.parseFloat(v)).sort((a, b) => a - b)
 
       const p50 = this.calculatePercentile(numericValues, 0.5)
       const p95 = this.calculatePercentile(numericValues, 0.95)
@@ -317,8 +317,9 @@ export class MetricsService {
       const buckets = new Map<number, number>()
 
       for (const [bucket, count] of Object.entries(bucketData)) {
-        const bucketValue = bucket === 'Infinity' ? Infinity : parseFloat(bucket)
-        buckets.set(bucketValue, parseInt(count))
+        const bucketValue =
+          bucket === 'Infinity' ? Number.POSITIVE_INFINITY : Number.parseFloat(bucket)
+        buckets.set(bucketValue, Number.parseInt(count))
       }
 
       return buckets
@@ -341,7 +342,7 @@ export class MetricsService {
       await client.zadd(key, ts, `${ts}:${value}`)
 
       // Optionally limit the number of data points
-      const maxPoints = 100000
+      const maxPoints = 100_000
       const currentCount = await client.zcard(key)
       if (currentCount > maxPoints) {
         await client.zremrangebyrank(key, 0, currentCount - maxPoints - 1)
@@ -363,8 +364,8 @@ export class MetricsService {
       return entries.map((entry) => {
         const [timestamp, value] = entry.split(':')
         return {
-          timestamp: parseInt(timestamp),
-          value: parseFloat(value),
+          timestamp: Number.parseInt(timestamp),
+          value: Number.parseFloat(value),
         }
       })
     } catch (error) {

@@ -1,6 +1,6 @@
 import { context, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api'
-import { metrics as performanceMetrics } from './metrics'
 import { observabilityEvents } from './events'
+import { metrics as performanceMetrics } from './metrics'
 
 // Observability service for tracking operations and events
 export class ObservabilityService {
@@ -362,12 +362,12 @@ export const observability = {
   getHealthStatus: observabilityService.getHealthStatus.bind(observabilityService),
 }
 
-// Re-export types and utilities from metrics
-export type { MetricType, MetricDataPoint, AggregatedMetric } from './metrics'
-export { PerformanceMetricsCollector, MetricsAnalyzer } from './metrics'
-
 // Re-export event types
-export type { ObservabilityEvent, EventSeverity, EventFilter } from './events'
+export type { EventFilter, EventSeverity, ObservabilityEvent } from './events'
+
+// Re-export types and utilities from metrics
+export type { AggregatedMetric, MetricDataPoint, MetricType } from './metrics'
+export { MetricsAnalyzer, PerformanceMetricsCollector } from './metrics'
 
 // Re-export for backwards compatibility
 export { observability as observabilityService }

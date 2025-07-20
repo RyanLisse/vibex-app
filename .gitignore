@@ -90,3 +90,4 @@ tests/fixtures/backup/backup-*.json
 
 *storybook.log
 .auth/
+db/migrations/backup/

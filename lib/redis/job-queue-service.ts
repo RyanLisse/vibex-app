@@ -375,7 +375,7 @@ export class JobQueueService {
     // For this implementation, just use a simple interval based on seconds
     const intervalMatch = cronExpression.match(/^\*\/(\d+) \* \* \* \* \*$/)
     if (intervalMatch) {
-      const intervalSeconds = parseInt(intervalMatch[1])
+      const intervalSeconds = Number.parseInt(intervalMatch[1])
       const interval = setInterval(async () => {
         await this.addJob(queueName, type, payload)
       }, intervalSeconds * 1000)
@@ -550,7 +550,7 @@ export class JobQueueService {
 
   private calculateBackoffDelay(job: JobData): number {
     // Exponential backoff: 1000ms * 2^(attempts-1)
-    return 1000 * Math.pow(2, job.attempts - 1)
+    return 1000 * 2 ** (job.attempts - 1)
   }
 
   private validateQueueName(queueName: string): void {
@@ -631,10 +631,10 @@ export class JobQueueService {
       id: data.id,
       type: data.type,
       payload: JSON.parse(data.payload),
-      priority: parseInt(data.priority),
-      attempts: parseInt(data.attempts),
-      maxAttempts: parseInt(data.maxAttempts),
-      delay: parseInt(data.delay),
+      priority: Number.parseInt(data.priority),
+      attempts: Number.parseInt(data.attempts),
+      maxAttempts: Number.parseInt(data.maxAttempts),
+      delay: Number.parseInt(data.delay),
       createdAt: new Date(data.createdAt),
       scheduledAt: new Date(data.scheduledAt),
       processedAt: data.processedAt ? new Date(data.processedAt) : undefined,

@@ -4,10 +4,10 @@
  * Test-driven development for Redis/Valkey pub/sub functionality
  */
 
-import { describe, test, expect, beforeEach, afterEach, mock, beforeAll, afterAll } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { testRedisConfig } from './config'
 import { PubSubService } from './pubsub-service'
 import { RedisClientManager } from './redis-client'
-import { testRedisConfig } from './config'
 import type { PubSubMessage, PubSubOptions } from './types'
 
 describe('PubSubService', () => {

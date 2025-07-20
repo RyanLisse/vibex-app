@@ -1,12 +1,12 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { AgentNode } from '../agent-node'
 import type { NodeProps } from '@xyflow/react'
+import React from 'react'
 import type { AgentNodeData } from '../agent-node'
+import { AgentNode } from '../agent-node'
 
 // Mock React Flow components
-jest.mock('@xyflow/react', () => ({
+vi.mock('@xyflow/react', () => ({
   Handle: () => <div data-testid="handle">Handle Mock</div>,
   Position: {
     Top: 'top',

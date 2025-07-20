@@ -4,11 +4,11 @@
  * Test-driven development for Redis/Valkey distributed locks
  */
 
-import { describe, test, expect, beforeEach, afterEach, beforeAll, afterAll } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { testRedisConfig } from './config'
 import { LockService } from './lock-service'
 import { RedisClientManager } from './redis-client'
-import { testRedisConfig } from './config'
-import type { LockOptions, DistributedLock } from './types'
+import type { DistributedLock, LockOptions } from './types'
 
 describe('LockService', () => {
   let lockService: LockService

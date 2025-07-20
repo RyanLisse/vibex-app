@@ -4,7 +4,7 @@
  * Basic test that verifies our implementation without external dependencies
  */
 
-import { describe, test, expect } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 
 // Mock the observability service to avoid external dependencies
 const mockObservability = {

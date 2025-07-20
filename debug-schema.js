@@ -26,8 +26,8 @@ const validVariant = {
 }
 
 const result = ProductVariantSchema.safeParse(validVariant)
-if (!result.success) {
-  console.log('Validation errors:', JSON.stringify(result.error.issues, null, 2))
-} else {
+if (result.success) {
   console.log('Validation successful!')
+} else {
+  console.log('Validation errors:', JSON.stringify(result.error.issues, null, 2))
 }

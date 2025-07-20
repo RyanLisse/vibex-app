@@ -57,18 +57,6 @@ export function getLogger(component: string) {
     const factory = LoggerFactory.getInstance()
     return factory.createLogger(component)
   } catch (error) {
-<<<<<<< HEAD
-    // If LoggerFactory not initialized, initialize with defaults
-    try {
-      const { createDefaultLoggingConfig } = require('./defaults')
-      const config = createDefaultLoggingConfig()
-      const factory = LoggerFactory.getInstance(config)
-      return factory.createLogger(component)
-    } catch (initError) {
-      // Final fallback
-      const { createBuildLogger } = require('./build-logger')
-      return createBuildLogger(component)
-=======
     // Fallback if not initialized
     try {
       const { createDefaultLoggingConfig: createConfig } = require('./config')
@@ -86,18 +74,13 @@ export function getLogger(component: string) {
         startTimer: () => ({ done: () => {} }),
         profile: () => {},
       }
->>>>>>> origin/main
     }
   }
 }
 
 // Initialize logging system
 export function initializeLogging(config?: Partial<LoggingConfig>) {
-<<<<<<< HEAD
-  const { createDefaultLoggingConfig } = require('./defaults')
-=======
   const { createDefaultLoggingConfig: createConfig } = require('./config')
->>>>>>> origin/main
   const fullConfig = {
     ...createConfig(),
     ...config,

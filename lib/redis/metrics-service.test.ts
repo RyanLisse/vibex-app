@@ -4,10 +4,10 @@
  * Test-driven development for Redis/Valkey real-time analytics and metrics
  */
 
-import { describe, test, expect, beforeEach, afterEach, beforeAll, afterAll } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
+import { testRedisConfig } from './config'
 import { MetricsService } from './metrics-service'
 import { RedisClientManager } from './redis-client'
-import { testRedisConfig } from './config'
 
 describe('MetricsService', () => {
   let metricsService: MetricsService
@@ -161,7 +161,7 @@ describe('MetricsService', () => {
 
     test('should support histogram buckets', async () => {
       const histogramName = 'test:request-size'
-      const buckets = [1, 10, 100, 1000, 10000] // bytes
+      const buckets = [1, 10, 100, 1000, 10_000] // bytes
 
       await metricsService.initializeHistogram(histogramName, buckets)
 
@@ -170,15 +170,15 @@ describe('MetricsService', () => {
       await metricsService.recordHistogram(histogramName, 50) // bucket: 100
       await metricsService.recordHistogram(histogramName, 500) // bucket: 1000
       await metricsService.recordHistogram(histogramName, 5000) // bucket: 10000
-      await metricsService.recordHistogram(histogramName, 50000) // bucket: infinity
+      await metricsService.recordHistogram(histogramName, 50_000) // bucket: infinity
 
       const bucketCounts = await metricsService.getHistogramBuckets(histogramName)
 
       expect(bucketCounts.get(10)).toBe(1)
       expect(bucketCounts.get(100)).toBe(1)
       expect(bucketCounts.get(1000)).toBe(1)
-      expect(bucketCounts.get(10000)).toBe(1)
-      expect(bucketCounts.get(Infinity)).toBe(1)
+      expect(bucketCounts.get(10_000)).toBe(1)
+      expect(bucketCounts.get(Number.POSITIVE_INFINITY)).toBe(1)
     })
   })
 
@@ -188,19 +188,19 @@ describe('MetricsService', () => {
       const now = Date.now()
 
       // Record data points over time
-      await metricsService.recordTimeSeries(seriesName, 10, now - 3600000) // 1 hour ago
-      await metricsService.recordTimeSeries(seriesName, 15, now - 1800000) // 30 min ago
+      await metricsService.recordTimeSeries(seriesName, 10, now - 3_600_000) // 1 hour ago
+      await metricsService.recordTimeSeries(seriesName, 15, now - 1_800_000) // 30 min ago
       await metricsService.recordTimeSeries(seriesName, 8, now) // now
 
       // Query last hour
-      const hourData = await metricsService.getTimeSeries(seriesName, now - 3600000, now)
+      const hourData = await metricsService.getTimeSeries(seriesName, now - 3_600_000, now)
       expect(hourData).toHaveLength(3)
       expect(hourData[0].value).toBe(10)
       expect(hourData[1].value).toBe(15)
       expect(hourData[2].value).toBe(8)
 
       // Query last 30 minutes
-      const recentData = await metricsService.getTimeSeries(seriesName, now - 1800000, now)
+      const recentData = await metricsService.getTimeSeries(seriesName, now - 1_800_000, now)
       expect(recentData).toHaveLength(2)
     })
 
@@ -213,16 +213,16 @@ describe('MetricsService', () => {
         await metricsService.recordTimeSeries(
           seriesName,
           Math.floor(Math.random() * 100),
-          now - i * 60000 // Each minute for the past hour
+          now - i * 60_000 // Each minute for the past hour
         )
       }
 
       // Aggregate by 5-minute intervals
       const aggregated = await metricsService.aggregateTimeSeries(
         seriesName,
-        now - 3600000,
+        now - 3_600_000,
         now,
-        300000, // 5 minutes
+        300_000, // 5 minutes
         'avg'
       )
 
@@ -238,35 +238,35 @@ describe('MetricsService', () => {
       // Record sales data
       const salesData = [100, 200, 150, 300, 250]
       for (let i = 0; i < salesData.length; i++) {
-        await metricsService.recordTimeSeries(seriesName, salesData[i], now - i * 3600000)
+        await metricsService.recordTimeSeries(seriesName, salesData[i], now - i * 3_600_000)
       }
 
       const sumResult = await metricsService.aggregateTimeSeries(
         seriesName,
-        now - 18000000,
+        now - 18_000_000,
         now,
-        3600000,
+        3_600_000,
         'sum'
       )
       const avgResult = await metricsService.aggregateTimeSeries(
         seriesName,
-        now - 18000000,
+        now - 18_000_000,
         now,
-        3600000,
+        3_600_000,
         'avg'
       )
       const maxResult = await metricsService.aggregateTimeSeries(
         seriesName,
-        now - 18000000,
+        now - 18_000_000,
         now,
-        3600000,
+        3_600_000,
         'max'
       )
       const minResult = await metricsService.aggregateTimeSeries(
         seriesName,
-        now - 18000000,
+        now - 18_000_000,
         now,
-        3600000,
+        3_600_000,
         'min'
       )
 
@@ -497,12 +497,12 @@ describe('MetricsService', () => {
       await metricsService.recordCustomerPurchase(
         customerId,
         99.99,
-        new Date(Date.now() - 86400000 * 30)
+        new Date(Date.now() - 86_400_000 * 30)
       ) // 30 days ago
       await metricsService.recordCustomerPurchase(
         customerId,
         149.99,
-        new Date(Date.now() - 86400000 * 15)
+        new Date(Date.now() - 86_400_000 * 15)
       ) // 15 days ago
       await metricsService.recordCustomerPurchase(customerId, 199.99, new Date()) // today
 
@@ -524,7 +524,7 @@ describe('MetricsService', () => {
 
       // Simulate retention over months
       for (let month = 0; month < 6; month++) {
-        const retainedUsers = 100 * Math.pow(0.8, month) // 20% churn each month
+        const retainedUsers = 100 * 0.8 ** month // 20% churn each month
         await metricsService.recordCohortRetention(cohortMonth, month, Math.floor(retainedUsers))
       }
 
@@ -551,7 +551,7 @@ describe('MetricsService', () => {
 
     test('should handle invalid metric values', async () => {
       expect(async () => {
-        await metricsService.setGauge('test', NaN)
+        await metricsService.setGauge('test', Number.NaN)
       }).rejects.toThrow('Metric value must be a valid number')
 
       expect(async () => {
@@ -572,17 +572,21 @@ describe('MetricsService', () => {
       const now = Date.now()
 
       // Record old data points
-      await metricsService.recordTimeSeries(metricName, 100, now - 86400000 * 7) // 7 days ago
-      await metricsService.recordTimeSeries(metricName, 200, now - 86400000 * 3) // 3 days ago
+      await metricsService.recordTimeSeries(metricName, 100, now - 86_400_000 * 7) // 7 days ago
+      await metricsService.recordTimeSeries(metricName, 200, now - 86_400_000 * 3) // 3 days ago
       await metricsService.recordTimeSeries(metricName, 300, now) // now
 
       // Apply retention policy (keep only last 5 days)
-      const deleted = await metricsService.applyRetentionPolicy(metricName, 86400000 * 5) // 5 days
+      const deleted = await metricsService.applyRetentionPolicy(metricName, 86_400_000 * 5) // 5 days
       expect(deleted).toBeGreaterThanOrEqual(1)
 
       // Verify old data is gone
-      const remainingData = await metricsService.getTimeSeries(metricName, now - 86400000 * 10, now)
-      expect(remainingData.every((point) => point.timestamp > now - 86400000 * 5)).toBe(true)
+      const remainingData = await metricsService.getTimeSeries(
+        metricName,
+        now - 86_400_000 * 10,
+        now
+      )
+      expect(remainingData.every((point) => point.timestamp > now - 86_400_000 * 5)).toBe(true)
     })
 
     test('should cleanup expired metrics automatically', async () => {

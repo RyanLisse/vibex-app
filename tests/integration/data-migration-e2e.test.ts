@@ -5,9 +5,9 @@
  * to the database, including error handling and recovery scenarios
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const server = setupServer()
 

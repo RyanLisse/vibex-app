@@ -1,4 +1,4 @@
-import { Node, Edge } from '@xyflow/react'
+import type { Edge, Node } from '@xyflow/react'
 import * as d3 from 'd3-force'
 import dagre from 'dagre'
 

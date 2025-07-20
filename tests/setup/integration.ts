@@ -32,7 +32,6 @@ vi.mock('ioredis', () => ({
     off: vi.fn(),
   })),
 }))
-
 // Create a reusable mock database object
 const createMockDb = () => {
   const mockDb: any = {
@@ -297,36 +296,7 @@ vi.mock('../../../db/config', () => {
 
 // Mock drizzle-orm
 vi.mock('drizzle-orm/neon-serverless', () => ({
-  drizzle: vi.fn(() => {
-    const mockDb: any = {
-      select: vi.fn(() => mockDb),
-      where: vi.fn(() => mockDb),
-      orderBy: vi.fn(() => mockDb),
-      limit: vi.fn(() => mockDb),
-      insert: vi.fn((table) => mockDb),
-      values: vi.fn().mockImplementation(async () => {
-        // Return successful insert
-        return { rowCount: 1 }
-      }),
-      update: vi.fn((table) => mockDb),
-      set: vi.fn(() => mockDb),
-      delete: vi.fn((table) => mockDb),
-      execute: vi.fn().mockResolvedValue([]),
-    }
-
-    // Add from method with special handling for migrations table
-    mockDb.from = vi.fn().mockImplementation((table: any) => {
-      // If querying migrations table, setup specific behavior
-      if (table?.name === 'migrations' || table?._?.name === 'migrations') {
-        mockDb.execute = vi.fn().mockResolvedValue([])
-        mockDb.orderBy = vi.fn(() => mockDb)
-        mockDb.limit = vi.fn().mockResolvedValue([])
-      }
-      return mockDb
-    })
-
-    return mockDb
-  }),
+  drizzle: vi.fn(() => createMockDb()),
 }))
 
 // Mock the migration runner module
