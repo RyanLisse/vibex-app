@@ -11,7 +11,7 @@ import {
   Clock,
   Zap,
   Archive,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react'
 
 export interface MemoryNodeData {
@@ -88,7 +88,7 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
   const formatTimeAgo = useCallback((date: Date) => {
     const now = new Date()
     const diff = now.getTime() - new Date(date).getTime()
-    
+
     if (diff < 1000) return 'Just now'
     if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
@@ -112,16 +112,8 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
       `}
     >
       {/* Input/Output handles for connections */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="w-3 h-3 bg-purple-500"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="w-3 h-3 bg-purple-500"
-      />
+      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-purple-500" />
+      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-purple-500" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -133,7 +125,7 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
             {memory.type}
           </Badge>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="text-xs flex items-center space-x-1">
             <Network className="w-3 h-3" />
@@ -155,10 +147,7 @@ export const MemoryNode = memo<NodeProps<MemoryNodeData>>(({ data, selected }) =
             <span className="font-medium">Memory Usage</span>
             <span className="text-gray-500">{memory.usage.percentage.toFixed(1)}%</span>
           </div>
-          <Progress 
-            value={memory.usage.percentage} 
-            className={`h-2 ${getProgressColor()}`}
-          />
+          <Progress value={memory.usage.percentage} className={`h-2 ${getProgressColor()}`} />
           <div className="flex justify-between text-xs text-gray-600">
             <span>{formatBytes(memory.usage.used)} used</span>
             <span>{formatBytes(memory.usage.total)} total</span>

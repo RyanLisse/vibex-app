@@ -5,7 +5,9 @@ import { VisualizationEngineWithProvider } from '../visualization-engine'
 
 // Mock ReactFlow since it requires DOM APIs not available in test environment
 jest.mock('@xyflow/react', () => ({
-  ReactFlowProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="react-flow-provider">{children}</div>,
+  ReactFlowProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="react-flow-provider">{children}</div>
+  ),
   ReactFlow: () => <div data-testid="react-flow">React Flow Mock</div>,
   Controls: () => <div data-testid="controls">Controls Mock</div>,
   MiniMap: () => <div data-testid="minimap">MiniMap Mock</div>,
@@ -27,7 +29,7 @@ jest.mock('@xyflow/react', () => ({
     Right: 'right',
     Bottom: 'bottom',
     Left: 'left',
-  }
+  },
 }))
 
 // Mock the ambient agent data hook
@@ -49,11 +51,11 @@ jest.mock('../../../hooks/ambient-agents/use-ambient-agent-data', () => ({
           cpuUsage: 50,
           memoryUsage: 40,
         },
-      }
+      },
     ],
     taskData: {
       tasks: [],
-      dependencies: []
+      dependencies: [],
     },
     eventStream: [],
     memoryData: { namespaces: [] },
@@ -62,7 +64,7 @@ jest.mock('../../../hooks/ambient-agents/use-ambient-agent-data', () => ({
     error: null,
     connectionStatus: 'Open',
     refreshData: jest.fn(),
-  })
+  }),
 }))
 
 // Mock the visualization state hook
@@ -83,7 +85,7 @@ jest.mock('../../../hooks/ambient-agents/use-visualization-state', () => ({
     applyFilters: jest.fn(),
     toggleNodeVisibility: jest.fn(),
     updateViewMode: jest.fn(),
-  })
+  }),
 }))
 
 // Mock layout algorithms
@@ -98,18 +100,16 @@ const createWrapper = () => {
       mutations: { retry: false },
     },
   })
-  
+
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
 
 describe('VisualizationEngine', () => {
   it('renders without crashing', () => {
     const Wrapper = createWrapper()
-    
+
     render(
       <Wrapper>
         <VisualizationEngineWithProvider />
@@ -122,7 +122,7 @@ describe('VisualizationEngine', () => {
 
   it('displays connection status', () => {
     const Wrapper = createWrapper()
-    
+
     render(
       <Wrapper>
         <VisualizationEngineWithProvider />
@@ -134,7 +134,7 @@ describe('VisualizationEngine', () => {
 
   it('renders control panels', () => {
     const Wrapper = createWrapper()
-    
+
     render(
       <Wrapper>
         <VisualizationEngineWithProvider showPerformanceMetrics={true} />
@@ -147,7 +147,7 @@ describe('VisualizationEngine', () => {
 
   it('handles different view modes', () => {
     const Wrapper = createWrapper()
-    
+
     render(
       <Wrapper>
         <VisualizationEngineWithProvider viewMode="task-centric" />
@@ -159,7 +159,7 @@ describe('VisualizationEngine', () => {
 
   it('handles layout algorithm changes', () => {
     const Wrapper = createWrapper()
-    
+
     render(
       <Wrapper>
         <VisualizationEngineWithProvider layoutAlgorithm="hierarchical" />
@@ -193,11 +193,11 @@ describe('VisualizationEngine Error Handling', () => {
         error: new Error('Failed to load data'),
         connectionStatus: 'Closed',
         refreshData: jest.fn(),
-      })
+      }),
     }))
 
     const Wrapper = createWrapper()
-    
+
     render(
       <Wrapper>
         <VisualizationEngineWithProvider />

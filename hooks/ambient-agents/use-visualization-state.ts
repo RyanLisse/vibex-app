@@ -48,21 +48,21 @@ export const useVisualizationState = (initialState?: Partial<VisualizationState>
   })
 
   const updateViewMode = useCallback((viewMode: VisualizationState['viewMode']) => {
-    setVisualizationState(prev => ({
+    setVisualizationState((prev) => ({
       ...prev,
       viewMode,
     }))
   }, [])
 
   const updateLayout = useCallback((layoutAlgorithm: VisualizationState['layoutAlgorithm']) => {
-    setVisualizationState(prev => ({
+    setVisualizationState((prev) => ({
       ...prev,
       layoutAlgorithm,
     }))
   }, [])
 
   const applyFilters = useCallback((filters: Partial<VisualizationState['filters']>) => {
-    setVisualizationState(prev => ({
+    setVisualizationState((prev) => ({
       ...prev,
       filters: {
         ...prev.filters,
@@ -72,17 +72,17 @@ export const useVisualizationState = (initialState?: Partial<VisualizationState>
   }, [])
 
   const toggleNodeVisibility = useCallback((nodeId: string) => {
-    setVisualizationState(prev => ({
+    setVisualizationState((prev) => ({
       ...prev,
       selectedNodes: prev.selectedNodes.includes(nodeId)
-        ? prev.selectedNodes.filter(id => id !== nodeId)
+        ? prev.selectedNodes.filter((id) => id !== nodeId)
         : [...prev.selectedNodes, nodeId],
     }))
   }, [])
 
   const updateVisibilitySettings = useCallback(
     (settings: Partial<VisualizationState['visibilitySettings']>) => {
-      setVisualizationState(prev => ({
+      setVisualizationState((prev) => ({
         ...prev,
         visibilitySettings: {
           ...prev.visibilitySettings,
@@ -93,13 +93,16 @@ export const useVisualizationState = (initialState?: Partial<VisualizationState>
     []
   )
 
-  const updateZoomAndPan = useCallback((zoomLevel: number, panPosition: { x: number; y: number }) => {
-    setVisualizationState(prev => ({
-      ...prev,
-      zoomLevel,
-      panPosition,
-    }))
-  }, [])
+  const updateZoomAndPan = useCallback(
+    (zoomLevel: number, panPosition: { x: number; y: number }) => {
+      setVisualizationState((prev) => ({
+        ...prev,
+        zoomLevel,
+        panPosition,
+      }))
+    },
+    []
+  )
 
   const resetState = useCallback(() => {
     setVisualizationState(defaultState)
@@ -114,7 +117,7 @@ export const useVisualizationState = (initialState?: Partial<VisualizationState>
       const saved = localStorage.getItem('ambient-agent-visualization-state')
       if (saved) {
         const parsedState = JSON.parse(saved)
-        setVisualizationState(prev => ({
+        setVisualizationState((prev) => ({
           ...prev,
           ...parsedState,
         }))

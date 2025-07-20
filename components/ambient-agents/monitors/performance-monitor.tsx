@@ -11,7 +11,7 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react'
 
 export interface PerformanceMetrics {
@@ -46,15 +46,13 @@ export interface PerformanceMonitorProps {
   className?: string
 }
 
-export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
-  className = ''
-}) => {
+export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ className = '' }) => {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     cpu: { usage: 0, trend: 'stable' },
     memory: { usage: 0, trend: 'stable' },
     network: { throughput: 0, latency: 0, trend: 'stable' },
     rendering: { fps: 60, nodeCount: 0, edgeCount: 0, renderTime: 0 },
-    alerts: []
+    alerts: [],
   })
 
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -62,42 +60,42 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   // Simulate real-time metrics updates
   useEffect(() => {
     const interval = setInterval(() => {
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         cpu: {
           usage: Math.max(0, Math.min(100, prev.cpu.usage + (Math.random() - 0.5) * 10)),
-          trend: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable'
+          trend: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable',
         },
         memory: {
           usage: Math.max(0, Math.min(100, prev.memory.usage + (Math.random() - 0.5) * 5)),
-          trend: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable'
+          trend: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable',
         },
         network: {
           throughput: Math.max(0, prev.network.throughput + (Math.random() - 0.5) * 100),
           latency: Math.max(0, prev.network.latency + (Math.random() - 0.5) * 50),
-          trend: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable'
+          trend: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'up' : 'down') : 'stable',
         },
         rendering: {
           fps: Math.max(30, Math.min(60, prev.rendering.fps + (Math.random() - 0.5) * 5)),
           nodeCount: Math.max(0, prev.rendering.nodeCount + Math.floor((Math.random() - 0.5) * 3)),
           edgeCount: Math.max(0, prev.rendering.edgeCount + Math.floor((Math.random() - 0.5) * 5)),
-          renderTime: Math.max(1, prev.rendering.renderTime + (Math.random() - 0.5) * 2)
+          renderTime: Math.max(1, prev.rendering.renderTime + (Math.random() - 0.5) * 2),
         },
-        alerts: prev.alerts.slice(0, 4) // Keep only recent alerts
+        alerts: prev.alerts.slice(0, 4), // Keep only recent alerts
       }))
 
       // Occasionally add new alerts
       if (Math.random() > 0.9) {
-        setMetrics(prev => ({
+        setMetrics((prev) => ({
           ...prev,
           alerts: [
             {
               id: Date.now().toString(),
               type: Math.random() > 0.7 ? 'warning' : 'info',
               message: 'High network latency detected',
-              timestamp: new Date()
+              timestamp: new Date(),
             },
-            ...prev.alerts
-          ].slice(0, 5)
+            ...prev.alerts,
+          ].slice(0, 5),
         }))
       }
     }, 2000)
@@ -135,10 +133,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
   return (
     <Card className={`w-80 bg-white/95 backdrop-blur-sm shadow-lg ${className}`}>
-      <CardHeader 
-        className="pb-2 cursor-pointer" 
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
+      <CardHeader className="pb-2 cursor-pointer" onClick={() => setIsCollapsed(!isCollapsed)}>
         <CardTitle className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-2">
             <Activity className="w-4 h-4" />
@@ -155,7 +150,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
           {/* System Metrics */}
           <div className="space-y-3">
             <div className="text-xs font-medium text-gray-700">System Metrics</div>
-            
+
             {/* CPU Usage */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
@@ -166,10 +161,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                 </div>
                 <span>{metrics.cpu.usage.toFixed(1)}%</span>
               </div>
-              <Progress 
-                value={metrics.cpu.usage} 
-                className="h-1"
-              />
+              <Progress value={metrics.cpu.usage} className="h-1" />
             </div>
 
             {/* Memory Usage */}
@@ -182,10 +174,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                 </div>
                 <span>{metrics.memory.usage.toFixed(1)}%</span>
               </div>
-              <Progress 
-                value={metrics.memory.usage} 
-                className="h-1"
-              />
+              <Progress value={metrics.memory.usage} className="h-1" />
             </div>
 
             {/* Network */}
@@ -204,7 +193,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
           {/* Rendering Performance */}
           <div className="space-y-3">
             <div className="text-xs font-medium text-gray-700">Visualization Performance</div>
-            
+
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <div className="text-gray-600">FPS</div>
@@ -228,17 +217,19 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span>Frame Rate</span>
-                <span className={`font-medium ${
-                  metrics.rendering.fps >= 50 ? 'text-green-600' :
-                  metrics.rendering.fps >= 30 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <span
+                  className={`font-medium ${
+                    metrics.rendering.fps >= 50
+                      ? 'text-green-600'
+                      : metrics.rendering.fps >= 30
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                  }`}
+                >
                   {metrics.rendering.fps.toFixed(0)} FPS
                 </span>
               </div>
-              <Progress 
-                value={(metrics.rendering.fps / 60) * 100} 
-                className="h-1"
-              />
+              <Progress value={(metrics.rendering.fps / 60) * 100} className="h-1" />
             </div>
           </div>
 

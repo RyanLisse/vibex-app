@@ -11,7 +11,7 @@ import {
   Clock,
   User,
   GitBranch,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react'
 
 export interface TaskNodeData {
@@ -109,16 +109,8 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
       `}
     >
       {/* Input/Output handles for connections */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="w-3 h-3 bg-blue-500"
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="w-3 h-3 bg-blue-500"
-      />
+      <Handle type="target" position={Position.Top} className="w-3 h-3 bg-blue-500" />
+      <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-blue-500" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -130,7 +122,7 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
             {task.priority}
           </Badge>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="text-xs">
             {task.status}
@@ -164,12 +156,12 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
               <span className="truncate">Agent: {task.assignedAgent}</span>
             </div>
           )}
-          
+
           <div className="flex items-center space-x-1">
             <Clock className="w-3 h-3 text-purple-500" />
             <span>{formatDuration(getExecutionTime())}</span>
           </div>
-          
+
           {task.estimatedDuration && (
             <div className="flex items-center space-x-1">
               <Clock className="w-3 h-3 text-gray-500" />
@@ -194,12 +186,8 @@ export const TaskNode = memo<NodeProps<TaskNodeData>>(({ data, selected }) => {
 
         {/* Timestamps */}
         <div className="text-xs text-gray-600">
-          {task.startTime && (
-            <div>Started: {new Date(task.startTime).toLocaleTimeString()}</div>
-          )}
-          {task.endTime && (
-            <div>Ended: {new Date(task.endTime).toLocaleTimeString()}</div>
-          )}
+          {task.startTime && <div>Started: {new Date(task.startTime).toLocaleTimeString()}</div>}
+          {task.endTime && <div>Ended: {new Date(task.endTime).toLocaleTimeString()}</div>}
         </div>
       </CardContent>
     </Card>

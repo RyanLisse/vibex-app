@@ -12,7 +12,7 @@ jest.mock('@xyflow/react', () => ({
     Right: 'right',
     Bottom: 'bottom',
     Left: 'left',
-  }
+  },
 }))
 
 const createMockNodeProps = (overrides: Partial<AgentNodeData> = {}): NodeProps<AgentNodeData> => ({
@@ -73,7 +73,7 @@ describe('AgentNode', () => {
         name: 'Building new feature',
         progress: 75,
         estimatedCompletion: new Date('2024-01-01T12:00:00Z'),
-      }
+      },
     })
     render(<AgentNode {...props} />)
 
@@ -103,7 +103,7 @@ describe('AgentNode', () => {
     statusTests.forEach(({ status, expectedClass }) => {
       const props = createMockNodeProps({ agent: { status } })
       const { container } = render(<AgentNode {...props} />)
-      
+
       const statusIcon = container.querySelector(`svg.${expectedClass}`)
       expect(statusIcon).toBeInTheDocument()
     })
@@ -118,7 +118,7 @@ describe('AgentNode', () => {
         averageResponseTime: 1000,
         cpuUsage: 50,
         memoryUsage: 40,
-      }
+      },
     })
     render(<AgentNode {...props} />)
 
@@ -134,7 +134,7 @@ describe('AgentNode', () => {
         averageResponseTime: 0,
         cpuUsage: 0,
         memoryUsage: 0,
-      }
+      },
     })
     render(<AgentNode {...props} />)
 

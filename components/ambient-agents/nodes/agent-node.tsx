@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Pause,
   Play,
-  Square
+  Square,
 } from 'lucide-react'
 
 export interface AgentNodeData {
@@ -86,9 +86,8 @@ export const AgentNode = memo<NodeProps<AgentNodeData>>(({ data, selected }) => 
     }
   }, [agent.provider])
 
-  const successRate = metrics.totalTasks > 0
-    ? ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1)
-    : '0'
+  const successRate =
+    metrics.totalTasks > 0 ? ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1) : '0'
 
   return (
     <Card
@@ -99,16 +98,8 @@ export const AgentNode = memo<NodeProps<AgentNodeData>>(({ data, selected }) => 
       `}
     >
       {/* Input/Output handles for connections */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="w-3 h-3 bg-blue-500"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="w-3 h-3 bg-blue-500"
-      />
+      <Handle type="target" position={Position.Left} className="w-3 h-3 bg-blue-500" />
+      <Handle type="source" position={Position.Right} className="w-3 h-3 bg-blue-500" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -139,9 +130,7 @@ export const AgentNode = memo<NodeProps<AgentNodeData>>(({ data, selected }) => 
               <span className="text-gray-500">{currentTask.progress}%</span>
             </div>
             <Progress value={currentTask.progress} className="h-2" />
-            <div className="text-xs text-gray-600 truncate">
-              {currentTask.name}
-            </div>
+            <div className="text-xs text-gray-600 truncate">{currentTask.name}</div>
           </div>
         )}
 

@@ -9,9 +9,7 @@ export default function AmbientAgentsPage() {
       {/* Header */}
       <div className="h-16 bg-white border-b border-gray-200 flex items-center px-6">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Ambient Agent Visualization
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Ambient Agent Visualization</h1>
           <div className="text-sm text-gray-600">
             Real-time monitoring and management of AI agent workflows
           </div>

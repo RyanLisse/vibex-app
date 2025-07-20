@@ -1,7 +1,13 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,7 +26,7 @@ import {
   Maximize2,
   RotateCcw,
   Download,
-  Share2
+  Share2,
 } from 'lucide-react'
 
 export interface VisualizationControlsProps {
@@ -172,14 +178,14 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
             {statusOptions.map((status) => (
               <Badge
                 key={status.value}
-                variant={selectedStatuses.includes(status.value) ? "default" : "outline"}
+                variant={selectedStatuses.includes(status.value) ? 'default' : 'outline'}
                 className={`text-xs cursor-pointer ${
                   selectedStatuses.includes(status.value) ? status.color : ''
                 }`}
                 onClick={() => {
-                  setSelectedStatuses(prev =>
+                  setSelectedStatuses((prev) =>
                     prev.includes(status.value)
-                      ? prev.filter(s => s !== status.value)
+                      ? prev.filter((s) => s !== status.value)
                       : [...prev, status.value]
                   )
                 }}
@@ -205,9 +211,9 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
                       : 'bg-gray-50 border-gray-200'
                   }`}
                   onClick={() => {
-                    setSelectedTypes(prev =>
+                    setSelectedTypes((prev) =>
                       prev.includes(type.value)
-                        ? prev.filter(t => t !== type.value)
+                        ? prev.filter((t) => t !== type.value)
                         : [...prev, type.value]
                     )
                   }}
@@ -267,39 +273,19 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
         <div className="space-y-2">
           <Label className="text-xs font-medium">Navigation</Label>
           <div className="grid grid-cols-2 gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs"
-              onClick={onZoomIn}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onZoomIn}>
               <ZoomIn className="w-3 h-3 mr-1" />
               Zoom In
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs"
-              onClick={onZoomOut}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onZoomOut}>
               <ZoomOut className="w-3 h-3 mr-1" />
               Zoom Out
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs"
-              onClick={onFitView}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onFitView}>
               <Maximize2 className="w-3 h-3 mr-1" />
               Fit View
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs"
-              onClick={onReset}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onReset}>
               <RotateCcw className="w-3 h-3 mr-1" />
               Reset
             </Button>
@@ -310,21 +296,11 @@ export const VisualizationControls: React.FC<VisualizationControlsProps> = ({
         <div className="space-y-2">
           <Label className="text-xs font-medium">Export & Share</Label>
           <div className="flex space-x-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs flex-1"
-              onClick={onExport}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs flex-1" onClick={onExport}>
               <Download className="w-3 h-3 mr-1" />
               Export
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs flex-1"
-              onClick={onShare}
-            >
+            <Button variant="outline" size="sm" className="h-8 text-xs flex-1" onClick={onShare}>
               <Share2 className="w-3 h-3 mr-1" />
               Share
             </Button>

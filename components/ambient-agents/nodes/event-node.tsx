@@ -11,13 +11,20 @@ import {
   Clock,
   User,
   Database,
-  Network
+  Network,
 } from 'lucide-react'
 
 export interface EventNodeData {
   event: {
     id: string
-    type: 'agent.created' | 'agent.status.changed' | 'task.started' | 'task.completed' | 'memory.updated' | 'system.error' | 'communication.established'
+    type:
+      | 'agent.created'
+      | 'agent.status.changed'
+      | 'task.started'
+      | 'task.completed'
+      | 'memory.updated'
+      | 'system.error'
+      | 'communication.established'
     timestamp: Date
     source: string
     target?: string
@@ -103,15 +110,16 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
   }, [event.type])
 
   const formatEventType = useCallback((type: string) => {
-    return type.split('.').map(part => 
-      part.charAt(0).toUpperCase() + part.slice(1)
-    ).join(' ')
+    return type
+      .split('.')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
   }, [])
 
   const formatTimeAgo = useCallback((timestamp: Date) => {
     const now = new Date()
     const diff = now.getTime() - new Date(timestamp).getTime()
-    
+
     if (diff < 1000) return 'Just now'
     if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
@@ -121,11 +129,14 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
 
   const getEventData = useCallback(() => {
     if (!event.data || typeof event.data !== 'object') return null
-    
+
     const entries = Object.entries(event.data).slice(0, 3) // Show first 3 entries
     return entries.map(([key, value]) => ({
       key,
-      value: typeof value === 'object' ? JSON.stringify(value).slice(0, 20) + '...' : String(value).slice(0, 20)
+      value:
+        typeof value === 'object'
+          ? JSON.stringify(value).slice(0, 20) + '...'
+          : String(value).slice(0, 20),
     }))
   }, [event.data])
 
@@ -138,16 +149,8 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
       `}
     >
       {/* Input/Output handles for connections */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        className="w-2 h-2 bg-blue-500"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        className="w-2 h-2 bg-blue-500"
-      />
+      <Handle type="target" position={Position.Left} className="w-2 h-2 bg-blue-500" />
+      <Handle type="source" position={Position.Right} className="w-2 h-2 bg-blue-500" />
 
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -162,10 +165,8 @@ export const EventNode = memo<NodeProps<EventNodeData>>(({ data, selected }) => 
             {formatEventType(event.type)}
           </Badge>
         </div>
-        
-        <div className="text-xs text-gray-600">
-          {formatTimeAgo(event.timestamp)}
-        </div>
+
+        <div className="text-xs text-gray-600">{formatTimeAgo(event.timestamp)}</div>
       </CardHeader>
 
       <CardContent className="space-y-2">

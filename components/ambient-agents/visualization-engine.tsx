@@ -82,16 +82,11 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
     refreshData,
   } = useAmbientAgentData(swarmId)
 
-  const {
-    visualizationState,
-    updateLayout,
-    applyFilters,
-    toggleNodeVisibility,
-    updateViewMode,
-  } = useVisualizationState({
-    viewMode: initialViewMode,
-    layoutAlgorithm: initialLayoutAlgorithm,
-  })
+  const { visualizationState, updateLayout, applyFilters, toggleNodeVisibility, updateViewMode } =
+    useVisualizationState({
+      viewMode: initialViewMode,
+      layoutAlgorithm: initialLayoutAlgorithm,
+    })
 
   // Transform raw data into React Flow nodes and edges
   const { transformedNodes, transformedEdges } = useMemo(() => {
@@ -100,19 +95,19 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
     }
 
     const nodes = transformDataToNodes(
-      agentData, 
-      taskData, 
-      eventStream, 
-      memoryData, 
+      agentData,
+      taskData,
+      eventStream,
+      memoryData,
       visualizationState.viewMode,
       visualizationState.filters
     )
     const edges = transformDataToEdges(
-      agentData, 
-      taskData, 
-      eventStream, 
-      memoryData, 
-      communications, 
+      agentData,
+      taskData,
+      eventStream,
+      memoryData,
+      communications,
       visualizationState.viewMode
     )
 
@@ -121,15 +116,15 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
       transformedEdges: edges,
     }
   }, [
-    agentData, 
-    taskData, 
-    eventStream, 
-    memoryData, 
+    agentData,
+    taskData,
+    eventStream,
+    memoryData,
     communications,
-    visualizationState.viewMode, 
-    visualizationState.layoutAlgorithm, 
+    visualizationState.viewMode,
+    visualizationState.layoutAlgorithm,
     visualizationState.filters,
-    isLoading
+    isLoading,
   ])
 
   // Update React Flow state when data changes
@@ -151,14 +146,20 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
   }, [])
 
   // Handle layout changes
-  const handleLayoutChange = useCallback((newLayout: string) => {
-    updateLayout(newLayout as any)
-  }, [updateLayout])
+  const handleLayoutChange = useCallback(
+    (newLayout: string) => {
+      updateLayout(newLayout as any)
+    },
+    [updateLayout]
+  )
 
   // Handle view mode changes
-  const handleViewModeChange = useCallback((newViewMode: string) => {
-    updateViewMode(newViewMode as any)
-  }, [updateViewMode])
+  const handleViewModeChange = useCallback(
+    (newViewMode: string) => {
+      updateViewMode(newViewMode as any)
+    },
+    [updateViewMode]
+  )
 
   // Navigation controls
   const { zoomIn, zoomOut, fitView } = useReactFlow()
@@ -194,11 +195,9 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center space-y-4">
-          <div className="text-red-500 text-lg font-semibold">
-            Error loading ambient agent data
-          </div>
+          <div className="text-red-500 text-lg font-semibold">Error loading ambient agent data</div>
           <div className="text-gray-600">{error.message}</div>
-          <button 
+          <button
             onClick={refreshData}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
@@ -213,13 +212,12 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
     <div className={`w-full h-full relative ${className}`}>
       {/* Connection status indicator */}
       <div className="absolute top-4 left-4 z-10">
-        <div className={`
+        <div
+          className={`
           px-2 py-1 rounded text-xs font-medium
-          ${connectionStatus === 'Open' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-          }
-        `}>
+          ${connectionStatus === 'Open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
+        `}
+        >
           {connectionStatus === 'Open' ? '🟢 Connected' : '🔴 Disconnected'}
         </div>
       </div>
@@ -246,12 +244,7 @@ export const VisualizationEngine: React.FC<VisualizationEngineProps> = ({
         <Background color="#aaa" gap={16} variant="dots" />
 
         {/* Navigation controls */}
-        <Controls 
-          showZoom 
-          showFitView 
-          showInteractive 
-          position="bottom-right"
-        />
+        <Controls showZoom showFitView showInteractive position="bottom-right" />
 
         {/* Minimap for navigation */}
         <MiniMap
@@ -345,7 +338,10 @@ function transformDataToNodes(
   if (agentData) {
     agentData.forEach((agent: any, index: number) => {
       // Apply filters
-      if (filters.searchTerm && !agent.name.toLowerCase().includes(filters.searchTerm.toLowerCase())) {
+      if (
+        filters.searchTerm &&
+        !agent.name.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      ) {
         return
       }
       if (!filters.showInactive && agent.status === 'idle') {
@@ -385,7 +381,7 @@ function transformDataToNodes(
         data: {
           task: {
             ...task,
-            priority: task.priority || 'medium'
+            priority: task.priority || 'medium',
           },
           metrics: task.metrics,
         },
@@ -403,7 +399,7 @@ function transformDataToNodes(
         data: {
           event: {
             ...event,
-            severity: event.severity || 'info'
+            severity: event.severity || 'info',
           },
           metrics: event.metrics,
         },
@@ -421,7 +417,7 @@ function transformDataToNodes(
         data: {
           memory: {
             ...namespace,
-            type: namespace.type || 'shared'
+            type: namespace.type || 'shared',
           },
           metrics: namespace.metrics,
         },
@@ -457,7 +453,7 @@ function transformDataToEdges(
             bandwidth: comm.throughput || 0,
             latency: comm.latency || 0,
             isActive: comm.isActive || false,
-            protocol: comm.protocol || 'http'
+            protocol: comm.protocol || 'http',
           },
         },
         animated: comm.isActive,
@@ -520,30 +516,44 @@ function getNodeColor(node: Node): string {
     case 'agent':
       const agentStatus = node.data?.agent?.status
       switch (agentStatus) {
-        case 'busy': return '#10b981'
-        case 'idle': return '#f59e0b'
-        case 'error': return '#ef4444'
-        case 'terminated': return '#6b7280'
-        default: return '#3b82f6'
+        case 'busy':
+          return '#10b981'
+        case 'idle':
+          return '#f59e0b'
+        case 'error':
+          return '#ef4444'
+        case 'terminated':
+          return '#6b7280'
+        default:
+          return '#3b82f6'
       }
     case 'task':
       const taskStatus = node.data?.task?.status
       switch (taskStatus) {
-        case 'running': return '#3b82f6'
-        case 'completed': return '#10b981'
-        case 'failed': return '#ef4444'
-        case 'pending': return '#f59e0b'
-        default: return '#9ca3af'
+        case 'running':
+          return '#3b82f6'
+        case 'completed':
+          return '#10b981'
+        case 'failed':
+          return '#ef4444'
+        case 'pending':
+          return '#f59e0b'
+        default:
+          return '#9ca3af'
       }
     case 'memory':
       return '#8b5cf6'
     case 'event':
       const eventSeverity = node.data?.event?.severity
       switch (eventSeverity) {
-        case 'error': return '#ef4444'
-        case 'warning': return '#f59e0b'
-        case 'success': return '#10b981'
-        default: return '#3b82f6'
+        case 'error':
+          return '#ef4444'
+        case 'warning':
+          return '#f59e0b'
+        case 'success':
+          return '#10b981'
+        default:
+          return '#3b82f6'
       }
     default:
       return '#6b7280'
