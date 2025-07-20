@@ -1,6 +1,6 @@
 /**
  * Comprehensive External API Integration Test
- * 
+ *
  * Validates all external API integrations:
  * - OpenAI API (GPT, Whisper, DALL-E)
  * - Google AI (Gemini)
@@ -24,11 +24,13 @@ const mockResponses = {
       id: 'chatcmpl-123',
       object: 'chat.completion',
       created: Date.now(),
-      choices: [{
-        index: 0,
-        message: { role: 'assistant', content: 'Test response from OpenAI' },
-        finish_reason: 'stop',
-      }],
+      choices: [
+        {
+          index: 0,
+          message: { role: 'assistant', content: 'Test response from OpenAI' },
+          finish_reason: 'stop',
+        },
+      ],
       usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30 },
     },
     transcription: {
@@ -70,13 +72,16 @@ const mockResponses = {
 
 // API Health Monitor
 class APIHealthMonitor {
-  private apiMetrics = new Map<string, {
-    requests: number
-    successes: number
-    failures: number
-    totalLatency: number
-    errors: Map<string, number>
-  }>()
+  private apiMetrics = new Map<
+    string,
+    {
+      requests: number
+      successes: number
+      failures: number
+      totalLatency: number
+      errors: Map<string, number>
+    }
+  >()
 
   recordRequest(api: string, success: boolean, latency: number, error?: string) {
     if (!this.apiMetrics.has(api)) {
@@ -92,7 +97,7 @@ class APIHealthMonitor {
     const metrics = this.apiMetrics.get(api)!
     metrics.requests++
     metrics.totalLatency += latency
-    
+
     if (success) {
       metrics.successes++
     } else {
@@ -105,7 +110,7 @@ class APIHealthMonitor {
 
   getHealthReport() {
     const report: any = {}
-    
+
     for (const [api, metrics] of this.apiMetrics) {
       report[api] = {
         totalRequests: metrics.requests,
@@ -174,17 +179,23 @@ describe('External API Comprehensive Integration', () => {
           } catch (e: any) {
             error = e
             if (attempt < 2) {
-              await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)))
+              await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)))
             }
           }
         }
       } finally {
         const latency = Date.now() - start
         healthMonitor.recordRequest('openai_chat', !!result, latency, error?.message)
-        
+
         if (result) {
           metricsCollector.recordAgentOperation('test', 'chat', 'openai', 'gpt-4', 'success')
-          metricsCollector.recordTokenUsage('test', 'chat', 'openai', 'total', result.usage.total_tokens)
+          metricsCollector.recordTokenUsage(
+            'test',
+            'chat',
+            'openai',
+            'total',
+            result.usage.total_tokens
+          )
         }
       }
 
@@ -206,7 +217,7 @@ describe('External API Comprehensive Integration', () => {
 
       const start = Date.now()
       const audioFile = new File(['audio data'], 'test.mp3', { type: 'audio/mp3' })
-      
+
       const result = await mockOpenAI.audio.transcriptions.create({
         file: audioFile,
         model: 'whisper-1',
@@ -214,7 +225,7 @@ describe('External API Comprehensive Integration', () => {
 
       const latency = Date.now() - start
       healthMonitor.recordRequest('openai_whisper', true, latency)
-      
+
       observability.api.recordExternalCall('openai', 'whisper', latency, true)
       metricsCollector.recordHttpRequest('POST', '/v1/audio/transcriptions', 200, latency / 1000)
 
@@ -293,7 +304,7 @@ describe('External API Comprehensive Integration', () => {
       const model = mockGemini.getGenerativeModel({ model: 'gemini-pro' })
       const start = Date.now()
       const result = await model.generateContent('Test prompt')
-      
+
       const latency = Date.now() - start
       healthMonitor.recordRequest('gemini_text', true, latency)
       metricsCollector.recordAgentOperation('test', 'text-gen', 'google', 'gemini-pro', 'success')
@@ -303,7 +314,7 @@ describe('External API Comprehensive Integration', () => {
       // Test streaming
       const streamedText = []
       const streamStart = Date.now()
-      
+
       for await (const chunk of model.generateContentStream('Test prompt')) {
         streamedText.push(chunk.response.text())
       }
@@ -332,12 +343,14 @@ describe('External API Comprehensive Integration', () => {
       const start = Date.now()
 
       const result = await model.generateContent({
-        contents: [{
-          parts: [
-            { text: 'What is in this image?' },
-            { inlineData: { mimeType: 'image/jpeg', data: 'base64imagedata' } },
-          ],
-        }],
+        contents: [
+          {
+            parts: [
+              { text: 'What is in this image?' },
+              { inlineData: { mimeType: 'image/jpeg', data: 'base64imagedata' } },
+            ],
+          },
+        ],
       })
 
       const latency = Date.now() - start
@@ -354,7 +367,9 @@ describe('External API Comprehensive Integration', () => {
       const mockLetta = {
         createAgent: vi.fn().mockResolvedValue(mockResponses.letta.agent),
         getAgent: vi.fn().mockResolvedValue(mockResponses.letta.agent),
-        updateAgent: vi.fn().mockResolvedValue({ ...mockResponses.letta.agent, name: 'Updated Agent' }),
+        updateAgent: vi
+          .fn()
+          .mockResolvedValue({ ...mockResponses.letta.agent, name: 'Updated Agent' }),
         deleteAgent: vi.fn().mockResolvedValue({ success: true }),
       }
 
@@ -480,7 +495,9 @@ describe('External API Comprehensive Integration', () => {
       const mockGitHub = {
         rest: {
           repos: {
-            listForAuthenticatedUser: vi.fn().mockResolvedValue({ data: mockResponses.github.repos }),
+            listForAuthenticatedUser: vi
+              .fn()
+              .mockResolvedValue({ data: mockResponses.github.repos }),
             create: vi.fn().mockResolvedValue({
               data: { name: 'new-repo', full_name: 'testuser/new-repo' },
             }),
@@ -556,7 +573,7 @@ describe('External API Comprehensive Integration', () => {
         }
       }
 
-      expect(results.every(r => r.success)).toBe(true)
+      expect(results.every((r) => r.success)).toBe(true)
       expect(rateLimiter.openai.remaining).toBe(9)
     })
 
@@ -574,7 +591,7 @@ describe('External API Comprehensive Integration', () => {
 
       const exponentialBackoff = async (fn: Function, maxRetries = 5) => {
         let lastError
-        
+
         for (let i = 0; i < maxRetries; i++) {
           try {
             return await fn()
@@ -582,10 +599,10 @@ describe('External API Comprehensive Integration', () => {
             lastError = error
             const delay = Math.min(1000 * Math.pow(2, i), 10000)
             attemptDelays.push(delay)
-            await new Promise(resolve => setTimeout(resolve, delay))
+            await new Promise((resolve) => setTimeout(resolve, delay))
           }
         }
-        
+
         throw lastError
       }
 
@@ -659,7 +676,7 @@ describe('External API Comprehensive Integration', () => {
         private failures = 0
         private lastFailureTime = 0
         private state: 'closed' | 'open' | 'half-open' = 'closed'
-        
+
         constructor(
           private threshold = 5,
           private timeout = 60000
@@ -684,11 +701,11 @@ describe('External API Comprehensive Integration', () => {
           } catch (error) {
             this.failures++
             this.lastFailureTime = Date.now()
-            
+
             if (this.failures >= this.threshold) {
               this.state = 'open'
             }
-            
+
             throw error
           }
         }
@@ -715,7 +732,7 @@ describe('External API Comprehensive Integration', () => {
 
       // Test circuit breaker
       const results = []
-      
+
       for (let i = 0; i < 6; i++) {
         try {
           const result = await breaker.execute(unreliableAPI)
@@ -730,8 +747,8 @@ describe('External API Comprehensive Integration', () => {
       expect(breaker.getState().state).toBe('open')
 
       // Wait for timeout and retry
-      await new Promise(resolve => setTimeout(resolve, 1100))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1100))
+
       const finalResult = await breaker.execute(unreliableAPI)
       expect(finalResult.data).toBe('Success')
       expect(breaker.getState().state).toBe('closed')
@@ -771,21 +788,21 @@ describe('External API Comprehensive Integration', () => {
       for (let i = 0; i < 100; i++) {
         const api = apis[i % apis.length]
         const latency = api.baseLatency + (Math.random() - 0.5) * api.variance * 2
-        
+
         recordLatency(api.name, latency)
         recordThroughput(api.name)
-        
+
         metricsCollector.recordHttpRequest('POST', `/api/${api.name}`, 200, latency / 1000)
       }
 
       // Calculate statistics
       const stats: any = {}
-      
+
       for (const [api, latencies] of performanceMetrics.latencies) {
         const sorted = [...latencies].sort((a, b) => a - b)
         const throughputData = performanceMetrics.throughput.get(api)!
         const duration = (Date.now() - throughputData.startTime) / 1000
-        
+
         stats[api] = {
           avgLatency: latencies.reduce((a, b) => a + b) / latencies.length,
           p50: sorted[Math.floor(sorted.length * 0.5)],
@@ -798,7 +815,7 @@ describe('External API Comprehensive Integration', () => {
       // Verify performance metrics
       expect(stats.github.avgLatency).toBeLessThan(stats.letta.avgLatency)
       expect(stats.openai.p95).toBeLessThan(300)
-      
+
       // Export to Prometheus
       const metrics = await metricsCollector.getMetrics()
       expect(metrics).toContain('http_request_duration_seconds')

@@ -12,10 +12,7 @@ import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 import { ScreenshotBugReportSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // File upload handling (mock implementation for now)
@@ -58,11 +55,13 @@ export async function POST(request: NextRequest) {
       labels: validatedData.labels,
       metadata: {
         type: 'bug_report',
-        screenshot: screenshotUrl ? {
-          url: screenshotUrl,
-          annotations: validatedData.screenshot.annotations,
-          timestamp: new Date().toISOString(),
-        } : undefined,
+        screenshot: screenshotUrl
+          ? {
+              url: screenshotUrl,
+              annotations: validatedData.screenshot.annotations,
+              timestamp: new Date().toISOString(),
+            }
+          : undefined,
         browserInfo: validatedData.browserInfo,
         reproductionSteps: validatedData.reproductionSteps,
         expectedBehavior: validatedData.expectedBehavior,
@@ -140,17 +139,15 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId')
 
     let query = db.select().from(tasks)
-    
+
     if (userId) {
       query = query.where(eq(tasks.userId, userId))
     }
 
     // Filter for tasks with screenshot metadata
     const allTasks = await query
-    const screenshotTasks = allTasks.filter(task => 
-      task.metadata && 
-      typeof task.metadata === 'object' && 
-      'screenshot' in task.metadata
+    const screenshotTasks = allTasks.filter(
+      (task) => task.metadata && typeof task.metadata === 'object' && 'screenshot' in task.metadata
     )
 
     span.setAttributes({

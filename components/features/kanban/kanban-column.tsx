@@ -2,7 +2,10 @@
 
 import { useDrop } from 'react-dnd'
 import { KanbanCard } from './kanban-card'
-import type { KanbanTask, KanbanColumn as KanbanColumnType } from '@/src/schemas/enhanced-task-schemas'
+import type {
+  KanbanTask,
+  KanbanColumn as KanbanColumnType,
+} from '@/src/schemas/enhanced-task-schemas'
 
 interface KanbanColumnProps {
   column: KanbanColumnType
@@ -37,10 +40,10 @@ export function KanbanColumn({
     canDrop: (item: { task: KanbanTask }) => {
       // Don't allow drop if it's the same column
       if (item.task.column === column.id) return false
-      
+
       // Don't allow drop if column is full
       if (column.maxItems && tasks.length >= column.maxItems) return false
-      
+
       return true
     },
     collect: (monitor) => ({
@@ -57,7 +60,7 @@ export function KanbanColumn({
   `
 
   return (
-    <div 
+    <div
       ref={drop}
       data-testid={`column-${column.id}`}
       data-droppable="true"
@@ -86,12 +89,7 @@ export function KanbanColumn({
           </div>
         ) : (
           tasks.map((task, index) => (
-            <KanbanCard
-              key={task.id}
-              task={task}
-              index={index}
-              onEdit={onTaskEdit}
-            />
+            <KanbanCard key={task.id} task={task} index={index} onEdit={onTaskEdit} />
           ))
         )}
       </div>
@@ -106,12 +104,12 @@ export function KanbanColumn({
             </span>
           </div>
           <div className="mt-1 h-1 bg-muted rounded-full overflow-hidden">
-            <div 
+            <div
               className={`h-full transition-all duration-300 ${
                 tasks.length > column.maxItems ? 'bg-red-500' : 'bg-blue-500'
               }`}
-              style={{ 
-                width: `${Math.min((tasks.length / column.maxItems) * 100, 100)}%` 
+              style={{
+                width: `${Math.min((tasks.length / column.maxItems) * 100, 100)}%`,
               }}
             />
           </div>

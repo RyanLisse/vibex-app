@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Sample data for demonstration - in production, this would come from your database/services
@@ -31,8 +34,8 @@ const generateSampleData = (swarmId?: string) => {
           throughput: 120,
           latency: 45,
           isActive: true,
-        }
-      ]
+        },
+      ],
     },
     {
       id: 'agent-2',
@@ -87,7 +90,7 @@ const generateSampleData = (swarmId?: string) => {
         cpuUsage: 5,
         memoryUsage: 15,
       },
-    }
+    },
   ]
 
   const tasks = [
@@ -105,7 +108,7 @@ const generateSampleData = (swarmId?: string) => {
         executionTime: 2 * 60 * 60 * 1000,
         retryCount: 0,
         resourceUsage: 75,
-      }
+      },
     },
     {
       id: 'task-2',
@@ -121,7 +124,7 @@ const generateSampleData = (swarmId?: string) => {
         executionTime: 1 * 60 * 60 * 1000,
         retryCount: 1,
         resourceUsage: 60,
-      }
+      },
     },
     {
       id: 'task-3',
@@ -146,8 +149,8 @@ const generateSampleData = (swarmId?: string) => {
         executionTime: 15 * 60 * 1000,
         retryCount: 2,
         resourceUsage: 20,
-      }
-    }
+      },
+    },
   ]
 
   const events = [
@@ -158,7 +161,7 @@ const generateSampleData = (swarmId?: string) => {
       source: 'agent-1',
       severity: 'info',
       data: { oldStatus: 'idle', newStatus: 'busy', taskId: 'task-1' },
-      metrics: { frequency: 15, lastOccurrence: new Date(), relatedEvents: 3 }
+      metrics: { frequency: 15, lastOccurrence: new Date(), relatedEvents: 3 },
     },
     {
       id: 'event-2',
@@ -168,7 +171,11 @@ const generateSampleData = (swarmId?: string) => {
       target: 'agent-1',
       severity: 'success',
       data: { taskName: 'Implement user authentication system' },
-      metrics: { frequency: 8, lastOccurrence: new Date(Date.now() - 5 * 60 * 1000), relatedEvents: 2 }
+      metrics: {
+        frequency: 8,
+        lastOccurrence: new Date(Date.now() - 5 * 60 * 1000),
+        relatedEvents: 2,
+      },
     },
     {
       id: 'event-3',
@@ -177,8 +184,12 @@ const generateSampleData = (swarmId?: string) => {
       source: 'agent-4',
       severity: 'error',
       data: { error: 'Rate limit exceeded', code: 429 },
-      metrics: { frequency: 2, lastOccurrence: new Date(Date.now() - 10 * 60 * 1000), relatedEvents: 1 }
-    }
+      metrics: {
+        frequency: 2,
+        lastOccurrence: new Date(Date.now() - 10 * 60 * 1000),
+        relatedEvents: 1,
+      },
+    },
   ]
 
   const memory = [
@@ -190,7 +201,7 @@ const generateSampleData = (swarmId?: string) => {
       connections: ['agent-1', 'agent-2', 'agent-3'],
       lastAccessed: new Date(Date.now() - 2 * 60 * 1000),
       accessCount: 156,
-      metrics: { readOps: 89, writeOps: 12, averageLatency: 15, hitRate: 94.5 }
+      metrics: { readOps: 89, writeOps: 12, averageLatency: 15, hitRate: 94.5 },
     },
     {
       id: 'memory-2',
@@ -200,7 +211,7 @@ const generateSampleData = (swarmId?: string) => {
       connections: ['agent-1'],
       lastAccessed: new Date(Date.now() - 30 * 1000),
       accessCount: 234,
-      metrics: { readOps: 180, writeOps: 54, averageLatency: 8, hitRate: 87.2 }
+      metrics: { readOps: 180, writeOps: 54, averageLatency: 8, hitRate: 87.2 },
     },
     {
       id: 'memory-3',
@@ -210,8 +221,8 @@ const generateSampleData = (swarmId?: string) => {
       connections: ['agent-1', 'agent-2', 'agent-3', 'agent-4'],
       lastAccessed: new Date(Date.now() - 1 * 60 * 1000),
       accessCount: 67,
-      metrics: { readOps: 45, writeOps: 22, averageLatency: 25 }
-    }
+      metrics: { readOps: 45, writeOps: 22, averageLatency: 25 },
+    },
   ]
 
   const communications = [
@@ -223,7 +234,7 @@ const generateSampleData = (swarmId?: string) => {
       throughput: 120,
       latency: 45,
       isActive: true,
-      protocol: 'http'
+      protocol: 'http',
     },
     {
       from: 'agent-1',
@@ -233,7 +244,7 @@ const generateSampleData = (swarmId?: string) => {
       throughput: 80,
       latency: 30,
       isActive: false,
-      protocol: 'websocket'
+      protocol: 'websocket',
     },
     {
       from: 'agent-2',
@@ -243,8 +254,8 @@ const generateSampleData = (swarmId?: string) => {
       throughput: 200,
       latency: 20,
       isActive: true,
-      protocol: 'grpc'
-    }
+      protocol: 'grpc',
+    },
   ]
 
   const dependencies = [
@@ -270,60 +281,51 @@ export async function GET(request: NextRequest) {
     const swarmId = searchParams.get('swarmId')
 
     // Add a small delay to simulate real API behavior
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     const data = generateSampleData(swarmId || undefined)
 
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
+        Pragma: 'no-cache',
+        Expires: '0',
       },
     })
   } catch (error) {
     console.error('Error fetching ambient agent data:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch ambient agent data' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch ambient agent data' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     // Handle different types of updates
     switch (body.type) {
       case 'agent.update':
         // Update agent status or configuration
         console.log('Updating agent:', body.agentId, body.data)
         break
-      
+
       case 'task.create':
         // Create a new task
         console.log('Creating task:', body.data)
         break
-      
+
       case 'swarm.configure':
         // Configure swarm settings
         console.log('Configuring swarm:', body.swarmId, body.data)
         break
-      
+
       default:
-        return NextResponse.json(
-          { error: 'Unknown update type' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Unknown update type' }, { status: 400 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error updating ambient agent data:', error)
-    return NextResponse.json(
-      { error: 'Failed to update ambient agent data' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update ambient agent data' }, { status: 500 })
   }
 }

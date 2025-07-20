@@ -66,29 +66,29 @@ describe('Screenshot Bug Reporting Feature', () => {
       expect(() => {
         render(<QuickBugReportButton onCapture={vi.fn()} />)
       }).not.toThrow()
-      
+
       expect(screen.getByText(/quick bug report/i)).toBeInTheDocument()
     })
 
     it('should trigger screenshot capture when clicked', async () => {
       const mockOnCapture = vi.fn()
-      
+
       render(<QuickBugReportButton onCapture={mockOnCapture} />)
-      
+
       const button = screen.getByText(/quick bug report/i)
       await userEvent.click(button)
-      
+
       expect(mockOnCapture).toHaveBeenCalled()
     })
 
     it('should show loading state during capture', async () => {
-      const mockOnCapture = vi.fn(() => new Promise(resolve => setTimeout(resolve, 100)))
-      
+      const mockOnCapture = vi.fn(() => new Promise((resolve) => setTimeout(resolve, 100)))
+
       render(<QuickBugReportButton onCapture={mockOnCapture} />)
-      
+
       const button = screen.getByText(/quick bug report/i)
       await userEvent.click(button)
-      
+
       expect(screen.getByText(/capturing/i)).toBeInTheDocument()
     })
   })
@@ -99,20 +99,20 @@ describe('Screenshot Bug Reporting Feature', () => {
         getVideoTracks: () => [{ stop: vi.fn() }],
       }
       mockGetDisplayMedia.mockResolvedValue(mockStream)
-      
+
       const mockOnCapture = vi.fn()
-      
+
       render(<ScreenshotCapture onCapture={mockOnCapture} />)
-      
+
       const captureButton = screen.getByText(/capture screenshot/i)
       await userEvent.click(captureButton)
-      
+
       expect(mockGetDisplayMedia).toHaveBeenCalledWith({
         video: {
           mediaSource: 'screen',
         },
       })
-      
+
       await waitFor(() => {
         expect(mockOnCapture).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -127,18 +127,16 @@ describe('Screenshot Bug Reporting Feature', () => {
 
     it('should handle permission denied error', async () => {
       mockGetDisplayMedia.mockRejectedValue(new Error('Permission denied'))
-      
+
       const mockOnError = vi.fn()
-      
+
       render(<ScreenshotCapture onCapture={vi.fn()} onError={mockOnError} />)
-      
+
       const captureButton = screen.getByText(/capture screenshot/i)
       await userEvent.click(captureButton)
-      
+
       await waitFor(() => {
-        expect(mockOnError).toHaveBeenCalledWith(
-          expect.stringContaining('Permission denied')
-        )
+        expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining('Permission denied'))
       })
     })
 
@@ -148,18 +146,16 @@ describe('Screenshot Bug Reporting Feature', () => {
         value: undefined,
         writable: true,
       })
-      
+
       const mockOnError = vi.fn()
-      
+
       render(<ScreenshotCapture onCapture={vi.fn()} onError={mockOnError} />)
-      
+
       const captureButton = screen.getByText(/capture screenshot/i)
       await userEvent.click(captureButton)
-      
+
       await waitFor(() => {
-        expect(mockOnError).toHaveBeenCalledWith(
-          expect.stringContaining('not supported')
-        )
+        expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining('not supported'))
       })
     })
   })
@@ -173,13 +169,8 @@ describe('Screenshot Bug Reporting Feature', () => {
     }
 
     it('should render annotation tools', () => {
-      render(
-        <ImageAnnotationTools 
-          screenshot={mockScreenshotData}
-          onAnnotationsChange={vi.fn()}
-        />
-      )
-      
+      render(<ImageAnnotationTools screenshot={mockScreenshotData} onAnnotationsChange={vi.fn()} />)
+
       expect(screen.getByText(/arrow/i)).toBeInTheDocument()
       expect(screen.getByText(/text/i)).toBeInTheDocument()
       expect(screen.getByText(/highlight/i)).toBeInTheDocument()
@@ -188,22 +179,22 @@ describe('Screenshot Bug Reporting Feature', () => {
 
     it('should add arrow annotation when arrow tool is selected and canvas is clicked', async () => {
       const mockOnAnnotationsChange = vi.fn()
-      
+
       render(
-        <ImageAnnotationTools 
+        <ImageAnnotationTools
           screenshot={mockScreenshotData}
           onAnnotationsChange={mockOnAnnotationsChange}
         />
       )
-      
+
       // Select arrow tool
       const arrowTool = screen.getByText(/arrow/i)
       await userEvent.click(arrowTool)
-      
+
       // Click on canvas
       const canvas = screen.getByRole('img', { name: /screenshot/i })
       fireEvent.click(canvas, { clientX: 100, clientY: 50 })
-      
+
       expect(mockOnAnnotationsChange).toHaveBeenCalledWith([
         expect.objectContaining({
           type: 'arrow',
@@ -215,25 +206,25 @@ describe('Screenshot Bug Reporting Feature', () => {
 
     it('should add text annotation with custom text', async () => {
       const mockOnAnnotationsChange = vi.fn()
-      
+
       render(
-        <ImageAnnotationTools 
+        <ImageAnnotationTools
           screenshot={mockScreenshotData}
           onAnnotationsChange={mockOnAnnotationsChange}
         />
       )
-      
+
       // Select text tool
       const textTool = screen.getByText(/text/i)
       await userEvent.click(textTool)
-      
+
       // Click on canvas
       const canvas = screen.getByRole('img', { name: /screenshot/i })
       fireEvent.click(canvas, { clientX: 200, clientY: 100 })
-      
+
       // Enter text in prompt
       window.prompt = vi.fn().mockReturnValue('Bug description')
-      
+
       await waitFor(() => {
         expect(mockOnAnnotationsChange).toHaveBeenCalledWith([
           expect.objectContaining({
@@ -247,17 +238,17 @@ describe('Screenshot Bug Reporting Feature', () => {
 
     it('should clear all annotations when clear button is clicked', async () => {
       const mockOnAnnotationsChange = vi.fn()
-      
+
       render(
-        <ImageAnnotationTools 
+        <ImageAnnotationTools
           screenshot={mockScreenshotData}
           onAnnotationsChange={mockOnAnnotationsChange}
         />
       )
-      
+
       const clearButton = screen.getByText(/clear/i)
       await userEvent.click(clearButton)
-      
+
       expect(mockOnAnnotationsChange).toHaveBeenCalledWith([])
     })
   })
@@ -277,13 +268,8 @@ describe('Screenshot Bug Reporting Feature', () => {
     }
 
     it('should render bug report form with screenshot preview', () => {
-      render(
-        <BugReportForm 
-          screenshot={mockScreenshotData}
-          onSubmit={vi.fn()}
-        />
-      )
-      
+      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={vi.fn()} />)
+
       expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/description/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/priority/i)).toBeInTheDocument()
@@ -292,40 +278,33 @@ describe('Screenshot Bug Reporting Feature', () => {
 
     it('should validate required fields', async () => {
       const mockOnSubmit = vi.fn()
-      
-      render(
-        <BugReportForm 
-          screenshot={mockScreenshotData}
-          onSubmit={mockOnSubmit}
-        />
-      )
-      
+
+      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />)
+
       const submitButton = screen.getByText(/create bug report/i)
       await userEvent.click(submitButton)
-      
+
       expect(screen.getByText(/title is required/i)).toBeInTheDocument()
       expect(mockOnSubmit).not.toHaveBeenCalled()
     })
 
     it('should submit bug report with correct data', async () => {
       const mockOnSubmit = vi.fn()
-      
-      render(
-        <BugReportForm 
-          screenshot={mockScreenshotData}
-          onSubmit={mockOnSubmit}
-        />
-      )
-      
+
+      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />)
+
       // Fill form
       await userEvent.type(screen.getByLabelText(/title/i), 'Button not working')
-      await userEvent.type(screen.getByLabelText(/description/i), 'The submit button does not respond to clicks')
+      await userEvent.type(
+        screen.getByLabelText(/description/i),
+        'The submit button does not respond to clicks'
+      )
       await userEvent.selectOptions(screen.getByLabelText(/priority/i), 'high')
-      
+
       // Submit
       const submitButton = screen.getByText(/create bug report/i)
       await userEvent.click(submitButton)
-      
+
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           title: 'Button not working',
@@ -339,22 +318,17 @@ describe('Screenshot Bug Reporting Feature', () => {
 
     it('should auto-tag as bug and set appropriate priority', async () => {
       const mockOnSubmit = vi.fn()
-      
-      render(
-        <BugReportForm 
-          screenshot={mockScreenshotData}
-          onSubmit={mockOnSubmit}
-        />
-      )
-      
+
+      render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />)
+
       // Fill minimal form
       await userEvent.type(screen.getByLabelText(/title/i), 'Test bug')
       await userEvent.type(screen.getByLabelText(/description/i), 'Test description')
-      
+
       // Submit
       const submitButton = screen.getByText(/create bug report/i)
       await userEvent.click(submitButton)
-      
+
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           tags: expect.arrayContaining(['bug']),
@@ -366,17 +340,17 @@ describe('Screenshot Bug Reporting Feature', () => {
   describe('Integration Tests', () => {
     it('should complete full bug reporting workflow', async () => {
       const mockCreateTask = vi.fn()
-      
+
       // Mock successful screenshot capture
       const mockStream = {
         getVideoTracks: () => [{ stop: vi.fn() }],
       }
       mockGetDisplayMedia.mockResolvedValue(mockStream)
-      
+
       // This would be a full page component combining all the above
       const BugReportingWorkflow = () => (
         <div>
-          <QuickBugReportButton 
+          <QuickBugReportButton
             onCapture={(screenshot) => {
               // Would open bug report form with screenshot
               mockCreateTask({
@@ -389,12 +363,12 @@ describe('Screenshot Bug Reporting Feature', () => {
           />
         </div>
       )
-      
+
       render(<BugReportingWorkflow />)
-      
+
       const quickReportButton = screen.getByText(/quick bug report/i)
       await userEvent.click(quickReportButton)
-      
+
       await waitFor(() => {
         expect(mockCreateTask).toHaveBeenCalledWith(
           expect.objectContaining({

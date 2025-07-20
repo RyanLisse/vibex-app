@@ -10,7 +10,10 @@ const visualizationPath = join(process.cwd(), 'components/ambient-agents/visuali
 if (existsSync(visualizationPath)) {
   let content = readFileSync(visualizationPath, 'utf-8')
   if (content.includes('import ReactFlow from')) {
-    content = content.replace(/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g, "import { ReactFlow } from '@xyflow/react'")
+    content = content.replace(
+      /import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
+      "import { ReactFlow } from '@xyflow/react'"
+    )
     writeFileSync(visualizationPath, content)
     fixes.push('ReactFlow import in visualization-engine.tsx')
   }
@@ -39,7 +42,8 @@ if (existsSync(metricsPath)) {
   let content = readFileSync(metricsPath, 'utf-8')
   if (!content.includes('export const metricsCollector')) {
     // Add the export
-    content += '\n\n// Export metrics collector instance\nexport const metricsCollector = PerformanceMetricsCollector.getInstance()\n'
+    content +=
+      '\n\n// Export metrics collector instance\nexport const metricsCollector = PerformanceMetricsCollector.getInstance()\n'
     writeFileSync(metricsPath, content)
     fixes.push('metricsCollector export in metrics.ts')
   }
@@ -53,7 +57,7 @@ if (!existsSync(schemasPath)) {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
   }
-  
+
   // Create the schema file with all needed exports
   const schemaContent = `import { z } from 'zod'
 
@@ -108,30 +112,33 @@ export type TaskProgressUpdate = z.infer<typeof TaskProgressUpdateSchema>
 }
 
 // Fix 5: Check for other ReactFlow imports
-const files = [
-  'components/ambient-agents/visualization-engine.tsx',
-  'app/ambient-agents/page.tsx'
-]
+const files = ['components/ambient-agents/visualization-engine.tsx', 'app/ambient-agents/page.tsx']
 
 for (const file of files) {
   const filePath = join(process.cwd(), file)
   if (existsSync(filePath)) {
     let content = readFileSync(filePath, 'utf-8')
     let modified = false
-    
+
     // Fix ReactFlow imports
     if (content.includes('import ReactFlow')) {
-      content = content.replace(/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g, "import { ReactFlow } from '@xyflow/react'")
+      content = content.replace(
+        /import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
+        "import { ReactFlow } from '@xyflow/react'"
+      )
       modified = true
     }
-    
+
     // Fix any default imports from @xyflow/react
     if (content.includes("from '@xyflow/react'") && content.includes('import {')) {
       // Make sure ReactFlow is imported as named export
-      content = content.replace(/import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g, "import { $1, ReactFlow } from '@xyflow/react'")
+      content = content.replace(
+        /import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
+        "import { $1, ReactFlow } from '@xyflow/react'"
+      )
       modified = true
     }
-    
+
     if (modified) {
       writeFileSync(filePath, content)
       fixes.push(`ReactFlow imports in ${file}`)
@@ -140,5 +147,5 @@ for (const file of files) {
 }
 
 console.log('✅ Fixed the following issues:')
-fixes.forEach(fix => console.log(`  - ${fix}`))
+fixes.forEach((fix) => console.log(`  - ${fix}`))
 console.log(`\n✨ Total fixes applied: ${fixes.length}`)

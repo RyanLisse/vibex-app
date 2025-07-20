@@ -132,7 +132,7 @@ describe('TDDFramework', () => {
   describe('Test Runner Integration', () => {
     it('should integrate with Vitest runner', async () => {
       const runner = framework.getTestRunner()
-      
+
       expect(runner.name).toBe('vitest')
       expect(runner.runTests).toBeDefined()
       expect(runner.watchMode).toBeDefined()
@@ -144,7 +144,7 @@ describe('TDDFramework', () => {
 
       runner.watchMode({
         onChange: mockCallback,
-        pattern: '**/*.test.ts'
+        pattern: '**/*.test.ts',
       })
 
       expect(mockCallback).toBeDefined()

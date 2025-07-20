@@ -34,13 +34,16 @@ export function VoiceInputButton({
         }
 
         // Check permission status
-        const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName })
-        
+        const permission = await navigator.permissions.query({
+          name: 'microphone' as PermissionName,
+        })
+
         if (permission.state === 'denied') {
           setPermissionError('Microphone access denied. Please enable microphone permissions.')
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to check microphone permissions'
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to check microphone permissions'
         setPermissionError(errorMessage)
         onError?.(errorMessage)
       }
@@ -58,12 +61,12 @@ export function VoiceInputButton({
     try {
       // Request microphone access
       await navigator.mediaDevices.getUserMedia({ audio: true })
-      
+
       // Start recording
       await onStartRecording()
     } catch (error) {
       let errorMessage = 'Failed to start recording'
-      
+
       if (error instanceof Error) {
         if (error.name === 'NotAllowedError') {
           errorMessage = 'Permission denied. Please allow microphone access to record voice tasks.'
@@ -75,7 +78,7 @@ export function VoiceInputButton({
           errorMessage = error.message
         }
       }
-      
+
       setPermissionError(errorMessage)
       onError?.(errorMessage)
     } finally {
@@ -116,7 +119,7 @@ export function VoiceInputButton({
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : isRecording ? (
           <>
-            <div 
+            <div
               className="h-4 w-4 rounded-full bg-white animate-pulse"
               data-testid="recording-indicator"
             />
@@ -129,7 +132,7 @@ export function VoiceInputButton({
           </>
         )}
       </Button>
-      
+
       {isRecording && (
         <div className="text-xs text-muted-foreground text-center">
           <span data-testid="recording-status">🔴 Recording in progress...</span>

@@ -1,6 +1,6 @@
 /**
  * Comprehensive Performance and Load Testing Suite
- * 
+ *
  * Tests system performance under various load conditions:
  * - Concurrent user simulation
  * - Database query performance
@@ -49,7 +49,7 @@ class LoadTester {
             times.push(duration)
             return result
           })
-          .catch(error => {
+          .catch((error) => {
             errors.push(error)
             return null
           })
@@ -126,16 +126,19 @@ class MemoryMonitor {
   getReport() {
     if (this.snapshots.length === 0) return null
 
-    const heapSizes = this.snapshots.map(s => s.heapUsed)
+    const heapSizes = this.snapshots.map((s) => s.heapUsed)
     const growth = heapSizes[heapSizes.length - 1] - heapSizes[0]
-    
+
     return {
       initialHeap: heapSizes[0],
       finalHeap: heapSizes[heapSizes.length - 1],
       peakHeap: Math.max(...heapSizes),
       avgHeap: heapSizes.reduce((a, b) => a + b, 0) / heapSizes.length,
       heapGrowth: growth,
-      growthRate: growth / (this.snapshots[this.snapshots.length - 1].timestamp - this.snapshots[0].timestamp) * 1000,
+      growthRate:
+        (growth /
+          (this.snapshots[this.snapshots.length - 1].timestamp - this.snapshots[0].timestamp)) *
+        1000,
       possibleLeak: growth > 50 * 1024 * 1024, // 50MB growth indicates possible leak
     }
   }
@@ -155,7 +158,7 @@ describe('Performance and Load Testing', () => {
 
   afterAll(() => {
     memoryMonitor.stop()
-    
+
     console.log('\n=== Performance Test Report ===')
     console.log('Load Test Results:')
     console.log(JSON.stringify(loadTester.getReport(), null, 2))
@@ -174,9 +177,9 @@ describe('Performance and Load Testing', () => {
         const baseLatency = 50
         const variance = 20
         const latency = baseLatency + Math.random() * variance
-        
-        await new Promise(resolve => setTimeout(resolve, latency))
-        
+
+        await new Promise((resolve) => setTimeout(resolve, latency))
+
         // 5% error rate simulation
         if (Math.random() < 0.05) {
           throw new Error('Simulated API error')
@@ -216,15 +219,15 @@ describe('Performance and Load Testing', () => {
       const results = []
 
       const mockAPICall = async () => {
-        await new Promise(resolve => setTimeout(resolve, 10 + Math.random() * 10))
+        await new Promise((resolve) => setTimeout(resolve, 10 + Math.random() * 10))
         return { success: true }
       }
 
       const startTime = Date.now()
-      
+
       while (Date.now() - startTime < sustainedDuration) {
         const batchStart = Date.now()
-        
+
         // Run batch of requests
         const batchResult = await loadTester.runConcurrent(
           'Sustained Load Test',
@@ -242,16 +245,16 @@ describe('Performance and Load Testing', () => {
         // Wait for next second
         const elapsed = Date.now() - batchStart
         if (elapsed < 1000) {
-          await new Promise(resolve => setTimeout(resolve, 1000 - elapsed))
+          await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed))
         }
       }
 
       // Verify consistent performance
-      const throughputs = results.map(r => r.throughput)
+      const throughputs = results.map((r) => r.throughput)
       const avgThroughput = throughputs.reduce((a, b) => a + b) / throughputs.length
-      
+
       // Throughput shouldn't vary more than 20%
-      throughputs.forEach(t => {
+      throughputs.forEach((t) => {
         expect(Math.abs(t - avgThroughput) / avgThroughput).toBeLessThan(0.2)
       })
     })
@@ -262,14 +265,14 @@ describe('Performance and Load Testing', () => {
       const mockDbQuery = async (index: number) => {
         const queryTypes = ['SELECT', 'INSERT', 'UPDATE', 'DELETE']
         const queryType = queryTypes[index % queryTypes.length]
-        
+
         // Simulate query execution time
         const baseTimes = { SELECT: 10, INSERT: 20, UPDATE: 15, DELETE: 25 }
         const baseTime = baseTimes[queryType as keyof typeof baseTimes]
-        await new Promise(resolve => setTimeout(resolve, baseTime + Math.random() * 10))
+        await new Promise((resolve) => setTimeout(resolve, baseTime + Math.random() * 10))
 
         metricsCollector.recordDatabaseQuery(queryType, 'test_table', baseTime / 1000)
-        
+
         return { queryType, index, result: 'success' }
       }
 
@@ -282,7 +285,7 @@ describe('Performance and Load Testing', () => {
 
       expect(result.successRate).toBe(100)
       expect(result.avgTime).toBeLessThan(50) // Queries should average under 50ms
-      
+
       // Verify query distribution
       const metrics = await metricsCollector.getMetrics()
       expect(metrics).toContain('database_query_duration_seconds')
@@ -298,7 +301,7 @@ describe('Performance and Load Testing', () => {
         const isSlow = index % 10 === 0
         const duration = isSlow ? 500 + Math.random() * 500 : 20 + Math.random() * 30
 
-        await new Promise(resolve => setTimeout(resolve, duration))
+        await new Promise((resolve) => setTimeout(resolve, duration))
 
         if (duration > 100) {
           slowQueries.push({
@@ -311,16 +314,11 @@ describe('Performance and Load Testing', () => {
         return { duration }
       }
 
-      await loadTester.runConcurrent(
-        'Complex Query Test',
-        20,
-        100,
-        mockComplexQuery
-      )
+      await loadTester.runConcurrent('Complex Query Test', 20, 100, mockComplexQuery)
 
       // Verify slow query detection
       expect(slowQueries.length).toBeGreaterThan(5)
-      slowQueries.forEach(sq => {
+      slowQueries.forEach((sq) => {
         expect(sq.duration).toBeGreaterThan(100)
       })
 
@@ -333,7 +331,7 @@ describe('Performance and Load Testing', () => {
   describe('3. Memory Leak Detection', () => {
     test('should detect memory leaks in object allocation', async () => {
       const leakyObjects: any[] = []
-      
+
       const leakyOperation = async (index: number) => {
         // Simulate memory leak by retaining objects
         const largeObject = {
@@ -341,15 +339,15 @@ describe('Performance and Load Testing', () => {
           data: new Array(1000).fill(`Data for object ${index}`),
           timestamp: Date.now(),
         }
-        
+
         // Intentional leak - objects are never released
         if (index % 10 === 0) {
           leakyObjects.push(largeObject)
         }
 
         // Simulate processing
-        await new Promise(resolve => setTimeout(resolve, 5))
-        
+        await new Promise((resolve) => setTimeout(resolve, 5))
+
         return { processed: true }
       }
 
@@ -358,16 +356,11 @@ describe('Performance and Load Testing', () => {
       const initialMemory = process.memoryUsage().heapUsed
 
       // Run operations that leak memory
-      await loadTester.runConcurrent(
-        'Memory Leak Test',
-        10,
-        1000,
-        leakyOperation
-      )
+      await loadTester.runConcurrent('Memory Leak Test', 10, 1000, leakyOperation)
 
       // Force garbage collection if available
       if (global.gc) global.gc()
-      
+
       // Check memory growth
       const finalMemory = process.memoryUsage().heapUsed
       const memoryGrowth = finalMemory - initialMemory
@@ -390,8 +383,8 @@ describe('Performance and Load Testing', () => {
         }
 
         // Process and discard
-        await new Promise(resolve => setTimeout(resolve, 2))
-        
+        await new Promise((resolve) => setTimeout(resolve, 2))
+
         return tempData.id // Return only primitive
       }
 
@@ -403,12 +396,7 @@ describe('Performance and Load Testing', () => {
       const baselineMemory = process.memoryUsage().heapUsed
 
       // Run stable operations
-      await loadTester.runConcurrent(
-        'Stable Memory Test',
-        20,
-        500,
-        stableOperation
-      )
+      await loadTester.runConcurrent('Stable Memory Test', 20, 500, stableOperation)
 
       // Check memory stability
       if (global.gc) global.gc()
@@ -426,7 +414,7 @@ describe('Performance and Load Testing', () => {
         // Simulate CPU-intensive work
         const start = Date.now()
         let result = 0
-        
+
         // Fibonacci calculation (intentionally inefficient)
         const fib = (n: number): number => {
           if (n <= 1) return n
@@ -434,10 +422,10 @@ describe('Performance and Load Testing', () => {
         }
 
         result = fib(20 + (index % 5)) // Vary the load
-        
+
         const duration = Date.now() - start
         metricsCollector.gauge('cpu_operation_duration', duration)
-        
+
         return { result, duration }
       }
 
@@ -458,32 +446,29 @@ describe('Performance and Load Testing', () => {
 
         switch (operationType) {
           case 0: // CPU-bound
-            const sum = Array(1000).fill(0).reduce((a, _, i) => a + Math.sqrt(i), 0)
+            const sum = Array(1000)
+              .fill(0)
+              .reduce((a, _, i) => a + Math.sqrt(i), 0)
             return { type: 'cpu', result: sum }
-            
+
           case 1: // I/O-bound
-            await new Promise(resolve => setTimeout(resolve, 50))
+            await new Promise((resolve) => setTimeout(resolve, 50))
             return { type: 'io', result: 'io complete' }
-            
+
           case 2: // Memory-intensive
-            const data = new Array(10000).fill(index).map(i => ({ id: i, data: `Item ${i}` }))
+            const data = new Array(10000).fill(index).map((i) => ({ id: i, data: `Item ${i}` }))
             return { type: 'memory', result: data.length }
-            
+
           case 3: // Network simulation
-            await new Promise(resolve => setTimeout(resolve, 20 + Math.random() * 30))
+            await new Promise((resolve) => setTimeout(resolve, 20 + Math.random() * 30))
             return { type: 'network', result: 'response' }
-            
+
           default:
             return { type: 'unknown', result: null }
         }
       }
 
-      const result = await loadTester.runConcurrent(
-        'Mixed Workload Test',
-        50,
-        400,
-        mixedOperation
-      )
+      const result = await loadTester.runConcurrent('Mixed Workload Test', 50, 400, mixedOperation)
 
       expect(result.successRate).toBe(100)
       expect(result.throughput).toBeGreaterThan(100) // Should handle mixed load well
@@ -494,7 +479,7 @@ describe('Performance and Load Testing', () => {
     test('should measure scalability with increasing load', async () => {
       const scalabilityResults = []
       const baseOperation = async () => {
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
         return { success: true }
       }
 
@@ -515,12 +500,16 @@ describe('Performance and Load Testing', () => {
         })
 
         // Record metrics
-        metricsCollector.gauge('scalability_test_throughput', result.throughput, { concurrency: String(concurrency) })
-        metricsCollector.gauge('scalability_test_latency', result.avgTime, { concurrency: String(concurrency) })
+        metricsCollector.gauge('scalability_test_throughput', result.throughput, {
+          concurrency: String(concurrency),
+        })
+        metricsCollector.gauge('scalability_test_latency', result.avgTime, {
+          concurrency: String(concurrency),
+        })
       }
 
       // Analyze scalability
-      const efficiencies = scalabilityResults.map(r => r.efficiency)
+      const efficiencies = scalabilityResults.map((r) => r.efficiency)
       const avgEfficiency = efficiencies.reduce((a, b) => a + b) / efficiencies.length
 
       // System should maintain reasonable efficiency
@@ -530,7 +519,7 @@ describe('Performance and Load Testing', () => {
       for (let i = 1; i < scalabilityResults.length - 1; i++) {
         const prev = scalabilityResults[i - 1]
         const curr = scalabilityResults[i]
-        
+
         // Throughput should generally increase
         expect(curr.throughput).toBeGreaterThanOrEqual(prev.throughput * 0.9) // Allow 10% variance
       }
@@ -539,17 +528,17 @@ describe('Performance and Load Testing', () => {
     test('should identify system limits', async () => {
       let maxThroughput = 0
       let optimalConcurrency = 0
-      
+
       const findLimitOperation = async () => {
         // Simulate resource-constrained operation
         const resources = 100 // Fixed resource pool
         const resourcesNeeded = 1 + Math.random() * 2
-        
+
         if (Math.random() < resourcesNeeded / resources) {
           throw new Error('Resource exhausted')
         }
 
-        await new Promise(resolve => setTimeout(resolve, 5))
+        await new Promise((resolve) => setTimeout(resolve, 5))
         return { success: true }
       }
 
@@ -592,7 +581,7 @@ describe('Performance and Load Testing', () => {
     test('should detect performance degradation', async () => {
       // Baseline performance
       const baselineOperation = async (index: number) => {
-        await new Promise(resolve => setTimeout(resolve, 20))
+        await new Promise((resolve) => setTimeout(resolve, 20))
         return { index }
       }
 
@@ -607,7 +596,7 @@ describe('Performance and Load Testing', () => {
       const degradedOperation = async (index: number) => {
         // 20% of operations are slower
         const delay = index % 5 === 0 ? 100 : 25
-        await new Promise(resolve => setTimeout(resolve, delay))
+        await new Promise((resolve) => setTimeout(resolve, delay))
         return { index }
       }
 
@@ -669,15 +658,13 @@ describe('Performance and Load Testing', () => {
         // Simulate think time between actions
         const thinkTime = 1000 + Math.random() * 4000 // 1-5 seconds
         const timeSinceLastAction = Date.now() - session.lastAction
-        
+
         if (timeSinceLastAction < thinkTime) {
-          await new Promise(resolve => 
-            setTimeout(resolve, thinkTime - timeSinceLastAction)
-          )
+          await new Promise((resolve) => setTimeout(resolve, thinkTime - timeSinceLastAction))
         }
 
         // Execute action
-        await new Promise(resolve => setTimeout(resolve, selectedAction.delay))
+        await new Promise((resolve) => setTimeout(resolve, selectedAction.delay))
 
         // Update session
         session.actions++
@@ -707,11 +694,12 @@ describe('Performance and Load Testing', () => {
       )
 
       expect(result.successRate).toBe(100)
-      
+
       // Analyze user sessions
       const sessionStats = Array.from(userSessions.values())
-      const avgActionsPerUser = sessionStats.reduce((a, b) => a + b.actions, 0) / sessionStats.length
-      
+      const avgActionsPerUser =
+        sessionStats.reduce((a, b) => a + b.actions, 0) / sessionStats.length
+
       expect(avgActionsPerUser).toBeGreaterThan(5) // Users perform multiple actions
       expect(userSessions.size).toBeGreaterThanOrEqual(90) // Most users are active
     })

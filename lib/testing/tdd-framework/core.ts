@@ -35,24 +35,24 @@ export class TestCase {
 
   async run(): Promise<TestResult> {
     const start = performance.now()
-    
+
     try {
       await this.testFunction()
       const duration = performance.now() - start
-      
+
       return {
         name: this.name,
         passed: true,
-        duration
+        duration,
       }
     } catch (error) {
       const duration = performance.now() - start
-      
+
       return {
         name: this.name,
         passed: false,
         error: error as Error,
-        duration
+        duration,
       }
     }
   }
@@ -69,20 +69,20 @@ export class TestSuite {
 
   async run(): Promise<TestResult[]> {
     const results: TestResult[] = []
-    
+
     for (const test of this.tests) {
       const result = await test.run()
       results.push(result)
     }
-    
+
     return results
   }
 
   getStats() {
-    const passing = this.tests.filter(t => t.status === 'passing').length
-    const failing = this.tests.filter(t => t.status === 'failing').length
-    const pending = this.tests.filter(t => t.status === 'pending').length
-    
+    const passing = this.tests.filter((t) => t.status === 'passing').length
+    const failing = this.tests.filter((t) => t.status === 'failing').length
+    const pending = this.tests.filter((t) => t.status === 'pending').length
+
     return { passing, failing, pending, total: this.tests.length }
   }
 }
@@ -154,12 +154,12 @@ export class TDDFramework {
 
   async runAllTests(): Promise<Map<string, TestResult[]>> {
     const results = new Map<string, TestResult[]>()
-    
+
     for (const [name, suite] of this.testSuites) {
       const suiteResults = await suite.run()
       results.set(name, suiteResults)
     }
-    
+
     return results
   }
 
@@ -182,7 +182,7 @@ export class TDDFramework {
       failing: totalFailing,
       pending: totalPending,
       total: totalTests,
-      suites: this.testSuites.size
+      suites: this.testSuites.size,
     }
   }
 }

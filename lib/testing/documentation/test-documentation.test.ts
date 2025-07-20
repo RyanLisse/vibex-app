@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { TestSpecificationGenerator, CoverageVisualizer, DocumentationGenerator } from './test-documentation'
+import {
+  TestSpecificationGenerator,
+  CoverageVisualizer,
+  DocumentationGenerator,
+} from './test-documentation'
 
 describe('TestSpecificationGenerator', () => {
   let generator: TestSpecificationGenerator
@@ -29,7 +33,7 @@ describe('TestSpecificationGenerator', () => {
 
       const spec = await generator.generateSpecification(sourceCode, {
         type: 'class',
-        className: 'UserService'
+        className: 'UserService',
       })
 
       expect(spec.title).toBe('UserService Test Specification')
@@ -64,7 +68,7 @@ describe('TestSpecificationGenerator', () => {
 
       const spec = await generator.generateSpecification(componentCode, {
         type: 'component',
-        componentName: 'Button'
+        componentName: 'Button',
       })
 
       expect(spec.title).toBe('Button Component Test Specification')
@@ -82,8 +86,8 @@ describe('TestSpecificationGenerator', () => {
         authentication: true,
         validation: {
           POST: { email: 'required', name: 'required' },
-          PUT: { id: 'required' }
-        }
+          PUT: { id: 'required' },
+        },
       }
 
       const spec = await generator.generateApiSpecification(apiDefinition)
@@ -148,9 +152,9 @@ describe('TestSpecificationGenerator', () => {
           {
             name: 'testMethod',
             testCases: ['should work correctly', 'should handle errors'],
-            edgeCases: ['should handle null input']
-          }
-        ]
+            edgeCases: ['should handle null input'],
+          },
+        ],
       }
 
       const markdown = await generator.exportToMarkdown(spec)
@@ -171,9 +175,9 @@ describe('TestSpecificationGenerator', () => {
           {
             method: 'GET',
             path: '/users',
-            testCases: ['should return users']
-          }
-        ]
+            testCases: ['should return users'],
+          },
+        ],
       }
 
       const json = await generator.exportToJson(spec)
@@ -199,7 +203,7 @@ describe('CoverageVisualizer', () => {
         statements: { covered: 85, total: 100 },
         branches: { covered: 70, total: 80 },
         functions: { covered: 45, total: 50 },
-        lines: { covered: 180, total: 200 }
+        lines: { covered: 180, total: 200 },
       }
 
       const summary = await visualizer.generateSummary(coverageData)
@@ -217,14 +221,14 @@ describe('CoverageVisualizer', () => {
           {
             path: 'src/utils.ts',
             statements: { covered: 8, total: 10 },
-            uncoveredLines: [15, 23]
+            uncoveredLines: [15, 23],
           },
           {
-            path: 'src/service.ts', 
+            path: 'src/service.ts',
             statements: { covered: 20, total: 20 },
-            uncoveredLines: []
-          }
-        ]
+            uncoveredLines: [],
+          },
+        ],
       }
 
       const uncovered = await visualizer.findUncoveredAreas(coverageData)
@@ -241,9 +245,7 @@ describe('CoverageVisualizer', () => {
       const coverageData = {
         statements: { covered: 85, total: 100 },
         branches: { covered: 70, total: 80 },
-        files: [
-          { path: 'src/app.ts', statements: { covered: 50, total: 60 } }
-        ]
+        files: [{ path: 'src/app.ts', statements: { covered: 50, total: 60 } }],
       }
 
       const html = await visualizer.generateHtmlReport(coverageData)
@@ -270,7 +272,7 @@ describe('CoverageVisualizer', () => {
         { date: '2024-01-01', coverage: 80 },
         { date: '2024-01-02', coverage: 82 },
         { date: '2024-01-03', coverage: 85 },
-        { date: '2024-01-04', coverage: 87 }
+        { date: '2024-01-04', coverage: 87 },
       ]
 
       const chart = await visualizer.generateTrendChart(trendData)
@@ -287,7 +289,7 @@ describe('CoverageVisualizer', () => {
         statements: { covered: 95, total: 100 },
         branches: { covered: 85, total: 100 },
         functions: { covered: 100, total: 100 },
-        lines: { covered: 190, total: 200 }
+        lines: { covered: 190, total: 200 },
       }
 
       const analysis = await visualizer.analyzeCoverageQuality(coverageData)
@@ -302,7 +304,7 @@ describe('CoverageVisualizer', () => {
         statements: { covered: 60, total: 100 },
         branches: { covered: 40, total: 80 },
         functions: { covered: 30, total: 50 },
-        lines: { covered: 70, total: 100 } // Add lines to get better overall score
+        lines: { covered: 70, total: 100 }, // Add lines to get better overall score
       }
 
       const analysis = await visualizer.analyzeCoverageQuality(coverageData)
@@ -360,8 +362,8 @@ describe('DocumentationGenerator', () => {
                 // Test implementation  
               })
             })
-          `
-        }
+          `,
+        },
       ]
 
       const docs = await generator.generateTestDocumentation(testFiles)
@@ -406,11 +408,8 @@ describe('DocumentationGenerator', () => {
         {
           endpoint: '/api/users',
           method: 'POST',
-          tests: [
-            'should create user with valid data',
-            'should return 400 for invalid email'
-          ]
-        }
+          tests: ['should create user with valid data', 'should return 400 for invalid email'],
+        },
       ]
 
       const docs = await generator.generateApiTestDocs(apiTests)
@@ -429,11 +428,9 @@ describe('DocumentationGenerator', () => {
         suites: [
           {
             name: 'UserService',
-            tests: [
-              { name: 'should work', description: 'Test description' }
-            ]
-          }
-        ]
+            tests: [{ name: 'should work', description: 'Test description' }],
+          },
+        ],
       }
 
       const markdown = await generator.exportToMarkdown(documentation)
@@ -451,15 +448,11 @@ describe('DocumentationGenerator', () => {
   describe('Test Coverage Integration', () => {
     it('should integrate test docs with coverage data', async () => {
       const testDocs = {
-        suites: [
-          { name: 'UserService', tests: [{ name: 'should work' }] }
-        ]
+        suites: [{ name: 'UserService', tests: [{ name: 'should work' }] }],
       }
 
       const coverageData = {
-        files: [
-          { path: 'src/user-service.ts', coverage: 85 }
-        ]
+        files: [{ path: 'src/user-service.ts', coverage: 85 }],
       }
 
       const integrated = await generator.integrateWithCoverage(testDocs, coverageData)

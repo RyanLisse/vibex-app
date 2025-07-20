@@ -40,7 +40,7 @@ export function TranscriptionProcessor({
     try {
       // Check browser support
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      
+
       if (!SpeechRecognition) {
         throw new Error('Speech recognition is not supported in this browser')
       }
@@ -70,15 +70,15 @@ export function TranscriptionProcessor({
 
       recognition.onresult = (event) => {
         interimTranscript = ''
-        
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i]
           const transcript = result[0].transcript
           const confidence = result[0].confidence || 0.8
-          
+
           if (result.isFinal) {
             finalTranscript += transcript + ' '
-            
+
             // Add segment
             segments.push({
               text: transcript,
@@ -86,19 +86,19 @@ export function TranscriptionProcessor({
               end: (i + 1) * 2,
               confidence: confidence,
             })
-            
-            setProgress(Math.min(30 + (segments.length * 10), 90))
+
+            setProgress(Math.min(30 + segments.length * 10, 90))
           } else {
             interimTranscript += transcript
           }
         }
-        
+
         setTranscriptionText(finalTranscript + interimTranscript)
       }
 
       recognition.onerror = (event) => {
         let errorMessage = 'Transcription failed'
-        
+
         switch (event.error) {
           case 'network':
             errorMessage = 'Network error during transcription'
@@ -118,7 +118,7 @@ export function TranscriptionProcessor({
           default:
             errorMessage = `Transcription error: ${event.error}`
         }
-        
+
         setError(errorMessage)
         onError?.(errorMessage)
         setIsTranscribing(false)
@@ -126,23 +126,24 @@ export function TranscriptionProcessor({
 
       recognition.onend = () => {
         setProgress(100)
-        
+
         if (finalTranscript.trim()) {
           const result: TranscriptionResult = {
             text: finalTranscript.trim(),
-            confidence: segments.length > 0 
-              ? segments.reduce((sum, seg) => sum + seg.confidence, 0) / segments.length 
-              : 0.8,
+            confidence:
+              segments.length > 0
+                ? segments.reduce((sum, seg) => sum + seg.confidence, 0) / segments.length
+                : 0.8,
             language,
             segments,
           }
-          
+
           onTranscriptionComplete(result)
         } else {
           setError('No speech detected in the recording')
           onError?.('No speech detected in the recording')
         }
-        
+
         setIsTranscribing(false)
         URL.revokeObjectURL(audioUrl)
       }
@@ -152,7 +153,7 @@ export function TranscriptionProcessor({
 
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
-        setProgress(prev => {
+        setProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval)
             return prev
@@ -168,7 +169,6 @@ export function TranscriptionProcessor({
         }
         clearInterval(progressInterval)
       }, recording.duration + 2000)
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Transcription failed'
       setError(errorMessage)
@@ -206,31 +206,25 @@ export function TranscriptionProcessor({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm text-muted-foreground">
-              Processing speech...
-            </span>
+            <span className="text-sm text-muted-foreground">Processing speech...</span>
           </div>
-          
+
           <Progress value={progress} className="w-full" role="progressbar" />
-          
+
           <div className="text-xs text-muted-foreground text-center">
-            {progress < 30 && "Initializing speech recognition..."}
-            {progress >= 30 && progress < 70 && "Converting speech to text..."}
-            {progress >= 70 && progress < 100 && "Finalizing transcription..."}
-            {progress >= 100 && "Complete!"}
+            {progress < 30 && 'Initializing speech recognition...'}
+            {progress >= 30 && progress < 70 && 'Converting speech to text...'}
+            {progress >= 70 && progress < 100 && 'Finalizing transcription...'}
+            {progress >= 100 && 'Complete!'}
           </div>
         </div>
       )}
 
       {transcriptionText && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">
-            Live Transcription:
-          </h4>
+          <h4 className="text-sm font-medium text-muted-foreground">Live Transcription:</h4>
           <div className="p-3 bg-muted/50 rounded-lg border min-h-[60px]">
-            <p className="text-sm leading-relaxed">
-              {transcriptionText}
-            </p>
+            <p className="text-sm leading-relaxed">{transcriptionText}</p>
           </div>
         </div>
       )}

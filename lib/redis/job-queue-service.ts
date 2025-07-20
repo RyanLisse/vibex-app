@@ -1,6 +1,6 @@
 /**
  * JobQueueService - Redis/Valkey Job Queue Implementation
- * 
+ *
  * Provides reliable background job processing with priorities, retries, and scheduling
  */
 
@@ -28,7 +28,12 @@ export class JobQueueService {
     return JobQueueService.instance
   }
 
-  async addJob(queueName: string, type: string, payload: any, options?: JobOptions): Promise<string> {
+  async addJob(
+    queueName: string,
+    type: string,
+    payload: any,
+    options?: JobOptions
+  ): Promise<string> {
     this.validateQueueName(queueName)
     this.validateJobType(type)
     this.validateJobOptions(options)
@@ -53,11 +58,12 @@ export class JobQueueService {
         processedAt: undefined,
         completedAt: undefined,
         failedAt: undefined,
-        error: undefined
+        error: undefined,
       }
 
       const jobKey = this.buildJobKey(queueName, jobId)
-      const queueKey = delay > 0 ? this.buildDelayedQueueKey(queueName) : this.buildWaitingQueueKey(queueName)
+      const queueKey =
+        delay > 0 ? this.buildDelayedQueueKey(queueName) : this.buildWaitingQueueKey(queueName)
 
       try {
         // Store job data
@@ -74,14 +80,14 @@ export class JobQueueService {
           queue: queueName,
           type,
           priority: job.priority.toString(),
-          delayed: (delay > 0).toString()
+          delayed: (delay > 0).toString(),
         })
 
         return jobId
       } catch (error) {
         this.observability.recordError('job_queue.add.error', error as Error, {
           queue: queueName,
-          type
+          type,
         })
         throw error
       }
@@ -109,7 +115,8 @@ export class JobQueueService {
         const activeQueueKey = this.buildActiveQueueKey(queueName)
 
         // Get highest priority job
-        const result = await client.eval(`
+        const result = (await client.eval(
+          `
           local waiting_queue = KEYS[1]
           local active_queue = KEYS[2]
           
@@ -122,7 +129,12 @@ export class JobQueueService {
           -- Move to active queue
           redis.call('ZADD', active_queue, ARGV[1], job_id[1])
           return job_id[1]
-        `, 2, waitingQueueKey, activeQueueKey, Date.now().toString()) as string | null
+        `,
+          2,
+          waitingQueueKey,
+          activeQueueKey,
+          Date.now().toString()
+        )) as string | null
 
         if (!result) {
           return null
@@ -146,13 +158,13 @@ export class JobQueueService {
         this.observability.recordEvent('job_queue.job.retrieved', 1, {
           queue: queueName,
           type: job.type,
-          attempts: job.attempts.toString()
+          attempts: job.attempts.toString(),
         })
 
         return job
       } catch (error) {
         this.observability.recordError('job_queue.get_next.error', error as Error, {
-          queue: queueName
+          queue: queueName,
         })
         return null
       }
@@ -180,14 +192,14 @@ export class JobQueueService {
         this.observability.recordEvent('job_queue.job.completed', 1, {
           queue: queueName,
           type: job.type,
-          duration: job.completedAt.getTime() - job.processedAt!.getTime()
+          duration: job.completedAt.getTime() - job.processedAt!.getTime(),
         })
 
         return true
       } catch (error) {
         this.observability.recordError('job_queue.complete.error', error as Error, {
           queue: queueName,
-          jobId: job.id
+          jobId: job.id,
         })
         return false
       }
@@ -211,7 +223,7 @@ export class JobQueueService {
           const retryAt = Date.now() + backoffDelay
 
           const delayedQueueKey = this.buildDelayedQueueKey(queueName)
-          
+
           await client.zrem(activeQueueKey, job.id)
           await client.zadd(delayedQueueKey, retryAt, job.id)
           await client.hset(jobKey, this.serializeJob(job))
@@ -220,12 +232,12 @@ export class JobQueueService {
             queue: queueName,
             type: job.type,
             attempt: job.attempts.toString(),
-            backoffDelay: backoffDelay.toString()
+            backoffDelay: backoffDelay.toString(),
           })
         } else {
           // Move to failed queue
           const failedQueueKey = this.buildFailedQueueKey(queueName)
-          
+
           await client.zrem(activeQueueKey, job.id)
           await client.zadd(failedQueueKey, Date.now(), job.id)
           await client.hset(jobKey, this.serializeJob(job))
@@ -233,7 +245,7 @@ export class JobQueueService {
           this.observability.recordEvent('job_queue.job.failed', 1, {
             queue: queueName,
             type: job.type,
-            attempts: job.attempts.toString()
+            attempts: job.attempts.toString(),
           })
         }
 
@@ -241,7 +253,7 @@ export class JobQueueService {
       } catch (error) {
         this.observability.recordError('job_queue.fail.error', error as Error, {
           queue: queueName,
-          jobId: job.id
+          jobId: job.id,
         })
         return false
       }
@@ -257,7 +269,7 @@ export class JobQueueService {
         client.zcard(this.buildActiveQueueKey(queueName)),
         client.zcard(this.buildCompletedQueueKey(queueName)),
         client.zcard(this.buildFailedQueueKey(queueName)),
-        client.zcard(this.buildDelayedQueueKey(queueName))
+        client.zcard(this.buildDelayedQueueKey(queueName)),
       ])
 
       const pausedKey = this.buildPausedKey(queueName)
@@ -269,11 +281,11 @@ export class JobQueueService {
         completed,
         failed,
         delayed,
-        paused
+        paused,
       }
     } catch (error) {
       this.observability.recordError('job_queue.stats.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
       return {
         waiting: 0,
@@ -281,7 +293,7 @@ export class JobQueueService {
         completed: 0,
         failed: 0,
         delayed: 0,
-        paused: false
+        paused: false,
       }
     }
   }
@@ -295,7 +307,7 @@ export class JobQueueService {
       return true
     } catch (error) {
       this.observability.recordError('job_queue.pause.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
       return false
     }
@@ -310,7 +322,7 @@ export class JobQueueService {
       return true
     } catch (error) {
       this.observability.recordError('job_queue.resume.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
       return false
     }
@@ -335,21 +347,31 @@ export class JobQueueService {
       return jobs
     } catch (error) {
       this.observability.recordError('job_queue.get_failed.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
       return []
     }
   }
 
-  async scheduleJob(queueName: string, type: string, payload: any, scheduledTime: Date): Promise<string> {
+  async scheduleJob(
+    queueName: string,
+    type: string,
+    payload: any,
+    scheduledTime: Date
+  ): Promise<string> {
     const delay = Math.max(0, scheduledTime.getTime() - Date.now())
     return this.addJob(queueName, type, payload, { delay })
   }
 
-  async addRecurringJob(queueName: string, type: string, payload: any, cronExpression: string): Promise<string> {
+  async addRecurringJob(
+    queueName: string,
+    type: string,
+    payload: any,
+    cronExpression: string
+  ): Promise<string> {
     // This is a simplified implementation - real cron parsing would be more complex
     const recurringJobId = randomUUID()
-    
+
     // For this implementation, just use a simple interval based on seconds
     const intervalMatch = cronExpression.match(/^\*\/(\d+) \* \* \* \* \*$/)
     if (intervalMatch) {
@@ -379,7 +401,9 @@ export class JobQueueService {
     // Implementation would store progress data
   }
 
-  async getJobProgress(jobId: string): Promise<{ percentage: number; message?: string; updatedAt: Date }> {
+  async getJobProgress(
+    jobId: string
+  ): Promise<{ percentage: number; message?: string; updatedAt: Date }> {
     return { percentage: 0, updatedAt: new Date() }
   }
 
@@ -387,7 +411,9 @@ export class JobQueueService {
     // Implementation would store log entries
   }
 
-  async getJobLogs(jobId: string): Promise<Array<{ level: string; message: string; timestamp: Date }>> {
+  async getJobLogs(
+    jobId: string
+  ): Promise<Array<{ level: string; message: string; timestamp: Date }>> {
     return []
   }
 
@@ -437,7 +463,7 @@ export class JobQueueService {
 
   async getJobBatch(queueName: string, batchSize: number): Promise<JobData[]> {
     const jobs: JobData[] = []
-    
+
     for (let i = 0; i < batchSize; i++) {
       const job = await this.getNextJob(queueName)
       if (!job) break
@@ -457,7 +483,7 @@ export class JobQueueService {
       return removed
     } catch (error) {
       this.observability.recordError('job_queue.cleanup_completed.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
       return 0
     }
@@ -473,7 +499,7 @@ export class JobQueueService {
       return removed
     } catch (error) {
       this.observability.recordError('job_queue.cleanup_failed.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
       return 0
     }
@@ -504,11 +530,11 @@ export class JobQueueService {
     try {
       // Move ready jobs from delayed to waiting queue
       const readyJobs = await client.zrangebyscore(delayedQueueKey, 0, now)
-      
+
       for (const jobId of readyJobs) {
         const jobKey = this.buildJobKey(queueName, jobId)
         const jobData = await client.hgetall(jobKey)
-        
+
         if (jobData.id) {
           const job = this.deserializeJob(jobData)
           await client.zrem(delayedQueueKey, jobId)
@@ -517,7 +543,7 @@ export class JobQueueService {
       }
     } catch (error) {
       this.observability.recordError('job_queue.process_delayed.error', error as Error, {
-        queue: queueName
+        queue: queueName,
       })
     }
   }
@@ -596,7 +622,7 @@ export class JobQueueService {
       processedAt: job.processedAt?.toISOString() || '',
       completedAt: job.completedAt?.toISOString() || '',
       failedAt: job.failedAt?.toISOString() || '',
-      error: job.error || ''
+      error: job.error || '',
     }
   }
 
@@ -614,7 +640,7 @@ export class JobQueueService {
       processedAt: data.processedAt ? new Date(data.processedAt) : undefined,
       completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
       failedAt: data.failedAt ? new Date(data.failedAt) : undefined,
-      error: data.error || undefined
+      error: data.error || undefined,
     }
   }
 }

@@ -36,11 +36,11 @@ export class RedisService {
   private constructor() {
     this.config = getRedisServiceConfig()
     this.clientManager = RedisClientManager.getInstance(this.config.redis)
-    
+
     // Initialize services and set the Redis manager
     this.cacheService = CacheService.getInstance()
     this.cacheService.setRedisManager(this.clientManager)
-    
+
     this.pubsubService = PubSubService.getInstance()
     this.lockService = LockService.getInstance()
     this.rateLimitService = RateLimitService.getInstance()

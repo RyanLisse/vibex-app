@@ -10,20 +10,23 @@ let content = readFileSync(filePath, 'utf-8')
 const fixes = [
   {
     pattern: /this\.currentMigration([!?])\.summary\.totalRecords \+= ([^;]+)/g,
-    replacement: 'if (this.currentMigration) {\n        this.currentMigration.summary.totalRecords += $2\n      }'
+    replacement:
+      'if (this.currentMigration) {\n        this.currentMigration.summary.totalRecords += $2\n      }',
   },
   {
     pattern: /this\.currentMigration([!?])\.summary\.migratedRecords\+\+/g,
-    replacement: 'if (this.currentMigration) {\n            this.currentMigration.summary.migratedRecords++\n          }'
+    replacement:
+      'if (this.currentMigration) {\n            this.currentMigration.summary.migratedRecords++\n          }',
   },
   {
     pattern: /this\.currentMigration([!?])\.summary\.failedRecords\+\+/g,
-    replacement: 'if (this.currentMigration) {\n            this.currentMigration.summary.failedRecords++\n          }'
+    replacement:
+      'if (this.currentMigration) {\n            this.currentMigration.summary.failedRecords++\n          }',
   },
   {
     pattern: /this\.currentMigration([!?])\.errors\.push\(/g,
-    replacement: 'if (this.currentMigration) {\n            this.currentMigration.errors.push('
-  }
+    replacement: 'if (this.currentMigration) {\n            this.currentMigration.errors.push(',
+  },
 ]
 
 // Apply fixes

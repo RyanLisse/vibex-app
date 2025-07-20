@@ -8,11 +8,13 @@ export const ScreenshotDataSchema = z.object({
   id: z.string(),
   imageBlob: z.instanceof(Blob),
   timestamp: z.date(),
-  annotations: z.array(z.object({
-    type: z.enum(['arrow', 'text', 'highlight', 'rectangle']),
-    position: z.object({ x: z.number(), y: z.number() }),
-    data: z.union([z.string(), z.record(z.string(), z.any())]),
-  })),
+  annotations: z.array(
+    z.object({
+      type: z.enum(['arrow', 'text', 'highlight', 'rectangle']),
+      position: z.object({ x: z.number(), y: z.number() }),
+      data: z.union([z.string(), z.record(z.string(), z.any())]),
+    })
+  ),
 })
 
 export const FileMetadataSchema = z.object({
@@ -38,12 +40,14 @@ export const TranscriptionResultSchema = z.object({
   text: z.string(),
   confidence: z.number(),
   language: z.string(),
-  segments: z.array(z.object({
-    text: z.string(),
-    start: z.number(),
-    end: z.number(),
-    confidence: z.number(),
-  })),
+  segments: z.array(
+    z.object({
+      text: z.string(),
+      start: z.number(),
+      end: z.number(),
+      confidence: z.number(),
+    })
+  ),
 })
 
 export const VoiceTaskSchema = z.object({
@@ -100,15 +104,19 @@ export const PRStatusSchema = z.object({
   title: z.string(),
   status: z.enum(['draft', 'open', 'merged', 'closed']),
   reviewStatus: z.enum(['pending', 'approved', 'changes_requested']),
-  checks: z.array(z.object({
-    name: z.string(),
-    status: z.enum(['pending', 'success', 'failure']),
-    conclusion: z.string().optional(),
-  })),
-  reviewers: z.array(z.object({
-    login: z.string(),
-    status: z.enum(['requested', 'approved', 'changes_requested']),
-  })),
+  checks: z.array(
+    z.object({
+      name: z.string(),
+      status: z.enum(['pending', 'success', 'failure']),
+      conclusion: z.string().optional(),
+    })
+  ),
+  reviewers: z.array(
+    z.object({
+      login: z.string(),
+      status: z.enum(['requested', 'approved', 'changes_requested']),
+    })
+  ),
   mergeable: z.boolean(),
 })
 
@@ -132,7 +140,7 @@ export const EnhancedTaskSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   dueDate: z.date().optional(),
-  
+
   // New fields for enhancements
   creationMethod: z.enum(['manual', 'voice', 'bug_report']),
   screenshots: z.array(ScreenshotDataSchema).default([]),
@@ -161,11 +169,13 @@ export const CreateBugReportSchema = z.object({
   description: z.string().max(2000),
   screenshot: z.object({
     imageData: z.string(), // base64 encoded image
-    annotations: z.array(z.object({
-      type: z.enum(['arrow', 'text', 'highlight', 'rectangle']),
-      position: z.object({ x: z.number(), y: z.number() }),
-      data: z.union([z.string(), z.record(z.string(), z.any())]),
-    })),
+    annotations: z.array(
+      z.object({
+        type: z.enum(['arrow', 'text', 'highlight', 'rectangle']),
+        position: z.object({ x: z.number(), y: z.number() }),
+        data: z.union([z.string(), z.record(z.string(), z.any())]),
+      })
+    ),
   }),
   priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
 })
@@ -215,10 +225,12 @@ export const ScreenshotBugReportSchema = z.object({
   description: z.string(),
   severity: z.enum(['low', 'medium', 'high', 'critical']),
   browser: z.string().optional(),
-  viewport: z.object({
-    width: z.number(),
-    height: z.number(),
-  }).optional(),
+  viewport: z
+    .object({
+      width: z.number(),
+      height: z.number(),
+    })
+    .optional(),
   url: z.string().optional(),
   userAgent: z.string().optional(),
 })

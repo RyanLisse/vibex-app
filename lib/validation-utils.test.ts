@@ -36,7 +36,7 @@ describe('Validation Utilities', () => {
         'test@example.com',
         'user.name@domain.com',
         'user+tag@example.org',
-        'firstname.lastname@company.co.uk'
+        'firstname.lastname@company.co.uk',
       ]
 
       const invalidEmails = [
@@ -45,14 +45,14 @@ describe('Validation Utilities', () => {
         'test@',
         'test..test@example.com',
         'test@example',
-        ''
+        '',
       ]
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         expect(isEmail(email)).toBe(true)
       })
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         expect(isEmail(email)).toBe(false)
       })
     })
@@ -62,22 +62,16 @@ describe('Validation Utilities', () => {
         'https://example.com',
         'http://localhost:3000',
         'ftp://files.example.com',
-        'https://subdomain.example.com/path?query=value'
+        'https://subdomain.example.com/path?query=value',
       ]
 
-      const invalidUrls = [
-        'invalid-url',
-        'http://',
-        'https://',
-        'example.com',
-        ''
-      ]
+      const invalidUrls = ['invalid-url', 'http://', 'https://', 'example.com', '']
 
-      validUrls.forEach(url => {
+      validUrls.forEach((url) => {
         expect(isURL(url)).toBe(true)
       })
 
-      invalidUrls.forEach(url => {
+      invalidUrls.forEach((url) => {
         expect(isURL(url)).toBe(false)
       })
     })
@@ -131,14 +125,16 @@ describe('Validation Utilities', () => {
       fields: (keyof T)[]
     ): obj is T => {
       if (!obj || typeof obj !== 'object') return false
-      return fields.every(field => field in obj && obj[field] !== undefined)
+      return fields.every((field) => field in obj && obj[field] !== undefined)
     }
 
     const isValidTask = (task: any): boolean => {
-      return hasRequiredFields(task, ['id', 'title', 'status']) &&
-             typeof task.id === 'string' &&
-             typeof task.title === 'string' &&
-             ['pending', 'in_progress', 'completed'].includes(task.status)
+      return (
+        hasRequiredFields(task, ['id', 'title', 'status']) &&
+        typeof task.id === 'string' &&
+        typeof task.title === 'string' &&
+        ['pending', 'in_progress', 'completed'].includes(task.status)
+      )
     }
 
     it('should validate required fields', () => {
@@ -159,7 +155,7 @@ describe('Validation Utilities', () => {
       const validTasks = [
         { id: '1', title: 'Test', status: 'pending' },
         { id: '2', title: 'Test 2', status: 'in_progress', extra: 'field' },
-        { id: '3', title: 'Test 3', status: 'completed' }
+        { id: '3', title: 'Test 3', status: 'completed' },
       ]
 
       const invalidTasks = [
@@ -171,14 +167,14 @@ describe('Validation Utilities', () => {
         { id: '1', title: 'Test', status: 'invalid' }, // invalid status
         null,
         undefined,
-        'string'
+        'string',
       ]
 
-      validTasks.forEach(task => {
+      validTasks.forEach((task) => {
         expect(isValidTask(task)).toBe(true)
       })
 
-      invalidTasks.forEach(task => {
+      invalidTasks.forEach((task) => {
         expect(isValidTask(task)).toBe(false)
       })
     })
@@ -194,7 +190,10 @@ describe('Validation Utilities', () => {
     }
 
     const isStringArray = (arr: any): arr is string[] => {
-      return Array.isArray(arr) && allItemsMatchType(arr, (item): item is string => typeof item === 'string')
+      return (
+        Array.isArray(arr) &&
+        allItemsMatchType(arr, (item): item is string => typeof item === 'string')
+      )
     }
 
     it('should validate non-empty arrays', () => {
@@ -250,7 +249,11 @@ describe('Validation Utilities', () => {
   })
 
   describe('conditional validation', () => {
-    const validateConditionally = (condition: boolean, value: any, validator: (val: any) => boolean): boolean => {
+    const validateConditionally = (
+      condition: boolean,
+      value: any,
+      validator: (val: any) => boolean
+    ): boolean => {
       if (!condition) return true
       return validator(value)
     }
@@ -270,7 +273,9 @@ describe('Validation Utilities', () => {
     })
 
     it('should handle optional validation', () => {
-      const optionalString = createOptionalValidator((val: any): val is string => typeof val === 'string')
+      const optionalString = createOptionalValidator(
+        (val: any): val is string => typeof val === 'string'
+      )
 
       expect(optionalString('test')).toBe(true)
       expect(optionalString(undefined)).toBe(true)

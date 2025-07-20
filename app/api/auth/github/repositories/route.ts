@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * GitHub Repositories API Route
  *
@@ -125,7 +128,7 @@ class GitHubRepositoriesService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordOperation('select_github_repositories', duration)
+      observability.recordOperation('select_github_repositories', duration)
 
       // Record event
       observability.recordEvent('github_repositories_query', {
@@ -258,7 +261,7 @@ class GitHubRepositoriesService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordOperation('sync_github_repositories', duration)
+      observability.recordOperation('sync_github_repositories', duration)
 
       // Record event
       observability.recordEvent('github_repositories_sync', {

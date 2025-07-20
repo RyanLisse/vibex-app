@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * PR Status Integration API Route
  *
@@ -12,10 +15,7 @@ import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 import { TaskPRLinkSchema, PRStatusSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock GitHub API client
@@ -25,7 +25,7 @@ class GitHubAPIClient {
   static async getPRStatus(repository: string, prNumber: string) {
     // In real implementation, would make actual GitHub API calls
     // For now, return mock data
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate API delay
 
     return {
       prId: `pr-${prNumber}`,
@@ -73,7 +73,7 @@ class GitHubAPIClient {
 
   static async mergePR(repository: string, prNumber: string) {
     // Mock merge operation
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000))
     return {
       merged: true,
       mergeCommitSha: 'abc123def456',
@@ -83,7 +83,7 @@ class GitHubAPIClient {
 
   static async requestReview(repository: string, prNumber: string, reviewers: string[]) {
     // Mock review request
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     return {
       requested: reviewers,
       requestedAt: new Date().toISOString(),
@@ -106,10 +106,9 @@ export async function POST(request: NextRequest) {
     const [task] = await db.select().from(tasks).where(eq(tasks.id, validatedData.taskId))
 
     if (!task) {
-      return NextResponse.json(
-        createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'),
-        { status: 404 }
-      )
+      return NextResponse.json(createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'), {
+        status: 404,
+      })
     }
 
     // Fetch PR status from GitHub
@@ -131,9 +130,9 @@ export async function POST(request: NextRequest) {
     // Update task metadata with PR link
     const currentMetadata = task.metadata || {}
     const existingPRLinks = currentMetadata.prLinks || []
-    
+
     // Check if PR is already linked
-    const existingLink = existingPRLinks.find(link => link.prId === prStatus.prId)
+    const existingLink = existingPRLinks.find((link) => link.prId === prStatus.prId)
     if (existingLink) {
       return NextResponse.json(
         createApiErrorResponse('PR is already linked to this task', 400, 'PR_ALREADY_LINKED'),
@@ -207,10 +206,9 @@ export async function POST(request: NextRequest) {
 
     observability.metrics.errorRate(1, 'pr_integration_api')
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to link PR', 500, 'LINK_PR_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to link PR', 500, 'LINK_PR_ERROR'), {
+      status: 500,
+    })
   } finally {
     span.end()
   }
@@ -229,9 +227,9 @@ export async function PUT(request: NextRequest) {
 
     // Get all tasks with this PR linked
     const allTasks = await db.select().from(tasks)
-    const tasksWithPR = allTasks.filter(task => {
+    const tasksWithPR = allTasks.filter((task) => {
       const prLinks = task.metadata?.prLinks || []
-      return prLinks.some(link => link.prId === validatedData.prId)
+      return prLinks.some((link) => link.prId === validatedData.prId)
     })
 
     if (tasksWithPR.length === 0) {
@@ -243,7 +241,7 @@ export async function PUT(request: NextRequest) {
 
     // Fetch updated PR status from GitHub
     const taskWithPR = tasksWithPR[0]
-    const prLink = taskWithPR.metadata.prLinks.find(link => link.prId === validatedData.prId)
+    const prLink = taskWithPR.metadata.prLinks.find((link) => link.prId === validatedData.prId)
     const prStatus = await GitHubAPIClient.getPRStatus(
       prLink.repository,
       validatedData.prId.replace('pr-', '')
@@ -261,9 +259,9 @@ export async function PUT(request: NextRequest) {
       }
 
       // Auto-update task status if PR is merged and auto-update is enabled
-      const prLink = currentMetadata.prLinks.find(link => link.prId === validatedData.prId)
+      const prLink = currentMetadata.prLinks.find((link) => link.prId === validatedData.prId)
       const shouldAutoUpdate = prLink?.autoUpdateStatus && prStatus.status === 'merged'
-      
+
       const updates: any = {
         metadata: updatedMetadata,
         updatedAt: new Date(),
@@ -274,11 +272,7 @@ export async function PUT(request: NextRequest) {
         updates.completedAt = new Date()
       }
 
-      return db
-        .update(tasks)
-        .set(updates)
-        .where(eq(tasks.id, task.id))
-        .returning()
+      return db.update(tasks).set(updates).where(eq(tasks.id, task.id)).returning()
     })
 
     const updatedTasks = await Promise.all(updatePromises)
@@ -310,7 +304,7 @@ export async function PUT(request: NextRequest) {
       createApiSuccessResponse(
         {
           prStatus,
-          updatedTasks: updatedTasks.map(result => result[0]),
+          updatedTasks: updatedTasks.map((result) => result[0]),
           autoUpdatedCount: updatedTasks.filter(([task]) => task.status === 'completed').length,
         },
         'PR status updated successfully'
@@ -351,7 +345,7 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId')
 
     let query = db.select().from(tasks)
-    
+
     if (taskId) {
       query = query.where(eq(tasks.id, taskId))
     } else if (userId) {
@@ -361,8 +355,8 @@ export async function GET(request: NextRequest) {
     const tasks = await query
 
     // Filter tasks that have PR links
-    const tasksWithPRs = tasks.filter(task => 
-      task.metadata?.prLinks && task.metadata.prLinks.length > 0
+    const tasksWithPRs = tasks.filter(
+      (task) => task.metadata?.prLinks && task.metadata.prLinks.length > 0
     )
 
     // Aggregate PR statistics
@@ -374,7 +368,7 @@ export async function GET(request: NextRequest) {
       readyToMerge: 0,
     }
 
-    tasksWithPRs.forEach(task => {
+    tasksWithPRs.forEach((task) => {
       const prStatuses = task.metadata.prStatuses || {}
       Object.values(prStatuses).forEach((prStatus: any) => {
         prStats.totalLinkedPRs++

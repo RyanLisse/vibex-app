@@ -1,4 +1,3 @@
-
 import { createDefaultLoggingConfig } from './config'
 import { LoggerFactory } from './logger-factory'
 import { PerformanceTracker } from './performance-tracker'
@@ -227,7 +226,7 @@ export class LoggingHealthMonitor {
       severity: 'critical',
       healthChecks: status.checks,
       metrics: status.metrics,
-      event: 'system_health_failure'
+      event: 'system_health_failure',
     })
   }
 

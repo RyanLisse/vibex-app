@@ -43,7 +43,7 @@ export class UserBuilder extends TestDataBuilder<User> {
       role: 'user',
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })
   }
 
@@ -97,7 +97,7 @@ export class ProjectBuilder extends TestDataBuilder<Project> {
       owner: new UserBuilder().build(),
       collaborators: [],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })
   }
 
@@ -153,7 +153,7 @@ export class ApiResponseBuilder<T = any> extends TestDataBuilder<ApiResponse<T>>
       status: 200,
       data: null,
       error: null,
-      loading: false
+      loading: false,
     })
   }
 
@@ -186,7 +186,7 @@ export class ApiResponseBuilder<T = any> extends TestDataBuilder<ApiResponse<T>>
       page,
       limit,
       total,
-      totalPages
+      totalPages,
     })
   }
 }
@@ -217,10 +217,7 @@ export class BuilderFactory {
   teamScenario(memberCount: number = 5): { admin: User; members: User[]; project: Project } {
     const admin = this.user().asAdmin().build()
     const members = UserBuilder.createMany(memberCount)
-    const project = this.project()
-      .withOwner(admin)
-      .withCollaborators(memberCount)
-      .build()
+    const project = this.project().withOwner(admin).withCollaborators(memberCount).build()
 
     return { admin, members, project }
   }
@@ -230,7 +227,7 @@ export class BuilderFactory {
       validation: { message: 'Validation failed', status: 400 },
       auth: { message: 'Unauthorized', status: 401 },
       notfound: { message: 'Resource not found', status: 404 },
-      server: { message: 'Internal server error', status: 500 }
+      server: { message: 'Internal server error', status: 500 },
     }
 
     const { message, status } = errorMap[errorType]

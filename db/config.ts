@@ -1,22 +1,28 @@
-import { neon } from '@neondatabase/serverless'
+import { neon, neonConfig } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-serverless'
 import * as schema from './schema'
 
+// Configure Neon for better compatibility
+neonConfig.fetchConnectionCache = true
+
 // Environment variables validation
 const DATABASE_URL = process.env.DATABASE_URL
-if (!DATABASE_URL) {
+if (!DATABASE_URL && process.env.NODE_ENV !== 'test') {
   throw new Error('DATABASE_URL environment variable is required')
 }
 
 // Create Neon connection
-const sql = neon(DATABASE_URL)
+const sql = neon(DATABASE_URL || 'file::memory:?cache=shared')
 
 // Create Drizzle instance with schema
 export const db = drizzle(sql, { schema })
 
+// Export sql for direct queries when needed
+export { sql }
+
 // Connection configuration
 export const dbConfig = {
-  connectionString: DATABASE_URL,
+  connectionString: DATABASE_URL || 'file::memory:?cache=shared',
   ssl: process.env.NODE_ENV === 'production',
   maxConnections: 20,
   idleTimeout: 30_000,

@@ -420,6 +420,5 @@ export const metrics = {
     }),
 }
 
-
 // Export metrics collector instance
 export const metricsCollector = PerformanceMetricsCollector.getInstance()

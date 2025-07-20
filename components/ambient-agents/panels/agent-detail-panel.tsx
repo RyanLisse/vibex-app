@@ -1,5 +1,15 @@
 import React from 'react'
-import { X, Activity, Clock, Cpu, Brain, CheckCircle, AlertTriangle, Play, Pause } from 'lucide-react'
+import {
+  X,
+  Activity,
+  Clock,
+  Cpu,
+  Brain,
+  CheckCircle,
+  AlertTriangle,
+  Play,
+  Pause,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,11 +26,7 @@ export interface AgentDetailPanelProps {
   onClose: () => void
 }
 
-export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({
-  node,
-  isOpen,
-  onClose,
-}) => {
+export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({ node, isOpen, onClose }) => {
   if (!isOpen || !node || node.type !== 'agent') {
     return null
   }
@@ -55,13 +61,11 @@ export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({
     }
   }
 
-  const successRate = metrics.totalTasks > 0
-    ? ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1)
-    : '0'
+  const successRate =
+    metrics.totalTasks > 0 ? ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1) : '0'
 
-  const errorRate = metrics.totalTasks > 0
-    ? ((metrics.failedTasks / metrics.totalTasks) * 100).toFixed(1)
-    : '0'
+  const errorRate =
+    metrics.totalTasks > 0 ? ((metrics.failedTasks / metrics.totalTasks) * 100).toFixed(1) : '0'
 
   return (
     <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-xl border-l z-50 flex flex-col">
@@ -103,9 +107,7 @@ export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Node ID</span>
-                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
-                  {agent.id}
-                </span>
+                <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">{agent.id}</span>
               </div>
             </CardContent>
           </Card>
@@ -235,7 +237,9 @@ export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({
                       <div className="text-xs text-gray-600">Total</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-green-600">{metrics.completedTasks}</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {metrics.completedTasks}
+                      </div>
                       <div className="text-xs text-gray-600">Completed</div>
                     </div>
                     <div>
@@ -254,9 +258,13 @@ export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({
                       </div>
                       <span>{metrics.completedTasks}</span>
                     </div>
-                    <Progress 
-                      value={metrics.totalTasks > 0 ? (metrics.completedTasks / metrics.totalTasks) * 100 : 0} 
-                      className="h-2" 
+                    <Progress
+                      value={
+                        metrics.totalTasks > 0
+                          ? (metrics.completedTasks / metrics.totalTasks) * 100
+                          : 0
+                      }
+                      className="h-2"
                     />
                   </div>
 
@@ -268,9 +276,13 @@ export const AgentDetailPanel: React.FC<AgentDetailPanelProps> = ({
                       </div>
                       <span>{metrics.failedTasks}</span>
                     </div>
-                    <Progress 
-                      value={metrics.totalTasks > 0 ? (metrics.failedTasks / metrics.totalTasks) * 100 : 0} 
-                      className="h-2" 
+                    <Progress
+                      value={
+                        metrics.totalTasks > 0
+                          ? (metrics.failedTasks / metrics.totalTasks) * 100
+                          : 0
+                      }
+                      className="h-2"
                     />
                   </div>
                 </CardContent>

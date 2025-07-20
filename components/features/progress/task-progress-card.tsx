@@ -43,7 +43,7 @@ export function TaskProgressCard({
   const formatTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
-    
+
     if (hours === 0) return `${mins}m`
     if (mins === 0) return `${hours}h`
     return `${hours}h ${mins}m`
@@ -95,22 +95,18 @@ export function TaskProgressCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h3 className="font-semibold text-lg">{taskTitle}</h3>
-            <Badge variant={getStatusColor()}>
-              {progress.status.replace('_', ' ')}
-            </Badge>
+            <Badge variant={getStatusColor()}>{progress.status.replace('_', ' ')}</Badge>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Progress Percentage */}
-            <div className={`text-2xl font-bold ${getProgressColor(progress.completionPercentage)}`}>
+            <div
+              className={`text-2xl font-bold ${getProgressColor(progress.completionPercentage)}`}
+            >
               {progress.completionPercentage}%
             </div>
-            
-            <ProgressIndicator 
-              percentage={progress.completionPercentage}
-              size="large"
-              animated
-            />
+
+            <ProgressIndicator percentage={progress.completionPercentage} size="large" animated />
           </div>
         </div>
       </CardHeader>
@@ -165,11 +161,15 @@ export function TaskProgressCard({
             <span>{progress.completionPercentage}% complete</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div 
+            <div
               className={`h-full transition-all duration-500 ${
-                progress.completionPercentage >= 80 ? 'bg-green-500' :
-                progress.completionPercentage >= 60 ? 'bg-blue-500' :
-                progress.completionPercentage >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                progress.completionPercentage >= 80
+                  ? 'bg-green-500'
+                  : progress.completionPercentage >= 60
+                    ? 'bg-blue-500'
+                    : progress.completionPercentage >= 40
+                      ? 'bg-yellow-500'
+                      : 'bg-red-500'
               }`}
               style={{ width: `${progress.completionPercentage}%` }}
               role="progressbar"
@@ -192,7 +192,7 @@ export function TaskProgressCard({
               <DialogHeader>
                 <DialogTitle>Update Task Progress</DialogTitle>
               </DialogHeader>
-              
+
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="completion">Completion Percentage</Label>
@@ -202,10 +202,12 @@ export function TaskProgressCard({
                     min="0"
                     max="100"
                     value={updateForm.completionPercentage}
-                    onChange={(e) => setUpdateForm(prev => ({
-                      ...prev,
-                      completionPercentage: parseInt(e.target.value) || 0
-                    }))}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        completionPercentage: parseInt(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
 
@@ -216,10 +218,12 @@ export function TaskProgressCard({
                     type="number"
                     min="0"
                     value={updateForm.timeSpent}
-                    onChange={(e) => setUpdateForm(prev => ({
-                      ...prev,
-                      timeSpent: parseInt(e.target.value) || 0
-                    }))}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        timeSpent: parseInt(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
 
@@ -230,10 +234,12 @@ export function TaskProgressCard({
                     type="number"
                     min="0"
                     value={updateForm.estimatedTimeRemaining}
-                    onChange={(e) => setUpdateForm(prev => ({
-                      ...prev,
-                      estimatedTimeRemaining: parseInt(e.target.value) || 0
-                    }))}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        estimatedTimeRemaining: parseInt(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
 
@@ -243,10 +249,12 @@ export function TaskProgressCard({
                     id="statusMessage"
                     placeholder="Optional status update..."
                     value={updateForm.statusMessage}
-                    onChange={(e) => setUpdateForm(prev => ({
-                      ...prev,
-                      statusMessage: e.target.value
-                    }))}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        statusMessage: e.target.value,
+                      }))
+                    }
                   />
                 </div>
 
@@ -255,10 +263,12 @@ export function TaskProgressCard({
                     type="checkbox"
                     id="isBlocked"
                     checked={updateForm.isBlocked}
-                    onChange={(e) => setUpdateForm(prev => ({
-                      ...prev,
-                      isBlocked: e.target.checked
-                    }))}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        isBlocked: e.target.checked,
+                      }))
+                    }
                   />
                   <Label htmlFor="isBlocked">Task is blocked</Label>
                 </div>
@@ -267,8 +277,8 @@ export function TaskProgressCard({
                   <Button onClick={handleProgressUpdate} className="flex-1">
                     Save
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsUpdateModalOpen(false)}
                     className="flex-1"
                   >

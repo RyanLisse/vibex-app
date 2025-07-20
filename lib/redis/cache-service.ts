@@ -21,7 +21,7 @@ export class CacheService {
     // RedisManager will be set during initialization
     this.redisManager = null as any
   }
-  
+
   setRedisManager(manager: RedisClientManager): void {
     this.redisManager = manager
   }

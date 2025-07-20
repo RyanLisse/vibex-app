@@ -31,7 +31,7 @@ export enum CriticalErrorType {
   THIRD_PARTY_SERVICE_FAILURE = 'third_party_service_failure',
   SYSTEM_HEALTH_FAILURE = 'system_health_failure',
   API_GATEWAY_FAILURE = 'api_gateway_failure',
-  FILE_SYSTEM_FAILURE = 'file_system_failure'
+  FILE_SYSTEM_FAILURE = 'file_system_failure',
 }
 
 export interface AlertConfig {
@@ -68,14 +68,14 @@ export enum AlertChannelType {
   DISCORD = 'discord',
   TEAMS = 'teams',
   PAGERDUTY = 'pagerduty',
-  LOG = 'log'
+  LOG = 'log',
 }
 
 export enum AlertPriority {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export interface AlertNotification {
@@ -97,7 +97,7 @@ export enum AlertNotificationStatus {
   SENT = 'sent',
   DELIVERED = 'delivered',
   FAILED = 'failed',
-  RETRY = 'retry'
+  RETRY = 'retry',
 }
 
 export interface AlertTemplate {

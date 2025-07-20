@@ -1,7 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GitPullRequest, ExternalLink, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
+import {
+  GitPullRequest,
+  ExternalLink,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from 'lucide-react'
 import { PRStatusBadge } from './pr-status-badge'
 import { PRReviewSummary } from './pr-review-summary'
 import { PRActionButtons } from './pr-action-buttons'
@@ -49,9 +56,10 @@ export function PRStatusCard({
 
   // Notify assignee when PR is ready to merge
   useEffect(() => {
-    const isReadyToMerge = currentPRStatus.reviewStatus === 'approved' && 
-                          currentPRStatus.mergeable && 
-                          currentPRStatus.checks.every(check => check.status === 'success')
+    const isReadyToMerge =
+      currentPRStatus.reviewStatus === 'approved' &&
+      currentPRStatus.mergeable &&
+      currentPRStatus.checks.every((check) => check.status === 'success')
 
     if (isReadyToMerge && onNotifyAssignee) {
       onNotifyAssignee(taskPRLink.taskId, 'PR is ready to merge')
@@ -65,8 +73,8 @@ export function PRStatusCard({
     try {
       // In a real implementation, this would call the GitHub API
       // For now, we'll simulate an API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       // Simulate updated status
       setLastUpdated(new Date())
       // setCurrentPRStatus(updatedStatus)
@@ -82,12 +90,12 @@ export function PRStatusCard({
     try {
       setIsLoading(true)
       // Simulate merge API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
       // Update status to merged
-      setCurrentPRStatus(prev => ({
+      setCurrentPRStatus((prev) => ({
         ...prev,
-        status: 'merged'
+        status: 'merged',
       }))
     } catch (err) {
       setError('Failed to merge PR')
@@ -126,12 +134,7 @@ export function PRStatusCard({
             </div>
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="gap-2"
-          >
+          <Button variant="ghost" size="sm" asChild className="gap-2">
             <a href={githubUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
               View on GitHub
@@ -144,17 +147,15 @@ export function PRStatusCard({
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Unable to fetch PR status: {error}
-            </AlertDescription>
+            <AlertDescription>Unable to fetch PR status: {error}</AlertDescription>
           </Alert>
         )}
 
         {/* PR Status and Branch Info */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <PRStatusBadge 
-              status={currentPRStatus.status} 
+            <PRStatusBadge
+              status={currentPRStatus.status}
               reviewStatus={currentPRStatus.reviewStatus}
             />
             <p className="text-sm text-muted-foreground">
@@ -164,12 +165,15 @@ export function PRStatusCard({
 
           <div className="text-right">
             <p className="text-sm font-medium">
-              {currentPRStatus.reviewStatus === 'approved' ? 'Review Approved' : 
-               currentPRStatus.reviewStatus === 'changes_requested' ? 'Changes Requested' :
-               'Review Pending'}
+              {currentPRStatus.reviewStatus === 'approved'
+                ? 'Review Approved'
+                : currentPRStatus.reviewStatus === 'changes_requested'
+                  ? 'Changes Requested'
+                  : 'Review Pending'}
             </p>
             <p className="text-xs text-muted-foreground">
-              {currentPRStatus.reviewers.filter(r => r.status === 'approved').length} of {currentPRStatus.reviewers.length} approved
+              {currentPRStatus.reviewers.filter((r) => r.status === 'approved').length} of{' '}
+              {currentPRStatus.reviewers.length} approved
             </p>
           </div>
         </div>
@@ -178,15 +182,20 @@ export function PRStatusCard({
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Checks</h4>
           <div className="space-y-1">
-            {currentPRStatus.checks.map(check => (
+            {currentPRStatus.checks.map((check) => (
               <div key={check.name} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   {getCheckIcon(check.status)}
                   <span>{check.name}</span>
                 </div>
-                <Badge 
-                  variant={check.status === 'success' ? 'default' : 
-                          check.status === 'failure' ? 'destructive' : 'secondary'}
+                <Badge
+                  variant={
+                    check.status === 'success'
+                      ? 'default'
+                      : check.status === 'failure'
+                        ? 'destructive'
+                        : 'secondary'
+                  }
                   className="text-xs"
                   data-testid={`check-${check.status}`}
                 >
@@ -199,9 +208,9 @@ export function PRStatusCard({
 
         {/* Merge Readiness */}
         <div className="p-3 rounded-lg border">
-          {currentPRStatus.mergeable && 
-           currentPRStatus.reviewStatus === 'approved' && 
-           currentPRStatus.checks.every(check => check.status === 'success') ? (
+          {currentPRStatus.mergeable &&
+          currentPRStatus.reviewStatus === 'approved' &&
+          currentPRStatus.checks.every((check) => check.status === 'success') ? (
             <div className="flex items-center gap-2 text-green-700" data-testid="merge-ready">
               <CheckCircle2 className="h-4 w-4" />
               <span className="text-sm font-medium">Ready to merge</span>
@@ -212,11 +221,12 @@ export function PRStatusCard({
               <span className="text-sm font-medium">Not ready to merge</span>
             </div>
           )}
-          
+
           <div className="text-xs text-muted-foreground mt-1">
             {!currentPRStatus.mergeable && 'Has merge conflicts • '}
             {currentPRStatus.reviewStatus !== 'approved' && 'Requires approval • '}
-            {currentPRStatus.checks.some(check => check.status !== 'success') && 'Checks pending • '}
+            {currentPRStatus.checks.some((check) => check.status !== 'success') &&
+              'Checks pending • '}
             Last updated: {lastUpdated.toLocaleTimeString()}
           </div>
         </div>
@@ -225,7 +235,7 @@ export function PRStatusCard({
         <PRReviewSummary prStatus={currentPRStatus} />
 
         {/* Action Buttons */}
-        <PRActionButtons 
+        <PRActionButtons
           prStatus={currentPRStatus}
           onMerge={handleMerge}
           onUpdate={handleRefresh}

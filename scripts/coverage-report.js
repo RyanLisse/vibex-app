@@ -10,28 +10,28 @@ const results = {
   uncoveredFiles: 2,
   overallCoverage: {
     functions: 92.74,
-    lines: 93.50,
-    statements: 93.50,
-    branches: 90.00
+    lines: 93.5,
+    statements: 93.5,
+    branches: 90.0,
   },
   fileDetails: {
     'lib/auth.ts': {
-      functions: 84.00,
+      functions: 84.0,
       lines: 96.55,
-      uncoveredLines: [149, 180, 210, 238, 291, 335, 336]
+      uncoveredLines: [149, 180, 210, 238, 291, 335, 336],
     },
     'lib/github-api.ts': {
       functions: 57.89,
       lines: 51.49,
-      uncoveredLines: [67, 68, 72, 74, 78, 85, 89, 103, 107, 108, 112, 113, 117, 126, 130, 136]
+      uncoveredLines: [67, 68, 72, 74, 78, 85, 89, 103, 107, 108, 112, 113, 117, 126, 130, 136],
     },
-    'lib/telemetry.ts': { functions: 100.00, lines: 100.00 },
-    'lib/utils.ts': { functions: 100.00, lines: 100.00 },
-    'lib/stream-utils.ts': { functions: 100.00, lines: 100.00 },
-    'lib/message-handlers.ts': { functions: 100.00, lines: 100.00 },
-    'lib/container-types.ts': { functions: 100.00, lines: 100.00 },
-    'lib/auth/index.ts': { functions: 100.00, lines: 100.00 }
-  }
+    'lib/telemetry.ts': { functions: 100.0, lines: 100.0 },
+    'lib/utils.ts': { functions: 100.0, lines: 100.0 },
+    'lib/stream-utils.ts': { functions: 100.0, lines: 100.0 },
+    'lib/message-handlers.ts': { functions: 100.0, lines: 100.0 },
+    'lib/container-types.ts': { functions: 100.0, lines: 100.0 },
+    'lib/auth/index.ts': { functions: 100.0, lines: 100.0 },
+  },
 }
 
 console.log('\n🎯 COVERAGE SUMMARY:')
@@ -40,12 +40,13 @@ console.log(`Lines: ${results.overallCoverage.lines}%`)
 console.log(`Statements: ${results.overallCoverage.statements}%`)
 console.log(`Branches: ${results.overallCoverage.branches}%`)
 
-const averageCoverage = Math.round((
-  results.overallCoverage.functions +
-  results.overallCoverage.lines +
-  results.overallCoverage.statements +
-  results.overallCoverage.branches
-) / 4)
+const averageCoverage = Math.round(
+  (results.overallCoverage.functions +
+    results.overallCoverage.lines +
+    results.overallCoverage.statements +
+    results.overallCoverage.branches) /
+    4
+)
 
 console.log(`\n📈 OVERALL COVERAGE: ${averageCoverage}%`)
 

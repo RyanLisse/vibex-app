@@ -12,10 +12,7 @@ import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 import { KanbanMoveSchema, KanbanBoardConfigSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Default kanban columns configuration
@@ -28,11 +25,11 @@ const DEFAULT_COLUMNS = [
 
 // Status mapping between task status and kanban columns
 const STATUS_COLUMN_MAP = {
-  'todo': 'todo',
-  'in_progress': 'in_progress',
-  'review': 'review',
-  'completed': 'completed',
-  'blocked': 'in_progress', // Blocked tasks stay in progress column
+  todo: 'todo',
+  in_progress: 'in_progress',
+  review: 'review',
+  completed: 'completed',
+  blocked: 'in_progress', // Blocked tasks stay in progress column
 }
 
 /**
@@ -73,8 +70,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Organize tasks by columns
-    const columns = kanbanConfig.columns.map(column => {
-      const columnTasks = allTasks.filter(task => {
+    const columns = kanbanConfig.columns.map((column) => {
+      const columnTasks = allTasks.filter((task) => {
         const mappedColumn = STATUS_COLUMN_MAP[task.status] || 'todo'
         return mappedColumn === column.id
       })
@@ -98,14 +95,15 @@ export async function GET(request: NextRequest) {
     // Calculate board metrics
     const metrics = {
       totalTasks: allTasks.length,
-      tasksInProgress: allTasks.filter(t => t.status === 'in_progress').length,
-      blockedTasks: allTasks.filter(t => t.status === 'blocked').length,
-      completedToday: allTasks.filter(t => 
-        t.status === 'completed' && 
-        t.completedAt && 
-        new Date(t.completedAt).toDateString() === new Date().toDateString()
+      tasksInProgress: allTasks.filter((t) => t.status === 'in_progress').length,
+      blockedTasks: allTasks.filter((t) => t.status === 'blocked').length,
+      completedToday: allTasks.filter(
+        (t) =>
+          t.status === 'completed' &&
+          t.completedAt &&
+          new Date(t.completedAt).toDateString() === new Date().toDateString()
       ).length,
-      wipLimitViolations: columns.filter(c => c.isOverLimit).length,
+      wipLimitViolations: columns.filter((c) => c.isOverLimit).length,
     }
 
     span.setAttributes({
@@ -152,18 +150,17 @@ export async function POST(request: NextRequest) {
     const [task] = await db.select().from(tasks).where(eq(tasks.id, validatedData.taskId))
 
     if (!task) {
-      return NextResponse.json(
-        createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'),
-        { status: 404 }
-      )
+      return NextResponse.json(createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'), {
+        status: 404,
+      })
     }
 
     // Map column to status
     const columnStatusMap = {
-      'todo': 'todo',
-      'in_progress': 'in_progress', 
-      'review': 'review',
-      'completed': 'completed',
+      todo: 'todo',
+      in_progress: 'in_progress',
+      review: 'review',
+      completed: 'completed',
     }
 
     const newStatus = columnStatusMap[validatedData.targetColumn]
@@ -176,7 +173,7 @@ export async function POST(request: NextRequest) {
 
     // Check WIP limits before moving
     if (validatedData.targetColumn !== 'todo' && validatedData.targetColumn !== 'completed') {
-      const columnConfig = DEFAULT_COLUMNS.find(c => c.id === validatedData.targetColumn)
+      const columnConfig = DEFAULT_COLUMNS.find((c) => c.id === validatedData.targetColumn)
       if (columnConfig?.limit) {
         const currentColumnTasks = await db
           .select()
@@ -305,17 +302,14 @@ export async function PUT(request: NextRequest) {
 
     // In a real implementation, would save to database
     // For now, we'll just validate and return the config
-    
+
     span.setAttributes({
       'kanban.columns_count': validatedData.columns.length,
       'kanban.wip_limits_enabled': validatedData.settings.enableWipLimits,
     })
 
     return NextResponse.json(
-      createApiSuccessResponse(
-        validatedData,
-        'Kanban configuration updated successfully'
-      )
+      createApiSuccessResponse(validatedData, 'Kanban configuration updated successfully')
     )
   } catch (error) {
     span.recordException(error as Error)

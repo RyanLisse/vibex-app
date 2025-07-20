@@ -2,9 +2,28 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { AlertMetrics, CriticalErrorType, AlertChannelType } from '@/lib/alerts/types'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+} from 'recharts'
 import { TrendingUp, AlertTriangle, Clock, Activity } from 'lucide-react'
 
 interface AlertMetricsChartProps {
@@ -19,7 +38,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 
   useEffect(() => {
     loadMetrics()
-    
+
     // Refresh metrics every minute
     const interval = setInterval(loadMetrics, 60000)
     return () => clearInterval(interval)
@@ -29,7 +48,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
     try {
       setLoading(true)
       const response = await fetch(`/api/alerts/metrics?timeframe=${timeframe}`)
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch metrics')
       }
@@ -67,16 +86,18 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 
   // Prepare data for charts
   const alertsByTypeData = Object.entries(metrics.alertsByType || {}).map(([type, count]) => ({
-    name: type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    name: type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
     value: count,
-    type
+    type,
   }))
 
-  const alertsByChannelData = Object.entries(metrics.alertsByChannel || {}).map(([channel, count]) => ({
-    name: channel.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    value: count,
-    channel
-  }))
+  const alertsByChannelData = Object.entries(metrics.alertsByChannel || {}).map(
+    ([channel, count]) => ({
+      name: channel.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+      value: count,
+      channel,
+    })
+  )
 
   // Colors for charts
   const SEVERITY_COLORS = ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#6b7280']
@@ -116,7 +137,9 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metrics.averageResolutionTime ? formatDuration(metrics.averageResolutionTime) : 'N/A'}
+              {metrics.averageResolutionTime
+                ? formatDuration(metrics.averageResolutionTime)
+                : 'N/A'}
             </div>
             <p className="text-xs text-muted-foreground">Average time to resolve</p>
           </CardContent>
@@ -131,9 +154,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
             <div className="text-2xl font-bold">
               {timeframe === '24h' ? metrics.alertsLast24Hours : metrics.totalAlerts}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Alerts in {timeframe}
-            </p>
+            <p className="text-xs text-muted-foreground">Alerts in {timeframe}</p>
           </CardContent>
         </Card>
 
@@ -157,9 +178,12 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metrics.totalAlerts > 0 
-                ? Math.round(((metrics.totalAlerts - metrics.unresolvedAlerts) / metrics.totalAlerts) * 100)
-                : 0}%
+              {metrics.totalAlerts > 0
+                ? Math.round(
+                    ((metrics.totalAlerts - metrics.unresolvedAlerts) / metrics.totalAlerts) * 100
+                  )
+                : 0}
+              %
             </div>
             <p className="text-xs text-muted-foreground">Alerts resolved</p>
           </CardContent>
@@ -178,13 +202,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={alertsByTypeData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="value" fill="#8884d8" />
@@ -218,7 +236,10 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
                     label={({ name, value }) => `${name}: ${value}`}
                   >
                     {alertsByChannelData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={CHANNEL_COLORS[index % CHANNEL_COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={CHANNEL_COLORS[index % CHANNEL_COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -245,7 +266,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
               {alertsByTypeData.map((item, index) => (
                 <div key={item.type} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div 
+                    <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: SEVERITY_COLORS[index % SEVERITY_COLORS.length] }}
                     />
@@ -268,7 +289,9 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Mean Time to Resolution</span>
                 <span className="text-sm text-gray-600">
-                  {metrics.meanTimeToResolution ? formatDuration(metrics.meanTimeToResolution) : 'N/A'}
+                  {metrics.meanTimeToResolution
+                    ? formatDuration(metrics.meanTimeToResolution)
+                    : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between items-center">

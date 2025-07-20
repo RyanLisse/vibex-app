@@ -59,7 +59,7 @@ interface PerformanceThresholds {
 const toBeValidUser: MatcherFunction<[received: unknown]> = function (received) {
   const { isNot } = this
 
-  const pass = (
+  const pass =
     received &&
     typeof received === 'object' &&
     typeof (received as any).id === 'string' &&
@@ -70,14 +70,13 @@ const toBeValidUser: MatcherFunction<[received: unknown]> = function (received) 
     (received as any).createdAt instanceof Date &&
     (received as any).updatedAt instanceof Date &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((received as any).email)
-  )
 
   return {
     pass,
-    message: () => 
+    message: () =>
       isNot
         ? `Expected ${received} not to be a valid user`
-        : `Expected ${received} to be a valid user with required fields (id, email, name, role, isActive, createdAt, updatedAt) and valid email format`
+        : `Expected ${received} to be a valid user with required fields (id, email, name, role, isActive, createdAt, updatedAt) and valid email format`,
   }
 }
 
@@ -85,7 +84,7 @@ const toBeValidUser: MatcherFunction<[received: unknown]> = function (received) 
 const toBeValidProject: MatcherFunction<[received: unknown]> = function (received) {
   const { isNot } = this
 
-  const pass = (
+  const pass =
     received &&
     typeof received === 'object' &&
     typeof (received as any).id === 'string' &&
@@ -97,39 +96,43 @@ const toBeValidProject: MatcherFunction<[received: unknown]> = function (receive
     Array.isArray((received as any).collaborators) &&
     (received as any).createdAt instanceof Date &&
     (received as any).updatedAt instanceof Date
-  )
 
   return {
     pass,
     message: () =>
       isNot
         ? `Expected ${received} not to be a valid project`
-        : `Expected ${received} to be a valid project with required fields (id, name, description, status, owner, collaborators, createdAt, updatedAt)`
+        : `Expected ${received} to be a valid project with required fields (id, name, description, status, owner, collaborators, createdAt, updatedAt)`,
   }
 }
 
 // Schema validation matcher
-const toHaveValidSchema: MatcherFunction<[received: unknown, schema: any]> = function (received, schema) {
+const toHaveValidSchema: MatcherFunction<[received: unknown, schema: any]> = function (
+  received,
+  schema
+) {
   const { isNot } = this
 
   try {
     // Basic schema validation - in a real implementation, this would use Zod
     const pass = validateSchema(received, schema)
-    
+
     if (isNot && pass) {
       throw new Error(`Expected ${JSON.stringify(received)} not to match schema`)
     }
-    
+
     if (!isNot && !pass) {
-      throw new Error(`Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`)
+      throw new Error(
+        `Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`
+      )
     }
-    
+
     return {
       pass,
       message: () =>
         isNot
           ? `Expected ${JSON.stringify(received)} not to match schema`
-          : `Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`
+          : `Expected ${JSON.stringify(received)} to match schema ${JSON.stringify(schema)}`,
     }
   } catch (error) {
     if (error.message.includes('Expected')) {
@@ -140,74 +143,84 @@ const toHaveValidSchema: MatcherFunction<[received: unknown, schema: any]> = fun
 }
 
 // Time range validation matcher
-const toBeWithinTimeRange: MatcherFunction<[received: Date, target: Date, toleranceMs: number]> = function (received, target, toleranceMs) {
-  const { isNot } = this
+const toBeWithinTimeRange: MatcherFunction<[received: Date, target: Date, toleranceMs: number]> =
+  function (received, target, toleranceMs) {
+    const { isNot } = this
 
-  // Input validation
-  if (!(received instanceof Date) && typeof received !== 'string' && typeof received !== 'number') {
-    throw new Error('Expected Date object, valid date string, or timestamp')
-  }
-  if (!(target instanceof Date) && typeof target !== 'string' && typeof target !== 'number') {
-    throw new Error('Expected target to be Date object, valid date string, or timestamp')
-  }
+    // Input validation
+    if (
+      !(received instanceof Date) &&
+      typeof received !== 'string' &&
+      typeof received !== 'number'
+    ) {
+      throw new Error('Expected Date object, valid date string, or timestamp')
+    }
+    if (!(target instanceof Date) && typeof target !== 'string' && typeof target !== 'number') {
+      throw new Error('Expected target to be Date object, valid date string, or timestamp')
+    }
 
-  try {
-    const receivedTime = received instanceof Date ? received.getTime() : new Date(received).getTime()
-    const targetTime = target instanceof Date ? target.getTime() : new Date(target).getTime()
-    
-    if (isNaN(receivedTime) || isNaN(targetTime)) {
-      throw new Error('Invalid date values provided')
-    }
-    
-    const difference = Math.abs(receivedTime - targetTime)
-    const pass = difference <= toleranceMs
+    try {
+      const receivedTime =
+        received instanceof Date ? received.getTime() : new Date(received).getTime()
+      const targetTime = target instanceof Date ? target.getTime() : new Date(target).getTime()
 
-    return {
-      pass,
-      message: () =>
-        isNot
-          ? `Expected ${received} not to be within ${toleranceMs}ms of ${target}`
-          : `Expected ${received} to be within ${toleranceMs}ms of ${target}, but was ${difference}ms away`
-    }
-  } catch (error) {
-    return {
-      pass: false,
-      message: () => `Date validation failed: ${error}`
+      if (isNaN(receivedTime) || isNaN(targetTime)) {
+        throw new Error('Invalid date values provided')
+      }
+
+      const difference = Math.abs(receivedTime - targetTime)
+      const pass = difference <= toleranceMs
+
+      return {
+        pass,
+        message: () =>
+          isNot
+            ? `Expected ${received} not to be within ${toleranceMs}ms of ${target}`
+            : `Expected ${received} to be within ${toleranceMs}ms of ${target}, but was ${difference}ms away`,
+      }
+    } catch (error) {
+      return {
+        pass: false,
+        message: () => `Date validation failed: ${error}`,
+      }
     }
   }
-}
 
 // API response validation matcher
 const toHaveValidApiResponse: MatcherFunction<[received: unknown]> = function (received) {
   const { isNot } = this
 
-  const pass = (
+  const pass =
     received &&
     typeof received === 'object' &&
     typeof (received as any).success === 'boolean' &&
     typeof (received as any).status === 'number' &&
     (received as any).hasOwnProperty('data') &&
     (received as any).hasOwnProperty('error') &&
-    ((received as any).success ? (received as any).error === null : typeof (received as any).error === 'string')
-  )
+    ((received as any).success
+      ? (received as any).error === null
+      : typeof (received as any).error === 'string')
 
   return {
     pass,
     message: () =>
       isNot
         ? `Expected ${received} not to be a valid API response`
-        : `Expected ${received} to be a valid API response with success, status, data, and error fields`
+        : `Expected ${received} to be a valid API response with success, status, data, and error fields`,
   }
 }
 
 // Snapshot matcher (simplified)
-const toMatchSnapshot: MatcherFunction<[received: unknown, name?: string]> = function (received, name) {
+const toMatchSnapshot: MatcherFunction<[received: unknown, name?: string]> = function (
+  received,
+  name
+) {
   const { isNot } = this
 
   // In a real implementation, this would integrate with Vitest's snapshot system
   const serialized = JSON.stringify(received, null, 2)
   const snapshotName = name || 'default'
-  
+
   // For testing purposes, we'll always pass
   const pass = true
 
@@ -216,7 +229,7 @@ const toMatchSnapshot: MatcherFunction<[received: unknown, name?: string]> = fun
     message: () =>
       isNot
         ? `Expected ${received} not to match snapshot "${snapshotName}"`
-        : `Expected ${received} to match snapshot "${snapshotName}"`
+        : `Expected ${received} to match snapshot "${snapshotName}"`,
   }
 }
 
@@ -228,41 +241,48 @@ const toBeAccessible: MatcherFunction<[received: unknown]> = function (received)
   const hasAriaLabel = element.attributes && element.attributes['aria-label']
   const hasRole = element.attributes && element.attributes['role']
   const hasTabIndex = element.attributes && element.attributes.hasOwnProperty('tabindex')
-  
-  const pass = (
+
+  const pass =
     element &&
     typeof element === 'object' &&
     element.tagName &&
     (hasAriaLabel || hasRole || element.textContent) && // Some form of accessible name
     (element.tagName !== 'BUTTON' || hasTabIndex !== false) // Buttons should be focusable
-  )
 
   return {
     pass,
     message: () =>
       isNot
         ? `Expected element not to be accessible`
-        : `Expected element to be accessible with proper ARIA attributes and focusable state`
+        : `Expected element to be accessible with proper ARIA attributes and focusable state`,
   }
 }
 
 // Performance metrics matcher
-const toHavePerformanceMetrics: MatcherFunction<[received: unknown, thresholds: PerformanceThresholds]> = function (received, thresholds) {
+const toHavePerformanceMetrics: MatcherFunction<
+  [received: unknown, thresholds: PerformanceThresholds]
+> = function (received, thresholds) {
   const { isNot } = this
 
   const metrics = received as any
   const failures: string[] = []
 
   if (thresholds.renderTime && metrics.renderTime > thresholds.renderTime.max) {
-    failures.push(`Render time ${metrics.renderTime}ms exceeds threshold ${thresholds.renderTime.max}ms`)
+    failures.push(
+      `Render time ${metrics.renderTime}ms exceeds threshold ${thresholds.renderTime.max}ms`
+    )
   }
 
   if (thresholds.memoryUsage && metrics.memoryUsage > thresholds.memoryUsage.max) {
-    failures.push(`Memory usage ${metrics.memoryUsage}MB exceeds threshold ${thresholds.memoryUsage.max}MB`)
+    failures.push(
+      `Memory usage ${metrics.memoryUsage}MB exceeds threshold ${thresholds.memoryUsage.max}MB`
+    )
   }
 
   if (thresholds.bundleSize && metrics.bundleSize > thresholds.bundleSize.max) {
-    failures.push(`Bundle size ${metrics.bundleSize}KB exceeds threshold ${thresholds.bundleSize.max}KB`)
+    failures.push(
+      `Bundle size ${metrics.bundleSize}KB exceeds threshold ${thresholds.bundleSize.max}KB`
+    )
   }
 
   const pass = failures.length === 0
@@ -272,42 +292,45 @@ const toHavePerformanceMetrics: MatcherFunction<[received: unknown, thresholds: 
     message: () =>
       isNot
         ? `Expected performance metrics not to meet thresholds`
-        : `Performance thresholds exceeded: ${failures.join(', ')}`
+        : `Performance thresholds exceeded: ${failures.join(', ')}`,
   }
 }
 
 // Async matchers
-const toResolveWithin: MatcherFunction<[received: Promise<any>, timeoutMs: number]> = async function (received, timeoutMs) {
-  const { isNot } = this
+const toResolveWithin: MatcherFunction<[received: Promise<any>, timeoutMs: number]> =
+  async function (received, timeoutMs) {
+    const { isNot } = this
 
-  try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-    )
+    try {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+      )
 
-    await Promise.race([received, timeoutPromise])
-    
-    if (isNot) {
-      throw new Error(`Expected promise not to resolve within ${timeoutMs}ms`)
-    }
+      await Promise.race([received, timeoutPromise])
 
-    return {
-      pass: true,
-      message: () => `Expected promise not to resolve within ${timeoutMs}ms`
-    }
-  } catch (error) {
-    if (!isNot) {
-      throw new Error(`Promise did not resolve within ${timeoutMs}ms`)
-    }
-    
-    return {
-      pass: true,
-      message: () => `Expected promise not to resolve within ${timeoutMs}ms`
+      if (isNot) {
+        throw new Error(`Expected promise not to resolve within ${timeoutMs}ms`)
+      }
+
+      return {
+        pass: true,
+        message: () => `Expected promise not to resolve within ${timeoutMs}ms`,
+      }
+    } catch (error) {
+      if (!isNot) {
+        throw new Error(`Promise did not resolve within ${timeoutMs}ms`)
+      }
+
+      return {
+        pass: true,
+        message: () => `Expected promise not to resolve within ${timeoutMs}ms`,
+      }
     }
   }
-}
 
-const toEventuallyEqual: MatcherFunction<[received: () => any, expected: any, options?: { timeout?: number; interval?: number }]> = async function (received, expected, options = {}) {
+const toEventuallyEqual: MatcherFunction<
+  [received: () => any, expected: any, options?: { timeout?: number; interval?: number }]
+> = async function (received, expected, options = {}) {
   const { isNot } = this
   const { timeout = 5000, interval = 100 } = options
 
@@ -322,23 +345,23 @@ const toEventuallyEqual: MatcherFunction<[received: () => any, expected: any, op
         }
         return {
           pass: true,
-          message: () => `Expected ${actual} not to eventually equal ${expected}`
+          message: () => `Expected ${actual} not to eventually equal ${expected}`,
         }
       }
     } catch (error) {
       // Continue trying
     }
 
-    await new Promise(resolve => setTimeout(resolve, interval))
+    await new Promise((resolve) => setTimeout(resolve, interval))
   }
 
   if (!isNot) {
     throw new Error(`Expected value to eventually equal ${expected} within ${timeout}ms`)
   }
-  
+
   return {
     pass: true,
-    message: () => `Expected value not to eventually equal ${expected} within ${timeout}ms`
+    message: () => `Expected value not to eventually equal ${expected} within ${timeout}ms`,
   }
 }
 
@@ -396,5 +419,5 @@ expect.extend({
   toBeAccessible,
   toHavePerformanceMetrics,
   toResolveWithin,
-  toEventuallyEqual
+  toEventuallyEqual,
 })

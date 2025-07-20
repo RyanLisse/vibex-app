@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 import { and, desc, eq, gte, ilike, lte, sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -36,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     observabilityService.recordEvent({
       type: 'query',
-      contextKey: 'agent_memory',
+      category: 'agent_memory',
       message: 'Fetching agent memories',
       metadata: { query },
     })
@@ -76,8 +79,6 @@ export async function GET(request: NextRequest) {
         offset: query.offset,
         filters: {
           agentType: query.agentType,
-          agentType: query.agentType,
-          contextKey: query.contextKey,
         },
       })
 

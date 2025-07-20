@@ -9,7 +9,7 @@ const fixes = []
 const schemasPath = join(process.cwd(), 'src/schemas/enhanced-task-schemas.ts')
 if (existsSync(schemasPath)) {
   let content = readFileSync(schemasPath, 'utf-8')
-  
+
   // Add missing schemas
   const additionalSchemas = `
 // Screenshot Bug Report Schema
@@ -39,7 +39,7 @@ export const VoiceTaskCreationSchema = z.object({
 export type ScreenshotBugReport = z.infer<typeof ScreenshotBugReportSchema>
 export type VoiceTaskCreation = z.infer<typeof VoiceTaskCreationSchema>
 `
-  
+
   if (!content.includes('ScreenshotBugReportSchema')) {
     content = content.replace(/\n$/, '') + additionalSchemas
     writeFileSync(schemasPath, content)
@@ -71,11 +71,14 @@ export const timeTravelService = {
 const searchForLoggingConfig = async () => {
   const { execSync } = require('child_process')
   try {
-    const result = execSync('grep -r "createDefaultLoggingConfig" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next .', { 
-      cwd: process.cwd(),
-      encoding: 'utf-8'
-    })
-    return result.split('\n').filter(line => line && !line.includes('scripts/'))
+    const result = execSync(
+      'grep -r "createDefaultLoggingConfig" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next .',
+      {
+        cwd: process.cwd(),
+        encoding: 'utf-8',
+      }
+    )
+    return result.split('\n').filter((line) => line && !line.includes('scripts/'))
   } catch {
     return []
   }
@@ -89,21 +92,30 @@ for (const usage of loggingConfigUsages) {
   const [filePath] = usage.split(':')
   if (filePath && existsSync(filePath)) {
     let content = readFileSync(filePath, 'utf-8')
-    
+
     // Replace createDefaultLoggingConfig with a simple object
     if (content.includes('createDefaultLoggingConfig')) {
       // First check if it's imported
-      content = content.replace(/import\s*{\s*([^}]*)\s*createDefaultLoggingConfig\s*([^}]*)\s*}\s*from\s*['"][^'"]+['"]/g, (match, before, after) => {
-        const otherImports = (before + after).split(',').map(i => i.trim()).filter(i => i && i !== 'createDefaultLoggingConfig')
-        if (otherImports.length > 0) {
-          return match.replace(/,?\s*createDefaultLoggingConfig\s*,?/g, '')
+      content = content.replace(
+        /import\s*{\s*([^}]*)\s*createDefaultLoggingConfig\s*([^}]*)\s*}\s*from\s*['"][^'"]+['"]/g,
+        (match, before, after) => {
+          const otherImports = (before + after)
+            .split(',')
+            .map((i) => i.trim())
+            .filter((i) => i && i !== 'createDefaultLoggingConfig')
+          if (otherImports.length > 0) {
+            return match.replace(/,?\s*createDefaultLoggingConfig\s*,?/g, '')
+          }
+          return ''
         }
-        return ''
-      })
-      
+      )
+
       // Replace usage with default config
-      content = content.replace(/createDefaultLoggingConfig\(\)/g, '{ level: "info", format: "json" }')
-      
+      content = content.replace(
+        /createDefaultLoggingConfig\(\)/g,
+        '{ level: "info", format: "json" }'
+      )
+
       writeFileSync(filePath, content)
       fixes.push(`Fixed createDefaultLoggingConfig in ${filePath}`)
     }
@@ -114,21 +126,27 @@ for (const usage of loggingConfigUsages) {
 const visualizationPath = join(process.cwd(), 'components/ambient-agents/visualization-engine.tsx')
 if (existsSync(visualizationPath)) {
   let content = readFileSync(visualizationPath, 'utf-8')
-  
+
   // Debug: check what's actually in the file
   const reactFlowImportMatch = content.match(/import.*from.*@xyflow\/react.*/g)
   if (reactFlowImportMatch) {
     console.log('Current ReactFlow import:', reactFlowImportMatch[0])
   }
-  
+
   // Try multiple patterns
-  content = content.replace(/import\s+ReactFlow[^'"]*from\s*['"]@xyflow\/react['"]/g, "import { ReactFlow } from '@xyflow/react'")
-  content = content.replace(/import\s+{\s*default\s+as\s+ReactFlow[^}]*}\s*from\s*['"]@xyflow\/react['"]/g, "import { ReactFlow } from '@xyflow/react'")
-  
+  content = content.replace(
+    /import\s+ReactFlow[^'"]*from\s*['"]@xyflow\/react['"]/g,
+    "import { ReactFlow } from '@xyflow/react'"
+  )
+  content = content.replace(
+    /import\s+{\s*default\s+as\s+ReactFlow[^}]*}\s*from\s*['"]@xyflow\/react['"]/g,
+    "import { ReactFlow } from '@xyflow/react'"
+  )
+
   writeFileSync(visualizationPath, content)
   fixes.push('Fixed ReactFlow import pattern in visualization-engine.tsx')
 }
 
 console.log('\n✅ Fixed the following issues:')
-fixes.forEach(fix => console.log(`  - ${fix}`))
+fixes.forEach((fix) => console.log(`  - ${fix}`))
 console.log(`\n✨ Total fixes applied: ${fixes.length}`)

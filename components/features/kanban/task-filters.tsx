@@ -5,20 +5,16 @@ import { Search, Filter, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 interface FilterState {
   assignee?: string
@@ -34,12 +30,7 @@ interface TaskFiltersProps {
   className?: string
 }
 
-export function TaskFilters({
-  onFilterChange,
-  assignees,
-  tags,
-  className = '',
-}: TaskFiltersProps) {
+export function TaskFilters({ onFilterChange, assignees, tags, className = '' }: TaskFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     tags: [],
     search: '',
@@ -62,17 +53,15 @@ export function TaskFilters({
   }
 
   const handleTagToggle = (tag: string, checked: boolean) => {
-    const newTags = checked
-      ? [...filters.tags, tag]
-      : filters.tags.filter(t => t !== tag)
-    
+    const newTags = checked ? [...filters.tags, tag] : filters.tags.filter((t) => t !== tag)
+
     updateFilters({ tags: newTags })
   }
 
   const hasActiveFilters = !!(
-    filters.assignee || 
-    filters.priority || 
-    filters.tags.length > 0 || 
+    filters.assignee ||
+    filters.priority ||
+    filters.tags.length > 0 ||
     filters.search
   )
 
@@ -110,7 +99,7 @@ export function TaskFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">All assignees</SelectItem>
-            {assignees.map(assignee => (
+            {assignees.map((assignee) => (
               <SelectItem key={assignee} value={assignee}>
                 {assignee}
               </SelectItem>
@@ -148,10 +137,7 @@ export function TaskFilters({
             <Filter className="h-4 w-4" />
             Tags
             {activeFilterCount > 0 && (
-              <Badge 
-                variant="secondary" 
-                className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
-              >
+              <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
                 {activeFilterCount}
               </Badge>
             )}
@@ -182,19 +168,14 @@ export function TaskFilters({
                 {tags.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No tags available</p>
                 ) : (
-                  tags.map(tag => (
+                  tags.map((tag) => (
                     <div key={tag} className="flex items-center space-x-2">
                       <Checkbox
                         id={`tag-${tag}`}
                         checked={filters.tags.includes(tag)}
-                        onCheckedChange={(checked) => 
-                          handleTagToggle(tag, checked as boolean)
-                        }
+                        onCheckedChange={(checked) => handleTagToggle(tag, checked as boolean)}
                       />
-                      <Label 
-                        htmlFor={`tag-${tag}`}
-                        className="text-sm cursor-pointer flex-1"
-                      >
+                      <Label htmlFor={`tag-${tag}`} className="text-sm cursor-pointer flex-1">
                         {tag}
                       </Label>
                     </div>
@@ -223,7 +204,7 @@ export function TaskFilters({
                 </Button>
               </Badge>
             )}
-            
+
             {filters.priority && (
               <Badge variant="secondary" className="gap-1">
                 Priority: {filters.priority}
@@ -237,8 +218,8 @@ export function TaskFilters({
                 </Button>
               </Badge>
             )}
-            
-            {filters.tags.map(tag => (
+
+            {filters.tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="gap-1">
                 Tag: {tag}
                 <Button

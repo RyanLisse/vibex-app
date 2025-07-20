@@ -4,7 +4,7 @@ import { GitHubAPI } from './github-api'
 
 describe('GitHubAPI Coverage Tests', () => {
   let api: GitHubAPI
-  
+
   beforeEach(() => {
     api = new GitHubAPI('test-token')
     global.fetch = vi.fn()
@@ -14,27 +14,27 @@ describe('GitHubAPI Coverage Tests', () => {
     it('should handle network timeout errors', async () => {
       const timeoutError = new Error('Network timeout')
       timeoutError.name = 'TimeoutError'
-      
+
       global.fetch = vi.fn().mockRejectedValue(timeoutError)
-      
+
       await expect(api.getUser()).rejects.toThrow('Network timeout')
     })
 
     it('should handle fetch abortion', async () => {
       const abortError = new Error('The operation was aborted')
       abortError.name = 'AbortError'
-      
+
       global.fetch = vi.fn().mockRejectedValue(abortError)
-      
+
       await expect(api.getUser()).rejects.toThrow('The operation was aborted')
     })
 
     it('should handle connection refused', async () => {
       const connectionError = new Error('Connection refused')
       connectionError.name = 'ConnectionError'
-      
+
       global.fetch = vi.fn().mockRejectedValue(connectionError)
-      
+
       await expect(api.getUser()).rejects.toThrow('Connection refused')
     })
   })
@@ -45,9 +45,9 @@ describe('GitHubAPI Coverage Tests', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
-        text: () => Promise.resolve('{"message": "Bad credentials"}')
+        text: () => Promise.resolve('{"message": "Bad credentials"}'),
       })
-      
+
       await expect(api.getUser()).rejects.toThrow('GitHub API error: Bad credentials')
     })
 
@@ -58,11 +58,11 @@ describe('GitHubAPI Coverage Tests', () => {
         statusText: 'Forbidden',
         headers: new Map([
           ['x-ratelimit-remaining', '0'],
-          ['x-ratelimit-reset', String(Math.floor(Date.now() / 1000) + 3600)]
+          ['x-ratelimit-reset', String(Math.floor(Date.now() / 1000) + 3600)],
         ]),
-        text: () => Promise.resolve('{"message": "API rate limit exceeded"}')
+        text: () => Promise.resolve('{"message": "API rate limit exceeded"}'),
       })
-      
+
       await expect(api.getUser()).rejects.toThrow('GitHub API error: API rate limit exceeded')
     })
 
@@ -71,10 +71,15 @@ describe('GitHubAPI Coverage Tests', () => {
         ok: false,
         status: 422,
         statusText: 'Unprocessable Entity',
-        text: () => Promise.resolve('{"message": "Validation Failed", "errors": [{"field": "name", "code": "missing"}]}')
+        text: () =>
+          Promise.resolve(
+            '{"message": "Validation Failed", "errors": [{"field": "name", "code": "missing"}]}'
+          ),
       })
-      
-      await expect(api.createRepository({ name: '' })).rejects.toThrow('GitHub API error: Validation Failed')
+
+      await expect(api.createRepository({ name: '' })).rejects.toThrow(
+        'GitHub API error: Validation Failed'
+      )
     })
 
     it('should handle 500 internal server error', async () => {
@@ -82,9 +87,9 @@ describe('GitHubAPI Coverage Tests', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
-        text: () => Promise.resolve('{"message": "Server Error"}')
+        text: () => Promise.resolve('{"message": "Server Error"}'),
       })
-      
+
       await expect(api.getUser()).rejects.toThrow('GitHub API error: Server Error')
     })
   })
@@ -95,9 +100,9 @@ describe('GitHubAPI Coverage Tests', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: () => Promise.resolve('invalid json response')
+        text: () => Promise.resolve('invalid json response'),
       })
-      
+
       await expect(api.getUser()).rejects.toThrow('HTTP error: 400 Bad Request')
     })
 
@@ -106,9 +111,9 @@ describe('GitHubAPI Coverage Tests', () => {
         ok: false,
         status: 404,
         statusText: 'Not Found',
-        text: () => Promise.resolve('')
+        text: () => Promise.resolve(''),
       })
-      
+
       await expect(api.getUser()).rejects.toThrow('HTTP error: 404 Not Found')
     })
 
@@ -117,9 +122,9 @@ describe('GitHubAPI Coverage Tests', () => {
         ok: false,
         status: 400,
         statusText: 'Bad Request',
-        text: () => Promise.resolve('{"error": "Something went wrong"}')
+        text: () => Promise.resolve('{"error": "Something went wrong"}'),
       })
-      
+
       await expect(api.getUser()).rejects.toThrow('HTTP error: 400 Bad Request')
     })
   })
@@ -129,24 +134,25 @@ describe('GitHubAPI Coverage Tests', () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 201,
-        json: () => Promise.resolve({
-          id: 123,
-          name: 'test-repo',
-          full_name: 'user/test-repo',
-          private: true,
-          description: 'Test repository'
-        })
+        json: () =>
+          Promise.resolve({
+            id: 123,
+            name: 'test-repo',
+            full_name: 'user/test-repo',
+            private: true,
+            description: 'Test repository',
+          }),
       })
-      
+
       const result = await api.createRepository({
         name: 'test-repo',
         description: 'Test repository',
         private: true,
         auto_init: true,
         gitignore_template: 'Node',
-        license_template: 'mit'
+        license_template: 'mit',
       })
-      
+
       expect(result).toBeDefined()
       expect(result.name).toBe('test-repo')
       expect(global.fetch).toHaveBeenCalledWith(
@@ -154,8 +160,8 @@ describe('GitHubAPI Coverage Tests', () => {
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
-            'Authorization': 'token test-token',
-            'Content-Type': 'application/json'
+            Authorization: 'token test-token',
+            'Content-Type': 'application/json',
           }),
           body: JSON.stringify({
             name: 'test-repo',
@@ -163,8 +169,8 @@ describe('GitHubAPI Coverage Tests', () => {
             private: true,
             auto_init: true,
             gitignore_template: 'Node',
-            license_template: 'mit'
-          })
+            license_template: 'mit',
+          }),
         })
       )
     })
@@ -173,27 +179,28 @@ describe('GitHubAPI Coverage Tests', () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve([
-          { id: 1, name: 'repo1', full_name: 'user/repo1' },
-          { id: 2, name: 'repo2', full_name: 'user/repo2' }
-        ])
+        json: () =>
+          Promise.resolve([
+            { id: 1, name: 'repo1', full_name: 'user/repo1' },
+            { id: 2, name: 'repo2', full_name: 'user/repo2' },
+          ]),
       })
-      
+
       const result = await api.getRepositories({
         type: 'owner',
         sort: 'updated',
         direction: 'desc',
         per_page: 50,
-        page: 2
+        page: 2,
       })
-      
+
       expect(result).toHaveLength(2)
       expect(global.fetch).toHaveBeenCalledWith(
         'https://api.github.com/user/repos?type=owner&sort=updated&direction=desc&per_page=50&page=2',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'token test-token'
-          })
+            Authorization: 'token test-token',
+          }),
         })
       )
     })
@@ -202,29 +209,30 @@ describe('GitHubAPI Coverage Tests', () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve([
-          {
-            name: 'main',
-            commit: { sha: 'abc123' },
-            protected: true,
-            protection: {
-              enabled: true,
-              required_status_checks: {
-                enforcement_level: 'everyone',
-                contexts: ['ci/build']
-              }
-            }
-          },
-          {
-            name: 'develop',
-            commit: { sha: 'def456' },
-            protected: false
-          }
-        ])
+        json: () =>
+          Promise.resolve([
+            {
+              name: 'main',
+              commit: { sha: 'abc123' },
+              protected: true,
+              protection: {
+                enabled: true,
+                required_status_checks: {
+                  enforcement_level: 'everyone',
+                  contexts: ['ci/build'],
+                },
+              },
+            },
+            {
+              name: 'develop',
+              commit: { sha: 'def456' },
+              protected: false,
+            },
+          ]),
       })
-      
+
       const result = await api.getBranches('user', 'repo')
-      
+
       expect(result).toHaveLength(2)
       expect(result[0].protected).toBe(true)
       expect(result[1].protected).toBe(false)
@@ -236,15 +244,15 @@ describe('GitHubAPI Coverage Tests', () => {
       const largeRepoList = Array.from({ length: 100 }, (_, i) => ({
         id: i + 1,
         name: `repo-${i + 1}`,
-        full_name: `user/repo-${i + 1}`
+        full_name: `user/repo-${i + 1}`,
       }))
 
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve(largeRepoList)
+        json: () => Promise.resolve(largeRepoList),
       })
-      
+
       const result = await api.getRepositories({ per_page: 100 })
       expect(result).toHaveLength(100)
     })
@@ -253,9 +261,9 @@ describe('GitHubAPI Coverage Tests', () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve([])
+        json: () => Promise.resolve([]),
       })
-      
+
       const result = await api.getRepositories()
       expect(result).toEqual([])
     })
@@ -264,9 +272,9 @@ describe('GitHubAPI Coverage Tests', () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve([])
+        json: () => Promise.resolve([]),
       })
-      
+
       const result = await api.getBranches('user', 'repo')
       expect(result).toEqual([])
     })

@@ -19,7 +19,7 @@ export class AlertWinstonTransport extends Transport {
 
   constructor(options: AlertTransportOptions) {
     super(options)
-    
+
     this.alertManager = options.alertManager
     this.detector = options.detector || new CriticalErrorDetector()
     this.alertConfig = options.alertConfig
@@ -38,7 +38,7 @@ export class AlertWinstonTransport extends Transport {
         this.logger.error('Failed to process log entry for alerts', {
           error: error instanceof Error ? error.message : 'Unknown error',
           logLevel: info.level,
-          logMessage: info.message
+          logMessage: info.message,
         })
         callback()
       })
@@ -47,12 +47,12 @@ export class AlertWinstonTransport extends Transport {
   private async processLogEntry(info: LogEntry): Promise<void> {
     try {
       const criticalError = this.detector.detectCriticalError(info)
-      
+
       if (criticalError) {
         this.logger.debug('Critical error detected in log entry', {
           errorId: criticalError.id,
           errorType: criticalError.type,
-          severity: criticalError.severity
+          severity: criticalError.severity,
         })
 
         await this.alertManager.processAlert(criticalError, this.alertConfig)
@@ -60,7 +60,7 @@ export class AlertWinstonTransport extends Transport {
     } catch (error) {
       this.logger.error('Error processing log entry for critical error detection', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       })
     }
   }
@@ -69,7 +69,7 @@ export class AlertWinstonTransport extends Transport {
     this.alertConfig = config
     this.logger.info('Alert configuration updated', {
       enabled: config.enabled,
-      channelCount: config.channels.length
+      channelCount: config.channels.length,
     })
   }
 

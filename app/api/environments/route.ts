@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * Environments API Route
  *
@@ -97,7 +100,7 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordDuration('select_environments', duration)
+      observability.recordOperation('select_environments', duration)
 
       // Record event
       observability.recordEvent('environments_query', {
@@ -178,7 +181,7 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordDuration('insert_environment', duration)
+      observability.recordOperation('insert_environment', duration)
 
       // Record event
       observability.recordEvent('environments_event', {
@@ -248,7 +251,7 @@ class EnvironmentsService {
       const duration = Date.now() - startTime
 
       // Record metrics
-      observability.metrics.recordDuration('activate_environment', duration)
+      observability.recordOperation('activate_environment', duration)
 
       // Record event
       observability.recordEvent('environments_event', {
@@ -314,10 +317,7 @@ export async function GET(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400), { status: 400 })
     }
 
     if (error instanceof EnvironmentsAPIError) {
@@ -327,10 +327,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }
 
@@ -353,10 +350,7 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400), { status: 400 })
     }
 
     if (error instanceof EnvironmentsAPIError) {
@@ -366,10 +360,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }
 
@@ -396,10 +387,7 @@ export async function PUT(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        createApiErrorResponse('Validation failed', 400),
-        { status: 400 }
-      )
+      return NextResponse.json(createApiErrorResponse('Validation failed', 400), { status: 400 })
     }
 
     if (error instanceof EnvironmentsAPIError) {
@@ -409,9 +397,6 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(
-      createApiErrorResponse('Internal server error', 500),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Internal server error', 500), { status: 500 })
   }
 }

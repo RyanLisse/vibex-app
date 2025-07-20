@@ -1,5 +1,8 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 import { and, desc, eq, gte, ilike, inArray, lte } from 'drizzle-orm'
-import { sql } from "drizzle-orm"
+import { sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/db/config'

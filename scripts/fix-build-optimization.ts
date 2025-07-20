@@ -52,7 +52,10 @@ console.log('✅ Created optimized next.config.js')
 const schemasPath = join(process.cwd(), 'src/schemas/enhanced-task-schemas.ts')
 if (existsSync(schemasPath)) {
   const content = readFileSync(schemasPath, 'utf-8')
-  console.log('📋 Current schemas exported:', content.match(/export\s+const\s+\w+Schema/g)?.map(m => m.replace('export const ', '')))
+  console.log(
+    '📋 Current schemas exported:',
+    content.match(/export\s+const\s+\w+Schema/g)?.map((m) => m.replace('export const ', ''))
+  )
 }
 
 // Create a minimal test to verify the build

@@ -16,7 +16,11 @@ export class LogTransport implements AlertTransport {
     this.logger = new ComponentLogger('LogTransport')
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const config = channel.config as LogConfig
     const level = config.level || 'error'
     const format = config.format || 'structured'
@@ -28,7 +32,12 @@ export class LogTransport implements AlertTransport {
     }
   }
 
-  private sendStructuredLog(level: string, error: CriticalError, notification: AlertNotification, config: LogConfig): void {
+  private sendStructuredLog(
+    level: string,
+    error: CriticalError,
+    notification: AlertNotification,
+    config: LogConfig
+  ): void {
     const logData = {
       alert: {
         id: error.id,
@@ -44,15 +53,15 @@ export class LogTransport implements AlertTransport {
         lastOccurrence: error.lastOccurrence.toISOString(),
         correlationId: error.correlationId,
         userId: error.userId,
-        sessionId: error.sessionId
+        sessionId: error.sessionId,
       },
       notification: {
         id: notification.id,
         channel: notification.channelName,
-        status: notification.status
+        status: notification.status,
       },
       ...(config.includeMetadata && { metadata: error.metadata }),
-      ...(config.includeStackTrace && error.stackTrace && { stackTrace: error.stackTrace })
+      ...(config.includeStackTrace && error.stackTrace && { stackTrace: error.stackTrace }),
     }
 
     const message = `🚨 CRITICAL ERROR ALERT: ${error.type.replace(/_/g, ' ')} - ${error.message}`
@@ -70,10 +79,15 @@ export class LogTransport implements AlertTransport {
     }
   }
 
-  private sendSimpleLog(level: string, error: CriticalError, notification: AlertNotification, config: LogConfig): void {
+  private sendSimpleLog(
+    level: string,
+    error: CriticalError,
+    notification: AlertNotification,
+    config: LogConfig
+  ): void {
     const severityIcon = this.getSeverityIcon(error.severity)
     const timestamp = error.timestamp.toISOString()
-    
+
     let message = `${severityIcon} ALERT [${error.environment.toUpperCase()}] ${error.type.replace(/_/g, ' ').toUpperCase()}\n`
     message += `Time: ${timestamp}\n`
     message += `Severity: ${error.severity.toUpperCase()}\n`
@@ -107,7 +121,7 @@ export class LogTransport implements AlertTransport {
       errorType: error.type,
       severity: error.severity,
       environment: error.environment,
-      correlationId: error.correlationId
+      correlationId: error.correlationId,
     }
 
     switch (level) {
@@ -125,11 +139,16 @@ export class LogTransport implements AlertTransport {
 
   private getSeverityIcon(severity: string): string {
     switch (severity) {
-      case 'critical': return '🚨'
-      case 'high': return '⚠️'
-      case 'medium': return '📢'
-      case 'low': return 'ℹ️'
-      default: return '🔔'
+      case 'critical':
+        return '🚨'
+      case 'high':
+        return '⚠️'
+      case 'medium':
+        return '📢'
+      case 'low':
+        return 'ℹ️'
+      default:
+        return '🔔'
     }
   }
 

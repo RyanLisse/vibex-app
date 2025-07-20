@@ -12,11 +12,7 @@ interface ScreenshotCaptureProps {
   className?: string
 }
 
-export function ScreenshotCapture({
-  onCapture,
-  onError,
-  className = '',
-}: ScreenshotCaptureProps) {
+export function ScreenshotCapture({ onCapture, onError, className = '' }: ScreenshotCaptureProps) {
   const [isCapturing, setIsCapturing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -41,7 +37,7 @@ export function ScreenshotCapture({
       const video = document.createElement('video')
       video.srcObject = stream
       video.muted = true
-      
+
       // Wait for video to be ready
       await new Promise<void>((resolve, reject) => {
         video.onloadedmetadata = () => resolve()
@@ -53,7 +49,7 @@ export function ScreenshotCapture({
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
-      
+
       const context = canvas.getContext('2d')
       if (!context) {
         throw new Error('Could not get canvas rendering context')
@@ -63,37 +59,41 @@ export function ScreenshotCapture({
       context.drawImage(video, 0, 0, canvas.width, canvas.height)
 
       // Stop all tracks
-      stream.getTracks().forEach(track => track.stop())
+      stream.getTracks().forEach((track) => track.stop())
 
       // Convert to blob and create screenshot data
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          const error = 'Failed to create image from screenshot'
-          setError(error)
-          onError?.(error)
-          return
-        }
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            const error = 'Failed to create image from screenshot'
+            setError(error)
+            onError?.(error)
+            return
+          }
 
-        const screenshotData: ScreenshotData = {
-          id: crypto.randomUUID(),
-          imageBlob: blob,
-          timestamp: new Date(),
-          annotations: [],
-        }
+          const screenshotData: ScreenshotData = {
+            id: crypto.randomUUID(),
+            imageBlob: blob,
+            timestamp: new Date(),
+            annotations: [],
+          }
 
-        onCapture(screenshotData)
-      }, 'image/png', 1.0)
-
+          onCapture(screenshotData)
+        },
+        'image/png',
+        1.0
+      )
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      
+
       let userFriendlyError = errorMessage
       if (errorMessage.includes('Permission denied')) {
         userFriendlyError = 'Permission denied. Please allow screen sharing to capture screenshots.'
       } else if (errorMessage.includes('not supported')) {
-        userFriendlyError = 'Screen capture is not supported in this browser. Please use Chrome, Firefox, or Edge.'
+        userFriendlyError =
+          'Screen capture is not supported in this browser. Please use Chrome, Firefox, or Edge.'
       }
-      
+
       setError(userFriendlyError)
       onError?.(userFriendlyError)
     } finally {
@@ -109,7 +109,7 @@ export function ScreenshotCapture({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <div className="flex flex-col items-center space-y-4">
         <div className="rounded-lg border border-dashed border-muted-foreground/25 p-8 text-center">
           <Monitor className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -118,20 +118,15 @@ export function ScreenshotCapture({
             Click the button below to capture your screen for the bug report
           </p>
         </div>
-        
-        <Button
-          onClick={captureScreenshot}
-          disabled={isCapturing}
-          size="lg"
-          className="gap-2"
-        >
+
+        <Button onClick={captureScreenshot} disabled={isCapturing} size="lg" className="gap-2">
           <Camera className="h-4 w-4" />
           {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
         </Button>
-        
+
         <p className="text-xs text-muted-foreground text-center max-w-md">
-          Your browser will ask for permission to capture your screen. 
-          Choose the window or screen you want to include in the bug report.
+          Your browser will ask for permission to capture your screen. Choose the window or screen
+          you want to include in the bug report.
         </p>
       </div>
     </div>

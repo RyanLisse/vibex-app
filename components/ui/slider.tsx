@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
 interface SliderProps {
   value?: number[]
@@ -15,7 +15,20 @@ interface SliderProps {
 }
 
 const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
-  ({ className, value = [50], defaultValue = [50], onValueChange, max = 100, min = 0, step = 1, disabled = false, ...props }, ref) => {
+  (
+    {
+      className,
+      value = [50],
+      defaultValue = [50],
+      onValueChange,
+      max = 100,
+      min = 0,
+      step = 1,
+      disabled = false,
+      ...props
+    },
+    ref
+  ) => {
     const [internalValue, setInternalValue] = React.useState(defaultValue)
     const currentValue = value || internalValue
 
@@ -26,7 +39,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     }
 
     return (
-      <div className={cn("relative flex w-full touch-none select-none items-center", className)}>
+      <div className={cn('relative flex w-full touch-none select-none items-center', className)}>
         <input
           ref={ref}
           type="range"
@@ -41,7 +54,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         />
         <style jsx>{`
           .slider {
-            background: linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${(currentValue[0] - min) / (max - min) * 100}%, hsl(var(--secondary)) ${(currentValue[0] - min) / (max - min) * 100}%, hsl(var(--secondary)) 100%);
+            background: linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${((currentValue[0] - min) / (max - min)) * 100}%, hsl(var(--secondary)) ${((currentValue[0] - min) / (max - min)) * 100}%, hsl(var(--secondary)) 100%);
           }
           .slider::-webkit-slider-thumb {
             appearance: none;
@@ -65,6 +78,6 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
     )
   }
 )
-Slider.displayName = "Slider"
+Slider.displayName = 'Slider'
 
 export { Slider }

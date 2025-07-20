@@ -11,7 +11,7 @@ export {
   type TestStatus,
   type LifecycleState,
   type TestResult,
-  type TestRunner
+  type TestRunner,
 } from './tdd-framework/core'
 
 // Test Data Builders
@@ -24,7 +24,7 @@ export {
   TestDataGenerator,
   type User,
   type Project,
-  type ApiResponse
+  type ApiResponse,
 } from './builders/test-data-builder'
 
 // Custom Assertions
@@ -38,7 +38,7 @@ export {
   LifecyclePatterns,
   type TestHook,
   type Resource,
-  type TestContext
+  type TestContext,
 } from './lifecycle/test-lifecycle'
 
 // CLI Tools
@@ -51,7 +51,7 @@ export {
   type IntegrationTestOptions,
   type TDDCycleOptions,
   type ScaffoldOptions,
-  type ScaffoldResult
+  type ScaffoldResult,
 } from './cli/tdd-cli'
 
 // Performance Testing
@@ -65,7 +65,7 @@ export {
   type MemorySnapshot,
   type PerformanceThresholds,
   type RegressionResult,
-  type CoverageReport
+  type CoverageReport,
 } from './performance/performance-testing'
 
 // Test Documentation
@@ -77,7 +77,7 @@ export {
   type TestDocumentation,
   type CoverageData,
   type CoverageSummary,
-  type CoverageAnalysis
+  type CoverageAnalysis,
 } from './documentation/test-documentation'
 
 // Utility Functions and Helpers
@@ -122,14 +122,14 @@ export const TDDTestingFramework = {
   // Coverage visualization
   createCoverageVisualizer: () => {
     return new CoverageVisualizer()
-  }
+  },
 }
 
 // Re-export Vitest types for convenience
 export type {
   MockedFunction,
   MockedObject,
-  MockedClass
+  MockedClass,
 } from 'vitest'
 
 // Convenience re-exports from testing libraries
@@ -142,7 +142,7 @@ export {
   beforeEach,
   afterAll,
   afterEach,
-  vi
+  vi,
 } from 'vitest'
 
 export {
@@ -150,7 +150,7 @@ export {
   screen,
   fireEvent,
   waitFor,
-  cleanup
+  cleanup,
 } from '@testing-library/react'
 
 // Default configuration
@@ -160,14 +160,14 @@ export const TDDConfig = {
     maxTime: 100, // 100ms
     targetTime: 50, // 50ms
     maxMemory: 100 * 1024 * 1024, // 100MB
-    targetMemory: 50 * 1024 * 1024 // 50MB
+    targetMemory: 50 * 1024 * 1024, // 50MB
   },
 
   // Default benchmark options
   benchmarkOptions: {
     iterations: 10,
     warmupIterations: 3,
-    timeout: 30000
+    timeout: 30000,
   },
 
   // Coverage thresholds
@@ -175,7 +175,7 @@ export const TDDConfig = {
     statements: 80,
     branches: 80,
     functions: 80,
-    lines: 80
+    lines: 80,
   },
 
   // Test generation templates
@@ -184,6 +184,6 @@ export const TDDConfig = {
     hook: 'react-hook',
     service: 'service-class',
     api: 'api-endpoint',
-    utility: 'utility-function'
-  }
+    utility: 'utility-function',
+  },
 }

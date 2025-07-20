@@ -27,9 +27,13 @@ export class AlertTransportService {
     this.transports.set(AlertChannelType.LOG, new LogTransport())
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const transport = this.transports.get(channel.type)
-    
+
     if (!transport) {
       throw new Error(`No transport available for channel type: ${channel.type}`)
     }
@@ -40,21 +44,20 @@ export class AlertTransportService {
 
     try {
       await transport.send(channel, error, notification)
-      
+
       this.logger.debug('Alert sent successfully', {
         channelType: channel.type,
         channelName: channel.name,
         errorId: error.id,
-        notificationId: notification.id
+        notificationId: notification.id,
       })
-      
     } catch (transportError) {
       this.logger.error('Transport failed to send alert', {
         channelType: channel.type,
         channelName: channel.name,
         errorId: error.id,
         notificationId: notification.id,
-        error: transportError instanceof Error ? transportError.message : 'Unknown error'
+        error: transportError instanceof Error ? transportError.message : 'Unknown error',
       })
       throw transportError
     }

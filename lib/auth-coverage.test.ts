@@ -13,7 +13,7 @@ describe('Auth Coverage Tests', () => {
     const validateRedirectURL = (url: string): string => {
       try {
         const parsed = new URL(url)
-        
+
         // Block non-HTTPS URLs (except localhost HTTP)
         if (
           parsed.protocol !== 'https:' &&
@@ -21,7 +21,7 @@ describe('Auth Coverage Tests', () => {
         ) {
           throw new Error('Invalid redirect URL protocol')
         }
-        
+
         // Block dangerous protocols
         if (
           (parsed.protocol as string) === 'javascript:' ||
@@ -30,7 +30,7 @@ describe('Auth Coverage Tests', () => {
         ) {
           throw new Error('Dangerous redirect URL protocol')
         }
-        
+
         return url
       } catch (error) {
         throw new Error('Invalid redirect URL')
@@ -39,28 +39,40 @@ describe('Auth Coverage Tests', () => {
 
     it('should allow HTTPS URLs', () => {
       expect(() => validateRedirectURL('https://example.com/callback')).not.toThrow()
-      expect(validateRedirectURL('https://example.com/callback')).toBe('https://example.com/callback')
+      expect(validateRedirectURL('https://example.com/callback')).toBe(
+        'https://example.com/callback'
+      )
     })
 
     it('should allow localhost HTTP URLs', () => {
       expect(() => validateRedirectURL('http://localhost:3000/callback')).not.toThrow()
-      expect(validateRedirectURL('http://localhost:3000/callback')).toBe('http://localhost:3000/callback')
+      expect(validateRedirectURL('http://localhost:3000/callback')).toBe(
+        'http://localhost:3000/callback'
+      )
     })
 
     it('should reject HTTP URLs for non-localhost', () => {
-      expect(() => validateRedirectURL('http://example.com/callback')).toThrow('Invalid redirect URL protocol')
+      expect(() => validateRedirectURL('http://example.com/callback')).toThrow(
+        'Invalid redirect URL protocol'
+      )
     })
 
     it('should reject javascript: protocol', () => {
-      expect(() => validateRedirectURL('javascript:alert("xss")')).toThrow('Dangerous redirect URL protocol')
+      expect(() => validateRedirectURL('javascript:alert("xss")')).toThrow(
+        'Dangerous redirect URL protocol'
+      )
     })
 
     it('should reject data: protocol', () => {
-      expect(() => validateRedirectURL('data:text/html,<script>alert("xss")</script>')).toThrow('Dangerous redirect URL protocol')
+      expect(() => validateRedirectURL('data:text/html,<script>alert("xss")</script>')).toThrow(
+        'Dangerous redirect URL protocol'
+      )
     })
 
     it('should reject file: protocol', () => {
-      expect(() => validateRedirectURL('file:///etc/passwd')).toThrow('Dangerous redirect URL protocol')
+      expect(() => validateRedirectURL('file:///etc/passwd')).toThrow(
+        'Dangerous redirect URL protocol'
+      )
     })
 
     it('should reject malformed URLs', () => {
@@ -70,12 +82,18 @@ describe('Auth Coverage Tests', () => {
     })
 
     it('should reject ftp protocol', () => {
-      expect(() => validateRedirectURL('ftp://example.com/file')).toThrow('Invalid redirect URL protocol')
+      expect(() => validateRedirectURL('ftp://example.com/file')).toThrow(
+        'Invalid redirect URL protocol'
+      )
     })
 
     it('should reject other protocols', () => {
-      expect(() => validateRedirectURL('ws://example.com/socket')).toThrow('Invalid redirect URL protocol')
-      expect(() => validateRedirectURL('mailto:test@example.com')).toThrow('Invalid redirect URL protocol')
+      expect(() => validateRedirectURL('ws://example.com/socket')).toThrow(
+        'Invalid redirect URL protocol'
+      )
+      expect(() => validateRedirectURL('mailto:test@example.com')).toThrow(
+        'Invalid redirect URL protocol'
+      )
     })
   })
 
@@ -93,9 +111,9 @@ describe('Auth Coverage Tests', () => {
         client_id: 'test-client',
         redirect_uri: 'https://example.com/callback?foo=bar&baz=qux',
         state: 'state-with-special-chars!@#$%^&*()',
-        scope: 'repo user:email'
+        scope: 'repo user:email',
       })
-      
+
       expect(url).toContain('client_id=test-client')
       expect(url).toContain(encodeURIComponent('https://example.com/callback?foo=bar&baz=qux'))
       expect(url).toContain(encodeURIComponent('state-with-special-chars!@#$%^&*()'))
@@ -106,9 +124,9 @@ describe('Auth Coverage Tests', () => {
       const url = buildAuthURL('https://github.com/login/oauth/authorize', {
         client_id: '',
         redirect_uri: '',
-        state: ''
+        state: '',
       })
-      
+
       expect(url).toContain('client_id=')
       expect(url).toContain('redirect_uri=')
       expect(url).toContain('state=')
@@ -116,43 +134,47 @@ describe('Auth Coverage Tests', () => {
 
     it('should handle unicode characters', () => {
       const url = buildAuthURL('https://github.com/login/oauth/authorize', {
-        state: '测试状态-🔒-тест'
+        state: '测试状态-🔒-тест',
       })
-      
+
       expect(url).toContain(encodeURIComponent('测试状态-🔒-тест'))
     })
   })
 
   describe('token exchange edge cases', () => {
     // Mock token exchange function
-    const exchangeCodeForToken = async (code: string, clientId: string, clientSecret: string): Promise<any> => {
+    const exchangeCodeForToken = async (
+      code: string,
+      clientId: string,
+      clientSecret: string
+    ): Promise<any> => {
       if (!code) throw new Error('Authorization code is required')
       if (!clientId) throw new Error('Client ID is required')
       if (!clientSecret) throw new Error('Client secret is required')
-      
+
       const response = await fetch('https://github.com/login/oauth/access_token', {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
           client_id: clientId,
           client_secret: clientSecret,
-          code: code
-        })
+          code: code,
+        }),
       })
-      
+
       if (!response.ok) {
         throw new Error(`Token exchange failed: ${response.status}`)
       }
-      
+
       const data = await response.json()
-      
+
       if (data.error) {
         throw new Error(`OAuth error: ${data.error_description || data.error}`)
       }
-      
+
       return data
     }
 
@@ -164,68 +186,77 @@ describe('Auth Coverage Tests', () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          access_token: 'gho_test_token',
-          token_type: 'bearer',
-          scope: 'repo'
-        })
+        json: () =>
+          Promise.resolve({
+            access_token: 'gho_test_token',
+            token_type: 'bearer',
+            scope: 'repo',
+          }),
       })
-      
+
       const result = await exchangeCodeForToken('test-code', 'client-id', 'client-secret')
       expect(result.access_token).toBe('gho_test_token')
     })
 
     it('should handle missing authorization code', async () => {
-      await expect(exchangeCodeForToken('', 'client-id', 'client-secret'))
-        .rejects.toThrow('Authorization code is required')
+      await expect(exchangeCodeForToken('', 'client-id', 'client-secret')).rejects.toThrow(
+        'Authorization code is required'
+      )
     })
 
     it('should handle missing client ID', async () => {
-      await expect(exchangeCodeForToken('test-code', '', 'client-secret'))
-        .rejects.toThrow('Client ID is required')
+      await expect(exchangeCodeForToken('test-code', '', 'client-secret')).rejects.toThrow(
+        'Client ID is required'
+      )
     })
 
     it('should handle missing client secret', async () => {
-      await expect(exchangeCodeForToken('test-code', 'client-id', ''))
-        .rejects.toThrow('Client secret is required')
+      await expect(exchangeCodeForToken('test-code', 'client-id', '')).rejects.toThrow(
+        'Client secret is required'
+      )
     })
 
     it('should handle HTTP error responses', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 400,
-        json: () => Promise.resolve({})
+        json: () => Promise.resolve({}),
       })
-      
-      await expect(exchangeCodeForToken('test-code', 'client-id', 'client-secret'))
-        .rejects.toThrow('Token exchange failed: 400')
+
+      await expect(exchangeCodeForToken('test-code', 'client-id', 'client-secret')).rejects.toThrow(
+        'Token exchange failed: 400'
+      )
     })
 
     it('should handle OAuth error responses', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          error: 'invalid_grant',
-          error_description: 'The provided authorization grant is invalid'
-        })
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_grant',
+            error_description: 'The provided authorization grant is invalid',
+          }),
       })
-      
-      await expect(exchangeCodeForToken('test-code', 'client-id', 'client-secret'))
-        .rejects.toThrow('OAuth error: The provided authorization grant is invalid')
+
+      await expect(exchangeCodeForToken('test-code', 'client-id', 'client-secret')).rejects.toThrow(
+        'OAuth error: The provided authorization grant is invalid'
+      )
     })
 
     it('should handle OAuth error without description', async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.resolve({
-          error: 'invalid_client'
-        })
+        json: () =>
+          Promise.resolve({
+            error: 'invalid_client',
+          }),
       })
-      
-      await expect(exchangeCodeForToken('test-code', 'client-id', 'client-secret'))
-        .rejects.toThrow('OAuth error: invalid_client')
+
+      await expect(exchangeCodeForToken('test-code', 'client-id', 'client-secret')).rejects.toThrow(
+        'OAuth error: invalid_client'
+      )
     })
   })
 
@@ -234,17 +265,17 @@ describe('Auth Coverage Tests', () => {
       if (!receivedState || !expectedState) {
         return false
       }
-      
+
       // Constant-time comparison to prevent timing attacks
       if (receivedState.length !== expectedState.length) {
         return false
       }
-      
+
       let result = 0
       for (let i = 0; i < receivedState.length; i++) {
         result |= receivedState.charCodeAt(i) ^ expectedState.charCodeAt(i)
       }
-      
+
       return result === 0
     }
 
@@ -291,10 +322,10 @@ describe('Auth Coverage Tests', () => {
     const generateSecureRandom = (length: number): string => {
       if (length <= 0) throw new Error('Length must be positive')
       if (length > 1000) throw new Error('Length too large')
-      
+
       const array = new Uint8Array(length)
       crypto.getRandomValues(array)
-      return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+      return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('')
     }
 
     it('should generate random values of specified length', () => {

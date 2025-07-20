@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * Real-time Task Updates WebSocket API Route
  *
@@ -8,19 +11,19 @@ import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 
 // WebSocket connection manager
 class RealTimeConnectionManager {
-  private static connections = new Map<string, {
-    userId: string
-    connectionId: string
-    subscriptions: string[]
-    lastActivity: Date
-  }>()
+  private static connections = new Map<
+    string,
+    {
+      userId: string
+      connectionId: string
+      subscriptions: string[]
+      lastActivity: Date
+    }
+  >()
 
   private static subscriptions = new Map<string, Set<string>>() // subscriptionKey -> Set of connectionIds
 
@@ -34,7 +37,7 @@ class RealTimeConnectionManager {
 
     // Auto-subscribe to user's own tasks
     this.subscribe(connectionId, `user:${userId}`)
-    
+
     return this.connections.get(connectionId)
   }
 
@@ -42,7 +45,7 @@ class RealTimeConnectionManager {
     const connection = this.connections.get(connectionId)
     if (connection) {
       // Remove from all subscriptions
-      connection.subscriptions.forEach(subscription => {
+      connection.subscriptions.forEach((subscription) => {
         const subscribers = this.subscriptions.get(subscription)
         if (subscribers) {
           subscribers.delete(connectionId)
@@ -51,7 +54,7 @@ class RealTimeConnectionManager {
           }
         }
       })
-      
+
       this.connections.delete(connectionId)
     }
   }
@@ -87,7 +90,7 @@ class RealTimeConnectionManager {
     }
 
     // Remove from connection's subscriptions
-    connection.subscriptions = connection.subscriptions.filter(sub => sub !== subscriptionKey)
+    connection.subscriptions = connection.subscriptions.filter((sub) => sub !== subscriptionKey)
     connection.lastActivity = new Date()
 
     return true
@@ -98,8 +101,8 @@ class RealTimeConnectionManager {
     if (!subscribers || subscribers.size === 0) return 0
 
     let sentCount = 0
-    
-    subscribers.forEach(connectionId => {
+
+    subscribers.forEach((connectionId) => {
       const connection = this.connections.get(connectionId)
       if (connection) {
         // In real implementation, would send WebSocket message
@@ -116,7 +119,7 @@ class RealTimeConnectionManager {
     const totalConnections = this.connections.size
     const totalSubscriptions = this.subscriptions.size
     const activeConnections = Array.from(this.connections.values()).filter(
-      conn => Date.now() - conn.lastActivity.getTime() < 5 * 60 * 1000 // Active in last 5 minutes
+      (conn) => Date.now() - conn.lastActivity.getTime() < 5 * 60 * 1000 // Active in last 5 minutes
     ).length
 
     const subscriptionBreakdown = {}
@@ -144,7 +147,7 @@ class RealTimeConnectionManager {
       }
     })
 
-    staleConnections.forEach(connectionId => {
+    staleConnections.forEach((connectionId) => {
       this.removeConnection(connectionId)
     })
 
@@ -153,9 +156,12 @@ class RealTimeConnectionManager {
 }
 
 // Periodic cleanup (in real implementation, would use a proper scheduler)
-setInterval(() => {
-  RealTimeConnectionManager.cleanup()
-}, 5 * 60 * 1000) // Every 5 minutes
+setInterval(
+  () => {
+    RealTimeConnectionManager.cleanup()
+  },
+  5 * 60 * 1000
+) // Every 5 minutes
 
 // Message types for real-time updates
 const REALTIME_MESSAGE_TYPES = {
@@ -185,10 +191,7 @@ export class TaskRealtimeNotifier {
     }
 
     // Broadcast to different subscription channels
-    const channels = [
-      `user:${userId}`,
-      `task:${taskId}`,
-    ]
+    const channels = [`user:${userId}`, `task:${taskId}`]
 
     if (data.projectId) {
       channels.push(`project:${data.projectId}`)
@@ -199,7 +202,7 @@ export class TaskRealtimeNotifier {
     }
 
     let totalSent = 0
-    channels.forEach(channel => {
+    channels.forEach((channel) => {
       totalSent += RealTimeConnectionManager.broadcast(channel, message)
     })
 
@@ -284,9 +287,7 @@ export async function GET(request: NextRequest) {
       'realtime.connections': response.stats?.totalConnections || 0,
     })
 
-    return NextResponse.json(
-      createApiSuccessResponse(response, 'Real-time service status')
-    )
+    return NextResponse.json(createApiSuccessResponse(response, 'Real-time service status'))
   } catch (error) {
     span.recordException(error as Error)
     span.setStatus({ code: SpanStatusCode.ERROR })
@@ -309,12 +310,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { userId, connectionId } = z.object({
-      userId: z.string(),
-      connectionId: z.string().optional(),
-    }).parse(body)
+    const { userId, connectionId } = z
+      .object({
+        userId: z.string(),
+        connectionId: z.string().optional(),
+      })
+      .parse(body)
 
-    const finalConnectionId = connectionId || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const finalConnectionId =
+      connectionId || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     const connection = RealTimeConnectionManager.addConnection(finalConnectionId, userId)
 

@@ -24,7 +24,7 @@ export function QuickBugReportButton({
     if (isCapturing || disabled) return
 
     setIsCapturing(true)
-    
+
     try {
       // Check if screen capture is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
@@ -52,16 +52,16 @@ export function QuickBugReportButton({
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
-      
+
       const ctx = canvas.getContext('2d')
       if (!ctx) {
         throw new Error('Could not get canvas context')
       }
-      
+
       ctx.drawImage(video, 0, 0)
 
       // Stop the stream
-      stream.getTracks().forEach(track => track.stop())
+      stream.getTracks().forEach((track) => track.stop())
 
       // Convert to blob
       const screenshot: ScreenshotData = await new Promise((resolve) => {
@@ -69,7 +69,7 @@ export function QuickBugReportButton({
           if (!blob) {
             throw new Error('Failed to create screenshot blob')
           }
-          
+
           resolve({
             id: crypto.randomUUID(),
             imageBlob: blob,

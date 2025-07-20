@@ -27,7 +27,7 @@ export const processAlert = inngest.createFunction(
       } catch (error) {
         logger.error('Failed to process alert', {
           alertId: criticalError.id,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
         throw error
       }
@@ -52,7 +52,7 @@ export const escalateAlert = inngest.createFunction(
 
     const alert = await step.run('get-alert', async () => {
       const activeAlerts = await alertService.getActiveAlerts()
-      return activeAlerts.find(a => a.id === alertId)
+      return activeAlerts.find((a) => a.id === alertId)
     })
 
     if (!alert) {
@@ -72,21 +72,21 @@ export const escalateAlert = inngest.createFunction(
           channels: escalationChannels,
           rateLimiting: { maxAlertsPerHour: 50, cooldownMinutes: 5 },
           deduplication: { enabled: false, windowMinutes: 0 },
-          escalation: { enabled: false, escalateAfterMinutes: 0, escalationChannels: [] }
+          escalation: { enabled: false, escalateAfterMinutes: 0, escalationChannels: [] },
         }
 
         await alertService.getAlertManager().processAlert(alert, escalationConfig)
-        
+
         logger.info('Alert escalated successfully', {
           alertId,
-          channelCount: escalationChannels.length
+          channelCount: escalationChannels.length,
         })
 
         return { success: true, alertId, escalatedChannels: escalationChannels.length }
       } catch (error) {
         logger.error('Failed to escalate alert', {
           alertId,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
         throw error
       }
@@ -112,8 +112,8 @@ export const scheduleEscalation = inngest.createFunction(
       name: 'alert/escalate',
       data: {
         alertId,
-        escalationChannels
-      }
+        escalationChannels,
+      },
     })
 
     return { success: true, alertId, escalatedAfter: escalateAfterMinutes }
@@ -143,7 +143,7 @@ export const retryFailedNotification = inngest.createFunction(
       } catch (error) {
         logger.error('Failed to get notification status', {
           notificationId,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
         return null
       }
@@ -158,7 +158,7 @@ export const retryFailedNotification = inngest.createFunction(
       logger.warn('Max retries exceeded for notification', {
         notificationId,
         retryCount: notificationData.retryCount,
-        maxRetries
+        maxRetries,
       })
       return { success: false, reason: 'Max retries exceeded' }
     }
@@ -172,8 +172,8 @@ export const retryFailedNotification = inngest.createFunction(
       try {
         // Get the original alert
         const activeAlerts = await alertService.getActiveAlerts()
-        const alert = activeAlerts.find(a => a.id === alertId)
-        
+        const alert = activeAlerts.find((a) => a.id === alertId)
+
         if (!alert) {
           throw new Error('Alert not found')
         }
@@ -182,7 +182,7 @@ export const retryFailedNotification = inngest.createFunction(
         const retryNotification = {
           ...notificationData,
           retryCount: notificationData.retryCount + 1,
-          status: AlertNotificationStatus.PENDING
+          status: AlertNotificationStatus.PENDING,
         }
 
         // Attempt to send again
@@ -190,25 +190,24 @@ export const retryFailedNotification = inngest.createFunction(
 
         logger.info('Notification retry successful', {
           notificationId,
-          retryCount: retryNotification.retryCount
+          retryCount: retryNotification.retryCount,
         })
 
         return { success: true, notificationId, retryCount: retryNotification.retryCount }
-
       } catch (error) {
         logger.error('Notification retry failed', {
           notificationId,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
 
         // Schedule another retry if we haven't hit max retries
         if (notificationData.retryCount + 1 < maxRetries) {
           const delayMinutes = Math.pow(2, notificationData.retryCount + 1) // Exponential backoff
-          
+
           await step.sendEvent('schedule-retry', {
             name: 'alert/retry-notification',
             data: { notificationId, alertId, channel, maxRetries },
-            timestamp: new Date(Date.now() + delayMinutes * 60000)
+            timestamp: new Date(Date.now() + delayMinutes * 60000),
           })
         }
 
@@ -236,13 +235,13 @@ export const generateAlertMetrics = inngest.createFunction(
 
         // Get recent alerts from alert history
         const allAlerts = await alertService.getAlertHistory(1000)
-        const last24HourAlerts = allAlerts.filter(a => a.timestamp >= last24Hours)
-        const last7DayAlerts = allAlerts.filter(a => a.timestamp >= last7Days)
+        const last24HourAlerts = allAlerts.filter((a) => a.timestamp >= last24Hours)
+        const last7DayAlerts = allAlerts.filter((a) => a.timestamp >= last7Days)
 
         // Calculate metrics
         const totalAlerts = allAlerts.length
-        const unresolvedAlerts = allAlerts.filter(a => !a.resolved).length
-        
+        const unresolvedAlerts = allAlerts.filter((a) => !a.resolved).length
+
         const alertsByType: Record<string, number> = {}
         const alertsByChannel: Record<string, number> = {}
 
@@ -251,14 +250,15 @@ export const generateAlertMetrics = inngest.createFunction(
         }
 
         // Calculate resolution times
-        const resolvedAlerts = allAlerts.filter(a => a.resolved && a.resolvedAt)
-        const resolutionTimes = resolvedAlerts.map(a => 
-          a.resolvedAt!.getTime() - a.timestamp.getTime()
+        const resolvedAlerts = allAlerts.filter((a) => a.resolved && a.resolvedAt)
+        const resolutionTimes = resolvedAlerts.map(
+          (a) => a.resolvedAt!.getTime() - a.timestamp.getTime()
         )
-        
-        const averageResolutionTime = resolutionTimes.length > 0
-          ? resolutionTimes.reduce((sum, time) => sum + time, 0) / resolutionTimes.length
-          : 0
+
+        const averageResolutionTime =
+          resolutionTimes.length > 0
+            ? resolutionTimes.reduce((sum, time) => sum + time, 0) / resolutionTimes.length
+            : 0
 
         const metricsData = {
           totalAlerts,
@@ -269,15 +269,14 @@ export const generateAlertMetrics = inngest.createFunction(
           alertsLast24Hours: last24HourAlerts.length,
           alertsLast7Days: last7DayAlerts.length,
           meanTimeToAlert: 0, // Would need additional tracking
-          meanTimeToResolution: averageResolutionTime
+          meanTimeToResolution: averageResolutionTime,
         }
 
         logger.info('Alert metrics calculated', metricsData)
         return metricsData
-
       } catch (error) {
         logger.error('Failed to calculate alert metrics', {
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
         throw error
       }
@@ -300,35 +299,30 @@ export const cleanupOldAlerts = inngest.createFunction(
       try {
         const retentionDays = parseInt(process.env.ALERTS_RETENTION_DAYS || '30')
         const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000)
-        
+
         // Clean up old alerts from Redis
-        const oldAlertIds = await redis.zrangebyscore(
-          'alert_timeline',
-          0,
-          cutoffDate.getTime()
-        )
+        const oldAlertIds = await redis.zrangebyscore('alert_timeline', 0, cutoffDate.getTime())
 
         if (oldAlertIds.length > 0) {
           const pipeline = redis.pipeline()
-          
+
           for (const alertId of oldAlertIds) {
             pipeline.del(`alert:${alertId}`)
             pipeline.zrem('alert_timeline', alertId)
           }
-          
+
           await pipeline.exec()
-          
+
           logger.info('Cleaned up old alerts', {
             count: oldAlertIds.length,
-            cutoffDate: cutoffDate.toISOString()
+            cutoffDate: cutoffDate.toISOString(),
           })
         }
 
         return { cleanedUp: oldAlertIds.length, cutoffDate }
-
       } catch (error) {
         logger.error('Failed to cleanup old alerts', {
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
         throw error
       }
@@ -345,7 +339,7 @@ export const dailyMetricsGeneration = inngest.createFunction(
   async ({ step }) => {
     await step.sendEvent('generate-metrics', {
       name: 'alert/generate-metrics',
-      data: { period: 'daily' }
+      data: { period: 'daily' },
     })
 
     return { success: true, scheduled: new Date().toISOString() }

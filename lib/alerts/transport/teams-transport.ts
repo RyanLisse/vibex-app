@@ -40,7 +40,11 @@ export class TeamsTransport implements AlertTransport {
     this.logger = new ComponentLogger('TeamsTransport')
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const config = channel.config as TeamsConfig
     const payload = this.buildPayload(config, error, notification)
 
@@ -53,10 +57,10 @@ export class TeamsTransport implements AlertTransport {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'User-Agent': 'ClaudeFlow-AlertSystem/1.0'
+            'User-Agent': 'ClaudeFlow-AlertSystem/1.0',
           },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(30000)
+          signal: AbortSignal.timeout(30000),
         })
 
         if (!response.ok) {
@@ -68,26 +72,25 @@ export class TeamsTransport implements AlertTransport {
           webhookUrl: config.webhookUrl,
           status: response.status,
           attempt,
-          notificationId: notification.id
+          notificationId: notification.id,
         })
 
         return
-
       } catch (requestError) {
         lastError = requestError instanceof Error ? requestError : new Error('Unknown error')
-        
+
         this.logger.warn('Teams webhook attempt failed', {
           webhookUrl: config.webhookUrl,
           attempt,
           maxRetries,
           error: lastError.message,
-          notificationId: notification.id
+          notificationId: notification.id,
         })
 
         if (attempt < maxRetries) {
           // Exponential backoff: 1s, 2s, 4s
           const delay = Math.pow(2, attempt - 1) * 1000
-          await new Promise(resolve => setTimeout(resolve, delay))
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
     }
@@ -95,7 +98,11 @@ export class TeamsTransport implements AlertTransport {
     throw lastError || new Error('All Teams webhook attempts failed')
   }
 
-  private buildPayload(config: TeamsConfig, error: CriticalError, notification: AlertNotification): TeamsCard {
+  private buildPayload(
+    config: TeamsConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): TeamsCard {
     const severityColor = this.getSeverityColor(error.severity)
     const severityIcon = this.getSeverityIcon(error.severity)
     const mentions = this.buildMentions(config)
@@ -116,35 +123,43 @@ export class TeamsTransport implements AlertTransport {
           facts: [
             {
               name: 'Environment',
-              value: error.environment
+              value: error.environment,
             },
             {
               name: 'Severity',
-              value: error.severity.toUpperCase()
+              value: error.severity.toUpperCase(),
             },
             {
               name: 'Source',
-              value: error.source
+              value: error.source,
             },
             {
               name: 'Timestamp',
-              value: error.timestamp.toLocaleString()
+              value: error.timestamp.toLocaleString(),
             },
-            ...(error.occurrenceCount > 1 ? [{
-              name: 'Occurrences',
-              value: `${error.occurrenceCount} times`
-            }] : []),
-            ...(error.correlationId ? [{
-              name: 'Correlation ID',
-              value: error.correlationId
-            }] : []),
+            ...(error.occurrenceCount > 1
+              ? [
+                  {
+                    name: 'Occurrences',
+                    value: `${error.occurrenceCount} times`,
+                  },
+                ]
+              : []),
+            ...(error.correlationId
+              ? [
+                  {
+                    name: 'Correlation ID',
+                    value: error.correlationId,
+                  },
+                ]
+              : []),
             {
               name: 'Alert ID',
-              value: error.id
-            }
+              value: error.id,
+            },
           ],
-          text: error.message
-        }
+          text: error.message,
+        },
       ],
       potentialAction: [
         {
@@ -153,11 +168,11 @@ export class TeamsTransport implements AlertTransport {
           targets: [
             {
               os: 'default',
-              uri: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/alerts`
-            }
-          ]
-        }
-      ]
+              uri: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/alerts`,
+            },
+          ],
+        },
+      ],
     }
   }
 
@@ -169,7 +184,7 @@ export class TeamsTransport implements AlertTransport {
     }
 
     if (config.mentionUsers && config.mentionUsers.length > 0) {
-      mentions.push(...config.mentionUsers.map(user => `@${user}`))
+      mentions.push(...config.mentionUsers.map((user) => `@${user}`))
     }
 
     return mentions.join(' ')
@@ -177,21 +192,31 @@ export class TeamsTransport implements AlertTransport {
 
   private getSeverityColor(severity: string): string {
     switch (severity) {
-      case 'critical': return 'FF0000' // Red
-      case 'high': return 'FF6600' // Orange
-      case 'medium': return 'FFCC00' // Yellow
-      case 'low': return '00CCFF' // Light Blue
-      default: return '808080' // Gray
+      case 'critical':
+        return 'FF0000' // Red
+      case 'high':
+        return 'FF6600' // Orange
+      case 'medium':
+        return 'FFCC00' // Yellow
+      case 'low':
+        return '00CCFF' // Light Blue
+      default:
+        return '808080' // Gray
     }
   }
 
   private getSeverityIcon(severity: string): string {
     switch (severity) {
-      case 'critical': return '🚨'
-      case 'high': return '⚠️'
-      case 'medium': return '📢'
-      case 'low': return 'ℹ️'
-      default: return '🔔'
+      case 'critical':
+        return '🚨'
+      case 'high':
+        return '⚠️'
+      case 'medium':
+        return '📢'
+      case 'low':
+        return 'ℹ️'
+      default:
+        return '🔔'
     }
   }
 

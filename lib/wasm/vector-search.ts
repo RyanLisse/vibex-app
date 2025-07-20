@@ -1063,7 +1063,6 @@ export const calculateFastSimilarity = async (
   return engine['calculateSimilarityWASM'](embedding1, embedding2)
 }
 
-
 // Export vector search service instance
 export const vectorSearchService = {
   search: async () => ({ results: [], took: 0 }),
@@ -1079,5 +1078,5 @@ export const vectorSearchService = {
   },
   analyzeSearchPatterns: async (queries: string[]) => {
     return { patterns: [], suggestions: [] }
-  }
+  },
 }

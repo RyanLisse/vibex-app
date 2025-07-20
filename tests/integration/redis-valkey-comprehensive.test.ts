@@ -1,6 +1,6 @@
 /**
  * Comprehensive Redis/Valkey Integration Test
- * 
+ *
  * This test validates all Redis/Valkey services in real-world scenarios:
  * - Job Queue processing
  * - Distributed locking
@@ -152,7 +152,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Set cache with TTL
       await cache.set('test:user:123', { id: 123, name: 'John Doe' }, 5)
-      
+
       // Get from cache
       const user = await cache.get('test:user:123')
       expect(user).toEqual({ id: 123, name: 'John Doe' })
@@ -167,28 +167,28 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle cache stampede prevention', async () => {
       const endTimer = monitor.startOperation('cache-stampede')
-      
+
       // Simulate expensive operation
       let computationCount = 0
       const expensiveOperation = async () => {
         computationCount++
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
         return { data: 'expensive result', timestamp: Date.now() }
       }
 
       // Multiple concurrent requests for same key
-      const promises = Array(10).fill(null).map(() => 
-        cache.getOrSet('expensive:key', expensiveOperation, 10)
-      )
+      const promises = Array(10)
+        .fill(null)
+        .map(() => cache.getOrSet('expensive:key', expensiveOperation, 10))
 
       const results = await Promise.all(promises)
 
       // Should only compute once
       expect(computationCount).toBe(1)
-      
+
       // All results should be identical
       const firstResult = results[0]
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).toEqual(firstResult)
       })
 
@@ -226,9 +226,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('2. PubSub Service Integration', () => {
     test('should handle pub/sub messaging', async () => {
       const endTimer = monitor.startOperation('pubsub-basic')
-      
+
       const receivedMessages: any[] = []
-      
+
       // Subscribe to channel
       await pubsub.subscribe('test:channel', (message) => {
         receivedMessages.push(message)
@@ -239,7 +239,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       await pubsub.publish('test:channel', { type: 'user.updated', userId: 123 })
 
       // Wait for messages
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(receivedMessages).toHaveLength(2)
       expect(receivedMessages[0]).toEqual({ type: 'user.created', userId: 123 })
@@ -251,9 +251,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle pattern subscriptions', async () => {
       const endTimer = monitor.startOperation('pubsub-pattern')
-      
+
       const receivedMessages: Array<{ channel: string; message: any }> = []
-      
+
       // Pattern subscription
       await pubsub.psubscribe('events:*', (channel, message) => {
         receivedMessages.push({ channel, message })
@@ -264,7 +264,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       await pubsub.publish('events:orders', { action: 'placed' })
       await pubsub.publish('other:channel', { action: 'ignored' })
 
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(receivedMessages).toHaveLength(2)
       expect(receivedMessages[0].channel).toBe('events:users')
@@ -278,7 +278,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('3. Lock Service Integration', () => {
     test('should handle distributed locking', async () => {
       const endTimer = monitor.startOperation('lock-basic')
-      
+
       // Acquire lock
       const acquired = await locks.acquire('resource:123', 5000)
       expect(acquired).toBe(true)
@@ -300,7 +300,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle lock auto-extension', async () => {
       const endTimer = monitor.startOperation('lock-extension')
-      
+
       let lockHeld = true
       const lockKey = 'extended:lock'
 
@@ -308,7 +308,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       const release = await locks.acquireWithExtension(lockKey, 1000, async () => lockHeld)
 
       // Simulate long-running operation
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // Lock should still be held after initial TTL
       const stillLocked = await locks.isLocked(lockKey)
@@ -327,29 +327,33 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle concurrent operations with locks', async () => {
       const endTimer = monitor.startOperation('lock-concurrent')
-      
+
       let sharedCounter = 0
       const iterations = 10
 
       // Concurrent increments without lock (race condition)
-      const unsafePromises = Array(iterations).fill(null).map(async () => {
-        const current = sharedCounter
-        await new Promise(resolve => setTimeout(resolve, 10))
-        sharedCounter = current + 1
-      })
+      const unsafePromises = Array(iterations)
+        .fill(null)
+        .map(async () => {
+          const current = sharedCounter
+          await new Promise((resolve) => setTimeout(resolve, 10))
+          sharedCounter = current + 1
+        })
 
       await Promise.all(unsafePromises)
       const unsafeResult = sharedCounter
 
       // Reset and use locks
       sharedCounter = 0
-      const safePromises = Array(iterations).fill(null).map(async () => {
-        await locks.withLock('counter:lock', async () => {
-          const current = sharedCounter
-          await new Promise(resolve => setTimeout(resolve, 10))
-          sharedCounter = current + 1
+      const safePromises = Array(iterations)
+        .fill(null)
+        .map(async () => {
+          await locks.withLock('counter:lock', async () => {
+            const current = sharedCounter
+            await new Promise((resolve) => setTimeout(resolve, 10))
+            sharedCounter = current + 1
+          })
         })
-      })
 
       await Promise.all(safePromises)
       const safeResult = sharedCounter
@@ -366,7 +370,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('4. Rate Limit Service Integration', () => {
     test('should enforce rate limits', async () => {
       const endTimer = monitor.startOperation('ratelimit-basic')
-      
+
       const key = 'api:user:123'
       const limit = 5
       const window = 1000 // 1 second
@@ -382,15 +386,15 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       }
 
       // First 5 should be allowed, rest should be blocked
-      expect(results.slice(0, 5).every(r => r)).toBe(true)
-      expect(results.slice(5).every(r => !r)).toBe(true)
+      expect(results.slice(0, 5).every((r) => r)).toBe(true)
+      expect(results.slice(5).every((r) => !r)).toBe(true)
 
       endTimer()
     })
 
     test('should handle sliding window rate limiting', async () => {
       const endTimer = monitor.startOperation('ratelimit-sliding')
-      
+
       const key = 'sliding:user:456'
       await rateLimit.configure(key, { limit: 3, window: 1000, type: 'sliding' })
 
@@ -398,7 +402,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       for (let i = 0; i < 3; i++) {
         const allowed = await rateLimit.check(key)
         expect(allowed).toBe(true)
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise((resolve) => setTimeout(resolve, 200))
       }
 
       // 4th request should be blocked
@@ -406,7 +410,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       expect(blocked).toBe(false)
 
       // Wait for first request to expire
-      await new Promise(resolve => setTimeout(resolve, 600))
+      await new Promise((resolve) => setTimeout(resolve, 600))
 
       // Should allow one more
       const allowedAgain = await rateLimit.check(key)
@@ -417,7 +421,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should provide rate limit info', async () => {
       const endTimer = monitor.startOperation('ratelimit-info')
-      
+
       const key = 'info:user:789'
       await rateLimit.configure(key, { limit: 10, window: 60000 })
 
@@ -440,9 +444,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('5. Job Queue Service Integration', () => {
     test('should process jobs sequentially', async () => {
       const endTimer = monitor.startOperation('jobqueue-sequential')
-      
+
       const processedJobs: string[] = []
-      
+
       // Register processor
       const processor: JobProcessor = async (job) => {
         processedJobs.push(job.id)
@@ -465,14 +469,14 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       await jobQueue.startProcessing('test:sequential')
 
       // Wait for processing
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       // Stop processing
       await jobQueue.stopProcessing('test:sequential')
 
       // Verify all jobs processed
       expect(processedJobs.length).toBe(5)
-      jobIds.forEach(id => {
+      jobIds.forEach((id) => {
         expect(processedJobs).toContain(id)
       })
 
@@ -481,9 +485,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle job priorities', async () => {
       const endTimer = monitor.startOperation('jobqueue-priority')
-      
+
       const processedOrder: number[] = []
-      
+
       // Register processor
       const processor: JobProcessor = async (job) => {
         processedOrder.push(job.data.priority)
@@ -500,7 +504,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Process jobs
       await jobQueue.startProcessing('test:priority')
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       await jobQueue.stopProcessing('test:priority')
 
       // Should process in priority order (highest first)
@@ -511,9 +515,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle job retries', async () => {
       const endTimer = monitor.startOperation('jobqueue-retry')
-      
+
       let attemptCount = 0
-      
+
       // Register failing processor
       const processor: JobProcessor = async (job) => {
         attemptCount++
@@ -534,7 +538,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Process with retries
       await jobQueue.startProcessing('test:retry')
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       await jobQueue.stopProcessing('test:retry')
 
       // Should have retried until success
@@ -551,11 +555,16 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('6. Metrics Service Integration', () => {
     test('should collect and aggregate metrics', async () => {
       const endTimer = monitor.startOperation('metrics-collection')
-      
+
       // Record various metrics
       for (let i = 0; i < 100; i++) {
-        await metrics.increment('api.requests', { endpoint: '/users', status: i % 10 === 0 ? '500' : '200' })
-        await metrics.recordDuration('api.response_time', Math.random() * 100, { endpoint: '/users' })
+        await metrics.increment('api.requests', {
+          endpoint: '/users',
+          status: i % 10 === 0 ? '500' : '200',
+        })
+        await metrics.recordDuration('api.response_time', Math.random() * 100, {
+          endpoint: '/users',
+        })
         await metrics.gauge('system.memory', Math.random() * 1000000000)
       }
 
@@ -575,13 +584,13 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle metric time windows', async () => {
       const endTimer = monitor.startOperation('metrics-windows')
-      
+
       const metricKey = 'test.window.metric'
-      
+
       // Record metrics over time
       for (let i = 0; i < 5; i++) {
         await metrics.increment(metricKey)
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise((resolve) => setTimeout(resolve, 200))
       }
 
       // Get metrics for different windows
@@ -596,7 +605,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should export metrics in Prometheus format', async () => {
       const endTimer = monitor.startOperation('metrics-export')
-      
+
       // Record some metrics
       await metrics.increment('http_requests_total', { method: 'GET', status: '200' })
       await metrics.recordDuration('http_request_duration_seconds', 0.123)
@@ -604,7 +613,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Export metrics
       const exported = await metrics.export()
-      
+
       expect(exported).toContain('http_requests_total')
       expect(exported).toContain('http_request_duration_seconds')
       expect(exported).toContain('node_memory_usage_bytes')
@@ -618,7 +627,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('7. Session Service Integration', () => {
     test('should handle session lifecycle', async () => {
       const endTimer = monitor.startOperation('session-lifecycle')
-      
+
       const sessionData = {
         userId: '123',
         email: 'user@example.com',
@@ -635,14 +644,14 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Update session
       await sessions.update(sessionId, { ...sessionData, lastAccess: Date.now() })
-      
+
       // Verify update
       const updated = await sessions.get(sessionId)
       expect(updated.lastAccess).toBeDefined()
 
       // Destroy session
       await sessions.destroy(sessionId)
-      
+
       // Verify destroyed
       const destroyed = await sessions.get(sessionId)
       expect(destroyed).toBeNull()
@@ -652,7 +661,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle session expiration', async () => {
       const endTimer = monitor.startOperation('session-expiration')
-      
+
       // Create short-lived session
       const sessionId = await sessions.create({ userId: '456' }, 1) // 1 second TTL
 
@@ -661,7 +670,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       expect(exists).toBe(true)
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Should be expired
       const expired = await sessions.get(sessionId)
@@ -672,25 +681,27 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle concurrent session access', async () => {
       const endTimer = monitor.startOperation('session-concurrent')
-      
+
       const sessionId = await sessions.create({ counter: 0 }, 3600)
 
       // Concurrent updates
-      const updates = Array(10).fill(null).map(async (_, i) => {
-        const session = await sessions.get(sessionId)
-        if (session) {
-          session.counter++
-          session[`update_${i}`] = true
-          await sessions.update(sessionId, session)
-        }
-      })
+      const updates = Array(10)
+        .fill(null)
+        .map(async (_, i) => {
+          const session = await sessions.get(sessionId)
+          if (session) {
+            session.counter++
+            session[`update_${i}`] = true
+            await sessions.update(sessionId, session)
+          }
+        })
 
       await Promise.all(updates)
 
       // Check final state
       const final = await sessions.get(sessionId)
       expect(final).toBeDefined()
-      
+
       // Should have all updates
       for (let i = 0; i < 10; i++) {
         expect(final[`update_${i}`]).toBe(true)
@@ -704,11 +715,11 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('8. Cross-Service Integration', () => {
     test('should handle cache-aside pattern with job processing', async () => {
       const endTimer = monitor.startOperation('integration-cache-aside')
-      
+
       // Register job processor that uses cache
       const processor: JobProcessor = async (job) => {
         const cacheKey = `processed:${job.data.id}`
-        
+
         // Check cache first
         let result = await cache.get(cacheKey)
         if (result) {
@@ -724,7 +735,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
         // Store in cache
         await cache.set(cacheKey, result, 300)
-        
+
         return { success: true, result, fromCache: false }
       }
 
@@ -736,7 +747,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Process jobs
       await jobQueue.startProcessing('test:cache-aside')
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       await jobQueue.stopProcessing('test:cache-aside')
 
       // Check results
@@ -753,16 +764,16 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle distributed event processing', async () => {
       const endTimer = monitor.startOperation('integration-events')
-      
+
       const events: any[] = []
-      
+
       // Subscribe to events
       await pubsub.subscribe('system:events', async (event) => {
         events.push(event)
-        
+
         // Record metric
         await metrics.increment('events.processed', { type: event.type })
-        
+
         // Update session if user event
         if (event.userId && event.sessionId) {
           await sessions.update(event.sessionId, { lastEvent: event.type })
@@ -771,18 +782,18 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Simulate user flow
       const sessionId = await sessions.create({ userId: 'user123' }, 3600)
-      
+
       // User actions trigger events
       await pubsub.publish('system:events', { type: 'user.login', userId: 'user123', sessionId })
       await pubsub.publish('system:events', { type: 'user.action', userId: 'user123', sessionId })
       await pubsub.publish('system:events', { type: 'user.logout', userId: 'user123', sessionId })
 
       // Wait for processing
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise((resolve) => setTimeout(resolve, 200))
 
       // Verify event processing
       expect(events).toHaveLength(3)
-      
+
       // Check metrics
       const loginCount = await metrics.getCounter('events.processed', { type: 'user.login' })
       expect(loginCount).toBe(1)
@@ -798,9 +809,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle rate-limited job processing', async () => {
       const endTimer = monitor.startOperation('integration-ratelimit')
-      
+
       const processedJobs: string[] = []
-      
+
       // Configure rate limit for job processing
       const rateLimitKey = 'jobs:processor:api'
       await rateLimit.configure(rateLimitKey, { limit: 3, window: 1000 })
@@ -828,7 +839,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Process jobs
       await jobQueue.startProcessing('test:ratelimited')
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       await jobQueue.stopProcessing('test:ratelimited')
 
       // Only 3 jobs should be processed due to rate limit
@@ -836,10 +847,10 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Check failed jobs
       const failedJobs = await Promise.all(
-        jobIds.map(id => jobQueue.getJob('test:ratelimited', id))
+        jobIds.map((id) => jobQueue.getJob('test:ratelimited', id))
       )
-      
-      const failed = failedJobs.filter(job => job?.status === 'failed')
+
+      const failed = failedJobs.filter((job) => job?.status === 'failed')
       expect(failed).toHaveLength(2)
 
       endTimer()
@@ -849,7 +860,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('9. Performance and Load Testing', () => {
     test('should handle high-throughput operations', async () => {
       const endTimer = monitor.startOperation('load-throughput')
-      
+
       const operations = 1000
       const results = {
         cache: { success: 0, error: 0 },
@@ -859,18 +870,20 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
       // Parallel operations
       const promises = []
-      
+
       for (let i = 0; i < operations; i++) {
         // Cache operations
         promises.push(
-          cache.set(`load:${i}`, { data: i }, 60)
+          cache
+            .set(`load:${i}`, { data: i }, 60)
             .then(() => results.cache.success++)
             .catch(() => results.cache.error++)
         )
 
         // Metrics operations
         promises.push(
-          metrics.increment('load.test', { type: 'concurrent' })
+          metrics
+            .increment('load.test', { type: 'concurrent' })
             .then(() => results.metrics.success++)
             .catch(() => results.metrics.error++)
         )
@@ -878,7 +891,8 @@ describe('Redis/Valkey Comprehensive Integration', () => {
         // PubSub operations
         if (i % 10 === 0) {
           promises.push(
-            pubsub.publish('load:channel', { index: i })
+            pubsub
+              .publish('load:channel', { index: i })
               .then(() => results.pubsub.success++)
               .catch(() => results.pubsub.error++)
           )
@@ -897,26 +911,28 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should maintain performance under concurrent load', async () => {
       const endTimer = monitor.startOperation('load-concurrent')
-      
+
       const concurrentUsers = 50
       const operationsPerUser = 20
-      
-      const userOperations = Array(concurrentUsers).fill(null).map(async (_, userId) => {
-        const sessionId = await sessions.create({ userId: `user${userId}` }, 3600)
-        
-        for (let op = 0; op < operationsPerUser; op++) {
-          // Check rate limit
-          await rateLimit.check(`user:${userId}`)
-          
-          // Cache user data
-          await cache.set(`user:${userId}:op:${op}`, { operation: op }, 60)
-          
-          // Record metric
-          await metrics.increment('user.operations', { userId: `user${userId}` })
-        }
-        
-        await sessions.destroy(sessionId)
-      })
+
+      const userOperations = Array(concurrentUsers)
+        .fill(null)
+        .map(async (_, userId) => {
+          const sessionId = await sessions.create({ userId: `user${userId}` }, 3600)
+
+          for (let op = 0; op < operationsPerUser; op++) {
+            // Check rate limit
+            await rateLimit.check(`user:${userId}`)
+
+            // Cache user data
+            await cache.set(`user:${userId}:op:${op}`, { operation: op }, 60)
+
+            // Record metric
+            await metrics.increment('user.operations', { userId: `user${userId}` })
+          }
+
+          await sessions.destroy(sessionId)
+        })
 
       const start = Date.now()
       await Promise.all(userOperations)
@@ -936,7 +952,7 @@ describe('Redis/Valkey Comprehensive Integration', () => {
   describe('10. Error Handling and Resilience', () => {
     test('should handle service failures gracefully', async () => {
       const endTimer = monitor.startOperation('resilience-failures')
-      
+
       // Test cache miss and error handling
       const missingData = await cache.get('non-existent-key')
       expect(missingData).toBeNull()
@@ -944,8 +960,8 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       // Test lock timeout
       const lockKey = 'timeout:test'
       await locks.acquire(lockKey, 100) // 100ms TTL
-      await new Promise(resolve => setTimeout(resolve, 200))
-      
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
       // Lock should be auto-released
       const canAcquire = await locks.acquire(lockKey, 1000)
       expect(canAcquire).toBe(true)
@@ -955,12 +971,12 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       const failingProcessor: JobProcessor = async () => {
         throw new Error('Intentional failure')
       }
-      
+
       await jobQueue.registerProcessor('test:failing', failingProcessor)
       const failedJobId = await jobQueue.addJob('test:failing', { data: {} })
-      
+
       await jobQueue.startProcessing('test:failing')
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise((resolve) => setTimeout(resolve, 200))
       await jobQueue.stopProcessing('test:failing')
 
       const failedJob = await jobQueue.getJob('test:failing', failedJobId)
@@ -972,14 +988,14 @@ describe('Redis/Valkey Comprehensive Integration', () => {
 
     test('should handle network partitions and timeouts', async () => {
       const endTimer = monitor.startOperation('resilience-network')
-      
+
       // Simulate operations with timeout handling
       const timeoutPromise = (operation: Promise<any>, timeout: number) => {
         return Promise.race([
           operation,
-          new Promise((_, reject) => 
+          new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Operation timeout')), timeout)
-          )
+          ),
         ])
       }
 
@@ -991,9 +1007,9 @@ describe('Redis/Valkey Comprehensive Integration', () => {
       ]
 
       const results = await Promise.allSettled(operations)
-      
+
       // All operations should complete (success or timeout)
-      expect(results.every(r => r.status === 'fulfilled' || r.status === 'rejected')).toBe(true)
+      expect(results.every((r) => r.status === 'fulfilled' || r.status === 'rejected')).toBe(true)
 
       endTimer()
     })

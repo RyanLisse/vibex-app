@@ -17,10 +17,10 @@ const mockRedis = {
     setex: vi.fn().mockReturnThis(),
     zadd: vi.fn().mockReturnThis(),
     zrem: vi.fn().mockReturnThis(),
-    exec: vi.fn().mockResolvedValue([])
+    exec: vi.fn().mockResolvedValue([]),
   })),
   zadd: vi.fn(),
-  zrevrange: vi.fn()
+  zrevrange: vi.fn(),
 } as unknown as Redis
 
 // Mock transport service
@@ -28,7 +28,7 @@ const mockTransportService = {
   send: vi.fn().mockResolvedValue(undefined),
   validateChannelConfig: vi.fn().mockReturnValue(true),
   getSupportedChannelTypes: vi.fn().mockReturnValue([AlertChannelType.LOG]),
-  registerTransport: vi.fn()
+  registerTransport: vi.fn(),
 } as unknown as AlertTransportService
 
 describe('AlertManager', () => {
@@ -38,9 +38,9 @@ describe('AlertManager', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     alertManager = new AlertManager(mockRedis, mockTransportService)
-    
+
     sampleCriticalError = {
       id: 'test-alert-123',
       timestamp: new Date(),
@@ -53,32 +53,34 @@ describe('AlertManager', () => {
       resolved: false,
       occurrenceCount: 1,
       lastOccurrence: new Date(),
-      firstOccurrence: new Date()
+      firstOccurrence: new Date(),
     }
 
     sampleConfig = {
       enabled: true,
-      channels: [{
-        type: AlertChannelType.LOG,
-        name: 'test-log',
-        enabled: true,
-        config: {},
-        errorTypes: [CriticalErrorType.DATABASE_CONNECTION_FAILURE],
-        priority: 'medium'
-      }],
+      channels: [
+        {
+          type: AlertChannelType.LOG,
+          name: 'test-log',
+          enabled: true,
+          config: {},
+          errorTypes: [CriticalErrorType.DATABASE_CONNECTION_FAILURE],
+          priority: 'medium',
+        },
+      ],
       rateLimiting: {
         maxAlertsPerHour: 10,
-        cooldownMinutes: 15
+        cooldownMinutes: 15,
       },
       deduplication: {
         enabled: true,
-        windowMinutes: 60
+        windowMinutes: 60,
       },
       escalation: {
         enabled: false,
         escalateAfterMinutes: 30,
-        escalationChannels: []
-      }
+        escalationChannels: [],
+      },
     }
   })
 
@@ -112,7 +114,7 @@ describe('AlertManager', () => {
       // Mock existing alert found
       const existingAlert = { ...sampleCriticalError, occurrenceCount: 1 }
       alertManager['alerts'].set('existing-alert-id', existingAlert)
-      
+
       await alertManager.processAlert(sampleCriticalError, sampleConfig)
 
       // Should update existing alert instead of creating new one
@@ -133,8 +135,9 @@ describe('AlertManager', () => {
       mockTransportService.send.mockRejectedValue(new Error('Transport failed'))
 
       // Should not throw
-      await expect(alertManager.processAlert(sampleCriticalError, sampleConfig))
-        .resolves.not.toThrow()
+      await expect(
+        alertManager.processAlert(sampleCriticalError, sampleConfig)
+      ).resolves.not.toThrow()
     })
 
     it('should send notifications to multiple channels', async () => {
@@ -148,9 +151,9 @@ describe('AlertManager', () => {
             enabled: true,
             config: { webhookUrl: 'https://hooks.slack.com/test' },
             errorTypes: [CriticalErrorType.DATABASE_CONNECTION_FAILURE],
-            priority: 'high'
-          }
-        ]
+            priority: 'high',
+          },
+        ],
       }
 
       mockRedis.get.mockResolvedValue(null)
@@ -163,10 +166,12 @@ describe('AlertManager', () => {
     it('should filter channels by error type', async () => {
       const filteredConfig = {
         ...sampleConfig,
-        channels: [{
-          ...sampleConfig.channels[0],
-          errorTypes: [CriticalErrorType.REDIS_CONNECTION_FAILURE] // Different error type
-        }]
+        channels: [
+          {
+            ...sampleConfig.channels[0],
+            errorTypes: [CriticalErrorType.REDIS_CONNECTION_FAILURE], // Different error type
+          },
+        ],
       }
 
       mockRedis.get.mockResolvedValue(null)

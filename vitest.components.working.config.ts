@@ -9,13 +9,13 @@ export default defineConfig({
   test: {
     // Force jsdom environment for DOM access
     environment: 'jsdom',
-    
+
     // Enable global test functions
     globals: true,
-    
+
     // Use dedicated component setup file
     setupFiles: ['./tests/setup/components.ts'],
-    
+
     // Use forks for better isolation with DOM
     pool: 'forks',
     poolOptions: {
@@ -23,10 +23,10 @@ export default defineConfig({
         singleFork: true,
       },
     },
-    
+
     // Enable CSS processing for styled components
     css: true,
-    
+
     // Component test file patterns
     include: [
       'components/**/*.test.{jsx,tsx}',
@@ -35,7 +35,7 @@ export default defineConfig({
       'src/components/**/*.test.{jsx,tsx}',
       'src/hooks/**/*.test.{jsx,tsx}',
     ],
-    
+
     // Exclude non-component tests
     exclude: [
       'node_modules',
@@ -51,29 +51,29 @@ export default defineConfig({
       'src/schemas/**/*.test.*',
       'src/hooks/useZodForm/**/*.test.{js,ts}',
     ],
-    
+
     // Timeouts for component rendering
     testTimeout: 15_000,
     hookTimeout: 10_000,
     teardownTimeout: 10_000,
-    
+
     // Isolation settings for clean DOM state
     isolate: true,
     restoreMocks: true,
     clearMocks: true,
     mockReset: true,
-    
+
     // Test execution settings
     retry: 1,
     bail: 1,
     watch: false,
     passWithNoTests: true,
     allowOnly: false,
-    
+
     // Enhanced reporter for component tests
     reporter: ['default', 'verbose'],
   },
-  
+
   // Path resolution for imports
   resolve: {
     alias: {
@@ -89,14 +89,14 @@ export default defineConfig({
       '@/mocks': path.resolve(__dirname, './tests/mocks'),
     },
   },
-  
+
   // ESBuild configuration for React/JSX
   esbuild: {
     target: 'es2022',
     format: 'esm',
     jsx: 'automatic',
   },
-  
+
   // Pre-optimize dependencies for faster test startup
   optimizeDeps: {
     include: [
@@ -110,7 +110,7 @@ export default defineConfig({
       'jsdom',
     ],
   },
-  
+
   // Define environment variables for tests
   define: {
     'process.env.NODE_ENV': '"test"',

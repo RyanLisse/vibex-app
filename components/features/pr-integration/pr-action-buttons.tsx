@@ -32,10 +32,11 @@ export function PRActionButtons({
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false)
   const [isMerging, setIsMerging] = useState(false)
 
-  const canMerge = prStatus.status === 'open' && 
-                   prStatus.reviewStatus === 'approved' && 
-                   prStatus.mergeable &&
-                   prStatus.checks.every(check => check.status === 'success')
+  const canMerge =
+    prStatus.status === 'open' &&
+    prStatus.reviewStatus === 'approved' &&
+    prStatus.mergeable &&
+    prStatus.checks.every((check) => check.status === 'success')
 
   const handleMerge = async () => {
     setIsMerging(true)
@@ -61,7 +62,7 @@ export function PRActionButtons({
 
   const getMergeBlockReason = () => {
     const reasons = []
-    
+
     if (prStatus.status !== 'open') {
       reasons.push(`PR is ${prStatus.status}`)
     }
@@ -71,22 +72,17 @@ export function PRActionButtons({
     if (!prStatus.mergeable) {
       reasons.push('Merge conflicts exist')
     }
-    if (prStatus.checks.some(check => check.status !== 'success')) {
+    if (prStatus.checks.some((check) => check.status !== 'success')) {
       reasons.push('Checks must pass')
     }
-    
+
     return reasons.join(', ')
   }
 
   return (
     <div className={`flex gap-2 ${className}`}>
       {/* View PR Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        asChild
-        className="gap-2"
-      >
+      <Button variant="outline" size="sm" asChild className="gap-2">
         <a href={githubUrl} target="_blank" rel="noopener noreferrer">
           <ExternalLink className="h-4 w-4" />
           View PR
@@ -129,23 +125,30 @@ export function PRActionButtons({
                 Are you sure you want to merge this pull request?
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               {/* Merge Readiness Check */}
               {!canMerge && (
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    Cannot merge: {getMergeBlockReason()}
-                  </AlertDescription>
+                  <AlertDescription>Cannot merge: {getMergeBlockReason()}</AlertDescription>
                 </Alert>
               )}
 
               {/* PR Info */}
               <div className="space-y-2 text-sm">
-                <p><strong>Title:</strong> {prStatus.title}</p>
-                <p><strong>Reviews:</strong> {prStatus.reviewers.filter(r => r.status === 'approved').length} approved</p>
-                <p><strong>Checks:</strong> {prStatus.checks.filter(c => c.status === 'success').length}/{prStatus.checks.length} passing</p>
+                <p>
+                  <strong>Title:</strong> {prStatus.title}
+                </p>
+                <p>
+                  <strong>Reviews:</strong>{' '}
+                  {prStatus.reviewers.filter((r) => r.status === 'approved').length} approved
+                </p>
+                <p>
+                  <strong>Checks:</strong>{' '}
+                  {prStatus.checks.filter((c) => c.status === 'success').length}/
+                  {prStatus.checks.length} passing
+                </p>
               </div>
 
               {/* Action Buttons */}

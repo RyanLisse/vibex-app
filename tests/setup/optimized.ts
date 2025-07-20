@@ -41,7 +41,7 @@ if (!globalThis.crypto) {
       verify: vi.fn(),
     },
   }
-  
+
   Object.defineProperty(globalThis, 'crypto', {
     value: mockCrypto,
     writable: true,

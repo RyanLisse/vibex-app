@@ -14,12 +14,7 @@ interface KanbanCardProps {
   className?: string
 }
 
-export function KanbanCard({
-  task,
-  index,
-  onEdit,
-  className = '',
-}: KanbanCardProps) {
+export function KanbanCard({ task, index, onEdit, className = '' }: KanbanCardProps) {
   const [{ isDragging }, drag] = useDrag({
     type: 'KANBAN_TASK',
     item: { task, index },
@@ -57,26 +52,20 @@ export function KanbanCard({
     >
       {/* Task Header */}
       <div className="flex items-start justify-between mb-3">
-        <h3 className="font-medium text-sm leading-tight flex-1 pr-2">
-          {task.name}
-        </h3>
-        
+        <h3 className="font-medium text-sm leading-tight flex-1 pr-2">{task.name}</h3>
+
         <div className="flex items-center gap-1">
           {/* Priority Badge */}
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={`text-xs px-2 py-0.5 ${priorityColors[task.priority]}`}
           >
             {task.priority.toUpperCase()}
           </Badge>
-          
+
           {/* Overdue Indicator */}
           {isOverdue && (
-            <div 
-              className="text-red-500"
-              data-testid="overdue-indicator"
-              title="Task is overdue"
-            >
+            <div className="text-red-500" data-testid="overdue-indicator" title="Task is overdue">
               <AlertTriangle className="h-4 w-4" />
             </div>
           )}
@@ -95,7 +84,9 @@ export function KanbanCard({
 
         {/* Due Date */}
         {task.dueDate && (
-          <div className={`flex items-center gap-2 text-xs ${isOverdue ? 'text-red-600' : 'text-muted-foreground'}`}>
+          <div
+            className={`flex items-center gap-2 text-xs ${isOverdue ? 'text-red-600' : 'text-muted-foreground'}`}
+          >
             <Calendar className="h-3 w-3" />
             <span>
               {format(task.dueDate, 'MMM d, yyyy')}
@@ -109,20 +100,13 @@ export function KanbanCard({
           <div className="flex items-center gap-2">
             <Tag className="h-3 w-3 text-muted-foreground" />
             <div className="flex flex-wrap gap-1">
-              {task.tags.slice(0, 3).map(tag => (
-                <Badge 
-                  key={tag} 
-                  variant="secondary" 
-                  className="text-xs px-1.5 py-0.5"
-                >
+              {task.tags.slice(0, 3).map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5">
                   {tag}
                 </Badge>
               ))}
               {task.tags.length > 3 && (
-                <Badge 
-                  variant="secondary" 
-                  className="text-xs px-1.5 py-0.5"
-                >
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                   +{task.tags.length - 3}
                 </Badge>
               )}
@@ -134,10 +118,8 @@ export function KanbanCard({
       {/* Quick Actions */}
       <div className="mt-3 pt-3 border-t border-muted/30">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">
-            ID: {task.id.slice(-6)}
-          </span>
-          
+          <span className="text-xs text-muted-foreground">ID: {task.id.slice(-6)}</span>
+
           {onEdit && (
             <Button
               variant="ghost"

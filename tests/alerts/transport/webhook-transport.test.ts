@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { WebhookTransport } from '@/lib/alerts/transport/webhook-transport'
-import { AlertChannel, CriticalError, AlertNotification, AlertChannelType, CriticalErrorType } from '@/lib/alerts/types'
+import {
+  AlertChannel,
+  CriticalError,
+  AlertNotification,
+  AlertChannelType,
+  CriticalErrorType,
+} from '@/lib/alerts/types'
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -13,9 +19,9 @@ describe('WebhookTransport', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     transport = new WebhookTransport()
-    
+
     sampleChannel = {
       type: AlertChannelType.WEBHOOK,
       name: 'test-webhook',
@@ -24,10 +30,10 @@ describe('WebhookTransport', () => {
         url: 'https://example.com/webhook',
         method: 'POST',
         timeout: 30000,
-        retries: 3
+        retries: 3,
       },
       errorTypes: [CriticalErrorType.DATABASE_CONNECTION_FAILURE],
-      priority: 'high'
+      priority: 'high',
     }
 
     sampleError = {
@@ -42,7 +48,7 @@ describe('WebhookTransport', () => {
       resolved: false,
       occurrenceCount: 1,
       lastOccurrence: new Date('2024-01-01T12:00:00Z'),
-      firstOccurrence: new Date('2024-01-01T12:00:00Z')
+      firstOccurrence: new Date('2024-01-01T12:00:00Z'),
     }
 
     sampleNotification = {
@@ -52,7 +58,7 @@ describe('WebhookTransport', () => {
       channelName: sampleChannel.name,
       status: 'pending',
       retryCount: 0,
-      maxRetries: 3
+      maxRetries: 3,
     }
   })
 
@@ -65,7 +71,7 @@ describe('WebhookTransport', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        statusText: 'OK'
+        statusText: 'OK',
       }
       ;(fetch as any).mockResolvedValue(mockResponse)
 
@@ -77,9 +83,9 @@ describe('WebhookTransport', () => {
           method: 'POST',
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'User-Agent': 'ClaudeFlow-AlertSystem/1.0'
+            'User-Agent': 'ClaudeFlow-AlertSystem/1.0',
           }),
-          body: expect.stringContaining('test-error-123')
+          body: expect.stringContaining('test-error-123'),
         })
       )
     })
@@ -91,9 +97,9 @@ describe('WebhookTransport', () => {
           ...sampleChannel.config,
           authentication: {
             type: 'bearer',
-            token: 'test-token-123'
-          }
-        }
+            token: 'test-token-123',
+          },
+        },
       }
 
       const mockResponse = { ok: true, status: 200, statusText: 'OK' }
@@ -105,8 +111,8 @@ describe('WebhookTransport', () => {
         expect.any(String),
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer test-token-123'
-          })
+            Authorization: 'Bearer test-token-123',
+          }),
         })
       )
     })
@@ -114,10 +120,8 @@ describe('WebhookTransport', () => {
     it('should retry on failure', async () => {
       const failResponse = { ok: false, status: 500, statusText: 'Internal Server Error' }
       const successResponse = { ok: true, status: 200, statusText: 'OK' }
-      
-      ;(fetch as any)
-        .mockResolvedValueOnce(failResponse)
-        .mockResolvedValueOnce(successResponse)
+
+      ;(fetch as any).mockResolvedValueOnce(failResponse).mockResolvedValueOnce(successResponse)
 
       await transport.send(sampleChannel, sampleError, sampleNotification)
 
@@ -128,8 +132,9 @@ describe('WebhookTransport', () => {
       const failResponse = { ok: false, status: 500, statusText: 'Internal Server Error' }
       ;(fetch as any).mockResolvedValue(failResponse)
 
-      await expect(transport.send(sampleChannel, sampleError, sampleNotification))
-        .rejects.toThrow('HTTP 500: Internal Server Error')
+      await expect(transport.send(sampleChannel, sampleError, sampleNotification)).rejects.toThrow(
+        'HTTP 500: Internal Server Error'
+      )
 
       expect(fetch).toHaveBeenCalledTimes(3) // Initial + 2 retries
     })
@@ -137,8 +142,9 @@ describe('WebhookTransport', () => {
     it('should handle network errors', async () => {
       ;(fetch as any).mockRejectedValue(new Error('Network error'))
 
-      await expect(transport.send(sampleChannel, sampleError, sampleNotification))
-        .rejects.toThrow('Network error')
+      await expect(transport.send(sampleChannel, sampleError, sampleNotification)).rejects.toThrow(
+        'Network error'
+      )
     })
 
     it('should include custom headers when configured', async () => {
@@ -148,9 +154,9 @@ describe('WebhookTransport', () => {
           ...sampleChannel.config,
           headers: {
             'X-Custom-Header': 'custom-value',
-            'X-Service': 'alert-system'
-          }
-        }
+            'X-Service': 'alert-system',
+          },
+        },
       }
 
       const mockResponse = { ok: true, status: 200, statusText: 'OK' }
@@ -163,8 +169,8 @@ describe('WebhookTransport', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             'X-Custom-Header': 'custom-value',
-            'X-Service': 'alert-system'
-          })
+            'X-Service': 'alert-system',
+          }),
         })
       )
     })
@@ -175,7 +181,7 @@ describe('WebhookTransport', () => {
       const validConfig = {
         url: 'https://example.com/webhook',
         method: 'POST',
-        timeout: 30000
+        timeout: 30000,
       }
 
       const result = transport.validateConfig(validConfig)
@@ -185,7 +191,7 @@ describe('WebhookTransport', () => {
 
     it('should reject missing URL', () => {
       const invalidConfig = {
-        method: 'POST'
+        method: 'POST',
       }
 
       const result = transport.validateConfig(invalidConfig)
@@ -195,7 +201,7 @@ describe('WebhookTransport', () => {
 
     it('should reject invalid URL', () => {
       const invalidConfig = {
-        url: 'not-a-valid-url'
+        url: 'not-a-valid-url',
       }
 
       const result = transport.validateConfig(invalidConfig)
@@ -206,7 +212,7 @@ describe('WebhookTransport', () => {
     it('should reject invalid method', () => {
       const invalidConfig = {
         url: 'https://example.com/webhook',
-        method: 'INVALID'
+        method: 'INVALID',
       }
 
       const result = transport.validateConfig(invalidConfig)
@@ -217,7 +223,7 @@ describe('WebhookTransport', () => {
     it('should reject invalid timeout', () => {
       const invalidConfig = {
         url: 'https://example.com/webhook',
-        timeout: 500 // Too small
+        timeout: 500, // Too small
       }
 
       const result = transport.validateConfig(invalidConfig)
@@ -230,8 +236,8 @@ describe('WebhookTransport', () => {
         url: 'https://example.com/webhook',
         authentication: {
           type: 'bearer',
-          token: 'valid-token'
-        }
+          token: 'valid-token',
+        },
       }
 
       const result = transport.validateConfig(validConfig)
@@ -243,9 +249,9 @@ describe('WebhookTransport', () => {
       const invalidConfig = {
         url: 'https://example.com/webhook',
         authentication: {
-          type: 'bearer'
+          type: 'bearer',
           // Missing token
-        }
+        },
       }
 
       const result = transport.validateConfig(invalidConfig)
@@ -259,8 +265,8 @@ describe('WebhookTransport', () => {
         authentication: {
           type: 'basic',
           username: 'user',
-          password: 'pass'
-        }
+          password: 'pass',
+        },
       }
 
       const result = transport.validateConfig(validConfig)
@@ -274,8 +280,8 @@ describe('WebhookTransport', () => {
         authentication: {
           type: 'api-key',
           apiKey: 'key123',
-          apiKeyHeader: 'X-API-Key'
-        }
+          apiKeyHeader: 'X-API-Key',
+        },
       }
 
       const result = transport.validateConfig(validConfig)
@@ -305,18 +311,18 @@ describe('WebhookTransport', () => {
           environment: sampleError.environment,
           resolved: sampleError.resolved,
           occurrenceCount: sampleError.occurrenceCount,
-          metadata: sampleError.metadata
+          metadata: sampleError.metadata,
         },
         notification: {
           id: sampleNotification.id,
           channel: sampleChannel.name,
-          priority: sampleChannel.priority
+          priority: sampleChannel.priority,
         },
         system: {
           name: 'ClaudeFlow',
           version: '1.0.0',
-          timestamp: expect.any(String)
-        }
+          timestamp: expect.any(String),
+        },
       })
     })
   })

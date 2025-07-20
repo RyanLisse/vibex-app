@@ -1,46 +1,45 @@
 import { describe, it, expect } from 'vitest'
-import { TestDataBuilder, UserBuilder, ProjectBuilder, ApiResponseBuilder } from './test-data-builder'
+import {
+  TestDataBuilder,
+  UserBuilder,
+  ProjectBuilder,
+  ApiResponseBuilder,
+} from './test-data-builder'
 
 describe('TestDataBuilder', () => {
   describe('Base Builder Pattern', () => {
     it('should create a basic builder with default values', () => {
       const builder = new TestDataBuilder({
         id: 1,
-        name: 'default'
+        name: 'default',
       })
 
       const result = builder.build()
 
       expect(result).toEqual({
         id: 1,
-        name: 'default'
+        name: 'default',
       })
     })
 
     it('should allow overriding values', () => {
       const builder = new TestDataBuilder({
         id: 1,
-        name: 'default'
+        name: 'default',
       })
 
-      const result = builder
-        .with('id', 2)
-        .with('name', 'custom')
-        .build()
+      const result = builder.with('id', 2).with('name', 'custom').build()
 
       expect(result).toEqual({
         id: 2,
-        name: 'custom'
+        name: 'custom',
       })
     })
 
     it('should support chaining', () => {
       const builder = new TestDataBuilder({ count: 0 })
 
-      const result = builder
-        .with('count', 1)
-        .with('count', 2)
-        .build()
+      const result = builder.with('count', 1).with('count', 2).build()
 
       expect(result.count).toBe(2)
     })
@@ -71,9 +70,7 @@ describe('TestDataBuilder', () => {
     })
 
     it('should create user with custom email', () => {
-      const user = new UserBuilder()
-        .withEmail('custom@test.com')
-        .build()
+      const user = new UserBuilder().withEmail('custom@test.com').build()
 
       expect(user.email).toBe('custom@test.com')
     })
@@ -82,8 +79,8 @@ describe('TestDataBuilder', () => {
       const users = UserBuilder.createMany(3)
 
       expect(users).toHaveLength(3)
-      expect(new Set(users.map(u => u.id)).size).toBe(3)
-      expect(new Set(users.map(u => u.email)).size).toBe(3)
+      expect(new Set(users.map((u) => u.id)).size).toBe(3)
+      expect(new Set(users.map((u) => u.email)).size).toBe(3)
     })
   })
 
@@ -101,27 +98,21 @@ describe('TestDataBuilder', () => {
     })
 
     it('should create project with collaborators', () => {
-      const project = new ProjectBuilder()
-        .withCollaborators(3)
-        .build()
+      const project = new ProjectBuilder().withCollaborators(3).build()
 
       expect(project.collaborators).toHaveLength(3)
       expect(project.collaborators[0]).toHaveProperty('id')
     })
 
     it('should create archived project', () => {
-      const project = new ProjectBuilder()
-        .archived()
-        .build()
+      const project = new ProjectBuilder().archived().build()
 
       expect(project.status).toBe('archived')
     })
 
     it('should create project with custom owner', () => {
       const owner = new UserBuilder().withEmail('owner@test.com').build()
-      const project = new ProjectBuilder()
-        .withOwner(owner)
-        .build()
+      const project = new ProjectBuilder().withOwner(owner).build()
 
       expect(project.owner.email).toBe('owner@test.com')
     })
@@ -129,10 +120,7 @@ describe('TestDataBuilder', () => {
 
   describe('ApiResponseBuilder', () => {
     it('should create successful API response', () => {
-      const response = new ApiResponseBuilder()
-        .success()
-        .withData({ message: 'Hello' })
-        .build()
+      const response = new ApiResponseBuilder().success().withData({ message: 'Hello' }).build()
 
       expect(response.success).toBe(true)
       expect(response.status).toBe(200)
@@ -141,9 +129,7 @@ describe('TestDataBuilder', () => {
     })
 
     it('should create error API response', () => {
-      const response = new ApiResponseBuilder()
-        .error('Not found', 404)
-        .build()
+      const response = new ApiResponseBuilder().error('Not found', 404).build()
 
       expect(response.success).toBe(false)
       expect(response.status).toBe(404)
@@ -152,9 +138,7 @@ describe('TestDataBuilder', () => {
     })
 
     it('should create loading state', () => {
-      const response = new ApiResponseBuilder()
-        .loading()
-        .build()
+      const response = new ApiResponseBuilder().loading().build()
 
       expect(response.loading).toBe(true)
       expect(response.data).toBeNull()
@@ -162,17 +146,14 @@ describe('TestDataBuilder', () => {
 
     it('should create paginated response', () => {
       const users = UserBuilder.createMany(5)
-      const response = new ApiResponseBuilder()
-        .success()
-        .withPagination(users, 1, 10, 25)
-        .build()
+      const response = new ApiResponseBuilder().success().withPagination(users, 1, 10, 25).build()
 
       expect(response.data).toEqual(users)
       expect(response.pagination).toEqual({
         page: 1,
         limit: 10,
         total: 25,
-        totalPages: 3
+        totalPages: 3,
       })
     })
   })

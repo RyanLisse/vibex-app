@@ -6,7 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CriticalError, AlertNotification, AlertMetrics, CriticalErrorType } from '@/lib/alerts/types'
+import {
+  CriticalError,
+  AlertNotification,
+  AlertMetrics,
+  CriticalErrorType,
+} from '@/lib/alerts/types'
 import { formatDistanceToNow, format } from 'date-fns'
 import { AlertTriangle, CheckCircle, Clock, TrendingUp, Bell, Activity } from 'lucide-react'
 
@@ -23,7 +28,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
   useEffect(() => {
     loadDashboardData()
-    
+
     // Refresh data every 30 seconds
     const interval = setInterval(loadDashboardData, 30000)
     return () => clearInterval(interval)
@@ -32,11 +37,11 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
   const loadDashboardData = async () => {
     try {
       setLoading(true)
-      
+
       const [activeResponse, historyResponse, metricsResponse] = await Promise.all([
         fetch('/api/alerts/active'),
         fetch('/api/alerts/history'),
-        fetch('/api/alerts/metrics')
+        fetch('/api/alerts/metrics'),
       ])
 
       if (!activeResponse.ok || !historyResponse.ok || !metricsResponse.ok) {
@@ -46,7 +51,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
       const [activeData, historyData, metricsData] = await Promise.all([
         activeResponse.json(),
         historyResponse.json(),
-        metricsResponse.json()
+        metricsResponse.json(),
       ])
 
       setActiveAlerts(activeData.alerts || [])
@@ -65,7 +70,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
       const response = await fetch(`/api/alerts/${alertId}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resolvedBy: 'user' })
+        body: JSON.stringify({ resolvedBy: 'user' }),
       })
 
       if (!response.ok) {
@@ -81,26 +86,36 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'bg-red-500'
-      case 'high': return 'bg-orange-500'
-      case 'medium': return 'bg-yellow-500'
-      case 'low': return 'bg-blue-500'
-      default: return 'bg-gray-500'
+      case 'critical':
+        return 'bg-red-500'
+      case 'high':
+        return 'bg-orange-500'
+      case 'medium':
+        return 'bg-yellow-500'
+      case 'low':
+        return 'bg-blue-500'
+      default:
+        return 'bg-gray-500'
     }
   }
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'critical': return '🚨'
-      case 'high': return '⚠️'
-      case 'medium': return '📢'
-      case 'low': return 'ℹ️'
-      default: return '🔔'
+      case 'critical':
+        return '🚨'
+      case 'high':
+        return '⚠️'
+      case 'medium':
+        return '📢'
+      case 'low':
+        return 'ℹ️'
+      default:
+        return '🔔'
     }
   }
 
   const formatErrorType = (type: CriticalErrorType) => {
-    return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    return type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
   if (loading) {
@@ -152,10 +167,9 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {metrics.averageResolutionTime ? 
-                  `${Math.round(metrics.averageResolutionTime / 60000)}m` : 
-                  'N/A'
-                }
+                {metrics.averageResolutionTime
+                  ? `${Math.round(metrics.averageResolutionTime / 60000)}m`
+                  : 'N/A'}
               </div>
               <p className="text-xs text-muted-foreground">Time to resolve</p>
             </CardContent>
@@ -176,15 +190,9 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="active">
-            Active Alerts ({activeAlerts.length})
-          </TabsTrigger>
-          <TabsTrigger value="history">
-            Alert History
-          </TabsTrigger>
-          <TabsTrigger value="metrics">
-            Metrics & Analytics
-          </TabsTrigger>
+          <TabsTrigger value="active">Active Alerts ({activeAlerts.length})</TabsTrigger>
+          <TabsTrigger value="history">Alert History</TabsTrigger>
+          <TabsTrigger value="metrics">Metrics & Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
@@ -207,9 +215,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-lg">{getSeverityIcon(alert.severity)}</span>
-                          <CardTitle className="text-lg">
-                            {formatErrorType(alert.type)}
-                          </CardTitle>
+                          <CardTitle className="text-lg">{formatErrorType(alert.type)}</CardTitle>
                           <Badge className={getSeverityColor(alert.severity)}>
                             {alert.severity}
                           </Badge>
@@ -230,7 +236,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-700 mb-4">{alert.message}</p>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <div className="font-medium text-gray-500">Environment</div>
@@ -283,11 +289,9 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{getSeverityIcon(alert.severity)}</span>
-                        <CardTitle className="text-base">
-                          {formatErrorType(alert.type)}
-                        </CardTitle>
-                        <Badge 
-                          variant={alert.resolved ? "secondary" : "default"}
+                        <CardTitle className="text-base">{formatErrorType(alert.type)}</CardTitle>
+                        <Badge
+                          variant={alert.resolved ? 'secondary' : 'default'}
                           className={alert.resolved ? '' : getSeverityColor(alert.severity)}
                         >
                           {alert.resolved ? 'Resolved' : alert.severity}
@@ -300,9 +304,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
                         )}
                       </CardDescription>
                     </div>
-                    {alert.resolved && (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    )}
+                    {alert.resolved && <CheckCircle className="h-5 w-5 text-green-500" />}
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -327,7 +329,9 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
                   <div className="space-y-3">
                     {Object.entries(metrics.alertsByType || {}).map(([type, count]) => (
                       <div key={type} className="flex justify-between items-center">
-                        <span className="text-sm">{formatErrorType(type as CriticalErrorType)}</span>
+                        <span className="text-sm">
+                          {formatErrorType(type as CriticalErrorType)}
+                        </span>
                         <Badge variant="secondary">{count}</Badge>
                       </div>
                     ))}
@@ -354,7 +358,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Unresolved</span>
-                      <Badge variant={metrics.unresolvedAlerts > 0 ? "destructive" : "secondary"}>
+                      <Badge variant={metrics.unresolvedAlerts > 0 ? 'destructive' : 'secondary'}>
                         {metrics.unresolvedAlerts}
                       </Badge>
                     </div>

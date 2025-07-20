@@ -2,7 +2,7 @@
 
 /**
  * Alert System Setup Script
- * 
+ *
  * This script sets up the alert system for Claude Flow, including:
  * - Database migrations
  * - Default configuration
@@ -25,7 +25,7 @@ const DEFAULT_CONFIG: SetupConfig = {
   runMigrations: true,
   setupChannels: true,
   testChannels: false,
-  validateEnv: true
+  validateEnv: true,
 }
 
 class AlertSetup {
@@ -61,7 +61,6 @@ class AlertSetup {
       console.log('2. Set up environment variables for external services')
       console.log('3. Test your alert channels')
       console.log('4. Monitor alerts in the dashboard at /alerts')
-
     } catch (error) {
       console.error('❌ Setup failed:', error instanceof Error ? error.message : error)
       process.exit(1)
@@ -71,27 +70,24 @@ class AlertSetup {
   private async validateEnvironment(): Promise<void> {
     console.log('🔍 Validating environment...')
 
-    const requiredVars = [
-      'DATABASE_URL',
-      'REDIS_URL'
-    ]
+    const requiredVars = ['DATABASE_URL', 'REDIS_URL']
 
     const optionalVars = [
       'ALERTS_ENABLED',
       'ALERTS_WEBHOOK_URL',
       'ALERTS_SLACK_WEBHOOK_URL',
-      'ALERTS_EMAIL_FROM'
+      'ALERTS_EMAIL_FROM',
     ]
 
-    const missing = requiredVars.filter(varName => !process.env[varName])
-    
+    const missing = requiredVars.filter((varName) => !process.env[varName])
+
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`)
     }
 
     console.log('✓ Required environment variables are set')
 
-    const configured = optionalVars.filter(varName => process.env[varName])
+    const configured = optionalVars.filter((varName) => process.env[varName])
     if (configured.length > 0) {
       console.log(`✓ Optional variables configured: ${configured.join(', ')}`)
     } else {
@@ -114,7 +110,7 @@ class AlertSetup {
         if (existsSync(migrationPath)) {
           const migration = readFileSync(migrationPath, 'utf-8')
           console.log('Running alert system migration...')
-          
+
           // This would need to be adapted to your database setup
           console.log('⚠️  Please run the migration manually:')
           console.log(migrationPath)
@@ -142,7 +138,7 @@ class AlertSetup {
           level: 'error',
           format: 'structured',
           includeStackTrace: true,
-          includeMetadata: true
+          includeMetadata: true,
         },
         errorTypes: [
           'database_connection_failure',
@@ -154,10 +150,10 @@ class AlertSetup {
           'third_party_service_failure',
           'system_health_failure',
           'api_gateway_failure',
-          'file_system_failure'
+          'file_system_failure',
         ],
-        priority: 'medium'
-      }
+        priority: 'medium',
+      },
     ]
 
     // Add webhook channel if URL is configured
@@ -174,18 +170,18 @@ class AlertSetup {
           ...(process.env.ALERTS_WEBHOOK_TOKEN && {
             authentication: {
               type: 'bearer',
-              token: process.env.ALERTS_WEBHOOK_TOKEN
-            }
-          })
+              token: process.env.ALERTS_WEBHOOK_TOKEN,
+            },
+          }),
         },
         errorTypes: [
           'database_connection_failure',
           'redis_connection_failure',
           'auth_service_failure',
           'system_health_failure',
-          'memory_threshold_exceeded'
+          'memory_threshold_exceeded',
         ],
-        priority: 'high'
+        priority: 'high',
       })
     }
 
@@ -200,21 +196,21 @@ class AlertSetup {
           channel: process.env.ALERTS_SLACK_CHANNEL || '#alerts',
           username: 'Claude Flow Alerts',
           iconEmoji: ':rotating_light:',
-          mentionChannel: process.env.ALERTS_SLACK_MENTION_CHANNEL === 'true'
+          mentionChannel: process.env.ALERTS_SLACK_MENTION_CHANNEL === 'true',
         },
         errorTypes: [
           'database_connection_failure',
           'redis_connection_failure',
           'auth_service_failure',
           'system_health_failure',
-          'memory_threshold_exceeded'
+          'memory_threshold_exceeded',
         ],
-        priority: 'critical'
+        priority: 'critical',
       })
     }
 
     console.log(`✓ Configured ${defaultChannels.length} default channels`)
-    defaultChannels.forEach(channel => {
+    defaultChannels.forEach((channel) => {
       console.log(`  - ${channel.name} (${channel.type})`)
     })
 
@@ -285,7 +281,7 @@ ALERTS_SMTP_PASSWORD=
 // CLI interface
 async function main() {
   const args = process.argv.slice(2)
-  
+
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`
 Claude Flow Alert System Setup
@@ -318,7 +314,7 @@ Examples:
     runMigrations: !args.includes('--no-migrations'),
     setupChannels: !args.includes('--no-channels'),
     testChannels: args.includes('--test-channels'),
-    validateEnv: !args.includes('--no-env-check')
+    validateEnv: !args.includes('--no-env-check'),
   }
 
   const setup = new AlertSetup(config)

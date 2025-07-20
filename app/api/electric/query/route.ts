@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * ElectricSQL Query API Route
  *
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
           code: SpanStatusCode.ERROR,
           message: 'Validation failed',
         })
-        return createApiErrorResponse('Invalid request data', 400, validationResult.errors)
+        return createApiErrorResponse('Invalid request data', 400)
       }
 
       const { query, params, userId, syncMode } = validationResult.data
@@ -98,13 +101,13 @@ export async function POST(request: NextRequest) {
 
       span.setAttributes({
         'electric.query.executionTime': executionTime,
-        'electric.query.rowCount': result.length,
+        'electric.query.rowCount': Array.isArray(result) ? result.length : 0,
       })
 
       // Format response
       const response: ElectricQueryResponse = {
-        data: result as Record<string, unknown>[],
-        rowCount: result.length,
+        data: Array.isArray(result) ? result : [],
+        rowCount: Array.isArray(result) ? result.length : 0,
         syncTimestamp: new Date().toISOString(),
         source: 'server',
       }

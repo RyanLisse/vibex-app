@@ -1,6 +1,6 @@
 /**
  * Alert System Integration Examples
- * 
+ *
  * This file demonstrates how to integrate the alert system with existing
  * services and components in your Claude Flow application.
  */
@@ -13,19 +13,19 @@ import type { LogEntry } from 'winston'
 
 /**
  * Example 1: Basic Integration with Existing Logger
- * 
+ *
  * This shows how to add alert monitoring to your existing Winston logger setup.
  */
 export async function integrateWithExistingLogger() {
   // Initialize the alert service
   const alertService = await initializeAlerts()
-  
+
   // Get the alert transport
   const alertTransport = alertService.getWinstonTransport()
-  
+
   // Get your existing logger factory
   const loggerFactory = LoggerFactory.getInstance()
-  
+
   // Add the alert transport to winston
   // Note: This requires modifying LoggerFactory to accept additional transports
   // You would add this to the createWinstonLogger method:
@@ -42,13 +42,13 @@ export async function integrateWithExistingLogger() {
     // ... rest of logger creation
   }
   */
-  
+
   console.log('Alert system integrated with Winston logger')
 }
 
 /**
  * Example 2: Manual Error Reporting
- * 
+ *
  * This shows how to manually report critical errors from your application code.
  */
 export async function reportCriticalError(error: Error, context: any) {
@@ -66,9 +66,9 @@ export async function reportCriticalError(error: Error, context: any) {
     meta: {
       ...context,
       errorType: 'manual_report',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 
   // The alert transport will automatically detect and process this
@@ -77,7 +77,7 @@ export async function reportCriticalError(error: Error, context: any) {
 
 /**
  * Example 3: Database Connection Monitoring
- * 
+ *
  * This shows how to add alert monitoring to database operations.
  */
 export class DatabaseWithAlerts {
@@ -93,7 +93,7 @@ export class DatabaseWithAlerts {
     try {
       // Your database connection logic here
       await this.performConnection()
-      
+
       this.logger?.info('Database connected successfully')
     } catch (error) {
       // This error will be detected by the alert system
@@ -101,7 +101,7 @@ export class DatabaseWithAlerts {
         error: error instanceof Error ? error.message : 'Unknown error',
         type: 'database_connection_failure',
         retries: 3,
-        timeout: 10000
+        timeout: 10000,
       })
       throw error
     }
@@ -120,7 +120,7 @@ export class DatabaseWithAlerts {
       this.logger?.error('Database query failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         sql: sql.substring(0, 100), // Log first 100 chars
-        type: 'database_query_failure'
+        type: 'database_query_failure',
       })
       throw error
     }
@@ -134,7 +134,7 @@ export class DatabaseWithAlerts {
 
 /**
  * Example 4: API Route Error Handling
- * 
+ *
  * This shows how to add alert monitoring to Next.js API routes.
  */
 export function withAlertMonitoring<T extends any[], R>(
@@ -148,15 +148,15 @@ export function withAlertMonitoring<T extends any[], R>(
       // Report API failures
       const loggerFactory = LoggerFactory.getInstance()
       const logger = loggerFactory?.createLogger('api-alerts')
-      
+
       logger?.error('API route failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         route: context.route,
         method: context.method,
         stack: error instanceof Error ? error.stack : undefined,
-        type: 'api_gateway_failure'
+        type: 'api_gateway_failure',
       })
-      
+
       throw error
     }
   }
@@ -164,7 +164,7 @@ export function withAlertMonitoring<T extends any[], R>(
 
 /**
  * Example 5: Workflow Monitoring
- * 
+ *
  * This shows how to add alert monitoring to Inngest workflows.
  */
 export class WorkflowWithAlerts {
@@ -187,7 +187,7 @@ export class WorkflowWithAlerts {
         error: error instanceof Error ? error.message : 'Unknown error',
         stepName,
         type: 'workflow_execution_failure',
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       })
       throw error
     }
@@ -196,18 +196,18 @@ export class WorkflowWithAlerts {
   async executeWorkflow(workflowId: string, steps: Array<() => Promise<any>>): Promise<void> {
     try {
       this.logger?.info(`Starting workflow: ${workflowId}`)
-      
+
       for (let i = 0; i < steps.length; i++) {
         await this.executeStep(`step-${i + 1}`, steps[i])
       }
-      
+
       this.logger?.info(`Workflow completed: ${workflowId}`)
     } catch (error) {
       this.logger?.error('Workflow execution failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         workflowId,
         type: 'workflow_execution_failure',
-        totalSteps: steps.length
+        totalSteps: steps.length,
       })
       throw error
     }
@@ -216,7 +216,7 @@ export class WorkflowWithAlerts {
 
 /**
  * Example 6: Custom Alert Patterns
- * 
+ *
  * This shows how to add custom error detection patterns.
  */
 export async function setupCustomAlertPatterns() {
@@ -244,44 +244,44 @@ export async function setupCustomAlertPatterns() {
 
 /**
  * Example 7: React Component Error Boundary with Alerts
- * 
+ *
  * This shows how to add alert monitoring to React error boundaries.
  */
 export function reportUIError(error: Error, errorInfo: any) {
   const loggerFactory = LoggerFactory.getInstance()
   const logger = loggerFactory?.createLogger('ui-alerts')
-  
+
   logger?.error('React component error', {
     error: error.message,
     stack: error.stack,
     componentStack: errorInfo.componentStack,
     type: 'ui_component_failure',
-    severity: 'high'
+    severity: 'high',
   })
 }
 
 /**
  * Example 8: Health Check Integration
- * 
+ *
  * This shows how to integrate alerts with health checks.
  */
 export async function runHealthCheckWithAlerts() {
   const loggerFactory = LoggerFactory.getInstance()
   const logger = loggerFactory?.createLogger('health-alerts')
-  
+
   try {
     // Run your health checks
     await checkDatabaseHealth()
     await checkRedisHealth()
     await checkExternalServices()
-    
+
     logger?.info('Health check passed')
   } catch (error) {
     // This will trigger system health failure alerts
     logger?.error('Health check failed', {
       error: error instanceof Error ? error.message : 'Unknown error',
       type: 'system_health_failure',
-      severity: 'critical'
+      severity: 'critical',
     })
     throw error
   }

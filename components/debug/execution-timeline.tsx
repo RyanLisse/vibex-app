@@ -181,10 +181,13 @@ function TimelineOverview({
   const overviewRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsDragging(true)
-    handleMouseMove(e)
-  }, [handleMouseMove])
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      setIsDragging(true)
+      handleMouseMove(e)
+    },
+    [handleMouseMove]
+  )
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {

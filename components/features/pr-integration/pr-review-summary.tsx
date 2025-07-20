@@ -48,12 +48,7 @@ export function PRReviewSummary({
   ]
 
   // Mock available reviewers (in real app, would come from team/org data)
-  const availableReviewers = [
-    'sarah-expert',
-    'mike-senior',
-    'alex-lead',
-    'emma-architect',
-  ]
+  const availableReviewers = ['sarah-expert', 'mike-senior', 'alex-lead', 'emma-architect']
 
   const getReviewerIcon = (status: string) => {
     switch (status) {
@@ -81,7 +76,7 @@ export function PRReviewSummary({
     }
   }
 
-  const approvedCount = prStatus.reviewers.filter(r => r.status === 'approved').length
+  const approvedCount = prStatus.reviewers.filter((r) => r.status === 'approved').length
   const totalReviewers = prStatus.reviewers.length
 
   const handleRequestReview = async () => {
@@ -118,12 +113,12 @@ export function PRReviewSummary({
               <DialogHeader>
                 <DialogTitle>Select Reviewers</DialogTitle>
               </DialogHeader>
-              
+
               <div className="space-y-4">
                 <Select
                   onValueChange={(value) => {
                     if (!selectedReviewers.includes(value)) {
-                      setSelectedReviewers(prev => [...prev, value])
+                      setSelectedReviewers((prev) => [...prev, value])
                     }
                   }}
                 >
@@ -132,13 +127,12 @@ export function PRReviewSummary({
                   </SelectTrigger>
                   <SelectContent>
                     {availableReviewers
-                      .filter(reviewer => !selectedReviewers.includes(reviewer))
-                      .map(reviewer => (
+                      .filter((reviewer) => !selectedReviewers.includes(reviewer))
+                      .map((reviewer) => (
                         <SelectItem key={reviewer} value={reviewer}>
                           {reviewer}
                         </SelectItem>
-                      ))
-                    }
+                      ))}
                   </SelectContent>
                 </Select>
 
@@ -147,17 +141,13 @@ export function PRReviewSummary({
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Selected:</p>
                     <div className="flex flex-wrap gap-2">
-                      {selectedReviewers.map(reviewer => (
-                        <Badge 
-                          key={reviewer} 
-                          variant="secondary"
-                          className="gap-1"
-                        >
+                      {selectedReviewers.map((reviewer) => (
+                        <Badge key={reviewer} variant="secondary" className="gap-1">
                           {reviewer}
                           <button
-                            onClick={() => setSelectedReviewers(prev => 
-                              prev.filter(r => r !== reviewer)
-                            )}
+                            onClick={() =>
+                              setSelectedReviewers((prev) => prev.filter((r) => r !== reviewer))
+                            }
                             className="ml-1 hover:text-red-500"
                           >
                             ×
@@ -169,15 +159,15 @@ export function PRReviewSummary({
                 )}
 
                 <div className="flex gap-2 pt-4">
-                  <Button 
+                  <Button
                     onClick={handleRequestReview}
                     disabled={selectedReviewers.length === 0}
                     className="flex-1"
                   >
                     Send Request
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsRequestModalOpen(false)}
                     className="flex-1"
                   >
@@ -192,8 +182,8 @@ export function PRReviewSummary({
 
       {/* Reviewers List */}
       <div className="space-y-2">
-        {prStatus.reviewers.map(reviewer => (
-          <div 
+        {prStatus.reviewers.map((reviewer) => (
+          <div
             key={reviewer.login}
             className={`flex items-center gap-3 p-2 rounded-lg border ${getReviewerClassName(reviewer.status)}`}
             data-testid={`reviewer-${reviewer.login}`}
@@ -203,11 +193,11 @@ export function PRReviewSummary({
                 {reviewer.login.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex-1">
               <p className="text-sm font-medium">{reviewer.login}</p>
             </div>
-            
+
             <div className="flex items-center gap-1">
               {getReviewerIcon(reviewer.status)}
               <span className="text-xs capitalize">{reviewer.status.replace('_', ' ')}</span>
@@ -229,9 +219,9 @@ export function PRReviewSummary({
             <DialogHeader>
               <DialogTitle>Review Comments</DialogTitle>
             </DialogHeader>
-            
+
             <div className="space-y-4">
-              {reviewComments.map(comment => (
+              {reviewComments.map((comment) => (
                 <div key={comment.id} className="border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -246,9 +236,7 @@ export function PRReviewSummary({
                       {comment.file}:{comment.line}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {comment.body}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{comment.body}</p>
                 </div>
               ))}
             </div>
@@ -260,10 +248,10 @@ export function PRReviewSummary({
       <div className="text-xs text-muted-foreground">
         <p>
           {approvedCount > 0 && `${approvedCount} approved • `}
-          {prStatus.reviewers.filter(r => r.status === 'changes_requested').length > 0 && 
-            `${prStatus.reviewers.filter(r => r.status === 'changes_requested').length} requested changes • `}
-          {prStatus.reviewers.filter(r => r.status === 'requested').length > 0 && 
-            `${prStatus.reviewers.filter(r => r.status === 'requested').length} pending review`}
+          {prStatus.reviewers.filter((r) => r.status === 'changes_requested').length > 0 &&
+            `${prStatus.reviewers.filter((r) => r.status === 'changes_requested').length} requested changes • `}
+          {prStatus.reviewers.filter((r) => r.status === 'requested').length > 0 &&
+            `${prStatus.reviewers.filter((r) => r.status === 'requested').length} pending review`}
         </p>
       </div>
     </div>

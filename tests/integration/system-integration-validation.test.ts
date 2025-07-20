@@ -1,6 +1,6 @@
 /**
  * System Integration Validation Test Suite
- * 
+ *
  * This test validates that all system integrations are properly configured
  * and operational, providing a comprehensive health check.
  */
@@ -9,19 +9,18 @@ import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 import { PrometheusMetricsCollector } from '@/lib/metrics/prometheus-client'
 import { GrafanaDashboardBuilder } from '@/lib/metrics/grafana-dashboards'
 import { AlertRuleBuilder } from '@/lib/metrics/alert-rules'
-import {
-  validateRedisEnvironment,
-  getRedisConfig,
-  redisFeatures,
-} from '@/lib/redis/config'
+import { validateRedisEnvironment, getRedisConfig, redisFeatures } from '@/lib/redis/config'
 
 // Integration Health Report Builder
 class IntegrationHealthReport {
-  private results: Map<string, {
-    status: 'operational' | 'degraded' | 'failed'
-    checks: Array<{ name: string; passed: boolean; message?: string }>
-    metrics?: any
-  }> = new Map()
+  private results: Map<
+    string,
+    {
+      status: 'operational' | 'degraded' | 'failed'
+      checks: Array<{ name: string; passed: boolean; message?: string }>
+      metrics?: any
+    }
+  > = new Map()
 
   addServiceCheck(
     service: string,
@@ -66,14 +65,14 @@ class IntegrationHealthReport {
   }
 
   private calculateOverallStatus(): 'operational' | 'degraded' | 'failed' {
-    const statuses = Array.from(this.results.values()).map(r => r.status)
+    const statuses = Array.from(this.results.values()).map((r) => r.status)
     if (statuses.includes('failed')) return 'failed'
     if (statuses.includes('degraded')) return 'degraded'
     return 'operational'
   }
 
   private calculateServiceHealth(checks: Array<{ passed: boolean }>): number {
-    const passed = checks.filter(c => c.passed).length
+    const passed = checks.filter((c) => c.passed).length
     return (passed / checks.length) * 100
   }
 }
@@ -92,14 +91,14 @@ describe('System Integration Validation', () => {
     console.log('\n=== SYSTEM INTEGRATION HEALTH REPORT ===')
     console.log(JSON.stringify(report, null, 2))
     console.log('\n=== RECOMMENDATIONS ===')
-    
+
     // Generate recommendations based on report
     const recommendations = []
-    
+
     if (report.summary.failed > 0) {
       recommendations.push('CRITICAL: Address failed services immediately')
     }
-    
+
     if (report.summary.degraded > 0) {
       recommendations.push('WARNING: Investigate degraded services')
     }
@@ -112,23 +111,26 @@ describe('System Integration Validation', () => {
       recommendations.push('- Complete monitoring setup for full observability')
     }
 
-    if (report.services.external_apis?.checks.some((c: any) => !c.passed && c.name.includes('key'))) {
+    if (
+      report.services.external_apis?.checks.some((c: any) => !c.passed && c.name.includes('key'))
+    ) {
       recommendations.push('- Add missing API keys to environment configuration')
     }
 
-    recommendations.forEach(rec => console.log(rec))
+    recommendations.forEach((rec) => console.log(rec))
   })
 
   describe('1. Redis/Valkey Integration', () => {
     test('should validate Redis configuration', () => {
       const checks = []
-      
+
       // Check environment configuration
       const validation = validateRedisEnvironment()
       checks.push({
         name: 'Environment Configuration',
         passed: validation.isValid || validation.errors.length === 0,
-        message: validation.errors.length > 0 ? validation.errors.join(', ') : 'Valid configuration',
+        message:
+          validation.errors.length > 0 ? validation.errors.join(', ') : 'Valid configuration',
       })
 
       // Check Redis config
@@ -156,15 +158,18 @@ describe('System Integration Validation', () => {
         message: 'Mock Redis available for testing',
       })
 
-      const status = validation.isValid ? 'operational' : 
-                    validation.errors.length === 1 ? 'degraded' : 'failed'
-      
+      const status = validation.isValid
+        ? 'operational'
+        : validation.errors.length === 1
+          ? 'degraded'
+          : 'failed'
+
       healthReport.addServiceCheck('redis', status, checks)
     })
 
     test('should validate Redis services', async () => {
       const serviceChecks = []
-      
+
       // List of services to check
       const services = [
         'CacheService',
@@ -180,7 +185,7 @@ describe('System Integration Validation', () => {
         try {
           const module = await import('@/lib/redis')
           const ServiceClass = module[service]
-          
+
           serviceChecks.push({
             name: service,
             passed: !!ServiceClass && typeof ServiceClass.getInstance === 'function',
@@ -196,7 +201,7 @@ describe('System Integration Validation', () => {
       }
 
       healthReport.addMetrics('redis', {
-        servicesAvailable: serviceChecks.filter(c => c.passed).length,
+        servicesAvailable: serviceChecks.filter((c) => c.passed).length,
         totalServices: services.length,
       })
     })
@@ -209,7 +214,7 @@ describe('System Integration Validation', () => {
       // Check observability service
       try {
         const { observability } = await import('@/lib/observability')
-        
+
         checks.push({
           name: 'Observability Service',
           passed: !!observability,
@@ -244,9 +249,12 @@ describe('System Integration Validation', () => {
         })
       }
 
-      const status = checks.every(c => c.passed) ? 'operational' : 
-                    checks.some(c => c.passed) ? 'degraded' : 'failed'
-      
+      const status = checks.every((c) => c.passed)
+        ? 'operational'
+        : checks.some((c) => c.passed)
+          ? 'degraded'
+          : 'failed'
+
       healthReport.addServiceCheck('observability', status, checks)
     })
 
@@ -279,7 +287,7 @@ describe('System Integration Validation', () => {
 
       healthReport.addMetrics('observability', {
         collectorAvailable: !!metricsCollector,
-        methodsAvailable: checks.filter(c => c.passed && c.name.startsWith('Metric')).length,
+        methodsAvailable: checks.filter((c) => c.passed && c.name.startsWith('Metric')).length,
       })
     })
   })
@@ -290,10 +298,22 @@ describe('System Integration Validation', () => {
 
       // Check dashboard builders
       const dashboards = [
-        { name: 'Agent Overview', builder: () => GrafanaDashboardBuilder.createAgentOverviewDashboard() },
-        { name: 'System Health', builder: () => GrafanaDashboardBuilder.createSystemHealthDashboard() },
-        { name: 'Business Metrics', builder: () => GrafanaDashboardBuilder.createBusinessMetricsDashboard() },
-        { name: 'Cost Analysis', builder: () => GrafanaDashboardBuilder.createCostAnalysisDashboard() },
+        {
+          name: 'Agent Overview',
+          builder: () => GrafanaDashboardBuilder.createAgentOverviewDashboard(),
+        },
+        {
+          name: 'System Health',
+          builder: () => GrafanaDashboardBuilder.createSystemHealthDashboard(),
+        },
+        {
+          name: 'Business Metrics',
+          builder: () => GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
+        },
+        {
+          name: 'Cost Analysis',
+          builder: () => GrafanaDashboardBuilder.createCostAnalysisDashboard(),
+        },
       ]
 
       for (const { name, builder } of dashboards) {
@@ -313,7 +333,7 @@ describe('System Integration Validation', () => {
         }
       }
 
-      const status = checks.every(c => c.passed) ? 'operational' : 'degraded'
+      const status = checks.every((c) => c.passed) ? 'operational' : 'degraded'
       healthReport.addServiceCheck('monitoring', status, checks)
     })
 
@@ -347,10 +367,12 @@ describe('System Integration Validation', () => {
       healthReport.addMetrics('monitoring', {
         totalDashboards: 4,
         totalAlertGroups: alertGroups.length,
-        alertRulesConfigured: checks.filter(c => c.passed).reduce((sum, c) => {
-          const match = c.message?.match(/(\d+) alert rules/)
-          return sum + (match ? parseInt(match[1]) : 0)
-        }, 0),
+        alertRulesConfigured: checks
+          .filter((c) => c.passed)
+          .reduce((sum, c) => {
+            const match = c.message?.match(/(\d+) alert rules/)
+            return sum + (match ? parseInt(match[1]) : 0)
+          }, 0),
       })
     })
   })
@@ -372,13 +394,15 @@ describe('System Integration Validation', () => {
         checks.push({
           name: `${name} API Key`,
           passed: hasKey || !required,
-          message: hasKey ? 'Configured' : (required ? 'Missing (Required)' : 'Missing (Optional)'),
+          message: hasKey ? 'Configured' : required ? 'Missing (Required)' : 'Missing (Optional)',
         })
       }
 
-      const requiredMissing = checks.filter(c => !c.passed && c.message?.includes('Required')).length
-      const status = requiredMissing === 0 ? 'operational' : 
-                    requiredMissing < 2 ? 'degraded' : 'failed'
+      const requiredMissing = checks.filter(
+        (c) => !c.passed && c.message?.includes('Required')
+      ).length
+      const status =
+        requiredMissing === 0 ? 'operational' : requiredMissing < 2 ? 'degraded' : 'failed'
 
       healthReport.addServiceCheck('external_apis', status, checks)
     })
@@ -389,7 +413,11 @@ describe('System Integration Validation', () => {
       // Check for API client libraries
       const libraries = [
         { name: 'OpenAI SDK', module: 'openai', check: (m: any) => !!m.OpenAI },
-        { name: 'Google Generative AI', module: '@google/generative-ai', check: (m: any) => !!m.GoogleGenerativeAI },
+        {
+          name: 'Google Generative AI',
+          module: '@google/generative-ai',
+          check: (m: any) => !!m.GoogleGenerativeAI,
+        },
         { name: 'Octokit (GitHub)', module: '@octokit/rest', check: (m: any) => !!m.Octokit },
       ]
 
@@ -411,7 +439,7 @@ describe('System Integration Validation', () => {
       }
 
       healthReport.addMetrics('external_apis', {
-        librariesAvailable: checks.filter(c => c.passed).length,
+        librariesAvailable: checks.filter((c) => c.passed).length,
         totalLibraries: libraries.length,
       })
     })
@@ -460,7 +488,7 @@ describe('System Integration Validation', () => {
         })
       }
 
-      const status = checks.filter(c => c.passed).length >= 2 ? 'operational' : 'degraded'
+      const status = checks.filter((c) => c.passed).length >= 2 ? 'operational' : 'degraded'
       healthReport.addServiceCheck('performance', status, checks)
     })
   })
@@ -472,7 +500,8 @@ describe('System Integration Validation', () => {
       // Global error handlers
       checks.push({
         name: 'Unhandled Rejection Handler',
-        passed: typeof process !== 'undefined' && process.listeners('unhandledRejection').length > 0,
+        passed:
+          typeof process !== 'undefined' && process.listeners('unhandledRejection').length > 0,
         message: 'Handler configured',
       })
 
@@ -497,7 +526,7 @@ describe('System Integration Validation', () => {
         message: 'Exponential backoff available',
       })
 
-      const status = checks.every(c => c.passed) ? 'operational' : 'degraded'
+      const status = checks.every((c) => c.passed) ? 'operational' : 'degraded'
       healthReport.addServiceCheck('resilience', status, checks)
     })
   })
@@ -505,26 +534,26 @@ describe('System Integration Validation', () => {
   describe('7. Integration Summary', () => {
     test('should provide overall system readiness', () => {
       const summary = healthReport.generateReport()
-      
+
       // System is considered ready if:
       // - No failed services
       // - Less than 50% degraded services
       // - Core services (redis, observability, monitoring) are at least degraded
-      
+
       const coreServices = ['redis', 'observability', 'monitoring']
-      const coreStatuses = coreServices.map(service => 
-        summary.services[service]?.status || 'failed'
+      const coreStatuses = coreServices.map(
+        (service) => summary.services[service]?.status || 'failed'
       )
-      
-      const systemReady = 
+
+      const systemReady =
         summary.summary.failed === 0 &&
         summary.summary.degraded / summary.summary.total < 0.5 &&
-        coreStatuses.every(status => status !== 'failed')
+        coreStatuses.every((status) => status !== 'failed')
 
       expect(summary.overall).toBeDefined()
       expect(summary.services).toBeDefined()
       expect(Object.keys(summary.services).length).toBeGreaterThan(0)
-      
+
       console.log(`\nSystem Integration Status: ${systemReady ? '✅ READY' : '❌ NOT READY'}`)
       console.log(`Overall Status: ${summary.overall.toUpperCase()}`)
     })

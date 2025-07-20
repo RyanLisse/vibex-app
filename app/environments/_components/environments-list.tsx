@@ -27,7 +27,7 @@ import {
   useEnvironmentsQuery,
 } from '@/hooks/use-environment-queries'
 import { useGitHubAuth } from '@/hooks/use-github-auth'
-import { getLogger } from '@/lib/logging'
+import { getLogger } from '@/lib/logging/safe-wrapper'
 import { observability } from '@/lib/observability'
 
 const logger = getLogger('environments-list')

@@ -48,7 +48,7 @@ describe('TDDCli', () => {
       const result = await cli.execute(['generate', 'test', '--name', 'UserService'])
 
       expect(mockGenerator).toHaveBeenCalledWith({
-        name: 'UserService'
+        name: 'UserService',
       })
       expect(result).toBe('test generated')
     })
@@ -60,14 +60,15 @@ describe('TDDCli', () => {
       const result = await cli.execute(['run', 'tdd', '--watch'])
 
       expect(mockRunner).toHaveBeenCalledWith({
-        watch: true
+        watch: true,
       })
       expect(result).toBe('workflow started')
     })
 
     it('should throw error for unknown command', async () => {
-      await expect(cli.execute(['unknown', 'command']))
-        .rejects.toThrow('Unknown command: unknown command')
+      await expect(cli.execute(['unknown', 'command'])).rejects.toThrow(
+        'Unknown command: unknown command'
+      )
     })
   })
 
@@ -110,11 +111,11 @@ describe('TestGenerator', () => {
         functionName: 'calculateTotal',
         testCases: [
           { input: [{ price: 10 }, { price: 20 }], expected: 30 },
-          { input: [], expected: 0 }
-        ]
+          { input: [], expected: 0 },
+        ],
       })
 
-      expect(test).toContain('describe(\'calculateTotal\'')
+      expect(test).toContain("describe('calculateTotal'")
       expect(test).toContain('calculateTotal([{ price: 10 }, { price: 20 }])')
       expect(test).toContain('toBe(30)')
       expect(test).toContain('toBe(0)')
@@ -133,10 +134,10 @@ describe('TestGenerator', () => {
 
       const test = await generator.generateUnitTest(sourceCode, {
         className: 'UserService',
-        methods: ['createUser']
+        methods: ['createUser'],
       })
 
-      expect(test).toContain('describe(\'UserService\'')
+      expect(test).toContain("describe('UserService'")
       expect(test).toContain('let userService: UserService')
       expect(test).toContain('mockDependency = vi.fn()')
       expect(test).toContain('createUser')
@@ -157,10 +158,10 @@ describe('TestGenerator', () => {
 
       const test = await generator.generateComponentTest(componentCode, {
         componentName: 'Button',
-        props: ['children', 'onClick', 'disabled']
+        props: ['children', 'onClick', 'disabled'],
       })
 
-      expect(test).toContain('describe(\'Button\'')
+      expect(test).toContain("describe('Button'")
       expect(test).toContain('render(<Button')
       expect(test).toContain('should handle onClick prop')
       expect(test).toContain('disabled')
@@ -169,7 +170,7 @@ describe('TestGenerator', () => {
     it('should generate component test with user interactions', async () => {
       const test = await generator.generateComponentTest('', {
         componentName: 'LoginForm',
-        interactions: ['submit', 'validation', 'error handling']
+        interactions: ['submit', 'validation', 'error handling'],
       })
 
       expect(test).toContain('onSubmit={handler}')
@@ -184,10 +185,10 @@ describe('TestGenerator', () => {
         type: 'api',
         endpoint: '/api/users',
         methods: ['GET', 'POST'],
-        authentication: true
+        authentication: true,
       })
 
-      expect(test).toContain('describe(\'/api/users\'')
+      expect(test).toContain("describe('/api/users'")
       expect(test).toContain('GET /api/users')
       expect(test).toContain('POST /api/users')
       expect(test).toContain('authentication')
@@ -197,10 +198,10 @@ describe('TestGenerator', () => {
       const test = await generator.generateIntegrationTest({
         type: 'database',
         table: 'users',
-        operations: ['create', 'read', 'update', 'delete']
+        operations: ['create', 'read', 'update', 'delete'],
       })
 
-      expect(test).toContain('describe(\'users table\'')
+      expect(test).toContain("describe('users table'")
       expect(test).toContain('create user')
       expect(test).toContain('read user')
       expect(test).toContain('update user')
@@ -221,7 +222,7 @@ describe('TestGenerator', () => {
       generator.registerTemplate('custom', customTemplate)
       const test = await generator.generateFromTemplate('custom', { name: 'CustomTest' })
 
-      expect(test).toContain('describe(\'CustomTest\'')
+      expect(test).toContain("describe('CustomTest'")
       expect(test).toContain('should work')
     })
 
@@ -237,13 +238,13 @@ describe('TestGenerator', () => {
       `
 
       generator.registerTemplate('base', baseTemplate)
-      
+
       const test = await generator.generateFromTemplate('base', {
         name: 'InheritedTest',
         tests: [
           { description: 'should pass', implementation: 'expect(true).toBe(true)' },
-          { description: 'should fail', implementation: 'expect(false).toBe(true)' }
-        ]
+          { description: 'should fail', implementation: 'expect(false).toBe(true)' },
+        ],
       })
 
       expect(test).toContain('should pass')
@@ -262,7 +263,7 @@ describe('WorkflowAutomation', () => {
   describe('TDD Cycle Automation', () => {
     it('should automate red-green-refactor cycle', async () => {
       const steps: string[] = []
-      
+
       automation.onStep((step) => {
         steps.push(step)
       })
@@ -270,28 +271,29 @@ describe('WorkflowAutomation', () => {
       await automation.runTDDCycle({
         testName: 'should calculate sum',
         implementation: 'const sum = (a, b) => a + b',
-        refactoring: 'const sum = (a, b) => Number(a) + Number(b)'
+        refactoring: 'const sum = (a, b) => Number(a) + Number(b)',
       })
 
       expect(steps).toEqual([
         'red: created failing test',
         'green: implemented solution',
-        'refactor: improved implementation'
+        'refactor: improved implementation',
       ])
     })
 
     it('should handle test failures during cycle', async () => {
-      const mockTestRunner = vi.fn()
+      const mockTestRunner = vi
+        .fn()
         .mockResolvedValueOnce({ passed: false }) // Red phase
-        .mockResolvedValueOnce({ passed: true })  // Green phase
-        .mockResolvedValueOnce({ passed: true })  // Refactor phase
+        .mockResolvedValueOnce({ passed: true }) // Green phase
+        .mockResolvedValueOnce({ passed: true }) // Refactor phase
 
       automation.setTestRunner(mockTestRunner)
 
       const result = await automation.runTDDCycle({
         testName: 'should work',
         implementation: 'implementation',
-        refactoring: 'refactored'
+        refactoring: 'refactored',
       })
 
       expect(result.success).toBe(true)
@@ -306,12 +308,12 @@ describe('WorkflowAutomation', () => {
 
       await automation.startWatchMode({
         pattern: '**/*.{ts,tsx}',
-        onChange: vi.fn()
+        onChange: vi.fn(),
       })
 
       expect(mockWatcher).toHaveBeenCalledWith({
         pattern: '**/*.{ts,tsx}',
-        onChange: expect.any(Function)
+        onChange: expect.any(Function),
       })
     })
 
@@ -323,16 +325,16 @@ describe('WorkflowAutomation', () => {
         // Simulate file change
         setTimeout(() => options.onChange('src/sum.ts'), 10)
       })
-      
+
       automation.setFileWatcher(mockWatcher)
 
       await automation.startWatchMode({
         pattern: '**/*.ts',
-        autoRunCycle: true
+        autoRunCycle: true,
       })
 
       // Wait for file change simulation
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await new Promise((resolve) => setTimeout(resolve, 50))
 
       expect(onCycleStart).toHaveBeenCalled()
     })
@@ -344,7 +346,7 @@ describe('WorkflowAutomation', () => {
         statements: 80,
         branches: 70,
         functions: 90,
-        lines: 85
+        lines: 85,
       }
 
       automation.setCoverageProvider(() => Promise.resolve(mockCoverage))
@@ -352,7 +354,7 @@ describe('WorkflowAutomation', () => {
       const result = await automation.runTDDCycle({
         testName: 'should work',
         implementation: 'implementation',
-        trackCoverage: true
+        trackCoverage: true,
       })
 
       expect(result.coverage).toEqual(mockCoverage)
@@ -362,12 +364,14 @@ describe('WorkflowAutomation', () => {
       const warnings: string[] = []
       automation.onWarning((warning) => warnings.push(warning))
 
-      automation.setCoverageProvider(() => Promise.resolve({
-        statements: 60, // Lower than previous
-        branches: 50,
-        functions: 70,
-        lines: 65
-      }))
+      automation.setCoverageProvider(() =>
+        Promise.resolve({
+          statements: 60, // Lower than previous
+          branches: 50,
+          functions: 70,
+          lines: 65,
+        })
+      )
 
       await automation.runTDDCycle({
         testName: 'should work',
@@ -377,8 +381,8 @@ describe('WorkflowAutomation', () => {
           statements: 80,
           branches: 70,
           functions: 90,
-          lines: 85
-        }
+          lines: 85,
+        },
       })
 
       expect(warnings).toContain('Coverage decreased: statements 80% → 60%')
@@ -391,7 +395,7 @@ describe('WorkflowAutomation', () => {
         name: 'UserService',
         type: 'service',
         methods: ['create', 'update', 'delete'],
-        includeIntegrationTests: true
+        includeIntegrationTests: true,
       })
 
       expect(structure.files).toContain('user-service.test.ts')
@@ -404,12 +408,12 @@ describe('WorkflowAutomation', () => {
         name: 'Button',
         type: 'component',
         includeStories: true,
-        includeAccessibilityTests: true
+        includeAccessibilityTests: true,
       })
 
       expect(structure.files).toContain('Button.test.tsx')
       expect(structure.files).toContain('Button.stories.tsx')
-      expect(structure.tests.some(t => t.includes('accessibility'))).toBe(true)
+      expect(structure.tests.some((t) => t.includes('accessibility'))).toBe(true)
     })
   })
 })

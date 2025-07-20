@@ -41,15 +41,15 @@ export function VoiceRecorder({
   useEffect(() => {
     if (isRecording && !isPaused) {
       intervalRef.current = setInterval(() => {
-        setDuration(prev => {
+        setDuration((prev) => {
           const newDuration = prev + 1
-          
+
           // Auto-stop at max duration
           if (newDuration >= maxDuration) {
             stopRecording()
             return maxDuration
           }
-          
+
           return newDuration
         })
       }, 1000)
@@ -70,19 +70,19 @@ export function VoiceRecorder({
   const startRecording = async () => {
     try {
       // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-        }
+        },
       })
-      
+
       streamRef.current = stream
 
       // Create MediaRecorder
       const recorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4',
       })
 
       const chunks: Blob[] = []
@@ -95,7 +95,7 @@ export function VoiceRecorder({
 
       recorder.onstop = () => {
         const audioBlob = new Blob(chunks, { type: recorder.mimeType })
-        
+
         const recording: VoiceRecording = {
           id: crypto.randomUUID(),
           audioBlob,
@@ -104,13 +104,13 @@ export function VoiceRecorder({
         }
 
         onRecordingComplete(recording)
-        
+
         // Cleanup
         if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop())
+          streamRef.current.getTracks().forEach((track) => track.stop())
           streamRef.current = null
         }
-        
+
         setAudioChunks([])
         setDuration(0)
         setMediaRecorder(null)
@@ -126,10 +126,9 @@ export function VoiceRecorder({
       recorder.start(100) // Collect data every 100ms
       setMediaRecorder(recorder)
       setAudioChunks(chunks)
-
     } catch (error) {
       let errorMessage = 'Failed to start recording'
-      
+
       if (error instanceof Error) {
         if (error.name === 'NotAllowedError') {
           errorMessage = 'Microphone access denied'
@@ -139,7 +138,7 @@ export function VoiceRecorder({
           errorMessage = error.message
         }
       }
-      
+
       onError?.(errorMessage)
       cleanup()
     }
@@ -167,15 +166,15 @@ export function VoiceRecorder({
 
   const cleanup = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current.getTracks().forEach((track) => track.stop())
       streamRef.current = null
     }
-    
+
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
     }
-    
+
     setMediaRecorder(null)
     setAudioChunks([])
     setDuration(0)
@@ -199,14 +198,10 @@ export function VoiceRecorder({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-sm font-medium">
-            {isPaused ? 'Paused' : 'Recording'}
-          </span>
+          <span className="text-sm font-medium">{isPaused ? 'Paused' : 'Recording'}</span>
         </div>
-        
-        <div className="text-lg font-mono">
-          {formatTime(duration)}
-        </div>
+
+        <div className="text-lg font-mono">{formatTime(duration)}</div>
       </div>
 
       {/* Progress bar */}
@@ -221,33 +216,18 @@ export function VoiceRecorder({
       {/* Recording controls */}
       <div className="flex items-center justify-center gap-2">
         {!isPaused ? (
-          <Button
-            onClick={pauseRecording}
-            variant="outline"
-            size="sm"
-            className="gap-1"
-          >
+          <Button onClick={pauseRecording} variant="outline" size="sm" className="gap-1">
             <Pause className="h-4 w-4" />
             Pause
           </Button>
         ) : (
-          <Button
-            onClick={resumeRecording}
-            variant="outline"
-            size="sm"
-            className="gap-1"
-          >
+          <Button onClick={resumeRecording} variant="outline" size="sm" className="gap-1">
             <Play className="h-4 w-4" />
             Resume
           </Button>
         )}
-        
-        <Button
-          onClick={stopRecording}
-          variant="destructive"
-          size="sm"
-          className="gap-1"
-        >
+
+        <Button onClick={stopRecording} variant="destructive" size="sm" className="gap-1">
           <Square className="h-4 w-4" />
           Stop
         </Button>
@@ -260,13 +240,11 @@ export function VoiceRecorder({
             <div
               key={i}
               className={`h-8 w-1 rounded-full transition-all duration-150 ${
-                !isPaused 
-                  ? 'bg-red-500 animate-pulse' 
-                  : 'bg-muted-foreground/30'
+                !isPaused ? 'bg-red-500 animate-pulse' : 'bg-muted-foreground/30'
               }`}
               style={{
                 animationDelay: `${i * 100}ms`,
-                height: !isPaused ? `${20 + Math.random() * 20}px` : '8px'
+                height: !isPaused ? `${20 + Math.random() * 20}px` : '8px',
               }}
             />
           ))}

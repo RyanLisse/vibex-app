@@ -5,18 +5,27 @@ import { join } from 'path'
 import { existsSync } from 'fs'
 
 // Fix 1: Memory icon import in performance-monitor.tsx
-const performanceMonitorPath = join(process.cwd(), 'components/ambient-agents/monitors/performance-monitor.tsx')
+const performanceMonitorPath = join(
+  process.cwd(),
+  'components/ambient-agents/monitors/performance-monitor.tsx'
+)
 if (existsSync(performanceMonitorPath)) {
   let content = readFileSync(performanceMonitorPath, 'utf-8')
   // Replace Memory with MemoryStick (which exists in lucide-react)
-  content = content.replace(/import\s*{([^}]*)\bMemory\b([^}]*)}\s*from\s*['"]lucide-react['"]/, (match, before, after) => {
-    const imports = (before + after).split(',').map(i => i.trim()).filter(Boolean)
-    const memoryIndex = imports.findIndex(i => i === 'Memory')
-    if (memoryIndex >= 0) {
-      imports[memoryIndex] = 'MemoryStick'
+  content = content.replace(
+    /import\s*{([^}]*)\bMemory\b([^}]*)}\s*from\s*['"]lucide-react['"]/,
+    (match, before, after) => {
+      const imports = (before + after)
+        .split(',')
+        .map((i) => i.trim())
+        .filter(Boolean)
+      const memoryIndex = imports.findIndex((i) => i === 'Memory')
+      if (memoryIndex >= 0) {
+        imports[memoryIndex] = 'MemoryStick'
+      }
+      return `import { ${imports.join(', ')} } from 'lucide-react'`
     }
-    return `import { ${imports.join(', ')} } from 'lucide-react'`
-  })
+  )
   // Replace Memory usage with MemoryStick
   content = content.replace(/<Memory\s/g, '<MemoryStick ')
   writeFileSync(performanceMonitorPath, content)
@@ -28,7 +37,10 @@ const visualizationPath = join(process.cwd(), 'components/ambient-agents/visuali
 if (existsSync(visualizationPath)) {
   let content = readFileSync(visualizationPath, 'utf-8')
   // Fix ReactFlow import - it's a named export
-  content = content.replace(/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/, "import { ReactFlow } from '@xyflow/react'")
+  content = content.replace(
+    /import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/,
+    "import { ReactFlow } from '@xyflow/react'"
+  )
   writeFileSync(visualizationPath, content)
   console.log('✅ Fixed ReactFlow import in visualization-engine.tsx')
 }
@@ -40,7 +52,8 @@ if (existsSync(observabilityPath)) {
   // Check if observabilityService is already exported
   if (!content.includes('export const observabilityService')) {
     // Add the export at the end
-    content += '\n\n// Export observability service instance\nexport const observabilityService = observability\n'
+    content +=
+      '\n\n// Export observability service instance\nexport const observabilityService = observability\n'
     writeFileSync(observabilityPath, content)
     console.log('✅ Added observabilityService export to observability/index.ts')
   }
@@ -57,7 +70,8 @@ if (existsSync(vectorSearchPath)) {
       content = content.replace(/const vectorSearchService/, 'export const vectorSearchService')
     } else {
       // Add a default export
-      content += '\n\n// Export vector search service instance\nexport const vectorSearchService = {\n  search: async () => ({ results: [], took: 0 }),\n  index: async () => ({}),\n  delete: async () => ({}),\n  getStats: async () => ({ totalDocuments: 0, totalDimensions: 0 })\n}\n'
+      content +=
+        '\n\n// Export vector search service instance\nexport const vectorSearchService = {\n  search: async () => ({ results: [], took: 0 }),\n  index: async () => ({}),\n  delete: async () => ({}),\n  getStats: async () => ({ totalDocuments: 0, totalDimensions: 0 })\n}\n'
     }
     writeFileSync(vectorSearchPath, content)
     console.log('✅ Added vectorSearchService export to wasm/vector-search.ts')

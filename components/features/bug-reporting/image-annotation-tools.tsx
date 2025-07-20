@@ -1,15 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { 
-  ArrowRight, 
-  Type, 
-  Highlighter, 
-  Square, 
-  Eraser,
-  Undo,
-  Redo 
-} from 'lucide-react'
+import { ArrowRight, Type, Highlighter, Square, Eraser, Undo, Redo } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -56,13 +48,13 @@ export function ImageAnnotationTools({
       // Set canvas size to match image
       canvas.width = img.width
       canvas.height = img.height
-      
+
       // Draw the screenshot
       ctx.drawImage(img, 0, 0)
-      
+
       // Draw existing annotations
       drawAnnotations(ctx, annotations)
-      
+
       setImageLoaded(true)
     }
 
@@ -94,7 +86,7 @@ export function ImageAnnotationTools({
   }, [annotations, imageLoaded, onAnnotationsChange, screenshot.imageBlob])
 
   const drawAnnotations = (ctx: CanvasRenderingContext2D, annotationsToRender: Annotation[]) => {
-    annotationsToRender.forEach(annotation => {
+    annotationsToRender.forEach((annotation) => {
       const { type, position, data } = annotation
 
       ctx.save()
@@ -141,7 +133,11 @@ export function ImageAnnotationTools({
     ctx.fill()
   }
 
-  const drawText = (ctx: CanvasRenderingContext2D, position: { x: number; y: number }, text: string) => {
+  const drawText = (
+    ctx: CanvasRenderingContext2D,
+    position: { x: number; y: number },
+    text: string
+  ) => {
     ctx.font = '16px Arial'
     ctx.fillStyle = '#ef4444'
     ctx.strokeStyle = '#ffffff'
@@ -153,8 +149,8 @@ export function ImageAnnotationTools({
   }
 
   const drawHighlight = (
-    ctx: CanvasRenderingContext2D, 
-    position: { x: number; y: number }, 
+    ctx: CanvasRenderingContext2D,
+    position: { x: number; y: number },
     size: { width: number; height: number }
   ) => {
     ctx.fillStyle = 'rgba(255, 255, 0, 0.3)'
@@ -162,8 +158,8 @@ export function ImageAnnotationTools({
   }
 
   const drawRectangle = (
-    ctx: CanvasRenderingContext2D, 
-    position: { x: number; y: number }, 
+    ctx: CanvasRenderingContext2D,
+    position: { x: number; y: number },
     size: { width: number; height: number }
   ) => {
     ctx.strokeStyle = '#ef4444'
@@ -180,7 +176,7 @@ export function ImageAnnotationTools({
     const y = event.clientY - rect.top
 
     // Save current state for undo
-    setUndoStack(prev => [...prev, [...annotations]])
+    setUndoStack((prev) => [...prev, [...annotations]])
     setRedoStack([]) // Clear redo stack when new action is made
 
     let newAnnotation: Annotation
@@ -197,7 +193,7 @@ export function ImageAnnotationTools({
       case 'text':
         const text = window.prompt('Enter text for annotation:')
         if (!text) return
-        
+
         newAnnotation = {
           type: 'text',
           position: { x, y },
@@ -225,11 +221,11 @@ export function ImageAnnotationTools({
         return
     }
 
-    setAnnotations(prev => [...prev, newAnnotation])
+    setAnnotations((prev) => [...prev, newAnnotation])
   }
 
   const clearAnnotations = () => {
-    setUndoStack(prev => [...prev, [...annotations]])
+    setUndoStack((prev) => [...prev, [...annotations]])
     setRedoStack([])
     setAnnotations([])
   }
@@ -238,8 +234,8 @@ export function ImageAnnotationTools({
     if (undoStack.length === 0) return
 
     const previousState = undoStack[undoStack.length - 1]
-    setRedoStack(prev => [annotations, ...prev])
-    setUndoStack(prev => prev.slice(0, -1))
+    setRedoStack((prev) => [annotations, ...prev])
+    setUndoStack((prev) => prev.slice(0, -1))
     setAnnotations(previousState)
   }
 
@@ -247,8 +243,8 @@ export function ImageAnnotationTools({
     if (redoStack.length === 0) return
 
     const nextState = redoStack[0]
-    setUndoStack(prev => [...prev, annotations])
-    setRedoStack(prev => prev.slice(1))
+    setUndoStack((prev) => [...prev, annotations])
+    setRedoStack((prev) => prev.slice(1))
     setAnnotations(nextState)
   }
 
@@ -264,8 +260,8 @@ export function ImageAnnotationTools({
       {/* Toolbar */}
       <div className="flex items-center gap-2 p-4 bg-muted/50 rounded-lg">
         <Label className="text-sm font-medium">Tools:</Label>
-        
-        {tools.map(tool => (
+
+        {tools.map((tool) => (
           <Button
             key={tool.type}
             variant={selectedTool === tool.type ? 'default' : 'outline'}
@@ -332,10 +328,18 @@ export function ImageAnnotationTools({
           <strong>Instructions:</strong> Select a tool and click on the image to add annotations.
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li><strong>Arrow:</strong> Click to place an arrow pointing to important areas</li>
-          <li><strong>Text:</strong> Click to add text labels (you'll be prompted for text)</li>
-          <li><strong>Highlight:</strong> Click to add yellow highlight boxes</li>
-          <li><strong>Rectangle:</strong> Click to add red border rectangles</li>
+          <li>
+            <strong>Arrow:</strong> Click to place an arrow pointing to important areas
+          </li>
+          <li>
+            <strong>Text:</strong> Click to add text labels (you'll be prompted for text)
+          </li>
+          <li>
+            <strong>Highlight:</strong> Click to add yellow highlight boxes
+          </li>
+          <li>
+            <strong>Rectangle:</strong> Click to add red border rectangles
+          </li>
         </ul>
       </div>
     </div>

@@ -19,14 +19,14 @@ export type {
   AlertNotification,
   AlertTemplate,
   AlertMetrics,
-  AlertTransport
+  AlertTransport,
 } from './types'
 
 export {
   CriticalErrorType,
   AlertChannelType,
   AlertPriority,
-  AlertNotificationStatus
+  AlertNotificationStatus,
 } from './types'
 
 // Helper to initialize alerts with existing logger
@@ -40,7 +40,7 @@ export async function initializeAlerts(): Promise<AlertService> {
   if (!alertServiceInstance) {
     alertServiceInstance = new AlertService(redis)
     await alertServiceInstance.initialize()
-    
+
     // Add the alert transport to the existing winston logger
     const loggerFactory = LoggerFactory.getInstance()
     if (loggerFactory && alertServiceInstance) {
@@ -49,7 +49,7 @@ export async function initializeAlerts(): Promise<AlertService> {
       // For now, we'll document this as a manual integration step
     }
   }
-  
+
   return alertServiceInstance
 }
 

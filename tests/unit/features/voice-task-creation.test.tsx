@@ -13,7 +13,11 @@ import { TranscriptionProcessor } from '@/components/features/voice-tasks/transc
 import { VoiceTaskForm } from '@/components/features/voice-tasks/voice-task-form'
 
 // Types
-import type { VoiceRecording, TranscriptionResult, VoiceTask } from '@/src/schemas/enhanced-task-schemas'
+import type {
+  VoiceRecording,
+  TranscriptionResult,
+  VoiceTask,
+} from '@/src/schemas/enhanced-task-schemas'
 
 // Mock Web Speech API
 const mockSpeechRecognition = {
@@ -74,25 +78,25 @@ describe('Voice-Dictated Task Creation Feature', () => {
   describe('VoiceInputButton', () => {
     it('should render voice input button', () => {
       render(<VoiceInputButton onStartRecording={vi.fn()} />)
-      
+
       expect(screen.getByRole('button')).toBeInTheDocument()
       expect(screen.getByTestId('microphone-icon')).toBeInTheDocument()
     })
 
     it('should start recording when clicked', async () => {
       const mockOnStartRecording = vi.fn()
-      
+
       render(<VoiceInputButton onStartRecording={mockOnStartRecording} />)
-      
+
       const button = screen.getByRole('button')
       await userEvent.click(button)
-      
+
       expect(mockOnStartRecording).toHaveBeenCalled()
     })
 
     it('should show recording state with visual feedback', async () => {
       render(<VoiceInputButton onStartRecording={vi.fn()} isRecording={true} />)
-      
+
       expect(screen.getByTestId('recording-indicator')).toBeInTheDocument()
       expect(screen.getByText(/recording/i)).toBeInTheDocument()
     })
@@ -100,21 +104,14 @@ describe('Voice-Dictated Task Creation Feature', () => {
     it('should handle microphone permission denied', async () => {
       const mockOnError = vi.fn()
       mockGetUserMedia.mockRejectedValue(new Error('Permission denied'))
-      
-      render(
-        <VoiceInputButton 
-          onStartRecording={vi.fn()} 
-          onError={mockOnError}
-        />
-      )
-      
+
+      render(<VoiceInputButton onStartRecording={vi.fn()} onError={mockOnError} />)
+
       const button = screen.getByRole('button')
       await userEvent.click(button)
-      
+
       await waitFor(() => {
-        expect(mockOnError).toHaveBeenCalledWith(
-          expect.stringContaining('Permission denied')
-        )
+        expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining('Permission denied'))
       })
     })
   })
@@ -123,16 +120,11 @@ describe('Voice-Dictated Task Creation Feature', () => {
     it('should start audio recording', async () => {
       const mockStream = { getTracks: () => [{ stop: vi.fn() }] }
       mockGetUserMedia.mockResolvedValue(mockStream)
-      
+
       const mockOnRecordingComplete = vi.fn()
-      
-      render(
-        <VoiceRecorder 
-          onRecordingComplete={mockOnRecordingComplete}
-          isRecording={true}
-        />
-      )
-      
+
+      render(<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={true} />)
+
       expect(mockGetUserMedia).toHaveBeenCalledWith({ audio: true })
       expect(global.MediaRecorder).toHaveBeenCalledWith(mockStream)
     })
@@ -140,29 +132,21 @@ describe('Voice-Dictated Task Creation Feature', () => {
     it('should stop recording and return audio data', async () => {
       const mockStream = { getTracks: () => [{ stop: vi.fn() }] }
       mockGetUserMedia.mockResolvedValue(mockStream)
-      
+
       const mockOnRecordingComplete = vi.fn()
-      
+
       const { rerender } = render(
-        <VoiceRecorder 
-          onRecordingComplete={mockOnRecordingComplete}
-          isRecording={true}
-        />
+        <VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={true} />
       )
-      
+
       // Simulate stop recording
-      rerender(
-        <VoiceRecorder 
-          onRecordingComplete={mockOnRecordingComplete}
-          isRecording={false}
-        />
-      )
-      
+      rerender(<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={false} />)
+
       // Simulate MediaRecorder ondataavailable event
       const audioBlob = new Blob(['audio-data'], { type: 'audio/webm' })
       mockMediaRecorder.ondataavailable({ data: audioBlob })
       mockMediaRecorder.onstop()
-      
+
       await waitFor(() => {
         expect(mockOnRecordingComplete).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -177,34 +161,25 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
     it('should show recording duration', async () => {
       vi.useFakeTimers()
-      
-      render(
-        <VoiceRecorder 
-          onRecordingComplete={vi.fn()}
-          isRecording={true}
-        />
-      )
-      
+
+      render(<VoiceRecorder onRecordingComplete={vi.fn()} isRecording={true} />)
+
       // Advance timer
       vi.advanceTimersByTime(5000)
-      
+
       expect(screen.getByText(/00:05/)).toBeInTheDocument()
-      
+
       vi.useRealTimers()
     })
 
     it('should handle recording errors', async () => {
       const mockOnError = vi.fn()
       mockGetUserMedia.mockRejectedValue(new Error('Microphone not available'))
-      
+
       render(
-        <VoiceRecorder 
-          onRecordingComplete={vi.fn()}
-          onError={mockOnError}
-          isRecording={true}
-        />
+        <VoiceRecorder onRecordingComplete={vi.fn()} onError={mockOnError} isRecording={true} />
       )
-      
+
       await waitFor(() => {
         expect(mockOnError).toHaveBeenCalledWith(
           expect.stringContaining('Microphone not available')
@@ -223,17 +198,17 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
     it('should transcribe audio using Speech Recognition API', async () => {
       const mockOnTranscriptionComplete = vi.fn()
-      
+
       render(
-        <TranscriptionProcessor 
+        <TranscriptionProcessor
           recording={mockVoiceRecording}
           onTranscriptionComplete={mockOnTranscriptionComplete}
         />
       )
-      
+
       expect(global.SpeechRecognition).toHaveBeenCalled()
       expect(mockSpeechRecognition.start).toHaveBeenCalled()
-      
+
       // Simulate successful transcription
       const mockResult = {
         results: [
@@ -246,9 +221,9 @@ describe('Voice-Dictated Task Creation Feature', () => {
           },
         ],
       }
-      
+
       mockSpeechRecognition.onresult(mockResult)
-      
+
       await waitFor(() => {
         expect(mockOnTranscriptionComplete).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -263,47 +238,42 @@ describe('Voice-Dictated Task Creation Feature', () => {
 
     it('should handle transcription errors gracefully', async () => {
       const mockOnError = vi.fn()
-      
+
       render(
-        <TranscriptionProcessor 
+        <TranscriptionProcessor
           recording={mockVoiceRecording}
           onTranscriptionComplete={vi.fn()}
           onError={mockOnError}
         />
       )
-      
+
       // Simulate error
       const mockError = { error: 'network' }
       mockSpeechRecognition.onerror(mockError)
-      
+
       await waitFor(() => {
-        expect(mockOnError).toHaveBeenCalledWith(
-          expect.stringContaining('transcription failed')
-        )
+        expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining('transcription failed'))
       })
     })
 
     it('should show transcription progress', () => {
       render(
-        <TranscriptionProcessor 
-          recording={mockVoiceRecording}
-          onTranscriptionComplete={vi.fn()}
-        />
+        <TranscriptionProcessor recording={mockVoiceRecording} onTranscriptionComplete={vi.fn()} />
       )
-      
+
       expect(screen.getByText(/transcribing/i)).toBeInTheDocument()
       expect(screen.getByRole('progressbar')).toBeInTheDocument()
     })
 
     it('should support different languages', async () => {
       render(
-        <TranscriptionProcessor 
+        <TranscriptionProcessor
           recording={mockVoiceRecording}
           onTranscriptionComplete={vi.fn()}
           language="es-ES"
         />
       )
-      
+
       expect(mockSpeechRecognition.lang).toBe('es-ES')
     })
   })
@@ -320,13 +290,8 @@ describe('Voice-Dictated Task Creation Feature', () => {
     }
 
     it('should extract task data from transcription', () => {
-      render(
-        <VoiceTaskForm 
-          transcription={mockTranscriptionResult}
-          onSubmit={vi.fn()}
-        />
-      )
-      
+      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />)
+
       // Should auto-populate fields based on transcription
       expect(screen.getByDisplayValue(/fix the login bug/i)).toBeInTheDocument()
       expect(screen.getByDisplayValue(/high/i)).toBeInTheDocument()
@@ -334,28 +299,18 @@ describe('Voice-Dictated Task Creation Feature', () => {
     })
 
     it('should allow manual editing of extracted data', async () => {
-      render(
-        <VoiceTaskForm 
-          transcription={mockTranscriptionResult}
-          onSubmit={vi.fn()}
-        />
-      )
-      
+      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />)
+
       const titleField = screen.getByLabelText(/title/i)
       await userEvent.clear(titleField)
       await userEvent.type(titleField, 'Updated task title')
-      
+
       expect(screen.getByDisplayValue('Updated task title')).toBeInTheDocument()
     })
 
     it('should show confidence indicators for extracted data', () => {
-      render(
-        <VoiceTaskForm 
-          transcription={mockTranscriptionResult}
-          onSubmit={vi.fn()}
-        />
-      )
-      
+      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />)
+
       expect(screen.getByText(/confidence: 95%/i)).toBeInTheDocument()
     })
 
@@ -366,31 +321,21 @@ describe('Voice-Dictated Task Creation Feature', () => {
         language: 'en-US',
         segments: [],
       }
-      
-      render(
-        <VoiceTaskForm 
-          transcription={poorTranscription}
-          onSubmit={vi.fn()}
-        />
-      )
-      
+
+      render(<VoiceTaskForm transcription={poorTranscription} onSubmit={vi.fn()} />)
+
       expect(screen.getByText(/low confidence/i)).toBeInTheDocument()
       expect(screen.getByText(/please review/i)).toBeInTheDocument()
     })
 
     it('should submit voice task with correct metadata', async () => {
       const mockOnSubmit = vi.fn()
-      
-      render(
-        <VoiceTaskForm 
-          transcription={mockTranscriptionResult}
-          onSubmit={mockOnSubmit}
-        />
-      )
-      
+
+      render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={mockOnSubmit} />)
+
       const submitButton = screen.getByText(/create task/i)
       await userEvent.click(submitButton)
-      
+
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           title: expect.stringContaining('fix the login bug'),
@@ -410,27 +355,27 @@ describe('Voice-Dictated Task Creation Feature', () => {
   describe('AI-Powered Text Extraction', () => {
     it('should extract title from natural language', () => {
       const transcription = 'I need to create a task for fixing the broken navigation menu'
-      
+
       // This would use AI/NLP to extract task components
       const extracted = extractTaskFromTranscription(transcription)
-      
+
       expect(extracted.title).toBe('Fix broken navigation menu')
       expect(extracted.description).toContain('navigation menu')
     })
 
     it('should detect priority keywords', () => {
       const transcription = 'urgent task to fix critical security vulnerability'
-      
+
       const extracted = extractTaskFromTranscription(transcription)
-      
+
       expect(extracted.priority).toBe('urgent')
     })
 
     it('should detect assignee mentions', () => {
       const transcription = 'assign this to Sarah or maybe John can handle it'
-      
+
       const extracted = extractTaskFromTranscription(transcription)
-      
+
       expect(extracted.assignee).toBe('Sarah')
     })
   })
@@ -438,15 +383,15 @@ describe('Voice-Dictated Task Creation Feature', () => {
   describe('Integration Tests', () => {
     it('should complete full voice task creation workflow', async () => {
       const mockCreateTask = vi.fn()
-      
+
       // Mock successful recording
       const mockStream = { getTracks: () => [{ stop: vi.fn() }] }
       mockGetUserMedia.mockResolvedValue(mockStream)
-      
+
       // This would be a full page component combining all voice features
       const VoiceTaskWorkflow = () => (
         <div>
-          <VoiceInputButton 
+          <VoiceInputButton
             onStartRecording={async () => {
               // Would trigger recording -> transcription -> form workflow
               const mockTask = {
@@ -460,12 +405,12 @@ describe('Voice-Dictated Task Creation Feature', () => {
           />
         </div>
       )
-      
+
       render(<VoiceTaskWorkflow />)
-      
+
       const voiceButton = screen.getByRole('button')
       await userEvent.click(voiceButton)
-      
+
       await waitFor(() => {
         expect(mockCreateTask).toHaveBeenCalledWith(
           expect.objectContaining({

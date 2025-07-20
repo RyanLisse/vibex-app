@@ -36,17 +36,20 @@ export type { PerformanceMetrics, PerformanceMonitorProps } from './monitors/per
 export { useAmbientAgentData } from '../../hooks/ambient-agents/use-ambient-agent-data'
 export { useVisualizationState } from '../../hooks/ambient-agents/use-visualization-state'
 export { useWebSocket } from '../../hooks/ambient-agents/use-websocket'
-export type { 
-  AmbientAgentData, 
-  Agent, 
-  Task, 
-  Event, 
-  Communication, 
-  Dependency, 
-  MemoryNamespace 
+export type {
+  AmbientAgentData,
+  Agent,
+  Task,
+  Event,
+  Communication,
+  Dependency,
+  MemoryNamespace,
 } from '../../hooks/ambient-agents/use-ambient-agent-data'
 export type { VisualizationState } from '../../hooks/ambient-agents/use-visualization-state'
-export type { UseWebSocketOptions, UseWebSocketReturn } from '../../hooks/ambient-agents/use-websocket'
+export type {
+  UseWebSocketOptions,
+  UseWebSocketReturn,
+} from '../../hooks/ambient-agents/use-websocket'
 
 // Utilities
 export { applyLayoutAlgorithm, layoutAlgorithms } from '../../lib/ambient-agents/layout-algorithms'

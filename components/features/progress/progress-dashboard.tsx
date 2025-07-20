@@ -50,7 +50,7 @@ export function ProgressDashboard({
         ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data)
-            
+
             if (message.type === 'PROGRESS_UPDATE') {
               // Handle progress update
               setLastUpdate(new Date())
@@ -69,11 +69,11 @@ export function ProgressDashboard({
 
         ws.onclose = (event) => {
           setIsConnected(false)
-          
+
           // Attempt reconnection if it wasn't a normal closure
           if (event.code !== 1000) {
             setConnectionError('Connection lost. Attempting to reconnect...')
-            
+
             reconnectTimeoutRef.current = setTimeout(() => {
               connectWebSocket()
             }, 5000) // Retry after 5 seconds
@@ -111,15 +111,15 @@ export function ProgressDashboard({
   }, [autoTimeTracking])
 
   // Calculate team productivity metrics
-  const teamVelocity = metrics.totalTasks > 0 
-    ? Math.round((metrics.completedTasks / metrics.totalTasks) * 100)
-    : 0
+  const teamVelocity =
+    metrics.totalTasks > 0 ? Math.round((metrics.completedTasks / metrics.totalTasks) * 100) : 0
 
-  const isProductivityConcern = metrics.averageCompletionTime > 480 || metrics.overdueTasks > metrics.totalTasks * 0.3
+  const isProductivityConcern =
+    metrics.averageCompletionTime > 480 || metrics.overdueTasks > metrics.totalTasks * 0.3
 
-  const overdueTasks = taskProgress.filter(task => task.isOverdue)
-  const blockedTasks = taskProgress.filter(task => task.isBlocked)
-  const inProgressTasks = taskProgress.filter(task => task.status === 'in_progress')
+  const overdueTasks = taskProgress.filter((task) => task.isOverdue)
+  const blockedTasks = taskProgress.filter((task) => task.isBlocked)
+  const inProgressTasks = taskProgress.filter((task) => task.status === 'in_progress')
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -138,7 +138,9 @@ export function ProgressDashboard({
         {/* Connection Status */}
         {enableRealTime && (
           <div className="flex items-center gap-2">
-            <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+            <div
+              className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
+            />
             <span className="text-sm text-muted-foreground">
               {isConnected ? 'Live Updates' : 'Offline'}
             </span>
@@ -150,9 +152,7 @@ export function ProgressDashboard({
       {connectionError && (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Real-time updates unavailable: {connectionError}
-          </AlertDescription>
+          <AlertDescription>Real-time updates unavailable: {connectionError}</AlertDescription>
         </Alert>
       )}
 
@@ -160,9 +160,7 @@ export function ProgressDashboard({
       <div className="grid grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Tasks
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.totalTasks}</div>
@@ -171,14 +169,12 @@ export function ProgressDashboard({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Completed
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-2xl font-bold text-green-600">{metrics.completedTasks}</div>
-              <ProgressIndicator 
+              <ProgressIndicator
                 percentage={(metrics.completedTasks / metrics.totalTasks) * 100}
                 size="small"
               />
@@ -188,9 +184,7 @@ export function ProgressDashboard({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              In Progress
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{metrics.inProgressTasks}</div>
@@ -199,16 +193,12 @@ export function ProgressDashboard({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Overdue
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Overdue</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-2xl font-bold text-red-600">{metrics.overdueTasks}</div>
-              {metrics.overdueTasks > 0 && (
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-              )}
+              {metrics.overdueTasks > 0 && <AlertTriangle className="h-5 w-5 text-red-500" />}
             </div>
           </CardContent>
         </Card>
@@ -253,7 +243,7 @@ export function ProgressDashboard({
                 <span className="text-sm font-medium">Active Contributors</span>
               </div>
               <div className="text-2xl font-bold">
-                {new Set(inProgressTasks.map(task => task.taskId)).size}
+                {new Set(inProgressTasks.map((task) => task.taskId)).size}
               </div>
             </div>
           </div>
@@ -267,9 +257,12 @@ export function ProgressDashboard({
                 </span>
               </div>
               <p className="text-sm text-yellow-700 mt-1">
-                High average completion time or overdue tasks detected. Consider reviewing task allocation and workload.
+                High average completion time or overdue tasks detected. Consider reviewing task
+                allocation and workload.
               </p>
-              <div data-testid="bottleneck-warning" className="hidden">Bottleneck detected</div>
+              <div data-testid="bottleneck-warning" className="hidden">
+                Bottleneck detected
+              </div>
             </div>
           )}
         </CardContent>
@@ -292,7 +285,7 @@ export function ProgressDashboard({
             </div>
           ) : (
             <div className="grid gap-4">
-              {inProgressTasks.map(task => (
+              {inProgressTasks.map((task) => (
                 <TaskProgressCard
                   key={task.taskId}
                   progress={task}
@@ -308,7 +301,7 @@ export function ProgressDashboard({
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-4">
-          <AlertSystem 
+          <AlertSystem
             taskProgress={taskProgress}
             onDismiss={(alertId) => {
               console.log('Dismissed alert:', alertId)
@@ -319,9 +312,7 @@ export function ProgressDashboard({
 
         <TabsContent value="completed" className="space-y-4">
           <div className="text-center py-8">
-            <div className="text-4xl font-bold text-green-600 mb-2">
-              {metrics.completedTasks}
-            </div>
+            <div className="text-4xl font-bold text-green-600 mb-2">{metrics.completedTasks}</div>
             <p className="text-muted-foreground">Tasks completed successfully</p>
             <p className="text-sm text-muted-foreground mt-1">
               Average completion time: {Math.round(metrics.averageCompletionTime / 60)} hours

@@ -15,7 +15,10 @@ import { KanbanCard } from '@/components/features/kanban/kanban-card'
 import { TaskFilters } from '@/components/features/kanban/task-filters'
 
 // Types
-import type { KanbanTask, KanbanColumn as KanbanColumnType } from '@/src/schemas/enhanced-task-schemas'
+import type {
+  KanbanTask,
+  KanbanColumn as KanbanColumnType,
+} from '@/src/schemas/enhanced-task-schemas'
 
 // Mock data
 const mockTasks: KanbanTask[] = [
@@ -64,9 +67,7 @@ const mockColumns: KanbanColumnType[] = [
 
 // Wrapper component for DnD
 const DnDWrapper = ({ children }: { children: React.ReactNode }) => (
-  <DndProvider backend={HTML5Backend}>
-    {children}
-  </DndProvider>
+  <DndProvider backend={HTML5Backend}>{children}</DndProvider>
 )
 
 describe('Kanban Board Feature', () => {
@@ -78,14 +79,10 @@ describe('Kanban Board Feature', () => {
     it('should render kanban board with columns', () => {
       render(
         <DnDWrapper>
-          <KanbanBoard 
-            tasks={mockTasks}
-            columns={mockColumns}
-            onTaskMove={vi.fn()}
-          />
+          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByText('To Do')).toBeInTheDocument()
       expect(screen.getByText('In Progress')).toBeInTheDocument()
       expect(screen.getByText('Review')).toBeInTheDocument()
@@ -95,19 +92,15 @@ describe('Kanban Board Feature', () => {
     it('should organize tasks by column', () => {
       render(
         <DnDWrapper>
-          <KanbanBoard 
-            tasks={mockTasks}
-            columns={mockColumns}
-            onTaskMove={vi.fn()}
-          />
+          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       // Check tasks are in correct columns
       const todoColumn = screen.getByTestId('column-todo')
       const inProgressColumn = screen.getByTestId('column-in-progress')
       const doneColumn = screen.getByTestId('column-done')
-      
+
       expect(todoColumn).toContainElement(screen.getByText('Fix login bug'))
       expect(todoColumn).toContainElement(screen.getByText('Database optimization'))
       expect(inProgressColumn).toContainElement(screen.getByText('Add user profile page'))
@@ -117,14 +110,10 @@ describe('Kanban Board Feature', () => {
     it('should show task count for each column', () => {
       render(
         <DnDWrapper>
-          <KanbanBoard 
-            tasks={mockTasks}
-            columns={mockColumns}
-            onTaskMove={vi.fn()}
-          />
+          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByText('To Do (2)')).toBeInTheDocument()
       expect(screen.getByText('In Progress (1)')).toBeInTheDocument()
       expect(screen.getByText('Done (1)')).toBeInTheDocument()
@@ -132,27 +121,23 @@ describe('Kanban Board Feature', () => {
 
     it('should handle task movement between columns', async () => {
       const mockOnTaskMove = vi.fn()
-      
+
       render(
         <DnDWrapper>
-          <KanbanBoard 
-            tasks={mockTasks}
-            columns={mockColumns}
-            onTaskMove={mockOnTaskMove}
-          />
+          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
         </DnDWrapper>
       )
-      
+
       // Simulate drag and drop (simplified - real implementation would use react-dnd testing utils)
       const taskCard = screen.getByTestId('task-card-task-1')
       const reviewColumn = screen.getByTestId('column-review')
-      
+
       // Simulate DnD events
       fireEvent.dragStart(taskCard)
       fireEvent.dragEnter(reviewColumn)
       fireEvent.dragOver(reviewColumn)
       fireEvent.drop(reviewColumn)
-      
+
       expect(mockOnTaskMove).toHaveBeenCalledWith({
         taskId: 'task-1',
         fromColumn: 'todo',
@@ -164,58 +149,75 @@ describe('Kanban Board Feature', () => {
     it('should prevent dropping in full columns', async () => {
       const tasksWithFullColumn = [
         ...mockTasks,
-        { id: 'task-5', name: 'Task 5', column: 'in-progress', priority: 'medium' as const, assignee: 'User 5', tags: [] },
-        { id: 'task-6', name: 'Task 6', column: 'in-progress', priority: 'medium' as const, assignee: 'User 6', tags: [] },
-        { id: 'task-7', name: 'Task 7', column: 'in-progress', priority: 'medium' as const, assignee: 'User 7', tags: [] },
+        {
+          id: 'task-5',
+          name: 'Task 5',
+          column: 'in-progress',
+          priority: 'medium' as const,
+          assignee: 'User 5',
+          tags: [],
+        },
+        {
+          id: 'task-6',
+          name: 'Task 6',
+          column: 'in-progress',
+          priority: 'medium' as const,
+          assignee: 'User 6',
+          tags: [],
+        },
+        {
+          id: 'task-7',
+          name: 'Task 7',
+          column: 'in-progress',
+          priority: 'medium' as const,
+          assignee: 'User 7',
+          tags: [],
+        },
       ]
-      
+
       const mockOnTaskMove = vi.fn()
-      
+
       render(
         <DnDWrapper>
-          <KanbanBoard 
+          <KanbanBoard
             tasks={tasksWithFullColumn}
             columns={mockColumns}
             onTaskMove={mockOnTaskMove}
           />
         </DnDWrapper>
       )
-      
+
       // Try to move task to full column (In Progress has maxItems: 3)
       const taskCard = screen.getByTestId('task-card-task-1')
       const inProgressColumn = screen.getByTestId('column-in-progress')
-      
+
       fireEvent.dragStart(taskCard)
       fireEvent.dragEnter(inProgressColumn)
       fireEvent.drop(inProgressColumn)
-      
+
       expect(mockOnTaskMove).not.toHaveBeenCalled()
       expect(screen.getByText(/column is full/i)).toBeInTheDocument()
     })
   })
 
   describe('KanbanColumn', () => {
-    const todoTasks = mockTasks.filter(task => task.column === 'todo')
-    const todoColumn = mockColumns.find(col => col.id === 'todo')!
-    
+    const todoTasks = mockTasks.filter((task) => task.column === 'todo')
+    const todoColumn = mockColumns.find((col) => col.id === 'todo')!
+
     it('should render column with tasks', () => {
       render(
         <DnDWrapper>
-          <KanbanColumn 
-            column={todoColumn}
-            tasks={todoTasks}
-            onTaskMove={vi.fn()}
-          />
+          <KanbanColumn column={todoColumn} tasks={todoTasks} onTaskMove={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByText('To Do')).toBeInTheDocument()
       expect(screen.getByText('Fix login bug')).toBeInTheDocument()
       expect(screen.getByText('Database optimization')).toBeInTheDocument()
     })
 
     it('should show overload indicator when column is full', () => {
-      const inProgressColumn = mockColumns.find(col => col.id === 'in-progress')!
+      const inProgressColumn = mockColumns.find((col) => col.id === 'in-progress')!
       const tooManyTasks = Array.from({ length: 5 }, (_, i) => ({
         id: `task-${i}`,
         name: `Task ${i}`,
@@ -224,27 +226,23 @@ describe('Kanban Board Feature', () => {
         assignee: `User ${i}`,
         tags: [],
       }))
-      
+
       render(
         <DnDWrapper>
-          <KanbanColumn 
-            column={inProgressColumn}
-            tasks={tooManyTasks}
-            onTaskMove={vi.fn()}
-          />
+          <KanbanColumn column={inProgressColumn} tasks={tooManyTasks} onTaskMove={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByTestId('overload-indicator')).toBeInTheDocument()
       expect(screen.getByText(/5\/3 tasks/i)).toBeInTheDocument()
     })
 
     it('should accept dropped tasks', () => {
       const mockOnTaskMove = vi.fn()
-      
+
       render(
         <DnDWrapper>
-          <KanbanColumn 
+          <KanbanColumn
             column={todoColumn}
             tasks={todoTasks}
             onTaskMove={mockOnTaskMove}
@@ -252,7 +250,7 @@ describe('Kanban Board Feature', () => {
           />
         </DnDWrapper>
       )
-      
+
       const column = screen.getByTestId('column-todo')
       expect(column).toHaveAttribute('data-droppable', 'true')
     })
@@ -260,14 +258,14 @@ describe('Kanban Board Feature', () => {
 
   describe('KanbanCard', () => {
     const task = mockTasks[0]
-    
+
     it('should render task card with all information', () => {
       render(
         <DnDWrapper>
           <KanbanCard task={task} onEdit={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByText('Fix login bug')).toBeInTheDocument()
       expect(screen.getByText('John Doe')).toBeInTheDocument()
       expect(screen.getByText('HIGH')).toBeInTheDocument()
@@ -281,7 +279,7 @@ describe('Kanban Board Feature', () => {
           <KanbanCard task={task} onEdit={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByText(/jan 15/i)).toBeInTheDocument()
     })
 
@@ -290,13 +288,13 @@ describe('Kanban Board Feature', () => {
         ...task,
         dueDate: new Date('2023-12-01'), // Past date
       }
-      
+
       render(
         <DnDWrapper>
           <KanbanCard task={overdueTask} onEdit={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       expect(screen.getByTestId('overdue-indicator')).toBeInTheDocument()
     })
 
@@ -306,35 +304,35 @@ describe('Kanban Board Feature', () => {
           <KanbanCard task={task} onEdit={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       const card = screen.getByTestId('task-card-task-1')
       expect(card).toHaveAttribute('draggable', 'true')
     })
 
     it('should open edit modal when clicked', async () => {
       const mockOnEdit = vi.fn()
-      
+
       render(
         <DnDWrapper>
           <KanbanCard task={task} onEdit={mockOnEdit} />
         </DnDWrapper>
       )
-      
+
       const card = screen.getByTestId('task-card-task-1')
       await userEvent.click(card)
-      
+
       expect(mockOnEdit).toHaveBeenCalledWith(task)
     })
 
     it('should show priority color coding', () => {
       const urgentTask = { ...task, priority: 'urgent' as const }
-      
+
       render(
         <DnDWrapper>
           <KanbanCard task={urgentTask} onEdit={vi.fn()} />
         </DnDWrapper>
       )
-      
+
       const priorityBadge = screen.getByText('URGENT')
       expect(priorityBadge).toHaveClass('bg-red-500') // Assuming urgent = red
     })
@@ -343,13 +341,13 @@ describe('Kanban Board Feature', () => {
   describe('TaskFilters', () => {
     it('should render filter controls', () => {
       render(
-        <TaskFilters 
+        <TaskFilters
           onFilterChange={vi.fn()}
           assignees={['John Doe', 'Jane Smith', 'Bob Wilson']}
           tags={['bug', 'feature', 'docs']}
         />
       )
-      
+
       expect(screen.getByLabelText(/assignee/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/priority/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/tags/i)).toBeInTheDocument()
@@ -358,18 +356,18 @@ describe('Kanban Board Feature', () => {
 
     it('should call onFilterChange when filters are updated', async () => {
       const mockOnFilterChange = vi.fn()
-      
+
       render(
-        <TaskFilters 
+        <TaskFilters
           onFilterChange={mockOnFilterChange}
           assignees={['John Doe', 'Jane Smith']}
           tags={['bug', 'feature']}
         />
       )
-      
+
       // Filter by assignee
       await userEvent.selectOptions(screen.getByLabelText(/assignee/i), 'John Doe')
-      
+
       expect(mockOnFilterChange).toHaveBeenCalledWith({
         assignee: 'John Doe',
         priority: undefined,
@@ -380,22 +378,22 @@ describe('Kanban Board Feature', () => {
 
     it('should filter by multiple tags', async () => {
       const mockOnFilterChange = vi.fn()
-      
+
       render(
-        <TaskFilters 
+        <TaskFilters
           onFilterChange={mockOnFilterChange}
           assignees={[]}
           tags={['bug', 'feature', 'docs']}
         />
       )
-      
+
       // Select multiple tags
       const bugTag = screen.getByLabelText('bug')
       const featureTag = screen.getByLabelText('feature')
-      
+
       await userEvent.click(bugTag)
       await userEvent.click(featureTag)
-      
+
       expect(mockOnFilterChange).toHaveBeenLastCalledWith({
         assignee: undefined,
         priority: undefined,
@@ -406,18 +404,12 @@ describe('Kanban Board Feature', () => {
 
     it('should filter by search text', async () => {
       const mockOnFilterChange = vi.fn()
-      
-      render(
-        <TaskFilters 
-          onFilterChange={mockOnFilterChange}
-          assignees={[]}
-          tags={[]}
-        />
-      )
-      
+
+      render(<TaskFilters onFilterChange={mockOnFilterChange} assignees={[]} tags={[]} />)
+
       const searchInput = screen.getByPlaceholderText(/search tasks/i)
       await userEvent.type(searchInput, 'login')
-      
+
       expect(mockOnFilterChange).toHaveBeenLastCalledWith({
         assignee: undefined,
         priority: undefined,
@@ -428,18 +420,14 @@ describe('Kanban Board Feature', () => {
 
     it('should clear all filters', async () => {
       const mockOnFilterChange = vi.fn()
-      
+
       render(
-        <TaskFilters 
-          onFilterChange={mockOnFilterChange}
-          assignees={['John Doe']}
-          tags={['bug']}
-        />
+        <TaskFilters onFilterChange={mockOnFilterChange} assignees={['John Doe']} tags={['bug']} />
       )
-      
+
       const clearButton = screen.getByText(/clear filters/i)
       await userEvent.click(clearButton)
-      
+
       expect(mockOnFilterChange).toHaveBeenCalledWith({
         assignee: undefined,
         priority: undefined,
@@ -452,34 +440,24 @@ describe('Kanban Board Feature', () => {
   describe('Real-time Updates', () => {
     it('should reflect task changes in real-time across users', async () => {
       const mockOnTaskMove = vi.fn()
-      
+
       const { rerender } = render(
         <DnDWrapper>
-          <KanbanBoard 
-            tasks={mockTasks}
-            columns={mockColumns}
-            onTaskMove={mockOnTaskMove}
-          />
+          <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
         </DnDWrapper>
       )
-      
+
       // Simulate real-time update (task moved by another user)
-      const updatedTasks = mockTasks.map(task => 
-        task.id === 'task-1' 
-          ? { ...task, column: 'in-progress' }
-          : task
+      const updatedTasks = mockTasks.map((task) =>
+        task.id === 'task-1' ? { ...task, column: 'in-progress' } : task
       )
-      
+
       rerender(
         <DnDWrapper>
-          <KanbanBoard 
-            tasks={updatedTasks}
-            columns={mockColumns}
-            onTaskMove={mockOnTaskMove}
-          />
+          <KanbanBoard tasks={updatedTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
         </DnDWrapper>
       )
-      
+
       // Task should now be in In Progress column
       const inProgressColumn = screen.getByTestId('column-in-progress')
       expect(inProgressColumn).toContainElement(screen.getByText('Fix login bug'))
@@ -490,34 +468,30 @@ describe('Kanban Board Feature', () => {
     it('should handle complete kanban workflow', async () => {
       const mockOnTaskMove = vi.fn()
       const mockOnTaskEdit = vi.fn()
-      
+
       render(
         <DnDWrapper>
           <div>
-            <TaskFilters 
+            <TaskFilters
               onFilterChange={vi.fn()}
               assignees={['John Doe', 'Jane Smith']}
               tags={['bug', 'feature']}
             />
-            <KanbanBoard 
-              tasks={mockTasks}
-              columns={mockColumns}
-              onTaskMove={mockOnTaskMove}
-            />
+            <KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
           </div>
         </DnDWrapper>
       )
-      
+
       // Filter tasks
       await userEvent.selectOptions(screen.getByLabelText(/assignee/i), 'John Doe')
-      
+
       // Move task
       const taskCard = screen.getByTestId('task-card-task-1')
       const reviewColumn = screen.getByTestId('column-review')
-      
+
       fireEvent.dragStart(taskCard)
       fireEvent.drop(reviewColumn)
-      
+
       expect(mockOnTaskMove).toHaveBeenCalled()
     })
   })

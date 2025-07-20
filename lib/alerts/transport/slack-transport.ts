@@ -34,7 +34,11 @@ export class SlackTransport implements AlertTransport {
     this.logger = new ComponentLogger('SlackTransport')
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const config = channel.config as SlackConfig
 
     if (config.webhookUrl) {
@@ -46,15 +50,19 @@ export class SlackTransport implements AlertTransport {
     }
   }
 
-  private async sendViaWebhook(config: SlackConfig, error: CriticalError, notification: AlertNotification): Promise<void> {
+  private async sendViaWebhook(
+    config: SlackConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const payload = this.buildWebhookPayload(config, error, notification)
 
     const response = await fetch(config.webhookUrl!, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -64,20 +72,24 @@ export class SlackTransport implements AlertTransport {
 
     this.logger.debug('Slack webhook sent successfully', {
       channel: config.channel,
-      notificationId: notification.id
+      notificationId: notification.id,
     })
   }
 
-  private async sendViaBotAPI(config: SlackConfig, error: CriticalError, notification: AlertNotification): Promise<void> {
+  private async sendViaBotAPI(
+    config: SlackConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const payload = this.buildAPIPayload(config, error, notification)
 
     const response = await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${config.botToken}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${config.botToken}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     const result = await response.json()
@@ -89,25 +101,15 @@ export class SlackTransport implements AlertTransport {
     this.logger.debug('Slack API message sent successfully', {
       channel: config.channel,
       messageTs: result.ts,
-      notificationId: notification.id
+      notificationId: notification.id,
     })
   }
 
-  private buildWebhookPayload(config: SlackConfig, error: CriticalError, notification: AlertNotification) {
-    const attachment = this.buildAttachment(error, notification)
-    const mentions = this.buildMentions(config)
-
-    return {
-      channel: config.channel,
-      username: config.username || 'ClaudeFlow Alerts',
-      icon_emoji: config.iconEmoji || ':rotating_light:',
-      icon_url: config.iconUrl,
-      text: mentions ? `${mentions} Critical error detected!` : 'Critical error detected!',
-      attachments: [attachment]
-    }
-  }
-
-  private buildAPIPayload(config: SlackConfig, error: CriticalError, notification: AlertNotification) {
+  private buildWebhookPayload(
+    config: SlackConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ) {
     const attachment = this.buildAttachment(error, notification)
     const mentions = this.buildMentions(config)
 
@@ -118,7 +120,25 @@ export class SlackTransport implements AlertTransport {
       icon_url: config.iconUrl,
       text: mentions ? `${mentions} Critical error detected!` : 'Critical error detected!',
       attachments: [attachment],
-      thread_ts: config.threadKey
+    }
+  }
+
+  private buildAPIPayload(
+    config: SlackConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ) {
+    const attachment = this.buildAttachment(error, notification)
+    const mentions = this.buildMentions(config)
+
+    return {
+      channel: config.channel,
+      username: config.username || 'ClaudeFlow Alerts',
+      icon_emoji: config.iconEmoji || ':rotating_light:',
+      icon_url: config.iconUrl,
+      text: mentions ? `${mentions} Critical error detected!` : 'Critical error detected!',
+      attachments: [attachment],
+      thread_ts: config.threadKey,
     }
   }
 
@@ -134,36 +154,44 @@ export class SlackTransport implements AlertTransport {
         {
           title: 'Environment',
           value: error.environment,
-          short: true
+          short: true,
         },
         {
           title: 'Severity',
           value: error.severity.toUpperCase(),
-          short: true
+          short: true,
         },
         {
           title: 'Source',
           value: error.source,
-          short: true
+          short: true,
         },
         {
           title: 'Timestamp',
           value: `<!date^${Math.floor(error.timestamp.getTime() / 1000)}^{date_short_pretty} at {time}|${error.timestamp.toISOString()}>`,
-          short: true
+          short: true,
         },
-        ...(error.occurrenceCount > 1 ? [{
-          title: 'Occurrences',
-          value: `${error.occurrenceCount} times`,
-          short: true
-        }] : []),
-        ...(error.correlationId ? [{
-          title: 'Correlation ID',
-          value: `\`${error.correlationId}\``,
-          short: true
-        }] : [])
+        ...(error.occurrenceCount > 1
+          ? [
+              {
+                title: 'Occurrences',
+                value: `${error.occurrenceCount} times`,
+                short: true,
+              },
+            ]
+          : []),
+        ...(error.correlationId
+          ? [
+              {
+                title: 'Correlation ID',
+                value: `\`${error.correlationId}\``,
+                short: true,
+              },
+            ]
+          : []),
       ],
       footer: `Alert ID: ${error.id} | ClaudeFlow Alert System`,
-      ts: Math.floor(error.timestamp.getTime() / 1000)
+      ts: Math.floor(error.timestamp.getTime() / 1000),
     }
   }
 
@@ -175,7 +203,7 @@ export class SlackTransport implements AlertTransport {
     }
 
     if (config.mentionUsers && config.mentionUsers.length > 0) {
-      mentions.push(...config.mentionUsers.map(user => `<@${user}>`))
+      mentions.push(...config.mentionUsers.map((user) => `<@${user}>`))
     }
 
     return mentions.join(' ')
@@ -183,21 +211,31 @@ export class SlackTransport implements AlertTransport {
 
   private getSeverityColor(severity: string): string {
     switch (severity) {
-      case 'critical': return 'danger'
-      case 'high': return 'warning'
-      case 'medium': return '#ffeb3b'
-      case 'low': return 'good'
-      default: return '#9e9e9e'
+      case 'critical':
+        return 'danger'
+      case 'high':
+        return 'warning'
+      case 'medium':
+        return '#ffeb3b'
+      case 'low':
+        return 'good'
+      default:
+        return '#9e9e9e'
     }
   }
 
   private getSeverityIcon(severity: string): string {
     switch (severity) {
-      case 'critical': return ':fire:'
-      case 'high': return ':warning:'
-      case 'medium': return ':exclamation:'
-      case 'low': return ':information_source:'
-      default: return ':bell:'
+      case 'critical':
+        return ':fire:'
+      case 'high':
+        return ':warning:'
+      case 'medium':
+        return ':exclamation:'
+      case 'low':
+        return ':information_source:'
+      default:
+        return ':bell:'
     }
   }
 

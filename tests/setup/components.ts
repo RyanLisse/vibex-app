@@ -15,7 +15,7 @@ console.log('✅ DOM Environment initialized:', {
   window: typeof window !== 'undefined',
   document: typeof document !== 'undefined',
   location: typeof location !== 'undefined',
-  navigator: typeof navigator !== 'undefined'
+  navigator: typeof navigator !== 'undefined',
 })
 
 // Store original environment
@@ -97,7 +97,7 @@ vi.mock('next/image', () => ({
   }),
 }))
 
-// Mock Next.js Link component  
+// Mock Next.js Link component
 vi.mock('next/link', () => ({
   default: vi.fn(({ children, href, ...props }) => {
     return {

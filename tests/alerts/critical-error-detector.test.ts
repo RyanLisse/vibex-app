@@ -16,11 +16,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'Database connection failed',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.type).toBe(CriticalErrorType.DATABASE_CONNECTION_FAILURE)
       expect(result?.severity).toBe('critical')
@@ -32,11 +32,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'Redis connection error occurred',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.type).toBe(CriticalErrorType.REDIS_CONNECTION_FAILURE)
       expect(result?.severity).toBe('critical')
@@ -47,11 +47,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'OAuth token exchange failed',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.type).toBe(CriticalErrorType.AUTH_SERVICE_FAILURE)
       expect(result?.severity).toBe('critical')
@@ -62,11 +62,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'Workflow execution failed with error',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.type).toBe(CriticalErrorType.WORKFLOW_EXECUTION_FAILURE)
       expect(result?.severity).toBe('high')
@@ -77,11 +77,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'System health check failed',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.type).toBe(CriticalErrorType.SYSTEM_HEALTH_FAILURE)
       expect(result?.severity).toBe('critical')
@@ -92,11 +92,11 @@ describe('CriticalErrorDetector', () => {
         level: 'info',
         message: 'Database connection failed',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeNull()
     })
 
@@ -105,11 +105,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'Regular application error',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeNull()
     })
 
@@ -119,11 +119,11 @@ describe('CriticalErrorDetector', () => {
         message: 'Database connection failed',
         correlationId: 'test-correlation-123',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.correlationId).toBe('test-correlation-123')
     })
@@ -135,11 +135,11 @@ describe('CriticalErrorDetector', () => {
         userId: 'user-123',
         sessionId: 'session-456',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.userId).toBe('user-123')
       expect(result?.sessionId).toBe('session-456')
@@ -151,11 +151,11 @@ describe('CriticalErrorDetector', () => {
         message: 'Database connection failed',
         stack: 'Error: Database connection failed\n    at connect (db.js:123)',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.stackTrace).toContain('Error: Database connection failed')
     })
@@ -170,11 +170,11 @@ describe('CriticalErrorDetector', () => {
         level: 'error',
         message: 'Custom critical error detected',
         meta: {},
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
       const result = detector.detectCriticalError(logEntry)
-      
+
       expect(result).toBeTruthy()
       expect(result?.type).toBe(CriticalErrorType.SYSTEM_HEALTH_FAILURE)
     })
@@ -183,7 +183,7 @@ describe('CriticalErrorDetector', () => {
   describe('getTemplate', () => {
     it('should return the correct template for each error type', () => {
       const template = detector.getTemplate(CriticalErrorType.DATABASE_CONNECTION_FAILURE)
-      
+
       expect(template).toBeTruthy()
       expect(template?.type).toBe(CriticalErrorType.DATABASE_CONNECTION_FAILURE)
       expect(template?.subject).toContain('Database Connection Failure')
@@ -192,7 +192,7 @@ describe('CriticalErrorDetector', () => {
 
     it('should return undefined for non-existent error types', () => {
       const template = detector.getTemplate('non-existent-type' as CriticalErrorType)
-      
+
       expect(template).toBeUndefined()
     })
   })

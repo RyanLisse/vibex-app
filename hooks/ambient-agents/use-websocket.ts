@@ -30,8 +30,10 @@ export const useWebSocket = (
   } = options
 
   const [lastMessage, setLastMessage] = useState<MessageEvent | null>(null)
-  const [connectionStatus, setConnectionStatus] = useState<'Connecting' | 'Open' | 'Closing' | 'Closed'>('Closed')
-  
+  const [connectionStatus, setConnectionStatus] = useState<
+    'Connecting' | 'Open' | 'Closing' | 'Closed'
+  >('Closed')
+
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const reconnectCountRef = useRef(0)
@@ -62,7 +64,7 @@ export const useWebSocket = (
           origin: event.origin,
           lastEventId: event.lastEventId,
         } as MessageEvent
-        
+
         setLastMessage(messageEvent)
         onMessage?.(messageEvent)
       }
@@ -89,13 +91,13 @@ export const useWebSocket = (
     // For SSE, we can't send messages back to server directly
     // In a real implementation, you'd use a separate HTTP POST endpoint
     console.log('SSE does not support sending messages. Message:', message)
-    
+
     // Send via HTTP POST instead
     fetch('/api/ambient-agents/ws', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, timestamp: new Date().toISOString() })
-    }).catch(error => console.error('Error sending message:', error))
+      body: JSON.stringify({ message, timestamp: new Date().toISOString() }),
+    }).catch((error) => console.error('Error sending message:', error))
   }, [])
 
   const closeConnection = useCallback(() => {
@@ -108,9 +110,13 @@ export const useWebSocket = (
       setConnectionStatus('Closing')
       eventSourceRef.current.close()
       setConnectionStatus('Closed')
-      
+
       // Simulate close event for compatibility
-      const closeEvent = new CloseEvent('close', { wasClean: true, code: 1000, reason: 'User initiated close' })
+      const closeEvent = new CloseEvent('close', {
+        wasClean: true,
+        code: 1000,
+        reason: 'User initiated close',
+      })
       onClose?.(closeEvent)
     }
   }, [onClose])

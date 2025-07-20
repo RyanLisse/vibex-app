@@ -239,9 +239,9 @@ if (typeof window !== 'undefined') {
 }
 
 // Mock console methods to reduce noise in test output
- 
+
 const originalError = console.error
- 
+
 const originalWarn = console.warn
 
 beforeEach(() => {

@@ -9,11 +9,7 @@ interface PRStatusBadgeProps {
   className?: string
 }
 
-export function PRStatusBadge({
-  status,
-  reviewStatus,
-  className = '',
-}: PRStatusBadgeProps) {
+export function PRStatusBadge({ status, reviewStatus, className = '' }: PRStatusBadgeProps) {
   const getStatusConfig = () => {
     switch (status) {
       case 'draft':
@@ -86,13 +82,9 @@ export function PRStatusBadge({
       >
         {statusConfig.label}
       </Badge>
-      
+
       {status === 'open' && (
-        <Badge
-          variant="outline"
-          className={reviewConfig.className}
-          data-testid="review-status"
-        >
+        <Badge variant="outline" className={reviewConfig.className} data-testid="review-status">
           {reviewConfig.label}
         </Badge>
       )}

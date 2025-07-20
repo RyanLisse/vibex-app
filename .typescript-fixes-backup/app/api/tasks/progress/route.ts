@@ -12,10 +12,7 @@ import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 import { TaskProgressUpdateSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // WebSocket connection manager (mock implementation)
@@ -60,11 +57,11 @@ class ProgressNotificationManager {
 // Calculate progress metrics
 const calculateProgressMetrics = (tasks: any[]) => {
   const total = tasks.length
-  const completed = tasks.filter(t => t.status === 'completed').length
-  const inProgress = tasks.filter(t => t.status === 'in_progress').length
-  const blocked = tasks.filter(t => t.status === 'blocked').length
-  const overdue = tasks.filter(t => 
-    t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed'
+  const completed = tasks.filter((t) => t.status === 'completed').length
+  const inProgress = tasks.filter((t) => t.status === 'in_progress').length
+  const blocked = tasks.filter((t) => t.status === 'blocked').length
+  const overdue = tasks.filter(
+    (t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed'
   ).length
 
   const completionRate = total > 0 ? (completed / total) * 100 : 0
@@ -87,11 +84,10 @@ const calculateVelocity = (tasks: any[]) => {
   // Calculate tasks completed per day over last 7 days
   const now = new Date()
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-  
-  const recentlyCompleted = tasks.filter(t => 
-    t.completedAt && 
-    new Date(t.completedAt) >= sevenDaysAgo &&
-    new Date(t.completedAt) <= now
+
+  const recentlyCompleted = tasks.filter(
+    (t) =>
+      t.completedAt && new Date(t.completedAt) >= sevenDaysAgo && new Date(t.completedAt) <= now
   )
 
   return recentlyCompleted.length / 7
@@ -101,16 +97,14 @@ const calculateBurndown = (tasks: any[]) => {
   // Generate burndown chart data for last 30 days
   const days = []
   const now = new Date()
-  
+
   for (let i = 29; i >= 0; i--) {
     const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-    const completedByDate = tasks.filter(t => 
-      t.completedAt && new Date(t.completedAt) <= date
+    const completedByDate = tasks.filter(
+      (t) => t.completedAt && new Date(t.completedAt) <= date
     ).length
-    const totalByDate = tasks.filter(t => 
-      new Date(t.createdAt) <= date
-    ).length
-    
+    const totalByDate = tasks.filter((t) => new Date(t.createdAt) <= date).length
+
     days.push({
       date: date.toISOString().split('T')[0],
       completed: completedByDate,
@@ -118,7 +112,7 @@ const calculateBurndown = (tasks: any[]) => {
       total: totalByDate,
     })
   }
-  
+
   return days
 }
 
@@ -137,10 +131,9 @@ export async function POST(request: NextRequest) {
     const [task] = await db.select().from(tasks).where(eq(tasks.id, validatedData.taskId))
 
     if (!task) {
-      return NextResponse.json(
-        createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'),
-        { status: 404 }
-      )
+      return NextResponse.json(createApiErrorResponse('Task not found', 404, 'TASK_NOT_FOUND'), {
+        status: 404,
+      })
     }
 
     // Calculate time tracking
@@ -172,8 +165,8 @@ export async function POST(request: NextRequest) {
 
     // Check for milestone completion
     const previousMilestones = currentMetadata.progress?.milestones || []
-    const newMilestones = progressData.milestones.filter(m => 
-      m.completed && !previousMilestones.find(pm => pm.id === m.id && pm.completed)
+    const newMilestones = progressData.milestones.filter(
+      (m) => m.completed && !previousMilestones.find((pm) => pm.id === m.id && pm.completed)
     )
 
     // Update task with new progress
@@ -289,18 +282,16 @@ export async function GET(request: NextRequest) {
     const metrics = calculateProgressMetrics(tasks)
 
     // Find overdue tasks requiring attention
-    const overdueTasks = tasks.filter(t => 
-      t.dueDate && 
-      new Date(t.dueDate) < new Date() && 
-      t.status !== 'completed'
+    const overdueTasks = tasks.filter(
+      (t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed'
     )
 
     // Find blocked tasks
-    const blockedTasks = tasks.filter(t => t.status === 'blocked')
+    const blockedTasks = tasks.filter((t) => t.status === 'blocked')
 
     // Calculate team productivity
     const teamStats = {
-      totalActiveUsers: new Set(tasks.map(t => t.userId)).size,
+      totalActiveUsers: new Set(tasks.map((t) => t.userId)).size,
       averageCompletionTime: calculateAverageCompletionTime(tasks),
       mostProductiveDay: findMostProductiveDay(tasks),
     }
@@ -340,28 +331,31 @@ export async function GET(request: NextRequest) {
 
 // Helper functions
 const calculateAverageCompletionTime = (tasks: any[]) => {
-  const completedTasks = tasks.filter(t => t.completedAt && t.createdAt)
-  
+  const completedTasks = tasks.filter((t) => t.completedAt && t.createdAt)
+
   if (completedTasks.length === 0) return 0
-  
+
   const totalTime = completedTasks.reduce((sum, task) => {
     const created = new Date(task.createdAt).getTime()
     const completed = new Date(task.completedAt).getTime()
     return sum + (completed - created)
   }, 0)
-  
+
   return totalTime / completedTasks.length / (1000 * 60 * 60 * 24) // Convert to days
 }
 
 const findMostProductiveDay = (tasks: any[]) => {
   const dayCompletion = {}
-  
-  tasks.filter(t => t.completedAt).forEach(task => {
-    const day = new Date(task.completedAt).toLocaleDateString('en-US', { weekday: 'long' })
-    dayCompletion[day] = (dayCompletion[day] || 0) + 1
-  })
-  
-  return Object.entries(dayCompletion).reduce((most, [day, count]) => 
-    count > most.count ? { day, count } : most
-  , { day: 'No data', count: 0 })
+
+  tasks
+    .filter((t) => t.completedAt)
+    .forEach((task) => {
+      const day = new Date(task.completedAt).toLocaleDateString('en-US', { weekday: 'long' })
+      dayCompletion[day] = (dayCompletion[day] || 0) + 1
+    })
+
+  return Object.entries(dayCompletion).reduce(
+    (most, [day, count]) => (count > most.count ? { day, count } : most),
+    { day: 'No data', count: 0 }
+  )
 }

@@ -6,7 +6,7 @@ import './streaming.css'
 
 import Container from '@/app/container'
 import { AppProviders } from '@/components/providers/app-providers'
-import { getLogger } from '@/lib/logging'
+import { getLogger } from '@/lib/logging/safe-wrapper'
 
 const logger = getLogger('app-layout')
 

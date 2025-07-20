@@ -1,8 +1,8 @@
 import { createHash } from 'crypto'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, sql as sqlOperator } from 'drizzle-orm'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import { db } from '../config'
+import { db, sql } from '../config'
 import { migrations, type NewMigration } from '../schema'
 
 export interface MigrationFile {
@@ -243,10 +243,83 @@ export class MigrationRunner {
       'copy',
       'lock',
       'unlock',
+      'do',
+      'declare',
+      'return',
+      'if',
+      'for',
+      'while',
+      'loop',
+      'case',
+      'when',
+      'else',
+      'elseif',
+      'elsif',
+      'perform',
+      'raise',
+      'notice',
+      'warning',
+      'exception',
+      'language',
+      'plpgsql',
+      'sql',
+      'function',
+      'procedure',
+      'trigger',
+      'extension',
+      'schema',
+      'domain',
+      'type',
+      'sequence',
+      'view',
+      'materialized',
+      'index',
+      'unique',
+      'primary',
+      'foreign',
+      'check',
+      'constraint',
+      'column',
+      'table',
+      'database',
+      'tablespace',
+      'role',
+      'user',
+      'group',
+      'policy',
+      'rule',
+      'operator',
+      'cast',
+      'aggregate',
+      'collation',
+      'conversion',
+      'statistics',
+      'publication',
+      'subscription',
     ]
 
-    const firstWord = statement.split(/\s+/)[0]
-    return validKeywords.includes(firstWord) || statement.startsWith('--')
+    const firstWord = statement.split(/\s+/)[0].toLowerCase()
+
+    // Allow comments
+    if (statement.startsWith('--') || statement.startsWith('/*')) {
+      return true
+    }
+
+    // Allow PostgreSQL $$ syntax for functions/procedures
+    if (
+      statement.includes('$$') ||
+      statement.includes('$function$') ||
+      statement.includes('$procedure$')
+    ) {
+      return true
+    }
+
+    // Allow plpgsql blocks that start with variable declarations or control structures
+    if (statement.match(/^\s*(declare|begin|if|for|while|case|return|perform|raise)/i)) {
+      return true
+    }
+
+    return validKeywords.includes(firstWord)
   }
 
   /**
@@ -256,8 +329,11 @@ export class MigrationRunner {
     const startTime = Date.now()
 
     try {
-      // Execute migration SQL
-      await db.transaction(async (tx) => {
+      // Since Neon serverless doesn't support traditional transactions in the same way,
+      // we'll execute statements within a BEGIN/COMMIT block
+      await sql`BEGIN`
+
+      try {
         // Split SQL by semicolon and execute each statement
         const statements = migration.up
           .split(';')
@@ -265,11 +341,11 @@ export class MigrationRunner {
           .filter((stmt) => stmt.length > 0)
 
         for (const statement of statements) {
-          await tx.execute(statement)
+          await sql(statement)
         }
 
         // Record migration execution
-        await tx.insert(migrations).values({
+        await db.insert(migrations).values({
           name: migration.name,
           checksum: migration.checksum,
           rollbackSql: migration.down,
@@ -278,7 +354,12 @@ export class MigrationRunner {
             statementsCount: statements.length,
           },
         })
-      })
+
+        await sql`COMMIT`
+      } catch (error) {
+        await sql`ROLLBACK`
+        throw error
+      }
 
       console.log(
         `✅ Migration ${migration.name} executed successfully (${Date.now() - startTime}ms)`
@@ -452,18 +533,25 @@ export class MigrationRunner {
           .limit(1)
 
         if (migration.length > 0 && migration[0].rollbackSql) {
-          await db.transaction(async (tx) => {
+          await sql`BEGIN`
+
+          try {
             const statements = migration[0].rollbackSql
               .split(';')
               .map((stmt) => stmt.trim())
               .filter((stmt) => stmt.length > 0)
 
             for (const statement of statements) {
-              await tx.execute(statement)
+              await sql(statement)
             }
 
-            await tx.delete(migrations).where(eq(migrations.id, migration[0].id))
-          })
+            await db.delete(migrations).where(eq(migrations.id, migration[0].id))
+
+            await sql`COMMIT`
+          } catch (error) {
+            await sql`ROLLBACK`
+            throw error
+          }
 
           console.log(`✅ Rolled back migration: ${name}`)
         }
@@ -503,7 +591,9 @@ export class MigrationRunner {
         }
       }
 
-      await db.transaction(async (tx) => {
+      await sql`BEGIN`
+
+      try {
         // Execute rollback SQL
         const statements = migration.rollbackSql
           .split(';')
@@ -511,12 +601,17 @@ export class MigrationRunner {
           .filter((stmt) => stmt.length > 0)
 
         for (const statement of statements) {
-          await tx.execute(statement)
+          await sql(statement)
         }
 
         // Remove migration record
-        await tx.delete(migrations).where(eq(migrations.id, migration.id))
-      })
+        await db.delete(migrations).where(eq(migrations.id, migration.id))
+
+        await sql`COMMIT`
+      } catch (error) {
+        await sql`ROLLBACK`
+        throw error
+      }
 
       console.log(`✅ Migration ${migration.name} rolled back successfully`)
       return { success: true, rolledBack: migration.name }
@@ -621,17 +716,17 @@ ${options?.tags ? `-- Tags: ${options.tags.join(', ')}` : ''}
         WHERE tc.constraint_type = 'FOREIGN KEY'
       `
 
-      const foreignKeys = await db.execute(foreignKeyQuery)
+      const foreignKeys = await sql(foreignKeyQuery)
 
-      for (const fk of foreignKeys.rows) {
+      for (const fk of foreignKeys) {
         const indexQuery = `
           SELECT indexname 
           FROM pg_indexes 
-          WHERE tablename = $1 
+          WHERE tablename = '${fk.table_name}' 
           AND indexdef LIKE '%${fk.column_name}%'
         `
 
-        const indexes = await db.execute(indexQuery, [fk.table_name])
+        const indexes = await sql(indexQuery)
         if (indexes.rows.length === 0) {
           recommendations.push(
             `Consider adding index on ${fk.table_name}.${fk.column_name} (foreign key)`

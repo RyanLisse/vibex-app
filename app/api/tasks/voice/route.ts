@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * Voice Task Creation API Route
  *
@@ -12,25 +15,24 @@ import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 import { VoiceTaskCreationSchema } from '@/src/schemas/enhanced-task-schemas'
 
 // Mock transcription service (would integrate with OpenAI Whisper, Google Speech-to-Text, etc.)
-const transcribeAudio = async (audioFile: File): Promise<{
+const transcribeAudio = async (
+  audioFile: File
+): Promise<{
   text: string
   confidence: number
   language: string
   duration: number
 }> => {
   // Simulate transcription processing
-  await new Promise(resolve => setTimeout(resolve, 1500))
-  
+  await new Promise((resolve) => setTimeout(resolve, 1500))
+
   // Mock transcription result
   return {
-    text: "Create a new task to fix the login bug on the dashboard page. It should be high priority and assigned to the frontend team.",
+    text: 'Create a new task to fix the login bug on the dashboard page. It should be high priority and assigned to the frontend team.',
     confidence: 0.95,
     language: 'en-US',
     duration: audioFile.size / 1000, // Mock duration calculation
@@ -47,8 +49,11 @@ const parseTaskFromTranscription = (text: string) => {
   // - Due date mentions
   // - Labels/tags
 
-  const priority = /high.?priority|urgent|critical/i.test(text) ? 'high' :
-                  /low.?priority|minor/i.test(text) ? 'low' : 'medium'
+  const priority = /high.?priority|urgent|critical/i.test(text)
+    ? 'high'
+    : /low.?priority|minor/i.test(text)
+      ? 'low'
+      : 'medium'
 
   const assigneeMatch = text.match(/assign(?:ed)?\s+to\s+(\w+(?:\s+\w+)?)/i)
   const assignee = assigneeMatch ? assigneeMatch[1] : undefined
@@ -65,7 +70,7 @@ const parseTaskFromTranscription = (text: string) => {
   if (/testing|test|qa/i.test(text)) labels.push('testing')
 
   // Generate title from first sentence or key phrases
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0)
   const title = sentences[0]?.trim() || 'Voice-created task'
 
   return {

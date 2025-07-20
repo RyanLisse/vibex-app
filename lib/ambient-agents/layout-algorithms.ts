@@ -15,25 +15,25 @@ export const layoutAlgorithms = {
 
     // Create a new directed graph
     const g = new dagre.graphlib.Graph()
-    g.setGraph({ 
+    g.setGraph({
       rankdir: direction,
       nodesep: spacing,
       ranksep: spacing * 2,
       marginx: 50,
-      marginy: 50
+      marginy: 50,
     })
     g.setDefaultEdgeLabel(() => ({}))
 
     // Add nodes to the graph
-    nodes.forEach(node => {
-      g.setNode(node.id, { 
-        width: nodeWidth, 
-        height: nodeHeight 
+    nodes.forEach((node) => {
+      g.setNode(node.id, {
+        width: nodeWidth,
+        height: nodeHeight,
       })
     })
 
     // Add edges to the graph
-    edges.forEach(edge => {
+    edges.forEach((edge) => {
       g.setEdge(edge.source, edge.target)
     })
 
@@ -41,7 +41,7 @@ export const layoutAlgorithms = {
     dagre.layout(g)
 
     // Update node positions
-    return nodes.map(node => {
+    return nodes.map((node) => {
       const nodeWithPosition = g.node(node.id)
       return {
         ...node,
@@ -55,10 +55,17 @@ export const layoutAlgorithms = {
 
   forceDirected: (nodes: Node[], edges: Edge[], options: LayoutOptions = {}): Node[] => {
     const { spacing = 100 } = options
-    
+
     // Create simulation
-    const simulation = d3.forceSimulation(nodes as any)
-      .force('link', d3.forceLink(edges as any).id((d: any) => d.id).distance(spacing))
+    const simulation = d3
+      .forceSimulation(nodes as any)
+      .force(
+        'link',
+        d3
+          .forceLink(edges as any)
+          .id((d: any) => d.id)
+          .distance(spacing)
+      )
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(400, 300))
       .force('collision', d3.forceCollide().radius(60))
@@ -99,11 +106,11 @@ export const layoutAlgorithms = {
   grid: (nodes: Node[], edges: Edge[], options: LayoutOptions = {}): Node[] => {
     const { spacing = 200 } = options
     const cols = Math.ceil(Math.sqrt(nodes.length))
-    
+
     return nodes.map((node, index) => {
       const row = Math.floor(index / cols)
       const col = index % cols
-      
+
       return {
         ...node,
         position: {
@@ -116,14 +123,17 @@ export const layoutAlgorithms = {
 
   clustered: (nodes: Node[], edges: Edge[], options: LayoutOptions = {}): Node[] => {
     const { spacing = 150 } = options
-    
+
     // Group nodes by type
-    const nodesByType = nodes.reduce((acc, node) => {
-      const type = node.type || 'default'
-      if (!acc[type]) acc[type] = []
-      acc[type].push(node)
-      return acc
-    }, {} as Record<string, Node[]>)
+    const nodesByType = nodes.reduce(
+      (acc, node) => {
+        const type = node.type || 'default'
+        if (!acc[type]) acc[type] = []
+        acc[type].push(node)
+        return acc
+      },
+      {} as Record<string, Node[]>
+    )
 
     const typeNames = Object.keys(nodesByType)
     const clusterRadius = 200
@@ -141,7 +151,7 @@ export const layoutAlgorithms = {
       const positionedNodes = clusterNodes.map((node, nodeIndex) => {
         const nodeAngle = (nodeIndex * 2 * Math.PI) / clusterNodes.length
         const nodeRadius = Math.min(100, clusterNodes.length * 15)
-        
+
         return {
           ...node,
           position: {
@@ -159,9 +169,9 @@ export const layoutAlgorithms = {
 }
 
 export const applyLayoutAlgorithm = (
-  nodes: Node[], 
-  edges: Edge[], 
-  algorithm: keyof typeof layoutAlgorithms, 
+  nodes: Node[],
+  edges: Edge[],
+  algorithm: keyof typeof layoutAlgorithms,
   options?: LayoutOptions
 ): Node[] => {
   if (!layoutAlgorithms[algorithm]) {

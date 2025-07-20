@@ -5,15 +5,44 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { AlertConfig, AlertChannel, AlertChannelType, CriticalErrorType, AlertPriority } from '@/lib/alerts/types'
-import { Settings, Plus, Edit, Trash2, TestTube, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+import {
+  AlertConfig,
+  AlertChannel,
+  AlertChannelType,
+  CriticalErrorType,
+  AlertPriority,
+} from '@/lib/alerts/types'
+import {
+  Settings,
+  Plus,
+  Edit,
+  Trash2,
+  TestTube,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+} from 'lucide-react'
 
 interface AlertConfigManagerProps {
   className?: string
@@ -37,7 +66,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
     try {
       setLoading(true)
       const response = await fetch('/api/alerts/config')
-      
+
       if (!response.ok) {
         throw new Error('Failed to load alert configuration')
       }
@@ -60,7 +89,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
       const response = await fetch('/api/alerts/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config })
+        body: JSON.stringify({ config }),
       })
 
       if (!response.ok) {
@@ -81,7 +110,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
     try {
       setTesting(channelName)
       const response = await fetch(`/api/alerts/channels/${channelName}/test`, {
-        method: 'POST'
+        method: 'POST',
       })
 
       const result = await response.json()
@@ -108,7 +137,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 
     setConfig({
       ...config,
-      channels: [...config.channels, channel]
+      channels: [...config.channels, channel],
     })
     setIsAddingChannel(false)
   }
@@ -118,9 +147,9 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 
     setConfig({
       ...config,
-      channels: config.channels.map(ch => 
+      channels: config.channels.map((ch) =>
         ch.name === updatedChannel.name ? updatedChannel : ch
-      )
+      ),
     })
     setEditingChannel(null)
   }
@@ -130,7 +159,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 
     setConfig({
       ...config,
-      channels: config.channels.filter(ch => ch.name !== channelName)
+      channels: config.channels.filter((ch) => ch.name !== channelName),
     })
   }
 
@@ -139,9 +168,9 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 
     setConfig({
       ...config,
-      channels: config.channels.map(ch =>
+      channels: config.channels.map((ch) =>
         ch.name === channelName ? { ...ch, enabled: !ch.enabled } : ch
-      )
+      ),
     })
   }
 
@@ -226,13 +255,15 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                     id="maxAlertsPerHour"
                     type="number"
                     value={config.rateLimiting.maxAlertsPerHour}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      rateLimiting: {
-                        ...config.rateLimiting,
-                        maxAlertsPerHour: parseInt(e.target.value) || 0
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        rateLimiting: {
+                          ...config.rateLimiting,
+                          maxAlertsPerHour: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
 
@@ -242,13 +273,15 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                     id="cooldownMinutes"
                     type="number"
                     value={config.rateLimiting.cooldownMinutes}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      rateLimiting: {
-                        ...config.rateLimiting,
-                        cooldownMinutes: parseInt(e.target.value) || 0
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        rateLimiting: {
+                          ...config.rateLimiting,
+                          cooldownMinutes: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -269,10 +302,12 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                 <Switch
                   id="deduplicationEnabled"
                   checked={config.deduplication.enabled}
-                  onCheckedChange={(enabled) => setConfig({
-                    ...config,
-                    deduplication: { ...config.deduplication, enabled }
-                  })}
+                  onCheckedChange={(enabled) =>
+                    setConfig({
+                      ...config,
+                      deduplication: { ...config.deduplication, enabled },
+                    })
+                  }
                 />
               </div>
 
@@ -283,13 +318,15 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                     id="deduplicationWindow"
                     type="number"
                     value={config.deduplication.windowMinutes}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      deduplication: {
-                        ...config.deduplication,
-                        windowMinutes: parseInt(e.target.value) || 0
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        deduplication: {
+                          ...config.deduplication,
+                          windowMinutes: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -308,10 +345,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
-                <ChannelForm
-                  onSave={addChannel}
-                  onCancel={() => setIsAddingChannel(false)}
-                />
+                <ChannelForm onSave={addChannel} onCancel={() => setIsAddingChannel(false)} />
               </DialogContent>
             </Dialog>
           </div>
@@ -406,10 +440,12 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                 <Switch
                   id="escalationEnabled"
                   checked={config.escalation.enabled}
-                  onCheckedChange={(enabled) => setConfig({
-                    ...config,
-                    escalation: { ...config.escalation, enabled }
-                  })}
+                  onCheckedChange={(enabled) =>
+                    setConfig({
+                      ...config,
+                      escalation: { ...config.escalation, enabled },
+                    })
+                  }
                 />
               </div>
 
@@ -420,13 +456,15 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
                     id="escalateAfterMinutes"
                     type="number"
                     value={config.escalation.escalateAfterMinutes}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      escalation: {
-                        ...config.escalation,
-                        escalateAfterMinutes: parseInt(e.target.value) || 0
-                      }
-                    })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        escalation: {
+                          ...config.escalation,
+                          escalateAfterMinutes: parseInt(e.target.value) || 0,
+                        },
+                      })
+                    }
                   />
                 </div>
               )}
@@ -452,22 +490,20 @@ function ChannelForm({ channel, onSave, onCancel }: ChannelFormProps) {
       enabled: true,
       config: {},
       errorTypes: [],
-      priority: 'medium'
+      priority: 'medium',
     }
   )
 
   const handleSave = () => {
     if (!formData.name || !formData.type) return
-    
+
     onSave(formData as AlertChannel)
   }
 
   return (
     <>
       <DialogHeader>
-        <DialogTitle>
-          {channel ? 'Edit Alert Channel' : 'Add Alert Channel'}
-        </DialogTitle>
+        <DialogTitle>{channel ? 'Edit Alert Channel' : 'Add Alert Channel'}</DialogTitle>
         <DialogDescription>
           Configure how and when alerts are sent through this channel.
         </DialogDescription>
@@ -508,7 +544,9 @@ function ChannelForm({ channel, onSave, onCancel }: ChannelFormProps) {
           <Label htmlFor="priority">Priority</Label>
           <Select
             value={formData.priority}
-            onValueChange={(priority) => setFormData({ ...formData, priority: priority as AlertPriority })}
+            onValueChange={(priority) =>
+              setFormData({ ...formData, priority: priority as AlertPriority })
+            }
           >
             <SelectTrigger>
               <SelectValue />
@@ -535,12 +573,12 @@ function ChannelForm({ channel, onSave, onCancel }: ChannelFormProps) {
                     if (e.target.checked) {
                       setFormData({
                         ...formData,
-                        errorTypes: [...errorTypes, errorType]
+                        errorTypes: [...errorTypes, errorType],
                       })
                     } else {
                       setFormData({
                         ...formData,
-                        errorTypes: errorTypes.filter(t => t !== errorType)
+                        errorTypes: errorTypes.filter((t) => t !== errorType),
                       })
                     }
                   }}

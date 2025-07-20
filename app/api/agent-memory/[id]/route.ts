@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -78,11 +81,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (updateData.content !== undefined) {
       updateValues.content = updateData.content
       // Regenerate embedding if content changed
-      updateValues.embedding = await (vectorSearchService as any).generateEmbedding(updateData.content)
+      updateValues.embedding = await (vectorSearchService as any).generateEmbedding(
+        updateData.content
+      )
     }
 
-    if (updateData.context !== undefined) {
-      updateValues.context = updateData.context
+    if (updateData.metadata !== undefined) {
+      updateValues.metadata = updateData.metadata
     }
 
     if (updateData.importance !== undefined) {

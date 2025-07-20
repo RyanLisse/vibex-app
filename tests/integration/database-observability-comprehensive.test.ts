@@ -1,6 +1,6 @@
 /**
  * Comprehensive Database Observability Integration Test
- * 
+ *
  * Validates the complete database monitoring and observability stack:
  * - Query performance tracking
  * - Connection pool monitoring
@@ -38,7 +38,7 @@ class MockDatabase {
 
   async query(sql: string, params?: any[]): Promise<any> {
     const start = Date.now()
-    
+
     // Simulate different query patterns
     let duration = 10 // Default fast query
     let error: string | undefined
@@ -53,7 +53,7 @@ class MockDatabase {
     }
 
     // Simulate query execution
-    await new Promise(resolve => setTimeout(resolve, duration))
+    await new Promise((resolve) => setTimeout(resolve, duration))
 
     const queryInfo = { query: sql, duration, error }
     this.queryLog.push(queryInfo)
@@ -74,8 +74,9 @@ class MockDatabase {
       activeConnections: this.connectionCount,
       maxConnections: this.maxConnections,
       totalQueries: this.queryLog.length,
-      avgQueryTime: this.queryLog.reduce((sum, q) => sum + q.duration, 0) / this.queryLog.length || 0,
-      errorCount: this.queryLog.filter(q => q.error).length,
+      avgQueryTime:
+        this.queryLog.reduce((sum, q) => sum + q.duration, 0) / this.queryLog.length || 0,
+      errorCount: this.queryLog.filter((q) => q.error).length,
     }
   }
 
@@ -108,7 +109,7 @@ class DatabaseMonitor {
 
   getMetrics() {
     const report: any = {}
-    
+
     for (const [key, durations] of this.metrics) {
       const sorted = [...durations].sort((a, b) => a - b)
       report[key] = {
@@ -164,11 +165,15 @@ describe('Database Observability Comprehensive Integration', () => {
         try {
           await mockDb.query(query.sql, [1])
           const duration = Date.now() - start
-          
+
           // Record in observability
           observability.database.recordQuery(query.type, query.sql, duration)
-          metricsCollector.recordDatabaseQuery(query.type.split('_')[0].toUpperCase(), 'users', duration / 1000)
-          
+          metricsCollector.recordDatabaseQuery(
+            query.type.split('_')[0].toUpperCase(),
+            'users',
+            duration / 1000
+          )
+
           monitor.recordQuery(query.type, duration)
         } catch (error) {
           monitor.recordError(query.type)
@@ -191,7 +196,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
     test('should detect and track slow queries', async () => {
       const slowQueries = []
-      
+
       // Set up slow query tracking
       observability.database.onSlowQuery((query) => {
         slowQueries.push(query)
@@ -209,9 +214,9 @@ describe('Database Observability Comprehensive Integration', () => {
         const start = Date.now()
         await mockDb.query(query.sql).catch(() => {})
         const duration = Date.now() - start
-        
+
         observability.database.recordQuery('select', query.sql, duration)
-        
+
         if (duration > 1000) {
           metricsCollector.recordDatabaseQuery('SLOW_QUERY', 'various', duration / 1000)
         }
@@ -219,14 +224,14 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Verify slow query detection
       expect(slowQueries.length).toBeGreaterThanOrEqual(2)
-      slowQueries.forEach(sq => {
+      slowQueries.forEach((sq) => {
         expect(sq.duration).toBeGreaterThan(1000)
         expect(sq.query).toContain('slow_table')
       })
 
       // Check Grafana dashboard would show slow queries
       const dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard()
-      const slowQueryPanel = dashboard.panels.find(p => p.title.includes('Database'))
+      const slowQueryPanel = dashboard.panels.find((p) => p.title.includes('Database'))
       expect(slowQueryPanel).toBeDefined()
     })
 
@@ -236,11 +241,11 @@ describe('Database Observability Comprehensive Integration', () => {
         const queryType = ['SELECT', 'INSERT', 'UPDATE'][i % 3]
         const table = ['users', 'posts', 'comments'][i % 3]
         const query = `${queryType} ${queryType === 'SELECT' ? '*' : 'data'} FROM ${table}`
-        
+
         const start = Date.now()
         await mockDb.query(query).catch(() => {})
         const duration = Date.now() - start
-        
+
         observability.database.recordQuery(queryType.toLowerCase(), query, duration)
         metricsCollector.recordDatabaseQuery(queryType, table, duration / 1000)
       }
@@ -260,12 +265,12 @@ describe('Database Observability Comprehensive Integration', () => {
   describe('2. Connection Pool Monitoring', () => {
     test('should monitor connection pool usage', async () => {
       const connections = []
-      
+
       // Simulate connection pool usage
       for (let i = 0; i < 20; i++) {
         const conn = await mockDb.connect()
         connections.push(conn)
-        
+
         const stats = mockDb.getStats()
         metricsCollector.setDatabaseConnections('postgres', 'main', stats.activeConnections)
         observability.database.updateConnectionPool({
@@ -298,7 +303,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Set up alert monitoring
       const alertRules = AlertRuleBuilder.createSystemAlerts()
-      const connectionAlert = alertRules.find(a => a.alert === 'DatabaseConnectionsHigh')
+      const connectionAlert = alertRules.find((a) => a.alert === 'DatabaseConnectionsHigh')
       expect(connectionAlert).toBeDefined()
 
       // Fill connection pool
@@ -306,12 +311,12 @@ describe('Database Observability Comprehensive Integration', () => {
         for (let i = 0; i < 110; i++) {
           const conn = await mockDb.connect()
           connections.push(conn)
-          
+
           const stats = mockDb.getStats()
           const usage = (stats.activeConnections / stats.maxConnections) * 100
-          
+
           metricsCollector.setDatabaseConnections('postgres', 'main', stats.activeConnections)
-          
+
           if (usage > 80) {
             alerts.push({
               level: 'warning',
@@ -329,7 +334,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Verify alerts triggered
       expect(alerts.length).toBeGreaterThan(0)
-      expect(alerts.some(a => a.level === 'critical')).toBe(true)
+      expect(alerts.some((a) => a.level === 'critical')).toBe(true)
 
       // Clean up
       for (const conn of connections) {
@@ -360,13 +365,13 @@ describe('Database Observability Comprehensive Integration', () => {
         const start = Date.now()
         await mockDb.query(query).catch(() => {})
         const duration = Date.now() - start
-        
+
         observability.database.recordQuery('transaction', query, duration, transactionId)
       }
 
       const transactionDuration = Date.now() - transactionStart
       observability.database.endTransaction(transactionId, true)
-      
+
       metricsCollector.recordDatabaseQuery('TRANSACTION', 'multi_table', transactionDuration / 1000)
 
       // Verify transaction metrics
@@ -378,7 +383,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
     test('should handle transaction rollbacks', async () => {
       const transactionId = `tx_rollback_${Date.now()}`
-      
+
       observability.database.startTransaction(transactionId)
 
       // Simulate failed transaction
@@ -425,7 +430,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Check error rate alerts
       const alerts = AlertRuleBuilder.createSystemAlerts()
-      const dbErrorAlert = alerts.find(a => a.alert.includes('Database'))
+      const dbErrorAlert = alerts.find((a) => a.alert.includes('Database'))
       expect(dbErrorAlert).toBeDefined()
     })
 
@@ -433,7 +438,7 @@ describe('Database Observability Comprehensive Integration', () => {
       // Generate errors over time
       for (let minute = 0; minute < 5; minute++) {
         const errorCount = minute === 2 ? 10 : 1 // Spike in minute 2
-        
+
         for (let i = 0; i < errorCount; i++) {
           try {
             await mockDb.query('SELECT * FROM error_table')
@@ -444,13 +449,13 @@ describe('Database Observability Comprehensive Integration', () => {
         }
 
         // Simulate time passing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
       }
 
       // Check error rate metrics
       const metrics = await metricsCollector.getMetrics()
       expect(metrics).toContain('database_query_duration_seconds')
-      
+
       // Verify spike detection
       const errorStats = observability.database.getErrorStats()
       expect(errorStats.total).toBeGreaterThan(10)
@@ -489,7 +494,7 @@ describe('Database Observability Comprehensive Integration', () => {
       const results: any = {}
       for (const [check, fn] of Object.entries(healthChecks)) {
         results[check] = await fn()
-        
+
         // Record health metrics
         metricsCollector.gauge(
           `database_health_${check}`,
@@ -498,9 +503,9 @@ describe('Database Observability Comprehensive Integration', () => {
       }
 
       // Overall health status
-      const overallHealth = Object.values(results).every(
-        (r: any) => r.status === 'healthy'
-      ) ? 'healthy' : 'degraded'
+      const overallHealth = Object.values(results).every((r: any) => r.status === 'healthy')
+        ? 'healthy'
+        : 'degraded'
 
       observability.database.updateHealth({
         status: overallHealth,
@@ -538,9 +543,10 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Verify dashboard compatibility
       const systemDashboard = GrafanaDashboardBuilder.createSystemHealthDashboard()
-      const dbPanels = systemDashboard.panels.filter(p => 
-        p.title.toLowerCase().includes('database') ||
-        p.targets.some(t => t.expr.includes('database'))
+      const dbPanels = systemDashboard.panels.filter(
+        (p) =>
+          p.title.toLowerCase().includes('database') ||
+          p.targets.some((t) => t.expr.includes('database'))
       )
 
       expect(dbPanels.length).toBeGreaterThan(0)
@@ -597,7 +603,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Verify optimization insights
       expect(optimizationInsights.length).toBeGreaterThan(0)
-      optimizationInsights.forEach(insight => {
+      optimizationInsights.forEach((insight) => {
         expect(insight.suggestion).toBeDefined()
         expect(insight.potentialImprovement).toContain('%')
       })
@@ -607,7 +613,7 @@ describe('Database Observability Comprehensive Integration', () => {
   describe('7. Real-time Monitoring Integration', () => {
     test('should stream metrics in real-time format', async () => {
       const metricsStream = []
-      
+
       // Simulate real-time operations
       const operations = async () => {
         for (let i = 0; i < 10; i++) {
@@ -621,20 +627,20 @@ describe('Database Observability Comprehensive Integration', () => {
 
           const op = ops[Math.floor(Math.random() * ops.length)]
           const start = Date.now()
-          
+
           try {
             await op()
             const duration = Date.now() - start
-            
+
             const metric = {
               timestamp: Date.now(),
               type: 'database_operation',
               duration,
               success: true,
             }
-            
+
             metricsStream.push(metric)
-            
+
             // Update Prometheus metrics
             metricsCollector.recordDatabaseQuery('REALTIME', 'various', duration / 1000)
           } catch (error) {
@@ -647,7 +653,7 @@ describe('Database Observability Comprehensive Integration', () => {
             })
           }
 
-          await new Promise(resolve => setTimeout(resolve, 100))
+          await new Promise((resolve) => setTimeout(resolve, 100))
         }
       }
 
@@ -655,7 +661,7 @@ describe('Database Observability Comprehensive Integration', () => {
 
       // Verify real-time metrics
       expect(metricsStream.length).toBeGreaterThan(0)
-      expect(metricsStream.some(m => m.type === 'database_operation')).toBe(true)
+      expect(metricsStream.some((m) => m.type === 'database_operation')).toBe(true)
 
       // Check Prometheus format
       const prometheusMetrics = await metricsCollector.getMetrics()

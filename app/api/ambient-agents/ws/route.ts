@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Note: Next.js doesn't natively support WebSocket in API routes
@@ -20,8 +23,8 @@ export async function GET(request: NextRequest) {
     note: 'This is a placeholder. In production, use Server-Sent Events or a dedicated WebSocket server.',
     alternatives: {
       sse: '/api/ambient-agents/sse',
-      documentation: 'See README for WebSocket implementation options'
-    }
+      documentation: 'See README for WebSocket implementation options',
+    },
   })
 }
 
@@ -29,24 +32,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     // Simulate WebSocket message handling
     console.log('Simulated WebSocket message:', body)
-    
+
     // In a real implementation, this would broadcast to connected clients
     const response = {
       type: 'message_received',
       timestamp: new Date().toISOString(),
-      data: body
+      data: body,
     }
-    
+
     return NextResponse.json(response)
   } catch (error) {
     console.error('Error handling WebSocket message:', error)
-    return NextResponse.json(
-      { error: 'Failed to handle WebSocket message' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to handle WebSocket message' }, { status: 500 })
   }
 }
 

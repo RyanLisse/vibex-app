@@ -24,18 +24,14 @@ interface TaskAlert {
   timestamp: Date
 }
 
-export function AlertSystem({
-  taskProgress,
-  onDismiss,
-  className = '',
-}: AlertSystemProps) {
+export function AlertSystem({ taskProgress, onDismiss, className = '' }: AlertSystemProps) {
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set())
 
   // Generate alerts from task progress data
   const generateAlerts = (): TaskAlert[] => {
     const alerts: TaskAlert[] = []
 
-    taskProgress.forEach(task => {
+    taskProgress.forEach((task) => {
       // Overdue tasks
       if (task.isOverdue) {
         alerts.push({
@@ -63,7 +59,8 @@ export function AlertSystem({
       }
 
       // Stale tasks (no progress for a while)
-      const daysSinceUpdate = (Date.now() - new Date(task.lastUpdated).getTime()) / (1000 * 60 * 60 * 24)
+      const daysSinceUpdate =
+        (Date.now() - new Date(task.lastUpdated).getTime()) / (1000 * 60 * 60 * 24)
       if (task.status === 'in_progress' && daysSinceUpdate > 2) {
         alerts.push({
           id: `stale-alert-${task.taskId}`,
@@ -79,7 +76,7 @@ export function AlertSystem({
 
     // Sort by severity (high first) and timestamp
     return alerts
-      .filter(alert => !dismissedAlerts.has(alert.id))
+      .filter((alert) => !dismissedAlerts.has(alert.id))
       .sort((a, b) => {
         if (a.severity !== b.severity) {
           const severityOrder = { high: 3, medium: 2, low: 1 }
@@ -92,16 +89,19 @@ export function AlertSystem({
   const alerts = generateAlerts()
 
   // Group alerts by type for summary
-  const alertGroups = alerts.reduce((groups, alert) => {
-    if (!groups[alert.type]) {
-      groups[alert.type] = []
-    }
-    groups[alert.type].push(alert)
-    return groups
-  }, {} as Record<string, TaskAlert[]>)
+  const alertGroups = alerts.reduce(
+    (groups, alert) => {
+      if (!groups[alert.type]) {
+        groups[alert.type] = []
+      }
+      groups[alert.type].push(alert)
+      return groups
+    },
+    {} as Record<string, TaskAlert[]>
+  )
 
   const handleDismiss = (alertId: string) => {
-    setDismissedAlerts(prev => new Set([...prev, alertId]))
+    setDismissedAlerts((prev) => new Set([...prev, alertId]))
     onDismiss(alertId)
   }
 
@@ -161,18 +161,15 @@ export function AlertSystem({
                   {getAlertIcon(type)}
                   <span className="font-medium capitalize">{type}</span>
                 </div>
-                <div className="text-2xl font-bold text-red-600">
-                  {typeAlerts.length}
-                </div>
+                <div className="text-2xl font-bold text-red-600">{typeAlerts.length}</div>
                 <p className="text-xs text-muted-foreground">
-                  {type === 'overdue' && typeAlerts.length > 1 
-                    ? `${typeAlerts.length} tasks are overdue` 
+                  {type === 'overdue' && typeAlerts.length > 1
+                    ? `${typeAlerts.length} tasks are overdue`
                     : type === 'blocked' && typeAlerts.length > 1
-                    ? `${typeAlerts.length} tasks are blocked`
-                    : typeAlerts.length === 1 
-                    ? `1 task is ${type}`
-                    : `${typeAlerts.length} ${type} tasks`
-                  }
+                      ? `${typeAlerts.length} tasks are blocked`
+                      : typeAlerts.length === 1
+                        ? `1 task is ${type}`
+                        : `${typeAlerts.length} ${type} tasks`}
                 </p>
               </div>
             ))}
@@ -182,7 +179,7 @@ export function AlertSystem({
 
       {/* Individual Alerts */}
       <div className="space-y-3">
-        {alerts.map(alert => (
+        {alerts.map((alert) => (
           <Alert
             key={alert.id}
             variant={getAlertColor(alert.severity) as any}
@@ -198,15 +195,13 @@ export function AlertSystem({
                       {alert.severity}
                     </Badge>
                   </div>
-                  <AlertDescription className="mb-2">
-                    {alert.description}
-                  </AlertDescription>
+                  <AlertDescription className="mb-2">{alert.description}</AlertDescription>
                   <div className="text-xs text-muted-foreground">
                     Task ID: {alert.taskId.slice(-6)} • {alert.timestamp.toLocaleTimeString()}
                   </div>
                 </div>
               </div>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -227,7 +222,7 @@ export function AlertSystem({
           <Button
             variant="outline"
             onClick={() => {
-              alerts.forEach(alert => handleDismiss(alert.id))
+              alerts.forEach((alert) => handleDismiss(alert.id))
             }}
             className="gap-2"
           >

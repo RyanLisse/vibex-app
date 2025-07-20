@@ -1,6 +1,6 @@
 /**
  * SessionService Tests
- * 
+ *
  * Test-driven development for Redis/Valkey session management
  */
 
@@ -36,7 +36,7 @@ describe('SessionService', () => {
       const sessionData: SessionData = {
         userId: 'user-123',
         email: 'test@example.com',
-        preferences: { theme: 'dark', language: 'en' }
+        preferences: { theme: 'dark', language: 'en' },
       }
 
       // Create session
@@ -59,7 +59,7 @@ describe('SessionService', () => {
     test('should update session data', async () => {
       const sessionData: SessionData = {
         userId: 'user-456',
-        role: 'user'
+        role: 'user',
       }
 
       const sessionId = await sessionService.createSession(sessionData)
@@ -68,7 +68,7 @@ describe('SessionService', () => {
       // Update session
       const updates = {
         role: 'admin' as const,
-        lastLoginAt: new Date()
+        lastLoginAt: new Date(),
       }
 
       const updated = await sessionService.updateSession(sessionId, updates)
@@ -79,7 +79,9 @@ describe('SessionService', () => {
       expect(updatedSession!.role).toBe('admin')
       expect(updatedSession!.lastLoginAt).toBeInstanceOf(Date)
       expect(updatedSession!.userId).toBe('user-456') // Original data preserved
-      expect(updatedSession!.lastAccessedAt.getTime()).toBeGreaterThan(originalSession!.lastAccessedAt.getTime())
+      expect(updatedSession!.lastAccessedAt.getTime()).toBeGreaterThan(
+        originalSession!.lastAccessedAt.getTime()
+      )
     })
 
     test('should delete sessions', async () => {
@@ -112,7 +114,7 @@ describe('SessionService', () => {
       expect(initialSession).not.toBeNull()
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      await new Promise((resolve) => setTimeout(resolve, 2500))
 
       // Session should be expired
       const expiredSession = await sessionService.getSession(sessionId)
@@ -126,14 +128,14 @@ describe('SessionService', () => {
       const sessionId = await sessionService.createSession(sessionData, options)
 
       // Wait some time
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // Extend session
       const extended = await sessionService.extendSession(sessionId, 10) // Add 10 more seconds
       expect(extended).toBe(true)
 
       // Wait for original TTL
-      await new Promise(resolve => setTimeout(resolve, 4000))
+      await new Promise((resolve) => setTimeout(resolve, 4000))
 
       // Session should still exist due to extension
       const extendedSession = await sessionService.getSession(sessionId)
@@ -142,16 +144,16 @@ describe('SessionService', () => {
 
     test('should handle sliding expiration', async () => {
       const sessionData: SessionData = { userId: 'user-sliding' }
-      const options: SessionOptions = { 
+      const options: SessionOptions = {
         ttl: 5, // 5 seconds
-        slidingExpiration: true 
+        slidingExpiration: true,
       }
 
       const sessionId = await sessionService.createSession(sessionData, options)
 
       // Access session multiple times
       for (let i = 0; i < 3; i++) {
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 2000))
         const session = await sessionService.getSession(sessionId)
         expect(session).not.toBeNull()
       }
@@ -166,7 +168,7 @@ describe('SessionService', () => {
       const sessionData: SessionData = {
         userId: 'user-secure',
         isAdmin: true,
-        permissions: ['read', 'write', 'delete']
+        permissions: ['read', 'write', 'delete'],
       }
 
       const sessionId = await sessionService.createSession(sessionData)
@@ -217,38 +219,38 @@ describe('SessionService', () => {
   describe('Multi-Device Sessions', () => {
     test('should handle multiple sessions per user', async () => {
       const userId = 'user-multidevice'
-      
+
       // Create sessions for different devices
       const desktopSessionId = await sessionService.createSession({
         userId,
         device: 'desktop',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
       })
 
       const mobileSessionId = await sessionService.createSession({
         userId,
         device: 'mobile',
-        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
+        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
       })
 
       // Get all sessions for user
       const userSessions = await sessionService.getUserSessions(userId)
       expect(userSessions).toHaveLength(2)
-      
-      const sessionIds = userSessions.map(s => s.id)
+
+      const sessionIds = userSessions.map((s) => s.id)
       expect(sessionIds).toContain(desktopSessionId)
       expect(sessionIds).toContain(mobileSessionId)
     })
 
     test('should revoke all user sessions', async () => {
       const userId = 'user-revoke-all'
-      
+
       // Create multiple sessions
       const sessionIds = []
       for (let i = 0; i < 3; i++) {
         const sessionId = await sessionService.createSession({
           userId,
-          device: `device-${i}`
+          device: `device-${i}`,
         })
         sessionIds.push(sessionId)
       }
@@ -275,7 +277,7 @@ describe('SessionService', () => {
       for (let i = 0; i < maxSessions; i++) {
         const sessionId = await sessionService.createSession({
           userId,
-          device: `device-${i}`
+          device: `device-${i}`,
         })
         sessionIds.push(sessionId)
       }
@@ -283,12 +285,12 @@ describe('SessionService', () => {
       // Creating another session should revoke the oldest
       const newSessionId = await sessionService.createSession({
         userId,
-        device: 'new-device'
+        device: 'new-device',
       })
 
       const userSessions = await sessionService.getUserSessions(userId)
       expect(userSessions).toHaveLength(maxSessions)
-      
+
       // First session should be revoked
       const firstSession = await sessionService.getSession(sessionIds[0])
       expect(firstSession).toBeNull()
@@ -319,14 +321,14 @@ describe('SessionService', () => {
 
     test('should provide session statistics', async () => {
       const userId = 'user-stats'
-      
+
       // Create sessions with different durations
       const session1Id = await sessionService.createSession({ userId })
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
       await sessionService.deleteSession(session1Id)
 
       const session2Id = await sessionService.createSession({ userId })
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await new Promise((resolve) => setTimeout(resolve, 200))
       await sessionService.deleteSession(session2Id)
 
       const session3Id = await sessionService.createSession({ userId })
@@ -338,9 +340,9 @@ describe('SessionService', () => {
     })
 
     test('should detect suspicious session activity', async () => {
-      const sessionData: SessionData = { 
+      const sessionData: SessionData = {
         userId: 'user-suspicious',
-        ipAddress: '192.168.1.100'
+        ipAddress: '192.168.1.100',
       }
       const sessionId = await sessionService.createSession(sessionData)
 
@@ -348,7 +350,7 @@ describe('SessionService', () => {
       for (let i = 0; i < 10; i++) {
         await sessionService.recordSessionActivity(sessionId, 'failed_login_attempt', {
           attempt: i + 1,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })
       }
 
@@ -371,7 +373,7 @@ describe('SessionService', () => {
       }
 
       // Wait for expiration
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Run cleanup
       const cleanedCount = await sessionService.cleanupExpiredSessions()
@@ -385,7 +387,7 @@ describe('SessionService', () => {
       }
 
       const healthMetrics = await sessionService.getHealthMetrics()
-      
+
       expect(healthMetrics.totalActiveSessions).toBeGreaterThanOrEqual(3)
       expect(healthMetrics.memoryUsage).toBeGreaterThan(0)
       expect(healthMetrics.averageSessionAge).toBeGreaterThan(0)
@@ -395,7 +397,7 @@ describe('SessionService', () => {
     test('should handle session storage optimization', async () => {
       const sessionData: SessionData = {
         userId: 'user-optimization',
-        largeData: new Array(1000).fill('data').join('')
+        largeData: new Array(1000).fill('data').join(''),
       }
 
       const sessionId = await sessionService.createSession(sessionData)
@@ -414,7 +416,7 @@ describe('SessionService', () => {
   describe('Error Handling', () => {
     test('should handle invalid session IDs', async () => {
       const invalidSessionId = 'invalid-session-id'
-      
+
       const session = await sessionService.getSession(invalidSessionId)
       expect(session).toBeNull()
 
@@ -428,7 +430,7 @@ describe('SessionService', () => {
     test('should handle malformed session data', async () => {
       // This would test Redis data corruption scenarios
       const sessionId = await sessionService.createSession({ userId: 'user-malformed' })
-      
+
       // Session should be retrievable
       const session = await sessionService.getSession(sessionId)
       expect(session).not.toBeNull()
@@ -437,7 +439,7 @@ describe('SessionService', () => {
     test('should handle connection failures gracefully', async () => {
       // This would test Redis connection failures - implementation specific
       const sessionData: SessionData = { userId: 'user-connection-test' }
-      
+
       const sessionId = await sessionService.createSession(sessionData)
       expect(typeof sessionId).toBe('string')
     })
@@ -451,7 +453,7 @@ describe('SessionService', () => {
         accessToken: 'access-token-xyz',
         refreshToken: 'refresh-token-abc',
         tokenExpiresAt: new Date(Date.now() + 3600000), // 1 hour
-        scope: ['read', 'write']
+        scope: ['read', 'write'],
       }
 
       const sessionId = await sessionService.createSession(oauthSessionData)
@@ -465,7 +467,7 @@ describe('SessionService', () => {
       const refreshed = await sessionService.refreshOAuthTokens(sessionId, {
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
-        expiresAt: new Date(Date.now() + 3600000)
+        expiresAt: new Date(Date.now() + 3600000),
       })
 
       expect(refreshed).toBe(true)
@@ -482,10 +484,10 @@ describe('SessionService', () => {
           nameId: 'user@company.com',
           attributes: {
             department: 'Engineering',
-            role: 'Developer'
-          }
+            role: 'Developer',
+          },
         },
-        sessionIndex: 'saml-session-123'
+        sessionIndex: 'saml-session-123',
       }
 
       const sessionId = await sessionService.createSession(ssoSessionData)

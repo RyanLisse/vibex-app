@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -32,10 +32,12 @@ type VoiceTaskFormData = z.infer<typeof voiceTaskSchema>
 
 interface VoiceTaskFormProps {
   transcription: TranscriptionResult
-  onSubmit: (task: VoiceTaskFormData & { 
-    creationMethod: 'voice'
-    metadata: { transcription: TranscriptionResult; voiceCreated: boolean }
-  }) => void | Promise<void>
+  onSubmit: (
+    task: VoiceTaskFormData & {
+      creationMethod: 'voice'
+      metadata: { transcription: TranscriptionResult; voiceCreated: boolean }
+    }
+  ) => void | Promise<void>
   onCancel?: () => void
   isSubmitting?: boolean
   className?: string
@@ -78,19 +80,18 @@ export function VoiceTaskForm({
   useEffect(() => {
     const extractTaskData = async () => {
       setIsExtracting(true)
-      
+
       try {
         // This would typically call an AI service
         // For now, we'll implement a simple rule-based extraction
         const extracted = extractTaskFromTranscription(transcription.text)
         setExtractedData(extracted)
-        
+
         // Auto-populate form fields
         if (extracted.title) setValue('title', extracted.title)
         if (extracted.description) setValue('description', extracted.description)
         if (extracted.priority) setValue('priority', extracted.priority)
         if (extracted.assignee) setValue('assignee', extracted.assignee)
-        
       } catch (error) {
         console.error('Failed to extract task data:', error)
         // Fallback to using transcription as description
@@ -116,17 +117,15 @@ export function VoiceTaskForm({
     await onSubmit(taskData)
   }
 
-  const confidenceColor = transcription.confidence >= 0.8 
-    ? 'text-green-600' 
-    : transcription.confidence >= 0.6 
-      ? 'text-yellow-600' 
-      : 'text-red-600'
+  const confidenceColor =
+    transcription.confidence >= 0.8
+      ? 'text-green-600'
+      : transcription.confidence >= 0.6
+        ? 'text-yellow-600'
+        : 'text-red-600'
 
-  const confidenceLevel = transcription.confidence >= 0.8 
-    ? 'High' 
-    : transcription.confidence >= 0.6 
-      ? 'Medium' 
-      : 'Low'
+  const confidenceLevel =
+    transcription.confidence >= 0.8 ? 'High' : transcription.confidence >= 0.6 ? 'Medium' : 'Low'
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -146,7 +145,7 @@ export function VoiceTaskForm({
               </span>
             </Badge>
           </div>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -160,7 +159,8 @@ export function VoiceTaskForm({
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Low confidence transcription detected. Please review and edit the extracted information below.
+              Low confidence transcription detected. Please review and edit the extracted
+              information below.
             </AlertDescription>
           </Alert>
         )}
@@ -168,9 +168,7 @@ export function VoiceTaskForm({
         {showTranscription && (
           <div className="p-3 bg-muted/50 rounded-lg border">
             <h4 className="text-sm font-medium mb-2">Original Transcription:</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              "{transcription.text}"
-            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">"{transcription.text}"</p>
           </div>
         )}
       </div>
@@ -185,17 +183,29 @@ export function VoiceTaskForm({
             </span>
           </div>
         </div>
-      ) : extractedData && (
-        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-          <h4 className="text-sm font-medium text-green-800 mb-2">
-            AI Extracted Information:
-          </h4>
-          <div className="space-y-1 text-sm text-green-700">
-            {extractedData.title && <p><strong>Title:</strong> {extractedData.title}</p>}
-            {extractedData.priority && <p><strong>Priority:</strong> {extractedData.priority}</p>}
-            {extractedData.assignee && <p><strong>Assignee:</strong> {extractedData.assignee}</p>}
+      ) : (
+        extractedData && (
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <h4 className="text-sm font-medium text-green-800 mb-2">AI Extracted Information:</h4>
+            <div className="space-y-1 text-sm text-green-700">
+              {extractedData.title && (
+                <p>
+                  <strong>Title:</strong> {extractedData.title}
+                </p>
+              )}
+              {extractedData.priority && (
+                <p>
+                  <strong>Priority:</strong> {extractedData.priority}
+                </p>
+              )}
+              {extractedData.assignee && (
+                <p>
+                  <strong>Assignee:</strong> {extractedData.assignee}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        )
       )}
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
@@ -209,9 +219,7 @@ export function VoiceTaskForm({
               placeholder="Brief description of the task"
               className={errors.title ? 'border-red-500' : ''}
             />
-            {errors.title && (
-              <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-            )}
+            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
           </div>
 
           <div>
@@ -231,7 +239,7 @@ export function VoiceTaskForm({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="priority">Priority</Label>
-              <Select 
+              <Select
                 onValueChange={(value) => setValue('priority', value as any)}
                 defaultValue="medium"
               >
@@ -249,11 +257,7 @@ export function VoiceTaskForm({
 
             <div>
               <Label htmlFor="assignee">Assignee</Label>
-              <Input
-                id="assignee"
-                {...register('assignee')}
-                placeholder="Assign to team member"
-              />
+              <Input id="assignee" {...register('assignee')} placeholder="Assign to team member" />
             </div>
           </div>
         </div>
@@ -263,12 +267,8 @@ export function VoiceTaskForm({
           <h4 className="text-sm font-medium mb-2">Voice Task Metadata:</h4>
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">voice-created</Badge>
-            <Badge variant="outline">
-              {transcription.language}
-            </Badge>
-            <Badge variant="outline">
-              {transcription.segments.length} segments
-            </Badge>
+            <Badge variant="outline">{transcription.language}</Badge>
+            <Badge variant="outline">{transcription.segments.length} segments</Badge>
           </div>
         </div>
 
@@ -282,18 +282,13 @@ export function VoiceTaskForm({
             <Send className="h-4 w-4" />
             {isSubmitting ? 'Creating Task...' : 'Create Task'}
           </Button>
-          
+
           {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               Cancel
             </Button>
           )}
-          
+
           <Button
             type="button"
             variant="ghost"
@@ -312,33 +307,37 @@ export function VoiceTaskForm({
 // Helper function to extract task data from transcription
 function extractTaskFromTranscription(text: string): ExtractedTaskData {
   const lowerText = text.toLowerCase()
-  
+
   // Extract title (first sentence or main action)
   let title = ''
-  const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 0)
+  const sentences = text.split(/[.!?]/).filter((s) => s.trim().length > 0)
   if (sentences.length > 0) {
     title = sentences[0].trim()
-    
+
     // Clean up common voice patterns
     title = title
       .replace(/^(create|add|make|build|fix|update|implement)\s+a?\s*/i, '')
       .replace(/^(task|item|feature|bug)\s+(to|for)?\s*/i, '')
       .trim()
-    
+
     // Capitalize first letter
     title = title.charAt(0).toUpperCase() + title.slice(1)
   }
-  
+
   // Extract priority keywords
   let priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium'
-  if (lowerText.includes('urgent') || lowerText.includes('critical') || lowerText.includes('asap')) {
+  if (
+    lowerText.includes('urgent') ||
+    lowerText.includes('critical') ||
+    lowerText.includes('asap')
+  ) {
     priority = 'urgent'
   } else if (lowerText.includes('high') || lowerText.includes('important')) {
     priority = 'high'
   } else if (lowerText.includes('low') || lowerText.includes('minor')) {
     priority = 'low'
   }
-  
+
   // Extract assignee mentions
   let assignee = ''
   const assigneePatterns = [
@@ -347,7 +346,7 @@ function extractTaskFromTranscription(text: string): ExtractedTaskData {
     /for\s+(\w+)\s+to\s+(?:work\s+on|handle|do)/i,
     /(\w+)\s+should\s+(?:work\s+on|handle|do)/i,
   ]
-  
+
   for (const pattern of assigneePatterns) {
     const match = text.match(pattern)
     if (match && match[1]) {
@@ -355,7 +354,7 @@ function extractTaskFromTranscription(text: string): ExtractedTaskData {
       break
     }
   }
-  
+
   return {
     title: title || 'Voice-created task',
     description: text,

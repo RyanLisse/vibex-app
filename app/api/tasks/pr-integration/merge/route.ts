@@ -1,3 +1,6 @@
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 /**
  * PR Merge API Route
  *
@@ -11,10 +14,7 @@ import { z } from 'zod'
 import { db } from '@/db/config'
 import { tasks } from '@/db/schema'
 import { observability } from '@/lib/observability'
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/src/schemas/api-routes'
+import { createApiErrorResponse, createApiSuccessResponse } from '@/src/schemas/api-routes'
 
 const MergePRSchema = z.object({
   prId: z.string(),
@@ -25,13 +25,17 @@ const MergePRSchema = z.object({
 
 // Mock GitHub API client for merge operations
 class GitHubMergeClient {
-  static async mergePR(repository: string, prNumber: string, options: {
-    mergeMethod: string
-    deleteSourceBranch: boolean
-  }) {
+  static async mergePR(
+    repository: string,
+    prNumber: string,
+    options: {
+      mergeMethod: string
+      deleteSourceBranch: boolean
+    }
+  ) {
     // Simulate merge operation
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
     // Mock successful merge response
     return {
       merged: true,
@@ -56,9 +60,9 @@ export async function POST(request: NextRequest) {
 
     // Find all tasks linked to this PR
     const allTasks = await db.select().from(tasks)
-    const linkedTasks = allTasks.filter(task => {
+    const linkedTasks = allTasks.filter((task) => {
       const prLinks = task.metadata?.prLinks || []
-      return prLinks.some(link => link.prId === validatedData.prId)
+      return prLinks.some((link) => link.prId === validatedData.prId)
     })
 
     if (linkedTasks.length === 0) {
@@ -70,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Get PR details from the first linked task
     const firstTask = linkedTasks[0]
-    const prLink = firstTask.metadata.prLinks.find(link => link.prId === validatedData.prId)
+    const prLink = firstTask.metadata.prLinks.find((link) => link.prId === validatedData.prId)
     const prStatus = firstTask.metadata.prStatuses?.[validatedData.prId]
 
     if (!prStatus) {
@@ -81,26 +85,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if PR can be merged
-    const canMerge = prStatus.status === 'open' && 
-                     prStatus.reviewStatus === 'approved' && 
-                     prStatus.mergeable &&
-                     prStatus.checks.every(check => check.status === 'success')
+    const canMerge =
+      prStatus.status === 'open' &&
+      prStatus.reviewStatus === 'approved' &&
+      prStatus.mergeable &&
+      prStatus.checks.every((check) => check.status === 'success')
 
     if (!canMerge) {
       const reasons = []
       if (prStatus.status !== 'open') reasons.push(`PR is ${prStatus.status}`)
       if (prStatus.reviewStatus !== 'approved') reasons.push('Review approval required')
       if (!prStatus.mergeable) reasons.push('Merge conflicts exist')
-      if (prStatus.checks.some(check => check.status !== 'success')) {
+      if (prStatus.checks.some((check) => check.status !== 'success')) {
         reasons.push('Checks must pass')
       }
 
       return NextResponse.json(
-        createApiErrorResponse(
-          `Cannot merge PR: ${reasons.join(', ')}`,
-          400,
-          'MERGE_BLOCKED'
-        ),
+        createApiErrorResponse(`Cannot merge PR: ${reasons.join(', ')}`, 400, 'MERGE_BLOCKED'),
         { status: 400 }
       )
     }
@@ -126,8 +127,8 @@ export async function POST(request: NextRequest) {
     // Update all linked tasks
     const updatePromises = linkedTasks.map(async (task) => {
       const currentMetadata = task.metadata || {}
-      const prLink = currentMetadata.prLinks.find(link => link.prId === validatedData.prId)
-      
+      const prLink = currentMetadata.prLinks.find((link) => link.prId === validatedData.prId)
+
       const updatedMetadata = {
         ...currentMetadata,
         prStatuses: {
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
 
       // Auto-complete task if auto-update is enabled and task isn't already completed
       const shouldAutoComplete = prLink?.autoUpdateStatus && task.status !== 'completed'
-      
+
       const updates: any = {
         metadata: updatedMetadata,
         updatedAt: new Date(),
@@ -149,11 +150,7 @@ export async function POST(request: NextRequest) {
         updates.completedAt = new Date()
       }
 
-      return db
-        .update(tasks)
-        .set(updates)
-        .where(eq(tasks.id, task.id))
-        .returning()
+      return db.update(tasks).set(updates).where(eq(tasks.id, task.id)).returning()
     })
 
     const updatedTasks = await Promise.all(updatePromises)
@@ -191,8 +188,8 @@ export async function POST(request: NextRequest) {
         {
           mergeResult,
           prStatus: updatedPRStatus,
-          linkedTasks: updatedTasks.map(result => result[0]),
-          autoCompletedTasks: autoCompletedTasks.map(result => result[0]),
+          linkedTasks: updatedTasks.map((result) => result[0]),
+          autoCompletedTasks: autoCompletedTasks.map((result) => result[0]),
           summary: {
             totalLinkedTasks: linkedTasks.length,
             autoCompletedTasks: autoCompletedTasks.length,
@@ -215,10 +212,9 @@ export async function POST(request: NextRequest) {
 
     observability.metrics.errorRate(1, 'pr_merge_api')
 
-    return NextResponse.json(
-      createApiErrorResponse('Failed to merge PR', 500, 'MERGE_PR_ERROR'),
-      { status: 500 }
-    )
+    return NextResponse.json(createApiErrorResponse('Failed to merge PR', 500, 'MERGE_PR_ERROR'), {
+      status: 500,
+    })
   } finally {
     span.end()
   }

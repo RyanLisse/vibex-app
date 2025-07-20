@@ -28,28 +28,49 @@ export class TestLifecycleManager {
     this.hooks.set('afterAll', [])
   }
 
-  registerBeforeAll(name: string, fn: () => Promise<void> | void, options?: Partial<TestHook>): void {
+  registerBeforeAll(
+    name: string,
+    fn: () => Promise<void> | void,
+    options?: Partial<TestHook>
+  ): void {
     this.registerHook('beforeAll', name, fn, options)
   }
 
-  registerBeforeEach(name: string, fn: () => Promise<void> | void, options?: Partial<TestHook>): void {
+  registerBeforeEach(
+    name: string,
+    fn: () => Promise<void> | void,
+    options?: Partial<TestHook>
+  ): void {
     this.registerHook('beforeEach', name, fn, options)
   }
 
-  registerAfterEach(name: string, fn: () => Promise<void> | void, options?: Partial<TestHook>): void {
+  registerAfterEach(
+    name: string,
+    fn: () => Promise<void> | void,
+    options?: Partial<TestHook>
+  ): void {
     this.registerHook('afterEach', name, fn, options)
   }
 
-  registerAfterAll(name: string, fn: () => Promise<void> | void, options?: Partial<TestHook>): void {
+  registerAfterAll(
+    name: string,
+    fn: () => Promise<void> | void,
+    options?: Partial<TestHook>
+  ): void {
     this.registerHook('afterAll', name, fn, options)
   }
 
-  private registerHook(type: string, name: string, fn: () => Promise<void> | void, options?: Partial<TestHook>): void {
+  private registerHook(
+    type: string,
+    name: string,
+    fn: () => Promise<void> | void,
+    options?: Partial<TestHook>
+  ): void {
     const hook: TestHook = {
       name,
       fn,
       dependencies: options?.dependencies || [],
-      condition: options?.condition
+      condition: options?.condition,
     }
 
     const hooks = this.hooks.get(type) || []
@@ -113,7 +134,7 @@ export class TestLifecycleManager {
       visiting.add(hook.name)
 
       for (const depName of hook.dependencies || []) {
-        const dependency = hooks.find(h => h.name === depName)
+        const dependency = hooks.find((h) => h.name === depName)
         if (dependency) {
           visit(dependency)
         }
@@ -139,7 +160,7 @@ export class ResourceManager {
 
   async register<T>(name: string, resource: Resource<T>): Promise<void> {
     this.resourceConfigs.set(name, resource)
-    
+
     // Setup the resource immediately if no dependencies
     if (!resource.dependencies || resource.dependencies.length === 0) {
       await this.setupResource(name)
@@ -201,7 +222,7 @@ export class ResourceManager {
 
     this.resources.clear()
     this.setupOrder.length = 0
-    
+
     // Don't throw errors during cleanup - this is graceful cleanup
   }
 
@@ -301,7 +322,7 @@ export class SetupTeardownOrchestrator {
 
   async runSetups(): Promise<void> {
     const errors: Error[] = []
-    
+
     for (const [name, setup] of this.setups) {
       try {
         await setup()
@@ -309,7 +330,7 @@ export class SetupTeardownOrchestrator {
         errors.push(new Error(`Setup "${name}" failed: ${error}`))
       }
     }
-    
+
     // Only throw if there are errors and we have setups to run
     if (errors.length > 0) {
       throw errors[0] // Throw the first error
@@ -319,7 +340,7 @@ export class SetupTeardownOrchestrator {
   async runCleanups(): Promise<void> {
     // Run cleanups in reverse order
     const cleanupEntries = Array.from(this.cleanups.entries()).reverse()
-    
+
     for (const [name, cleanup] of cleanupEntries) {
       try {
         await cleanup()
@@ -331,7 +352,7 @@ export class SetupTeardownOrchestrator {
   }
 
   async cleanupAllContexts(): Promise<void> {
-    const cleanupPromises = Array.from(this.contexts.entries()).map(([testId]) => 
+    const cleanupPromises = Array.from(this.contexts.entries()).map(([testId]) =>
       this.cleanupTestContext(testId)
     )
     await Promise.all(cleanupPromises)
@@ -352,12 +373,12 @@ export class LifecyclePatterns {
           host: 'localhost',
           port: 5432,
           database: 'test_db',
-          connected: true
+          connected: true,
         }
       },
       cleanup: async () => {
         // Mock database cleanup
-      }
+      },
     }
   }
 
@@ -368,12 +389,12 @@ export class LifecyclePatterns {
         return {
           port,
           url: `http://localhost:${port}`,
-          started: true
+          started: true,
         }
       },
       cleanup: async () => {
         // Mock server cleanup
-      }
+      },
     }
   }
 
@@ -384,18 +405,18 @@ export class LifecyclePatterns {
         const path = `/tmp/test-${Date.now()}`
         return {
           path,
-          exists: true
+          exists: true,
         }
       },
       cleanup: async () => {
         // Mock directory cleanup
-      }
+      },
     }
   }
 
   static memoryStorageSetup() {
     const storage = new Map()
-    
+
     return {
       setup: async () => {
         storage.clear()
@@ -404,12 +425,12 @@ export class LifecyclePatterns {
           set: (key: string, value: any) => storage.set(key, value),
           delete: (key: string) => storage.delete(key),
           clear: () => storage.clear(),
-          size: () => storage.size
+          size: () => storage.size,
         }
       },
       cleanup: async () => {
         storage.clear()
-      }
+      },
     }
   }
 }

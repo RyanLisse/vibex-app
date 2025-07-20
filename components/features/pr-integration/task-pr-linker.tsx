@@ -62,8 +62,8 @@ export function TaskPRLinker({
 
     try {
       // Mock GitHub API call to find PR by branch
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
       // Simulate finding a PR
       const mockPR = {
         repository: 'company/web-app',
@@ -71,7 +71,7 @@ export function TaskPRLinker({
         title: `Feature branch: ${currentBranch}`,
       }
 
-      setLinkForm(prev => ({
+      setLinkForm((prev) => ({
         ...prev,
         repository: mockPR.repository,
         prNumber: mockPR.prNumber,
@@ -130,9 +130,9 @@ export function TaskPRLinker({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {existingLinks.map(link => (
-                <div 
-                  key={link.prId} 
+              {existingLinks.map((link) => (
+                <div
+                  key={link.prId}
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
@@ -154,16 +154,11 @@ export function TaskPRLinker({
                         Auto-sync
                       </Badge>
                     )}
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="gap-1"
-                    >
-                      <a 
+
+                    <Button variant="ghost" size="sm" asChild className="gap-1">
+                      <a
                         href={`https://github.com/${link.repository}/pull/${link.prId.replace('pr-', '')}`}
-                        target="_blank" 
+                        target="_blank"
                         rel="noopener noreferrer"
                       >
                         <ExternalLink className="h-3 w-3" />
@@ -202,7 +197,7 @@ export function TaskPRLinker({
           <DialogHeader>
             <DialogTitle>Link Pull Request</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             {linkError && (
               <Alert variant="destructive">
@@ -214,7 +209,8 @@ export function TaskPRLinker({
             {currentBranch && (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  Current branch: <code className="text-xs bg-muted px-1 rounded">{currentBranch}</code>
+                  Current branch:{' '}
+                  <code className="text-xs bg-muted px-1 rounded">{currentBranch}</code>
                 </p>
                 <Button
                   variant="outline"
@@ -245,10 +241,12 @@ export function TaskPRLinker({
                   id="repository"
                   placeholder="e.g., company/web-app"
                   value={linkForm.repository}
-                  onChange={(e) => setLinkForm(prev => ({
-                    ...prev,
-                    repository: e.target.value
-                  }))}
+                  onChange={(e) =>
+                    setLinkForm((prev) => ({
+                      ...prev,
+                      repository: e.target.value,
+                    }))
+                  }
                 />
               </div>
 
@@ -258,10 +256,12 @@ export function TaskPRLinker({
                   id="prNumber"
                   placeholder="e.g., 123"
                   value={linkForm.prNumber}
-                  onChange={(e) => setLinkForm(prev => ({
-                    ...prev,
-                    prNumber: e.target.value
-                  }))}
+                  onChange={(e) =>
+                    setLinkForm((prev) => ({
+                      ...prev,
+                      prNumber: e.target.value,
+                    }))
+                  }
                 />
               </div>
 
@@ -270,10 +270,12 @@ export function TaskPRLinker({
                   type="checkbox"
                   id="autoUpdate"
                   checked={linkForm.autoUpdateStatus}
-                  onChange={(e) => setLinkForm(prev => ({
-                    ...prev,
-                    autoUpdateStatus: e.target.checked
-                  }))}
+                  onChange={(e) =>
+                    setLinkForm((prev) => ({
+                      ...prev,
+                      autoUpdateStatus: e.target.checked,
+                    }))
+                  }
                 />
                 <Label htmlFor="autoUpdate" className="text-sm">
                   Automatically update task status when PR is merged

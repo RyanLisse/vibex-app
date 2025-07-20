@@ -25,7 +25,11 @@ export class WebhookTransport implements AlertTransport {
     this.logger = new ComponentLogger('WebhookTransport')
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const config = channel.config as WebhookConfig
     const payload = this.buildPayload(error, notification, channel)
 
@@ -34,10 +38,10 @@ export class WebhookTransport implements AlertTransport {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'ClaudeFlow-AlertSystem/1.0',
-        ...config.headers
+        ...config.headers,
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(config.timeout || 30000)
+      signal: AbortSignal.timeout(config.timeout || 30000),
     }
 
     // Add authentication headers
@@ -60,26 +64,25 @@ export class WebhookTransport implements AlertTransport {
           url: config.url,
           status: response.status,
           attempt,
-          notificationId: notification.id
+          notificationId: notification.id,
         })
 
         return
-
       } catch (error) {
         lastError = error instanceof Error ? error : new Error('Unknown error')
-        
+
         this.logger.warn('Webhook attempt failed', {
           url: config.url,
           attempt,
           maxRetries,
           error: lastError.message,
-          notificationId: notification.id
+          notificationId: notification.id,
         })
 
         if (attempt < maxRetries) {
           // Exponential backoff: 1s, 2s, 4s
           const delay = Math.pow(2, attempt - 1) * 1000
-          await new Promise(resolve => setTimeout(resolve, delay))
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
     }
@@ -87,7 +90,10 @@ export class WebhookTransport implements AlertTransport {
     throw lastError || new Error('All webhook attempts failed')
   }
 
-  private addAuthenticationHeaders(requestInit: RequestInit, auth: WebhookConfig['authentication']): void {
+  private addAuthenticationHeaders(
+    requestInit: RequestInit,
+    auth: WebhookConfig['authentication']
+  ): void {
     if (!auth || !requestInit.headers) return
 
     const headers = requestInit.headers as Record<string, string>
@@ -98,14 +104,14 @@ export class WebhookTransport implements AlertTransport {
           headers['Authorization'] = `Bearer ${auth.token}`
         }
         break
-      
+
       case 'basic':
         if (auth.username && auth.password) {
           const credentials = btoa(`${auth.username}:${auth.password}`)
           headers['Authorization'] = `Basic ${credentials}`
         }
         break
-      
+
       case 'api-key':
         if (auth.apiKey && auth.apiKeyHeader) {
           headers[auth.apiKeyHeader] = auth.apiKey
@@ -114,7 +120,11 @@ export class WebhookTransport implements AlertTransport {
     }
   }
 
-  private buildPayload(error: CriticalError, notification: AlertNotification, channel: AlertChannel) {
+  private buildPayload(
+    error: CriticalError,
+    notification: AlertNotification,
+    channel: AlertChannel
+  ) {
     return {
       alert: {
         id: error.id,
@@ -126,18 +136,18 @@ export class WebhookTransport implements AlertTransport {
         environment: error.environment,
         resolved: error.resolved,
         occurrenceCount: error.occurrenceCount,
-        metadata: error.metadata
+        metadata: error.metadata,
       },
       notification: {
         id: notification.id,
         channel: channel.name,
-        priority: channel.priority
+        priority: channel.priority,
       },
       system: {
         name: 'ClaudeFlow',
         version: '1.0.0',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     }
   }
 

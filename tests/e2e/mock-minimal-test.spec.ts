@@ -39,7 +39,7 @@ test.describe('Basic Mock Application Test', () => {
     // This will test the mock server's ability to handle API requests
     const response = await mockPage.goto('http://localhost:3000/api/test')
     expect(response?.status()).toBe(200)
-    
+
     const body = await response?.json()
     expect(body).toEqual({ success: true })
   })

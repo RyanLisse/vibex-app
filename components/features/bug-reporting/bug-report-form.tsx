@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ImageAnnotationTools } from './image-annotation-tools'
@@ -22,7 +22,10 @@ import type { ScreenshotData, BugReport } from '@/src/schemas/enhanced-task-sche
 
 const bugReportSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be less than 200 characters'),
-  description: z.string().min(1, 'Description is required').max(2000, 'Description must be less than 2000 characters'),
+  description: z
+    .string()
+    .min(1, 'Description is required')
+    .max(2000, 'Description must be less than 2000 characters'),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   stepsToReproduce: z.string().optional(),
   expectedBehavior: z.string().optional(),
@@ -64,7 +67,7 @@ export function BugReportForm({
   })
 
   const handleAnnotationsChange = (annotations: any[]) => {
-    setAnnotatedScreenshot(prev => ({
+    setAnnotatedScreenshot((prev) => ({
       ...prev,
       annotations,
     }))
@@ -72,7 +75,7 @@ export function BugReportForm({
 
   const onFormSubmit = async (data: BugReportFormData) => {
     setSubmitError(null)
-    
+
     try {
       const bugReport: BugReport = {
         id: crypto.randomUUID(),
@@ -125,9 +128,7 @@ export function BugReportForm({
               placeholder="Brief description of the bug"
               className={errors.title ? 'border-red-500' : ''}
             />
-            {errors.title && (
-              <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-            )}
+            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
           </div>
 
           <div>
@@ -146,7 +147,7 @@ export function BugReportForm({
 
           <div>
             <Label htmlFor="priority">Priority *</Label>
-            <Select 
+            <Select
               onValueChange={(value) => setValue('priority', value as any)}
               defaultValue="medium"
             >
@@ -154,7 +155,7 @@ export function BugReportForm({
                 <SelectValue placeholder="Select priority" />
               </SelectTrigger>
               <SelectContent>
-                {priorityOptions.map(option => (
+                {priorityOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     <div>
                       <div className="font-medium">{option.label}</div>
@@ -170,7 +171,7 @@ export function BugReportForm({
         {/* Detailed Information */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Additional Details</h3>
-          
+
           <div>
             <Label htmlFor="stepsToReproduce">Steps to Reproduce</Label>
             <Textarea
@@ -208,7 +209,7 @@ export function BugReportForm({
           <p className="text-sm text-muted-foreground">
             Use the annotation tools to highlight important areas in your screenshot.
           </p>
-          
+
           <ImageAnnotationTools
             screenshot={annotatedScreenshot}
             onAnnotationsChange={handleAnnotationsChange}
@@ -217,22 +218,13 @@ export function BugReportForm({
 
         {/* Form Actions */}
         <div className="flex gap-3 pt-4">
-          <Button
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            className="gap-2"
-          >
+          <Button type="submit" disabled={!isValid || isSubmitting} className="gap-2">
             <Send className="h-4 w-4" />
             {isSubmitting ? 'Creating Bug Report...' : 'Create Bug Report'}
           </Button>
-          
+
           {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               Cancel
             </Button>
           )}
@@ -241,7 +233,10 @@ export function BugReportForm({
 
       {/* Auto-applied Tags Info */}
       <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-        <p><strong>Note:</strong> This report will be automatically tagged as "bug" and created with the specified priority level.</p>
+        <p>
+          <strong>Note:</strong> This report will be automatically tagged as "bug" and created with
+          the specified priority level.
+        </p>
       </div>
     </div>
   )

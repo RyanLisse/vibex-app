@@ -31,13 +31,9 @@ describe('Environment Configuration', () => {
   })
 
   describe('required environment variables', () => {
-    const requiredVars = [
-      'DATABASE_URL',
-      'INNGEST_EVENT_KEY',
-      'INNGEST_SIGNING_KEY'
-    ]
+    const requiredVars = ['DATABASE_URL', 'INNGEST_EVENT_KEY', 'INNGEST_SIGNING_KEY']
 
-    requiredVars.forEach(varName => {
+    requiredVars.forEach((varName) => {
       it(`should validate ${varName}`, () => {
         process.env[varName] = 'test-value'
         expect(process.env[varName]).toBe('test-value')
@@ -54,10 +50,10 @@ describe('Environment Configuration', () => {
       'OTEL_ENABLED',
       'REDIS_URL',
       'GITHUB_CLIENT_ID',
-      'GITHUB_CLIENT_SECRET'
+      'GITHUB_CLIENT_SECRET',
     ]
 
-    optionalVars.forEach(varName => {
+    optionalVars.forEach((varName) => {
       it(`should handle optional ${varName}`, () => {
         process.env[varName] = 'test-value'
         expect(process.env[varName]).toBe('test-value')
@@ -69,13 +65,9 @@ describe('Environment Configuration', () => {
   })
 
   describe('boolean environment variables', () => {
-    const booleanVars = [
-      'OTEL_ENABLED',
-      'DEBUG',
-      'INNGEST_DEV'
-    ]
+    const booleanVars = ['OTEL_ENABLED', 'DEBUG', 'INNGEST_DEV']
 
-    booleanVars.forEach(varName => {
+    booleanVars.forEach((varName) => {
       it(`should handle boolean ${varName}`, () => {
         process.env[varName] = 'true'
         expect(process.env[varName]).toBe('true')
@@ -100,10 +92,10 @@ describe('Environment Configuration', () => {
       const validUrls = [
         'postgresql://user:pass@localhost:5432/db',
         'postgres://user:pass@localhost:5432/db',
-        'mysql://user:pass@localhost:3306/db'
+        'mysql://user:pass@localhost:3306/db',
       ]
 
-      validUrls.forEach(url => {
+      validUrls.forEach((url) => {
         process.env.DATABASE_URL = url
         expect(process.env.DATABASE_URL).toBe(url)
       })
@@ -113,10 +105,10 @@ describe('Environment Configuration', () => {
       const validApiUrls = [
         'http://localhost:3000',
         'https://api.example.com',
-        'https://localhost:8080'
+        'https://localhost:8080',
       ]
 
-      validApiUrls.forEach(url => {
+      validApiUrls.forEach((url) => {
         process.env.NEXT_PUBLIC_API_URL = url
         expect(process.env.NEXT_PUBLIC_API_URL).toBe(url)
       })
@@ -124,13 +116,9 @@ describe('Environment Configuration', () => {
   })
 
   describe('numeric environment variables', () => {
-    const numericVars = [
-      'PORT',
-      'TIMEOUT',
-      'MAX_CONNECTIONS'
-    ]
+    const numericVars = ['PORT', 'TIMEOUT', 'MAX_CONNECTIONS']
 
-    numericVars.forEach(varName => {
+    numericVars.forEach((varName) => {
       it(`should handle numeric ${varName}`, () => {
         process.env[varName] = '3000'
         expect(Number(process.env[varName])).toBe(3000)

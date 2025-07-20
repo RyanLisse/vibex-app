@@ -27,6 +27,10 @@ export type {
 
 // Convenience function to create a logger
 export function createLogger(component: string) {
+  // During build, return a no-op logger
+  if (typeof createDefaultLoggingConfig === 'undefined') {
+    return getLogger(component)
+  }
   const config = createDefaultLoggingConfig()
   const factory = LoggerFactory.getInstance(config)
   return factory.createLogger(component)
@@ -34,6 +38,22 @@ export function createLogger(component: string) {
 
 // Global logger instance getter
 export function getLogger(component: string) {
+  // During build or in browser, return a no-op logger
+  if (
+    typeof window !== 'undefined' ||
+    (process.env.NODE_ENV === 'production' && !global.process?.versions?.node)
+  ) {
+    return {
+      debug: (...args: any[]) => console.debug(`[${component}]`, ...args),
+      info: (...args: any[]) => console.info(`[${component}]`, ...args),
+      warn: (...args: any[]) => console.warn(`[${component}]`, ...args),
+      error: (...args: any[]) => console.error(`[${component}]`, ...args),
+      child: () => getLogger(component),
+      startTimer: () => ({ done: () => {} }),
+      profile: () => {},
+    }
+  }
+
   try {
     const factory = LoggerFactory.getInstance()
     return factory.createLogger(component)

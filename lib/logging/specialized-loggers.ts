@@ -1,4 +1,3 @@
-
 import { createDefaultLoggingConfig } from './config'
 import { LoggerFactory } from './logger-factory'
 

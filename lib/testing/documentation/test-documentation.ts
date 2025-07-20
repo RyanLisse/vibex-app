@@ -150,12 +150,15 @@ export interface ApiTestDocumentation {
 }
 
 export class TestSpecificationGenerator {
-  async generateSpecification(sourceCode: string, options: {
-    type: 'class' | 'component' | 'function'
-    className?: string
-    componentName?: string
-    functionName?: string
-  }): Promise<TestSpecification> {
+  async generateSpecification(
+    sourceCode: string,
+    options: {
+      type: 'class' | 'component' | 'function'
+      className?: string
+      componentName?: string
+      functionName?: string
+    }
+  ): Promise<TestSpecification> {
     switch (options.type) {
       case 'class':
         return this.generateClassSpecification(sourceCode, options.className!)
@@ -168,30 +171,36 @@ export class TestSpecificationGenerator {
     }
   }
 
-  private async generateClassSpecification(sourceCode: string, className: string): Promise<TestSpecification> {
+  private async generateClassSpecification(
+    sourceCode: string,
+    className: string
+  ): Promise<TestSpecification> {
     const methods = this.extractMethods(sourceCode)
     const methodSpecs: MethodSpecification[] = []
 
     for (const method of methods) {
       const testCases = await this.inferTestCases(sourceCode, method.name)
       const edgeCases = await this.inferEdgeCases(sourceCode, method.name)
-      
+
       methodSpecs.push({
         name: method.name,
         testCases,
         edgeCases,
-        parameters: method.parameters
+        parameters: method.parameters,
       })
     }
 
     return {
       title: `${className} Test Specification`,
       type: 'class',
-      methods: methodSpecs
+      methods: methodSpecs,
     }
   }
 
-  private async generateComponentSpecification(sourceCode: string, componentName: string): Promise<TestSpecification> {
+  private async generateComponentSpecification(
+    sourceCode: string,
+    componentName: string
+  ): Promise<TestSpecification> {
     const props = this.extractProps(sourceCode)
     const propSpecs: PropSpecification[] = []
 
@@ -201,24 +210,24 @@ export class TestSpecificationGenerator {
         name: prop.name,
         type: prop.type,
         required: prop.required,
-        testCases
+        testCases,
       })
     }
 
     const componentTestCases = [
       'should render correctly',
       'should handle props correctly',
-      'should handle events appropriately'
+      'should handle events appropriately',
     ]
 
     // Add specific test cases based on props
-    if (props.some(p => p.name === 'onClick')) {
+    if (props.some((p) => p.name === 'onClick')) {
       componentTestCases.push('should handle onClick events')
     }
-    if (props.some(p => p.name === 'disabled')) {
+    if (props.some((p) => p.name === 'disabled')) {
       componentTestCases.push('should disable when disabled prop is true')
     }
-    if (props.some(p => p.name === 'variant')) {
+    if (props.some((p) => p.name === 'variant')) {
       componentTestCases.push('should apply variant styling')
     }
 
@@ -226,11 +235,14 @@ export class TestSpecificationGenerator {
       title: `${componentName} Component Test Specification`,
       type: 'component',
       props: propSpecs,
-      testCases: componentTestCases
+      testCases: componentTestCases,
     }
   }
 
-  private async generateFunctionSpecification(sourceCode: string, functionName: string): Promise<TestSpecification> {
+  private async generateFunctionSpecification(
+    sourceCode: string,
+    functionName: string
+  ): Promise<TestSpecification> {
     const testCases = await this.inferTestCases(sourceCode, functionName)
     const edgeCases = await this.inferEdgeCases(sourceCode, functionName)
 
@@ -238,7 +250,7 @@ export class TestSpecificationGenerator {
       title: `${functionName} Function Test Specification`,
       type: 'function',
       testCases,
-      edgeCases
+      edgeCases,
     }
   }
 
@@ -252,19 +264,19 @@ export class TestSpecificationGenerator {
 
     for (const method of apiDefinition.methods) {
       const testCases = this.generateApiTestCases(method, apiDefinition)
-      
+
       endpoints.push({
         method,
         path: apiDefinition.endpoint,
         authentication: apiDefinition.authentication,
-        testCases
+        testCases,
       })
     }
 
     return {
       title: `${apiDefinition.endpoint} API Test Specification`,
       type: 'api',
-      endpoints
+      endpoints,
     }
   }
 
@@ -296,7 +308,7 @@ export class TestSpecificationGenerator {
 
     // Add basic test cases
     testCases.push(`should work correctly with valid input`)
-    
+
     return testCases
   }
 
@@ -328,7 +340,9 @@ export class TestSpecificationGenerator {
     return edgeCases
   }
 
-  private extractMethods(sourceCode: string): Array<{ name: string; parameters?: ParameterSpecification[] }> {
+  private extractMethods(
+    sourceCode: string
+  ): Array<{ name: string; parameters?: ParameterSpecification[] }> {
     // Simplified method extraction
     const methodRegex = /(?:async\s+)?(\w+)\s*\([^)]*\)/g
     const methods: Array<{ name: string; parameters?: ParameterSpecification[] }> = []
@@ -344,15 +358,17 @@ export class TestSpecificationGenerator {
     return methods
   }
 
-  private extractProps(sourceCode: string): Array<{ name: string; type: string; required: boolean }> {
+  private extractProps(
+    sourceCode: string
+  ): Array<{ name: string; type: string; required: boolean }> {
     // Simplified prop extraction from interface definition
     const props: Array<{ name: string; type: string; required: boolean }> = []
-    
+
     // Extract from interface definition
     const interfaceMatch = sourceCode.match(/interface\s+\w+Props\s*{([^}]+)}/s)
     if (interfaceMatch) {
       const propsString = interfaceMatch[1]
-      const propLines = propsString.split('\n').filter(line => line.trim())
+      const propLines = propsString.split('\n').filter((line) => line.trim())
 
       for (const line of propLines) {
         const propMatch = line.match(/(\w+)(\??):\s*([^;]+)/)
@@ -360,7 +376,7 @@ export class TestSpecificationGenerator {
           props.push({
             name: propMatch[1],
             type: propMatch[3].trim(),
-            required: !propMatch[2] // No ? means required
+            required: !propMatch[2], // No ? means required
           })
         }
       }
@@ -429,7 +445,7 @@ export class TestSpecificationGenerator {
       markdown += '## Methods\n\n'
       for (const method of spec.methods) {
         markdown += `### ${method.name}\n\n`
-        
+
         if (method.testCases) {
           markdown += '#### Test Cases\n'
           for (const testCase of method.testCases) {
@@ -460,7 +476,7 @@ export class TestSpecificationGenerator {
       markdown += '## API Endpoints\n\n'
       for (const endpoint of spec.endpoints) {
         markdown += `### ${endpoint.method} ${endpoint.path}\n\n`
-        
+
         for (const testCase of endpoint.testCases) {
           markdown += `- ${testCase}\n`
         }
@@ -479,31 +495,40 @@ export class TestSpecificationGenerator {
 export class CoverageVisualizer {
   async generateSummary(coverageData: CoverageData): Promise<CoverageSummary> {
     const statements = {
-      percentage: coverageData.statements ? (coverageData.statements.covered / coverageData.statements.total) * 100 : 0,
+      percentage: coverageData.statements
+        ? (coverageData.statements.covered / coverageData.statements.total) * 100
+        : 0,
       covered: coverageData.statements?.covered || 0,
-      total: coverageData.statements?.total || 0
+      total: coverageData.statements?.total || 0,
     }
 
     const branches = {
-      percentage: coverageData.branches ? (coverageData.branches.covered / coverageData.branches.total) * 100 : 0,
+      percentage: coverageData.branches
+        ? (coverageData.branches.covered / coverageData.branches.total) * 100
+        : 0,
       covered: coverageData.branches?.covered || 0,
-      total: coverageData.branches?.total || 0
+      total: coverageData.branches?.total || 0,
     }
 
     const functions = {
-      percentage: coverageData.functions ? (coverageData.functions.covered / coverageData.functions.total) * 100 : 0,
+      percentage: coverageData.functions
+        ? (coverageData.functions.covered / coverageData.functions.total) * 100
+        : 0,
       covered: coverageData.functions?.covered || 0,
-      total: coverageData.functions?.total || 0
+      total: coverageData.functions?.total || 0,
     }
 
     const lines = {
-      percentage: coverageData.lines ? (coverageData.lines.covered / coverageData.lines.total) * 100 : 0,
+      percentage: coverageData.lines
+        ? (coverageData.lines.covered / coverageData.lines.total) * 100
+        : 0,
       covered: coverageData.lines?.covered || 0,
-      total: coverageData.lines?.total || 0
+      total: coverageData.lines?.total || 0,
     }
 
     const overall = {
-      percentage: (statements.percentage + branches.percentage + functions.percentage + lines.percentage) / 4
+      percentage:
+        (statements.percentage + branches.percentage + functions.percentage + lines.percentage) / 4,
     }
 
     return {
@@ -511,7 +536,7 @@ export class CoverageVisualizer {
       branches,
       functions,
       lines,
-      overall
+      overall,
     }
   }
 
@@ -530,7 +555,7 @@ export class CoverageVisualizer {
           file: file.path,
           lines: file.uncoveredLines,
           coverage,
-          priority
+          priority,
         })
       }
     }
@@ -589,7 +614,7 @@ export class CoverageVisualizer {
 
     if (coverageData.files) {
       html += '<div class="file-list"><h2>Files</h2>'
-      
+
       for (const file of coverageData.files) {
         const fileCoverage = (file.statements.covered / file.statements.total) * 100
         html += `
@@ -599,7 +624,7 @@ export class CoverageVisualizer {
         </div>
         `
       }
-      
+
       html += '</div>'
     }
 
@@ -640,8 +665,8 @@ export class CoverageVisualizer {
     const height = 300
     const margin = { top: 20, right: 20, bottom: 40, left: 40 }
 
-    const maxCoverage = Math.max(...trendData.map(d => d.coverage))
-    const minCoverage = Math.min(...trendData.map(d => d.coverage))
+    const maxCoverage = Math.max(...trendData.map((d) => d.coverage))
+    const minCoverage = Math.min(...trendData.map((d) => d.coverage))
 
     let svg = `
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
@@ -663,8 +688,13 @@ export class CoverageVisualizer {
 
     const points: string[] = []
     trendData.forEach((point, index) => {
-      const x = margin.left + (index / (trendData.length - 1)) * (width - margin.left - margin.right)
-      const y = height - margin.bottom - ((point.coverage - minCoverage) / (maxCoverage - minCoverage)) * (height - margin.top - margin.bottom)
+      const x =
+        margin.left + (index / (trendData.length - 1)) * (width - margin.left - margin.right)
+      const y =
+        height -
+        margin.bottom -
+        ((point.coverage - minCoverage) / (maxCoverage - minCoverage)) *
+          (height - margin.top - margin.bottom)
       points.push(`${x},${y}`)
     })
 
@@ -672,8 +702,13 @@ export class CoverageVisualizer {
 
     // Add data points
     trendData.forEach((point, index) => {
-      const x = margin.left + (index / (trendData.length - 1)) * (width - margin.left - margin.right)
-      const y = height - margin.bottom - ((point.coverage - minCoverage) / (maxCoverage - minCoverage)) * (height - margin.top - margin.bottom)
+      const x =
+        margin.left + (index / (trendData.length - 1)) * (width - margin.left - margin.right)
+      const y =
+        height -
+        margin.bottom -
+        ((point.coverage - minCoverage) / (maxCoverage - minCoverage)) *
+          (height - margin.top - margin.bottom)
       svg += `  <circle class="point" cx="${x}" cy="${y}" r="3"/>\n`
     })
 
@@ -718,13 +753,17 @@ export class CoverageVisualizer {
       overall: { grade, score: overallScore },
       gaps,
       recommendations,
-      priorities: gaps.map(gap => `Address: ${gap}`)
+      priorities: gaps.map((gap) => `Address: ${gap}`),
     }
   }
 
-  async generatePRCoverageCheck(baseCoverage: number, currentCoverage: number, threshold = 0): Promise<PRCoverageCheck> {
+  async generatePRCoverageCheck(
+    baseCoverage: number,
+    currentCoverage: number,
+    threshold = 0
+  ): Promise<PRCoverageCheck> {
     const change = currentCoverage - baseCoverage
-    
+
     let status: 'success' | 'failure' | 'neutral'
     let message: string
 
@@ -746,8 +785,8 @@ export class CoverageVisualizer {
         base: baseCoverage,
         current: currentCoverage,
         change,
-        threshold
-      }
+        threshold,
+      },
     }
   }
 
@@ -759,7 +798,9 @@ export class CoverageVisualizer {
 }
 
 export class DocumentationGenerator {
-  async generateTestDocumentation(testFiles: Array<{ path: string; content: string }>): Promise<TestDocumentation> {
+  async generateTestDocumentation(
+    testFiles: Array<{ path: string; content: string }>
+  ): Promise<TestDocumentation> {
     const suites: TestSuite[] = []
 
     for (const file of testFiles) {
@@ -772,7 +813,7 @@ export class DocumentationGenerator {
     return {
       title: 'Test Documentation',
       suites,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     }
   }
 
@@ -782,33 +823,33 @@ export class DocumentationGenerator {
 
     // Extract test cases with metadata - improved regex to handle multiple metadata lines
     const lines = testContent.split('\n')
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
       const itMatch = line.match(/it\(['"`]([^'"`]+)['"`]/)
-      
+
       if (itMatch) {
         const testName = itMatch[1]
         const test: any = { name: testName }
-        
+
         // Look backwards for metadata comments
         for (let j = i - 1; j >= 0; j--) {
           const prevLine = lines[j].trim()
           const metaMatch = prevLine.match(/\/\/ @(\w+) (.+)/)
-          
+
           if (metaMatch) {
             const [, metaKey, metaValue] = metaMatch
             if (metaKey === 'category') {
               test.category = metaValue
             } else if (metaKey === 'tags') {
-              test.tags = metaValue.split(',').map(tag => tag.trim())
+              test.tags = metaValue.split(',').map((tag) => tag.trim())
             }
           } else if (prevLine && !prevLine.startsWith('//')) {
             // Stop when we hit a non-comment, non-empty line
             break
           }
         }
-        
+
         tests.push(test)
       }
     }
@@ -823,9 +864,11 @@ export class DocumentationGenerator {
     return { tests, suites }
   }
 
-  async generateApiTestDocs(apiTests: Array<{ endpoint: string; method: string; tests: string[] }>): Promise<ApiTestDocumentation> {
+  async generateApiTestDocs(
+    apiTests: Array<{ endpoint: string; method: string; tests: string[] }>
+  ): Promise<ApiTestDocumentation> {
     return {
-      endpoints: apiTests
+      endpoints: apiTests,
     }
   }
 
@@ -838,7 +881,7 @@ export class DocumentationGenerator {
 
     for (const suite of documentation.suites) {
       markdown += `## ${suite.name}\n\n`
-      
+
       if (suite.description) {
         markdown += `${suite.description}\n\n`
       }
@@ -889,7 +932,7 @@ export class DocumentationGenerator {
   <div class="suite">
     <h2>${suite.name}</h2>
 `
-      
+
       for (const test of suite.tests) {
         const statusClass = test.status || 'neutral'
         html += `    <div class="test ${statusClass}">${test.name}</div>\n`
@@ -914,7 +957,10 @@ export class DocumentationGenerator {
     return `PDF Report: ${documentation.title}\nGenerated at: ${documentation.generatedAt}`
   }
 
-  async integrateWithCoverage(testDocs: TestDocumentation, coverageData: CoverageData): Promise<TestDocumentation> {
+  async integrateWithCoverage(
+    testDocs: TestDocumentation,
+    coverageData: CoverageData
+  ): Promise<TestDocumentation> {
     const visualizer = new CoverageVisualizer()
     const summary = await visualizer.generateSummary(coverageData)
 
@@ -924,11 +970,12 @@ export class DocumentationGenerator {
     // Add coverage to individual suites (simplified mapping)
     if (coverageData.files) {
       for (const suite of testDocs.suites) {
-        const relatedFile = coverageData.files.find(file => 
-          file.path.includes(suite.name.toLowerCase()) || 
-          (suite.file && suite.file.includes(file.path))
+        const relatedFile = coverageData.files.find(
+          (file) =>
+            file.path.includes(suite.name.toLowerCase()) ||
+            (suite.file && suite.file.includes(file.path))
         )
-        
+
         if (relatedFile) {
           suite.coverage = (relatedFile.statements.covered / relatedFile.statements.total) * 100
         }
@@ -952,14 +999,14 @@ export class DocumentationGenerator {
 
     while ((match = testRegex.exec(file.content)) !== null) {
       tests.push({
-        name: match[1]
+        name: match[1],
       })
     }
 
     return {
       name: suiteName,
       file: file.path,
-      tests
+      tests,
     }
   }
 }

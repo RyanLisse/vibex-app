@@ -481,7 +481,6 @@ export class TimeTravelReplayEngine extends EventEmitter {
 // Export singleton instance
 export const replayEngine = new TimeTravelReplayEngine()
 
-
 // Export time travel service instance
 export const timeTravelService = {
   startRecording: async () => ({ sessionId: 'mock', startTime: new Date() }),

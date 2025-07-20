@@ -49,11 +49,11 @@ describe('TestLifecycleManager', () => {
   describe('Hook Execution', () => {
     it('should execute beforeEach hooks in order', async () => {
       const execution: string[] = []
-      
+
       manager.registerBeforeEach('first', async () => {
         execution.push('first')
       })
-      
+
       manager.registerBeforeEach('second', async () => {
         execution.push('second')
       })
@@ -65,11 +65,11 @@ describe('TestLifecycleManager', () => {
 
     it('should execute afterEach hooks in reverse order', async () => {
       const execution: string[] = []
-      
+
       manager.registerAfterEach('first', async () => {
         execution.push('first')
       })
-      
+
       manager.registerAfterEach('second', async () => {
         execution.push('second')
       })
@@ -89,9 +89,9 @@ describe('TestLifecycleManager', () => {
 
     it('should support conditional hooks', async () => {
       const hook = vi.fn()
-      
+
       manager.registerBeforeEach('conditional', hook, {
-        condition: () => process.env.NODE_ENV === 'test'
+        condition: () => process.env.NODE_ENV === 'test',
       })
 
       await manager.executeBeforeEach()
@@ -103,14 +103,18 @@ describe('TestLifecycleManager', () => {
   describe('Resource Dependencies', () => {
     it('should resolve hook dependencies', async () => {
       const execution: string[] = []
-      
+
       manager.registerBeforeEach('database', async () => {
         execution.push('database')
       })
-      
-      manager.registerBeforeEach('server', async () => {
-        execution.push('server')
-      }, { dependencies: ['database'] })
+
+      manager.registerBeforeEach(
+        'server',
+        async () => {
+          execution.push('server')
+        },
+        { dependencies: ['database'] }
+      )
 
       await manager.executeBeforeEach()
 
@@ -121,7 +125,9 @@ describe('TestLifecycleManager', () => {
       manager.registerBeforeEach('A', async () => {}, { dependencies: ['B'] })
       manager.registerBeforeEach('B', async () => {}, { dependencies: ['A'] })
 
-      expect(() => manager.resolveDependencies('beforeEach')).toThrow('Circular dependency detected')
+      expect(() => manager.resolveDependencies('beforeEach')).toThrow(
+        'Circular dependency detected'
+      )
     })
   })
 })
@@ -136,10 +142,10 @@ describe('ResourceManager', () => {
   describe('Resource Registration', () => {
     it('should register database resource', async () => {
       const dbConfig = { host: 'localhost', port: 5432 }
-      
+
       await resourceManager.register('database', {
         setup: async () => dbConfig,
-        cleanup: async () => {}
+        cleanup: async () => {},
       })
 
       const db = await resourceManager.get('database')
@@ -148,10 +154,10 @@ describe('ResourceManager', () => {
 
     it('should register HTTP server resource', async () => {
       const server = { port: 3000, url: 'http://localhost:3000' }
-      
+
       await resourceManager.register('server', {
         setup: async () => server,
-        cleanup: async () => {}
+        cleanup: async () => {},
       })
 
       const serverInstance = await resourceManager.get('server')
@@ -160,10 +166,10 @@ describe('ResourceManager', () => {
 
     it('should register file system resource', async () => {
       const tempDir = '/tmp/test-files'
-      
+
       await resourceManager.register('tempDir', {
         setup: async () => tempDir,
-        cleanup: async () => {}
+        cleanup: async () => {},
       })
 
       const dir = await resourceManager.get('tempDir')
@@ -174,10 +180,10 @@ describe('ResourceManager', () => {
   describe('Resource Lifecycle', () => {
     it('should setup resource only once', async () => {
       const setupFn = vi.fn().mockResolvedValue('resource')
-      
+
       await resourceManager.register('test-resource', {
         setup: setupFn,
-        cleanup: async () => {}
+        cleanup: async () => {},
       })
 
       // Get resource multiple times
@@ -189,15 +195,15 @@ describe('ResourceManager', () => {
 
     it('should cleanup resources in reverse order', async () => {
       const cleanup: string[] = []
-      
+
       await resourceManager.register('first', {
         setup: async () => 'first',
-        cleanup: async () => cleanup.push('first')
+        cleanup: async () => cleanup.push('first'),
       })
-      
+
       await resourceManager.register('second', {
         setup: async () => 'second',
-        cleanup: async () => cleanup.push('second')
+        cleanup: async () => cleanup.push('second'),
       })
 
       await resourceManager.cleanupAll()
@@ -210,7 +216,7 @@ describe('ResourceManager', () => {
         setup: async () => 'resource',
         cleanup: async () => {
           throw new Error('Cleanup failed')
-        }
+        },
       })
 
       // Setup the resource first so it can be cleaned up
@@ -225,22 +231,22 @@ describe('ResourceManager', () => {
   describe('Resource Dependencies', () => {
     it('should setup dependent resources in correct order', async () => {
       const setup: string[] = []
-      
+
       await resourceManager.register('database', {
         setup: async () => {
           setup.push('database')
           return 'db'
         },
-        cleanup: async () => {}
+        cleanup: async () => {},
       })
-      
+
       await resourceManager.register('server', {
         setup: async () => {
           setup.push('server')
           return 'server'
         },
         cleanup: async () => {},
-        dependencies: ['database']
+        dependencies: ['database'],
       })
 
       await resourceManager.get('server')
@@ -250,31 +256,31 @@ describe('ResourceManager', () => {
 
     it('should handle transitive dependencies', async () => {
       const setup: string[] = []
-      
+
       await resourceManager.register('A', {
         setup: async () => {
           setup.push('A')
           return 'A'
         },
-        cleanup: async () => {}
+        cleanup: async () => {},
       })
-      
+
       await resourceManager.register('B', {
         setup: async () => {
           setup.push('B')
           return 'B'
         },
         cleanup: async () => {},
-        dependencies: ['A']
+        dependencies: ['A'],
       })
-      
+
       await resourceManager.register('C', {
         setup: async () => {
           setup.push('C')
           return 'C'
         },
         cleanup: async () => {},
-        dependencies: ['B']
+        dependencies: ['B'],
       })
 
       await resourceManager.get('C')
@@ -306,7 +312,7 @@ describe('SetupTeardownOrchestrator', () => {
     it('should cleanup test context after test', async () => {
       const context = await orchestrator.createTestContext('test-1')
       const cleanupSpy = vi.fn()
-      
+
       context.onCleanup(cleanupSpy)
       await orchestrator.cleanupTestContext('test-1')
 
@@ -317,7 +323,7 @@ describe('SetupTeardownOrchestrator', () => {
       const contexts = await Promise.all([
         orchestrator.createTestContext('test-1'),
         orchestrator.createTestContext('test-2'),
-        orchestrator.createTestContext('test-3')
+        orchestrator.createTestContext('test-3'),
       ])
 
       contexts.forEach((context, index) => {
@@ -333,7 +339,7 @@ describe('SetupTeardownOrchestrator', () => {
   describe('Global State Management', () => {
     it('should manage global test state', async () => {
       await orchestrator.setGlobalState('config', { debug: true })
-      
+
       const config = orchestrator.getGlobalState('config')
       expect(config).toEqual({ debug: true })
     })
@@ -341,14 +347,14 @@ describe('SetupTeardownOrchestrator', () => {
     it('should reset global state between test suites', async () => {
       await orchestrator.setGlobalState('counter', 1)
       await orchestrator.resetGlobalState()
-      
+
       const counter = orchestrator.getGlobalState('counter')
       expect(counter).toBeUndefined()
     })
 
     it('should persist global state across test contexts', async () => {
       await orchestrator.setGlobalState('shared', 'data')
-      
+
       const context1 = await orchestrator.createTestContext('test-1')
       const context2 = await orchestrator.createTestContext('test-2')
 
@@ -361,12 +367,12 @@ describe('SetupTeardownOrchestrator', () => {
     it('should recover from setup failures', async () => {
       const failingSetup = vi.fn().mockRejectedValue(new Error('Setup failed'))
       const successfulSetup = vi.fn().mockResolvedValue('success')
-      
+
       orchestrator.registerSetup('failing', failingSetup)
       orchestrator.registerSetup('successful', successfulSetup)
 
       await expect(orchestrator.runSetups()).rejects.toThrow('Setup failed')
-      
+
       // Should still be able to run successful setups
       orchestrator.unregisterSetup('failing')
       // Should not throw after unregistering failing setup
@@ -377,7 +383,7 @@ describe('SetupTeardownOrchestrator', () => {
     it('should continue cleanup even if some cleanups fail', async () => {
       const successfulCleanup = vi.fn()
       const failingCleanup = vi.fn().mockRejectedValue(new Error('Cleanup failed'))
-      
+
       orchestrator.registerCleanup('successful', successfulCleanup)
       orchestrator.registerCleanup('failing', failingCleanup)
 

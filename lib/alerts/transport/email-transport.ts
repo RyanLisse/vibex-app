@@ -27,7 +27,11 @@ export class EmailTransport implements AlertTransport {
     this.logger = new ComponentLogger('EmailTransport')
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const config = channel.config as EmailConfig
 
     switch (config.provider) {
@@ -48,48 +52,61 @@ export class EmailTransport implements AlertTransport {
     }
   }
 
-  private async sendViaSMTP(config: EmailConfig, error: CriticalError, notification: AlertNotification): Promise<void> {
+  private async sendViaSMTP(
+    config: EmailConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     // For now, we'll log that SMTP would be sent
     // In a real implementation, you'd use nodemailer or similar
     this.logger.info('SMTP email would be sent', {
       to: config.to,
       subject: this.buildSubject(config, error),
-      notificationId: notification.id
+      notificationId: notification.id,
     })
 
     // Placeholder implementation
     throw new Error('SMTP transport not implemented - requires nodemailer dependency')
   }
 
-  private async sendViaSendGrid(config: EmailConfig, error: CriticalError, notification: AlertNotification): Promise<void> {
+  private async sendViaSendGrid(
+    config: EmailConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     if (!config.apiKey) {
       throw new Error('SendGrid API key is required')
     }
 
     const payload = {
-      personalizations: [{
-        to: config.to.map(email => ({ email })),
-        cc: config.cc?.map(email => ({ email })),
-        bcc: config.bcc?.map(email => ({ email })),
-        subject: this.buildSubject(config, error)
-      }],
+      personalizations: [
+        {
+          to: config.to.map((email) => ({ email })),
+          cc: config.cc?.map((email) => ({ email })),
+          bcc: config.bcc?.map((email) => ({ email })),
+          subject: this.buildSubject(config, error),
+        },
+      ],
       from: { email: config.from },
-      content: [{
-        type: 'text/html',
-        value: this.buildHTMLContent(error, notification)
-      }, {
-        type: 'text/plain',
-        value: this.buildTextContent(error, notification)
-      }]
+      content: [
+        {
+          type: 'text/html',
+          value: this.buildHTMLContent(error, notification),
+        },
+        {
+          type: 'text/plain',
+          value: this.buildTextContent(error, notification),
+        },
+      ],
     }
 
     const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -99,23 +116,31 @@ export class EmailTransport implements AlertTransport {
 
     this.logger.debug('SendGrid email sent successfully', {
       to: config.to,
-      notificationId: notification.id
+      notificationId: notification.id,
     })
   }
 
-  private async sendViaSES(config: EmailConfig, error: CriticalError, notification: AlertNotification): Promise<void> {
+  private async sendViaSES(
+    config: EmailConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     // AWS SES implementation would go here
     // Requires AWS SDK
     this.logger.info('SES email would be sent', {
       to: config.to,
       subject: this.buildSubject(config, error),
-      notificationId: notification.id
+      notificationId: notification.id,
     })
 
     throw new Error('SES transport not implemented - requires AWS SDK')
   }
 
-  private async sendViaResend(config: EmailConfig, error: CriticalError, notification: AlertNotification): Promise<void> {
+  private async sendViaResend(
+    config: EmailConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     if (!config.apiKey) {
       throw new Error('Resend API key is required')
     }
@@ -127,16 +152,16 @@ export class EmailTransport implements AlertTransport {
       bcc: config.bcc,
       subject: this.buildSubject(config, error),
       html: this.buildHTMLContent(error, notification),
-      text: this.buildTextContent(error, notification)
+      text: this.buildTextContent(error, notification),
     }
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -146,7 +171,7 @@ export class EmailTransport implements AlertTransport {
 
     this.logger.debug('Resend email sent successfully', {
       to: config.to,
-      notificationId: notification.id
+      notificationId: notification.id,
     })
   }
 
@@ -164,11 +189,16 @@ export class EmailTransport implements AlertTransport {
 
   private getSeverityIcon(severity: string): string {
     switch (severity) {
-      case 'critical': return '🚨'
-      case 'high': return '⚠️'
-      case 'medium': return '📢'
-      case 'low': return 'ℹ️'
-      default: return '🔔'
+      case 'critical':
+        return '🚨'
+      case 'high':
+        return '⚠️'
+      case 'medium':
+        return '📢'
+      case 'low':
+        return 'ℹ️'
+      default:
+        return '🔔'
     }
   }
 
@@ -203,28 +233,40 @@ export class EmailTransport implements AlertTransport {
             <p><strong>Source:</strong> ${error.source}</p>
             <p><strong>Severity:</strong> ${error.severity}</p>
             
-            ${error.occurrenceCount > 1 ? `
+            ${
+              error.occurrenceCount > 1
+                ? `
               <div class="metadata">
                 <h3>Occurrence Information</h3>
                 <p><strong>Count:</strong> ${error.occurrenceCount}</p>
                 <p><strong>First Occurrence:</strong> ${error.firstOccurrence.toISOString()}</p>
                 <p><strong>Last Occurrence:</strong> ${error.lastOccurrence.toISOString()}</p>
               </div>
-            ` : ''}
+            `
+                : ''
+            }
             
-            ${error.correlationId ? `
+            ${
+              error.correlationId
+                ? `
               <div class="metadata">
                 <h3>Correlation</h3>
                 <p><strong>Correlation ID:</strong> ${error.correlationId}</p>
               </div>
-            ` : ''}
+            `
+                : ''
+            }
             
-            ${Object.keys(error.metadata).length > 0 ? `
+            ${
+              Object.keys(error.metadata).length > 0
+                ? `
               <div class="metadata">
                 <h3>Additional Metadata</h3>
                 <pre>${JSON.stringify(error.metadata, null, 2)}</pre>
               </div>
-            ` : ''}
+            `
+                : ''
+            }
           </div>
           <div class="footer">
             <p>Alert ID: ${error.id} | Notification ID: ${notification.id}</p>
@@ -249,22 +291,34 @@ ERROR DETAILS
 Message: ${error.message}
 Source: ${error.source}
 
-${error.occurrenceCount > 1 ? `
+${
+  error.occurrenceCount > 1
+    ? `
 OCCURRENCE INFORMATION
 Count: ${error.occurrenceCount}
 First Occurrence: ${error.firstOccurrence.toISOString()}
 Last Occurrence: ${error.lastOccurrence.toISOString()}
-` : ''}
+`
+    : ''
+}
 
-${error.correlationId ? `
+${
+  error.correlationId
+    ? `
 CORRELATION
 Correlation ID: ${error.correlationId}
-` : ''}
+`
+    : ''
+}
 
-${Object.keys(error.metadata).length > 0 ? `
+${
+  Object.keys(error.metadata).length > 0
+    ? `
 ADDITIONAL METADATA
 ${JSON.stringify(error.metadata, null, 2)}
-` : ''}
+`
+    : ''
+}
 
 Alert ID: ${error.id}
 Notification ID: ${notification.id}
@@ -275,18 +329,26 @@ Generated by ClaudeFlow Alert System
 
   private getSeverityColor(severity: string): string {
     switch (severity) {
-      case 'critical': return '#dc3545'
-      case 'high': return '#fd7e14'
-      case 'medium': return '#ffc107'
-      case 'low': return '#20c997'
-      default: return '#6c757d'
+      case 'critical':
+        return '#dc3545'
+      case 'high':
+        return '#fd7e14'
+      case 'medium':
+        return '#ffc107'
+      case 'low':
+        return '#20c997'
+      default:
+        return '#6c757d'
     }
   }
 
   validateConfig(config: Record<string, any>): boolean {
     const emailConfig = config as EmailConfig
 
-    if (!emailConfig.provider || !['smtp', 'sendgrid', 'ses', 'resend'].includes(emailConfig.provider)) {
+    if (
+      !emailConfig.provider ||
+      !['smtp', 'sendgrid', 'ses', 'resend'].includes(emailConfig.provider)
+    ) {
       return false
     }
 

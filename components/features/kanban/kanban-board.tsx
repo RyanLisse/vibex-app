@@ -5,7 +5,11 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { KanbanColumn } from './kanban-column'
 import { TaskFilters } from './task-filters'
-import type { KanbanTask, KanbanColumn as KanbanColumnType, MoveKanbanTask } from '@/src/schemas/enhanced-task-schemas'
+import type {
+  KanbanTask,
+  KanbanColumn as KanbanColumnType,
+  MoveKanbanTask,
+} from '@/src/schemas/enhanced-task-schemas'
 
 interface KanbanBoardProps {
   tasks: KanbanTask[]
@@ -38,7 +42,7 @@ export function KanbanBoard({
   const [draggedTask, setDraggedTask] = useState<KanbanTask | null>(null)
 
   // Filter tasks based on current filters
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks.filter((task) => {
     // Assignee filter
     if (filters.assignee && task.assignee !== filters.assignee) {
       return false
@@ -51,18 +55,16 @@ export function KanbanBoard({
 
     // Tags filter
     if (filters.tags.length > 0) {
-      const hasMatchingTag = filters.tags.some(filterTag =>
-        task.tags.includes(filterTag)
-      )
+      const hasMatchingTag = filters.tags.some((filterTag) => task.tags.includes(filterTag))
       if (!hasMatchingTag) return false
     }
 
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
-      const matchesSearch = 
+      const matchesSearch =
         task.name.toLowerCase().includes(searchLower) ||
-        task.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        task.tags.some((tag) => tag.toLowerCase().includes(searchLower))
       if (!matchesSearch) return false
     }
 
@@ -70,49 +72,55 @@ export function KanbanBoard({
   })
 
   // Group tasks by column
-  const tasksByColumn = columns.reduce((acc, column) => {
-    acc[column.id] = filteredTasks.filter(task => task.column === column.id)
-    return acc
-  }, {} as Record<string, KanbanTask[]>)
+  const tasksByColumn = columns.reduce(
+    (acc, column) => {
+      acc[column.id] = filteredTasks.filter((task) => task.column === column.id)
+      return acc
+    },
+    {} as Record<string, KanbanTask[]>
+  )
 
   // Handle task movement between columns
-  const handleTaskMove = useCallback(async (taskId: string, fromColumn: string, toColumn: string, newOrder: number) => {
-    // Check if target column has space (if maxItems is set)
-    const targetColumn = columns.find(col => col.id === toColumn)
-    const targetTasks = tasksByColumn[toColumn] || []
+  const handleTaskMove = useCallback(
+    async (taskId: string, fromColumn: string, toColumn: string, newOrder: number) => {
+      // Check if target column has space (if maxItems is set)
+      const targetColumn = columns.find((col) => col.id === toColumn)
+      const targetTasks = tasksByColumn[toColumn] || []
 
-    if (targetColumn?.maxItems && targetTasks.length >= targetColumn.maxItems) {
-      // Don't allow move if column is full
-      console.warn(`Column ${toColumn} is full`)
-      return
-    }
+      if (targetColumn?.maxItems && targetTasks.length >= targetColumn.maxItems) {
+        // Don't allow move if column is full
+        console.warn(`Column ${toColumn} is full`)
+        return
+      }
 
-    const move: MoveKanbanTask = {
-      taskId,
-      fromColumn,
-      toColumn,
-      newOrder,
-    }
+      const move: MoveKanbanTask = {
+        taskId,
+        fromColumn,
+        toColumn,
+        newOrder,
+      }
 
-    try {
-      await onTaskMove(move)
-    } catch (error) {
-      console.error('Failed to move task:', error)
-      // Optionally show error toast/notification
-    }
-  }, [columns, tasksByColumn, onTaskMove])
+      try {
+        await onTaskMove(move)
+      } catch (error) {
+        console.error('Failed to move task:', error)
+        // Optionally show error toast/notification
+      }
+    },
+    [columns, tasksByColumn, onTaskMove]
+  )
 
   // Handle filter changes
   const handleFilterChange = useCallback((newFilters: Partial<FilterState>) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       ...newFilters,
     }))
   }, [])
 
   // Get unique assignees and tags for filter options
-  const uniqueAssignees = [...new Set(tasks.map(task => task.assignee).filter(Boolean))]
-  const uniqueTags = [...new Set(tasks.flatMap(task => task.tags))]
+  const uniqueAssignees = [...new Set(tasks.map((task) => task.assignee).filter(Boolean))]
+  const uniqueTags = [...new Set(tasks.flatMap((task) => task.tags))]
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -128,14 +136,16 @@ export function KanbanBoard({
 
         {/* Board Statistics */}
         <div className="grid grid-cols-4 gap-4 text-center">
-          {columns.map(column => {
+          {columns.map((column) => {
             const columnTasks = tasksByColumn[column.id] || []
             const isOverloaded = column.maxItems && columnTasks.length > column.maxItems
-            
+
             return (
               <div key={column.id} className="space-y-1">
                 <h3 className="font-medium text-sm">{column.name}</h3>
-                <p className={`text-2xl font-bold ${isOverloaded ? 'text-red-500' : 'text-muted-foreground'}`}>
+                <p
+                  className={`text-2xl font-bold ${isOverloaded ? 'text-red-500' : 'text-muted-foreground'}`}
+                >
                   {columnTasks.length}
                   {column.maxItems && ` / ${column.maxItems}`}
                 </p>
@@ -146,7 +156,7 @@ export function KanbanBoard({
 
         {/* Kanban Columns */}
         <div className="flex gap-6 overflow-x-auto pb-4">
-          {columns.map(column => {
+          {columns.map((column) => {
             const columnTasks = tasksByColumn[column.id] || []
             const isOverloaded = column.maxItems && columnTasks.length > column.maxItems
 
@@ -154,17 +164,17 @@ export function KanbanBoard({
               <div key={column.id} className="flex-shrink-0 w-80">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: column.color }}
                     />
                     <h2 className="font-semibold text-lg">
                       {column.name} ({columnTasks.length})
                     </h2>
                   </div>
-                  
+
                   {isOverloaded && (
-                    <div 
+                    <div
                       className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full"
                       data-testid="overload-indicator"
                     >

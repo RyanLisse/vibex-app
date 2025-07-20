@@ -39,7 +39,7 @@ describe('PerformanceBenchmark', () => {
 
     it('should handle async functions', async () => {
       const asyncFunction = async () => {
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
         return 'done'
       }
 
@@ -77,7 +77,7 @@ describe('PerformanceBenchmark', () => {
       const propsVariations = [
         { data: [{ id: 1 }, { id: 2 }] },
         { data: [{ id: 1 }, { id: 2 }, { id: 3 }] },
-        { data: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }] }
+        { data: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }] },
       ]
 
       const result = await benchmark.measureComponentWithProps(Component, propsVariations)
@@ -85,18 +85,18 @@ describe('PerformanceBenchmark', () => {
       expect(result.length).toBe(3)
       expect(result[0].props).toEqual(propsVariations[0])
       // Just verify that timing was measured for all variations
-      expect(result.every(r => r.averageTime > 0)).toBe(true)
+      expect(result.every((r) => r.averageTime > 0)).toBe(true)
     })
   })
 
   describe('API Performance Testing', () => {
     it('should measure API response times', async () => {
       const mockFetch = vi.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 50))
+        await new Promise((resolve) => setTimeout(resolve, 50))
         return {
           ok: true,
           status: 200,
-          json: async () => ({ success: true })
+          json: async () => ({ success: true }),
         }
       })
 
@@ -104,7 +104,7 @@ describe('PerformanceBenchmark', () => {
 
       const result = await benchmark.measureApiEndpoint('/api/test', {
         method: 'GET',
-        iterations: 2
+        iterations: 2,
       })
 
       expect(result.averageTime).toBeGreaterThan(40)
@@ -117,22 +117,22 @@ describe('PerformanceBenchmark', () => {
       const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'))
       global.fetch = mockFetch
 
-      await expect(
-        benchmark.measureApiEndpoint('/api/error', { iterations: 1 })
-      ).rejects.toThrow('Network error')
+      await expect(benchmark.measureApiEndpoint('/api/error', { iterations: 1 })).rejects.toThrow(
+        'Network error'
+      )
     })
   })
 
   describe('Threshold Validation', () => {
     it('should validate performance against thresholds', async () => {
       const fastFunction = () => 'quick'
-      
+
       const result = await benchmark.measureFunction(fastFunction, {
         iterations: 1,
         thresholds: {
           maxTime: 10, // 10ms threshold
-          targetTime: 5 // 5ms target
-        }
+          targetTime: 5, // 5ms target
+        },
       })
 
       expect(result.passedThresholds).toBe(true)
@@ -151,8 +151,8 @@ describe('PerformanceBenchmark', () => {
         iterations: 1,
         thresholds: {
           maxTime: 10, // 10ms threshold - should fail
-          targetTime: 5 // 5ms target - should fail
-        }
+          targetTime: 5, // 5ms target - should fail
+        },
       })
 
       expect(result.passedThresholds).toBe(false)
@@ -166,14 +166,14 @@ describe('PerformanceBenchmark', () => {
         averageTime: 10,
         minTime: 8,
         maxTime: 12,
-        iterations: 5
+        iterations: 5,
       }
 
       const current = {
         averageTime: 15, // 50% slower
         minTime: 12,
         maxTime: 18,
-        iterations: 5
+        iterations: 5,
       }
 
       const regression = benchmark.detectRegression(baseline, current, { threshold: 0.2 }) // 20% threshold
@@ -188,14 +188,14 @@ describe('PerformanceBenchmark', () => {
         averageTime: 10,
         minTime: 8,
         maxTime: 12,
-        iterations: 5
+        iterations: 5,
       }
 
       const current = {
         averageTime: 11, // 10% slower - within threshold
         minTime: 9,
         maxTime: 13,
-        iterations: 5
+        iterations: 5,
       }
 
       const regression = benchmark.detectRegression(baseline, current, { threshold: 0.2 }) // 20% threshold
@@ -237,9 +237,9 @@ describe('MemoryProfiler', () => {
       const leakyFunction = () => {
         // Simulate memory leak by creating objects that won't be garbage collected
         if (!(global as any).leakyStorage) {
-          (global as any).leakyStorage = []
+          ;(global as any).leakyStorage = []
         }
-        (global as any).leakyStorage.push(new Array(1000).fill('leak'))
+        ;(global as any).leakyStorage.push(new Array(1000).fill('leak'))
       }
 
       const result = await profiler.measureMemoryUsage(leakyFunction)
@@ -267,10 +267,10 @@ describe('MemoryProfiler', () => {
 
     it('should create memory snapshots', async () => {
       const snapshot1 = await profiler.createSnapshot()
-      
+
       // Create some objects
-      const objects = new Array(1000).fill(0).map(i => ({ id: i }))
-      
+      const objects = new Array(1000).fill(0).map((i) => ({ id: i }))
+
       const snapshot2 = await profiler.createSnapshot()
 
       expect(snapshot2.usedJSHeapSize).toBeGreaterThan(snapshot1.usedJSHeapSize)
@@ -279,10 +279,10 @@ describe('MemoryProfiler', () => {
 
     it('should compare memory snapshots', async () => {
       const snapshot1 = await profiler.createSnapshot()
-      
+
       // Allocate memory
       const largeObject = new Array(5000).fill('data')
-      
+
       const snapshot2 = await profiler.createSnapshot()
       const comparison = profiler.compareSnapshots(snapshot1, snapshot2)
 
@@ -303,13 +303,13 @@ describe('MemoryProfiler', () => {
 
     it('should force garbage collection for testing', async () => {
       const beforeGC = await profiler.createSnapshot()
-      
+
       // Create and release objects
       let temp = new Array(10000).fill('temp')
       temp = null as any
 
       await profiler.forceGarbageCollection()
-      
+
       const afterGC = await profiler.createSnapshot()
 
       // After GC, memory usage might be lower (but our mock keeps incrementing)
@@ -334,7 +334,7 @@ describe('PerformanceReporter', () => {
           minTime: 3,
           maxTime: 8,
           iterations: 10,
-          passedThresholds: true
+          passedThresholds: true,
         },
         {
           name: 'Slow Function',
@@ -342,13 +342,13 @@ describe('PerformanceReporter', () => {
           minTime: 45,
           maxTime: 60,
           iterations: 10,
-          passedThresholds: false
-        }
+          passedThresholds: false,
+        },
       ]
 
       const report = await reporter.generateReport(benchmarkResults, {
         includeGraphs: false,
-        format: 'text'
+        format: 'text',
       })
 
       expect(report).toContain('Performance Report')
@@ -361,12 +361,12 @@ describe('PerformanceReporter', () => {
     it('should generate HTML report with graphs', async () => {
       const results = [
         { name: 'Test 1', averageTime: 10, passedThresholds: true },
-        { name: 'Test 2', averageTime: 20, passedThresholds: false }
+        { name: 'Test 2', averageTime: 20, passedThresholds: false },
       ]
 
       const htmlReport = await reporter.generateReport(results, {
         includeGraphs: true,
-        format: 'html'
+        format: 'html',
       })
 
       expect(htmlReport).toContain('<html>')
@@ -376,12 +376,10 @@ describe('PerformanceReporter', () => {
     })
 
     it('should generate JSON report for CI integration', async () => {
-      const results = [
-        { name: 'API Test', averageTime: 100, passedThresholds: true }
-      ]
+      const results = [{ name: 'API Test', averageTime: 100, passedThresholds: true }]
 
       const jsonReport = await reporter.generateReport(results, {
-        format: 'json'
+        format: 'json',
       })
 
       const parsed = JSON.parse(jsonReport)
@@ -398,7 +396,7 @@ describe('PerformanceReporter', () => {
         { date: '2024-01-01', averageTime: 10 },
         { date: '2024-01-02', averageTime: 12 },
         { date: '2024-01-03', averageTime: 15 },
-        { date: '2024-01-04', averageTime: 18 }
+        { date: '2024-01-04', averageTime: 18 },
       ]
 
       const trend = reporter.analyzeTrend(historicalData)
@@ -413,7 +411,7 @@ describe('PerformanceReporter', () => {
         { date: '2024-01-01', averageTime: 20 },
         { date: '2024-01-02', averageTime: 18 },
         { date: '2024-01-03', averageTime: 15 },
-        { date: '2024-01-04', averageTime: 12 }
+        { date: '2024-01-04', averageTime: 12 },
       ]
 
       const trend = reporter.analyzeTrend(historicalData)
@@ -427,7 +425,12 @@ describe('PerformanceReporter', () => {
   describe('Integration with CI/CD', () => {
     it('should generate CI-friendly output', async () => {
       const results = [
-        { name: 'Critical Path', averageTime: 100, passedThresholds: false, thresholds: { maxTime: 50 } }
+        {
+          name: 'Critical Path',
+          averageTime: 100,
+          passedThresholds: false,
+          thresholds: { maxTime: 50 },
+        },
       ]
 
       const ciOutput = await reporter.generateCIOutput(results)
@@ -438,13 +441,9 @@ describe('PerformanceReporter', () => {
     })
 
     it('should provide exit codes for CI', async () => {
-      const passingResults = [
-        { name: 'Fast Test', averageTime: 10, passedThresholds: true }
-      ]
+      const passingResults = [{ name: 'Fast Test', averageTime: 10, passedThresholds: true }]
 
-      const failingResults = [
-        { name: 'Slow Test', averageTime: 100, passedThresholds: false }
-      ]
+      const failingResults = [{ name: 'Slow Test', averageTime: 100, passedThresholds: false }]
 
       const passingOutput = await reporter.generateCIOutput(passingResults)
       const failingOutput = await reporter.generateCIOutput(failingResults)

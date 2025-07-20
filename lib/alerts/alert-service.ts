@@ -24,7 +24,7 @@ export class AlertService {
     this.winstonTransport = new AlertWinstonTransport({
       alertManager: this.alertManager,
       detector: this.detector,
-      alertConfig: this.alertConfig
+      alertConfig: this.alertConfig,
     })
   }
 
@@ -34,17 +34,17 @@ export class AlertService {
       channels: this.getDefaultChannels(),
       rateLimiting: {
         maxAlertsPerHour: parseInt(process.env.ALERTS_MAX_PER_HOUR || '10'),
-        cooldownMinutes: parseInt(process.env.ALERTS_COOLDOWN_MINUTES || '15')
+        cooldownMinutes: parseInt(process.env.ALERTS_COOLDOWN_MINUTES || '15'),
       },
       deduplication: {
         enabled: process.env.ALERTS_DEDUPLICATION_ENABLED !== 'false',
-        windowMinutes: parseInt(process.env.ALERTS_DEDUPLICATION_WINDOW || '60')
+        windowMinutes: parseInt(process.env.ALERTS_DEDUPLICATION_WINDOW || '60'),
       },
       escalation: {
         enabled: process.env.ALERTS_ESCALATION_ENABLED === 'true',
         escalateAfterMinutes: parseInt(process.env.ALERTS_ESCALATION_AFTER_MINUTES || '30'),
-        escalationChannels: []
-      }
+        escalationChannels: [],
+      },
     }
   }
 
@@ -60,10 +60,10 @@ export class AlertService {
         level: 'error',
         format: 'structured',
         includeStackTrace: true,
-        includeMetadata: true
+        includeMetadata: true,
       },
       errorTypes: Object.values(CriticalErrorType),
-      priority: 'medium'
+      priority: 'medium',
     })
 
     // Add webhook if configured
@@ -80,12 +80,12 @@ export class AlertService {
           ...(process.env.ALERTS_WEBHOOK_TOKEN && {
             authentication: {
               type: 'bearer',
-              token: process.env.ALERTS_WEBHOOK_TOKEN
-            }
-          })
+              token: process.env.ALERTS_WEBHOOK_TOKEN,
+            },
+          }),
         },
         errorTypes: Object.values(CriticalErrorType),
-        priority: 'high'
+        priority: 'high',
       })
     }
 
@@ -96,24 +96,28 @@ export class AlertService {
         name: 'default-slack',
         enabled: true,
         config: {
-          ...(process.env.ALERTS_SLACK_WEBHOOK_URL && { webhookUrl: process.env.ALERTS_SLACK_WEBHOOK_URL }),
-          ...(process.env.ALERTS_SLACK_BOT_TOKEN && { botToken: process.env.ALERTS_SLACK_BOT_TOKEN }),
+          ...(process.env.ALERTS_SLACK_WEBHOOK_URL && {
+            webhookUrl: process.env.ALERTS_SLACK_WEBHOOK_URL,
+          }),
+          ...(process.env.ALERTS_SLACK_BOT_TOKEN && {
+            botToken: process.env.ALERTS_SLACK_BOT_TOKEN,
+          }),
           channel: process.env.ALERTS_SLACK_CHANNEL || '#alerts',
           username: 'ClaudeFlow Alerts',
           iconEmoji: ':rotating_light:',
           mentionChannel: process.env.ALERTS_SLACK_MENTION_CHANNEL === 'true',
           ...(process.env.ALERTS_SLACK_MENTION_USERS && {
-            mentionUsers: process.env.ALERTS_SLACK_MENTION_USERS.split(',')
-          })
+            mentionUsers: process.env.ALERTS_SLACK_MENTION_USERS.split(','),
+          }),
         },
         errorTypes: [
           CriticalErrorType.DATABASE_CONNECTION_FAILURE,
           CriticalErrorType.REDIS_CONNECTION_FAILURE,
           CriticalErrorType.AUTH_SERVICE_FAILURE,
           CriticalErrorType.SYSTEM_HEALTH_FAILURE,
-          CriticalErrorType.MEMORY_THRESHOLD_EXCEEDED
+          CriticalErrorType.MEMORY_THRESHOLD_EXCEEDED,
         ],
-        priority: 'critical'
+        priority: 'critical',
       })
     }
 
@@ -122,7 +126,7 @@ export class AlertService {
       const emailConfig: any = {
         provider: process.env.ALERTS_EMAIL_PROVIDER || 'smtp',
         from: process.env.ALERTS_EMAIL_FROM,
-        to: process.env.ALERTS_EMAIL_TO.split(',')
+        to: process.env.ALERTS_EMAIL_TO.split(','),
       }
 
       if (process.env.ALERTS_EMAIL_CC) {
@@ -135,7 +139,7 @@ export class AlertService {
           port: parseInt(process.env.ALERTS_SMTP_PORT || '587'),
           secure: process.env.ALERTS_SMTP_SECURE === 'true',
           username: process.env.ALERTS_SMTP_USERNAME,
-          password: process.env.ALERTS_SMTP_PASSWORD
+          password: process.env.ALERTS_SMTP_PASSWORD,
         }
       } else {
         emailConfig.apiKey = process.env.ALERTS_EMAIL_API_KEY
@@ -153,9 +157,9 @@ export class AlertService {
           CriticalErrorType.DATABASE_CONNECTION_FAILURE,
           CriticalErrorType.AUTH_SERVICE_FAILURE,
           CriticalErrorType.SYSTEM_HEALTH_FAILURE,
-          CriticalErrorType.MEMORY_THRESHOLD_EXCEEDED
+          CriticalErrorType.MEMORY_THRESHOLD_EXCEEDED,
         ],
-        priority: 'critical'
+        priority: 'critical',
       })
     }
 
@@ -170,32 +174,35 @@ export class AlertService {
     try {
       // Validate all channel configurations
       const invalidChannels = this.alertConfig.channels.filter(
-        channel => !this.transportService.validateChannelConfig(channel)
+        (channel) => !this.transportService.validateChannelConfig(channel)
       )
 
       if (invalidChannels.length > 0) {
         this.logger.warn('Invalid alert channel configurations found', {
-          invalidChannels: invalidChannels.map(c => c.name)
+          invalidChannels: invalidChannels.map((c) => c.name),
         })
-        
+
         // Remove invalid channels
-        this.alertConfig.channels = this.alertConfig.channels.filter(
-          channel => this.transportService.validateChannelConfig(channel)
+        this.alertConfig.channels = this.alertConfig.channels.filter((channel) =>
+          this.transportService.validateChannelConfig(channel)
         )
       }
 
       this.initialized = true
-      
+
       this.logger.info('Alert service initialized', {
         enabled: this.alertConfig.enabled,
         channelCount: this.alertConfig.channels.length,
-        enabledChannels: this.alertConfig.channels.filter(c => c.enabled).length,
-        channels: this.alertConfig.channels.map(c => ({ name: c.name, type: c.type, enabled: c.enabled }))
+        enabledChannels: this.alertConfig.channels.filter((c) => c.enabled).length,
+        channels: this.alertConfig.channels.map((c) => ({
+          name: c.name,
+          type: c.type,
+          enabled: c.enabled,
+        })),
       })
-
     } catch (error) {
       this.logger.error('Failed to initialize alert service', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
       throw error
     }
@@ -208,10 +215,10 @@ export class AlertService {
   async updateConfig(config: AlertConfig): Promise<void> {
     this.alertConfig = config
     this.winstonTransport.updateAlertConfig(config)
-    
+
     this.logger.info('Alert configuration updated', {
       enabled: config.enabled,
-      channelCount: config.channels.length
+      channelCount: config.channels.length,
     })
   }
 
@@ -221,18 +228,18 @@ export class AlertService {
     }
 
     this.alertConfig.channels.push(channel)
-    
+
     this.logger.info('Alert channel added', {
       name: channel.name,
       type: channel.type,
-      enabled: channel.enabled
+      enabled: channel.enabled,
     })
   }
 
   async removeChannel(channelName: string): Promise<void> {
     const initialLength = this.alertConfig.channels.length
-    this.alertConfig.channels = this.alertConfig.channels.filter(c => c.name !== channelName)
-    
+    this.alertConfig.channels = this.alertConfig.channels.filter((c) => c.name !== channelName)
+
     if (this.alertConfig.channels.length < initialLength) {
       this.logger.info('Alert channel removed', { name: channelName })
     } else {
@@ -241,7 +248,7 @@ export class AlertService {
   }
 
   async enableChannel(channelName: string): Promise<void> {
-    const channel = this.alertConfig.channels.find(c => c.name === channelName)
+    const channel = this.alertConfig.channels.find((c) => c.name === channelName)
     if (channel) {
       channel.enabled = true
       this.logger.info('Alert channel enabled', { name: channelName })
@@ -251,7 +258,7 @@ export class AlertService {
   }
 
   async disableChannel(channelName: string): Promise<void> {
-    const channel = this.alertConfig.channels.find(c => c.name === channelName)
+    const channel = this.alertConfig.channels.find((c) => c.name === channelName)
     if (channel) {
       channel.enabled = false
       this.logger.info('Alert channel disabled', { name: channelName })
@@ -263,10 +270,10 @@ export class AlertService {
   addCustomErrorPattern(type: CriticalErrorType, pattern: RegExp): void {
     this.detector.addCustomPattern(type, pattern)
     this.winstonTransport.addCustomErrorPattern(type, pattern)
-    
+
     this.logger.info('Custom error pattern added', {
       type,
-      pattern: pattern.source
+      pattern: pattern.source,
     })
   }
 
@@ -295,7 +302,7 @@ export class AlertService {
   }
 
   async testChannel(channelName: string): Promise<boolean> {
-    const channel = this.alertConfig.channels.find(c => c.name === channelName)
+    const channel = this.alertConfig.channels.find((c) => c.name === channelName)
     if (!channel) {
       throw new Error(`Channel not found: ${channelName}`)
     }
@@ -314,7 +321,7 @@ export class AlertService {
         resolved: false,
         occurrenceCount: 1,
         lastOccurrence: new Date(),
-        firstOccurrence: new Date()
+        firstOccurrence: new Date(),
       }
 
       const testNotification = {
@@ -324,22 +331,21 @@ export class AlertService {
         channelName: channel.name,
         status: 'pending' as const,
         retryCount: 0,
-        maxRetries: 1
+        maxRetries: 1,
       }
 
       await this.transportService.send(channel, testError, testNotification)
-      
+
       this.logger.info('Test alert sent successfully', {
         channel: channelName,
-        type: channel.type
+        type: channel.type,
       })
 
       return true
-
     } catch (error) {
       this.logger.error('Test alert failed', {
         channel: channelName,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
       return false
     }

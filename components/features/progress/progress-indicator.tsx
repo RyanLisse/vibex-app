@@ -19,11 +19,11 @@ export function ProgressIndicator({
 }: ProgressIndicatorProps) {
   // Clamp percentage between 0 and 100
   const clampedPercentage = Math.max(0, Math.min(100, percentage))
-  
+
   // Auto color selection based on percentage
   const getColor = () => {
     if (color !== 'auto') return color
-    
+
     if (clampedPercentage >= 80) return 'green'
     if (clampedPercentage >= 60) return 'blue'
     if (clampedPercentage >= 40) return 'yellow'
@@ -31,7 +31,7 @@ export function ProgressIndicator({
   }
 
   const actualColor = getColor()
-  
+
   // Size configurations
   const sizeConfig = {
     small: {
@@ -45,7 +45,7 @@ export function ProgressIndicator({
       fontSize: 'text-sm',
     },
   }
-  
+
   const config = sizeConfig[size]
   const radius = (config.size - config.strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
@@ -68,7 +68,7 @@ export function ProgressIndicator({
   }
 
   return (
-    <div 
+    <div
       className={`relative inline-flex items-center justify-center ${className}`}
       data-testid="progress-indicator"
     >
@@ -91,7 +91,7 @@ export function ProgressIndicator({
           fill="none"
           className="text-muted-foreground/20"
         />
-        
+
         {/* Progress circle */}
         <circle
           cx={config.size / 2}
@@ -109,10 +109,12 @@ export function ProgressIndicator({
           }}
         />
       </svg>
-      
+
       {/* Center label */}
       {showLabel && (
-        <div className={`absolute inset-0 flex items-center justify-center ${config.fontSize} font-semibold ${colorClasses[actualColor]}`}>
+        <div
+          className={`absolute inset-0 flex items-center justify-center ${config.fontSize} font-semibold ${colorClasses[actualColor]}`}
+        >
           {Math.round(clampedPercentage)}%
         </div>
       )}

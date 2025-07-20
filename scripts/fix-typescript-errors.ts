@@ -34,12 +34,12 @@ const errorPatterns: ErrorPattern[] = [
     pattern: /Property '(\w+)' does not exist on type/,
     fix: (content, match, filePath, error) => {
       const propertyName = match[1]
-      
+
       // ZodError.errors -> ZodError.issues
       if (propertyName === 'errors' && content.includes('ZodError')) {
         return content.replace(new RegExp(`\\.${propertyName}\\b`, 'g'), '.issues')
       }
-      
+
       // Add type assertion for unknown types
       if (error.message.includes('unknown')) {
         const lines = content.split('\n')
@@ -58,11 +58,11 @@ const errorPatterns: ErrorPattern[] = [
           }
         }
       }
-      
+
       return content
-    }
+    },
   },
-  
+
   // TS2305/TS2724: Module export issues
   {
     code: 'TS2305',
@@ -70,7 +70,7 @@ const errorPatterns: ErrorPattern[] = [
     pattern: /Module ["']([^"']+)["'] has no exported member ["'](\w+)["']/,
     fix: (content, match) => {
       const [, modulePath, memberName] = match
-      
+
       // Redis client fixes
       if (modulePath.includes('redis-client') && memberName === 'redis') {
         content = content.replace(
@@ -78,15 +78,17 @@ const errorPatterns: ErrorPattern[] = [
           "import { createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()"
         )
       }
-      
+
       // Observability fixes
       if (modulePath.includes('observability') && memberName === 'observabilityService') {
-        content = content.replace(
-          /import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
-          "import { observability } from '@/lib/observability'"
-        ).replace(/observabilityService\./g, 'observability.')
+        content = content
+          .replace(
+            /import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
+            "import { observability } from '@/lib/observability'"
+          )
+          .replace(/observabilityService\./g, 'observability.')
       }
-      
+
       // Vector search fixes
       if (modulePath.includes('vector-search') && memberName === 'vectorSearchService') {
         content = content.replace(
@@ -94,11 +96,11 @@ const errorPatterns: ErrorPattern[] = [
           "import { VectorSearchService } from '@/lib/wasm/vector-search'\nconst vectorSearchService = new VectorSearchService()"
         )
       }
-      
+
       return content
-    }
+    },
   },
-  
+
   // TS2724: Did you mean?
   {
     code: 'TS2724',
@@ -112,14 +114,11 @@ const errorPatterns: ErrorPattern[] = [
         `$1${correctName}$2`
       )
       // Replace usage
-      content = content.replace(
-        new RegExp(`\\b${wrongName}\\.`, 'g'),
-        `${correctName}.`
-      )
+      content = content.replace(new RegExp(`\\b${wrongName}\\.`, 'g'), `${correctName}.`)
       return content
-    }
+    },
   },
-  
+
   // TS2554: Wrong number of arguments
   {
     code: 'TS2554',
@@ -128,7 +127,7 @@ const errorPatterns: ErrorPattern[] = [
     fix: (content, match, filePath, error) => {
       const expectedMin = parseInt(match[1])
       const got = parseInt(match[3])
-      
+
       // AlertManager constructor fix
       if (error.message.includes('AlertManager') && expectedMin === 6 && got === 1) {
         content = content.replace(
@@ -143,7 +142,7 @@ const errorPatterns: ErrorPattern[] = [
           })`
         )
       }
-      
+
       // Observability span fix
       if (error.message.includes('startSpan') && got === 1) {
         content = content.replace(
@@ -151,7 +150,7 @@ const errorPatterns: ErrorPattern[] = [
           ".startSpan('$1', {})"
         )
       }
-      
+
       // Metrics recording fix
       if (error.message.includes('recordOperation')) {
         content = content.replace(
@@ -159,11 +158,11 @@ const errorPatterns: ErrorPattern[] = [
           ".recordDuration('$1', Date.now())"
         )
       }
-      
+
       return content
-    }
+    },
   },
-  
+
   // TS2353: Extra properties in object literals
   {
     code: 'TS2353',
@@ -171,7 +170,7 @@ const errorPatterns: ErrorPattern[] = [
     pattern: /Object literal may only specify known properties, and ["'](\w+)["'] does not exist/,
     fix: (content, match, filePath, error) => {
       const propertyName = match[1]
-      
+
       // For Error objects, create custom error
       if (error.message.includes('Error')) {
         const lines = content.split('\n')
@@ -182,20 +181,19 @@ const errorPatterns: ErrorPattern[] = [
             // Find the error construction
             const errorMatch = line.match(/throw\s+new\s+Error\s*\(([^)]+)\)/)
             if (errorMatch) {
-              lines[lineIndex] = line.replace(
-                'throw new Error',
-                'throw Object.assign(new Error'
-              ).replace(/\)(\s*;?\s*)$/, `, { ${propertyName} })$1`)
+              lines[lineIndex] = line
+                .replace('throw new Error', 'throw Object.assign(new Error')
+                .replace(/\)(\s*;?\s*)$/, `, { ${propertyName} })$1`)
             }
           }
         }
         return lines.join('\n')
       }
-      
+
       return content
-    }
+    },
   },
-  
+
   // TS2769: No overload matches
   {
     code: 'TS2769',
@@ -210,19 +208,20 @@ const errorPatterns: ErrorPattern[] = [
           .replace(/\.agentId\b/g, '.agentType')
           .replace(/\.category\b/g, '.contextKey')
       }
-      
+
       return content
-    }
+    },
   },
-  
+
   // TS2345: Argument type mismatch
   {
     code: 'TS2345',
     description: 'Argument type not assignable',
-    pattern: /Argument of type ["']([^"']+)["'] is not assignable to parameter of type ["']([^"']+)["']/,
+    pattern:
+      /Argument of type ["']([^"']+)["'] is not assignable to parameter of type ["']([^"']+)["']/,
     fix: (content, match, filePath, error) => {
       const [, sourceType, targetType] = match
-      
+
       // Async function type fixes
       if (targetType.includes('RequestHandler') && sourceType.includes('Promise')) {
         const lines = content.split('\n')
@@ -237,11 +236,11 @@ const errorPatterns: ErrorPattern[] = [
         }
         return lines.join('\n')
       }
-      
+
       return content
-    }
+    },
   },
-  
+
   // TS2322: Type assignment issues
   {
     code: 'TS2322',
@@ -249,30 +248,27 @@ const errorPatterns: ErrorPattern[] = [
     pattern: /Type ["']([^"']+)["'] is not assignable to type ["']([^"']+)["']/,
     fix: (content, match, filePath, error) => {
       const [, sourceType, targetType] = match
-      
+
       // String conversion fixes
       if (targetType.includes('string') && sourceType.includes('unknown')) {
         const lines = content.split('\n')
         const lineIndex = error.line - 1
         if (lineIndex >= 0 && lineIndex < lines.length) {
-          lines[lineIndex] = lines[lineIndex].replace(
-            /(\w+)\.toString\(\)/g,
-            'String($1)'
-          )
+          lines[lineIndex] = lines[lineIndex].replace(/(\w+)\.toString\(\)/g, 'String($1)')
         }
         return lines.join('\n')
       }
-      
+
       return content
-    }
-  }
+    },
+  },
 ]
 
 // Parse TypeScript errors
 function parseTypeScriptErrors(output: string): FileError[] {
   const errors: FileError[] = []
   const lines = output.split('\n')
-  
+
   for (const line of lines) {
     const match = line.match(/^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/)
     if (match) {
@@ -282,18 +278,18 @@ function parseTypeScriptErrors(output: string): FileError[] {
         line: parseInt(lineStr),
         column: parseInt(columnStr),
         code,
-        message: message.trim()
+        message: message.trim(),
       })
     }
   }
-  
+
   return errors
 }
 
 // Group errors by file
 function groupErrorsByFile(errors: FileError[]): Map<string, FileError[]> {
   const grouped = new Map<string, FileError[]>()
-  
+
   for (const error of errors) {
     const key = error.file
     if (!grouped.has(key)) {
@@ -301,7 +297,7 @@ function groupErrorsByFile(errors: FileError[]): Map<string, FileError[]> {
     }
     grouped.get(key)!.push(error)
   }
-  
+
   return grouped
 }
 
@@ -310,31 +306,31 @@ function applyFixesToFile(filePath: string, errors: FileError[]): FixResult {
   const result: FixResult = {
     file: filePath,
     fixed: 0,
-    errors: []
+    errors: [],
   }
-  
+
   if (!existsSync(filePath)) {
     result.errors.push(`File not found: ${filePath}`)
     return result
   }
-  
+
   let content = readFileSync(filePath, 'utf-8')
   const originalContent = content
-  
+
   // Sort errors by line in reverse to prevent offset issues
   const sortedErrors = [...errors].sort((a, b) => b.line - a.line)
-  
+
   for (const error of sortedErrors) {
-    const pattern = errorPatterns.find(p => p.code === error.code)
+    const pattern = errorPatterns.find((p) => p.code === error.code)
     if (!pattern) {
       continue
     }
-    
+
     const match = error.message.match(pattern.pattern)
     if (!match) {
       continue
     }
-    
+
     try {
       const newContent = pattern.fix(content, match, filePath, error)
       if (newContent !== content) {
@@ -345,26 +341,26 @@ function applyFixesToFile(filePath: string, errors: FileError[]): FixResult {
       result.errors.push(`Failed to apply fix for ${error.code}: ${e}`)
     }
   }
-  
+
   if (content !== originalContent) {
     // Create backup
     const backupDir = join(process.cwd(), '.typescript-fixes-backup')
     if (!existsSync(backupDir)) {
       mkdirSync(backupDir, { recursive: true })
     }
-    
+
     const relativePath = relative(process.cwd(), filePath)
     const backupPath = join(backupDir, relativePath)
     const backupDirPath = dirname(backupPath)
-    
+
     if (!existsSync(backupDirPath)) {
       mkdirSync(backupDirPath, { recursive: true })
     }
-    
+
     writeFileSync(backupPath, originalContent)
     writeFileSync(filePath, content)
   }
-  
+
   return result
 }
 
@@ -374,12 +370,12 @@ function fixMissingExports() {
     {
       file: 'lib/redis/redis-client.ts',
       check: 'export const redis',
-      append: '\n// Auto-generated export\nexport const redis = createRedisClient()\n'
+      append: '\n// Auto-generated export\nexport const redis = createRedisClient()\n',
     },
     {
       file: 'lib/observability/index.ts',
       check: 'export { observability }',
-      append: '\nexport { observability } from "./client"\n'
+      append: '\nexport { observability } from "./client"\n',
     },
     {
       file: 'lib/wasm/vector-search/index.ts',
@@ -388,12 +384,12 @@ function fixMissingExports() {
 export * from './types'
 export { VectorSearchService } from './service'
 export const vectorSearchService = new VectorSearchService()
-`
-    }
+`,
+    },
   ]
-  
+
   let fixedCount = 0
-  
+
   for (const fix of fixes) {
     const filePath = join(process.cwd(), fix.file)
     if (existsSync(filePath)) {
@@ -409,7 +405,7 @@ export const vectorSearchService = new VectorSearchService()
       }
     }
   }
-  
+
   return fixedCount
 }
 
@@ -417,17 +413,17 @@ export const vectorSearchService = new VectorSearchService()
 async function main() {
   console.log('🔧 TypeScript Error Fixer\n')
   console.log('━'.repeat(50))
-  
+
   // Step 1: Fix missing exports
   console.log('\n📦 Fixing missing exports...')
   const exportsFixes = fixMissingExports()
   console.log(`   Fixed ${exportsFixes} export issues`)
-  
+
   // Step 2: Get TypeScript errors
   console.log('\n🔍 Analyzing TypeScript errors...')
   let output = ''
   let errorCount = 0
-  
+
   try {
     execSync('bun run typecheck', { encoding: 'utf-8' })
     console.log('✅ No TypeScript errors found!')
@@ -436,56 +432,56 @@ async function main() {
     output = error.stdout || ''
     errorCount = (output.match(/error TS/g) || []).length
   }
-  
+
   console.log(`   Found ${errorCount} errors`)
-  
+
   if (errorCount === 0) {
     console.log('\n✅ TypeScript compilation successful!')
     return
   }
-  
+
   // Step 3: Parse and group errors
   const errors = parseTypeScriptErrors(output)
   const errorsByFile = groupErrorsByFile(errors)
-  
+
   console.log(`\n📝 Processing ${errorsByFile.size} files...`)
   console.log('━'.repeat(50))
-  
+
   // Step 4: Apply fixes
   const results: FixResult[] = []
   let totalFixed = 0
-  
+
   for (const [file, fileErrors] of errorsByFile) {
     // Show error breakdown
     const errorCounts = new Map<string, number>()
     for (const error of fileErrors) {
       errorCounts.set(error.code, (errorCounts.get(error.code) || 0) + 1)
     }
-    
+
     console.log(`\n📄 ${relative(process.cwd(), file)}`)
     console.log(`   Errors: ${fileErrors.length}`)
-    
+
     for (const [code, count] of errorCounts) {
-      const pattern = errorPatterns.find(p => p.code === code)
+      const pattern = errorPatterns.find((p) => p.code === code)
       console.log(`   ${code}: ${count} (${pattern?.description || 'Unknown'})`)
     }
-    
+
     // Apply fixes
     const result = applyFixesToFile(file, fileErrors)
     results.push(result)
     totalFixed += result.fixed
-    
+
     if (result.fixed > 0) {
       console.log(`   ✅ Fixed ${result.fixed} errors`)
     }
-    
+
     if (result.errors.length > 0) {
       for (const error of result.errors) {
         console.log(`   ⚠️  ${error}`)
       }
     }
   }
-  
+
   // Step 5: Summary
   console.log('\n' + '━'.repeat(50))
   console.log(`\n📊 Summary:`)
@@ -494,10 +490,10 @@ async function main() {
   console.log(`   Remaining: ${errorCount - totalFixed}`)
   console.log(`   Files processed: ${results.length}`)
   console.log(`   Backups saved to: .typescript-fixes-backup/`)
-  
+
   // Step 6: Re-run TypeScript check
   console.log('\n🔄 Running TypeScript check again...')
-  
+
   try {
     execSync('bun run typecheck', { stdio: 'inherit' })
     console.log('\n🎉 All TypeScript errors fixed!')

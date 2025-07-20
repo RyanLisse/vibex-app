@@ -33,7 +33,11 @@ export class DiscordTransport implements AlertTransport {
     this.logger = new ComponentLogger('DiscordTransport')
   }
 
-  async send(channel: AlertChannel, error: CriticalError, notification: AlertNotification): Promise<void> {
+  async send(
+    channel: AlertChannel,
+    error: CriticalError,
+    notification: AlertNotification
+  ): Promise<void> {
     const config = channel.config as DiscordConfig
     const payload = this.buildPayload(config, error, notification)
 
@@ -46,10 +50,10 @@ export class DiscordTransport implements AlertTransport {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'User-Agent': 'ClaudeFlow-AlertSystem/1.0'
+            'User-Agent': 'ClaudeFlow-AlertSystem/1.0',
           },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(30000)
+          signal: AbortSignal.timeout(30000),
         })
 
         if (!response.ok) {
@@ -61,26 +65,25 @@ export class DiscordTransport implements AlertTransport {
           webhookUrl: config.webhookUrl,
           status: response.status,
           attempt,
-          notificationId: notification.id
+          notificationId: notification.id,
         })
 
         return
-
       } catch (requestError) {
         lastError = requestError instanceof Error ? requestError : new Error('Unknown error')
-        
+
         this.logger.warn('Discord webhook attempt failed', {
           webhookUrl: config.webhookUrl,
           attempt,
           maxRetries,
           error: lastError.message,
-          notificationId: notification.id
+          notificationId: notification.id,
         })
 
         if (attempt < maxRetries) {
           // Exponential backoff: 1s, 2s, 4s
           const delay = Math.pow(2, attempt - 1) * 1000
-          await new Promise(resolve => setTimeout(resolve, delay))
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
     }
@@ -88,7 +91,11 @@ export class DiscordTransport implements AlertTransport {
     throw lastError || new Error('All Discord webhook attempts failed')
   }
 
-  private buildPayload(config: DiscordConfig, error: CriticalError, notification: AlertNotification) {
+  private buildPayload(
+    config: DiscordConfig,
+    error: CriticalError,
+    notification: AlertNotification
+  ) {
     const embed = this.buildEmbed(error, notification)
     const mentions = this.buildMentions(config)
 
@@ -96,7 +103,7 @@ export class DiscordTransport implements AlertTransport {
       username: config.username || 'Claude Flow Alerts',
       avatar_url: config.avatarUrl,
       content: mentions ? `${mentions} Critical error detected!` : undefined,
-      embeds: [embed]
+      embeds: [embed],
     }
   }
 
@@ -112,38 +119,46 @@ export class DiscordTransport implements AlertTransport {
         {
           name: 'Environment',
           value: error.environment,
-          inline: true
+          inline: true,
         },
         {
           name: 'Severity',
           value: error.severity.toUpperCase(),
-          inline: true
+          inline: true,
         },
         {
           name: 'Source',
           value: error.source,
-          inline: true
+          inline: true,
         },
         {
           name: 'Timestamp',
           value: `<t:${Math.floor(error.timestamp.getTime() / 1000)}:F>`,
-          inline: false
+          inline: false,
         },
-        ...(error.occurrenceCount > 1 ? [{
-          name: 'Occurrences',
-          value: `${error.occurrenceCount} times`,
-          inline: true
-        }] : []),
-        ...(error.correlationId ? [{
-          name: 'Correlation ID',
-          value: `\`${error.correlationId}\``,
-          inline: true
-        }] : [])
+        ...(error.occurrenceCount > 1
+          ? [
+              {
+                name: 'Occurrences',
+                value: `${error.occurrenceCount} times`,
+                inline: true,
+              },
+            ]
+          : []),
+        ...(error.correlationId
+          ? [
+              {
+                name: 'Correlation ID',
+                value: `\`${error.correlationId}\``,
+                inline: true,
+              },
+            ]
+          : []),
       ],
       footer: {
-        text: `Alert ID: ${error.id} | Claude Flow Alert System`
+        text: `Alert ID: ${error.id} | Claude Flow Alert System`,
       },
-      timestamp: error.timestamp.toISOString()
+      timestamp: error.timestamp.toISOString(),
     }
   }
 
@@ -155,11 +170,11 @@ export class DiscordTransport implements AlertTransport {
     }
 
     if (config.mentionRoles && config.mentionRoles.length > 0) {
-      mentions.push(...config.mentionRoles.map(roleId => `<@&${roleId}>`))
+      mentions.push(...config.mentionRoles.map((roleId) => `<@&${roleId}>`))
     }
 
     if (config.mentionUsers && config.mentionUsers.length > 0) {
-      mentions.push(...config.mentionUsers.map(userId => `<@${userId}>`))
+      mentions.push(...config.mentionUsers.map((userId) => `<@${userId}>`))
     }
 
     return mentions.join(' ')
@@ -167,21 +182,31 @@ export class DiscordTransport implements AlertTransport {
 
   private getSeverityColor(severity: string): number {
     switch (severity) {
-      case 'critical': return 0xff0000 // Red
-      case 'high': return 0xff6600 // Orange
-      case 'medium': return 0xffcc00 // Yellow
-      case 'low': return 0x00ccff // Light Blue
-      default: return 0x808080 // Gray
+      case 'critical':
+        return 0xff0000 // Red
+      case 'high':
+        return 0xff6600 // Orange
+      case 'medium':
+        return 0xffcc00 // Yellow
+      case 'low':
+        return 0x00ccff // Light Blue
+      default:
+        return 0x808080 // Gray
     }
   }
 
   private getSeverityIcon(severity: string): string {
     switch (severity) {
-      case 'critical': return '🚨'
-      case 'high': return '⚠️'
-      case 'medium': return '📢'
-      case 'low': return 'ℹ️'
-      default: return '🔔'
+      case 'critical':
+        return '🚨'
+      case 'high':
+        return '⚠️'
+      case 'medium':
+        return '📢'
+      case 'low':
+        return 'ℹ️'
+      default:
+        return '🔔'
     }
   }
 
