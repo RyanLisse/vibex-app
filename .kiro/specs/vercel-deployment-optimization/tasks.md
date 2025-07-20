@@ -1,194 +1,192 @@
 # Implementation Plan
 
-- [ ] 1. Set up Dagger module foundation and project structure
-  - Create `dagger/` directory with TypeScript configuration
-  - Initialize Dagger module with `dagger init --sdk=typescript`
-  - Configure TypeScript build settings for Dagger compatibility
-  - Set up basic module exports and dependency management
-  - _Requirements: 1.1, 2.1_
+- [ ] 1. Set up Dagger module structure and core infrastructure
+  - Create dagger directory with TypeScript configuration
+  - Initialize Dagger module with proper dependencies
+  - Set up container base images for Node.js and build tools
+  - Configure Dagger SDK and core types
+  - _Requirements: 1.5, 2.5_
 
-- [ ] 2. Implement core Vercel CLI integration utilities
-  - [ ] 2.1 Create VercelCLI class with authentication methods
-    - Write authentication function using VERCEL_TOKEN from environment
-    - Implement token validation and refresh mechanisms
-    - Add error handling for authentication failures
-    - Create unit tests for authentication flows
-    - _Requirements: 1.1, 1.2_
+- [ ] 2. Implement core Dagger deployment functions
+  - [ ] 2.1 Create build function with Next.js optimization
+    - Implement containerized build process using Dagger
+    - Add build caching strategies for dependencies and artifacts
+    - Configure bundle optimization and code splitting
+    - Add build performance monitoring and metrics
+    - _Requirements: 2.1, 2.2, 2.3_
 
-  - [ ] 2.2 Implement deployment orchestration functions
-    - Write deploy() method with environment-specific configurations
-    - Add deployment status monitoring and progress tracking
-    - Implement deployment URL retrieval and validation
-    - Create deployment rollback functionality
-    - Write unit tests for deployment operations
+  - [ ] 2.2 Create test execution function
+    - Implement containerized test runner for unit and integration tests
+    - Add test result parsing and reporting
+    - Configure test caching for faster execution
+    - Add test failure analysis capabilities
+    - _Requirements: 1.3, 8.2_
+
+  - [ ] 2.3 Create lint execution function
+    - Implement containerized linting with Biome
+    - Add lint result parsing and error categorization
+    - Configure lint caching for performance
+    - Add lint failure analysis for AI agent integration
+    - _Requirements: 3.1, 8.2_
+
+- [ ] 3. Integrate Vercel CLI with Dagger containers
+  - [ ] 3.1 Create VercelCLI class with authentication
+    - Implement Vercel CLI authentication using stored tokens
+    - Add credential validation and refresh logic
+    - Create secure token storage and retrieval
+    - Add authentication error handling and recovery
+    - _Requirements: 1.1, 5.2_
+
+  - [ ] 3.2 Implement deployment orchestration
+    - Create deploy function that integrates Vercel CLI with Dagger builds
+    - Add deployment progress tracking and real-time feedback
+    - Implement deployment status monitoring and URL retrieval
+    - Add deployment error handling with detailed diagnostics
+    - _Requirements: 1.3, 1.4, 1.6_
+
+  - [ ] 3.3 Add environment-specific deployment logic
+    - Implement environment variable validation and injection
+    - Create environment-specific configuration management
+    - Add production deployment verification steps
+    - Implement secure secret management integration
+    - _Requirements: 5.1, 5.3, 5.4, 5.6_
+
+- [ ] 4. Implement AI Agent Workspace for self-healing capabilities
+  - [ ] 4.1 Create Workspace module with file operations
+    - Implement readFile, writeFile, and listFiles functions
+    - Add file system operations within Dagger containers
+    - Create safe file manipulation with validation
+    - Add file change tracking and diff generation
+    - _Requirements: 3.2, 3.4_
+
+  - [ ] 4.2 Implement DebugTests function for automatic fixing
+    - Create AI agent that analyzes test and lint failures
+    - Implement iterative fix generation and validation
+    - Add fix success verification through re-running tests
+    - Create fix attempt limiting and escalation logic
+    - _Requirements: 3.1, 3.2, 3.5, 3.6_
+
+  - [ ] 4.3 Add GitHub integration for fix suggestions
+    - Implement pull request creation for AI-generated fixes
+    - Add code suggestion formatting and posting
+    - Create fix validation and approval workflow
+    - Add human escalation for complex issues
+    - _Requirements: 3.3, 3.6_
+
+- [ ] 5. Implement preview deployment automation
+  - [ ] 5.1 Create PR-triggered preview deployments
+    - Implement GitHub webhook handling for PR events
+    - Create preview deployment using Dagger and Vercel CLI
+    - Add preview URL posting to pull requests
+    - Implement preview deployment cleanup on PR close
+    - _Requirements: 4.1, 4.2, 4.5_
+
+  - [ ] 5.2 Add preview deployment updates
+    - Implement automatic preview updates on PR changes
+    - Add deployment comparison with production
+    - Create preview deployment status tracking
+    - Add preview deployment failure handling and PR blocking
+    - _Requirements: 4.3, 4.4, 4.6_
+
+- [ ] 6. Create comprehensive health check system
+  - [ ] 6.1 Implement post-deployment health checks
+    - Create health check runner with configurable checks
+    - Add API endpoint verification with timeout handling
+    - Implement database connection testing
+    - Add authentication flow verification
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+
+  - [ ] 6.2 Add end-to-end user journey testing
+    - Implement critical user flow verification
+    - Add automated UI testing for key features
+    - Create performance baseline validation
+    - Add health check result reporting and alerting
+    - _Requirements: 6.5, 8.5_
+
+  - [ ] 6.3 Implement deployment rollback capabilities
+    - Create rollback mechanism for failed health checks
+    - Add rollback decision logic and automation
+    - Implement rollback verification and confirmation
+    - Add rollback notification and logging
+    - _Requirements: 6.6_
+
+- [ ] 7. Add Model Context Protocol (MCP) integration
+  - [ ] 7.1 Expose Dagger modules as MCP servers
+    - Configure Dagger modules for MCP exposure
+    - Implement MCP server setup and configuration
+    - Add function documentation for AI assistant consumption
+    - Create MCP tool registration and discovery
+    - _Requirements: 7.1, 7.2_
+
+  - [ ] 7.2 Implement natural language deployment commands
+    - Create MCP command parsing and execution
+    - Add natural language to deployment operation mapping
+    - Implement command validation and security checks
+    - Add MCP operation audit logging
+    - _Requirements: 7.3, 7.4, 7.5_
+
+  - [ ] 7.3 Add MCP error handling and feedback
+    - Implement clear error messages for AI assistants
+    - Add MCP operation status reporting
+    - Create MCP session management and cleanup
+    - Add MCP performance monitoring
+    - _Requirements: 7.6_
+
+- [ ] 8. Implement comprehensive observability and monitoring
+  - [ ] 8.1 Add end-to-end deployment tracing
+    - Implement distributed tracing for all deployment operations
+    - Add trace correlation across Dagger containers
+    - Create trace visualization and analysis tools
+    - Add trace-based performance optimization recommendations
+    - _Requirements: 8.1, 8.6_
+
+  - [ ] 8.2 Create performance metrics and monitoring
+    - Implement build time, test execution, and deployment duration tracking
+    - Add performance baseline establishment and comparison
+    - Create performance regression detection and alerting
+    - Add resource usage monitoring and optimization suggestions
+    - _Requirements: 8.2, 8.5, 8.6_
+
+  - [ ] 8.3 Add AI agent decision tracking
+    - Implement AI agent operation logging and analysis
+    - Add decision-making process visualization
+    - Create AI agent performance metrics and improvement tracking
+    - Add AI agent tool usage analytics
+    - _Requirements: 8.4_
+
+- [ ] 9. Create deployment CLI and automation scripts
+  - [ ] 9.1 Build deployment CLI tool
+    - Create command-line interface for deployment operations
+    - Add interactive deployment configuration
+    - Implement deployment status monitoring and reporting
+    - Add CLI integration with existing development workflow
     - _Requirements: 1.3, 1.4_
 
-- [ ] 3. Create Dagger containerized build environments
-  - [ ] 3.1 Implement build container configuration
-    - Create Node.js/Bun container with optimized caching layers
-    - Configure build environment with proper memory and CPU limits
-    - Implement dependency caching strategies for faster builds
-    - Add build artifact optimization and compression
-    - Write integration tests for build container functionality
-    - _Requirements: 2.1, 2.2_
+  - [ ] 9.2 Add GitHub Actions integration
+    - Create GitHub Actions workflow for automated deployments
+    - Add PR-based preview deployment automation
+    - Implement production deployment on merge
+    - Add workflow status reporting and notifications
+    - _Requirements: 4.1, 4.6_
 
-  - [ ] 3.2 Implement test and lint containers
-    - Create isolated test execution environment
-    - Set up linting container with Biome configuration
-    - Implement parallel test execution capabilities
-    - Add test result aggregation and reporting
-    - Write integration tests for test/lint containers
-    - _Requirements: 2.1, 2.3_
+- [ ] 10. Implement comprehensive testing suite
+  - [ ] 10.1 Create unit tests for all components
+    - Write unit tests for VercelCLI class and methods
+    - Add unit tests for Dagger functions and containers
+    - Create unit tests for AI agent workspace operations
+    - Add unit tests for environment management and health checks
+    - _Requirements: All requirements validation_
 
-- [ ] 4. Develop AI Agent Workspace module
-  - [ ] 4.1 Create Workspace class with file operations
-    - Implement readFile(), writeFile(), and listFiles() methods
-    - Add directory traversal and file system utilities
-    - Create safe file operation boundaries and validation
-    - Implement file change tracking and diff generation
-    - Write unit tests for file operations
-    - _Requirements: 5.1, 5.2_
+  - [ ] 10.2 Add integration tests for deployment pipeline
+    - Create integration tests for full deployment flow
+    - Add tests for AI agent fix generation and validation
+    - Implement tests for preview deployment automation
+    - Add tests for MCP integration and natural language commands
+    - _Requirements: All requirements validation_
 
-  - [ ] 4.2 Implement test and build execution tools
-    - Create runTests() method that executes project test suite
-    - Implement runLint() method for code quality checks
-    - Add runBuild() method for compilation and bundling
-    - Create output parsing and error extraction utilities
-    - Write integration tests for execution tools
-    - _Requirements: 5.3, 5.4_
-
-- [ ] 5. Build AI Agent debugging and auto-fix system
-  - [ ] 5.1 Create DebugTests Dagger function
-    - Implement LLM environment setup with Workspace tools
-    - Create agent prompt templates for different failure types
-    - Add iterative fix generation and validation loop
-    - Implement diff generation for successful fixes
-    - Write integration tests for debug agent functionality
-    - _Requirements: 5.1, 5.5_
-
-  - [ ] 5.2 Implement GitHub integration for fix suggestions
-    - Create GitHub API client for pull request operations
-    - Implement code suggestion posting to PR comments
-    - Add fix validation and approval workflow
-    - Create automated PR creation for complex fixes
-    - Write end-to-end tests for GitHub integration
-    - _Requirements: 3.2, 3.3_
-
-- [ ] 6. Develop environment configuration management
-  - [ ] 6.1 Create EnvironmentManager class
-    - Implement environment variable validation and sync
-    - Add support for development, preview, and production configs
-    - Create secure secret management integration
-    - Implement environment-specific deployment settings
-    - Write unit tests for environment management
-    - _Requirements: 4.1, 4.2_
-
-  - [ ] 6.2 Implement Vercel project configuration sync
-    - Create vercel.json optimization and validation
-    - Add automatic environment variable deployment
-    - Implement region and function configuration management
-    - Create configuration drift detection and correction
-    - Write integration tests for configuration sync
-    - _Requirements: 4.3, 4.4_
-
-- [ ] 7. Build preview deployment automation system
-  - [ ] 7.1 Implement PR-triggered preview deployments
-    - Create GitHub webhook handler for PR events
-    - Implement automatic preview deployment creation
-    - Add preview URL posting to PR comments
-    - Create preview deployment cleanup on PR close
-    - Write end-to-end tests for preview workflow
-    - _Requirements: 3.1, 3.2_
-
-  - [ ] 7.2 Add preview deployment comparison tools
-    - Implement visual diff generation between deployments
-    - Create performance comparison metrics
-    - Add automated screenshot comparison
-    - Implement deployment artifact comparison
-    - Write integration tests for comparison tools
-    - _Requirements: 3.4, 3.5_
-
-- [ ] 8. Implement post-deployment health check system
-  - [ ] 8.1 Create health check configuration and execution
-    - Implement configurable health check definitions
-    - Create HTTP endpoint monitoring with retries
-    - Add database connection verification
-    - Implement authentication flow validation
-    - Write unit tests for health check execution
-    - _Requirements: 5.1, 5.2_
-
-  - [ ] 8.2 Add deployment rollback capabilities
-    - Implement automatic rollback on health check failures
-    - Create manual rollback triggers and confirmation
-    - Add rollback status monitoring and reporting
-    - Implement rollback success validation
-    - Write integration tests for rollback functionality
-    - _Requirements: 5.5_
-
-- [ ] 9. Create comprehensive CI/CD pipeline integration
-  - [ ] 9.1 Implement GitHub Actions workflow
-    - Create workflow file with Dagger pipeline integration
-    - Add environment-specific deployment triggers
-    - Implement parallel build and test execution
-    - Create deployment status reporting to GitHub
-    - Write workflow validation and testing scripts
-    - _Requirements: 1.1, 2.1_
-
-  - [ ] 9.2 Add pipeline monitoring and observability
-    - Implement deployment metrics collection
-    - Create pipeline performance monitoring
-    - Add error tracking and alerting integration
-    - Implement deployment analytics dashboard
-    - Write monitoring integration tests
-    - _Requirements: 2.4, 5.3_
-
-- [ ] 10. Develop MCP server integration
-  - [ ] 10.1 Expose Dagger modules as MCP servers
-    - Configure Dagger module for MCP server exposure
-    - Implement MCP protocol handlers for deployment functions
-    - Add natural language command processing
-    - Create MCP client configuration documentation
-    - Write MCP integration tests
-    - _Requirements: 1.1, 1.3_
-
-  - [ ] 10.2 Create AI assistant deployment commands
-    - Implement natural language deployment triggers
-    - Add conversational deployment status queries
-    - Create AI-powered deployment troubleshooting
-    - Implement voice-activated deployment controls
-    - Write end-to-end tests for AI assistant integration
-    - _Requirements: 1.4, 5.4_
-
-- [ ] 11. Implement comprehensive error handling and recovery
-  - [ ] 11.1 Create deployment error classification system
-    - Implement error type detection and categorization
-    - Add automated recovery strategy selection
-    - Create error context preservation and logging
-    - Implement escalation paths for unresolvable errors
-    - Write unit tests for error handling
-    - _Requirements: 1.5, 2.5_
-
-  - [ ] 11.2 Add self-healing pipeline capabilities
-    - Implement automatic retry mechanisms with backoff
-    - Create dependency conflict resolution
-    - Add resource optimization for failed builds
-    - Implement proactive issue detection and prevention
-    - Write integration tests for self-healing features
-    - _Requirements: 4.5, 5.5_
-
-- [ ] 12. Create deployment analytics and optimization
-  - [ ] 12.1 Implement deployment performance tracking
-    - Create build time and deployment duration metrics
-    - Add bundle size and optimization tracking
-    - Implement resource usage monitoring
-    - Create performance regression detection
-    - Write analytics integration tests
-    - _Requirements: 2.2, 2.4_
-
-  - [ ] 12.2 Add intelligent deployment optimization
-    - Implement AI-powered build configuration optimization
-    - Create predictive deployment failure prevention
-    - Add resource allocation optimization
-    - Implement deployment scheduling optimization
-    - Write optimization algorithm tests
-    - _Requirements: 2.3, 2.5_
+  - [ ] 10.3 Create end-to-end deployment testing
+    - Implement full deployment pipeline testing from PR to production
+    - Add health check validation and rollback testing
+    - Create performance and observability testing
+    - Add failure scenario testing and recovery validation
+    - _Requirements: All requirements validation_
