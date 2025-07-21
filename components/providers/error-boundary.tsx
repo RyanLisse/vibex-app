@@ -54,12 +54,14 @@ Sentry.captureException(error);
 						<button
 							className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
 							onClick={this.reset}
-Try again
+						>
+							Try again
 						</button>
 						<button
 							className="rounded bg-gray-200 px-4 py-2 text-gray-800 transition-colors hover:bg-gray-300"
 							onClick={() => window.location.reload()}
-Refresh page
+						>
+							Refresh page
 						</button>
 					</div>
 					{process.env.NODE_ENV === "development" && (

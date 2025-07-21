@@ -1,11 +1,10 @@
 "use client";
 
-import { ElectricSyncButton,
-	useElectricContext
-} from "@/components/providers/electric-provider";
-	import { useElectricEnvironments,
-	import { useElectricTasks
-} from "@/hooks/use-electric-tasks";
+import { useState } from "react";
+import { ElectricSyncButton, useElectricContext } from "@/components/providers/electric-provider";
+import { useElectricEnvironments } from "@/hooks/use-electric-environments";
+import { useElectricTasks } from "@/hooks/use-electric-tasks";
+import { ElectricConnectionStatus } from "@/components/electric/electric-connection-status";
 
 // Demo component to showcase ElectricSQL integration
 export function ElectricDemo() {
@@ -212,7 +211,8 @@ export function ElectricDemo() {
 							className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 							disabled={!newTaskTitle.trim()}
 							type="submit"
-Create Task
+						>
+							Create Task
 						</button>
 					</div>
 				</form>
@@ -260,7 +260,8 @@ Create Task
 											<button
 												className="text-red-600 text-sm hover:text-red-800"
 												onClick={() => deleteTask(task.id)}
-Delete
+											>
+												Delete
 											</button>
 										</div>
 									</div>
@@ -298,7 +299,8 @@ Delete
 							className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 							disabled={!newEnvName.trim()}
 							type="submit"
-Create
+						>
+							Create
 						</button>
 					</div>
 				</form>
@@ -335,3 +337,16 @@ Create
 										<button
 											className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
 											onClick={() => activateEnvironment(env.id)}
+										>
+											Activate
+										</button>
+									)}
+								</div>
+							))
+						)}
+					</div>
+				)}
+			</div>
+		</div>
+	);
+}

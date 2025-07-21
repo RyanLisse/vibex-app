@@ -1,13 +1,9 @@
 "use client";
-import { Activity,
-import { X
-} from "lucide-react";
-import { CardTitle
-} from "@/components/ui/card";
-import { Dialog,
-import { DialogTitle
-} from "@/components/ui/dialog";
+import { Activity, X } from "lucide-react";
+import { CardTitle } from "@/components/ui/card";
+import { Dialog, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import {
 	useBreakpoints,
 	useDebugExport,
 	useDebugNotes,

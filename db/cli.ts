@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-	import { checkDatabaseHealth,
-import { DatabasePool,
+import {
+	checkDatabaseHealth,
+	DatabasePool,
 	initializeExtensions
 } from "./config";

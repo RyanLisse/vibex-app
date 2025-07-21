@@ -1,7 +1,5 @@
 "use client";
-import { Area,
-import { YAxis
-} from "recharts";
+import { Area, YAxis } from "recharts";
 
 interface ChartProps {
 	data: any[];

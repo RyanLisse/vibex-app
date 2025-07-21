@@ -1,4 +1,6 @@
 import { migrationRunner } from "./migrations/migration-runner";
+import { db, checkDatabaseHealth, initializeExtensions } from "./index";
+import {
 	agentExecutions,
 	agentMemory,
 	environments,

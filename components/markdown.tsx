@@ -2,13 +2,13 @@ import { useTheme } from "next-themes";
 import type React from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import {
 	oneDark,
 	oneLight
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-import { TableRow
-} from "@/components/ui/table";
+import { TableRow } from "@/components/ui/table";
 
 type CodeComponentProps = React.ComponentPropsWithoutRef<"code"> & {
 	inline?: boolean;
@@ -323,4 +323,4 @@ const NonMemoizedMarkdown = ({ children, repoUrl, branch }: MarkdownProps) => {
 	);
 };
 
-export const Markdown = memo(
+export const Markdown = memo(MarkdownComponent);

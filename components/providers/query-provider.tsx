@@ -231,13 +231,22 @@ export function QueryInvalidationControls() {
 				<button
 					className="block w-full rounded bg-yellow-100 px-2 py-1 text-left text-xs hover:bg-yellow-200"
 					onClick={handleInvalidateAll}
-Invalidate All
+				>
+					Invalidate All
 				</button>
 				<button
 					className="block w-full rounded bg-blue-100 px-2 py-1 text-left text-xs hover:bg-blue-200"
 					onClick={handleRefetchAll}
-Refetch All
+				>
+					Refetch All
 				</button>
 				<button
 					className="block w-full rounded bg-red-100 px-2 py-1 text-left text-xs hover:bg-red-200"
 					onClick={handleClearCache}
+				>
+					Clear Cache
+				</button>
+			</div>
+		</div>
+	);
+};

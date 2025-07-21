@@ -6,8 +6,5 @@
  */
 
 "use client";
-import { AlertCircle,
-import { X
-} from "lucide-react";
-import { CardTitle
-} from "@/components/ui/card";
+import { AlertCircle, X } from "lucide-react";
+import { CardTitle } from "@/components/ui/card";

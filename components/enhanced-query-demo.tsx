@@ -1,16 +1,10 @@
 "use client";
 
-import { WASMOptimizationStatus
-} from "@/components/providers/query-provider";
-	import { useExecutionAnalyticsQuery,
-	import { useExecutionsQuery
-} from "@/hooks/use-execution-queries";
-	import { useBulkTaskMutation,
-	import { useCreateTaskMutation,
-	import { useTaskSearchQuery,
-	import { useTasksQuery,
-	import { useUpdateTaskMutation
-} from "@/hooks/use-task-queries";
+import React, { useState, useMemo } from "react";
+import { WASMOptimizationStatus } from "@/components/providers/query-provider";
+import { useExecutionAnalyticsQuery, useExecutionsQuery } from "@/hooks/use-execution-queries";
+import { useBulkTaskMutation, useCreateTaskMutation, useTaskSearchQuery, useTasksQuery, useUpdateTaskMutation } from "@/hooks/use-task-queries";
+import { QueryCacheStatus, QueryPerformanceMonitor } from "@/components/providers/query-provider";
 
 /**
  * Demo component showcasing Enhanced TanStack Query integration
@@ -307,18 +301,21 @@ export function EnhancedQueryDemo() {
 								className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:bg-gray-300"
 								disabled={bulkTaskMutation.isPending}
 								onClick={() => handleBulkStatusUpdate("completed")}
-Mark Completed
+							>
+								Mark Completed
 							</button>
 							<button
 								className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:bg-gray-300"
 								disabled={bulkTaskMutation.isPending}
 								onClick={() => handleBulkStatusUpdate("cancelled")}
-Cancel
+							>
+								Cancel
 							</button>
 							<button
 								className="rounded bg-gray-600 px-3 py-1 text-sm text-white hover:bg-gray-700"
 								onClick={() => setSelectedTasks([])}
-Clear Selection
+							>
+								Clear Selection
 							</button>
 						</div>
 					</div>
@@ -340,7 +337,8 @@ Clear Selection
 						<button
 							className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
 							onClick={() => refetchTasks()}
-Refresh
+						>
+							Refresh
 						</button>
 					</div>
 				</div>

@@ -1,16 +1,34 @@
 "use client";
 
-
-import { YAxis
+import { useState, useCallback, useEffect } from "react";
+import { 
+	ResponsiveContainer, 
+	BarChart, 
+	CartesianGrid, 
+	XAxis, 
+	YAxis, 
+	Tooltip, 
+	Bar, 
+	PieChart, 
+	Pie, 
+	Cell 
 } from "recharts";
-import { Card,
-import { CardTitle
-} from "@/components/ui/card";
-import { Select,
-import { SelectValue
-} from "@/components/ui/select";
-import { CriticalErrorType
-} from "@/lib/alerts/types";
+import { AlertTriangle, Clock, TrendingUp, Activity } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CriticalErrorType } from "@/lib/alerts/types";
+
+// Define missing types locally
+interface AlertMetrics {
+	totalAlerts: number;
+	resolvedAlerts: number;
+	activeAlerts: number;
+	errorsByType: Record<string, number>;
+	alertsByHour: Array<{ hour: string; count: number }>;
+}
 
 interface AlertMetricsChartProps {
 	className?: string;

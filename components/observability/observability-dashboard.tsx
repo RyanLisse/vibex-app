@@ -1,4 +1,2 @@
 "use client";
-import { Activity,
-import { Zap
-} from "lucide-react";
+import { Activity, Zap } from "lucide-react";

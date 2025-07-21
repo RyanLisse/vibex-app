@@ -1,12 +1,32 @@
 "use client";
 
-import { Zap
+import { 
+	Zap, 
+	Wifi, 
+	WifiOff, 
+	RefreshCw, 
+	AlertCircle, 
+	CheckCircle2, 
+	Clock, 
+	Database, 
+	Activity, 
+	Users 
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { CardTitle
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+	Card, 
+	CardContent, 
+	CardHeader, 
+	CardTitle, 
+	CardDescription 
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-electricDb, type SyncEvent } from "@/lib/electric/config";
+import { electricDb, type SyncEvent } from "@/lib/electric/config";
 
 interface SyncStatusMonitorProps {
 	compact?: boolean;

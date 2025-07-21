@@ -1,16 +1,22 @@
 "use client";
-import { AlertTriangle,
-import { XCircle
-} from "lucide-react";
-import { CardTitle
-} from "@/components/ui/card";
-import { Dialog,
-import { DialogTrigger
-} from "@/components/ui/dialog";
-import { SelectValue
-} from "@/components/ui/select";
-import { CriticalErrorType
-} from "@/lib/alerts/types";
+
+import { useState, useEffect } from "react";
+import { AlertTriangle, XCircle, CheckCircle, Settings, Plus, TestTube, Edit, Trash2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { CriticalErrorType, AlertChannelType, type AlertChannel, type AlertConfig } from "@/lib/alerts";
+
+// Define missing types locally until they're added to the lib
+type AlertPriority = "low" | "medium" | "high" | "critical";
 
 interface AlertConfigManagerProps {
 	className?: string;

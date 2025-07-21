@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { TokenValidationConfig
-} from "../auth";
+import { TokenValidationConfig } from "../auth";
 // Re-export auth utility functions for backwards compatibility
 export {
 	buildAuthUrl,
@@ -15,9 +14,9 @@ export {
 	isTokenExpired,
 	isTokenExpiring,
 	parseJWT,
-	import { refreshAuthToken,
-	import { revokeToken,
-	import { sanitizeRedirectUrl,
-	import { validateOAuthState,
-	import { validateToken
+	refreshAuthToken,
+	revokeToken,
+	sanitizeRedirectUrl,
+	validateOAuthState,
+	validateToken
 } from "../auth";

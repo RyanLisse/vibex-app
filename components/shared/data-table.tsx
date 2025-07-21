@@ -1,12 +1,7 @@
 "use client";
-import { ChevronLeft,
-import { SortDesc
-} from "lucide-react";
-import { SelectValue
-} from "@/components/ui/select";
-import { Table,
-import { TableRow
-} from "@/components/ui/table";
+import { ChevronLeft, SortDesc } from "lucide-react";
+import { SelectValue } from "@/components/ui/select";
+import { Table, TableRow } from "@/components/ui/table";
 
 interface Column<T> {
 	key: keyof T;

@@ -6,11 +6,7 @@
  */
 
 "use client";
-import { AlertTriangle,
-import { Zap
-} from "lucide-react";
+import { AlertTriangle, Zap } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
-import { CardTitle
-} from "@/components/ui/card";
-import { MigrationState
-} from "@/lib/migration/types";
+import { CardTitle } from "@/components/ui/card";
+import { MigrationState } from "@/lib/migration/types";

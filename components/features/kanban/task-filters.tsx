@@ -1,10 +1,14 @@
 "use client";
 
-import { PopoverTrigger
-} from "@/components/ui/popover";
-import { Select,
-import { SelectValue
-} from "@/components/ui/select";
+import { useState } from "react";
+import { Search, Filter, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FilterState {
 	assignee?: string;
@@ -87,7 +91,8 @@ export function TaskFilters({
 				<Label
 					className="whitespace-nowrap font-medium text-sm"
 					htmlFor="assignee"
-Assignee:
+				>
+					Assignee:
 				</Label>
 				<Select
 					onValueChange={(value) =>
@@ -114,7 +119,8 @@ Assignee:
 				<Label
 					className="whitespace-nowrap font-medium text-sm"
 					htmlFor="priority"
-Priority:
+				>
+					Priority:
 				</Label>
 				<Select
 					onValueChange={(value) =>
@@ -139,7 +145,8 @@ Priority:
 			<Popover onOpenChange={setIsOpen} open={isOpen}>
 				<PopoverTrigger asChild>
 					<Button className="relative gap-2" variant="outline">
-						<Filter className="h-4 w-4" />Tags
+						<Filter className="h-4 w-4" />
+						Tags
 						{activeFilterCount > 0 && (
 							<Badge
 								className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
@@ -160,7 +167,8 @@ Priority:
 									onClick={clearFilters}
 									size="sm"
 									variant="ghost"
-Clear All
+								>
+									Clear All
 								</Button>
 							)}
 						</div>

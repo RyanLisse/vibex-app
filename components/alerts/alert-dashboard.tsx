@@ -1,12 +1,41 @@
 "use client";
 
-import { TrendingUp
-} from "lucide-react";
-import { CardTitle
-} from "@/components/ui/card";
-import {
-	type CriticalErrorType
-} from "@/lib/alerts/types";
+import { useState, useEffect } from "react";
+import { TrendingUp, AlertTriangle, Bell, Clock, CheckCircle, Activity } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatDistanceToNow, format } from "date-fns";
+import { type CriticalErrorType } from "@/lib/alerts/types";
+
+// Type definitions that seem to be missing
+interface CriticalError {
+	id: string;
+	type: CriticalErrorType;
+	message: string;
+	severity: string;
+	source: string;
+	timestamp: string;
+	environment: string;
+	occurrenceCount: number;
+	firstOccurrence: string;
+	lastOccurrence: string;
+	correlationId?: string;
+	metadata?: Record<string, unknown>;
+	resolved?: boolean;
+	resolvedAt?: string;
+}
+
+interface AlertMetrics {
+	totalAlerts: number;
+	unresolvedAlerts: number;
+	averageResolutionTime?: number;
+	alertsLast24Hours: number;
+	alertsLast7Days: number;
+	alertsByType?: Record<string, number>;
+}
 
 interface AlertDashboardProps {
 	className?: string;
@@ -241,7 +270,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 												onClick={() => resolveAlert(alert.id)}
 												size="sm"
 												variant="outline"
-Resolve
+											>
+												Resolve
 											</Button>
 										</div>
 									</CardHeader>

@@ -7,12 +7,10 @@
 
 "use client";
 
-import { Zap
-} from "lucide-react";
+import { Zap, Plus, Settings, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { SyncIndicator,
-import { SyncStatusMonitor
-} from "@/components/electric/sync-status-monitor";
-import { CardTitle
-} from "@/components/ui/card";
+import { SyncIndicator, SyncStatusMonitor } from "@/components/electric/sync-status-monitor";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";

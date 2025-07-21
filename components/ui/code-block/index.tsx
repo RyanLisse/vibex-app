@@ -1,30 +1,28 @@
 "use client";
 
-	type IconType,
-import { SiAstro,
-import { SiWebassembly
-} from "@icons-pack/react-simple-icons";
+import { SiAstro, SiWebassembly, type IconType } from "@icons-pack/react-simple-icons";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
+import {
 	transformerNotationDiff,
 	transformerNotationErrorLevel,
 	transformerNotationFocus,
 	transformerNotationHighlight,
 	transformerNotationWordHighlight
 } from "@shikijs/transformers";
-import { ReactNode
+import {
+	ReactNode,
+	cloneElement,
+	createContext,
+	useContext,
+	useEffect,
+	useState
 } from "react";
-	import { cloneElement,
-	import { createContext,
-	import { useContext,
-	import { useEffect,
-	import { useState
-} from "react";
+import {
 	type BundledLanguage,
 	type CodeOptionsMultipleThemes,
-	import { codeToHtml
+	codeToHtml
 } from "shiki";
-import { SelectValue
-} from "@/components/ui/select";
+import { SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 export type { BundledLanguage } from "shiki";
@@ -42,7 +40,7 @@ const filenameIconMap = {
 	"*.module.css": SiCssmodules,
 	"*.css": SiCss,
 	"*.dart": SiDart,
-Dockerfile: SiDocker,
+"Dockerfile": SiDocker,
 	"docusaurus.config.js": SiDocusaurus,
 	".editorconfig": SiEditorconfig,
 	".eslintrc": SiEslint,

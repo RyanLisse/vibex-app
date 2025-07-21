@@ -248,3 +248,7 @@ URL.revokeObjectURL(audioUrl);
 // Extend Window interface for TypeScript
 declare global {
 	interface Window {
+		webkitSpeechRecognition?: SpeechRecognition;
+		SpeechRecognition?: SpeechRecognition;
+	}
+}

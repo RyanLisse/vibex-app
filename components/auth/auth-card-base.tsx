@@ -1,7 +1,11 @@
 "use client";
 
-import { CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle, Clock, LogOut, Shield, User } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { ReactNode } from "react";
 
 interface AuthCardBaseProps {
 	title: string;
@@ -73,7 +77,8 @@ export function AuthCardBase({
 						className="w-full"
 						onClick={onRetry || (() => window.location.reload())}
 						variant="outline"
-Retry
+					>
+						Retry
 					</Button>
 				</CardContent>
 			</Card>

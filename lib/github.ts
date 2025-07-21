@@ -94,7 +94,7 @@ export class GitHubAuth {
 			{
 				method: "POST",
 				headers: {
-Accept: "application/json",
+					"Accept": "application/json",
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
@@ -118,4 +118,4 @@ Accept: "application/json",
 	async getUser(accessToken: string): Promise<GitHubUser> {
 		const response = await fetch("https://api.github.com/user", {
 			headers: {
-Authorization: `Bearer ${accessToken}`,
+				"Authorization": `Bearer ${accessToken}`,

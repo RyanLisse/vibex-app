@@ -5,9 +5,55 @@ const nextConfig: NextConfig = {
 	// Enable React strict mode for better development experience
 	reactStrictMode: true,
 
-	// Enable instrumentation hook
-	experimental: {
-		instrumentationHook: true,
+	// Webpack configuration to exclude Node.js modules from client bundles
+	webpack: (config, { isServer }) => {
+		if (!isServer) {
+			// Exclude Node.js modules from client-side bundles
+			config.resolve.fallback = {
+				...config.resolve.fallback,
+				dns: false,
+				net: false,
+				tls: false,
+				fs: false,
+				path: false,
+				os: false,
+				crypto: false,
+				stream: false,
+				util: false,
+				url: false,
+				querystring: false,
+				http: false,
+				https: false,
+				zlib: false,
+				buffer: false,
+				events: false,
+				assert: false,
+				constants: false,
+				child_process: false,
+				cluster: false,
+				dgram: false,
+				module: false,
+				perf_hooks: false,
+				readline: false,
+				repl: false,
+				string_decoder: false,
+				sys: false,
+				timers: false,
+				tty: false,
+				v8: false,
+				vm: false,
+				worker_threads: false,
+			};
+
+			// Exclude server-side packages from client bundles
+			config.externals = config.externals || [];
+			config.externals.push({
+				ioredis: 'ioredis',
+				redis: 'redis',
+				'@redis/client': '@redis/client',
+			});
+		}
+		return config;
 	},
 
 	// Image optimization configuration

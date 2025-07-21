@@ -6,11 +6,10 @@
  * Interactive timeline for time-travel debugging with execution snapshots,
  * step-by-step replay, and diff visualization capabilities.
  */
-import { Activity,
-import { Zap
-} from "lucide-react";
+import { Activity, Zap } from "lucide-react";
 import type React from "react";
 import { Progress } from "@/components/ui/progress";
+import {
 	type ExecutionSnapshot,
 	type ReplaySession,
 	type ReplaySpeed,
@@ -484,3 +483,12 @@ export function TimelineVisualization({
 						onClick={() => setCompareSnapshot(currentSnapshot)}
 						size="sm"
 						variant="outline"
+					>
+						<Activity className="mr-2 h-4 w-4" />
+						Set Compare Point
+					</Button>
+				)}
+			</div>
+		</div>
+	);
+};

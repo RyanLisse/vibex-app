@@ -6,58 +6,38 @@
  */
 
 // Additional types from services
-export type { DetectionConfig,
-import { DetectionResult
-} from "./auto-detector";
-import { export { autoDetector } from "./auto-detector";
-export type {
-import { BackupOptions,
-import { BackupResult
-} from "./backup-service";
-import { export { backupService } from "./backup-service";
+export type { DetectionConfig, DetectionResult } from "./auto-detector";
+export { autoDetector } from "./auto-detector";
+export type { BackupOptions, BackupResult } from "./backup-service";
+export { backupService } from "./backup-service";
 // Data extraction and mapping services
-import { export { DataExtractor } from "./data-extractor";
-import { export { DataMapper } from "./data-mapper";
-import { export { dataMigrationManager } from "./data-migration";
-export type {
-import { MigrationPlan,
-import { OrchestrationConfig
-} from "./migration-orchestrator";
+export { DataExtractor } from "./data-extractor";
+export { DataMapper } from "./data-mapper";
+export { dataMigrationManager } from "./data-migration";
+export type { MigrationPlan, OrchestrationConfig } from "./migration-orchestrator";
 // Core services
-import { export { migrationOrchestrator } from "./migration-orchestrator";
-import { export { migrationService } from "./migration-service";
-export type {
-import { ProgressConfig,
-import { ProgressSnapshot
-} from "./progress-tracker";
-import { export { progressTracker } from "./progress-tracker";
-export type {
-import { RollbackError,
-import { RollbackResult
-} from "./rollback-service";
-import { export { rollbackService } from "./rollback-service";
+export { migrationOrchestrator } from "./migration-orchestrator";
+export { migrationService } from "./migration-service";
+export type { ProgressConfig, ProgressSnapshot } from "./progress-tracker";
+export { progressTracker } from "./progress-tracker";
+export type { RollbackError, RollbackResult } from "./rollback-service";
+export { rollbackService } from "./rollback-service";
 // Types
 export type {
 	// Backup types
-import { BackupData,
-import { ValidationResult
+	BackupData,
+	ValidationResult
 } from "./types";
 // Utility functions
 export {
-	import { checkMigrationStatus,
-	import { createMigrationPlan,
-	import { startMigration
+	checkMigrationStatus,
+	createMigrationPlan,
+	startMigration
 } from "./utils";
-export type {
-import { DataComparisonResult,
-import { ValidationOptions
-} from "./validation-service";
-import { export { validationService } from "./validation-service";
-export type {
-import { MigrationMode,
-import { ZeroDowntimeConfig
-} from "./zero-downtime-coordinator";
-import { export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
+export type { DataComparisonResult, ValidationOptions } from "./validation-service";
+export { validationService } from "./validation-service";
+export type { MigrationMode, ZeroDowntimeConfig } from "./zero-downtime-coordinator";
+export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
 
 /**
  * Quick start guide:
