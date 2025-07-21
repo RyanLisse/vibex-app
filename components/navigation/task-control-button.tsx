@@ -1,10 +1,4 @@
-import { Loader } from "lucide-react";
-import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TaskControlButtonProps {
 	icon: ReactNode;

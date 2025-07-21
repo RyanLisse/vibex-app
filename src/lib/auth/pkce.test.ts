@@ -1,16 +1,16 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test
 } from "bun:test";
 import * as cryptoModule from "node:crypto";
 import { vi } from "vitest";
 	generateCodeChallenge,
-	generateCodeVerifier,
+	generateCodeVerifier
 } from "@/src/lib/auth/pkce";
 
 // Mock crypto module
@@ -238,20 +238,3 @@ describe("PKCE utilities", () => {
 		it("should generate URL-safe strings", () => {
 			// Test with various byte patterns that could produce problematic characters
 			const testPatterns = [
-				Buffer.from([0xff, 0xff, 0xff]), // All 1s
-				Buffer.from([0x00, 0x00, 0x00]), // All 0s
-				Buffer.from([0xaa, 0x55, 0xaa]), // Alternating bits
-				Buffer.from([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0]), // Mixed
-			];
-
-			testPatterns.forEach((pattern) => {
-				mockRandomBytes.mockReturnValue(pattern);
-
-				const verifier = generateCodeVerifier(pattern.length);
-
-				// Check URL-safe characters only
-				expect(verifier).toMatch(/^[A-Za-z0-9_-]*$/);
-			});
-		});
-	});
-});

@@ -4,14 +4,7 @@
  * GitHub issues, PR comments, voice commands, and screenshot analysis.
  */
 
-import { describe, test, expect, beforeEach } from "bun:test";
-import { MultiSourceTaskCreator } from "./task-creator";
-	Task,
-	VoiceCommand,
-	ScreenshotAnalysis,
-	TaskCreationResult,
-	ContainerUseError,
-} from "./types";
+import { ContainerUseError } from "./types";
 
 describe("MultiSourceTaskCreator", () => {
 	let taskCreator: MultiSourceTaskCreator;

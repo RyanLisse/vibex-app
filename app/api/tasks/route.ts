@@ -9,20 +9,7 @@ export const runtime = "nodejs";
  * OpenTelemetry tracing, and comprehensive error handling.
  */
 
-import { SpanStatusCode, trace } from "@opentelemetry/api";
-import { and, asc, desc, eq, like } from "drizzle-orm";
-import { type NextRequest, NextResponse } from "next/server";
-import { ulid } from "ulid";
-import { z } from "zod";
-import { db } from "@/db/config";
-import { tasks } from "@/db/schema";
-import { observability } from "@/lib/observability";
-	CreateTaskSchema,
-	createApiErrorResponse,
-	createApiSuccessResponse,
-	createPaginatedResponse,
-	type UpdateTaskSchema,
-} from "@/src/schemas/api-routes";
+import { type UpdateTaskSchema } from "@/src/schemas/api-routes";
 
 // Request validation schemas
 const GetTasksQuerySchema = z.object({

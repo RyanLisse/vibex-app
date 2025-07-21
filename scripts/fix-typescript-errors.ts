@@ -8,7 +8,7 @@ import { execSync } from "child_process";
 	statSync,
 	writeFileSync,
 } from "fs";
-import { dirname, join, relative } from "path";
+dirname, join, relative } from "path";
 
 interface ErrorPattern {
 	code: string;
@@ -89,7 +89,7 @@ const errorPatterns: ErrorPattern[] = [
 			if (modulePath.includes("redis-client") && memberName === "redis") {
 				content = content.replace(
 					/import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
-					"import { createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()",
+					"createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()",
 				);
 			}
 
@@ -101,7 +101,7 @@ const errorPatterns: ErrorPattern[] = [
 				content = content
 					.replace(
 						/import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
-						"import { observability } from '@/lib/observability'",
+						"observability } from '@/lib/observability'",
 					)
 					.replace(/observabilityService\./g, "observability.");
 			}
@@ -113,7 +113,7 @@ const errorPatterns: ErrorPattern[] = [
 			) {
 				content = content.replace(
 					/import\s*{\s*vectorSearchService\s*}\s*from\s*['"]@\/lib\/wasm\/vector-search['"]/g,
-					"import { VectorSearchService } from '@/lib/wasm/vector-search'\nconst vectorSearchService = new VectorSearchService()",
+					"VectorSearchService } from '@/lib/wasm/vector-search'\nconst vectorSearchService = new VectorSearchService()",
 				);
 			}
 

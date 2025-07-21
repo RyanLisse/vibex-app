@@ -1,11 +1,9 @@
 import type React from "react";
-import { FormField } from "@/components/forms/form-field";
-import { Button } from "@/components/ui/button";
 import type { ContactForm } from "@/src/schemas/forms";
 	contactFormSchema,
 	getFieldError,
 	hasFieldError,
-	validateSchema,
+	validateSchema
 } from "@/src/schemas/forms";
 
 interface ContactFormProps {
@@ -205,15 +203,11 @@ export function ContactForm({
 					disabled={isLoading}
 					onClick={handleClear}
 					type="button"
-					variant="outline"
-				>
-					Clear
-				</Button>
+					variant="outline">Clear</Button>
 				<Button className="min-w-24" disabled={isLoading} type="submit">
 					{isLoading ? (
 						<>
-							<div className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-							Sending...
+							<div className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Sending...
 						</>
 					) : (
 						"Send Message"

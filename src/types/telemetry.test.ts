@@ -1,8 +1,4 @@
-import { describe, expect, it, test } from "bun:test";
-	TelemetryBackend,
-	TelemetryConfig,
-	TelemetryEnvironmentConfig,
-} from "@/src/types/telemetry";
+import { TelemetryEnvironmentConfig } from "@/src/types/telemetry";
 
 describe("TelemetryConfig interface", () => {
 	it("should accept valid telemetry configuration", () => {

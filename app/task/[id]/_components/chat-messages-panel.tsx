@@ -1,8 +1,7 @@
 import { memo } from "react";
-import { ChatMessage } from "@/app/task/[id]/_components/chat-message";
-import { InitialTaskMessage } from "@/app/task/[id]/_components/initial-task-message";
-import type { StreamingMessage } from "@/app/task/[id]/_types/message-types";
-import type { Task } from "@/types/task";
+import { InitialTaskMessage } from "./initial-task-message";
+import { ChatMessage } from "./chat-message";
+import type { Task, StreamingMessage } from "@/types/task";
 import {
 	getMessageKey,
 	getMessageText,

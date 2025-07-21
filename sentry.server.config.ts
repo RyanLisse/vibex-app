@@ -36,7 +36,7 @@ Sentry.init({
 
 			// Don't send events for expected errors
 			if (error && typeof error === "object" && "code" in error) {
-				const errorCode = (error as any).code;
+				const errorCode = (error as { code: string }).code;
 				if (["NEXT_NOT_FOUND", "NEXT_REDIRECT"].includes(errorCode)) {
 					return null;
 				}

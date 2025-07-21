@@ -1,8 +1,5 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
-import { queryKeys } from "@/lib/query/config";
 import { useElectricTaskExecutions } from "./use-electric-tasks";
 	useEnhancedInfiniteQuery,
 	useEnhancedQuery,

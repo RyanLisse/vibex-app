@@ -3,11 +3,11 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 import { type NextRequest, NextResponse } from "next/server";
-import { getAlertService, logger } from "@/app/api/alerts/_lib/setup";
-	AlertChannelType,
-	AlertMetrics,
-	CriticalErrorType,
-} from "@/lib/alerts/types";
+import { getAlertService } from "@/lib/alerts";
+import { CriticalErrorType } from "@/lib/alerts/types";
+import { getLogger } from "@/lib/logging/safe-wrapper";
+
+const logger = getLogger("alert-metrics-api");
 
 export async function GET(_request: NextRequest) {
 	try {
@@ -39,71 +39,23 @@ export async function GET(_request: NextRequest) {
 		}
 
 		// Group alerts by channel (this would need to be tracked during alert processing)
-		const alertsByChannel: Record<AlertChannelType, number> = {} as Record<
-			AlertChannelType,
-			number
-		>;
-
-		// Calculate resolution times
-		const resolvedAlerts = alertHistory.filter(
-			(a) => a.resolved && a.resolvedAt,
-		);
-		const resolutionTimes = resolvedAlerts.map((a) => {
-			const resolvedAt = new Date(a.resolvedAt!).getTime();
-			const timestamp = new Date(a.timestamp).getTime();
-			return resolvedAt - timestamp;
-		});
-
-		const averageResolutionTime =
-			resolutionTimes.length > 0
-				? resolutionTimes.reduce((sum, time) => sum + time, 0) /
-					resolutionTimes.length
-				: 0;
-
-		const metrics: AlertMetrics = {
-			totalAlerts: alertHistory.length,
-			alertsByType,
-			alertsByChannel,
-			averageResolutionTime,
-			unresolvedAlerts: activeAlerts.length,
-			alertsLast24Hours: last24HourAlerts.length,
-			alertsLast7Days: last7DayAlerts.length,
-			meanTimeToAlert: 0, // Would need additional tracking
-			meanTimeToResolution: averageResolutionTime,
-		};
-
-		logger.info("Alert metrics calculated", {
-			totalAlerts: metrics.totalAlerts,
-			unresolvedAlerts: metrics.unresolvedAlerts,
-			averageResolutionTime: metrics.averageResolutionTime,
-			endpoint: "/api/alerts/metrics",
-		});
+		const alertsByChannel: Record<string, number> = {};
 
 		return NextResponse.json({
 			success: true,
-			...metrics,
-			timestamp: new Date().toISOString(),
+			data: {
+				activeAlerts: activeAlerts.length,
+				last24Hours: last24HourAlerts.length,
+				last7Days: last7DayAlerts.length,
+				alertsByType,
+				alertsByChannel,
+				recentAlerts: alertHistory.slice(0, 10),
+			},
 		});
 	} catch (error) {
-		logger.error("Failed to get alert metrics", {
-			error: error instanceof Error ? error.message : "Unknown error",
-			endpoint: "/api/alerts/metrics",
-		});
-
+		logger.error("Failed to get alert metrics", error as Error);
 		return NextResponse.json(
-			{
-				success: false,
-				error: "Failed to retrieve alert metrics",
-				totalAlerts: 0,
-				unresolvedAlerts: 0,
-				alertsByType: {},
-				alertsByChannel: {},
-				averageResolutionTime: 0,
-				alertsLast24Hours: 0,
-				alertsLast7Days: 0,
-				meanTimeToAlert: 0,
-				meanTimeToResolution: 0,
-			},
+			{ success: false, error: "Failed to get alert metrics" },
 			{ status: 500 },
 		);
 	}

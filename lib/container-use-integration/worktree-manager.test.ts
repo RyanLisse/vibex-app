@@ -4,13 +4,7 @@
  * Git worktrees for parallel agent development.
  */
 
-import { describe, test, expect, beforeEach } from "bun:test";
-import { GitWorktreeManager } from "./worktree-manager";
-	GitWorktree,
-	WorktreeOperationResult,
-	GitCommit,
-	ContainerUseError,
-} from "./types";
+import { ContainerUseError } from "./types";
 
 describe("GitWorktreeManager", () => {
 	let worktreeManager: GitWorktreeManager;

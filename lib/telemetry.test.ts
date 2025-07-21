@@ -1,9 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import type { TelemetryBackend, TelemetryConfig } from "@/src/types/telemetry";
 	getDefaultEndpoint,
 	getTelemetryConfig,
 	logTelemetryConfig,
-	validateTelemetryConfig,
+	validateTelemetryConfig
 } from "./telemetry";
 
 describe("telemetry", () => {
@@ -86,7 +85,7 @@ describe("telemetry", () => {
 			const config = getTelemetryConfig();
 
 			expect(config.headers).toEqual({
-				Authorization: "Bearer token123",
+Authorization: "Bearer token123",
 			});
 		});
 
@@ -265,7 +264,7 @@ describe("telemetry", () => {
 				serviceName: "test-service",
 				serviceVersion: "1.0.0",
 				headers: {
-					Authorization: "Bearer token",
+Authorization: "Bearer token",
 					"X-Custom-Header": "value",
 				},
 			};

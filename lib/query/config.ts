@@ -1,10 +1,8 @@
 	type DefaultOptions,
-	MutationCache,
-	QueryCache,
-	QueryClient,
+import { QueryClient
 } from "@tanstack/react-query";
 	type WASMOptimizationConfig,
-	wasmDetector,
+	import { wasmDetector
 } from "@/lib/wasm/detection";
 
 /**
@@ -121,7 +119,7 @@ export function createOptimizedQueryClient(): QueryClient {
 					"Query success:",
 					query.queryKey,
 					"Data size:",
-					JSON.stringify(data).length,
+JSON.stringify(data).length,
 				);
 			}
 		},

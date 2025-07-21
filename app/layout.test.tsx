@@ -1,4 +1,3 @@
-import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import RootLayout, { metadata } from "./layout";
 

@@ -5,14 +5,7 @@
  * Ensures no data loss and maintains consistency.
  */
 
-import { eq } from "drizzle-orm";
-import { db } from "@/db/config";
-import { environments, tasks } from "@/db/schema";
-	LocalStorageData,
-	LocalStorageEnvironment,
-	LocalStorageTask,
-	ValidationError,
-	ValidationResult,
+import { ValidationResult
 } from "./types";
 
 export interface ValidationOptions {
@@ -58,7 +51,7 @@ export class ValidationService {
 
 	static getInstance(): ValidationService {
 		if (!ValidationService.instance) {
-			ValidationService.instance = new ValidationService();
+ValidationService.instance = new ValidationService();
 		}
 		return ValidationService.instance;
 	}
@@ -774,11 +767,11 @@ export class ValidationService {
 	 */
 	private mapTaskStatus(localStatus: string): string {
 		const statusMap: Record<string, string> = {
-			IN_PROGRESS: "in_progress",
-			DONE: "completed",
-			MERGED: "completed",
-			CANCELLED: "cancelled",
-			PAUSED: "pending",
+IN_PROGRESS: "in_progress",
+DONE: "completed",
+MERGED: "completed",
+CANCELLED: "cancelled",
+PAUSED: "pending",
 		};
 
 		return statusMap[localStatus] || "pending";
@@ -796,51 +789,8 @@ export class ValidationService {
 Generated: ${new Date().toISOString()}
 
 ## Overall Status
-- Valid: ${validation.valid ? "✅ Yes" : "❌ No"}
-- Data Identical: ${comparison.identical ? "✅ Yes" : "⚠️ No"}
+Valid: ${validation.valid ? "✅ Yes" : "❌ No"}
+Data Identical: ${comparison.identical ? "✅ Yes" : "⚠️ No"}
 
 ## Statistics
-- Total Checked: ${validation.statistics.totalChecked}
-- Passed: ${validation.statistics.passed}
-- Failed: ${validation.statistics.failed}
-- Skipped: ${validation.statistics.skipped}
-
-## Data Comparison
-- Total Local Items: ${comparison.summary.totalLocal}
-- Total Database Items: ${comparison.summary.totalDatabase}
-- Matched: ${comparison.summary.matched}
-- Mismatched: ${comparison.summary.mismatched}
-
-## Errors (${validation.errors.length})
-${validation.errors.map((e) => `- [${e.severity}] ${e.field}: ${e.message}`).join("\n") || "None"}
-
-## Warnings (${validation.warnings.length})
-${validation.warnings.join("\n") || "None"}
-
-## Data Differences (${comparison.differences.length})
-${
-	comparison.differences
-		.slice(0, 10)
-		.map(
-			(d) =>
-				`- ${d.type} ${d.id}: ${d.field} differs (local: ${d.localValue}, db: ${d.databaseValue})`,
-		)
-		.join("\n") || "None"
-}
-${comparison.differences.length > 10 ? `\n... and ${comparison.differences.length - 10} more differences` : ""}
-
-## Local Only Items (${comparison.localOnly.length})
-${comparison.localOnly.slice(0, 10).join("\n") || "None"}
-${comparison.localOnly.length > 10 ? `\n... and ${comparison.localOnly.length - 10} more items` : ""}
-
-## Database Only Items (${comparison.databaseOnly.length})
-${comparison.databaseOnly.slice(0, 10).join("\n") || "None"}
-${comparison.databaseOnly.length > 10 ? `\n... and ${comparison.databaseOnly.length - 10} more items` : ""}
-`;
-
-		return report;
-	}
-}
-
-// Export singleton instance
-export const validationService = ValidationService.getInstance();
+Total Checked: ${validation.statistics.totalChecked}

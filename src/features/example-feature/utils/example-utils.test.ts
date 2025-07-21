@@ -1,18 +1,18 @@
 	afterEach,
 	beforeEach,
-	describe,
-	expect,
-	it,
-	mock,
-	test,
+	import { describe,
+	import { expect,
+	import { it,
+	import { mock,
+	import { test
 } from "bun:test";
-	ExampleFilter,
-	ExampleItem,
+import { ExampleFilter,
+import { ExampleItem
 } from "@/src/features/example-feature/types";
-	filterItems,
-	getPriorityColor,
-	getStatusIcon,
-	sortItems,
+	import { filterItems,
+	import { getPriorityColor,
+	import { getStatusIcon,
+	import { sortItems
 } from "@/src/features/example-feature/utils/example-utils";
 
 describe("filterItems", () => {

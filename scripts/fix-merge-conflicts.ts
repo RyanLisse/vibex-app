@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+join } from "path";
 
 const filesToFix = [
 	"lib/observability/index.ts",

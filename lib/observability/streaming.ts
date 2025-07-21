@@ -5,13 +5,7 @@
  * filtering, and subscription management for live monitoring and debugging.
  */
 
-import { and, desc, eq, gte, inArray } from "drizzle-orm";
-import { EventEmitter } from "events";
-import { db } from "@/db/config";
-import { observabilityEvents } from "@/db/schema";
-	EventSeverity,
-	ObservabilityEvent,
-	ObservabilityEventType,
+import { ObservabilityEventType
 } from "./events";
 
 // Event stream filter
@@ -54,7 +48,7 @@ export class EventStreamManager extends EventEmitter {
 
 	static getInstance(): EventStreamManager {
 		if (!EventStreamManager.instance) {
-			EventStreamManager.instance = new EventStreamManager();
+EventStreamManager.instance = new EventStreamManager();
 		}
 		return EventStreamManager.instance;
 	}
@@ -407,49 +401,7 @@ export const eventStream = {
 
 	// Subscribe to all events
 	subscribeToAll: (callback: (event: ObservabilityEvent) => void) =>
-		EventStreamManager.getInstance().subscribe({}, callback),
+EventStreamManager.getInstance().subscribe({}, callback),
 
 	// Subscribe to errors only
 	subscribeToErrors: (callback: (event: ObservabilityEvent) => void) =>
-		EventStreamManager.getInstance().subscribe(
-			{ severities: ["error", "critical"] },
-			callback,
-		),
-
-	// Subscribe to execution events
-	subscribeToExecution: (
-		executionId: string,
-		callback: (event: ObservabilityEvent) => void,
-	) =>
-		EventStreamManager.getInstance().subscribe(
-			{
-				executionId,
-				types: [
-					"execution_start",
-					"execution_end",
-					"execution_error",
-					"step_start",
-					"step_end",
-					"step_error",
-				],
-			},
-			callback,
-		),
-
-	// Subscribe to performance metrics
-	subscribeToPerformance: (callback: (event: ObservabilityEvent) => void) =>
-		EventStreamManager.getInstance().subscribe(
-			{ types: ["performance_metric", "wasm_operation"] },
-			callback,
-		),
-
-	// Subscribe to user actions
-	subscribeToUserActions: (
-		userId: string,
-		callback: (event: ObservabilityEvent) => void,
-	) =>
-		EventStreamManager.getInstance().subscribe(
-			{ userId, types: ["user_action"] },
-			callback,
-		),
-};

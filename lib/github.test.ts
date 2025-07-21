@@ -1,23 +1,17 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test
 } from "bun:test";
-import { cookies } from "next/headers";
-import { vi } from "vitest";
-	clearGitHubAuth,
-	createRepository,
-	exchangeCodeForToken,
-	GitHubClient,
+import { GitHubClient,
 	getGitHubOAuthUrl,
 	getGitHubUser,
 	getRepoBranches,
-	getUserRepositories,
-} from "./github";
+	getUserRepositories } from "./github";
 
 // Mock dependencies
 vi.mock("next/headers", () => ({
@@ -42,9 +36,9 @@ describe("GitHub Authentication", () => {
 		(cookies as any).mockResolvedValue(mockCookies as any);
 		process.env = {
 			...originalEnv,
-			GITHUB_CLIENT_ID: "test-client-id",
-			GITHUB_CLIENT_SECRET: "test-client-secret",
-			NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+GITHUB_CLIENT_ID: "test-client-id",
+GITHUB_CLIENT_SECRET: "test-client-secret",
+NEXT_PUBLIC_APP_URL: "http://localhost:3000",
 		};
 	});
 
@@ -105,7 +99,7 @@ describe("GitHub Authentication", () => {
 				{
 					method: "POST",
 					headers: {
-						Accept: "application/json",
+Accept: "application/json",
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
@@ -172,8 +166,8 @@ describe("GitHub Authentication", () => {
 
 			expect(fetch).toHaveBeenCalledWith("https://api.github.com/user", {
 				headers: {
-					Authorization: "Bearer valid-token",
-					Accept: "application/vnd.github.v3+json",
+Authorization: "Bearer valid-token",
+Accept: "application/vnd.github.v3+json",
 				},
 			});
 
@@ -293,8 +287,8 @@ describe("GitHub Authentication", () => {
 			expect(fetch).toHaveBeenCalledWith("https://api.github.com/user/repos", {
 				method: "POST",
 				headers: {
-					Authorization: "Bearer valid-token",
-					Accept: "application/vnd.github.v3+json",
+Authorization: "Bearer valid-token",
+Accept: "application/vnd.github.v3+json",
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(newRepo),

@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
-	ElectricConnectionStatus,
-	ElectricOfflineIndicator,
-	ElectricSyncButton,
-	useElectricContext,
+import { ElectricSyncButton,
+	useElectricContext
 } from "@/components/providers/electric-provider";
-	useElectricEnvironments,
-	useElectricTasks,
+	import { useElectricEnvironments,
+	import { useElectricTasks
 } from "@/hooks/use-electric-tasks";
 
 // Demo component to showcase ElectricSQL integration
@@ -215,22 +212,19 @@ export function ElectricDemo() {
 							className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 							disabled={!newTaskTitle.trim()}
 							type="submit"
-						>
-							Create Task
+Create Task
 						</button>
 					</div>
 				</form>
 
 				{/* Tasks List */}
 				{tasksError ? (
-					<div className="text-red-600 text-sm">
-						Error loading tasks: {tasksError.message}
+					<div className="text-red-600 text-sm">Error loading tasks: {tasksError.message}
 					</div>
 				) : (
 					<div className="space-y-3">
 						{tasks.length === 0 ? (
-							<div className="py-8 text-center text-gray-500">
-								No tasks yet. Create your first task above!
+							<div className="py-8 text-center text-gray-500">No tasks yet. Create your first task above!
 							</div>
 						) : (
 							tasks.map((task) => (
@@ -245,8 +239,7 @@ export function ElectricDemo() {
 											)}
 											<div className="mt-2 flex items-center space-x-4 text-gray-500 text-xs">
 												<span>Priority: {task.priority}</span>
-												<span>
-													Created:{" "}
+												<span>Created:{" "}
 													{new Date(task.createdAt).toLocaleDateString()}
 												</span>
 											</div>
@@ -267,8 +260,7 @@ export function ElectricDemo() {
 											<button
 												className="text-red-600 text-sm hover:text-red-800"
 												onClick={() => deleteTask(task.id)}
-											>
-												Delete
+Delete
 											</button>
 										</div>
 									</div>
@@ -306,22 +298,19 @@ export function ElectricDemo() {
 							className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 							disabled={!newEnvName.trim()}
 							type="submit"
-						>
-							Create
+Create
 						</button>
 					</div>
 				</form>
 
 				{/* Environments List */}
 				{environmentsError ? (
-					<div className="text-red-600 text-sm">
-						Error loading environments: {environmentsError.message}
+					<div className="text-red-600 text-sm">Error loading environments: {environmentsError.message}
 					</div>
 				) : (
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 						{environments.length === 0 ? (
-							<div className="col-span-full py-8 text-center text-gray-500">
-								No environments yet. Create your first environment above!
+							<div className="col-span-full py-8 text-center text-gray-500">No environments yet. Create your first environment above!
 							</div>
 						) : (
 							environments.map((env) => (
@@ -336,31 +325,13 @@ export function ElectricDemo() {
 									<div className="mb-2 flex items-center justify-between">
 										<h4 className="font-medium">{env.name}</h4>
 										{env.isActive && (
-											<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">
-												Active
+											<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">Active
 											</span>
 										)}
 									</div>
-									<div className="mb-3 text-gray-500 text-xs">
-										Created: {new Date(env.createdAt).toLocaleDateString()}
+									<div className="mb-3 text-gray-500 text-xs">Created: {new Date(env.createdAt).toLocaleDateString()}
 									</div>
 									{!env.isActive && (
 										<button
 											className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
 											onClick={() => activateEnvironment(env.id)}
-										>
-											Activate
-										</button>
-									)}
-								</div>
-							))
-						)}
-					</div>
-				)}
-			</div>
-
-			{/* Offline Indicator */}
-			<ElectricOfflineIndicator />
-		</div>
-	);
-}

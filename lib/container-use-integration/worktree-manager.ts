@@ -3,12 +3,7 @@
  * Implements Git worktree management for parallel agent development
  * Following TDD approach - minimal implementation to make tests pass
  */
-
-	GitWorktree,
-	WorktreeOperationResult,
-	GitCommit,
-	ContainerUseError,
-} from "./types";
+import { ContainerUseError } from "./types";
 
 interface WorktreeManagerConfig {
 	repositoryPath: string;

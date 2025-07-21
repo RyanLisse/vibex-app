@@ -4,12 +4,7 @@
  * Manages memory expiration, archival, and maintenance operations.
  */
 
-import { observability } from "@/lib/observability";
-import { memoryRepository } from "./repository";
-	MemoryEntry,
-	MemoryImportance,
-	MemoryLifecycleEvent,
-} from "./types";
+import { MemoryLifecycleEvent } from "./types";
 
 export class MemoryLifecycleManager {
 	private static instance: MemoryLifecycleManager;

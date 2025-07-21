@@ -8,7 +8,7 @@
 import { NextResponse } from "next/server";
 	createApiErrorResponse,
 	createApiSuccessResponse,
-	createPaginatedResponse,
+	createPaginatedResponse
 } from "@/src/schemas/api-routes";
 
 export interface PaginationInfo {
@@ -111,7 +111,7 @@ export class ResponseBuilder {
 		if (retryAfter) {
 			headers["Retry-After"] = retryAfter.toString();
 			headers["X-RateLimit-Reset"] = new Date(
-				Date.now() + retryAfter * 1000,
+Date.now() + retryAfter * 1000,
 			).toISOString();
 		}
 

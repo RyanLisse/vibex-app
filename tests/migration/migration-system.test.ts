@@ -5,6 +5,7 @@
  * transformation, validation, conflict resolution, backup/restore, and CLI operations.
  */
 
+import {
 	afterAll,
 	beforeAll,
 	beforeEach,
@@ -13,18 +14,7 @@
 	it,
 	vi,
 } from "vitest";
-import { backupService } from "../../lib/migration/backup-service";
-import { dataExtractor } from "../../lib/migration/data-extractor";
-import { dataMapper } from "../../lib/migration/data-mapper";
-import { migrationService } from "../../lib/migration/migration-service";
-	BackupManifest,
-	LocalStorageData,
-	LocalStorageEnvironment,
-	LocalStorageTask,
-	MigrationConfig,
-	MigrationError,
-	MigrationResult,
-} from "../../lib/migration/types";
+import { MigrationResult } from "../../lib/migration/types";
 
 // Mock localStorage
 const mockLocalStorage = (() => {

@@ -4,17 +4,7 @@
  * This file demonstrates how to use the comprehensive logging system
  * in different scenarios within the codex-clone application.
  */
-
-	AgentLogger,
-	createApiRouteLogger,
-	createLogger,
-	DatabaseLogger,
-	initializeLogging,
-	type LoggingConfig,
-	LoggingHealthMonitor,
-	PerformanceLogger,
-	SecurityLogger,
-} from "@/lib/logging";
+import { SecurityLogger } from "@/lib/logging";
 
 // 1. Basic Setup and Initialization
 export function initializeApplicationLogging() {

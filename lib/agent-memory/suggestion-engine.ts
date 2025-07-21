@@ -5,13 +5,7 @@
  * patterns, and agent behavior.
  */
 
-import { observability } from "@/lib/observability";
-import { memoryRepository } from "./repository";
-import { memorySearchService } from "./search-service";
-	MemoryContext,
-	MemoryEntry,
-	MemorySuggestion,
-	MemoryType,
+import { MemoryType
 } from "./types";
 
 interface SuggestionStrategy {
@@ -41,7 +35,7 @@ export class MemorySuggestionEngine {
 
 	static getInstance(): MemorySuggestionEngine {
 		if (!MemorySuggestionEngine.instance) {
-			MemorySuggestionEngine.instance = new MemorySuggestionEngine();
+MemorySuggestionEngine.instance = new MemorySuggestionEngine();
 		}
 		return MemorySuggestionEngine.instance;
 	}
@@ -479,49 +473,3 @@ export class MemorySuggestionEngine {
 		const cacheData = cached as any;
 		if (
 			cacheData._timestamp &&
-			Date.now() - cacheData._timestamp > this.CACHE_TTL
-		) {
-			this.suggestionCache.delete(key);
-			return null;
-		}
-
-		return cached;
-	}
-
-	/**
-	 * Set cached suggestions
-	 */
-	private setCachedSuggestions(
-		key: string,
-		suggestions: MemorySuggestion[],
-	): void {
-		const cacheData = suggestions as any;
-		cacheData._timestamp = Date.now();
-
-		// Limit cache size
-		if (this.suggestionCache.size >= 100) {
-			const firstKey = this.suggestionCache.keys().next().value;
-			this.suggestionCache.delete(firstKey);
-		}
-
-		this.suggestionCache.set(key, cacheData);
-	}
-
-	/**
-	 * Register custom strategy
-	 */
-	registerStrategy(strategy: SuggestionStrategy): void {
-		this.strategies.push(strategy);
-		console.log(`Registered suggestion strategy: ${strategy.name}`);
-	}
-
-	/**
-	 * Clear cache
-	 */
-	clearCache(): void {
-		this.suggestionCache.clear();
-	}
-}
-
-// Export singleton instance
-export const memorySuggestionEngine = MemorySuggestionEngine.getInstance();

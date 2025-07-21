@@ -5,13 +5,7 @@
  * and suggestions based on current context.
  */
 
-import { observability } from "@/lib/observability";
-import { memoryRepository } from "./repository";
-import { memorySearchService } from "./search-service";
-	MemoryContext,
-	MemoryEntry,
-	MemorySuggestion,
-	MemoryType,
+import { MemoryType
 } from "./types";
 
 export class MemoryContextManager {
@@ -23,7 +17,7 @@ export class MemoryContextManager {
 
 	static getInstance(): MemoryContextManager {
 		if (!MemoryContextManager.instance) {
-			MemoryContextManager.instance = new MemoryContextManager();
+MemoryContextManager.instance = new MemoryContextManager();
 		}
 		return MemoryContextManager.instance;
 	}
@@ -358,54 +352,3 @@ export class MemoryContextManager {
 		const cacheData = cached as any;
 		if (
 			cacheData._timestamp &&
-			Date.now() - cacheData._timestamp > this.CACHE_TTL
-		) {
-			this.contextCache.delete(key);
-			return null;
-		}
-
-		return cached;
-	}
-
-	/**
-	 * Set cached context
-	 */
-	private setCachedContext(key: string, context: MemoryContext): void {
-		// Add timestamp
-		const cachedData = context as any;
-		cachedData._timestamp = Date.now();
-
-		// Limit cache size
-		if (this.contextCache.size >= 100) {
-			const firstKey = this.contextCache.keys().next().value;
-			this.contextCache.delete(firstKey);
-		}
-
-		this.contextCache.set(key, cachedData);
-	}
-
-	/**
-	 * Clear context cache
-	 */
-	clearCache(): void {
-		this.contextCache.clear();
-	}
-
-	/**
-	 * Preload context for an agent
-	 */
-	async preloadContext(
-		agentType: string,
-		contextKeys: string[],
-	): Promise<void> {
-		const preloadPromises = contextKeys.map((contextKey) =>
-			this.getContext(agentType, contextKey),
-		);
-
-		await Promise.all(preloadPromises);
-		console.log(`Preloaded ${contextKeys.length} contexts for ${agentType}`);
-	}
-}
-
-// Export singleton instance
-export const memoryContextManager = MemoryContextManager.getInstance();

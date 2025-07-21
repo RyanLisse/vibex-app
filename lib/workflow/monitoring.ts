@@ -4,18 +4,7 @@
  * Real-time monitoring, metrics collection, and performance tracking
  */
 
-import { and, eq, gte, lte, sql } from "drizzle-orm";
-import { EventEmitter } from "events";
-import { db } from "@/db/config";
-import { observabilityEvents, workflowExecutions } from "@/db/schema";
-import { observability } from "@/lib/observability";
-	PerformanceMetrics,
-	ResourceUsage,
-	StepMetrics,
-	WorkflowEvent,
-	WorkflowExecutionState,
-	WorkflowMetrics,
-} from "./types";
+import { WorkflowMetrics } from "./types";
 
 // Monitoring configuration
 export interface MonitoringConfig {

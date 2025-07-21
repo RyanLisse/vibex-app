@@ -3,13 +3,7 @@
  * Implements task creation from GitHub issues, PR comments, voice commands, and screenshots
  * Following TDD approach - minimal implementation to make tests pass
  */
-
-	Task,
-	VoiceCommand,
-	ScreenshotAnalysis,
-	TaskCreationResult,
-	ContainerUseError,
-} from "./types";
+import { ContainerUseError } from "./types";
 
 interface TaskCreatorConfig {
 	openaiApiKey: string;

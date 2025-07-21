@@ -1,17 +1,17 @@
 	afterEach,
 	beforeEach,
-	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
+	import { describe,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
 } from "bun:test";
 	createTimeoutPromise,
-	debounce,
-	safeAsync,
-	safeStreamCancel,
-	safeWebSocketClose,
-	withTimeout,
+	import { debounce,
+	import { safeAsync,
+	import { safeStreamCancel,
+	import { safeWebSocketClose,
+	import { withTimeout,
 } from "./stream-utils";
 
 describe("stream-utils", () => {

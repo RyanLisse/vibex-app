@@ -1,12 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
-	AIBranch,
-	AIBranchMessages,
-	AIBranchNext,
-	AIBranchPage,
-	AIBranchPrevious,
-	AIBranchSelector,
-} from "./branch";
+import { AIBranchSelector } from "./branch";
 
 // Mock the Button component
 vi.mock("/components/ui/button", () => ({

@@ -24,7 +24,6 @@ export const Button = ({ primary, backgroundColor, size, label, ...props }) => {
 		</button>
 	);
 };
-
 Button.propTypes = {
 	/** Is this the principal call to action on the page? */
 	primary: PropTypes.bool,
@@ -37,7 +36,6 @@ Button.propTypes = {
 	/** Optional click handler */
 	onClick: PropTypes.func,
 };
-
 Button.defaultProps = {
 	backgroundColor: null,
 	primary: false,

@@ -5,16 +5,7 @@
  * for the migration system to ensure robustness and reliability.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { backupService } from "../../lib/migration/backup-service";
-import { dataExtractor } from "../../lib/migration/data-extractor";
-import { dataMapper } from "../../lib/migration/data-mapper";
-import { migrationService } from "../../lib/migration/migration-service";
-	LocalStorageEnvironment,
-	LocalStorageTask,
-	MigrationConfig,
-	MigrationError,
-} from "../../lib/migration/types";
+import { MigrationError } from "../../lib/migration/types";
 
 // Mock localStorage with edge case scenarios
 const createMockLocalStorage = () => {

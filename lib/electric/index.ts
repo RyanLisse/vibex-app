@@ -2,47 +2,29 @@
 // This module provides offline-first real-time synchronization with conflict resolution
 
 // Re-export types from schema
-export type {
-	AgentExecution,
-	AgentMemory,
-	Environment,
-	ExecutionSnapshot,
-	NewAgentExecution,
-	NewAgentMemory,
-	NewEnvironment,
-	NewExecutionSnapshot,
-	NewObservabilityEvent,
-	NewTask,
-	NewWorkflow,
-	NewWorkflowExecution,
-	ObservabilityEvent,
-	Task,
-	Workflow,
-	WorkflowExecution,
+export type { AgentExecution,
+import { WorkflowExecution
 } from "../../db/schema";
-export { ElectricAuthService, electricAuthService } from "./auth";
-export { ElectricClient, electricClient } from "./client";
+import { export { ElectricAuthService, electricAuthService } from "./auth";
+import { export { ElectricClient, electricClient } from "./client";
 export {
-	electricConfig,
-	electricDb,
-	getFinalConfig,
+	import { electricConfig,
+	import { electricDb,
+	import { getFinalConfig,
 	type SyncEvent,
-	validateElectricConfig,
+	import { validateElectricConfig
 } from "./config";
 export {
-	ConflictResolutionService,
-	conflictResolutionService,
-} from "./conflict-resolution";
+import { ConflictResolutionService,
+	conflictResolutionService } from "./conflict-resolution";
 export {
-	ElectricDatabaseClient,
-	electricDatabaseClient,
-} from "./database-client";
+import { ElectricDatabaseClient,
+	electricDatabaseClient } from "./database-client";
 export {
-	EnhancedElectricSyncService,
-	enhancedElectricSyncService,
-} from "./enhanced-sync-service";
-export { getPGliteInstance, pgliteConfig } from "./simple-config";
-export { ElectricSyncService, electricSyncService } from "./sync-service";
+import { EnhancedElectricSyncService,
+	enhancedElectricSyncService } from "./enhanced-sync-service";
+import { export { getPGliteInstance, pgliteConfig } from "./simple-config";
+import { export { ElectricSyncService, electricSyncService } from "./sync-service";
 
 // Main initialization function
 export async function initializeElectricSQL(options?: {

@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+existsSync, readFileSync, writeFileSync } from "fs";
+join } from "path";
 
 interface BatchFix {
 	files: string[];
@@ -36,22 +36,18 @@ const batchFixes: BatchFix[] = [
 		description: "Fix category to contextKey",
 	},
 
-	// Fix redis import
-	{
-		files: ["app/api/alerts/**/*.ts", "lib/redis/**/*.ts"],
+	// Fix redis files: ["app/api/alerts/**/*.ts", "lib/redis/**/*.ts"],
 		pattern:
 			/import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
 		replacement:
-			"import { createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()",
+			"createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()",
 		description: "Fix redis import",
 	},
 
-	// Fix observabilityService import
-	{
-		files: ["**/*.ts"],
+	// Fix observabilityService files: ["**/*.ts"],
 		pattern:
 			/import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
-		replacement: "import { observability } from '@/lib/observability'",
+		replacement: "observability } from '@/lib/observability'",
 		description: "Fix observabilityService import",
 	},
 

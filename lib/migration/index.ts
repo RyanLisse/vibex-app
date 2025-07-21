@@ -6,84 +6,58 @@
  */
 
 // Additional types from services
-export type {
-	DetectionConfig,
-	DetectionResult,
+export type { DetectionConfig,
+import { DetectionResult
 } from "./auto-detector";
-export { autoDetector } from "./auto-detector";
+import { export { autoDetector } from "./auto-detector";
 export type {
-	BackupOptions,
-	BackupResult,
+import { BackupOptions,
+import { BackupResult
 } from "./backup-service";
-export { backupService } from "./backup-service";
+import { export { backupService } from "./backup-service";
 // Data extraction and mapping services
-export { DataExtractor } from "./data-extractor";
-export { DataMapper } from "./data-mapper";
-export { dataMigrationManager } from "./data-migration";
+import { export { DataExtractor } from "./data-extractor";
+import { export { DataMapper } from "./data-mapper";
+import { export { dataMigrationManager } from "./data-migration";
 export type {
-	MigrationPlan,
-	OrchestrationConfig,
+import { MigrationPlan,
+import { OrchestrationConfig
 } from "./migration-orchestrator";
 // Core services
-export { migrationOrchestrator } from "./migration-orchestrator";
-export { migrationService } from "./migration-service";
+import { export { migrationOrchestrator } from "./migration-orchestrator";
+import { export { migrationService } from "./migration-service";
 export type {
-	ProgressConfig,
-	ProgressMetrics,
-	ProgressSnapshot,
+import { ProgressConfig,
+import { ProgressSnapshot
 } from "./progress-tracker";
-export { progressTracker } from "./progress-tracker";
+import { export { progressTracker } from "./progress-tracker";
 export type {
-	RollbackError,
-	RollbackOptions,
-	RollbackPoint,
-	RollbackResult,
+import { RollbackError,
+import { RollbackResult
 } from "./rollback-service";
-export { rollbackService } from "./rollback-service";
+import { export { rollbackService } from "./rollback-service";
 // Types
 export type {
 	// Backup types
-	BackupData,
-	BackupManifest,
-	DataConflict,
-	LocalStorageData,
-	LocalStorageEnvironment,
-	// Data types
-	LocalStorageTask,
-	// API types
-	MigrationApiResponse,
-	// Core types
-	MigrationConfig,
-	MigrationError,
-	MigrationEvent,
-	MigrationHistoryEntry,
-	MigrationProgress,
-	MigrationResult,
-	MigrationState,
-	MigrationStatusResponse,
-	MigrationStrategy,
-	ValidationError,
-	// Validation types
-	ValidationResult,
+import { BackupData,
+import { ValidationResult
 } from "./types";
 // Utility functions
 export {
-	checkMigrationStatus,
-	createMigrationPlan,
-	startMigration,
+	import { checkMigrationStatus,
+	import { createMigrationPlan,
+	import { startMigration
 } from "./utils";
 export type {
-	DataComparisonResult,
-	DataDifference,
-	ValidationOptions,
+import { DataComparisonResult,
+import { ValidationOptions
 } from "./validation-service";
-export { validationService } from "./validation-service";
+import { export { validationService } from "./validation-service";
 export type {
-	MigrationMode,
-	SystemHealth,
-	ZeroDowntimeConfig,
+import { MigrationMode,
+import { ZeroDowntimeConfig
 } from "./zero-downtime-coordinator";
-export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
+import { export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
 
 /**
  * Quick start guide:
@@ -96,7 +70,7 @@ export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
  *
  * 2. Check if migration is needed:
  *    ```typescript
- *    import { autoDetector } from '@/lib/migration'
+ *    autoDetector } from '@/lib/migration'
  *    const detection = await autoDetector.detect()
  *    if (detection.migrationRequired) {
  *      // Show migration UI
@@ -119,7 +93,7 @@ export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
  *
  * 5. Monitor progress:
  *    ```typescript
- *    import { progressTracker } from '@/lib/migration'
+ *    progressTracker } from '@/lib/migration'
  *    progressTracker.on('progressUpdate', (snapshot) => {
  *      console.log(`Progress: ${snapshot.progress.processedItems}/${snapshot.progress.totalItems}`)
  *    })

@@ -1,19 +1,17 @@
 // Public API exports for the example feature
-export { ExampleItem } from "@/src/features/example-feature/components/ExampleItem";
+import { export { ExampleItem } from "@/src/features/example-feature/components/ExampleItem";
 export {
-	exampleFilterSchema,
-	exampleFormSchema,
-	exampleItemSchema,
+	import { exampleFilterSchema,
+	import { exampleFormSchema,
+	import { exampleItemSchema
 } from "./schemas";
 export type {
-	ExampleFilter,
-	ExampleFormData,
-	ExampleItem as ExampleItemType,
-	ExampleStore,
+import { ExampleFilter,
+import { ExampleStore
 } from "./types";
 export {
-	filterItems,
-	getPriorityColor,
-	getStatusIcon,
-	sortItems,
+	import { filterItems,
+	import { getPriorityColor,
+	import { getStatusIcon,
+	import { sortItems
 } from "./utils/example-utils";

@@ -4,54 +4,21 @@
  */
 
 // Re-export database types
-export type {
-	AgentExecution,
-	AgentMemory,
-	AgentSession,
-	AuthSession,
-	Environment,
-	ExecutionSnapshot,
-	FileUpload,
-	GitHubBranch,
-	// GitHub entities
-	GitHubRepository,
-	// System entities
-	Migration,
-	NewAgentExecution,
-	NewAgentMemory,
-	NewAgentSession,
-	NewAuthSession,
-	NewEnvironment,
-	NewExecutionSnapshot,
-	NewFileUpload,
-	NewGitHubBranch,
-	NewGitHubRepository,
-	NewMigration,
-	NewObservabilityEvent,
-	NewTask,
-	NewUser,
-	NewWorkflow,
-	NewWorkflowExecution,
-	ObservabilityEvent,
-	// Core entities
-	Task,
-	// User entities
-	User,
-	Workflow,
-	WorkflowExecution,
+export type { AgentExecution,
+import { WorkflowExecution
 } from "@/db/schema";
 export {
-	createOptimizedQueryClient,
-	getOptimizedQueryConfig,
+	import { createOptimizedQueryClient,
+	import { getOptimizedQueryConfig
 } from "@/lib/query/config";
 // Export utility functions
 export {
-	getElectricBridge,
-	initializeElectricBridge,
+	import { getElectricBridge,
+	import { initializeElectricBridge
 } from "@/lib/query/electric-bridge";
-export type { MutationKeys, QueryKeys } from "../keys";
+import { export type { MutationKeys, QueryKeys } from "../keys";
 // Export query keys
-export { mutationKeys, queryKeys } from "../keys";
+import { export { mutationKeys, queryKeys } from "../keys";
 // Agent execution hooks
 export {
 	// Types
@@ -74,11 +41,11 @@ export {
 	useExecutionStats,
 	useExecutionsByAgent,
 	useExecutionsByTask,
-	useExecutionsByTrace,
+	import { useExecutionsByTrace,
 	// Real-time hooks
-	useExecutionsSubscription,
-	useInfiniteAgentExecutions,
-	useRetryAgentExecution,
+	import { useExecutionsSubscription,
+	import { useInfiniteAgentExecutions,
+	import { useRetryAgentExecution
 } from "./use-agent-executions";
 
 // Agent memory hooks
@@ -104,11 +71,11 @@ export {
 	useMemoryStats,
 	// Real-time hooks
 	useMemorySubscription,
-	useMemoryVectorSearch,
-	useRefreshMemoryImportance,
-	useUpdateAgentMemory,
+	import { useMemoryVectorSearch,
+	import { useRefreshMemoryImportance,
+	import { useUpdateAgentMemory,
 	// WASM hooks
-	useWASMVectorSearch,
+	import { useWASMVectorSearch
 } from "./use-agent-memory";
 // Environment hooks
 export {
@@ -129,11 +96,11 @@ export {
 	useDeleteEnvironment,
 	useEnvironment,
 	// Query hooks
-	useEnvironments,
+	import { useEnvironments,
 	// Real-time hooks
-	useEnvironmentsSubscription,
-	useUpdateEnvironment,
-	useValidateEnvironmentConfig,
+	import { useEnvironmentsSubscription,
+	import { useUpdateEnvironment,
+	import { useValidateEnvironmentConfig
 } from "./use-environments";
 // Observability event hooks
 export {
@@ -157,11 +124,11 @@ export {
 	useEventsByTrace,
 	// Real-time hooks
 	useEventsSubscription,
-	useEventTimeline,
-	useInfiniteObservabilityEvents,
-	useObservabilityEvent,
+	import { useEventTimeline,
+	import { useInfiniteObservabilityEvents,
+	import { useObservabilityEvent,
 	// Query hooks
-	useObservabilityEvents,
+	import { useObservabilityEvents
 } from "./use-observability-events";
 // Task hooks
 export {
@@ -186,11 +153,11 @@ export {
 	useTasks,
 	// Real-time hooks
 	useTasksSubscription,
-	useTaskVectorSearch,
-	useUnarchiveTask,
-	useUpdateTask,
-	useUpdateTaskPriority,
-	useUpdateTaskStatus,
+	import { useTaskVectorSearch,
+	import { useUnarchiveTask,
+	import { useUpdateTask,
+	import { useUpdateTaskPriority,
+	import { useUpdateTaskStatus
 } from "./use-tasks";
 // Workflow hooks
 export {
@@ -227,83 +194,8 @@ export {
 	useWorkflowsByTag,
 	// Real-time hooks
 	useWorkflowsSubscription,
-	useWorkflowVersions,
+	import { useWorkflowVersions,
 	type WorkflowExecutionFilters,
 	type WorkflowExecutionStats,
 	// Types
-	type WorkflowFilters,
-	type WorkflowValidationResult,
-} from "./use-workflows";
-
-// Export hooks for other entities (to be implemented)
-// These are placeholders for the remaining hooks
-
-// User and auth hooks
-export const useUsers = () => {
-	throw new Error("useUsers hook not yet implemented");
-};
-
-export const useUser = (id: string) => {
-	throw new Error("useUser hook not yet implemented");
-};
-
-export const useCurrentUser = () => {
-	throw new Error("useCurrentUser hook not yet implemented");
-};
-
-export const useAuthSessions = (userId: string) => {
-	throw new Error("useAuthSessions hook not yet implemented");
-};
-
-// File upload hooks
-export const useFileUploads = (filters?: any) => {
-	throw new Error("useFileUploads hook not yet implemented");
-};
-
-export const useFileUpload = (id: string) => {
-	throw new Error("useFileUpload hook not yet implemented");
-};
-
-export const useCreateFileUpload = () => {
-	throw new Error("useCreateFileUpload hook not yet implemented");
-};
-
-// GitHub repository hooks
-export const useGitHubRepositories = (filters?: any) => {
-	throw new Error("useGitHubRepositories hook not yet implemented");
-};
-
-export const useGitHubRepository = (id: string) => {
-	throw new Error("useGitHubRepository hook not yet implemented");
-};
-
-export const useSyncGitHubRepositories = () => {
-	throw new Error("useSyncGitHubRepositories hook not yet implemented");
-};
-
-// GitHub branch hooks
-export const useGitHubBranches = (repositoryId: string) => {
-	throw new Error("useGitHubBranches hook not yet implemented");
-};
-
-export const useSyncGitHubBranches = () => {
-	throw new Error("useSyncGitHubBranches hook not yet implemented");
-};
-
-// Migration hooks
-export const useMigrations = () => {
-	throw new Error("useMigrations hook not yet implemented");
-};
-
-export const usePendingMigrations = () => {
-	throw new Error("usePendingMigrations hook not yet implemented");
-};
-
-// WASM-optimized hooks
-export const useWASMSQLiteQuery = (sql: string, params?: any[]) => {
-	throw new Error("useWASMSQLiteQuery hook not yet implemented");
-};
-
-export const useWASMCompute = (operation: string, data: any) => {
-	throw new Error("useWASMCompute hook not yet implemented");
-};
+	import { type WorkflowFilters,

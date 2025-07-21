@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { Auth, type AuthInfo } from "@/lib/auth/index";
+Auth, type AuthInfo } from "@/lib/auth/index";
 
 // Mock fs/promises module
 mock.module("node:fs/promises", () => ({
@@ -123,7 +123,7 @@ describe.skip("Auth", () => {
 		it("should handle mkdir failure gracefully", async () => {
 			mkdirMock.mockRejectedValueOnce(new Error("Permission denied"));
 			readFileMock.mockResolvedValueOnce(
-				JSON.stringify({ provider1: oauthAuth }),
+JSON.stringify({ provider1: oauthAuth }),
 			);
 
 			const result = await Auth.get("provider1");
@@ -178,7 +178,7 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				JSON.stringify(
+JSON.stringify(
 					{
 						provider1: apiAuth,
 						provider2: oauthAuth,
@@ -198,7 +198,7 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				JSON.stringify(
+JSON.stringify(
 					{
 						provider1: apiAuth,
 					},
@@ -226,7 +226,7 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				JSON.stringify(
+JSON.stringify(
 					{
 						provider1: newAuth,
 					},
@@ -270,7 +270,7 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				JSON.stringify(
+JSON.stringify(
 					{
 						provider2: apiAuth,
 					},
@@ -293,7 +293,7 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				JSON.stringify(
+JSON.stringify(
 					{
 						provider1: oauthAuth,
 					},
@@ -311,13 +311,13 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				JSON.stringify({}, null, 2),
+JSON.stringify({}, null, 2),
 			);
 		});
 
 		it("should handle write errors during removal", async () => {
 			readFileMock.mockResolvedValueOnce(
-				JSON.stringify({ provider1: oauthAuth }),
+JSON.stringify({ provider1: oauthAuth }),
 			);
 			writeFileMock.mockRejectedValueOnce(new Error("Disk full"));
 
@@ -392,9 +392,9 @@ describe.skip("Auth", () => {
 			readFileMock.mockResolvedValue(JSON.stringify(mockData));
 
 			const results = await Promise.all([
-				Auth.get("provider1"),
-				Auth.get("provider2"),
-				Auth.all(),
+Auth.get("provider1"),
+Auth.get("provider2"),
+Auth.all(),
 			]);
 
 			expect(results[0]).toEqual(oauthAuth);
@@ -413,8 +413,8 @@ describe.skip("Auth", () => {
 			// The test demonstrates the API usage, but the implementation
 			// might need locking for production use
 			await Promise.all([
-				Auth.set("provider1", newAuth1),
-				Auth.set("provider2", newAuth2),
+Auth.set("provider1", newAuth1),
+Auth.set("provider2", newAuth2),
 			]);
 
 			expect(writeFileMock).toHaveBeenCalled();
@@ -433,7 +433,7 @@ describe.skip("Auth", () => {
 
 		it("should maintain permissions on update", async () => {
 			readFileMock.mockResolvedValueOnce(
-				JSON.stringify({ existing: oauthAuth }),
+JSON.stringify({ existing: oauthAuth }),
 			);
 			writeFileMock.mockResolvedValueOnce(undefined);
 

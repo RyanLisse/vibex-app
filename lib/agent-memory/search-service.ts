@@ -5,14 +5,7 @@
  * vector embeddings and semantic search.
  */
 
-import { observability } from "@/lib/observability";
-import { wasmServices } from "@/lib/wasm/services";
-import { memoryRepository } from "./repository";
-	MemoryEntry,
-	MemorySearchOptions,
-	MemorySearchResult,
-	MemoryType,
-} from "./types";
+import { MemoryType } from "./types";
 
 export class MemorySearchService {
 	private static instance: MemorySearchService;

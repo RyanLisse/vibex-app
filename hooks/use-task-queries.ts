@@ -1,9 +1,5 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
-import type { NewTask, Task } from "@/db/schema";
-import { invalidateQueries, mutationKeys, queryKeys } from "@/lib/query/config";
 import { useElectricTasks } from "./use-electric-tasks";
 	useEnhancedInfiniteQuery,
 	useEnhancedMutation,

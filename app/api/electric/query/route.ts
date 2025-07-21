@@ -9,11 +9,10 @@ export const runtime = "nodejs";
  * when local PGlite queries fail or when using server-first sync mode.
  */
 
-import { SpanStatusCode, trace } from "@opentelemetry/api";
-import { sql } from "drizzle-orm";
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db/config";
+import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
 	validateApiRequest,

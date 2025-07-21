@@ -1,11 +1,11 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test,
 } from "bun:test";
 	type ContactForm,
 	contactFormSchema,
@@ -16,10 +16,10 @@
 	type ProfileUpdate,
 	profileUpdateSchema,
 	type Search,
-	searchSchema,
+	import { searchSchema,
 	type UserRegistration,
-	userRegistrationSchema,
-	validateSchema,
+	import { userRegistrationSchema,
+	import { validateSchema,
 } from "./forms";
 
 describe("userRegistrationSchema", () => {

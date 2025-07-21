@@ -1,27 +1,17 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test
 } from "bun:test";
 	type FormField,
-	FormFieldSchema,
-	FormSchema,
-	NotificationPreferencesSchema,
-	type Product,
-	ProductSchema,
-	ProductVariantSchema,
-	QuestionSchema,
-	SocialLinkSchema,
-	type Survey,
-	SurveySchema,
-	type UserProfile,
-	UserProfileSchema,
+import { FormFieldSchema,
+import { UserProfileSchema,
 	validateConditionalField,
-	validateNestedSchema,
+	validateNestedSchema
 } from "./complex-examples";
 
 describe("Product Schemas", () => {

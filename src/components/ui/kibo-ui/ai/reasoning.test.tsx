@@ -1,17 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
-	AIReasoning,
-	AIReasoningContent,
-	AIReasoningTrigger,
-} from "./reasoning";
+import { AIReasoningTrigger } from "./reasoning";
 
 // Mock dependencies
 vi.mock("@radix-ui/react-use-controllable-state", () => ({
 	useControllableState: ({ prop, defaultProp, onChange }: any) => {
 		const React = require("react");
 		const [state, setState] = React.useState(prop ?? defaultProp);
-
 		React.useEffect(() => {
 			if (prop !== undefined) {
 				setState(prop);

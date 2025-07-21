@@ -4,13 +4,7 @@
  * Implements state transitions and workflow lifecycle management
  */
 
-import { EventEmitter } from "events";
-	WorkflowError,
-	WorkflowEvent,
-	WorkflowExecutionState,
-	WorkflowStatus,
-	WorkflowTransition,
-} from "./types";
+import { WorkflowTransition } from "./types";
 
 // State machine configuration
 export interface StateMachineConfig {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+join } from "path";
 
 // Fix 1: Memory icon import in performance-monitor.tsx
 const performanceMonitorPath = join(
@@ -22,7 +22,7 @@ if (existsSync(performanceMonitorPath)) {
 			if (memoryIndex >= 0) {
 				imports[memoryIndex] = "MemoryStick";
 			}
-			return `import { ${imports.join(", ")} } from 'lucide-react'`;
+			return `${imports.join(", ")} } from 'lucide-react'`;
 		},
 	);
 	// Replace Memory usage with MemoryStick
@@ -41,7 +41,7 @@ if (existsSync(visualizationPath)) {
 	// Fix ReactFlow import - it's a named export
 	content = content.replace(
 		/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/,
-		"import { ReactFlow } from '@xyflow/react'",
+		"ReactFlow } from '@xyflow/react'",
 	);
 	writeFileSync(visualizationPath, content);
 	console.log("✅ Fixed ReactFlow import in visualization-engine.tsx");

@@ -1,12 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-	BaseAPIError,
-	NotFoundError,
-	ValidationError,
+import { ValidationError
 } from "@/lib/api/base/errors";
 	type ErrorResponse,
 	type PaginatedResponse,
-	ResponseBuilder,
-	type SuccessResponse,
+import { ResponseBuilder,
+import {
+	type SuccessResponse
 } from "@/lib/api/base/response-builder";
 
 // Mock crypto.randomUUID
@@ -507,137 +505,4 @@ describe("ResponseBuilder Integration Tests", () => {
 	describe("Response metadata", () => {
 		it("should include consistent API version", () => {
 			const responses = [
-				ResponseBuilder.success({}),
-				ResponseBuilder.created({}),
-				ResponseBuilder.updated({}),
-				ResponseBuilder.deleted(),
-				ResponseBuilder.paginated([], {
-					page: 1,
-					limit: 10,
-					total: 0,
-					totalPages: 0,
-					hasNext: false,
-					hasPrev: false,
-				}),
-			];
-
-			responses.forEach((response) => {
-				expect(response.meta.version).toBe("1.0.0");
-			});
-		});
-
-		it("should generate valid ISO timestamps", () => {
-			const response = ResponseBuilder.success({});
-			const timestamp = new Date(response.meta.timestamp);
-
-			expect(timestamp.toISOString()).toBe(response.meta.timestamp);
-			expect(timestamp.getTime()).toBeLessThanOrEqual(Date.now());
-		});
-
-		it("should use provided requestId consistently", () => {
-			const requestId = "consistent-request-id";
-
-			const successResponse = ResponseBuilder.success({}, undefined, requestId);
-			const errorResponse = ResponseBuilder.error(
-				new BaseAPIError("Error"),
-				requestId,
-			);
-			const paginatedResponse = ResponseBuilder.paginated(
-				[],
-				{
-					page: 1,
-					limit: 10,
-					total: 0,
-					totalPages: 0,
-					hasNext: false,
-					hasPrev: false,
-				},
-				undefined,
-				requestId,
-			);
-
-			expect(successResponse.meta.requestId).toBe(requestId);
-			expect(errorResponse.meta.requestId).toBe(requestId);
-			expect(paginatedResponse.meta.requestId).toBe(requestId);
-		});
-	});
-
-	describe("Real-world scenarios", () => {
-		it("should handle user registration response", () => {
-			const newUser = {
-				id: "user-123",
-				email: "newuser@example.com",
-				createdAt: new Date().toISOString(),
-			};
-
-			const response = ResponseBuilder.created(
-				newUser,
-				"User registration successful. Please check your email for verification.",
-			);
-
-			expect(response.success).toBe(true);
-			expect(response.data).toEqual(newUser);
-			expect(response.message).toContain("verification");
-		});
-
-		it("should handle search results response", () => {
-			const searchResults = {
-				items: [
-					{ id: 1, title: "Result 1", score: 0.95 },
-					{ id: 2, title: "Result 2", score: 0.87 },
-				],
-				pagination: {
-					page: 1,
-					limit: 20,
-					total: 2,
-					totalPages: 1,
-					hasNext: false,
-					hasPrev: false,
-				},
-			};
-
-			const response = ResponseBuilder.fromQueryResult(
-				searchResults,
-				`Found ${searchResults.pagination.total} results`,
-			);
-
-			expect(response.message).toBe("Found 2 results");
-			expect(response.data).toHaveLength(2);
-		});
-
-		it("should handle bulk operation response", () => {
-			const bulkResults = [
-				{ success: true, data: { id: 1, status: "imported" } },
-				{ success: true, data: { id: 2, status: "imported" } },
-				{ success: false, error: "Duplicate entry" },
-				{ success: true, data: { id: 4, status: "imported" } },
-				{ success: false, error: "Invalid data format" },
-			];
-
-			const response = ResponseBuilder.batch(
-				bulkResults,
-				"Bulk import completed with errors",
-			);
-
-			expect(response.data.succeeded).toBe(3);
-			expect(response.data.failed).toBe(2);
-			expect(response.message).toContain("errors");
-		});
-
-		it("should handle async job submission", () => {
-			const jobInfo = {
-				jobId: "export-job-456",
-				estimatedTime: 300, // seconds
-				queuePosition: 5,
-			};
-
-			const response = ResponseBuilder.accepted(
-				jobInfo,
-				"Export job submitted. You will receive an email when complete.",
-			);
-
-			expect(response.data.jobId).toBe("export-job-456");
-			expect(response.message).toContain("email");
-		});
-	});
-});
+ResponseBuilder.success({}),

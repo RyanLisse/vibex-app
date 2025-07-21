@@ -12,14 +12,7 @@ export const runtime = "nodejs";
  * error handling, request processing, and response formatting.
  */
 
-import { type NextRequest, NextResponse } from "next/server";
-import { BaseAPIHandler, ValidationError } from "@/lib/api/base";
-import { ResponseBuilder } from "@/lib/api/base/response-builder";
-import { CreateUserSchema } from "@/src/schemas/api-routes";
-	type GetUsersQuery,
-	GetUsersQuerySchema,
-	usersService,
-} from "./service";
+import { GetUsersQuerySchema, usersService } from "./service";
 
 /**
  * GET /api/users - Get users with filtering and pagination

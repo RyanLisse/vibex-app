@@ -5,20 +5,12 @@
  * with Redis caching and conflict resolution.
  */
 
-	useInfiniteQuery,
-	useMutation,
-	useQuery,
-	useQueryClient,
+	import { useInfiniteQuery,
+	import { useMutation,
+	import { useQuery,
+	import { useQueryClient
 } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { z } from "zod";
-import type { NewTask, Task } from "@/db/schema";
-import { conflictResolutionService } from "@/lib/electric/conflict-resolution";
-import { electricDatabaseClient } from "@/lib/electric/database-client";
-import { enhancedElectricSyncService } from "@/lib/electric/enhanced-sync-service";
-	CreateTaskSchema,
-	TaskSchema,
-	UpdateTaskSchema,
+import { UpdateTaskSchema
 } from "@/src/schemas/api-routes";
 
 // Types
@@ -124,7 +116,7 @@ export function useElectricTasks(
 		queryKey: electricTaskKeys.list(filters),
 		queryFn: async () => {
 			const result = await electricDatabaseClient.executeOperation<
-				ElectricTask[]
+ElectricTask[]
 			>({
 				table: "tasks",
 				operation: "select",
@@ -219,7 +211,7 @@ export function useElectricTask(
 		queryKey: electricTaskKeys.detail(taskId),
 		queryFn: async () => {
 			const result = await electricDatabaseClient.executeOperation<
-				ElectricTask[]
+ElectricTask[]
 			>({
 				table: "tasks",
 				operation: "select",

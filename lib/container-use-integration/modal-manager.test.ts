@@ -4,13 +4,7 @@
  * Modal functions for agent environments.
  */
 
-import { describe, test, expect, beforeEach } from "bun:test";
-import { ModalFunctionManager } from "./modal-manager";
-	ModalFunctionConfig,
-	AgentEnvironment,
-	ModalFunctionResponse,
-	ContainerUseError,
-} from "./types";
+import { ContainerUseError } from "./types";
 
 describe("ModalFunctionManager", () => {
 	let modalManager: ModalFunctionManager;

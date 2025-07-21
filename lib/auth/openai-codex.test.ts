@@ -1,11 +1,11 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test
 } from "bun:test";
 import { vi } from "vitest";
 	exchangeCodexToken,
@@ -17,7 +17,7 @@ import { vi } from "vitest";
 	parseCodexError,
 	refreshCodexToken,
 	revokeCodexToken,
-	validateCodexToken,
+	validateCodexToken
 } from "./openai-codex";
 
 // Mock fetch
@@ -27,10 +27,10 @@ global.fetch = vi.fn();
 
 vi.mock("@/lib/env", () => ({
 	env: {
-		OPENAI_CODEX_CLIENT_ID: "test-codex-client-id",
-		OPENAI_CODEX_CLIENT_SECRET: "test-codex-secret",
-		OPENAI_CODEX_REDIRECT_URI: "https://app.example.com/auth/codex/callback",
-		OPENAI_CODEX_API_URL: "https://api.openai.com/codex/v1",
+OPENAI_CODEX_CLIENT_ID: "test-codex-client-id",
+OPENAI_CODEX_CLIENT_SECRET: "test-codex-secret",
+OPENAI_CODEX_REDIRECT_URI: "https://app.example.com/auth/codex/callback",
+OPENAI_CODEX_API_URL: "https://api.openai.com/codex/v1",
 	},
 }));
 
@@ -115,7 +115,7 @@ describe("OpenAI Codex Auth", () => {
 					method: "POST",
 					headers: expect.objectContaining({
 						"Content-Type": "application/x-www-form-urlencoded",
-						Authorization: expect.stringMatching(/^Basic /),
+Authorization: expect.stringMatching(/^Basic /),
 					}),
 					body: expect.stringContaining("grant_type=authorization_code"),
 				}),
@@ -202,7 +202,7 @@ describe("OpenAI Codex Auth", () => {
 				expect.objectContaining({
 					method: "POST",
 					headers: expect.objectContaining({
-						Authorization: "Bearer test-codex-token",
+Authorization: "Bearer test-codex-token",
 					}),
 				}),
 			);
@@ -238,7 +238,7 @@ describe("OpenAI Codex Auth", () => {
 				"https://api.openai.com/codex/v1/oauth/userinfo",
 				expect.objectContaining({
 					headers: expect.objectContaining({
-						Authorization: "Bearer test-codex-token",
+Authorization: "Bearer test-codex-token",
 					}),
 				}),
 			);
@@ -291,7 +291,7 @@ describe("OpenAI Codex Auth", () => {
 			const headers = generateCodexHeaders("test-token");
 
 			expect(headers).toEqual({
-				Authorization: "Bearer test-token",
+Authorization: "Bearer test-token",
 				"Content-Type": "application/json",
 				"OpenAI-Organization": undefined,
 				"OpenAI-Beta": "codex-api-v1",

@@ -4,9 +4,9 @@ import type React from "react";
 	type ChangeEvent,
 	type DragEvent,
 	type InputHTMLAttributes,
-	useCallback,
-	useRef,
-	useState,
+	import { useCallback,
+	import { useRef,
+	import { useState
 } from "react";
 
 export type FileMetadata = {
@@ -144,7 +144,7 @@ export const useFileUpload = (
 					file.file instanceof File &&
 					file.file.type.startsWith("image/")
 				) {
-					URL.revokeObjectURL(file.preview);
+URL.revokeObjectURL(file.preview);
 				}
 			});
 
@@ -281,7 +281,7 @@ export const useFileUpload = (
 					fileToRemove.file instanceof File &&
 					fileToRemove.file.type.startsWith("image/")
 				) {
-					URL.revokeObjectURL(fileToRemove.preview);
+URL.revokeObjectURL(fileToRemove.preview);
 				}
 
 				const newFiles = prev.files.filter((file) => file.id !== id);

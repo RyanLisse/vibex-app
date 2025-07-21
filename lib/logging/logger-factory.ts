@@ -1,6 +1,5 @@
 // AsyncLocalStorage compatibility layer
 class BrowserAsyncLocalStorage {
-
 	private store: any = null;
 	run(store: any, callback: () => any) {
 		this.store = store;
@@ -9,7 +8,6 @@ class BrowserAsyncLocalStorage {
 	getStore() {
 		return this.store;
 	}
-
 }
 
 // Use dynamic import pattern that's ESM-compatible
@@ -28,18 +26,9 @@ if (typeof window === "undefined" && typeof process !== "undefined") {
 
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
-import { CorrelationIdManager } from "./correlation-id-manager";
-import { MetadataEnricher } from "./metadata-enricher";
-import { PerformanceTracker } from "./performance-tracker";
-import { SensitiveDataRedactor } from "./sensitive-data-redactor";
-	LogContext,
-	LoggingConfig,
-	LoggingMetrics,
-	LogLevel,
-} from "./types";
+import { LogLevel } from "./types";
 
 export class LoggerFactory {
-
 	private static instance: LoggerFactory;
 	private winston: winston.Logger;
 	private config: LoggingConfig;
@@ -70,7 +59,6 @@ export class LoggerFactory {
 		}
 		this.winston = this.createWinstonLogger();
 	}
-
 
 	static getInstance(config?: LoggingConfig): LoggerFactory {
 		if (!LoggerFactory.instance) {
@@ -230,7 +218,6 @@ export class LoggerFactory {
 }
 
 export class ComponentLogger {
-
 	constructor(
 		private component: string,
 		private winston: winston.Logger,
@@ -239,7 +226,6 @@ export class ComponentLogger {
 		private performanceTracker: PerformanceTracker,
 		private config: LoggingConfig,
 	) {}
-
 
 	error(message: string, error?: Error, metadata?: any): void {
 		this.performanceTracker.recordError();

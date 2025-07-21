@@ -5,19 +5,11 @@
  * caching, session management, pub/sub, distributed locks, and more.
  */
 
-import { ObservabilityService } from "../observability";
 import { CacheService } from "./cache-service";
 	getRedisServiceConfig,
 	redisFeatures,
-	validateRedisEnvironment,
+	validateRedisEnvironment
 } from "./config";
-import { JobQueueService } from "./job-queue-service";
-import { LockService } from "./lock-service";
-import { MetricsService } from "./metrics-service";
-import { PubSubService } from "./pubsub-service";
-import { RateLimitService } from "./rate-limit-service";
-import { RedisClientManager } from "./redis-client";
-import { SessionService } from "./session-service";
 import type { RedisHealthStatus, RedisServiceConfig } from "./types";
 
 export class RedisService {
@@ -54,7 +46,7 @@ export class RedisService {
 
 	static getInstance(): RedisService {
 		if (!RedisService.instance) {
-			RedisService.instance = new RedisService();
+RedisService.instance = new RedisService();
 		}
 		return RedisService.instance;
 	}
@@ -245,7 +237,7 @@ export class RedisService {
 				});
 
 				// Record individual client health
-				Object.entries(health.clients).forEach(([clientName, clientHealth]) => {
+Object.entries(health.clients).forEach(([clientName, clientHealth]) => {
 					this.observability.recordEvent("redis.health.client", 1, {
 						client: clientName,
 						status: clientHealth.status,
@@ -380,12 +372,12 @@ export async function initializeRedis(): Promise<void> {
 		await initializeMockRedis();
 
 		// Replace the cache with mock cache
-		Object.defineProperty(redisService, "cache", {
+Object.defineProperty(redisService, "cache", {
 			value: mockRedisCache,
 			writable: false,
 			configurable: true,
 		});
-		Object.defineProperty(redisService, "isInitialized", {
+Object.defineProperty(redisService, "isInitialized", {
 			value: true,
 			writable: false,
 			configurable: true,
@@ -402,15 +394,15 @@ export async function shutdownRedis(): Promise<void> {
 export { CacheService } from "./cache-service";
 // Export configuration and utilities
 export * from "./config";
-export { JobQueueService } from "./job-queue-service";
-export { LockService } from "./lock-service";
-export { MetricsService } from "./metrics-service";
+import { export { JobQueueService } from "./job-queue-service";
+import { export { LockService } from "./lock-service";
+import { export { MetricsService } from "./metrics-service";
 // Export mock implementations for testing
-export { MockRedisCache, MockRedisService } from "./mock-redis";
-export { PubSubService } from "./pubsub-service";
-export { RateLimitService } from "./rate-limit-service";
-export { RedisClientManager } from "./redis-client";
-export { SessionService } from "./session-service";
+import { export { MockRedisCache, MockRedisService } from "./mock-redis";
+import { export { PubSubService } from "./pubsub-service";
+import { export { RateLimitService } from "./rate-limit-service";
+import { export { RedisClientManager } from "./redis-client";
+import { export { SessionService } from "./session-service";
 export * from "./types";
 
 // Convenience getters for individual services

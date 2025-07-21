@@ -1,11 +1,11 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test
 } from "bun:test";
 	buildAuthUrl,
 	createAuthHeaders,
@@ -18,11 +18,11 @@
 	isTokenExpired,
 	isTokenExpiring,
 	parseJWT,
-	refreshAuthToken,
-	revokeToken,
-	sanitizeRedirectUrl,
-	validateOAuthState,
-	validateToken,
+	import { refreshAuthToken,
+	import { revokeToken,
+	import { sanitizeRedirectUrl,
+	import { validateOAuthState,
+	import { validateToken
 } from "./auth";
 
 // Test constants
@@ -44,7 +44,6 @@ Object.defineProperty(global, "crypto", {
 	value: mockCrypto,
 	writable: true,
 });
-
 Object.defineProperty(globalThis, "crypto", {
 	value: mockCrypto,
 	writable: true,
@@ -247,7 +246,7 @@ describe("lib/auth", () => {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
-					Accept: "application/json",
+Accept: "application/json",
 				},
 				body: expect.stringContaining("grant_type=authorization_code"),
 			});
@@ -333,7 +332,7 @@ describe("lib/auth", () => {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
-					Accept: "application/json",
+Accept: "application/json",
 				},
 				body: expect.stringContaining("token=test-token"),
 			});
@@ -501,7 +500,7 @@ describe("lib/auth", () => {
 		it("should create authorization headers", () => {
 			const headers = createAuthHeaders("test-token");
 			expect(headers).toEqual({
-				Authorization: "Bearer test-token",
+Authorization: "Bearer test-token",
 				"Content-Type": "application/json",
 			});
 		});
@@ -511,7 +510,7 @@ describe("lib/auth", () => {
 				"X-Custom-Header": "custom-value",
 			});
 			expect(headers).toEqual({
-				Authorization: "Bearer test-token",
+Authorization: "Bearer test-token",
 				"Content-Type": "application/json",
 				"X-Custom-Header": "custom-value",
 			});
@@ -520,7 +519,7 @@ describe("lib/auth", () => {
 		it("should handle token type", () => {
 			const headers = createAuthHeaders("test-token", {}, "Custom");
 			expect(headers).toEqual({
-				Authorization: "Custom test-token",
+Authorization: "Custom test-token",
 				"Content-Type": "application/json",
 			});
 		});

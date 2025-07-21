@@ -7,7 +7,6 @@
 
 "use client";
 
-import { Archive, Pause, Play, Plus, RefreshCw, X } from "lucide-react";
 import { useState } from "react";
 	type Task,
 	useArchiveTask,
@@ -17,7 +16,7 @@ import { useState } from "react";
 	usePauseTask,
 	useResumeTask,
 	useTasks,
-	useUpdateTask,
+	useUpdateTask
 } from "@/lib/query/hooks";
 
 interface TaskListExampleProps {
@@ -125,8 +124,7 @@ export function TaskListExample({ className = "" }: TaskListExampleProps) {
 					<button
 						className="mt-2 text-red-600 text-sm underline hover:text-red-800"
 						onClick={() => refetch()}
-					>
-						Try again
+Try again
 					</button>
 				</div>
 			</div>

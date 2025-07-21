@@ -45,10 +45,3 @@ export type TelemetryBackend =
 	| "otlp";
 
 export interface TelemetryEnvironmentConfig {
-	OTEL_ENABLED?: string;
-	OTEL_ENDPOINT?: string;
-	OTEL_SERVICE_NAME?: string;
-	OTEL_SERVICE_VERSION?: string;
-	OTEL_AUTH_HEADER?: string;
-	OTEL_SAMPLING_RATIO?: string;
-}

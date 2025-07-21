@@ -1,15 +1,10 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
-	AgentExecution,
-	ExecutionSnapshot,
-	NewAgentExecution,
-	ObservabilityEvent,
+import { ObservabilityEvent
 } from "@/db/schema";
 import { invalidateQueries, mutationKeys, queryKeys } from "@/lib/query/config";
 	useEnhancedMutation,
-	useEnhancedQuery,
+	useEnhancedQuery
 } from "./use-enhanced-query-new";
 
 /**

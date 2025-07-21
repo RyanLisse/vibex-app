@@ -8,27 +8,27 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-	useActiveAgentExecutions,
-	useAgentExecutions,
-	useCreateAgentExecution,
+	import { useActiveAgentExecutions,
+	import { useAgentExecutions,
+	import { useCreateAgentExecution
 } from "./hooks/use-agent-executions";
-	useAgentMemories,
-	useCreateAgentMemory,
-	useSemanticSearch,
+	import { useAgentMemories,
+	import { useCreateAgentMemory,
+	import { useSemanticSearch
 } from "./hooks/use-agent-memory";
-	useEventsByExecution,
-	useObservabilityEvents,
-	useRealtimeObservabilityEvents,
+	import { useEventsByExecution,
+	import { useObservabilityEvents,
+	import { useRealtimeObservabilityEvents
 } from "./hooks/use-observability-events";
-	useActiveWorkflows,
-	useExecuteWorkflow,
-	useWorkflows,
+	import { useActiveWorkflows,
+	import { useExecuteWorkflow,
+	import { useWorkflows
 } from "./hooks/use-workflows";
-	createQueryProviderConfig,
-	QueryDevStatus,
-	QueryProvider,
+	import { createQueryProviderConfig,
+import { QueryDevStatus,
+import { QueryProvider,
 	useElectricBridgeStats,
-	useElectricConnection,
+	useElectricConnection
 } from "./provider";
 
 /**
@@ -118,8 +118,7 @@ function RealtimeDashboard() {
 								key={workflow.id}
 							>
 								<span className="text-sm">{workflow.name}</span>
-								<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">
-									Active
+								<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">Active
 								</span>
 							</div>
 						)) || (
@@ -238,15 +237,13 @@ function InteractiveDemo() {
 				<button
 					className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
 					onClick={() => refetchExecutions()}
-				>
-					Force Refetch
+Force Refetch
 				</button>
 			</div>
 
 			{/* Semantic Search */}
 			<div className="space-y-2">
-				<label className="block font-medium text-sm">
-					Semantic Search (WASM-optimized):
+				<label className="block font-medium text-sm">Semantic Search (WASM-optimized):
 				</label>
 				<input
 					className="w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -266,8 +263,7 @@ function InteractiveDemo() {
 							>
 								<div className="font-medium">{result.memory.contextKey}</div>
 								<div className="text-gray-600">{result.memory.content}</div>
-								<div className="text-gray-500 text-xs">
-									Similarity: {(result.similarity * 100).toFixed(1)}%
+								<div className="text-gray-500 text-xs">Similarity: {(result.similarity * 100).toFixed(1)}%
 								</div>
 							</div>
 						))}
@@ -286,8 +282,7 @@ function InteractiveDemo() {
 						>
 							<div>
 								<div className="font-medium">{execution.agentType}</div>
-								<div className="text-gray-600 text-sm">
-									Started: {execution.startedAt.toLocaleTimeString()}
+								<div className="text-gray-600 text-sm">Started: {execution.startedAt.toLocaleTimeString()}
 								</div>
 							</div>
 							<div
@@ -372,8 +367,7 @@ export function IntegrationExampleApp() {
 					<div className="mx-auto max-w-7xl px-4">
 						<div className="flex h-16 items-center justify-between">
 							<div className="flex items-center">
-								<h1 className="font-bold text-xl">
-									ElectricSQL + TanStack Query
+								<h1 className="font-bold text-xl">ElectricSQL + TanStack Query
 								</h1>
 							</div>
 							<div className="flex space-x-4">
@@ -384,8 +378,7 @@ export function IntegrationExampleApp() {
 											: "text-gray-600 hover:text-gray-900"
 									}`}
 									onClick={() => setActiveTab("dashboard")}
-								>
-									Dashboard
+Dashboard
 								</button>
 								<button
 									className={`rounded px-3 py-2 font-medium text-sm ${
@@ -394,8 +387,7 @@ export function IntegrationExampleApp() {
 											: "text-gray-600 hover:text-gray-900"
 									}`}
 									onClick={() => setActiveTab("demo")}
-								>
-									Interactive Demo
+Interactive Demo
 								</button>
 							</div>
 						</div>
@@ -431,7 +423,7 @@ export function ExampleUsage() {
 					1. Wrap your app with QueryProvider:
 				</h3>
 				<pre className="overflow-x-auto text-sm">
-					{`import { QueryProvider, createQueryProviderConfig } from '@/lib/query/provider'
+					import { {`QueryProvider, createQueryProviderConfig } from '@/lib/query/provider'
 
 function App() {
   const config = createQueryProviderConfig({
@@ -454,7 +446,7 @@ function App() {
 			<div className="mb-4 rounded-lg bg-gray-50 p-4">
 				<h3 className="mb-2 font-semibold">2. Use hooks in your components:</h3>
 				<pre className="overflow-x-auto text-sm">
-					{`import { useAgentExecutions, useCreateAgentExecution } from '@/lib/query/hooks/use-agent-executions'
+					import { {`useAgentExecutions, useCreateAgentExecution } from '@/lib/query/hooks/use-agent-executions'
 
 function ExecutionsPage() {
   const { data: executions, isLoading } = useAgentExecutions()
@@ -483,14 +475,13 @@ function ExecutionsPage() {
 			<div className="rounded-lg bg-gray-50 p-4">
 				<h3 className="mb-2 font-semibold">3. Monitor connection status:</h3>
 				<pre className="overflow-x-auto text-sm">
-					{`import { useElectricConnection } from '@/lib/query/provider'
+					import { {`useElectricConnection } from '@/lib/query/provider'
 
 function ConnectionMonitor() {
   const connection = useElectricConnection()
 
   return (
-    <div className={\`status \${connection.health}\`}>
-      Connection: {connection.health}
+    <div className={\`status \${connection.health}\`}>Connection: {connection.health}
       {connection.offlineQueueSize > 0 && (
         <span>({connection.offlineQueueSize} queued operations)</span>
       )}

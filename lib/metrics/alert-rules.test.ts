@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { AlertRuleBuilder, type PrometheusAlertRule } from "./alert-rules";
+AlertRuleBuilder, type PrometheusAlertRule } from "./alert-rules";
 
 describe("AlertRuleBuilder", () => {
 	describe("createAgentAlerts", () => {

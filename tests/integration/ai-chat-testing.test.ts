@@ -3,8 +3,7 @@
  * Testing AI SDK patterns with mock language models
  */
 
-import { generateText, streamText } from "ai";
-import { beforeEach, describe, expect, it } from "vitest";
+import {
 	AITestUtils,
 	createErrorTestChatModel,
 	createSlowTestChatModel,

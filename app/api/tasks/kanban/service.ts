@@ -5,20 +5,8 @@
  * for consistent error handling, tracing, and observability.
  */
 
-import { and, eq } from "drizzle-orm";
-import { z } from "zod";
-import { db } from "@/db/config";
-import { tasks } from "@/db/schema";
-	BaseAPIService,
-	ConflictError,
-	NotFoundError,
-	type ServiceContext,
-	ValidationError,
-} from "@/lib/api/base";
-import { QueryBuilder } from "@/lib/api/base/query-builder";
-	KanbanBoardConfigSchema,
-	KanbanMoveSchema,
-} from "@/src/schemas/enhanced-task-schemas";
+import { ValidationError } from "@/lib/api/base";
+import { KanbanMoveSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // Default kanban columns configuration
 export const DEFAULT_COLUMNS = [

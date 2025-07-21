@@ -98,7 +98,6 @@ class VitalsMonitor {
 		};
 
 		const results = {};
-
 		Object.keys(thresholds).forEach((metric) => {
 			const value = this.vitals[metric];
 			const threshold = thresholds[metric];
@@ -167,7 +166,6 @@ class VitalsMonitor {
 
 		let totalScore = 0;
 		let totalWeight = 0;
-
 		Object.keys(evaluation).forEach((metric) => {
 			const result = evaluation[metric];
 			const weight = weights[metric];
@@ -188,7 +186,6 @@ class VitalsMonitor {
 
 	generateRecommendations(evaluation) {
 		const recommendations = [];
-
 		Object.keys(evaluation).forEach((metric) => {
 			const result = evaluation[metric];
 

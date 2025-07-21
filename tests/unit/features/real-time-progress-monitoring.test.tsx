@@ -2,19 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AlertSystem } from "@/components/features/progress/alert-system";
-// Components to be implemented
-import { ProgressDashboard } from "@/components/features/progress/progress-dashboard";
-import { ProgressIndicator } from "@/components/features/progress/progress-indicator";
-import { TaskProgressCard } from "@/components/features/progress/task-progress-card";
-
-// Types
-	ProgressMetrics,
-	TaskProgress,
-} from "@/src/schemas/enhanced-task-schemas";
+import { TaskProgress } from "@/src/schemas/enhanced-task-schemas";
 
 // Mock WebSocket for real-time updates
 const mockWebSocket = {

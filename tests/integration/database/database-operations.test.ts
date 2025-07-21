@@ -5,8 +5,6 @@
  * Tests CRUD operations, transactions, constraints, and performance
  */
 
-import { and, asc, count, desc, eq, sql } from "drizzle-orm";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 	agentExecutions,
 	agentMemory,
@@ -25,9 +23,9 @@ import { migrationRunner } from "../../../db/migrations/migration-runner";
 	workflowExecutions,
 	workflows,
 } from "../../../db/schema";
-	checkDatabaseHealth,
-	db,
-	initializeExtensions,
+	import { checkDatabaseHealth,
+	import { db,
+	import { initializeExtensions,
 } from "../../../db/test-config";
 
 // Skip tests if no database URL is provided

@@ -6,21 +6,20 @@
  */
 
 "use client";
-
-	QueryClient,
-	QueryClientProvider,
-	useQueryClient,
+import { QueryClient,
+import { QueryClientProvider,
+	useQueryClient
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 	createContext,
 	type ReactNode,
 	useContext,
 	useEffect,
-	useState,
+	useState
 } from "react";
 import { observability } from "@/lib/observability";
 	type ElectricBridgeConfig,
-	electricQueryBridge,
+	electricQueryBridge
 } from "./electric-bridge";
 
 export interface QueryProviderConfig {
@@ -329,8 +328,7 @@ export function QueryDevStatus() {
 			</div>
 
 			{connection.lastSyncTime && (
-				<div className="mt-1 text-gray-500 text-xs">
-					Last sync: {connection.lastSyncTime.toLocaleTimeString()}
+				<div className="mt-1 text-gray-500 text-xs">Last sync: {connection.lastSyncTime.toLocaleTimeString()}
 				</div>
 			)}
 		</div>

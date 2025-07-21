@@ -86,8 +86,7 @@ export class TDDCli {
 		this.helpTexts.set(
 			"generate test",
 			`generate test - Generate test files for functions, classes, or components
-      
-      Options:
+Options:
         --name <name>         Name of the function/class/component
         --type <type>         Type of test (unit|component|integration)
         --output <path>       Output directory for test files
@@ -98,163 +97,9 @@ export class TDDCli {
 		this.helpTexts.set(
 			"run tdd",
 			`
-      Run TDD workflow with watch mode
-      
-      Options:
-        --watch               Enable watch mode
-        --pattern <pattern>   File pattern to watch
-        --coverage            Track coverage metrics
-        --auto-cycle          Automatically run TDD cycles
-    `,
-		);
-
-		this.helpTexts.set(
-			"scaffold component",
-			`
-      Scaffold a complete component with tests and stories
-      
-      Options:
-        --name <name>         Component name
-        --with-tests          Include test files
-        --with-stories        Include Storybook stories
-        --with-a11y           Include accessibility tests
-    `,
-		);
-	}
-
-	registerCommand(action: string, target: string, handler: Function): void {
-		if (!this.commands.has(action)) {
-			this.commands.set(action, new Map());
-		}
-		this.commands.get(action)!.set(target, handler);
-	}
-
-	parseCommand(args: string[]): CLICommand {
-		const [action, target, ...optionArgs] = args;
-		const options: Record<string, any> = {};
-
-		for (let i = 0; i < optionArgs.length; i += 2) {
-			const key = optionArgs[i]?.replace(/^--/, "");
-			const value = optionArgs[i + 1];
-
-			if (key) {
-				if (value === undefined || value.startsWith("--")) {
-					// Boolean flag
-					options[this.camelCase(key)] = true;
-					i--;
-				} else {
-					options[this.camelCase(key)] = value;
-				}
-			}
-		}
-
-		return { action, target, options };
-	}
-
-	private camelCase(str: string): string {
-		return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-	}
-
-	async execute(args: string[]): Promise<any> {
-		const command = this.parseCommand(args);
-		const actionMap = this.commands.get(command.action);
-
-		if (!actionMap) {
-			throw new Error(`Unknown command: ${command.action} ${command.target}`);
-		}
-
-		const handler = actionMap.get(command.target);
-		if (!handler) {
-			throw new Error(`Unknown command: ${command.action} ${command.target}`);
-		}
-
-		return await handler(command.options);
-	}
-
-	getHelp(action?: string, target?: string): string {
-		if (action && target) {
-			const key = `${action} ${target}`;
-			return this.helpTexts.get(key) || `No help available for ${key}`;
-		}
-
-		return `
-      TDD CLI Tool
-      
-      Available commands:
-        generate test         Generate test files
-        run tdd              Run TDD workflow
-        scaffold component   Scaffold component with tests
-        scaffold service     Scaffold service with tests
-        
-      Use --help with any command for specific options
-    `;
-	}
-
-	private async generateTest(options: any): Promise<string> {
-		const generator = new TestGenerator();
-
-		if (options.type === "component") {
-			return await generator.generateComponentTest("", {
-				componentName: options.name,
-				...options,
-			});
-		}
-		return await generator.generateUnitTest("", {
-			functionName: options.name,
-			...options,
-		});
-	}
-
-	private async runTDD(options: any): Promise<string> {
-		const automation = new WorkflowAutomation();
-
-		if (options.watch) {
-			await automation.startWatchMode({
-				pattern: options.pattern || "**/*.{ts,tsx}",
-				autoRunCycle: options.autoCycle,
-			});
-			return "TDD watch mode started";
-		}
-
-		return "TDD workflow completed";
-	}
-
-	private async scaffoldComponent(options: any): Promise<ScaffoldResult> {
-		const automation = new WorkflowAutomation();
-
-		return await automation.scaffoldTestSuite({
-			name: options.name,
-			type: "component",
-			includeStories: options.withStories,
-			includeAccessibilityTests: options.withA11y,
-		});
-	}
-
-	private async scaffoldService(options: any): Promise<ScaffoldResult> {
-		const automation = new WorkflowAutomation();
-
-		return await automation.scaffoldTestSuite({
-			name: options.name,
-			type: "service",
-			methods: options.methods?.split(",") || [],
-			includeIntegrationTests: true,
-		});
-	}
-}
-
-export class TestGenerator {
-	private templates: Map<string, string> = new Map();
-
-	constructor() {
-		this.initializeDefaultTemplates();
-	}
-
-	private initializeDefaultTemplates(): void {
-		this.templates.set(
-			"unit-function",
-			`
+Run TDD workflow with watch mode
 import { describe, it, expect } from 'vitest'
-import { {{functionName}} } from './{{fileName}}'
+{{functionName}} } from './{{fileName}}'
 
 describe('{{functionName}}', () => {
   {{#each testCases}}
@@ -296,7 +141,7 @@ describe('{{className}}', () => {
 			"component",
 			`
 import { render, screen, fireEvent } from '@testing-library/react'
-import { {{componentName}} } from './{{componentName}}'
+{{componentName}} } from './{{componentName}}'
 
 describe('{{componentName}}', () => {
   it('should render correctly', () => {
@@ -326,104 +171,6 @@ describe('{{componentName}}', () => {
 		this.templates.set(
 			"integration-api",
 			`
-import { setupTestServer } from '../setup/test-server'
-
-describe('{{endpoint}}', () => {
-  let server: any
-
-  beforeAll(async () => {
-    server = await setupTestServer()
-  })
-
-  afterAll(async () => {
-    await server.close()
-  })
-
-  {{#each methods}}
-  describe('{{this}} {{../endpoint}}', () => {
-    it('should return success response', async () => {
-      const response = await fetch(\`\${server.url}{{../endpoint}}\`, {
-        method: '{{this}}'
-      })
-      
-      expect(response.status).toBe(200)
-    })
-
-    {{#if ../authentication}}
-    it('should require authentication', async () => {
-      const response = await fetch(\`\${server.url}{{../endpoint}}\`, {
-        method: '{{this}}'
-      })
-      
-      expect(response.status).toBe(401)
-    })
-    {{/if}}
-  })
-  {{/each}}
-})
-    `,
-		);
-	}
-
-	async generateUnitTest(
-		sourceCode: string,
-		options: TestGenerationOptions,
-	): Promise<string> {
-		if (options.className) {
-			return this.generateFromTemplate("unit-class", {
-				className: options.className,
-				instanceName: this.camelCase(options.className),
-				fileName: this.kebabCase(options.className),
-				methods: options.methods || [],
-			});
-		}
-		return this.generateFromTemplate("unit-function", {
-			functionName: options.functionName,
-			fileName: this.kebabCase(options.functionName || ""),
-			testCases: options.testCases || [],
-		});
-	}
-
-	async generateComponentTest(
-		componentCode: string,
-		options: TestGenerationOptions,
-	): Promise<string> {
-		return this.generateFromTemplate("component", {
-			componentName: options.componentName,
-			defaultRole: this.inferDefaultRole(options.componentName || ""),
-			props: options.props || [],
-			interactions: options.interactions || [],
-		});
-	}
-
-	async generateIntegrationTest(
-		options: IntegrationTestOptions,
-	): Promise<string> {
-		if (options.type === "api") {
-			return this.generateFromTemplate("integration-api", {
-				endpoint: options.endpoint,
-				methods: options.methods || ["GET"],
-				authentication: options.authentication,
-			});
-		}
-		if (options.type === "database") {
-			return this.generateDatabaseTest(options);
-		}
-
-		return "";
-	}
-
-	private async generateDatabaseTest(
-		options: IntegrationTestOptions,
-	): Promise<string> {
-		const operations = options.operations || [
-			"create",
-			"read",
-			"update",
-			"delete",
-		];
-
-		return `
 import { setupTestDatabase, cleanupTestDatabase } from '../setup/test-database'
 
 describe('${options.table} table', () => {
@@ -480,7 +227,7 @@ describe('${options.table} table', () => {
 						let itemContent = content;
 						if (typeof item === "object") {
 							// Replace object properties
-							Object.keys(item).forEach((prop) => {
+Object.keys(item).forEach((prop) => {
 								const regex = new RegExp(`\\{\\{this\\.${prop}\\}\\}`, "g");
 								const value = this.serializeTestCaseInput(item[prop]);
 								itemContent = itemContent.replace(regex, value);
@@ -595,11 +342,11 @@ describe('${options.table} table', () => {
 
 	private inferDefaultRole(componentName: string): string {
 		const roleMap: Record<string, string> = {
-			Button: "button",
-			Input: "textbox",
-			Form: "form",
-			Dialog: "dialog",
-			Modal: "dialog",
+Button: "button",
+Input: "textbox",
+Form: "form",
+Dialog: "dialog",
+Modal: "dialog",
 		};
 		return roleMap[componentName] || "generic";
 	}
@@ -786,8 +533,8 @@ export class WorkflowAutomation {
 	private generateTestContent(options: ScaffoldOptions): string {
 		// Simplified test content generation
 		return `
-${options.type === "component" ? "import { render, screen } from '@testing-library/react'" : ""}
-import { ${options.name} } from './${this.kebabCase(options.name)}'
+${options.type === "component" ? "render, screen } from '@testing-library/react'" : ""}
+${options.name} } from './${this.kebabCase(options.name)}'
 
 describe('${options.name}', () => {
   it('should work correctly', () => {
@@ -800,7 +547,7 @@ describe('${options.name}', () => {
 	private generateStoryContent(componentName: string): string {
 		return `
 import type { Meta, StoryObj } from '@storybook/react'
-import { ${componentName} } from './${this.kebabCase(componentName)}'
+${componentName} } from './${this.kebabCase(componentName)}'
 
 const meta: Meta<typeof ${componentName}> = {
   title: 'Components/${componentName}',
@@ -821,7 +568,7 @@ export const Default: Story = {
 
 	private generateIntegrationTestContent(serviceName: string): string {
 		return `
-import { ${serviceName} } from './${this.kebabCase(serviceName)}'
+${serviceName} } from './${this.kebabCase(serviceName)}'
 
 describe('${serviceName} Integration', () => {
   beforeAll(async () => {

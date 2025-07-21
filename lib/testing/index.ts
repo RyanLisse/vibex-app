@@ -7,14 +7,8 @@ export * from "./assertions/custom-matchers";
 // Test Data Builders
 export {
 	type ApiResponse,
-	ApiResponseBuilder,
-	BuilderFactory,
-	type Project,
-	ProjectBuilder,
-	TestDataBuilder,
-	TestDataGenerator,
-	type User,
-	UserBuilder,
+import { ApiResponseBuilder,
+import { UserBuilder
 } from "./builders/test-data-builder";
 // CLI Tools
 export {
@@ -22,32 +16,19 @@ export {
 	type IntegrationTestOptions,
 	type ScaffoldOptions,
 	type ScaffoldResult,
-	TDDCli,
-	type TDDCycleOptions,
-	type TestGenerationOptions,
-	TestGenerator,
-	WorkflowAutomation,
+import { WorkflowAutomation
 } from "./cli/tdd-cli";
 // Test Documentation
 export {
 	type CoverageAnalysis,
 	type CoverageData,
 	type CoverageSummary,
-	CoverageVisualizer,
-	DocumentationGenerator,
-	type TestDocumentation,
-	type TestSpecification,
-	TestSpecificationGenerator,
+import { CoverageVisualizer,
+import { TestSpecificationGenerator
 } from "./documentation/test-documentation";
 // Test Lifecycle Management
 export {
-	LifecyclePatterns,
-	type Resource,
-	ResourceManager,
-	SetupTeardownOrchestrator,
-	type TestContext,
-	type TestHook,
-	TestLifecycleManager,
+import { TestLifecycleManager
 } from "./lifecycle/test-lifecycle";
 
 // Performance Testing
@@ -55,25 +36,14 @@ export {
 	type BenchmarkOptions,
 	type BenchmarkResult,
 	type CoverageReport,
-	MemoryProfiler,
-	type MemorySnapshot,
-	type MemoryUsage,
-	PerformanceBenchmark,
-	PerformanceReporter,
-	type PerformanceThresholds,
-	type RegressionResult,
+import {
+	type RegressionResult
 } from "./performance/performance-testing";
 // Core TDD Framework
 export {
 	type LifecycleState,
-	TDDFramework,
-	TDDWorkflow,
-	TestCase,
-	type TestResult,
-	type TestRunner,
-	type TestStatus,
-	TestSuite,
-	VitestRunner,
+import { TDDFramework,
+import { VitestRunner
 } from "./tdd-framework/core";
 
 // Utility Functions and Helpers
@@ -122,17 +92,16 @@ export const TDDTestingFramework = {
 };
 
 export {
-	cleanup,
-	fireEvent,
-	render,
-	screen,
-	waitFor,
+	import { cleanup,
+	import { fireEvent,
+	import { render,
+	import { screen,
+	import { waitFor
 } from "@testing-library/react";
 // Re-export Vitest types for convenience
 export type {
-	MockedClass,
-	MockedFunction,
-	MockedObject,
+import { MockedClass,
+import { MockedObject
 } from "vitest";
 // Convenience re-exports from testing libraries
 export {
@@ -140,11 +109,11 @@ export {
 	afterEach,
 	beforeAll,
 	beforeEach,
-	describe,
-	expect,
-	it,
-	test,
-	vi,
+	import { describe,
+	import { expect,
+	import { it,
+	import { test,
+	import { vi
 } from "vitest";
 
 // Default configuration

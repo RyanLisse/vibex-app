@@ -5,16 +5,13 @@
  * scenarios and query patterns
  */
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Task } from "@/db/schema";
 	taskKeys,
 	useCreateTask,
 	useDeleteTask,
 	useTask,
 	useTasks,
-	useUpdateTask,
+	useUpdateTask
 } from "@/lib/query/hooks";
 
 // Mock fetch
@@ -34,8 +31,7 @@ function createWrapper() {
 		},
 	});
 
-	return ({ children }: { children: React.ReactNode }) =>
-		React.createElement(QueryClientProvider, { client: queryClient }, children);
+	return ({ children }: { children: React.ReactNode }) =>React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
 describe("Cache Invalidation", () => {
@@ -65,7 +61,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						tasks: [{ id: "1", title: "Existing Task" }],
 						total: 1,
 						hasMore: false,
@@ -90,7 +86,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						id: "2",
 						title: "New Task",
 						status: "pending",
@@ -101,7 +97,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						tasks: [
 							{ id: "1", title: "Existing Task" },
 							{ id: "2", title: "New Task" },
@@ -162,7 +158,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						id: "1",
 						title: "Updated Title",
 						status: "pending",
@@ -272,7 +268,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						id: "3",
 						title: "New Task",
 						status: "pending",
@@ -339,7 +335,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						id: "1",
 						title: "Updated Task 1",
 						status: "completed",
@@ -389,7 +385,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						tasks: [{ id: "1", title: "Initial Task" }],
 						total: 1,
 						hasMore: false,
@@ -410,7 +406,7 @@ describe("Cache Invalidation", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						tasks: [
 							{ id: "1", title: "Initial Task" },
 							{ id: "2", title: "Background Task" },

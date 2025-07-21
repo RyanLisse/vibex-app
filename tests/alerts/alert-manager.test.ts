@@ -1,12 +1,5 @@
 import type Redis from "ioredis";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AlertManager } from "@/lib/alerts/alert-manager";
-import type { AlertTransportService } from "@/lib/alerts/transport/alert-transport-service";
-	AlertChannelType,
-	type AlertConfig,
-	type CriticalError,
-	CriticalErrorType,
-} from "@/lib/alerts/types";
+import { CriticalErrorType } from "@/lib/alerts/types";
 
 // Mock Redis
 const mockRedis = {

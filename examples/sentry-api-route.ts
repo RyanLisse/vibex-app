@@ -3,13 +3,9 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
-import { type NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { db } from "@/db/config";
-import { tasks } from "@/db/schema";
 import { enhancedObservability } from "@/lib/observability/enhanced";
 	instrumentApiRoute,
-	instrumentDatabaseOperation,
+	instrumentDatabaseOperation
 } from "@/lib/sentry/instrumentation";
 
 const logger = enhancedObservability.getLogger("api.example");
@@ -34,7 +30,7 @@ export async function POST(request: NextRequest) {
 			});
 
 			// Add breadcrumb
-			Sentry.addBreadcrumb({
+Sentry.addBreadcrumb({
 				message: `API Request: ${validatedData.action}`,
 				category: "api",
 				level: "info",
@@ -86,7 +82,7 @@ export async function POST(request: NextRequest) {
 			});
 
 			// Capture exception with context
-			Sentry.captureException(error, {
+Sentry.captureException(error, {
 				tags: {
 					api_route: "/api/example",
 					method: "POST",
@@ -141,7 +137,7 @@ async function handleFetchAction(userId: string) {
 					// Track query performance
 					enhancedObservability.trackDistribution(
 						"db.query.duration",
-						Date.now() - startTime,
+Date.now() - startTime,
 						"millisecond",
 						{ query: "fetch_user_tasks" },
 					);
@@ -174,7 +170,7 @@ async function handleProcessAction(userId: string, data: any) {
 				await new Promise((resolve) => setTimeout(resolve, 100));
 
 				// Add processing breadcrumb
-				Sentry.addBreadcrumb({
+Sentry.addBreadcrumb({
 					message: "Data processing completed",
 					category: "processing",
 					level: "info",
@@ -252,5 +248,3 @@ async function handleAnalyzeAction(userId: string) {
 		},
 	);
 }
-
-import { and, count, eq, sql } from "drizzle-orm";

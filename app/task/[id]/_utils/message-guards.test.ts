@@ -1,11 +1,11 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test,
 } from "bun:test";
 	createMessage,
 	filterMessagesByStatus,
@@ -22,11 +22,11 @@
 	isStreamingMessage,
 	isSystemMessage,
 	isToolMessage,
-	isUserMessage,
-	sortMessagesByTimestamp,
+	import { isUserMessage,
+	import { sortMessagesByTimestamp,
 	type TaskMessage,
-	updateMessage,
-	validateMessage,
+	import { updateMessage,
+	import { validateMessage,
 } from "./message-guards";
 
 describe("message-guards", () => {

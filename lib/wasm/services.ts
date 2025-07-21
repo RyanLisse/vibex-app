@@ -5,20 +5,11 @@
  * including vector search, SQLite utilities, and compute operations.
  */
 
-import { ComputeWASM, type ComputeWASMConfig, computeManager } from "./compute";
-import { type DataProcessingConfig, dataProcessor } from "./data-processor";
-import { type WASMCapabilities, wasmDetector } from "./detection";
-import { moduleLoader } from "./module-loader";
-import { wasmObservability } from "./observability-integration";
-import { wasmPerformanceTracker } from "./performance-tracker";
-	type SQLiteWASMConfig,
-	SQLiteWASMUtils,
-	sqliteWASMUtils,
-} from "./sqlite-utils";
+import { SQLiteWASMUtils,
+	sqliteWASMUtils } from "./sqlite-utils";
 	type VectorSearchConfig,
-	VectorSearchWASM,
-	vectorSearchManager,
-} from "./vector-search";
+import { VectorSearchWASM,
+	vectorSearchManager } from "./vector-search";
 
 export interface WASMServicesConfig {
 	vectorSearch?: Partial<VectorSearchConfig>;
@@ -70,7 +61,7 @@ export class WASMServices {
 
 	static getInstance(config?: WASMServicesConfig): WASMServices {
 		if (!WASMServices.instance) {
-			WASMServices.instance = new WASMServices(config);
+WASMServices.instance = new WASMServices(config);
 		}
 		return WASMServices.instance;
 	}

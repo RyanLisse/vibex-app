@@ -5,9 +5,9 @@
  */
 
 import { execSync } from "child_process";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { glob } from "glob";
-import { join } from "path";
+existsSync, readFileSync, writeFileSync } from "fs";
+glob } from "glob";
+join } from "path";
 
 console.log("🔧 Starting comprehensive test fix...\n");
 
@@ -94,7 +94,7 @@ testFiles.forEach((file) => {
 			lines.splice(
 				firstImportIndex,
 				0,
-				"import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'",
+				"vi, describe, it, expect, beforeEach, afterEach } from 'vitest'",
 			);
 			writeFileSync(file, lines.join("\n"));
 			console.log(`✅ Added vitest imports to ${file}`);
@@ -107,7 +107,7 @@ console.log();
 console.log("5️⃣ Setting up Redis mocks...");
 
 const redisSetupContent = `// Mock Redis before any imports
-import { vi } from 'vitest'
+vi } from 'vitest'
 
 vi.mock('redis', () => ({
   createClient: vi.fn(() => ({

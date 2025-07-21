@@ -1,14 +1,12 @@
-import { createHash } from "crypto";
 import { desc, eq, sql as sqlOperator } from "drizzle-orm";
 	existsSync,
 	mkdirSync,
 	readdirSync,
 	readFileSync,
-	writeFileSync,
+	writeFileSync
 } from "fs";
-import { join } from "path";
 import { db, sql } from "../config";
-import { migrations, type NewMigration } from "../schema";
+migrations, type NewMigration } from "../schema";
 
 export interface MigrationFile {
 	name: string;
@@ -109,7 +107,7 @@ export class MigrationRunner {
 	 * Get executed migrations from database
 	 */
 	private async getExecutedMigrations(): Promise<
-		Array<{ name: string; checksum: string; executedAt: Date }>
+Array<{ name: string; checksum: string; executedAt: Date }>
 	> {
 		try {
 			return await db
@@ -508,7 +506,7 @@ export class MigrationRunner {
 
 			writeFileSync(
 				join(backupPath, `backup-${Date.now()}.json`),
-				JSON.stringify(backupMetadata, null, 2),
+JSON.stringify(backupMetadata, null, 2),
 			);
 
 			console.log("✅ Backup point created");
@@ -703,280 +701,9 @@ export class MigrationRunner {
 		const filepath = join(this.migrationsPath, filename);
 
 		const template = `-- Migration: ${name}
--- Created: ${new Date().toISOString()}
+Created: ${new Date().toISOString()}
 ${options?.description ? `-- Description: ${options.description}` : ""}
 ${options?.author ? `-- Author: ${options.author}` : ""}
 ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
-
--- Up
--- Add your migration SQL here
--- Example:
--- CREATE TABLE example (
---   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
---   name varchar(255) NOT NULL,
---   created_at timestamp DEFAULT now() NOT NULL
--- );
--- CREATE INDEX example_name_idx ON example (name);
-
-
--- Down
--- Add your rollback SQL here
--- Example:
--- DROP TABLE IF EXISTS example;
-
-`;
-
-		writeFileSync(filepath, template);
-		console.log(`✅ Created migration file: ${filename}`);
-		return filepath;
-	}
-
-	/**
-	 * Validate database schema integrity
-	 */
-	async validateSchema(): Promise<{
-		valid: boolean;
-		issues: string[];
-		recommendations: string[];
-	}> {
-		const issues: string[] = [];
-		const recommendations: string[] = [];
-
-		try {
-			// Check for missing indexes on foreign keys
-			const foreignKeyQuery = `
-        SELECT 
-          tc.table_name,
-          kcu.column_name,
-          ccu.table_name AS foreign_table_name,
-          ccu.column_name AS foreign_column_name
-        FROM information_schema.table_constraints AS tc
-        JOIN information_schema.key_column_usage AS kcu
-          ON tc.constraint_name = kcu.constraint_name
-        JOIN information_schema.constraint_column_usage AS ccu
-          ON ccu.constraint_name = tc.constraint_name
-        WHERE tc.constraint_type = 'FOREIGN KEY'
-      `;
-
-			const foreignKeys = await sql(foreignKeyQuery);
-
-			for (const fk of foreignKeys) {
-				const indexQuery = `
-          SELECT indexname 
-          FROM pg_indexes 
-          WHERE tablename = '${fk.table_name}' 
-          AND indexdef LIKE '%${fk.column_name}%'
-        `;
-
-				const indexes = await sql(indexQuery);
-				if (indexes.length === 0) {
-					recommendations.push(
-						`Consider adding index on ${fk.table_name}.${fk.column_name} (foreign key)`,
-					);
-				}
-			}
-
-			// Check for tables without primary keys
-			const tablesQuery = `
-        SELECT table_name 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_type = 'BASE TABLE'
-        AND table_name NOT IN (
-          SELECT table_name 
-          FROM information_schema.table_constraints 
-          WHERE constraint_type = 'PRIMARY KEY'
-        )
-      `;
-
-			const tablesWithoutPK = await sql(tablesQuery);
-			tablesWithoutPK.forEach((row) => {
-				issues.push(`Table ${row.table_name} has no primary key`);
-			});
-
-			// Check for unused indexes (this would require pg_stat_user_indexes)
-			try {
-				const unusedIndexQuery = `
-          SELECT 
-            schemaname,
-            tablename,
-            indexname,
-            idx_tup_read,
-            idx_tup_fetch
-          FROM pg_stat_user_indexes
-          WHERE idx_tup_read = 0 AND idx_tup_fetch = 0
-        `;
-
-				const unusedIndexes = await sql(unusedIndexQuery);
-				unusedIndexes.forEach((row) => {
-					recommendations.push(
-						`Index ${row.indexname} on ${row.tablename} appears unused`,
-					);
-				});
-			} catch (error) {
-				// pg_stat_user_indexes might not be available
-				console.warn("Could not check for unused indexes:", error.message);
-			}
-		} catch (error) {
-			issues.push(`Schema validation error: ${error.message}`);
-		}
-
-		return {
-			valid: issues.length === 0,
-			issues,
-			recommendations,
-		};
-	}
-
-	/**
-	 * Get database statistics and health metrics
-	 */
-	async getDatabaseStats(): Promise<{
-		tables: Array<{
-			name: string;
-			rowCount: number;
-			size: string;
-			indexes: number;
-		}>;
-		totalSize: string;
-		connectionCount: number;
-		extensions: string[];
-	}> {
-		try {
-			// Get table statistics
-			const tableStatsQuery = `
-        SELECT 
-          schemaname,
-          tablename,
-          n_tup_ins + n_tup_upd + n_tup_del as total_operations,
-          n_tup_ins as inserts,
-          n_tup_upd as updates,
-          n_tup_del as deletes,
-          n_live_tup as live_tuples,
-          pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-        FROM pg_stat_user_tables
-        ORDER BY total_operations DESC
-      `;
-
-			const tableStats = await sql(tableStatsQuery);
-
-			// Get index count per table
-			const indexCountQuery = `
-        SELECT 
-          tablename,
-          COUNT(*) as index_count
-        FROM pg_indexes
-        WHERE schemaname = 'public'
-        GROUP BY tablename
-      `;
-
-			const indexCounts = await sql(indexCountQuery);
-			const indexCountMap = new Map(
-				indexCounts.map((row) => [row.tablename, row.index_count]),
-			);
-
-			// Get total database size
-			const dbSizeQuery =
-				"SELECT pg_size_pretty(pg_database_size(current_database())) as size";
-			const dbSize = await sql(dbSizeQuery);
-
-			// Get connection count
-			const connectionQuery = "SELECT count(*) as count FROM pg_stat_activity";
-			const connections = await sql(connectionQuery);
-
-			// Get installed extensions
-			const extensionsQuery =
-				"SELECT extname FROM pg_extension ORDER BY extname";
-			const extensions = await sql(extensionsQuery);
-
-			return {
-				tables: tableStats.map((row) => ({
-					name: row.tablename,
-					rowCount: Number.parseInt(row.live_tuples) || 0,
-					size: row.size || "0 bytes",
-					indexes: indexCountMap.get(row.tablename) || 0,
-				})),
-				totalSize: dbSize[0]?.size || "0 bytes",
-				connectionCount: Number.parseInt(connections[0]?.count) || 0,
-				extensions: extensions.map((row) => row.extname),
-			};
-		} catch (error) {
-			console.error("Failed to get database stats:", error);
-			return {
-				tables: [],
-				totalSize: "0 bytes",
-				connectionCount: 0,
-				extensions: [],
-			};
-		}
-	}
-
-	/**
-	 * Optimize database performance
-	 */
-	async optimizeDatabase(): Promise<{
-		success: boolean;
-		operations: string[];
-		errors: string[];
-	}> {
-		const operations: string[] = [];
-		const errors: string[] = [];
-
-		try {
-			// Update table statistics
-			console.log("📊 Updating table statistics...");
-			await sql`ANALYZE`;
-			operations.push("Updated table statistics (ANALYZE)");
-
-			// Vacuum tables to reclaim space
-			console.log("🧹 Vacuuming tables...");
-			const tablesQuery = `
-        SELECT tablename 
-        FROM pg_tables 
-        WHERE schemaname = 'public'
-      `;
-			const tables = await sql(tablesQuery);
-
-			for (const table of tables) {
-				try {
-					await sql(`VACUUM ${table.tablename}`);
-					operations.push(`Vacuumed table: ${table.tablename}`);
-				} catch (error) {
-					errors.push(`Failed to vacuum ${table.tablename}: ${error.message}`);
-				}
-			}
-
-			// Reindex if needed (be careful with this in production)
-			if (process.env.NODE_ENV !== "production") {
-				console.log("🔄 Reindexing database...");
-				try {
-					await sql`REINDEX DATABASE CONCURRENTLY`;
-					operations.push("Reindexed database");
-				} catch (error) {
-					// REINDEX DATABASE might not be supported, try individual tables
-					for (const table of tables) {
-						try {
-							await sql(`REINDEX TABLE ${table.tablename}`);
-							operations.push(`Reindexed table: ${table.tablename}`);
-						} catch (tableError) {
-							errors.push(
-								`Failed to reindex ${table.tablename}: ${tableError.message}`,
-							);
-						}
-					}
-				}
-			}
-		} catch (error) {
-			errors.push(`Database optimization error: ${error.message}`);
-		}
-
-		return {
-			success: errors.length === 0,
-			operations,
-			errors,
-		};
-	}
-}
-
-// Export singleton instance
-export const migrationRunner = new MigrationRunner();
+import { Up
+Add your migration SQL here

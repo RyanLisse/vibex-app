@@ -1,21 +1,6 @@
 "use client";
-
-	Area,
-	AreaChart,
-	Bar,
-	BarChart,
-	CartesianGrid,
-	Cell,
-	Legend,
-	Line,
-	LineChart,
-	Pie,
-	PieChart,
-	PieChart as RechartsPieChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
+import { Area,
+import { YAxis
 } from "recharts";
 
 interface ChartProps {

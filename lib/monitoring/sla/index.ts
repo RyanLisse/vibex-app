@@ -4,9 +4,6 @@
  * Tracks service level agreements and generates compliance reports
  */
 
-import { sql } from "drizzle-orm";
-import { db } from "@/db/config";
-import { observability } from "@/lib/observability";
 import { notificationManager } from "../notifications";
 	metrics as prometheusMetrics,
 	prometheusRegistry,

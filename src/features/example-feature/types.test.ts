@@ -1,16 +1,12 @@
 	afterEach,
 	beforeEach,
-	describe,
-	expect,
-	it,
-	mock,
-	test,
+	import { describe,
+	import { expect,
+	import { it,
+	import { mock,
+	import { test
 } from "bun:test";
-import { vi } from "vitest";
-	ExampleFilter,
-	ExampleFormData,
-	ExampleItem,
-	ExampleStore,
+import { ExampleStore
 } from "@/src/features/example-feature/types";
 
 describe("ExampleItem type", () => {

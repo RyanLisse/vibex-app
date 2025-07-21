@@ -1,8 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-	MemoryProfiler,
-	PerformanceBenchmark,
-	PerformanceReporter,
-} from "./performance-testing";
+import { PerformanceReporter } from "./performance-testing";
 
 describe("PerformanceBenchmark", () => {
 	let benchmark: PerformanceBenchmark;

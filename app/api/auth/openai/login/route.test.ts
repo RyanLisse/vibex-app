@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { NextRequest } from "next/server";
 import { vi } from "vitest";
 
 // Mock the POST function since it doesn't exist in the route
@@ -15,8 +13,8 @@ vi.mock("@/lib/auth/openai-codex", () => ({
 
 // Mock NextResponse
 vi.mock("next/server", () => ({
-	NextRequest: vi.fn(),
-	NextResponse: {
+NextRequest: vi.fn(),
+NextResponse: {
 		json: vi.fn(),
 		redirect: vi.fn(),
 	},
@@ -25,17 +23,17 @@ vi.mock("next/server", () => ({
 // Mock environment variables
 vi.mock("@/lib/env", () => ({
 	env: {
-		OPENAI_CLIENT_ID: "test-client-id",
-		OPENAI_REDIRECT_URI: "https://app.example.com/auth/openai/callback",
-		OPENAI_AUTH_URL: "https://auth.openai.com/oauth/authorize",
-		NEXTAUTH_URL: "https://app.example.com",
+OPENAI_CLIENT_ID: "test-client-id",
+OPENAI_REDIRECT_URI: "https://app.example.com/auth/openai/callback",
+OPENAI_AUTH_URL: "https://auth.openai.com/oauth/authorize",
+NEXTAUTH_URL: "https://app.example.com",
 	},
 }));
 
 	generateAuthUrl,
 	generateCodeChallenge,
 	generateCodeVerifier,
-	generateState,
+	generateState
 } from "@/lib/auth/openai-codex";
 
 const mockGenerateAuthUrl = generateAuthUrl as any;
@@ -182,10 +180,8 @@ describe("POST /api/auth/openai/login", () => {
 	it("should handle missing environment variables", async () => {
 		mock.doMock("@/lib/env", () => ({
 			env: {
-				OPENAI_CLIENT_ID: undefined,
-				OPENAI_REDIRECT_URI: undefined,
-				OPENAI_AUTH_URL: undefined,
-				NEXTAUTH_URL: undefined,
+OPENAI_CLIENT_ID: undefined,
+import { NEXTAUTH_URL: undefined,
 			},
 		}));
 
@@ -394,7 +390,7 @@ describe("POST /api/auth/openai/login", () => {
   generateAuthUrl,
   generateCodeChallenge,
   generateCodeVerifier,
-  generateState,
+  generateState
 } from '@/lib/auth/openai-codex'
 
 const mockGenerateAuthUrl = generateAuthUrl as any
@@ -531,193 +527,4 @@ describe('POST /api/auth/openai/login', () => {
   it('should handle missing environment variables', async () => {
     mock.doMock('@/lib/env', () => ({
       env: {
-        OPENAI_CLIENT_ID: undefined,
-        OPENAI_REDIRECT_URI: undefined,
-        OPENAI_AUTH_URL: undefined,
-        NEXTAUTH_URL: undefined,
-      },
-    }))
-
-    mockNextResponse.json.mockReturnValue({
-      error: 'Missing OpenAI configuration',
-    } as any)
-
-    const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
-      method: 'POST',
-    })
-
-    const _response = await POST(request)
-
-    expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'Missing OpenAI configuration' },
-      { status: 500 }
-    )
-  })
-
-  it('should handle auth URL generation error', async () => {
-    const mockCodeVerifier = 'test-code-verifier'
-    const mockCodeChallenge = 'test-code-challenge'
-    const mockState = 'test-state'
-
-    mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier)
-    mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge)
-    mockGenerateState.mockReturnValue(mockState)
-    mockGenerateAuthUrl.mockImplementation(() => {
-      throw new Error('Auth URL generation failed')
-    })
-
-    mockNextResponse.json.mockReturnValue({
-      error: 'Auth URL generation failed',
-    } as any)
-
-    const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
-      method: 'POST',
-    })
-
-    const _response = await POST(request)
-
-    expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'Auth URL generation failed' },
-      { status: 500 }
-    )
-  })
-
-  it('should handle invalid redirect URI', async () => {
-    const mockCodeVerifier = 'test-code-verifier'
-    const mockCodeChallenge = 'test-code-challenge'
-    const mockState = 'test-state'
-
-    mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier)
-    mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge)
-    mockGenerateState.mockReturnValue(mockState)
-    mockGenerateAuthUrl.mockImplementation(() => {
-      throw new Error('Invalid redirect URI')
-    })
-
-    mockNextResponse.json.mockReturnValue({
-      error: 'Invalid redirect URI',
-    } as any)
-
-    const request = new NextRequest(
-      'https://app.example.com/api/auth/openai/login?redirect_uri=javascript%3Aalert(1)',
-      {
-        method: 'POST',
-      }
-    )
-
-    const _response = await POST(request)
-
-    expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'Invalid redirect URI' },
-      { status: 400 }
-    )
-  })
-
-  it('should handle POST request body parameters', async () => {
-    const mockCodeVerifier = 'test-code-verifier'
-    const mockCodeChallenge = 'test-code-challenge'
-    const mockState = 'test-state'
-    const mockAuthUrl = 'https://auth.openai.com/oauth/authorize?scope=read+write'
-
-    mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier)
-    mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge)
-    mockGenerateState.mockReturnValue(mockState)
-    mockGenerateAuthUrl.mockReturnValue(mockAuthUrl)
-
-    mockNextResponse.redirect.mockReturnValue({ status: 302 } as any)
-
-    const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        scope: 'read write',
-        redirect_uri: 'https://custom.example.com/callback',
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    const _response = await POST(request)
-
-    expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
-      clientId: 'test-client-id',
-      redirectUri: 'https://custom.example.com/callback',
-      scope: 'read write',
-      state: mockState,
-      codeChallenge: mockCodeChallenge,
-    })
-  })
-
-  it('should handle malformed JSON in request body', async () => {
-    mockNextResponse.json.mockReturnValue({
-      error: 'Invalid request body',
-    } as any)
-
-    const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
-      method: 'POST',
-      body: 'invalid-json',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    const _response = await POST(request)
-
-    expect(mockNextResponse.json).toHaveBeenCalledWith(
-      { error: 'Invalid request body' },
-      { status: 400 }
-    )
-  })
-
-  it('should store code verifier and state in session/cookies', async () => {
-    const mockCodeVerifier = 'test-code-verifier'
-    const mockCodeChallenge = 'test-code-challenge'
-    const mockState = 'test-state'
-    const mockAuthUrl = 'https://auth.openai.com/oauth/authorize'
-
-    mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier)
-    mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge)
-    mockGenerateState.mockReturnValue(mockState)
-    mockGenerateAuthUrl.mockReturnValue(mockAuthUrl)
-
-    const mockRedirectResponse = { status: 302 } as any
-    mockNextResponse.redirect.mockReturnValue(mockRedirectResponse)
-
-    const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
-      method: 'POST',
-    })
-
-    const _response = await POST(request)
-
-    expect(mockNextResponse.redirect).toHaveBeenCalledWith(mockAuthUrl)
-    // Code verifier and state should be stored (implementation detail)
-  })
-
-  it('should handle default scope when not provided', async () => {
-    const mockCodeVerifier = 'test-code-verifier'
-    const mockCodeChallenge = 'test-code-challenge'
-    const mockState = 'test-state'
-    const mockAuthUrl = 'https://auth.openai.com/oauth/authorize'
-
-    mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier)
-    mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge)
-    mockGenerateState.mockReturnValue(mockState)
-    mockGenerateAuthUrl.mockReturnValue(mockAuthUrl)
-
-    mockNextResponse.redirect.mockReturnValue({ status: 302 } as any)
-
-    const request = new NextRequest('https://app.example.com/api/auth/openai/login', {
-      method: 'POST',
-    })
-
-    const _response = await POST(request)
-
-    expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
-      clientId: 'test-client-id',
-      redirectUri: 'https://app.example.com/auth/openai/callback',
-      scope: 'read',
-      state: mockState,
-      codeChallenge: mockCodeChallenge,
-    })
-  })
-})
+OPENAI_CLIENT_ID: undefined,

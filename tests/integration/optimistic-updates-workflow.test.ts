@@ -5,18 +5,12 @@
  * UI behavior, error handling, and state consistency
  */
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { delay, HttpResponse, http } from "msw";
-// Mock server setup
-import { setupServer } from "msw/node";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Task } from "@/db/schema";
 	useBatchUpdateTasks,
 	useCreateTask,
 	useDeleteTask,
 	useTasks,
-	useUpdateTask,
+	useUpdateTask
 } from "@/lib/query/hooks";
 
 const server = setupServer();
@@ -40,8 +34,7 @@ function createWrapper() {
 		},
 	});
 
-	return ({ children }: { children: React.ReactNode }) =>
-		React.createElement(QueryClientProvider, { client: queryClient }, children);
+	return ({ children }: { children: React.ReactNode }) =>React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
 // Test data factory

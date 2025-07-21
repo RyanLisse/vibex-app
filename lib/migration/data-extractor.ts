@@ -4,13 +4,7 @@
  * Extracts data from localStorage with type safety and validation.
  * Handles Zustand store data formats and provides normalized output.
  */
-
-	LocalStorageData,
-	LocalStorageEnvironment,
-	LocalStorageTask,
-	MigrationError,
-	ValidationResult,
-} from "./types";
+import { ValidationResult } from "./types";
 
 export class DataExtractor {
 	private static instance: DataExtractor;

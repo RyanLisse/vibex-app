@@ -1,11 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { WebhookTransport } from "@/lib/alerts/transport/webhook-transport";
-	type AlertChannel,
-	AlertChannelType,
-	type AlertNotification,
-	type CriticalError,
-	CriticalErrorType,
-} from "@/lib/alerts/types";
+import { CriticalErrorType } from "@/lib/alerts/types";
 
 // Mock fetch
 global.fetch = vi.fn();

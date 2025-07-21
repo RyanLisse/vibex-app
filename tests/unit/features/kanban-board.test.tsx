@@ -2,22 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-// Components to be implemented
-import { KanbanBoard } from "@/components/features/kanban/kanban-board";
-import { KanbanCard } from "@/components/features/kanban/kanban-card";
-import { KanbanColumn } from "@/components/features/kanban/kanban-column";
-import { TaskFilters } from "@/components/features/kanban/task-filters";
-
-// Types
-	KanbanColumn as KanbanColumnType,
-	KanbanTask,
-} from "@/src/schemas/enhanced-task-schemas";
+import { KanbanTask } from "@/src/schemas/enhanced-task-schemas";
 
 // Mock data
 const mockTasks: KanbanTask[] = [

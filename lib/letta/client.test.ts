@@ -1,14 +1,4 @@
-
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { AgentConfig, LettaConfig, Message } from "./client";
-
-	AgentConfigSchema,
-	AgentTypeSchema,
-	createLettaClient,
-	LettaClient,
-	LettaConfigSchema,
-	MessageSchema,
-} from "./client";
+import { MessageSchema } from "./client";
 
 // Mock fetch globally
 
@@ -623,4 +613,3 @@ describe("LettaClient", () => {
 		});
 	});
 });
-

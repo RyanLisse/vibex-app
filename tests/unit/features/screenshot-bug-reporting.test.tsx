@@ -2,19 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { BugReportForm } from "@/components/features/bug-reporting/bug-report-form";
-import { ImageAnnotationTools } from "@/components/features/bug-reporting/image-annotation-tools";
-// Components to be implemented
-import { QuickBugReportButton } from "@/components/features/bug-reporting/quick-bug-report-button";
-import { ScreenshotCapture } from "@/components/features/bug-reporting/screenshot-capture";
-
-// Types
-	BugReport,
-	ScreenshotData,
-} from "@/src/schemas/enhanced-task-schemas";
+import { ScreenshotData } from "@/src/schemas/enhanced-task-schemas";
 
 // Mock the screen capture API
 const mockGetDisplayMedia = vi.fn();

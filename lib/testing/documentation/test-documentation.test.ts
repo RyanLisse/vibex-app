@@ -1,8 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-	CoverageVisualizer,
-	DocumentationGenerator,
-	TestSpecificationGenerator,
-} from "./test-documentation";
+import { TestSpecificationGenerator } from "./test-documentation";
 
 describe("TestSpecificationGenerator", () => {
 	let generator: TestSpecificationGenerator;
@@ -35,7 +31,6 @@ describe("TestSpecificationGenerator", () => {
 				className: "UserService",
 			});
 
-
 			expect(spec.title).toBe("UserService Test Specification");
 			expect(spec.methods).toHaveLength(2); // UserService has 2 methods: createUser and getUserById
 			expect(spec.methods[0].name).toBe("createUser");
@@ -47,7 +42,6 @@ describe("TestSpecificationGenerator", () => {
 			);
 			expect(spec.methods[1].name).toBe("getUserById");
 		});
-
 
 		it("should generate specification for React component", async () => {
 			const componentCode = `

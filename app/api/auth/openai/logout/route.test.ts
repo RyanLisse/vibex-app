@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { NextRequest } from "next/server";
 import { vi } from "vitest";
 
 // Mock the POST function since it doesn't accept parameters
@@ -16,8 +14,8 @@ vi.mock("@/lib/auth/openai-codex", () => ({
 
 // Mock NextResponse
 vi.mock("next/server", () => ({
-	NextRequest: vi.fn(),
-	NextResponse: {
+NextRequest: vi.fn(),
+NextResponse: {
 		json: vi.fn(),
 		redirect: vi.fn(),
 	},
@@ -26,10 +24,10 @@ vi.mock("next/server", () => ({
 // Mock environment variables
 vi.mock("@/lib/env", () => ({
 	env: {
-		OPENAI_CLIENT_ID: "test-client-id",
-		OPENAI_CLIENT_SECRET: "test-client-secret",
-		OPENAI_REVOKE_URL: "https://auth.openai.com/oauth/revoke",
-		NEXTAUTH_URL: "https://app.example.com",
+OPENAI_CLIENT_ID: "test-client-id",
+OPENAI_CLIENT_SECRET: "test-client-secret",
+OPENAI_REVOKE_URL: "https://auth.openai.com/oauth/revoke",
+NEXTAUTH_URL: "https://app.example.com",
 	},
 }));
 
@@ -37,7 +35,7 @@ vi.mock("@/lib/env", () => ({
 	clearStoredState,
 	clearStoredToken,
 	getStoredToken,
-	revokeToken,
+	revokeToken
 } from "@/lib/auth/openai-codex";
 
 const mockClearStoredToken = clearStoredToken as any;
@@ -454,11 +452,11 @@ describe("POST /api/auth/openai/logout", () => {
 		expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true });
 	});
 });
-  clearStoredCodeVerifier,
-  clearStoredState,
-  clearStoredToken,
-  getStoredToken,
-  revokeToken,
+  import { clearStoredCodeVerifier,
+  import { clearStoredState,
+  import { clearStoredToken,
+  import { getStoredToken,
+  import { revokeToken
 } from '@/lib/auth/openai-codex'
 
 const mockClearStoredToken = clearStoredToken as any

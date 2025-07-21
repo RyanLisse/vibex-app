@@ -4,14 +4,12 @@
  * @deprecated This Zustand store has been replaced by TanStack Query hooks.
  * Please use the following instead:
  * - For types: import type { Task } from '@/types/task'
- * - For queries: import { useTaskQuery, useTasksQuery } from '@/hooks/use-task-queries'
- * - For mutations: import { useCreateTaskMutation, useUpdateTaskMutation } from '@/hooks/use-task-queries'
+ * - For queries: useTaskQuery, useTasksQuery } from '@/hooks/use-task-queries'
+ * - For mutations: useCreateTaskMutation, useUpdateTaskMutation } from '@/hooks/use-task-queries'
  *
  * This file will be removed in the next major version.
  */
 
-import type { PullRequestResponse } from "@vibe-kit/sdk";
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type TaskStatus = "IN_PROGRESS" | "DONE" | "MERGED" | "PAUSED" | "CANCELLED";

@@ -4,15 +4,7 @@
  * Handles migration from localStorage to PostgreSQL + Redis architecture
  */
 
-import { eq } from "drizzle-orm";
-import { db } from "@/db/config";
-import { environments, tasks } from "@/db/schema";
-import { ObservabilityService } from "@/lib/observability";
-	LocalStorageData,
-	LocalStorageEnvironment,
-	LocalStorageTask,
-	MigrationError,
-	MigrationResult,
+import { MigrationResult
 } from "./types";
 
 export class MigrationService {
@@ -36,7 +28,7 @@ export class MigrationService {
 
 	static getInstance(): MigrationService {
 		if (!MigrationService.instance) {
-			MigrationService.instance = new MigrationService();
+MigrationService.instance = new MigrationService();
 		}
 		return MigrationService.instance;
 	}
@@ -375,33 +367,15 @@ export class MigrationService {
 			if (backup.tasks) {
 				localStorage.setItem(
 					"task-store",
-					JSON.stringify({ state: { tasks: backup.tasks } }),
+JSON.stringify({ state: { tasks: backup.tasks } }),
 				);
 			}
 
 			if (backup.environments) {
 				localStorage.setItem(
 					"environments",
-					JSON.stringify({ state: { environments: backup.environments } }),
+JSON.stringify({ state: { environments: backup.environments } }),
 				);
 			}
 
 			if (backup.formData) {
-				Object.entries(backup.formData).forEach(([key, value]) => {
-					localStorage.setItem(
-						key,
-						typeof value === "string" ? value : JSON.stringify(value),
-					);
-				});
-			}
-
-			return true;
-		} catch (error) {
-			console.error("Failed to restore from backup:", error);
-			return false;
-		}
-	}
-}
-
-// Singleton instance
-export const migrationService = MigrationService.getInstance();

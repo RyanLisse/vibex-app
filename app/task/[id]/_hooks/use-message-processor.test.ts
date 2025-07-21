@@ -1,17 +1,13 @@
 	afterEach,
 	beforeEach,
 	describe,
-	expect,
-	it,
-	mock,
-	spyOn,
-	test,
+	import { expect,
+	import { it,
+	import { mock,
+	import { spyOn,
+	import { test
 } from "bun:test";
-import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
-import { useMessageProcessor } from "@/app/task/[id]/_hooks/use-message-processor";
-	IncomingMessage,
-	StreamingMessage,
+import { StreamingMessage
 } from "@/app/task/[id]/_types/message-types";
 
 // Mock the message guards

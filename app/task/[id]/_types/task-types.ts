@@ -1,43 +1,4 @@
-import type { Task } from "@/types/task";
-
-// Enhanced message types with better type safety
-export interface TaskMessage {
-	role: "user" | "assistant";
-	type: "message" | "local_shell_call" | "local_shell_call_output";
-	data: MessageData;
-}
-
-export interface MessageData {
-	id?: string;
-	text?: string;
-	call_id?: string;
-	action?: {
-		command?: string[];
-	};
-	output?: string;
-	[key: string]: unknown;
-}
-
-// Component props interfaces
-export interface TaskClientPageProps {
-	id: string;
-}
-
-export interface ChatMessagesPanelProps {
-	task: Task;
-	regularMessages: Task["messages"];
-	streamingMessages: Map<string, StreamingMessage>;
-}
-
-export interface ShellOutputPanelProps {
-	shellMessages: Task["messages"];
-}
-
-// Re-export from message-types for convenience
-export type {
-	IncomingMessage,
-	StreamingMessage,
-} from "@/app/task/[id]/_types/message-types";
+import { StreamingMessage } from "@/app/task/[id]/_types/message-types";
 
 // Task status helpers
 export type TaskStatus =

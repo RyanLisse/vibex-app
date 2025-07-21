@@ -1,35 +1,11 @@
 "use client";
-
-	ChevronLeft,
-	ChevronRight,
-	ChevronsLeft,
-	ChevronsRight,
-	Download,
-	Filter,
-	MoreHorizontal,
-	RefreshCw,
-	Search,
-	SortAsc,
-	SortDesc,
+import { ChevronLeft,
+import { SortDesc
 } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+import { SelectValue
 } from "@/components/ui/select";
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
+import { Table,
+import { TableRow
 } from "@/components/ui/table";
 
 interface Column<T> {
@@ -149,8 +125,7 @@ export function DataTable<T extends Record<string, any>>({
 
 						{actions?.onExport && (
 							<Button onClick={actions.onExport} size="sm" variant="outline">
-								<Download className="mr-2 h-4 w-4" />
-								Export
+								<Download className="mr-2 h-4 w-4" />Export
 							</Button>
 						)}
 					</div>
@@ -168,8 +143,7 @@ export function DataTable<T extends Record<string, any>>({
 						{emptyState || (
 							<div className="text-center text-muted-foreground">
 								<div className="font-medium text-lg">No data found</div>
-								<div className="text-sm">
-									Try adjusting your search or filters
+								<div className="text-sm">Try adjusting your search or filters
 								</div>
 							</div>
 						)}
@@ -240,8 +214,7 @@ export function DataTable<T extends Record<string, any>>({
 				<div className="border-t p-4">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center space-x-2">
-							<span className="text-muted-foreground text-sm">
-								Rows per page:
+							<span className="text-muted-foreground text-sm">Rows per page:
 							</span>
 							<Select
 								onValueChange={(value) =>
@@ -308,7 +281,7 @@ export function DataTable<T extends Record<string, any>>({
 									}
 									onClick={() =>
 										pagination.onPageChange(
-											Math.ceil(pagination.total / pagination.pageSize),
+Math.ceil(pagination.total / pagination.pageSize),
 										)
 									}
 									size="sm"

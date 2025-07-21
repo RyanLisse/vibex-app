@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 const files = [
@@ -22,8 +21,8 @@ for (const file of files) {
 		// First, restore the import if it was removed
 		if (
 			!(
-				content.includes("import { createDefaultLoggingConfig") ||
-				content.includes("import { ComponentLogger")
+				content.includes("createDefaultLoggingConfig") ||
+				content.includes("ComponentLogger")
 			)
 		) {
 			// Find the import from './config' and add createDefaultLoggingConfig
@@ -37,7 +36,7 @@ for (const file of files) {
 					if (!importList.includes("createDefaultLoggingConfig")) {
 						importList.unshift("createDefaultLoggingConfig");
 					}
-					return `import { ${importList.join(", ")} } from './config'`;
+					return `${importList.join(", ")} } from './config'`;
 				},
 			);
 
@@ -48,7 +47,7 @@ for (const file of files) {
 					const insertPos = content.indexOf(firstImportMatch[0]);
 					content =
 						content.slice(0, insertPos) +
-						"import { createDefaultLoggingConfig } from './config'\n" +
+						import { "createDefaultLoggingConfig } from './config'\n" +
 						content.slice(insertPos);
 				}
 			}

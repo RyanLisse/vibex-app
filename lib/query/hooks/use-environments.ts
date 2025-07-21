@@ -4,12 +4,7 @@
  * Replaces Zustand environment store with TanStack Query + Redis caching
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { z } from "zod";
-	CreateEnvironmentSchema,
-	EnvironmentSchema,
-	UpdateEnvironmentSchema,
-} from "@/src/schemas/api-routes";
+import { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type Environment = z.infer<typeof EnvironmentSchema>;
@@ -31,7 +26,6 @@ async function fetchEnvironments(
 	params: { page?: number; limit?: number; search?: string } = {},
 ): Promise<{ environments: Environment[]; total: number; hasMore: boolean }> {
 	const searchParams = new URLSearchParams();
-
 	Object.entries(params).forEach(([key, value]) => {
 		if (value !== undefined && value !== null) {
 			searchParams.append(key, String(value));

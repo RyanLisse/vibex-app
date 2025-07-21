@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+join } from "path";
 
 // Fix correlation-id-manager to be browser-safe
 const correlationIdPath = join(
@@ -16,10 +16,10 @@ if (existsSync(correlationIdPath)) {
 		/import\s*{\s*AsyncLocalStorage\s*}\s*from\s*['"]async_hooks['"]/g,
 		`let AsyncLocalStorage: any
 if (typeof window === 'undefined') {
-  AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
+AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
 } else {
   // Browser fallback
-  AsyncLocalStorage = class {
+AsyncLocalStorage = class {
     private store: any = null
     run(store: any, callback: () => any) {
       this.store = store
@@ -47,9 +47,9 @@ if (existsSync(loggerFactoryPath)) {
 			/import\s*{\s*AsyncLocalStorage\s*}\s*from\s*['"]async_hooks['"]/g,
 			`let AsyncLocalStorage: any
 if (typeof window === 'undefined') {
-  AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
+AsyncLocalStorage = require('async_hooks').AsyncLocalStorage
 } else {
-  AsyncLocalStorage = class {
+import { AsyncLocalStorage = class {
     private store: any = null
     run(store: any, callback: () => any) {
       this.store = store

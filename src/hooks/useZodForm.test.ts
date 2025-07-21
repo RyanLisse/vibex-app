@@ -2,20 +2,17 @@
 
 	afterEach,
 	beforeEach,
-	describe,
-	expect,
-	it,
-	mock,
-	test,
+	import { describe,
+	import { expect,
+	import { it,
+	import { mock,
+	import { test
 } from "bun:test";
-import { act, render, renderHook, waitFor } from "@testing-library/react";
-import React from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 	createZodFormProvider,
 	useZodForm,
 	useZodFormPersistence,
-	useZodFormValidation,
+	useZodFormValidation
 } from "./useZodForm";
 
 // Mock react-hook-form
@@ -55,7 +52,6 @@ const mockLocalStorage = {
 	removeItem: mock(),
 	clear: mock(),
 };
-
 Object.defineProperty(window, "localStorage", {
 	value: mockLocalStorage,
 	writable: true,
@@ -819,7 +815,7 @@ describe("useZodForm", () => {
 
 			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
 				"form_test-form",
-				JSON.stringify({
+JSON.stringify({
 					name: "John Doe",
 					email: "john@example.com",
 					age: 25,
@@ -1035,11 +1031,11 @@ describe("createZodFormProvider", () => {
 
 		const childrenMock = vi.fn();
 		childrenMock.mockReturnValue(
-			React.createElement("div", null, "Form content"),
+React.createElement("div", null, "Form content"),
 		);
 
 		render(
-			React.createElement(FormProvider, { onSubmit: vi.fn() }, childrenMock),
+React.createElement(FormProvider, { onSubmit: vi.fn() }, childrenMock),
 		);
 
 		expect(childrenMock).toHaveBeenCalled();
@@ -1055,24 +1051,7 @@ describe("createZodFormProvider", () => {
 
 		const childrenMock = vi.fn();
 		childrenMock.mockReturnValue(
-			React.createElement("div", null, "Form content"),
+React.createElement("div", null, "Form content"),
 		);
 
 		render(
-			React.createElement(
-				FormProvider,
-				{
-					onSubmit,
-					onError,
-					validateOnMount: true,
-				},
-				childrenMock,
-			),
-		);
-
-		expect(childrenMock).toHaveBeenCalled();
-		const form = childrenMock.mock.calls[0][0];
-		expect(form).toBeDefined();
-	});
-});
-

@@ -42,7 +42,7 @@ interface ElectricConfig {
 }
 
 // Re-export pgliteConfig from simple-config
-export { pgliteConfig } from "./simple-config";
+import { export { pgliteConfig } from "./simple-config";
 
 // ElectricSQL configuration
 export const electricConfig: ElectricConfig = {
@@ -204,7 +204,7 @@ class ElectricDB {
 	>();
 	private syncEventListeners = new Map<
 		string,
-		Set<(event: SyncEvent) => void>
+Set<(event: SyncEvent) => void>
 	>();
 	private realtimeStats = {
 		totalOperations: 0,

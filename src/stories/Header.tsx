@@ -1,6 +1,4 @@
-	HeaderContent,
-	type HeaderContentProps,
-} from "@/src/stories/HeaderContent";
+import { type HeaderContentProps } from "@/src/stories/HeaderContent";
 
 export type HeaderProps = HeaderContentProps;
 

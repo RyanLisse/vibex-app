@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+join } from "path";
 
 const filePath = join(process.cwd(), "app/globals.css");
 let content = readFileSync(filePath, "utf-8");

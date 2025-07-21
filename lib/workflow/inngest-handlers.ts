@@ -4,13 +4,7 @@
  * Integrates workflow engine with Inngest for event-driven execution
  */
 
-import { inngest } from "@/lib/inngest";
-import { observability } from "@/lib/observability";
-import { workflowEngine } from "./engine";
-	WorkflowDefinition,
-	WorkflowExecutionState,
-	WorkflowTrigger,
-} from "./types";
+import { WorkflowTrigger } from "./types";
 
 // Workflow trigger events
 export const workflowTriggerHandler = inngest.createFunction(

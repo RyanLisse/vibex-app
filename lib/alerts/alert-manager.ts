@@ -1,15 +1,4 @@
-import { randomUUID } from "crypto";
-import type Redis from "ioredis";
-import { ComponentLogger } from "../logging/logger-factory";
-import type { AlertTransportService } from "./transport/alert-transport-service";
-	type AlertChannel,
-	AlertChannelType,
-	type AlertConfig,
-	type AlertNotification,
-	AlertNotificationStatus,
-	type CriticalError,
-	CriticalErrorType,
-} from "./types";
+import { CriticalErrorType } from "./types";
 
 export class AlertManager {
 	private readonly logger: ComponentLogger;

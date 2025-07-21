@@ -1,10 +1,4 @@
-import { and, asc, desc, eq, gte, like, lte, ne, or } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { db } from "@/db/config";
-	createQueryBuilder,
-	QueryBuilder,
-	type QueryOptions,
-} from "@/lib/api/base/query-builder";
+import { type QueryOptions } from "@/lib/api/base/query-builder";
 
 // Mock the database
 vi.mock("@/db/config", () => ({

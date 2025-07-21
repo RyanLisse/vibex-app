@@ -2,13 +2,12 @@
  * @deprecated This Zustand store has been replaced by TanStack Query hooks.
  * Please use the following instead:
  * - For types: import type { Environment } from '@/types/environment'
- * - For queries: import { useEnvironmentsQuery } from '@/hooks/use-environment-queries'
- * - For mutations: import { useCreateEnvironmentMutation, useUpdateEnvironmentMutation } from '@/hooks/use-environment-queries'
+ * - For queries: useEnvironmentsQuery } from '@/hooks/use-environment-queries'
+ * - For mutations: useCreateEnvironmentMutation, useUpdateEnvironmentMutation } from '@/hooks/use-environment-queries'
  *
  * This file will be removed in the next major version.
  */
 
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 /**

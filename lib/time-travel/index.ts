@@ -14,13 +14,12 @@ import { observability } from "@/lib/observability";
 	type ExecutionSnapshot,
 	type ExecutionState,
 	type SnapshotType,
-	snapshotManager,
+	snapshotManager
 } from "./execution-snapshots";
 	type ReplaySession,
 	type ReplaySpeed,
-	ReplayState,
-	replayEngine,
-} from "./replay-engine";
+import { ReplayState,
+	replayEngine } from "./replay-engine";
 
 // Time-travel system manager
 export class TimeTravelSystem {
@@ -31,7 +30,7 @@ export class TimeTravelSystem {
 
 	static getInstance(): TimeTravelSystem {
 		if (!TimeTravelSystem.instance) {
-			TimeTravelSystem.instance = new TimeTravelSystem();
+TimeTravelSystem.instance = new TimeTravelSystem();
 		}
 		return TimeTravelSystem.instance;
 	}
@@ -353,7 +352,7 @@ export const timeTravel = {
 		tags?: string[],
 		isCheckpoint?: boolean,
 	) =>
-		TimeTravelSystem.getInstance().captureSnapshot(
+TimeTravelSystem.getInstance().captureSnapshot(
 			executionId,
 			type,
 			stepNumber,
@@ -369,35 +368,3 @@ export const timeTravel = {
 		state: ExecutionState,
 		description?: string,
 	) =>
-		TimeTravelSystem.getInstance().createCheckpoint(
-			executionId,
-			stepNumber,
-			state,
-			description,
-		),
-
-	// Replay methods
-	startReplay: (executionId: string, options?: any) =>
-		TimeTravelSystem.getInstance().startReplaySession(executionId, options),
-
-	controlReplay: (sessionId: string, action: any, options?: any) =>
-		TimeTravelSystem.getInstance().controlReplay(sessionId, action, options),
-
-	// Rollback methods
-	rollbackToCheckpoint: (executionId: string, checkpointStepNumber: number) =>
-		TimeTravelSystem.getInstance().rollbackToCheckpoint(
-			executionId,
-			checkpointStepNumber,
-		),
-};
-
-// Auto-initialize in browser environment
-if (typeof window !== "undefined") {
-	// Initialize on next tick to avoid blocking
-	setTimeout(() => {
-		timeTravel.initialize().catch(console.error);
-	}, 0);
-}
-
-// Default export
-export default timeTravel;

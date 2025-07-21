@@ -3,13 +3,7 @@
  * Implements Modal Labs integration for isolated agent environments
  * Following TDD approach - minimal implementation to make tests pass
  */
-
-	ModalFunctionConfig,
-	AgentEnvironment,
-	ModalFunctionResponse,
-	LogEntry,
-	ContainerUseError,
-} from "./types";
+import { ContainerUseError } from "./types";
 
 interface ModalManagerConfig {
 	apiKey: string;

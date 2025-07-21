@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
+dirname, join } from "path";
 
 const fixes = [];
 
@@ -15,7 +15,7 @@ if (existsSync(visualizationPath)) {
 	if (content.includes("import ReactFlow from")) {
 		content = content.replace(
 			/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-			"import { ReactFlow } from '@xyflow/react'",
+			"ReactFlow } from '@xyflow/react'",
 		);
 		writeFileSync(visualizationPath, content);
 		fixes.push("ReactFlow import in visualization-engine.tsx");
@@ -68,7 +68,7 @@ if (!existsSync(schemasPath)) {
 	}
 
 	// Create the schema file with all needed exports
-	const schemaContent = `import { z } from 'zod'
+	const schemaContent = `z } from 'zod'
 
 // Kanban Move Schema
 export const KanbanMoveSchema = z.object({
@@ -136,7 +136,7 @@ for (const file of files) {
 		if (content.includes("import ReactFlow")) {
 			content = content.replace(
 				/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-				"import { ReactFlow } from '@xyflow/react'",
+				"ReactFlow } from '@xyflow/react'",
 			);
 			modified = true;
 		}
@@ -144,12 +144,12 @@ for (const file of files) {
 		// Fix any default imports from @xyflow/react
 		if (
 			content.includes("from '@xyflow/react'") &&
-			content.includes("import {")
+			content.includes("")
 		) {
 			// Make sure ReactFlow is imported as named export
 			content = content.replace(
 				/import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-				"import { $1, ReactFlow } from '@xyflow/react'",
+				"$1, ReactFlow } from '@xyflow/react'",
 			);
 			modified = true;
 		}

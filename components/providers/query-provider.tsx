@@ -1,9 +1,7 @@
 "use client";
 
-import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React, { type ReactNode, useEffect, useState } from "react";
-import { queryClient } from "@/lib/query/config";
 import { wasmDetector } from "@/lib/wasm/detection";
 
 interface QueryProviderProps {
@@ -51,7 +49,7 @@ export function QueryProvider({
 export {
 	useEnhancedInfiniteQuery,
 	useEnhancedMutation,
-	useEnhancedQuery,
+	useEnhancedQuery
 } from "@/hooks/use-enhanced-query";
 
 /**
@@ -194,8 +192,7 @@ export function WASMOptimizationStatus() {
 
 	return (
 		<details className="fixed top-4 right-4 max-w-sm rounded-lg border bg-white p-3 text-xs shadow-lg">
-			<summary className="cursor-pointer font-bold text-blue-600">
-				WASM Status
+			<summary className="cursor-pointer font-bold text-blue-600">WASM Status
 			</summary>
 			<pre className="mt-2 whitespace-pre-wrap text-gray-700">
 				{capabilities}
@@ -234,22 +231,13 @@ export function QueryInvalidationControls() {
 				<button
 					className="block w-full rounded bg-yellow-100 px-2 py-1 text-left text-xs hover:bg-yellow-200"
 					onClick={handleInvalidateAll}
-				>
-					Invalidate All
+Invalidate All
 				</button>
 				<button
 					className="block w-full rounded bg-blue-100 px-2 py-1 text-left text-xs hover:bg-blue-200"
 					onClick={handleRefetchAll}
-				>
-					Refetch All
+Refetch All
 				</button>
 				<button
 					className="block w-full rounded bg-red-100 px-2 py-1 text-left text-xs hover:bg-red-200"
 					onClick={handleClearCache}
-				>
-					Clear Cache
-				</button>
-			</div>
-		</div>
-	);
-}

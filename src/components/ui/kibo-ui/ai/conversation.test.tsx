@@ -1,9 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
-	AIConversation,
-	AIConversationContent,
-	AIConversationScrollButton,
-} from "@/src/components/ui/kibo-ui/ai/conversation";
+import { AIConversationScrollButton } from "@/src/components/ui/kibo-ui/ai/conversation";
 
 // Mock the Button component
 vi.mock("@/components/ui/button", () => ({
@@ -369,4 +364,3 @@ describe("AIConversation Components", () => {
 		});
 	});
 });
-

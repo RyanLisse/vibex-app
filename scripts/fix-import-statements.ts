@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 import { readdir, readFile, writeFile } from "fs/promises";
-import { join } from "path";
+join } from "path";
 
 /**
  * Fix broken import statements where the import keyword is missing
  */
 
 async function fixBrokenImports(content: string): Promise<string> {
-	// Fix patterns like "} from" that should be "import { ... } from"
+	// Fix patterns like "} from" that should be "... } from"
 	const lines = content.split("\n");
 	const result: string[] = [];
 

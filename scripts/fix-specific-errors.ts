@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+existsSync, readFileSync, writeFileSync } from "fs";
 
 // Specific file fixes
 const fileFixes = [
@@ -51,7 +51,7 @@ const fileFixes = [
 		fixes: [
 			{
 				find: /import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
-				replace: "import { createRedisClient } from '@/lib/redis/redis-client'",
+				replace: "createRedisClient } from '@/lib/redis/redis-client'",
 			},
 			{
 				find: /const\s+alertManager\s*=\s*new\s+AlertManager\s*\(\s*{\s*redis\s*}\s*\)/g,
@@ -126,10 +126,8 @@ const alertManager = new AlertManager({
 				find: /observability\.startSpan\((['"])([^'"]+)\1\)/g,
 				replace: "observability.startSpan('$2', {})",
 			},
-			// Add sql import
-			{
-				find: /^(import.*from.*drizzle.*\n)/m,
-				replace: '$1import { sql } from "drizzle-orm"\n',
+			// Add sql find: /^(import.*from.*drizzle.*\n)/m,
+				replace: '$1sql } from "drizzle-orm"\n',
 			},
 		],
 	},

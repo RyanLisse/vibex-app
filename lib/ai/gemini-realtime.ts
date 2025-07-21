@@ -1,10 +1,4 @@
-import type { FunctionCall, FunctionResponse } from "@google/genai";
-	GoogleGenAI,
-	type LiveServerMessage,
-	MediaResolution,
-	Modality,
-	type Session,
-} from "@google/genai";
+import { type Session } from "@google/genai";
 
 export interface GeminiRealtimeConfig {
 	apiKey: string;

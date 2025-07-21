@@ -1,14 +1,5 @@
-	Cluster,
-	type ClusterOptions,
-	type RedisOptions,
-} from "ioredis";
-import { ObservabilityService } from "../observability";
-import { getRedisConfig } from "./config";
-	ClientHealthStatus,
-	type RedisConfig,
-	type RedisConnectionConfig,
-	type RedisHealthStatus,
-} from "./types";
+import { type RedisOptions } from "ioredis";
+import { type RedisHealthStatus } from "./types";
 
 export class RedisClientManager {
 	private static instance: RedisClientManager;
@@ -322,4 +313,3 @@ export const redis = {
 		return manager.getClient("primary");
 	},
 };
-

@@ -7,18 +7,17 @@
 
 	afterAll,
 	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
+	import { beforeEach,
+	import { describe,
+	import { expect,
+	import { it,
+	import { vi
 } from "vitest";
-import { checkDatabaseHealth, db } from "../../../db/config";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 	agentExecutions,
 	environments,
 	observabilityEvents,
-	tasks,
+	tasks
 } from "../../../db/schema";
 
 // Performance monitoring types
@@ -817,7 +816,7 @@ describe("Performance Monitoring Integration Tests", () => {
 			console.log("Slowest operation:", slowestOperation);
 
 			// All operations should complete within reasonable time
-			Object.values(bottleneckResults).forEach((time) => {
+Object.values(bottleneckResults).forEach((time) => {
 				expect(time).toBeLessThan(200); // All operations under 200ms
 			});
 		});

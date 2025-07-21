@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
+dirname, join } from "path";
 
 const fixes = [];
 
@@ -144,11 +144,11 @@ if (existsSync(visualizationPath)) {
 	// Try multiple patterns
 	content = content.replace(
 		/import\s+ReactFlow[^'"]*from\s*['"]@xyflow\/react['"]/g,
-		"import { ReactFlow } from '@xyflow/react'",
+		"ReactFlow } from '@xyflow/react'",
 	);
 	content = content.replace(
 		/import\s+{\s*default\s+as\s+ReactFlow[^}]*}\s*from\s*['"]@xyflow\/react['"]/g,
-		"import { ReactFlow } from '@xyflow/react'",
+		"ReactFlow } from '@xyflow/react'",
 	);
 
 	writeFileSync(visualizationPath, content);

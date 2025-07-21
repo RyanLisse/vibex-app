@@ -5,13 +5,7 @@
  * execution comparison, and rollback capabilities for debugging agent executions.
  */
 
-import { EventEmitter } from "events";
-import { observability } from "@/lib/observability";
-	type ExecutionSnapshot,
-	ExecutionState,
-	SnapshotType,
-	snapshotManager,
-} from "./execution-snapshots";
+import { SnapshotType, snapshotManager } from "./execution-snapshots";
 
 // Replay state
 export type ReplayState =

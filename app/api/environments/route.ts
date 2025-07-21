@@ -12,14 +12,7 @@ export const runtime = "nodejs";
  * error handling, request processing, and response formatting.
  */
 
-import { type NextRequest, NextResponse } from "next/server";
-import { BaseAPIHandler } from "@/lib/api/base";
-import { ResponseBuilder } from "@/lib/api/base/response-builder";
-import { CreateEnvironmentSchema } from "@/src/schemas/api-routes";
-	ActivateEnvironmentSchema,
-	environmentsService,
-	GetEnvironmentsQuerySchema,
-} from "./service";
+import { GetEnvironmentsQuerySchema } from "./service";
 
 /**
  * GET /api/environments - Get environments with filtering and pagination

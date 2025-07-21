@@ -1,5 +1,3 @@
-import { and, eq } from "drizzle-orm";
-import { ulid } from "ulid";
 import { db } from "@/db/config";
 	type ExecutionSnapshot,
 	executionSnapshots,
@@ -7,23 +5,9 @@ import { db } from "@/db/config";
 	type Workflow,
 	type WorkflowExecution,
 	workflowExecutions,
-	workflows,
+	workflows
 } from "@/db/schema";
-import { inngest } from "@/lib/inngest";
-import { observability } from "@/lib/observability";
-import { snapshotManager } from "@/lib/time-travel/execution-snapshots";
-import { stepExecutorRegistry } from "./executors";
-import { createWorkflowStateMachine, StateValidation } from "./state-machine";
-import { templateRegistry } from "./templates";
-	StepConfig,
-	StepExecutionResult,
-	StepExecutionState,
-	WorkflowContext,
-	WorkflowDefinition,
-	WorkflowError,
-	WorkflowEvent,
-	WorkflowExecutionState,
-	WorkflowMetrics,
+import { WorkflowMetrics
 } from "./types";
 
 /**
@@ -49,7 +33,7 @@ export class WorkflowExecutionEngine {
 
 	static getInstance(): WorkflowExecutionEngine {
 		if (!WorkflowExecutionEngine.instance) {
-			WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
+WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 		}
 		return WorkflowExecutionEngine.instance;
 	}
@@ -539,7 +523,7 @@ export class WorkflowExecutionEngine {
 				if (state) {
 					// Update in-memory state
 					state.currentStepId = stateUpdate.currentStepId;
-					Object.assign(state.variables, stateUpdate);
+Object.assign(state.variables, stateUpdate);
 				}
 
 				// Record snapshot for step
@@ -1003,12 +987,11 @@ export class WorkflowExecutionEngine {
 // Export singleton
 export const workflowEngine = WorkflowExecutionEngine.getInstance();
 
-export { stepExecutorRegistry } from "./executors";
-export { createWorkflowStateMachine, StateValidation } from "./state-machine";
+import { export { stepExecutorRegistry } from "./executors";
+import { export { createWorkflowStateMachine, StateValidation } from "./state-machine";
 export {
-	suggestTemplates,
-	TEMPLATE_CATEGORIES,
-	templateRegistry,
-} from "./templates";
+	import { suggestTemplates,
+import { TEMPLATE_CATEGORIES,
+	templateRegistry } from "./templates";
 // Export types and utilities
 export * from "./types";

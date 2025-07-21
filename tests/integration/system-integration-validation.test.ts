@@ -5,13 +5,10 @@
  * and operational, providing a comprehensive health check.
  */
 
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { AlertRuleBuilder } from "@/lib/metrics/alert-rules";
-import { GrafanaDashboardBuilder } from "@/lib/metrics/grafana-dashboards";
 import { PrometheusMetricsCollector } from "@/lib/metrics/prometheus-client";
 	getRedisConfig,
 	redisFeatures,
-	validateRedisEnvironment,
+	validateRedisEnvironment
 } from "@/lib/redis/config";
 
 // Integration Health Report Builder
@@ -326,8 +323,7 @@ describe("System Integration Validation", () => {
 				},
 				{
 					name: "Business Metrics",
-					builder: () =>
-						GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
+					builder: () =>GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
 				},
 				{
 					name: "Cost Analysis",

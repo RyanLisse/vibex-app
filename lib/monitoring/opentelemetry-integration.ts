@@ -3,38 +3,20 @@
  *
  * Integrates the monitoring system with existing OpenTelemetry infrastructure
  */
-
-	ConsoleMetricExporter,
-	context,
-	MeterProvider,
-	metrics as otelMetrics,
-	PeriodicExportingMetricReader,
-	type Span,
-	SpanKind,
-	SpanStatusCode,
+import { SpanStatusCode,
 	type Tracer,
-	trace,
+	trace
 } from "@opentelemetry/api";
-import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
-import { registerInstrumentations } from "@opentelemetry/instrumentation";
-import { ExpressInstrumentation } from "@opentelemetry/instrumentation-express";
-import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { Resource } from "@opentelemetry/resources";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-	SEMRESATTRS_SERVICE_NAME,
-	SEMRESATTRS_SERVICE_VERSION,
+import { SEMRESATTRS_SERVICE_VERSION
 } from "@opentelemetry/semantic-conventions";
-import { getTelemetryConfig } from "@/lib/telemetry";
-import { alertManager } from "./alerts";
 import { notificationManager } from "./notifications";
 	metrics as prometheusMetrics,
 	recordAgentExecution,
 	recordDatabaseQuery,
-	recordHttpRequest,
+	recordHttpRequest
 } from "./prometheus";
-	dbObservabilityMetrics,
-	otelMetrics as otelExportMetrics,
+	import { dbObservabilityMetrics,
+	otelMetrics as otelExportMetrics
 } from "./prometheus/custom-metrics";
 
 // Custom span processor for monitoring integration

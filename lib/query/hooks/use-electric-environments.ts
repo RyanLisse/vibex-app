@@ -4,13 +4,7 @@
  * Basic TanStack Query hooks for environment management without complex Electric services
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { z } from "zod";
-import type { Environment, NewEnvironment } from "@/db/schema";
-	CreateEnvironmentSchema,
-	EnvironmentSchema,
-	UpdateEnvironmentSchema,
-} from "@/src/schemas/api-routes";
+import { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type ElectricEnvironment = z.infer<typeof EnvironmentSchema>;

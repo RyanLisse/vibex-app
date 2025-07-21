@@ -1,14 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
-	Table,
-	TableBody,
-	TableCaption,
-	TableCell,
-	TableFooter,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "./table";
+import { TableRow } from "./table";
 
 describe("Table Components", () => {
 	describe("Table", () => {

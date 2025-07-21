@@ -1,8 +1,8 @@
-	transformerNotationDiff,
-	transformerNotationErrorLevel,
-	transformerNotationFocus,
-	transformerNotationHighlight,
-	transformerNotationWordHighlight,
+	import { transformerNotationDiff,
+	import { transformerNotationErrorLevel,
+	import { transformerNotationFocus,
+	import { transformerNotationHighlight,
+	import { transformerNotationWordHighlight,
 } from "@shikijs/transformers";
 import type { HTMLAttributes } from "react";
 	type BundledLanguage,

@@ -8,6 +8,6 @@ export * from "./errors";
 export * from "./handler";
 export * from "./query-builder";
 // Re-export commonly used functions
-export { createQueryBuilder } from "./query-builder";
+import { export { createQueryBuilder } from "./query-builder";
 export * from "./response-builder";
 export * from "./service";

@@ -1,10 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipTrigger } from "@/components/ui/tooltip";
 
 // Mock Radix UI Tooltip components
 vi.mock("@radix-ui/react-tooltip", () => ({

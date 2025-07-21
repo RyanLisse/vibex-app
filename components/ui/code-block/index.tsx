@@ -1,104 +1,29 @@
 "use client";
 
 	type IconType,
-	SiAstro,
-	SiBiome,
-	SiBower,
-	SiBun,
-	SiC,
-	SiCircleci,
-	SiCoffeescript,
-	SiCplusplus,
-	SiCss,
-	SiCssmodules,
-	SiDart,
-	SiDocker,
-	SiDocusaurus,
-	SiDotenv,
-	SiEditorconfig,
-	SiEslint,
-	SiGatsby,
-	SiGitignoredotio,
-	SiGnubash,
-	SiGo,
-	SiGraphql,
-	SiGrunt,
-	SiGulp,
-	SiHandlebarsdotjs,
-	SiHtml5,
-	SiJavascript,
-	SiJest,
-	SiJson,
-	SiLess,
-	SiMarkdown,
-	SiMdx,
-	SiMintlify,
-	SiMocha,
-	SiMysql,
-	SiNextdotjs,
-	SiPerl,
-	SiPhp,
-	SiPostcss,
-	SiPrettier,
-	SiPrisma,
-	SiPug,
-	SiPython,
-	SiR,
-	SiReact,
-	SiReadme,
-	SiRedis,
-	SiRemix,
-	SiRive,
-	SiRollupdotjs,
-	SiRuby,
-	SiSanity,
-	SiSass,
-	SiScala,
-	SiSentry,
-	SiShadcnui,
-	SiStorybook,
-	SiStylelint,
-	SiSublimetext,
-	SiSvelte,
-	SiSvg,
-	SiSwift,
-	SiTailwindcss,
-	SiToml,
-	SiTypescript,
-	SiVercel,
-	SiVite,
-	SiVuedotjs,
-	SiWebassembly,
+import { SiAstro,
+import { SiWebassembly
 } from "@icons-pack/react-simple-icons";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 	transformerNotationDiff,
 	transformerNotationErrorLevel,
 	transformerNotationFocus,
 	transformerNotationHighlight,
-	transformerNotationWordHighlight,
+	transformerNotationWordHighlight
 } from "@shikijs/transformers";
-import { CheckIcon, CopyIcon } from "lucide-react";
-	ComponentProps,
-	HTMLAttributes,
-	ReactElement,
-	ReactNode,
+import { ReactNode
 } from "react";
-	cloneElement,
-	createContext,
-	useContext,
-	useEffect,
-	useState,
+	import { cloneElement,
+	import { createContext,
+	import { useContext,
+	import { useEffect,
+	import { useState
 } from "react";
 	type BundledLanguage,
 	type CodeOptionsMultipleThemes,
-	codeToHtml,
+	import { codeToHtml
 } from "shiki";
-import { Button } from "@/components/ui/button";
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+import { SelectValue
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -117,7 +42,7 @@ const filenameIconMap = {
 	"*.module.css": SiCssmodules,
 	"*.css": SiCss,
 	"*.dart": SiDart,
-	Dockerfile: SiDocker,
+Dockerfile: SiDocker,
 	"docusaurus.config.js": SiDocusaurus,
 	".editorconfig": SiEditorconfig,
 	".eslintrc": SiEslint,
@@ -350,7 +275,7 @@ export const CodeBlockHeader = ({
 );
 
 export type CodeBlockFilesProps = Omit<
-	HTMLAttributes<HTMLDivElement>,
+HTMLAttributes<HTMLDivElement>,
 	"children"
 > & {
 	children: (item: CodeBlockData) => ReactNode;
@@ -439,7 +364,7 @@ export const CodeBlockSelectValue = (props: CodeBlockSelectValueProps) => (
 );
 
 export type CodeBlockSelectContentProps = Omit<
-	ComponentProps<typeof SelectContent>,
+ComponentProps<typeof SelectContent>,
 	"children"
 > & {
 	children: (item: CodeBlockData) => ReactNode;
@@ -541,7 +466,7 @@ const CodeBlockFallback = ({ children, ...props }: CodeBlockFallbackProps) => (
 );
 
 export type CodeBlockBodyProps = Omit<
-	HTMLAttributes<HTMLDivElement>,
+HTMLAttributes<HTMLDivElement>,
 	"children"
 > & {
 	children: (item: CodeBlockData) => ReactNode;

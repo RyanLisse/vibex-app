@@ -5,17 +5,7 @@
  * with the observability events system.
  */
 
-import { ulid } from "ulid";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { db } from "@/db/config";
-import { observabilityEvents as observabilityEventsTable } from "@/db/schema";
-	type AggregatedMetric,
-	type MetricDataPoint,
-	MetricsAnalyzer,
-	type MetricType,
-	metrics,
-	PerformanceMetricsCollector,
-} from "@/lib/observability/metrics";
+import { PerformanceMetricsCollector } from "@/lib/observability/metrics";
 
 describe("PerformanceMetricsCollector Integration Tests", () => {
 	let collector: PerformanceMetricsCollector;

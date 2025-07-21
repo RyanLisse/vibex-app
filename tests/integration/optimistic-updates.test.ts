@@ -5,15 +5,11 @@
  * happens at the right times for TanStack Query hooks
  */
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Task } from "@/db/schema";
 import { useElectricTasks } from "@/hooks/use-electric-tasks";
 	useCreateTask,
 	useDeleteTask,
 	useTasks,
-	useUpdateTask,
+	useUpdateTask
 } from "@/lib/query/hooks";
 
 // Mock fetch
@@ -38,8 +34,7 @@ function createWrapper() {
 		},
 	});
 
-	return ({ children }: { children: React.ReactNode }) =>
-		React.createElement(QueryClientProvider, { client: queryClient }, children);
+	return ({ children }: { children: React.ReactNode }) =>React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
 describe("Optimistic Updates", () => {
@@ -377,7 +372,7 @@ describe("Optimistic Updates", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-					Promise.resolve({
+Promise.resolve({
 						id: "server-id",
 						title: "Server Task",
 						status: "pending",

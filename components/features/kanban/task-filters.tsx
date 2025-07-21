@@ -1,21 +1,9 @@
 "use client";
 
-import { Filter, Search, X } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
+import { PopoverTrigger
 } from "@/components/ui/popover";
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+import { Select,
+import { SelectValue
 } from "@/components/ui/select";
 
 interface FilterState {
@@ -99,8 +87,7 @@ export function TaskFilters({
 				<Label
 					className="whitespace-nowrap font-medium text-sm"
 					htmlFor="assignee"
-				>
-					Assignee:
+Assignee:
 				</Label>
 				<Select
 					onValueChange={(value) =>
@@ -127,8 +114,7 @@ export function TaskFilters({
 				<Label
 					className="whitespace-nowrap font-medium text-sm"
 					htmlFor="priority"
-				>
-					Priority:
+Priority:
 				</Label>
 				<Select
 					onValueChange={(value) =>
@@ -153,8 +139,7 @@ export function TaskFilters({
 			<Popover onOpenChange={setIsOpen} open={isOpen}>
 				<PopoverTrigger asChild>
 					<Button className="relative gap-2" variant="outline">
-						<Filter className="h-4 w-4" />
-						Tags
+						<Filter className="h-4 w-4" />Tags
 						{activeFilterCount > 0 && (
 							<Badge
 								className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
@@ -175,21 +160,18 @@ export function TaskFilters({
 									onClick={clearFilters}
 									size="sm"
 									variant="ghost"
-								>
-									Clear All
+Clear All
 								</Button>
 							)}
 						</div>
 
 						{/* Tags Filter */}
 						<div className="space-y-2">
-							<Label className="font-medium text-sm" htmlFor="tags">
-								Tags:
+							<Label className="font-medium text-sm" htmlFor="tags">Tags:
 							</Label>
 							<div className="max-h-40 space-y-2 overflow-y-auto">
 								{tags.length === 0 ? (
-									<p className="text-muted-foreground text-sm">
-										No tags available
+									<p className="text-muted-foreground text-sm">No tags available
 									</p>
 								) : (
 									tags.map((tag) => (
@@ -221,8 +203,7 @@ export function TaskFilters({
 				<div className="flex items-center gap-2">
 					<div className="flex flex-wrap gap-1">
 						{filters.assignee && (
-							<Badge className="gap-1" variant="secondary">
-								Assignee: {filters.assignee}
+							<Badge className="gap-1" variant="secondary">Assignee: {filters.assignee}
 								<Button
 									className="h-4 w-4 p-0 hover:bg-transparent"
 									onClick={() => updateFilters({ assignee: undefined })}
@@ -235,8 +216,7 @@ export function TaskFilters({
 						)}
 
 						{filters.priority && (
-							<Badge className="gap-1" variant="secondary">
-								Priority: {filters.priority}
+							<Badge className="gap-1" variant="secondary">Priority: {filters.priority}
 								<Button
 									className="h-4 w-4 p-0 hover:bg-transparent"
 									onClick={() => updateFilters({ priority: undefined })}
@@ -249,8 +229,7 @@ export function TaskFilters({
 						)}
 
 						{filters.tags.map((tag) => (
-							<Badge className="gap-1" key={tag} variant="secondary">
-								Tag: {tag}
+							<Badge className="gap-1" key={tag} variant="secondary">Tag: {tag}
 								<Button
 									className="h-4 w-4 p-0 hover:bg-transparent"
 									onClick={() => handleTagToggle(tag, false)}
@@ -269,8 +248,7 @@ export function TaskFilters({
 						size="sm"
 						variant="ghost"
 					>
-						<X className="h-3 w-3" />
-						Clear Filters
+						<X className="h-3 w-3" />Clear Filters
 					</Button>
 				</div>
 			)}

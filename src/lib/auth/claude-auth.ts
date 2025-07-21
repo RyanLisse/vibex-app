@@ -1,5 +1,5 @@
-	generateCodeChallenge,
-	generateCodeVerifier,
+	import { generateCodeChallenge,
+	import { generateCodeVerifier,
 } from "@/src/lib/auth/pkce";
 
 export interface TokenResponse {

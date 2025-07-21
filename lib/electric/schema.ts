@@ -55,7 +55,7 @@ export const electricSchema = {
 				// Sync events for user's executions only
 				execution_id: {
 					in: `SELECT id FROM agent_executions 
-               WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})`,
+WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})`,
 				},
 			},
 			indexes: ["execution_id", "event_type", "timestamp", "severity"],
@@ -154,8 +154,8 @@ export const electricSchema = {
 		// Observability events are read-only for users
 		observability_events: {
 			select: `execution_id IN (
-        SELECT id FROM agent_executions 
-        WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
+SELECT id FROM agent_executions 
+WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
       )`,
 			insert: false,
 			update: false,
@@ -216,93 +216,4 @@ export const electricSchema = {
 		executionEvents: {
 			table: "observability_events",
 			filter: `execution_id IN (
-        SELECT id FROM agent_executions 
-        WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
-      )`,
-			events: ["insert"],
-		},
-
-		// Subscribe to workflow executions
-		workflowExecutions: {
-			table: "workflow_executions",
-			filter:
-				"workflow_id IN (SELECT id FROM workflows WHERE is_active = true)",
-			events: ["insert", "update"],
-		},
-	},
-
-	// Conflict resolution strategies
-	conflictResolution: {
-		// Default strategy
-		default: "last-write-wins",
-
-		// Custom strategies for specific tables
-		strategies: {
-			// Tasks use last-write-wins with timestamp comparison
-			tasks: {
-				strategy: "last-write-wins",
-				timestampField: "updated_at",
-			},
-
-			// Environments use last-write-wins
-			environments: {
-				strategy: "last-write-wins",
-				timestampField: "updated_at",
-			},
-
-			// Agent executions are server-authoritative
-			agent_executions: {
-				strategy: "server-wins",
-			},
-
-			// Observability events are append-only
-			observability_events: {
-				strategy: "server-wins",
-			},
-
-			// Agent memory uses importance-based resolution
-			agent_memory: {
-				strategy: "custom",
-				resolver: "importance-based",
-			},
-
-			// Workflows are admin-controlled
-			workflows: {
-				strategy: "server-wins",
-			},
-
-			// Workflow executions are server-controlled
-			workflow_executions: {
-				strategy: "server-wins",
-			},
-		},
-	},
-
-	// Sync optimization
-	optimization: {
-		// Batch size for sync operations
-		batchSize: 100,
-
-		// Sync frequency in milliseconds
-		syncInterval: 5000,
-
-		// Enable compression for large payloads
-		compression: true,
-
-		// Enable delta sync for large tables
-		deltaSync: {
-			enabled: true,
-			tables: ["agent_executions", "observability_events"],
-		},
-
-		// Prefetch related data
-		prefetch: {
-			tasks: ["agent_executions"],
-			agent_executions: ["observability_events"],
-			workflows: ["workflow_executions"],
-		},
-	},
-};
-
-// Export schema for use in Electric configuration
-export default electricSchema;
+SELECT id FROM agent_executions 

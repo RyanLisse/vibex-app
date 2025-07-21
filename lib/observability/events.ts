@@ -5,12 +5,9 @@
  * for real-time monitoring, debugging, and performance analysis.
  */
 
-import { context, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
-import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
-import { ulid } from "ulid";
 import { db } from "@/db/config";
 	agentExecutions,
-	observabilityEvents as observabilityEventsTable,
+	observabilityEvents as observabilityEventsTable
 } from "@/db/schema";
 
 // Event types for categorization
@@ -97,7 +94,7 @@ export class ObservabilityEventCollector {
 
 	static getInstance(): ObservabilityEventCollector {
 		if (!ObservabilityEventCollector.instance) {
-			ObservabilityEventCollector.instance = new ObservabilityEventCollector();
+ObservabilityEventCollector.instance = new ObservabilityEventCollector();
 		}
 		return ObservabilityEventCollector.instance;
 	}
@@ -333,7 +330,7 @@ export const observabilityEvents = {
 
 	// Execution events
 	executionStart: (executionId: string, metadata: EventMetadata = {}) =>
-		ObservabilityEventCollector.getInstance().collectEvent(
+ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_start",
 			"info",
 			`Execution started: ${executionId}`,
@@ -347,7 +344,7 @@ export const observabilityEvents = {
 		duration: number,
 		metadata: EventMetadata = {},
 	) =>
-		ObservabilityEventCollector.getInstance().collectEvent(
+ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_end",
 			"info",
 			`Execution completed: ${executionId}`,
@@ -361,7 +358,7 @@ export const observabilityEvents = {
 		error: Error,
 		metadata: EventMetadata = {},
 	) =>
-		ObservabilityEventCollector.getInstance().collectEvent(
+ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_error",
 			"error",
 			`Execution failed: ${executionId}`,
@@ -384,7 +381,7 @@ export const observabilityEvents = {
 		value: number,
 		metadata: EventMetadata = {},
 	) =>
-		ObservabilityEventCollector.getInstance().collectEvent(
+ObservabilityEventCollector.getInstance().collectEvent(
 			"performance_metric",
 			"debug",
 			`Performance metric: ${metric} = ${value}`,
@@ -399,7 +396,7 @@ export const observabilityEvents = {
 		performance: EventMetadata["wasmPerformance"],
 		metadata: EventMetadata = {},
 	) =>
-		ObservabilityEventCollector.getInstance().collectEvent(
+ObservabilityEventCollector.getInstance().collectEvent(
 			"wasm_operation",
 			"debug",
 			`WASM operation: ${operation}`,

@@ -1,7 +1,5 @@
-import { describe, expect, it } from "bun:test";
-	type GrafanaDashboard,
-	GrafanaDashboardBuilder,
-	type GrafanaPanel,
+import {
+	type GrafanaPanel
 } from "./grafana-dashboards";
 
 describe("GrafanaDashboardBuilder", () => {
@@ -280,43 +278,5 @@ describe("GrafanaDashboardBuilder", () => {
 
 		it("should have unique panel IDs across all dashboards", () => {
 			const agentDashboard =
-				GrafanaDashboardBuilder.createAgentOverviewDashboard();
+GrafanaDashboardBuilder.createAgentOverviewDashboard();
 			const systemDashboard =
-				GrafanaDashboardBuilder.createSystemHealthDashboard();
-			const businessDashboard =
-				GrafanaDashboardBuilder.createBusinessMetricsDashboard();
-
-			const allPanelIds = [
-				...agentDashboard.panels.map((p) => p.id),
-				...systemDashboard.panels.map((p) => p.id),
-				...businessDashboard.panels.map((p) => p.id),
-			];
-
-			// Check for duplicates within each dashboard (should be allowed)
-			const agentIds = agentDashboard.panels.map((p) => p.id);
-			const uniqueAgentIds = [...new Set(agentIds)];
-			expect(agentIds).toEqual(uniqueAgentIds);
-		});
-
-		it("should have all required panel properties", () => {
-			const dashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
-
-			dashboard.panels.forEach((panel) => {
-				expect(panel.id).toBeDefined();
-				expect(panel.title).toBeDefined();
-				expect(panel.type).toBeDefined();
-				expect(panel.targets).toBeDefined();
-				expect(panel.targets.length).toBeGreaterThan(0);
-				expect(panel.gridPos).toBeDefined();
-				expect(panel.gridPos.h).toBeGreaterThan(0);
-				expect(panel.gridPos.w).toBeGreaterThan(0);
-
-				panel.targets.forEach((target) => {
-					expect(target.expr).toBeDefined();
-					expect(target.refId).toBeDefined();
-					expect(target.legendFormat).toBeDefined();
-				});
-			});
-		});
-	});
-});

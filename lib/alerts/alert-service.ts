@@ -1,13 +1,15 @@
 import type Redis from "ioredis";
-import { ComponentLogger } from "../logging/logger-factory";
 import { AlertManager } from "./alert-manager";
+import { AlertTransportService } from "./transport/alert-transport-service";
 import { AlertWinstonTransport } from "./alert-winston-transport";
 import { CriticalErrorDetector } from "./critical-error-detector";
-import { AlertTransportService } from "./transport/alert-transport-service";
-	type AlertChannel,
+import { ComponentLogger } from "@/lib/logging/specialized-loggers";
+import {
 	AlertChannelType,
-	type AlertConfig,
 	CriticalErrorType,
+	type AlertChannel,
+	type AlertConfig,
+	type CriticalError
 } from "./types";
 
 export class AlertService {
@@ -16,12 +18,17 @@ export class AlertService {
 	private readonly alertManager: AlertManager;
 	private readonly transportService: AlertTransportService;
 	private readonly winstonTransport: AlertWinstonTransport;
+	private readonly criticalErrorDetector: CriticalErrorDetector;
 	private alertConfig: AlertConfig;
 	private initialized = false;
+	private channels: Array<{ channel: AlertChannel; errorTypes: CriticalErrorType[] }> = [];
+	private alertHistory: CriticalError[] = [];
+	private activeAlerts = new Map<string, CriticalError>();
 
 	constructor(redis: Redis, config?: AlertConfig) {
 		this.logger = new ComponentLogger("AlertService");
 		this.detector = new CriticalErrorDetector();
+		this.criticalErrorDetector = this.detector;
 		this.transportService = new AlertTransportService();
 		this.alertManager = new AlertManager(redis, this.transportService);
 		this.alertConfig = config || this.getDefaultConfig();
@@ -127,253 +134,107 @@ export class AlertService {
 				},
 				errorTypes: [
 					CriticalErrorType.DATABASE_CONNECTION_FAILURE,
-					CriticalErrorType.REDIS_CONNECTION_FAILURE,
-					CriticalErrorType.AUTH_SERVICE_FAILURE,
-					CriticalErrorType.SYSTEM_HEALTH_FAILURE,
-					CriticalErrorType.MEMORY_THRESHOLD_EXCEEDED,
+					CriticalErrorType.API_RATE_LIMIT_EXCEEDED,
+					CriticalErrorType.AUTHENTICATION_FAILURE,
+					CriticalErrorType.DATA_CORRUPTION,
+					CriticalErrorType.SERVICE_UNAVAILABLE,
 				],
-				priority: "critical",
-			});
-		}
-
-		// Add email if configured
-		if (process.env.ALERTS_EMAIL_FROM && process.env.ALERTS_EMAIL_TO) {
-			const emailConfig: any = {
-				provider: process.env.ALERTS_EMAIL_PROVIDER || "smtp",
-				from: process.env.ALERTS_EMAIL_FROM,
-				to: process.env.ALERTS_EMAIL_TO.split(","),
-			};
-
-			if (process.env.ALERTS_EMAIL_CC) {
-				emailConfig.cc = process.env.ALERTS_EMAIL_CC.split(",");
-			}
-
-			if (process.env.ALERTS_EMAIL_PROVIDER === "smtp") {
-				emailConfig.smtp = {
-					host: process.env.ALERTS_SMTP_HOST,
-					port: Number.parseInt(process.env.ALERTS_SMTP_PORT || "587"),
-					secure: process.env.ALERTS_SMTP_SECURE === "true",
-					username: process.env.ALERTS_SMTP_USERNAME,
-					password: process.env.ALERTS_SMTP_PASSWORD,
-				};
-			} else {
-				emailConfig.apiKey = process.env.ALERTS_EMAIL_API_KEY;
-				if (process.env.ALERTS_EMAIL_REGION) {
-					emailConfig.region = process.env.ALERTS_EMAIL_REGION;
-				}
-			}
-
-			channels.push({
-				type: AlertChannelType.EMAIL,
-				name: "default-email",
-				enabled: true,
-				config: emailConfig,
-				errorTypes: [
-					CriticalErrorType.DATABASE_CONNECTION_FAILURE,
-					CriticalErrorType.AUTH_SERVICE_FAILURE,
-					CriticalErrorType.SYSTEM_HEALTH_FAILURE,
-					CriticalErrorType.MEMORY_THRESHOLD_EXCEEDED,
-				],
-				priority: "critical",
+				priority: "high",
 			});
 		}
 
 		return channels;
 	}
 
-	async initialize(): Promise<void> {
+	async initialize() {
 		if (this.initialized) {
 			return;
 		}
 
-		try {
-			// Validate all channel configurations
-			const invalidChannels = this.alertConfig.channels.filter(
-				(channel) => !this.transportService.validateChannelConfig(channel),
-			);
+		this.logger.info("Initializing alert service");
 
-			if (invalidChannels.length > 0) {
-				this.logger.warn("Invalid alert channel configurations found", {
-					invalidChannels: invalidChannels.map((c) => c.name),
-				});
+		// Initialize components
+		await this.alertManager.initialize();
+		this.detector.start();
 
-				// Remove invalid channels
-				this.alertConfig.channels = this.alertConfig.channels.filter(
-					(channel) => this.transportService.validateChannelConfig(channel),
+		// Get channel configs
+		const channelConfigs = this.alertConfig.channels;
+
+		// Initialize all configured channels
+		for (const config of channelConfigs) {
+			if (config.enabled) {
+				const channel = await this.transportService.createChannel(
+					config.type,
+					config.config,
 				);
+				if (channel) {
+					this.channels.push({
+						channel,
+						errorTypes: config.errorTypes || [],
+					});
+				}
 			}
-
-			this.initialized = true;
-
-			this.logger.info("Alert service initialized", {
-				enabled: this.alertConfig.enabled,
-				channelCount: this.alertConfig.channels.length,
-				enabledChannels: this.alertConfig.channels.filter((c) => c.enabled)
-					.length,
-				channels: this.alertConfig.channels.map((c) => ({
-					name: c.name,
-					type: c.type,
-					enabled: c.enabled,
-				})),
-			});
-		} catch (error) {
-			this.logger.error("Failed to initialize alert service", {
-				error: error instanceof Error ? error.message : "Unknown error",
-			});
-			throw error;
 		}
-	}
 
-	getWinstonTransport(): AlertWinstonTransport {
-		return this.winstonTransport;
-	}
+		// Register with critical error detector
+		if (this.criticalErrorDetector) {
+			this.criticalErrorDetector.onCriticalError(async (error) => {
+				await this.sendAlert({
+					title: `Critical Error: ${error.type}`,
+					message: error.message,
+					severity: "critical",
+					timestamp: new Date(),
+					type: error.type,
+					context: error.context,
+					stackTrace: error.stackTrace,
+				});
+			});
+		}
 
-	async updateConfig(config: AlertConfig): Promise<void> {
-		this.alertConfig = config;
-		this.winstonTransport.updateAlertConfig(config);
-
-		this.logger.info("Alert configuration updated", {
-			enabled: config.enabled,
-			channelCount: config.channels.length,
+		this.initialized = true;
+		this.logger.info("Alert service initialized", {
+			channels: this.channels.length,
 		});
 	}
 
-	async addChannel(channel: AlertChannel): Promise<void> {
-		if (!this.transportService.validateChannelConfig(channel)) {
-			throw new Error(`Invalid channel configuration: ${channel.name}`);
+	async sendAlert(alert: CriticalError): Promise<void> {
+		if (!this.initialized) {
+			throw new Error("Alert service not initialized");
 		}
 
-		this.alertConfig.channels.push(channel);
-
-		this.logger.info("Alert channel added", {
-			name: channel.name,
-			type: channel.type,
-			enabled: channel.enabled,
-		});
-	}
-
-	async removeChannel(channelName: string): Promise<void> {
-		const initialLength = this.alertConfig.channels.length;
-		this.alertConfig.channels = this.alertConfig.channels.filter(
-			(c) => c.name !== channelName,
+		const relevantChannels = this.channels.filter(
+			(ch) =>
+				ch.errorTypes.length === 0 || ch.errorTypes.includes(alert.type),
 		);
 
-		if (this.alertConfig.channels.length < initialLength) {
-			this.logger.info("Alert channel removed", { name: channelName });
-		} else {
-			this.logger.warn("Alert channel not found for removal", {
-				name: channelName,
-			});
-		}
-	}
-
-	async enableChannel(channelName: string): Promise<void> {
-		const channel = this.alertConfig.channels.find(
-			(c) => c.name === channelName,
+		await Promise.all(
+			relevantChannels.map((ch) =>
+				ch.channel.send(alert).catch((error) => {
+					this.logger.error("Failed to send alert", error);
+				}),
+			),
 		);
-		if (channel) {
-			channel.enabled = true;
-			this.logger.info("Alert channel enabled", { name: channelName });
-		} else {
-			this.logger.warn("Alert channel not found", { name: channelName });
-		}
-	}
 
-	async disableChannel(channelName: string): Promise<void> {
-		const channel = this.alertConfig.channels.find(
-			(c) => c.name === channelName,
-		);
-		if (channel) {
-			channel.enabled = false;
-			this.logger.info("Alert channel disabled", { name: channelName });
-		} else {
-			this.logger.warn("Alert channel not found", { name: channelName });
-		}
-	}
-
-	addCustomErrorPattern(type: CriticalErrorType, pattern: RegExp): void {
-		this.detector.addCustomPattern(type, pattern);
-		this.winstonTransport.addCustomErrorPattern(type, pattern);
-
-		this.logger.info("Custom error pattern added", {
-			type,
-			pattern: pattern.source,
-		});
-	}
-
-	async resolveAlert(alertId: string, resolvedBy: string): Promise<boolean> {
-		return await this.alertManager.resolveAlert(alertId, resolvedBy);
-	}
-
-	async getActiveAlerts() {
-		return await this.alertManager.getActiveAlerts();
-	}
-
-	async getAlertHistory(limit?: number) {
-		return await this.alertManager.getAlertHistory(limit);
-	}
-
-	getConfig(): AlertConfig {
-		return { ...this.alertConfig };
-	}
-
-	getSupportedChannelTypes(): AlertChannelType[] {
-		return this.transportService.getSupportedChannelTypes();
-	}
-
-	isEnabled(): boolean {
-		return this.alertConfig.enabled && this.initialized;
-	}
-
-	async testChannel(channelName: string): Promise<boolean> {
-		const channel = this.alertConfig.channels.find(
-			(c) => c.name === channelName,
-		);
-		if (!channel) {
-			throw new Error(`Channel not found: ${channelName}`);
+		// Store in history
+		this.alertHistory.unshift(alert);
+		if (this.alertHistory.length > 1000) {
+			this.alertHistory.pop();
 		}
 
-		try {
-			// Create a test critical error
-			const testError = {
-				id: "test-" + Date.now(),
-				timestamp: new Date(),
-				severity: "medium" as const,
-				type: CriticalErrorType.SYSTEM_HEALTH_FAILURE,
-				message: "Test alert from ClaudeFlow Alert System",
-				source: "alert-service-test",
-				metadata: { test: true },
-				environment: process.env.NODE_ENV || "development",
-				resolved: false,
-				occurrenceCount: 1,
-				lastOccurrence: new Date(),
-				firstOccurrence: new Date(),
-			};
+		// Track active alerts
+		const alertKey = `${alert.type}-${alert.message}`;
+		this.activeAlerts.set(alertKey, alert);
+	}
 
-			const testNotification = {
-				id: "test-notif-" + Date.now(),
-				alertId: testError.id,
-				channelType: channel.type,
-				channelName: channel.name,
-				status: "pending" as const,
-				retryCount: 0,
-				maxRetries: 1,
-			};
+	async getActiveAlerts(): Promise<CriticalError[]> {
+		return Array.from(this.activeAlerts.values());
+	}
 
-			await this.transportService.send(channel, testError, testNotification);
+	async getAlertHistory(limit = 100): Promise<CriticalError[]> {
+		return this.alertHistory.slice(0, limit);
+	}
 
-			this.logger.info("Test alert sent successfully", {
-				channel: channelName,
-				type: channel.type,
-			});
-
-			return true;
-		} catch (error) {
-			this.logger.error("Test alert failed", {
-				channel: channelName,
-				error: error instanceof Error ? error.message : "Unknown error",
-			});
-			return false;
-		}
+	async clearAlert(alertId: string): Promise<void> {
+		this.activeAlerts.delete(alertId);
 	}
 }
