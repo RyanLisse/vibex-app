@@ -5,14 +5,14 @@
  * and operational, providing a comprehensive health check.
  */
 
-import { describe, test, expect, beforeAll, afterAll } from "vitest";
-import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
-import { GrafanaDashboardBuilder } from "../../lib/metrics/grafana-dashboards";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AlertRuleBuilder } from "../../lib/metrics/alert-rules";
+import { GrafanaDashboardBuilder } from "../../lib/metrics/grafana-dashboards";
+import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
 import {
-	validateRedisEnvironment,
 	getRedisConfig,
 	redisFeatures,
+	validateRedisEnvironment,
 } from "../../lib/redis/config";
 
 // Integration Health Report Builder

@@ -1,7 +1,40 @@
 "use client";
-import { ChevronLeft, SortDesc } from "lucide-react";
-import { SelectValue } from "@/components/ui/select";
-import { Table, TableRow } from "@/components/ui/table";
+
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+	Download,
+	Filter,
+	MoreHorizontal,
+	RefreshCw,
+	Search,
+	SortAsc,
+	SortDesc,
+} from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 
 interface Column<T> {
 	key: keyof T;
@@ -120,7 +153,8 @@ export function DataTable<T extends Record<string, any>>({
 
 						{actions?.onExport && (
 							<Button onClick={actions.onExport} size="sm" variant="outline">
-								<Download className="mr-2 h-4 w-4" />Export
+								<Download className="mr-2 h-4 w-4" />
+								Export
 							</Button>
 						)}
 					</div>
@@ -138,7 +172,8 @@ export function DataTable<T extends Record<string, any>>({
 						{emptyState || (
 							<div className="text-center text-muted-foreground">
 								<div className="font-medium text-lg">No data found</div>
-								<div className="text-sm">Try adjusting your search or filters
+								<div className="text-sm">
+									Try adjusting your search or filters
 								</div>
 							</div>
 						)}
@@ -209,7 +244,8 @@ export function DataTable<T extends Record<string, any>>({
 				<div className="border-t p-4">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center space-x-2">
-							<span className="text-muted-foreground text-sm">Rows per page:
+							<span className="text-muted-foreground text-sm">
+								Rows per page:
 							</span>
 							<Select
 								onValueChange={(value) =>
@@ -276,7 +312,7 @@ export function DataTable<T extends Record<string, any>>({
 									}
 									onClick={() =>
 										pagination.onPageChange(
-Math.ceil(pagination.total / pagination.pageSize),
+											Math.ceil(pagination.total / pagination.pageSize),
 										)
 									}
 									size="sm"

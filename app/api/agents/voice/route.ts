@@ -2,14 +2,14 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { getMultiAgentSystem } from "@/lib/letta/multi-agent-system";
 import {
 	createApiResponse,
 	createErrorResponse,
+	handleApiError,
 } from "@/lib/api/error-handler";
-import { handleApiError } from "@/lib/api/error-handler";
+import { getMultiAgentSystem } from "@/lib/letta/multi-agent-system";
 import { getLogger } from "@/lib/logging/safe-wrapper";
 
 const VoiceMessageSchema = z.object({
@@ -46,10 +46,8 @@ export async function POST(request: NextRequest) {
 			textResponse: response.textResponse,
 		});
 	} catch (error) {
-		return handleApiError(error, {
-			logger,
-			operation: "process voice message",
-		});
+		logger.error("Error processing voice message", { error });
+		return handleApiError(error, "process voice message");
 	}
 }
 
@@ -68,9 +66,7 @@ export async function GET() {
 			sampleRate: "16000Hz",
 		});
 	} catch (error) {
-		return handleApiError(error, {
-			logger,
-			operation: "get voice capabilities",
-		});
+		logger.error("Error getting voice capabilities", { error });
+		return handleApiError(error, "get voice capabilities");
 	}
 }

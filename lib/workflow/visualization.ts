@@ -3,7 +3,7 @@
  *
  * Utilities for visualizing workflow definitions and executions
  */
-import { WorkflowStatus } from "./types";
+import type { WorkflowStatus } from "./types";
 
 // Visualization types
 export interface WorkflowGraph {

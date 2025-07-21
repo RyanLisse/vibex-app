@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import Home from "./page";
 
 // Mock the ClientPage component

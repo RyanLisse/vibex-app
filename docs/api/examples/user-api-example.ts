@@ -5,11 +5,7 @@
  * using the base infrastructure patterns.
  */
 
-import { ValidationError
-} from "@/lib/api/base";
-import {
-	type ServiceContext
-} from "@/lib/api/base";
+import { type ServiceContext, ValidationError } from "@/lib/api/base";
 
 interface User {
 	id: string;
@@ -27,5 +23,10 @@ interface CreateUserData {
 	role: string;
 }
 
-class UserService extends BaseCRUDService<
-import { User,
+class UserService extends BaseCRUDService<User> {
+	// Implementation would go here
+	async findByEmail(email: string): Promise<User | null> {
+		// Example implementation
+		return null;
+	}
+}

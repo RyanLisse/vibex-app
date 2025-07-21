@@ -1,3 +1,4 @@
+import { act, renderHook } from "@testing-library/react";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
 import { useGitHubBranches } from "./use-github-branches";
 
 // Mock fetch
@@ -64,7 +64,7 @@ describe("useGitHubBranches", () => {
 			},
 		];
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockBranches,
 		} as unknown);
@@ -82,7 +82,7 @@ describe("useGitHubBranches", () => {
 	});
 
 	it("should handle fetch errors", async () => {
-		(fetch as unknown as jest.Mock).mockRejectedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
 			new Error("Network error"),
 		);
 
@@ -122,7 +122,7 @@ describe("useGitHubBranches", () => {
 			},
 		};
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockBranchDetails,
 		} as unknown);
@@ -148,7 +148,7 @@ describe("useGitHubBranches", () => {
 			},
 		};
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockNewBranch,
 		} as unknown);
@@ -177,7 +177,7 @@ describe("useGitHubBranches", () => {
 	});
 
 	it("should delete a branch", async () => {
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			status: 204,
 		} as unknown);
@@ -202,7 +202,7 @@ describe("useGitHubBranches", () => {
 	});
 
 	it("should handle protected branch deletion error", async () => {
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: false,
 			status: 422,
 			json: async () => ({
@@ -247,7 +247,7 @@ describe("useGitHubBranches", () => {
 			],
 		};
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockComparison,
 		} as unknown);
@@ -280,7 +280,7 @@ describe("useGitHubBranches", () => {
 			{ name: "bugfix/login-issue" },
 		];
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => allBranches,
 		} as unknown);
@@ -307,7 +307,7 @@ describe("useGitHubBranches", () => {
 			default_branch: "main",
 		};
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockRepo,
 		} as unknown);
@@ -335,7 +335,7 @@ describe("useGitHubBranches", () => {
 			restrictions: null,
 		};
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockProtection,
 		} as unknown);
@@ -419,7 +419,7 @@ describe("useGitHubBranches", () => {
 	it("should refresh branches", async () => {
 		const mockBranches = [{ name: "main", commit: { sha: "abc123" } }];
 
-		(fetch as unknown as jest.Mock).mockResolvedValue({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
 			ok: true,
 			json: async () => mockBranches,
 		} as unknown);
@@ -479,7 +479,7 @@ describe("useGitHubBranches", () => {
 			{ name: "release/v1.0" },
 		];
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockBranches,
 		} as unknown);

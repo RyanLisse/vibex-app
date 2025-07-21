@@ -5,17 +5,17 @@
  * with the observability events system.
  */
 
-import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { ulid } from "ulid";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../../db/config";
 import { observabilityEvents as observabilityEventsTable } from "../../../db/schema";
 import {
-	PerformanceMetricsCollector,
-	MetricsAnalyzer,
-	metrics,
-	type MetricType,
-	type MetricDataPoint,
 	type AggregatedMetric,
+	type MetricDataPoint,
+	MetricsAnalyzer,
+	type MetricType,
+	metrics,
+	PerformanceMetricsCollector,
 } from "../../../lib/observability/metrics";
 
 describe("PerformanceMetricsCollector Integration Tests", () => {

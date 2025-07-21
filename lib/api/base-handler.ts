@@ -4,13 +4,13 @@
  * Provides standardized request handling for all API routes
  * Includes validation, error handling, and response formatting
  */
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { BaseAPIError } from "./base-error";
 import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
 } from "@/src/schemas/api-routes";
+import { BaseAPIError } from "./base-error";
 
 export type RouteHandler<T = any> = (
 	request: NextRequest,
@@ -37,18 +37,21 @@ export abstract class BaseAPIHandler {
 		return async (request: NextRequest, context?: any) => {
 			try {
 				// Parse and validate input
-				const params = await this.parseInput<TInput>(request, options.schema);
+				const params = await BaseAPIHandler.parseInput<TInput>(
+					request,
+					options.schema,
+				);
 
 				// Execute handler
 				const result = await handler(params, request);
 
 				// Return success response
-				return this.successResponse(
+				return BaseAPIHandler.successResponse(
 					result,
 					request.method === "POST" ? 201 : 200,
 				);
 			} catch (error) {
-				return this.handleError(error);
+				return BaseAPIHandler.handleError(error);
 			}
 		};
 	}

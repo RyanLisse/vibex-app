@@ -5,7 +5,7 @@
  * memory cross-pollination and transformation.
  */
 
-import { MemoryType } from "./types";
+import type { MemoryType } from "./types";
 
 export class MemorySharingService {
 	private static instance: MemorySharingService;

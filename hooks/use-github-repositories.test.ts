@@ -1,3 +1,4 @@
+import { act, renderHook } from "@testing-library/react";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
 import { useGitHubRepositories } from "./use-github-repositories";
 
 // Mock fetch

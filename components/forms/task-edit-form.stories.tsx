@@ -1,26 +1,26 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { SelectValue } from '@/components/ui/select';
+import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
+import { SelectValue } from "@/components/ui/select";
 
 // Note: This component appears to be incomplete in the source file
 // This is a placeholder story until the component is fully implemented
 const TaskEditFormPlaceholder = () => {
-  return (
-    <div className="p-4 border rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Task Edit Form</h3>
-      <p className="text-muted-foreground">Component is under development</p>
-      <SelectValue placeholder="Select an option" />
-    </div>
-  );
+	return (
+		<div className="p-4 border rounded-lg">
+			<h3 className="text-lg font-semibold mb-4">Task Edit Form</h3>
+			<p className="text-muted-foreground">Component is under development</p>
+			<SelectValue placeholder="Select an option" />
+		</div>
+	);
 };
 
 const meta: Meta<typeof TaskEditFormPlaceholder> = {
-  title: 'Forms/TaskEditForm',
-  component: TaskEditFormPlaceholder,
-  parameters: {
-    layout: 'centered',
-  },
-  tags: ['autodocs'],
+	title: "Forms/TaskEditForm",
+	component: TaskEditFormPlaceholder,
+	parameters: {
+		layout: "centered",
+	},
+	tags: ["autodocs"],
 };
 
 export default meta;

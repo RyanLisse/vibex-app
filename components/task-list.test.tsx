@@ -1,6 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import React from "react";
 import { vi } from "vitest";
 import TaskList from "./task-list";
+
+// Mock task store
+const mockTaskStore = {
+	getActiveTasks: vi.fn(),
+	getArchivedTasks: vi.fn(),
+	archiveTask: vi.fn(),
+	removeTask: vi.fn(),
+};
 
 // Mock TanStack Query hooks
 const mockTasksQuery = {
@@ -26,6 +35,11 @@ vi.mock("@/hooks/use-task-queries", () => ({
 	useTasksQuery: vi.fn(() => mockTasksQuery),
 	useUpdateTaskMutation: vi.fn(() => mockUpdateTaskMutation),
 	useDeleteTaskMutation: vi.fn(() => mockDeleteTaskMutation),
+}));
+
+// Mock the task store
+vi.mock("@/stores/tasks", () => ({
+	useTaskStore: vi.fn(() => mockTaskStore),
 }));
 
 // Mock ElectricSQL provider
@@ -161,6 +175,8 @@ describe("TaskList", () => {
 		vi.clearAllMocks();
 		mockTaskStore.getActiveTasks.mockReturnValue(mockActiveTasks);
 		mockTaskStore.getArchivedTasks.mockReturnValue(mockArchivedTasks);
+		mockTaskStore.archiveTask.mockResolvedValue(undefined);
+		mockTaskStore.removeTask.mockResolvedValue(undefined);
 		vi.useFakeTimers();
 	});
 

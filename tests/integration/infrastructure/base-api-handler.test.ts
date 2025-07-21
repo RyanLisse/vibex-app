@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+import { BaseAPIError, ValidationError } from "../../../lib/api/base/errors";
 import {
 	BaseAPIHandler,
-	type RequestContext,
 	type HandlerOptions,
+	type RequestContext,
 } from "../../../lib/api/base/handler";
-import { BaseAPIError, ValidationError } from "../../../lib/api/base/errors";
 import { ResponseBuilder } from "../../../lib/api/base/response-builder";
 import { observability } from "../../../lib/observability";
 

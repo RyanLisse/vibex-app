@@ -7,12 +7,20 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { WifiOff, Plus, MoreHorizontal, Edit, Trash2, Play, Pause, CheckCircle } from "lucide-react";
+import {
+	CheckCircle,
+	Edit,
+	MoreHorizontal,
+	Pause,
+	Play,
+	Plus,
+	Trash2,
+	WifiOff,
+} from "lucide-react";
 import Link from "next/link";
-import { TextShimmer } from "@/components/ui/text-shimmer";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	DropdownMenu,
@@ -20,8 +28,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { TextShimmer } from "@/components/ui/text-shimmer";
 import {
 	useDeleteTaskMutation,
 	useTasksQuery,
-	useUpdateTaskMutation
+	useUpdateTaskMutation,
 } from "@/hooks/use-task-queries";

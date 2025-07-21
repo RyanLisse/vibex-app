@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-	ResponseBuilder,
-	type SuccessResponse,
-	type ErrorResponse,
-	type PaginatedResponse,
-} from "../../../lib/api/base/response-builder";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	BaseAPIError,
-	ValidationError,
 	NotFoundError,
+	ValidationError,
 } from "../../../lib/api/base/errors";
+import {
+	type ErrorResponse,
+	type PaginatedResponse,
+	ResponseBuilder,
+	type SuccessResponse,
+} from "../../../lib/api/base/response-builder";
 
 // Mock crypto.randomUUID
 const mockUUID = "test-uuid-1234-5678-90ab-cdef";

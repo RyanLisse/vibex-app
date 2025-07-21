@@ -1,10 +1,23 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { WASMOptimizationStatus } from "@/components/providers/query-provider";
-import { useExecutionAnalyticsQuery, useExecutionsQuery } from "@/hooks/use-execution-queries";
-import { useBulkTaskMutation, useCreateTaskMutation, useTaskSearchQuery, useTasksQuery, useUpdateTaskMutation } from "@/hooks/use-task-queries";
-import { QueryCacheStatus, QueryPerformanceMonitor } from "@/components/providers/query-provider";
+import type React from "react";
+import { useMemo, useState } from "react";
+import {
+	QueryCacheStatus,
+	QueryPerformanceMonitor,
+	WASMOptimizationStatus,
+} from "@/components/providers/query-provider";
+import {
+	useExecutionAnalyticsQuery,
+	useExecutionsQuery,
+} from "@/hooks/use-execution-queries";
+import {
+	useBulkTaskMutation,
+	useCreateTaskMutation,
+	useTaskSearchQuery,
+	useTasksQuery,
+	useUpdateTaskMutation,
+} from "@/hooks/use-task-queries";
 
 /**
  * Demo component showcasing Enhanced TanStack Query integration
@@ -162,7 +175,8 @@ export function EnhancedQueryDemo() {
 							{searchLoading ? (
 								<span>Searching...</span>
 							) : (
-								<span>Found {searchResults?.length || 0} results
+								<span>
+									Found {searchResults?.length || 0} results
 									{isSemanticSearch && " (using WASM vector search)"}
 								</span>
 							)}
@@ -259,7 +273,8 @@ export function EnhancedQueryDemo() {
 
 			{/* Create Task Form */}
 			<div className="rounded-lg border bg-white p-6">
-				<h2 className="mb-4 font-semibold text-xl">Create New Task (with Optimistic Updates)
+				<h2 className="mb-4 font-semibold text-xl">
+					Create New Task (with Optimistic Updates)
 				</h2>
 				<form className="space-y-4" onSubmit={handleCreateTask}>
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -325,7 +340,8 @@ export function EnhancedQueryDemo() {
 			{/* Tasks List */}
 			<div className="rounded-lg border bg-white p-6">
 				<div className="mb-4 flex items-center justify-between">
-					<h2 className="font-semibold text-xl">Tasks{" "}
+					<h2 className="font-semibold text-xl">
+						Tasks{" "}
 						{tasksStale && (
 							<span className="text-orange-600 text-sm">(stale)</span>
 						)}
@@ -349,7 +365,8 @@ export function EnhancedQueryDemo() {
 						<p className="text-gray-600">Loading tasks...</p>
 					</div>
 				) : tasksError ? (
-					<div className="py-8 text-center text-red-600">Error loading tasks: {tasksError.message}
+					<div className="py-8 text-center text-red-600">
+						Error loading tasks: {tasksError.message}
 					</div>
 				) : displayTasks?.length ? (
 					<div className="space-y-3">
@@ -396,7 +413,8 @@ export function EnhancedQueryDemo() {
 											>
 												{task.priority}
 											</span>
-											<span>Created: {new Date(task.createdAt).toLocaleDateString()}
+											<span>
+												Created: {new Date(task.createdAt).toLocaleDateString()}
 											</span>
 										</div>
 									</div>
@@ -405,7 +423,8 @@ export function EnhancedQueryDemo() {
 						))}
 					</div>
 				) : (
-					<div className="py-8 text-center text-gray-500">No tasks found. Create your first task above!
+					<div className="py-8 text-center text-gray-500">
+						No tasks found. Create your first task above!
 					</div>
 				)}
 			</div>
@@ -413,7 +432,8 @@ export function EnhancedQueryDemo() {
 			{/* Analytics Section */}
 			{analytics && (
 				<div className="rounded-lg border bg-white p-6">
-					<h2 className="mb-4 font-semibold text-xl">Execution Analytics (WASM Optimized)
+					<h2 className="mb-4 font-semibold text-xl">
+						Execution Analytics (WASM Optimized)
 					</h2>
 					<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 						<div className="text-center">

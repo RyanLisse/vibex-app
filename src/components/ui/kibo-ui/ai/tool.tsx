@@ -1,6 +1,5 @@
 "use client";
-import { CheckCircleIcon,
-import { XCircleIcon
-} from "lucide-react";
-import { CollapsibleTrigger
-} from "@/components/ui/collapsible";
+
+import { CheckCircleIcon, XCircleIcon } from "lucide-react";
+import React from "react";
+import { CollapsibleTrigger } from "@/components/ui/collapsible";

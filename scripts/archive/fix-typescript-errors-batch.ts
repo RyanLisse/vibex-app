@@ -1,8 +1,9 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
-existsSync, readFileSync, writeFileSync } from "fs";
-join } from "path";
+
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 
 interface BatchFix {
 	files: string[];
@@ -36,7 +37,9 @@ const batchFixes: BatchFix[] = [
 		description: "Fix category to contextKey",
 	},
 
-	// Fix redis files: ["app/api/alerts/**/*.ts", "lib/redis/**/*.ts"],
+	{
+		// Fix redis
+		files: ["app/api/alerts/**/*.ts", "lib/redis/**/*.ts"],
 		pattern:
 			/import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
 		replacement:
@@ -44,7 +47,9 @@ const batchFixes: BatchFix[] = [
 		description: "Fix redis import",
 	},
 
-	// Fix observabilityService files: ["**/*.ts"],
+	{
+		// Fix observabilityService
+		files: ["**/*.ts"],
 		pattern:
 			/import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
 		replacement: "observability } from '@/lib/observability'",
@@ -64,7 +69,7 @@ const batchFixes: BatchFix[] = [
 		pattern: /new\s+AlertManager\s*\(\s*{\s*redis:\s*redis\s*}\s*\)/g,
 		replacement: `new AlertManager({
       redis: redis as any,
-      channels: {},
+      channels: [],
       rules: [],
       historyRetention: 7 * 24 * 60 * 60 * 1000,
       metricsInterval: 60000,
@@ -95,13 +100,7 @@ const batchFixes: BatchFix[] = [
 		files: ["app/api/agent-memory/**/*.ts"],
 		pattern:
 			/vectorSearchService\.(generateEmbedding|searchMemories|analyzeSearchPatterns)/g,
-		replacement: (content) => {
-			// Add type assertion
-			return content.replace(
-				/vectorSearchService\./g,
-				"(vectorSearchService as any).",
-			);
-		},
+		replacement: "(vectorSearchService as any).$1",
 		description: "Fix vectorSearchService method calls",
 	},
 

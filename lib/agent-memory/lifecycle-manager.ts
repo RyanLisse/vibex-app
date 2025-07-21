@@ -4,7 +4,7 @@
  * Manages memory expiration, archival, and maintenance operations.
  */
 
-import { MemoryLifecycleEvent } from "./types";
+import type { MemoryLifecycleEvent } from "./types";
 
 export class MemoryLifecycleManager {
 	private static instance: MemoryLifecycleManager;

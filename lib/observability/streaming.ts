@@ -5,7 +5,14 @@
  * filtering, and subscription management for live monitoring and debugging.
  */
 
-import { ObservabilityEventType
+import { EventEmitter } from "node:events";
+import { and, desc, gte, inArray } from "drizzle-orm";
+import { db } from "@/db/config";
+import { observabilityEvents as observabilityEventsTable } from "@/db/schema";
+import type {
+	EventSeverity,
+	ObservabilityEvent,
+	ObservabilityEventType,
 } from "./events";
 
 // Event stream filter
@@ -48,7 +55,7 @@ export class EventStreamManager extends EventEmitter {
 
 	static getInstance(): EventStreamManager {
 		if (!EventStreamManager.instance) {
-EventStreamManager.instance = new EventStreamManager();
+			EventStreamManager.instance = new EventStreamManager();
 		}
 		return EventStreamManager.instance;
 	}
@@ -133,35 +140,64 @@ EventStreamManager.instance = new EventStreamManager();
 	}
 
 	/**
-	 * Check if event matches filter
+	 * Validates if event type matches filter criteria
 	 */
-	private eventMatchesFilter(
+	private matchesTypeFilter(
 		event: ObservabilityEvent,
 		filter: EventStreamFilter,
 	): boolean {
-		// Type filter
-		if (filter.types && filter.types.length > 0) {
-			if (!filter.types.includes(event.type)) return false;
+		if (!filter.types || filter.types.length === 0) {
+			return true;
 		}
+		return filter.types.includes(event.type);
+	}
 
-		// Severity filter
-		if (filter.severities && filter.severities.length > 0) {
-			if (!filter.severities.includes(event.severity)) return false;
+	/**
+	 * Validates if event severity matches filter criteria
+	 */
+	private matchesSeverityFilter(
+		event: ObservabilityEvent,
+		filter: EventStreamFilter,
+	): boolean {
+		if (!filter.severities || filter.severities.length === 0) {
+			return true;
 		}
+		return filter.severities.includes(event.severity);
+	}
 
-		// Source filter
-		if (filter.sources && filter.sources.length > 0) {
-			if (!filter.sources.includes(event.source)) return false;
+	/**
+	 * Validates if event source matches filter criteria
+	 */
+	private matchesSourceFilter(
+		event: ObservabilityEvent,
+		filter: EventStreamFilter,
+	): boolean {
+		if (!filter.sources || filter.sources.length === 0) {
+			return true;
 		}
+		return filter.sources.includes(event.source);
+	}
 
-		// Tags filter
-		if (filter.tags && filter.tags.length > 0) {
-			const hasMatchingTag = filter.tags.some((tag) =>
-				event.tags.includes(tag),
-			);
-			if (!hasMatchingTag) return false;
+	/**
+	 * Validates if event tags match filter criteria
+	 */
+	private matchesTagsFilter(
+		event: ObservabilityEvent,
+		filter: EventStreamFilter,
+	): boolean {
+		if (!filter.tags || filter.tags.length === 0) {
+			return true;
 		}
+		return filter.tags.some((tag) => event.tags.includes(tag));
+	}
 
+	/**
+	 * Validates if event metadata matches filter criteria
+	 */
+	private matchesMetadataFilter(
+		event: ObservabilityEvent,
+		filter: EventStreamFilter,
+	): boolean {
 		// Execution ID filter
 		if (
 			filter.executionId &&
@@ -180,7 +216,16 @@ EventStreamManager.instance = new EventStreamManager();
 			return false;
 		}
 
-		// Time range filter
+		return true;
+	}
+
+	/**
+	 * Validates if event timestamp is within filter time range
+	 */
+	private matchesTimeRangeFilter(
+		event: ObservabilityEvent,
+		filter: EventStreamFilter,
+	): boolean {
 		if (filter.startTime && event.timestamp < filter.startTime) {
 			return false;
 		}
@@ -190,6 +235,24 @@ EventStreamManager.instance = new EventStreamManager();
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if event matches all filter criteria
+	 * Uses early return pattern and delegates to specialized validation methods
+	 */
+	private eventMatchesFilter(
+		event: ObservabilityEvent,
+		filter: EventStreamFilter,
+	): boolean {
+		return (
+			this.matchesTypeFilter(event, filter) &&
+			this.matchesSeverityFilter(event, filter) &&
+			this.matchesSourceFilter(event, filter) &&
+			this.matchesTagsFilter(event, filter) &&
+			this.matchesMetadataFilter(event, filter) &&
+			this.matchesTimeRangeFilter(event, filter)
+		);
 	}
 
 	/**
@@ -233,24 +296,28 @@ EventStreamManager.instance = new EventStreamManager();
 		filter: EventStreamFilter,
 		limit = 100,
 	): Promise<ObservabilityEvent[]> {
-		let query = db.select().from(observabilityEvents);
+		let query = db.select().from(observabilityEventsTable);
 
 		const conditions = [];
 
 		if (filter.types && filter.types.length > 0) {
-			conditions.push(inArray(observabilityEvents.type, filter.types));
+			conditions.push(inArray(observabilityEventsTable.type, filter.types));
 		}
 
 		if (filter.severities && filter.severities.length > 0) {
-			conditions.push(inArray(observabilityEvents.severity, filter.severities));
+			conditions.push(
+				inArray(observabilityEventsTable.severity, filter.severities),
+			);
 		}
 
 		if (filter.sources && filter.sources.length > 0) {
-			conditions.push(inArray(observabilityEvents.source, filter.sources));
+			conditions.push(inArray(observabilityEventsTable.source, filter.sources));
 		}
 
 		if (filter.startTime) {
-			conditions.push(gte(observabilityEvents.timestamp, filter.startTime));
+			conditions.push(
+				gte(observabilityEventsTable.timestamp, filter.startTime),
+			);
 		}
 
 		if (conditions.length > 0) {
@@ -258,7 +325,7 @@ EventStreamManager.instance = new EventStreamManager();
 		}
 
 		const events = await query
-			.orderBy(desc(observabilityEvents.timestamp))
+			.orderBy(desc(observabilityEventsTable.timestamp))
 			.limit(limit);
 
 		return events.map((event) => ({
@@ -295,9 +362,11 @@ EventStreamManager.instance = new EventStreamManager();
 		try {
 			const newEvents = await db
 				.select()
-				.from(observabilityEvents)
-				.where(gte(observabilityEvents.timestamp, this.lastPolledTimestamp))
-				.orderBy(desc(observabilityEvents.timestamp))
+				.from(observabilityEventsTable)
+				.where(
+					gte(observabilityEventsTable.timestamp, this.lastPolledTimestamp),
+				)
+				.orderBy(desc(observabilityEventsTable.timestamp))
 				.limit(1000);
 
 			if (newEvents.length > 0) {
@@ -401,7 +470,22 @@ export const eventStream = {
 
 	// Subscribe to all events
 	subscribeToAll: (callback: (event: ObservabilityEvent) => void) =>
-EventStreamManager.getInstance().subscribe({}, callback),
+		EventStreamManager.getInstance().subscribe({}, callback),
 
 	// Subscribe to errors only
 	subscribeToErrors: (callback: (event: ObservabilityEvent) => void) =>
+		EventStreamManager.getInstance().subscribe(
+			{ severities: ["error", "critical"] },
+			callback,
+		),
+
+	// Subscribe to specific execution
+	subscribeToExecution: (
+		executionId: string,
+		callback: (event: ObservabilityEvent) => void,
+	) => EventStreamManager.getInstance().subscribe({ executionId }, callback),
+
+	// Unsubscribe
+	unsubscribe: (subscriptionId: string) =>
+		EventStreamManager.getInstance().unsubscribe(subscriptionId),
+};

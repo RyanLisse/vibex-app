@@ -1,10 +1,10 @@
-import {
-	type ElectricDatabase
-} from "@electric-sql/client";
+import type { ElectricDatabase } from "@electric-sql/client";
+import type * as schema from "@/db/schema";
 import { ObservabilityService } from "../observability";
+import {
 	electricConfig,
 	getFinalConfig,
-	validateElectricConfig
+	validateElectricConfig,
 } from "./config";
 
 // Type definitions for our database schema
@@ -42,7 +42,7 @@ export class ElectricClient {
 
 	static getInstance(): ElectricClient {
 		if (!ElectricClient.instance) {
-ElectricClient.instance = new ElectricClient();
+			ElectricClient.instance = new ElectricClient();
 		}
 		return ElectricClient.instance;
 	}
@@ -228,5 +228,104 @@ ElectricClient.instance = new ElectricClient();
 
 				// Apply resolution
 				await this.database?.execute(
-					`
-UPDATE ${table} 
+					`UPDATE ${table} SET updated_at = NOW() WHERE id = ?`,
+					[id],
+				);
+
+				return conflictEntry.resolution;
+			} catch (error) {
+				this.observability.recordError(error as Error, {
+					operation: "conflict_resolution",
+					table,
+					id,
+				});
+				throw error;
+			} finally {
+				// Store conflict entry for debugging
+				this.conflictLog.push(conflictEntry);
+
+				// Keep only last 100 conflict entries
+				if (this.conflictLog.length > 100) {
+					this.conflictLog.shift();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Process offline queue when connection is restored
+	 */
+	private async processOfflineQueue(): Promise<void> {
+		if (this.offlineQueue.length === 0) return;
+
+		console.log(`Processing ${this.offlineQueue.length} offline operations...`);
+
+		for (const operation of this.offlineQueue) {
+			try {
+				// Process each queued operation
+				await this.database?.execute(operation.operation, operation.data);
+			} catch (error) {
+				console.error("Failed to process offline operation:", error);
+				this.observability.recordError(
+					"electric.offline.process",
+					error as Error,
+				);
+			}
+		}
+
+		// Clear processed queue
+		this.offlineQueue.length = 0;
+	}
+
+	/**
+	 * Get current sync status
+	 */
+	getSyncStatus(): {
+		status: typeof this.syncStatus;
+		isConnected: boolean;
+		lastSyncTime: Date | null;
+		offlineQueueSize: number;
+		conflictCount: number;
+	} {
+		return {
+			status: this.syncStatus,
+			isConnected: this.isConnected,
+			lastSyncTime: this.lastSyncTime,
+			offlineQueueSize: this.offlineQueue.length,
+			conflictCount: this.conflictLog.length,
+		};
+	}
+
+	/**
+	 * Cleanup method for proper resource disposal
+	 */
+	async cleanup(): Promise<void> {
+		try {
+			// Clear all subscriptions
+			for (const unsubscribe of this.subscriptions.values()) {
+				unsubscribe();
+			}
+			this.subscriptions.clear();
+
+			// Disconnect client
+			if (this.client && this.isConnected) {
+				await this.client.disconnect();
+			}
+
+			// Close PGlite
+			if (this.pglite) {
+				await this.pglite.close();
+			}
+
+			// Reset state
+			this.isConnected = false;
+			this.syncStatus = "disconnected";
+			this.connectionPromise = null;
+
+			console.log("ElectricSQL client cleaned up successfully");
+		} catch (error) {
+			console.error("Error during ElectricSQL client cleanup:", error);
+			this.observability.recordError("electric.cleanup", error as Error);
+		}
+	}
+}

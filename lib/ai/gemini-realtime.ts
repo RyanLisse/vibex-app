@@ -1,4 +1,4 @@
-import { type Session } from "@google/genai";
+import type { Session } from "@google/genai";
 
 export interface GeminiRealtimeConfig {
 	apiKey: string;

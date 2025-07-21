@@ -5,6 +5,7 @@
  */
 
 import { notificationManager } from "../notifications";
+import {
 	metrics as prometheusMetrics,
 	prometheusRegistry,
 } from "../prometheus";

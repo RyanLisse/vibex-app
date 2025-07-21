@@ -1,4 +1,7 @@
-import { PerformanceReporter } from "./performance-testing";
+import {
+	MemoryProfiler,
+	PerformanceBenchmark,
+} from "./performance-benchmarker";
 
 describe("PerformanceBenchmark", () => {
 	let benchmark: PerformanceBenchmark;

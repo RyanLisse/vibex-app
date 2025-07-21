@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the POST function since it doesn't exist in the route
 const POST = vi.fn();
@@ -181,7 +180,7 @@ describe("POST /api/auth/openai/login", () => {
 	});
 
 	it("should handle missing environment variables", async () => {
-		mock.doMock("@/lib/env", () => ({
+		vi.doMock("@/lib/env", () => ({
 			env: {
 				OPENAI_CLIENT_ID: undefined,
 				OPENAI_REDIRECT_URI: undefined,

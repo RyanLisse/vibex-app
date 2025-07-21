@@ -4,7 +4,7 @@
  * Replaces Zustand environment store with TanStack Query + Redis caching
  */
 
-import { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
+import type { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type Environment = z.infer<typeof EnvironmentSchema>;

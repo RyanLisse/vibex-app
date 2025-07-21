@@ -1,4 +1,8 @@
+import { SpanStatusCode, trace } from "@opentelemetry/api";
+import { type NextRequest, NextResponse } from "next/server";
+import { type ZodSchema, z } from "zod";
 import { getLogger } from "@/lib/logging/safe-wrapper";
+import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
 } from "@/src/schemas/api-routes";

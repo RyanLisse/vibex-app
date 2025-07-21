@@ -1,3 +1,4 @@
+import { act, renderHook, waitFor } from "@testing-library/react";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { vi } from "vitest";
 import type { UseGeminiAudioOptions } from "./use-gemini-audio";
 import { useGeminiAudio } from "./use-gemini-audio";
 

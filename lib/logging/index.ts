@@ -22,31 +22,33 @@ export type {
 } from "./types";
 
 // Convenience function to create a logger
-export function createLogger(component: string) {
+export async function createLogger(component: string) {
 	try {
-		const { createDefaultLoggingConfig: createConfig } = require("./config");
+		const { createDefaultLoggingConfig: createConfig } = await import(
+			"./config"
+		);
 		const config = createConfig();
 		const factory = LoggerFactory.getInstance(config);
 		return factory.createLogger(component);
 	} catch {
-		return getLogger(component);
+		return await getLogger(component);
 	}
 }
 
 // Global logger instance getter
-export function getLogger(component: string) {
+export async function getLogger(component: string) {
 	// During build, use build logger
 	if (
 		process.env.NEXT_PHASE === "phase-production-build" ||
 		process.env.NODE_ENV === "test"
 	) {
-		const { createBuildLogger } = require("./build-logger");
+		const { createBuildLogger } = await import("./build-logger");
 		return createBuildLogger(component);
 	}
 
 	// During browser runtime, use console logger
 	if (typeof window !== "undefined") {
-		const { createBuildLogger } = require("./build-logger");
+		const { createBuildLogger } = await import("./build-logger");
 		return createBuildLogger(component);
 	}
 
@@ -57,7 +59,9 @@ export function getLogger(component: string) {
 	} catch (error) {
 		// Fallback if not initialized
 		try {
-			const { createDefaultLoggingConfig: createConfig } = require("./config");
+			const { createDefaultLoggingConfig: createConfig } = await import(
+				"./config"
+			);
 			const config = createConfig();
 			const factory = LoggerFactory.getInstance(config);
 			return factory.createLogger(component);
@@ -77,8 +81,8 @@ export function getLogger(component: string) {
 }
 
 // Initialize logging system
-export function initializeLogging(config?: Partial<LoggingConfig>) {
-	const { createDefaultLoggingConfig: createConfig } = require("./config");
+export async function initializeLogging(config?: Partial<LoggingConfig>) {
+	const { createDefaultLoggingConfig: createConfig } = await import("./config");
 	const fullConfig = {
 		...createConfig(),
 		...config,
@@ -89,5 +93,5 @@ export function initializeLogging(config?: Partial<LoggingConfig>) {
 }
 
 // Export default logger instance
-const defaultLogger = createLogger("app");
+const defaultLogger = await createLogger("app");
 export default defaultLogger;

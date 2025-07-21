@@ -6,8 +6,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { vi } from "vitest";
 import {
 	clearStoredToken,
 	exchangeCodeForToken,
@@ -37,7 +37,12 @@ const mockCrypto = {
 		digest: vi.fn(),
 	},
 };
-global.crypto = mockCrypto as any;
+
+// Properly set global crypto
+Object.defineProperty(global, "crypto", {
+	value: mockCrypto,
+	writable: true,
+});
 
 // Mock NextRequest/NextResponse
 vi.mock("next/server", () => ({

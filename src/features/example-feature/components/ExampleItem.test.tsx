@@ -1,7 +1,7 @@
 import { vi } from "vitest";
-import { ExampleItem } from "./ExampleItem";
-import type { ExampleItem as ExampleItemType } from "../types";
 import { render, screen } from "../../../../tests/test-utils";
+import type { ExampleItem as ExampleItemType } from "../types";
+import { ExampleItem } from "./ExampleItem";
 
 const mockItem: ExampleItemType = {
 	id: "1",

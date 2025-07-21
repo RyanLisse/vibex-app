@@ -6,13 +6,16 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { vi } from "vitest";
 import { ClaudeAuthClient } from "./claude-auth";
 import * as pkce from "./pkce";
 
 // Mock PKCE module
-vi.mock("./pkce");
+vi.mock("./pkce", () => ({
+	generateCodeVerifier: vi.fn(),
+	generateCodeChallenge: vi.fn(),
+}));
 
 // Mock fetch
 global.fetch = vi.fn();

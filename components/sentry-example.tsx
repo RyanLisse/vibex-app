@@ -2,9 +2,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
+import { getLogger } from "@/lib/logging";
 import { trackButtonClick } from "@/lib/sentry/instrumentation";
 import { FeedbackButton } from "./sentry-feedback";
-import { getLogger } from "@/lib/logging";
 
 // Get the Winston logger for this component
 const logger = getLogger("sentry-example");

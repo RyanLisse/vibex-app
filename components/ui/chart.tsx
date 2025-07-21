@@ -1,28 +1,44 @@
 "use client";
-import { Area, YAxis } from "recharts";
+import {
+	Area,
+	AreaChart,
+	Bar,
+	BarChart,
+	CartesianGrid,
+	Cell,
+	Legend,
+	Line,
+	LineChart,
+	Pie,
+	PieChart as RechartsPieChart,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from "recharts";
 
-interface ChartProps {
+export interface ChartProps {
 	data: any[];
 	className?: string;
 	height?: number;
 }
 
-interface LineChartProps extends ChartProps {
+export interface LineChartProps extends ChartProps {
 	dataKey: string;
 	color?: string;
 }
 
-interface AreaChartProps extends ChartProps {
+export interface AreaChartProps extends ChartProps {
 	dataKey: string;
 	color?: string;
 }
 
-interface BarChartProps extends ChartProps {
+export interface BarChartProps extends ChartProps {
 	dataKey: string;
 	color?: string;
 }
 
-interface PieChartProps extends ChartProps {
+export interface PieChartProps extends ChartProps {
 	dataKey: string;
 	nameKey: string;
 	colors?: string[];

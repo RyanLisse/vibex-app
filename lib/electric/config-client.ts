@@ -1,6 +1,6 @@
 /**
  * Client-side ElectricSQL Configuration
- * 
+ *
  * This is a client-safe version of the electric config that doesn't import
  * server-side dependencies like Redis or Node.js modules.
  */
@@ -54,7 +54,10 @@ export { pgliteConfig } from "./simple-config";
 // ElectricSQL configuration for client-side
 export const electricConfig: ElectricConfig = {
 	// Database connection URL - will be set from environment
-	url: process.env.NEXT_PUBLIC_ELECTRIC_URL || process.env.NEXT_PUBLIC_DATABASE_URL || "",
+	url:
+		process.env.NEXT_PUBLIC_ELECTRIC_URL ||
+		process.env.NEXT_PUBLIC_DATABASE_URL ||
+		"",
 
 	// Authentication configuration
 	auth: {
@@ -69,11 +72,17 @@ export const electricConfig: ElectricConfig = {
 		// Enable real-time sync
 		enabled: true,
 		// Sync interval in milliseconds (default: 1000ms)
-		interval: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_SYNC_INTERVAL || "1000"),
+		interval: Number.parseInt(
+			process.env.NEXT_PUBLIC_ELECTRIC_SYNC_INTERVAL || "1000",
+		),
 		// Maximum retry attempts for failed syncs
-		maxRetries: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_MAX_RETRIES || "3"),
+		maxRetries: Number.parseInt(
+			process.env.NEXT_PUBLIC_ELECTRIC_MAX_RETRIES || "3",
+		),
 		// Retry backoff multiplier
-		retryBackoff: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_RETRY_BACKOFF || "1000"),
+		retryBackoff: Number.parseInt(
+			process.env.NEXT_PUBLIC_ELECTRIC_RETRY_BACKOFF || "1000",
+		),
 	},
 
 	// Offline configuration
@@ -228,10 +237,7 @@ class ClientElectricDB {
 		try {
 			console.log("✅ Client ElectricDB initialized");
 		} catch (error) {
-			console.warn(
-				"⚠️ Failed to initialize client ElectricDB:",
-				error,
-			);
+			console.warn("⚠️ Failed to initialize client ElectricDB:", error);
 		}
 	};
 
@@ -272,7 +278,9 @@ class ClientElectricDB {
 
 	getConnectionState(): string {
 		// For client-side, we'll check navigator.onLine
-		return typeof window !== "undefined" && navigator.onLine ? "connected" : "disconnected";
+		return typeof window !== "undefined" && navigator.onLine
+			? "connected"
+			: "disconnected";
 	}
 
 	getSyncState(): string {
@@ -304,10 +312,10 @@ class ClientElectricDB {
 			this.realtimeStats.pendingOperations++;
 
 			// Execute through API instead of direct database access
-			const response = await fetch('/api/database/execute', {
-				method: 'POST',
+			const response = await fetch("/api/database/execute", {
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					table,
@@ -339,8 +347,8 @@ class ClientElectricDB {
 	async sync(): Promise<void> {
 		try {
 			// For client-side, we'll trigger sync via API
-			const response = await fetch('/api/database/sync', {
-				method: 'POST',
+			const response = await fetch("/api/database/sync", {
+				method: "POST",
 			});
 
 			if (!response.ok) {
@@ -356,7 +364,7 @@ class ClientElectricDB {
 	}
 
 	getStats() {
-		return { 
+		return {
 			pendingChanges: this.realtimeStats.pendingOperations,
 		};
 	}

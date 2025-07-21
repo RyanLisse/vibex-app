@@ -49,18 +49,18 @@ vi.mock('@/lib/auth', () => ({
   useAuth: vi.fn(() => ({ user: mockUser }))
 }))
 
-// ✅ CORRECT: Bun logic tests
-import { mock } from 'bun:test'
+// ✅ CORRECT: Vitest-based tests
+import { vi } from 'vitest'
 
-const mockFetch = mock(() => Promise.resolve(mockResponse))
+const mockFetch = vi.fn(() => Promise.resolve(mockResponse))
 ```
 
 ### Mock Compatibility Rules
 
-1. **Vitest Files**: Always use `vi.mock()`, `vi.fn()`, `vi.spyOn()`
-2. **Bun Files**: Use native `mock()` from `bun:test`  
-3. **Import Strategy**: Import mock functions from correct test runner
-4. **Filesystem Mocks**: Use appropriate strategy per environment
+1. **All Test Files**: Always use `vi.mock()`, `vi.fn()`, `vi.spyOn()` from vitest
+2. **Runtime**: Use Bun as the JavaScript runtime for optimal performance  
+3. **Import Strategy**: Import all mock functions from vitest framework
+4. **Framework Consistency**: Single test framework (vitest) with Bun runtime
 
 ## 🎯 Smart-Spawn Results
 
@@ -121,7 +121,7 @@ bun run test:all
 # Error: vi.mock is not a function
 # Solution: Check test runner imports
 import { vi } from 'vitest' // ✅ For component tests
-import { mock } from 'bun:test' // ✅ For logic tests
+import { vi } from 'vitest' // ✅ For logic tests
 ```
 
 #### Test Hanging
@@ -129,8 +129,8 @@ import { mock } from 'bun:test' // ✅ For logic tests
 # Error: Tests don't complete
 # Solution: Check async cleanup
 afterEach(() => {
-  vi.clearAllMocks() // Vitest
-  mock.restore()     // Bun
+  vi.clearAllMocks() // Clear all vitest mocks
+  vi.restoreAllMocks() // Restore original implementations
 })
 ```
 

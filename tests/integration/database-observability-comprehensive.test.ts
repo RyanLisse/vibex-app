@@ -12,17 +12,17 @@
  */
 
 import {
-	describe,
-	test,
-	expect,
-	beforeAll,
 	afterAll,
+	beforeAll,
 	beforeEach,
+	describe,
+	expect,
+	test,
 } from "vitest";
-import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
-import { GrafanaDashboardBuilder } from "../../lib/metrics/grafana-dashboards";
-import { AlertRuleBuilder } from "../../lib/metrics/alert-rules";
 import type { Database } from "../../db";
+import { AlertRuleBuilder } from "../../lib/metrics/alert-rules";
+import { GrafanaDashboardBuilder } from "../../lib/metrics/grafana-dashboards";
+import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
 import { observability } from "../../lib/observability";
 
 // Mock database operations for testing

@@ -7,8 +7,8 @@
 
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 import {
-agentExecutions,
-agentMemory,
+	agentExecutions,
+	agentMemory,
 	environments,
 	executionSnapshots,
 	type NewAgentExecution,
@@ -19,12 +19,13 @@ agentMemory,
 	type NewTask,
 	type NewWorkflow,
 	type NewWorkflowExecution,
-import {
 	observabilityEvents,
-		tasks,
+	tasks,
 	workflowExecutions,
 	workflows,
 } from "../../../db/schema";
+
+import {
 	checkDatabaseHealth,
 	db,
 	initializeExtensions,

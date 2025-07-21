@@ -5,11 +5,12 @@
  * including vector search, SQLite utilities, and compute operations.
  */
 
-import { SQLiteWASMUtils,
-	sqliteWASMUtils } from "./sqlite-utils";
+import { SQLiteWASMUtils, sqliteWASMUtils } from "./sqlite-utils";
+import {
 	type VectorSearchConfig,
-import { VectorSearchWASM,
-	vectorSearchManager } from "./vector-search";
+	VectorSearchWASM,
+	vectorSearchManager,
+} from "./vector-search";
 
 export interface WASMServicesConfig {
 	vectorSearch?: Partial<VectorSearchConfig>;
@@ -61,7 +62,7 @@ export class WASMServices {
 
 	static getInstance(config?: WASMServicesConfig): WASMServices {
 		if (!WASMServices.instance) {
-WASMServices.instance = new WASMServices(config);
+			WASMServices.instance = new WASMServices(config);
 		}
 		return WASMServices.instance;
 	}
@@ -213,7 +214,6 @@ WASMServices.instance = new WASMServices(config);
 		}
 	}
 
-
 	/**
 	 * Initialize Observability Integration
 	 */
@@ -227,7 +227,6 @@ WASMServices.instance = new WASMServices(config);
 			console.warn("⚠️ WASM Observability initialization failed:", error);
 		}
 	}
-
 
 	/**
 	 * Initialize fallback implementations

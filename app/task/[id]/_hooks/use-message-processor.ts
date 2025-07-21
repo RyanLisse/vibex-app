@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import {
+import type {
 	IncomingMessage,
 	StreamingMessage,
 } from "@/app/task/[id]/_types/message-types";

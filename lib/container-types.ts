@@ -1,89 +1,135 @@
-// Type definitions for Container component
-export interface StatusData {
-	taskId: string;
-	status: "IN_PROGRESS" | "DONE" | "MERGED" | "PAUSED" | "CANCELLED";
-	sessionId: string;
-}
+// Container type definitions and utility functions
 
-export interface UpdateData {
-	taskId: string;
-	message: {
-		type: string;
-		output?: string;
-		action?: { command: string[] };
-		status?: string;
-		role?: string;
-		content?: { text: string }[];
+export interface ContainerData {
+	id: string;
+	timestamp: number;
+	version: string;
+	data: any;
+	metadata?: {
+		source?: string;
+		checksum?: string;
+		lastUpdated?: number;
 	};
 }
 
-export interface LatestData {
-	channel: string;
-	topic: string;
-	data: StatusData | UpdateData;
+export interface ContainerStatus {
+	isLatest: boolean;
+	version: string;
+	lastChecked: number;
 }
 
-export interface TaskMessage {
-	role: "user" | "assistant";
-	type: string;
-	data: Record<string, unknown>;
-}
-
-// Type guards for better type safety
-export function isStatusData(
-	data: StatusData | UpdateData,
-): data is StatusData {
-	return "status" in data && "sessionId" in data;
-}
-
-export function isUpdateData(
-	data: StatusData | UpdateData,
-): data is UpdateData {
-	return "message" in data;
-}
-
-export function isTasksChannel(data: LatestData): boolean {
-	return data.channel === "tasks";
-}
-
-export function isStatusTopic(data: LatestData): boolean {
-	return data.topic === "status";
-}
-
-export function isUpdateTopic(data: LatestData): boolean {
-	return data.topic === "update";
-}
-
-export function isGitMessage(message: UpdateData["message"]): boolean {
-	return message.type === "git";
-}
-
-export function isShellCallMessage(message: UpdateData["message"]): boolean {
-	return message.type === "local_shell_call";
-}
-
-export function isShellOutputMessage(message: UpdateData["message"]): boolean {
-	return message.type === "local_shell_call_output";
-}
-
-export function isCompletedAssistantMessage(
-	message: UpdateData["message"],
+/**
+ * Checks if the provided data is the latest version
+ * @param data - Container data to check
+ * @param comparison - Optional comparison data or version string
+ * @returns true if data is latest, false otherwise
+ */
+export function isLatestData(
+	data: ContainerData,
+	comparison?: ContainerData | string,
 ): boolean {
-	return (
-		message.type === "message" &&
-		message.status === "completed" &&
-		message.role === "assistant"
-	);
+	if (!data) {
+		return false;
+	}
+
+	if (!comparison) {
+		// If no comparison provided, assume data is latest if it has valid structure
+		return !!(data.id && data.timestamp && data.version);
+	}
+
+	if (typeof comparison === "string") {
+		// Compare against version string
+		return data.version === comparison;
+	}
+
+	// Compare against another ContainerData object
+	if (data.version !== comparison.version) {
+		return data.timestamp >= comparison.timestamp;
+	}
+
+	// Same version, compare timestamps
+	return data.timestamp >= comparison.timestamp;
 }
 
-export function hasShellAction(
-	message: UpdateData["message"],
-): message is UpdateData["message"] & { action: { command: string[] } } {
-	return "action" in message && message.action !== undefined;
+/**
+ * Creates container data with proper structure
+ * @param id - Unique identifier for the container
+ * @param data - The actual data to store
+ * @param version - Version identifier
+ * @returns Properly structured container data
+ */
+export function createContainerData(
+	id: string,
+	data: any,
+	version: string = "1.0.0",
+): ContainerData {
+	return {
+		id,
+		timestamp: Date.now(),
+		version,
+		data,
+		metadata: {
+			source: "vibex-app",
+			lastUpdated: Date.now(),
+		},
+	};
 }
 
-export function hasMessageContent(
-	message: UpdateData["message"],
-): message is UpdateData["message"] & { content: { text: string }[] } {
-	return "content" in message && Array.isArray(message.content);
+/**
+ * Validates container data structure
+ * @param data - Data to validate
+ * @returns true if valid, throws error otherwise
+ */
+export function validateContainerData(data: ContainerData): boolean {
+	if (!data) {
+		throw new Error("Container data is required");
+	}
+
+	if (!data.id || typeof data.id !== "string") {
+		throw new Error("Container data must have a valid id");
+	}
+
+	if (!data.timestamp || typeof data.timestamp !== "number") {
+		throw new Error("Container data must have a valid timestamp");
+	}
+
+	if (!data.version || typeof data.version !== "string") {
+		throw new Error("Container data must have a valid version");
+	}
+
+	return true;
+}
+
+/**
+ * Compares two container data objects for version precedence
+ * @param a - First container data
+ * @param b - Second container data
+ * @returns -1 if a < b, 0 if equal, 1 if a > b
+ */
+export function compareContainerVersions(
+	a: ContainerData,
+	b: ContainerData,
+): number {
+	if (a.version === b.version) {
+		return a.timestamp === b.timestamp ? 0 : a.timestamp > b.timestamp ? 1 : -1;
+	}
+
+	// Simple semantic version comparison (assumes semver format)
+	const parseVersion = (version: string) => {
+		return version.split(".").map(Number);
+	};
+
+	const vA = parseVersion(a.version);
+	const vB = parseVersion(b.version);
+
+	for (let i = 0; i < Math.max(vA.length, vB.length); i++) {
+		const numA = vA[i] || 0;
+		const numB = vB[i] || 0;
+
+		if (numA !== numB) {
+			return numA > numB ? 1 : -1;
+		}
+	}
+
+	return 0;
 }

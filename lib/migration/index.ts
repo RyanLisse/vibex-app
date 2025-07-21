@@ -14,7 +14,10 @@ export { backupService } from "./backup-service";
 export { DataExtractor } from "./data-extractor";
 export { DataMapper } from "./data-mapper";
 export { dataMigrationManager } from "./data-migration";
-export type { MigrationPlan, OrchestrationConfig } from "./migration-orchestrator";
+export type {
+	MigrationPlan,
+	OrchestrationConfig,
+} from "./migration-orchestrator";
 // Core services
 export { migrationOrchestrator } from "./migration-orchestrator";
 export { migrationService } from "./migration-service";
@@ -26,17 +29,23 @@ export { rollbackService } from "./rollback-service";
 export type {
 	// Backup types
 	BackupData,
-	ValidationResult
+	ValidationResult,
 } from "./types";
 // Utility functions
 export {
 	checkMigrationStatus,
 	createMigrationPlan,
-	startMigration
+	startMigration,
 } from "./utils";
-export type { DataComparisonResult, ValidationOptions } from "./validation-service";
+export type {
+	DataComparisonResult,
+	ValidationOptions,
+} from "./validation-service";
 export { validationService } from "./validation-service";
-export type { MigrationMode, ZeroDowntimeConfig } from "./zero-downtime-coordinator";
+export type {
+	MigrationMode,
+	ZeroDowntimeConfig,
+} from "./zero-downtime-coordinator";
 export { zeroDowntimeCoordinator } from "./zero-downtime-coordinator";
 
 /**

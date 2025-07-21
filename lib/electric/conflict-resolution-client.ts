@@ -1,6 +1,6 @@
 /**
  * Client-side Conflict Resolution Service
- * 
+ *
  * This is a client-safe version of the conflict resolution service that doesn't
  * import server-side Redis dependencies. It provides the same interface but
  * uses browser-compatible storage and operations.
@@ -71,7 +71,8 @@ export class ClientConflictResolutionService {
 
 	static getInstance(): ClientConflictResolutionService {
 		if (!ClientConflictResolutionService.instance) {
-			ClientConflictResolutionService.instance = new ClientConflictResolutionService();
+			ClientConflictResolutionService.instance =
+				new ClientConflictResolutionService();
 		}
 		return ClientConflictResolutionService.instance;
 	}
@@ -108,10 +109,10 @@ export class ClientConflictResolutionService {
 
 				try {
 					// For client-side, we'll make a simple API call instead of direct database access
-					const response = await fetch('/api/database/execute', {
-						method: 'POST',
+					const response = await fetch("/api/database/execute", {
+						method: "POST",
 						headers: {
-							'Content-Type': 'application/json',
+							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
 							operation,
@@ -198,10 +199,10 @@ export class ClientConflictResolutionService {
 							offlineOp.status = "syncing";
 
 							// Execute the operation via API
-							const response = await fetch('/api/database/execute', {
-								method: 'POST',
+							const response = await fetch("/api/database/execute", {
+								method: "POST",
 								headers: {
-									'Content-Type': 'application/json',
+									"Content-Type": "application/json",
 								},
 								body: JSON.stringify({
 									operation: offlineOp.operation,
@@ -371,7 +372,10 @@ export class ClientConflictResolutionService {
 		try {
 			if (typeof window !== "undefined") {
 				const queueData = Array.from(this.offlineQueue.entries());
-				localStorage.setItem("electric:offline-queue", JSON.stringify(queueData));
+				localStorage.setItem(
+					"electric:offline-queue",
+					JSON.stringify(queueData),
+				);
 			}
 		} catch (error) {
 			console.warn("Failed to persist offline queue to localStorage:", error);
@@ -413,4 +417,5 @@ export class ClientConflictResolutionService {
 }
 
 // Export singleton instance
-export const clientConflictResolutionService = ClientConflictResolutionService.getInstance();
+export const clientConflictResolutionService =
+	ClientConflictResolutionService.getInstance();

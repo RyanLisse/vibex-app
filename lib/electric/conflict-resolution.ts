@@ -6,8 +6,9 @@
  */
 
 import { ObservabilityService } from "@/lib/observability";
+import {
 	type DatabaseOperation,
-	electricDatabaseClient
+	electricDatabaseClient,
 } from "./database-client";
 
 export interface ConflictData {
@@ -72,7 +73,7 @@ export class ConflictResolutionService {
 
 	static getInstance(): ConflictResolutionService {
 		if (!ConflictResolutionService.instance) {
-ConflictResolutionService.instance = new ConflictResolutionService();
+			ConflictResolutionService.instance = new ConflictResolutionService();
 		}
 		return ConflictResolutionService.instance;
 	}
@@ -605,3 +606,4 @@ ConflictResolutionService.instance = new ConflictResolutionService();
 
 // Export singleton instance
 export const conflictResolutionService =
+	ConflictResolutionService.getInstance();

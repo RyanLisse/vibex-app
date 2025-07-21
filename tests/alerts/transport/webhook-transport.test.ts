@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WebhookTransport } from "../../../lib/alerts/transport/webhook-transport";
 import {
-	AlertChannel,
-	CriticalError,
-	AlertNotification,
+	type AlertChannel,
 	AlertChannelType,
+	type AlertNotification,
+	type CriticalError,
 	CriticalErrorType,
 } from "../../../lib/alerts/types";
 

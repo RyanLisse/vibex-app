@@ -15,7 +15,24 @@ import { ulid } from "ulid";
 import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
+import {
+	checkETag,
+	generateETag,
+	notModifiedResponse,
+	withCache,
+} from "@/lib/api/cache-headers";
+import {
+	APIError,
+	handleRouteError,
+	NotFoundError,
+} from "@/lib/api/error-handlers";
 import { observability } from "@/lib/observability";
+import {
+	buildQueryConditions,
+	buildSortOrder,
+	buildTaskQuery,
+	calculatePagination,
+} from "@/lib/tasks/query-utils";
 import {
 	CreateTaskSchema,
 	createApiErrorResponse,
@@ -23,12 +40,6 @@ import {
 	createPaginatedResponse,
 	type UpdateTaskSchema,
 } from "@/src/schemas/api-routes";
-import {
-	withCache,
-	generateETag,
-	checkETag,
-	notModifiedResponse,
-} from "@/lib/api/cache-headers";
 
 // Request validation schemas
 const GetTasksQuerySchema = z.object({
@@ -49,17 +60,8 @@ const _GetTaskParamsSchema = z.object({
 	id: z.string().min(1),
 });
 
-// Enhanced error handling
-class TasksAPIError extends Error {
-	constructor(
-		message: string,
-		public statusCode = 500,
-		public code = "INTERNAL_ERROR",
-	) {
-		super(message);
-		this.name = "TasksAPIError";
-	}
-}
+// Use centralized error handling
+// TasksAPIError replaced with APIError from error-handlers
 
 // Database operations with observability
 class TasksService {
@@ -73,76 +75,19 @@ class TasksService {
 		try {
 			const startTime = Date.now();
 
-			// Build query conditions
-			const conditions = [];
+			// Use simplified query utilities
+			const conditions = buildQueryConditions(params, tasks);
+			const orderBy = buildSortOrder(params, tasks);
+			const { offset, totalPages } = calculatePagination(params);
 
-			if (params.status) {
-				conditions.push(eq(tasks.status, params.status as any));
-			}
-
-			if (params.priority) {
-				conditions.push(eq(tasks.priority, params.priority as any));
-			}
-
-			// Note: assignee might be stored in metadata
-			// Commented out as tasks table doesn't have assignee field
-			// if (params.assignee) {
-			//   conditions.push(eq(tasks.assignee, params.assignee))
-			// }
-
-			if (params.userId) {
-				conditions.push(eq(tasks.userId, params.userId));
-			}
-
-			if (params.search) {
-				conditions.push(like(tasks.title, `%${params.search}%`));
-			}
-
-			// Build sort order - handle fields that might not exist
-			let orderBy;
-			switch (params.sortBy) {
-				case "created_at":
-					orderBy =
-						params.sortOrder === "asc"
-							? asc(tasks.createdAt)
-							: desc(tasks.createdAt);
-					break;
-				case "updated_at":
-					orderBy =
-						params.sortOrder === "asc"
-							? asc(tasks.updatedAt)
-							: desc(tasks.updatedAt);
-					break;
-				case "title":
-					orderBy =
-						params.sortOrder === "asc" ? asc(tasks.title) : desc(tasks.title);
-					break;
-				case "priority":
-					orderBy =
-						params.sortOrder === "asc"
-							? asc(tasks.priority)
-							: desc(tasks.priority);
-					break;
-				default:
-					orderBy = desc(tasks.createdAt);
-			}
-
-			// Execute query with pagination
-			const offset = (params.page - 1) * params.limit;
-
-			const [taskResults, countResult] = await Promise.all([
-				db
-					.select()
-					.from(tasks)
-					.where(conditions.length > 0 ? and(...conditions) : undefined)
-					.orderBy(orderBy)
-					.limit(params.limit)
-					.offset(offset),
-				db
-					.select({ count: tasks.id })
-					.from(tasks)
-					.where(conditions.length > 0 ? and(...conditions) : undefined),
-			]);
+			// Execute optimized query
+			const result = await buildTaskQuery({
+				conditions,
+				orderBy,
+				limit: params.limit,
+				offset,
+				table: tasks,
+			});
 
 			const duration = Date.now() - startTime;
 
@@ -156,8 +101,8 @@ class TasksService {
 				"Tasks query completed",
 				{
 					duration,
-					resultCount: taskResults.length,
-					totalCount: countResult.length,
+					resultCount: result.taskResults.length,
+					totalCount: result.countResult.length,
 					filters: params,
 				},
 				"api",
@@ -165,18 +110,18 @@ class TasksService {
 			);
 
 			span.setAttributes({
-				"tasks.count": taskResults.length,
-				"tasks.total": countResult.length,
+				"tasks.count": result.taskResults.length,
+				"tasks.total": result.countResult.length,
 				"query.duration": duration,
 			});
 
 			return {
-				tasks: taskResults,
+				tasks: result.taskResults,
 				pagination: {
 					page: params.page,
 					limit: params.limit,
-					total: countResult.length,
-					totalPages: Math.ceil(countResult.length / params.limit),
+					total: result.countResult.length,
+					totalPages: Math.ceil(result.countResult.length / params.limit),
 				},
 			};
 		} catch (error) {
@@ -186,11 +131,7 @@ class TasksService {
 			// Record error metrics
 			observability.metrics.errorRate(1, "tasks_api");
 
-			throw new TasksAPIError(
-				"Failed to fetch tasks",
-				500,
-				"FETCH_TASKS_ERROR",
-			);
+			throw new APIError("Failed to fetch tasks", 500, "FETCH_TASKS_ERROR");
 		} finally {
 			span.end();
 		}
@@ -248,11 +189,7 @@ class TasksService {
 			// Record error metrics
 			observability.metrics.errorRate(1, "tasks_api");
 
-			throw new TasksAPIError(
-				"Failed to create task",
-				500,
-				"CREATE_TASK_ERROR",
-			);
+			throw new APIError("Failed to create task", 500, "CREATE_TASK_ERROR");
 		} finally {
 			span.end();
 		}
@@ -282,7 +219,7 @@ class TasksService {
 				.returning();
 
 			if (!updatedTask) {
-				throw new TasksAPIError("Task not found", 404, "TASK_NOT_FOUND");
+				throw new NotFoundError("Task", id);
 			}
 
 			const duration = Date.now() - startTime;
@@ -316,18 +253,14 @@ class TasksService {
 			span.recordException(error as Error);
 			span.setStatus({ code: SpanStatusCode.ERROR });
 
-			if (error instanceof TasksAPIError) {
+			if (error instanceof APIError) {
 				throw error;
 			}
 
 			// Record error metrics
 			observability.metrics.errorRate(1, "tasks_api");
 
-			throw new TasksAPIError(
-				"Failed to update task",
-				500,
-				"UPDATE_TASK_ERROR",
-			);
+			throw new APIError("Failed to update task", 500, "UPDATE_TASK_ERROR");
 		} finally {
 			span.end();
 		}
@@ -349,7 +282,7 @@ class TasksService {
 				.returning();
 
 			if (!deletedTask) {
-				throw new TasksAPIError("Task not found", 404, "TASK_NOT_FOUND");
+				throw new NotFoundError("Task", id);
 			}
 
 			const duration = Date.now() - startTime;
@@ -382,18 +315,14 @@ class TasksService {
 			span.recordException(error as Error);
 			span.setStatus({ code: SpanStatusCode.ERROR });
 
-			if (error instanceof TasksAPIError) {
+			if (error instanceof APIError) {
 				throw error;
 			}
 
 			// Record error metrics
 			observability.metrics.errorRate(1, "tasks_api");
 
-			throw new TasksAPIError(
-				"Failed to delete task",
-				500,
-				"DELETE_TASK_ERROR",
-			);
+			throw new APIError("Failed to delete task", 500, "DELETE_TASK_ERROR");
 		} finally {
 			span.end();
 		}
@@ -441,17 +370,7 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
-		if (error instanceof TasksAPIError) {
-			return NextResponse.json(
-				createApiErrorResponse(error.message, error.statusCode, error.code),
-				{ status: error.statusCode },
-			);
-		}
-
-		return NextResponse.json(
-			createApiErrorResponse("Internal server error", 500, "INTERNAL_ERROR"),
-			{ status: 500 },
-		);
+		return handleRouteError(error, "GET /api/tasks");
 	}
 }
 
@@ -484,16 +403,6 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		if (error instanceof TasksAPIError) {
-			return NextResponse.json(
-				createApiErrorResponse(error.message, error.statusCode, error.code),
-				{ status: error.statusCode },
-			);
-		}
-
-		return NextResponse.json(
-			createApiErrorResponse("Internal server error", 500, "INTERNAL_ERROR"),
-			{ status: 500 },
-		);
+		return handleRouteError(error, "GET /api/tasks");
 	}
 }

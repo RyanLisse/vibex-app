@@ -5,6 +5,7 @@ import {
 	mkdirSync,
 	readdirSync,
 	readFileSync,
+	unlinkSync,
 	writeFileSync,
 } from "fs";
 import { join } from "path";
@@ -558,7 +559,7 @@ export class MigrationRunner {
 				const filesToDelete = backupFiles.slice(5);
 				filesToDelete.forEach((file) => {
 					try {
-						require("fs").unlinkSync(join(backupPath, file));
+						unlinkSync(join(backupPath, file));
 					} catch (error) {
 						console.warn(
 							`Failed to delete backup file ${file}:`,

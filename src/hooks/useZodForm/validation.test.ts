@@ -1,3 +1,4 @@
+import type { UseFormReturn } from "react-hook-form";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import type { UseFormReturn } from "react-hook-form";
-import { vi } from "vitest";
 import { z } from "zod";
 import {
 	createSchemaValidator,

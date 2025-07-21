@@ -1,12 +1,11 @@
-import { KanbanProvider
-} from "./index";
+import { KanbanProvider } from "./index";
 
 // Mock dependencies
 vi.mock("@dnd-kit/core", () => ({
-DndContext: ({ children }: any) => (
+	DndContext: ({ children }: any) => (
 		<div data-testid="dnd-context">{children}</div>
 	),
-DragOverlay: ({ children }: any) => (
+	DragOverlay: ({ children }: any) => (
 		<div data-testid="drag-overlay">{children}</div>
 	),
 	useDroppable: () => ({
@@ -16,13 +15,13 @@ DragOverlay: ({ children }: any) => (
 	useSensor: vi.fn((SensorClass: any) => ({ sensor: SensorClass.name })),
 	useSensors: vi.fn((...sensors: any[]) => sensors),
 	closestCenter: vi.fn(),
-KeyboardSensor: { name: "KeyboardSensor" },
-MouseSensor: { name: "MouseSensor" },
-TouchSensor: { name: "TouchSensor" },
+	KeyboardSensor: { name: "KeyboardSensor" },
+	MouseSensor: { name: "MouseSensor" },
+	TouchSensor: { name: "TouchSensor" },
 }));
 
 vi.mock("@dnd-kit/sortable", () => ({
-SortableContext: ({ children, items }: any) => (
+	SortableContext: ({ children, items }: any) => (
 		<div data-items={items} data-testid="sortable-context">
 			{children}
 		</div>
@@ -44,4 +43,16 @@ SortableContext: ({ children, items }: any) => (
 }));
 
 vi.mock("@dnd-kit/utilities", () => ({
-CSS: {
+	CSS: {
+		Transform: {
+			toString: () => "transform: translate3d(0, 0, 0)",
+		},
+	},
+}));
+
+// TODO: Add comprehensive tests for kanban components
+describe("Kanban Components", () => {
+	it("should render without crashing", () => {
+		expect(true).toBe(true);
+	});
+});

@@ -1,20 +1,23 @@
 // Main visualization engine
 
-export type { Agent, Task } from "../../hooks/ambient-agents/use-ambient-agent-data";
+export type {
+	Agent,
+	Task,
+} from "../../hooks/ambient-agents/use-ambient-agent-data";
 // Hooks
 export { useAmbientAgentData } from "../../hooks/ambient-agents/use-ambient-agent-data";
 export type { VisualizationState } from "../../hooks/ambient-agents/use-visualization-state";
 export { useVisualizationState } from "../../hooks/ambient-agents/use-visualization-state";
 export type {
 	UseWebSocketOptions,
-	UseWebSocketReturn
+	UseWebSocketReturn,
 } from "../../hooks/ambient-agents/use-websocket";
 export { useWebSocket } from "../../hooks/ambient-agents/use-websocket";
 export type { LayoutOptions } from "../../lib/ambient-agents/layout-algorithms";
 // Utilities
 export {
 	applyLayoutAlgorithm,
-	layoutAlgorithms
+	layoutAlgorithms,
 } from "../../lib/ambient-agents/layout-algorithms";
 export type { VisualizationControlsProps } from "./controls/visualization-controls";
 // Control components
@@ -28,7 +31,7 @@ export type { DependencyEdgeData } from "./edges/dependency-edge";
 export { DependencyEdge } from "./edges/dependency-edge";
 export type {
 	PerformanceMetrics,
-	PerformanceMonitorProps
+	PerformanceMonitorProps,
 } from "./monitors/performance-monitor";
 // Monitor components
 export { PerformanceMonitor } from "./monitors/performance-monitor";
@@ -47,5 +50,5 @@ export { AgentDetailPanel } from "./panels/agent-detail-panel";
 export type { VisualizationEngineProps } from "./visualization-engine";
 export {
 	VisualizationEngine,
-	VisualizationEngineWithProvider
+	VisualizationEngineWithProvider,
 } from "./visualization-engine";

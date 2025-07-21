@@ -4,6 +4,7 @@
  * Real-time monitoring, metrics collection, and performance tracking
  */
 
+import { EventEmitter } from "events";
 import { WorkflowMetrics } from "./types";
 
 // Monitoring configuration

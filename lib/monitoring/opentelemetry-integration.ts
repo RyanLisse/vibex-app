@@ -3,20 +3,18 @@
  *
  * Integrates the monitoring system with existing OpenTelemetry infrastructure
  */
-import { SpanStatusCode,
-	type Tracer,
-	trace
-} from "@opentelemetry/api";
-import { SEMRESATTRS_SERVICE_VERSION
-} from "@opentelemetry/semantic-conventions";
+import { SpanStatusCode, type Tracer, trace } from "@opentelemetry/api";
+import { SEMRESATTRS_SERVICE_VERSION } from "@opentelemetry/semantic-conventions";
 import { notificationManager } from "./notifications";
+import {
 	metrics as prometheusMetrics,
 	recordAgentExecution,
 	recordDatabaseQuery,
-	recordHttpRequest
+	recordHttpRequest,
 } from "./prometheus";
-	import { dbObservabilityMetrics,
-	otelMetrics as otelExportMetrics
+import {
+	dbObservabilityMetrics,
+	otelMetrics as otelExportMetrics,
 } from "./prometheus/custom-metrics";
 
 // Custom span processor for monitoring integration
@@ -105,7 +103,21 @@ class MonitoringSpanProcessor extends BatchSpanProcessor {
 
 // Custom metric exporter for Prometheus integration
 class PrometheusMetricExporter extends ConsoleMetricExporter {
-	export(metrics: any, resultCallback: (result: any) => void): void {
+	export(
+		metrics: {
+			resourceMetrics: Array<{
+				scopeMetrics: Array<{
+					metrics: Array<{
+						name: string;
+						description?: string;
+						unit?: string;
+						data?: unknown;
+					}>;
+				}>;
+			}>;
+		},
+		resultCallback: (result: { code: number; error?: Error }) => void,
+	): void {
 		// Process metrics and update Prometheus
 		for (const metric of metrics.resourceMetrics) {
 			for (const scopeMetric of metric.scopeMetrics) {
@@ -405,5 +417,5 @@ export async function traceAgentExecution<T>(
 }
 
 // Export utilities
-export { trace, context, SpanKind, SpanStatusCode };
+export { trace, type context, type SpanKind, SpanStatusCode };
 export const getTracer = (name: string) => new MonitoringTracer(name);

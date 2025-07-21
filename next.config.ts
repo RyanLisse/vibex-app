@@ -1,12 +1,74 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
+// Bundle analyzer for performance optimization
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+	enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig: NextConfig = {
 	// Enable React strict mode for better development experience
 	reactStrictMode: true,
 
-	// Webpack configuration to exclude Node.js modules from client bundles
-	webpack: (config, { isServer }) => {
+	// Performance optimizations
+	compiler: {
+		removeConsole:
+			process.env.NODE_ENV === "production"
+				? {
+						exclude: ["error", "warn"],
+					}
+				: false,
+	},
+
+	// Experimental performance features
+	experimental: {
+		optimizeCss: true,
+		optimizePackageImports: [
+			"@radix-ui/react-icons",
+			"lucide-react",
+			"@tanstack/react-query",
+		],
+	},
+
+	// Bundle splitting configuration
+	webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+		// Existing webpack config
+		if (!isServer) {
+			// Performance optimizations for client bundles
+			config.optimization = {
+				...config.optimization,
+				splitChunks: {
+					...config.optimization.splitChunks,
+					chunks: "all",
+					cacheGroups: {
+						...config.optimization.splitChunks?.cacheGroups,
+						vendor: {
+							test: /[\\/]node_modules[\\/]/,
+							name: "vendors",
+							chunks: "all",
+							enforce: true,
+							priority: 20,
+						},
+						react: {
+							test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+							name: "react",
+							chunks: "all",
+							enforce: true,
+							priority: 30,
+						},
+						ui: {
+							test: /[\\/]node_modules[\\/](@radix-ui|lucide-react)[\\/]/,
+							name: "ui",
+							chunks: "all",
+							enforce: true,
+							priority: 25,
+						},
+					},
+				},
+			};
+		}
+
+		// Original Node.js fallback configuration
 		if (!isServer) {
 			// Exclude Node.js modules from client-side bundles
 			config.resolve.fallback = {
@@ -48,9 +110,9 @@ const nextConfig: NextConfig = {
 			// Exclude server-side packages from client bundles
 			config.externals = config.externals || [];
 			config.externals.push({
-				ioredis: 'ioredis',
-				redis: 'redis',
-				'@redis/client': '@redis/client',
+				ioredis: "ioredis",
+				redis: "redis",
+				"@redis/client": "@redis/client",
 			});
 		}
 		return config;

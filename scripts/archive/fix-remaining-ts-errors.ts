@@ -1,7 +1,9 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
-readFile, writeFile } from "fs/promises";
+
+import { readFile, writeFile } from "fs/promises";
+
 import path from "path";
 
 interface TypeScriptError {
@@ -42,7 +44,7 @@ const errorFixers: Record<
 	) => void
 > = {
 	// Property does not exist on type
-TS2339: (file, line, content, error) => {
+	TS2339: (file, line, content, error) => {
 		const lineContent = content[line - 1];
 
 		// Fix missing properties on objects
@@ -60,7 +62,7 @@ TS2339: (file, line, content, error) => {
 	},
 
 	// Expected X arguments, but got Y
-TS2554: (file, line, content, error) => {
+	TS2554: (file, line, content, error) => {
 		const lineContent = content[line - 1];
 
 		// Fix createApiErrorResponse calls
@@ -87,7 +89,7 @@ TS2554: (file, line, content, error) => {
 	},
 
 	// Argument of type X is not assignable to parameter of type Y
-TS2345: (file, line, content, error) => {
+	TS2345: (file, line, content, error) => {
 		const lineContent = content[line - 1];
 
 		// Fix string being passed instead of ValidationError[]
@@ -103,7 +105,7 @@ TS2345: (file, line, content, error) => {
 	},
 
 	// Object literal may only specify known properties
-TS2353: (file, line, content, error) => {
+	TS2353: (file, line, content, error) => {
 		const lineContent = content[line - 1];
 
 		// Remove unknown properties from Error objects

@@ -1,11 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GitHubAPI } from "./github-api";
 
 describe.skip("GitHubAPI", () => {
 	let api: GitHubAPI;
 	const mockToken = "github-token-123";
-	let fetchMock: ReturnType<typeof mock>;
+	let fetchMock: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
 		api = new GitHubAPI(mockToken);

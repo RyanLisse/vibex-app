@@ -18,7 +18,7 @@ async function finalTestFixes() {
 	for (const file of testFiles) {
 		try {
 			let content = await readFile(file, "utf-8");
-			let updated = false;
+			const updated = false;
 
 			// Fix all @/ imports in test files to use relative paths
 			const fileDir = path.dirname(file);

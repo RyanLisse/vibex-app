@@ -1,4 +1,18 @@
-import { DialogTrigger } from "./dialog";
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogOverlay,
+	DialogPortal,
+	DialogTitle,
+	DialogTrigger,
+} from "./dialog";
 
 // Mock Radix UI components
 vi.mock("@radix-ui/react-dialog", () => ({

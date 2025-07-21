@@ -5,19 +5,19 @@
  * and OpenTelemetry integration.
  */
 
-import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
+import { context, SpanKind, trace } from "@opentelemetry/api";
 import { ulid } from "ulid";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../../db/config";
 import { observabilityEvents as observabilityEventsTable } from "../../../db/schema";
 import {
+	type EventMetadata,
+	type EventSeverity,
 	ObservabilityEventCollector,
 	ObservabilityEventQuery,
-	observabilityEvents,
 	type ObservabilityEventType,
-	type EventSeverity,
-	type EventMetadata,
+	observabilityEvents,
 } from "../../../lib/observability/events";
-import { trace, SpanKind, context } from "@opentelemetry/api";
 
 // Mock OpenTelemetry
 vi.mock("@opentelemetry/api", () => ({

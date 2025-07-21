@@ -1,8 +1,7 @@
-	type DefaultOptions,
-import { QueryClient
-} from "@tanstack/react-query";
+import { type DefaultOptions, QueryClient } from "@tanstack/react-query";
+import {
 	type WASMOptimizationConfig,
-	import { wasmDetector
+	wasmDetector,
 } from "@/lib/wasm/detection";
 
 /**
@@ -119,7 +118,7 @@ export function createOptimizedQueryClient(): QueryClient {
 					"Query success:",
 					query.queryKey,
 					"Data size:",
-JSON.stringify(data).length,
+					JSON.stringify(data).length,
 				);
 			}
 		},

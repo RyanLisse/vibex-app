@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
-import type { User } from "@/types/user";
 import { getLogger } from "@/lib/logging";
+import type { User } from "@/types/user";
 
 // Get Winston logger for instrumentation
 const logger = getLogger("sentry-instrumentation");

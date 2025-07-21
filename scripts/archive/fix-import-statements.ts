@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { readdir, readFile, writeFile } from "fs/promises";
-join } from "path";
+import { join } from "path";
 
 /**
  * Fix broken import statements where the import keyword is missing
@@ -32,7 +32,7 @@ async function fixBrokenImports(content: string): Promise<string> {
 					j--;
 					continue;
 				}
-				if (prevLine.match(/[\{\};\(\)]/) && !prevLine.includes(",")) {
+				if (prevLine.match(/[{};()]/) && !prevLine.includes(",")) {
 					// Found a statement boundary without import
 					break;
 				}

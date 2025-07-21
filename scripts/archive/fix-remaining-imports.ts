@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-dirname, join } from "path";
+
+import { dirname, join } from "path";
 
 const fixes = [];
 
@@ -142,10 +143,7 @@ for (const file of files) {
 		}
 
 		// Fix any default imports from @xyflow/react
-		if (
-			content.includes("from '@xyflow/react'") &&
-			content.includes("")
-		) {
+		if (content.includes("from '@xyflow/react'") && content.includes("")) {
 			// Make sure ReactFlow is imported as named export
 			content = content.replace(
 				/import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,

@@ -11,15 +11,18 @@ export * from "./replay-engine";
 
 import { observability } from "@/lib/observability";
 // Import main components
+import {
 	type ExecutionSnapshot,
 	type ExecutionState,
 	type SnapshotType,
-	snapshotManager
+	snapshotManager,
 } from "./execution-snapshots";
+import {
 	type ReplaySession,
 	type ReplaySpeed,
-import { ReplayState,
-	replayEngine } from "./replay-engine";
+	ReplayState,
+	replayEngine,
+} from "./replay-engine";
 
 // Time-travel system manager
 export class TimeTravelSystem {
@@ -30,7 +33,7 @@ export class TimeTravelSystem {
 
 	static getInstance(): TimeTravelSystem {
 		if (!TimeTravelSystem.instance) {
-TimeTravelSystem.instance = new TimeTravelSystem();
+			TimeTravelSystem.instance = new TimeTravelSystem();
 		}
 		return TimeTravelSystem.instance;
 	}
@@ -352,7 +355,7 @@ export const timeTravel = {
 		tags?: string[],
 		isCheckpoint?: boolean,
 	) =>
-TimeTravelSystem.getInstance().captureSnapshot(
+		TimeTravelSystem.getInstance().captureSnapshot(
 			executionId,
 			type,
 			stepNumber,
@@ -368,3 +371,10 @@ TimeTravelSystem.getInstance().captureSnapshot(
 		state: ExecutionState,
 		description?: string,
 	) =>
+		TimeTravelSystem.getInstance().createCheckpoint(
+			executionId,
+			stepNumber,
+			state,
+			description,
+		),
+};

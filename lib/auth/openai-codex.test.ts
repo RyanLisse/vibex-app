@@ -6,8 +6,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { vi } from "vitest";
 import {
 	exchangeCodexToken,
 	generateCodexAuthUrl,

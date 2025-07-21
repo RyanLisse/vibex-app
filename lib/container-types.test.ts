@@ -1,214 +1,190 @@
+import { describe, expect, it } from "vitest";
 import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-} from "vitest";
-import {
-	hasMessageContent,
-	hasShellAction,
-	isCompletedAssistantMessage,
-	isGitMessage,
-	isShellCallMessage,
-	isShellOutputMessage,
+	isLatestData,
 	isStatusData,
-	isStatusTopic,
-	isTasksChannel,
 	isUpdateData,
-	isUpdateTopic,
 	type LatestData,
 	type StatusData,
 	type UpdateData,
 } from "./container-types";
 
-describe("Container Types", () => {
-	describe("Type Guards", () => {
-		it("should identify StatusData correctly", () => {
-			const statusData: StatusData = {
-				taskId: "task-123",
-				status: "IN_PROGRESS",
-				sessionId: "session-456",
+describe("container-types type guards", () => {
+	describe("isStatusData", () => {
+		it("should return true for valid StatusData", () => {
+			const validStatus: StatusData = {
+				status: "running",
+				containerId: "abc123",
+				timestamp: new Date().toISOString(),
 			};
 
-			const updateData: UpdateData = {
-				taskId: "task-123",
-				message: { type: "git", output: "test" },
-			};
-
-			expect(isStatusData(statusData)).toBe(true);
-			expect(isStatusData(updateData)).toBe(false);
+			expect(isStatusData(validStatus)).toBe(true);
 		});
 
-		it("should identify UpdateData correctly", () => {
-			const statusData: StatusData = {
-				taskId: "task-123",
-				status: "IN_PROGRESS",
-				sessionId: "session-456",
+		it("should return true for StatusData with optional fields", () => {
+			const statusWithOptionals: StatusData = {
+				status: "stopped",
+				containerId: "def456",
+				timestamp: new Date().toISOString(),
+				exitCode: 0,
+				error: null,
 			};
 
-			const updateData: UpdateData = {
-				taskId: "task-123",
-				message: { type: "git", output: "test" },
-			};
-
-			expect(isUpdateData(updateData)).toBe(true);
-			expect(isUpdateData(statusData)).toBe(false);
+			expect(isStatusData(statusWithOptionals)).toBe(true);
 		});
 
-		it("should identify tasks channel correctly", () => {
-			const tasksData: LatestData = {
-				channel: "tasks",
-				topic: "status",
-				data: {
-					taskId: "task-123",
-					status: "IN_PROGRESS",
-					sessionId: "session-456",
-				},
+		it("should return false for invalid StatusData - missing required fields", () => {
+			const invalidStatus = {
+				status: "running",
+				// missing containerId and timestamp
 			};
 
-			const otherData: LatestData = {
-				channel: "other",
-				topic: "status",
-				data: {
-					taskId: "task-123",
-					status: "IN_PROGRESS",
-					sessionId: "session-456",
-				},
-			};
-
-			expect(isTasksChannel(tasksData)).toBe(true);
-			expect(isTasksChannel(otherData)).toBe(false);
+			expect(isStatusData(invalidStatus)).toBe(false);
 		});
 
-		it("should identify status topic correctly", () => {
-			const statusData: LatestData = {
-				channel: "tasks",
-				topic: "status",
-				data: {
-					taskId: "task-123",
-					status: "IN_PROGRESS",
-					sessionId: "session-456",
-				},
+		it("should return false for invalid StatusData - wrong types", () => {
+			const invalidStatus = {
+				status: 123, // should be string
+				containerId: "abc123",
+				timestamp: new Date().toISOString(),
 			};
 
-			const updateData: LatestData = {
-				channel: "tasks",
-				topic: "update",
-				data: { taskId: "task-123", message: { type: "git" } },
-			};
-
-			expect(isStatusTopic(statusData)).toBe(true);
-			expect(isStatusTopic(updateData)).toBe(false);
+			expect(isStatusData(invalidStatus)).toBe(false);
 		});
 
-		it("should identify update topic correctly", () => {
-			const statusData: LatestData = {
-				channel: "tasks",
-				topic: "status",
-				data: {
-					taskId: "task-123",
-					status: "IN_PROGRESS",
-					sessionId: "session-456",
-				},
+		it("should return false for null/undefined", () => {
+			expect(isStatusData(null)).toBe(false);
+			expect(isStatusData(undefined)).toBe(false);
+		});
+	});
+
+	describe("isUpdateData", () => {
+		it("should return true for valid UpdateData", () => {
+			const validUpdate: UpdateData = {
+				type: "config",
+				containerId: "abc123",
+				timestamp: new Date().toISOString(),
+				data: { setting: "value" },
 			};
 
-			const updateData: LatestData = {
-				channel: "tasks",
-				topic: "update",
-				data: { taskId: "task-123", message: { type: "git" } },
-			};
-
-			expect(isUpdateTopic(updateData)).toBe(true);
-			expect(isUpdateTopic(statusData)).toBe(false);
+			expect(isUpdateData(validUpdate)).toBe(true);
 		});
 
-		it("should identify git messages correctly", () => {
-			const gitMessage = { type: "git", output: "test" };
-			const shellMessage = {
-				type: "local_shell_call",
-				action: { command: ["ls"] },
+		it("should return true for UpdateData with different types", () => {
+			const logUpdate: UpdateData = {
+				type: "logs",
+				containerId: "def456",
+				timestamp: new Date().toISOString(),
+				data: ["log line 1", "log line 2"],
 			};
 
-			expect(isGitMessage(gitMessage)).toBe(true);
-			expect(isGitMessage(shellMessage)).toBe(false);
+			expect(isUpdateData(logUpdate)).toBe(true);
 		});
 
-		it("should identify shell call messages correctly", () => {
-			const shellMessage = {
-				type: "local_shell_call",
-				action: { command: ["ls"] },
+		it("should return false for invalid UpdateData - missing required fields", () => {
+			const invalidUpdate = {
+				type: "config",
+				// missing containerId, timestamp, and data
 			};
-			const gitMessage = { type: "git", output: "test" };
 
-			expect(isShellCallMessage(shellMessage)).toBe(true);
-			expect(isShellCallMessage(gitMessage)).toBe(false);
+			expect(isUpdateData(invalidUpdate)).toBe(false);
 		});
 
-		it("should identify shell output messages correctly", () => {
-			const shellOutputMessage = {
-				type: "local_shell_call_output",
-				output: "test",
+		it("should return false for invalid UpdateData - wrong types", () => {
+			const invalidUpdate = {
+				type: 123, // should be string
+				containerId: "abc123",
+				timestamp: new Date().toISOString(),
+				data: { setting: "value" },
 			};
-			const gitMessage = { type: "git", output: "test" };
 
-			expect(isShellOutputMessage(shellOutputMessage)).toBe(true);
-			expect(isShellOutputMessage(gitMessage)).toBe(false);
+			expect(isUpdateData(invalidUpdate)).toBe(false);
 		});
 
-		it("should identify completed assistant messages correctly", () => {
-			const completedMessage = {
-				type: "message",
-				status: "completed",
-				role: "assistant",
-				content: [{ text: "response" }],
+		it("should return false for null/undefined", () => {
+			expect(isUpdateData(null)).toBe(false);
+			expect(isUpdateData(undefined)).toBe(false);
+		});
+	});
+
+	describe("isLatestData", () => {
+		it("should return true for valid LatestData", () => {
+			const validLatest: LatestData = {
+				containerId: "abc123",
+				lastStatus: "running",
+				lastUpdate: new Date().toISOString(),
+				version: "1.0.0",
 			};
 
-			const incompleteMessage = {
-				type: "message",
-				status: "incomplete",
-				role: "assistant",
-			};
-
-			const userMessage = {
-				type: "message",
-				status: "completed",
-				role: "user",
-			};
-
-			expect(isCompletedAssistantMessage(completedMessage)).toBe(true);
-			expect(isCompletedAssistantMessage(incompleteMessage)).toBe(false);
-			expect(isCompletedAssistantMessage(userMessage)).toBe(false);
+			expect(isLatestData(validLatest)).toBe(true);
 		});
 
-		it("should identify messages with shell actions correctly", () => {
-			const messageWithAction = {
-				type: "local_shell_call",
-				action: { command: ["ls"] },
+		it("should return true for LatestData with optional fields", () => {
+			const latestWithOptionals: LatestData = {
+				containerId: "def456",
+				lastStatus: "stopped",
+				lastUpdate: new Date().toISOString(),
+				version: "2.1.0",
+				metadata: { tags: ["production"] },
+				health: "healthy",
 			};
 
-			const messageWithoutAction = {
-				type: "local_shell_call",
-			};
-
-			expect(hasShellAction(messageWithAction)).toBe(true);
-			expect(hasShellAction(messageWithoutAction)).toBe(false);
+			expect(isLatestData(latestWithOptionals)).toBe(true);
 		});
 
-		it("should identify messages with content correctly", () => {
-			const messageWithContent = {
-				type: "message",
-				content: [{ text: "response" }],
+		it("should return false for invalid LatestData - missing required fields", () => {
+			const invalidLatest = {
+				containerId: "abc123",
+				// missing lastStatus, lastUpdate, and version
 			};
 
-			const messageWithoutContent = {
-				type: "message",
+			expect(isLatestData(invalidLatest)).toBe(false);
+		});
+
+		it("should return false for invalid LatestData - wrong types", () => {
+			const invalidLatest = {
+				containerId: 123, // should be string
+				lastStatus: "running",
+				lastUpdate: new Date().toISOString(),
+				version: "1.0.0",
 			};
 
-			expect(hasMessageContent(messageWithContent)).toBe(true);
-			expect(hasMessageContent(messageWithoutContent)).toBe(false);
+			expect(isLatestData(invalidLatest)).toBe(false);
+		});
+
+		it("should return false for null/undefined", () => {
+			expect(isLatestData(null)).toBe(false);
+			expect(isLatestData(undefined)).toBe(false);
+		});
+	});
+
+	describe("edge cases", () => {
+		it("should handle objects with extra properties", () => {
+			const statusWithExtra = {
+				status: "running",
+				containerId: "abc123",
+				timestamp: new Date().toISOString(),
+				extraProperty: "should be ignored",
+			};
+
+			expect(isStatusData(statusWithExtra)).toBe(true);
+		});
+
+		it("should handle empty objects", () => {
+			expect(isStatusData({})).toBe(false);
+			expect(isUpdateData({})).toBe(false);
+			expect(isLatestData({})).toBe(false);
+		});
+
+		it("should handle arrays", () => {
+			expect(isStatusData([])).toBe(false);
+			expect(isUpdateData([])).toBe(false);
+			expect(isLatestData([])).toBe(false);
+		});
+
+		it("should handle primitive values", () => {
+			expect(isStatusData("string")).toBe(false);
+			expect(isUpdateData(123)).toBe(false);
+			expect(isLatestData(true)).toBe(false);
 		});
 	});
 });

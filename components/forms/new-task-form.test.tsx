@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { vi } from "vitest";
+import React from "react";
+import { mocked, vi } from "vitest";
 import NewTaskForm from "./new-task-form";
 
 // Mock functions at the top level

@@ -7,7 +7,10 @@
 
 import { z } from "zod";
 import { BaseCRUDService, type ServiceContext } from "@/lib/api/base-service";
-import { CreateUserSchema, UpdateUserSchema } from "@/src/schemas/api-routes";
+import type {
+	CreateUserSchema,
+	UpdateUserSchema,
+} from "@/src/schemas/api-routes";
 
 // Query schemas
 export const GetUsersQuerySchema = z.object({

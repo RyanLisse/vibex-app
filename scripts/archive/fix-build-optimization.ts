@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-join } from "path";
+import { join } from "path";
 
 // Create a next.config.js with optimizations for build issues
 const nextConfigPath = join(process.cwd(), "next.config.js");

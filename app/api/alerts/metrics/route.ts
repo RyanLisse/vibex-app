@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 import { type NextRequest, NextResponse } from "next/server";
 import { getAlertService } from "@/lib/alerts";
-import { CriticalErrorType } from "@/lib/alerts/types";
+import type { CriticalErrorType } from "@/lib/alerts/types";
 import { getLogger } from "@/lib/logging/safe-wrapper";
 
 const logger = getLogger("alert-metrics-api");

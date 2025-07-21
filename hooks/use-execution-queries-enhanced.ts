@@ -1,10 +1,10 @@
 "use client";
 
-import { ObservabilityEvent
-} from "@/db/schema";
+import type { ObservabilityEvent } from "@/db/schema";
 import { invalidateQueries, mutationKeys, queryKeys } from "@/lib/query/config";
+import {
 	useEnhancedMutation,
-	useEnhancedQuery
+	useEnhancedQuery,
 } from "./use-enhanced-query-new";
 
 /**

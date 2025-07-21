@@ -5,7 +5,7 @@
  * for memory storage, retrieval, search, context management, and knowledge sharing.
  */
 
-import { UpdateMemoryInput } from "./types";
+import type { UpdateMemoryInput } from "./types";
 
 /**
  * Agent Memory System

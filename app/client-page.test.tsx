@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import ClientPage from "./client-page";
 
 // Mock the imported components
@@ -75,9 +76,7 @@ describe("ClientPage", () => {
 	});
 
 	it("should render without any console errors", () => {
-		const consoleSpy = mock
-			.spyOn(console, "error")
-			.mockImplementation(() => {});
+		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		render(<ClientPage />);
 

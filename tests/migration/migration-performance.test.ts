@@ -5,8 +5,8 @@
  * load conditions, data sizes, and concurrent operations.
  */
 
+import { describe, expect, it } from "vitest";
 import { MigrationConfig } from "../../lib/migration/types";
-import { describe, it, expect } from "vitest";
 
 // Performance test configuration
 const PERFORMANCE_THRESHOLDS = {

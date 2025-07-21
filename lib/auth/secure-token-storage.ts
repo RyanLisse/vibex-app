@@ -5,11 +5,11 @@
  * Implements proper encryption at rest and secure session management
  */
 
-import { z } from "zod";
 import crypto from "node:crypto";
+import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "@/db/config";
 import { authTokens } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
 import { observabilityService } from "@/lib/observability";
 
 // Token schemas
@@ -227,10 +227,7 @@ export class SecureTokenStorage {
 					if (validated.success) {
 						tokens[record.providerId] = validated.data;
 					}
-				} catch {
-					// Skip invalid tokens
-					continue;
-				}
+				} catch {}
 			}
 
 			return tokens;

@@ -6,8 +6,26 @@
  * Interactive timeline for time-travel debugging with execution snapshots,
  * step-by-step replay, and diff visualization capabilities.
  */
-import { Activity, Zap } from "lucide-react";
+import {
+	Activity,
+	AlertTriangle,
+	CheckCircle,
+	Clock,
+	GitCommit,
+	Pause,
+	Play,
+	SkipBack,
+	StepBack,
+	StepForward,
+	Stop,
+	XCircle,
+	Zap,
+} from "lucide-react";
 import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
 	type ExecutionSnapshot,
@@ -15,7 +33,7 @@ import {
 	type ReplaySpeed,
 	type ReplayState,
 	type SnapshotType,
-	timeTravel
+	timeTravel,
 } from "@/lib/time-travel";
 
 interface TimelineVisualizationProps {
@@ -232,7 +250,8 @@ export function TimelineVisualization({
 			<Card className={className}>
 				<CardContent className="p-6">
 					<div className="flex items-center justify-center">
-						<Activity className="mr-2 h-5 w-5 animate-spin" />Loading timeline...
+						<Activity className="mr-2 h-5 w-5 animate-spin" />
+						Loading timeline...
 					</div>
 				</CardContent>
 			</Card>
@@ -259,7 +278,8 @@ export function TimelineVisualization({
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<CardTitle className="flex items-center">
-							<Clock className="mr-2 h-5 w-5" />Time-Travel Debug Timeline
+							<Clock className="mr-2 h-5 w-5" />
+							Time-Travel Debug Timeline
 						</CardTitle>
 						<div className="flex items-center space-x-2">
 							<Badge variant="outline">{timelineStats.totalSteps} steps</Badge>
@@ -360,7 +380,8 @@ export function TimelineVisualization({
 									<div
 										className={`h-3 w-3 rounded-full ${SNAPSHOT_COLORS[currentSnapshot.type]}`}
 									/>
-									<span className="font-medium">Step {currentSnapshot.stepNumber}
+									<span className="font-medium">
+										Step {currentSnapshot.stepNumber}
 									</span>
 									<Badge variant="outline">{currentSnapshot.type}</Badge>
 								</div>
@@ -434,12 +455,14 @@ export function TimelineVisualization({
 							<div className="flex items-center space-x-4">
 								<div className="flex-1">
 									<label className="font-medium text-sm">Compare From:</label>
-									<div className="mt-1 rounded bg-gray-50 p-2">Step {compareSnapshot.stepNumber} - {compareSnapshot.type}
+									<div className="mt-1 rounded bg-gray-50 p-2">
+										Step {compareSnapshot.stepNumber} - {compareSnapshot.type}
 									</div>
 								</div>
 								<div className="flex-1">
 									<label className="font-medium text-sm">Compare To:</label>
-									<div className="mt-1 rounded bg-gray-50 p-2">Step {currentSnapshot.stepNumber} - {currentSnapshot.type}
+									<div className="mt-1 rounded bg-gray-50 p-2">
+										Step {currentSnapshot.stepNumber} - {currentSnapshot.type}
 									</div>
 								</div>
 							</div>
@@ -453,7 +476,8 @@ export function TimelineVisualization({
 											<div>State Changes: {diff.summary.stateChanges}</div>
 											<div>Memory Changes: {diff.summary.memoryChanges}</div>
 											<div>Output Changes: {diff.summary.outputChanges}</div>
-											<div>Performance Impact:{" "}
+											<div>
+												Performance Impact:{" "}
 												{Object.keys(diff.summary.performanceChanges).length}
 											</div>
 										</div>
@@ -491,4 +515,4 @@ export function TimelineVisualization({
 			</div>
 		</div>
 	);
-};
+}

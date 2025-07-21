@@ -1,14 +1,28 @@
+import { CheckIcon, CopyIcon } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import type React from "react";
+import { useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
 	oneDark,
-	oneLight
+	oneLight,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-import { TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableFooter,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 
 type CodeComponentProps = React.ComponentPropsWithoutRef<"code"> & {
 	inline?: boolean;
@@ -80,7 +94,7 @@ export const CodeComponent: React.FC<CodeComponentProps> = ({
 								overflow: "visible",
 							}}
 							language={match[1]}
-PreTag="div"
+							PreTag="div"
 							style={theme === "dark" ? oneDark : oneLight}
 							wrapLongLines={false}
 						>

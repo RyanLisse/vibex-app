@@ -344,6 +344,310 @@ vi.mock("../../../db/migrations/migration-runner", () => {
 	};
 });
 
+// Mock Inngest client with comprehensive functionality
+vi.mock("inngest", () => {
+	const createMockInngest = (config?: any) => {
+		const mockFn = vi.fn().mockImplementation((config, handler) => ({
+			id: config?.id || "test-function",
+			name: config?.name || "Test Function",
+			handler,
+		}));
+
+		const mockInngest = {
+			createFunction: mockFn,
+			send: vi.fn().mockResolvedValue({ ids: ["test-id"] }),
+			on: vi.fn().mockReturnValue(mockFn),
+		};
+
+		return mockInngest;
+	};
+
+	return {
+		Inngest: vi.fn().mockImplementation(createMockInngest),
+		InngestCommHandler: vi.fn().mockImplementation(() => ({
+			register: vi.fn(),
+			createHandler: vi.fn().mockReturnValue(async () => new Response("OK")),
+		})),
+		NonRetriableError: vi.fn().mockImplementation((message) => {
+			const error = new Error(message);
+			error.name = "NonRetriableError";
+			return error;
+		}),
+	};
+});
+
+// Mock the lib/inngest module specifically
+vi.mock("../../lib/inngest", () => ({
+	inngest: {
+		createFunction: vi.fn(),
+		send: vi.fn().mockResolvedValue({ ids: ["test-id"] }),
+		on: vi.fn(),
+	},
+	inngestConfig: {
+		id: "test-app",
+		name: "Test Application",
+		env: "test",
+	},
+}));
+
+// Mock src/shared/schemas/validation module first
+vi.mock("../../src/shared/schemas/validation", () => {
+	const mockEnv = {
+		NODE_ENV: "test" as const,
+		DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+		NEXT_PUBLIC_API_URL: "http://localhost:3000",
+		INNGEST_SIGNING_KEY: "test-key",
+		INNGEST_EVENT_KEY: "test-event-key",
+		OPENAI_API_KEY: "test-openai-key",
+		AUTH_SECRET: "test-auth-secret",
+		ELECTRIC_URL: "http://localhost:5133",
+		ELECTRIC_AUTH_TOKEN: "test-token",
+		LETTA_API_KEY: "test-letta-key",
+	};
+
+	return {
+		validateEnv: vi.fn().mockReturnValue(mockEnv),
+		validateDevelopmentEnv: vi.fn().mockReturnValue(mockEnv),
+		validateProductionEnv: vi.fn().mockReturnValue(mockEnv),
+		validateTestEnv: vi.fn().mockReturnValue(mockEnv),
+		getEnvSummary: vi.fn().mockReturnValue({
+			environment: "test",
+			databaseConnected: true,
+			services: { redis: false, inngest: true },
+			security: "Basic security only",
+		}),
+		EnvSchema: {
+			parse: vi.fn().mockReturnValue(mockEnv),
+			safeParse: vi.fn().mockReturnValue({ success: true, data: mockEnv }),
+		},
+	};
+});
+
+// Mock lib/env module
+vi.mock("../../lib/env", () => ({
+	env: {
+		NODE_ENV: "test",
+		DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+		NEXT_PUBLIC_API_URL: "http://localhost:3000",
+		INNGEST_SIGNING_KEY: "test-key",
+		INNGEST_EVENT_KEY: "test-event-key",
+		OPENAI_API_KEY: "test-openai-key",
+		AUTH_SECRET: "test-auth-secret",
+		ELECTRIC_URL: "http://localhost:5133",
+		ELECTRIC_AUTH_TOKEN: "test-token",
+		LETTA_API_KEY: "test-letta-key",
+	},
+	apiKeys: {
+		letta: { apiKey: "test-letta-key", baseUrl: "", projectId: "" },
+		openai: { apiKey: "test-openai-key", publicKey: "" },
+		google: { apiKey: "" },
+		anthropic: { apiKey: "" },
+	},
+	database: {
+		url: "postgresql://test:test@localhost:5432/test",
+		electric: { url: "http://localhost:5133", authToken: "test-token" },
+		redis: { url: "", host: "", port: 6379 },
+	},
+	auth: {
+		secret: "test-auth-secret",
+		nextAuthSecret: "",
+		jwt: { secret: "", expiresIn: "1h" },
+	},
+	isProduction: vi.fn().mockReturnValue(false),
+	isDevelopment: vi.fn().mockReturnValue(false),
+	isTest: vi.fn().mockReturnValue(true),
+}));
+
+// Mock Electric client
+vi.mock("../../lib/electric", () => ({
+	electric: {
+		connect: vi.fn().mockResolvedValue(undefined),
+		disconnect: vi.fn().mockResolvedValue(undefined),
+		isConnected: vi.fn().mockReturnValue(true),
+		sync: vi.fn().mockResolvedValue(undefined),
+		db: createMockDb(),
+	},
+	ElectricProvider: vi.fn(({ children }) => children),
+	useElectric: vi.fn(() => ({
+		isConnected: true,
+		connect: vi.fn(),
+		disconnect: vi.fn(),
+		sync: vi.fn(),
+	})),
+}));
+
+// Mock Redis-related services that might not be fully implemented
+vi.mock("../../lib/redis/metrics-service", () => ({
+	MetricsService: vi.fn().mockImplementation(() => ({
+		getInstance: vi.fn().mockReturnThis(),
+		incrementCounter: vi.fn().mockResolvedValue(undefined),
+		getCounter: vi.fn().mockResolvedValue(0),
+		cleanup: vi.fn().mockResolvedValue(undefined),
+	})),
+}));
+
+// Mock Redis client manager with enhanced Redis client methods
+vi.mock("../../lib/redis/redis-client", () => ({
+	RedisClientManager: {
+		getInstance: vi.fn().mockReturnValue({
+			initialize: vi.fn().mockResolvedValue(undefined),
+			shutdown: vi.fn().mockResolvedValue(undefined),
+			getClient: vi.fn().mockReturnValue({
+				connect: vi.fn().mockResolvedValue(undefined),
+				disconnect: vi.fn().mockResolvedValue(undefined),
+				get: vi.fn().mockResolvedValue(null),
+				set: vi.fn().mockResolvedValue("OK"),
+				del: vi.fn().mockResolvedValue(1),
+				exists: vi.fn().mockResolvedValue(0),
+				expire: vi.fn().mockResolvedValue(1),
+				ttl: vi.fn().mockResolvedValue(-1),
+				ping: vi.fn().mockResolvedValue("PONG"),
+				on: vi.fn(),
+				off: vi.fn(),
+				hset: vi.fn().mockResolvedValue(1),
+				hget: vi.fn().mockResolvedValue(null),
+				hdel: vi.fn().mockResolvedValue(1),
+				hgetall: vi.fn().mockResolvedValue({}),
+				publish: vi.fn().mockResolvedValue(0),
+				subscribe: vi.fn(),
+				unsubscribe: vi.fn(),
+				// Additional Redis client methods for comprehensive coverage
+				lpush: vi.fn().mockResolvedValue(1),
+				lpop: vi.fn().mockResolvedValue(null),
+				rpush: vi.fn().mockResolvedValue(1),
+				rpop: vi.fn().mockResolvedValue(null),
+				llen: vi.fn().mockResolvedValue(0),
+				lrange: vi.fn().mockResolvedValue([]),
+				zadd: vi.fn().mockResolvedValue(1),
+				zrange: vi.fn().mockResolvedValue([]),
+				zrem: vi.fn().mockResolvedValue(1),
+				zcard: vi.fn().mockResolvedValue(0),
+				sadd: vi.fn().mockResolvedValue(1),
+				srem: vi.fn().mockResolvedValue(1),
+				smembers: vi.fn().mockResolvedValue([]),
+				scard: vi.fn().mockResolvedValue(0),
+				incr: vi.fn().mockResolvedValue(1),
+				decr: vi.fn().mockResolvedValue(0),
+				incrby: vi.fn().mockResolvedValue(1),
+				decrby: vi.fn().mockResolvedValue(0),
+				keys: vi.fn().mockResolvedValue([]),
+				scan: vi.fn().mockResolvedValue(["0", []]),
+			}),
+			isConnected: vi.fn().mockReturnValue(true),
+			getConnectionStatus: vi.fn().mockReturnValue("connected"),
+		}),
+	},
+}));
+
+// Mock Letta client
+vi.mock("../../lib/letta/client", () => ({
+	LettaClient: vi.fn().mockImplementation(() => ({
+		createAgent: vi.fn().mockResolvedValue({ id: "test-agent" }),
+		getAgent: vi.fn().mockResolvedValue({ id: "test-agent" }),
+		sendMessage: vi.fn().mockResolvedValue({ response: "test response" }),
+	})),
+	createLettaClient: vi.fn().mockImplementation(() => ({
+		createAgent: vi.fn().mockResolvedValue({ id: "test-agent" }),
+	})),
+}));
+
+// Mock observability service and related modules
+vi.mock("../../lib/observability", () => ({
+	observability: {
+		trackAgentExecution: vi
+			.fn()
+			.mockImplementation(async (agentType, operation, fn) => {
+				return await fn();
+			}),
+		recordEvent: vi.fn(),
+		recordError: vi.fn(),
+		getTracer: vi.fn().mockReturnValue({
+			startSpan: vi.fn().mockReturnValue({
+				setAttributes: vi.fn(),
+				setStatus: vi.fn(),
+				recordException: vi.fn(),
+				end: vi.fn(),
+			}),
+		}),
+	},
+	ObservabilityService: vi.fn().mockImplementation(() => ({
+		getInstance: vi.fn().mockReturnThis(),
+		recordEvent: vi.fn(),
+		recordMetric: vi.fn(),
+		trackAgentExecution: vi
+			.fn()
+			.mockImplementation(async (agentType, operation, fn) => {
+				return await fn();
+			}),
+	})),
+}));
+
+// Mock workflow engine and related types
+vi.mock("../../lib/workflow/engine", () => ({
+	WorkflowExecutionEngine: vi.fn().mockImplementation(() => ({
+		getInstance: vi.fn().mockReturnThis(),
+		startWorkflow: vi.fn().mockResolvedValue({ id: "test-workflow" }),
+		pauseExecution: vi.fn().mockResolvedValue(undefined),
+		resumeExecution: vi.fn().mockResolvedValue(undefined),
+		cancelExecution: vi.fn().mockResolvedValue(undefined),
+		getExecution: vi.fn().mockResolvedValue(null),
+	})),
+	workflowEngine: {
+		getInstance: vi.fn().mockReturnThis(),
+		startWorkflow: vi.fn().mockResolvedValue({ id: "test-workflow" }),
+		pauseExecution: vi.fn().mockResolvedValue(undefined),
+		resumeExecution: vi.fn().mockResolvedValue(undefined),
+		cancelExecution: vi.fn().mockResolvedValue(undefined),
+		getExecution: vi.fn().mockResolvedValue(null),
+	},
+}));
+
+// Mock workflow executors
+vi.mock("../../lib/workflow/executors", () => ({
+	stepExecutorRegistry: {
+		register: vi.fn(),
+		get: vi.fn().mockReturnValue({
+			execute: vi.fn().mockResolvedValue({ status: "completed", output: {} }),
+		}),
+		registerWithStepExecution: vi.fn(),
+	},
+	ActionStepExecutor: vi.fn(),
+	ConditionStepExecutor: vi.fn(),
+	WaitStepExecutor: vi.fn(),
+}));
+
+// Mock workflow state machine
+vi.mock("../../lib/workflow/state-machine", () => ({
+	createWorkflowStateMachine: vi.fn().mockReturnValue({
+		initialize: vi.fn(),
+		transition: vi.fn().mockResolvedValue(undefined),
+	}),
+	StateValidation: {
+		isTerminal: vi.fn().mockReturnValue(false),
+	},
+}));
+
+// Mock workflow templates
+vi.mock("../../lib/workflow/templates", () => ({
+	templateRegistry: {
+		createFromTemplate: vi.fn().mockReturnValue({
+			name: "Test Workflow",
+			version: "1.0.0",
+			description: "Test workflow",
+			steps: [],
+			startStepId: "step-1",
+			variables: {},
+		}),
+	},
+	suggestTemplates: vi.fn().mockReturnValue([]),
+	TEMPLATE_CATEGORIES: {},
+}));
+
+// Mock ulid for unique IDs
+vi.mock("ulid", () => ({
+	ulid: vi.fn(() => `test-ulid-${Date.now()}`),
+}));
+
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, beforeEach } from "vitest";

@@ -1,98 +1,76 @@
 "use client";
 
 import { useState } from "react";
-import { getLogger } from "@/lib/logging";
 
 /**
  * Test component for Winston-Sentry integration
  */
 export function WinstonSentryTest() {
 	const [result, setResult] = useState<string>("");
-	const logger = getLogger("winston-sentry-test");
 
-	const testWinstonLogging = () => {
-		// Test different log levels
-		logger.debug("Debug level message from Winston", {
-			testType: "winston-sentry",
-			timestamp: new Date().toISOString(),
-		});
-
-		logger.info("Info level message from Winston", {
-			userId: "test-user-123",
-			action: "test_logging",
-			component: "WinstonSentryTest",
-		});
-
-		logger.warn("Warning level message from Winston", {
-			reason: "This is a test warning",
-			severity: "medium",
-			metadata: { source: "winston" },
-		});
-
-		logger.error(
-			"Error level message from Winston",
-			new Error("Test error from Winston"),
-			{
-				errorCode: "WINSTON_TEST_ERROR",
-				context: "Testing Winston-Sentry integration",
-			},
-		);
-
-		setResult("Logs sent through Winston to Sentry!");
-	};
-
-	const testWinstonException = () => {
+	const testWinstonLogging = async () => {
 		try {
-			throw new Error("Test exception for Winston-Sentry integration");
-		} catch (error) {
-			logger.error("Exception caught by Winston", error, {
-				handler: "testWinstonException",
-				severity: "high",
+			// Call API endpoint to test server-side logging
+			const response = await fetch("/api/test-logging", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ testType: "winston-sentry" }),
 			});
-			setResult("Exception logged through Winston to Sentry!");
+
+			const data = await response.json();
+			setResult(`Winston logging test completed: ${data.message}`);
+		} catch (error) {
+			console.error("Failed to test Winston logging:", error);
+			setResult("Failed to test Winston logging");
 		}
 	};
 
-	const testComplexLogging = () => {
-		// Create a child logger with additional context
-		const childLogger = logger.child("complex-operation");
-
-		// Log operation start
-		childLogger.info("Starting complex operation", {
-			operationId: "op-" + Date.now(),
-			steps: 3,
-		});
-
-		// Simulate steps
-		childLogger.debug("Step 1: Data validation", { status: "success" });
-		childLogger.debug("Step 2: Processing", { status: "success" });
-		childLogger.warn("Step 3: Minor issue encountered", {
-			issue: "Rate limit approaching",
-			remaining: 100,
-		});
-
-		// Log operation completion
-		childLogger.info("Complex operation completed", {
-			duration: 1500,
-			result: "success_with_warnings",
-		});
-
-		setResult("Complex operation logged through Winston!");
-	};
-
-	const testPerformanceLogging = () => {
-		const timer = logger.startTimer();
-
-		// Simulate some work
-		setTimeout(() => {
-			timer.done({
-				message: "Performance test completed",
-				operation: "data_processing",
-				recordsProcessed: 1000,
+	const testWinstonException = async () => {
+		try {
+			const response = await fetch("/api/test-logging", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ testType: "exception" }),
 			});
 
-			setResult("Performance metrics logged through Winston!");
-		}, 500);
+			const data = await response.json();
+			setResult(`Exception test completed: ${data.message}`);
+		} catch (error) {
+			console.error("Failed to test exception:", error);
+			setResult("Failed to test exception");
+		}
+	};
+
+	const testComplexLogging = async () => {
+		try {
+			const response = await fetch("/api/test-logging", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ testType: "complex" }),
+			});
+
+			const data = await response.json();
+			setResult(`Complex logging test completed: ${data.message}`);
+		} catch (error) {
+			console.error("Failed to test complex logging:", error);
+			setResult("Failed to test complex logging");
+		}
+	};
+
+	const testPerformanceLogging = async () => {
+		try {
+			const response = await fetch("/api/test-logging", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ testType: "performance" }),
+			});
+
+			const data = await response.json();
+			setResult(`Performance logging test completed: ${data.message}`);
+		} catch (error) {
+			console.error("Failed to test performance logging:", error);
+			setResult("Failed to test performance logging");
+		}
 	};
 
 	return (

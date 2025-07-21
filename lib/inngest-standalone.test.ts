@@ -1,5 +1,4 @@
-import { beforeEach, describe, expect, it, spyOn } from "vitest";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, spyOn, vi } from "vitest";
 
 // Standalone Inngest tests that run without any global setup
 // Run with: bun run test:inngest

@@ -12,6 +12,7 @@ import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { observability } from "@/lib/observability";
+import { TaskRealtimeNotifier } from "@/lib/realtime/task-realtime-notifier";
 import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
@@ -200,7 +201,8 @@ const REALTIME_MESSAGE_TYPES = {
 };
 
 // Public API for sending real-time updates (used by other API routes)
-export class TaskRealtimeNotifier {
+// Note: This class is also available from @/lib/realtime/task-realtime-notifier
+class TaskRealtimeNotifierLocal {
 	static async notifyTaskUpdate(
 		taskId: string,
 		userId: string,
@@ -255,7 +257,7 @@ export class TaskRealtimeNotifier {
 		userId: string,
 		progressData: any,
 	) {
-		return TaskRealtimeNotifier.notifyTaskUpdate(
+		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.PROGRESS_UPDATED,
@@ -270,7 +272,7 @@ export class TaskRealtimeNotifier {
 		userId: string,
 		milestone: any,
 	) {
-		return TaskRealtimeNotifier.notifyTaskUpdate(
+		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.MILESTONE_REACHED,
@@ -281,7 +283,7 @@ export class TaskRealtimeNotifier {
 	}
 
 	static async notifyKanbanMove(taskId: string, userId: string, moveData: any) {
-		return TaskRealtimeNotifier.notifyTaskUpdate(
+		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.KANBAN_MOVED,
@@ -296,7 +298,7 @@ export class TaskRealtimeNotifier {
 		userId: string,
 		prData: any,
 	) {
-		return TaskRealtimeNotifier.notifyTaskUpdate(
+		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.PR_STATUS_CHANGED,
@@ -311,7 +313,7 @@ export class TaskRealtimeNotifier {
 		userId: string,
 		taskData: any,
 	) {
-		return TaskRealtimeNotifier.notifyTaskUpdate(
+		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.OVERDUE_ALERT,

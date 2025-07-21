@@ -1,7 +1,7 @@
 "use client";
 
-import React, { Suspense } from "react";
 import dynamic from "next/dynamic";
+import React, { Suspense } from "react";
 
 // Loading component with skeleton
 const LoadingSkeleton = () => (

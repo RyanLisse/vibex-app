@@ -45,3 +45,6 @@ export type TelemetryBackend =
 	| "otlp";
 
 export interface TelemetryEnvironmentConfig {
+	backend: TelemetryBackend;
+	config: TelemetryConfig;
+}

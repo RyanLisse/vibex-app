@@ -1,7 +1,4 @@
-import { 
-	generateCodeChallenge,
-	generateCodeVerifier 
-} from "@/src/lib/auth/pkce";
+import { generateCodeChallenge, generateCodeVerifier } from "./pkce";
 
 export interface TokenResponse {
 	access_token: string;

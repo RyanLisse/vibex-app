@@ -1,10 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Auth, type AuthInfo } from "./index";
 
 // Mock fs/promises module
-mock.module("node:fs/promises", () => ({
+vi.mock("node:fs/promises", () => ({
 	default: {
 		mkdir: vi.fn(),
 		readFile: vi.fn(),
@@ -29,18 +29,18 @@ describe.skip("Auth", () => {
 		key: "test-api-key",
 	};
 
-	let mkdirMock: ReturnType<typeof mock>;
-	let readFileMock: ReturnType<typeof mock>;
-	let writeFileMock: ReturnType<typeof mock>;
-	let chmodMock: ReturnType<typeof mock>;
+	let mkdirMock: ReturnType<typeof vi.fn>;
+	let readFileMock: ReturnType<typeof vi.fn>;
+	let writeFileMock: ReturnType<typeof vi.fn>;
+	let chmodMock: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// Set up mock references
-		mkdirMock = fs.mkdir as ReturnType<typeof mock>;
-		readFileMock = fs.readFile as ReturnType<typeof mock>;
-		writeFileMock = fs.writeFile as ReturnType<typeof mock>;
-		chmodMock = fs.chmod as ReturnType<typeof mock>;
+		mkdirMock = fs.mkdir as ReturnType<typeof vi.fn>;
+		readFileMock = fs.readFile as ReturnType<typeof vi.fn>;
+		writeFileMock = fs.writeFile as ReturnType<typeof vi.fn>;
+		chmodMock = fs.chmod as ReturnType<typeof vi.fn>;
 
 		// Set default mock behaviors
 		mkdirMock.mockResolvedValue(undefined);

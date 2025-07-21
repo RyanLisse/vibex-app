@@ -5,12 +5,12 @@ import { CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
 	useElectricEnvironments,
-	useElectricTasks
+	useElectricTasks,
 } from "@/hooks/use-electric-tasks";
 import { useExecutionAnalyticsQuery } from "@/hooks/use-execution-queries";
 import {
 	useCreateTaskMutation,
 	useTaskSearchQuery,
 	useTasksQuery,
-	useUpdateTaskMutation
+	useUpdateTaskMutation,
 } from "@/hooks/use-task-queries";

@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
 // Mock the authentication utilities
@@ -278,7 +277,7 @@ describe("GET /api/auth/openai/callback", () => {
 	});
 
 	it("should handle missing environment variables", async () => {
-		mock.doMock("@/lib/env", () => ({
+		vi.doMock("@/lib/env", () => ({
 			env: {
 				OPENAI_CLIENT_ID: undefined,
 				OPENAI_CLIENT_SECRET: undefined,

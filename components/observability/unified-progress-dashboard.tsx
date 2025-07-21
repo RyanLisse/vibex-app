@@ -12,5 +12,5 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	type AgentActivity,
 	type AgentType,
-	agentActivityTracker
+	agentActivityTracker,
 } from "@/lib/observability/agent-activity-tracker";

@@ -1,14 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { TrendingUp, AlertTriangle, Bell, Clock, CheckCircle, Activity } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { format, formatDistanceToNow } from "date-fns";
+import {
+	Activity,
+	AlertTriangle,
+	Bell,
+	CheckCircle,
+	Clock,
+	TrendingUp,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDistanceToNow, format } from "date-fns";
-import { type CriticalErrorType } from "@/lib/alerts/types";
+import type { CriticalErrorType } from "@/lib/alerts/types";
 
 // Type definitions that seem to be missing
 interface CriticalError {
@@ -165,7 +178,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 				<div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="font-medium text-sm">Active Alerts
+							<CardTitle className="font-medium text-sm">
+								Active Alerts
 							</CardTitle>
 							<AlertTriangle className="h-4 w-4 text-red-500" />
 						</CardHeader>
@@ -173,14 +187,16 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 							<div className="font-bold text-2xl text-red-600">
 								{metrics.unresolvedAlerts}
 							</div>
-							<p className="text-muted-foreground text-xs">Requiring attention
+							<p className="text-muted-foreground text-xs">
+								Requiring attention
 							</p>
 						</CardContent>
 					</Card>
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="font-medium text-sm">Total Alerts
+							<CardTitle className="font-medium text-sm">
+								Total Alerts
 							</CardTitle>
 							<Bell className="h-4 w-4 text-blue-500" />
 						</CardHeader>
@@ -192,7 +208,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="font-medium text-sm">Avg Resolution
+							<CardTitle className="font-medium text-sm">
+								Avg Resolution
 							</CardTitle>
 							<Clock className="h-4 w-4 text-green-500" />
 						</CardHeader>
@@ -223,7 +240,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 			<Tabs className="space-y-4" defaultValue="active">
 				<TabsList>
-					<TabsTrigger value="active">Active Alerts ({activeAlerts.length})
+					<TabsTrigger value="active">
+						Active Alerts ({activeAlerts.length})
 					</TabsTrigger>
 					<TabsTrigger value="history">Alert History</TabsTrigger>
 					<TabsTrigger value="metrics">Metrics & Analytics</TabsTrigger>
@@ -235,9 +253,11 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 							<CardContent className="flex items-center justify-center py-12">
 								<div className="text-center">
 									<CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
-									<h3 className="mb-2 font-medium text-gray-900 text-lg">No Active Alerts
+									<h3 className="mb-2 font-medium text-gray-900 text-lg">
+										No Active Alerts
 									</h3>
-									<p className="text-gray-500">All systems are operating normally.
+									<p className="text-gray-500">
+										All systems are operating normally.
 									</p>
 								</div>
 							</CardContent>
@@ -280,17 +300,20 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 										<div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
 											<div>
-												<div className="font-medium text-gray-500">Environment
+												<div className="font-medium text-gray-500">
+													Environment
 												</div>
 												<div>{alert.environment}</div>
 											</div>
 											<div>
-												<div className="font-medium text-gray-500">Occurrences
+												<div className="font-medium text-gray-500">
+													Occurrences
 												</div>
 												<div>{alert.occurrenceCount}</div>
 											</div>
 											<div>
-												<div className="font-medium text-gray-500">First Seen
+												<div className="font-medium text-gray-500">
+													First Seen
 												</div>
 												<div>
 													{format(
@@ -300,7 +323,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 												</div>
 											</div>
 											<div>
-												<div className="font-medium text-gray-500">Last Seen
+												<div className="font-medium text-gray-500">
+													Last Seen
 												</div>
 												<div>
 													{format(
@@ -313,7 +337,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 										{alert.correlationId && (
 											<div className="mt-4 rounded bg-gray-50 p-3">
-												<div className="font-medium text-gray-500 text-sm">Correlation ID
+												<div className="font-medium text-gray-500 text-sm">
+													Correlation ID
 												</div>
 												<code className="font-mono text-sm">
 													{alert.correlationId}
@@ -323,7 +348,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 										{Object.keys(alert.metadata || {}).length > 0 && (
 											<details className="mt-4">
-												<summary className="cursor-pointer font-medium text-gray-700">Additional Details
+												<summary className="cursor-pointer font-medium text-gray-700">
+													Additional Details
 												</summary>
 												<pre className="mt-2 overflow-auto rounded bg-gray-50 p-3 text-sm">
 													{JSON.stringify(alert.metadata, null, 2)}
@@ -397,7 +423,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Activity className="h-5 w-5" />Alerts by Type
+										<Activity className="h-5 w-5" />
+										Alerts by Type
 									</CardTitle>
 								</CardHeader>
 								<CardContent>
@@ -422,7 +449,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<TrendingUp className="h-5 w-5" />Recent Activity
+										<TrendingUp className="h-5 w-5" />
+										Recent Activity
 									</CardTitle>
 								</CardHeader>
 								<CardContent>

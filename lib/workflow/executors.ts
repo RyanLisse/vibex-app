@@ -4,7 +4,7 @@
  * Implements execution logic for each step type
  */
 
-import { WorkflowContext } from "./types";
+import type { WorkflowContext } from "./types";
 
 // Base executor class
 abstract class BaseStepExecutor<T extends StepConfig>

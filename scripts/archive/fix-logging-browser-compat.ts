@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-join } from "path";
+import { join } from "path";
 
 // Fix correlation-id-manager to be browser-safe
 const correlationIdPath = join(

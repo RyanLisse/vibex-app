@@ -5,5 +5,5 @@ import { TextShimmer } from "@/components/ui/text-shimmer";
 import {
 	useDeleteTaskMutation,
 	useTasksQuery,
-	useUpdateTaskMutation
+	useUpdateTaskMutation,
 } from "@/hooks/use-task-queries";

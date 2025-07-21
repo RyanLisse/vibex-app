@@ -217,3 +217,48 @@ WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
 			table: "observability_events",
 			filter: `execution_id IN (
 SELECT id FROM agent_executions 
+WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
+)`,
+			events: ["insert", "update"],
+		},
+	},
+
+	// Performance optimizations
+	performance: {
+		// Enable query result caching
+		queryCache: {
+			ttl: 300000, // 5 minutes
+			maxSize: 1000,
+		},
+
+		// Connection pooling settings
+		connectionPool: {
+			min: 2,
+			max: 10,
+			idle: 30000, // 30 seconds
+		},
+
+		// Batch sync settings
+		batchSync: {
+			enabled: true,
+			batchSize: 100,
+			debounceMs: 250,
+		},
+	},
+
+	// Configuration for different environments
+	environments: {
+		development: {
+			logLevel: "debug",
+			enableQueryDebug: true,
+			syncDebug: true,
+		},
+
+		production: {
+			logLevel: "error",
+			enableQueryDebug: false,
+			syncDebug: false,
+			performanceMonitoring: true,
+		},
+	},
+};

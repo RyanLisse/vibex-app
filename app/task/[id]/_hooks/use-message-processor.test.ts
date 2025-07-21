@@ -1,3 +1,4 @@
+import { act, renderHook } from "@testing-library/react";
 import {
 	afterEach,
 	beforeEach,
@@ -6,14 +7,13 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
-import { useMessageProcessor } from "./use-message-processor";
 import type {
 	IncomingMessage,
 	StreamingMessage,
 } from "../_types/message-types";
+import { useMessageProcessor } from "./use-message-processor";
 
 // Mock the message guards
 vi.mock("../_utils/message-guards", () => ({

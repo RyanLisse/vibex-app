@@ -1,3 +1,4 @@
+import { act, renderHook } from "@testing-library/react";
 import {
 	afterEach,
 	beforeEach,
@@ -6,10 +7,9 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
-import { ClaudeAuthClient } from "../../lib/auth/claude-auth";
+import { ClaudeAuthClient } from "@/lib/auth/claude-auth";
 import { useClaudeAuth } from "./useClaudeAuth";
 
 // Mock ClaudeAuthClient

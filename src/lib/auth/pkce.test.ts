@@ -1,3 +1,4 @@
+import * as cryptoModule from "node:crypto";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import * as cryptoModule from "node:crypto";
-import { vi } from "vitest";
 import { generateCodeChallenge, generateCodeVerifier } from "./pkce";
 
 // Mock crypto module

@@ -24,14 +24,14 @@ if (typeof window === "undefined" && typeof process !== "undefined") {
 		});
 }
 
+import * as Sentry from "@sentry/nextjs";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
-import * as Sentry from "@sentry/nextjs";
 import {
-	LogLevel,
-	LoggingConfig,
-	LogContext,
-	LoggingMetrics,
+	type LogContext,
+	type LoggingConfig,
+	type LoggingMetrics,
+	type LogLevel,
 	OperationMetrics,
 } from "./types";
 
@@ -236,7 +236,7 @@ export class LoggerFactory {
 				}
 			}
 
-			// @ts-ignore - Custom transport
+			// @ts-expect-error - Custom transport
 			transports.push(
 				new WinstonSentryTransport({
 					level: "error", // Only send errors and above to Sentry by default

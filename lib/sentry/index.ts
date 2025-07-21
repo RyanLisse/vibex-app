@@ -1,17 +1,17 @@
 // Main Sentry integration export file
 
 // Re-export commonly used Sentry functions
-import { export { captureException, captureMessage, startSpan } from "@sentry/nextjs";
-import { export { enhancedObservability } from "@/lib/observability/enhanced";
+export { captureException, captureMessage, startSpan } from "@sentry/nextjs";
+export { enhancedObservability } from "@/lib/observability/enhanced";
 export {
 	addBreadcrumb,
 	clearSentryUser,
 	instrumentApiRoute,
 	instrumentDatabaseOperation,
-	import { instrumentInngestFunction,
-	import { instrumentServerAction,
-	import { setSentryContext,
-	import { setSentryTags,
-	import { setSentryUser,
+	instrumentInngestFunction,
+	instrumentServerAction,
+	setSentryContext,
+	setSentryTags,
+	setSentryUser,
 } from "./instrumentation";
-import { export { getSentryLogger, SentryEnhancedLogger } from "./logger";
+export { getSentryLogger, SentryEnhancedLogger } from "./logger";

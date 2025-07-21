@@ -7,8 +7,8 @@
 
 "use client";
 
+import { Archive, Pause, Play, Plus, RefreshCw, X } from "lucide-react";
 import { useState } from "react";
-import { RefreshCw, Plus, Pause, Play, Archive, X } from "lucide-react";
 import {
 	type Task,
 	useArchiveTask,
@@ -18,7 +18,7 @@ import {
 	usePauseTask,
 	useResumeTask,
 	useTasks,
-	useUpdateTask
+	useUpdateTask,
 } from "@/lib/query/hooks";
 
 interface TaskListExampleProps {

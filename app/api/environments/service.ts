@@ -5,21 +5,21 @@
  * for consistent error handling, tracing, and observability.
  */
 
+import { and, asc, desc, eq, like } from "drizzle-orm";
 import { ulid } from "ulid";
 import { z } from "zod";
-import { and, eq, like, desc, asc } from "drizzle-orm";
 import { db } from "@/db/config";
 import { environments } from "@/db/schema";
 import {
 	BaseAPIService,
 	BaseCRUDService,
-	type ServiceContext,
-	NotFoundError,
-	DatabaseError,
 	ConflictError,
+	DatabaseError,
+	NotFoundError,
+	type ServiceContext,
 } from "@/lib/api/base";
 import { QueryBuilder } from "@/lib/api/base/query-builder";
-import { CreateEnvironmentSchema } from "@/src/schemas/api-routes";
+import type { CreateEnvironmentSchema } from "@/src/schemas/api-routes";
 
 // Query schemas
 export const GetEnvironmentsQuerySchema = z.object({
@@ -41,16 +41,52 @@ export type GetEnvironmentsQuery = z.infer<typeof GetEnvironmentsQuerySchema>;
 export type CreateEnvironmentDTO = z.infer<typeof CreateEnvironmentSchema>;
 export type ActivateEnvironmentDTO = z.infer<typeof ActivateEnvironmentSchema>;
 
-export class EnvironmentsAPIService extends BaseCRUDService<
-	any,
-	CreateEnvironmentDTO,
-	any
-> {
+export class EnvironmentsAPIService extends BaseCRUDService {
 	protected tableName = "environments";
 	private queryBuilder = new QueryBuilder(environments);
 
 	constructor() {
-		super({ serviceName: "environments" });
+		super({ tableName: "environments", serviceName: "environments" });
+	}
+
+	// Implement abstract methods from BaseCRUDService
+	async findById(id: string): Promise<any | null> {
+		const result = await db
+			.select()
+			.from(environments)
+			.where(eq(environments.id, id))
+			.limit(1);
+		return result[0] || null;
+	}
+
+	async findAll(filters?: any): Promise<any[]> {
+		return await db.select().from(environments);
+	}
+
+	async create(data: Partial<any>): Promise<any> {
+		const id = ulid();
+		const newData = {
+			...data,
+			id,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+		const result = await db.insert(environments).values(newData).returning();
+		return result[0];
+	}
+
+	async update(id: string, data: Partial<any>): Promise<any> {
+		const updateData = { ...data, updatedAt: new Date() };
+		const result = await db
+			.update(environments)
+			.set(updateData)
+			.where(eq(environments.id, id))
+			.returning();
+		return result[0];
+	}
+
+	async delete(id: string): Promise<void> {
+		await db.delete(environments).where(eq(environments.id, id));
 	}
 
 	/**

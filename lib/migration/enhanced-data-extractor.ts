@@ -3,7 +3,7 @@
  *
  * Advanced extraction with better pattern matching and normalization.
  */
-import { LocalStorageTask } from "./types";
+import type { LocalStorageTask } from "./types";
 
 export interface ExtractionOptions {
 	includeFormData: boolean;

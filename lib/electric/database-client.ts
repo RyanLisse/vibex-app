@@ -5,10 +5,19 @@
  * with Redis caching integration for optimal performance.
  */
 
-import { Task
+import {
+	agentExecutions,
+	environments,
+	observabilityEvents,
+	Task,
+	tasks,
 } from "@/db/schema";
-	import { agentExecutions,
-	import { environments,
-	import { observabilityEvents,
-	import { tasks
-} from "@/db/schema";
+
+/**
+ * Electric database client for managing database operations
+ */
+export class ElectricDatabaseClient {
+	// Implementation would go here
+}
+
+export const electricDatabaseClient = new ElectricDatabaseClient();

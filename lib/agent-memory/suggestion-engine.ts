@@ -5,8 +5,7 @@
  * patterns, and agent behavior.
  */
 
-import { MemoryType
-} from "./types";
+import { MemoryType } from "./types";
 
 interface SuggestionStrategy {
 	name: string;
@@ -35,7 +34,7 @@ export class MemorySuggestionEngine {
 
 	static getInstance(): MemorySuggestionEngine {
 		if (!MemorySuggestionEngine.instance) {
-MemorySuggestionEngine.instance = new MemorySuggestionEngine();
+			MemorySuggestionEngine.instance = new MemorySuggestionEngine();
 		}
 		return MemorySuggestionEngine.instance;
 	}
@@ -473,3 +472,11 @@ MemorySuggestionEngine.instance = new MemorySuggestionEngine();
 		const cacheData = cached as any;
 		if (
 			cacheData._timestamp &&
+			Date.now() - cacheData._timestamp < this.cacheTimeout
+		) {
+			return cacheData.suggestions;
+		}
+
+		return null;
+	}
+}

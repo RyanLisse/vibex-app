@@ -4,22 +4,22 @@
  * Central export point for all WASM services and utilities
  */
 
-export {
-	type AnalyticsData,
-	type ComputeResult,
-	type ComputeTask,
-import {
-	type StatisticalSummary
+export type {
+	AnalyticsData,
+	ComputeResult,
+	ComputeTask,
+	StatisticalSummary,
 } from "./compute";
 export {
 	type AggregationOptions,
 	createDataProcessor,
 	type DataProcessingConfig,
 	type DataTransformOptions,
-	import { dataProcessor,
+	dataProcessor,
 	type ProcessingResult,
-	import { type ProcessingTask,
-import { WASMDataProcessor } from "./data-processor";
+	type ProcessingTask,
+	WASMDataProcessor,
+} from "./data-processor";
 // Utility functions
 export {
 	detectWASMCapabilities,
@@ -27,51 +27,57 @@ export {
 	shouldUseWASMOptimization,
 	type WASMCapabilities,
 	type WASMOptimizationConfig,
-	wasmDetector
+	wasmDetector,
 } from "./detection";
 // Module loader
 export {
 	getWASMExports,
 	type LoadedModule,
-	import { loadWASMModule,
+	loadWASMModule,
 	type ModuleLoadProgress,
-	import { moduleLoader,
-	import { preloadWASMModules,
-	import { type WASMModuleConfig,
-import { WASMObservabilityIntegration,
-	wasmObservability } from "./observability-integration";
+	moduleLoader,
+	preloadWASMModules,
+	type WASMModuleConfig,
+	WASMObservabilityIntegration,
+	wasmObservability,
+} from "./observability-integration";
 // Performance and observability
 export {
 	type WASMOperationMetrics,
 	type WASMPerformanceMetrics,
-import { WASMPerformanceTracker,
-	wasmPerformanceTracker } from "./performance-tracker";
+	WASMPerformanceTracker,
+	wasmPerformanceTracker,
+} from "./performance-tracker";
 // Core services
 export {
 	type WASMServicesConfig,
 	type WASMServicesStats,
-	import { wasmServices
+	wasmServices,
 } from "./services";
+
 export {
-	import { createSQLiteWASMUtils,
+	createSQLiteWASMUtils,
 	type IndexAnalysis,
 	type QueryPlan,
 	type QueryResult,
 	type SQLiteWASMConfig,
-import { SQLiteWASMUtils,
-	sqliteWASMUtils } from "./sqlite-utils";
-// Individual services
+	SQLiteWASMUtils,
+	sqliteWASMUtils,
+} from "./sqlite-utils";
+
+// Vector search services
 export {
 	calculateFastSimilarity,
 	createOptimizedEmbedding,
 	createVectorSearchEngine,
-	import { getVectorSearchEngine,
+	getVectorSearchEngine,
 	type VectorDocument,
 	type VectorSearchConfig,
 	type VectorSearchOptions,
 	type VectorSearchResult,
-import { VectorSearchWASM,
-	vectorSearchManager } from "./vector-search";
+	VectorSearchWASM,
+	vectorSearchManager,
+} from "./vector-search";
 
 // Initialize WASM services helper
 export async function initializeWASMServices(config?: WASMServicesConfig) {

@@ -7,10 +7,19 @@
 
 "use client";
 
-import { Zap, Plus, Settings, ExternalLink } from "lucide-react";
+import { ExternalLink, Plus, Settings, Zap } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { SyncIndicator, SyncStatusMonitor } from "@/components/electric/sync-status-monitor";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+	SyncIndicator,
+	SyncStatusMonitor,
+} from "@/components/electric/sync-status-monitor";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";

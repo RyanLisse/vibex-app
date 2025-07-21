@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the POST function since it doesn't accept parameters
 const POST = vi.fn();

@@ -4,16 +4,24 @@
  * Handles database operations for agent memory storage and retrieval.
  */
 
+import {
 	and,
 	cosineDistance,
 	desc,
-	import { eq,
-	import { gte,
-	import { inArray,
-	import { lte,
-	import { sql
+	eq,
+	gte,
+	inArray,
+	lte,
+	sql,
 } from "drizzle-orm";
-import { UpdateMemoryInput
+import { ulid } from "ulid";
+import { db } from "@/db/config";
+import { agentMemory } from "@/db/schema";
+import type {
+	CreateMemoryInput,
+	MemoryBatchResult,
+	MemoryEntry,
+	UpdateMemoryInput,
 } from "./types";
 
 export class MemoryRepository {
@@ -121,5 +129,36 @@ export class MemoryRepository {
 
 		// Handle metadata update
 		if (input.metadata) {
-			updateData.metadata = sql`
-import { CASE 
+			updateData.metadata = input.metadata;
+		}
+
+		updateData.updatedAt = new Date();
+
+		const [updated] = await db
+			.update(agentMemory)
+			.set(updateData)
+			.where(eq(agentMemory.id, id))
+			.returning();
+
+		return updated ? this.mapToMemoryEntry(updated) : null;
+	}
+
+	/**
+	 * Map database row to MemoryEntry
+	 */
+	private mapToMemoryEntry(row: any): MemoryEntry {
+		return {
+			id: row.id,
+			agentType: row.agentType,
+			contextKey: row.contextKey,
+			content: row.content,
+			embedding: row.embedding,
+			metadata: row.metadata,
+			importance: row.importance,
+			createdAt: row.createdAt,
+			updatedAt: row.updatedAt,
+			lastAccessedAt: row.lastAccessedAt,
+			expiresAt: row.expiresAt,
+		};
+	}
+}

@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-dirname, join } from "path";
+
+import { dirname, join } from "path";
 
 const fixes = [];
 

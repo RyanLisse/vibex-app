@@ -2,20 +2,20 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BugReportForm } from "../../../components/features/bug-reporting/bug-report-form";
+import { ImageAnnotationTools } from "../../../components/features/bug-reporting/image-annotation-tools";
 // Components to be implemented
 import { QuickBugReportButton } from "../../../components/features/bug-reporting/quick-bug-report-button";
 import { ScreenshotCapture } from "../../../components/features/bug-reporting/screenshot-capture";
-import { BugReportForm } from "../../../components/features/bug-reporting/bug-report-form";
-import { ImageAnnotationTools } from "../../../components/features/bug-reporting/image-annotation-tools";
 
 // Types
 import type {
-	ScreenshotData,
 	BugReport,
+	ScreenshotData,
 } from "../../../src/schemas/enhanced-task-schemas";
 
 // Mock the screen capture API

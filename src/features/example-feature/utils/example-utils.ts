@@ -1,4 +1,4 @@
-import { ExampleItem } from "@/src/features/example-feature/types";
+import type { ExampleItem } from "@/src/features/example-feature/types";
 
 export function filterItems(
 	items: ExampleItem[],

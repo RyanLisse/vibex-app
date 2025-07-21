@@ -1,3 +1,4 @@
+import { act, renderHook } from "@testing-library/react";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { act, renderHook } from "@testing-library/react";
-import { vi } from "vitest";
 import { useFileUpload } from "./use-file-upload";
 
 // Mock fetch
@@ -38,7 +38,7 @@ describe("useFileUpload", () => {
 				size: 1024,
 			}),
 		};
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
 			mockResponse as unknown,
 		);
 
@@ -85,7 +85,7 @@ describe("useFileUpload", () => {
 			},
 		];
 
-		(fetch as unknown as jest.Mock)
+		(fetch as unknown as ReturnType<typeof vi.fn>)
 			.mockResolvedValueOnce(mockResponses[0] as unknown)
 			.mockResolvedValueOnce(mockResponses[1] as unknown);
 
@@ -130,7 +130,7 @@ describe("useFileUpload", () => {
 	});
 
 	it("should handle upload errors", async () => {
-		(fetch as unknown as jest.Mock).mockRejectedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
 			new Error("Network error"),
 		);
 
@@ -154,7 +154,7 @@ describe("useFileUpload", () => {
 			status: 413,
 			statusText: "Payload Too Large",
 		};
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
 			mockResponse as unknown,
 		);
 
@@ -238,7 +238,7 @@ describe("useFileUpload", () => {
 				size: 1024,
 			}),
 		};
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
 			mockResponse as unknown,
 		);
 
@@ -282,7 +282,7 @@ describe("useFileUpload", () => {
 			},
 		];
 
-		(fetch as unknown as jest.Mock)
+		(fetch as unknown as ReturnType<typeof vi.fn>)
 			.mockResolvedValueOnce(mockResponses[0] as unknown)
 			.mockResolvedValueOnce(mockResponses[1] as unknown);
 
@@ -316,7 +316,7 @@ describe("useFileUpload", () => {
 				size: 2048,
 			}),
 		};
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
 			mockResponse as unknown,
 		);
 
@@ -343,7 +343,7 @@ describe("useFileUpload", () => {
 				url: "https://example.com/test.pdf",
 			}),
 		};
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
 			mockResponse as unknown,
 		);
 
@@ -378,7 +378,7 @@ describe("useFileUpload", () => {
 			ok: true,
 			json: async () => ({ id: "file-123" }),
 		};
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
 			mockResponse as unknown,
 		);
 
@@ -411,7 +411,9 @@ describe("useFileUpload", () => {
 		}));
 
 		mockResponses.forEach((response) => {
-			(fetch as unknown as jest.Mock).mockResolvedValueOnce(response as any);
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
+				response as any,
+			);
 		});
 
 		const { result } = renderHook(() =>
@@ -436,7 +438,7 @@ describe("useFileUpload", () => {
 	});
 
 	it("should reset error state", async () => {
-		(fetch as unknown as jest.Mock).mockRejectedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
 			new Error("Network error"),
 		);
 
@@ -457,7 +459,7 @@ describe("useFileUpload", () => {
 	});
 
 	it("should handle upload retry", async () => {
-		(fetch as unknown as jest.Mock)
+		(fetch as unknown as ReturnType<typeof vi.fn>)
 			.mockRejectedValueOnce(new Error("Network error"))
 			.mockResolvedValueOnce({
 				ok: true,

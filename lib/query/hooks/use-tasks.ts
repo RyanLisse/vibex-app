@@ -4,13 +4,13 @@
  * Replaces Zustand task store with TanStack Query + Redis caching
  */
 
-	import { useInfiniteQuery,
-	import { useMutation,
-	import { useQuery,
-	import { useQueryClient
+import {
+	useInfiniteQuery,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";
-import { UpdateTaskSchema
-} from "@/src/schemas/api-routes";
+import type { UpdateTaskSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type Task = z.infer<typeof TaskSchema>;
@@ -39,7 +39,7 @@ async function fetchTasks(params: {
 	search?: string;
 }): Promise<{ tasks: Task[]; total: number; hasMore: boolean }> {
 	const searchParams = new URLSearchParams();
-Object.entries(params).forEach(([key, value]) => {
+	Object.entries(params).forEach(([key, value]) => {
 		if (value !== undefined && value !== null) {
 			searchParams.append(key, String(value));
 		}

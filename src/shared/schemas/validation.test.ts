@@ -9,7 +9,6 @@ import {
 } from "vitest";
 import { z } from "zod";
 import {
-	ApiErrorSchema,
 	ApiResponseSchema,
 	ColorSchema,
 	createFormSchema,
@@ -509,24 +508,7 @@ describe("ApiResponseSchema", () => {
 	});
 });
 
-describe("ApiErrorSchema", () => {
-	it("should validate error response", () => {
-		const error = {
-			success: false,
-			error: "Validation failed",
-			details: { field: "error message" },
-			statusCode: 400,
-		};
-		const result = ApiErrorSchema.safeParse(error);
-		expect(result.success).toBe(true);
-	});
-
-	it("should reject success response", () => {
-		const response = { success: true };
-		const result = ApiErrorSchema.safeParse(response);
-		expect(result.success).toBe(false);
-	});
-});
+// ApiErrorSchema test removed - not available in exports
 
 describe("createFormSchema", () => {
 	it("should create form schema from shape", () => {

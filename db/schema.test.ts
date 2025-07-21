@@ -1,5 +1,5 @@
+import { checkDatabaseHealth, db, initializeExtensions } from "./index";
 import { migrationRunner } from "./migrations/migration-runner";
-import { db, checkDatabaseHealth, initializeExtensions } from "./index";
 import {
 	agentExecutions,
 	agentMemory,
@@ -11,7 +11,7 @@ import {
 	observabilityEvents,
 	tasks,
 	workflowExecutions,
-	workflows
+	workflows,
 } from "./schema";
 
 // Skip tests if no database URL is provided
@@ -60,4 +60,11 @@ describe("Database Schema and Migration Tests", () => {
 		it("should have required extensions installed", async () => {
 			// Test vector extension
 			const vectorResult = await db.execute(`
-SELECT EXISTS(
+				SELECT EXISTS(
+					SELECT 1 FROM pg_extension WHERE extname = 'vector'
+				) as exists
+			`);
+			expect(vectorResult.rows[0]?.exists).toBe(true);
+		});
+	});
+});

@@ -14,7 +14,9 @@ import { ulid } from "ulid";
 import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
+import { handleRouteError } from "@/lib/api/error-handlers";
 import { observability } from "@/lib/observability";
+import { parseTaskFromTranscription } from "@/lib/voice/task-parser-utils";
 import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
@@ -42,61 +44,7 @@ const transcribeAudio = async (
 	};
 };
 
-// Parse transcribed text to extract task details using NLP (mock implementation)
-const parseTaskFromTranscription = (text: string) => {
-	// In real implementation, would use NLP to extract:
-	// - Task title
-	// - Description
-	// - Priority keywords
-	// - Assignee mentions
-	// - Due date mentions
-	// - Labels/tags
-
-	const priority = /high.?priority|urgent|critical/i.test(text)
-		? "high"
-		: /low.?priority|minor/i.test(text)
-			? "low"
-			: "medium";
-
-	const assigneeMatch = text.match(/assign(?:ed)?\s+to\s+(\w+(?:\s+\w+)?)/i);
-	const assignee = assigneeMatch ? assigneeMatch[1] : undefined;
-
-	const dueDateMatch = text.match(
-		/(?:due|deadline|by)\s+([a-zA-Z]+\s+\d{1,2}(?:,?\s+\d{4})?)/i,
-	);
-	const dueDate = dueDateMatch ? dueDateMatch[1] : undefined;
-
-	// Extract potential labels
-	const labels = [];
-	if (/bug|fix|error|issue/i.test(text)) {
-		labels.push("bug");
-	}
-	if (/feature|enhancement|new/i.test(text)) {
-		labels.push("feature");
-	}
-	if (/frontend|ui|interface/i.test(text)) {
-		labels.push("frontend");
-	}
-	if (/backend|api|server/i.test(text)) {
-		labels.push("backend");
-	}
-	if (/testing|test|qa/i.test(text)) {
-		labels.push("testing");
-	}
-
-	// Generate title from first sentence or key phrases
-	const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
-	const title = sentences[0]?.trim() || "Voice-created task";
-
-	return {
-		title,
-		description: text,
-		priority,
-		assignee,
-		dueDate,
-		labels: labels.length > 0 ? labels : ["voice-created"],
-	};
-};
+// Note: parseTaskFromTranscription is now imported from @/lib/voice/task-parser-utils
 
 /**
  * POST /api/tasks/voice - Create task from voice recording

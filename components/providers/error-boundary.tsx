@@ -25,11 +25,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		// Log error to Sentry with additional context
-Sentry.withScope((scope) => {
+		Sentry.withScope((scope) => {
 			scope.setContext("errorBoundary", {
 				componentStack: errorInfo.componentStack,
 			});
-Sentry.captureException(error);
+			Sentry.captureException(error);
 		});
 	}
 
@@ -45,9 +45,11 @@ Sentry.captureException(error);
 
 			return (
 				<div className="flex min-h-[400px] flex-col items-center justify-center p-8 text-center">
-					<h2 className="mb-4 font-bold text-2xl">Oops! Something went wrong
+					<h2 className="mb-4 font-bold text-2xl">
+						Oops! Something went wrong
 					</h2>
-					<p className="mb-6 text-gray-600">We apologize for the inconvenience. Please try refreshing the page
+					<p className="mb-6 text-gray-600">
+						We apologize for the inconvenience. Please try refreshing the page
 						or contact support if the problem persists.
 					</p>
 					<div className="space-x-4">
@@ -66,7 +68,8 @@ Sentry.captureException(error);
 					</div>
 					{process.env.NODE_ENV === "development" && (
 						<details className="mt-8 max-w-2xl text-left">
-							<summary className="cursor-pointer text-gray-500 text-sm">Error details
+							<summary className="cursor-pointer text-gray-500 text-sm">
+								Error details
 							</summary>
 							<pre className="mt-2 overflow-auto rounded bg-gray-100 p-4 text-xs">
 								{this.state.error.message}

@@ -144,8 +144,8 @@ async function updatePackageJsonScripts() {
 }
 
 async function createGlobalTestSetup() {
-	const setupContent = `beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
-config } from 'dotenv'
+	const setupContent = `import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { config } from 'dotenv'
 
 // Load test environment variables
 config({ path: path.resolve(process.cwd(), '.env.test') })

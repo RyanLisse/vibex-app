@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-join } from "path";
+import { join } from "path";
 
 const filesToFix = [
 	"lib/observability/index.ts",
@@ -14,13 +14,10 @@ function resolveMergeConflicts(content: string): string {
 	return (
 		content
 			// Remove lines with conflict markers and what's between =======... >>>>>>> main
-			.replace(
-				/\n([\s\S]*?)\n
-				"$1",
-			)
+			.replace(/<<<<<<< HEAD\n([\s\S]*?)\n=======[\s\S]*?\n>>>>>>> main/g, "$1")
 			// Handle any remaining conflict markers
-			.replace(/\n/g, "")
-			.replace(/\n
+			.replace(/\n<<<<<<< HEAD/g, "")
+			.replace(/\n=======[\s\S]*?>>>>>>> main/g, "")
 			.replace(/\n>>>>>>> main/g, "")
 			.replace(/=======\n[\s\S]*?\n>>>>>>> main/g, "")
 	);

@@ -1,16 +1,16 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { trace, SpanStatusCode, type Span } from "@opentelemetry/api";
+import { type Span, SpanStatusCode, trace } from "@opentelemetry/api";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	BaseAPIError,
+	DatabaseError,
+	ValidationError,
+} from "../../../lib/api/base/errors";
 import {
 	BaseAPIService,
 	BaseCRUDService,
 	type ServiceContext,
 	type ServiceOptions,
 } from "../../../lib/api/base/service";
-import {
-	BaseAPIError,
-	DatabaseError,
-	ValidationError,
-} from "../../../lib/api/base/errors";
 import { observability } from "../../../lib/observability";
 
 // Mock observability

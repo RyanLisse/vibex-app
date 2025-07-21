@@ -1,7 +1,6 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { afterEach, beforeEach, describe, expect, it, test } from "vitest";
 import { act, render, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
+import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
 import { z } from "zod";
 import {
 	createZodFormProvider,
@@ -11,7 +10,7 @@ import {
 } from "./useZodForm";
 
 // Mock react-hook-form
-mock.module("react-hook-form", () => ({
+vi.mock("react-hook-form", () => ({
 	useForm: vi.fn(() => ({
 		register: vi.fn(),
 		handleSubmit: vi.fn((fn) => fn),
@@ -35,7 +34,7 @@ mock.module("react-hook-form", () => ({
 }));
 
 // Mock @hookform/resolvers/zod
-mock.module("@hookform/resolvers/zod", () => ({
+vi.mock("@hookform/resolvers/zod", () => ({
 	zodResolver: vi.fn(() => vi.fn()),
 }));
 
@@ -168,7 +167,7 @@ describe("useZodForm", () => {
 			const onError = vi.fn();
 			const { useForm } = await import("react-hook-form");
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -236,7 +235,7 @@ describe("useZodForm", () => {
 			}));
 
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -287,7 +286,7 @@ describe("useZodForm", () => {
 			const { useForm } = await import("react-hook-form");
 			const mockReset = vi.fn();
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -321,7 +320,7 @@ describe("useZodForm", () => {
 			const { useForm } = await import("react-hook-form");
 			const mockReset = vi.fn();
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -366,7 +365,7 @@ describe("useZodForm", () => {
 			const { useForm } = await import("react-hook-form");
 			const mockReset = vi.fn();
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -456,7 +455,7 @@ describe("useZodForm", () => {
 	describe("field errors", () => {
 		it("should get field error", async () => {
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -486,7 +485,7 @@ describe("useZodForm", () => {
 
 		it("should check if field has error", async () => {
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -519,7 +518,7 @@ describe("useZodForm", () => {
 			const { useForm } = await import("react-hook-form");
 			const mockSetError = vi.fn();
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -555,7 +554,7 @@ describe("useZodForm", () => {
 			const { useForm } = await import("react-hook-form");
 			const mockClearErrors = vi.fn();
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -595,7 +594,7 @@ describe("useZodForm", () => {
 			};
 
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -623,7 +622,7 @@ describe("useZodForm", () => {
 
 		it("should get form errors", async () => {
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -657,7 +656,7 @@ describe("useZodForm", () => {
 
 		it("should get dirty fields", async () => {
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -695,7 +694,7 @@ describe("useZodForm", () => {
 
 		it("should get changed fields", async () => {
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -777,7 +776,7 @@ describe("useZodForm", () => {
 	describe("storage integration", () => {
 		it("should save form data to storage", async () => {
 			const { useForm } = await import("react-hook-form");
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {
@@ -829,7 +828,7 @@ describe("useZodForm", () => {
 			const { useForm } = await import("react-hook-form");
 			const mockSetValue = vi.fn();
 
-			(useForm as unknown as jest.Mock).mockReturnValue({
+			(useForm as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
 				register: vi.fn(),
 				handleSubmit: vi.fn((fn) => fn),
 				formState: {

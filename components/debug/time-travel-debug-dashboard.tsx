@@ -10,5 +10,5 @@ import {
 	useDebugSession,
 	useSnapshotComparison,
 	useTimeTravelReplay,
-	useWatchedVariables
+	useWatchedVariables,
 } from "@/hooks/use-time-travel-debug";

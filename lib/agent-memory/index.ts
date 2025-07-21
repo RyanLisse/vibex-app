@@ -5,19 +5,19 @@
  * semantic search, context management, and knowledge sharing capabilities.
  */
 
-import { export { memoryContextManager } from "./context-manager";
-import { export { memoryLifecycleManager } from "./lifecycle-manager";
+export { memoryContextManager } from "./context-manager";
+export { memoryLifecycleManager } from "./lifecycle-manager";
 // Main system
-import { export { AgentMemorySystem, agentMemorySystem } from "./memory-system";
+export { AgentMemorySystem, agentMemorySystem } from "./memory-system";
 // Services
-import { export { memoryRepository } from "./repository";
-import { export { memorySearchService } from "./search-service";
-import { export { memorySharingService } from "./sharing-service";
-import { export { memorySuggestionEngine } from "./suggestion-engine";
+export { memoryRepository } from "./repository";
+export { memorySearchService } from "./search-service";
+export { memorySharingService } from "./sharing-service";
+export { memorySuggestionEngine } from "./suggestion-engine";
 
 // Types
 export type {
-import { ConflictResolutionStrategy,
+	ConflictResolutionStrategy,
 	// Input/Output types
-import { UpdateMemoryInput
+	UpdateMemoryInput,
 } from "./types";

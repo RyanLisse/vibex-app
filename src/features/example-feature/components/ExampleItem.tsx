@@ -1,6 +1,9 @@
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { ExampleItem as ExampleItemType } from "@/src/features/example-feature/types";
+import {
 	getPriorityColor,
-	getStatusIcon
+	getStatusIcon,
 } from "@/src/features/example-feature/utils/example-utils";
 
 interface ExampleItemProps {
@@ -81,7 +84,8 @@ export function ExampleItem({
 							onClick={() => onEdit(item)}
 							size="sm"
 							variant="outline"
-Edit
+						>
+							Edit
 						</Button>
 					)}
 
@@ -92,3 +96,12 @@ Edit
 							onClick={() => onDelete(item.id)}
 							size="sm"
 							variant="outline"
+						>
+							Delete
+						</Button>
+					)}
+				</div>
+			</div>
+		</article>
+	);
+}

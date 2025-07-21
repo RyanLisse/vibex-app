@@ -163,10 +163,22 @@ export function cachedJsonResponse(
  * Generate ETag from data
  */
 export function generateETag(data: any): string {
-	const crypto = require("crypto");
-	const hash = crypto.createHash("md5");
-	hash.update(JSON.stringify(data));
-	return `"${hash.digest("hex")}"`;
+	// Use dynamic import for Node.js crypto in server environments
+	try {
+		const { createHash } = require("node:crypto");
+		const hash = createHash("md5");
+		hash.update(JSON.stringify(data));
+		return `"${hash.digest("hex")}"`;
+	} catch {
+		// Fallback for environments without Node.js crypto
+		const simpleHash = JSON.stringify(data)
+			.split("")
+			.reduce((a, b) => {
+				a = (a << 5) - a + b.charCodeAt(0);
+				return a & a;
+			}, 0);
+		return `"${Math.abs(simpleHash).toString(16)}"`;
+	}
 }
 
 /**
@@ -219,12 +231,12 @@ export function getCacheConfigForRoute(pathname: string): CacheOptions {
 		}
 
 		// List endpoints - short cache
-		if (pathname.endsWith("/list") || pathname.match(/\/api\/[^\/]+\/?$/)) {
+		if (pathname.endsWith("/list") || pathname.match(/\/api\/[^/]+\/?$/)) {
 			return CacheConfigs.SHORT;
 		}
 
 		// Individual resource endpoints - medium cache
-		if (pathname.match(/\/api\/[^\/]+\/[^\/]+$/)) {
+		if (pathname.match(/\/api\/[^/]+\/[^/]+$/)) {
 			return CacheConfigs.MEDIUM;
 		}
 	}

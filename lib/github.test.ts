@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import {
 	afterEach,
 	beforeEach,
@@ -6,9 +7,8 @@ import {
 	it,
 	spyOn,
 	test,
+	vi,
 } from "vitest";
-import { cookies } from "next/headers";
-import { vi } from "vitest";
 import {
 	clearGitHubAuth,
 	createRepository,

@@ -6,10 +6,11 @@
  */
 
 import { shouldUseWASMOptimization, wasmDetector } from "./detection";
+import {
 	batchSimilaritySearch,
 	createVectorSearchInstance,
 	loadVectorSearchWASM,
-	type VectorSearch as WASMVectorSearchInstance
+	type VectorSearch as WASMVectorSearchInstance,
 } from "./modules/vector-search-loader";
 
 export interface VectorSearchConfig {
@@ -45,6 +46,7 @@ export interface VectorSearchOptions {
  */
 export class VectorSearchWASM {
 	private wasmVectorSearch: WASMVectorSearchInstance | null = null;
+	private wasmInstance: WebAssembly.Instance | null = null;
 	private inlineWASMInstance: WebAssembly.Instance | null = null;
 	private isInitialized = false;
 	private isWASMEnabled = false;
@@ -120,9 +122,111 @@ export class VectorSearchWASM {
 			const wasmModule = await WebAssembly.compile(wasmCode);
 
 			// Create instance with memory for vector operations
-			// @ts-expect-error - Workaround for TypeScript bug
 			const memory = new WebAssembly.Memory({ initial: 256, maximum: 1024 });
 			const wasmInstance = await WebAssembly.instantiate(wasmModule, {
 				env: {
-					import { memory,
-Math_sqrt: Math.sqrt,
+					memory,
+					Math_sqrt: Math.sqrt,
+				},
+			});
+
+			this.wasmInstance = wasmInstance;
+			this.isInitialized = true;
+		} catch (error) {
+			console.error("Failed to initialize WASM:", error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Generate inline WASM module for vector operations
+	 */
+	private async generateVectorWASMModule(): Promise<ArrayBuffer> {
+		// Minimal WASM module for demonstration purposes
+		const wasmBytes = new Uint8Array([
+			0x00,
+			0x61,
+			0x73,
+			0x6d, // WASM magic number
+			0x01,
+			0x00,
+			0x00,
+			0x00, // Version
+		]);
+		return wasmBytes.buffer;
+	}
+
+	getStats() {
+		return {
+			isWASMEnabled: this.isWASMEnabled,
+			documentsCount: this.documents.size,
+			cacheSize: this.cache.size,
+		};
+	}
+
+	clear(): void {
+		this.documents.clear();
+		this.cache.clear();
+		console.log("✅ Vector search engine cleared");
+	}
+}
+
+// Vector search manager
+class VectorSearchManager {
+	private engines: Map<string, VectorSearchWASM> = new Map();
+
+	getSearchEngine(
+		name: string = "default",
+		config?: Partial<VectorSearchConfig>,
+	): VectorSearchWASM {
+		if (!this.engines.has(name)) {
+			this.engines.set(name, new VectorSearchWASM(config));
+		}
+		return this.engines.get(name)!;
+	}
+}
+
+export const vectorSearchManager = new VectorSearchManager();
+
+// Utility functions
+export function calculateFastSimilarity(a: number[], b: number[]): number {
+	if (a.length !== b.length) throw new Error("Vector dimensions must match");
+
+	let dotProduct = 0;
+	let normA = 0;
+	let normB = 0;
+
+	for (let i = 0; i < a.length; i++) {
+		dotProduct += a[i] * b[i];
+		normA += a[i] * a[i];
+		normB += b[i] * b[i];
+	}
+
+	return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+export function createOptimizedEmbedding(
+	text: string,
+	dimensions: number = 384,
+): number[] {
+	// Simple hash-based embedding for testing
+	const embedding = new Array(dimensions).fill(0);
+	for (let i = 0; i < text.length; i++) {
+		embedding[i % dimensions] += text.charCodeAt(i);
+	}
+	// Normalize
+	const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+	return embedding.map((val) => val / norm);
+}
+
+export function createVectorSearchEngine(
+	config?: Partial<VectorSearchConfig>,
+): VectorSearchWASM {
+	return new VectorSearchWASM(config);
+}
+
+export function getVectorSearchEngine(
+	name: string = "default",
+): VectorSearchWASM {
+	return vectorSearchManager.getSearchEngine(name);
+}

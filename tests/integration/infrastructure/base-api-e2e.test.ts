@@ -1,24 +1,24 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+import { db } from "../../../db/config";
+import {
+	BaseAPIError,
+	DatabaseError,
+	NotFoundError,
+	ValidationError,
+} from "../../../lib/api/base/errors";
 import { BaseAPIHandler } from "../../../lib/api/base/handler";
+import {
+	createQueryBuilder,
+	QueryBuilder,
+} from "../../../lib/api/base/query-builder";
+import { ResponseBuilder } from "../../../lib/api/base/response-builder";
 import {
 	BaseAPIService,
 	BaseCRUDService,
 	type ServiceContext,
 } from "../../../lib/api/base/service";
-import {
-	QueryBuilder,
-	createQueryBuilder,
-} from "../../../lib/api/base/query-builder";
-import { ResponseBuilder } from "../../../lib/api/base/response-builder";
-import {
-	BaseAPIError,
-	ValidationError,
-	NotFoundError,
-	DatabaseError,
-} from "../../../lib/api/base/errors";
-import { db } from "../../../db/config";
 import { observability } from "../../../lib/observability";
 
 // Mock dependencies

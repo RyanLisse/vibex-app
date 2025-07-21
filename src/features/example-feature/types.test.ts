@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, test } from "vitest";
-import { vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
 import type {
 	ExampleFilter,
 	ExampleFormData,

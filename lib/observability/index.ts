@@ -1,3 +1,5 @@
+import { context, SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
+import { observabilityEvents } from "./events";
 import { metrics as performanceMetrics } from "./metrics";
 
 // Observability service for tracking operations and events

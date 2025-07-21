@@ -1,9 +1,25 @@
 "use client";
 
+import { AlertCircle, Loader2, Volume2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import type { VoiceRecording } from "@/src/schemas/enhanced-task-schemas";
 
-import { VoiceRecording
-} from "@/src/schemas/enhanced-task-schemas";
+interface TranscriptionSegment {
+	text: string;
+	start: number;
+	end: number;
+	confidence: number;
+}
 
+interface TranscriptionResult {
+	text: string;
+	confidence: number;
+	language: string;
+	segments: TranscriptionSegment[];
+}
 
 interface TranscriptionProcessorProps {
 	recording: VoiceRecording;
@@ -141,7 +157,7 @@ export function TranscriptionProcessor({
 				}
 
 				setIsTranscribing(false);
-URL.revokeObjectURL(audioUrl);
+				URL.revokeObjectURL(audioUrl);
 			};
 
 			// Start recognition
@@ -196,7 +212,8 @@ URL.revokeObjectURL(audioUrl);
 					<AlertCircle className="h-4 w-4" />
 					<AlertDescription className="flex items-center justify-between">
 						<span>{error}</span>
-						<Button onClick={retryTranscription} size="sm" variant="outline">Retry
+						<Button onClick={retryTranscription} size="sm" variant="outline">
+							Retry
 						</Button>
 					</AlertDescription>
 				</Alert>
@@ -206,7 +223,8 @@ URL.revokeObjectURL(audioUrl);
 				<div className="space-y-3">
 					<div className="flex items-center gap-2">
 						<Loader2 className="h-4 w-4 animate-spin" />
-						<span className="text-muted-foreground text-sm">Processing speech...
+						<span className="text-muted-foreground text-sm">
+							Processing speech...
 						</span>
 					</div>
 
@@ -223,7 +241,8 @@ URL.revokeObjectURL(audioUrl);
 
 			{transcriptionText && (
 				<div className="space-y-2">
-					<h4 className="font-medium text-muted-foreground text-sm">Live Transcription:
+					<h4 className="font-medium text-muted-foreground text-sm">
+						Live Transcription:
 					</h4>
 					<div className="min-h-[60px] rounded-lg border bg-muted/50 p-3">
 						<p className="text-sm leading-relaxed">{transcriptionText}</p>

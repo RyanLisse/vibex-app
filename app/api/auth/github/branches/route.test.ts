@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
 // Mock GitHub auth utilities

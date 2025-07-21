@@ -1,4 +1,12 @@
-import { AIReasoningTrigger } from "./reasoning";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { describe, expect, it, mock, vi } from "vitest";
+import {
+	AIReasoning,
+	AIReasoningContent,
+	AIReasoningTrigger,
+} from "./reasoning";
 
 // Mock dependencies
 vi.mock("@radix-ui/react-use-controllable-state", () => ({

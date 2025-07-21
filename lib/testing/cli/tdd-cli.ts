@@ -191,8 +191,8 @@ describe('${options.table} table', () => {
   `,
 		)
 		.join("\n")}
-})
-    `;
+});`,
+		);
 	}
 
 	registerTemplate(name: string, template: string): void {
@@ -209,7 +209,8 @@ describe('${options.table} table', () => {
 		return this.processTemplate(template, data);
 	}
 
-	private processTemplate(template: string, data: any): string {
+	private;
+	processTemplate(template: string, data: any): string {
 		let result = template;
 
 		// Replace simple variables
@@ -227,7 +228,7 @@ describe('${options.table} table', () => {
 						let itemContent = content;
 						if (typeof item === "object") {
 							// Replace object properties
-Object.keys(item).forEach((prop) => {
+							Object.keys(item).forEach((prop) => {
 								const regex = new RegExp(`\\{\\{this\\.${prop}\\}\\}`, "g");
 								const value = this.serializeTestCaseInput(item[prop]);
 								itemContent = itemContent.replace(regex, value);
@@ -342,11 +343,11 @@ Object.keys(item).forEach((prop) => {
 
 	private inferDefaultRole(componentName: string): string {
 		const roleMap: Record<string, string> = {
-Button: "button",
-Input: "textbox",
-Form: "form",
-Dialog: "dialog",
-Modal: "dialog",
+			Button: "button",
+			Input: "textbox",
+			Form: "form",
+			Dialog: "dialog",
+			Modal: "dialog",
 		};
 		return roleMap[componentName] || "generic";
 	}

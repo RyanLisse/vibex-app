@@ -1,8 +1,7 @@
-import {
-	type BrainstormSession
-} from "./agents/brainstorm";
+import { z } from "zod";
+import { BrainstormAgent, type BrainstormSession } from "./agents/brainstorm";
 import { OrchestratorAgent, OrchestratorConfig } from "./agents/orchestrator";
-LettaClient, type Message } from "./client";
+import { LettaClient, type Message } from "./client";
 
 // Multi-Agent System Configuration
 export const MultiAgentConfigSchema = z.object({
@@ -156,49 +155,86 @@ export class MultiAgentSystem {
 		this.sessions.set(sessionId, session);
 	}
 
-	// Message Processing
-	async processMessage(
-		sessionId: string,
-		message: string,
-		streaming = false,
-	): Promise<Message | ReadableStream> {
+	/**
+	 * Ensures the multi-agent system is initialized before processing
+	 */
+	private async ensureInitialized(): Promise<void> {
 		if (!this.isInitialized) {
 			await this.initialize();
 		}
+	}
 
+	/**
+	 * Validates and retrieves session, updating activity timestamps
+	 */
+	private updateSessionActivity(sessionId: string): Session {
 		const session = this.sessions.get(sessionId);
 		if (!session) {
 			throw new Error("Session not found");
 		}
 
-		// Update session activity
+		// Update session activity timestamps
 		session.lastActivity = new Date();
 		session.updatedAt = new Date();
 		this.sessions.set(sessionId, session);
 
-		// Route message based on session type and context
-		if (session.type === "brainstorm") {
-			return this.processBrainstormMessage(sessionId, message, streaming);
-		}
-
-		// Default to orchestrator for general chat
-		return this.orchestrator.processMessage(message, streaming);
+		return session;
 	}
 
-	private async processBrainstormMessage(
-		sessionId: string,
+	/**
+	 * Routes message to appropriate agent based on session type
+	 */
+	private async routeMessageToAgent(
+		session: Session,
 		message: string,
 		streaming: boolean,
 	): Promise<Message | ReadableStream> {
+		switch (session.type) {
+			case "brainstorm":
+				return this.processBrainstormMessage(session.id, message, streaming);
+			case "chat":
+			case "voice":
+			case "multi-agent":
+			default:
+				// Default to orchestrator for general chat
+				return this.orchestrator.processMessage(message, streaming);
+		}
+	}
+
+	/**
+	 * Main message processing entry point with simplified flow
+	 */
+	async processMessage(
+		sessionId: string,
+		message: string,
+		streaming = false,
+	): Promise<Message | ReadableStream> {
+		// Ensure system is initialized
+		await this.ensureInitialized();
+
+		// Validate session and update activity
+		const session = this.updateSessionActivity(sessionId);
+
+		// Route message to appropriate agent
+		return this.routeMessageToAgent(session, message, streaming);
+	}
+
+	/**
+	 * Gets or creates brainstorm session for the given session ID
+	 */
+	private async ensureBrainstormSession(
+		sessionId: string,
+		message: string,
+	): Promise<BrainstormSession> {
 		// Check if there's an active brainstorm session
 		let brainstormSession = this.brainstormAgent.getActiveSession(sessionId);
 
-
 		if (!brainstormSession) {
-			// Extract topic from message or ask user
+			// Extract topic from message or use default
 			const topic =
 				this.extractTopicFromMessage(message) || "General Brainstorming";
 			const session = this.sessions.get(sessionId)!;
+
 			brainstormSession = await this.brainstormAgent.startBrainstormSession(
 				session.userId,
 				topic,
@@ -206,7 +242,21 @@ export class MultiAgentSystem {
 			);
 		}
 
+		return brainstormSession;
+	}
 
+	/**
+	 * Processes brainstorm-specific messages with session management
+	 */
+	private async processBrainstormMessage(
+		sessionId: string,
+		message: string,
+		streaming: boolean,
+	): Promise<Message | ReadableStream> {
+		// Ensure brainstorm session exists
+		await this.ensureBrainstormSession(sessionId, message);
+
+		// Process message through brainstorm agent
 		return this.brainstormAgent.processMessage(sessionId, message, streaming);
 	}
 
@@ -255,19 +305,16 @@ export class MultiAgentSystem {
 		return this.orchestrator.processVoiceMessage(audioData);
 	}
 
-	// Agent Communication
-	async delegateTask(
+	/**
+	 * Creates a delegation event for tracking agent communication
+	 */
+	private createDelegationEvent(
 		fromSessionId: string,
 		toAgent: "brainstorm" | "orchestrator",
 		task: string,
-		context: Record<string, any> = {},
-	): Promise<Message> {
-		const session = this.sessions.get(fromSessionId);
-		if (!session) {
-			throw new Error("Session not found");
-		}
-
-		const event: AgentEvent = {
+		context: Record<string, any>,
+	): AgentEvent {
+		return {
 			id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
 			type: "task_delegation",
 			fromAgent: "orchestrator",
@@ -276,32 +323,82 @@ export class MultiAgentSystem {
 			timestamp: new Date(),
 			sessionId: fromSessionId,
 		};
+	}
 
-		this.eventQueue.push(event);
-
-
-		// Execute delegation
-		if (toAgent === "brainstorm") {
-			// Start or continue brainstorm session
-			let brainstormSession =
-				this.brainstormAgent.getActiveSession(fromSessionId);
-			if (!brainstormSession) {
-				brainstormSession = await this.brainstormAgent.startBrainstormSession(
-					session.userId,
-					task,
-					fromSessionId,
-				);
-			}
-
-
-			return this.brainstormAgent.processMessage(
-				fromSessionId,
+	/**
+	 * Delegates task to brainstorm agent
+	 */
+	private async delegateToBrainstormAgent(
+		session: Session,
+		task: string,
+	): Promise<Message> {
+		// Ensure brainstorm session exists
+		let brainstormSession = this.brainstormAgent.getActiveSession(session.id);
+		if (!brainstormSession) {
+			brainstormSession = await this.brainstormAgent.startBrainstormSession(
+				session.userId,
 				task,
-			) as Promise<Message>;
+				session.id,
+			);
 		}
 
-		// Default to orchestrator
+		return this.brainstormAgent.processMessage(
+			session.id,
+			task,
+		) as Promise<Message>;
+	}
+
+	/**
+	 * Delegates task to orchestrator agent
+	 */
+	private async delegateToOrchestratorAgent(task: string): Promise<Message> {
 		return this.orchestrator.processMessage(task) as Promise<Message>;
+	}
+
+	/**
+	 * Executes task delegation based on target agent
+	 */
+	private async executeDelegation(
+		session: Session,
+		toAgent: "brainstorm" | "orchestrator",
+		task: string,
+	): Promise<Message> {
+		switch (toAgent) {
+			case "brainstorm":
+				return this.delegateToBrainstormAgent(session, task);
+			case "orchestrator":
+				return this.delegateToOrchestratorAgent(task);
+			default:
+				throw new Error(`Unknown agent type: ${toAgent}`);
+		}
+	}
+
+	/**
+	 * Delegates task from one agent to another with proper event tracking
+	 */
+	async delegateTask(
+		fromSessionId: string,
+		toAgent: "brainstorm" | "orchestrator",
+		task: string,
+		context: Record<string, any> = {},
+	): Promise<Message> {
+		// Validate session exists
+		const session = this.sessions.get(fromSessionId);
+		if (!session) {
+			throw new Error("Session not found");
+		}
+
+		// Create and queue delegation event
+		const event = this.createDelegationEvent(
+			fromSessionId,
+			toAgent,
+			task,
+			context,
+		);
+		this.eventQueue.push(event);
+
+		// Execute delegation to target agent
+		return this.executeDelegation(session, toAgent, task);
 	}
 
 	// Brainstorm-specific methods
@@ -320,14 +417,12 @@ export class MultiAgentSystem {
 		session.updatedAt = new Date();
 		this.sessions.set(sessionId, session);
 
-
 		return this.brainstormAgent.startBrainstormSession(
 			session.userId,
 			topic,
 			sessionId,
 		);
 	}
-
 
 	async getBrainstormSummary(sessionId: string) {
 		return this.brainstormAgent.getSessionSummary(sessionId);

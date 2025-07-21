@@ -5,7 +5,7 @@
  * vector embeddings and semantic search.
  */
 
-import { MemoryType } from "./types";
+import type { MemoryType } from "./types";
 
 export class MemorySearchService {
 	private static instance: MemorySearchService;

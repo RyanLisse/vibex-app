@@ -3,5 +3,5 @@
 import {
 	checkDatabaseHealth,
 	DatabasePool,
-	initializeExtensions
+	initializeExtensions,
 } from "./config";

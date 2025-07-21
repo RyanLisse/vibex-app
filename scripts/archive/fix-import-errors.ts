@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
-join } from "path";
+
+import { join } from "path";
 
 // Fix 1: Memory icon import in performance-monitor.tsx
 const performanceMonitorPath = join(

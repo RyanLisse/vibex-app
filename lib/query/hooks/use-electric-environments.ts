@@ -4,7 +4,7 @@
  * Basic TanStack Query hooks for environment management without complex Electric services
  */
 
-import { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
+import type { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type ElectricEnvironment = z.infer<typeof EnvironmentSchema>;

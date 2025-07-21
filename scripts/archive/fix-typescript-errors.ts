@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
+import {
 	existsSync,
 	mkdirSync,
 	readdirSync,
@@ -8,7 +9,7 @@ import { execSync } from "child_process";
 	statSync,
 	writeFileSync,
 } from "fs";
-dirname, join, relative } from "path";
+import { dirname, join, relative } from "path";
 
 interface ErrorPattern {
 	code: string;

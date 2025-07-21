@@ -5,9 +5,13 @@
  * for real-time monitoring, debugging, and performance analysis.
  */
 
+import { SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
+import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
+import { ulid } from "ulid";
 import { db } from "@/db/config";
+import {
 	agentExecutions,
-	observabilityEvents as observabilityEventsTable
+	observabilityEvents as observabilityEventsTable,
 } from "@/db/schema";
 
 // Event types for categorization
@@ -94,7 +98,7 @@ export class ObservabilityEventCollector {
 
 	static getInstance(): ObservabilityEventCollector {
 		if (!ObservabilityEventCollector.instance) {
-ObservabilityEventCollector.instance = new ObservabilityEventCollector();
+			ObservabilityEventCollector.instance = new ObservabilityEventCollector();
 		}
 		return ObservabilityEventCollector.instance;
 	}
@@ -330,7 +334,7 @@ export const observabilityEvents = {
 
 	// Execution events
 	executionStart: (executionId: string, metadata: EventMetadata = {}) =>
-ObservabilityEventCollector.getInstance().collectEvent(
+		ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_start",
 			"info",
 			`Execution started: ${executionId}`,
@@ -344,7 +348,7 @@ ObservabilityEventCollector.getInstance().collectEvent(
 		duration: number,
 		metadata: EventMetadata = {},
 	) =>
-ObservabilityEventCollector.getInstance().collectEvent(
+		ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_end",
 			"info",
 			`Execution completed: ${executionId}`,
@@ -358,7 +362,7 @@ ObservabilityEventCollector.getInstance().collectEvent(
 		error: Error,
 		metadata: EventMetadata = {},
 	) =>
-ObservabilityEventCollector.getInstance().collectEvent(
+		ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_error",
 			"error",
 			`Execution failed: ${executionId}`,
@@ -381,7 +385,7 @@ ObservabilityEventCollector.getInstance().collectEvent(
 		value: number,
 		metadata: EventMetadata = {},
 	) =>
-ObservabilityEventCollector.getInstance().collectEvent(
+		ObservabilityEventCollector.getInstance().collectEvent(
 			"performance_metric",
 			"debug",
 			`Performance metric: ${metric} = ${value}`,
@@ -396,7 +400,7 @@ ObservabilityEventCollector.getInstance().collectEvent(
 		performance: EventMetadata["wasmPerformance"],
 		metadata: EventMetadata = {},
 	) =>
-ObservabilityEventCollector.getInstance().collectEvent(
+		ObservabilityEventCollector.getInstance().collectEvent(
 			"wasm_operation",
 			"debug",
 			`WASM operation: ${operation}`,

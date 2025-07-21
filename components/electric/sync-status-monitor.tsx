@@ -1,30 +1,30 @@
 "use client";
 
-import { 
-	Zap, 
-	Wifi, 
-	WifiOff, 
-	RefreshCw, 
-	AlertCircle, 
-	CheckCircle2, 
-	Clock, 
-	Database, 
-	Activity, 
-	Users 
+import { AnimatePresence, motion } from "framer-motion";
+import {
+	Activity,
+	AlertCircle,
+	CheckCircle2,
+	Clock,
+	Database,
+	RefreshCw,
+	Users,
+	Wifi,
+	WifiOff,
+	Zap,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-	Card, 
-	CardContent, 
-	CardHeader, 
-	CardTitle, 
-	CardDescription 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { electricDb, type SyncEvent } from "@/lib/electric/config";
 
@@ -56,7 +56,7 @@ export function SyncStatusMonitor({
 
 	// Error handling
 	const [errors, setErrors] = useState<
-Array<{ message: string; timestamp: Date }>
+		Array<{ message: string; timestamp: Date }>
 	>([]);
 	const [showErrorDetails, setShowErrorDetails] = useState(false);
 
@@ -229,9 +229,11 @@ Array<{ message: string; timestamp: Date }>
 				<div className="flex items-center justify-between">
 					<div>
 						<CardTitle className="flex items-center gap-2 text-lg">
-							<Database className="h-5 w-5" />Real-time Sync Status
+							<Database className="h-5 w-5" />
+							Real-time Sync Status
 						</CardTitle>
-						<CardDescription>ElectricSQL synchronization and collaboration status
+						<CardDescription>
+							ElectricSQL synchronization and collaboration status
 						</CardDescription>
 					</div>
 					<Button
@@ -242,7 +244,8 @@ Array<{ message: string; timestamp: Date }>
 					>
 						<RefreshCw
 							className={`mr-1 h-4 w-4 ${syncState === "syncing" ? "animate-spin" : ""}`}
-						/>Sync
+						/>
+						Sync
 					</Button>
 				</div>
 			</CardHeader>
@@ -330,7 +333,8 @@ Array<{ message: string; timestamp: Date }>
 				{recentEvents.length > 0 && (
 					<div className="space-y-2">
 						<h4 className="flex items-center gap-2 font-medium text-sm">
-							<Activity className="h-4 w-4" />Recent Activity
+							<Activity className="h-4 w-4" />
+							Recent Activity
 						</h4>
 						<div className="max-h-32 space-y-1 overflow-y-auto">
 							<AnimatePresence>
@@ -367,7 +371,8 @@ Array<{ message: string; timestamp: Date }>
 				{showPresence && Object.keys(activeUsers).length > 0 && (
 					<div className="space-y-2">
 						<h4 className="flex items-center gap-2 font-medium text-sm">
-							<Users className="h-4 w-4" />Active Users ({Object.keys(activeUsers).length})
+							<Users className="h-4 w-4" />
+							Active Users ({Object.keys(activeUsers).length})
 						</h4>
 						<div className="space-y-1">
 							{Object.entries(activeUsers).map(
@@ -393,7 +398,8 @@ Array<{ message: string; timestamp: Date }>
 					<div className="space-y-2">
 						<div className="flex items-center justify-between">
 							<h4 className="flex items-center gap-2 font-medium text-red-600 text-sm">
-								<AlertCircle className="h-4 w-4" />Errors ({errors.length})
+								<AlertCircle className="h-4 w-4" />
+								Errors ({errors.length})
 							</h4>
 							<Button
 								onClick={() => setShowErrorDetails(!showErrorDetails)}
@@ -421,7 +427,8 @@ Array<{ message: string; timestamp: Date }>
 						)}
 
 						{errors.length > 3 && (
-							<p className="text-muted-foreground text-xs">And {errors.length - 3} more errors...
+							<p className="text-muted-foreground text-xs">
+								And {errors.length - 3} more errors...
 							</p>
 						)}
 					</div>

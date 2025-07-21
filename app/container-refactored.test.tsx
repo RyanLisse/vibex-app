@@ -1,7 +1,6 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import { afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it, vi } from "vitest";
 import Container from "./container";
 
 // Mock the hooks and components

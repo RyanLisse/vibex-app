@@ -4,7 +4,7 @@
 // 2. Set your GEMINI_API_KEY environment variable
 // 3. Run: npx tsx standalone-example.ts
 
-import { type Session } from "@google/genai";
+import type { Session } from "@google/genai";
 
 class GeminiAudioExample {
 	private ai: GoogleGenAI;

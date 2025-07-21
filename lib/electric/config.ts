@@ -42,7 +42,7 @@ interface ElectricConfig {
 }
 
 // Re-export pgliteConfig from simple-config
-import { export { pgliteConfig } from "./simple-config";
+export { pgliteConfig } from "./simple-config";
 
 // ElectricSQL configuration
 export const electricConfig: ElectricConfig = {
@@ -204,7 +204,7 @@ class ElectricDB {
 	>();
 	private syncEventListeners = new Map<
 		string,
-Set<(event: SyncEvent) => void>
+		Set<(event: SyncEvent) => void>
 	>();
 	private realtimeStats = {
 		totalOperations: 0,
@@ -270,9 +270,9 @@ Set<(event: SyncEvent) => void>
 		this.stateListeners.delete(handler);
 	}
 
-	getConnectionState(): string {
+	async getConnectionState(): Promise<string> {
 		try {
-			const { realtimeSyncService } = require("./realtime-sync");
+			const { realtimeSyncService } = await import("./realtime-sync");
 			const status = realtimeSyncService.getConnectionStatus();
 			return status.isConnected ? "connected" : "disconnected";
 		} catch {
@@ -280,9 +280,11 @@ Set<(event: SyncEvent) => void>
 		}
 	}
 
-	getSyncState(): string {
+	async getSyncState(): Promise<string> {
 		try {
-			const { conflictResolutionService } = require("./conflict-resolution");
+			const { conflictResolutionService } = await import(
+				"./conflict-resolution"
+			);
 			const queueStatus = conflictResolutionService.getOfflineQueueStatus();
 			return queueStatus.pendingOperations > 0 ? "syncing" : "idle";
 		} catch {
@@ -378,16 +380,18 @@ Set<(event: SyncEvent) => void>
 			await conflictResolutionService.processOfflineQueue();
 
 			// Notify state listeners
-			this.notifyStateListeners();
+			await this.notifyStateListeners();
 		} catch (error) {
 			console.error("Sync failed:", error);
 			throw error;
 		}
 	}
 
-	getStats() {
+	async getStats(): Promise<{ pendingChanges: number }> {
 		try {
-			const { conflictResolutionService } = require("./conflict-resolution");
+			const { conflictResolutionService } = await import(
+				"./conflict-resolution"
+			);
 			const queueStatus = conflictResolutionService.getOfflineQueueStatus();
 			return {
 				pendingChanges: queueStatus.pendingOperations,
@@ -397,10 +401,10 @@ Set<(event: SyncEvent) => void>
 		}
 	}
 
-	private notifyStateListeners(): void {
+	private async notifyStateListeners(): Promise<void> {
 		const state = {
-			connection: this.getConnectionState(),
-			sync: this.getSyncState(),
+			connection: await this.getConnectionState(),
+			sync: await this.getSyncState(),
 		};
 
 		this.stateListeners.forEach((handler) => {

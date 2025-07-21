@@ -21,8 +21,8 @@ vi.mock("next/server", () => ({
 	NextResponse: mockNextResponse,
 }));
 
-import { beforeEach, describe, expect, it } from "vitest";
-import { vi } from "vitest";
+import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
 describe("GET /api/auth/openai/status", () => {
@@ -43,7 +43,10 @@ describe("GET /api/auth/openai/status", () => {
 		mockCodexAuthenticator.isAuthenticated.mockResolvedValue(true);
 		mockCodexAuthenticator.loadAuthConfig.mockResolvedValue(mockConfig);
 
-		const _response = await GET();
+		const mockRequest = new NextRequest(
+			"http://localhost:3000/api/auth/openai/status",
+		);
+		const _response = await GET(mockRequest);
 
 		expect(mockCodexAuthenticator.isAuthenticated).toHaveBeenCalled();
 		expect(mockCodexAuthenticator.loadAuthConfig).toHaveBeenCalled();
@@ -63,7 +66,10 @@ describe("GET /api/auth/openai/status", () => {
 	it("should return unauthenticated status when not authenticated", async () => {
 		mockCodexAuthenticator.isAuthenticated.mockResolvedValue(false);
 
-		const _response = await GET();
+		const mockRequest = new NextRequest(
+			"http://localhost:3000/api/auth/openai/status",
+		);
+		const _response = await GET(mockRequest);
 
 		expect(mockCodexAuthenticator.isAuthenticated).toHaveBeenCalled();
 		expect(mockNextResponse.json).toHaveBeenCalledWith({
@@ -76,7 +82,10 @@ describe("GET /api/auth/openai/status", () => {
 			new Error("Auth check failed"),
 		);
 
-		const _response = await GET();
+		const mockRequest = new NextRequest(
+			"http://localhost:3000/api/auth/openai/status",
+		);
+		const _response = await GET(mockRequest);
 
 		expect(mockCodexAuthenticator.isAuthenticated).toHaveBeenCalled();
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
@@ -94,7 +103,10 @@ describe("GET /api/auth/openai/status", () => {
 			new Error("Config load failed"),
 		);
 
-		const _response = await GET();
+		const mockRequest = new NextRequest(
+			"http://localhost:3000/api/auth/openai/status",
+		);
+		const _response = await GET(mockRequest);
 
 		expect(mockCodexAuthenticator.isAuthenticated).toHaveBeenCalled();
 		expect(mockCodexAuthenticator.loadAuthConfig).toHaveBeenCalled();
@@ -120,7 +132,10 @@ describe("GET /api/auth/openai/status", () => {
 		mockCodexAuthenticator.isAuthenticated.mockResolvedValue(true);
 		mockCodexAuthenticator.loadAuthConfig.mockResolvedValue(mockConfig);
 
-		const _response = await GET();
+		const mockRequest = new NextRequest(
+			"http://localhost:3000/api/auth/openai/status",
+		);
+		const _response = await GET(mockRequest);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith({
 			authenticated: true,
@@ -139,7 +154,10 @@ describe("GET /api/auth/openai/status", () => {
 		mockCodexAuthenticator.isAuthenticated.mockResolvedValue(true);
 		mockCodexAuthenticator.loadAuthConfig.mockResolvedValue(null);
 
-		const _response = await GET();
+		const mockRequest = new NextRequest(
+			"http://localhost:3000/api/auth/openai/status",
+		);
+		const _response = await GET(mockRequest);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith({
 			authenticated: true,

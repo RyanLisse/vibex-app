@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ElectricSyncButton, useElectricContext } from "@/components/providers/electric-provider";
+import { ElectricConnectionStatus } from "@/components/electric/electric-connection-status";
+import {
+	ElectricSyncButton,
+	useElectricContext,
+} from "@/components/providers/electric-provider";
 import { useElectricEnvironments } from "@/hooks/use-electric-environments";
 import { useElectricTasks } from "@/hooks/use-electric-tasks";
-import { ElectricConnectionStatus } from "@/components/electric/electric-connection-status";
 
 // Demo component to showcase ElectricSQL integration
 export function ElectricDemo() {
@@ -219,12 +222,14 @@ export function ElectricDemo() {
 
 				{/* Tasks List */}
 				{tasksError ? (
-					<div className="text-red-600 text-sm">Error loading tasks: {tasksError.message}
+					<div className="text-red-600 text-sm">
+						Error loading tasks: {tasksError.message}
 					</div>
 				) : (
 					<div className="space-y-3">
 						{tasks.length === 0 ? (
-							<div className="py-8 text-center text-gray-500">No tasks yet. Create your first task above!
+							<div className="py-8 text-center text-gray-500">
+								No tasks yet. Create your first task above!
 							</div>
 						) : (
 							tasks.map((task) => (
@@ -239,7 +244,8 @@ export function ElectricDemo() {
 											)}
 											<div className="mt-2 flex items-center space-x-4 text-gray-500 text-xs">
 												<span>Priority: {task.priority}</span>
-												<span>Created:{" "}
+												<span>
+													Created:{" "}
 													{new Date(task.createdAt).toLocaleDateString()}
 												</span>
 											</div>
@@ -307,12 +313,14 @@ export function ElectricDemo() {
 
 				{/* Environments List */}
 				{environmentsError ? (
-					<div className="text-red-600 text-sm">Error loading environments: {environmentsError.message}
+					<div className="text-red-600 text-sm">
+						Error loading environments: {environmentsError.message}
 					</div>
 				) : (
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 						{environments.length === 0 ? (
-							<div className="col-span-full py-8 text-center text-gray-500">No environments yet. Create your first environment above!
+							<div className="col-span-full py-8 text-center text-gray-500">
+								No environments yet. Create your first environment above!
 							</div>
 						) : (
 							environments.map((env) => (
@@ -327,11 +335,13 @@ export function ElectricDemo() {
 									<div className="mb-2 flex items-center justify-between">
 										<h4 className="font-medium">{env.name}</h4>
 										{env.isActive && (
-											<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">Active
+											<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">
+												Active
 											</span>
 										)}
 									</div>
-									<div className="mb-3 text-gray-500 text-xs">Created: {new Date(env.createdAt).toLocaleDateString()}
+									<div className="mb-3 text-gray-500 text-xs">
+										Created: {new Date(env.createdAt).toLocaleDateString()}
 									</div>
 									{!env.isActive && (
 										<button

@@ -1,12 +1,11 @@
 "use client";
 
 import { useElectricTasks } from "./use-electric-tasks";
-
+import {
 	useEnhancedMutation,
 	useEnhancedQuery,
 	useVectorSearchQuery,
 } from "./use-enhanced-query-new";
-
 
 /**
  * Enhanced task queries with comprehensive database integration, WASM optimization, and real-time sync
@@ -46,28 +45,57 @@ export interface TaskWithRelations extends Task {
 }
 
 /**
- * Hook for querying a single task by ID with full relations
+ * Hook for querying a single task by ID with full relations and optimized caching
  */
 export function useTaskQuery(taskId: string) {
 	return useEnhancedQuery(
 		queryKeys.tasks.detail(taskId),
 		async (): Promise<TaskWithRelations> => {
-			const response = await fetch(`/api/tasks/${taskId}?include=executions`);
-			if (!response.ok) {
-				if (response.status === 404) {
-					throw new Error(`Task with id ${taskId} not found`);
+			// Use AbortController for request cancellation
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+			try {
+				const response = await fetch(
+					`/api/tasks/${taskId}?include=executions`,
+					{
+						signal: controller.signal,
+						headers: {
+							"Cache-Control": "max-age=120", // 2 minutes browser cache
+						},
+					},
+				);
+				clearTimeout(timeoutId);
+
+				if (!response.ok) {
+					if (response.status === 404) {
+						throw new Error(`Task with id ${taskId} not found`);
+					}
+					throw new Error(`Failed to fetch task: ${response.statusText}`);
 				}
-				throw new Error(`Failed to fetch task: ${response.statusText}`);
+
+				const result = await response.json();
+				return result.data;
+			} catch (error) {
+				clearTimeout(timeoutId);
+				throw error;
 			}
-			const result = await response.json();
-			return result.data;
 		},
 		{
-			enabled: !!taskId,
+			enabled: !!taskId && taskId.length > 0,
 			staleTime: 2 * 60 * 1000, // 2 minutes
+			cacheTime: 10 * 60 * 1000, // 10 minutes
 			enableWASMOptimization: false, // Single record doesn't need WASM optimization
 			enableRealTimeSync: true,
 			syncTable: "tasks",
+			retry: (failureCount, error) => {
+				// Don't retry 404s or client errors
+				if (error instanceof Error && error.message.includes("not found")) {
+					return false;
+				}
+				return failureCount < 3;
+			},
+			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 		},
 	);
 }
@@ -79,60 +107,100 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 	const { userId, status, priority, search, dateRange, tags, assignedTo } =
 		filters;
 
+	// Memoize the search params to prevent unnecessary re-renders
+	const searchParamsString = useMemo(() => {
+		const searchParams = new URLSearchParams();
+
+		if (userId) searchParams.append("userId", userId);
+		if (status?.length) searchParams.append("status", status.join(","));
+		if (priority?.length) searchParams.append("priority", priority.join(","));
+		if (search && search.trim()) searchParams.append("search", search.trim());
+		if (dateRange) {
+			searchParams.append("startDate", dateRange.start.toISOString());
+			searchParams.append("endDate", dateRange.end.toISOString());
+		}
+		if (tags?.length) searchParams.append("tags", tags.join(","));
+		if (assignedTo) searchParams.append("assignedTo", assignedTo);
+
+		return searchParams.toString();
+	}, [userId, status, priority, search, dateRange, tags, assignedTo]);
+
+	// Debounce search queries to reduce API calls
+	const isSearchQuery = search && search.length > 0;
+	const shouldDebounce = isSearchQuery && search.length < 3;
+
 	return useEnhancedQuery(
 		queryKeys.tasks.list(filters),
 		async (): Promise<TaskWithRelations[]> => {
-			const searchParams = new URLSearchParams();
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout for list queries
 
-			if (userId) searchParams.append("userId", userId);
-			if (status?.length) searchParams.append("status", status.join(","));
-			if (priority?.length) searchParams.append("priority", priority.join(","));
-			if (search) searchParams.append("search", search);
-			if (dateRange) {
-				searchParams.append("startDate", dateRange.start.toISOString());
-				searchParams.append("endDate", dateRange.end.toISOString());
+			try {
+				const response = await fetch(`/api/tasks?${searchParamsString}`, {
+					signal: controller.signal,
+					headers: {
+						"Cache-Control": isSearchQuery ? "no-cache" : "max-age=300", // 5 min cache for non-search
+					},
+				});
+				clearTimeout(timeoutId);
+
+				if (!response.ok) {
+					throw new Error(`Failed to fetch tasks: ${response.statusText}`);
+				}
+
+				const result = await response.json();
+				return result.data;
+			} catch (error) {
+				clearTimeout(timeoutId);
+				throw error;
 			}
-			if (tags?.length) searchParams.append("tags", tags.join(","));
-			if (assignedTo) searchParams.append("assignedTo", assignedTo);
-
-			const response = await fetch(`/api/tasks?${searchParams.toString()}`);
-			if (!response.ok) {
-				throw new Error(`Failed to fetch tasks: ${response.statusText}`);
-			}
-
-			const result = await response.json();
-			return result.data;
 		},
 		{
-			enableWASMOptimization: true,
-			staleWhileRevalidate: true,
+			enabled: !shouldDebounce, // Disable query for very short search terms
+			enableWASMOptimization: !isSearchQuery, // Don't use WASM for search queries
+			staleTime: isSearchQuery ? 30 * 1000 : 2 * 60 * 1000, // 30s for search, 2min for filters
+			cacheTime: isSearchQuery ? 2 * 60 * 1000 : 10 * 60 * 1000, // 2min for search, 10min for filters
+			staleWhileRevalidate: !isSearchQuery,
 			enableRealTimeSync: true,
 			syncTable: "tasks",
+			retry: (failureCount, error) => {
+				// Don't retry search queries as aggressively
+				if (isSearchQuery) {
+					return failureCount < 1;
+				}
+				return failureCount < 3;
+			},
+			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 			wasmFallback: async () => {
-				// Fallback to simpler query without complex filtering
-				const response = await fetch("/api/tasks");
+				// Optimized fallback with client-side filtering
+				const controller = new AbortController();
+				const response = await fetch("/api/tasks", {
+					signal: controller.signal,
+					headers: { "Cache-Control": "max-age=300" },
+				});
 				if (!response.ok) {
 					throw new Error(`Failed to fetch tasks: ${response.statusText}`);
 				}
 				const result = await response.json();
-
-				// Apply client-side filtering as fallback
 				let filteredTasks = result.data;
 
+				// Apply client-side filtering efficiently
 				if (status?.length) {
+					const statusSet = new Set(status);
 					filteredTasks = filteredTasks.filter((task: Task) =>
-						status.includes(task.status),
+						statusSet.has(task.status),
 					);
 				}
 
 				if (priority?.length) {
+					const prioritySet = new Set(priority);
 					filteredTasks = filteredTasks.filter((task: Task) =>
-						priority.includes(task.priority),
+						prioritySet.has(task.priority),
 					);
 				}
 
-				if (search) {
-					const searchLower = search.toLowerCase();
+				if (search && search.trim()) {
+					const searchLower = search.toLowerCase().trim();
 					filteredTasks = filteredTasks.filter(
 						(task: Task) =>
 							task.title.toLowerCase().includes(searchLower) ||

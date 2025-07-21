@@ -8,7 +8,13 @@ export const runtime = "nodejs";
  * Enhanced kanban operations using base utilities for consistency and reduced duplication
  */
 
-import { KanbanMoveSchema } from "@/src/schemas/enhanced-task-schemas";
+import { and, eq } from "drizzle-orm";
+import { z } from "zod";
+import { db } from "@/db/config";
+import { tasks } from "@/db/schema";
+import { BaseAPIService } from "@/lib/api/base";
+import { NotFoundError, ValidationError } from "@/lib/api/base/errors";
+import type { KanbanMoveSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // Request validation schemas
 const GetKanbanQuerySchema = z.object({
@@ -136,6 +142,103 @@ class KanbanService extends BaseAPIService {
 		});
 	}
 
+	// Helper functions to reduce moveTask complexity
+	static async getTaskForMove(tx: any, taskId: string) {
+		const [task] = await tx.select().from(tasks).where(eq(tasks.id, taskId));
+
+		if (!task) {
+			throw new NotFoundError("Task", taskId);
+		}
+
+		return task;
+	}
+
+	static validateTargetColumn(targetColumn: string) {
+		const columnStatusMap = {
+			todo: "todo",
+			in_progress: "in_progress",
+			review: "review",
+			completed: "completed",
+		};
+
+		const newStatus =
+			columnStatusMap[targetColumn as keyof typeof columnStatusMap];
+		if (!newStatus) {
+			throw new ValidationError("Invalid target column");
+		}
+
+		return newStatus;
+	}
+
+	static async validateWipLimits(
+		tx: any,
+		targetColumn: string,
+		newStatus: string,
+	) {
+		if (targetColumn === "todo" || targetColumn === "completed") {
+			return; // No WIP limits for these columns
+		}
+
+		const columnConfig = DEFAULT_COLUMNS.find((c) => c.id === targetColumn);
+		if (!columnConfig?.limit) {
+			return; // No limit configured
+		}
+
+		const currentColumnTasks = await tx
+			.select()
+			.from(tasks)
+			.where(eq(tasks.status, newStatus as any));
+
+		if (currentColumnTasks.length >= columnConfig.limit) {
+			throw new ValidationError(
+				`Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`,
+			);
+		}
+	}
+
+	static createTaskUpdates(
+		task: any,
+		newStatus: string,
+		moveData: z.infer<typeof KanbanMoveSchema>,
+	) {
+		const updates: any = {
+			status: newStatus,
+			updatedAt: new Date(),
+		};
+
+		// Set completion time if moving to completed
+		if (newStatus === "completed") {
+			updates.completedAt = new Date();
+		}
+
+		return updates;
+	}
+
+	static createKanbanMetadata(
+		task: any,
+		moveData: z.infer<typeof KanbanMoveSchema>,
+	) {
+		const currentMetadata = task.metadata || {};
+		return {
+			...currentMetadata,
+			kanban: {
+				columnHistory: [
+					...(currentMetadata.kanban?.columnHistory || []),
+					{
+						from: STATUS_COLUMN_MAP[
+							task.status as keyof typeof STATUS_COLUMN_MAP
+						],
+						to: moveData.targetColumn,
+						timestamp: new Date().toISOString(),
+						movedBy: moveData.userId,
+					},
+				],
+				position: moveData.position,
+				lastMoved: new Date().toISOString(),
+			},
+		};
+	}
+
 	/**
 	 * Move task between columns
 	 */
@@ -144,81 +247,30 @@ class KanbanService extends BaseAPIService {
 			"moveTask",
 			async () => {
 				return KanbanService.withTransaction(async (tx) => {
-					// Get the task to move
-					const [task] = await tx
-						.select()
-						.from(tasks)
-						.where(eq(tasks.id, moveData.taskId));
+					// Get and validate task
+					const task = await KanbanService.getTaskForMove(tx, moveData.taskId);
 
-					if (!task) {
-						throw new NotFoundError("Task", moveData.taskId);
-					}
+					// Validate target column and get new status
+					const newStatus = KanbanService.validateTargetColumn(
+						moveData.targetColumn,
+					);
 
-					// Map column to status
-					const columnStatusMap = {
-						todo: "todo",
-						in_progress: "in_progress",
-						review: "review",
-						completed: "completed",
-					};
+					// Check WIP limits
+					await KanbanService.validateWipLimits(
+						tx,
+						moveData.targetColumn,
+						newStatus,
+					);
 
-					const newStatus = columnStatusMap[moveData.targetColumn];
-					if (!newStatus) {
-						throw new ValidationError("Invalid target column");
-					}
+					// Create task updates
+					const updates = KanbanService.createTaskUpdates(
+						task,
+						newStatus,
+						moveData,
+					);
+					updates.metadata = KanbanService.createKanbanMetadata(task, moveData);
 
-					// Check WIP limits before moving
-					if (
-						moveData.targetColumn !== "todo" &&
-						moveData.targetColumn !== "completed"
-					) {
-						const columnConfig = DEFAULT_COLUMNS.find(
-							(c) => c.id === moveData.targetColumn,
-						);
-						if (columnConfig?.limit) {
-							const currentColumnTasks = await tx
-								.select()
-								.from(tasks)
-								.where(eq(tasks.status, newStatus as any));
-
-							if (currentColumnTasks.length >= columnConfig.limit) {
-								throw new ValidationError(
-									`Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`,
-								);
-							}
-						}
-					}
-
-					// Update task position and status
-					const updates: any = {
-						status: newStatus,
-						updatedAt: new Date(),
-					};
-
-					// Set completion time if moving to completed
-					if (newStatus === "completed") {
-						updates.completedAt = new Date();
-					}
-
-					// Add kanban metadata
-					const currentMetadata = task.metadata || {};
-					updates.metadata = {
-						...currentMetadata,
-						kanban: {
-							columnHistory: [
-								...(currentMetadata.kanban?.columnHistory || []),
-								{
-									from: STATUS_COLUMN_MAP[task.status],
-									to: moveData.targetColumn,
-									timestamp: new Date().toISOString(),
-									movedBy: moveData.userId,
-								},
-							],
-							position: moveData.position,
-							lastMoved: new Date().toISOString(),
-						},
-					};
-
+					// Update task in database
 					const [updatedTask] = await tx
 						.update(tasks)
 						.set(updates)
@@ -232,7 +284,10 @@ class KanbanService extends BaseAPIService {
 						moveData.taskId,
 						moveData.userId,
 						{
-							fromColumn: STATUS_COLUMN_MAP[task.status],
+							fromColumn:
+								STATUS_COLUMN_MAP[
+									task.status as keyof typeof STATUS_COLUMN_MAP
+								],
 							toColumn: moveData.targetColumn,
 							fromStatus: task.status,
 							toStatus: newStatus,
@@ -242,7 +297,9 @@ class KanbanService extends BaseAPIService {
 					return {
 						task: updatedTask,
 						movement: {
-							from: STATUS_COLUMN_MAP[task.status],
+							from: STATUS_COLUMN_MAP[
+								task.status as keyof typeof STATUS_COLUMN_MAP
+							],
 							to: moveData.targetColumn,
 							timestamp: new Date().toISOString(),
 						},

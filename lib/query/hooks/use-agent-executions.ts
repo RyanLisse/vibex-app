@@ -5,8 +5,9 @@
  * time-travel debugging, and performance monitoring integration.
  */
 
-	import { useInfiniteQuery,
-	import { useMutation,
-	import { useQuery,
-	import { useQueryClient
+import {
+	useInfiniteQuery,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";

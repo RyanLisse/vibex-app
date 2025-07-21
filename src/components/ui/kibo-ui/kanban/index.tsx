@@ -1,20 +1,22 @@
 "use client";
-import { Announcements,
-import { DragStartEvent
-} from "@dnd-kit/core";
-	import { closestCenter,
-import { DndContext,
-import { TouchSensor,
+
+import {
+	Announcements,
+	closestCenter,
+	DndContext,
+	DragStartEvent,
+	TouchSensor,
 	useDroppable,
 	useSensor,
-	useSensors
+	useSensors,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import {
 	createContext,
 	type HTMLAttributes,
 	type ReactNode,
 	useContext,
-	useState
+	useState,
 } from "react";
 import { cn } from "@/lib/utils";
 
@@ -33,5 +35,21 @@ type KanbanColumnProps = {
 	name: string;
 } & Record<string, unknown>;
 
-type KanbanContextProps<
-T extends KanbanItemProps = KanbanItemProps,
+type KanbanContextProps<T extends KanbanItemProps = KanbanItemProps> = {
+	items: T[];
+	onItemMove?: (item: T, newColumnId: string) => void;
+};
+
+// TODO: Complete Kanban implementation
+export function KanbanBoard<T extends KanbanItemProps = KanbanItemProps>({
+	items,
+	onItemMove,
+}: KanbanContextProps<T>) {
+	return (
+		<div className="kanban-board">
+			<div className="text-sm text-muted-foreground">
+				Kanban Board - {items.length} items
+			</div>
+		</div>
+	);
+}

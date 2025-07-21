@@ -6,18 +6,18 @@
  */
 
 // Re-export query client utilities
-import { export { useQueryClient } from "@tanstack/react-query";
+export { useQueryClient } from "@tanstack/react-query";
 // Enhanced ElectricSQL Environment hooks (simplified)
 export {
 	type CreateElectricEnvironmentInput,
 	type ElectricEnvironment,
 	electricEnvironmentKeys,
 	type UpdateElectricEnvironmentInput,
-	import { useCreateElectricEnvironment,
-	import { useDeleteElectricEnvironment,
-	import { useElectricEnvironment,
-	import { useElectricEnvironments,
-	import { useUpdateElectricEnvironment
+	useCreateElectricEnvironment,
+	useDeleteElectricEnvironment,
+	useElectricEnvironment,
+	useElectricEnvironments,
+	useUpdateElectricEnvironment,
 } from "./use-electric-environments";
 // Enhanced ElectricSQL Task hooks (temporarily disabled to fix build)
 // export {
@@ -50,21 +50,21 @@ export {
 	useDeleteEnvironment,
 	useEnvironment,
 	useEnvironmentByName,
-	import { useEnvironments,
-	import { useEnvironmentsByOrganization,
-	import { usePrefetchEnvironment,
-	import { useUpdateEnvironment,
-	import { useValidateEnvironmentName
+	useEnvironments,
+	useEnvironmentsByOrganization,
+	usePrefetchEnvironment,
+	useUpdateEnvironment,
+	useValidateEnvironmentName,
 } from "./use-environments";
 
 // Migration hooks
 export {
 	useDataSource,
-	import { useMigration,
-	import { usePrefetchData,
-	import { useResetMigration,
-	import { useUnifiedEnvironments,
-	import { useUnifiedTasks
+	useMigration,
+	usePrefetchData,
+	useResetMigration,
+	useUnifiedEnvironments,
+	useUnifiedTasks,
 } from "./use-migration";
 // Legacy Task hooks (for backward compatibility)
 export {
@@ -78,11 +78,11 @@ export {
 	useDeleteTask,
 	useInfiniteTasks,
 	usePauseTask,
-	import { useResumeTask,
-	import { useTask,
-	import { useTasks,
-	import { useUnarchiveTask,
-	import { useUpdateTask
+	useResumeTask,
+	useTask,
+	useTasks,
+	useUnarchiveTask,
+	useUpdateTask,
 } from "./use-tasks";
 
 // Common query patterns
@@ -178,8 +178,8 @@ export const createQueryKey = {
 
 // Hook utilities and types
 export type {
-import { AgentExecution,
-import { WorkflowFilter
+	AgentExecution,
+	WorkflowFilter,
 } from "@/lib/observability/types";
 // Observability and Database Integration hooks
 export * from "./use-agent-executions";

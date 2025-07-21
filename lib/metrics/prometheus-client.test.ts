@@ -1,15 +1,70 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { mock } from "bun:test";
+
+// Create chainable mocks for bun
+const createMockMetric = (methodNames: string[]) => {
+	const mockMetric: any = {};
+
+	// Create mock methods
+	for (const methodName of methodNames) {
+		mockMetric[methodName] = mock(() => {});
+	}
+
+	// labels method returns object with all methods
+	mockMetric.labels = mock(() => {
+		const labeled: any = {};
+		for (const methodName of methodNames) {
+			labeled[methodName] = mock(() => {});
+		}
+		return labeled;
+	});
+
+	return mockMetric;
+};
+
+const mockSummary = mock(() => createMockMetric(["observe"]));
+const mockHistogram = mock(() => createMockMetric(["observe"]));
+const mockCounter = mock(() => createMockMetric(["inc"]));
+const mockGauge = mock(() => createMockMetric(["set", "inc", "dec"]));
+
+const mockRegister = {
+	clear: mock(() => {}),
+	metrics: mock(() =>
+		Promise.resolve(
+			'# Mock metrics\nagent_operations_total{agent_id="agent-1",agent_type="code-gen",operation="execute",provider="openai",status="success"} 1',
+		),
+	),
+};
+
+// Mock the prom-client module
+mock.module("prom-client", () => ({
+	Summary: mockSummary,
+	Histogram: mockHistogram,
+	Counter: mockCounter,
+	Gauge: mockGauge,
+	register: mockRegister,
+}));
+
 import { PrometheusMetricsCollector } from "./prometheus-client";
 
 describe("PrometheusMetricsCollector", () => {
 	let collector: PrometheusMetricsCollector;
 
 	beforeEach(() => {
+		// Clear mock calls for bun
+		mockCounter.mockClear();
+		mockHistogram.mockClear();
+		mockSummary.mockClear();
+		mockGauge.mockClear();
+		mockRegister.clear.mockClear();
+		mockRegister.metrics.mockClear();
 		collector = PrometheusMetricsCollector.getInstance();
 	});
 
 	afterEach(() => {
-		collector.clearMetrics();
+		if (collector && typeof collector.clearMetrics === "function") {
+			collector.clearMetrics();
+		}
 	});
 
 	describe("singleton pattern", () => {

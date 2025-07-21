@@ -23,3 +23,8 @@ export {
 } from "./types";
 
 // Helper to initialize alerts with existing logger
+export function getAlertService(): AlertService {
+	// Create a new AlertService instance
+	// In a real implementation, this would be a singleton
+	return new AlertService();
+}

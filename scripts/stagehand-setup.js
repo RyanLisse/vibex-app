@@ -5,9 +5,9 @@
  * Helps configure and validate Stagehand AI testing environment
  */
 
-const fs = require("node:fs").promises;
-const path = require("node:path");
-const { execSync } = require("node:child_process");
+import { execSync } from "node:child_process";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 
 class StagehandSetup {
 	constructor() {
@@ -126,7 +126,7 @@ BROWSERBASE_PROJECT_ID=your_browserbase_project_id
 
 		// Validate configuration syntax
 		try {
-			const _config = require(this.configPath);
+			const _config = await import(this.configPath);
 		} catch (error) {
 			throw new Error(`Configuration validation failed: ${error.message}`);
 		}

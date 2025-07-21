@@ -9,16 +9,15 @@
  */
 
 // Core Managers
-import { ContainerUseError
-} from "./types";
+import { ContainerUseError } from "./types";
 
 // Type Guards
 export {
-	import { isTask,
-	import { isAgentEnvironment,
-	import { isGitWorktree,
-	import { isVoiceCommand,
-	import { isScreenshotAnalysis
+	isAgentEnvironment,
+	isGitWorktree,
+	isScreenshotAnalysis,
+	isTask,
+	isVoiceCommand,
 } from "./types";
 
 /**
@@ -176,4 +175,22 @@ export class ContainerUseIntegration {
 				secrets: ["github-token"],
 				mounts: [],
 				environment: {
-TASK_ID: task.id,
+					TASK_ID: task.id,
+					NODE_ENV: "production",
+				},
+			};
+
+			return {
+				task,
+				environment: agentEnvironment,
+				modalConfig,
+			};
+		} catch (error) {
+			throw new ContainerUseError(
+				`Failed to create agent task: ${(error as Error).message}`,
+				"TASK_CREATION_FAILED",
+				{ params },
+			);
+		}
+	}
+}

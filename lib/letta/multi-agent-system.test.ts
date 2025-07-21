@@ -1,5 +1,4 @@
-import { SessionSchema
-} from "./multi-agent-system";
+import { MultiAgentConfigSchema, SessionSchema } from "./multi-agent-system";
 
 describe("MultiAgentSystem Schemas", () => {
 	describe("MultiAgentConfigSchema", () => {
@@ -36,6 +35,24 @@ describe("MultiAgentSystem Schemas", () => {
 
 		it("should validate numeric limits", () => {
 			expect(() =>
-MultiAgentConfigSchema.parse({ maxConcurrentSessions: 0 }),
+				MultiAgentConfigSchema.parse({ maxConcurrentSessions: 0 }),
 			).not.toThrow();
 			expect(() =>
+				MultiAgentConfigSchema.parse({ maxConcurrentSessions: -1 }),
+			).toThrow();
+		});
+	});
+
+	describe("SessionSchema", () => {
+		it("should parse valid session", () => {
+			const session = {
+				id: "session-123",
+				userId: "user-456",
+				status: "active",
+				createdAt: new Date(),
+			};
+			const parsed = SessionSchema.parse(session);
+			expect(parsed).toEqual(session);
+		});
+	});
+});

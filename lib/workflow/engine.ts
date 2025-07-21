@@ -1,14 +1,20 @@
+import { eq } from "drizzle-orm";
+import { ulid } from "ulid";
+import { snapshotManager } from "@/lib/time-travel";
 import { db } from "@/db/config";
+import {
 	type ExecutionSnapshot,
 	executionSnapshots,
 	observabilityEvents,
 	type Workflow,
 	type WorkflowExecution,
 	workflowExecutions,
-	workflows
+	workflows,
 } from "@/db/schema";
-import { WorkflowMetrics
-} from "./types";
+import { observability } from "@/lib/observability";
+import { stepExecutorRegistry } from "./executors";
+import { templateRegistry } from "./templates";
+import type { WorkflowMetrics } from "./types";
 
 /**
  * WorkflowExecutionEngine
@@ -33,7 +39,7 @@ export class WorkflowExecutionEngine {
 
 	static getInstance(): WorkflowExecutionEngine {
 		if (!WorkflowExecutionEngine.instance) {
-WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
+			WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 		}
 		return WorkflowExecutionEngine.instance;
 	}
@@ -190,58 +196,115 @@ WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 	}
 
 	/**
-	 * Execute workflow
+	 * Validates execution state before proceeding with workflow
+	 */
+	private validateExecutionState(executionId: string): WorkflowExecutionState {
+		const state = this.activeExecutions.get(executionId);
+		if (!state) {
+			throw new Error(`Execution ${executionId} not found`);
+		}
+		return state;
+	}
+
+	/**
+	 * Checks workflow status and handles paused/terminal states
+	 */
+	private async handleWorkflowStatusCheck(
+		executionId: string,
+	): Promise<boolean> {
+		const currentStatus = await this.getExecutionStatus(executionId);
+		if (currentStatus === "paused") {
+			await this.waitForResume(executionId);
+			return true; // Continue execution
+		}
+		if (StateValidation.isTerminal(currentStatus)) {
+			return false; // Stop execution
+		}
+		return true; // Continue execution
+	}
+
+	/**
+	 * Finds and validates step definition in workflow
+	 */
+	private findStepDefinition(
+		definition: WorkflowDefinition,
+		stepId: string,
+	): StepConfig {
+		const stepDef = definition.steps.find((s) => s.id === stepId);
+		if (!stepDef) {
+			throw new Error(`Step ${stepId} not found in workflow definition`);
+		}
+		return stepDef;
+	}
+
+	/**
+	 * Executes a single step in the workflow execution loop
+	 */
+	private async executeWorkflowStep(
+		executionId: string,
+		stepId: string,
+		stepDef: StepConfig,
+		stepCount: number,
+		definition: WorkflowDefinition,
+	): Promise<{ result: StepExecutionResult; nextStepId?: string }> {
+		// Execute step
+		const result = await this.executeStep(
+			stepId,
+			this.createContext(executionId, stepDef.id),
+		);
+
+		// Update progress
+		await this.updateProgress(executionId, stepCount + 1, {
+			currentStepId: stepId,
+			stepResult: result,
+		});
+
+		// Determine next step
+		const nextStepId =
+			result.nextStepId || this.getNextStep(definition, stepId);
+
+		return { result, nextStepId };
+	}
+
+	/**
+	 * Main workflow execution loop with simplified control flow
 	 */
 	private async executeWorkflow(
 		executionId: string,
 		definition: WorkflowDefinition,
 	): Promise<void> {
-		const state = this.activeExecutions.get(executionId);
-		if (!state) {
-			throw new Error(`Execution ${executionId} not found`);
-		}
+		const state = this.validateExecutionState(executionId);
 
 		try {
-			// Start from the first step
 			let currentStepId = definition.startStepId;
 			let stepCount = 0;
+			const maxSteps = definition.steps.length;
 
-			while (currentStepId && stepCount < definition.steps.length) {
-				// Check if workflow is paused or cancelled
-				const currentStatus = await this.getExecutionStatus(executionId);
-				if (currentStatus === "paused") {
-					await this.waitForResume(executionId);
-				} else if (StateValidation.isTerminal(currentStatus)) {
+			while (currentStepId && stepCount < maxSteps) {
+				// Check workflow status (paused/cancelled)
+				const shouldContinue =
+					await this.handleWorkflowStatusCheck(executionId);
+				if (!shouldContinue) {
 					break;
 				}
 
-				// Find step definition
-				const stepDef = definition.steps.find((s) => s.id === currentStepId);
-				if (!stepDef) {
-					throw new Error(
-						`Step ${currentStepId} not found in workflow definition`,
-					);
-				}
+				// Find and validate step definition
+				const stepDef = this.findStepDefinition(definition, currentStepId);
 
-				// Execute step
-				const result = await this.executeStep(
+				// Execute step and get result
+				const { nextStepId } = await this.executeWorkflowStep(
+					executionId,
 					currentStepId,
-					this.createContext(executionId, stepDef.id),
+					stepDef,
+					stepCount,
+					definition,
 				);
 
-				// Update progress
-				await this.updateProgress(executionId, stepCount + 1, {
-					currentStepId,
-					stepResult: result,
-				});
-
-				// Determine next step
-				currentStepId =
-					result.nextStepId || this.getNextStep(definition, currentStepId);
+				currentStepId = nextStepId;
 				stepCount++;
 			}
 
-			// Workflow completed
+			// Workflow completed successfully
 			await this.completeExecution(executionId, state.variables);
 		} catch (error) {
 			await this.handleWorkflowError(executionId, error);
@@ -249,17 +312,12 @@ WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 	}
 
 	/**
-	 * Execute a single step
+	 * Prepares step configuration and executor for execution
 	 */
-	private async executeStep(
+	private async prepareStepExecution(
 		stepId: string,
 		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
-		const executionState = this.activeExecutions.get(context.executionId);
-		if (!executionState) {
-			throw new Error(`Execution ${context.executionId} not found`);
-		}
-
+	): Promise<{ stepConfig: StepConfig; executor: any }> {
 		// Load workflow definition to get step config
 		const definition = await this.loadWorkflowDefinition(context.workflowId);
 		const stepConfig = definition.steps.find((s) => s.id === stepId);
@@ -273,7 +331,18 @@ WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 			throw new Error(`No executor found for step type: ${stepConfig.type}`);
 		}
 
-		// Record step start
+		return { stepConfig, executor };
+	}
+
+	/**
+	 * Initializes step state and emits start event
+	 */
+	private async initializeStepExecution(
+		stepId: string,
+		context: WorkflowContext,
+		stepConfig: StepConfig,
+		executionState: WorkflowExecutionState,
+	): Promise<StepExecutionState> {
 		const stepState: StepExecutionState = {
 			stepId,
 			status: "running",
@@ -289,47 +358,109 @@ WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 			data: { stepId, stepConfig },
 		});
 
-		try {
-			// Execute step with timeout
-			const timeout = stepConfig.timeout || 300_000; // 5 minutes default
-			const result = await this.withTimeout(
-				executor.execute(stepConfig, context),
-				timeout,
-			);
+		return stepState;
+	}
 
-			// Update step state
-			stepState.status = result.status === "completed" ? "completed" : "failed";
-			stepState.completedAt = new Date();
-			stepState.output = result.output;
-			stepState.error = result.error;
+	/**
+	 * Updates step state after execution and records metrics
+	 */
+	private async finalizeStepExecution(
+		stepId: string,
+		context: WorkflowContext,
+		stepState: StepExecutionState,
+		result: StepExecutionResult,
+	): Promise<void> {
+		// Update step state
+		stepState.status = result.status === "completed" ? "completed" : "failed";
+		stepState.completedAt = new Date();
+		stepState.output = result.output;
+		stepState.error = result.error;
 
-			// Record metrics
-			const duration =
-				stepState.completedAt.getTime() - stepState.startedAt!.getTime();
-			this.recordStepMetrics(context.executionId, stepId, {
-				executionTime: duration,
-				success: result.status === "completed",
-				retries: stepState.retryCount || 0,
-			});
+		// Record metrics
+		const duration =
+			stepState.completedAt.getTime() - stepState.startedAt!.getTime();
+		this.recordStepMetrics(context.executionId, stepId, {
+			executionTime: duration,
+			success: result.status === "completed",
+			retries: stepState.retryCount || 0,
+		});
 
-			await this.emitWorkflowEvent({
-				id: ulid(),
-				executionId: context.executionId,
-				type: result.status === "completed" ? "step.completed" : "step.failed",
-				timestamp: new Date(),
-				data: { stepId, result },
-			});
+		await this.emitWorkflowEvent({
+			id: ulid(),
+			executionId: context.executionId,
+			type: result.status === "completed" ? "step.completed" : "step.failed",
+			timestamp: new Date(),
+			data: { stepId, result },
+		});
+	}
 
-			// Handle retries if configured
-			if (result.status === "failed" && stepConfig.retryPolicy) {
-				const shouldRetry = await this.handleRetry(stepConfig, stepState);
-				if (shouldRetry) {
-					return await this.executeStep(stepId, context);
-				}
+	/**
+	 * Handles step execution with timeout and retry logic
+	 */
+	private async executeStepWithRetry(
+		stepId: string,
+		context: WorkflowContext,
+		stepConfig: StepConfig,
+		executor: any,
+		stepState: StepExecutionState,
+	): Promise<StepExecutionResult> {
+		// Execute step with timeout
+		const timeout = stepConfig.timeout || 300_000; // 5 minutes default
+		const result = await this.withTimeout(
+			executor.execute(stepConfig, context),
+			timeout,
+		);
+
+		// Finalize step execution state
+		await this.finalizeStepExecution(stepId, context, stepState, result);
+
+		// Handle retries if step failed and retry policy is configured
+		if (result.status === "failed" && stepConfig.retryPolicy) {
+			const shouldRetry = await this.handleRetry(stepConfig, stepState);
+			if (shouldRetry) {
+				return await this.executeStep(stepId, context);
 			}
+		}
 
-			return result;
+		return result;
+	}
+
+	/**
+	 * Execute a single step with proper error handling and state management
+	 */
+	private async executeStep(
+		stepId: string,
+		context: WorkflowContext,
+	): Promise<StepExecutionResult> {
+		const executionState = this.activeExecutions.get(context.executionId);
+		if (!executionState) {
+			throw new Error(`Execution ${context.executionId} not found`);
+		}
+
+		// Prepare step configuration and executor
+		const { stepConfig, executor } = await this.prepareStepExecution(
+			stepId,
+			context,
+		);
+
+		// Initialize step execution state
+		const stepState = await this.initializeStepExecution(
+			stepId,
+			context,
+			stepConfig,
+			executionState,
+		);
+
+		try {
+			return await this.executeStepWithRetry(
+				stepId,
+				context,
+				stepConfig,
+				executor,
+				stepState,
+			);
 		} catch (error) {
+			// Handle execution error
 			stepState.status = "failed";
 			stepState.completedAt = new Date();
 			stepState.error = {
@@ -523,7 +654,7 @@ WorkflowExecutionEngine.instance = new WorkflowExecutionEngine();
 				if (state) {
 					// Update in-memory state
 					state.currentStepId = stateUpdate.currentStepId;
-Object.assign(state.variables, stateUpdate);
+					Object.assign(state.variables, stateUpdate);
 				}
 
 				// Record snapshot for step
@@ -987,11 +1118,14 @@ Object.assign(state.variables, stateUpdate);
 // Export singleton
 export const workflowEngine = WorkflowExecutionEngine.getInstance();
 
-import { export { stepExecutorRegistry } from "./executors";
-import { export { createWorkflowStateMachine, StateValidation } from "./state-machine";
+// Export additional utilities
+export { stepExecutorRegistry } from "./executors";
+export { createWorkflowStateMachine, StateValidation } from "./state-machine";
 export {
-	import { suggestTemplates,
-import { TEMPLATE_CATEGORIES,
-	templateRegistry } from "./templates";
+	suggestTemplates,
+	TEMPLATE_CATEGORIES,
+	templateRegistry,
+} from "./templates";
+
 // Export types and utilities
 export * from "./types";

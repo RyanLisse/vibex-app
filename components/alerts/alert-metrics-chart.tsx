@@ -1,24 +1,36 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { 
-	ResponsiveContainer, 
-	BarChart, 
-	CartesianGrid, 
-	XAxis, 
-	YAxis, 
-	Tooltip, 
-	Bar, 
-	PieChart, 
-	Pie, 
-	Cell 
+import { Activity, AlertTriangle, Clock, TrendingUp } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+	Bar,
+	BarChart,
+	CartesianGrid,
+	Cell,
+	Pie,
+	PieChart,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
 } from "recharts";
-import { AlertTriangle, Clock, TrendingUp, Activity } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { CriticalErrorType } from "@/lib/alerts/types";
 
 // Define missing types locally
@@ -47,7 +59,6 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 				`/api/alerts/metrics?timeframe=${timeframe}`,
 			);
 
-
 			if (!response.ok) {
 				throw new Error("Failed to fetch metrics");
 			}
@@ -62,16 +73,13 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 		}
 	}, [timeframe]);
 
-
 	useEffect(() => {
 		loadMetrics();
-
 
 		// Refresh metrics every minute
 		const interval = setInterval(loadMetrics, 60_000);
 		return () => clearInterval(interval);
 	}, [loadMetrics]);
-
 
 	if (loading) {
 		return (
@@ -156,7 +164,8 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 			<div className="mb-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-sm">Resolution Time
+						<CardTitle className="font-medium text-sm">
+							Resolution Time
 						</CardTitle>
 						<Clock className="h-4 w-4 text-blue-500" />
 					</CardHeader>
@@ -166,7 +175,8 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 								? formatDuration(metrics.averageResolutionTime)
 								: "N/A"}
 						</div>
-						<p className="text-muted-foreground text-xs">Average time to resolve
+						<p className="text-muted-foreground text-xs">
+							Average time to resolve
 						</p>
 					</CardContent>
 				</Card>
@@ -182,14 +192,16 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 								? metrics.alertsLast24Hours
 								: metrics.totalAlerts}
 						</div>
-						<p className="text-muted-foreground text-xs">Alerts in {timeframe}
+						<p className="text-muted-foreground text-xs">
+							Alerts in {timeframe}
 						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-sm">Mean Time to Alert
+						<CardTitle className="font-medium text-sm">
+							Mean Time to Alert
 						</CardTitle>
 						<Activity className="h-4 w-4 text-green-500" />
 					</CardHeader>
@@ -199,14 +211,16 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 								? formatDuration(metrics.meanTimeToAlert)
 								: "N/A"}
 						</div>
-						<p className="text-muted-foreground text-xs">Detection to notification
+						<p className="text-muted-foreground text-xs">
+							Detection to notification
 						</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="font-medium text-sm">Resolution Rate
+						<CardTitle className="font-medium text-sm">
+							Resolution Rate
 						</CardTitle>
 						<AlertTriangle className="h-4 w-4 text-red-500" />
 					</CardHeader>
@@ -251,7 +265,8 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 								</BarChart>
 							</ResponsiveContainer>
 						) : (
-							<div className="flex h-64 items-center justify-center text-gray-500">No alerts in selected timeframe
+							<div className="flex h-64 items-center justify-center text-gray-500">
+								No alerts in selected timeframe
 							</div>
 						)}
 					</CardContent>
@@ -287,7 +302,8 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 								</PieChart>
 							</ResponsiveContainer>
 						) : (
-							<div className="flex h-64 items-center justify-center text-gray-500">No channel data available
+							<div className="flex h-64 items-center justify-center text-gray-500">
+								No channel data available
 							</div>
 						)}
 					</CardContent>
@@ -313,7 +329,7 @@ export function AlertMetricsChart({ className }: AlertMetricsChartProps) {
 											className="h-3 w-3 rounded-full"
 											style={{
 												backgroundColor:
-SEVERITY_COLORS[index % SEVERITY_COLORS.length],
+													SEVERITY_COLORS[index % SEVERITY_COLORS.length],
 											}}
 										/>
 										<span className="font-medium text-sm">{item.name}</span>
@@ -333,7 +349,8 @@ SEVERITY_COLORS[index % SEVERITY_COLORS.length],
 					<CardContent>
 						<div className="space-y-4">
 							<div className="flex items-center justify-between">
-								<span className="font-medium text-sm">Mean Time to Resolution
+								<span className="font-medium text-sm">
+									Mean Time to Resolution
 								</span>
 								<span className="text-gray-600 text-sm">
 									{metrics.meanTimeToResolution

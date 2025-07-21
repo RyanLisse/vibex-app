@@ -1,11 +1,17 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Clock, LogOut, Shield, User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { ReactNode } from "react";
+import { AlertCircle, Clock, LogOut, Shield, User } from "lucide-react";
+import type { ReactNode } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 
 interface AuthCardBaseProps {
 	title: string;
@@ -68,7 +74,8 @@ export function AuthCardBase({
 			<Card className="w-full max-w-md border-red-200">
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2 text-red-600">
-						<AlertCircle className="size-5" />Authentication Error
+						<AlertCircle className="size-5" />
+						Authentication Error
 					</CardTitle>
 					<CardDescription>{error}</CardDescription>
 				</CardHeader>
@@ -124,13 +131,15 @@ export function AuthCardBase({
 					{isExpiringSoon && (
 						<div className="flex items-center gap-2 rounded-md bg-amber-50 p-2">
 							<AlertCircle className="size-4 text-amber-600" />
-							<span className="text-amber-700 text-sm">Token expires soon. Please re-authenticate.
+							<span className="text-amber-700 text-sm">
+								Token expires soon. Please re-authenticate.
 							</span>
 						</div>
 					)}
 
 					<Button className="w-full" onClick={onLogout} variant="outline">
-						<LogOut className="size-4" />Logout
+						<LogOut className="size-4" />
+						Logout
 					</Button>
 				</CardContent>
 			</Card>

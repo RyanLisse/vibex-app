@@ -1,15 +1,15 @@
 import type Redis from "ioredis";
+import { ComponentLogger } from "@/lib/logging/specialized-loggers";
 import { AlertManager } from "./alert-manager";
-import { AlertTransportService } from "./transport/alert-transport-service";
 import { AlertWinstonTransport } from "./alert-winston-transport";
 import { CriticalErrorDetector } from "./critical-error-detector";
-import { ComponentLogger } from "@/lib/logging/specialized-loggers";
+import { AlertTransportService } from "./transport/alert-transport-service";
 import {
-	AlertChannelType,
-	CriticalErrorType,
 	type AlertChannel,
+	AlertChannelType,
 	type AlertConfig,
 	type CriticalError,
+	CriticalErrorType,
 } from "./types";
 
 export class AlertService {

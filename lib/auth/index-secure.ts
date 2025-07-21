@@ -5,8 +5,8 @@
  */
 
 import { z } from "zod";
-import { secureTokenStorage, type AuthToken } from "./secure-token-storage";
 import { observabilityService } from "@/lib/observability";
+import { type AuthToken, secureTokenStorage } from "./secure-token-storage";
 
 // Re-export the AuthToken type as AuthInfo for backward compatibility
 export type AuthInfo = AuthToken;

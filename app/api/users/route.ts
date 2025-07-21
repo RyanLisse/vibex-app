@@ -8,7 +8,7 @@ export const runtime = "nodejs";
  * Enhanced user management using base utilities for consistency and reduced duplication
  */
 
-import { type UpdateUserSchema } from "@/src/schemas/api-routes";
+import type { UpdateUserSchema } from "@/src/schemas/api-routes";
 
 // Request validation schemas
 const GetUsersQuerySchema = z.object({

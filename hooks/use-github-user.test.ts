@@ -76,13 +76,13 @@ describe("useGitHubUser", () => {
 		};
 
 		// Mock token exchange
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockTokenResponse,
 		} as unknown);
 
 		// Mock user fetch
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockUserResponse,
 		} as unknown);
@@ -105,7 +105,7 @@ describe("useGitHubUser", () => {
 	it("should handle login errors", async () => {
 		const mockCode = "invalid-code";
 
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: false,
 			status: 401,
 			json: async () => ({ error: "bad_verification_code" }),
@@ -173,7 +173,7 @@ describe("useGitHubUser", () => {
 				token: "test-token",
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockUserProfile,
 		} as unknown);
@@ -215,7 +215,7 @@ describe("useGitHubUser", () => {
 				user: { id: "123", login: "testuser" },
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockUpdatedUser,
 		} as unknown);
@@ -257,7 +257,7 @@ describe("useGitHubUser", () => {
 				token: "test-token",
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockOrganizations,
 		} as unknown);
@@ -285,7 +285,7 @@ describe("useGitHubUser", () => {
 				user: { id: "123", login: "testuser" },
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockNewToken,
 		} as unknown);
@@ -350,7 +350,7 @@ describe("useGitHubUser", () => {
 				token: "test-token",
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockRejectedValueOnce(
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
 			new Error("Network error"),
 		);
 
@@ -370,7 +370,7 @@ describe("useGitHubUser", () => {
 				token: "test-token",
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: false,
 			status: 403,
 			headers: {
@@ -418,7 +418,7 @@ describe("useGitHubUser", () => {
 				token: "test-token",
 			}),
 		);
-		(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
 			json: async () => mockEmails,
 		} as unknown);

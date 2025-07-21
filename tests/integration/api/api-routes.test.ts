@@ -13,6 +13,5 @@ import {
 	describe,
 	expect,
 	it,
-import {
-	vi
+	vi,
 } from "vitest";

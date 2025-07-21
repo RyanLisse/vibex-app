@@ -1,19 +1,53 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { AlertTriangle, XCircle, CheckCircle, Settings, Plus, TestTube, Edit, Trash2 } from "lucide-react";
+import {
+	AlertTriangle,
+	CheckCircle,
+	Edit,
+	Plus,
+	Settings,
+	TestTube,
+	Trash2,
+	XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { CriticalErrorType, AlertChannelType, type AlertChannel, type AlertConfig } from "@/lib/alerts";
+import {
+	type AlertChannel,
+	AlertChannelType,
+	type AlertConfig,
+	CriticalErrorType,
+} from "@/lib/alerts";
 
 // Define missing types locally until they're added to the lib
 type AlertPriority = "low" | "medium" | "high" | "critical";
@@ -166,7 +200,8 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 		return (
 			<Alert className="border-red-200 bg-red-50">
 				<AlertTriangle className="h-4 w-4" />
-				<AlertDescription className="text-red-800">Failed to load alert configuration
+				<AlertDescription className="text-red-800">
+					Failed to load alert configuration
 				</AlertDescription>
 			</Alert>
 		);
@@ -193,9 +228,11 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 			<div className="mb-6 flex items-center justify-between">
 				<div>
 					<h2 className="flex items-center gap-2 font-bold text-2xl">
-						<Settings className="h-6 w-6" />Alert Configuration
+						<Settings className="h-6 w-6" />
+						Alert Configuration
 					</h2>
-					<p className="text-gray-600">Manage alert channels and system settings
+					<p className="text-gray-600">
+						Manage alert channels and system settings
 					</p>
 				</div>
 				<Button disabled={saving} onClick={saveConfig}>
@@ -214,14 +251,16 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 					<Card>
 						<CardHeader>
 							<CardTitle>System Settings</CardTitle>
-							<CardDescription>Global alert system configuration
+							<CardDescription>
+								Global alert system configuration
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="flex items-center justify-between">
 								<div>
 									<Label htmlFor="enabled">Enable Alert System</Label>
-									<p className="text-gray-500 text-sm">Master switch for all alerting
+									<p className="text-gray-500 text-sm">
+										Master switch for all alerting
 									</p>
 								</div>
 								<Switch
@@ -244,7 +283,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 												rateLimiting: {
 													...config.rateLimiting,
 													maxAlertsPerHour:
-Number.parseInt(e.target.value) || 0,
+														Number.parseInt(e.target.value) || 0,
 												},
 											})
 										}
@@ -277,15 +316,18 @@ Number.parseInt(e.target.value) || 0,
 					<Card>
 						<CardHeader>
 							<CardTitle>Deduplication</CardTitle>
-							<CardDescription>Prevent duplicate alerts for similar errors
+							<CardDescription>
+								Prevent duplicate alerts for similar errors
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="flex items-center justify-between">
 								<div>
-									<Label htmlFor="deduplicationEnabled">Enable Deduplication
+									<Label htmlFor="deduplicationEnabled">
+										Enable Deduplication
 									</Label>
-									<p className="text-gray-500 text-sm">Group similar alerts together
+									<p className="text-gray-500 text-sm">
+										Group similar alerts together
 									</p>
 								</div>
 								<Switch
@@ -302,7 +344,8 @@ Number.parseInt(e.target.value) || 0,
 
 							{config.deduplication.enabled && (
 								<div>
-									<Label htmlFor="deduplicationWindow">Deduplication Window (minutes)
+									<Label htmlFor="deduplicationWindow">
+										Deduplication Window (minutes)
 									</Label>
 									<Input
 										id="deduplicationWindow"
@@ -330,7 +373,8 @@ Number.parseInt(e.target.value) || 0,
 						<Dialog onOpenChange={setIsAddingChannel} open={isAddingChannel}>
 							<DialogTrigger asChild>
 								<Button>
-									<Plus className="mr-2 h-4 w-4" />Add Channel
+									<Plus className="mr-2 h-4 w-4" />
+									Add Channel
 								</Button>
 							</DialogTrigger>
 							<DialogContent className="max-w-2xl">
@@ -432,14 +476,16 @@ Number.parseInt(e.target.value) || 0,
 					<Card>
 						<CardHeader>
 							<CardTitle>Escalation Settings</CardTitle>
-							<CardDescription>Automatic escalation for unresolved alerts
+							<CardDescription>
+								Automatic escalation for unresolved alerts
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="flex items-center justify-between">
 								<div>
 									<Label htmlFor="escalationEnabled">Enable Escalation</Label>
-									<p className="text-gray-500 text-sm">Escalate unresolved alerts automatically
+									<p className="text-gray-500 text-sm">
+										Escalate unresolved alerts automatically
 									</p>
 								</div>
 								<Switch
@@ -456,7 +502,8 @@ Number.parseInt(e.target.value) || 0,
 
 							{config.escalation.enabled && (
 								<div>
-									<Label htmlFor="escalateAfterMinutes">Escalate After (minutes)
+									<Label htmlFor="escalateAfterMinutes">
+										Escalate After (minutes)
 									</Label>
 									<Input
 										id="escalateAfterMinutes"
@@ -466,7 +513,7 @@ Number.parseInt(e.target.value) || 0,
 												escalation: {
 													...config.escalation,
 													escalateAfterMinutes:
-Number.parseInt(e.target.value) || 0,
+														Number.parseInt(e.target.value) || 0,
 												},
 											})
 										}
@@ -513,7 +560,8 @@ function ChannelForm({ channel, onSave, onCancel }: ChannelFormProps) {
 				<DialogTitle>
 					{channel ? "Edit Alert Channel" : "Add Alert Channel"}
 				</DialogTitle>
-				<DialogDescription>Configure how and when alerts are sent through this channel.
+				<DialogDescription>
+					Configure how and when alerts are sent through this channel.
 				</DialogDescription>
 			</DialogHeader>
 
@@ -543,7 +591,8 @@ function ChannelForm({ channel, onSave, onCancel }: ChannelFormProps) {
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={AlertChannelType.WEBHOOK}>Webhook
+								<SelectItem value={AlertChannelType.WEBHOOK}>
+									Webhook
 								</SelectItem>
 								<SelectItem value={AlertChannelType.EMAIL}>Email</SelectItem>
 								<SelectItem value={AlertChannelType.SLACK}>Slack</SelectItem>
@@ -622,7 +671,8 @@ function ChannelForm({ channel, onSave, onCancel }: ChannelFormProps) {
 			</div>
 
 			<DialogFooter>
-				<Button onClick={onCancel} variant="outline">Cancel
+				<Button onClick={onCancel} variant="outline">
+					Cancel
 				</Button>
 				<Button
 					disabled={!(formData.name && formData.type)}

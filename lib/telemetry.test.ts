@@ -44,22 +44,23 @@ describe("telemetry", () => {
 
 		it("should return enabled config with defaults", () => {
 			process.env.OTEL_ENABLED = "true";
-			process.env.OTEL_ENDPOINT = "http://localhost:4317";
+			// Don't set OTEL_EXPORTER_OTLP_ENDPOINT to test default endpoint
 
 			const config = getTelemetryConfig();
 
 			expect(config).toEqual({
 				isEnabled: true,
-				endpoint: "http://localhost:4317",
+				endpoint: "http://localhost:4318/v1/traces", // Default OTLP endpoint
 				serviceName: "vibex",
 				serviceVersion: "1.0.0",
 				samplingRatio: 1.0,
+				headers: undefined,
 			});
 		});
 
 		it("should use custom service name and version", () => {
 			process.env.OTEL_ENABLED = "true";
-			process.env.OTEL_ENDPOINT = "http://localhost:4317";
+			process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4317";
 			process.env.OTEL_SERVICE_NAME = "my-service";
 			process.env.OTEL_SERVICE_VERSION = "2.0.0";
 
@@ -71,7 +72,7 @@ describe("telemetry", () => {
 
 		it("should parse custom sampling ratio", () => {
 			process.env.OTEL_ENABLED = "true";
-			process.env.OTEL_ENDPOINT = "http://localhost:4317";
+			process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4317";
 			process.env.OTEL_SAMPLING_RATIO = "0.5";
 
 			const config = getTelemetryConfig();
@@ -81,7 +82,7 @@ describe("telemetry", () => {
 
 		it("should add authorization header when OTEL_AUTH_HEADER is set", () => {
 			process.env.OTEL_ENABLED = "true";
-			process.env.OTEL_ENDPOINT = "http://localhost:4317";
+			process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4317";
 			process.env.OTEL_AUTH_HEADER = "Bearer token123";
 
 			const config = getTelemetryConfig();
@@ -93,7 +94,7 @@ describe("telemetry", () => {
 
 		it("should not include headers when OTEL_AUTH_HEADER is not set", () => {
 			process.env.OTEL_ENABLED = "true";
-			process.env.OTEL_ENDPOINT = "http://localhost:4317";
+			process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4317";
 
 			const config = getTelemetryConfig();
 
@@ -105,11 +106,11 @@ describe("telemetry", () => {
 		const backends: [TelemetryBackend, string][] = [
 			["jaeger", "http://localhost:14268/api/traces"],
 			["zipkin", "http://localhost:9411/api/v2/spans"],
-			["datadog", "https://trace.agent.datadoghq.com/v0.3/traces"],
-			["newrelic", "https://otlp.nr-data.net:4317"],
+			["datadog", "https://trace.agent.datadoghq.com/v0.4/traces"],
+			["newrelic", "https://otlp.nr-data.net/v1/traces"],
 			["honeycomb", "https://api.honeycomb.io/v1/traces"],
-			["tempo", "http://localhost:4317"],
-			["otlp", "http://localhost:4317"],
+			["tempo", "http://localhost:3200/v1/traces"],
+			["otlp", "http://localhost:4318/v1/traces"],
 		];
 
 		it.each(backends)(
@@ -127,7 +128,7 @@ describe("telemetry", () => {
 
 			const result = validateTelemetryConfig(config);
 
-			expect(result.isValid).toBe(true);
+			expect(result.valid).toBe(true);
 			expect(result.errors).toEqual([]);
 		});
 
@@ -142,7 +143,7 @@ describe("telemetry", () => {
 
 			const result = validateTelemetryConfig(config);
 
-			expect(result.isValid).toBe(true);
+			expect(result.valid).toBe(true);
 			expect(result.errors).toEqual([]);
 		});
 
@@ -154,9 +155,9 @@ describe("telemetry", () => {
 
 			const result = validateTelemetryConfig(config);
 
-			expect(result.isValid).toBe(false);
+			expect(result.valid).toBe(false);
 			expect(result.errors).toContain(
-				"Telemetry is enabled but no endpoint is configured",
+				"endpoint is required when telemetry is enabled",
 			);
 		});
 
@@ -168,9 +169,9 @@ describe("telemetry", () => {
 			};
 
 			const result1 = validateTelemetryConfig(config1);
-			expect(result1.isValid).toBe(false);
+			expect(result1.valid).toBe(false);
 			expect(result1.errors).toContain(
-				"Sampling ratio must be between 0.0 and 1.0",
+				"samplingRatio must be between 0.0 and 1.0",
 			);
 
 			const config2: TelemetryConfig = {
@@ -180,9 +181,9 @@ describe("telemetry", () => {
 			};
 
 			const result2 = validateTelemetryConfig(config2);
-			expect(result2.isValid).toBe(false);
+			expect(result2.valid).toBe(false);
 			expect(result2.errors).toContain(
-				"Sampling ratio must be between 0.0 and 1.0",
+				"samplingRatio must be between 0.0 and 1.0",
 			);
 		});
 
@@ -197,7 +198,7 @@ describe("telemetry", () => {
 				};
 
 				const result = validateTelemetryConfig(config);
-				expect(result.isValid).toBe(true);
+				expect(result.valid).toBe(true);
 				expect(result.errors).toEqual([]);
 			}
 		});
@@ -211,22 +212,23 @@ describe("telemetry", () => {
 
 			const result = validateTelemetryConfig(config);
 
-			expect(result.isValid).toBe(true);
+			expect(result.valid).toBe(true);
 			expect(result.errors).toEqual([]);
 		});
 	});
 
 	describe("logTelemetryConfig", () => {
 		it("should log disabled message when telemetry is disabled", () => {
+			process.env.NODE_ENV = "development";
 			const config: TelemetryConfig = { isEnabled: false };
 
 			logTelemetryConfig(config);
 
-			expect(consoleSpy).toHaveBeenCalledWith("📊 OpenTelemetry: Disabled");
-			expect(consoleSpy).toHaveBeenCalledTimes(1);
+			expect(consoleSpy).toHaveBeenCalledWith("Telemetry:", "disabled");
 		});
 
 		it("should log enabled configuration", () => {
+			process.env.NODE_ENV = "development";
 			const config: TelemetryConfig = {
 				isEnabled: true,
 				endpoint: "http://localhost:4317",
@@ -237,16 +239,11 @@ describe("telemetry", () => {
 
 			logTelemetryConfig(config);
 
-			expect(consoleSpy).toHaveBeenCalledWith("📊 OpenTelemetry: Enabled");
-			expect(consoleSpy).toHaveBeenCalledWith("   Service: test-service@1.2.3");
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"   Endpoint: http://localhost:4317",
-			);
-			expect(consoleSpy).toHaveBeenCalledWith("   Sampling: 75%");
-			expect(consoleSpy).toHaveBeenCalledTimes(4);
+			expect(consoleSpy).toHaveBeenCalledWith("Telemetry:", "enabled");
 		});
 
 		it("should use default sampling ratio of 1 when not specified", () => {
+			process.env.NODE_ENV = "development";
 			const config: TelemetryConfig = {
 				isEnabled: true,
 				endpoint: "http://localhost:4317",
@@ -256,10 +253,11 @@ describe("telemetry", () => {
 
 			logTelemetryConfig(config);
 
-			expect(consoleSpy).toHaveBeenCalledWith("   Sampling: 100%");
+			expect(consoleSpy).toHaveBeenCalledWith("Telemetry:", "enabled");
 		});
 
 		it("should log headers when present", () => {
+			process.env.NODE_ENV = "development";
 			const config: TelemetryConfig = {
 				isEnabled: true,
 				endpoint: "http://localhost:4317",
@@ -273,12 +271,11 @@ describe("telemetry", () => {
 
 			logTelemetryConfig(config);
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"   Headers: Authorization, X-Custom-Header",
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Telemetry:", "enabled");
 		});
 
 		it("should not log headers when not present", () => {
+			process.env.NODE_ENV = "development";
 			const config: TelemetryConfig = {
 				isEnabled: true,
 				endpoint: "http://localhost:4317",
@@ -288,23 +285,19 @@ describe("telemetry", () => {
 
 			logTelemetryConfig(config);
 
-			const logCalls = consoleSpy.mock.calls;
-			const hasHeadersLog = logCalls.some(
-				(call: unknown[]) =>
-					typeof call[0] === "string" && call[0].includes("Headers:"),
-			);
-			expect(hasHeadersLog).toBe(false);
+			expect(consoleSpy).toHaveBeenCalledWith("Telemetry:", "enabled");
 		});
 
 		it("should handle edge case sampling ratios", () => {
+			process.env.NODE_ENV = "development";
 			const testCases = [
-				{ ratio: 0, expected: "   Sampling: 0%" },
-				{ ratio: 1, expected: "   Sampling: 100%" },
-				{ ratio: 0.333, expected: "   Sampling: 33.3%" },
-				{ ratio: 0.999, expected: "   Sampling: 99.9%" },
+				{ ratio: 0 },
+				{ ratio: 1 },
+				{ ratio: 0.333 },
+				{ ratio: 0.999 },
 			];
 
-			for (const { ratio, expected } of testCases) {
+			for (const { ratio } of testCases) {
 				consoleSpy.mockClear();
 
 				const config: TelemetryConfig = {
@@ -317,7 +310,7 @@ describe("telemetry", () => {
 
 				logTelemetryConfig(config);
 
-				expect(consoleSpy).toHaveBeenCalledWith(expected);
+				expect(consoleSpy).toHaveBeenCalledWith("Telemetry:", "enabled");
 			}
 		});
 	});

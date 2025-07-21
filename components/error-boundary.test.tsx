@@ -1,4 +1,3 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
 	act,
 	fireEvent,
@@ -6,6 +5,7 @@ import {
 	renderHook,
 	screen,
 } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ErrorBoundary, useErrorBoundary } from "./error-boundary";
 
 // Mock console methods

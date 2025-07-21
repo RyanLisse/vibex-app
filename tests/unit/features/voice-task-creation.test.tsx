@@ -2,22 +2,22 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { TranscriptionProcessor } from "@/components/features/voice-tasks/transcription-processor";
 // Components to be implemented
-import { VoiceInputButton } from "../../../components/features/voice-tasks/voice-input-button";
-import { VoiceRecorder } from "../../../components/features/voice-tasks/voice-recorder";
-import { TranscriptionProcessor } from "../../../components/features/voice-tasks/transcription-processor";
-import { VoiceTaskForm } from "../../../components/features/voice-tasks/voice-task-form";
+import { VoiceInputButton } from "@/components/features/voice-tasks/voice-input-button";
+import { VoiceRecorder } from "@/components/features/voice-tasks/voice-recorder";
+import { VoiceTaskForm } from "@/components/features/voice-tasks/voice-task-form";
 
 // Types
 import type {
-	VoiceRecording,
 	TranscriptionResult,
+	VoiceRecording,
 	VoiceTask,
-} from "../../../src/schemas/enhanced-task-schemas";
+} from "@/schemas/enhanced-task-schemas";
 
 // Mock Web Speech API
 const mockSpeechRecognition = {

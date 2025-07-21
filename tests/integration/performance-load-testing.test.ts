@@ -12,12 +12,12 @@
  */
 
 import {
-	describe,
-	test,
-	expect,
-	beforeAll,
 	afterAll,
+	beforeAll,
 	beforeEach,
+	describe,
+	expect,
+	test,
 } from "vitest";
 import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
 import { observability } from "../../lib/observability";
@@ -497,21 +497,25 @@ describe("Performance and Load Testing", () => {
 				const operationType = index % 4;
 
 				switch (operationType) {
-					case 0: // CPU-bound
+					case 0: {
+						// CPU-bound
 						const sum = Array(1000)
 							.fill(0)
 							.reduce((a, _, i) => a + Math.sqrt(i), 0);
 						return { type: "cpu", result: sum };
+					}
 
 					case 1: // I/O-bound
 						await new Promise((resolve) => setTimeout(resolve, 50));
 						return { type: "io", result: "io complete" };
 
-					case 2: // Memory-intensive
+					case 2: {
+						// Memory-intensive
 						const data = new Array(10000)
 							.fill(index)
 							.map((i) => ({ id: i, data: `Item ${i}` }));
 						return { type: "memory", result: data.length };
+					}
 
 					case 3: // Network simulation
 						await new Promise((resolve) =>

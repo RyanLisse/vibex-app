@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const { performance } = require("node:perf_hooks");
-const fs = require("node:fs");
-const path = require("node:path");
+import fs from "node:fs";
+import path from "node:path";
+import { performance } from "node:perf_hooks";
 
 class PerformanceMonitor {
 	constructor() {
@@ -20,7 +20,7 @@ class PerformanceMonitor {
 		const start = performance.now();
 
 		try {
-			const { exec } = require("node:child_process");
+			const { exec } = await import("node:child_process");
 			await new Promise((resolve, reject) => {
 				exec("npm run build", (error, stdout, _stderr) => {
 					if (error) {
@@ -82,7 +82,7 @@ class PerformanceMonitor {
 	}
 
 	async measureLoadTimes() {
-		const puppeteer = require("puppeteer");
+		const puppeteer = await import("puppeteer");
 
 		try {
 			const browser = await puppeteer.launch({ headless: true });

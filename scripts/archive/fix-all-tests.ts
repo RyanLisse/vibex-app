@@ -5,9 +5,9 @@
  */
 
 import { execSync } from "child_process";
-existsSync, readFileSync, writeFileSync } from "fs";
-glob } from "glob";
-join } from "path";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { glob } from "glob";
+import { join } from "path";
 
 console.log("🔧 Starting comprehensive test fix...\n");
 

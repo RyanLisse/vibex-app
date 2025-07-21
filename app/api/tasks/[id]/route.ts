@@ -15,18 +15,18 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
+import {
+	checkETag,
+	generateETag,
+	notModifiedResponse,
+	withCache,
+} from "@/lib/api/cache-headers";
 import { observability } from "@/lib/observability";
 import {
 	createApiErrorResponse,
 	createApiSuccessResponse,
 	UpdateTaskSchema,
 } from "@/src/schemas/api-routes";
-import {
-	withCache,
-	generateETag,
-	checkETag,
-	notModifiedResponse,
-} from "@/lib/api/cache-headers";
 
 // Route parameters schema
 const TaskParamsSchema = z.object({
@@ -251,11 +251,12 @@ class TaskService {
  */
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Validate route parameters
-		const { id } = TaskParamsSchema.parse(params);
+		const resolvedParams = await params;
+		const { id } = TaskParamsSchema.parse(resolvedParams);
 
 		// Get task from database
 		const task = await TaskService.getTask(id);
@@ -312,11 +313,12 @@ export async function GET(
  */
 export async function PUT(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Validate route parameters
-		const { id } = TaskParamsSchema.parse(params);
+		const resolvedParams = await params;
+		const { id } = TaskParamsSchema.parse(resolvedParams);
 
 		// Parse and validate request body
 		const body = await request.json();
@@ -364,11 +366,12 @@ export async function PUT(
  */
 export async function DELETE(
 	_request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Validate route parameters
-		const { id } = TaskParamsSchema.parse(params);
+		const resolvedParams = await params;
+		const { id } = TaskParamsSchema.parse(resolvedParams);
 
 		// Delete task from database
 		const task = await TaskService.deleteTask(id);

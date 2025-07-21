@@ -5,19 +5,20 @@
  * for consistent error handling, tracing, and observability.
  */
 
-import { z } from "zod";
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import {
 	BaseAPIService,
-	type ServiceContext,
-	NotFoundError,
-	ValidationError,
 	ConflictError,
+	NotFoundError,
+	type ServiceContext,
+	ValidationError,
 } from "@/lib/api/base";
 import { QueryBuilder } from "@/lib/api/base/query-builder";
-import {
+import { executeTaskMove } from "@/lib/kanban/task-movement-utils";
+import type {
 	KanbanBoardConfigSchema,
 	KanbanMoveSchema,
 } from "@/src/schemas/enhanced-task-schemas";
@@ -172,121 +173,37 @@ export class TasksKanbanAPIService extends BaseAPIService {
 		};
 	}> {
 		return this.executeWithTracing("moveTask", context, async (span) => {
-			// Get the task to move
-			const task = await this.executeDatabase("getTask", async () => {
-				const result = await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.id, moveData.taskId))
-					.limit(1);
-
-				return result[0];
+			// Use simplified task movement utility
+			const result = await executeTaskMove({
+				taskId: moveData.taskId,
+				toColumn: moveData.toColumn,
+				newOrder: moveData.newOrder,
+				columnsConfig: DEFAULT_COLUMNS,
+				statusColumnMap: STATUS_COLUMN_MAP,
+				columnStatusMap: COLUMN_STATUS_MAP,
 			});
 
-			if (!task) {
-				throw new NotFoundError("Task", moveData.taskId);
-			}
-
-			// Validate target column
-			const newStatus = COLUMN_STATUS_MAP[moveData.toColumn];
-			if (!newStatus) {
-				throw new ValidationError("Invalid target column");
-			}
-
-			// Check WIP limits before moving
-			if (moveData.toColumn !== "todo" && moveData.toColumn !== "completed") {
-				const columnConfig = DEFAULT_COLUMNS.find(
-					(c) => c.id === moveData.toColumn,
-				);
-				if (columnConfig?.limit) {
-					const currentColumnTasksCount = await this.executeDatabase(
-						"checkWipLimit",
-						async () => {
-							const result = await db
-								.select({ count: tasks.id })
-								.from(tasks)
-								.where(eq(tasks.status, newStatus as any));
-
-							return result.length;
-						},
-					);
-
-					if (currentColumnTasksCount >= columnConfig.limit) {
-						throw new ConflictError(
-							`Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`,
-						);
-					}
-				}
-			}
-
-			// Update task position and status
-			const updates: any = {
-				status: newStatus,
-				updatedAt: new Date(),
-			};
-
-			// Note: completedAt field not available in current schema
-
-			// Add kanban metadata
-			const currentMetadata = (task.metadata as any) || {};
-			updates.metadata = {
-				...currentMetadata,
-				kanban: {
-					columnHistory: [
-						...(currentMetadata.kanban?.columnHistory || []),
-						{
-							from: STATUS_COLUMN_MAP[task.status],
-							to: moveData.toColumn,
-							timestamp: new Date().toISOString(),
-							movedBy: "system", // userId not available in moveData
-						},
-					],
-					position: moveData.newOrder,
-					lastMoved: new Date().toISOString(),
-				},
-			};
-
-			const updatedTask = await this.executeDatabase("updateTask", async () => {
-				const result = await db
-					.update(tasks)
-					.set(updates)
-					.where(eq(tasks.id, moveData.taskId))
-					.returning();
-
-				return result[0];
-			});
-
-			const movement = {
-				from: STATUS_COLUMN_MAP[task.status],
-				to: moveData.toColumn,
-				timestamp: new Date().toISOString(),
-			};
-
+			// Add observability
 			span.setAttributes({
 				"task.id": moveData.taskId,
-				"kanban.from_column": movement.from,
-				"kanban.to_column": movement.to,
-				"kanban.from_status": task.status,
-				"kanban.to_status": newStatus,
+				"kanban.from_column": result.movement.from,
+				"kanban.to_column": result.movement.to,
+				"kanban.from_status": result.task.status,
+				"kanban.to_status": result.movement.to,
 			});
 
 			await this.recordEvent(
 				"user_action",
-				`Task moved in kanban: ${task.title}`,
+				`Task moved in kanban: ${result.task.title}`,
 				{
 					taskId: moveData.taskId,
-					userId: "system", // userId not available in moveData
-					fromColumn: movement.from,
-					toColumn: movement.to,
-					fromStatus: task.status,
-					toStatus: newStatus,
+					userId: "system",
+					fromColumn: result.movement.from,
+					toColumn: result.movement.to,
 				},
 			);
 
-			return {
-				task: updatedTask,
-				movement,
-			};
+			return result;
 		});
 	}
 

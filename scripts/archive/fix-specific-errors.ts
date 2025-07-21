@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
-existsSync, readFileSync, writeFileSync } from "fs";
+
+import { existsSync, readFileSync, writeFileSync } from "fs";
 
 // Specific file fixes
 const fileFixes = [
@@ -126,7 +127,8 @@ const alertManager = new AlertManager({
 				find: /observability\.startSpan\((['"])([^'"]+)\1\)/g,
 				replace: "observability.startSpan('$2', {})",
 			},
-			// Add sql find: /^(import.*from.*drizzle.*\n)/m,
+			{
+				find: /^(import.*from.*drizzle.*\n)/m,
 				replace: '$1sql } from "drizzle-orm"\n',
 			},
 		],

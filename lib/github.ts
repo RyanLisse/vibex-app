@@ -94,7 +94,7 @@ export class GitHubAuth {
 			{
 				method: "POST",
 				headers: {
-					"Accept": "application/json",
+					Accept: "application/json",
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
@@ -118,4 +118,36 @@ export class GitHubAuth {
 	async getUser(accessToken: string): Promise<GitHubUser> {
 		const response = await fetch("https://api.github.com/user", {
 			headers: {
-				"Authorization": `Bearer ${accessToken}`,
+				Authorization: `Bearer ${accessToken}`,
+				Accept: "application/vnd.github.v3+json",
+			},
+		});
+
+		if (!response.ok) {
+			throw new Error(`GitHub API error: ${response.status}`);
+		}
+
+		const userData = await response.json();
+		return userData as GitHubUser;
+	}
+
+	// Get user repositories
+	async getUserRepositories(accessToken: string): Promise<GitHubRepository[]> {
+		const response = await fetch(
+			"https://api.github.com/user/repos?sort=updated&per_page=100",
+			{
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					Accept: "application/vnd.github.v3+json",
+				},
+			},
+		);
+
+		if (!response.ok) {
+			throw new Error(`GitHub API error: ${response.status}`);
+		}
+
+		const reposData = await response.json();
+		return reposData as GitHubRepository[];
+	}
+}

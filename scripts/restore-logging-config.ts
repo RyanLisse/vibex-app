@@ -47,7 +47,7 @@ for (const file of files) {
 					const insertPos = content.indexOf(firstImportMatch[0]);
 					content =
 						content.slice(0, insertPos) +
-						import { "createDefaultLoggingConfig } from './config'\n" +
+						"import { createDefaultLoggingConfig } from './config'\n" +
 						content.slice(insertPos);
 				}
 			}

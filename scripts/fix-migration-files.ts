@@ -17,7 +17,7 @@ async function fixMigrationFiles() {
 
 	for (const file of sqlFiles) {
 		try {
-			let content = await readFile(file, "utf-8");
+			const content = await readFile(file, "utf-8");
 
 			// Check if file already has Up/Down sections
 			if (content.includes("-- Up") && content.includes("-- Down")) {

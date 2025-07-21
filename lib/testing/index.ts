@@ -7,8 +7,8 @@ export * from "./assertions/custom-matchers";
 // Test Data Builders
 export {
 	type ApiResponse,
-import { ApiResponseBuilder,
-import { UserBuilder
+	ApiResponseBuilder,
+	UserBuilder,
 } from "./builders/test-data-builder";
 // CLI Tools
 export {
@@ -16,34 +16,31 @@ export {
 	type IntegrationTestOptions,
 	type ScaffoldOptions,
 	type ScaffoldResult,
-import { WorkflowAutomation
+	WorkflowAutomation,
 } from "./cli/tdd-cli";
 // Test Documentation
 export {
 	type CoverageAnalysis,
 	type CoverageData,
 	type CoverageSummary,
-import { CoverageVisualizer,
-import { TestSpecificationGenerator
+	CoverageVisualizer,
+	TestSpecificationGenerator,
 } from "./documentation/test-documentation";
 // Test Lifecycle Management
-export {
-import { TestLifecycleManager
-} from "./lifecycle/test-lifecycle";
+export { TestLifecycleManager } from "./lifecycle/test-lifecycle";
 
 // Performance Testing
-export {
-	type BenchmarkOptions,
-	type BenchmarkResult,
-	type CoverageReport,
-import {
-	type RegressionResult
+export type {
+	BenchmarkOptions,
+	BenchmarkResult,
+	CoverageReport,
+	RegressionResult,
 } from "./performance/performance-testing";
 // Core TDD Framework
 export {
 	type LifecycleState,
-import { TDDFramework,
-import { VitestRunner
+	TDDFramework,
+	VitestRunner,
 } from "./tdd-framework/core";
 
 // Utility Functions and Helpers
@@ -92,16 +89,16 @@ export const TDDTestingFramework = {
 };
 
 export {
-	import { cleanup,
-	import { fireEvent,
-	import { render,
-	import { screen,
-	import { waitFor
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
 } from "@testing-library/react";
 // Re-export Vitest types for convenience
 export type {
-import { MockedClass,
-import { MockedObject
+	MockedClass,
+	MockedObject,
 } from "vitest";
 // Convenience re-exports from testing libraries
 export {
@@ -109,11 +106,11 @@ export {
 	afterEach,
 	beforeAll,
 	beforeEach,
-	import { describe,
-	import { expect,
-	import { it,
-	import { test,
-	import { vi
+	describe,
+	expect,
+	it,
+	test,
+	vi,
 } from "vitest";
 
 // Default configuration

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the inngest modules
-mock.module("@/lib/inngest", () => ({
+vi.mock("@/lib/inngest", () => ({
 	inngest: {
 		id: "clonedex",
 		send: vi.fn(() => Promise.resolve({ ids: ["test-id"] })),
