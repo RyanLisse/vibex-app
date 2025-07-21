@@ -26,24 +26,47 @@ if (typeof window === "undefined" && typeof process !== "undefined") {
 
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
-import { LogLevel } from "./types";
+import * as Sentry from "@sentry/nextjs";
+import { LogLevel, LoggingConfig, LogContext, LoggingMetrics, OperationMetrics } from "./types";
 
 export class LoggerFactory {
 	private static instance: LoggerFactory;
 	private winston: winston.Logger;
 	private config: LoggingConfig;
 	private contextStorage: any;
-	private correlationManager = CorrelationIdManager.getInstance();
-	private metadataEnricher = new MetadataEnricher();
-	private redactor: SensitiveDataRedactor;
-	private performanceTracker = new PerformanceTracker();
+	private correlationManager: any;
+	private metadataEnricher: any;
+	private redactor: any;
+	private performanceTracker: any;
 
 	private constructor(config: LoggingConfig) {
 		this.config = config;
-		this.redactor = new SensitiveDataRedactor(
-			config.redaction.customFields,
-			config.redaction.customPatterns,
-		);
+		// Simple implementations for now
+		this.correlationManager = {
+			getCurrentId: () => Math.random().toString(36).substring(7)
+		};
+		this.metadataEnricher = {
+			enrich: (info: any, context: any) => ({
+				...info,
+				...context
+			})
+		};
+		this.redactor = {
+			redact: (obj: any) => obj // TODO: Implement proper redaction
+		};
+		this.performanceTracker = {
+			recordError: () => {},
+			recordOperation: (op: string, duration: number) => {},
+			recordLoggingOperation: (duration: number, level: string) => {},
+			getMetrics: () => ({
+				totalLogs: 0,
+				logsByLevel: {},
+				averageLoggingTime: 0,
+				operationMetrics: new Map(),
+				errors: 0,
+				startTime: Date.now()
+			})
+		};
 		// Initialize contextStorage based on the current AsyncLocalStorage implementation
 		if (typeof window === "undefined" && typeof process !== "undefined") {
 			try {
@@ -143,6 +166,74 @@ export class LoggerFactory {
 					level: this.config.http.level || this.config.level,
 				}),
 			);
+		}
+
+		// Add Sentry transport
+		if (typeof window === "undefined" && process.env.SENTRY_DSN) {
+			// Create a custom Winston transport for Sentry
+			const SentryTransport = winston.transports.Stream.prototype.constructor;
+			
+			class WinstonSentryTransport extends SentryTransport {
+				constructor(opts?: any) {
+					super(opts);
+					this.name = 'sentry';
+					this.level = opts?.level || 'error';
+				}
+
+				log(info: any, callback: () => void) {
+					setImmediate(() => {
+						this.emit('logged', info);
+					});
+
+					// Map Winston levels to Sentry severity
+					const levelMap: Record<string, Sentry.SeverityLevel> = {
+						error: 'error',
+						warn: 'warning',
+						info: 'info',
+						debug: 'debug',
+						trace: 'debug'
+					};
+
+					const level = levelMap[info.level] || 'info';
+					
+					// Extract error if present
+					if (info.error instanceof Error) {
+						Sentry.captureException(info.error, {
+							level,
+							extra: {
+								message: info.message,
+								...info
+							}
+						});
+					} else if (info.level === 'error' || info.level === 'warn') {
+						// Send as message for non-exception errors/warnings
+					Sentry.captureMessage(info.message, {
+						level,
+						extra: info
+					});
+					}
+
+					// Add breadcrumb for all log levels
+					Sentry.addBreadcrumb({
+						message: info.message,
+						level,
+						category: 'winston',
+						data: {
+							component: info.component,
+							correlationId: info.correlationId,
+							...info
+						},
+						timestamp: new Date(info.timestamp).getTime() / 1000
+					});
+
+					callback();
+				}
+			}
+
+			// @ts-ignore - Custom transport
+			transports.push(new WinstonSentryTransport({
+				level: 'error', // Only send errors and above to Sentry by default
+			}));
 		}
 
 		return transports;

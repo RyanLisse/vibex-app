@@ -1,5 +1,9 @@
 import * as Sentry from "@sentry/nextjs";
 import type { User } from "@/types/user";
+import { getLogger } from "@/lib/logging";
+
+// Get Winston logger for instrumentation
+const logger = getLogger("sentry-instrumentation");
 
 /**
  * Set the current user context in Sentry
@@ -200,21 +204,18 @@ export async function instrumentInngestFunction<T extends (...args: any[]) => an
 }
 
 /**
- * Log a message with Sentry
+ * Log a message with Winston (which forwards to Sentry)
  */
 export function logWithSentry(
 	level: "trace" | "debug" | "info" | "warn" | "error" | "fatal",
 	message: string,
 	data?: Record<string, any>
 ) {
-	const { logger } = Sentry;
-	
+	// Use Winston logger which is integrated with Sentry
 	switch (level) {
 		case "trace":
-			logger.trace(message, data);
-			break;
 		case "debug":
-			logger.debug(logger.fmt`${message}`, data);
+			logger.debug(message, data);
 			break;
 		case "info":
 			logger.info(message, data);
@@ -223,10 +224,8 @@ export function logWithSentry(
 			logger.warn(message, data);
 			break;
 		case "error":
-			logger.error(message, data);
-			break;
 		case "fatal":
-			logger.fatal(message, data);
+			logger.error(message, data instanceof Error ? data : new Error(message), data);
 			break;
 	}
 }
