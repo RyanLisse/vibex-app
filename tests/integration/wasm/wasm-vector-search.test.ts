@@ -13,7 +13,7 @@ import {
 	describe,
 	expect,
 	it,
-	vi,
+	vi
 } from "vitest";
 
 // Vector search types

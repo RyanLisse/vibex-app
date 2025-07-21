@@ -286,7 +286,8 @@ WHERE t1.value > 100`,
 						);
 				}
 
-				const executionTime = (performance.now() - startTime) * performanceMultiplier;
+				const executionTime =
+					(performance.now() - startTime) * performanceMultiplier;
 				times.push(executionTime);
 			}
 
@@ -568,7 +569,10 @@ describe("WASM SQLite Utils", () => {
 			await expect(
 				sqliteUtils.restore(connectionId, backupPath),
 			).resolves.not.toThrow();
-			expect(sqliteUtils.restore).toHaveBeenCalledWith(connectionId, backupPath);
+			expect(sqliteUtils.restore).toHaveBeenCalledWith(
+				connectionId,
+				backupPath,
+			);
 		});
 
 		it("should get database information", async () => {
@@ -688,7 +692,7 @@ describe("WASM SQLite Utils", () => {
 
 		it("should clean up resources on connection close", async () => {
 			const tempConnId = await sqliteUtils.openDatabase(testDbPath);
-			
+
 			// Insert some data
 			await sqliteUtils.execute(
 				tempConnId,

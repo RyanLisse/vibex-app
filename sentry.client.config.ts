@@ -18,14 +18,23 @@ Sentry.init({
 	replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 
 	integrations: [
-		// Automatically capture console errors
-		Sentry.captureConsoleIntegration({
-			levels: ["error", "warn"],
-		}),
+		// Send console.log, console.error, and console.warn calls as logs to Sentry
+		Sentry.consoleLoggingIntegration({ levels: ["log", "error", "warn"] }),
 		// Replay recording
 		Sentry.replayIntegration({
 			maskAllText: false,
 			blockAllMedia: false,
+		}),
+		// User feedback widget
+		Sentry.feedbackIntegration({
+			colorScheme: "auto",
+			showBranding: false,
+			buttonLabel: "Report an Issue",
+			submitButtonLabel: "Send Report",
+			formTitle: "Report an Issue",
+			messagePlaceholder: "Please describe the issue you're experiencing...",
+			successMessageText: "Thank you for your feedback!",
+			autoInject: true,
 		}),
 	],
 

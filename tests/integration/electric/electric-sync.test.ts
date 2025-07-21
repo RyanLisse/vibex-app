@@ -6,16 +6,19 @@
  */
 
 	afterEach,
-	beforeAll,
-	import { beforeEach,
-	import { describe,
-	import { expect,
-	import { it,
-	import { vi
+import {
+beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+import {
+import {
+	vi
 } from "vitest";
 import { NewAgentExecution,
 import { NewTask
 } from "../../../db/schema";
 	type ElectricDatabaseManager,
-	import { electricDb
+	electricDb,
 } from "../../../lib/electric/config";

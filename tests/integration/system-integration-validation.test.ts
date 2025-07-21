@@ -6,9 +6,10 @@
  */
 
 import { PrometheusMetricsCollector } from "@/lib/metrics/prometheus-client";
+import {
 	getRedisConfig,
 	redisFeatures,
-	validateRedisEnvironment
+	validateRedisEnvironment,
 } from "@/lib/redis/config";
 
 // Integration Health Report Builder
@@ -323,7 +324,8 @@ describe("System Integration Validation", () => {
 				},
 				{
 					name: "Business Metrics",
-					builder: () =>GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
+					builder: () =>
+						GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
 				},
 				{
 					name: "Cost Analysis",

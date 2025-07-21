@@ -6,8 +6,9 @@
  */
 
 import { migrationRunner } from "../../../db/migrations/migration-runner";
-	agentExecutions,
-	agentMemory,
+import {
+agentExecutions,
+agentMemory,
 	environments,
 	executionSnapshots,
 	type NewAgentExecution,
@@ -18,14 +19,15 @@ import { migrationRunner } from "../../../db/migrations/migration-runner";
 	type NewTask,
 	type NewWorkflow,
 	type NewWorkflowExecution,
+import {
 	observabilityEvents,
-	tasks,
+		tasks,
 	workflowExecutions,
 	workflows,
 } from "../../../db/schema";
-	import { checkDatabaseHealth,
-	import { db,
-	import { initializeExtensions,
+	checkDatabaseHealth,
+	db,
+	initializeExtensions,
 } from "../../../db/test-config";
 
 // Skip tests if no database URL is provided

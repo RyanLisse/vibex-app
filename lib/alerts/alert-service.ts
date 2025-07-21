@@ -9,7 +9,7 @@ import {
 	CriticalErrorType,
 	type AlertChannel,
 	type AlertConfig,
-	type CriticalError
+	type CriticalError,
 } from "./types";
 
 export class AlertService {
@@ -21,7 +21,10 @@ export class AlertService {
 	private readonly criticalErrorDetector: CriticalErrorDetector;
 	private alertConfig: AlertConfig;
 	private initialized = false;
-	private channels: Array<{ channel: AlertChannel; errorTypes: CriticalErrorType[] }> = [];
+	private channels: Array<{
+		channel: AlertChannel;
+		errorTypes: CriticalErrorType[];
+	}> = [];
 	private alertHistory: CriticalError[] = [];
 	private activeAlerts = new Map<string, CriticalError>();
 
@@ -203,8 +206,7 @@ export class AlertService {
 		}
 
 		const relevantChannels = this.channels.filter(
-			(ch) =>
-				ch.errorTypes.length === 0 || ch.errorTypes.includes(alert.type),
+			(ch) => ch.errorTypes.length === 0 || ch.errorTypes.includes(alert.type),
 		);
 
 		await Promise.all(

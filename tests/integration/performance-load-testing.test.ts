@@ -11,10 +11,11 @@
  * - Performance regression detection
  */
 
+import {
 	afterAll,
-	import { beforeAll,
-	import { beforeEach,
-	import { describe,
-	import { expect,
-	import { test,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	test,
 } from "bun:test";

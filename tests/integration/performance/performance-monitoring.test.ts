@@ -5,19 +5,21 @@
  * memory usage monitoring, response time validation, and system health checks
  */
 
+import {
 	afterAll,
 	beforeAll,
-	import { beforeEach,
-	import { describe,
-	import { expect,
-	import { it,
-	import { vi
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi
 } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
+import {
 	agentExecutions,
 	environments,
 	observabilityEvents,
-	tasks
+	tasks,
 } from "../../../db/schema";
 
 // Performance monitoring types
@@ -816,7 +818,7 @@ describe("Performance Monitoring Integration Tests", () => {
 			console.log("Slowest operation:", slowestOperation);
 
 			// All operations should complete within reasonable time
-Object.values(bottleneckResults).forEach((time) => {
+			Object.values(bottleneckResults).forEach((time) => {
 				expect(time).toBeLessThan(200); // All operations under 200ms
 			});
 		});

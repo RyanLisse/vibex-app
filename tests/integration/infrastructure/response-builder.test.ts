@@ -1,10 +1,10 @@
-import { ValidationError
-} from "@/lib/api/base/errors";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ValidationError } from "@/lib/api/base/errors";
+import {
 	type ErrorResponse,
 	type PaginatedResponse,
-import { ResponseBuilder,
-import {
-	type SuccessResponse
+	ResponseBuilder,
+	type SuccessResponse,
 } from "@/lib/api/base/response-builder";
 
 // Mock crypto.randomUUID
@@ -505,4 +505,14 @@ describe("ResponseBuilder Integration Tests", () => {
 	describe("Response metadata", () => {
 		it("should include consistent API version", () => {
 			const responses = [
-ResponseBuilder.success({}),
+				ResponseBuilder.success({}),
+				ResponseBuilder.error(new Error("test")),
+				ResponseBuilder.paginated([], { page: 1, pageSize: 10, total: 0 }),
+			];
+			responses.forEach((response) => {
+				expect(response).toHaveProperty("meta");
+				expect(response.meta).toHaveProperty("version", "v1");
+			});
+		});
+	});
+});

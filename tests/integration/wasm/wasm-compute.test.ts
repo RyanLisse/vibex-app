@@ -5,13 +5,14 @@
  * performance benchmarks, fallback scenarios, and statistical operations
  */
 
+import {
 	afterEach,
 	beforeAll,
-	import { beforeEach,
-	import { describe,
-	import { expect,
-	import { it,
-	import { vi
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi
 } from "vitest";
 import {
 	type AnalyticsData,
@@ -19,9 +20,8 @@ import {
 	type ComputeTask,
 	ComputeWASM,
 	type ComputeWASMConfig,
-	import { computeManager,
-	import { createComputeEngine,
-	import { getComputeEngine,
-import {
-	type StatisticalSummary
+	computeManager,
+	createComputeEngine,
+	getComputeEngine,
+	type StatisticalSummary,
 } from "../../../lib/wasm/compute";

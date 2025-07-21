@@ -29,7 +29,7 @@ async function fixWasmTestImports() {
 	expect,
 	it,
 	vi
-} from "vitest";`
+} from "vitest";`,
 			);
 			modified = true;
 		}
@@ -45,7 +45,7 @@ async function fixWasmTestImports() {
 	expect,
 	it,
 	vi
-} from "vitest";`
+} from "vitest";`,
 			);
 			modified = true;
 		}
@@ -59,7 +59,7 @@ import {
 	type AnalyticsData,
 	type ComputeResult,
 	type ComputeTask,
-	ComputeWASM,`
+	ComputeWASM,`,
 			);
 			modified = true;
 		}
@@ -72,7 +72,7 @@ import {
 								connectionId,
 								\`
 SELECT t1.*, t2.name 
-FROM test_table t1 `
+FROM test_table t1 `,
 			);
 			modified = true;
 		}

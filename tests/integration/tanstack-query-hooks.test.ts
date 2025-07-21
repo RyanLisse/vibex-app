@@ -4,7 +4,11 @@
  * Tests for all TanStack Query hooks with real database operations and caching behavior
  */
 
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
 import type { Environment, Task } from "@/db/schema";
+import {
 	environmentKeys,
 	taskKeys,
 	useCreateEnvironment,
@@ -16,7 +20,7 @@ import type { Environment, Task } from "@/db/schema";
 	useTask,
 	useTasks,
 	useUpdateEnvironment,
-	useUpdateTask
+	useUpdateTask,
 } from "@/lib/query/hooks";
 
 // Mock fetch
@@ -36,7 +40,8 @@ function createWrapper() {
 		},
 	});
 
-	return ({ children }: { children: React.ReactNode }) =>React.createElement(QueryClientProvider, { client: queryClient }, children);
+	return ({ children }: { children: React.ReactNode }) =>
+		React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
 describe("TanStack Query Hooks Integration", () => {
@@ -69,7 +74,7 @@ describe("TanStack Query Hooks Integration", () => {
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: { tasks: mockTasks, total: 2, hasMore: false },
 						}),
@@ -106,7 +111,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: { tasks: mockTasks, total: 1, hasMore: false },
 						}),
@@ -163,7 +168,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: mockTask,
 						}),
@@ -191,7 +196,7 @@ Promise.resolve({
 					ok: false,
 					status: 404,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: false,
 							error: "Task not found",
 						}),
@@ -236,7 +241,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: createdTask,
 						}),
@@ -346,7 +351,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: updatedTask,
 						}),
@@ -402,7 +407,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							message: "Task deleted successfully",
 						}),
@@ -456,7 +461,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: { environments: mockEnvironments, total: 2 },
 						}),
@@ -493,7 +498,7 @@ Promise.resolve({
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
 					json: () =>
-Promise.resolve({
+						Promise.resolve({
 							success: true,
 							data: createdEnvironment,
 						}),
@@ -551,7 +556,7 @@ Promise.resolve({
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () =>
-Promise.resolve({
+					Promise.resolve({
 						success: true,
 						data: { id: "task-1", title: "Updated" },
 					}),

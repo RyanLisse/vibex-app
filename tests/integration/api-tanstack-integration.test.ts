@@ -13,7 +13,9 @@ import React from "react";
 	describe,
 	expect,
 	it,
-	vi,
+import {
+import {
+	vi
 } from "vitest";
 
 // Mock Task type for testing
