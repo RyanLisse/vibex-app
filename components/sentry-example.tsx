@@ -19,7 +19,7 @@ export function SentryExample() {
 	// Example: Exception handling
 	const handleTestException = () => {
 		trackButtonClick("Test Exception");
-		
+
 		try {
 			// This will throw an error
 			throw new Error("This is a test error for Sentry");
@@ -32,7 +32,7 @@ export function SentryExample() {
 				},
 				level: "error",
 			});
-			
+
 			setResult("Error captured and sent to Sentry!");
 		}
 	};
@@ -41,7 +41,7 @@ export function SentryExample() {
 	const handleTestPerformance = async () => {
 		trackButtonClick("Test Performance");
 		setIsLoading(true);
-		
+
 		await Sentry.startSpan(
 			{
 				op: "test.performance",
@@ -51,27 +51,27 @@ export function SentryExample() {
 				// Add custom attributes
 				span.setAttribute("test.type", "performance");
 				span.setAttribute("user.action", "button_click");
-				
+
 				// Simulate some work
-				await new Promise(resolve => setTimeout(resolve, 1000));
-				
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+
 				// Log the operation through Winston
 				logger.info("Performance test completed", {
 					duration: 1000,
 					operation: "test.performance",
 				});
-				
+
 				setResult("Performance span recorded!");
-			}
+			},
 		);
-		
+
 		setIsLoading(false);
 	};
 
 	// Example: Logging at different levels
 	const handleTestLogging = () => {
 		trackButtonClick("Test Logging");
-		
+
 		// Use Winston logger for logging
 		logger.debug("Debug: Testing logging functionality", { userId: 123 });
 		logger.info("Info level log", { action: "test_logging" });
@@ -83,7 +83,7 @@ export function SentryExample() {
 			errorCode: "TEST_ERROR",
 			severity: "low",
 		});
-		
+
 		// Add breadcrumb
 		Sentry.addBreadcrumb({
 			message: "User tested logging functionality",
@@ -93,7 +93,7 @@ export function SentryExample() {
 				timestamp: new Date().toISOString(),
 			},
 		});
-		
+
 		setResult("Logs sent to Sentry!");
 	};
 
@@ -101,7 +101,7 @@ export function SentryExample() {
 	const handleComplexOperation = async () => {
 		trackButtonClick("Complex Operation");
 		setIsLoading(true);
-		
+
 		await Sentry.startSpan(
 			{
 				op: "ui.complex_operation",
@@ -116,11 +116,11 @@ export function SentryExample() {
 					},
 					async (fetchSpan) => {
 						fetchSpan.setAttribute("api.endpoint", "/api/users");
-						await new Promise(resolve => setTimeout(resolve, 500));
+						await new Promise((resolve) => setTimeout(resolve, 500));
 						logger.debug("User data fetched", { userId: 123 });
-					}
+					},
 				);
-				
+
 				// Step 2: Data processing
 				await Sentry.startSpan(
 					{
@@ -129,11 +129,11 @@ export function SentryExample() {
 					},
 					async (processSpan) => {
 						processSpan.setAttribute("records.count", 100);
-						await new Promise(resolve => setTimeout(resolve, 300));
+						await new Promise((resolve) => setTimeout(resolve, 300));
 						logger.debug("Data processed", { recordsProcessed: 100 });
-					}
+					},
 				);
-				
+
 				// Step 3: UI update
 				await Sentry.startSpan(
 					{
@@ -142,22 +142,22 @@ export function SentryExample() {
 					},
 					async (renderSpan) => {
 						renderSpan.setAttribute("components.updated", 5);
-						await new Promise(resolve => setTimeout(resolve, 200));
+						await new Promise((resolve) => setTimeout(resolve, 200));
 						logger.info("UI updated successfully");
-					}
+					},
 				);
-				
+
 				setResult("Complex operation completed with nested spans!");
-			}
+			},
 		);
-		
+
 		setIsLoading(false);
 	};
 
 	// Example: User context
 	const handleSetUserContext = () => {
 		trackButtonClick("Set User Context");
-		
+
 		// Set user context
 		Sentry.setUser({
 			id: "user_123",
@@ -165,44 +165,44 @@ export function SentryExample() {
 			username: "testuser",
 			ip_address: "127.0.0.1",
 		});
-		
+
 		// Add custom user data
 		Sentry.setContext("user_preferences", {
 			theme: "dark",
 			language: "en",
 			timezone: "UTC",
 		});
-		
+
 		logger.info("User context set", {
 			userId: "user_123",
 			action: "context_update",
 		});
-		
+
 		setResult("User context set in Sentry!");
 	};
 
 	// Example: Custom tags and context
 	const handleCustomContext = () => {
 		trackButtonClick("Custom Context");
-		
+
 		// Set tags
 		Sentry.setTag("feature", "sentry_example");
 		Sentry.setTag("environment", "development");
 		Sentry.setTag("version", "1.0.0");
-		
+
 		// Set custom context
 		Sentry.setContext("feature_flags", {
 			newUI: true,
 			betaFeatures: false,
 			experimentalAPI: true,
 		});
-		
+
 		// Log with context
 		logger.info("Custom context and tags set", {
 			feature: "sentry_example",
 			tags: ["feature", "environment", "version"],
 		});
-		
+
 		setResult("Custom context and tags set!");
 	};
 
@@ -211,7 +211,8 @@ export function SentryExample() {
 			<div>
 				<h2 className="text-2xl font-bold mb-4">Sentry Integration Examples</h2>
 				<p className="text-gray-600 mb-6">
-					Test various Sentry features including error tracking, performance monitoring, and logging.
+					Test various Sentry features including error tracking, performance
+					monitoring, and logging.
 				</p>
 			</div>
 

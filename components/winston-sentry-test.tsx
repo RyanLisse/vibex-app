@@ -12,28 +12,32 @@ export function WinstonSentryTest() {
 
 	const testWinstonLogging = () => {
 		// Test different log levels
-		logger.debug("Debug level message from Winston", { 
+		logger.debug("Debug level message from Winston", {
 			testType: "winston-sentry",
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
-		
+
 		logger.info("Info level message from Winston", {
 			userId: "test-user-123",
 			action: "test_logging",
-			component: "WinstonSentryTest"
+			component: "WinstonSentryTest",
 		});
-		
+
 		logger.warn("Warning level message from Winston", {
 			reason: "This is a test warning",
 			severity: "medium",
-			metadata: { source: "winston" }
+			metadata: { source: "winston" },
 		});
-		
-		logger.error("Error level message from Winston", new Error("Test error from Winston"), {
-			errorCode: "WINSTON_TEST_ERROR",
-			context: "Testing Winston-Sentry integration"
-		});
-		
+
+		logger.error(
+			"Error level message from Winston",
+			new Error("Test error from Winston"),
+			{
+				errorCode: "WINSTON_TEST_ERROR",
+				context: "Testing Winston-Sentry integration",
+			},
+		);
+
 		setResult("Logs sent through Winston to Sentry!");
 	};
 
@@ -43,7 +47,7 @@ export function WinstonSentryTest() {
 		} catch (error) {
 			logger.error("Exception caught by Winston", error, {
 				handler: "testWinstonException",
-				severity: "high"
+				severity: "high",
 			});
 			setResult("Exception logged through Winston to Sentry!");
 		}
@@ -52,41 +56,41 @@ export function WinstonSentryTest() {
 	const testComplexLogging = () => {
 		// Create a child logger with additional context
 		const childLogger = logger.child("complex-operation");
-		
+
 		// Log operation start
 		childLogger.info("Starting complex operation", {
 			operationId: "op-" + Date.now(),
-			steps: 3
+			steps: 3,
 		});
-		
+
 		// Simulate steps
 		childLogger.debug("Step 1: Data validation", { status: "success" });
 		childLogger.debug("Step 2: Processing", { status: "success" });
-		childLogger.warn("Step 3: Minor issue encountered", { 
+		childLogger.warn("Step 3: Minor issue encountered", {
 			issue: "Rate limit approaching",
-			remaining: 100
+			remaining: 100,
 		});
-		
+
 		// Log operation completion
 		childLogger.info("Complex operation completed", {
 			duration: 1500,
-			result: "success_with_warnings"
+			result: "success_with_warnings",
 		});
-		
+
 		setResult("Complex operation logged through Winston!");
 	};
 
 	const testPerformanceLogging = () => {
 		const timer = logger.startTimer();
-		
+
 		// Simulate some work
 		setTimeout(() => {
 			timer.done({
 				message: "Performance test completed",
 				operation: "data_processing",
-				recordsProcessed: 1000
+				recordsProcessed: 1000,
 			});
-			
+
 			setResult("Performance metrics logged through Winston!");
 		}, 500);
 	};
@@ -94,9 +98,12 @@ export function WinstonSentryTest() {
 	return (
 		<div className="space-y-6 p-6">
 			<div>
-				<h2 className="text-2xl font-bold mb-4">Winston-Sentry Integration Test</h2>
+				<h2 className="text-2xl font-bold mb-4">
+					Winston-Sentry Integration Test
+				</h2>
 				<p className="text-gray-600 mb-6">
-					Test the Winston logger integration with Sentry. Logs are sent through Winston and forwarded to Sentry.
+					Test the Winston logger integration with Sentry. Logs are sent through
+					Winston and forwarded to Sentry.
 				</p>
 			</div>
 

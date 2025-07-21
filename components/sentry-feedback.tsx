@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 /**
  * Sentry Feedback Widget Component
- * 
+ *
  * This component initializes the Sentry feedback widget that allows users
  * to report issues directly from the application.
  */
@@ -13,7 +13,7 @@ export function SentryFeedback() {
 	useEffect(() => {
 		// Initialize the feedback widget
 		const feedback = Sentry.getFeedback();
-		
+
 		if (!feedback) {
 			// Create feedback integration if it doesn't exist
 			Sentry.init({
@@ -26,12 +26,12 @@ export function SentryFeedback() {
 						showEmail: true,
 						isNameRequired: false,
 						isEmailRequired: true,
-						
+
 						// Custom button text
 						buttonLabel: "Report an Issue",
 						submitButtonLabel: "Send Report",
 						cancelButtonLabel: "Cancel",
-						
+
 						// Custom messages
 						formTitle: "Report an Issue",
 						nameLabel: "Name",
@@ -39,13 +39,15 @@ export function SentryFeedback() {
 						emailLabel: "Email",
 						emailPlaceholder: "your.email@example.com",
 						messageLabel: "Description",
-						messagePlaceholder: "Please describe the issue you're experiencing...",
-						successMessageText: "Thank you for your feedback! We'll look into this issue.",
-						
+						messagePlaceholder:
+							"Please describe the issue you're experiencing...",
+						successMessageText:
+							"Thank you for your feedback! We'll look into this issue.",
+
 						// Trigger options
 						autoInject: true, // Automatically inject the widget
 						showTrigger: "always", // 'always', 'never', or custom logic
-						
+
 						// Theme customization
 						themeLight: {
 							background: "#ffffff",
@@ -65,7 +67,7 @@ export function SentryFeedback() {
 							border: "#363636",
 							boxShadow: "0px 4px 24px 0px rgba(0, 0, 0, 0.4)",
 						},
-						
+
 						// Callback functions
 						onFormOpen: () => {
 							// Track when feedback form is opened
@@ -132,16 +134,16 @@ export function closeFeedbackForm() {
 /**
  * Custom feedback button component that can be placed anywhere
  */
-export function FeedbackButton({ 
-	className = "", 
-	children = "Report Issue" 
-}: { 
-	className?: string; 
+export function FeedbackButton({
+	className = "",
+	children = "Report Issue",
+}: {
+	className?: string;
 	children?: React.ReactNode;
 }) {
 	const handleClick = () => {
 		openFeedbackForm();
-		
+
 		// Track button click
 		Sentry.addBreadcrumb({
 			message: "User clicked custom feedback button",

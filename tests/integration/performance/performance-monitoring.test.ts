@@ -12,7 +12,7 @@ import {
 	describe,
 	expect,
 	it,
-	vi
+	vi,
 } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 import {

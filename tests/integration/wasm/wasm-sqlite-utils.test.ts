@@ -14,7 +14,7 @@ import {
 	describe,
 	expect,
 	it,
-	vi
+	vi,
 } from "vitest";
 
 // SQLite types

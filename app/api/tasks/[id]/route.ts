@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /**
- * Individual Task API Route
+ * Individual Task API Route - Refactored Version
  *
- * Enhanced API route for individual task operations with Drizzle ORM integration,
- * Zod validation, OpenTelemetry tracing, and comprehensive error handling.
+ * Enhanced API route using base utilities for consistency and reduced duplication
  */

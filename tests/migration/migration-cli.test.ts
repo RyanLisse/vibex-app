@@ -13,5 +13,5 @@ import {
 	expect,
 	it,
 	type MockedFunction,
-	vi
+	vi,
 } from "vitest";

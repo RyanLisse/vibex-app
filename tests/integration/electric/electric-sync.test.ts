@@ -5,15 +5,13 @@
  * offline/online transitions, and subscription management
  */
 
-	afterEach,
 import {
-beforeAll,
+	afterEach,
+	beforeAll,
 	beforeEach,
 	describe,
 	expect,
 	it,
-import {
-import {
 	vi
 } from "vitest";
 import { NewAgentExecution,

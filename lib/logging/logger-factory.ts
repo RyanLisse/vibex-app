@@ -27,7 +27,13 @@ if (typeof window === "undefined" && typeof process !== "undefined") {
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import * as Sentry from "@sentry/nextjs";
-import { LogLevel, LoggingConfig, LogContext, LoggingMetrics, OperationMetrics } from "./types";
+import {
+	LogLevel,
+	LoggingConfig,
+	LogContext,
+	LoggingMetrics,
+	OperationMetrics,
+} from "./types";
 
 export class LoggerFactory {
 	private static instance: LoggerFactory;
@@ -43,16 +49,16 @@ export class LoggerFactory {
 		this.config = config;
 		// Simple implementations for now
 		this.correlationManager = {
-			getCurrentId: () => Math.random().toString(36).substring(7)
+			getCurrentId: () => Math.random().toString(36).substring(7),
 		};
 		this.metadataEnricher = {
 			enrich: (info: any, context: any) => ({
 				...info,
-				...context
-			})
+				...context,
+			}),
 		};
 		this.redactor = {
-			redact: (obj: any) => obj // TODO: Implement proper redaction
+			redact: (obj: any) => obj, // TODO: Implement proper redaction
 		};
 		this.performanceTracker = {
 			recordError: () => {},
@@ -64,8 +70,8 @@ export class LoggerFactory {
 				averageLoggingTime: 0,
 				operationMetrics: new Map(),
 				errors: 0,
-				startTime: Date.now()
-			})
+				startTime: Date.now(),
+			}),
 		};
 		// Initialize contextStorage based on the current AsyncLocalStorage implementation
 		if (typeof window === "undefined" && typeof process !== "undefined") {
@@ -172,58 +178,58 @@ export class LoggerFactory {
 		if (typeof window === "undefined" && process.env.SENTRY_DSN) {
 			// Create a custom Winston transport for Sentry
 			const SentryTransport = winston.transports.Stream.prototype.constructor;
-			
+
 			class WinstonSentryTransport extends SentryTransport {
 				constructor(opts?: any) {
 					super(opts);
-					this.name = 'sentry';
-					this.level = opts?.level || 'error';
+					this.name = "sentry";
+					this.level = opts?.level || "error";
 				}
 
 				log(info: any, callback: () => void) {
 					setImmediate(() => {
-						this.emit('logged', info);
+						this.emit("logged", info);
 					});
 
 					// Map Winston levels to Sentry severity
 					const levelMap: Record<string, Sentry.SeverityLevel> = {
-						error: 'error',
-						warn: 'warning',
-						info: 'info',
-						debug: 'debug',
-						trace: 'debug'
+						error: "error",
+						warn: "warning",
+						info: "info",
+						debug: "debug",
+						trace: "debug",
 					};
 
-					const level = levelMap[info.level] || 'info';
-					
+					const level = levelMap[info.level] || "info";
+
 					// Extract error if present
 					if (info.error instanceof Error) {
 						Sentry.captureException(info.error, {
 							level,
 							extra: {
 								message: info.message,
-								...info
-							}
+								...info,
+							},
 						});
-					} else if (info.level === 'error' || info.level === 'warn') {
+					} else if (info.level === "error" || info.level === "warn") {
 						// Send as message for non-exception errors/warnings
-					Sentry.captureMessage(info.message, {
-						level,
-						extra: info
-					});
+						Sentry.captureMessage(info.message, {
+							level,
+							extra: info,
+						});
 					}
 
 					// Add breadcrumb for all log levels
 					Sentry.addBreadcrumb({
 						message: info.message,
 						level,
-						category: 'winston',
+						category: "winston",
 						data: {
 							component: info.component,
 							correlationId: info.correlationId,
-							...info
+							...info,
 						},
-						timestamp: new Date(info.timestamp).getTime() / 1000
+						timestamp: new Date(info.timestamp).getTime() / 1000,
 					});
 
 					callback();
@@ -231,9 +237,11 @@ export class LoggerFactory {
 			}
 
 			// @ts-ignore - Custom transport
-			transports.push(new WinstonSentryTransport({
-				level: 'error', // Only send errors and above to Sentry by default
-			}));
+			transports.push(
+				new WinstonSentryTransport({
+					level: "error", // Only send errors and above to Sentry by default
+				}),
+			);
 		}
 
 		return transports;

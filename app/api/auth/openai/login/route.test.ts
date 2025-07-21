@@ -30,6 +30,7 @@ NEXTAUTH_URL: "https://app.example.com",
 	},
 }));
 
+import {
 	generateAuthUrl,
 	generateCodeChallenge,
 	generateCodeVerifier,
@@ -180,8 +181,8 @@ describe("POST /api/auth/openai/login", () => {
 	it("should handle missing environment variables", async () => {
 		mock.doMock("@/lib/env", () => ({
 			env: {
-OPENAI_CLIENT_ID: undefined,
-import { NEXTAUTH_URL: undefined,
+				OPENAI_CLIENT_ID: undefined,
+				NEXTAUTH_URL: undefined,
 			},
 		}));
 
@@ -387,6 +388,8 @@ import { NEXTAUTH_URL: undefined,
 		});
 	});
 });
+
+import {
   generateAuthUrl,
   generateCodeChallenge,
   generateCodeVerifier,
@@ -527,4 +530,22 @@ describe('POST /api/auth/openai/login', () => {
   it('should handle missing environment variables', async () => {
     mock.doMock('@/lib/env', () => ({
       env: {
-OPENAI_CLIENT_ID: undefined,
+        OPENAI_CLIENT_ID: undefined,
+        NEXTAUTH_URL: undefined,
+      }
+    }))
+
+    mockNextResponse.json.mockReturnValue({
+      error: 'Missing OpenAI configuration'
+    } as any)
+
+    const request = new NextRequest('https://app.example.com/api/auth/openai/login')
+    
+    const _response = await POST(request)
+
+    expect(mockNextResponse.json).toHaveBeenCalledWith(
+      { error: 'Missing OpenAI configuration' },
+      { status: 500 }
+    )
+  })
+})

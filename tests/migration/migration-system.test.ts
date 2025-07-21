@@ -12,7 +12,7 @@ import {
 	describe,
 	expect,
 	it,
-	vi
+	vi,
 } from "vitest";
 import { MigrationResult } from "../../lib/migration/types";
 

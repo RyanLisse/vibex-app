@@ -3,72 +3,265 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /**
- * Users API Route
+ * Users API Route - Refactored Version
  *
- * Database-integrated user management with comprehensive authentication
- * provider support, session management, and observability.
- *
- * Refactored to use base infrastructure patterns for consistent
- * error handling, request processing, and response formatting.
+ * Enhanced user management using base utilities for consistency and reduced duplication
  */
 
-import { GetUsersQuerySchema, usersService } from "./service";
+import { type UpdateUserSchema } from "@/src/schemas/api-routes";
 
-/**
- * GET /api/users - Get users with filtering and pagination
- */
-export async function GET(request: NextRequest) {
-	return BaseAPIHandler.handle(request, async (context) => {
-		// Validate query parameters
-		const queryParams = GetUsersQuerySchema.parse(context.query);
+// Request validation schemas
+const GetUsersQuerySchema = z.object({
+	page: z.coerce.number().min(1).default(1),
+	limit: z.coerce.number().min(1).max(100).default(20),
+	provider: z.enum(["github", "openai", "anthropic"]).optional(),
+	isActive: z.coerce.boolean().optional(),
+	search: z.string().optional(),
+	sortBy: z
+		.enum(["created_at", "updated_at", "name", "last_login_at"])
+		.default("created_at"),
+	sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
 
-		// Get users from service
-		const result = await usersService.getAll(
-			queryParams,
-			{ page: queryParams.page, limit: queryParams.limit },
-			context,
-		);
+// Service class extending BaseAPIService
+class UsersService extends BaseAPIService {
+	protected static serviceName = "users-api";
 
-		// Return paginated response
-		const response = ResponseBuilder.fromQueryResult(
-			{
-				items: result.items,
+	/**
+	 * Get users with filtering and pagination
+	 */
+	static async getUsers(params: z.infer<typeof GetUsersQuerySchema>) {
+		return UsersService.withTracing("getUsers", async () => {
+			// Build query conditions
+			const conditions = [];
+
+			if (params.provider) {
+				conditions.push(eq(users.provider, params.provider));
+			}
+
+			if (params.isActive !== undefined) {
+				conditions.push(eq(users.isActive, params.isActive));
+			}
+
+			if (params.search) {
+				conditions.push(
+					like(users.name, `%${params.search}%`),
+					like(users.email, `%${params.search}%`),
+				);
+			}
+
+			// Build sort order
+			const sortColumn = users[params.sortBy as keyof typeof users];
+			const orderBy =
+				params.sortOrder === "asc" ? sortColumn : desc(sortColumn);
+
+			// Execute query with pagination
+			const offset = (params.page - 1) * params.limit;
+
+			const [userResults, countResult] = await Promise.all([
+				db
+					.select({
+						id: users.id,
+						email: users.email,
+						name: users.name,
+						avatar: users.avatar,
+						provider: users.provider,
+						isActive: users.isActive,
+						lastLoginAt: users.lastLoginAt,
+						createdAt: users.createdAt,
+						updatedAt: users.updatedAt,
+					})
+					.from(users)
+					.where(conditions.length > 0 ? and(...conditions) : undefined)
+					.orderBy(orderBy)
+					.limit(params.limit)
+					.offset(offset),
+				db
+					.select({ count: users.id })
+					.from(users)
+					.where(conditions.length > 0 ? and(...conditions) : undefined),
+			]);
+
+			const result = {
+				data: userResults,
 				pagination: {
-					page: queryParams.page,
-					limit: queryParams.limit,
-					total: result.total,
-					totalPages: Math.ceil(result.total / queryParams.limit),
-					hasNext:
-						queryParams.page < Math.ceil(result.total / queryParams.limit),
-					hasPrev: queryParams.page > 1,
+					page: params.page,
+					limit: params.limit,
+					total: countResult.length,
+					totalPages: Math.ceil(countResult.length / params.limit),
 				},
+				total: countResult.length,
+			};
+
+			// Log operation
+			await UsersService.logOperation("get_users", "users", null, null, {
+				resultCount: result.data.length,
+				totalCount: result.total,
+				filters: params,
+			});
+
+			return result;
+		});
+	}
+
+	/**
+	 * Get user by ID with auth sessions
+	 */
+	static async getUserById(id: string) {
+		return UsersService.withTracing(
+			"getUserById",
+			async () => {
+				const [user] = await db
+					.select({
+						id: users.id,
+						email: users.email,
+						name: users.name,
+						avatar: users.avatar,
+						provider: users.provider,
+						providerId: users.providerId,
+						profile: users.profile,
+						preferences: users.preferences,
+						isActive: users.isActive,
+						lastLoginAt: users.lastLoginAt,
+						createdAt: users.createdAt,
+						updatedAt: users.updatedAt,
+					})
+					.from(users)
+					.where(eq(users.id, id))
+					.limit(1);
+
+				if (!user) {
+					throw new NotFoundError("User", id);
+				}
+
+				// Get active auth sessions
+				const activeSessions = await db
+					.select({
+						id: authSessions.id,
+						provider: authSessions.provider,
+						expiresAt: authSessions.expiresAt,
+						lastUsedAt: authSessions.lastUsedAt,
+						organizationId: authSessions.organizationId,
+						creditsGranted: authSessions.creditsGranted,
+					})
+					.from(authSessions)
+					.where(
+						and(eq(authSessions.userId, id), eq(authSessions.isActive, true)),
+					)
+					.orderBy(authSessions.lastUsedAt);
+
+				// Log operation
+				await UsersService.logOperation("get_user", "user", user.id, user.id, {
+					activeSessions: activeSessions.length,
+				});
+
+				return {
+					...user,
+					activeSessions,
+				};
 			},
-			"Users retrieved successfully",
-			context.requestId,
+			{ "user.id": id },
 		);
+	}
 
-		return NextResponse.json(response);
-	});
-}
+	/**
+	 * Create or update user (upsert based on provider + providerId)
+	 */
+	static async upsertUser(userData: z.infer<typeof CreateUserSchema>) {
+		return UsersService.withTracing("upsertUser", async () => {
+			return UsersService.withTransaction(async (tx) => {
+				// Check if user exists
+				const [existingUser] = await tx
+					.select()
+					.from(users)
+					.where(
+						and(
+							eq(users.provider, userData.provider),
+							eq(users.providerId, userData.providerId),
+						),
+					)
+					.limit(1);
 
-/**
- * POST /api/users - Create or update user (upsert)
- */
-export async function POST(request: NextRequest) {
-	return BaseAPIHandler.handle(request, async (context) => {
-		// Validate request body
-		const body = await BaseAPIHandler.validateBody(request, CreateUserSchema);
+				let user;
+				if (existingUser) {
+					// Update existing user
+					[user] = await tx
+						.update(users)
+						.set({
+							...userData,
+							lastLoginAt: new Date(),
+							updatedAt: new Date(),
+						})
+						.where(eq(users.id, existingUser.id))
+						.returning();
+				} else {
+					// Create new user
+					const newUser = {
+						id: ulid(),
+						...userData,
+						lastLoginAt: new Date(),
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					};
+					[user] = await tx.insert(users).values(newUser).returning();
+				}
 
-		// Create/update user via service
-		const user = await usersService.create(body, context);
+				// Log operation
+				await UsersService.logOperation(
+					existingUser ? "update_user" : "create_user",
+					"user",
+					user.id,
+					user.id,
+					{
+						provider: user.provider,
+						isNew: !existingUser,
+					},
+				);
 
-		// Return created response
-		const response = ResponseBuilder.created(
-			user,
-			"User created/updated successfully",
-			context.requestId,
+				return user;
+			});
+		});
+	}
+
+	/**
+	 * Update user preferences and profile
+	 */
+	static async updateUser(
+		id: string,
+		updates: z.infer<typeof UpdateUserSchema>,
+	) {
+		return UsersService.withTracing(
+			"updateUser",
+			async () => {
+				return UsersService.withTransaction(async (tx) => {
+					const [updatedUser] = await tx
+						.update(users)
+						.set({
+							...updates,
+							updatedAt: new Date(),
+						})
+						.where(eq(users.id, id))
+						.returning();
+
+					if (!updatedUser) {
+						throw new NotFoundError("User", id);
+					}
+
+					// Log operation
+					await UsersService.logOperation(
+						"update_user",
+						"user",
+						updatedUser.id,
+						updatedUser.id,
+						{
+							updates,
+						},
+					);
+
+					return updatedUser;
+				});
+			},
+			{ "user.id": id },
 		);
-
-		return NextResponse.json(response, { status: 201 });
-	});
+	}
 }
