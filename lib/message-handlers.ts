@@ -157,6 +157,69 @@ export class MessageHandlers {
 		this.handlers.clear();
 		this.middlewares.length = 0;
 	}
+
+	/**
+	 * Handle status update messages
+	 */
+	async handleStatusUpdate(statusData: any): Promise<any> {
+		const message = createMessage("status", statusData);
+		return this.handle(message);
+	}
+
+	/**
+	 * Handle git messages
+	 */
+	async handleGitMessage(updateData: any): Promise<any> {
+		const message = createMessage("git", updateData);
+		return this.handle(message);
+	}
+
+	/**
+	 * Handle shell call messages
+	 */
+	async handleShellCall(updateData: any): Promise<any> {
+		const message = createMessage("shell_call", updateData);
+		return this.handle(message);
+	}
+
+	/**
+	 * Handle shell output messages
+	 */
+	async handleShellOutput(updateData: any): Promise<any> {
+		const message = createMessage("shell_output", updateData);
+		return this.handle(message);
+	}
+
+	/**
+	 * Handle assistant messages
+	 */
+	async handleAssistantMessage(updateData: any): Promise<any> {
+		const message = createMessage("assistant_message", updateData);
+		return this.handle(message);
+	}
+
+	/**
+	 * Handle update messages by routing to appropriate handler
+	 */
+	async handleUpdateMessage(updateData: any): Promise<any> {
+		if (!updateData?.message?.type) {
+			return [];
+		}
+
+		switch (updateData.message.type) {
+			case "git":
+				return this.handleGitMessage(updateData);
+			case "local_shell_call":
+				return this.handleShellCall(updateData);
+			case "local_shell_call_output":
+				return this.handleShellOutput(updateData);
+			case "message":
+				return this.handleAssistantMessage(updateData);
+			default:
+				console.warn(`Unknown message type: ${updateData.message.type}`);
+				return [];
+		}
+	}
 }
 
 /**

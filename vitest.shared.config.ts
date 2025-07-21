@@ -65,7 +65,7 @@ export const sharedConfig: UserConfig = {
 		maxConcurrency: Math.min(8, Math.max(1, require("os").cpus().length - 1)),
 		// Faster test execution
 		isolate: true,
-		reporter: ["basic", "json"],
+		reporters: ["basic", "json"],
 		reporterOptions: {
 			json: {
 				outputFile: "./coverage/test-results.json",

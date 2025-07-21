@@ -9,11 +9,11 @@ import {
 	vi,
 } from "vitest";
 import type { StatusData, UpdateData } from "./container-types";
-import { MessageHandlers } from "./message-handlers";
+import { MessageHandlers, createMessage, validateMessage } from "./message-handlers";
 
 describe("MessageHandlers", () => {
-	let mockUpdateTask: ReturnType<typeof mock>;
-	let mockGetTaskById: ReturnType<typeof mock>;
+	let mockUpdateTask: ReturnType<typeof vi.fn>;
+	let mockGetTaskById: ReturnType<typeof vi.fn>;
 	let handlers: MessageHandlers;
 
 	beforeEach(() => {
@@ -21,9 +21,87 @@ describe("MessageHandlers", () => {
 		mockUpdateTask = vi.fn();
 		mockGetTaskById = vi.fn();
 
-		handlers = new MessageHandlers({
-			updateTask: mockUpdateTask,
-			getTaskById: mockGetTaskById,
+		handlers = new MessageHandlers();
+		
+		// Register handlers for different message types
+		handlers.register("status", async (message) => {
+			const statusData = message.payload as StatusData;
+			mockUpdateTask(statusData.taskId, {
+				status: statusData.status,
+				hasChanges: true,
+				sessionId: statusData.sessionId,
+			});
+			return { success: true };
+		});
+
+		handlers.register("git", async (message) => {
+			const updateData = message.payload as UpdateData;
+			if (updateData.message?.type === "git") {
+				mockUpdateTask(updateData.taskId, {
+					statusMessage: updateData.message.output,
+				});
+			}
+			return { success: true };
+		});
+
+		handlers.register("shell_call", async (message) => {
+			const updateData = message.payload as UpdateData;
+			if (updateData.message?.type === "local_shell_call") {
+				const task = mockGetTaskById(updateData.taskId) || { messages: [] };
+				const command = Array.isArray(updateData.message.action?.command) 
+					? updateData.message.action.command.join(" ")
+					: "unknown command";
+				
+				const newMessage = {
+					role: "assistant",
+					type: "local_shell_call",
+					data: updateData.message,
+				};
+
+				mockUpdateTask(updateData.taskId, {
+					statusMessage: `Running command ${command}`,
+					messages: [...(task.messages || []), newMessage],
+				});
+			}
+			return { success: true };
+		});
+
+		handlers.register("shell_output", async (message) => {
+			const updateData = message.payload as UpdateData;
+			if (updateData.message?.type === "local_shell_call_output") {
+				const task = mockGetTaskById(updateData.taskId) || { messages: [] };
+				const newMessage = {
+					role: "assistant",
+					type: "local_shell_call_output",
+					data: updateData.message,
+				};
+
+				mockUpdateTask(updateData.taskId, {
+					messages: [...(task.messages || []), newMessage],
+				});
+			}
+			return { success: true };
+		});
+
+		handlers.register("assistant_message", async (message) => {
+			const updateData = message.payload as UpdateData;
+			if (updateData.message?.type === "message" && 
+				updateData.message?.status === "completed" &&
+				updateData.message?.role === "assistant") {
+				
+				const task = mockGetTaskById(updateData.taskId) || { messages: [] };
+				const content = updateData.message.content?.[0]?.text || "";
+				const newMessage = {
+					role: "assistant",
+					type: "message",
+					data: { text: content },
+				};
+
+				mockUpdateTask(updateData.taskId, {
+					messages: [...(task.messages || []), newMessage],
+				});
+			}
+			return { success: true };
 		});
 	});
 

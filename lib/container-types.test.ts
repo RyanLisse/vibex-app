@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-	isLatestData,
+	isLatestDataType,
 	isStatusData,
 	isUpdateData,
 	type LatestData,
@@ -106,7 +106,7 @@ describe("container-types type guards", () => {
 		});
 	});
 
-	describe("isLatestData", () => {
+	describe("isLatestDataType", () => {
 		it("should return true for valid LatestData", () => {
 			const validLatest: LatestData = {
 				containerId: "abc123",
@@ -115,7 +115,7 @@ describe("container-types type guards", () => {
 				version: "1.0.0",
 			};
 
-			expect(isLatestData(validLatest)).toBe(true);
+			expect(isLatestDataType(validLatest)).toBe(true);
 		});
 
 		it("should return true for LatestData with optional fields", () => {
@@ -128,7 +128,7 @@ describe("container-types type guards", () => {
 				health: "healthy",
 			};
 
-			expect(isLatestData(latestWithOptionals)).toBe(true);
+			expect(isLatestDataType(latestWithOptionals)).toBe(true);
 		});
 
 		it("should return false for invalid LatestData - missing required fields", () => {
@@ -137,7 +137,7 @@ describe("container-types type guards", () => {
 				// missing lastStatus, lastUpdate, and version
 			};
 
-			expect(isLatestData(invalidLatest)).toBe(false);
+			expect(isLatestDataType(invalidLatest)).toBe(false);
 		});
 
 		it("should return false for invalid LatestData - wrong types", () => {
@@ -148,12 +148,12 @@ describe("container-types type guards", () => {
 				version: "1.0.0",
 			};
 
-			expect(isLatestData(invalidLatest)).toBe(false);
+			expect(isLatestDataType(invalidLatest)).toBe(false);
 		});
 
 		it("should return false for null/undefined", () => {
-			expect(isLatestData(null)).toBe(false);
-			expect(isLatestData(undefined)).toBe(false);
+			expect(isLatestDataType(null)).toBe(false);
+			expect(isLatestDataType(undefined)).toBe(false);
 		});
 	});
 
@@ -172,19 +172,19 @@ describe("container-types type guards", () => {
 		it("should handle empty objects", () => {
 			expect(isStatusData({})).toBe(false);
 			expect(isUpdateData({})).toBe(false);
-			expect(isLatestData({})).toBe(false);
+			expect(isLatestDataType({})).toBe(false);
 		});
 
 		it("should handle arrays", () => {
 			expect(isStatusData([])).toBe(false);
 			expect(isUpdateData([])).toBe(false);
-			expect(isLatestData([])).toBe(false);
+			expect(isLatestDataType([])).toBe(false);
 		});
 
 		it("should handle primitive values", () => {
 			expect(isStatusData("string")).toBe(false);
 			expect(isUpdateData(123)).toBe(false);
-			expect(isLatestData(true)).toBe(false);
+			expect(isLatestDataType(true)).toBe(false);
 		});
 	});
 });

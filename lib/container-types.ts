@@ -18,6 +18,30 @@ export interface ContainerStatus {
 	lastChecked: number;
 }
 
+export interface StatusData {
+	status: string;
+	containerId: string;
+	timestamp: string;
+	exitCode?: number;
+	error?: string | null;
+}
+
+export interface UpdateData {
+	type: string;
+	containerId: string;
+	timestamp: string;
+	data: any;
+}
+
+export interface LatestData {
+	containerId: string;
+	lastStatus: string;
+	lastUpdate: string;
+	version: string;
+	metadata?: any;
+	health?: string;
+}
+
 /**
  * Checks if the provided data is the latest version
  * @param data - Container data to check
@@ -132,4 +156,45 @@ export function compareContainerVersions(
 	}
 
 	return 0;
+}
+
+/**
+ * Type guard to check if data is StatusData
+ */
+export function isStatusData(data: any): data is StatusData {
+	return (
+		data &&
+		typeof data === "object" &&
+		typeof data.status === "string" &&
+		typeof data.containerId === "string" &&
+		typeof data.timestamp === "string"
+	);
+}
+
+/**
+ * Type guard to check if data is UpdateData
+ */
+export function isUpdateData(data: any): data is UpdateData {
+	return (
+		data &&
+		typeof data === "object" &&
+		typeof data.type === "string" &&
+		typeof data.containerId === "string" &&
+		typeof data.timestamp === "string" &&
+		data.data !== undefined
+	);
+}
+
+/**
+ * Type guard to check if data is LatestData
+ */
+export function isLatestDataType(data: any): data is LatestData {
+	return (
+		data &&
+		typeof data === "object" &&
+		typeof data.containerId === "string" &&
+		typeof data.lastStatus === "string" &&
+		typeof data.lastUpdate === "string" &&
+		typeof data.version === "string"
+	);
 }

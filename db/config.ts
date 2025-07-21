@@ -8,11 +8,17 @@
 // Stub database implementation for build purposes
 export const db = {
 	select: () => ({
-		from: (table: any) => ({
-			where: (condition: any) => ({
-				limit: (count: any) => [],
-			}),
-		}),
+		from: (table: any) => {
+			// Return a proper array with query methods
+			const result: any[] = [];
+			result.where = (condition: any) => {
+				const filteredResult: any[] = [];
+				filteredResult.limit = (count: any) => [];
+				return filteredResult;
+			};
+			result.limit = (count: any) => [];
+			return result;
+		},
 	}),
 	insert: (table: any) => ({
 		values: (data: any) => ({

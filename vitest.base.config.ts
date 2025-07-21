@@ -53,7 +53,7 @@ export const baseConfig: UserConfig = {
 		teardownTimeout: 5000,
 		maxConcurrency: Math.min(8, Math.max(1, require("os").cpus().length - 1)),
 		isolate: true,
-		reporter: process.env.CI ? ["basic", "json"] : ["basic"],
+		reporters: process.env.CI ? ["basic", "json"] : ["basic"],
 		exclude: [
 			"**/node_modules/**",
 			"**/dist/**",

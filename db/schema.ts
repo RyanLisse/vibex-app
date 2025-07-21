@@ -780,3 +780,14 @@ export type Migration = typeof migrations.$inferSelect;
 export type NewMigration = typeof migrations.$inferInsert;
 export type AuthToken = typeof authTokens.$inferSelect;
 export type NewAuthToken = typeof authTokens.$inferInsert;
+
+// Message types for compatibility
+export interface StreamingMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system' | 'tool';
+  type: string;
+  content: string;
+  status: 'streaming';
+  timestamp?: Date | string;
+  data?: any;
+}
