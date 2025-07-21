@@ -40,11 +40,10 @@ vi.mock("next/font/google", () => ({
 
 // Mock next-themes
 vi.mock("next-themes", () => ({
-  ThemeProvider: ({ children, ...props }: any) => (
-    <div data-testid="theme-provider" {...props}>
-      {children}
-    </div>
-  ),
+  ThemeProvider: ({ children, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('div', { 'data-testid': 'theme-provider', ...props }, children);
+  },
   useTheme: () => ({
     theme: "light",
     setTheme: vi.fn(),

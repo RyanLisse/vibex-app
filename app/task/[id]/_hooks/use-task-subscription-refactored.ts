@@ -1,33 +1,35 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
 interface UseTaskSubscriptionRefactoredProps {
-  taskId: string;
+	taskId: string;
 }
 
-export function useTaskSubscriptionRefactored({ taskId }: UseTaskSubscriptionRefactoredProps) {
-  const [isConnected, setIsConnected] = useState(false);
-  
-  const connect = useCallback(() => {
-    setIsConnected(true);
-  }, []);
+export function useTaskSubscriptionRefactored({
+	taskId,
+}: UseTaskSubscriptionRefactoredProps) {
+	const [isConnected, setIsConnected] = useState(false);
 
-  const disconnect = useCallback(() => {
-    setIsConnected(false);
-  }, []);
+	const connect = useCallback(() => {
+		setIsConnected(true);
+	}, []);
 
-  useEffect(() => {
-    if (taskId) {
-      connect();
-    }
+	const disconnect = useCallback(() => {
+		setIsConnected(false);
+	}, []);
 
-    return () => {
-      disconnect();
-    };
-  }, [taskId, connect, disconnect]);
+	useEffect(() => {
+		if (taskId) {
+			connect();
+		}
 
-  return {
-    isConnected,
-    connect,
-    disconnect
-  };
+		return () => {
+			disconnect();
+		};
+	}, [taskId, connect, disconnect]);
+
+	return {
+		isConnected,
+		connect,
+		disconnect,
+	};
 }

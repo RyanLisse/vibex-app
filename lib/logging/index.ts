@@ -13,12 +13,12 @@ export { SensitiveDataRedactor } from "./sensitive-data-redactor";
 // Specialized loggers
 export {
 	AgentLogger,
-	SecurityLogger
+	SecurityLogger,
 } from "./specialized-loggers";
 // Types
 export type {
 	LogContext,
-	OperationMetrics
+	OperationMetrics,
 } from "./types";
 
 // Convenience function to create a logger

@@ -1,26 +1,37 @@
-import { render } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { Button } from '../../components/ui/button'
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Button } from "@/components/ui/button";
 
-describe('Button Component', () => {
-  it('renders button with text', () => {
-    const { getByRole } = render(<Button>Click me</Button>)
-    expect(getByRole('button')).toHaveTextContent('Click me')
-  })
+describe("Button Component", () => {
+	it("renders button with text", () => {
+		const { container } = render(<Button>Click me</Button>);
 
-  it('applies variant styles correctly', () => {
-    const { getByRole } = render(<Button variant="destructive">Delete</Button>)
-    const button = getByRole('button')
-    expect(button).toHaveClass('bg-destructive')
-  })
+		// Use querySelector since the button is rendering correctly
+		const button = container.querySelector("button");
+		expect(button).toBeInTheDocument();
+		expect(button).toHaveTextContent("Click me");
+	});
 
-  it('handles click events', async () => {
-    const handleClick = vi.fn()
-    const { getByRole } = render(<Button onClick={handleClick}>Click me</Button>)
+	it("applies variant styles correctly", () => {
+		const { container } = render(<Button variant="destructive">Delete</Button>);
+		const button = container.querySelector("button");
+		expect(button).toBeInTheDocument();
+		expect(button).toHaveTextContent("Delete");
+		expect(button).toHaveClass("bg-destructive");
+	});
 
-    const button = getByRole('button')
-    await button.click()
+	it("handles click events", async () => {
+		const user = userEvent.setup();
+		const handleClick = vi.fn();
+		const { container } = render(
+			<Button onClick={handleClick}>Click me</Button>,
+		);
 
-    expect(handleClick).toHaveBeenCalledTimes(1)
-  })
-})
+		const button = container.querySelector("button");
+		expect(button).toBeInTheDocument();
+		await user.click(button);
+
+		expect(handleClick).toHaveBeenCalledTimes(1);
+	});
+});

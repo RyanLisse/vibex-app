@@ -5,608 +5,631 @@
  * for consistent error handling, tracing, and observability.
  */
 
-import { z } from 'zod'
-import { eq } from 'drizzle-orm'
-import { db } from '@/db/config'
-import { tasks } from '@/db/schema'
-import { trace, SpanStatusCode } from '@opentelemetry/api'
-import { observability } from '@/lib/observability'
-import { NotFoundError, ConflictError, ValidationError } from '@/lib/api/base/errors'
+import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { db } from "@/db/config";
+import { tasks } from "@/db/schema";
+import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { observability } from "@/lib/observability";
+import {
+	NotFoundError,
+	ConflictError,
+	ValidationError,
+} from "@/lib/api/base/errors";
 
 export interface ServiceContext {
-  userId?: string
-  requestId?: string
+	userId?: string;
+	requestId?: string;
 }
 
 export class ExternalServiceError extends Error {
-  constructor(service: string, error: Error) {
-    super(`External service error (${service}): ${error.message}`)
-    this.name = 'ExternalServiceError'
-  }
+	constructor(service: string, error: Error) {
+		super(`External service error (${service}): ${error.message}`);
+		this.name = "ExternalServiceError";
+	}
 }
-import { PRStatusSchema, TaskPRLinkSchema } from '@/src/schemas/enhanced-task-schemas'
+import {
+	PRStatusSchema,
+	TaskPRLinkSchema,
+} from "@/src/schemas/enhanced-task-schemas";
 
 // Query schemas
 export const GetPRIntegrationQuerySchema = z.object({
-  taskId: z.string().optional(),
-  userId: z.string().optional(),
-})
+	taskId: z.string().optional(),
+	userId: z.string().optional(),
+});
 
 export const MergePRSchema = z.object({
-  prId: z.string(),
-  userId: z.string(),
-  mergeMethod: z.enum(['merge', 'squash', 'rebase']).default('squash'),
-  deleteSourceBranch: z.boolean().default(true),
-})
+	prId: z.string(),
+	userId: z.string(),
+	mergeMethod: z.enum(["merge", "squash", "rebase"]).default("squash"),
+	deleteSourceBranch: z.boolean().default(true),
+});
 
-export type GetPRIntegrationQuery = z.infer<typeof GetPRIntegrationQuerySchema>
-export type TaskPRLinkDTO = z.infer<typeof TaskPRLinkSchema>
-export type PRStatusDTO = z.infer<typeof PRStatusSchema>
-export type MergePRDTO = z.infer<typeof MergePRSchema>
+export type GetPRIntegrationQuery = z.infer<typeof GetPRIntegrationQuerySchema>;
+export type TaskPRLinkDTO = z.infer<typeof TaskPRLinkSchema>;
+export type PRStatusDTO = z.infer<typeof PRStatusSchema>;
+export type MergePRDTO = z.infer<typeof MergePRSchema>;
 
 // Mock GitHub API client
 class GitHubAPIClient {
-  static async getPRStatus(repository: string, prNumber: string) {
-    // In real implementation, would make actual GitHub API calls
-    // For now, return mock data
-    await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate API delay
+	static async getPRStatus(repository: string, prNumber: string) {
+		// In real implementation, would make actual GitHub API calls
+		// For now, return mock data
+		await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API delay
 
-    return {
-      prId: `pr-${prNumber}`,
-      title: 'Feature: Add new task management functionality',
-      status: 'open' as const,
-      reviewStatus: 'pending' as const,
-      mergeable: true,
-      repository,
-      branch: 'feature/task-management-enhancements',
-      author: 'dev-user',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      reviewers: [
-        {
-          login: 'senior-dev',
-          status: 'approved' as const,
-        },
-        {
-          login: 'tech-lead',
-          status: 'requested' as const,
-        },
-      ],
-      checks: [
-        {
-          name: 'CI/CD Pipeline',
-          status: 'success' as const,
-          conclusion: 'success',
-          url: `https://github.com/${repository}/actions`,
-        },
-        {
-          name: 'Code Quality',
-          status: 'success' as const,
-          conclusion: 'success',
-          url: `https://sonarcloud.io/project/${repository}`,
-        },
-        {
-          name: 'Security Scan',
-          status: 'pending' as const,
-          conclusion: null,
-          url: `https://github.com/${repository}/security`,
-        },
-      ],
-    }
-  }
+		return {
+			prId: `pr-${prNumber}`,
+			title: "Feature: Add new task management functionality",
+			status: "open" as const,
+			reviewStatus: "pending" as const,
+			mergeable: true,
+			repository,
+			branch: "feature/task-management-enhancements",
+			author: "dev-user",
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+			reviewers: [
+				{
+					login: "senior-dev",
+					status: "approved" as const,
+				},
+				{
+					login: "tech-lead",
+					status: "requested" as const,
+				},
+			],
+			checks: [
+				{
+					name: "CI/CD Pipeline",
+					status: "success" as const,
+					conclusion: "success",
+					url: `https://github.com/${repository}/actions`,
+				},
+				{
+					name: "Code Quality",
+					status: "success" as const,
+					conclusion: "success",
+					url: `https://sonarcloud.io/project/${repository}`,
+				},
+				{
+					name: "Security Scan",
+					status: "pending" as const,
+					conclusion: null,
+					url: `https://github.com/${repository}/security`,
+				},
+			],
+		};
+	}
 
-  static async mergePR(
-    _repository: string,
-    _prNumber: string,
-    options: {
-      mergeMethod: string
-      deleteSourceBranch: boolean
-    }
-  ) {
-    // Mock merge operation
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    return {
-      merged: true,
-      mergeCommitSha: 'abc123def456789',
-      mergedAt: new Date().toISOString(),
-      mergeMethod: options.mergeMethod,
-      sourceBranchDeleted: options.deleteSourceBranch,
-    }
-  }
+	static async mergePR(
+		_repository: string,
+		_prNumber: string,
+		options: {
+			mergeMethod: string;
+			deleteSourceBranch: boolean;
+		},
+	) {
+		// Mock merge operation
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+		return {
+			merged: true,
+			mergeCommitSha: "abc123def456789",
+			mergedAt: new Date().toISOString(),
+			mergeMethod: options.mergeMethod,
+			sourceBranchDeleted: options.deleteSourceBranch,
+		};
+	}
 }
 
 export class PRIntegrationAPIService {
-  protected static serviceName = 'pr-integration'
+	protected static serviceName = "pr-integration";
 
-  /**
-   * Link task to PR
-   */
-  async linkTaskToPR(
-    linkData: TaskPRLinkDTO,
-    context: ServiceContext
-  ): Promise<{
-    task: any
-    prStatus: any
-    link: any
-  }> {
-    // Execute with manual tracing
-    const tracer = trace.getTracer('pr-integration-api')
-    const span = tracer.startSpan('linkTaskToPR')
+	/**
+	 * Link task to PR
+	 */
+	async linkTaskToPR(
+		linkData: TaskPRLinkDTO,
+		context: ServiceContext,
+	): Promise<{
+		task: any;
+		prStatus: any;
+		link: any;
+	}> {
+		// Execute with manual tracing
+		const tracer = trace.getTracer("pr-integration-api");
+		const span = tracer.startSpan("linkTaskToPR");
 
-    try {
-      // Get the task
-      const [task] = await db.select().from(tasks).where(eq(tasks.id, linkData.taskId)).limit(1)
+		try {
+			// Get the task
+			const [task] = await db
+				.select()
+				.from(tasks)
+				.where(eq(tasks.id, linkData.taskId))
+				.limit(1);
 
-      if (!task) {
-        throw new NotFoundError('Task', linkData.taskId)
-      }
+			if (!task) {
+				throw new NotFoundError("Task", linkData.taskId);
+			}
 
-      // Fetch PR status from GitHub
-      let prStatus
-      try {
-        prStatus = await GitHubAPIClient.getPRStatus(
-          linkData.repository,
-          linkData.prId.replace('pr-', '')
-        )
-      } catch (error) {
-        throw new ExternalServiceError('GitHub API', error as Error)
-      }
+			// Fetch PR status from GitHub
+			let prStatus;
+			try {
+				prStatus = await GitHubAPIClient.getPRStatus(
+					linkData.repository,
+					linkData.prId.replace("pr-", ""),
+				);
+			} catch (error) {
+				throw new ExternalServiceError("GitHub API", error as Error);
+			}
 
-      // Create PR link data
-      const prLink = {
-        prId: prStatus.prId,
-        repository: linkData.repository,
-        branch: prStatus.branch,
-        autoUpdateStatus: linkData.autoUpdateStatus,
-        linkedAt: new Date().toISOString(),
-        linkedBy: 'system', // userId not available in linkData
-      }
+			// Create PR link data
+			const prLink = {
+				prId: prStatus.prId,
+				repository: linkData.repository,
+				branch: prStatus.branch,
+				autoUpdateStatus: linkData.autoUpdateStatus,
+				linkedAt: new Date().toISOString(),
+				linkedBy: "system", // userId not available in linkData
+			};
 
-      // Update task metadata with PR link
-      const currentMetadata = (task.metadata as any) || {}
-      const existingPRLinks = currentMetadata.prLinks || []
+			// Update task metadata with PR link
+			const currentMetadata = (task.metadata as any) || {};
+			const existingPRLinks = currentMetadata.prLinks || [];
 
-      // Check if PR is already linked
-      const existingLink = existingPRLinks.find((link) => link.prId === prStatus.prId)
-      if (existingLink) {
-        throw new ConflictError('PR is already linked to this task')
-      }
+			// Check if PR is already linked
+			const existingLink = existingPRLinks.find(
+				(link) => link.prId === prStatus.prId,
+			);
+			if (existingLink) {
+				throw new ConflictError("PR is already linked to this task");
+			}
 
-      const updatedMetadata = {
-        ...currentMetadata,
-        prLinks: [...existingPRLinks, prLink],
-        prStatuses: {
-          ...currentMetadata.prStatuses,
-          [prStatus.prId]: prStatus,
-        },
-      }
+			const updatedMetadata = {
+				...currentMetadata,
+				prLinks: [...existingPRLinks, prLink],
+				prStatuses: {
+					...currentMetadata.prStatuses,
+					[prStatus.prId]: prStatus,
+				},
+			};
 
-      const [updatedTask] = await db
-        .update(tasks)
-        .set({
-          metadata: updatedMetadata,
-          updatedAt: new Date(),
-        })
-        .where(eq(tasks.id, linkData.taskId))
-        .returning()
+			const [updatedTask] = await db
+				.update(tasks)
+				.set({
+					metadata: updatedMetadata,
+					updatedAt: new Date(),
+				})
+				.where(eq(tasks.id, linkData.taskId))
+				.returning();
 
-      // Log operation
-      await observability.events.collector.collectEvent(
-        'user_action',
-        'info',
-        `PR linked to task: ${task.title}`,
-        {
-          taskId: linkData.taskId,
-          prId: prStatus.prId,
-          repository: linkData.repository,
-          prNumber: linkData.prId.replace('pr-', ''),
-          autoUpdate: linkData.autoUpdateStatus,
-          userId: context.userId,
-        },
-        'api',
-        ['pr', 'link']
-      )
+			// Log operation
+			await observability.events.collector.collectEvent(
+				"user_action",
+				"info",
+				`PR linked to task: ${task.title}`,
+				{
+					taskId: linkData.taskId,
+					prId: prStatus.prId,
+					repository: linkData.repository,
+					prNumber: linkData.prId.replace("pr-", ""),
+					autoUpdate: linkData.autoUpdateStatus,
+					userId: context.userId,
+				},
+				"api",
+				["pr", "link"],
+			);
 
-      span.setAttributes({
-        'task.id': linkData.taskId,
-        'pr.id': prStatus.prId,
-        'pr.repository': linkData.repository,
-      })
+			span.setAttributes({
+				"task.id": linkData.taskId,
+				"pr.id": prStatus.prId,
+				"pr.repository": linkData.repository,
+			});
 
-      span.setStatus({ code: SpanStatusCode.OK })
+			span.setStatus({ code: SpanStatusCode.OK });
 
-      return {
-        task: updatedTask,
-        prStatus,
-        link: prLink,
-      }
-    } catch (error) {
-      span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR })
-      throw error
-    } finally {
-      span.end()
-    }
-  }
+			return {
+				task: updatedTask,
+				prStatus,
+				link: prLink,
+			};
+		} catch (error) {
+			span.recordException(error as Error);
+			span.setStatus({ code: SpanStatusCode.ERROR });
+			throw error;
+		} finally {
+			span.end();
+		}
+	}
 
-  /**
-   * Update PR status
-   */
-  async updatePRStatus(
-    prStatusData: PRStatusDTO,
-    context: ServiceContext
-  ): Promise<{
-    prStatus: any
-    updatedTasks: any[]
-    autoUpdatedCount: number
-  }> {
-    // Execute with manual tracing
-    const tracer = trace.getTracer('pr-integration-api')
-    const span = tracer.startSpan('updatePRStatus')
+	/**
+	 * Update PR status
+	 */
+	async updatePRStatus(
+		prStatusData: PRStatusDTO,
+		context: ServiceContext,
+	): Promise<{
+		prStatus: any;
+		updatedTasks: any[];
+		autoUpdatedCount: number;
+	}> {
+		// Execute with manual tracing
+		const tracer = trace.getTracer("pr-integration-api");
+		const span = tracer.startSpan("updatePRStatus");
 
-    try {
-      // Get all tasks with this PR linked
-      const allTasks = await db.select().from(tasks)
+		try {
+			// Get all tasks with this PR linked
+			const allTasks = await db.select().from(tasks);
 
-      const tasksWithPR = allTasks.filter((task) => {
-        const prLinks = (task.metadata as any)?.prLinks || []
-        return prLinks.some((link) => link.prId === prStatusData.prId)
-      })
+			const tasksWithPR = allTasks.filter((task) => {
+				const prLinks = (task.metadata as any)?.prLinks || [];
+				return prLinks.some((link) => link.prId === prStatusData.prId);
+			});
 
-      if (tasksWithPR.length === 0) {
-        throw new NotFoundError('No tasks found with this PR')
-      }
+			if (tasksWithPR.length === 0) {
+				throw new NotFoundError("No tasks found with this PR");
+			}
 
-      // Fetch updated PR status from GitHub
-      const taskWithPR = tasksWithPR[0]
-      const prLink = ((taskWithPR as any).metadata as any).prLinks.find(
-        (link: any) => link.prId === prStatusData.prId
-      )
+			// Fetch updated PR status from GitHub
+			const taskWithPR = tasksWithPR[0];
+			const prLink = ((taskWithPR as any).metadata as any).prLinks.find(
+				(link: any) => link.prId === prStatusData.prId,
+			);
 
-      let prStatus
-      try {
-        prStatus = await GitHubAPIClient.getPRStatus(
-          prLink.repository,
-          prStatusData.prId.replace('pr-', '')
-        )
-      } catch (error) {
-        throw new ExternalServiceError('GitHub API', error as Error)
-      }
+			let prStatus;
+			try {
+				prStatus = await GitHubAPIClient.getPRStatus(
+					prLink.repository,
+					prStatusData.prId.replace("pr-", ""),
+				);
+			} catch (error) {
+				throw new ExternalServiceError("GitHub API", error as Error);
+			}
 
-      // Update all linked tasks
-      const updatePromises = tasksWithPR.map(async (task) => {
-        const currentMetadata = (task.metadata as any) || {}
-        const updatedMetadata = {
-          ...currentMetadata,
-          prStatuses: {
-            ...currentMetadata.prStatuses,
-            [prStatusData.prId]: prStatus,
-          },
-        }
+			// Update all linked tasks
+			const updatePromises = tasksWithPR.map(async (task) => {
+				const currentMetadata = (task.metadata as any) || {};
+				const updatedMetadata = {
+					...currentMetadata,
+					prStatuses: {
+						...currentMetadata.prStatuses,
+						[prStatusData.prId]: prStatus,
+					},
+				};
 
-        // Auto-update task status if PR is merged and auto-update is enabled
-        const prLink = currentMetadata.prLinks.find((link) => link.prId === prStatusData.prId)
-        const shouldAutoUpdate = prLink?.autoUpdateStatus && prStatus.status === 'merged'
+				// Auto-update task status if PR is merged and auto-update is enabled
+				const prLink = currentMetadata.prLinks.find(
+					(link) => link.prId === prStatusData.prId,
+				);
+				const shouldAutoUpdate =
+					prLink?.autoUpdateStatus && prStatus.status === "merged";
 
-        const updates: any = {
-          metadata: updatedMetadata,
-          updatedAt: new Date(),
-        }
+				const updates: any = {
+					metadata: updatedMetadata,
+					updatedAt: new Date(),
+				};
 
-        if (shouldAutoUpdate && task.status !== 'completed') {
-          updates.status = 'completed'
-          updates.completedAt = new Date()
-        }
+				if (shouldAutoUpdate && task.status !== "completed") {
+					updates.status = "completed";
+					updates.completedAt = new Date();
+				}
 
-        const [result] = await db
-          .update(tasks)
-          .set(updates)
-          .where(eq(tasks.id, task.id))
-          .returning()
-        return result
-      })
+				const [result] = await db
+					.update(tasks)
+					.set(updates)
+					.where(eq(tasks.id, task.id))
+					.returning();
+				return result;
+			});
 
-      const updatedTasks = await Promise.all(updatePromises)
-      const autoUpdatedCount = updatedTasks.filter((task) => task.status === 'completed').length
+			const updatedTasks = await Promise.all(updatePromises);
+			const autoUpdatedCount = updatedTasks.filter(
+				(task) => task.status === "completed",
+			).length;
 
-      // Log operation
-      await observability.events.collector.collectEvent(
-        'user_action',
-        'info',
-        `PR status updated: ${prStatus.title}`,
-        {
-          prId: prStatusData.prId,
-          newStatus: prStatus.status,
-          reviewStatus: prStatus.reviewStatus,
-          tasksUpdated: updatedTasks.length,
-          autoUpdatedTasks: autoUpdatedCount,
-          userId: context.userId,
-        },
-        'api',
-        ['pr', 'status']
-      )
+			// Log operation
+			await observability.events.collector.collectEvent(
+				"user_action",
+				"info",
+				`PR status updated: ${prStatus.title}`,
+				{
+					prId: prStatusData.prId,
+					newStatus: prStatus.status,
+					reviewStatus: prStatus.reviewStatus,
+					tasksUpdated: updatedTasks.length,
+					autoUpdatedTasks: autoUpdatedCount,
+					userId: context.userId,
+				},
+				"api",
+				["pr", "status"],
+			);
 
-      span.setAttributes({
-        'pr.id': prStatusData.prId,
-        'pr.status': prStatus.status,
-        'tasks.updated': updatedTasks.length,
-      })
+			span.setAttributes({
+				"pr.id": prStatusData.prId,
+				"pr.status": prStatus.status,
+				"tasks.updated": updatedTasks.length,
+			});
 
-      span.setStatus({ code: SpanStatusCode.OK })
+			span.setStatus({ code: SpanStatusCode.OK });
 
-      return {
-        prStatus,
-        updatedTasks,
-        autoUpdatedCount,
-      }
-    } catch (error) {
-      span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR })
-      throw error
-    } finally {
-      span.end()
-    }
-  }
+			return {
+				prStatus,
+				updatedTasks,
+				autoUpdatedCount,
+			};
+		} catch (error) {
+			span.recordException(error as Error);
+			span.setStatus({ code: SpanStatusCode.ERROR });
+			throw error;
+		} finally {
+			span.end();
+		}
+	}
 
-  /**
-   * Get PR integration data
-   */
-  async getPRIntegrationData(
-    params: GetPRIntegrationQuery,
-    context: ServiceContext
-  ): Promise<{
-    tasks: any[]
-    statistics: any
-  }> {
-    // Execute with manual tracing
-    const tracer = trace.getTracer('pr-integration-api')
-    const span = tracer.startSpan('getPRIntegrationData')
+	/**
+	 * Get PR integration data
+	 */
+	async getPRIntegrationData(
+		params: GetPRIntegrationQuery,
+		context: ServiceContext,
+	): Promise<{
+		tasks: any[];
+		statistics: any;
+	}> {
+		// Execute with manual tracing
+		const tracer = trace.getTracer("pr-integration-api");
+		const span = tracer.startSpan("getPRIntegrationData");
 
-    try {
-      // Build query conditions
-      const conditions = []
-      if (params.taskId) {
-        conditions.push(eq(tasks.id, params.taskId))
-      } else if (params.userId) {
-        conditions.push(eq(tasks.userId, params.userId))
-      }
+		try {
+			// Build query conditions
+			const conditions = [];
+			if (params.taskId) {
+				conditions.push(eq(tasks.id, params.taskId));
+			} else if (params.userId) {
+				conditions.push(eq(tasks.userId, params.userId));
+			}
 
-      const query = db.select().from(tasks)
-      if (conditions.length > 0) {
-        query.where(conditions[0])
-      }
+			const query = db.select().from(tasks);
+			if (conditions.length > 0) {
+				query.where(conditions[0]);
+			}
 
-      const allTasks = await query
+			const allTasks = await query;
 
-      // Filter tasks that have PR links
-      const tasksWithPRs = allTasks.filter(
-        (task) => (task.metadata as any)?.prLinks && (task.metadata as any).prLinks.length > 0
-      )
+			// Filter tasks that have PR links
+			const tasksWithPRs = allTasks.filter(
+				(task) =>
+					(task.metadata as any)?.prLinks &&
+					(task.metadata as any).prLinks.length > 0,
+			);
 
-      // Aggregate PR statistics
-      const prStats = {
-        totalLinkedPRs: 0,
-        openPRs: 0,
-        mergedPRs: 0,
-        pendingReview: 0,
-        readyToMerge: 0,
-      }
+			// Aggregate PR statistics
+			const prStats = {
+				totalLinkedPRs: 0,
+				openPRs: 0,
+				mergedPRs: 0,
+				pendingReview: 0,
+				readyToMerge: 0,
+			};
 
-      tasksWithPRs.forEach((task) => {
-        const prStatuses = (task.metadata as any).prStatuses || {}
-        Object.values(prStatuses).forEach((prStatus: any) => {
-          prStats.totalLinkedPRs++
-          if (prStatus.status === 'open') {
-            prStats.openPRs++
-          }
-          if (prStatus.status === 'merged') {
-            prStats.mergedPRs++
-          }
-          if (prStatus.reviewStatus === 'pending') {
-            prStats.pendingReview++
-          }
-          if (prStatus.reviewStatus === 'approved' && prStatus.mergeable) {
-            prStats.readyToMerge++
-          }
-        })
-      })
+			tasksWithPRs.forEach((task) => {
+				const prStatuses = (task.metadata as any).prStatuses || {};
+				Object.values(prStatuses).forEach((prStatus: any) => {
+					prStats.totalLinkedPRs++;
+					if (prStatus.status === "open") {
+						prStats.openPRs++;
+					}
+					if (prStatus.status === "merged") {
+						prStats.mergedPRs++;
+					}
+					if (prStatus.reviewStatus === "pending") {
+						prStats.pendingReview++;
+					}
+					if (prStatus.reviewStatus === "approved" && prStatus.mergeable) {
+						prStats.readyToMerge++;
+					}
+				});
+			});
 
-      // Return results
-      span.setAttributes({
-        'tasks.with_prs': tasksWithPRs.length,
-        'pr.total_linked': prStats.totalLinkedPRs,
-      })
+			// Return results
+			span.setAttributes({
+				"tasks.with_prs": tasksWithPRs.length,
+				"pr.total_linked": prStats.totalLinkedPRs,
+			});
 
-      span.setStatus({ code: SpanStatusCode.OK })
+			span.setStatus({ code: SpanStatusCode.OK });
 
-      return {
-        tasks: tasksWithPRs,
-        statistics: prStats,
-      }
-    } catch (error) {
-      span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR })
-      throw error
-    } finally {
-      span.end()
-    }
-  }
+			return {
+				tasks: tasksWithPRs,
+				statistics: prStats,
+			};
+		} catch (error) {
+			span.recordException(error as Error);
+			span.setStatus({ code: SpanStatusCode.ERROR });
+			throw error;
+		} finally {
+			span.end();
+		}
+	}
 
-  /**
-   * Merge PR and update linked tasks
-   */
-  async mergePR(
-    mergeData: MergePRDTO,
-    context: ServiceContext
-  ): Promise<{
-    mergeResult: any
-    prStatus: any
-    linkedTasks: any[]
-    autoCompletedTasks: any[]
-    summary: any
-  }> {
-    // Execute with manual tracing
-    const tracer = trace.getTracer('pr-integration-api')
-    const span = tracer.startSpan('mergePR')
+	/**
+	 * Merge PR and update linked tasks
+	 */
+	async mergePR(
+		mergeData: MergePRDTO,
+		context: ServiceContext,
+	): Promise<{
+		mergeResult: any;
+		prStatus: any;
+		linkedTasks: any[];
+		autoCompletedTasks: any[];
+		summary: any;
+	}> {
+		// Execute with manual tracing
+		const tracer = trace.getTracer("pr-integration-api");
+		const span = tracer.startSpan("mergePR");
 
-    try {
-      // Find all tasks linked to this PR
-      const allTasks = await db.select().from(tasks)
+		try {
+			// Find all tasks linked to this PR
+			const allTasks = await db.select().from(tasks);
 
-      const linkedTasks = allTasks.filter((task) => {
-        const prLinks = (task.metadata as any)?.prLinks || []
-        return prLinks.some((link) => link.prId === mergeData.prId)
-      })
+			const linkedTasks = allTasks.filter((task) => {
+				const prLinks = (task.metadata as any)?.prLinks || [];
+				return prLinks.some((link) => link.prId === mergeData.prId);
+			});
 
-      if (linkedTasks.length === 0) {
-        throw new NotFoundError('No tasks found linked to this PR')
-      }
+			if (linkedTasks.length === 0) {
+				throw new NotFoundError("No tasks found linked to this PR");
+			}
 
-      // Get PR details from the first linked task
-      const firstTask = linkedTasks[0]
-      const prLink = (firstTask.metadata as any).prLinks.find(
-        (link: any) => link.prId === mergeData.prId
-      )
-      const prStatus = (firstTask.metadata as any).prStatuses?.[mergeData.prId]
+			// Get PR details from the first linked task
+			const firstTask = linkedTasks[0];
+			const prLink = (firstTask.metadata as any).prLinks.find(
+				(link: any) => link.prId === mergeData.prId,
+			);
+			const prStatus = (firstTask.metadata as any).prStatuses?.[mergeData.prId];
 
-      if (!prStatus) {
-        throw new NotFoundError('PR status not found')
-      }
+			if (!prStatus) {
+				throw new NotFoundError("PR status not found");
+			}
 
-      // Check if PR can be merged
-      const canMerge =
-        prStatus.status === 'open' &&
-        prStatus.reviewStatus === 'approved' &&
-        prStatus.mergeable &&
-        prStatus.checks.every((check: any) => check.status === 'success')
+			// Check if PR can be merged
+			const canMerge =
+				prStatus.status === "open" &&
+				prStatus.reviewStatus === "approved" &&
+				prStatus.mergeable &&
+				prStatus.checks.every((check: any) => check.status === "success");
 
-      if (!canMerge) {
-        const reasons = []
-        if (prStatus.status !== 'open') {
-          reasons.push(`PR is ${prStatus.status}`)
-        }
-        if (prStatus.reviewStatus !== 'approved') {
-          reasons.push('Review approval required')
-        }
-        if (!prStatus.mergeable) {
-          reasons.push('Merge conflicts exist')
-        }
-        if (prStatus.checks.some((check: any) => check.status !== 'success')) {
-          reasons.push('Checks must pass')
-        }
+			if (!canMerge) {
+				const reasons = [];
+				if (prStatus.status !== "open") {
+					reasons.push(`PR is ${prStatus.status}`);
+				}
+				if (prStatus.reviewStatus !== "approved") {
+					reasons.push("Review approval required");
+				}
+				if (!prStatus.mergeable) {
+					reasons.push("Merge conflicts exist");
+				}
+				if (prStatus.checks.some((check: any) => check.status !== "success")) {
+					reasons.push("Checks must pass");
+				}
 
-        throw new ValidationError(`Cannot merge PR: ${reasons.join(', ')}`)
-      }
+				throw new ValidationError(`Cannot merge PR: ${reasons.join(", ")}`);
+			}
 
-      // Perform merge operation
-      let mergeResult
-      try {
-        mergeResult = await GitHubAPIClient.mergePR(
-          prLink.repository,
-          mergeData.prId.replace('pr-', ''),
-          {
-            mergeMethod: mergeData.mergeMethod,
-            deleteSourceBranch: mergeData.deleteSourceBranch,
-          }
-        )
-      } catch (error) {
-        throw new ExternalServiceError('GitHub API', error as Error)
-      }
+			// Perform merge operation
+			let mergeResult;
+			try {
+				mergeResult = await GitHubAPIClient.mergePR(
+					prLink.repository,
+					mergeData.prId.replace("pr-", ""),
+					{
+						mergeMethod: mergeData.mergeMethod,
+						deleteSourceBranch: mergeData.deleteSourceBranch,
+					},
+				);
+			} catch (error) {
+				throw new ExternalServiceError("GitHub API", error as Error);
+			}
 
-      // Update PR status to merged
-      const updatedPRStatus = {
-        ...prStatus,
-        status: 'merged' as const,
-        mergedAt: mergeResult.mergedAt,
-        mergeCommitSha: mergeResult.mergeCommitSha,
-      }
+			// Update PR status to merged
+			const updatedPRStatus = {
+				...prStatus,
+				status: "merged" as const,
+				mergedAt: mergeResult.mergedAt,
+				mergeCommitSha: mergeResult.mergeCommitSha,
+			};
 
-      // Update all linked tasks
-      const updatePromises = linkedTasks.map(async (task) => {
-        const currentMetadata = (task.metadata as any) || {}
-        const prLink = (currentMetadata as any).prLinks?.find(
-          (link: any) => link.prId === mergeData.prId
-        )
+			// Update all linked tasks
+			const updatePromises = linkedTasks.map(async (task) => {
+				const currentMetadata = (task.metadata as any) || {};
+				const prLink = (currentMetadata as any).prLinks?.find(
+					(link: any) => link.prId === mergeData.prId,
+				);
 
-        const updatedMetadata = {
-          ...currentMetadata,
-          prStatuses: {
-            ...currentMetadata.prStatuses,
-            [mergeData.prId]: updatedPRStatus,
-          },
-        }
+				const updatedMetadata = {
+					...currentMetadata,
+					prStatuses: {
+						...currentMetadata.prStatuses,
+						[mergeData.prId]: updatedPRStatus,
+					},
+				};
 
-        // Auto-complete task if auto-update is enabled and task isn't already completed
-        const shouldAutoComplete = prLink?.autoUpdateStatus && task.status !== 'completed'
+				// Auto-complete task if auto-update is enabled and task isn't already completed
+				const shouldAutoComplete =
+					prLink?.autoUpdateStatus && task.status !== "completed";
 
-        const updates: any = {
-          metadata: updatedMetadata,
-          updatedAt: new Date(),
-        }
+				const updates: any = {
+					metadata: updatedMetadata,
+					updatedAt: new Date(),
+				};
 
-        if (shouldAutoComplete) {
-          updates.status = 'completed'
-          updates.completedAt = new Date()
-        }
+				if (shouldAutoComplete) {
+					updates.status = "completed";
+					updates.completedAt = new Date();
+				}
 
-        const [result] = await db
-          .update(tasks)
-          .set(updates)
-          .where(eq(tasks.id, task.id))
-          .returning()
-        return result
-      })
+				const [result] = await db
+					.update(tasks)
+					.set(updates)
+					.where(eq(tasks.id, task.id))
+					.returning();
+				return result;
+			});
 
-      const updatedTasks = await Promise.all(updatePromises)
-      const autoCompletedTasks = updatedTasks.filter((task) => task.status === 'completed')
+			const updatedTasks = await Promise.all(updatePromises);
+			const autoCompletedTasks = updatedTasks.filter(
+				(task) => task.status === "completed",
+			);
 
-      // Log operation
-      await observability.events.collector.collectEvent(
-        'user_action',
-        'info',
-        `PR merged successfully: ${prStatus.title}`,
-        {
-          prId: mergeData.prId,
-          repository: prLink.repository,
-          mergeMethod: mergeData.mergeMethod,
-          mergeCommitSha: mergeResult.mergeCommitSha,
-          linkedTasksCount: linkedTasks.length,
-          autoCompletedTasksCount: autoCompletedTasks.length,
-          mergedBy: mergeData.userId,
-          sourceBranchDeleted: mergeData.deleteSourceBranch,
-        },
-        'api',
-        ['pr', 'merge']
-      )
+			// Log operation
+			await observability.events.collector.collectEvent(
+				"user_action",
+				"info",
+				`PR merged successfully: ${prStatus.title}`,
+				{
+					prId: mergeData.prId,
+					repository: prLink.repository,
+					mergeMethod: mergeData.mergeMethod,
+					mergeCommitSha: mergeResult.mergeCommitSha,
+					linkedTasksCount: linkedTasks.length,
+					autoCompletedTasksCount: autoCompletedTasks.length,
+					mergedBy: mergeData.userId,
+					sourceBranchDeleted: mergeData.deleteSourceBranch,
+				},
+				"api",
+				["pr", "merge"],
+			);
 
-      span.setAttributes({
-        'pr.id': mergeData.prId,
-        'pr.merge_method': mergeData.mergeMethod,
-        'tasks.linked_count': linkedTasks.length,
-      })
+			span.setAttributes({
+				"pr.id": mergeData.prId,
+				"pr.merge_method": mergeData.mergeMethod,
+				"tasks.linked_count": linkedTasks.length,
+			});
 
-      span.setStatus({ code: SpanStatusCode.OK })
+			span.setStatus({ code: SpanStatusCode.OK });
 
-      return {
-        mergeResult,
-        prStatus: updatedPRStatus,
-        linkedTasks: updatedTasks,
-        autoCompletedTasks,
-        summary: {
-          totalLinkedTasks: linkedTasks.length,
-          autoCompletedTasks: autoCompletedTasks.length,
-          mergeCommitSha: mergeResult.mergeCommitSha,
-        },
-      }
-    } catch (error) {
-      span.recordException(error as Error)
-      span.setStatus({ code: SpanStatusCode.ERROR })
-      throw error
-    } finally {
-      span.end()
-    }
-  }
+			return {
+				mergeResult,
+				prStatus: updatedPRStatus,
+				linkedTasks: updatedTasks,
+				autoCompletedTasks,
+				summary: {
+					totalLinkedTasks: linkedTasks.length,
+					autoCompletedTasks: autoCompletedTasks.length,
+					mergeCommitSha: mergeResult.mergeCommitSha,
+				},
+			};
+		} catch (error) {
+			span.recordException(error as Error);
+			span.setStatus({ code: SpanStatusCode.ERROR });
+			throw error;
+		} finally {
+			span.end();
+		}
+	}
 }
 
 // Export singleton instance
-export const prIntegrationService = new PRIntegrationAPIService()
+export const prIntegrationService = new PRIntegrationAPIService();

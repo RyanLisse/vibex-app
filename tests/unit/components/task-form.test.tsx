@@ -1,4 +1,5 @@
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import NewTaskForm from '../../../components/forms/new-task-form'
 
@@ -47,53 +48,96 @@ vi.mock('next/link', () => {
 
 describe('NewTaskForm', () => {
   it('renders form elements correctly', () => {
-    const { container, getByPlaceholderText, getByText, queryByRole } = render(<NewTaskForm />)
+    const { container } = render(<NewTaskForm />)
 
-    expect(getByPlaceholderText(/describe a task you want to ship/i)).toBeInTheDocument()
-    expect(getByText(/ready to ship something new/i)).toBeInTheDocument()
+    // Use querySelector since the form is rendering correctly
+    const textarea = container.querySelector('textarea')
+    expect(textarea).toBeInTheDocument()
+    expect(textarea).toHaveAttribute('placeholder', 'Describe a task you want to ship...')
+
+    // Check for the heading text
+    const heading = container.querySelector('h1')
+    expect(heading).toBeInTheDocument()
+    expect(heading).toHaveTextContent('Ready to ship something new?')
+
     // Initially no action buttons are shown
-    expect(queryByRole('button', { name: /code/i })).not.toBeInTheDocument()
-    expect(queryByRole('button', { name: /ask/i })).not.toBeInTheDocument()
+    const buttons = container.querySelectorAll('button')
+    const actionButtons = Array.from(buttons).filter(
+      (btn) => btn.textContent?.includes('Code') || btn.textContent?.includes('Ask')
+    )
+    expect(actionButtons).toHaveLength(0)
   })
 
   it('shows action buttons when text is entered', async () => {
-    const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
+    const { container } = render(<NewTaskForm />)
 
-    const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
+    const textarea = container.querySelector('textarea')
+    expect(textarea).toBeInTheDocument()
 
-    // Use fireEvent to trigger onChange directly
-    fireEvent.change(input, { target: { value: 'Test task description' } })
+    // Set the value and fire the change event using fireEvent
+    fireEvent.change(textarea, { target: { value: 'Test task description' } })
 
-    // Wait for buttons to appear after state update
-    const codeButton = await findByText('Code')
-    const askButton = await findByText('Ask')
+    // Wait for the buttons to appear
+    await waitFor(
+      () => {
+        const buttons = container.querySelectorAll('button')
+        const codeButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Code'))
+        const askButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Ask'))
 
-    expect(codeButton).toBeInTheDocument()
-    expect(askButton).toBeInTheDocument()
+        expect(codeButton).toBeDefined()
+        expect(askButton).toBeDefined()
+      },
+      { timeout: 3000 }
+    )
   })
 
-  const testTaskSubmission = async (buttonLabel: 'Code' | 'Ask') => {
-    const { getByPlaceholderText, findByText } = render(<NewTaskForm />)
+  it('handles task submission with Code button', async () => {
+    const { container } = render(<NewTaskForm />)
 
-    const input = getByPlaceholderText(/describe a task you want to ship/i) as HTMLTextAreaElement
+    const textarea = container.querySelector('textarea')
 
-    // Use fireEvent to trigger onChange
-    fireEvent.change(input, { target: { value: 'Test task description' } })
+    // Set the value and fire the change event using fireEvent
+    fireEvent.change(textarea, { target: { value: 'Test task description' } })
 
-    // Wait for button to appear
-    const button = await findByText(buttonLabel)
-    fireEvent.click(button)
+    // Wait for the buttons to appear and click
+    await waitFor(() => {
+      const buttons = container.querySelectorAll('button')
+      const codeButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Code'))
+      expect(codeButton).toBeDefined()
+      return codeButton
+    })
+
+    const buttons = container.querySelectorAll('button')
+    const codeButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Code'))
+    fireEvent.click(codeButton)
 
     await waitFor(() => {
-      expect(input).toHaveValue('')
+      expect(textarea).toHaveValue('')
     })
-  }
-
-  it('handles task submission with Code button', async () => {
-    await testTaskSubmission('Code')
   })
 
   it('handles task submission with Ask button', async () => {
-    await testTaskSubmission('Ask')
+    const { container } = render(<NewTaskForm />)
+
+    const textarea = container.querySelector('textarea')
+
+    // Set the value and fire the change event using fireEvent
+    fireEvent.change(textarea, { target: { value: 'Test task description' } })
+
+    // Wait for the buttons to appear and click
+    await waitFor(() => {
+      const buttons = container.querySelectorAll('button')
+      const askButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Ask'))
+      expect(askButton).toBeDefined()
+      return askButton
+    })
+
+    const buttons = container.querySelectorAll('button')
+    const askButton = Array.from(buttons).find((btn) => btn.textContent?.includes('Ask'))
+    fireEvent.click(askButton)
+
+    await waitFor(() => {
+      expect(textarea).toHaveValue('')
+    })
   })
 })
