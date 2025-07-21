@@ -2,6 +2,10 @@
 	"name": "vibex",
 	"version": "0.1.0",
 	"private": true,
+	"description": "Modern AI Code Generation Platform with Terragon Labs Integration",
+	"keywords": ["ai", "code-generation", "terragon-labs", "nextjs", "electric-sql", "modal-labs", "sentry"],
+	"author": "Terragon Labs",
+	"license": "MIT",
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"dev:all": "concurrently --names \"NEXT,INNGEST\" --prefix-colors \"blue,green\" \"INNGEST_DEV=1 next dev --turbopack\" \"npx inngest-cli@latest dev -u http://localhost:3000/api/inngest\"",

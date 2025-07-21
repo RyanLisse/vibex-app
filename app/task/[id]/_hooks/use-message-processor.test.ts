@@ -1,14 +1,7 @@
-	afterEach,
-	beforeEach,
-	describe,
-	import { expect,
-	import { it,
-	import { mock,
-	import { spyOn,
-	import { test
-} from "bun:test";
-import { StreamingMessage
-} from "@/app/task/[id]/_types/message-types";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useMessageProcessor } from './use-message-processor';
+import type { StreamingMessage, IncomingMessage } from "@/app/task/[id]/_types/message-types";
 
 // Mock the message guards
 vi.mock("../_utils/message-guards", () => ({
@@ -29,9 +22,9 @@ vi.mock("@/stores/tasks", () => ({
 // Mock React hooks
 const mockSetStreamingMessages = vi.fn();
 
-const mockMessageGuards = (await import(
-	"@/app/task/[id]/_utils/message-guards"
-)) as any;
+const mockMessageGuards = vi.mocked(
+	await vi.importActual("@/app/task/[id]/_utils/message-guards")
+) as any;
 
 describe("useMessageProcessor", () => {
 	beforeEach(() => {
@@ -41,14 +34,6 @@ describe("useMessageProcessor", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 	});
-describe('useMessageProcessor', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
 
 	it("should initialize with processMessage function", () => {
 		const mockTaskMessages: Array<{

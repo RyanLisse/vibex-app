@@ -1,11 +1,12 @@
+import {
 	afterEach,
 	beforeEach,
 	describe,
-	import { expect,
-	import { it,
-	import { mock,
-	import { spyOn,
-	import { test
+	expect,
+	it,
+	mock,
+	spyOn,
+	test
 } from "bun:test";
 import { UsernameSchema
 } from "./validation";
