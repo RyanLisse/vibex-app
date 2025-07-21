@@ -307,7 +307,8 @@ describe("API Routes Schemas", () => {
 
 				it("should apply default values", () => {
 					const result = GitHubRepositoriesRequestSchema.parse({});
-					expect(result.type).toBe("all");
+					expect(result.visibility).toBe("all");
+					expect(result.affiliation).toBe("owner");
 					expect(result.sort).toBe("updated");
 					expect(result.direction).toBe("desc");
 					expect(result.per_page).toBe(30);
@@ -370,11 +371,9 @@ describe("API Routes Schemas", () => {
 					priority: "high" as const,
 					tags: ["urgent", "bug"],
 					assignee: "user123",
-					due_date: "2023-12-31T23:59:59Z",
-					created_at: "2023-01-01T00:00:00Z",
-					updated_at: "2023-01-01T00:00:00Z",
-					completed_at: "2023-01-02T00:00:00Z",
-					metadata: { source: "api" },
+					due_date: new Date("2023-12-31T23:59:59Z"),
+					created_at: new Date("2023-01-01T00:00:00Z"),
+					updated_at: new Date("2023-01-01T00:00:00Z"),
 				};
 
 				expect(() => TaskSchema.parse(validTask)).not.toThrow();
@@ -384,12 +383,12 @@ describe("API Routes Schemas", () => {
 				const minimalTask = {
 					id: "123e4567-e89b-12d3-a456-426614174000",
 					title: "Test Task",
-					created_at: "2023-01-01T00:00:00Z",
-					updated_at: "2023-01-01T00:00:00Z",
+					created_at: new Date("2023-01-01T00:00:00Z"),
+					updated_at: new Date("2023-01-01T00:00:00Z"),
 				};
 
 				const result = TaskSchema.parse(minimalTask);
-				expect(result.status).toBe("pending");
+				expect(result.status).toBe("todo");
 				expect(result.priority).toBe("medium");
 				expect(result.tags).toEqual([]);
 			});
