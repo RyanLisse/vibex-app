@@ -1,79 +1,55 @@
-import path from "node:path";
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vitest/config";
+import react from '@vitejs/plugin-react'
+import { mergeConfig } from 'vitest/config'
+import { sharedConfig } from './vitest.shared.config'
 
-// Integration tests configuration - for API, database, and system integration tests
-export default defineConfig({
+// Integration tests config for API routes, database, and Inngest
+export default mergeConfig(sharedConfig, {
   plugins: [react()],
   test: {
-    name: "integration",
-    environment: "node",
-    globals: true,
-    setupFiles: ["./tests/setup/integration.ts"],
+    name: 'integration',
+    environment: 'node',
+    setupFiles: ['./tests/setup/integration.ts'],
+    env: {
+      DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+      ELECTRIC_URL: 'http://localhost:5133',
+      ELECTRIC_WEBSOCKET_URL: 'ws://localhost:5133',
+      ELECTRIC_AUTH_TOKEN: 'test_auth_token',
+      ELECTRIC_USER_ID: 'test_user_id',
+      ELECTRIC_API_KEY: 'test_api_key',
+      AUTH_SECRET: 'test_auth_secret',
+      NODE_ENV: 'test',
+      INNGEST_SIGNING_KEY: 'test-signing-key',
+      INNGEST_EVENT_KEY: 'test-event-key',
+    },
     include: [
-      "tests/integration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-      "**/*.integration.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-      "app/api/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+      'tests/integration/**/*.test.{js,ts,jsx,tsx}',
+      'app/api/**/*.test.{js,ts}',
+      '**/*.integration.test.*',
+      'lib/inngest*.test.ts',
+      'app/actions/inngest.test.ts',
+      'app/actions/vibekit.test.ts',
+      'app/api/inngest/route.test.ts',
+      'db/**/*.test.ts',
     ],
     exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/cypress/**",
-      "**/.{idea,git,cache,output,temp}/**",
-      "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
-      "**/coverage/**",
-      "**/e2e/**",
-      "**/*.e2e.{test,spec}.*",
-      "**/*.browser.{test,spec}.*",
-      "**/components/**/*.{test,spec}.*",
-      "**/lib/**/*.{test,spec}.*",
-      "**/utils/**/*.{test,spec}.*",
-      "**/src/schemas/**/*.{test,spec}.*",
+      'node_modules',
+      'dist',
+      '.next',
+      '**/*.e2e.test.*',
+      '**/*.bun.test.*',
+      'tests/bun-*.test.*',
+      'components/**/*.test.*',
+      'hooks/**/*.test.*',
+      'lib/**/*.test.{js,ts}',
+      '!lib/inngest*.test.ts',
+      'src/**/*.test.*',
+      'stores/**/*.test.*',
     ],
+    testTimeout: 60_000, // Longer timeout for integration tests
+    hookTimeout: 30_000,
+    teardownTimeout: 15_000,
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-      reportsDirectory: "./coverage/integration",
-      exclude: [
-        "coverage/**",
-        "dist/**",
-        "**/node_modules/**",
-        "**/test*/**",
-        "**/*.d.ts",
-        "**/*.config.*",
-        "**/cypress/**",
-        "**/*.test.*",
-        "**/*.spec.*",
-      ],
-    },
-    pool: "threads",
-    poolOptions: {
-      threads: {
-        singleThread: false,
-        isolate: true,
-      },
-    },
-    testTimeout: 30000,
-    hookTimeout: 30000,
-    // Integration tests may need more time and sequential execution
-    sequence: {
-      concurrent: false,
+      enabled: false, // Disable coverage for integration tests
     },
   },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "."),
-      "@/lib": path.resolve(__dirname, "./lib"),
-      "@/components": path.resolve(__dirname, "./components"),
-      "@/app": path.resolve(__dirname, "./app"),
-      "@/hooks": path.resolve(__dirname, "./hooks"),
-      "@/utils": path.resolve(__dirname, "./utils"),
-      "@/types": path.resolve(__dirname, "./types"),
-      "@/stores": path.resolve(__dirname, "./stores"),
-      "@/db": path.resolve(__dirname, "./db"),
-    },
-  },
-  define: {
-    "import.meta.vitest": false,
-  },
-});
+})

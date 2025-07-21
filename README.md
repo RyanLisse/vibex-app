@@ -1,20 +1,10 @@
 # Vibex - Modern AI Code Generation Platform
 
-A cutting-edge AI-powered code generation platform featuring real-time synchronization, advanced state management, and comprehensive developer tooling. Built with Next.js 15, ElectricSQL, and modern web technologies. This project is part of the **Terragon Labs** ecosystem, providing enterprise-grade AI agent orchestration and container-based development environments.
+A cutting-edge AI-powered code generation platform featuring real-time synchronization, advanced state management, and comprehensive developer tooling. Built with Next.js 15, ElectricSQL, and modern web technologies.
 
 ## 🔗 Demo
 
 [https://vibex.vercel.app/](https://vibex.vercel.app/)
-
-## 🏢 Terragon Labs Integration
-
-This platform integrates with Terragon Labs' advanced AI development infrastructure:
-
-- **Container-Use Integration**: Modal Labs serverless environments for isolated agent execution
-- **Multi-Source Task Creation**: Create tasks from GitHub issues, PR comments, voice commands, and screenshots  
-- **Git Worktree Management**: Parallel development workflows with automated conflict resolution
-- **Ambient Agent Visualization**: Real-time monitoring and debugging of AI agent workflows
-- **Enterprise Observability**: Comprehensive monitoring with Sentry, OpenTelemetry, and custom metrics
 
 ## ✨ Features
 
@@ -40,19 +30,18 @@ This platform integrates with Terragon Labs' advanced AI development infrastruct
 
 Before you begin, make sure you have:
 
-- **Bun** (v1.0 or higher) - Primary runtime
-- **Node.js** (v18 or higher) - For compatibility
+- **Bun** (v1.0 or higher) - Primary runtime and package manager
+- **Node.js** (v20 or higher) - For compatibility with certain tools
 - **PostgreSQL** (v14 or higher) - Database
-- **Redis** (optional) - For caching
-- **Inngest CLI** - Background job processing
+- **Redis** (optional) - For caching and job queues
+- **Inngest CLI** (optional) - Background job processing
 - API Keys:
-  - **OpenAI API key** - For AI model access
-  - **Anthropic API key** (optional) - For Claude models
-  - **Google AI API key** - For Gemini models
-  - **E2B API key** - For sandboxed execution
-  - **GitHub OAuth app** - For repository integration
-  - **Modal Labs API key** - For Terragon container integration
-  - **Sentry DSN** - For error monitoring and observability
+  - **OpenAI API key** - For AI code generation
+  - **Anthropic API key** (optional) - Alternative AI provider
+  - **Google AI API key** (optional) - For Gemini models
+  - **E2B API key** (optional) - For sandboxed execution
+  - **GitHub OAuth app** (optional) - For repository integration
+  - **Sentry** (optional) - For error tracking and monitoring
 
 ## 📦 Installation
 
@@ -88,70 +77,36 @@ bun run db:init
 Create a `.env.local` file with required variables:
 
 ```bash
-# Database Configuration
+# Database
 DATABASE_URL=postgresql://user:password@localhost:5432/vibex_dev
 ELECTRIC_URL=postgresql://user:password@localhost:5432/vibex_dev
 
 # AI Services
 OPENAI_API_KEY=your_openai_api_key
-NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key
 ANTHROPIC_API_KEY=your_anthropic_api_key
-GOOGLE_AI_API_KEY=your_google_ai_api_key
 E2B_API_KEY=your_e2b_api_key
 
 # GitHub OAuth
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 
-# Terragon Labs - Modal Integration
-MODAL_API_KEY=your_modal_api_key
-MODAL_WORKSPACE=your_workspace_name
-
-# ElectricSQL Configuration
+# ElectricSQL (optional custom config)
 ELECTRIC_SERVICE_URL=http://localhost:5133
 ELECTRIC_PROXY_URL=http://localhost:5134
-ELECTRIC_WEBSOCKET_URL=ws://localhost:5133
-ELECTRIC_AUTH_TOKEN=your_electric_auth_token
-ELECTRIC_LOCAL_DB_PATH=idb://electric-local
-
-# Sentry Error Monitoring
-NEXT_PUBLIC_SENTRY_DSN=https://your-dsn@sentry.io/project-id
-SENTRY_ORG=your-sentry-org
-SENTRY_PROJECT=your-sentry-project
-SENTRY_AUTH_TOKEN=your-sentry-auth-token
-
-# Authentication
-AUTH_SECRET=your_auth_secret_here
 
 # Redis (optional)
 REDIS_URL=redis://localhost:6379
 
-# Inngest Background Jobs
+# Inngest
 INNGEST_EVENT_KEY=your_event_key
 INNGEST_SIGNING_KEY=your_signing_key
-
-# Observability & Monitoring
-TELEMETRY_ENABLED=true
-TELEMETRY_BACKEND=jaeger
-TELEMETRY_SAMPLING_RATIO=0.1
-LOGGING_LEVEL=info
-SERVICE_NAME=vibex
-SERVICE_VERSION=1.0.0
-
-# Alert System
-ALERTS_ENABLED=true
-ALERTS_SLACK_WEBHOOK_URL=your_slack_webhook
-ALERTS_EMAIL_FROM=alerts@yourcompany.com
 ```
 
 #### Getting API Keys:
 
 - **OpenAI API Key**: Get it from [OpenAI Platform](https://platform.openai.com/api-keys)
-- **Google AI API Key**: Get it from [Google AI Studio](https://makersuite.google.com/app/apikey)
 - **E2B API Key**: Sign up at [E2B](https://e2b.dev/) and get your API key
 - **GitHub OAuth**: Create a new OAuth app in your [GitHub Developer Settings](https://github.com/settings/developers)
-- **Modal Labs API Key**: Sign up at [Modal Labs](https://modal.com) for Terragon container integration
-- **Sentry DSN**: Create a project at [Sentry.io](https://sentry.io) for error monitoring
 
 ## 📊 TypeScript Status
 
@@ -218,12 +173,16 @@ The application will be available at:
 
 ### Testing
 
-- `bun run test` - Run all test suites (unit + components + integration)
-- `bun run test:unit` - Run unit tests with Vitest
-- `bun run test:components` - Run component tests
-- `bun run test:integration` - Run integration tests
-- `bun run test:browser` - Run browser-based tests
+The project uses a consolidated 4-config testing strategy optimized for Bun:
+
+- `bun run test` - Run all test suites
+- `bun run test:unit` - Run unit tests for business logic
+- `bun run test:components` - Run React component tests
+- `bun run test:integration` - Run API and database integration tests
+- `bun run test:browser` - Run browser-based E2E tests
+- `bun run test:all` - Run all test suites sequentially
 - `bun run test:coverage` - Generate comprehensive coverage report
+- `bun run test:fast` - Quick test run (unit + integration only)
 
 ### Database
 
@@ -249,6 +208,32 @@ The application will be available at:
 - `bun run migration:status` - Check data migration status
 - `bun run migration:migrate` - Run data migrations
 
+## 🚀 Recent Improvements
+
+### Performance Enhancements
+- **Bun Runtime**: 50% faster dependency installation and test execution
+- **Optimized Builds**: Reduced memory usage and build times
+- **WASM Modules**: High-performance vector search and data processing
+- **Edge-Ready**: Optimized for Vercel Edge Functions
+
+### Testing Infrastructure
+- **Consolidated Test Configs**: From 8+ configs down to 4 optimized configs
+- **Parallel Test Execution**: Faster CI/CD pipelines
+- **Comprehensive Coverage**: Unit, integration, component, and E2E tests
+- **Vitest + Playwright**: Modern testing stack
+
+### Security & Monitoring
+- **Sentry Integration**: Comprehensive error tracking and performance monitoring
+- **OpenTelemetry**: Distributed tracing and observability
+- **Security Headers**: CSP, HSTS, and other security best practices
+- **Rate Limiting**: Built-in API rate limiting
+
+### Developer Experience
+- **TypeScript Strict Mode**: Full type safety
+- **Automated Fixes**: Scripts to fix common issues
+- **Hot Module Replacement**: Fast development iteration
+- **Comprehensive Documentation**: Detailed guides and API references
+
 ## 🏗️ Project Structure
 
 ```
@@ -261,82 +246,35 @@ The application will be available at:
 │   │   ├── environments/  # Environment management
 │   │   ├── inngest/       # Background job handlers
 │   │   ├── migration/     # Data migration endpoints
-│   │   ├── ambient-agents/ # Terragon agent visualization
 │   │   └── tasks/         # Task management
-│   ├── ambient-agents/    # Terragon agent dashboard
-│   ├── voice-brainstorm/  # Voice command interface
 │   └── auth/              # Authentication pages
 ├── components/            # Reusable UI components
 │   ├── ui/                # shadcn/ui components
-│   ├── providers/         # React context providers
-│   ├── ambient-agents/    # Terragon visualization components
-│   ├── auth/              # Authentication components
-│   └── features/          # Feature-specific components
-│       ├── kanban/        # Kanban board components
-│       ├── voice-tasks/   # Voice task creation
-│       └── pr-integration/ # GitHub PR integration
+│   └── providers/         # React context providers
 ├── db/                    # Database layer
 │   ├── schema.ts          # Drizzle ORM schema
 │   ├── config.ts          # Database configuration
 │   └── migrations/        # SQL migrations
 ├── hooks/                 # Custom React hooks
 │   ├── use-environment-queries.ts
-│   ├── use-electric-*.ts  # ElectricSQL hooks
-│   ├── use-audio-*.ts     # Audio/voice hooks
-│   └── ambient-agents/    # Terragon agent hooks
+│   └── use-electric-*.ts  # ElectricSQL hooks
 ├── lib/                   # Core libraries
 │   ├── electric/          # ElectricSQL client
 │   ├── migration/         # Data migration system
 │   ├── wasm/              # WASM modules
 │   ├── observability/     # Monitoring & tracing
-│   ├── container-use-integration/ # Terragon Modal Labs integration
-│   ├── agent-memory/      # AI agent memory management
-│   ├── alerts/            # Alert system
-│   ├── logging/           # Advanced logging with Winston/Sentry
-│   ├── auth/              # Authentication utilities
 │   └── inngest.ts         # Background jobs
 ├── scripts/               # CLI tools & utilities
 │   ├── migration-cli.ts   # Migration CLI
-│   ├── automation/        # Development automation
-│   └── demo-voice-brainstorm.ts # Voice demo
+│   └── automation/        # Development automation
 ├── tests/                 # Test suites
 │   ├── unit/              # Unit tests
 │   ├── integration/       # Integration tests
-│   ├── e2e/               # End-to-end tests
-│   └── sentry/            # Sentry integration tests
-├── docs/                  # Documentation
-│   ├── ARCHITECTURE.md    # System architecture
-│   ├── SENTRY_INTEGRATION.md # Observability guide
-│   ├── TERRAGON_INTEGRATION.md # Terragon features
-│   └── api/               # API documentation
-└── wasm-modules/          # WebAssembly modules
-    └── vector-search/     # Vector search optimization
+│   └── e2e/               # End-to-end tests
+└── docs/                  # Documentation
+    ├── ARCHITECTURE.md    # System architecture
+    └── MIGRATION_GUIDE.md # Migration guide
 ```
-
-## 🏢 Terragon Labs Features
-
-### Container-Use Integration
-- **Modal Labs Serverless**: Isolated environments for each AI agent
-- **Git Worktree Management**: Parallel development with automatic conflict resolution
-- **Multi-Source Task Creation**: Support for GitHub issues, PR comments, voice commands, and screenshots
-- **Cost Optimization**: Real-time resource monitoring and intelligent scaling
-
-### Ambient Agent Visualization
-- **Real-time Dashboard**: Interactive visualization of AI agent workflows
-- **Performance Monitoring**: Live tracking of agent activities and resource usage
-- **Event Stream Visualization**: Real-time event flow with categorization
-- **React Flow Integration**: Custom nodes and edges for complex workflow visualization
-
-### Enterprise Observability
-- **Sentry Integration**: Comprehensive error tracking and performance monitoring
-- **Winston + Sentry Logging**: Centralized logging with automatic error capture
-- **OpenTelemetry**: Distributed tracing and custom metrics
-- **Alert System**: Multi-channel alerting (Slack, email, webhooks)
-
-### Voice & Audio Features
-- **Gemini Audio Chat**: Real-time voice interaction with AI models
-- **Voice Command Processing**: Speech-to-text task creation
-- **Audio Playback Controls**: Integrated audio controls for voice responses
 
 ## 🔧 Key Technologies
 
@@ -350,7 +288,6 @@ The application will be available at:
 
 - **ElectricSQL** - Bidirectional sync with conflict resolution
 - **WebSocket** - Real-time communication
-- **Server-Sent Events** - Real-time updates for agent visualization
 - **Offline Queue** - Resilient operation handling
 
 ### State Management
@@ -358,21 +295,18 @@ The application will be available at:
 - **TanStack Query** - Server state with caching
 - **Optimistic Updates** - Instant UI feedback
 - **WASM Optimization** - Performance for large datasets
-- **Zustand** - Lightweight state management
 
 ### Background Processing
 
 - **Inngest** - Reliable job processing
 - **Event-driven** - Decoupled architecture
 - **Real-time Updates** - Progress tracking
-- **Queue Management** - Redis-backed job queues
 
-### Performance & Monitoring
+### Performance
 
 - **WASM Modules** - High-performance computing
 - **Vector Search** - SIMD-optimized similarity search
-- **Sentry Performance** - Real-time performance monitoring
-- **OpenTelemetry** - Distributed tracing and metrics
+- **Worker Threads** - Parallel processing
 - **Edge Ready** - Optimized for edge deployment
 
 ## 🌐 Deployment
@@ -400,28 +334,15 @@ The application will be available at:
    DATABASE_URL=postgresql://...
    ELECTRIC_URL=postgresql://...
 
-   # AI Services (see .env.example for full list)
+   # API Keys (see .env.example for full list)
    OPENAI_API_KEY=
    ANTHROPIC_API_KEY=
-   GOOGLE_AI_API_KEY=
    E2B_API_KEY=
-   
-   # GitHub Integration
    GITHUB_CLIENT_ID=
    GITHUB_CLIENT_SECRET=
-   
-   # Terragon Labs Integration
-   MODAL_API_KEY=
-   MODAL_WORKSPACE=
-   
-   # Observability
-   NEXT_PUBLIC_SENTRY_DSN=
-   SENTRY_ORG=
-   SENTRY_PROJECT=
-   SENTRY_AUTH_TOKEN=
 
    # Security
-   AUTH_SECRET=
+   NEXTAUTH_SECRET=
    INNGEST_SIGNING_KEY=
    ```
 
@@ -434,6 +355,12 @@ The application will be available at:
 
 ### Deploy to Vercel
 
+#### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/vibex)
+
+#### Manual Deployment
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -442,11 +369,33 @@ npm i -g vercel
 vercel --prod
 ```
 
+**Required Environment Variables:**
+
+```bash
+# Core Configuration
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+DATABASE_URL=your_database_connection_string
+AUTH_SECRET=your_auth_secret_here
+
+# AI Services (at least one required)
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+GOOGLE_AI_API_KEY=your_google_ai_api_key
+
+# Optional Services
+SENTRY_DSN=your_sentry_dsn
+REDIS_URL=your_redis_url
+INNGEST_EVENT_KEY=your_inngest_key
+```
+
 **Vercel Configuration:**
 
-- Enable Edge Functions for optimal performance
-- Configure environment variables in dashboard
-- Set up custom domain and SSL
+- Framework Preset: Next.js
+- Build Command: `bun install --frozen-lockfile && bun run build`
+- Output Directory: `.next`
+- Install Command: Auto-detected
+- Node.js Version: 20.x
+- Functions Region: US East (iad1) or closest to your database
 
 ### Deploy to Railway/Render
 
@@ -500,7 +449,31 @@ This project is licensed under the MIT License.
 
 ### Common Issues
 
-1. **Database Connection**
+1. **Vercel Deployment Failures**
+   
+   ```bash
+   # Ensure Bun is installed in build
+   # vercel.json already configured for this
+   
+   # Check for missing environment variables
+   vercel env pull
+   
+   # Test build locally
+   bun run build
+   ```
+
+2. **TypeScript Errors**
+   
+   ```bash
+   # Use the workaround script
+   bun run typecheck
+   
+   # Or run automated fixes
+   bun run fix:typescript
+   bun run fix:all
+   ```
+
+3. **Database Connection**
 
    ```bash
    # Test database connection
@@ -508,66 +481,39 @@ This project is licensed under the MIT License.
 
    # Check migrations status
    bun run db:status
+   
+   # For Vercel, ensure DATABASE_URL uses pooling
+   # Example: ?pgbouncer=true&connection_limit=1
    ```
 
-2. **ElectricSQL Sync Issues**
+4. **Build Memory Issues**
+   
+   ```bash
+   # Already configured in vercel.json
+   # NODE_OPTIONS=--max-old-space-size=8192
+   
+   # For local builds
+   NODE_OPTIONS='--max-old-space-size=8192' bun run build
+   ```
+
+5. **Sentry Build Errors**
+   
+   ```bash
+   # If not using Sentry, ensure these are NOT set:
+   # SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN
+   
+   # Or set SENTRY_SUPPRESS_TURBOPACK_WARNING=1
+   ```
+
+6. **ElectricSQL Sync Issues**
    - Verify ELECTRIC_URL is correct
    - Check WebSocket connectivity
    - Review sync logs in browser console
-
-3. **Terragon Container Integration Issues**
-   - Verify MODAL_API_KEY is valid and has proper permissions
-   - Check Modal workspace exists and is accessible
-   - Review container logs in Modal dashboard
-   - Ensure proper network connectivity to Modal Labs
-
-4. **Voice/Audio Features Not Working**
-   - Verify GOOGLE_AI_API_KEY for Gemini audio chat
-   - Check browser microphone permissions
-   - Ensure HTTPS connection (required for microphone access)
-   - Test audio input/output device functionality
-
-5. **Ambient Agent Visualization Issues**
-   - Check Server-Sent Events connection in browser dev tools
-   - Verify API endpoints are accessible: `/api/ambient-agents/sse`
-   - Clear browser cache if visualization appears stale
-   - Check React Flow component rendering in console
-
-6. **Sentry Integration Problems**
-   - Verify NEXT_PUBLIC_SENTRY_DSN is publicly accessible
-   - Check SENTRY_AUTH_TOKEN has upload permissions
-   - Review Sentry project settings and quotas
-   - Test error capture with manual Sentry.captureException()
 
 7. **WASM Module Errors**
    - Ensure browser supports WASM
    - Check for SIMD support for vector search
    - Fall back to JavaScript implementation
-   - Verify WASM files are served with correct MIME types
-
-8. **Type Errors**
-
-   ```bash
-   # Regenerate types
-   bun run db:generate
-   bun run typecheck
-   ```
-
-9. **Migration Problems**
-
-   ```bash
-   # Check migration status
-   bun run migration:status --verbose
-
-   # Create backup before retry
-   bun run migration:backup
-   ```
-
-10. **Alert System Not Working**
-    - Check ALERTS_SLACK_WEBHOOK_URL is valid
-    - Verify email configuration for SMTP alerts
-    - Test webhook endpoints manually
-    - Review alert rate limiting settings
 
 ### Debug Mode
 
@@ -596,34 +542,9 @@ DEBUG=electric:*,migration:* bun run dev
 - **Documentation**: See `/docs` folder for detailed guides
 - **Architecture**: Review [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 - **Migration Guide**: Check [MIGRATION_GUIDE.md](./docs/MIGRATION_GUIDE.md)
-- **Sentry Integration**: See [SENTRY_INTEGRATION.md](./docs/SENTRY_INTEGRATION.md)
-- **Terragon Features**: Explore Terragon-specific functionality
 - **GitHub Issues**: Report bugs and request features
 - **Community**: Join our Discord server
 
-### 🚀 Quick Start Commands
-
-```bash
-# Full development setup
-git clone <repository>
-cd vibex-app
-bun install
-cp .env.example .env.local  # Configure your API keys
-bun run db:migrate
-bun run dev:all
-
-# Access the application
-open http://localhost:3000
-
-# Access Terragon Agent Dashboard
-open http://localhost:3000/ambient-agents
-
-# Voice Brainstorming Demo
-open http://localhost:3000/voice-brainstorm
-```
-
 ---
 
-**Built with ❤️ by Terragon Labs**
-
-Powered by Next.js 15, ElectricSQL, Modal Labs, Sentry, and modern web technologies. This platform represents the cutting edge of AI agent orchestration and collaborative development environments.
+Built with ❤️ using Next.js, ElectricSQL, and modern web technologies

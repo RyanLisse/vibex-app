@@ -5,8 +5,8 @@
 
 echo "Running TypeScript compilation with workaround..."
 
-# Try with different flags
-bunx tsc --noEmit --skipLibCheck --incremental false 2>&1 | {
+# Try with different flags - use 'bun x' instead of 'bunx'
+bun x tsc --noEmit --skipLibCheck --incremental false 2>&1 | {
   while IFS= read -r line; do
     if [[ $line == *"Debug Failure. No error for 3 or fewer overload signatures"* ]]; then
       echo "⚠️  Known TypeScript compiler bug detected. This is a TypeScript issue, not a code issue."

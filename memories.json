@@ -17,7 +17,25 @@
       "lastAccessed": "2025-07-21T09:25:19.818Z",
       "lastVerified": "2025-07-21T09:25:19.818Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1753091404329_obtjbfsjp",
+      "content": "Currently resolving merge conflicts from PR #24 (Terragon Integration). Found conflicts in test files with mixed import statements - HEAD has vi imports from vitest, Terragon branch has full vitest imports. Need to standardize on Terragon approach (vitest imports) and resolve import path conflicts.",
+      "type": "code",
+      "tags": [
+        "code",
+        "merge-conflicts",
+        "terragon-integration",
+        "vitest",
+        "imports"
+      ],
+      "timestamp": "2025-07-21T09:50:04.325Z",
+      "context": "Merge conflict resolution for GitHub PR integration",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-21T09:50:04.325Z",
+      "lastVerified": "2025-07-21T09:50:04.325Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-07-21T09:25:19.818Z"
+  "lastUpdated": "2025-07-21T09:50:04.325Z"
 }

@@ -23,7 +23,7 @@
 # misc
 .DS_Store
 *.pem
-./swarm
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -94,4 +94,4 @@ tests/fixtures/backup/backup-*.json
 *storybook.log
 .auth/
 db/migrations/backup/
-.env*.local
+core
