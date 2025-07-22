@@ -167,7 +167,7 @@ describe("Redis/Valkey Integration Tests (Bun Compatible)", () => {
 			const result = await pipeline.get("key1").exec();
 			expect(result).toEqual([
 				[null, "value1"],
-				[null, "OK"]
+				[null, "OK"],
 			]);
 		});
 	});
@@ -178,7 +178,7 @@ describe("Redis/Valkey Integration Tests (Bun Compatible)", () => {
 			const result = await multi.get("key1").set("key2", "value2").exec();
 			expect(result).toEqual([
 				[null, "value1"],
-				[null, "OK"]
+				[null, "OK"],
 			]);
 		});
 	});
@@ -187,7 +187,9 @@ describe("Redis/Valkey Integration Tests (Bun Compatible)", () => {
 		test("should handle session data", async () => {
 			const sessionKey = "session:user123";
 			const sessionData = await mockRedis.get(sessionKey);
-			expect(JSON.parse(sessionData as string)).toEqual({ userId: "test-user" });
+			expect(JSON.parse(sessionData as string)).toEqual({
+				userId: "test-user",
+			});
 		});
 	});
 
@@ -211,18 +213,20 @@ describe("Redis/Valkey Integration Tests (Bun Compatible)", () => {
 		test("should handle connection errors gracefully", async () => {
 			// Test that our mock handles various scenarios without throwing
 			await expect(mockRedis.get("any-key")).resolves.toBeDefined();
-			await expect(mockRedis.set("any-key", "any-value")).resolves.toBeDefined();
+			await expect(
+				mockRedis.set("any-key", "any-value"),
+			).resolves.toBeDefined();
 		});
 	});
 
 	describe("Performance and Load Testing", () => {
 		test("should handle multiple concurrent operations", async () => {
-			const operations = Array.from({ length: 10 }, (_, i) => 
-				mockRedis.set(`key-${i}`, `value-${i}`)
+			const operations = Array.from({ length: 10 }, (_, i) =>
+				mockRedis.set(`key-${i}`, `value-${i}`),
 			);
-			
+
 			const results = await Promise.all(operations);
-			results.forEach(result => {
+			results.forEach((result) => {
 				expect(result).toBe("OK");
 			});
 		});

@@ -1,4 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
+import { handleOAuthCallback, type OAuthConfig } from "@/lib/auth/oauth-utils";
 
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = "force-dynamic";
@@ -46,148 +47,34 @@ const env = {
 	NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
 };
 
-// Utility functions
-const validateOAuthState = (state: string): boolean => {
-	// In production, this would validate the state against stored values
-	return state && state.length > 0;
+// Configuration for OAuth handler
+const anthropicConfig: OAuthConfig = {
+	clientId: env.ANTHROPIC_CLIENT_ID,
+	clientSecret: env.ANTHROPIC_CLIENT_SECRET,
+	redirectUri: env.ANTHROPIC_REDIRECT_URI,
+	tokenUrl: env.ANTHROPIC_TOKEN_URL,
+	providerName: "Anthropic",
 };
 
-const sanitizeRedirectUrl = (url: string): string => {
-	// Basic validation to prevent XSS
-	if (!url || url.startsWith("javascript:") || url.startsWith("data:")) {
-		throw new Error("Invalid redirect URL");
-	}
-	return url;
-};
-
-const handleAuthError = (error: any): string => {
-	if (error instanceof Error) {
-		return error.message;
-	}
-	return String(error);
-};
-
-// Helper functions to reduce early returns
-function validateOAuthParameters(params: {
-	code: string | null;
-	state: string | null;
-	error: string | null;
-	errorDescription: string | null;
-}) {
-	// Handle OAuth errors
-	if (params.error) {
-		return NextResponse.json(
-			{
-				error: params.error,
-				error_description: params.errorDescription,
-			},
-			{ status: 400 },
-		);
-	}
-
-	// Validate required parameters
-	if (!params.code) {
-		return NextResponse.json(
-			{ error: "Missing code parameter" },
-			{ status: 400 },
-		);
-	}
-
-	if (!params.state) {
-		return NextResponse.json(
-			{ error: "Missing state parameter" },
-			{ status: 400 },
-		);
-	}
-
-	// Validate state parameter
-	if (!validateOAuthState(params.state)) {
-		return NextResponse.json(
-			{ error: "Invalid state parameter" },
-			{ status: 400 },
-		);
-	}
-
-	return null; // No validation errors
-}
-
-function validateConfiguration() {
-	if (!env.ANTHROPIC_CLIENT_ID || !env.ANTHROPIC_CLIENT_SECRET) {
-		return NextResponse.json(
-			{ error: "Missing configuration" },
-			{ status: 500 },
-		);
-	}
-	return null;
-}
-
-function handleRedirect(redirectUri: string | null) {
-	if (!redirectUri) {
-		return null;
-	}
-
-	try {
-		const sanitizedUrl = sanitizeRedirectUrl(redirectUri);
-		return NextResponse.redirect(sanitizedUrl);
-	} catch (error) {
-		return NextResponse.json(
-			{ error: handleAuthError(error) },
-			{ status: 400 },
-		);
-	}
+// Token exchange function specific to Anthropic
+async function exchangeAnthropicToken(code: string, config: OAuthConfig): Promise<TokenResponse> {
+	return AuthAnthropic.exchange({
+		tokenUrl: config.tokenUrl!,
+		clientId: config.clientId,
+		clientSecret: config.clientSecret,
+		code,
+		redirectUri: config.redirectUri,
+		codeVerifier: "mock-code-verifier", // In production, get from session
+	});
 }
 
 export async function GET(request: NextRequest) {
-	try {
-		const { searchParams } = new URL(request.url);
-		const code = searchParams.get("code");
-		const state = searchParams.get("state");
-		const error = searchParams.get("error");
-		const errorDescription = searchParams.get("error_description");
-		const redirectUri = searchParams.get("redirect_uri");
-
-		// Validate OAuth parameters
-		const validationError = validateOAuthParameters({
-			code,
-			state,
-			error,
-			errorDescription,
-		});
-		if (validationError) {
-			return validationError;
-		}
-
-		// Check configuration
-		const configError = validateConfiguration();
-		if (configError) {
-			return configError;
-		}
-
-		// Exchange code for token
-		const tokenResponse = await AuthAnthropic.exchange({
-			tokenUrl: env.ANTHROPIC_TOKEN_URL,
-			clientId: env.ANTHROPIC_CLIENT_ID,
-			clientSecret: env.ANTHROPIC_CLIENT_SECRET,
-			code: code!,
-			redirectUri: env.ANTHROPIC_REDIRECT_URI,
-			codeVerifier: "mock-code-verifier", // In production, get from session
-		});
-
-		// Handle redirect if specified
-		const redirectResponse = handleRedirect(redirectUri);
-		if (redirectResponse) {
-			return redirectResponse;
-		}
-
-		// Return token response
-		return NextResponse.json({
-			success: true,
-			token: tokenResponse,
-		});
-	} catch (error) {
-		return NextResponse.json(
-			{ error: handleAuthError(error) },
-			{ status: 500 },
-		);
-	}
+	const { searchParams } = new URL(request.url);
+	
+	return handleOAuthCallback({
+		searchParams,
+		config: anthropicConfig,
+		tokenExchanger: exchangeAnthropicToken,
+		cookieName: "anthropic-token",
+	});
 }

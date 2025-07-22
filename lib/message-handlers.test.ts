@@ -9,7 +9,11 @@ import {
 	vi,
 } from "vitest";
 import type { StatusData, UpdateData } from "./container-types";
-import { MessageHandlers, createMessage, validateMessage } from "./message-handlers";
+import {
+	MessageHandlers,
+	createMessage,
+	validateMessage,
+} from "./message-handlers";
 
 describe("MessageHandlers", () => {
 	let mockUpdateTask: ReturnType<typeof vi.fn>;
@@ -22,7 +26,7 @@ describe("MessageHandlers", () => {
 		mockGetTaskById = vi.fn();
 
 		handlers = new MessageHandlers();
-		
+
 		// Register handlers for different message types
 		handlers.register("status", async (message) => {
 			const statusData = message.payload as StatusData;
@@ -48,10 +52,10 @@ describe("MessageHandlers", () => {
 			const updateData = message.payload as UpdateData;
 			if (updateData.message?.type === "local_shell_call") {
 				const task = mockGetTaskById(updateData.taskId) || { messages: [] };
-				const command = Array.isArray(updateData.message.action?.command) 
+				const command = Array.isArray(updateData.message.action?.command)
 					? updateData.message.action.command.join(" ")
 					: "unknown command";
-				
+
 				const newMessage = {
 					role: "assistant",
 					type: "local_shell_call",
@@ -85,10 +89,11 @@ describe("MessageHandlers", () => {
 
 		handlers.register("assistant_message", async (message) => {
 			const updateData = message.payload as UpdateData;
-			if (updateData.message?.type === "message" && 
+			if (
+				updateData.message?.type === "message" &&
 				updateData.message?.status === "completed" &&
-				updateData.message?.role === "assistant") {
-				
+				updateData.message?.role === "assistant"
+			) {
 				const task = mockGetTaskById(updateData.taskId) || { messages: [] };
 				const content = updateData.message.content?.[0]?.text || "";
 				const newMessage = {

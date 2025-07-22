@@ -1,46 +1,46 @@
 {
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "incremental": true,
-    "module": "esnext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "noImplicitAny": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "exactOptionalPropertyTypes": false,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "types/**/*.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "scripts/archive/**/*",
-    "tests/integration/**/*",
-    "tests/migration/**/*"
-  ]
+	"compilerOptions": {
+		"target": "ES2017",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": false,
+		"noEmit": true,
+		"incremental": true,
+		"module": "esnext",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"noImplicitAny": false,
+		"noImplicitReturns": false,
+		"noImplicitThis": false,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"exactOptionalPropertyTypes": false,
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./*"]
+		}
+	},
+	"include": [
+		"next-env.d.ts",
+		".next/types/**/*.ts",
+		"types/**/*.d.ts",
+		"**/*.ts",
+		"**/*.tsx"
+	],
+	"exclude": [
+		"node_modules",
+		"scripts/archive/**/*",
+		"tests/integration/**/*",
+		"tests/migration/**/*"
+	]
 }

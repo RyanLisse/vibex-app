@@ -234,8 +234,21 @@ export function createMessage(
 	payload: any,
 	options: Partial<Omit<Message, "id" | "type" | "payload" | "timestamp">> = {},
 ): Message {
+	// Generate UUID compatible with both Node.js and Bun
+	const generateUUID = (): string => {
+		if (typeof crypto !== "undefined" && crypto.randomUUID) {
+			return crypto.randomUUID();
+		}
+		// Fallback for environments without crypto.randomUUID
+		return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+			const r = (Math.random() * 16) | 0;
+			const v = c === "x" ? r : (r & 0x3) | 0x8;
+			return v.toString(16);
+		});
+	};
+
 	return {
-		id: crypto.randomUUID(),
+		id: generateUUID(),
 		type,
 		payload,
 		timestamp: Date.now(),

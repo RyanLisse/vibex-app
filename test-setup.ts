@@ -5,6 +5,9 @@
  * It includes necessary polyfills, mocks, and test utilities.
  */
 
+// CRITICAL: Import crypto polyfill FIRST to fix Bun crypto.randomUUID() issues
+import "./tests/setup/crypto-polyfill";
+
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 

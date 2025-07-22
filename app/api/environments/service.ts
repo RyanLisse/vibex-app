@@ -66,7 +66,7 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 			return result;
 		}
 		// For mock database, result might have a where method
-		if (result && typeof result.where === 'function') {
+		if (result && typeof result.where === "function") {
 			return result.where(() => true).limit(100);
 		}
 		return [];

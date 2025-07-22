@@ -4,6 +4,9 @@
  * which doesn't support vi.mock at module level like Node.js Vitest
  */
 
+// CRITICAL: Import crypto polyfill FIRST to ensure crypto.randomUUID() availability
+import "./crypto-polyfill";
+
 import { beforeAll, afterAll, beforeEach, afterEach } from "vitest";
 
 // Global test environment setup
@@ -16,7 +19,8 @@ const createMockRedisClient = () => ({
 	disconnect: async () => undefined,
 	get: async (key: string) => {
 		if (key === "existing-key") return "existing-value";
-		if (key.startsWith("session:")) return JSON.stringify({ userId: "test-user" });
+		if (key.startsWith("session:"))
+			return JSON.stringify({ userId: "test-user" });
 		return null;
 	},
 	set: async () => "OK",
@@ -42,14 +46,34 @@ const createMockRedisClient = () => ({
 	zadd: async () => 1,
 	zrange: async () => ["item1", "item2"],
 	pipeline: () => ({
-		get: () => ({ exec: async () => [[null, "value1"], [null, "OK"]] }),
-		set: () => ({ exec: async () => [[null, "value1"], [null, "OK"]] }),
-		exec: async () => [[null, "value1"], [null, "OK"]],
+		get: () => ({
+			exec: async () => [
+				[null, "value1"],
+				[null, "OK"],
+			],
+		}),
+		set: () => ({
+			exec: async () => [
+				[null, "value1"],
+				[null, "OK"],
+			],
+		}),
+		exec: async () => [
+			[null, "value1"],
+			[null, "OK"],
+		],
 	}),
 	multi: () => ({
-		get: function() { return this; },
-		set: function() { return this; },
-		exec: async () => [[null, "value1"], [null, "OK"]],
+		get: function () {
+			return this;
+		},
+		set: function () {
+			return this;
+		},
+		exec: async () => [
+			[null, "value1"],
+			[null, "OK"],
+		],
 	}),
 	on: () => {},
 	off: () => {},
@@ -190,7 +214,8 @@ afterEach(async () => {
 });
 
 // Environment variable defaults for testing
-process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/test";
+process.env.DATABASE_URL =
+	process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/test";
 process.env.ELECTRIC_URL = process.env.ELECTRIC_URL || "http://localhost:5133";
 process.env.NODE_ENV = "test";
 process.env.AUTH_SECRET = "test_auth_secret";
