@@ -6,28 +6,16 @@
  */
 
 import { metrics, trace } from "@opentelemetry/api";
-import {
-	getNodeAutoInstrumentations,
-	NodeSDK,
-} from "@opentelemetry/auto-instrumentations-node";
-import {
-	OTLPMetricsExporter,
-	OTLPTraceExporter,
-} from "@opentelemetry/exporter-otlp-http";
+import { getNodeAutoInstrumentations, NodeSDK } from "@opentelemetry/auto-instrumentations-node";
+import { OTLPMetricsExporter, OTLPTraceExporter } from "@opentelemetry/exporter-otlp-http";
 // Custom instrumentation for database operations
-import {
-	type Instrumentation,
-	InstrumentationBase,
-} from "@opentelemetry/instrumentation";
+import { type Instrumentation, InstrumentationBase } from "@opentelemetry/instrumentation";
 import { Resource } from "@opentelemetry/resources";
-import {
-	MeterProvider,
-	PeriodicExportingMetricReader,
-} from "@opentelemetry/sdk-metrics";
-import { NodeTracerProvider } from "@opentelemetry/sdk-node";
+import { MeterProvider, PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import {
 	BatchSpanProcessor,
 	ConsoleSpanExporter,
+	NodeTracerProvider,
 } from "@opentelemetry/sdk-trace-node";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { getTelemetryConfig } from "@/lib/telemetry";
@@ -93,13 +81,10 @@ export class OpenTelemetryIntegration {
 		try {
 			// Create resource with service information
 			const resource = new Resource({
-				[SemanticResourceAttributes.SERVICE_NAME]:
-					this.config.serviceName || "vibex",
-				[SemanticResourceAttributes.SERVICE_VERSION]:
-					this.config.serviceVersion || "1.0.0",
+				[SemanticResourceAttributes.SERVICE_NAME]: this.config.serviceName || "vibex",
+				[SemanticResourceAttributes.SERVICE_VERSION]: this.config.serviceVersion || "1.0.0",
 				[SemanticResourceAttributes.SERVICE_NAMESPACE]: "vibex",
-				[SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]:
-					process.env.NODE_ENV || "development",
+				[SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV || "development",
 			});
 
 			// Initialize tracing
@@ -176,7 +161,7 @@ export class OpenTelemetryIntegration {
 				new PeriodicExportingMetricReader({
 					exporter: otlpMetricsExporter,
 					exportIntervalMillis: this.config.metrics.collectInterval || 10000,
-				}),
+				})
 			);
 		}
 
@@ -255,11 +240,11 @@ export class OpenTelemetryIntegration {
 
 		if (samplingRatio <= 0) {
 			return new AlwaysOffSampler();
-		} else if (samplingRatio >= 1.0) {
-			return new AlwaysOnSampler();
-		} else {
-			return new TraceIdRatioBasedSampler(samplingRatio);
 		}
+		if (samplingRatio >= 1.0) {
+			return new AlwaysOnSampler();
+		}
+		return new TraceIdRatioBasedSampler(samplingRatio);
 	}
 
 	/**

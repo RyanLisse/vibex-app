@@ -77,7 +77,10 @@ export async function POST(request: NextRequest) {
 					{
 						success: false,
 						error: "Validation failed",
-						details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+						details: error.issues.map((issue) => ({
+							field: issue.path.join("."),
+							message: issue.message,
+						})),
 					},
 					{ status: 400 }
 				);
@@ -115,11 +118,20 @@ export async function GET(request: NextRequest) {
 				return NextResponse.json({ success: true, data: workflow });
 			}
 
-			// For now, return empty array - in a real implementation,
-			// you'd add a method to list all workflows
+			const { searchParams } = new URL(request.url);
+			const isActive = searchParams.get("isActive");
+			const limit = searchParams.get("limit") ? Number.parseInt(searchParams.get("limit")!) : 50;
+			const offset = searchParams.get("offset") ? Number.parseInt(searchParams.get("offset")!) : 0;
+
+			const workflows = await workflowEngine.listWorkflows(
+				isActive === "true" ? true : isActive === "false" ? false : undefined,
+				limit,
+				offset
+			);
+
 			return NextResponse.json({
 				success: true,
-				data: [],
+				data: workflows,
 			});
 		} catch (error) {
 			observability.recordError("api.workflows.list-failed", error as Error);

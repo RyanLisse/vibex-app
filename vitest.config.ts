@@ -68,7 +68,7 @@ export default defineConfig({
 			}
 		},
 
-		// Enhanced jsdom environment
+		// Enhanced jsdom environment - FIXED: Removed beforeParse to prevent DataCloneError
 		environmentOptions: {
 			jsdom: {
 				resources: "usable",
@@ -76,21 +76,7 @@ export default defineConfig({
 				pretendToBeVisual: true,
 				html: '<!DOCTYPE html><html><head></head><body></body></html>',
 				url: "http://localhost:3000",
-				// Fix navigation API
-				beforeParse(window) {
-					// Mock navigation API to prevent "Not implemented" errors
-					Object.defineProperty(window, 'navigation', {
-						value: {
-							navigate: () => Promise.resolve(),
-							back: () => Promise.resolve(),
-							forward: () => Promise.resolve(),
-							canGoBack: true,
-							canGoForward: true,
-						},
-						writable: true,
-						configurable: true,
-					});
-				}
+				// Navigation API now handled in test-setup-fixed.ts to avoid serialization issues
 			}
 		},
 
@@ -99,14 +85,14 @@ export default defineConfig({
 		hookTimeout: 10000,
 		teardownTimeout: 5000,
 
-		// Performance optimizations
-		maxConcurrency: Math.min(6, Math.max(2, require("os").cpus().length - 1)),
+		// Performance optimizations - FIXED: Use single thread to avoid DataCloneError
+		maxConcurrency: 1,
 		pool: "threads",
 		poolOptions: {
 			threads: {
-				singleThread: false,
-				isolate: true,
-				useAtomics: true,
+				singleThread: true, // CRITICAL FIX: Prevents serialization issues
+				isolate: false,
+				useAtomics: false,
 			}
 		},
 

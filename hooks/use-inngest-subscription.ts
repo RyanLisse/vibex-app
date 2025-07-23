@@ -1,4 +1,3 @@
 import {
-	InngestSubscriptionState,
 	useInngestSubscription,
-} from "@inngest/realtime/hooks";
+} from "@/lib/inngest/realtime-hooks";

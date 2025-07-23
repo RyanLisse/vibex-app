@@ -14,16 +14,17 @@ const RollbackSchema = z.object({
 /**
  * POST /api/workflows/executions/[id]/rollback - Rollback to checkpoint
  */
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.workflows.rollback", async () => {
 		try {
+			const { id } = await params;
 			const body = await request.json();
 			const validatedData = RollbackSchema.parse(body);
 
-			await workflowEngine.rollbackToCheckpoint(params.id, validatedData.checkpointIndex);
+			await workflowEngine.rollbackToCheckpoint(id, validatedData.checkpointIndex);
 
 			observability.recordEvent("api.workflows.rollback-completed", {
-				executionId: params.id,
+				executionId: id,
 				checkpointIndex: validatedData.checkpointIndex,
 			});
 

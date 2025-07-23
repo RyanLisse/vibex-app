@@ -207,7 +207,7 @@ export async function GET(request: NextRequest) {
           "Validation failed",
           400,
           "VALIDATION_ERROR",
-          error.errors,
+          error.issues,
         ),
         { status: 400 },
       );
@@ -629,7 +629,7 @@ export function handleAPIError(error: unknown): NextResponse {
         "Validation failed",
         400,
         "VALIDATION_ERROR",
-        error.errors,
+        error.issues,
       ),
       { status: 400 },
     );

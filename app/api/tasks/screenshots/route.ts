@@ -117,8 +117,12 @@ export async function POST(request: NextRequest) {
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
 		if (error instanceof z.ZodError) {
+			const mappedIssues = error.issues.map(issue => ({
+				field: issue.path.join('.') || 'unknown',
+				message: issue.message
+			}));
 			return NextResponse.json(
-				createApiErrorResponse("Validation failed", 400, error.issues),
+				createApiErrorResponse("Validation failed", 400, mappedIssues),
 				{
 					status: 400,
 				},

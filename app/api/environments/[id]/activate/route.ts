@@ -11,9 +11,10 @@ import { observability } from "@/lib/observability";
 /**
  * POST /api/environments/[id]/activate - Activate environment
  */
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.environments.activate", async () => {
 		try {
+			const { id } = await params;
 			// First, deactivate all environments
 			await db
 				.update(environments)
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 			const [environment] = await db
 				.update(environments)
 				.set({ isActive: true, updatedAt: new Date() })
-				.where(eq(environments.id, params.id))
+				.where(eq(environments.id, id))
 				.returning();
 
 			if (!environment) {
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 			}
 
 			observability.recordEvent("api.environments.activated", {
-				environmentId: params.id,
+				environmentId: id,
 				name: environment.name,
 			});
 

@@ -16,6 +16,7 @@ export interface AuthTestContext {
   mockCreateSession: Mock;
   mockGetProfile: Mock;
   mockTokenStorage: Mock;
+  mockExchangeCodeForToken: Mock;
 }
 
 export interface AuthCallbackTestData {
@@ -61,6 +62,12 @@ export function setupAuthTestMocks(): AuthTestContext {
     refreshToken: 'refresh_token_123',
     expiresAt: Date.now() + 3600000
   });
+  const mockExchangeCodeForToken = vi.fn().mockResolvedValue({
+    access_token: 'access_token_123',
+    token_type: 'Bearer',
+    expires_in: 3600,
+    refresh_token: 'refresh_token_123'
+  });
 
   return {
     mockValidateOAuthState,
@@ -68,7 +75,8 @@ export function setupAuthTestMocks(): AuthTestContext {
     mockHandleAuthError,
     mockCreateSession,
     mockGetProfile,
-    mockTokenStorage
+    mockTokenStorage,
+    mockExchangeCodeForToken
   };
 }
 
@@ -96,6 +104,12 @@ export function resetAuthMocks(context: AuthTestContext): void {
     refreshToken: 'refresh_token_123',
     expiresAt: Date.now() + 3600000
   });
+  context.mockExchangeCodeForToken.mockResolvedValue({
+    access_token: 'access_token_123',
+    token_type: 'Bearer',
+    expires_in: 3600,
+    refresh_token: 'refresh_token_123'
+  });
 }
 
 /**
@@ -106,7 +120,7 @@ export function createMockCallbackRequest(params: {
   state?: string;
   error?: string;
   baseUrl?: string;
-}): Request {
+}): any {
   const { 
     code = DEFAULT_AUTH_TEST_DATA.validCode,
     state = DEFAULT_AUTH_TEST_DATA.validState,
@@ -119,7 +133,17 @@ export function createMockCallbackRequest(params: {
   if (state) url.searchParams.set('state', state);
   if (error) url.searchParams.set('error', error);
 
-  return new Request(url.toString(), { method: 'GET' });
+  // Create a mock NextRequest-like object
+  return {
+    url: url.toString(),
+    nextUrl: url,
+    method: 'GET',
+    cookies: new Map(),
+    headers: new Map(),
+    page: {},
+    ua: {},
+    [Symbol.for('NextRequest')]: true
+  };
 }
 
 /**

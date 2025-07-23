@@ -46,12 +46,22 @@ vi.mock("@/lib/env", () => ({
 const { NextResponse } = await import("next/server");
 const mockNextResponse = NextResponse as any;
 
+// Declare missing mock variables
+let mockExchangeCodeForToken: any;
+let mockSanitizeRedirectUrl: any;
+let mockHandleAuthError: any;
+
 describe("GET /api/auth/openai/callback", () => {
 	let authMocks: AuthTestContext;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		authMocks = setupAuthTestMocks();
+		
+		// Assign mock variables from authMocks
+		mockExchangeCodeForToken = authMocks.mockExchangeCodeForToken;
+		mockSanitizeRedirectUrl = authMocks.mockSanitizeRedirectUrl;
+		mockHandleAuthError = authMocks.mockHandleAuthError;
 	});
 
 	afterEach(() => {

@@ -9,10 +9,11 @@ import { workflowEngine } from "@/lib/workflow/workflow-engine";
 /**
  * GET /api/workflows/executions/[id] - Get execution details
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.workflows.get-execution", async () => {
 		try {
-			const execution = await workflowEngine.getExecution(params.id);
+			const { id } = await params;
+			const execution = await workflowEngine.getExecution(id);
 
 			if (!execution) {
 				return NextResponse.json({ success: false, error: "Execution not found" }, { status: 404 });
@@ -40,28 +41,29 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 /**
  * PATCH /api/workflows/executions/[id] - Control execution (pause/resume/cancel)
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.workflows.control-execution", async () => {
 		try {
+			const { id } = await params;
 			const body = await request.json();
 			const { action } = body;
 
 			switch (action) {
 				case "pause":
-					await workflowEngine.pauseExecution(params.id);
+					await workflowEngine.pauseExecution(id);
 					break;
 				case "resume":
-					await workflowEngine.resumeExecution(params.id);
+					await workflowEngine.resumeExecution(id);
 					break;
 				case "cancel":
-					await workflowEngine.cancelExecution(params.id);
+					await workflowEngine.cancelExecution(id);
 					break;
 				default:
 					return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
 			}
 
 			observability.recordEvent("api.workflows.execution-controlled", {
-				executionId: params.id,
+				executionId: id,
 				action,
 			});
 

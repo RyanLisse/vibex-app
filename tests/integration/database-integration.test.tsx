@@ -5,7 +5,7 @@
  * and real-time synchronization functionality.
  */
 
-import { QueryClient, type QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { eq } from "drizzle-orm";
 import type React from "react";
@@ -51,8 +51,9 @@ const createWrapper = () => {
 		},
 	});
 
-	return ({ children }: { children: React.ReactNode }) =>
-		(<QueryClientProvider client = { queryClient } > { children } < />CPQdeeeiilnorrrtuvy);
+	return ({ children }: { children: React.ReactNode }) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
 };
 
 describe("Database Integration", () => {
@@ -543,9 +544,9 @@ describe("Database Integration", () => {
 				},
 			});
 
-			const wrapper = ({ children }: { children: React.ReactNode }) =>
-				(<QueryClientProvider client =
-					{ queryClientWithRetry } > { children } < />CPQdeeeiilnorrrtuvy);
+			const wrapper = ({ children }: { children: React.ReactNode }) => (
+				<QueryClientProvider client={queryClientWithRetry}>{children}</QueryClientProvider>
+			);
 
 			const { result } = renderHook(() => useTasks(), { wrapper });
 

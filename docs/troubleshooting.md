@@ -34,7 +34,7 @@ const schema = z.object({
 import { z } from "zod";
 
 const formatZodError = (error: z.ZodError) => {
-  return error.errors.reduce(
+  return error.issues.reduce(
     (acc, err) => {
       const path = err.path.join(".");
       acc[path] = err.message;
@@ -247,12 +247,12 @@ export async function POST(request: Request) {
     const validation = CreateTaskSchema.safeParse(body);
 
     if (!validation.success) {
-      console.log("Validation errors:", validation.error.errors); // Debug log
+      console.log("Validation errors:", validation.error.issues); // Debug log
       return NextResponse.json(
         {
           success: false,
           error: "Validation failed",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );
@@ -629,7 +629,7 @@ const debugSchema = (schema: z.ZodSchema, data: unknown) => {
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    console.log("Validation errors:", result.error.errors);
+    console.log("Validation errors:", result.error.issues);
     console.log("Formatted errors:", result.error.flatten());
   } else {
     console.log("Parsed data:", result.data);

@@ -21,13 +21,13 @@ interface BaseElectricClient {
 }
 
 // PGlite interface for local database
-interface PGlite {
+interface IPGlite {
 	close: () => Promise<void>;
 	query: (sql: string, params?: any[]) => Promise<any>;
 }
 
 // Mock PGlite constructor for now - will be replaced with actual import
-class PGlite {
+class PGlite implements IPGlite {
 	constructor(config: any) {
 		console.log("PGlite initialized with config:", config);
 	}
@@ -96,7 +96,7 @@ export class ElectricClient {
 	private static instance: ElectricClient | null = null;
 	private client: BaseElectricClient | null = null;
 	private database: ElectricDatabase | null = null;
-	private pglite: PGlite | null = null;
+	private pglite: IPGlite | null = null;
 	private isConnected = false;
 	private connectionPromise: Promise<void> | null = null;
 	private observability = ObservabilityService.getInstance();

@@ -89,12 +89,12 @@ describe("Zod Environment Schema Validation", () => {
 
 			expect(result.success).toBe(false);
 			if (!result.success) {
-				expect(result.error.errors.length).toBeGreaterThan(0);
+				expect(result.error.issues.length).toBeGreaterThan(0);
 				expect(
-					result.error.errors.some((err) => err.path.includes("LETTA_API_KEY")),
+					result.error.issues.some((err) => err.path.includes("LETTA_API_KEY")),
 				).toBe(true);
 				expect(
-					result.error.errors.some((err) =>
+					result.error.issues.some((err) =>
 						err.path.includes("OPENAI_API_KEY"),
 					),
 				).toBe(true);
@@ -135,13 +135,13 @@ describe("Zod Environment Schema Validation", () => {
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("LETTA_BASE_URL") && err.code === "invalid_url",
 					),
 				).toBe(true);
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("DATABASE_URL") && err.code === "invalid_url",
 					),
@@ -217,7 +217,7 @@ describe("Zod Environment Schema Validation", () => {
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("NODE_ENV") &&
 							err.code === "invalid_enum_value",
@@ -236,13 +236,13 @@ describe("Zod Environment Schema Validation", () => {
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("LETTA_API_KEY") && err.code === "too_small",
 					),
 				).toBe(true);
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("AUTH_SECRET") && err.code === "too_small",
 					),
@@ -260,21 +260,21 @@ describe("Zod Environment Schema Validation", () => {
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("ELECTRIC_SYNC_INTERVAL") &&
 							err.code === "too_small",
 					),
 				).toBe(true);
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("TELEMETRY_SAMPLING_RATIO") &&
 							err.code === "too_big",
 					),
 				).toBe(true);
 				expect(
-					result.error.errors.some(
+					result.error.issues.some(
 						(err) =>
 							err.path.includes("REDIS_PORT") && err.code === "too_small",
 					),
@@ -641,12 +641,12 @@ describe("Zod Environment Schema Validation", () => {
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				expect(
-					result.error.errors.some((err) =>
+					result.error.issues.some((err) =>
 						err.path.includes("ELECTRIC_SYNC_INTERVAL"),
 					),
 				).toBe(true);
 				expect(
-					result.error.errors.some((err) => err.path.includes("REDIS_PORT")),
+					result.error.issues.some((err) => err.path.includes("REDIS_PORT")),
 				).toBe(true);
 			}
 		});

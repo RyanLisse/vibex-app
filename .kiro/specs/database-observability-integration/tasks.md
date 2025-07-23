@@ -49,7 +49,7 @@
   - Set up automatic context summarization and archival
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [x] 8. Workflow Orchestration Engine
+- [-] 8. Workflow Orchestration Engine
   - Create workflow definition storage using existing database schema with versioning support
   - Implement workflow execution engine with pause/resume functionality
   - Build checkpoint system for reliable workflow recovery
@@ -98,7 +98,7 @@
   - Build resource usage optimization for memory and CPU
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [-] 15. Comprehensive Testing Suite
+- [x] 15. Comprehensive Testing Suite
   - Create unit tests for all TanStack Query hooks and database operations
   - Build integration tests for ElectricSQL real-time synchronization
   - Add WASM module testing for vector search and compute functions
@@ -120,21 +120,21 @@
   - Add troubleshooting guide for common sync and database issues
   - _Requirements: 5.3, 5.5_
 
-- [ ] 18. Environment API Routes Implementation
+- [x] 18. Environment API Routes Implementation
   - Create comprehensive API routes for environment management with database integration
   - Implement environment configuration validation and schema versioning
   - Add environment activation/deactivation with proper state management
   - Set up environment-specific observability and monitoring
   - _Requirements: 1.1, 1.2, 8.1, 8.2_
 
-- [ ] 19. Agent Memory API Integration
+- [x] 19. Agent Memory API Integration
   - Implement API routes for agent memory storage and retrieval
   - Create vector search endpoints for semantic memory queries
   - Build memory importance scoring and automatic archival system
   - Add memory sharing and context propagation between agent sessions
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 20. Workflow API and Engine Integration
+- [x] 20. Workflow API and Engine Integration
   - Create API routes for workflow definition management and execution
   - Implement workflow execution engine with database persistence
   - Build workflow checkpoint and recovery system

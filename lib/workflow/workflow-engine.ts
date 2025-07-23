@@ -5,23 +5,16 @@
  * checkpoint system, and real-time progress tracking.
  */
 
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import {
-	type NewWorkflow,
-	type NewWorkflowExecution,
-	type Workflow,
-	type WorkflowExecution,
-	workflowExecutions,
-	workflows,
-} from "@/db/schema";
+import { type Workflow, type WorkflowExecution, workflowExecutions, workflows } from "@/db/schema";
 import { observability } from "@/lib/observability";
 
 export interface WorkflowStep {
 	id: string;
 	name: string;
 	type: "action" | "condition" | "parallel" | "sequential";
-	config: Record<string, any>;
+	config: Record<string, unknown>;
 	dependencies?: string[];
 	timeout?: number;
 	retryPolicy?: {
@@ -39,9 +32,9 @@ export interface WorkflowDefinition {
 	steps: WorkflowStep[];
 	triggers?: {
 		type: "manual" | "scheduled" | "event";
-		config: Record<string, any>;
+		config: Record<string, unknown>;
 	}[];
-	variables?: Record<string, any>;
+	variables?: Record<string, unknown>;
 	timeout?: number;
 	tags?: string[];
 }
@@ -54,16 +47,16 @@ export interface WorkflowExecutionState {
 			status: "pending" | "running" | "completed" | "failed" | "skipped";
 			startedAt?: Date;
 			completedAt?: Date;
-			result?: any;
+			result?: unknown;
 			error?: string;
 			retryCount: number;
 		}
 	>;
-	variables: Record<string, any>;
+	variables: Record<string, unknown>;
 	checkpoints: Array<{
 		stepNumber: number;
 		timestamp: Date;
-		state: Record<string, any>;
+		state: Record<string, unknown>;
 	}>;
 }
 
@@ -84,6 +77,21 @@ export type WorkflowExecutionStatus =
 	| "failed"
 	| "cancelled";
 
+export interface WorkflowProgress {
+	executionId: string;
+	workflowId: string;
+	status: WorkflowExecutionStatus;
+	currentStep: number;
+	totalSteps: number;
+	completedSteps: number;
+	progress: number; // 0-100
+	currentStepName?: string;
+	estimatedTimeRemaining?: number;
+	startedAt: Date;
+	lastUpdated: Date;
+	error?: string;
+}
+
 /**
  * Workflow Orchestration Engine
  */
@@ -91,8 +99,9 @@ export class WorkflowEngine {
 	private runningExecutions = new Map<string, WorkflowExecutionContext>();
 	private stepExecutors = new Map<
 		string,
-		(step: WorkflowStep, context: WorkflowExecutionContext) => Promise<any>
+		(step: WorkflowStep, context: WorkflowExecutionContext) => Promise<unknown>
 	>();
+	private progressListeners = new Map<string, Set<(progress: WorkflowProgress) => void>>();
 
 	constructor() {
 		this.registerDefaultExecutors();
@@ -118,7 +127,7 @@ export class WorkflowEngine {
 				.values({
 					name: definition.name,
 					description: definition.description,
-					definition: definition as any,
+					definition: definition as unknown as Record<string, unknown>,
 					version: definition.version,
 					tags: definition.tags,
 				})
@@ -149,6 +158,34 @@ export class WorkflowEngine {
 	}
 
 	/**
+	 * List all workflows
+	 */
+	async listWorkflows(isActive?: boolean, limit = 50, offset = 0): Promise<Workflow[]> {
+		return observability.trackOperation("workflow.list", async () => {
+			const conditions = [];
+
+			if (isActive !== undefined) {
+				conditions.push(eq(workflows.isActive, isActive));
+			}
+
+			const whereClause =
+				conditions.length > 0
+					? conditions.length === 1
+						? conditions[0]
+						: and(...conditions)
+					: undefined;
+
+			return db
+				.select()
+				.from(workflows)
+				.where(whereClause)
+				.orderBy(desc(workflows.createdAt))
+				.limit(limit)
+				.offset(offset);
+		});
+	}
+
+	/**
 	 * Update workflow definition
 	 */
 	async updateWorkflow(
@@ -161,7 +198,7 @@ export class WorkflowEngine {
 				.set({
 					name: updates.name,
 					description: updates.description,
-					definition: updates as any,
+					definition: updates as unknown as Record<string, unknown>,
 					version: updates.version,
 					tags: updates.tags,
 				})
@@ -183,7 +220,7 @@ export class WorkflowEngine {
 	async startExecution(
 		workflowId: string,
 		triggeredBy: string,
-		initialVariables: Record<string, any> = {},
+		initialVariables: Record<string, unknown> = {},
 		parentExecutionId?: string
 	): Promise<string> {
 		return observability.trackOperation("workflow.start-execution", async () => {
@@ -351,6 +388,9 @@ export class WorkflowEngine {
 
 				state.currentStep++;
 				await this.updateExecutionState(executionId, state);
+
+				// Emit progress update
+				this.emitProgress(context);
 			}
 
 			// All steps completed
@@ -370,8 +410,8 @@ export class WorkflowEngine {
 	private async executeStepWithTimeout(
 		step: WorkflowStep,
 		context: WorkflowExecutionContext,
-		executor: (step: WorkflowStep, context: WorkflowExecutionContext) => Promise<any>
-	): Promise<any> {
+		executor: (step: WorkflowStep, context: WorkflowExecutionContext) => Promise<unknown>
+	): Promise<unknown> {
 		const timeout = step.timeout || 300000; // 5 minutes default
 
 		return Promise.race([
@@ -566,24 +606,29 @@ export class WorkflowEngine {
 		status?: WorkflowExecutionStatus,
 		limit = 50
 	): Promise<WorkflowExecution[]> {
-		let query = db.select().from(workflowExecutions);
+		const conditions = [];
 
 		if (workflowId) {
-			query = query.where(eq(workflowExecutions.workflowId, workflowId));
+			conditions.push(eq(workflowExecutions.workflowId, workflowId));
 		}
 
 		if (status) {
-			query = query.where(
-				workflowId
-					? and(
-							eq(workflowExecutions.workflowId, workflowId),
-							eq(workflowExecutions.status, status)
-						)
-					: eq(workflowExecutions.status, status)
-			);
+			conditions.push(eq(workflowExecutions.status, status));
 		}
 
-		return query.orderBy(desc(workflowExecutions.startedAt)).limit(limit);
+		const whereClause =
+			conditions.length > 0
+				? conditions.length === 1
+					? conditions[0]
+					: and(...conditions)
+				: undefined;
+
+		return db
+			.select()
+			.from(workflowExecutions)
+			.where(whereClause)
+			.orderBy(desc(workflowExecutions.startedAt))
+			.limit(limit);
 	}
 
 	/**
@@ -630,7 +675,7 @@ export class WorkflowEngine {
 	private async executeActionStep(
 		step: WorkflowStep,
 		context: WorkflowExecutionContext
-	): Promise<any> {
+	): Promise<unknown> {
 		const { config } = step;
 
 		// This is a placeholder - in a real implementation, you would
@@ -655,7 +700,8 @@ export class WorkflowEngine {
 		context: WorkflowExecutionContext
 	): Promise<boolean> {
 		const { config } = step;
-		const { condition, variables } = config;
+		const condition = config.condition as string;
+		const variables = (config.variables as Record<string, unknown>) || {};
 
 		// Simple condition evaluation - in practice, you'd want a more robust expression evaluator
 		const result = this.evaluateCondition(condition, {
@@ -672,9 +718,9 @@ export class WorkflowEngine {
 	private async executeParallelStep(
 		step: WorkflowStep,
 		context: WorkflowExecutionContext
-	): Promise<any[]> {
+	): Promise<unknown[]> {
 		const { config } = step;
-		const { steps } = config;
+		const steps = config.steps as WorkflowStep[];
 
 		const promises = steps.map((subStep: WorkflowStep) => {
 			const executor = this.stepExecutors.get(subStep.type);
@@ -693,9 +739,9 @@ export class WorkflowEngine {
 	private async executeSequentialStep(
 		step: WorkflowStep,
 		context: WorkflowExecutionContext
-	): Promise<any[]> {
+	): Promise<unknown[]> {
 		const { config } = step;
-		const { steps } = config;
+		const steps = config.steps as WorkflowStep[];
 		const results = [];
 
 		for (const subStep of steps) {
@@ -712,22 +758,34 @@ export class WorkflowEngine {
 
 	// Helper methods for action execution
 
-	private async executeHttpRequest(config: any, context: WorkflowExecutionContext): Promise<any> {
-		// Placeholder implementation
-		return { status: "success", data: "HTTP request executed" };
+	private async executeHttpRequest(
+		config: Record<string, unknown>,
+		_context: WorkflowExecutionContext
+	): Promise<unknown> {
+		// Placeholder implementation - in production, implement actual HTTP request logic
+		observability.recordEvent("workflow.http-request", { config });
+		return { status: "success", data: "HTTP request executed", config };
 	}
 
-	private async executeDatabaseQuery(config: any, context: WorkflowExecutionContext): Promise<any> {
-		// Placeholder implementation
-		return { status: "success", data: "Database query executed" };
+	private async executeDatabaseQuery(
+		config: Record<string, unknown>,
+		_context: WorkflowExecutionContext
+	): Promise<unknown> {
+		// Placeholder implementation - in production, implement actual database query logic
+		observability.recordEvent("workflow.database-query", { config });
+		return { status: "success", data: "Database query executed", config };
 	}
 
-	private async executeAIAgentCall(config: any, context: WorkflowExecutionContext): Promise<any> {
-		// Placeholder implementation
-		return { status: "success", data: "AI agent call executed" };
+	private async executeAIAgentCall(
+		config: Record<string, unknown>,
+		_context: WorkflowExecutionContext
+	): Promise<unknown> {
+		// Placeholder implementation - in production, implement actual AI agent call logic
+		observability.recordEvent("workflow.ai-agent-call", { config });
+		return { status: "success", data: "AI agent call executed", config };
 	}
 
-	private evaluateCondition(condition: string, variables: Record<string, any>): boolean {
+	private evaluateCondition(condition: string, variables: Record<string, unknown>): boolean {
 		// Simple condition evaluation - replace with proper expression evaluator
 		try {
 			// This is unsafe in production - use a proper expression evaluator
@@ -744,9 +802,103 @@ export class WorkflowEngine {
 	 */
 	registerStepExecutor(
 		type: string,
-		executor: (step: WorkflowStep, context: WorkflowExecutionContext) => Promise<any>
+		executor: (step: WorkflowStep, context: WorkflowExecutionContext) => Promise<unknown>
 	): void {
 		this.stepExecutors.set(type, executor);
+	}
+
+	/**
+	 * Subscribe to workflow progress updates
+	 */
+	subscribeToProgress(
+		executionId: string,
+		callback: (progress: WorkflowProgress) => void
+	): () => void {
+		if (!this.progressListeners.has(executionId)) {
+			this.progressListeners.set(executionId, new Set());
+		}
+
+		const listeners = this.progressListeners.get(executionId)!;
+		listeners.add(callback);
+
+		// Return unsubscribe function
+		return () => {
+			listeners.delete(callback);
+			if (listeners.size === 0) {
+				this.progressListeners.delete(executionId);
+			}
+		};
+	}
+
+	/**
+	 * Emit progress update to all listeners
+	 */
+	private emitProgress(context: WorkflowExecutionContext): void {
+		const listeners = this.progressListeners.get(context.executionId);
+		if (!listeners || listeners.size === 0) return;
+
+		const completedSteps = Object.values(context.state.stepStates).filter(
+			(state) => state.status === "completed"
+		).length;
+
+		const currentStep = context.definition.steps[context.state.currentStep];
+
+		const progress: WorkflowProgress = {
+			executionId: context.executionId,
+			workflowId: context.workflowId,
+			status: "running", // This should be fetched from database in real implementation
+			currentStep: context.state.currentStep,
+			totalSteps: context.definition.steps.length,
+			completedSteps,
+			progress: Math.round((completedSteps / context.definition.steps.length) * 100),
+			currentStepName: currentStep?.name,
+			startedAt: new Date(), // This should be from execution record
+			lastUpdated: new Date(),
+		};
+
+		listeners.forEach((callback) => {
+			try {
+				callback(progress);
+			} catch (error) {
+				observability.recordError("workflow.progress-callback-failed", error as Error);
+			}
+		});
+	}
+
+	/**
+	 * Get current workflow progress
+	 */
+	async getProgress(executionId: string): Promise<WorkflowProgress | null> {
+		return observability.trackOperation("workflow.get-progress", async () => {
+			const execution = await this.getExecution(executionId);
+			if (!execution) return null;
+
+			const workflow = await this.getWorkflow(execution.workflowId);
+			if (!workflow) return null;
+
+			const definition = workflow.definition as WorkflowDefinition;
+			const state = execution.state as WorkflowExecutionState;
+
+			const completedSteps = Object.values(state.stepStates).filter(
+				(stepState) => stepState.status === "completed"
+			).length;
+
+			const currentStep = definition.steps[state.currentStep];
+
+			return {
+				executionId,
+				workflowId: execution.workflowId,
+				status: execution.status as WorkflowExecutionStatus,
+				currentStep: state.currentStep,
+				totalSteps: definition.steps.length,
+				completedSteps,
+				progress: Math.round((completedSteps / definition.steps.length) * 100),
+				currentStepName: currentStep?.name,
+				startedAt: execution.startedAt,
+				lastUpdated: new Date(),
+				error: execution.error || undefined,
+			};
+		});
 	}
 
 	/**
@@ -759,10 +911,6 @@ export class WorkflowEngine {
 		averageExecutionTime: number;
 		successRate: number;
 	}> {
-		const baseQuery = workflowId
-			? db.select().from(workflowExecutions).where(eq(workflowExecutions.workflowId, workflowId))
-			: db.select().from(workflowExecutions);
-
 		const [stats] = await db
 			.select({
 				total: sql<number>`count(*)`,

@@ -19,13 +19,14 @@ const UpdateEnvironmentSchema = z.object({
 /**
  * GET /api/environments/[id] - Get environment by ID
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.environments.get", async () => {
 		try {
+			const { id } = await params;
 			const [environment] = await db
 				.select()
 				.from(environments)
-				.where(eq(environments.id, params.id))
+				.where(eq(environments.id, id))
 				.limit(1);
 
 			if (!environment) {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 			}
 
 			observability.recordEvent("api.environments.retrieved", {
-				environmentId: params.id,
+				environmentId: id,
 			});
 
 			return NextResponse.json({
@@ -61,9 +62,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 /**
  * PATCH /api/environments/[id] - Update environment
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.environments.update", async () => {
 		try {
+			const { id } = await params;
 			const body = await request.json();
 			const validatedData = UpdateEnvironmentSchema.parse(body);
 
@@ -81,7 +83,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 					...validatedData,
 					updatedAt: new Date(),
 				})
-				.where(eq(environments.id, params.id))
+				.where(eq(environments.id, id))
 				.returning();
 
 			if (!environment) {
@@ -92,7 +94,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 			}
 
 			observability.recordEvent("api.environments.updated", {
-				environmentId: params.id,
+				environmentId: id,
 				changes: Object.keys(validatedData),
 			});
 
@@ -129,12 +131,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 /**
  * DELETE /api/environments/[id] - Delete environment
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.environments.delete", async () => {
 		try {
+			const { id } = await params;
 			const [deletedEnvironment] = await db
 				.delete(environments)
-				.where(eq(environments.id, params.id))
+				.where(eq(environments.id, id))
 				.returning();
 
 			if (!deletedEnvironment) {
@@ -145,7 +148,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 			}
 
 			observability.recordEvent("api.environments.deleted", {
-				environmentId: params.id,
+				environmentId: id,
 				name: deletedEnvironment.name,
 			});
 
