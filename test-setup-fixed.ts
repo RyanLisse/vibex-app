@@ -11,6 +11,8 @@
 
 // Essential polyfills FIRST
 import "./tests/setup/crypto-polyfill";
+import "./tests/setup/jsdom-navigation-fix";
+import "./tests/setup/browser-apis-mock";
 import "@testing-library/jest-dom";
 import { afterEach, vi } from "vitest";
 

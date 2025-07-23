@@ -14,6 +14,12 @@ import {
 	it,
 	vi,
 } from "vitest";
+import {
+	backupService,
+	DataExtractor,
+	DataMapper,
+	migrationService,
+} from "../../lib/migration";
 import { MigrationResult } from "../../lib/migration/types";
 
 // Mock localStorage
@@ -205,6 +211,10 @@ describe("Migration System Comprehensive Tests", () => {
 	afterAll(() => {
 		vi.restoreAllMocks();
 	});
+
+	// Create instances for testing
+	const dataExtractor = DataExtractor.getInstance();
+	const dataMapper = DataMapper.getInstance();
 
 	describe("Data Extraction", () => {
 		it("should extract tasks from localStorage", async () => {

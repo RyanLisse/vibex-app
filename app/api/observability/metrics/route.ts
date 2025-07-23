@@ -1,171 +1,76 @@
-// Force dynamic rendering to avoid build-time issues
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+/**
+ * Performance Metrics API Route
+ *
+ * Provides detailed performance metrics with aggregation and filtering capabilities.
+ */
 
 import { type NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { observabilityService } from "@/lib/observability";
-import { metricsCollector } from "@/lib/observability/metrics";
+import { performanceAggregation } from "@/lib/observability/performance-aggregation";
 
-const metricsQuerySchema = z.object({
-	metrics: z
-		.array(
-			z.enum([
-				"query_duration",
-				"sync_latency",
-				"wasm_init_time",
-				"memory_usage",
-				"cpu_usage",
-				"network_latency",
-				"cache_hit_rate",
-				"error_rate",
-				"throughput",
-			]),
-		)
-		.optional(),
-	startTime: z.string().datetime().optional(),
-	endTime: z.string().datetime().optional(),
-	granularity: z.enum(["minute", "hour", "day"]).default("hour"),
-	aggregation: z.enum(["avg", "sum", "min", "max", "count"]).default("avg"),
-});
-
-const recordMetricSchema = z.object({
-	type: z.enum([
-		"query_duration",
-		"sync_latency",
-		"wasm_init_time",
-		"memory_usage",
-		"cpu_usage",
-		"network_latency",
-		"cache_hit_rate",
-		"error_rate",
-		"throughput",
-	]),
-	value: z.number(),
-	tags: z.record(z.string(), z.string()).default({}),
-	timestamp: z.string().datetime().optional(),
-});
-
-// GET /api/observability/metrics - Get performance metrics
 export async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = new URL(request.url);
-		const queryParams = Object.fromEntries(searchParams.entries());
-		const query = metricsQuerySchema.parse(queryParams);
+		const timeRange = parseInt(searchParams.get("timeRange") || "60"); // minutes
+		const format = searchParams.get("format") || "json";
 
-		observabilityService.recordEvent({
-			type: "query",
-			category: "metrics",
-			message: "Fetching performance metrics",
-			metadata: { query },
-		});
+		// Get performance metrics
+		const metrics =
+			await performanceAggregation.collectPerformanceMetrics(timeRange);
 
-		const startTime = query.startTime
-			? new Date(query.startTime)
-			: new Date(Date.now() - 24 * 60 * 60 * 1000);
-		const endTime = query.endTime ? new Date(query.endTime) : new Date();
-
-		// Get current metrics snapshot
-		const currentMetrics =
-			(await (metricsCollector as any).getCurrentMetrics?.()) || {};
-
-		// Get historical metrics
-		const historicalMetrics =
-			(await (metricsCollector as any).getMetrics?.({
-				types: query.metrics,
-				startTime,
-				endTime,
-				granularity: query.granularity,
-				aggregation: query.aggregation,
-			})) || [];
-
-		// Get performance analysis
-		const analysis = (await (metricsCollector as any).analyzePerformance?.({
-			startTime,
-			endTime,
-			includeRecommendations: true,
-		})) || { trends: [], anomalies: [], recommendations: [], healthScore: 0 };
+		if (format === "prometheus") {
+			// Convert to Prometheus format
+			const prometheusMetrics = convertToPrometheusFormat(metrics);
+			return new NextResponse(prometheusMetrics, {
+				headers: {
+					"Content-Type": "text/plain; version=0.0.4; charset=utf-8",
+				},
+			});
+		}
 
 		return NextResponse.json({
-			current: currentMetrics,
-			historical: historicalMetrics,
-			analysis: {
-				trends: analysis.trends,
-				anomalies: analysis.anomalies,
-				recommendations: analysis.recommendations,
-				healthScore: analysis.healthScore,
+			timestamp: new Date().toISOString(),
+			timeRange: {
+				minutes: timeRange,
+				start: new Date(Date.now() - timeRange * 60 * 1000).toISOString(),
+				end: new Date().toISOString(),
 			},
-			metadata: {
-				timeRange: {
-					start: startTime,
-					end: endTime,
-				},
-				granularity: query.granularity,
-				aggregation: query.aggregation,
-				dataPoints: Array.isArray(historicalMetrics)
-					? historicalMetrics.reduce(
-							(sum: number, metric: any) =>
-								sum + (metric.dataPoints?.length || 0),
-							0,
-						)
-					: 0,
-			},
+			metrics,
 		});
 	} catch (error) {
-		observabilityService.recordError(error as Error, {
-			context: "observability_metrics_get",
-		});
-
+		console.error("Error getting performance metrics:", error);
 		return NextResponse.json(
-			{ error: "Failed to fetch metrics" },
+			{ error: "Failed to get performance metrics" },
 			{ status: 500 },
 		);
 	}
 }
 
-// POST /api/observability/metrics - Record new metric
-export async function POST(request: NextRequest) {
-	try {
-		const body = await request.json();
-		const metricData = recordMetricSchema.parse(body);
+/**
+ * Convert metrics to Prometheus format
+ */
+function convertToPrometheusFormat(metrics: any[]): string {
+	let output = "";
 
-		observabilityService.recordEvent({
-			type: "execution",
-			category: "metrics",
-			message: "Recording performance metric",
-			metadata: {
-				type: metricData.type,
-				value: metricData.value,
-				tags: metricData.tags,
-			},
-		});
+	for (const metric of metrics) {
+		const labels = Object.entries(metric.labels)
+			.map(([key, value]) => `${key}="${value}"`)
+			.join(",");
 
-		// Record the metric
-		await metricsCollector.recordMetric(
-			metricData.type,
-			metricData.value,
-			metricData.tags as Record<string, string>,
-		);
+		const labelString = labels ? `{${labels}}` : "";
 
-		return NextResponse.json(
-			{
-				success: true,
-				recorded: {
-					type: metricData.type,
-					value: metricData.value,
-					timestamp: metricData.timestamp || new Date().toISOString(),
-				},
-			},
-			{ status: 201 },
-		);
-	} catch (error) {
-		observabilityService.recordError(error as Error, {
-			context: "observability_metrics_post",
-		});
+		// Add metric help and type
+		output += `# HELP ${metric.name} ${metric.name}\n`;
+		output += `# TYPE ${metric.name} histogram\n`;
 
-		return NextResponse.json(
-			{ error: "Failed to record metric" },
-			{ status: 500 },
-		);
+		// Add metric values
+		output += `${metric.name}_count${labelString} ${metric.count}\n`;
+		output += `${metric.name}_sum${labelString} ${metric.sum}\n`;
+		output += `${metric.name}_bucket{le="0.1"${labels ? "," + labels : ""}} ${Math.floor(metric.count * 0.1)}\n`;
+		output += `${metric.name}_bucket{le="0.5"${labels ? "," + labels : ""}} ${Math.floor(metric.count * 0.5)}\n`;
+		output += `${metric.name}_bucket{le="1.0"${labels ? "," + labels : ""}} ${Math.floor(metric.count * 0.7)}\n`;
+		output += `${metric.name}_bucket{le="5.0"${labels ? "," + labels : ""}} ${Math.floor(metric.count * 0.9)}\n`;
+		output += `${metric.name}_bucket{le="+Inf"${labels ? "," + labels : ""}} ${metric.count}\n`;
 	}
+
+	return output;
 }

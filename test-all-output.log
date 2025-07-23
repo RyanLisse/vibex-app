@@ -1,0 +1,20 @@
+Makefile:60: warning: overriding commands for target `dev-next'
+Makefile:56: warning: ignoring old commands for target `dev-next'
+🔫 Killing processes on ports 3000, 6006, 3001...
+🧪 Running all tests including e2e...
+$ vitest run --config=vitest.config.ts && playwright test
+failed to load config from /Users/neo/Developer/experiments/vibex-app/vitest.config.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error: The service was stopped: write EPIPE
+    at /Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:949:34
+    at responseCallbacks.<computed> (/Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:603:9)
+    at afterClose (/Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:594:28)
+    at /Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:1986:18
+    at onwriteError (node:internal/streams/writable:603:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:92:21)
+
+
+
+error: script "test:all" exited with code 1
+make: *** [test-all] Error 1

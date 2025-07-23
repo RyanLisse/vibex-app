@@ -1,5 +1,15 @@
 
-# Run tests before pushing
-echo "🧪 Running tests before push..."
-bun run test:unit || echo "⚠️ Some tests failed - continuing..."
-echo "✅ Pre-push checks completed!"
+# Run fast, reliable pre-push checks (under 30 seconds)
+echo "🚀 Starting fast pre-push validation..."
+
+# Use our custom fast check script that avoids hanging issues
+bun run test:fast
+
+if [ $? -eq 0 ]; then
+    echo "✅ Pre-push checks passed! Push allowed."
+else
+    echo "❌ Pre-push checks failed!"
+    echo "💡 Fix the issues above before pushing"
+    echo "🔧 For detailed testing, run: bun run test"
+    exit 1
+fi

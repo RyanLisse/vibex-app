@@ -1,10 +1,15 @@
 import { z } from "zod";
 
 // Base API Response Schemas
-export const ApiSuccessResponseSchema = z.object({
+export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) => z.object({
 	success: z.literal(true),
-	data: z.any(),
-	timestamp: z.date().default(() => new Date()),
+	data: dataSchema,
+	message: z.string().optional(),
+	meta: z.object({
+		timestamp: z.string(),
+		version: z.string(),
+		requestId: z.string(),
+	}).optional(),
 });
 
 export const ApiErrorResponseSchema = z.object({
@@ -20,7 +25,7 @@ export const ApiErrorResponseSchema = z.object({
 export const ValidationErrorSchema = z.object({
 	success: z.literal(false),
 	error: z.object({
-		code: z.literal("VALIDATION_ERROR"),
+		code: z.enum(["VALIDATION_ERROR", "INVALID_INPUT", "MISSING_FIELD"]),
 		message: z.string(),
 		details: z.array(
 			z.object({
@@ -34,16 +39,18 @@ export const ValidationErrorSchema = z.object({
 });
 
 // Pagination Schema
-export const PaginatedResponseSchema = z.object({
+export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) => z.object({
 	success: z.literal(true),
-	data: z.array(z.any()),
+	data: z.array(dataSchema),
 	pagination: z.object({
-		page: z.number(),
-		limit: z.number(),
-		total: z.number(),
-		totalPages: z.number(),
+		page: z.number().min(1),
+		limit: z.number().min(1),
+		total: z.number().min(0),
+		totalPages: z.number().min(0),
+		hasNext: z.boolean(),
+		hasPrev: z.boolean(),
 	}),
-	timestamp: z.date().default(() => new Date()),
+	message: z.string().optional(),
 });
 
 // GitHub OAuth Schemas
@@ -114,8 +121,8 @@ export const GitHubRepositoriesRequestSchema = z.object({
 });
 
 export const GitHubBranchesRequestSchema = z.object({
-	owner: z.string(),
-	repo: z.string(),
+	owner: z.string().min(1, "Owner is required"),
+	repo: z.string().min(1, "Repository name is required"),
 	per_page: z.number().min(1).max(100).default(30),
 	page: z.number().min(1).default(1),
 });
@@ -123,7 +130,7 @@ export const GitHubBranchesRequestSchema = z.object({
 // Task Schemas
 export const TaskSchema = z.object({
 	id: z.string().uuid(),
-	title: z.string().min(1, "Title is required"),
+	title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
 	description: z.string().optional(),
 	status: z.enum(["todo", "in_progress", "done"]).default("todo"),
 	priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
@@ -156,6 +163,9 @@ export const EnvironmentSchema = z.object({
 	id: z.string().uuid(),
 	name: z.string().min(1, "Environment name is required"),
 	description: z.string().optional(),
+	type: z.enum(["development", "staging", "production", "testing"]).default("development"),
+	url: z.string().url().optional(),
+	status: z.enum(["active", "inactive", "maintenance"]).default("active"),
 	variables: z.record(z.string(), z.string()).default({}),
 	created_at: z.date().default(() => new Date()),
 	updated_at: z.date().default(() => new Date()),
@@ -170,8 +180,11 @@ export const CreateEnvironmentSchema = EnvironmentSchema.omit({
 // File Upload Schemas
 export const FileUploadRequestSchema = z.object({
 	filename: z.string().min(1, "Filename is required"),
-	content_type: z.string().min(1, "Content type is required"),
-	size: z.number().positive("File size must be positive"),
+	content_type: z.string().min(1, "Content type is required").refine(
+		(type) => ["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"].includes(type),
+		"File type not supported"
+	),
+	size: z.number().positive("File size must be positive").max(10 * 1024 * 1024, "File size must be less than 10MB"),
 });
 
 export const FileUploadResponseSchema = z.object({
@@ -197,7 +210,7 @@ export const WebhookResponseSchema = z.object({
 // Inngest Schemas
 export const InngestEventSchema = z.object({
 	name: z.string().min(1, "Event name is required"),
-	data: z.any(),
+	data: z.any().default({}),
 	user: z
 		.object({
 			id: z.string(),
@@ -210,10 +223,22 @@ export const InngestEventSchema = z.object({
 export const InngestFunctionSchema = z.object({
 	id: z.string(),
 	name: z.string(),
-	status: z.enum(["active", "paused", "disabled"]),
+	status: z.enum(["active", "paused", "disabled"]).default("active"),
 	trigger: z.object({
 		event: z.string(),
+		expression: z.string().optional(),
 		cron: z.string().optional(),
+	}),
+	config: z.object({
+		retries: z.number().default(3),
+		timeout: z.string().default("30s"),
+		rateLimit: z.object({
+			limit: z.number(),
+			period: z.string(),
+		}).optional(),
+	}).default({
+		retries: 3,
+		timeout: "30s",
 	}),
 });
 
@@ -223,7 +248,11 @@ export function createApiSuccessResponse<T>(data: T, message?: string) {
 		success: true as const,
 		data,
 		message,
-		timestamp: new Date(),
+		meta: {
+			timestamp: new Date().toISOString(),
+			version: "1.0.0",
+			requestId: crypto.randomUUID(),
+		},
 	};
 }
 
@@ -239,7 +268,10 @@ export function createApiErrorResponse(
 			message,
 			details,
 		},
-		timestamp: new Date(),
+		message,
+		statusCode,
+		timestamp: new Date().toISOString(),
+		validationErrors: details,
 	};
 }
 
@@ -247,31 +279,35 @@ export function createPaginatedResponse<T>(
 	data: T[],
 	pagination: { page: number; limit: number; total: number },
 ) {
-	return PaginatedResponseSchema.parse({
-		success: true,
+	const totalPages = Math.ceil(pagination.total / pagination.limit);
+	return {
+		success: true as const,
 		data,
 		pagination: {
 			...pagination,
-			totalPages: Math.ceil(pagination.total / pagination.limit),
+			totalPages,
+			hasNext: pagination.page < totalPages,
+			hasPrev: pagination.page > 1,
 		},
-	});
+	};
 }
 
 export async function validateApiRequest<T>(
 	request: Request,
 	schema: z.ZodSchema<T>,
-): Promise<{ data?: T; error?: string }> {
+): Promise<{ success: boolean; data?: T; error?: string }> {
 	try {
 		const body = await request.json();
 		const result = schema.safeParse(body);
 		if (!result.success) {
 			return {
+				success: false,
 				error: `Validation failed: ${result.error.message}`,
 			};
 		}
-		return { data: result.data };
+		return { success: true, data: result.data };
 	} catch (error) {
-		return { error: "Invalid JSON in request body" };
+		return { success: false, error: "Invalid JSON in request body" };
 	}
 }
 

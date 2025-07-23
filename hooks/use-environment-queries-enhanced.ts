@@ -1,575 +1,379 @@
-"use client";
+/**
+ * Enhanced Environment Query Hooks
+ *
+ * Complete TanStack Query implementation for environment management
+ * with database integration, optimistic updates, and real-time sync.
+ */
 
-import { invalidateQueries, mutationKeys, queryKeys } from "@/lib/query/config";
 import {
-	useEnhancedMutation,
-	useEnhancedQuery,
-} from "./use-enhanced-query-new";
+	type UseMutationOptions,
+	type UseQueryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/react-query";
+import type { Environment, NewEnvironment } from "@/db/schema";
+import { observability } from "@/lib/observability";
 
-/**
- * Enhanced environment queries with comprehensive database integration, WASM optimization, and real-time sync
- */
+// Query keys
+export const environmentKeys = {
+	all: ["environments"] as const,
+	lists: () => [...environmentKeys.all, "list"] as const,
+	list: (filters: Record<string, any>) => [...environmentKeys.lists(), filters] as const,
+	details: () => [...environmentKeys.all, "detail"] as const,
+	detail: (id: string) => [...environmentKeys.details(), id] as const,
+	active: () => [...environmentKeys.all, "active"] as const,
+};
 
-export interface EnvironmentFilters {
-	userId?: string;
+// API functions
+async function getEnvironments(filters?: {
 	isActive?: boolean;
-	search?: string;
-	schemaVersion?: number;
-	tags?: string[];
+	userId?: string;
+}): Promise<Environment[]> {
+	const params = new URLSearchParams();
+	if (filters?.isActive !== undefined) {
+		params.append("isActive", filters.isActive.toString());
+	}
+	if (filters?.userId) {
+		params.append("userId", filters.userId);
+	}
+
+	const response = await fetch(`/api/environments?${params}`);
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.message || "Failed to fetch environments");
+	}
+
+	const result = await response.json();
+	return result.data || result;
 }
 
-export interface EnvironmentWithStats extends Environment {
-	taskCount?: number;
-	lastUsed?: Date;
-	executionCount?: number;
-	isValid?: boolean;
-	validationErrors?: string[];
+async function getEnvironment(id: string): Promise<Environment> {
+	const response = await fetch(`/api/environments/${id}`);
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.message || "Failed to fetch environment");
+	}
+
+	const result = await response.json();
+	return result.data || result;
 }
 
-/**
- * Hook for querying a single environment by ID with statistics
- */
-export function useEnvironmentQuery(environmentId: string) {
-	return useEnhancedQuery(
-		queryKeys.environments.detail(environmentId),
-		async (): Promise<EnvironmentWithStats> => {
-			const response = await fetch(
-				`/api/environments/${environmentId}?include=stats`,
-			);
-			if (!response.ok) {
-				if (response.status === 404) {
-					throw new Error(`Environment with id ${environmentId} not found`);
-				}
-				throw new Error(`Failed to fetch environment: ${response.statusText}`);
-			}
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			enabled: !!environmentId,
-			staleTime: 2 * 60 * 1000, // 2 minutes
-			enableWASMOptimization: false, // Single record doesn't need WASM optimization
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
+async function createEnvironment(data: NewEnvironment): Promise<Environment> {
+	const response = await fetch("/api/environments", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(data),
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.message || "Failed to create environment");
+	}
+
+	const result = await response.json();
+	return result.data || result;
 }
 
-/**
- * Hook for querying all environments with enhanced filtering and real-time sync
- */
-export function useEnvironmentsQuery(filters: EnvironmentFilters = {}) {
-	const { userId, isActive, search, schemaVersion, tags } = filters;
+async function updateEnvironment(id: string, data: Partial<Environment>): Promise<Environment> {
+	const response = await fetch(`/api/environments/${id}`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(data),
+	});
 
-	return useEnhancedQuery(
-		queryKeys.environments.list(filters),
-		async (): Promise<EnvironmentWithStats[]> => {
-			const searchParams = new URLSearchParams();
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.message || "Failed to update environment");
+	}
 
-			if (userId) searchParams.append("userId", userId);
-			if (isActive !== undefined)
-				searchParams.append("isActive", isActive.toString());
-			if (search) searchParams.append("search", search);
-			if (schemaVersion)
-				searchParams.append("schemaVersion", schemaVersion.toString());
-			if (tags?.length) searchParams.append("tags", tags.join(","));
-
-			const response = await fetch(
-				`/api/environments?${searchParams.toString()}`,
-			);
-			if (!response.ok) {
-				throw new Error(`Failed to fetch environments: ${response.statusText}`);
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			enableWASMOptimization: true,
-			staleWhileRevalidate: true,
-			enableRealTimeSync: true,
-			syncTable: "environments",
-			wasmFallback: async () => {
-				// Fallback to simpler query without complex filtering
-				const response = await fetch("/api/environments");
-				if (!response.ok) {
-					throw new Error(
-						`Failed to fetch environments: ${response.statusText}`,
-					);
-				}
-				const result = await response.json();
-
-				// Apply client-side filtering as fallback
-				let filteredEnvironments = result.data;
-
-				if (isActive !== undefined) {
-					filteredEnvironments = filteredEnvironments.filter(
-						(env: Environment) => env.isActive === isActive,
-					);
-				}
-
-				if (search) {
-					const searchLower = search.toLowerCase();
-					filteredEnvironments = filteredEnvironments.filter(
-						(env: Environment) => env.name.toLowerCase().includes(searchLower),
-					);
-				}
-
-				return filteredEnvironments;
-			},
-		},
-	);
+	const result = await response.json();
+	return result.data || result;
 }
 
-/**
- * Hook for querying active environment
- */
-export function useActiveEnvironmentQuery(userId?: string) {
-	return useEnhancedQuery(
-		queryKeys.environments.active(),
-		async (): Promise<EnvironmentWithStats | null> => {
-			const searchParams = new URLSearchParams();
-			if (userId) searchParams.append("userId", userId);
+async function deleteEnvironment(id: string): Promise<void> {
+	const response = await fetch(`/api/environments/${id}`, {
+		method: "DELETE",
+	});
 
-			const response = await fetch(
-				`/api/environments/active?${searchParams.toString()}`,
-			);
-			if (!response.ok) {
-				if (response.status === 404) {
-					return null; // No active environment
-				}
-				throw new Error(
-					`Failed to fetch active environment: ${response.statusText}`,
-				);
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			staleTime: 30 * 1000, // 30 seconds for active environment
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.message || "Failed to delete environment");
+	}
 }
 
-/**
- * Hook for creating environments with optimistic updates and validation
- */
-export function useCreateEnvironmentMutation() {
-	const queryClient = useQueryClient();
+async function activateEnvironment(id: string): Promise<Environment> {
+	const response = await fetch(`/api/environments/${id}/activate`, {
+		method: "POST",
+	});
 
-	return useEnhancedMutation(
-		async (
-			newEnvironment: Omit<NewEnvironment, "id" | "createdAt" | "updatedAt">,
-		) => {
-			// Validate configuration before sending
-			const validationResponse = await fetch("/api/environments/validate", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ config: newEnvironment.config }),
-			});
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.message || "Failed to activate environment");
+	}
 
-			if (!validationResponse.ok) {
-				const error = await validationResponse.json();
-				throw new Error(`Environment validation failed: ${error.message}`);
-			}
-
-			const response = await fetch("/api/environments", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(newEnvironment),
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to create environment: ${response.statusText}`);
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			optimisticUpdate: (variables) => {
-				// Create optimistic environment
-				const optimisticEnvironment: EnvironmentWithStats = {
-					id: `temp-${Date.now()}`,
-					...variables,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-					taskCount: 0,
-					executionCount: 0,
-					isValid: true,
-				} as EnvironmentWithStats;
-
-				// Add to all relevant caches
-				queryClient.setQueryData(
-					queryKeys.environments.lists(),
-					(old: EnvironmentWithStats[] = []) => [optimisticEnvironment, ...old],
-				);
-
-				return { optimisticEnvironment };
-			},
-			rollbackUpdate: (context) => {
-				if (context?.optimisticEnvironment) {
-					// Remove optimistic environment from cache
-					queryClient.setQueryData(
-						queryKeys.environments.lists(),
-						(old: EnvironmentWithStats[] = []) =>
-							old.filter((env) => env.id !== context.optimisticEnvironment.id),
-					);
-				}
-			},
-			invalidateQueries: [queryKeys.environments.all],
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
+	const result = await response.json();
+	return result.data || result;
 }
 
-/**
- * Hook for updating environments with optimistic updates and validation
- */
-export function useUpdateEnvironmentMutation() {
-	const queryClient = useQueryClient();
-
-	return useEnhancedMutation(
-		async ({
-			environmentId,
-			updates,
-		}: {
-			environmentId: string;
-			updates: Partial<Environment>;
-		}) => {
-			// Validate configuration if it's being updated
-			if (updates.config) {
-				const validationResponse = await fetch("/api/environments/validate", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ config: updates.config }),
-				});
-
-				if (!validationResponse.ok) {
-					const error = await validationResponse.json();
-					throw new Error(`Environment validation failed: ${error.message}`);
-				}
-			}
-
-			const response = await fetch(`/api/environments/${environmentId}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(updates),
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to update environment: ${response.statusText}`);
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			optimisticUpdate: ({ environmentId, updates }) => {
-				const previousEnvironment = queryClient.getQueryData(
-					queryKeys.environments.detail(environmentId),
-				) as EnvironmentWithStats;
-
-				// Update environment in all relevant caches
-				queryClient.setQueryData(
-					queryKeys.environments.detail(environmentId),
-					(old: EnvironmentWithStats) =>
-						old ? { ...old, ...updates, updatedAt: new Date() } : old,
-				);
-
-				queryClient.setQueryData(
-					queryKeys.environments.lists(),
-					(old: EnvironmentWithStats[] = []) =>
-						old.map((env) =>
-							env.id === environmentId
-								? { ...env, ...updates, updatedAt: new Date() }
-								: env,
-						),
-				);
-
-				// Update active environment cache if this environment is being activated
-				if (updates.isActive) {
-					queryClient.setQueryData(
-						queryKeys.environments.active(),
-						(old: EnvironmentWithStats) =>
-							old?.id === environmentId
-								? { ...old, ...updates, updatedAt: new Date() }
-								: old,
-					);
-				}
-
-				return { previousEnvironment, environmentId };
-			},
-			rollbackUpdate: (context) => {
-				if (context?.previousEnvironment && context?.environmentId) {
-					// Restore previous environment data
-					queryClient.setQueryData(
-						queryKeys.environments.detail(context.environmentId),
-						context.previousEnvironment,
-					);
-
-					queryClient.setQueryData(
-						queryKeys.environments.lists(),
-						(old: EnvironmentWithStats[] = []) =>
-							old.map((env) =>
-								env.id === context.environmentId
-									? context.previousEnvironment
-									: env,
-							),
-					);
-				}
-			},
-			invalidateQueries: [queryKeys.environments.all],
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
-}
-
-/**
- * Hook for activating an environment (deactivates others)
- */
-export function useActivateEnvironmentMutation() {
-	const queryClient = useQueryClient();
-
-	return useEnhancedMutation(
-		async (environmentId: string) => {
-			const response = await fetch(
-				`/api/environments/${environmentId}/activate`,
-				{
-					method: "POST",
-				},
-			);
-
-			if (!response.ok) {
-				throw new Error(
-					`Failed to activate environment: ${response.statusText}`,
-				);
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			optimisticUpdate: (environmentId) => {
-				const previousEnvironments = queryClient.getQueryData(
-					queryKeys.environments.lists(),
-				) as EnvironmentWithStats[];
-
-				// Deactivate all environments and activate the selected one
-				queryClient.setQueryData(
-					queryKeys.environments.lists(),
-					(old: EnvironmentWithStats[] = []) =>
-						old.map((env) => ({
-							...env,
-							isActive: env.id === environmentId,
-							updatedAt: new Date(),
-						})),
-				);
-
-				// Update active environment cache
-				const newActiveEnvironment = previousEnvironments?.find(
-					(env) => env.id === environmentId,
-				);
-				if (newActiveEnvironment) {
-					queryClient.setQueryData(queryKeys.environments.active(), {
-						...newActiveEnvironment,
-						isActive: true,
-						updatedAt: new Date(),
-					});
-				}
-
-				return { previousEnvironments, environmentId };
-			},
-			rollbackUpdate: (context) => {
-				if (context?.previousEnvironments) {
-					// Restore previous environment states
-					queryClient.setQueryData(
-						queryKeys.environments.lists(),
-						context.previousEnvironments,
-					);
-
-					// Restore active environment
-					const previousActive = context.previousEnvironments.find(
-						(env) => env.isActive,
-					);
-					queryClient.setQueryData(
-						queryKeys.environments.active(),
-						previousActive || null,
-					);
-				}
-			},
-			invalidateQueries: [queryKeys.environments.all],
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
-}
-
-/**
- * Hook for deleting environments with optimistic updates
- */
-export function useDeleteEnvironmentMutation() {
-	const queryClient = useQueryClient();
-
-	return useEnhancedMutation(
-		async (environmentId: string) => {
-			const response = await fetch(`/api/environments/${environmentId}`, {
-				method: "DELETE",
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to delete environment: ${response.statusText}`);
-			}
-
-			return { id: environmentId };
-		},
-		{
-			optimisticUpdate: (environmentId) => {
-				const previousEnvironment = queryClient.getQueryData(
-					queryKeys.environments.detail(environmentId),
-				) as EnvironmentWithStats;
-
-				// Remove environment from all caches
-				queryClient.removeQueries({
-					queryKey: queryKeys.environments.detail(environmentId),
-				});
-
-				queryClient.setQueryData(
-					queryKeys.environments.lists(),
-					(old: EnvironmentWithStats[] = []) =>
-						old.filter((env) => env.id !== environmentId),
-				);
-
-				// Clear active environment if it was the deleted one
-				const activeEnvironment = queryClient.getQueryData(
-					queryKeys.environments.active(),
-				) as EnvironmentWithStats;
-				if (activeEnvironment?.id === environmentId) {
-					queryClient.setQueryData(queryKeys.environments.active(), null);
-				}
-
-				return { previousEnvironment, environmentId };
-			},
-			rollbackUpdate: (context) => {
-				if (context?.previousEnvironment && context?.environmentId) {
-					// Restore deleted environment
-					queryClient.setQueryData(
-						queryKeys.environments.detail(context.environmentId),
-						context.previousEnvironment,
-					);
-
-					queryClient.setQueryData(
-						queryKeys.environments.lists(),
-						(old: EnvironmentWithStats[] = []) => [
-							context.previousEnvironment,
-							...old,
-						],
-					);
-
-					// Restore active environment if it was the deleted one
-					if (context.previousEnvironment.isActive) {
-						queryClient.setQueryData(
-							queryKeys.environments.active(),
-							context.previousEnvironment,
-						);
-					}
-				}
-			},
-			invalidateQueries: [queryKeys.environments.all],
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
-}
-
-/**
- * Hook for environment validation
- */
-export function useValidateEnvironmentMutation() {
-	return useEnhancedMutation(
-		async (config: Record<string, any>) => {
-			const response = await fetch("/api/environments/validate", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ config }),
-			});
-
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message || "Validation failed");
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			enableWASMOptimization: false, // Validation doesn't need WASM
-		},
-	);
-}
-
-/**
- * Hook for environment usage statistics
- */
-export function useEnvironmentStatsQuery(
-	environmentId: string,
-	timeRange?: { start: Date; end: Date },
+// Hooks
+export function useEnvironments(
+	filters?: { isActive?: boolean; userId?: string },
+	options?: UseQueryOptions<Environment[], Error>
 ) {
-	return useEnhancedQuery(
-		[...queryKeys.environments.detail(environmentId), "stats", timeRange],
-		async () => {
-			const searchParams = new URLSearchParams();
-			if (timeRange) {
-				searchParams.append("startDate", timeRange.start.toISOString());
-				searchParams.append("endDate", timeRange.end.toISOString());
-			}
-
-			const response = await fetch(
-				`/api/environments/${environmentId}/stats?${searchParams.toString()}`,
-			);
-			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch environment stats: ${response.statusText}`,
-				);
-			}
-
-			const result = await response.json();
-			return result.data;
-		},
-		{
-			enabled: !!environmentId,
-			staleTime: 5 * 60 * 1000, // 5 minutes for stats
-			enableRealTimeSync: true,
-			syncTable: "environments",
-		},
-	);
+	return useQuery({
+		queryKey: environmentKeys.list(filters || {}),
+		queryFn: () =>
+			observability.trackOperation("environments.list", () => getEnvironments(filters)),
+		staleTime: 30000, // 30 seconds
+		...options,
+	});
 }
 
-/**
- * Hook for environment configuration templates
- */
-export function useEnvironmentTemplatesQuery() {
-	return useEnhancedQuery(
-		[...queryKeys.environments.all, "templates"],
-		async () => {
-			const response = await fetch("/api/environments/templates");
-			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch environment templates: ${response.statusText}`,
+export function useEnvironment(id: string, options?: UseQueryOptions<Environment, Error>) {
+	return useQuery({
+		queryKey: environmentKeys.detail(id),
+		queryFn: () => observability.trackOperation("environments.get", () => getEnvironment(id)),
+		enabled: !!id,
+		staleTime: 60000, // 1 minute
+		...options,
+	});
+}
+
+export function useActiveEnvironment(options?: UseQueryOptions<Environment | null, Error>) {
+	return useQuery({
+		queryKey: environmentKeys.active(),
+		queryFn: async () => {
+			const environments = await getEnvironments({ isActive: true });
+			return environments.find((env) => env.isActive) || null;
+		},
+		staleTime: 30000,
+		...options,
+	});
+}
+
+export function useCreateEnvironment(
+	options?: UseMutationOptions<Environment, Error, NewEnvironment>
+) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (data: NewEnvironment) =>
+			observability.trackOperation("environments.create", () => createEnvironment(data)),
+		onMutate: async (newEnvironment) => {
+			// Cancel outgoing refetches
+			await queryClient.cancelQueries({ queryKey: environmentKeys.all });
+
+			// Snapshot previous value
+			const previousEnvironments = queryClient.getQueryData(environmentKeys.lists());
+
+			// Optimistic update
+			const tempId = `temp-${Date.now()}`;
+			const optimisticEnvironment: Environment = {
+				id: tempId,
+				name: newEnvironment.name,
+				config: newEnvironment.config,
+				isActive: newEnvironment.isActive || false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				userId: newEnvironment.userId || null,
+				schemaVersion: newEnvironment.schemaVersion || 1,
+			};
+
+			queryClient.setQueriesData(
+				{ queryKey: environmentKeys.lists() },
+				(old: Environment[] = []) => [optimisticEnvironment, ...old]
+			);
+
+			return { previousEnvironments, tempId };
+		},
+		onSuccess: (newEnvironment, variables, context) => {
+			// Replace optimistic update with real data
+			queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: Environment[] = []) =>
+				old.map((env) => (env.id === context?.tempId ? newEnvironment : env))
+			);
+
+			// Invalidate to ensure consistency
+			queryClient.invalidateQueries({ queryKey: environmentKeys.all });
+		},
+		onError: (error, variables, context) => {
+			// Rollback optimistic update
+			if (context?.previousEnvironments) {
+				queryClient.setQueriesData(
+					{ queryKey: environmentKeys.lists() },
+					context.previousEnvironments
 				);
 			}
+		},
+		...options,
+	});
+}
 
-			const result = await response.json();
-			return result.data;
+export function useUpdateEnvironment(
+	options?: UseMutationOptions<Environment, Error, { id: string; data: Partial<Environment> }>
+) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, data }) =>
+			observability.trackOperation("environments.update", () => updateEnvironment(id, data)),
+		onMutate: async ({ id, data }) => {
+			// Cancel outgoing refetches
+			await queryClient.cancelQueries({ queryKey: environmentKeys.detail(id) });
+
+			// Snapshot previous values
+			const previousEnvironment = queryClient.getQueryData(environmentKeys.detail(id));
+			const previousEnvironments = queryClient.getQueryData(environmentKeys.lists());
+
+			// Optimistically update
+			const updatedEnvironment = {
+				...previousEnvironment,
+				...data,
+				updatedAt: new Date(),
+			} as Environment;
+
+			queryClient.setQueryData(environmentKeys.detail(id), updatedEnvironment);
+			queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: Environment[] = []) =>
+				old.map((env) => (env.id === id ? updatedEnvironment : env))
+			);
+
+			return { previousEnvironment, previousEnvironments };
 		},
-		{
-			staleTime: 10 * 60 * 1000, // 10 minutes for templates
-			enableWASMOptimization: false, // Templates don't need WASM
+		onError: (error, { id }, context) => {
+			// Rollback optimistic updates
+			if (context?.previousEnvironment) {
+				queryClient.setQueryData(environmentKeys.detail(id), context.previousEnvironment);
+			}
+			if (context?.previousEnvironments) {
+				queryClient.setQueriesData(
+					{ queryKey: environmentKeys.lists() },
+					context.previousEnvironments
+				);
+			}
 		},
-	);
+		onSettled: (data, error, { id }) => {
+			// Always refetch after error or success
+			queryClient.invalidateQueries({ queryKey: environmentKeys.detail(id) });
+			queryClient.invalidateQueries({ queryKey: environmentKeys.all });
+		},
+		...options,
+	});
+}
+
+export function useDeleteEnvironment(options?: UseMutationOptions<void, Error, string>) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) =>
+			observability.trackOperation("environments.delete", () => deleteEnvironment(id)),
+		onMutate: async (id) => {
+			// Cancel outgoing refetches
+			await queryClient.cancelQueries({ queryKey: environmentKeys.all });
+
+			// Snapshot previous values
+			const previousEnvironment = queryClient.getQueryData(environmentKeys.detail(id));
+			const previousEnvironments = queryClient.getQueryData(environmentKeys.lists());
+
+			// Optimistically remove
+			queryClient.removeQueries({ queryKey: environmentKeys.detail(id) });
+			queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: Environment[] = []) =>
+				old.filter((env) => env.id !== id)
+			);
+
+			return { previousEnvironment, previousEnvironments };
+		},
+		onError: (error, id, context) => {
+			// Rollback optimistic updates
+			if (context?.previousEnvironment) {
+				queryClient.setQueryData(environmentKeys.detail(id), context.previousEnvironment);
+			}
+			if (context?.previousEnvironments) {
+				queryClient.setQueriesData(
+					{ queryKey: environmentKeys.lists() },
+					context.previousEnvironments
+				);
+			}
+		},
+		onSettled: () => {
+			// Invalidate to ensure consistency
+			queryClient.invalidateQueries({ queryKey: environmentKeys.all });
+		},
+		...options,
+	});
+}
+
+export function useActivateEnvironment(options?: UseMutationOptions<Environment, Error, string>) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) =>
+			observability.trackOperation("environments.activate", () => activateEnvironment(id)),
+		onMutate: async (id) => {
+			// Cancel outgoing refetches
+			await queryClient.cancelQueries({ queryKey: environmentKeys.all });
+
+			// Snapshot previous values
+			const previousEnvironments = queryClient.getQueryData(environmentKeys.lists());
+
+			// Optimistically update - deactivate all others and activate this one
+			queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: Environment[] = []) =>
+				old.map((env) => ({
+					...env,
+					isActive: env.id === id,
+					updatedAt: env.id === id ? new Date() : env.updatedAt,
+				}))
+			);
+
+			// Update active environment query
+			const targetEnvironment = ((previousEnvironments as Environment[]) || []).find(
+				(env) => env.id === id
+			);
+			if (targetEnvironment) {
+				queryClient.setQueryData(environmentKeys.active(), {
+					...targetEnvironment,
+					isActive: true,
+					updatedAt: new Date(),
+				});
+			}
+
+			return { previousEnvironments };
+		},
+		onError: (error, id, context) => {
+			// Rollback optimistic updates
+			if (context?.previousEnvironments) {
+				queryClient.setQueriesData(
+					{ queryKey: environmentKeys.lists() },
+					context.previousEnvironments
+				);
+			}
+		},
+		onSettled: () => {
+			// Invalidate to ensure consistency
+			queryClient.invalidateQueries({ queryKey: environmentKeys.all });
+		},
+		...options,
+	});
+}
+
+// Utility hooks
+export function useEnvironmentStats() {
+	const { data: environments = [] } = useEnvironments();
+
+	return {
+		total: environments.length,
+		active: environments.filter((env) => env.isActive).length,
+		inactive: environments.filter((env) => !env.isActive).length,
+	};
+}
+
+export function usePrefetchEnvironment() {
+	const queryClient = useQueryClient();
+
+	return (id: string) => {
+		queryClient.prefetchQuery({
+			queryKey: environmentKeys.detail(id),
+			queryFn: () => getEnvironment(id),
+			staleTime: 60000,
+		});
+	};
 }

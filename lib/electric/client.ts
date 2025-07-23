@@ -43,7 +43,7 @@ class PGlite {
 }
 
 // Mock BaseElectricClient for now - will be replaced with actual import
-class BaseElectricClient implements BaseElectricClient {
+class MockElectricClient implements BaseElectricClient {
 	db: ElectricDatabase;
 	private eventHandlers = new Map<string, ((data?: any) => void)[]>();
 

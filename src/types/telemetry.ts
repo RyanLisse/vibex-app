@@ -12,6 +12,12 @@ export interface TelemetryConfig {
 	endpoint?: string;
 
 	/**
+	 * OTLP metrics export endpoint URL
+	 * @example "https://otel-collector.example.com/v1/metrics"
+	 */
+	metricsEndpoint?: string;
+
+	/**
 	 * Service name for identification
 	 * @default "vibex"
 	 */
@@ -33,6 +39,37 @@ export interface TelemetryConfig {
 	 * @default 1.0
 	 */
 	samplingRatio?: number;
+
+	/**
+	 * Enhanced agent execution tracking configuration
+	 */
+	agentTracking?: {
+		enabled: boolean;
+		includeInputOutput: boolean;
+		maxPayloadSize: number;
+		trackMemoryUsage: boolean;
+		trackPerformanceMetrics: boolean;
+	};
+
+	/**
+	 * Real-time streaming configuration
+	 */
+	streaming?: {
+		enabled: boolean;
+		bufferSize: number;
+		flushInterval: number;
+		maxSubscriptions: number;
+	};
+
+	/**
+	 * Performance metrics configuration
+	 */
+	metrics?: {
+		enabled: boolean;
+		collectInterval: number;
+		retentionPeriod: number;
+		aggregationWindow: number;
+	};
 }
 
 export type TelemetryBackend =

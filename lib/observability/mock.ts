@@ -2,6 +2,8 @@
  * Mock Observability Service for Testing
  */
 
+import { vi } from "vitest";
+
 export const mockObservability = {
 	database: {
 		recordQuery: vi.fn(),

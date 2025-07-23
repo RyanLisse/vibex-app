@@ -1,31 +1,29 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
   },
   "files": {
-    "include": [
+    "includes": [
       "**/*.js",
       "**/*.jsx",
       "**/*.ts",
       "**/*.tsx",
       "**/*.json",
-      "**/*.jsonc"
-    ],
-    "ignore": [
-      "node_modules/**",
-      ".next/**",
-      "dist/**",
-      "build/**",
-      "coverage/**",
-      "storybook-static/**",
-      "playwright-report/**",
-      "test-results/**",
-      "*.config.{js,ts}",
-      "*.setup.{js,ts}",
-      "**/*.d.ts"
+      "**/*.jsonc",
+      "!**/node_modules/**",
+      "!**/.next/**",
+      "!**/dist/**",
+      "!**/build/**",
+      "!**/coverage/**",
+      "!**/storybook-static/**",
+      "!**/playwright-report/**",
+      "!**/test-results/**",
+      "!**/*.config.{js,ts}",
+      "!**/*.setup.{js,ts}",
+      "!**/*.d.ts"
     ]
   },
   "formatter": {
@@ -36,15 +34,9 @@
     "lineEnding": "lf",
     "lineWidth": 100,
     "attributePosition": "auto",
-    "ignore": [
-      "**/*.md",
-      "**/*.mdx",
-      "**/CHANGELOG.md"
-    ]
+    "includes": ["**", "!**/*.md", "!**/*.mdx", "!**/CHANGELOG.md"]
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -52,7 +44,6 @@
       "a11y": {
         "recommended": true,
         "noAriaUnsupportedElements": "error",
-        "noBlankTarget": "error",
         "noRedundantAlt": "error",
         "useAltText": "error",
         "useAnchorContent": "error",
@@ -65,7 +56,6 @@
         "recommended": true,
         "noBannedTypes": "error",
         "noExtraBooleanCast": "error",
-        "noMultipleSpacesInRegularExpressionLiterals": "error",
         "noStaticOnlyClass": "error",
         "noUselessCatch": "error",
         "noUselessConstructor": "error",
@@ -79,10 +69,13 @@
         "noUselessThisAlias": "error",
         "noUselessTypeConstraint": "error",
         "noVoid": "error",
-        "noWith": "error",
         "useLiteralKeys": "error",
         "useOptionalChain": "error",
-        "useRegexLiterals": "error"
+        "useRegexLiterals": "error",
+        "noAdjacentSpacesInRegex": "error",
+        "noArguments": "error",
+        "noCommaOperator": "error",
+        "useNumericLiterals": "error"
       },
       "correctness": {
         "recommended": true,
@@ -95,7 +88,6 @@
         "noGlobalObjectCalls": "error",
         "noInnerDeclarations": "error",
         "noInvalidConstructorSuper": "error",
-        "noInvalidNewBuiltin": "error",
         "noNonoctalDecimalEscape": "error",
         "noPrecisionLoss": "error",
         "noSelfAssign": "error",
@@ -109,24 +101,24 @@
         "noUnusedLabels": "error",
         "noUnusedPrivateClassMembers": "error",
         "noUnusedVariables": "error",
-        "useArrayLiterals": "error",
         "useExhaustiveDependencies": "warn",
         "useHookAtTopLevel": "error",
         "useIsNan": "error",
         "useJsxKeyInIterable": "error",
         "useValidForDirection": "error",
-        "useYield": "error"
+        "useYield": "error",
+        "noInvalidBuiltinInstantiation": "error",
+        "useValidTypeof": "error"
       },
       "security": {
         "recommended": true,
         "noDangerouslySetInnerHtml": "error",
         "noDangerouslySetInnerHtmlWithChildren": "error",
-        "noGlobalEval": "error"
+        "noGlobalEval": "error",
+        "noBlankTarget": "error"
       },
       "style": {
         "recommended": true,
-        "noArguments": "error",
-        "noCommaOperator": "error",
         "noDefaultExport": "off",
         "noImplicitBoolean": "error",
         "noInferrableTypes": "error",
@@ -138,7 +130,6 @@
         "noShoutyConstants": "error",
         "noUnusedTemplateLiteral": "error",
         "noUselessElse": "error",
-        "noVar": "error",
         "useAsConstAssertion": "error",
         "useBlockStatements": "error",
         "useCollapsedElseIf": "error",
@@ -178,12 +169,11 @@
         },
         "useNodejsImportProtocol": "error",
         "useNumberNamespace": "error",
-        "useNumericLiterals": "error",
         "useSelfClosingElements": "error",
-        "useShorthandArrayType": "error",
         "useShorthandAssign": "error",
         "useSingleVarDeclarator": "error",
-        "useTemplate": "error"
+        "useTemplate": "error",
+        "useArrayLiterals": "error"
       },
       "suspicious": {
         "recommended": true,
@@ -197,7 +187,6 @@
         "noCompareNegZero": "error",
         "noConfusingLabels": "error",
         "noConfusingVoidType": "error",
-        "noConsoleLog": "warn",
         "noConstEnum": "error",
         "noControlCharactersInRegex": "error",
         "noDebugger": "error",
@@ -231,7 +220,9 @@
         "useGetterReturn": "error",
         "useIsArray": "error",
         "useNamespaceKeyword": "error",
-        "useValidTypeof": "error"
+        "noWith": "error",
+        "noVar": "error",
+        "noConsole": { "level": "warn", "options": { "allow": ["log"] } }
       }
     }
   },
@@ -276,12 +267,12 @@
   },
   "overrides": [
     {
-      "include": ["**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}"],
+      "includes": ["**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}"],
       "linter": {
         "rules": {
           "suspicious": {
-            "noConsoleLog": "off",
-            "noExplicitAny": "off"
+            "noExplicitAny": "off",
+            "noConsole": { "level": "off", "options": { "allow": ["log"] } }
           },
           "style": {
             "noNonNullAssertion": "off"
@@ -290,7 +281,7 @@
       }
     },
     {
-      "include": ["**/*.stories.{js,jsx,ts,tsx}"],
+      "includes": ["**/*.stories.{js,jsx,ts,tsx}"],
       "linter": {
         "rules": {
           "style": {
@@ -300,14 +291,14 @@
       }
     },
     {
-      "include": ["next.config.{js,ts}", "tailwind.config.{js,ts}", "*.config.{js,ts}"],
+      "includes": ["**/next.config.{js,ts}", "**/tailwind.config.{js,ts}", "**/*.config.{js,ts}"],
       "linter": {
         "rules": {
           "style": {
             "noDefaultExport": "off"
           },
           "suspicious": {
-            "noConsoleLog": "off"
+            "noConsole": { "level": "off", "options": { "allow": ["log"] } }
           }
         }
       }

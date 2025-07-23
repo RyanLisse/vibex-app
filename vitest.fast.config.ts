@@ -13,26 +13,49 @@ export default defineConfig({
 		name: "vibex-app-fast-tests",
 		environment: "happy-dom", // Most stable environment
 		globals: true,
-		setupFiles: ["./test-setup.ts"],
+		setupFiles: ["./test-setup-minimal.ts"],
 
-		// Only include the most critical unit tests
+		// Only include fast, essential unit tests
 		include: [
-			"components/**/*.{test,spec}.{js,ts,jsx,tsx}",
-			"lib/**/*.{test,spec}.{js,ts}",
-			"app/**/*.{test,spec}.{js,ts,jsx,tsx}",
+			// Core business logic tests (fastest)
+			"lib/utils.test.ts",
+			"lib/container-types.test.ts",
+			"lib/message-handlers.test.ts",
+			"lib/validation-utils.test.ts",
+			"lib/stream-utils.test.ts",
+			"lib/telemetry.test.ts",
+
+			// Essential schema tests
+			"src/schemas/**/*.test.ts",
+
+			// Critical hook tests (lightweight only)
+			"hooks/use-auth-base.test.ts",
+			"hooks/use-file-upload.test.ts",
 		],
 
-		// Exclude everything that could cause hanging
+		// Exclude everything slow or problematic
 		exclude: [
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/.next/**",
+			"**/coverage/**",
 			"tests/integration/**/*",
-			"tests/e2e/**/*", 
+			"tests/e2e/**/*",
+			"e2e/**/*",
 			"**/*.integration.*",
 			"**/*.e2e.*",
-			"**/node_modules/**",
-			"coverage/**",
-			"dist/**",
 			"**/*storybook*/**",
 			"**/*playwright*/**",
+			// Exclude slow component tests
+			"components/**/*.test.*",
+			"app/**/*.test.*",
+			// Exclude complex API tests
+			"app/api/**/*.test.*",
+			// Exclude database/external service tests
+			"lib/electric/**/*.test.*",
+			"lib/inngest/**/*.test.*",
+			"lib/github/**/*.test.*",
+			"lib/auth/**/*.test.*",
 		],
 
 		// Aggressive anti-hanging configuration
@@ -44,11 +67,11 @@ export default defineConfig({
 			},
 		},
 
-		// Very short timeouts to prevent hanging
-		testTimeout: 3000, // 3 seconds maximum per test
-		hookTimeout: 1000, // 1 second for hooks
-		teardownTimeout: 500, // 0.5 seconds for teardown
-		maxConcurrency: 1, // Absolutely no concurrency
+		// Aggressive timeouts for speed
+		testTimeout: 2000, // 2 seconds max per test
+		hookTimeout: 500,  // 0.5 seconds for hooks
+		teardownTimeout: 250, // 0.25 seconds for teardown
+		maxConcurrency: 1, // No concurrency
 		retry: 0, // No retries
 
 		// Sequential execution only
@@ -60,14 +83,14 @@ export default defineConfig({
 		// Disable all watching and HMR
 		watch: false,
 
-		// Minimal coverage for speed
+		// Disable coverage for speed
 		coverage: {
-			enabled: false, // Disable coverage for fast tests
+			enabled: false,
+			provider: "v8",
 		},
 
 		// Minimal reporting
-		reporter: ["basic"],
-		outputFile: undefined,
+		reporters: ["basic"],
 	},
 
 	resolve: {
@@ -95,7 +118,6 @@ export default defineConfig({
 		exclude: ["@types/node"],
 	},
 
-	esbuild: {
-		target: "es2022",
-	},
+	// CRITICAL FIX: Disable ESBuild to prevent EPIPE errors
+	esbuild: false,
 });

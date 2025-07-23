@@ -317,7 +317,7 @@ export function validateEnv(): Env {
 		return parsed;
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			const errorMessages = error.errors
+			const errorMessages = error.issues
 				.map((err) => `${err.path.join(".")}: ${err.message}`)
 				.join("\n");
 

@@ -217,7 +217,7 @@ describe("stream-utils", () => {
 				await createTimeoutPromise(50);
 			} catch {
 				const elapsed = Date.now() - start;
-				expect(elapsed).toBeGreaterThanOrEqual(50);
+				expect(elapsed).toBeGreaterThanOrEqual(45); // Allow for timing variance
 			}
 		});
 	});

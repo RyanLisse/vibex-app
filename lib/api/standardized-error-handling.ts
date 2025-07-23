@@ -230,7 +230,7 @@ export class StandardValidationHandler {
     } catch (error) {
       if (error instanceof z.ZodError) {
         throw new ValidationError("Request validation failed", {
-          issues: error.errors.map(issue => ({
+          issues: error.issues.map(issue => ({
             path: issue.path.join("."),
             message: issue.message,
             code: issue.code

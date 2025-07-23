@@ -21,7 +21,7 @@ export default defineConfig({
     })
   ],
 
-  // Path resolution for vibex-app
+  // Path resolution for vibex-app with browser compatibility
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
@@ -35,16 +35,55 @@ export default defineConfig({
       "@/src": path.resolve(__dirname, "./src"),
       "@/db": path.resolve(__dirname, "./db"),
       "@/tests": path.resolve(__dirname, "./tests")
+    },
+    fallback: {
+      "querystring": false,
+      "http": false,
+      "https": false,
+      "zlib": false,
+      "net": false,
+      "tls": false,
+      "dns": false,
+      "child_process": false,
+      "cluster": false,
+      "dgram": false,
+      "module": false,
+      "perf_hooks": false,
+      "readline": false,
+      "repl": false,
+      "string_decoder": false,
+      "sys": false,
+      "timers": false,
+      "tty": false,
+      "v8": false,
+      "vm": false,
+      "worker_threads": false,
+      // Node: prefixed imports
+      "node:fs": false,
+      "node:path": false,
+      "node:crypto": false,
+      "node:stream": false,
+      "node:util": false,
+      "node:os": false,
+      "node:buffer": false,
+      "node:events": false,
+      "node:url": false,
+      "node:querystring": false,
+      "node:http": false,
+      "node:https": false,
+      "node:zlib": false
     }
   },
 
-  // Optimized dependency handling for vibex-app stack
+  // Enhanced dependency handling for browser compatibility
   optimizeDeps: {
     include: [
+      // Core React dependencies - always include for browser
       "react",
       "react-dom",
       "react/jsx-runtime",
       "react/jsx-dev-runtime",
+      // UI libraries - browser compatible
       "framer-motion",
       "lucide-react",
       "@radix-ui/react-dialog",
@@ -54,20 +93,77 @@ export default defineConfig({
       "@radix-ui/react-separator",
       "@radix-ui/react-slot",
       "@radix-ui/react-tabs",
-      "@radix-ui/react-tooltip"
+      "@radix-ui/react-tooltip",
+      // Testing libraries for browser environment
+      "@testing-library/react",
+      "@testing-library/jest-dom",
+      "@testing-library/user-event",
+      "vitest",
+      "jsdom",
+      // Common utilities - browser safe
+      "clsx",
+      "class-variance-authority",
+      "tailwind-merge"
     ],
     exclude: [
-      "@electric-sql",
-      "@neondatabase",
-      "inngest",
+      // Database packages - server only
+      "@electric-sql/client",
+      "@electric-sql/pglite", 
+      "@neondatabase/serverless",
+      "drizzle-orm",
       "ioredis",
+      "redis",
+      "@redis/client",
+      // Server-side packages
+      "inngest",
+      "inngest-cli",
+      "nodemailer",
+      "winston",
+      "winston-daily-rotate-file",
+      "prom-client",
+      // Browser automation - server only
       "@browserbasehq/sdk",
       "stagehand",
-      "@sentry/nextjs"
+      "@playwright/test",
+      // Bundler tools
+      "@sentry/nextjs",
+      "@next/bundle-analyzer",
+      // Node.js runtime packages
+      "bun",
+      "bun:test",
+      // WASM modules that cause browser issues
+      "wa-sqlite"
     ],
     // Force optimization to prevent hanging
     force: false
   },
+
+  // External dependencies - prevent bundling of server-only packages
+  external: [
+    // Database packages
+    "ioredis",
+    "redis", 
+    "@redis/client",
+    "@neondatabase/serverless",
+    "drizzle-orm",
+    "@electric-sql/client",
+    "@electric-sql/pglite",
+    // Node.js specific packages  
+    "winston",
+    "winston-daily-rotate-file",
+    "inngest",
+    "inngest-cli", 
+    "nodemailer",
+    "prom-client",
+    // Testing packages (when not in test mode)
+    ...(process.env.NODE_ENV !== 'test' ? [
+      "vitest",
+      "bun",
+      "@playwright/test"
+    ] : []),
+    // WASM modules
+    "wa-sqlite"
+  ],
 
   // Production build configuration
   build: {
@@ -102,8 +198,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 600
   },
 
-  // Enhanced ESBuild configuration
-  esbuild: {
+  // CRITICAL FIX: Disable ESBuild in test mode to prevent EPIPE errors
+  esbuild: process.env.NODE_ENV === 'test' ? false : {
     target: "es2022",
     // Optimize for production
     minify: true,
@@ -130,8 +226,17 @@ export default defineConfig({
     open: false
   },
 
-  // Environment variables
+  // Environment variables and browser globals for compatibility
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    // Browser environment globals
+    global: 'globalThis',
+    'process.env.BROWSER': JSON.stringify(true),
+    'process.browser': JSON.stringify(true),
+    // Test environment detection
+    'import.meta.vitest': process.env.NODE_ENV === 'test' ? 'true' : 'false',
+    // Runtime environment flags
+    'process.env.RUNTIME': JSON.stringify('browser'),
+    'process.env.PLATFORM': JSON.stringify('web')
   }
 })

@@ -1,6 +1,7 @@
-import react from "@vitejs/plugin-react";
 import { defineConfig, mergeConfig } from "vitest/config";
-import { baseConfig } from "./vitest.base.config";
+import baseConfig from "./vitest.config";
+import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 /**
  * Integration Tests Configuration
@@ -12,12 +13,21 @@ import { baseConfig } from "./vitest.base.config";
  * - End-to-end workflow testing
  * - Real environment simulation
  */
-export default mergeConfig(baseConfig, {
-	plugins: [react()],
+export default defineConfig({
+	// CRITICAL FIX: Disable ESBuild to prevent EPIPE errors
+	esbuild: false,
+	
+	plugins: [
+		react({
+			jsxRuntime: 'automatic',
+			jsxImportSource: 'react',
+		}), 
+		tsconfigPaths()
+	],
 	test: {
 		name: "integration",
 		environment: "node",
-		setupFiles: ["./tests/setup.ts"],
+		setupFiles: ["./test-setup-fixed.ts"],
 		env: {
 			// Test environment variables
 			DATABASE_URL: "postgresql://test:test@localhost:5432/test",
@@ -54,7 +64,10 @@ export default mergeConfig(baseConfig, {
 		],
 		exclude: [
 			// Standard exclusions
-			...baseConfig.test.exclude,
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/.next/**",
+			"**/coverage/**",
 			// Client-side tests (handled by other configs)
 			"**/*.{test,spec}.{jsx,tsx}",
 			"**/components/**/*.{test,spec}.*",
@@ -89,7 +102,6 @@ export default mergeConfig(baseConfig, {
 		poolOptions: {
 			threads: {
 				singleThread: true,
-				memoryLimit: "1GB", // Higher memory for integration tests
 			},
 		},
 		retry: 1, // Allow one retry for flaky integration tests

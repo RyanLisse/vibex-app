@@ -105,14 +105,48 @@ const nextConfig: NextConfig = {
 				v8: false,
 				vm: false,
 				worker_threads: false,
+				// Additional browser incompatible modules
+				punycode: false,
+				domain: false,
+				"node:crypto": false,
+				"node:fs": false,
+				"node:path": false,
+				"node:os": false,
+				"node:util": false,
+				"node:events": false,
+				"node:stream": false,
+				"node:buffer": false,
+				"node:url": false,
+				"node:querystring": false,
+				"node:http": false,
+				"node:https": false,
+				"node:zlib": false,
 			};
 
-			// Exclude server-side packages from client bundles
+			// Comprehensive server-side package externalization
 			config.externals = config.externals || [];
 			config.externals.push({
+				// Database packages
 				ioredis: "ioredis",
 				redis: "redis",
 				"@redis/client": "@redis/client",
+				"@neondatabase/serverless": "@neondatabase/serverless",
+				"drizzle-orm": "drizzle-orm",
+				"@electric-sql/client": "@electric-sql/client",
+				"@electric-sql/pglite": "@electric-sql/pglite",
+				// Node.js specific packages
+				winston: "winston",
+				"winston-daily-rotate-file": "winston-daily-rotate-file",
+				inngest: "inngest",
+				"inngest-cli": "inngest-cli",
+				nodemailer: "nodemailer",
+				"prom-client": "prom-client",
+				// Testing packages
+				vitest: "vitest",
+				bun: "bun",
+				"@playwright/test": "@playwright/test",
+				// WASM modules
+				"wa-sqlite": "wa-sqlite",
 			});
 		}
 		return config;

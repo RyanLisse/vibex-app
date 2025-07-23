@@ -7,7 +7,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/config";
 import { environments, tasks } from "@/db/schema";
-import { ObservabilityService } from "@/lib/observability/observability-service";
+import { ObservabilityService } from "@/lib/observability";
 import type {
 	LocalStorageData,
 	LocalStorageEnvironment,

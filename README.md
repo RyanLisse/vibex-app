@@ -173,16 +173,24 @@ The application will be available at:
 
 ### Testing
 
-The project uses a consolidated 4-config testing strategy optimized for Bun:
+**🚀 New Refactored Testing Infrastructure** - Fast, reliable, and standardized!
 
-- `bun run test` - Run all test suites
-- `bun run test:unit` - Run unit tests for business logic
-- `bun run test:components` - Run React component tests
-- `bun run test:integration` - Run API and database integration tests
-- `bun run test:browser` - Run browser-based E2E tests
-- `bun run test:all` - Run all test suites sequentially
-- `bun run test:coverage` - Generate comprehensive coverage report
-- `bun run test:fast` - Quick test run (unit + integration only)
+#### Quick Commands (Daily Development)
+- `bun run test:fast` - **⚡ Fast pre-push checks (30s)** - Recommended for development
+- `bun run type-check` - **📝 Quick TypeScript validation (5s)**
+- `git push` - **🔒 Auto-runs pre-push hook** - Prevents broken pushes
+
+#### Comprehensive Testing (When Needed)
+- `bun run test:e2e` - **🌐 E2E tests with Playwright**
+- `bun run test:safe` - **✅ Safe Vitest execution** (avoids hanging)
+- `bun run test:coverage` - **📊 Coverage reports**
+
+#### Legacy Commands (Use with caution - may hang)
+- `bun run test` - Full test suite (may hang due to TypeScript bug)
+- `bun run test:unit` - Unit tests
+- `bun run test:integration` - Integration tests
+
+📖 **[Complete Testing Guide](docs/TESTING_INFRASTRUCTURE_GUIDE.md)** - Detailed documentation and troubleshooting
 
 ### Database
 
@@ -216,11 +224,13 @@ The project uses a consolidated 4-config testing strategy optimized for Bun:
 - **WASM Modules**: High-performance vector search and data processing
 - **Edge-Ready**: Optimized for Vercel Edge Functions
 
-### Testing Infrastructure
-- **Consolidated Test Configs**: From 8+ configs down to 4 optimized configs
-- **Parallel Test Execution**: Faster CI/CD pipelines
-- **Comprehensive Coverage**: Unit, integration, component, and E2E tests
-- **Vitest + Playwright**: Modern testing stack
+### Testing Infrastructure ✨ **NEWLY REFACTORED**
+- **🚀 Fast Pre-Push Hook**: Under 30 seconds, prevents broken pushes
+- **🔧 Standardized on Vitest**: Eliminated Bun test runner conflicts
+- **📋 Consolidated Configs**: From 15+ configs down to 3 essential ones
+- **⚡ Quick TypeScript Check**: Bypasses hanging compiler bug
+- **🌐 Proper E2E Setup**: Playwright with reliable configuration
+- **📖 Comprehensive Documentation**: [Testing Guide](docs/TESTING_INFRASTRUCTURE_GUIDE.md)
 
 ### Security & Monitoring
 - **Sentry Integration**: Comprehensive error tracking and performance monitoring

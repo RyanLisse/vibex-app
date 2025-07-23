@@ -462,6 +462,124 @@ export class EventStreamManager extends EventEmitter {
 
 		return stats;
 	}
+
+	/**
+	 * Enhanced event filtering with performance optimization
+	 */
+	subscribeWithAdvancedFilter(
+		filter: EventStreamFilter & {
+			aggregation?: {
+				enabled: boolean;
+				windowMs: number;
+				groupBy: string[];
+			};
+			rateLimit?: {
+				maxEventsPerSecond: number;
+				burstSize: number;
+			};
+		},
+		callback: (event: ObservabilityEvent | ObservabilityEvent[]) => void,
+	): string {
+		const subscriptionId = `adv_sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+		// Enhanced subscription with rate limiting and aggregation
+		const enhancedCallback = this.createEnhancedCallback(filter, callback);
+
+		const subscription: EventStreamSubscription = {
+			id: subscriptionId,
+			filter,
+			callback: enhancedCallback,
+			active: true,
+			createdAt: new Date(),
+		};
+
+		this.subscriptions.set(subscriptionId, subscription);
+		return subscriptionId;
+	}
+
+	/**
+	 * Create enhanced callback with rate limiting and aggregation
+	 */
+	private createEnhancedCallback(
+		filter: any,
+		originalCallback: (
+			event: ObservabilityEvent | ObservabilityEvent[],
+		) => void,
+	): (event: ObservabilityEvent) => void {
+		let eventBuffer: ObservabilityEvent[] = [];
+		let lastFlush = Date.now();
+		let eventCount = 0;
+		let lastSecond = Math.floor(Date.now() / 1000);
+
+		return (event: ObservabilityEvent) => {
+			const now = Date.now();
+			const currentSecond = Math.floor(now / 1000);
+
+			// Reset rate limit counter every second
+			if (currentSecond !== lastSecond) {
+				eventCount = 0;
+				lastSecond = currentSecond;
+			}
+
+			// Apply rate limiting
+			if (filter.rateLimit) {
+				if (eventCount >= filter.rateLimit.maxEventsPerSecond) {
+					return; // Drop event due to rate limit
+				}
+				eventCount++;
+			}
+
+			// Handle aggregation
+			if (filter.aggregation?.enabled) {
+				eventBuffer.push(event);
+
+				// Flush buffer if window elapsed or buffer is full
+				if (
+					now - lastFlush >= filter.aggregation.windowMs ||
+					eventBuffer.length >= 100
+				) {
+					if (eventBuffer.length > 0) {
+						originalCallback(eventBuffer);
+						eventBuffer = [];
+						lastFlush = now;
+					}
+				}
+			} else {
+				// Send individual event
+				originalCallback(event);
+			}
+		};
+	}
+
+	/**
+	 * Get performance metrics for the streaming system
+	 */
+	getPerformanceMetrics(): {
+		subscriptionsCount: number;
+		eventsBuffered: number;
+		eventsPerSecond: number;
+		memoryUsage: number;
+		pollingLatency: number;
+	} {
+		const memoryUsage = process.memoryUsage().heapUsed;
+
+		// Calculate events per second (approximate)
+		const recentEvents = this.eventBuffer.slice(-100);
+		const timeSpan =
+			recentEvents.length > 1
+				? recentEvents[recentEvents.length - 1].timestamp.getTime() -
+					recentEvents[0].timestamp.getTime()
+				: 1000;
+		const eventsPerSecond = recentEvents.length / (timeSpan / 1000);
+
+		return {
+			subscriptionsCount: this.subscriptions.size,
+			eventsBuffered: this.eventBuffer.length,
+			eventsPerSecond: Math.round(eventsPerSecond * 100) / 100,
+			memoryUsage,
+			pollingLatency: this.POLLING_INTERVAL,
+		};
+	}
 }
 
 // Convenience functions for common streaming patterns

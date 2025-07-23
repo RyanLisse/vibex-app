@@ -1,142 +1,66 @@
-import { useCallback, useEffect, useState } from "react";
-import { ClaudeAuthClient, type TokenResponse } from "@/lib/auth/claude-auth";
+import { useCallback, useState } from "react";
 
-interface UseClaudeAuthProps {
-	clientId: string;
-	redirectUri: string;
-	onSuccess?: (token: TokenResponse) => void;
-	onError?: (error: Error) => void;
+interface User {
+	id: string;
+	name?: string;
+	email?: string;
 }
 
-export function useClaudeAuth({
-	clientId,
-	redirectUri,
-	onSuccess,
-	onError,
-}: UseClaudeAuthProps) {
-	const [isAuthenticating, setIsAuthenticating] = useState(false);
+export function useClaudeAuth() {
+	const [user, setUser] = useState<User | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
-	const [authClient] = useState(
-		() =>
-			new ClaudeAuthClient({
-				clientId,
-				redirectUri,
-			}),
-	);
 
-	// Handle the OAuth callback when the component mounts
-	useEffect(() => {
-		const url = new URL(window.location.href);
-		const code = url.searchParams.get("code");
-		const state = url.searchParams.get("state");
-		const error = url.searchParams.get("error");
-
-		if (error) {
-			const errorMessage =
-				url.searchParams.get("error_description") || "Authentication failed";
-			handleError(new Error(errorMessage));
-			return;
-		}
-
-		if (code && state) {
-			handleCallback(code, state);
-		}
-	}, [handleCallback, handleError]);
-
-	const handleError = useCallback(
-		(err: Error) => {
-			setError(err);
-			onError?.(err);
-			setIsAuthenticating(false);
-		},
-		[onError],
-	);
-
-	const handleCallback = useCallback(
-		async (code: string, state: string) => {
-			try {
-				setIsAuthenticating(true);
-				setError(null);
-
-				// Retrieve the code verifier from session storage
-				const storedState = sessionStorage.getItem("claude_auth_state");
-				const verifier = sessionStorage.getItem("claude_auth_verifier");
-
-				if (!verifier || state !== storedState) {
-					throw new Error("Invalid state or missing verifier");
-				}
-
-				// Exchange the code for a token
-				const tokenResponse = await authClient.exchangeCodeForToken(
-					code,
-					verifier,
-				);
-
-				// Clean up
-				sessionStorage.removeItem("claude_auth_state");
-				sessionStorage.removeItem("claude_auth_verifier");
-
-				// Notify success
-				onSuccess?.(tokenResponse);
-				return tokenResponse;
-			} catch (err) {
-				handleError(
-					err instanceof Error ? err : new Error("Authentication failed"),
-				);
-				throw err;
-			} finally {
-				setIsAuthenticating(false);
-			}
-		},
-		[authClient, handleError, onSuccess],
-	);
-
-	const startLogin = useCallback(() => {
+	const login = useCallback(async () => {
 		try {
-			setIsAuthenticating(true);
+			setIsLoading(true);
 			setError(null);
 
-			// Generate authorization URL
-			const { url, verifier, state } = authClient.getAuthorizationUrl();
+			// Simulate authentication process
+			// In a real implementation, this would integrate with Claude's OAuth
+			await new Promise(resolve => setTimeout(resolve, 1000));
 
-			// Store the verifier and state in session storage
-			sessionStorage.setItem("claude_auth_verifier", verifier);
-			sessionStorage.setItem("claude_auth_state", state);
+			const mockUser: User = {
+				id: "claude-user-123",
+				name: "Claude User",
+				email: "user@claude.ai"
+			};
 
-			// Redirect to the authorization URL
-			window.location.href = url;
+			setUser(mockUser);
+			return mockUser;
 		} catch (err) {
-			handleError(
-				err instanceof Error ? err : new Error("Failed to start login"),
-			);
+			const authError = err instanceof Error ? err : new Error("Login failed");
+			setError(authError);
+			throw authError;
 		} finally {
-			setIsAuthenticating(false);
+			setIsLoading(false);
 		}
-	}, [authClient, handleError]);
+	}, []);
 
-	const refreshToken = useCallback(
-		async (refreshToken: string) => {
-			try {
-				setIsAuthenticating(true);
-				setError(null);
-				return await authClient.refreshToken(refreshToken);
-			} catch (err) {
-				handleError(
-					err instanceof Error ? err : new Error("Failed to refresh token"),
-				);
-				throw err;
-			} finally {
-				setIsAuthenticating(false);
-			}
-		},
-		[authClient, handleError],
-	);
+	const logout = useCallback(async () => {
+		try {
+			setIsLoading(true);
+			setError(null);
+
+			// Simulate logout process
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			setUser(null);
+		} catch (err) {
+			const authError = err instanceof Error ? err : new Error("Logout failed");
+			setError(authError);
+			throw authError;
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
 
 	return {
-		startLogin,
-		refreshToken,
-		isAuthenticating,
+		user,
+		isLoading,
 		error,
+		login,
+		logout,
 	};
 }
 

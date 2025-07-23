@@ -162,9 +162,10 @@ export function compareContainerVersions(
  * Type guard to check if data is StatusData
  */
 export function isStatusData(data: any): data is StatusData {
+	if (!data || typeof data !== "object") {
+		return false;
+	}
 	return (
-		data != null &&
-		typeof data === "object" &&
 		typeof data.status === "string" &&
 		typeof data.containerId === "string" &&
 		typeof data.timestamp === "string"
@@ -175,9 +176,10 @@ export function isStatusData(data: any): data is StatusData {
  * Type guard to check if data is UpdateData
  */
 export function isUpdateData(data: any): data is UpdateData {
+	if (!data || typeof data !== "object") {
+		return false;
+	}
 	return (
-		data != null &&
-		typeof data === "object" &&
 		typeof data.type === "string" &&
 		typeof data.containerId === "string" &&
 		typeof data.timestamp === "string" &&
@@ -189,9 +191,10 @@ export function isUpdateData(data: any): data is UpdateData {
  * Type guard to check if data is LatestData
  */
 export function isLatestDataType(data: any): data is LatestData {
+	if (!data || typeof data !== "object") {
+		return false;
+	}
 	return (
-		data != null &&
-		typeof data === "object" &&
 		typeof data.containerId === "string" &&
 		typeof data.lastStatus === "string" &&
 		typeof data.lastUpdate === "string" &&

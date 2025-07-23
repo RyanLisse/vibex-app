@@ -5,7 +5,17 @@
  * including vector search, SQLite utilities, and compute operations.
  */
 
-import { SQLiteWASMUtils, sqliteWASMUtils } from "./sqlite-utils";
+import { ComputeWASM, type ComputeWASMConfig, computeManager } from "./compute";
+import { type DataProcessingConfig, dataProcessor } from "./data-processor";
+import { type WASMCapabilities, wasmDetector } from "./detection";
+import { moduleLoader } from "./module-loader";
+import { wasmObservability } from "./observability-integration";
+import { wasmPerformanceTracker } from "./performance-tracker";
+import {
+	type SQLiteWASMConfig,
+	SQLiteWASMUtils,
+	sqliteWASMUtils,
+} from "./sqlite-utils";
 import {
 	type VectorSearchConfig,
 	VectorSearchWASM,

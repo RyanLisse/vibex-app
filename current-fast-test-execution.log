@@ -1,0 +1,42 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+
+> vibex@0.1.0 test:fast
+> ./scripts/fast-pre-push-check.sh
+
+🚀 Running fast pre-push checks...
+⏱️  Target completion time: under 30 seconds
+
+📝 Check 1: Basic syntax validation...
+⏳ Running ESLint syntax check (max 15s)...
+$ next lint --max-warnings "20" --quiet
+
+./components/ui/textarea.tsx
+10:18  Error: An interface declaring no members is equivalent to its supertype.  @typescript-eslint/no-empty-object-type
+
+./lib/electric/client.ts
+24:11  Error: Unsafe declaration merging between classes and interfaces.  @typescript-eslint/no-unsafe-declaration-merging
+30:7  Error: Unsafe declaration merging between classes and interfaces.  @typescript-eslint/no-unsafe-declaration-merging
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+error: script "lint" exited with code 1
+❌ ESLint syntax check failed
+⚠️  Syntax issues found, but continuing...
+
+📁 Check 2: Project structure validation...
+✅ All required files present
+
+📦 Check 3: Package configuration validation...
+✅ Package.json is valid
+✅ Package configuration valid
+
+🔍 Check 4: Basic import validation...
+⚠️  Suspicious deep import in app/task/[id]/_components/__tests__/task-client-page.test.tsx
+⚠️  Suspicious deep import in app/task/[id]/_components/message-input.test.tsx
+✅ Import structure looks good
+✅ Import validation passed
+
+🎉 Fast pre-push checks completed successfully!
+✅ All critical checks passed
+💡 For comprehensive testing, run: bun run test
+🔧 For full type checking, run: bun run type-check
+

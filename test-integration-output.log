@@ -1,0 +1,17 @@
+
+> vibex@0.1.0 test:integration
+> vitest run --config=vitest.integration.config.ts
+
+failed to load config from /Users/neo/Developer/experiments/vibex-app/vitest.integration.config.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error: The service was stopped
+    at /Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:949:34
+    at responseCallbacks.<computed> (/Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:603:9)
+    at Socket.afterClose (/Users/neo/Developer/experiments/vibex-app/node_modules/esbuild/lib/main.js:594:28)
+    at Socket.emit (node:events:519:35)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+
+

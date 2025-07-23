@@ -44,7 +44,8 @@ describe("telemetry", () => {
 
 		it("should return enabled config with defaults", () => {
 			process.env.OTEL_ENABLED = "true";
-			// Don't set OTEL_EXPORTER_OTLP_ENDPOINT to test default endpoint
+			// Clear OTEL_EXPORTER_OTLP_ENDPOINT to test default endpoint
+			delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
 
 			const config = getTelemetryConfig();
 

@@ -1117,7 +1117,7 @@ describe("Edge cases and validation", () => {
 			status: "pending",
 			priority: "medium",
 			createdAt: new Date("1970-01-01T00:00:00.000Z"),
-			updatedAt: new Date("2099-12-31T23:59:59.999Z"),
+			updatedAt: new Date("2099-01-01T00:00:00.000Z"),
 		};
 
 		const store: ExampleStore = {

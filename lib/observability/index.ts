@@ -400,13 +400,18 @@ export const observability = {
 		observabilityService.getHealthStatus.bind(observabilityService),
 };
 
+// Re-export enhanced observability services
+export { agentTracking, enhancedObservability } from "./enhanced-events-system";
 // Re-export event types
 export type { EventFilter, EventSeverity, ObservabilityEvent } from "./events";
-
 // Re-export types and utilities from metrics
 export type { AggregatedMetric, MetricDataPoint, MetricType } from "./metrics";
 export { MetricsAnalyzer, PerformanceMetricsCollector } from "./metrics";
+export {
+	openTelemetryIntegration,
+	telemetry,
+} from "./opentelemetry-integration";
+export { performanceAggregation } from "./performance-aggregation";
 
 // Re-export for backwards compatibility
-
 export { observability as observabilityService };
