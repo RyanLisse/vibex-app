@@ -2,7 +2,7 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import type React from "react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
@@ -337,4 +337,4 @@ const NonMemoizedMarkdown = ({ children, repoUrl, branch }: MarkdownProps) => {
 	);
 };
 
-export const Markdown = memo(MarkdownComponent);
+export const Markdown = memo(NonMemoizedMarkdown);

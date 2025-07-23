@@ -131,5 +131,26 @@ export async function resumeTaskAction(taskId: string): Promise<void> {
   }
 }
 
+/**
+ * Fetch realtime subscription token for tasks
+ * TODO: Implement actual Inngest realtime subscription logic
+ */
+export async function fetchRealtimeSubscriptionToken(
+	taskId: string,
+	userId: string,
+): Promise<{ token: string; endpoint: string }> {
+	try {
+		// Mock implementation for build purposes
+		console.log("Fetching realtime subscription token:", { taskId, userId });
+		return {
+			token: `mock-token-${taskId}-${userId}`,
+			endpoint: `ws://localhost:3000/api/tasks/${taskId}/subscribe`,
+		};
+	} catch (error) {
+		console.error("Failed to fetch realtime subscription token:", error);
+		throw error;
+	}
+}
+
 // Note: Default export removed as it's not allowed in "use server" files
 // Individual async functions are exported above

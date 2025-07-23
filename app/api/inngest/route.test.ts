@@ -49,7 +49,12 @@ vi.mock("next/server", () => ({
 // Set environment variables
 process.env.INNGEST_SIGNING_KEY = "test-signing-key";
 process.env.INNGEST_EVENT_KEY = "test-event-key";
-process.env.NODE_ENV = "test";
+// NODE_ENV is read-only in some environments, so we use Object.defineProperty
+Object.defineProperty(process.env, 'NODE_ENV', {
+	value: 'test',
+	writable: true,
+	configurable: true
+});
 
 const { NextResponse } = await import("next/server");
 const _mockNextResponse = NextResponse as any;
@@ -176,7 +181,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle function execution errors", async () => {
-			mockHandler.POST.mockImplementation(
+			mockHandler.POST.mockImplementation(() =>
 				Promise.reject(new Error("Function execution failed")),
 			);
 
@@ -235,7 +240,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle invalid function updates", async () => {
-			mockHandler.PUT.mockImplementation(
+			mockHandler.PUT.mockImplementation(() =>
 				Promise.reject(new Error("Function not found")),
 			);
 
@@ -254,7 +259,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle authorization errors", async () => {
-			mockHandler.PUT.mockImplementation(
+			mockHandler.PUT.mockImplementation(() =>
 				Promise.reject(new Error("Unauthorized")),
 			);
 
@@ -278,7 +283,7 @@ describe("Inngest API Routes", () => {
 
 	describe("Error Handling", () => {
 		it("should handle network errors gracefully", async () => {
-			mockHandler.GET.mockImplementation(
+			mockHandler.GET.mockImplementation(() =>
 				Promise.reject(new Error("Network error")),
 			);
 
@@ -344,7 +349,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle function registration errors", async () => {
-			mockHandler.GET.mockImplementation(
+			mockHandler.GET.mockImplementation(() =>
 				Promise.reject(new Error("Function registration failed")),
 			);
 
@@ -362,7 +367,11 @@ describe("Inngest API Routes", () => {
 
 	describe("Environment Configuration", () => {
 		it("should handle development environment", async () => {
-			process.env.NODE_ENV = "development";
+			Object.defineProperty(process.env, 'NODE_ENV', {
+				value: 'development',
+				writable: true,
+				configurable: true
+			});
 			process.env.INNGEST_SIGNING_KEY = "dev-signing-key";
 			process.env.INNGEST_EVENT_KEY = "dev-event-key";
 
@@ -379,7 +388,11 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle production environment", async () => {
-			process.env.NODE_ENV = "production";
+			Object.defineProperty(process.env, 'NODE_ENV', {
+				value: 'production',
+				writable: true,
+				configurable: true
+			});
 			process.env.INNGEST_SIGNING_KEY = "prod-signing-key";
 			process.env.INNGEST_EVENT_KEY = "prod-event-key";
 

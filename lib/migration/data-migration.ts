@@ -9,6 +9,9 @@ export interface DataMigrationManager {
 	migrate(): Promise<void>;
 	rollback(): Promise<void>;
 	getStatus(): Promise<{ status: string; progress: number }>;
+	checkMigrationNeeded(): Promise<{ needed: boolean; localStorageData: any; databaseData: any }>;
+	getCurrentMigration(): { status: string; progress: number } | null;
+	startMigration(): Promise<{ migrationId: string; status: string }>;
 }
 
 export const dataMigrationManager: DataMigrationManager = {
@@ -25,5 +28,27 @@ export const dataMigrationManager: DataMigrationManager = {
 	async getStatus() {
 		// Stub implementation
 		return { status: "completed", progress: 100 };
+	},
+
+	async checkMigrationNeeded() {
+		// Stub implementation
+		return {
+			needed: false,
+			localStorageData: {},
+			databaseData: {}
+		};
+	},
+
+	getCurrentMigration() {
+		// Stub implementation
+		return null;
+	},
+
+	async startMigration() {
+		// Stub implementation
+		return {
+			migrationId: "migration-" + Date.now(),
+			status: "started"
+		};
 	},
 };

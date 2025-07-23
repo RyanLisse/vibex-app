@@ -65,10 +65,6 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 		if (Array.isArray(result)) {
 			return result;
 		}
-		// For mock database, result might have a where method
-		if (result && typeof result.where === "function") {
-			return result.where(() => true).limit(100);
-		}
 		return [];
 	}
 
@@ -179,10 +175,10 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	/**
 	 * Create new environment
 	 */
-	async create(
-		envData: CreateEnvironmentDTO,
-		context: ServiceContext,
-	): Promise<any> {
+	// Override base method to match signature
+	async create(data: CreateEnvironmentDTO): Promise<any> {
+		const context: ServiceContext = {};
+		const envData = data;
 		return this.executeWithTracing(
 			"createEnvironment",
 			context,
@@ -212,9 +208,7 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 					id: ulid(),
 					name: envData.name,
 					config: {
-						type: envData.type,
 						description: envData.description,
-						url: envData.url,
 						variables: envData.variables,
 					},
 					userId,
@@ -260,11 +254,10 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	/**
 	 * Update environment (not implemented in original)
 	 */
-	async update(
-		id: string,
-		updates: any,
-		context: ServiceContext,
-	): Promise<any> {
+	// Override base method to match signature
+	async update(id: string, data: any): Promise<any> {
+		const context: ServiceContext = {};
+		const updates = data;
 		return this.executeWithTracing(
 			"updateEnvironment",
 			context,
@@ -277,7 +270,9 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	/**
 	 * Delete environment (not implemented in original)
 	 */
-	async delete(id: string, context: ServiceContext): Promise<void> {
+	// Override base method to match signature
+	async delete(id: string): Promise<void> {
+		const context: ServiceContext = {};
 		return this.executeWithTracing(
 			"deleteEnvironment",
 			context,

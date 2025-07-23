@@ -8,6 +8,8 @@
 export interface DatabaseIndexOptimizer {
 	optimize(): Promise<void>;
 	analyze(): Promise<{ recommendations: string[] }>;
+	analyzeCurrentIndexes(): Promise<{ indexes: any[]; utilization: any }>;
+	generateOptimizationPlan(): Promise<{ plan: any[]; estimatedImpact: any }>;
 }
 
 export const databaseIndexOptimizer: DatabaseIndexOptimizer = {
@@ -17,5 +19,19 @@ export const databaseIndexOptimizer: DatabaseIndexOptimizer = {
 
 	async analyze() {
 		return { recommendations: [] };
+	},
+
+	async analyzeCurrentIndexes() {
+		return { 
+			indexes: [], 
+			utilization: { totalIndexes: 0, unusedIndexes: 0 } 
+		};
+	},
+
+	async generateOptimizationPlan() {
+		return { 
+			plan: [], 
+			estimatedImpact: { performanceGain: 0, diskSavings: 0 } 
+		};
 	},
 };
