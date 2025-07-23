@@ -9,32 +9,49 @@
 export const db = {
 	select: () => ({
 		from: (table: any) => {
-			// Return a proper array with query methods
-			const result: any[] = [];
-			result.where = (condition: any) => {
-				const filteredResult: any[] = [];
-				filteredResult.limit = (count: any) => [];
-				return filteredResult;
+			const queryResult = {
+				where: (condition: any) => ({
+					limit: (count: any) => Promise.resolve([]),
+					orderBy: (...args: any[]) => ({
+						limit: (count: any) => Promise.resolve([]),
+					}),
+					filter: (fn: any) => Promise.resolve([]),
+				}),
+				limit: (count: any) => Promise.resolve([]),
+				orderBy: (...args: any[]) => ({
+					limit: (count: any) => Promise.resolve([]),
+					where: (condition: any) => ({
+						limit: (count: any) => Promise.resolve([]),
+					}),
+				}),
+				filter: (fn: any) => Promise.resolve([]),
+				length: 0,
 			};
-			result.limit = (count: any) => [];
+			// Make the query result promise-like and add array-like properties
+			const result = Object.assign(Promise.resolve([]), queryResult);
+			result.length = 0;
+			result.filter = (fn: any) => Promise.resolve([]);
 			return result;
 		},
 	}),
 	insert: (table: any) => ({
 		values: (data: any) => ({
-			returning: () => [data],
+			returning: () => Promise.resolve([data]),
+			onConflictDoUpdate: (config: any) => ({
+				returning: () => Promise.resolve([data]),
+			}),
 		}),
 	}),
 	update: (table: any) => ({
 		set: (data: any) => ({
 			where: (condition: any) => ({
-				returning: () => [data],
+				returning: () => Promise.resolve([data]),
 			}),
 		}),
 	}),
 	delete: (table: any) => ({
 		where: (condition: any) => ({
-			returning: () => [],
+			returning: () => Promise.resolve([]),
 		}),
 	}),
 	execute: async (query?: any) => ({ rows: [], rowCount: 0 }),

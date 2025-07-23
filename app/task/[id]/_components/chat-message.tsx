@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,38 +29,22 @@ export const ChatMessage = memo(function ChatMessage({
 	const isUser = message.role === "user";
 	const isSystem = message.role === "system";
 
-	const getRoleColor = () => {
-		switch (message.role) {
-			case "user":
-				return "bg-blue-100 text-blue-900";
-			case "assistant":
-				return "bg-green-100 text-green-900";
-			case "system":
-				return "bg-gray-100 text-gray-900";
-			default:
-				return "bg-gray-100 text-gray-900";
-		}
-	};
-
-	const getAvatarInitials = () => {
-		switch (message.role) {
-			case "user":
-				return "U";
-			case "assistant":
-				return "AI";
-			case "system":
-				return "S";
-			default:
-				return "?";
-		}
-	};
+	// Extract role configuration to reduce complexity and eliminate multiple return statements
+	const roleConfig = useMemo(() => {
+		const configs = {
+			user: { color: "bg-blue-100 text-blue-900", initials: "U" },
+			assistant: { color: "bg-green-100 text-green-900", initials: "AI" },
+			system: { color: "bg-gray-100 text-gray-900", initials: "S" },
+		};
+		return configs[message.role] || { color: "bg-gray-100 text-gray-900", initials: "?" };
+	}, [message.role]);
 
 	return (
 		<div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
 			{showAvatar && (
 				<Avatar className="shrink-0">
-					<AvatarFallback className={getRoleColor()}>
-						{getAvatarInitials()}
+					<AvatarFallback className={roleConfig.color}>
+						{roleConfig.initials}
 					</AvatarFallback>
 				</Avatar>
 			)}

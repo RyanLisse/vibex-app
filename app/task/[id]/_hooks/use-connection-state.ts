@@ -18,84 +18,118 @@ interface UseConnectionStateOptions {
 	retryDelay?: number;
 }
 
-export function useConnectionState({
-	url,
-	autoReconnect = true,
-	maxRetries = 3,
-	retryDelay = 2000,
-}: UseConnectionStateOptions = {}) {
+// Configuration object to reduce parameter complexity
+interface ConnectionConfig {
+	url?: string;
+	autoReconnect?: boolean;
+	maxRetries?: number;
+	retryDelay?: number;
+}
+
+// Extract connection logic to separate hooks for better separation of concerns
+function useConnectionActions(connectionInfo: ConnectionInfo, config: Required<ConnectionConfig>) {
+	const { url, autoReconnect, maxRetries, retryDelay } = config;
+
+	const updateConnectionState = useCallback(
+		(state: ConnectionState, error?: string) => {
+			return {
+				...connectionInfo,
+				state,
+				lastError: error,
+				lastConnected: state === "connected" ? new Date() : connectionInfo.lastConnected,
+			};
+		},
+		[connectionInfo],
+	);
+
+	return { updateConnectionState };
+}
+
+function useConnectionRetry(connectionInfo: ConnectionInfo, config: Required<ConnectionConfig>) {
+	const { maxRetries, retryDelay, autoReconnect } = config;
+
+	const shouldRetry = useCallback(() => {
+		return autoReconnect && connectionInfo.retryCount < maxRetries;
+	}, [autoReconnect, connectionInfo.retryCount, maxRetries]);
+
+	const incrementRetryCount = useCallback(() => {
+		return { ...connectionInfo, retryCount: connectionInfo.retryCount + 1 };
+	}, [connectionInfo]);
+
+	const resetRetryCount = useCallback(() => {
+		return { ...connectionInfo, retryCount: 0 };
+	}, [connectionInfo]);
+
+	return { shouldRetry, incrementRetryCount, resetRetryCount, retryDelay };
+}
+
+export function useConnectionState(options: UseConnectionStateOptions = {}) {
+	// Normalize config with defaults
+	const config: Required<ConnectionConfig> = {
+		url: options.url || '',
+		autoReconnect: options.autoReconnect ?? true,
+		maxRetries: options.maxRetries ?? 3,
+		retryDelay: options.retryDelay ?? 2000,
+	};
+
 	const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo>({
 		state: "disconnected",
 		retryCount: 0,
 	});
 
-	const updateConnectionState = useCallback(
-		(state: ConnectionState, error?: string) => {
-			setConnectionInfo((prev) => ({
-				...prev,
-				state,
-				lastError: error,
-				lastConnected: state === "connected" ? new Date() : prev.lastConnected,
-			}));
-		},
-		[],
-	);
+	const { updateConnectionState } = useConnectionActions(connectionInfo, config);
+	const { shouldRetry, incrementRetryCount, resetRetryCount, retryDelay } = useConnectionRetry(connectionInfo, config);
 
-	const connect = useCallback(async () => {
-		if (!url) return;
-
-		updateConnectionState("connecting");
+	// Simplified connection logic
+	const performConnection = useCallback(async () => {
+		if (!config.url) return false;
 
 		try {
-			// Simulate connection check
-			const response = await fetch(url, { method: "HEAD" });
-			if (response.ok) {
-				updateConnectionState("connected");
-				setConnectionInfo((prev) => ({ ...prev, retryCount: 0 }));
-			} else {
-				throw new Error(`Connection failed: ${response.status}`);
-			}
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Unknown error";
-			updateConnectionState("error", errorMessage);
+			const response = await fetch(config.url, { method: "HEAD" });
+			return response.ok;
+		} catch {
+			return false;
+		}
+	}, [config.url]);
 
-			if (autoReconnect && connectionInfo.retryCount < maxRetries) {
-				setConnectionInfo((prev) => ({
-					...prev,
-					retryCount: prev.retryCount + 1,
-				}));
+	const connect = useCallback(async () => {
+		if (!config.url) return;
+
+		setConnectionInfo(updateConnectionState("connecting"));
+
+		const isConnected = await performConnection();
+		
+		if (isConnected) {
+			setConnectionInfo(resetRetryCount());
+			setConnectionInfo(prev => updateConnectionState("connected"));
+		} else {
+			const errorMessage = "Connection failed";
+			setConnectionInfo(prev => updateConnectionState("error", errorMessage));
+
+			if (shouldRetry()) {
+				setConnectionInfo(incrementRetryCount());
 				setTimeout(connect, retryDelay);
 			}
 		}
-	}, [
-		url,
-		autoReconnect,
-		maxRetries,
-		retryDelay,
-		connectionInfo.retryCount,
-		updateConnectionState,
-	]);
+	}, [config.url, updateConnectionState, resetRetryCount, performConnection, shouldRetry, incrementRetryCount, retryDelay]);
 
 	const disconnect = useCallback(() => {
-		updateConnectionState("disconnected");
-		setConnectionInfo((prev) => ({ ...prev, retryCount: 0 }));
-	}, [updateConnectionState]);
+		setConnectionInfo(updateConnectionState("disconnected"));
+		setConnectionInfo(resetRetryCount());
+	}, [updateConnectionState, resetRetryCount]);
 
 	const reconnect = useCallback(() => {
-		setConnectionInfo((prev) => ({ ...prev, retryCount: 0 }));
+		setConnectionInfo(resetRetryCount());
 		connect();
-	}, [connect]);
+	}, [resetRetryCount, connect]);
 
 	useEffect(() => {
-		if (url && autoReconnect) {
+		if (config.url && config.autoReconnect) {
 			connect();
 		}
 
-		return () => {
-			disconnect();
-		};
-	}, [url, autoReconnect, connect, disconnect]);
+		return disconnect;
+	}, [config.url, config.autoReconnect, connect, disconnect]);
 
 	return {
 		...connectionInfo,

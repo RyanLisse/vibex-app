@@ -14,12 +14,53 @@ export interface ServiceContext {
 
 export class BaseAPIService {
 	protected context: ServiceContext;
+	protected static serviceName: string = "base-service";
 
 	constructor(context: ServiceContext = {}) {
 		this.context = {
 			...context,
 			timestamp: context.timestamp || new Date(),
 		};
+	}
+
+	// Static methods for service-level operations
+	protected static async withTracing<T>(
+		operation: string,
+		fn: () => Promise<T>,
+		metadata?: Record<string, any>
+	): Promise<T> {
+		console.log(`[${this.serviceName}] Starting ${operation}`, metadata);
+		try {
+			const result = await fn();
+			console.log(`[${this.serviceName}] Completed ${operation}`);
+			return result;
+		} catch (error) {
+			console.error(`[${this.serviceName}] Failed ${operation}`, error);
+			throw error;
+		}
+	}
+
+	protected static async withTransaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+		// For now, just use the db instance directly
+		// In a real implementation, this would start a transaction
+		const { db } = await import("@/db/config");
+		return await fn(db);
+	}
+
+	protected static async logOperation(
+		operation: string,
+		resourceType: string,
+		resourceId: string | null,
+		userId?: string,
+		metadata?: Record<string, any>
+	): Promise<void> {
+		console.log(`[${this.serviceName}] Operation: ${operation}`, {
+			resourceType,
+			resourceId,
+			userId,
+			metadata,
+			timestamp: new Date().toISOString()
+		});
 	}
 
 	protected log(level: "info" | "warn" | "error", message: string, data?: any) {

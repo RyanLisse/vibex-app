@@ -3,6 +3,8 @@
  *
  * Implements kanban board operations with base infrastructure patterns
  * for consistent error handling, tracing, and observability.
+ * 
+ * REFACTORED: Uses shared kanban service to eliminate duplication
  */
 
 import { and, eq } from "drizzle-orm";
@@ -23,22 +25,15 @@ import type {
 	KanbanMoveSchema,
 } from "@/src/schemas/enhanced-task-schemas";
 
-// Default kanban columns configuration
-export const DEFAULT_COLUMNS = [
-	{ id: "todo", title: "To Do", limit: null, color: "#64748b" },
-	{ id: "in_progress", title: "In Progress", limit: 5, color: "#3b82f6" },
-	{ id: "review", title: "Review", limit: 3, color: "#f59e0b" },
-	{ id: "completed", title: "Completed", limit: null, color: "#10b981" },
-];
-
-// Status mapping between task status and kanban columns
-export const STATUS_COLUMN_MAP = {
-	todo: "todo",
-	in_progress: "in_progress",
-	review: "review",
-	completed: "completed",
-	blocked: "in_progress", // Blocked tasks stay in progress column
-};
+// Import shared utilities to eliminate duplication
+import {
+	DEFAULT_COLUMNS,
+	STATUS_COLUMN_MAP,
+	GetKanbanQuerySchema,
+	SharedKanbanService,
+	KanbanUtils,
+	type KanbanBoardData,
+} from "@/lib/api/kanban/shared-service";
 
 const COLUMN_STATUS_MAP = {
 	todo: "todo",
@@ -46,13 +41,6 @@ const COLUMN_STATUS_MAP = {
 	review: "review",
 	completed: "completed",
 };
-
-// Query schemas
-export const GetKanbanQuerySchema = z.object({
-	userId: z.string().optional(),
-	projectId: z.string().optional(),
-	assignee: z.string().optional(),
-});
 
 export type GetKanbanQuery = z.infer<typeof GetKanbanQuerySchema>;
 export type KanbanMoveDTO = z.infer<typeof KanbanMoveSchema>;
@@ -63,98 +51,30 @@ export class TasksKanbanAPIService extends BaseAPIService {
 	private queryBuilder = new QueryBuilder(tasks);
 
 	/**
-	 * Get kanban board data
+	 * Get kanban board data - REFACTORED to use shared service
 	 */
 	async getKanbanBoard(
 		params: GetKanbanQuery,
 		context: ServiceContext,
-	): Promise<{
-		columns: any[];
-		config: any;
-		metrics: any;
-	}> {
+	): Promise<KanbanBoardData> {
 		return this.executeWithTracing("getKanbanBoard", context, async (span) => {
-			// Build query conditions
-			const conditions = [];
-			if (params.userId) {
-				conditions.push(eq(tasks.userId, params.userId));
-			}
-			// Note: assignee field not available in current schema
+			// Delegate to shared service to eliminate duplication
+			const result = await SharedKanbanService.getKanbanBoard(params);
 
-			// Get all tasks
-			const allTasks = await this.executeDatabase("getTasks", async () => {
-				return db
-					.select()
-					.from(tasks)
-					.where(conditions.length > 0 ? and(...conditions) : undefined);
-			});
-
-			// Get or create kanban configuration
-			const kanbanConfig = {
-				columns: DEFAULT_COLUMNS,
-				settings: {
-					enableWipLimits: true,
-					autoAssignReviewer: true,
-					allowMultipleAssignees: false,
-					showTaskEstimates: true,
-				},
-			};
-
-			// Organize tasks by columns
-			const columns = kanbanConfig.columns.map((column) => {
-				const columnTasks = allTasks.filter((task) => {
-					const mappedColumn = STATUS_COLUMN_MAP[task.status] || "todo";
-					return mappedColumn === column.id;
-				});
-
-				// Sort tasks by priority and creation date
-				columnTasks.sort((a, b) => {
-					const priorityOrder = { high: 3, medium: 2, low: 1 };
-					const priorityDiff =
-						priorityOrder[b.priority] - priorityOrder[a.priority];
-					if (priorityDiff !== 0) {
-						return priorityDiff;
-					}
-					return (
-						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-					);
-				});
-
-				return {
-					...column,
-					tasks: columnTasks,
-					count: columnTasks.length,
-					isOverLimit: column.limit && columnTasks.length > column.limit,
-				};
-			});
-
-			// Calculate board metrics
-			const metrics = {
-				totalTasks: allTasks.length,
-				tasksInProgress: allTasks.filter((t) => t.status === "in_progress")
-					.length,
-				blockedTasks: allTasks.filter((t) => t.status === "blocked").length,
-				completedToday: allTasks.filter((t) => t.status === "completed").length,
-				wipLimitViolations: columns.filter((c) => c.isOverLimit).length,
-			};
-
+			// Add instance-specific observability
 			span.setAttributes({
-				"kanban.total_tasks": metrics.totalTasks,
-				"kanban.columns": columns.length,
-				"kanban.wip_violations": metrics.wipLimitViolations,
+				"kanban.total_tasks": result.metrics.totalTasks,
+				"kanban.columns": result.columns.length,
+				"kanban.wip_violations": result.metrics.wipLimitViolations,
 			});
 
 			await this.recordEvent("kanban_query", "Kanban board data retrieved", {
-				totalTasks: metrics.totalTasks,
-				columns: columns.length,
+				totalTasks: result.metrics.totalTasks,
+				columns: result.columns.length,
 				filters: params,
 			});
 
-			return {
-				columns,
-				config: kanbanConfig,
-				metrics,
-			};
+			return result;
 		});
 	}
 
@@ -173,15 +93,19 @@ export class TasksKanbanAPIService extends BaseAPIService {
 		};
 	}> {
 		return this.executeWithTracing("moveTask", context, async (span) => {
+			// Get the task first
+			const taskResult = await db.select().from(tasks).where(eq(tasks.id, moveData.taskId));
+			const task = taskResult[0];
+			if (!task) {
+				throw new NotFoundError("Task", moveData.taskId);
+			}
+
 			// Use simplified task movement utility
 			const result = await executeTaskMove({
 				taskId: moveData.taskId,
 				toColumn: moveData.toColumn,
-				newOrder: moveData.newOrder,
-				columnsConfig: DEFAULT_COLUMNS,
-				statusColumnMap: STATUS_COLUMN_MAP,
-				columnStatusMap: COLUMN_STATUS_MAP,
-			});
+				newOrder: moveData.position,
+			}, task);
 
 			// Add observability
 			span.setAttributes({
@@ -208,7 +132,7 @@ export class TasksKanbanAPIService extends BaseAPIService {
 	}
 
 	/**
-	 * Update kanban board configuration
+	 * Update kanban board configuration - REFACTORED to use shared service
 	 */
 	async updateKanbanConfig(
 		config: KanbanConfigDTO,
@@ -218,22 +142,25 @@ export class TasksKanbanAPIService extends BaseAPIService {
 			"updateKanbanConfig",
 			context,
 			async (span) => {
-				// In a real implementation, would save to database
-				// For now, we'll just validate and return the config
+				// Delegate to shared service to eliminate duplication
+				const result = await SharedKanbanService.updateConfig(config);
 
+				// Add instance-specific observability
 				span.setAttributes({
 					"kanban.config_update": true,
+					"kanban.columns_count": config.columns.length,
+					"kanban.wip_limits_enabled": config.settings?.enableWipLimits || false,
 				});
 
 				await this.recordEvent(
 					"config_update",
 					"Kanban configuration updated",
 					{
-						config: config,
+						config: result,
 					},
 				);
 
-				return config;
+				return result;
 			},
 		);
 	}
@@ -241,5 +168,5 @@ export class TasksKanbanAPIService extends BaseAPIService {
 
 // Export singleton instance
 export const tasksKanbanService = new TasksKanbanAPIService({
-	serviceName: "tasks-kanban",
+	timestamp: new Date(),
 });

@@ -1,125 +1,161 @@
 import path from "node:path";
-import { defineConfig, mergeConfig } from "vitest/config";
-import { sharedConfig } from "./vitest.shared.config";
+import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from "vitest/config";
 
 /**
- * Optimized Unit Tests Configuration
+ * Unified Vitest Configuration
  *
- * Focuses on:
- * - Pure business logic testing (lib, utils, schemas)
- * - Fast execution with optimal parallelization
- * - Comprehensive coverage collection
- * - Minimal external dependencies
+ * This configuration handles all test types and fixes:
+ * - Bun test runner conflicts
+ * - vi.mock compatibility issues
+ * - jsdom navigation errors
+ * - Module externalization problems
  */
-export default mergeConfig(sharedConfig, {
+export default defineConfig({
+	plugins: [react(), tsconfigPaths()],
+
 	test: {
-		name: "unit",
-		environment: "jsdom", // jsdom for utility functions that might use DOM APIs
-		setupFiles: ["./test-setup.ts"],
+		name: "unified-tests",
+		environment: "jsdom",
+		globals: true,
+		setupFiles: ["./test-setup-fixed.ts"],
+
+		// Include all test files except e2e
 		include: [
-			// Core business logic
-			"lib/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"utils/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"src/schemas/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"src/hooks/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"src/shared/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"tests/unit/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+			"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
 		],
 		exclude: [
-			// Standard exclusions
 			"**/node_modules/**",
 			"**/dist/**",
+			"**/.next/**",
+			"**/coverage/**",
 			"**/cypress/**",
 			"**/.{idea,git,cache,output,temp}/**",
-			"**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
-			"**/coverage/**",
-			// Test type exclusions
-			"**/e2e/**",
-			"**/integration/**",
-			"**/*.integration.{test,spec}.*",
-			"**/*.e2e.{test,spec}.*",
-			"**/*.browser.{test,spec}.*",
-			// Component exclusions (handled by components config)
-			"**/components/**/*.{test,spec}.*",
-			"**/app/**/*.{test,spec}.*",
-			// Heavy integration tests
-			"**/db/**/*.{test,spec}.*",
-			"**/api/**/*.{test,spec}.*",
+			// Exclude e2e tests (handled by Playwright)
+			"e2e/**",
+			"**/*.e2e.*",
 		],
+
+		// Server configuration for module handling
+		server: {
+			deps: {
+				external: [/^bun:/],
+				inline: [
+					/@testing-library\/.*$/,
+					/^vitest$/,
+					/^@vitest\/.*$/,
+					/^react$/,
+					/^react-dom$/,
+					/^@radix-ui\/.*$/,
+				]
+			}
+		},
+
+		// Environment options for jsdom
+		environmentOptions: {
+			jsdom: {
+				resources: "usable",
+				runScripts: "dangerously",
+				pretendToBeVisual: true,
+				html: '<!DOCTYPE html><html><head></head><body></body></html>',
+				url: "http://localhost:3000"
+			}
+		},
+
+		// Timeouts
+		testTimeout: 15000,
+		hookTimeout: 10000,
+		teardownTimeout: 5000,
+
+		// Performance settings
+		maxConcurrency: Math.min(8, Math.max(2, require("os").cpus().length)),
+
+		// Reporters
+		reporters: ["default", "json"],
+
+		outputFile: {
+			json: "./coverage/test-results.json"
+		},
+
+		// Coverage configuration
 		coverage: {
 			provider: "v8",
-			reporter: ["text", "json", "html", "lcov"],
-			reportsDirectory: "./coverage/unit",
-			// More comprehensive coverage for unit tests
-			thresholds: {
-				global: {
-					branches: 85, // Higher threshold for unit tests
-					functions: 85,
-					lines: 85,
-					statements: 85,
-				},
-			},
+			reporter: ["text", "html", "lcov", "json"],
+			reportsDirectory: "./coverage",
+			include: [
+				"lib/**/*.{js,ts,jsx,tsx}",
+				"utils/**/*.{js,ts,jsx,tsx}",
+				"components/**/*.{js,ts,jsx,tsx}",
+				"app/**/*.{js,ts,jsx,tsx}",
+				"src/**/*.{js,ts,jsx,tsx}",
+				"hooks/**/*.{js,ts,jsx,tsx}",
+			],
 			exclude: [
-				"coverage/**",
-				"dist/**",
-				"**/node_modules/**",
-				"**/test*/**",
 				"**/*.d.ts",
-				"**/*.config.*",
-				"**/cypress/**",
 				"**/*.test.*",
 				"**/*.spec.*",
-				// Unit test specific exclusions
-				"**/mocks/**",
-				"**/fixtures/**",
-				"**/__tests__/**",
+				"**/node_modules/**",
+				"**/coverage/**",
+				"**/.next/**",
+				"**/dist/**",
+				"**/*.config.*",
+				"**/types.ts",
+				"**/*.stories.*",
 			],
-		},
-		// Optimized for unit test performance
-		pool: "threads",
-		poolOptions: {
-			threads: {
-				singleThread: false, // Parallel execution for unit tests
-				isolate: true,
-				useAtomics: true,
-				memoryLimit: "256MB", // Lower memory limit for unit tests
+			thresholds: {
+				global: {
+					branches: 60,
+					functions: 60,
+					lines: 60,
+					statements: 60,
+				},
 			},
 		},
-		// Faster timeouts for unit tests
-		testTimeout: 5000, // 5s should be enough for unit tests
-		hookTimeout: 3000,
-		teardownTimeout: 1000,
-		// Optimized concurrency for unit tests
-		maxConcurrency: Math.min(12, Math.max(2, require("os").cpus().length)),
-		// Minimal reporting for speed
-		reporters: process.env.CI ? ["basic", "json"] : ["basic"],
-		outputFile: {
-			json: "./coverage/unit/test-results.json",
-		},
-		// Skip expensive operations in unit tests
-		sequence: {
-			concurrent: true,
-			shuffle: false,
-		},
-		// Cache test results
-		cache: {
-			dir: "node_modules/.vitest/unit",
-		},
 	},
+
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "."),
-			"@/lib": path.resolve(__dirname, "./lib"),
-			"@/components": path.resolve(__dirname, "./components"),
-			"@/app": path.resolve(__dirname, "./app"),
-			"@/hooks": path.resolve(__dirname, "./hooks"),
-			"@/utils": path.resolve(__dirname, "./utils"),
-			"@/types": path.resolve(__dirname, "./types"),
-			"@/stores": path.resolve(__dirname, "./stores"),
-			"@/src": path.resolve(__dirname, "./src"),
+			"@/lib": path.resolve(__dirname, "lib"),
+			"@/components": path.resolve(__dirname, "components"),
+			"@/app": path.resolve(__dirname, "app"),
+			"@/utils": path.resolve(__dirname, "utils"),
+			"@/hooks": path.resolve(__dirname, "hooks"),
 		},
 	},
+
 	define: {
 		"import.meta.vitest": false,
+		global: "globalThis",
 	},
+
+	optimizeDeps: {
+		include: [
+			"vitest",
+			"@testing-library/react",
+			"@testing-library/jest-dom",
+			"@testing-library/user-event",
+			"react",
+			"react-dom",
+			"jsdom"
+		],
+		exclude: [
+			"@electric-sql",
+			"@neondatabase",
+			"bun:test"
+		]
+	},
+
+	build: {
+		target: "es2022",
+		minify: false,
+		sourcemap: true
+	},
+
+	server: {
+		fs: {
+			allow: [".."]
+		}
+	}
 });

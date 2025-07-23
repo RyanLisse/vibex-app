@@ -8,6 +8,7 @@ export const runtime = "nodejs";
  * Enhanced GitHub PR integration using base utilities for consistency and reduced duplication
  */
 
+import { z } from "zod";
 import { TaskPRLinkSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // Request validation schemas

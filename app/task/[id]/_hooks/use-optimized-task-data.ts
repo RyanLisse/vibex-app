@@ -20,23 +20,17 @@ interface UseOptimizedTaskDataReturn {
 	isTaskInProgress: boolean;
 }
 
-/**
- * Optimized task data hook with improved performance
- * - Reduces unnecessary re-renders with shallow comparison
- * - Memoizes expensive computations
- * - Handles task state updates efficiently
- */
-export function useOptimizedTaskData({
-	task,
-	streamingMessages,
-}: UseOptimizedTaskDataProps): UseOptimizedTaskDataReturn {
+// Extract task tracking logic to a separate hook for better separation of concerns
+function useTaskTracking(task: Task | undefined) {
 	const updateTaskMutation = useUpdateTask();
 	const previousTaskId = useRef<string | null>(null);
 	const isFirstRender = useRef(true);
 
-	// Mark task as viewed when component mounts or task changes
 	useEffect(() => {
-		if (task && (task.id !== previousTaskId.current || isFirstRender.current)) {
+		const shouldUpdateTask = task && 
+			(task.id !== previousTaskId.current || isFirstRender.current);
+
+		if (shouldUpdateTask) {
 			updateTaskMutation.mutate({
 				id: task.id,
 				hasChanges: false,
@@ -45,35 +39,47 @@ export function useOptimizedTaskData({
 			isFirstRender.current = false;
 		}
 	}, [task, updateTaskMutation]);
+}
 
-	// Memoize filtered messages with stable references
-	const regularMessages = useMemo(() => {
-		if (!task?.messages) {
-			return [];
-		}
-		return filterChatMessages(task.messages);
-	}, [task]);
+// Extract message processing logic to simplify main hook
+function useProcessedMessages(task: Task | undefined) {
+	return useMemo(() => {
+		const messages = task?.messages || [];
+		return {
+			regular: filterChatMessages(messages),
+			shell: filterShellMessages(messages),
+		};
+	}, [task?.messages]);
+}
 
-	const shellMessages = useMemo(() => {
-		if (!task?.messages) {
-			return [];
-		}
-		return filterShellMessages(task.messages);
-	}, [task]);
+// Extract state computations to reduce complexity
+function useTaskState(task: Task | undefined, streamingMessages: Map<string, StreamingMessage>) {
+	return useMemo(() => ({
+		hasStreaming: hasStreamingMessages(streamingMessages),
+		inProgress: task ? isTaskInProgress(task) : false,
+	}), [task, streamingMessages]);
+}
 
-	// Memoize streaming state checks
-	const hasStreamingMessagesValue = useMemo(() => {
-		return hasStreamingMessages(streamingMessages);
-	}, [streamingMessages]);
+/**
+ * Optimized task data hook with improved performance and reduced complexity
+ * - Separated concerns into focused sub-hooks
+ * - Reduced conditional logic and early returns
+ * - Improved readability and maintainability
+ */
+export function useOptimizedTaskData({
+	task,
+	streamingMessages,
+}: UseOptimizedTaskDataProps): UseOptimizedTaskDataReturn {
+	// Use focused hooks for specific concerns
+	useTaskTracking(task);
+	const processedMessages = useProcessedMessages(task);
+	const taskState = useTaskState(task, streamingMessages);
 
-	const isTaskInProgressValue = useMemo(() => {
-		return task ? isTaskInProgress(task) : false;
-	}, [task]);
-
+	// Single return statement with clear structure
 	return {
-		regularMessages,
-		shellMessages,
-		hasStreamingMessages: hasStreamingMessagesValue,
-		isTaskInProgress: isTaskInProgressValue,
+		regularMessages: processedMessages.regular,
+		shellMessages: processedMessages.shell,
+		hasStreamingMessages: taskState.hasStreaming,
+		isTaskInProgress: taskState.inProgress,
 	};
 }

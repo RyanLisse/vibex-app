@@ -1,6 +1,16 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
+import {
+	setupAuthTestMocks,
+	resetAuthMocks,
+	createAuthCallbackTestSuite,
+	createMockCallbackRequest,
+	AuthCallbackAssertions,
+	AUTH_TEST_SCENARIOS,
+	MOCK_OAUTH_RESPONSES,
+	type AuthTestContext
+} from "@/lib/test-utils/auth-test-helpers";
 
 // Mock the authentication utilities
 vi.mock("@/lib/auth/openai-codex", () => ({
@@ -33,57 +43,33 @@ vi.mock("@/lib/env", () => ({
 	},
 }));
 
-const mockExchangeCodeForToken = (
-	(await import("@/lib/auth/openai-codex")) as any
-).exchangeCodeForToken;
-const mockValidateOAuthState = (
-	(await import("@/lib/auth/openai-codex")) as any
-).validateOAuthState;
-const mockSanitizeRedirectUrl = (
-	(await import("@/lib/auth/openai-codex")) as any
-).sanitizeRedirectUrl;
-const mockHandleAuthError = ((await import("@/lib/auth/openai-codex")) as any)
-	.handleAuthError;
-
 const { NextResponse } = await import("next/server");
 const mockNextResponse = NextResponse as any;
 
 describe("GET /api/auth/openai/callback", () => {
+	let authMocks: AuthTestContext;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mockValidateOAuthState.mockReturnValue(true);
-		mockSanitizeRedirectUrl.mockImplementation((url) => url);
-		mockHandleAuthError.mockImplementation(
-			(error: unknown) => error?.toString() || "Unknown error",
-		);
+		authMocks = setupAuthTestMocks();
 	});
 
-	it("should handle successful callback", async () => {
-		const mockToken = {
-			access_token: "test-access-token",
-			token_type: "Bearer",
-			expires_in: 3600,
-			refresh_token: "test-refresh-token",
-			id_token: "test-id-token",
-		};
+	afterEach(() => {
+		resetAuthMocks(authMocks);
+	});
 
-		mockExchangeCodeForToken.mockResolvedValue(mockToken);
+	it(AUTH_TEST_SCENARIOS.VALID_CALLBACK, async () => {
+		const mockToken = MOCK_OAUTH_RESPONSES.OPENAI.tokenSuccess;
+
+		authMocks.mockTokenStorage.mockResolvedValue(mockToken);
 		mockNextResponse.json.mockReturnValue({ success: true } as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state",
-		);
-
-		const _response = await GET(request);
-
-		expect(mockExchangeCodeForToken).toHaveBeenCalledWith({
-			tokenUrl: "https://auth.openai.com/oauth/token",
-			clientId: "test-client-id",
-			clientSecret: "test-client-secret",
+		const request = createMockCallbackRequest({
 			code: "test-code",
-			redirectUri: "https://app.example.com/auth/openai/callback",
-			codeVerifier: expect.any(String),
+			state: "test-state"
 		});
+
+		const response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith({
 			success: true,
@@ -91,56 +77,49 @@ describe("GET /api/auth/openai/callback", () => {
 		});
 	});
 
-	it("should handle missing code parameter", async () => {
+	it(AUTH_TEST_SCENARIOS.MISSING_CODE, async () => {
 		mockNextResponse.json.mockReturnValue({
 			error: "Missing code parameter",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?state=test-state",
-		);
+		const request = createMockCallbackRequest({ 
+			code: undefined, 
+			state: "test-state" 
+		});
 
-		const _response = await GET(request);
+		const response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Missing code parameter" },
-			{ status: 400 },
-		);
+		AuthCallbackAssertions.assertErrorResponse(response, 400);
 	});
 
-	it("should handle missing state parameter", async () => {
+	it(AUTH_TEST_SCENARIOS.MISSING_STATE, async () => {
 		mockNextResponse.json.mockReturnValue({
 			error: "Missing state parameter",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code",
-		);
+		const request = createMockCallbackRequest({ 
+			code: "test-code" 
+		});
 
-		const _response = await GET(request);
+		const response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Missing state parameter" },
-			{ status: 400 },
-		);
+		AuthCallbackAssertions.assertErrorResponse(response, 400);
 	});
 
-	it("should handle invalid state", async () => {
-		mockValidateOAuthState.mockReturnValue(false);
+	it(AUTH_TEST_SCENARIOS.INVALID_STATE, async () => {
+		authMocks.mockValidateOAuthState.mockReturnValue(false);
 		mockNextResponse.json.mockReturnValue({
 			error: "Invalid state parameter",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=invalid-state",
-		);
+		const request = createMockCallbackRequest({
+			code: "test-code",
+			state: "invalid-state"
+		});
 
-		const _response = await GET(request);
+		const response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Invalid state parameter" },
-			{ status: 400 },
-		);
+		AuthCallbackAssertions.assertErrorResponse(response, 400);
 	});
 
 	it("should handle error parameter", async () => {
@@ -158,25 +137,23 @@ describe("GET /api/auth/openai/callback", () => {
 		);
 	});
 
-	it("should handle token exchange failure", async () => {
-		mockExchangeCodeForToken.mockRejectedValue(
+	it(AUTH_TEST_SCENARIOS.TOKEN_EXCHANGE_ERROR, async () => {
+		authMocks.mockTokenStorage.mockRejectedValue(
 			new Error("Token exchange failed"),
 		);
-		mockHandleAuthError.mockReturnValue("Token exchange failed");
+		authMocks.mockHandleAuthError.mockReturnValue("Token exchange failed");
 		mockNextResponse.json.mockReturnValue({
 			error: "Token exchange failed",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state",
-		);
+		const request = createMockCallbackRequest({
+			code: "test-code",
+			state: "test-state"
+		});
 
-		const _response = await GET(request);
+		const response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Token exchange failed" },
-			{ status: 500 },
-		);
+		AuthCallbackAssertions.assertErrorResponse(response, 500);
 	});
 
 	it("should handle OAuth error responses", async () => {

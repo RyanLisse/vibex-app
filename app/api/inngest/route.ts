@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { withErrorHandling } from "@/lib/api/route-error-handler";
 
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = "force-dynamic";
@@ -7,27 +8,25 @@ export const runtime = "nodejs";
 /**
  * Handle GET requests to Inngest endpoint
  */
-export async function GET(request: NextRequest) {
-	try {
+export const GET = withErrorHandling(
+	async (request: NextRequest) => {
 		return NextResponse.json({
 			status: "ok",
 			message: "Inngest endpoint is running",
 			timestamp: new Date().toISOString(),
 		});
-	} catch (error) {
-		console.error("Inngest GET error:", error);
-		return NextResponse.json(
-			{ error: "Internal server error" },
-			{ status: 500 },
-		);
+	},
+	{
+		route: "GET /api/inngest",
+		metricName: "inngest_api"
 	}
-}
+);
 
 /**
  * Handle POST requests to Inngest endpoint
  */
-export async function POST(request: NextRequest) {
-	try {
+export const POST = withErrorHandling(
+	async (request: NextRequest) => {
 		const body = await request.json();
 
 		// Mock implementation for build purposes
@@ -38,20 +37,18 @@ export async function POST(request: NextRequest) {
 			message: "Event received",
 			timestamp: new Date().toISOString(),
 		});
-	} catch (error) {
-		console.error("Inngest POST error:", error);
-		return NextResponse.json(
-			{ error: "Internal server error" },
-			{ status: 500 },
-		);
+	},
+	{
+		route: "POST /api/inngest",
+		metricName: "inngest_api"
 	}
-}
+);
 
 /**
  * Handle PUT requests to Inngest endpoint
  */
-export async function PUT(request: NextRequest) {
-	try {
+export const PUT = withErrorHandling(
+	async (request: NextRequest) => {
 		const body = await request.json();
 
 		// Mock implementation for build purposes
@@ -62,11 +59,9 @@ export async function PUT(request: NextRequest) {
 			message: "Event updated",
 			timestamp: new Date().toISOString(),
 		});
-	} catch (error) {
-		console.error("Inngest PUT error:", error);
-		return NextResponse.json(
-			{ error: "Internal server error" },
-			{ status: 500 },
-		);
+	},
+	{
+		route: "PUT /api/inngest",
+		metricName: "inngest_api"
 	}
-}
+);

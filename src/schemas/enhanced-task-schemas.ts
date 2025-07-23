@@ -128,6 +128,10 @@ export const KanbanBoardConfigSchema = z.object({
 		.optional(),
 	settings: z
 		.object({
+			enableWipLimits: z.boolean().default(true),
+			autoAssignReviewer: z.boolean().default(true),
+			allowMultipleAssignees: z.boolean().default(false),
+			showTaskEstimates: z.boolean().default(true),
 			autoAssign: z.boolean().default(false),
 			notifications: z.boolean().default(true),
 		})

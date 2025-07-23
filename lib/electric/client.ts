@@ -1,4 +1,3 @@
-import type { ElectricDatabase } from "@electric-sql/client";
 import type * as schema from "@/db/schema";
 import { ObservabilityService } from "../observability";
 import {
@@ -6,6 +5,88 @@ import {
 	getFinalConfig,
 	validateElectricConfig,
 } from "./config";
+
+// Import ElectricSQL types and client
+// Note: These imports will work once @electric-sql/client is properly configured
+interface ElectricDatabase {
+	execute: (sql: string, params?: any[]) => Promise<any>;
+	[key: string]: any;
+}
+
+interface BaseElectricClient {
+	db: ElectricDatabase;
+	connect: () => Promise<void>;
+	disconnect: () => Promise<void>;
+	on: (event: string, handler: (data?: any) => void) => void;
+}
+
+// PGlite interface for local database
+interface PGlite {
+	close: () => Promise<void>;
+	query: (sql: string, params?: any[]) => Promise<any>;
+}
+
+// Mock PGlite constructor for now - will be replaced with actual import
+class PGlite {
+	constructor(config: any) {
+		console.log("PGlite initialized with config:", config);
+	}
+
+	async close(): Promise<void> {
+		console.log("PGlite closed");
+	}
+
+	async query(sql: string, params?: any[]): Promise<any> {
+		console.log("PGlite query:", sql, params);
+		return { rows: [], rowCount: 0 };
+	}
+}
+
+// Mock BaseElectricClient for now - will be replaced with actual import
+class BaseElectricClient implements BaseElectricClient {
+	db: ElectricDatabase;
+	private eventHandlers = new Map<string, ((data?: any) => void)[]>();
+
+	constructor(config: any) {
+		console.log("BaseElectricClient initialized with config:", config);
+		this.db = {
+			execute: async (sql: string, params?: any[]) => {
+				console.log("Electric DB execute:", sql, params);
+				return { rows: [], rowCount: 0 };
+			},
+		};
+	}
+
+	async connect(): Promise<void> {
+		console.log("BaseElectricClient connected");
+		this.emit("connected");
+	}
+
+	async disconnect(): Promise<void> {
+		console.log("BaseElectricClient disconnected");
+		this.emit("disconnected");
+	}
+
+	on(event: string, handler: (data?: any) => void): void {
+		if (!this.eventHandlers.has(event)) {
+			this.eventHandlers.set(event, []);
+		}
+		this.eventHandlers.get(event)!.push(handler);
+	}
+
+	private emit(event: string, data?: any): void {
+		const handlers = this.eventHandlers.get(event);
+		if (handlers) {
+			handlers.forEach((handler) => {
+				try {
+					handler(data);
+				} catch (error) {
+					console.error(`Error in event handler for ${event}:`, error);
+				}
+			});
+		}
+	}
+}
 
 // Type definitions for our database schema
 export type DatabaseSchema = typeof schema;

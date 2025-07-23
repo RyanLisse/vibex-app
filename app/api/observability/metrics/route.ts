@@ -145,7 +145,6 @@ export async function POST(request: NextRequest) {
 			metricData.type,
 			metricData.value,
 			metricData.tags as Record<string, string>,
-			metricData.timestamp ? new Date(metricData.timestamp) : undefined,
 		);
 
 		return NextResponse.json(

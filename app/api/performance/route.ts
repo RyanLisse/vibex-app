@@ -60,7 +60,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 		// Get slow queries report
 		const timeRangeMs = getTimeRangeMs(validatedParams.timeRange);
 		const slowQueries =
-			queryPerformanceMonitor.getSlowQueriesReport(timeRangeMs);
+			await queryPerformanceMonitor.getSlowQueriesReport();
 
 		// Get database statistics if details requested
 		let databaseStats = null;
@@ -68,10 +68,11 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 			try {
 				const indexAnalysis =
 					await databaseIndexOptimizer.analyzeCurrentIndexes();
+				const indexes = indexAnalysis.indexes;
 				databaseStats = {
-					totalIndexes: indexAnalysis.length,
-					unusedIndexes: indexAnalysis.filter((idx) => idx.isUnused).length,
-					indexSizes: indexAnalysis.reduce((total, idx) => {
+					totalIndexes: indexes.length,
+					unusedIndexes: indexes.filter((idx) => idx.isUnused).length,
+					indexSizes: indexes.reduce((total, idx) => {
 						const sizeMatch = idx.size.match(/(\d+(?:\.\d+)?)\s*(\w+)/);
 						if (sizeMatch) {
 							const value = Number.parseFloat(sizeMatch[1]);
@@ -90,7 +91,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 			timeRange: validatedParams.timeRange,
 			metrics: currentMetrics,
 			trends,
-			slowQueries: slowQueries.slice(0, 10), // Top 10 slowest
+			slowQueries: slowQueries.slowQueries.slice(0, 10), // Top 10 slowest
 			databaseStats,
 		};
 
@@ -148,9 +149,7 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 			validatedBody.includeRecommendations &&
 			analysisReport.missingIndexes.length > 0
 		) {
-			optimizationPlan = await databaseIndexOptimizer.generateOptimizationPlan(
-				analysisReport.missingIndexes,
-			);
+			optimizationPlan = await databaseIndexOptimizer.generateOptimizationPlan();
 		}
 
 		// Analyze slow queries if requested

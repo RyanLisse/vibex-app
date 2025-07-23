@@ -11,6 +11,7 @@ export const runtime = "nodejs";
 
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { handleAPIRouteError } from "@/lib/api/route-error-handler";
 import { dataMigrationManager } from "@/lib/migration/data-migration";
 import {
 	createApiErrorResponse,
@@ -80,29 +81,11 @@ export async function GET(request: NextRequest) {
 			),
 		);
 	} catch (error) {
-		if (error instanceof z.ZodError) {
-			return NextResponse.json(
-				createApiErrorResponse(
-					"Validation failed",
-					400,
-					error.issues.map((issue) => ({
-						field: issue.path.join("."),
-						message: issue.message,
-					})),
-				),
-				{ status: 400 },
-			);
-		}
-
-		return NextResponse.json(
-			createApiErrorResponse(
-				error instanceof Error
-					? error.message
-					: "Failed to check migration status",
-				500,
-			),
-			{ status: 500 },
-		);
+		return handleAPIRouteError(error, {
+			route: "GET /api/migration",
+			genericErrorMessage: "Failed to check migration status",
+			metricName: "migration_api"
+		});
 	}
 }
 
@@ -128,7 +111,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Start migration
-		const migrationResult = await dataMigrationManager.startMigration(userId);
+		const migrationResult = await dataMigrationManager.startMigration();
 
 		return NextResponse.json(
 			createApiSuccessResponse(
@@ -138,27 +121,11 @@ export async function POST(request: NextRequest) {
 			{ status: 201 },
 		);
 	} catch (error) {
-		if (error instanceof z.ZodError) {
-			return NextResponse.json(
-				createApiErrorResponse(
-					"Validation failed",
-					400,
-					error.issues.map((issue) => ({
-						field: issue.path.join("."),
-						message: issue.message,
-					})),
-				),
-				{ status: 400 },
-			);
-		}
-
-		return NextResponse.json(
-			createApiErrorResponse(
-				error instanceof Error ? error.message : "Failed to start migration",
-				500,
-			),
-			{ status: 500 },
-		);
+		return handleAPIRouteError(error, {
+			route: "POST /api/migration",
+			genericErrorMessage: "Failed to start migration",
+			metricName: "migration_api"
+		});
 	}
 }
 

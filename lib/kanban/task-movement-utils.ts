@@ -9,30 +9,16 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import { ConflictError, NotFoundError, ValidationError } from "@/lib/api/base";
+// Import shared kanban constants to eliminate duplication
+import { DEFAULT_COLUMNS, STATUS_COLUMN_MAP } from "@/lib/api/kanban/shared-service";
 
-// Status and column mapping constants
-export const STATUS_COLUMN_MAP = {
-	todo: "todo",
-	in_progress: "in_progress",
-	review: "review",
-	completed: "completed",
-	blocked: "in_progress", // Blocked tasks stay in progress column
-} as const;
-
+// Column to status mapping for reverse lookups
 export const COLUMN_STATUS_MAP = {
 	todo: "todo",
 	in_progress: "in_progress",
 	review: "review",
 	completed: "completed",
 } as const;
-
-// Default kanban column configurations
-export const DEFAULT_COLUMNS = [
-	{ id: "todo", title: "To Do", limit: null, color: "#64748b" },
-	{ id: "in_progress", title: "In Progress", limit: 5, color: "#3b82f6" },
-	{ id: "review", title: "Review", limit: 3, color: "#f59e0b" },
-	{ id: "completed", title: "Completed", limit: null, color: "#10b981" },
-];
 
 export interface TaskMoveData {
 	taskId: string;
@@ -97,7 +83,7 @@ export async function checkWipLimits(
 	}
 
 	const currentColumnTasks = await db
-		.select({ count: tasks.id })
+		.select()
 		.from(tasks)
 		.where(eq(tasks.status, newStatus as any));
 
