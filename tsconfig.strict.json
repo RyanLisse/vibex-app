@@ -1,0 +1,74 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Enable strict mode for maximum type safety
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    
+    // Additional safety checks
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitUseStrict": false,
+    "useDefineForClassFields": true,
+    
+    // Enhanced module resolution
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false,
+    
+    // Better error reporting
+    "pretty": true,
+    "skipDefaultLibCheck": false,
+    "skipLibCheck": false,
+    
+    // Emit options for better debugging
+    "sourceMap": true,
+    "declarationMap": true,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    
+    // Interop constraints
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    
+    // Additional type checking
+    "checkJs": false,
+    "allowJs": false
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "types/**/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    "coverage",
+    "storybook-static",
+    "playwright-report",
+    "test-results",
+    "scripts/archive/**/*",
+    // Exclude test files from strict checking initially
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.stories.ts",
+    "**/*.stories.tsx"
+  ]
+}
