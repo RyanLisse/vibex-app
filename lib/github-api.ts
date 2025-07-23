@@ -20,9 +20,7 @@ export class GitHubAPI {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`GitHub API error: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
 		}
 
 		return response.json();
@@ -36,7 +34,7 @@ export class GitHubAPI {
 			sort?: "created" | "updated" | "pushed" | "full_name";
 			per_page?: number;
 			page?: number;
-		} = {},
+		} = {}
 	) {
 		const params = new URLSearchParams({
 			sort: options.sort || "updated",
@@ -49,9 +47,7 @@ export class GitHubAPI {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`GitHub API error: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
 		}
 
 		return response.json();
@@ -61,17 +57,12 @@ export class GitHubAPI {
 	 * Get branches for a repository
 	 */
 	async getBranches(owner: string, repo: string) {
-		const response = await fetch(
-			`${this.baseUrl}/repos/${owner}/${repo}/branches`,
-			{
-				headers: this.getHeaders(),
-			},
-		);
+		const response = await fetch(`${this.baseUrl}/repos/${owner}/${repo}/branches`, {
+			headers: this.getHeaders(),
+		});
 
 		if (!response.ok) {
-			throw new Error(
-				`GitHub API error: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
 		}
 
 		return response.json();
@@ -98,9 +89,7 @@ export class GitHubAPI {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`GitHub API error: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
 		}
 
 		return response.json();
@@ -115,4 +104,37 @@ export class GitHubAPI {
 			Accept: "application/vnd.github.v3+json",
 		};
 	}
+}
+
+/**
+ * Get GitHub user information from API token
+ * @param token GitHub API token
+ * @returns Promise resolving to user information
+ */
+export async function getGitHubUser(token: string) {
+	const api = new GitHubAPI(token);
+	return await api.getUser();
+}
+
+/**
+ * Parse cookie value from cookie string
+ * @param cookieString Full cookie string
+ * @param cookieName Name of the cookie to extract
+ * @returns Cookie value or null if not found
+ */
+export function parseCookieValue(cookieString: string, cookieName: string): string | null {
+	if (!cookieString) {
+		return null;
+	}
+
+	const cookies = cookieString.split(';').map(cookie => cookie.trim());
+
+	for (const cookie of cookies) {
+		const [name, value] = cookie.split('=');
+		if (name?.trim() === cookieName) {
+			return value?.trim() || null;
+		}
+	}
+
+	return null;
 }
