@@ -5,6 +5,7 @@
  * identified by qlty smells analysis.
  */
 import { NextRequest, NextResponse } from "next/server";
+import type { vi } from "vitest";
 
 // Common test constants and mock responses
 export const AUTH_TEST_SCENARIOS = {
@@ -34,13 +35,13 @@ export const MOCK_OAUTH_RESPONSES = {
 
 // Common test setup patterns
 export interface AuthTestMocks {
-	mockTokenStorage: jest.Mock;
-	mockValidateOAuthState: jest.Mock;
-	mockHandleAuthError: jest.Mock;
+	mockTokenStorage: ReturnType<typeof vi.fn>;
+	mockValidateOAuthState: ReturnType<typeof vi.fn>;
+	mockHandleAuthError: ReturnType<typeof vi.fn>;
 }
 
 export interface MockNextResponse {
-	json: jest.Mock;
+	json: ReturnType<typeof vi.fn>;
 }
 
 /**
