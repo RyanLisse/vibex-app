@@ -128,6 +128,51 @@ check_qlty() {
     fi
 }
 
+# Check and install Claude Flow for enhanced development workflow
+check_claude_flow() {
+    log_info "Checking Claude Flow installation..."
+    
+    if command_exists claude-flow; then
+        local claude_flow_version
+        claude_flow_version=$(npx claude-flow@alpha --version 2>/dev/null || echo "unknown")
+        log_success "Found Claude Flow version: $claude_flow_version"
+        return 0
+    else
+        log_warning "Claude Flow not found"
+    fi
+    
+    log_info "Installing Claude Flow..."
+    if command_exists npm || command_exists bun; then
+        # Install Claude Flow using npx (works with both npm and bun)
+        if npm install -g claude-flow@alpha 2>/dev/null || npx claude-flow@alpha --version >/dev/null 2>&1; then
+            log_success "Claude Flow available"
+            
+            # Initialize Claude Flow MCP server
+            log_info "Initializing Claude Flow MCP server..."
+            if npx claude-flow@alpha mcp init; then
+                log_success "Claude Flow MCP server initialized"
+            else
+                log_warning "Claude Flow MCP initialization failed - can be done manually with: npx claude-flow@alpha mcp init"
+            fi
+            
+            # Create Claude Flow configuration if it doesn't exist
+            if [ ! -d ".claude" ]; then
+                mkdir -p .claude/commands
+                log_info "Created .claude directory for Claude Flow configuration"
+            fi
+            
+            return 0
+        else
+            log_warning "Claude Flow installation failed. Enhanced workflows will not be available."
+            log_info "You can install it manually with: npm install -g claude-flow@alpha"
+            return 1
+        fi
+    else
+        log_warning "npm or bun not found. Cannot install Claude Flow."
+        return 1
+    fi
+}
+
 # Check Node.js
 check_node() {
     log_info "Checking Node.js installation..."
@@ -503,14 +548,19 @@ show_next_steps() {
     echo "   qlty check --all   # Run linters on all files"
     echo "   qlty fmt           # Auto-format code"
     echo
-    echo "5. Check the database:"
+    echo "5. Use Claude Flow for enhanced development:"
+    echo "   npx claude-flow@alpha --help     # Show Claude Flow commands"
+    echo "   npx claude-flow@alpha mcp start  # Start MCP server"
+    echo "   npx claude-flow@alpha swarm init # Initialize swarm coordination"
+    echo
+    echo "6. Check the database:"
     echo "   bun run db:health"
     echo "   bun run db:studio  # Open database browser"
     echo
-    echo "6. View the application:"
+    echo "7. View the application:"
     echo "   http://localhost:3000"
     echo
-    echo "7. For Terragon cloud sandbox environments:"
+    echo "8. For Terragon cloud sandbox environments:"
     echo "   ./terragon-setup.sh  # Run the Terragon-specific setup"
     echo "   # (This runs automatically in Terragon cloud environments)"
     echo
@@ -528,6 +578,7 @@ main() {
     check_node || log_warning "Node.js check failed"
     check_bun || { log_error "Bun installation failed"; exit 1; }
     check_qlty || log_warning "qlty CLI installation failed - code quality analysis will be limited"
+    check_claude_flow || log_warning "Claude Flow installation failed - enhanced workflows will be limited"
     check_postgresql || log_warning "PostgreSQL not available"
     
     echo

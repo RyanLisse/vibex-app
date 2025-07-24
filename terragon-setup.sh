@@ -61,6 +61,23 @@ main() {
         log_success "qlty CLI already available"
     fi
     
+    # Install Claude Flow for enhanced development workflow
+    log_info "Setting up Claude Flow..."
+    if ! command -v claude-flow >/dev/null 2>&1; then
+        log_info "Installing Claude Flow..."
+        npm install -g claude-flow@alpha || log_warning "Claude Flow installation failed - can be installed manually"
+        
+        # Initialize Claude Flow if installed successfully
+        if command -v claude-flow >/dev/null 2>&1; then
+            log_success "Claude Flow installed successfully"
+            # Setup MCP server configuration
+            log_info "Configuring Claude Flow MCP server..."
+            npx claude-flow@alpha mcp init || log_warning "Claude Flow MCP initialization failed"
+        fi
+    else
+        log_success "Claude Flow already available"
+    fi
+    
     # Setup environment variables for Terragon cloud environment
     if [ ! -f ".env.local" ]; then
         log_info "Creating Terragon-optimized environment configuration..."
@@ -110,6 +127,8 @@ ENVEOF
     echo "  • Start development: bun run dev"
     echo "  • Run tests: bun run test:all"
     echo "  • Check code quality: qlty smells --all"
+    echo "  • Use Claude Flow: npx claude-flow@alpha --help"
+    echo "  • Start MCP server: npx claude-flow@alpha mcp start"
     echo "  • View app: http://localhost:3000"
 }
 
