@@ -97,3 +97,6 @@ export async function initializeLogging(config?: Partial<LoggingConfig>) {
 // Export default logger instance
 const defaultLogger = await createLogger("app");
 export default defaultLogger;
+
+// Also export as named export for compatibility
+export { defaultLogger as logger };

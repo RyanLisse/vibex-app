@@ -4,14 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Auth, type AuthInfo } from "./index";
 
 // Mock fs/promises module
-vi.mock("node:fs/promises", () => ({
-	default: {
-		mkdir: vi.fn(),
-		readFile: vi.fn(),
-		writeFile: vi.fn(),
-		chmod: vi.fn(),
-	},
-}));
+// vi.mock("node:fs/promises", () => ({
+// 	default: {
+// 		mkdir: vi.fn(),
+// 		readFile: vi.fn(),
+// 		writeFile: vi.fn(),
+// 		chmod: vi.fn(),
+// 	},
+// }));
 
 describe.skip("Auth", () => {
 	const mockDataDir = path.join(process.cwd(), ".auth");

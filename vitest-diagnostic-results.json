@@ -1,0 +1,72 @@
+[
+  {
+    "file": "lib/inngest-standalone.test.ts",
+    "code": 0,
+    "duration": 3889,
+    "timedOut": false,
+    "error": ""
+  },
+  {
+    "file": "lib/telemetry.test.ts",
+    "code": 1,
+    "duration": 5866,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "app/client-page.test.tsx",
+    "code": 1,
+    "duration": 1226,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "app/container.test.tsx",
+    "code": 1,
+    "duration": 1168,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "app/layout.test.tsx",
+    "code": 1,
+    "duration": 1191,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "app/page.test.tsx",
+    "code": 1,
+    "duration": 1790,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "hooks/use-anthropic-auth-refactored.test.ts",
+    "code": 1,
+    "duration": 3564,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "hooks/use-anthropic-auth.test.ts",
+    "code": 0,
+    "duration": 3485,
+    "timedOut": false,
+    "error": ""
+  },
+  {
+    "file": "hooks/use-audio-recorder.test.ts",
+    "code": 1,
+    "duration": 3847,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  },
+  {
+    "file": "hooks/use-auth-base.test.ts",
+    "code": 1,
+    "duration": 6637,
+    "timedOut": false,
+    "error": "error: \"vitest\" exited with code 1\n"
+  }
+]

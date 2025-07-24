@@ -1,5 +1,4 @@
 import { vi } from "vitest";
-import "@testing-library/jest-dom";
 
 // Component test setup for jsdom environment
 // For React components, hooks, and DOM-dependent tests

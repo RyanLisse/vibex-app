@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { TestLifecycleManager } from "./test-lifecycle";
 
 describe("TestLifecycleManager", () => {

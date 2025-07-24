@@ -80,7 +80,7 @@ export class GitHubAuth {
 			client_id: this.clientId,
 			redirect_uri: this.redirectUri,
 			scope: "repo user:email",
-			state: state || Math.random().toString(36).substring(7),
+			state: state || Math.random().toString(36).substring(2, 8),
 		});
 
 		return `https://github.com/login/oauth/authorize?${params.toString()}`;

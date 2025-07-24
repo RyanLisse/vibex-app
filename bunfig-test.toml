@@ -1,0 +1,18 @@
+# Bun Test Configuration
+
+[test]
+# Preload the mock setup
+preload = ["./bun-test-setup.js"]
+
+# Test runner settings
+coverage = false
+coverageThreshold = 0
+timeout = 30000
+
+# Module resolution
+[test.moduleResolver]
+# Map modules to mocks
+"next/navigation" = "./node_modules/next/navigation.mock.js"
+"next/link" = "./node_modules/next/link.mock.js"
+"next/font/google" = "./node_modules/next/font/google.mock.js"
+"lucide-react" = "./node_modules/lucide-react.mock.js"

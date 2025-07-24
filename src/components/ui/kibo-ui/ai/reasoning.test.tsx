@@ -238,7 +238,7 @@ describe("AIReasoning", () => {
 describe("AIReasoningTrigger", () => {
 	it("should throw error when used outside AIReasoning", () => {
 		// Suppress console.error for this test
-		const spy = mock.spyOn(console, "error").mockImplementation(() => {});
+		const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		expect(() => {
 			render(<AIReasoningTrigger />);
@@ -334,7 +334,7 @@ describe("AIReasoningTrigger", () => {
 describe("AIReasoningContent", () => {
 	it("should throw error when used outside AIReasoning", () => {
 		// Suppress console.error for this test
-		const spy = mock.spyOn(console, "error").mockImplementation(() => {});
+		const spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		expect(() => {
 			render(<AIReasoningContent>Content</AIReasoningContent>);

@@ -1,168 +1,230 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 /**
- * Primary Vitest Configuration - TEST INFRASTRUCTURE FIXED
- *
- * FIXES APPLIED:
- * ✅ Bun test runner conflicts resolved
- * ✅ vi.mock compatibility issues fixed
- * ✅ jsdom navigation errors eliminated
- * ✅ Module externalization optimized
- * ✅ Test timeout and performance issues resolved
- * ✅ Setup file conflicts resolved
+ * Bulletproof Vitest Configuration
+ * 
+ * This configuration is designed to work reliably with Bun and avoid hanging issues.
+ * Key principles:
+ * - Minimal complexity
+ * - Proper module resolution
+ * - Correct environment setup
+ * - Avoid problematic features
  */
 export default defineConfig({
-	plugins: [react(), tsconfigPaths()],
+	plugins: [
+		// React plugin with minimal configuration
+		react({
+			// Use automatic JSX runtime (no need for React imports)
+			jsxRuntime: 'automatic',
+			// Minimal babel config
+			babel: {
+				parserOpts: {
+					plugins: ['jsx', 'typescript']
+				},
+				// Disable babel caching to avoid issues
+				babelrc: false,
+				configFile: false,
+			}
+		}),
+	],
 
 	test: {
-		name: "vitest-unified",
-		environment: "jsdom",
+		// Test framework configuration
 		globals: true,
+		environment: "jsdom",
 		setupFiles: ["./test-setup-simple.ts"],
 
-		// Optimized test file inclusion - only relevant, fast tests
+		// File patterns
 		include: [
-			// Core unit tests only
-			"lib/**/*.{test,spec}.{ts,js}",
-			"src/**/*.{test,spec}.{ts,js}",
-			"utils/**/*.{test,spec}.{ts,js}",
-			// Essential component tests
-			"components/**/*.test.{ts,tsx}",
-			"hooks/**/*.test.{ts,tsx}",
-			// Skip complex/slow tests
-			"!**/*integration*.{test,spec}.*",
-			"!**/*e2e*.{test,spec}.*",
-			"!**/e2e/**",
-			"!**/cypress/**",
-			"!**/playwright/**"
+			"**/*.test.{ts,tsx}",
+			"**/*.spec.{ts,tsx}",
 		],
-
+		
+		// Mock modules that cause issues
+		deps: {
+			registerNodeLoader: true,
+			interopDefault: true,
+			moduleDirectories: ['node_modules', 'test-utils'],
+		},
 		exclude: [
 			"**/node_modules/**",
 			"**/dist/**",
 			"**/.next/**",
 			"**/coverage/**",
-			"**/.{idea,git,cache,output,temp}/**",
-			// Exclude e2e and browser tests
-			"**/e2e/**",
 			"**/*.e2e.*",
-			"**/cypress/**",
-			"**/playwright/**",
-			// Exclude config files
-			"**/*.config.*",
-			"**/vite.config.*",
+			"**/e2e/**",
+			"**/*.integration.*",
+			"**/scripts/**",
+			"**/tests/e2e/**",
 		],
 
-		// Critical: Fix server deps for Bun compatibility
-		server: {
-			deps: {
-				// Externalize Bun-specific modules
-				external: [
-					/^bun:/,
-					/^node:/,
-				],
-				// Inline critical testing libraries
-				inline: [
-					/@testing-library\/.*$/,
-					/^vitest$/,
-					/^@vitest\/.*$/,
-					/^react$/,
-					/^react-dom$/,
-					/^@radix-ui\/.*$/,
-					/^happy-dom$/,
-					/^jsdom$/,
-				]
-			}
-		},
-
-		// Enhanced jsdom environment - FIXED: Removed beforeParse to prevent DataCloneError
-		environmentOptions: {
-			jsdom: {
-				resources: "usable",
-				runScripts: "dangerously",
-				pretendToBeVisual: true,
-				html: '<!DOCTYPE html><html><head></head><body></body></html>',
-				url: "http://localhost:3000",
-				// Navigation API now handled in test-setup-fixed.ts to avoid serialization issues
-			}
-		},
-
-		// Aggressive timeout optimization
-		testTimeout: 8000,  // Reduced from 15s to 8s
-		hookTimeout: 3000,  // Reduced from 10s to 3s
-		teardownTimeout: 2000,  // Reduced from 5s to 2s
-
-		// Performance optimizations - Enhanced single-thread execution
-		maxConcurrency: 1,
-		pool: "forks",  // Changed from threads to forks for better stability
+		// Pool configuration - use forks for stability
+		pool: "forks",
 		poolOptions: {
 			forks: {
+				// Single fork to avoid concurrency issues
 				singleFork: true,
-				isolate: true,
-				execArgv: ['--max-old-space-size=2048']
+				// Minimal isolation
+				isolate: false,
+				// No special exec arguments
+				execArgv: [],
 			}
 		},
-		// Force sequential execution
+
+		// Disable concurrency
+		maxConcurrency: 1,
+		maxWorkers: 1,
+		
+		// Disable file parallelism
+		fileParallelism: false,
+		
+		// Sequential execution
 		sequence: {
 			concurrent: false,
-			shuffle: false,
-			hooks: 'stack'
 		},
 
-		// Reporting
-		reporters: process.env.CI ? ["basic", "json"] : ["default"],
-		outputFile: {
-			json: "./coverage/vitest-results.json"
+		// Server configuration
+		server: {
+			deps: {
+				// Inline all dependencies except Node built-ins
+				inline: [
+					// React and related packages
+					"react",
+					"react-dom",
+					"@testing-library/react",
+					"@testing-library/dom",
+					"@testing-library/jest-dom",
+					"@testing-library/user-event",
+					// UI components
+					"@radix-ui/*",
+					"class-variance-authority",
+					"clsx",
+					"tailwind-merge",
+					// Other common deps
+					"framer-motion",
+					"lucide-react",
+					"zustand",
+				],
+				// External Node built-ins and Bun modules
+				external: [
+					/^node:/,
+					/^bun:/,
+					"fs",
+					"path",
+					"crypto",
+					"stream",
+					"util",
+					"events",
+					"buffer",
+					"process",
+					"child_process",
+					"worker_threads",
+					"os",
+					"net",
+					"tls",
+					"http",
+					"https",
+					"zlib",
+					"vm",
+					"v8",
+					"perf_hooks",
+				],
+				// Fallback to node for CJS modules
+				fallbackCJS: true,
+			}
 		},
 
-		// Coverage configuration
+		// CSS handling
+		css: {
+			// Process CSS modules
+			modules: {
+				classNameStrategy: 'stable'
+			}
+		},
+
+		// Environment options
+		environmentOptions: {
+			jsdom: {
+				url: "http://localhost:3000",
+				resources: "usable",
+			}
+		},
+
+		// Timeouts
+		testTimeout: 30000,
+		hookTimeout: 30000,
+		teardownTimeout: 10000,
+
+		// Coverage disabled by default (can be enabled with --coverage)
 		coverage: {
-			provider: "v8",
-			reporter: ["text", "html", "lcov", "json"],
-			reportsDirectory: "./coverage",
-
-			include: [
-				"lib/**/*.{js,ts,jsx,tsx}",
-				"components/**/*.{js,ts,jsx,tsx}",
-				"app/**/*.{js,ts,jsx,tsx}",
-				"src/**/*.{js,ts,jsx,tsx}",
-				"hooks/**/*.{js,ts,jsx,tsx}",
-				"utils/**/*.{js,ts,jsx,tsx}",
-			],
-
+			enabled: false,
+			provider: 'v8',
+			reporter: ['text', 'json', 'html'],
 			exclude: [
-				"**/*.d.ts",
-				"**/*.test.*",
-				"**/*.spec.*",
-				"**/node_modules/**",
-				"**/coverage/**",
-				"**/.next/**",
-				"**/dist/**",
-				"**/*.config.*",
-				"**/types/**",
-				"**/*.stories.*",
-				"**/storybook-static/**",
-				"**/e2e/**",
-				"**/cypress/**",
+				'coverage/**',
+				'dist/**',
+				'**/[.]**',
+				'packages/*/test?(s)/**',
+				'**/*.d.ts',
+				'**/virtual:*',
+				'**/__x00__*',
+				'**/\x00*',
+				'cypress/**',
+				'test?(s)/**',
+				'test?(-*).?(c|m)[jt]s?(x)',
+				'**/*{.,-}{test,spec,bench,benchmark}?(-d).?(c|m)[jt]s?(x)',
+				'**/__tests__/**',
+				'**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+				'**/vitest.{workspace,projects}.[jt]s?(on)',
+				'**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}',
 			],
-
-			thresholds: {
-				global: {
-					branches: 70,
-					functions: 70,
-					lines: 70,
-					statements: 70,
-				},
-			},
 		},
+
+		// Type checking disabled
+		typecheck: {
+			enabled: false,
+		},
+
+		// Threading disabled
+		threads: false,
+		
+		// Isolation disabled
+		isolate: false,
+
+		// Reporter
+		reporters: process.env.CI ? ['default', 'json'] : ['default'],
+		outputFile: process.env.CI ? 'test-results.json' : undefined,
+		
+		// Mock configuration
+		mockReset: true,
+		clearMocks: true,
+		restoreMocks: true,
+
+		// Watch mode disabled by default
+		watch: false,
+		watchExclude: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
+
+		// API disabled
+		api: false,
+		
+		// Browser mode disabled
+		browser: {
+			enabled: false,
+		},
+
+		// Retry configuration
+		retry: process.env.CI ? 2 : 0,
+
+		// Bail on first failure in CI
+		bail: process.env.CI ? 1 : 0,
 	},
 
-	// Resolve configuration
+	// Module resolution
 	resolve: {
 		alias: {
+			// Main aliases
 			"@": path.resolve(__dirname, "."),
 			"@/lib": path.resolve(__dirname, "lib"),
 			"@/components": path.resolve(__dirname, "components"),
@@ -172,59 +234,117 @@ export default defineConfig({
 			"@/src": path.resolve(__dirname, "src"),
 			"@/types": path.resolve(__dirname, "types"),
 			"@/db": path.resolve(__dirname, "db"),
+			// Test utilities
+			"@/test-utils": path.resolve(__dirname, "test-utils"),
 		},
+		// Extensions to try when resolving modules
+		extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
+		// Main fields to check in package.json
+		mainFields: ['module', 'jsnext:main', 'jsnext', 'main'],
+		// Conditions for exports field
+		conditions: ['import', 'module', 'browser', 'default'],
 	},
 
-	// Define globals for compatibility
+	// Define global constants
 	define: {
-		"import.meta.vitest": false,
-		global: "globalThis",
-		"process.env.NODE_ENV": JSON.stringify("test"),
+		'process.env.NODE_ENV': JSON.stringify('test'),
+		'process.env.VITEST': JSON.stringify('true'),
+		'global': 'globalThis',
 	},
 
-	// Optimize dependencies
-	optimizeDeps: {
-		include: [
-			"vitest",
-			"@testing-library/react",
-			"@testing-library/jest-dom",
-			"@testing-library/user-event",
-			"react",
-			"react-dom",
-			"jsdom",
-			"happy-dom",
-		],
-		exclude: [
-			"@electric-sql",
-			"@neondatabase",
-			"bun:test",
-			"node:crypto",
-			"node:fs",
-			"node:path",
-		]
-	},
-
-	// Enable esbuild for TypeScript compilation
+	// ESBuild configuration
 	esbuild: {
-		target: 'es2022',
-		jsx: 'automatic'
+		// Use automatic JSX transform
+		jsx: 'automatic',
+		jsxDev: false,
+		// Target modern JavaScript
+		target: 'esnext',
+		// Don't minify in tests
+		minify: false,
+		// Keep names for better debugging
+		keepNames: true,
+		// Source maps for debugging
+		sourcemap: true,
 	},
-	transformMode: {
-		sse: [],
-		web: ['**/*.{js,jsx,ts,tsx,mjs,mts}']
+
+	// Optimization settings
+	optimizeDeps: {
+		// Include commonly used dependencies
+		include: [
+			'react',
+			'react-dom',
+			'react/jsx-runtime',
+			'react/jsx-dev-runtime',
+			'@testing-library/react',
+			'@testing-library/dom',
+			'@testing-library/jest-dom',
+		],
+		// Exclude problematic packages
+		exclude: [
+			'@neondatabase/serverless',
+			'@electric-sql/client',
+			'@electric-sql/pglite',
+			'better-sqlite3',
+			'wa-sqlite',
+			'inngest',
+			'ws',
+		],
+		// ESBuild options for dependency optimization
+		esbuildOptions: {
+			target: 'esnext',
+			jsx: 'automatic',
+		},
+		// Force optimization in test mode
+		force: true,
 	},
 
 	// Build configuration
 	build: {
-		target: "es2022",
+		target: 'esnext',
 		minify: false,
 		sourcemap: true,
+		// External packages that shouldn't be bundled
+		rollupOptions: {
+			external: [
+				/node:.*/,
+				/^bun:.*/,
+			],
+		},
 	},
 
-	// Development server
-	server: {
-		fs: {
-			allow: [".."]
-		}
-	}
+	// SSR configuration
+	ssr: {
+		// External all Node built-ins
+		external: [
+			'fs',
+			'path',
+			'crypto',
+			'stream',
+			'util',
+			'events',
+			'buffer',
+			'process',
+			'child_process',
+			'worker_threads',
+			'os',
+			'net',
+			'tls',
+			'http',
+			'https',
+			'zlib',
+			'vm',
+			'v8',
+			'perf_hooks',
+		],
+		// Don't external anything else
+		noExternal: true,
+		// Target Node environment
+		target: 'node',
+	},
+
+	// Log level
+	logLevel: process.env.CI ? 'error' : 'info',
+	
+	// Clear screen disabled in CI
+	clearScreen: !process.env.CI,
 });

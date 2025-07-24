@@ -4,8 +4,23 @@
  * Minimal test setup to fix esbuild compilation issues
  */
 
-import "@testing-library/jest-dom";
+// Vitest setup - no longer using jest-dom
 import { vi } from "vitest";
+
+// Provide jest compatibility - check if not already defined
+if (!globalThis.vi) {
+	try {
+		Object.defineProperty(globalThis, "jest", {
+			value: vi,
+			writable: true,
+			configurable: true,
+			enumerable: true,
+		});
+	} catch (e) {
+		// Fallback if property definition fails
+		(globalThis as any).jest = vi;
+	}
+}
 
 // Fix jsdom navigation error
 Object.defineProperty(window, "navigation", {

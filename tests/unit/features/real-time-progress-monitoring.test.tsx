@@ -348,7 +348,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 			};
 
 			// Simulate message event
-			const messageHandler = mockWebSocket.addEventListener.mock.calls.find(
+			const messageHandler = (mockWebSocket.addEventListener as any).mock.calls.find(
 				(call) => call[0] === "message"
 			)[1];
 
@@ -370,7 +370,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 			);
 
 			// Simulate connection error
-			const errorHandler = mockWebSocket.addEventListener.mock.calls.find(
+			const errorHandler = (mockWebSocket.addEventListener as any).mock.calls.find(
 				(call) => call[0] === "error"
 			)[1];
 
@@ -389,7 +389,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 			);
 
 			// Simulate connection close
-			const closeHandler = mockWebSocket.addEventListener.mock.calls.find(
+			const closeHandler = (mockWebSocket.addEventListener as any).mock.calls.find(
 				(call) => call[0] === "close"
 			)[1];
 
@@ -479,7 +479,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 			expect(screen.getByTestId("overdue-alert")).toBeInTheDocument();
 
 			// Update progress via real-time update
-			const messageHandler = mockWebSocket.addEventListener.mock.calls.find(
+			const messageHandler = (mockWebSocket.addEventListener as any).mock.calls.find(
 				(call) => call[0] === "message"
 			)[1];
 
