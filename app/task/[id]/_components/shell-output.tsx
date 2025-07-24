@@ -27,7 +27,7 @@ export function ShellOutput({ command, output }: ShellOutputProps) {
 			<div className="flex items-start gap-x-2">
 				<TooltipProvider>
 					<Tooltip>
-						<TooltipTrigger asChild>
+						<TooltipTrigger asChild={true}>
 							<p className="-mt-1 max-w-md cursor-help truncate font-medium font-mono text-sm">
 								{commandText}
 							</p>

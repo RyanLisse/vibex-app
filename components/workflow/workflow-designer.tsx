@@ -741,7 +741,7 @@ export function WorkflowDesigner() {
 				<ReactFlow
 					attributionPosition="top-right"
 					edges={edges}
-					fitView
+					fitView={true}
 					nodes={nodes}
 					nodeTypes={nodeTypes}
 					onConnect={onConnect}

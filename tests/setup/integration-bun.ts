@@ -7,7 +7,7 @@
 // CRITICAL: Import crypto polyfill FIRST to ensure crypto.randomUUID() availability
 import "./crypto-polyfill";
 
-import { beforeAll, afterAll, beforeEach, afterEach } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 
 // Global test environment setup
 globalThis.ENV = "test";

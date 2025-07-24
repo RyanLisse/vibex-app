@@ -132,7 +132,7 @@ export function TaskFilters({ onFilterChange, assignees, tags, className = "" }:
 
 			{/* Advanced Filters */}
 			<Popover onOpenChange={setIsOpen} open={isOpen}>
-				<PopoverTrigger asChild>
+				<PopoverTrigger asChild={true}>
 					<Button className="relative gap-2" variant="outline">
 						<Filter className="h-4 w-4" />
 						Tags

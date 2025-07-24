@@ -5,7 +5,7 @@
  * for monitoring application performance and health.
  */
 
-import { register, collectDefaultMetrics, Counter, Histogram, Gauge } from "prom-client";
+import { Counter, collectDefaultMetrics, Gauge, Histogram, register } from "prom-client";
 
 // Initialize default metrics collection
 collectDefaultMetrics({ register });

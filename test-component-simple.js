@@ -3,7 +3,7 @@
  * This script tests if our component testing environment is working
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("Basic Test Environment", () => {
 	it("should work with basic assertions", () => {

@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
 import { Stagehand } from "@browserbasehq/stagehand";
+import { expect, test } from "@playwright/test";
 import { StagehandConfig, StagehandTestUtils } from "../../stagehand.config";
 
 /**

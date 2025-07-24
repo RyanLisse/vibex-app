@@ -3,23 +3,23 @@
  * Generates comprehensive refactoring reports from analysis results
  */
 
-import {
-	AnalysisResult,
-	RefactoringReport,
-	ReportSummary,
-	CategoryReport,
-	PrioritizedRecommendation,
-	MigrationPlan,
-	ArchitectureDiagram,
-	RefactoringMetrics,
-	AnalysisCategory,
-	Severity,
-	Benefit,
-	RiskAssessment,
-	MigrationPhase,
-	Resource,
-} from "../types";
 import { Logger } from "../services/logger";
+import {
+	type AnalysisCategory,
+	type AnalysisResult,
+	type ArchitectureDiagram,
+	type Benefit,
+	type CategoryReport,
+	type MigrationPhase,
+	type MigrationPlan,
+	type PrioritizedRecommendation,
+	type RefactoringMetrics,
+	type RefactoringReport,
+	type ReportSummary,
+	type Resource,
+	type RiskAssessment,
+	Severity,
+} from "../types";
 
 export class ReportGenerator {
 	private logger: Logger;

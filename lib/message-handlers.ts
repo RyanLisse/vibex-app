@@ -29,7 +29,7 @@ export class MessageHandlers {
 	 * @param handler - Handler function
 	 * @param priority - Handler priority (higher priority runs first)
 	 */
-	register(type: string, handler: MessageHandler["handler"], priority: number = 0): void {
+	register(type: string, handler: MessageHandler["handler"], priority = 0): void {
 		if (!this.handlers.has(type)) {
 			this.handlers.set(type, []);
 		}

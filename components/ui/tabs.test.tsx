@@ -173,7 +173,7 @@ describe("Tabs Components", () => {
 			render(
 				<Tabs>
 					<TabsList>
-						<TabsTrigger disabled value="tab1">
+						<TabsTrigger disabled={true} value="tab1">
 							Disabled Tab
 						</TabsTrigger>
 					</TabsList>
@@ -384,7 +384,7 @@ describe("Tabs Components", () => {
 			render(
 				<Tabs>
 					<TabsList>
-						<TabsTrigger asChild value="tab1">
+						<TabsTrigger asChild={true} value="tab1">
 							<a href="#tab1">Link Tab</a>
 						</TabsTrigger>
 					</TabsList>

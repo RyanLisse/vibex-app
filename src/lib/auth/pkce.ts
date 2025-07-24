@@ -8,7 +8,7 @@
  * @param length The length of the random bytes to generate (default: 32)
  * @returns A URL-safe string of length 43-128 characters
  */
-export function generateCodeVerifier(length: number = 32): string {
+export function generateCodeVerifier(length = 32): string {
 	try {
 		// Try Node.js crypto first
 		const { randomBytes } = require("node:crypto");

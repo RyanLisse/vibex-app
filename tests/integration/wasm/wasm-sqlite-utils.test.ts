@@ -130,7 +130,7 @@ const createMockSQLiteUtils = () => ({
 
 			if (queryLower.startsWith("select")) {
 				const limitMatch = query.match(/LIMIT (\d+)/i);
-				const limit = limitMatch ? parseInt(limitMatch[1]) : db.length;
+				const limit = limitMatch ? Number.parseInt(limitMatch[1]) : db.length;
 				return {
 					columns: ["id", "value"],
 					rows: db.slice(0, limit),

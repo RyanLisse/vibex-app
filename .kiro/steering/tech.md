@@ -33,8 +33,10 @@
 ## Development Tools
 
 - **Biome**: Code formatting and linting (replaces ESLint/Prettier)
-- **Vitest**: Unit and integration testing
-- **Playwright**: End-to-end testing
+- **Hybrid Testing Framework**:
+  - **Bun**: Logic/utility tests with native test runner
+  - **Vitest**: React component and integration testing
+  - **Playwright**: End-to-end testing
 - **Storybook**: Component development and documentation
 - **Husky**: Git hooks for quality gates
 
@@ -57,9 +59,15 @@ bun run typecheck
 
 ```bash
 # Run all tests
-bun run test
+bun run test:all
 
-# Unit tests only
+# Logic tests (Bun)
+bun run test:unit:logic
+
+# Component tests (Vitest)
+bun run test:unit:components
+
+# All unit tests
 bun run test:unit
 
 # Integration tests
@@ -68,8 +76,8 @@ bun run test:integration
 # E2E tests
 bun run test:e2e
 
-# Test coverage
-bun run test:coverage
+# Full test coverage with merge
+bun run test:coverage:all
 ```
 
 ### Database
@@ -121,4 +129,8 @@ bun run analyze
 - `tsconfig.json`: TypeScript configuration with strict settings
 - `biome.json`: Code formatting and linting rules
 - `drizzle.config.ts`: Database ORM configuration
-- `vitest.config.ts`: Test configuration
+- **Test Configurations**:
+  - `bunfig.toml`: Bun test runner for logic tests
+  - `vitest.unit.config.ts`: Vitest for React components
+  - `vitest.integration.config.ts`: Vitest for integration tests
+  - `playwright.config.ts`: E2E test configuration

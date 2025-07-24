@@ -36,32 +36,32 @@ export const EnvSchema = z.object({
 	// ElectricSQL Sync Configuration
 	ELECTRIC_SYNC_INTERVAL: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(100))
 		.default("1000"),
 	ELECTRIC_MAX_RETRIES: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("3"),
 	ELECTRIC_RETRY_BACKOFF: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(100))
 		.default("1000"),
 	ELECTRIC_MAX_QUEUE_SIZE: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(100))
 		.default("1000"),
 	ELECTRIC_CONNECTION_TIMEOUT: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1000))
 		.default("10000"),
 	ELECTRIC_HEARTBEAT_INTERVAL: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(5000))
 		.default("30000"),
 
@@ -80,12 +80,12 @@ export const EnvSchema = z.object({
 	REDIS_HOST: z.string().optional(),
 	REDIS_PORT: z
 		.string()
-		.transform((val) => parseInt(val || "6379", 10))
+		.transform((val) => Number.parseInt(val || "6379", 10))
 		.pipe(z.number().min(1))
 		.optional(),
 	REDIS_DB: z
 		.string()
-		.transform((val) => parseInt(val || "0", 10))
+		.transform((val) => Number.parseInt(val || "0", 10))
 		.pipe(z.number().min(0))
 		.optional(),
 
@@ -114,12 +114,12 @@ export const EnvSchema = z.object({
 	LOGGING_ERROR_FILE_PATH: z.string().default("logs/error.log"),
 	LOGGING_FILE_MAX_SIZE: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1024))
 		.default("10485760"),
 	LOGGING_FILE_MAX_FILES: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("5"),
 	LOGGING_FILE_LEVEL: z.enum(["error", "warn", "info", "debug", "trace"]).default("info"),
@@ -133,7 +133,7 @@ export const EnvSchema = z.object({
 	LOGGING_HTTP_HOST: z.string().optional(),
 	LOGGING_HTTP_PORT: z
 		.string()
-		.transform((val) => parseInt(val || "80", 10))
+		.transform((val) => Number.parseInt(val || "80", 10))
 		.pipe(z.number().min(1))
 		.optional(),
 	LOGGING_HTTP_PATH: z.string().default("/logs"),
@@ -152,12 +152,12 @@ export const EnvSchema = z.object({
 		.default("false"),
 	LOGGING_SAMPLING_RATE: z
 		.string()
-		.transform((val) => parseFloat(val))
+		.transform((val) => Number.parseFloat(val))
 		.pipe(z.number().min(0).max(1))
 		.default("0.1"),
 	LOGGING_HIGH_VOLUME_THRESHOLD: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(100))
 		.default("1000"),
 	LOGGING_TRACK_OPERATIONS: z
@@ -167,7 +167,7 @@ export const EnvSchema = z.object({
 		.default("true"),
 	LOGGING_SLOW_THRESHOLD: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(100))
 		.default("1000"),
 
@@ -197,7 +197,7 @@ export const EnvSchema = z.object({
 		.default("jaeger"),
 	TELEMETRY_SAMPLING_RATIO: z
 		.string()
-		.transform((val) => parseFloat(val))
+		.transform((val) => Number.parseFloat(val))
 		.pipe(z.number().min(0).max(1))
 		.default("0.1"),
 	TELEMETRY_JAEGER_ENDPOINT: z.string().url().default("http://localhost:14268/api/traces"),
@@ -215,12 +215,12 @@ export const EnvSchema = z.object({
 		.default("true"),
 	ALERTS_MAX_PER_HOUR: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("10"),
 	ALERTS_COOLDOWN_MINUTES: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("15"),
 	ALERTS_DEDUPLICATION_ENABLED: z
@@ -230,7 +230,7 @@ export const EnvSchema = z.object({
 		.default("true"),
 	ALERTS_DEDUPLICATION_WINDOW: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("60"),
 	ALERTS_ESCALATION_ENABLED: z
@@ -240,7 +240,7 @@ export const EnvSchema = z.object({
 		.default("false"),
 	ALERTS_ESCALATION_AFTER_MINUTES: z
 		.string()
-		.transform((val) => parseInt(val, 10))
+		.transform((val) => Number.parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("30"),
 
@@ -271,7 +271,7 @@ export const EnvSchema = z.object({
 	ALERTS_SMTP_HOST: z.string().optional(),
 	ALERTS_SMTP_PORT: z
 		.string()
-		.transform((val) => parseInt(val || "587", 10))
+		.transform((val) => Number.parseInt(val || "587", 10))
 		.pipe(z.number().min(1))
 		.optional(),
 	ALERTS_SMTP_SECURE: z

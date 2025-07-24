@@ -488,8 +488,8 @@ export class GitHubWebhookMockFactory {
 		return {
 			action: "opened",
 			pull_request: {
-				id: parseInt(pr.prId.replace("pr-", "")),
-				number: parseInt(pr.prId.replace("pr-", "")),
+				id: Number.parseInt(pr.prId.replace("pr-", "")),
+				number: Number.parseInt(pr.prId.replace("pr-", "")),
 				title: pr.title,
 				state: pr.status,
 				mergeable: pr.mergeable,
@@ -521,8 +521,8 @@ export class GitHubWebhookMockFactory {
 		return {
 			action: "closed",
 			pull_request: {
-				id: parseInt(pr.prId.replace("pr-", "")),
-				number: parseInt(pr.prId.replace("pr-", "")),
+				id: Number.parseInt(pr.prId.replace("pr-", "")),
+				number: Number.parseInt(pr.prId.replace("pr-", "")),
 				title: pr.title,
 				state: "closed",
 				merged: true,
@@ -557,8 +557,8 @@ export class GitHubWebhookMockFactory {
 		return {
 			action: "submitted",
 			pull_request: {
-				id: parseInt(pr.prId.replace("pr-", "")),
-				number: parseInt(pr.prId.replace("pr-", "")),
+				id: Number.parseInt(pr.prId.replace("pr-", "")),
+				number: Number.parseInt(pr.prId.replace("pr-", "")),
 				title: pr.title,
 				state: pr.status,
 			},

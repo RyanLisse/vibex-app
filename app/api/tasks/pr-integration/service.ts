@@ -27,8 +27,8 @@ export class ExternalServiceError extends Error {
 
 import type {
 	PRStatusSchema,
-	TaskPRLinkSchema,
 	PRStatusUpdateSchema,
+	TaskPRLinkSchema,
 } from "@/src/schemas/enhanced-task-schemas";
 
 // Query schemas

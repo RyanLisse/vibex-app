@@ -112,7 +112,7 @@ describe("AISourcesTrigger", () => {
 	});
 
 	it("should pass through additional props", () => {
-		render(<AISourcesTrigger count={4} data-custom="test" disabled />);
+		render(<AISourcesTrigger count={4} data-custom="test" disabled={true} />);
 
 		const trigger = screen.getByTestId("collapsible-trigger");
 		expect(trigger).toBeDisabled();

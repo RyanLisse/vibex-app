@@ -5,9 +5,9 @@
  * Handles database connection, migration, seeding, and cleanup
  */
 
-import { testMigrationRunner, type TestMigrationRunner } from "./test-migration-runner";
-import { db } from "@/db/config";
 import { sql } from "drizzle-orm";
+import { db } from "@/db/config";
+import { type TestMigrationRunner, testMigrationRunner } from "./test-migration-runner";
 
 export interface TestDatabaseConfig {
 	autoMigrate?: boolean;
@@ -18,7 +18,7 @@ export interface TestDatabaseConfig {
 
 export class TestDatabaseSetup {
 	private migrationRunner: TestMigrationRunner;
-	private isSetup: boolean = false;
+	private isSetup = false;
 	private config: TestDatabaseConfig;
 
 	constructor(config: TestDatabaseConfig = {}) {

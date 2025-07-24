@@ -6,14 +6,14 @@
  */
 
 import crypto from "node:crypto";
-import { type NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { eq } from "drizzle-orm";
+import type { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/db";
-import { users, authSessions } from "@/db/schema";
-import { secureTokenStorage } from "./secure-token-storage";
-import { observabilityService } from "@/lib/observability";
+import { authSessions, users } from "@/db/schema";
 import { logger } from "@/lib/logging";
+import { observabilityService } from "@/lib/observability";
+import { secureTokenStorage } from "./secure-token-storage";
 
 // Environment configuration
 const ANTHROPIC_CLIENT_ID = process.env.ANTHROPIC_CLIENT_ID;

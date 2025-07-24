@@ -4,20 +4,20 @@
  */
 
 import * as ts from "typescript";
-import {
-	AnalysisPlugin,
-	AnalysisContext,
-	AnalysisResult,
-	PluginResult,
-	PluginConfig,
-	ValidationResult,
-	ComplexityMetrics,
-	AntiPattern,
-	TypeScriptIssue,
-	ASTNode,
-	Severity,
-} from "../types";
 import { Logger } from "../services/logger";
+import type {
+	AnalysisContext,
+	AnalysisPlugin,
+	AnalysisResult,
+	AntiPattern,
+	ASTNode,
+	ComplexityMetrics,
+	PluginConfig,
+	PluginResult,
+	Severity,
+	TypeScriptIssue,
+	ValidationResult,
+} from "../types";
 import { ComplexityCalculator } from "../utils/complexity-calculator";
 
 export class CodeQualityAnalyzer implements AnalysisPlugin {

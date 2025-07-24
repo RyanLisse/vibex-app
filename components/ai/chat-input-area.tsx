@@ -1,9 +1,9 @@
 "use client";
 
+import { Loader2, Mic, Paperclip, Send, Square } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Paperclip, Mic, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ChatInputAreaProps {

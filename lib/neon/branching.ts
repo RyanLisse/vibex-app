@@ -59,7 +59,7 @@ export class NeonBranchingManager {
 
 	async getConnectionString(branchId: string): Promise<string> {
 		// Mock implementation for testing
-		return `postgresql://user:pass@test-host.neon.tech:5432/db`;
+		return "postgresql://user:pass@test-host.neon.tech:5432/db";
 	}
 }
 

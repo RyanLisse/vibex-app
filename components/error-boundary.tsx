@@ -1,6 +1,7 @@
 "use client";
 
-import React, { Component, ReactNode, useCallback, useState } from "react";
+import type React from "react";
+import { Component, type ReactNode, useCallback, useState } from "react";
 import { CardTitle } from "@/components/ui/card";
 
 interface ErrorBoundaryState {

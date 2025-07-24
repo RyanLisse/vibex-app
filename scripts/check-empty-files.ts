@@ -5,7 +5,7 @@
  * This prevents empty files from overwriting actual implementations during merges
  */
 
-import { readFileSync, writeFileSync, unlinkSync } from "fs";
+import { readFileSync, unlinkSync, writeFileSync } from "fs";
 import { glob } from "glob";
 
 interface EmptyFile {

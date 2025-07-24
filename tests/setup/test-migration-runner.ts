@@ -5,8 +5,8 @@
  * Handles test database setup, migrations, and cleanup
  */
 
-import { db } from "@/db/config";
 import { sql } from "drizzle-orm";
+import { db } from "@/db/config";
 import { environments } from "@/db/schema";
 
 export interface TestMigration {

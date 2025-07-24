@@ -21,7 +21,7 @@ describe("Basic Functionality", () => {
 	});
 
 	it("should test async/await functionality", async () => {
-		const asyncFunction = async (delay: number = 10) => {
+		const asyncFunction = async (delay = 10) => {
 			await new Promise((resolve) => setTimeout(resolve, delay));
 			return "async result";
 		};

@@ -9,10 +9,11 @@
  * - Cache header management
  */
 
+import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { checkETag, generateETag, notModifiedResponse, withCache } from "@/lib/api/cache-headers";
+import { observability } from "@/lib/observability";
 import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import {
 	handleAPIError,
@@ -20,7 +21,6 @@ import {
 	validateRequestBody,
 	withErrorHandling,
 } from "./error-handlers";
-import { observability } from "@/lib/observability";
 
 // Common route parameter schemas
 export const CommonParamSchemas = {

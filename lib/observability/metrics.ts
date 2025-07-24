@@ -147,7 +147,7 @@ export class MetricsAnalyzer {
 
 	analyzePerformanceTrends(
 		metricName: string,
-		windowMinutes: number = 60
+		windowMinutes = 60
 	): {
 		trend: "improving" | "degrading" | "stable";
 		change: number;
@@ -188,7 +188,7 @@ export class MetricsAnalyzer {
 	> = new Map();
 	private readonly cacheTimeout = 30000; // 30 seconds
 
-	detectAnomalies(metricName: string, threshold: number = 2): MetricDataPoint[] {
+	detectAnomalies(metricName: string, threshold = 2): MetricDataPoint[] {
 		// Check cache first
 		const cacheKey = `${metricName}_${threshold}`;
 		const cached = this.anomalyCache.get(cacheKey);

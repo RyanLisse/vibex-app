@@ -4,8 +4,8 @@
  */
 
 import { AnalysisEngine } from "../core/analysis-engine";
-import { AnalysisConfig } from "../types";
 import { Logger } from "../services/logger";
+import type { AnalysisConfig } from "../types";
 
 async function main() {
 	const logger = new Logger("CLI");
@@ -146,7 +146,7 @@ function parseArguments(args: string[]): AnalysisConfig {
 		} else if (arg.startsWith("--format=")) {
 			config.outputFormat = arg.split("=")[1] as any;
 		} else if (arg.startsWith("--concurrency=")) {
-			config.performanceThresholds.concurrencyLimit = parseInt(arg.split("=")[1], 10);
+			config.performanceThresholds.concurrencyLimit = Number.parseInt(arg.split("=")[1], 10);
 		} else if (!arg.startsWith("--")) {
 			config.targetPaths.push(arg);
 		}

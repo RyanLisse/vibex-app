@@ -6,11 +6,11 @@
  */
 
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import type { Pool } from "pg";
 import * as schema from "./schema";
 
 // Database connection pool
-let pool: Pool | null = null;
+const pool: Pool | null = null;
 let dbInstance: any = null;
 
 // Check if we're in test environment and have a real database URL

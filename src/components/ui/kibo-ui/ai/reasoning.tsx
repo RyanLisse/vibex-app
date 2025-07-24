@@ -29,7 +29,7 @@ export function AIReasoning({
 		<Card className={`ai-reasoning ${className || ""}`}>
 			<Collapsible open={open} onOpenChange={handleToggle}>
 				<CardHeader className="pb-2">
-					<CollapsibleTrigger asChild>
+					<CollapsibleTrigger asChild={true}>
 						<Button variant="ghost" className="w-full justify-between p-0">
 							<CardTitle className="flex items-center gap-2 text-sm">
 								<Brain className="h-4 w-4" />

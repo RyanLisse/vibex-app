@@ -89,7 +89,7 @@ describe("Dialog Components", () => {
 		});
 
 		it("should pass through props", () => {
-			render(<DialogTrigger disabled>Open</DialogTrigger>);
+			render(<DialogTrigger disabled={true}>Open</DialogTrigger>);
 
 			expect(screen.getByTestId("dialog-trigger")).toHaveAttribute("disabled");
 		});

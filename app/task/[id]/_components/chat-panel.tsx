@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChatLoadingState } from "./chat-loading-state";
 import { ChatMessage, type ChatMessageData } from "./chat-message";
 import { MessageInput } from "./message-input";
-import { ChatLoadingState } from "./chat-loading-state";
 
 interface ChatPanelProps {
 	messages: ChatMessageData[];

@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { mock } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 // Create chainable mocks for bun
 const createMockMetric = (methodNames: string[]) => {

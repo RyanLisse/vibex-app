@@ -442,7 +442,9 @@ describe("PR Status Integration Feature", () => {
 				checks: [],
 			});
 
-			render(<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount />);
+			render(
+				<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount={true} />
+			);
 
 			await waitFor(() => {
 				expect(mockGitHubAPI.getPullRequest).toHaveBeenCalledWith("company/web-app", 123);
@@ -452,7 +454,9 @@ describe("PR Status Integration Feature", () => {
 		it("should handle GitHub API errors gracefully", async () => {
 			mockGitHubAPI.getPullRequest.mockRejectedValue(new Error("API rate limit"));
 
-			render(<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount />);
+			render(
+				<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount={true} />
+			);
 
 			await waitFor(() => {
 				expect(screen.getByText(/unable to fetch pr status/i)).toBeInTheDocument();
@@ -462,7 +466,9 @@ describe("PR Status Integration Feature", () => {
 		it("should respect API rate limits", async () => {
 			mockGitHubAPI.getPullRequest.mockRejectedValue(new Error("API rate limit exceeded"));
 
-			render(<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount />);
+			render(
+				<PRStatusCard prStatus={mockPRStatus} taskPRLink={mockTaskPRLink} refreshOnMount={true} />
+			);
 
 			await waitFor(() => {
 				expect(screen.getByText(/rate limit exceeded/i)).toBeInTheDocument();

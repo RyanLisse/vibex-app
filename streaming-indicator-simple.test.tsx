@@ -1,7 +1,7 @@
 /**
  * Simplified StreamingIndicator test to diagnose environment issues
  */
-import { describe, it, expect, beforeAll } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 // Ensure Happy DOM environment is available
 beforeAll(() => {

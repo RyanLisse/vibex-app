@@ -92,34 +92,34 @@ export class PerformanceMonitor {
 	private static measurements = new Map<string, number>();
 
 	static startMeasurement(name: string) {
-		this.measurements.set(name, performance.now());
+		PerformanceMonitor.measurements.set(name, performance.now());
 	}
 
 	static endMeasurement(name: string): number {
-		const startTime = this.measurements.get(name);
+		const startTime = PerformanceMonitor.measurements.get(name);
 		if (!startTime) {
 			return 0;
 		}
 
 		const duration = performance.now() - startTime;
-		this.measurements.delete(name);
+		PerformanceMonitor.measurements.delete(name);
 
 		return duration;
 	}
 
 	static measureAsync<T>(name: string, asyncFn: () => Promise<T>): Promise<T> {
-		this.startMeasurement(name);
+		PerformanceMonitor.startMeasurement(name);
 		return asyncFn().finally(() => {
-			this.endMeasurement(name);
+			PerformanceMonitor.endMeasurement(name);
 		});
 	}
 
 	static measureSync<T>(name: string, syncFn: () => T): T {
-		this.startMeasurement(name);
+		PerformanceMonitor.startMeasurement(name);
 		try {
 			return syncFn();
 		} finally {
-			this.endMeasurement(name);
+			PerformanceMonitor.endMeasurement(name);
 		}
 	}
 }
@@ -235,7 +235,7 @@ export class CacheManager {
 	private static cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
 	static set(key: string, data: any, ttlMs: number = 5 * 60 * 1000) {
-		this.cache.set(key, {
+		CacheManager.cache.set(key, {
 			data,
 			timestamp: Date.now(),
 			ttl: ttlMs,
@@ -243,12 +243,12 @@ export class CacheManager {
 	}
 
 	static get<T>(key: string): T | null {
-		const entry = this.cache.get(key);
+		const entry = CacheManager.cache.get(key);
 		if (!entry) return null;
 
 		const isExpired = Date.now() - entry.timestamp > entry.ttl;
 		if (isExpired) {
-			this.cache.delete(key);
+			CacheManager.cache.delete(key);
 			return null;
 		}
 
@@ -257,13 +257,13 @@ export class CacheManager {
 
 	static clear(prefix?: string) {
 		if (prefix) {
-			for (const [key] of this.cache) {
+			for (const [key] of CacheManager.cache) {
 				if (key.startsWith(prefix)) {
-					this.cache.delete(key);
+					CacheManager.cache.delete(key);
 				}
 			}
 		} else {
-			this.cache.clear();
+			CacheManager.cache.clear();
 		}
 	}
 }

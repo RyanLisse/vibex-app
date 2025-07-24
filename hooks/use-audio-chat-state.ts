@@ -2,12 +2,12 @@
 
 import { useCallback, useReducer, useRef } from "react";
 import type {
-	AudioChatState,
-	AudioChatConfig,
 	AudioChatCallbacks,
-	AudioChatMessage,
+	AudioChatConfig,
 	AudioChatError,
 	AudioChatErrorType,
+	AudioChatMessage,
+	AudioChatState,
 } from "@/types/audio-chat";
 
 type AudioChatAction =

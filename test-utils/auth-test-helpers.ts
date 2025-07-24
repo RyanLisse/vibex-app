@@ -60,7 +60,7 @@ export function createValidCallbackTest(
 		const request = new NextRequest(
 			"https://app.example.com/api/auth/callback?code=test&state=valid"
 		);
-		const response = await POST(request);
+		const response = await Post(request);
 
 		expect(authMocks.mockTokenStorage).toHaveBeenCalledWith("test", "valid");
 		expect(mockNextResponse.json).toHaveBeenCalledWith({ success: true });
@@ -84,7 +84,7 @@ export function createInvalidStateTest(
 		const request = new NextRequest(
 			"https://app.example.com/api/auth/callback?code=test&state=invalid"
 		);
-		const response = await POST(request);
+		const response = await Post(request);
 
 		expect(authMocks.mockValidateOAuthState).toHaveBeenCalledWith("invalid");
 		expect(mockNextResponse.json).toHaveBeenCalledWith({
@@ -111,7 +111,7 @@ export function createTokenExchangeErrorTest(
 		const request = new NextRequest(
 			"https://app.example.com/api/auth/callback?code=test&state=valid"
 		);
-		const response = await POST(request);
+		const response = await Post(request);
 
 		expect(authMocks.mockTokenStorage).toHaveBeenCalledWith("test", "valid");
 		expect(authMocks.mockHandleAuthError).toHaveBeenCalledWith(expect.any(Error));
@@ -123,4 +123,4 @@ export function createTokenExchangeErrorTest(
 }
 
 // Mock POST function type (to be imported from actual route files)
-declare function POST(request: NextRequest): Promise<any>;
+declare function Post(request: NextRequest): Promise<any>;

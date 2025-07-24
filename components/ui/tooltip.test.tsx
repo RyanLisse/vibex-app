@@ -61,7 +61,7 @@ describe("Tooltip Components", () => {
 
 		it("should pass through other props", () => {
 			render(
-				<TooltipProvider disableHoverableContent skipDelayDuration={100}>
+				<TooltipProvider disableHoverableContent={true} skipDelayDuration={100}>
 					<div>Content</div>
 				</TooltipProvider>
 			);
@@ -88,7 +88,7 @@ describe("Tooltip Components", () => {
 
 		it("should pass through props to root", () => {
 			render(
-				<Tooltip defaultOpen delayDuration={200}>
+				<Tooltip defaultOpen={true} delayDuration={200}>
 					<TooltipTrigger>Trigger</TooltipTrigger>
 					<TooltipContent>Content</TooltipContent>
 				</Tooltip>
@@ -118,7 +118,7 @@ describe("Tooltip Components", () => {
 		it("should pass through props", () => {
 			render(
 				<Tooltip>
-					<TooltipTrigger className="custom-trigger" disabled>
+					<TooltipTrigger className="custom-trigger" disabled={true}>
 						Button
 					</TooltipTrigger>
 					<TooltipContent>Info</TooltipContent>
@@ -217,7 +217,7 @@ describe("Tooltip Components", () => {
 			render(
 				<Tooltip>
 					<TooltipTrigger>Trigger</TooltipTrigger>
-					<TooltipContent align="center" avoidCollisions side="bottom">
+					<TooltipContent align="center" avoidCollisions={true} side="bottom">
 						Content
 					</TooltipContent>
 				</Tooltip>
@@ -307,7 +307,7 @@ describe("Tooltip Components", () => {
 		it("should handle asChild pattern", () => {
 			render(
 				<Tooltip>
-					<TooltipTrigger asChild>
+					<TooltipTrigger asChild={true}>
 						<span>Custom element</span>
 					</TooltipTrigger>
 					<TooltipContent>Info</TooltipContent>

@@ -3,11 +3,11 @@
  * Provides logging functionality for the analysis system
  */
 
-import { LoggerInterface } from "../types";
+import type { LoggerInterface } from "../types";
 
 export class Logger implements LoggerInterface {
 	private context: string;
-	private enabled: boolean = true;
+	private enabled = true;
 
 	constructor(context: string) {
 		this.context = context;

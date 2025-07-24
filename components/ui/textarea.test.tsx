@@ -62,7 +62,7 @@ describe("Textarea", () => {
 	});
 
 	it("should handle disabled state", () => {
-		render(<Textarea data-testid="textarea" disabled />);
+		render(<Textarea data-testid="textarea" disabled={true} />);
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toBeDisabled();
@@ -70,7 +70,7 @@ describe("Textarea", () => {
 	});
 
 	it("should handle readOnly state", () => {
-		render(<Textarea data-testid="textarea" readOnly value="Read only text" />);
+		render(<Textarea data-testid="textarea" readOnly={true} value="Read only text" />);
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toHaveAttribute("readOnly");
@@ -78,7 +78,7 @@ describe("Textarea", () => {
 	});
 
 	it("should handle required attribute", () => {
-		render(<Textarea data-testid="textarea" required />);
+		render(<Textarea data-testid="textarea" required={true} />);
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toBeRequired();
@@ -203,7 +203,7 @@ describe("Textarea", () => {
 	});
 
 	it("should handle autoFocus attribute", () => {
-		render(<Textarea autoFocus data-testid="textarea" />);
+		render(<Textarea autoFocus={true} data-testid="textarea" />);
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toHaveAttribute("autoFocus");

@@ -653,10 +653,7 @@ export class VectorSearchWASM {
 class VectorSearchManager {
 	private engines: Map<string, VectorSearchWASM> = new Map();
 
-	getSearchEngine(
-		name: string = "default",
-		config?: Partial<VectorSearchConfig>
-	): VectorSearchWASM {
+	getSearchEngine(name = "default", config?: Partial<VectorSearchConfig>): VectorSearchWASM {
 		if (!this.engines.has(name)) {
 			this.engines.set(name, new VectorSearchWASM(config));
 		}
@@ -683,7 +680,7 @@ export function calculateFastSimilarity(a: number[], b: number[]): number {
 	return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-export function createOptimizedEmbedding(text: string, dimensions: number = 384): number[] {
+export function createOptimizedEmbedding(text: string, dimensions = 384): number[] {
 	// Simple hash-based embedding for testing
 	const embedding = new Array(dimensions).fill(0);
 	for (let i = 0; i < text.length; i++) {
@@ -698,6 +695,6 @@ export function createVectorSearchEngine(config?: Partial<VectorSearchConfig>): 
 	return new VectorSearchWASM(config);
 }
 
-export function getVectorSearchEngine(name: string = "default"): VectorSearchWASM {
+export function getVectorSearchEngine(name = "default"): VectorSearchWASM {
 	return vectorSearchManager.getSearchEngine(name);
 }

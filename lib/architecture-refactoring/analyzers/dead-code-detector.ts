@@ -3,17 +3,17 @@
  * Identifies unused imports, variables, functions, and files
  */
 
-import {
-	AnalysisPlugin,
-	AnalysisContext,
-	AnalysisResult,
-	PluginResult,
-	PluginConfig,
-	ValidationResult,
-	ASTNode,
-	AST,
-} from "../types";
 import { Logger } from "../services/logger";
+import type {
+	AnalysisContext,
+	AnalysisPlugin,
+	AnalysisResult,
+	AST,
+	ASTNode,
+	PluginConfig,
+	PluginResult,
+	ValidationResult,
+} from "../types";
 
 interface UnusedImport {
 	file: string;

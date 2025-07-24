@@ -3,10 +3,16 @@
  * Provides Abstract Syntax Tree parsing functionality
  */
 
-import * as ts from "typescript";
 import { parse as babelParse } from "@babel/parser";
 import traverse from "@babel/traverse";
-import { ASTParserInterface, AST, ASTNode, ASTVisitor, Position } from "../types";
+import * as ts from "typescript";
+import {
+	type AST,
+	type ASTNode,
+	type ASTParserInterface,
+	type ASTVisitor,
+	Position,
+} from "../types";
 import { Logger } from "./logger";
 
 export class ASTParser implements ASTParserInterface {
@@ -236,7 +242,8 @@ export class ASTParser implements ASTParserInterface {
 	private detectLanguage(filePath: string): string {
 		if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
 			return "typescript";
-		} else if (filePath.endsWith(".js") || filePath.endsWith(".jsx")) {
+		}
+		if (filePath.endsWith(".js") || filePath.endsWith(".jsx")) {
 			return "javascript";
 		}
 		return "unknown";
@@ -248,9 +255,11 @@ export class ASTParser implements ASTParserInterface {
 	private getNodeValue(node: ts.Node): any {
 		if (ts.isIdentifier(node)) {
 			return node.text;
-		} else if (ts.isStringLiteral(node)) {
+		}
+		if (ts.isStringLiteral(node)) {
 			return node.text;
-		} else if (ts.isNumericLiteral(node)) {
+		}
+		if (ts.isNumericLiteral(node)) {
 			return Number(node.text);
 		}
 		return undefined;

@@ -4,7 +4,7 @@
  * Modal functions for agent environments.
  */
 
-import { ContainerUseError, ModalFunctionConfig } from "./types";
+import { ContainerUseError, type ModalFunctionConfig } from "./types";
 
 // Mock ModalFunctionManager implementation for testing
 class ModalFunctionManager {
@@ -177,20 +177,19 @@ class ModalFunctionManager {
 					finalCost: environment.resourceUsage.cost,
 					forcedCleanup: true,
 				};
-			} else {
-				// Normal cleanup fails, but we still return success for the test
-				this.environments.delete(environmentId);
-				return {
-					success: true,
-					resourcesFreed: {
-						cpu: environment.resourceUsage.cpu,
-						memory: environment.resourceUsage.memory,
-						storage: 1024,
-					},
-					finalCost: environment.resourceUsage.cost,
-					forcedCleanup: true,
-				};
 			}
+			// Normal cleanup fails, but we still return success for the test
+			this.environments.delete(environmentId);
+			return {
+				success: true,
+				resourcesFreed: {
+					cpu: environment.resourceUsage.cpu,
+					memory: environment.resourceUsage.memory,
+					storage: 1024,
+				},
+				finalCost: environment.resourceUsage.cost,
+				forcedCleanup: true,
+			};
 		}
 
 		const resourcesFreed = {

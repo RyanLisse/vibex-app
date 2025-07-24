@@ -70,7 +70,7 @@ export class LettaAPIError extends LettaError {
 }
 
 export class LettaTimeoutError extends LettaError {
-	constructor(message: string = "Request timed out") {
+	constructor(message = "Request timed out") {
 		super(message, "TIMEOUT", undefined);
 		this.name = "LettaTimeoutError";
 	}
@@ -380,7 +380,9 @@ export class LettaClient {
 				// Retry on rate limit
 				if (response.status === 429 && attempt < this.config.maxRetries) {
 					const retryAfter = response.headers.get("Retry-After");
-					const delay = retryAfter ? parseInt(retryAfter) * 1000 : this.config.retryDelay * attempt;
+					const delay = retryAfter
+						? Number.parseInt(retryAfter) * 1000
+						: this.config.retryDelay * attempt;
 
 					await this.delay(delay);
 					return this.fetchWithRetry(endpoint, options, attempt + 1);

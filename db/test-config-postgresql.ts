@@ -5,9 +5,9 @@
  * Matches the production PostgreSQL schema with pg-core types
  */
 
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
-import { sql } from "drizzle-orm";
 import * as schema from "./schema";
 
 // Create PostgreSQL client for testing with proper connection handling
@@ -217,9 +217,8 @@ export async function executeTestQuery(query: string, params?: any[]): Promise<a
 		const db = await getDb();
 		if (params && params.length > 0) {
 			return await db.execute(sql.raw(query, params));
-		} else {
-			return await db.execute(sql.raw(query));
 		}
+		return await db.execute(sql.raw(query));
 	} catch (error) {
 		throw new Error(
 			`Test query execution failed: ${error instanceof Error ? error.message : "Unknown error"}`

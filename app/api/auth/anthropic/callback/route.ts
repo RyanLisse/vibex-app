@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { handleOAuthCallback, type OAuthConfig } from "@/lib/auth/oauth-utils";
 
 // Force dynamic rendering to avoid build-time issues

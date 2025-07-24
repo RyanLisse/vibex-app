@@ -293,7 +293,7 @@ describe("ClaudeAuthButton", () => {
 		});
 
 		it("should respect disabled prop", () => {
-			render(<ClaudeAuthButton disabled />);
+			render(<ClaudeAuthButton disabled={true} />);
 
 			expect(screen.getByTestId("claude-auth-button")).toBeDisabled();
 		});
@@ -307,7 +307,7 @@ describe("ClaudeAuthButton", () => {
 				error: null,
 			});
 
-			render(<ClaudeAuthButton disabled />);
+			render(<ClaudeAuthButton disabled={true} />);
 
 			expect(screen.getByTestId("claude-auth-button")).toBeDisabled();
 		});
@@ -323,7 +323,7 @@ describe("ClaudeAuthButton", () => {
 		});
 
 		it("should not be focusable when disabled", () => {
-			render(<ClaudeAuthButton disabled />);
+			render(<ClaudeAuthButton disabled={true} />);
 
 			const button = screen.getByTestId("claude-auth-button");
 			expect(button).toBeDisabled();

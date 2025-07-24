@@ -1,6 +1,6 @@
-import { type NextRequest } from "next/server";
-import { exchangeCodeForToken } from "@/lib/auth/openai-codex";
+import type { NextRequest } from "next/server";
 import { handleOAuthCallback, type OAuthConfig } from "@/lib/auth/oauth-utils";
+import { exchangeCodeForToken } from "@/lib/auth/openai-codex";
 
 // Force dynamic rendering to avoid build-time issues
 export const dynamic = "force-dynamic";

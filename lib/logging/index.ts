@@ -1,20 +1,19 @@
 // Main logging exports
 
+// Enhanced ComponentLogger for test compatibility
+export {
+	ComponentLogger as EnhancedComponentLogger,
+	type ComponentLoggerConfig,
+	createComponentLogger,
+	defaultLogger as componentDefaultLogger,
+	type LogContext as ComponentLogContext,
+	type LogEntry,
+} from "./component-logger";
 // Configuration
 export { validateLoggingConfig } from "./config";
 export { CorrelationIdManager } from "./correlation-id-manager";
 export { createDefaultLoggingConfig } from "./defaults";
 export { ComponentLogger, LoggerFactory } from "./logger-factory";
-
-// Enhanced ComponentLogger for test compatibility
-export {
-	ComponentLogger as EnhancedComponentLogger,
-	createComponentLogger,
-	defaultLogger as componentDefaultLogger,
-	type LogContext as ComponentLogContext,
-	type LogEntry,
-	type ComponentLoggerConfig,
-} from "./component-logger";
 export { MetadataEnricher } from "./metadata-enricher";
 // Middleware
 export { createApiRouteLogger, createLoggingMiddleware } from "./middleware";

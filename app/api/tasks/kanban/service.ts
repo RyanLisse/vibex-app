@@ -8,7 +8,7 @@
  */
 
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
+import type { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import {
@@ -19,21 +19,20 @@ import {
 	ValidationError,
 } from "@/lib/api/base";
 import { QueryBuilder } from "@/lib/api/base/query-builder";
+// Import shared utilities to eliminate duplication
+import {
+	DEFAULT_COLUMNS,
+	type GetKanbanQuerySchema,
+	type KanbanBoardData,
+	KanbanUtils,
+	SharedKanbanService,
+	STATUS_COLUMN_MAP,
+} from "@/lib/api/kanban/shared-service";
 import { executeTaskMove } from "@/lib/kanban/task-movement-utils";
 import type {
 	KanbanBoardConfigSchema,
 	KanbanMoveSchema,
 } from "@/src/schemas/enhanced-task-schemas";
-
-// Import shared utilities to eliminate duplication
-import {
-	DEFAULT_COLUMNS,
-	STATUS_COLUMN_MAP,
-	GetKanbanQuerySchema,
-	SharedKanbanService,
-	KanbanUtils,
-	type KanbanBoardData,
-} from "@/lib/api/kanban/shared-service";
 
 const COLUMN_STATUS_MAP = {
 	todo: "todo",

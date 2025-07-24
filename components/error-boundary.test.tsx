@@ -1,7 +1,5 @@
 import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { renderHook } from "@testing-library/react";
 import { ErrorBoundary, useErrorBoundary } from "./error-boundary";
 
 // Mock console methods

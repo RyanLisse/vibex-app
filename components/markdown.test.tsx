@@ -305,7 +305,7 @@ describe("CodeComponent", () => {
 	});
 
 	it("should render inline code", () => {
-		render(<CodeComponent inline>const x = 1</CodeComponent>);
+		render(<CodeComponent inline={true}>const x = 1</CodeComponent>);
 
 		const code = screen.getByText("const x = 1");
 		expect(code).toBeInTheDocument();
@@ -390,7 +390,7 @@ describe("CodeComponent", () => {
 	});
 
 	it("should apply correct styling to inline code", () => {
-		render(<CodeComponent inline>inline code</CodeComponent>);
+		render(<CodeComponent inline={true}>inline code</CodeComponent>);
 
 		const code = screen.getByText("inline code");
 		expect(code).toHaveAttribute("style", "word-break: break-all;");

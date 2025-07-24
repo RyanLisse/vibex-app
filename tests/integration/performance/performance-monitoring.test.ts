@@ -5,8 +5,8 @@
  * memory usage monitoring, response time validation, and system health checks
  */
 
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { count, eq, sql } from "drizzle-orm";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 import { agentExecutions, environments, observabilityEvents, tasks } from "../../../db/schema";
 import {

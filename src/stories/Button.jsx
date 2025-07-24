@@ -12,7 +12,7 @@ export const Button = ({ primary, backgroundColor, size, label, ...props }) => {
 			{...props}
 		>
 			{label}
-			<style jsx>{`
+			<style jsx={true}>{`
         button {
           background-color: ${backgroundColor};
         }

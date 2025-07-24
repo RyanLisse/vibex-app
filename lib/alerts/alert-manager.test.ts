@@ -5,7 +5,7 @@
  * Testing all methods, error paths, and edge cases
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AlertManager } from "./alert-manager";
 import { CriticalErrorType } from "./types";
 

@@ -128,7 +128,7 @@ export function SimplePieChart({
 						data={data}
 						dataKey={dataKey}
 						fill="#8884d8"
-						label
+						label={true}
 						nameKey={nameKey}
 						outerRadius={80}
 					>

@@ -269,7 +269,7 @@ export function createApiSuccessResponse<T>(data: T, message?: string) {
 
 export function createApiErrorResponse(
 	message: string,
-	statusCode: number = 400,
+	statusCode = 400,
 	details?: Array<{ field: string; message: string }>
 ) {
 	return {

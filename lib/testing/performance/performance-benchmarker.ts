@@ -79,9 +79,9 @@ export interface CIOutput {
 }
 
 export class PerformanceBenchmark {
-	private warmupIterations: number = 10;
-	private defaultIterations: number = 100;
-	private defaultTimeout: number = 30000;
+	private warmupIterations = 10;
+	private defaultIterations = 100;
+	private defaultTimeout = 30000;
 
 	async measureFunction<T extends (...args: any[]) => any>(
 		fn: T,

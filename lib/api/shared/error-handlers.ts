@@ -5,11 +5,11 @@
  * multiple API routes into reusable, standardized error handling utilities.
  */
 
+import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { SpanStatusCode, trace } from "@opentelemetry/api";
-import { createApiErrorResponse } from "@/src/schemas/api-routes";
 import { observability } from "@/lib/observability";
+import { createApiErrorResponse } from "@/src/schemas/api-routes";
 
 // Standard API error types
 export class APIError extends Error {

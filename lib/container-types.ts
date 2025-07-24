@@ -79,11 +79,7 @@ export function isLatestData(data: ContainerData, comparison?: ContainerData | s
  * @param version - Version identifier
  * @returns Properly structured container data
  */
-export function createContainerData(
-	id: string,
-	data: any,
-	version: string = "1.0.0"
-): ContainerData {
+export function createContainerData(id: string, data: any, version = "1.0.0"): ContainerData {
 	return {
 		id,
 		timestamp: Date.now(),

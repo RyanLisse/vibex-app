@@ -124,9 +124,7 @@ export class PerformanceAggregationService {
 	/**
 	 * Collect and aggregate performance metrics
 	 */
-	async collectPerformanceMetrics(
-		timeRangeMinutes: number = 60
-	): Promise<AggregatedPerformanceMetric[]> {
+	async collectPerformanceMetrics(timeRangeMinutes = 60): Promise<AggregatedPerformanceMetric[]> {
 		const cacheKey = `performance_metrics_${timeRangeMinutes}`;
 		const cached = this.metricsCache.get(cacheKey);
 

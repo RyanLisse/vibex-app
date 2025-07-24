@@ -92,7 +92,7 @@ export function AISource({ source, showExcerpt = true, className }: AISourceProp
 								variant="link"
 								size="sm"
 								className="h-auto p-0 text-xs text-muted-foreground"
-								asChild
+								asChild={true}
 							>
 								<a href={source.url} target="_blank" rel="noopener noreferrer">
 									{source.url}

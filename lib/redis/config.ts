@@ -5,9 +5,9 @@ export const defaultRedisConfig: RedisConfig = {
 		type: "standalone",
 		connection: {
 			host: process.env.REDIS_HOST || "localhost",
-			port: parseInt(process.env.REDIS_PORT || "6379", 10),
+			port: Number.parseInt(process.env.REDIS_PORT || "6379", 10),
 			password: process.env.REDIS_PASSWORD,
-			database: parseInt(process.env.REDIS_DB || "0", 10),
+			database: Number.parseInt(process.env.REDIS_DB || "0", 10),
 		},
 		options: {
 			lazyConnect: true,

@@ -10,23 +10,23 @@ export const runtime = "nodejs";
  */
 
 import { z } from "zod";
-import { KanbanMoveSchema, KanbanBoardConfigSchema } from "@/src/schemas/enhanced-task-schemas";
 import {
-	SharedKanbanService,
-	GetKanbanQuerySchema,
 	DEFAULT_COLUMNS,
-	STATUS_COLUMN_MAP,
+	GetKanbanQuerySchema,
 	KanbanUtils,
+	SharedKanbanService,
+	STATUS_COLUMN_MAP,
 } from "@/lib/api/kanban/shared-service";
+import { RouteErrorHandlers, withErrorHandling } from "@/lib/api/shared/error-handlers";
 import {
-	createRouteHandler,
 	createGetListHandler,
 	createPostHandler,
 	createPutHandler,
+	createRouteHandler,
 	QueryParsers,
 	ResponseBuilders,
 } from "@/lib/api/shared/route-helpers";
-import { withErrorHandling, RouteErrorHandlers } from "@/lib/api/shared/error-handlers";
+import { KanbanBoardConfigSchema, KanbanMoveSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // REFACTORED: Route handlers using shared utilities
 

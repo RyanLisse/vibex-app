@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import type { StatusData, UpdateData } from "./container-types";
-import { MessageHandlers, createMessage, validateMessage } from "./message-handlers";
+import { createMessage, MessageHandlers, validateMessage } from "./message-handlers";
 
 describe("MessageHandlers", () => {
 	let mockUpdateTask: ReturnType<typeof vi.fn>;

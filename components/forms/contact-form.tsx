@@ -118,7 +118,7 @@ export function ContactForm({ onSubmit, isLoading = false, className = "" }: Con
 	const messageProps = createFieldProps("message", formData, errors, handleInputChange, handleBlur);
 
 	return (
-		<form className={`space-y-4 ${className}`} noValidate onSubmit={handleSubmit}>
+		<form className={`space-y-4 ${className}`} noValidate={true} onSubmit={handleSubmit}>
 			<FormField {...nameProps} label="Name" placeholder="Enter your full name" type="text" />
 
 			<FormField

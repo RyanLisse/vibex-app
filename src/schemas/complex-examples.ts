@@ -681,15 +681,14 @@ export function validateNestedSchema<T>(
 
 		if (result.success) {
 			return { success: true, data: result.data };
-		} else {
-			const errors = result.error.errors.map((err) => {
-				const path = err.path.length > 0 ? `${err.path.join(".")}: ` : "";
-				const contextPrefix = context ? `[${context}] ` : "";
-				return `${contextPrefix}${path}${err.message}`;
-			});
-
-			return { success: false, errors };
 		}
+		const errors = result.error.errors.map((err) => {
+			const path = err.path.length > 0 ? `${err.path.join(".")}: ` : "";
+			const contextPrefix = context ? `[${context}] ` : "";
+			return `${contextPrefix}${path}${err.message}`;
+		});
+
+		return { success: false, errors };
 	} catch (error) {
 		const contextPrefix = context ? `[${context}] ` : "";
 		return {

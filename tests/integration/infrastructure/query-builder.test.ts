@@ -446,11 +446,10 @@ describe("QueryBuilder Integration Tests", () => {
 					// Count query
 					const countResults = Array(25).fill({ count: "mock.id" });
 					return new MockQueryChain(countResults) as any;
-				} else {
-					// Data query
-					const dataResults = Array(10).fill({ id: 1, name: "Test" });
-					return new MockQueryChain(dataResults) as any;
 				}
+				// Data query
+				const dataResults = Array(10).fill({ id: 1, name: "Test" });
+				return new MockQueryChain(dataResults) as any;
 			});
 
 			const result = await queryBuilder.paginate(2, 10).executePaginated();
@@ -474,9 +473,8 @@ describe("QueryBuilder Integration Tests", () => {
 				callCount++;
 				if (callCount === 1) {
 					return new MockQueryChain(Array(15).fill({ count: "mock.id" })) as any;
-				} else {
-					return new MockQueryChain(Array(10).fill({ id: 1 })) as any;
 				}
+				return new MockQueryChain(Array(10).fill({ id: 1 })) as any;
 			});
 
 			const result = await queryBuilder.paginate(1, 10).executePaginated();
@@ -494,9 +492,8 @@ describe("QueryBuilder Integration Tests", () => {
 				callCount++;
 				if (callCount === 1) {
 					return new MockQueryChain(Array(25).fill({ count: "mock.id" })) as any;
-				} else {
-					return new MockQueryChain(Array(5).fill({ id: 1 })) as any;
 				}
+				return new MockQueryChain(Array(5).fill({ id: 1 })) as any;
 			});
 
 			const result = await queryBuilder.paginate(3, 10).executePaginated();

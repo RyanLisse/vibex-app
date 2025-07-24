@@ -3,8 +3,8 @@
  * Reduces code duplication across OAuth providers
  */
 
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export interface LogoutConfig {
 	/** Provider name for error messages */
@@ -234,9 +234,9 @@ export async function handleLogout(
 ): Promise<NextResponse> {
 	if (request.method === "GET") {
 		return handleGetLogout(request, config);
-	} else if (request.method === "POST") {
-		return handlePostLogout(request, config);
-	} else {
-		return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 	}
+	if (request.method === "POST") {
+		return handlePostLogout(request, config);
+	}
+	return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
 }

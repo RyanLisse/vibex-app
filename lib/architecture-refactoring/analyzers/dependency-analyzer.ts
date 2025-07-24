@@ -3,11 +3,11 @@
  * Will analyze dependency issues
  */
 
-import {
-	AnalysisPlugin,
+import type {
 	AnalysisContext,
-	PluginResult,
+	AnalysisPlugin,
 	PluginConfig,
+	PluginResult,
 	ValidationResult,
 } from "../types";
 

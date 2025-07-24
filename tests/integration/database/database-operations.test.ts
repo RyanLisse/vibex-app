@@ -5,6 +5,7 @@
  * Tests CRUD operations, transactions, constraints, and performance
  */
 
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 import {
@@ -12,10 +13,6 @@ import {
 	agentMemory,
 	environments,
 	executionSnapshots,
-	observabilityEvents,
-	tasks,
-	workflowExecutions,
-	workflows,
 	NewAgentExecution,
 	NewAgentMemory,
 	NewEnvironment,
@@ -24,9 +21,11 @@ import {
 	NewTask,
 	NewWorkflow,
 	NewWorkflowExecution,
+	observabilityEvents,
+	tasks,
+	workflowExecutions,
+	workflows,
 } from "../../../db/schema";
-
-import { and, count, desc, eq, sql } from "drizzle-orm";
 import {
 	checkDatabaseHealth,
 	integrationDb as db,
