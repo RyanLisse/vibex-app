@@ -8,7 +8,7 @@
 // CRITICAL: Import crypto polyfill FIRST to fix Bun crypto.randomUUID() issues
 import "./tests/setup/crypto-polyfill";
 
-import "@testing-library/jest-dom";
+// Note: @testing-library/jest-dom removed as part of Jest migration
 import { vi } from "vitest";
 
 // Mock fetch globally for all tests
