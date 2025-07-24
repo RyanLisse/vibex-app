@@ -1,8 +1,8 @@
 "use client";
 
-import Head from "next/head";
 import * as Sentry from "@sentry/nextjs";
-import { useState, useEffect } from "react";
+import Head from "next/head";
+import { useEffect, useState } from "react";
 
 class SentryExampleFrontendError extends Error {
 	constructor(message: string | undefined) {
@@ -45,11 +45,16 @@ export default function Page() {
 					<a
 						target="_blank"
 						href="https://ryan-lisse-bv.sentry.io/issues/?project=4509703158169680"
+						rel="noopener"
 					>
 						Issues Page
 					</a>
 					. For more details about setting up Sentry,{" "}
-					<a target="_blank" href="https://docs.sentry.io/platforms/javascript/guides/nextjs/">
+					<a
+						target="_blank"
+						href="https://docs.sentry.io/platforms/javascript/guides/nextjs/"
+						rel="noopener"
+					>
 						read our docs
 					</a>
 					.
@@ -81,15 +86,15 @@ export default function Page() {
 
 				{hasSentError ? (
 					<p className="success">Error sent to Sentry.</p>
-				) : !isConnected ? (
+				) : isConnected ? (
+					<div className="success_placeholder" />
+				) : (
 					<div className="connectivity-error">
 						<p>
 							It looks like network requests to Sentry are being blocked, which will prevent errors
 							from being captured. Try disabling your ad-blocker to complete the test.
 						</p>
 					</div>
-				) : (
-					<div className="success_placeholder" />
 				)}
 
 				<div className="flex-spacer" />

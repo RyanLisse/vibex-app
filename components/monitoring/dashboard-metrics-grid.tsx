@@ -3,8 +3,8 @@
  * Extracted to reduce complexity in main dashboard component
  */
 
+import { AlertTriangle, CheckCircle, Clock, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, Clock, TrendingUp, TrendingDown } from "lucide-react";
 
 interface MetricCard {
 	title: string;

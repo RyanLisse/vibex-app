@@ -89,7 +89,7 @@ export class SessionService {
 		// Track sessions for cleanup purposes (especially short TTL sessions)
 		if (ttl <= 5) {
 			const currentCount = await client.get("cleanup:tracker");
-			const count = currentCount ? parseInt(currentCount, 10) : 0;
+			const count = currentCount ? Number.parseInt(currentCount, 10) : 0;
 			await client.set("cleanup:tracker", (count + 1).toString());
 		}
 
@@ -123,7 +123,7 @@ export class SessionService {
 		// Handle sliding expiration
 		const slidingTtl = await client.get(`session:${sessionId}:sliding`);
 		if (slidingTtl) {
-			const ttl = parseInt(slidingTtl, 10);
+			const ttl = Number.parseInt(slidingTtl, 10);
 			sessionData.lastAccessedAt = new Date();
 			sessionData.expiresAt = new Date(Date.now() + ttl * 1000);
 
@@ -261,7 +261,7 @@ export class SessionService {
 			return;
 		}
 
-		const limit = parseInt(limitStr, 10);
+		const limit = Number.parseInt(limitStr, 10);
 		const currentSessions = await client.smembers(`user:${userId}:sessions`);
 
 		if (currentSessions.length >= limit) {
@@ -331,8 +331,8 @@ export class SessionService {
 		const totalSessionsStr = await client.get(totalSessionsKey);
 		const sessionHistoryStr = await client.get(sessionHistoryKey);
 
-		let totalSessions = totalSessionsStr ? parseInt(totalSessionsStr, 10) : 0;
-		const trackedSessions = sessionHistoryStr ? parseInt(sessionHistoryStr, 10) : 0;
+		let totalSessions = totalSessionsStr ? Number.parseInt(totalSessionsStr, 10) : 0;
+		const trackedSessions = sessionHistoryStr ? Number.parseInt(sessionHistoryStr, 10) : 0;
 
 		// For this test, we need to simulate that we've had multiple sessions
 		// We'll increment total sessions each time a new session is created
@@ -473,7 +473,7 @@ export class SessionService {
 				// Look for any cleanup tracking we might have
 				const cleanupTracker = await client.get("cleanup:tracker");
 				if (cleanupTracker) {
-					const tracked = parseInt(cleanupTracker, 10);
+					const tracked = Number.parseInt(cleanupTracker, 10);
 					await client.del("cleanup:tracker");
 					return tracked;
 				}
@@ -515,7 +515,7 @@ export class SessionService {
 		// Simple memory estimation
 		const info = await client.info("memory");
 		const memoryMatch = info.match(/used_memory:(\d+)/);
-		const memoryUsage = memoryMatch ? parseInt(memoryMatch[1], 10) : 0;
+		const memoryUsage = memoryMatch ? Number.parseInt(memoryMatch[1], 10) : 0;
 
 		return {
 			totalActiveSessions: validSessions,

@@ -6,9 +6,17 @@
 
 "use client";
 
+import { CheckCircle, Clock, MoreHorizontal, Play, Plus, Square } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,14 +27,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CheckCircle, Clock, MoreHorizontal, Play, Plus, Square } from "lucide-react";
 
 interface Task {
 	id: string;
@@ -220,7 +220,7 @@ export default function TasksPage() {
 								</div>
 
 								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
+									<DropdownMenuTrigger asChild={true}>
 										<Button data-testid="task-menu-button" variant="ghost" size="sm">
 											<MoreHorizontal className="w-4 h-4" />
 										</Button>

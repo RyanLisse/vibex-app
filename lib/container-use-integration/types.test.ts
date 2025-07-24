@@ -5,29 +5,29 @@
  * git worktree management, task creation, and agent coordination types.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-	ModalFunctionConfig,
-	MountConfig,
-	AgentEnvironment,
-	LogEntry,
-	GitWorktree,
-	GitCommit,
-	Task,
-	VoiceCommand,
-	ScreenshotAnalysis,
-	AgentPR,
-	AgentState,
+	type AgentEnvironment,
 	AgentMessage,
-	ModalFunctionResponse,
-	WorktreeOperationResult,
-	TaskCreationResult,
-	ContainerUseError,
-	isTask,
+	type AgentPR,
+	type AgentState,
+	type ContainerUseError,
+	GitCommit,
+	type GitWorktree,
 	isAgentEnvironment,
 	isGitWorktree,
-	isVoiceCommand,
 	isScreenshotAnalysis,
+	isTask,
+	isVoiceCommand,
+	type LogEntry,
+	type ModalFunctionConfig,
+	type ModalFunctionResponse,
+	type MountConfig,
+	type ScreenshotAnalysis,
+	type Task,
+	type TaskCreationResult,
+	type VoiceCommand,
+	type WorktreeOperationResult,
 } from "./types";
 
 describe("Container Use Integration Types", () => {

@@ -255,7 +255,7 @@ function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) 
 					{isEditing ? (
 						<div className="flex space-x-2">
 							<input
-								autoFocus
+								autoFocus={true}
 								className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
 								onBlur={handleSaveTitle}
 								onChange={(e) => setEditTitle(e.target.value)}

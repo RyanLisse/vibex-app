@@ -34,7 +34,7 @@ export interface ApiSuccessResponse<T = any> {
  */
 export function createErrorResponse(
 	message: string,
-	status: number = 500,
+	status = 500,
 	code?: string,
 	details?: any
 ): NextResponse<ApiErrorResponse> {
@@ -56,7 +56,7 @@ export function createErrorResponse(
  */
 export function createSuccessResponse<T>(
 	data: T,
-	status: number = 200
+	status = 200
 ): NextResponse<ApiSuccessResponse<T>> {
 	const response: ApiSuccessResponse<T> = {
 		data,

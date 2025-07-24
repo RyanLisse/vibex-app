@@ -261,12 +261,12 @@ ${[...new Set(critical.concat(high).map((i) => i.file))].map((file) => `- ${file
 	// Write report
 	writeFileSync("PRODUCTION_READINESS_REPORT.md", report);
 
-	console.log(`\n📊 Production Readiness Report generated:`);
+	console.log("\n📊 Production Readiness Report generated:");
 	console.log(`🔴 Critical: ${critical.length}`);
 	console.log(`🟠 High: ${high.length}`);
 	console.log(`🟡 Medium: ${medium.length}`);
 	console.log(`🟢 Low: ${low.length}`);
-	console.log(`\n📄 Full report saved to: PRODUCTION_READINESS_REPORT.md`);
+	console.log("\n📄 Full report saved to: PRODUCTION_READINESS_REPORT.md");
 
 	// Exit with error code if critical issues found
 	if (critical.length > 0) {

@@ -22,7 +22,7 @@ export function TaskControlButton({
 }: TaskControlButtonProps) {
 	return (
 		<Tooltip>
-			<TooltipTrigger asChild>
+			<TooltipTrigger asChild={true}>
 				<Button
 					className="h-8 w-8 rounded-full"
 					disabled={isLoading || disabled}

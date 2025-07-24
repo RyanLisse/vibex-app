@@ -1,10 +1,10 @@
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
+import { AlertTriangle, Bug, Home, RefreshCw } from "lucide-react";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, RefreshCw, Home, Bug } from "lucide-react";
 
 interface Props {
 	children: ReactNode;

@@ -86,7 +86,7 @@ describe("Button Integration Tests", () => {
 			render(
 				<div>
 					<Button>First</Button>
-					<Button disabled>Disabled</Button>
+					<Button disabled={true}>Disabled</Button>
 					<Button>Third</Button>
 				</div>
 			);
@@ -107,7 +107,7 @@ describe("Button Integration Tests", () => {
 			const handleClick = vi.fn((e) => e.preventDefault());
 
 			render(
-				<Button asChild>
+				<Button asChild={true}>
 					<a href="/test" onClick={handleClick}>
 						Link Button
 					</a>
@@ -130,7 +130,7 @@ describe("Button Integration Tests", () => {
 			);
 
 			render(
-				<Button asChild>
+				<Button asChild={true}>
 					<CustomComponent>Custom Button</CustomComponent>
 				</Button>
 			);

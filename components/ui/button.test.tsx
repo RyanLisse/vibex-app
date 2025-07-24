@@ -22,7 +22,7 @@ describe("Button", () => {
 
 		it("renders as child element when asChild is true", () => {
 			render(
-				<Button asChild>
+				<Button asChild={true}>
 					<a href="/test">Link Button</a>
 				</Button>
 			);
@@ -125,7 +125,7 @@ describe("Button", () => {
 		it("does not call onClick when disabled", () => {
 			const handleClick = vi.fn();
 			render(
-				<Button disabled onClick={handleClick}>
+				<Button disabled={true} onClick={handleClick}>
 					Disabled
 				</Button>
 			);
@@ -137,7 +137,7 @@ describe("Button", () => {
 		});
 
 		it("applies disabled styles", () => {
-			render(<Button disabled>Disabled</Button>);
+			render(<Button disabled={true}>Disabled</Button>);
 			const button = screen.getByRole("button");
 			expect(button).toHaveClass("disabled:pointer-events-none");
 			expect(button).toHaveClass("disabled:opacity-50");

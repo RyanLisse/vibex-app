@@ -766,7 +766,7 @@ export function getComputeEngine(config?: Partial<ComputeWASMConfig>): ComputeWA
 export class ComputeManager {
 	private engines: Map<string, ComputeWASM> = new Map();
 
-	getComputeEngine(name: string = "default", config?: Partial<ComputeWASMConfig>): ComputeWASM {
+	getComputeEngine(name = "default", config?: Partial<ComputeWASMConfig>): ComputeWASM {
 		if (!this.engines.has(name)) {
 			this.engines.set(name, new ComputeWASM(config));
 		}

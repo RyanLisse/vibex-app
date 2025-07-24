@@ -3,9 +3,9 @@
  * Extracted to reduce complexity in main dashboard component
  */
 
+import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 
 interface ChecklistItem {
 	item: string;

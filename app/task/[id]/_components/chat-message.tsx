@@ -1,11 +1,11 @@
 "use client";
 
-import { memo, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Markdown } from "@/components/markdown";
 import { formatDistanceToNow } from "date-fns";
+import { memo, useMemo } from "react";
+import { Markdown } from "@/components/markdown";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 export interface ChatMessageData {
 	id: string;

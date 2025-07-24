@@ -27,7 +27,7 @@ export function VisualizationEngine({
 }: VisualizationEngineProps) {
 	return (
 		<div className={`w-full h-full ${className}`}>
-			<ReactFlow nodes={[]} edges={[]} className="bg-gray-50" fitView>
+			<ReactFlow nodes={[]} edges={[]} className="bg-gray-50" fitView={true}>
 				<Controls />
 				<MiniMap />
 				<Background variant="dots" gap={12} size={1} />

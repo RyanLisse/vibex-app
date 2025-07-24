@@ -296,7 +296,7 @@ function calculateCosineSimilarity(a: number[], b: number[]): number {
 export async function batchSimilaritySearch(
 	queries: number[][],
 	documents: Map<string, number[]>,
-	k: number = 10
+	k = 10
 ): Promise<Array<Array<{ id: string; score: number }>>> {
 	return observability.trackOperation("wasm.vector-search.batch-search", async () => {
 		const results: Array<Array<{ id: string; score: number }>> = [];

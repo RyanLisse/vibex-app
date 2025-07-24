@@ -54,33 +54,31 @@ export function shouldUseRealDatabase(): boolean {
  */
 export async function initializeTestDatabase(): Promise<typeof db> {
 	if (shouldUseRealDatabase()) {
-		if (!testConnection) {
-			// Try to import postgres dependencies
-			postgresModules = await importPostgres();
-
-			if (postgresModules) {
-				testConnection = postgresModules.postgres(TEST_DATABASE_URL, {
-					max: 10,
-					idle_timeout: 20,
-					connect_timeout: 10,
-				});
-
-				testDb = postgresModules.drizzle(testConnection, { schema });
-
-				// Run migrations for real database
-				try {
-					await postgresModules.migrate(testDb, { migrationsFolder: "./db/migrations" });
-				} catch (error) {
-					console.warn("Migration failed, continuing with existing schema:", error);
-				}
-
-				return testDb;
-			} else {
-				console.warn("PostgreSQL not available, falling back to mock database");
-			}
-		} else {
+		if (testConnection) {
 			return testDb!;
 		}
+		// Try to import postgres dependencies
+		postgresModules = await importPostgres();
+
+		if (postgresModules) {
+			testConnection = postgresModules.postgres(TEST_DATABASE_URL, {
+				max: 10,
+				idle_timeout: 20,
+				connect_timeout: 10,
+			});
+
+			testDb = postgresModules.drizzle(testConnection, { schema });
+
+			// Run migrations for real database
+			try {
+				await postgresModules.migrate(testDb, { migrationsFolder: "./db/migrations" });
+			} catch (error) {
+				console.warn("Migration failed, continuing with existing schema:", error);
+			}
+
+			return testDb;
+		}
+		console.warn("PostgreSQL not available, falling back to mock database");
 	}
 
 	// Return mock database

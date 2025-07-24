@@ -5,7 +5,7 @@
  * that the test runner can actually execute something.
  */
 
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
 
 test("emergency infrastructure test", () => {
 	// Most basic assertion possible

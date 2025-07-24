@@ -217,7 +217,7 @@ describe("Performance Integration Tests (Bun Compatible)", () => {
 
 	describe("API Response Time Simulation", () => {
 		test("should simulate API endpoint response times", async () => {
-			const simulateApiCall = async (endpoint: string, delay: number = 0) => {
+			const simulateApiCall = async (endpoint: string, delay = 0) => {
 				if (delay > 0) {
 					await new Promise((resolve) => setTimeout(resolve, delay));
 				}

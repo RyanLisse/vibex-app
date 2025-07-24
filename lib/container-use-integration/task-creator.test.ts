@@ -166,10 +166,10 @@ describe("MultiSourceTaskCreator", () => {
 
 			const result = await taskCreator.createTaskFromVoiceCommand(noisyAudioFile);
 
-			if (!result.success) {
-				expect(result.error).toContain("low confidence");
-			} else {
+			if (result.success) {
 				expect(result.warnings).toContain("transcription quality");
+			} else {
+				expect(result.error).toContain("low confidence");
 			}
 		});
 

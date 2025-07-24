@@ -174,7 +174,7 @@ export class PerformanceMonitor {
 		// Sanitize query for logging
 		const sanitizedQuery = query.replace(/\$\d+/g, "?").substring(0, 100);
 
-		this.track(`db_query`, duration, {
+		this.track("db_query", duration, {
 			threshold: "database",
 			context: {
 				query: sanitizedQuery,

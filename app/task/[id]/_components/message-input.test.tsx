@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import type { Task } from "@/types/task";
 import { useUpdateTaskMutation } from "@/hooks/use-task-queries-enhanced";
+import type { Task } from "@/types/task";
 import { createTaskAction } from "../../../actions/inngest";
 import MessageInput from "./message-input";
 

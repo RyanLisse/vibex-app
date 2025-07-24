@@ -389,8 +389,8 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 			const handler = BaseAPIHandler.GET(
 				async (context) => {
 					const queryParams = new URLSearchParams(context.query as any);
-					const page = parseInt(queryParams.get("page") || "1");
-					const limit = parseInt(queryParams.get("limit") || "10");
+					const page = Number.parseInt(queryParams.get("page") || "1");
+					const limit = Number.parseInt(queryParams.get("limit") || "10");
 
 					const result = await taskService.getAll(
 						{},

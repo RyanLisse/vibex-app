@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Activity,
+	AlertTriangle,
+	CheckCircle,
+	Clock,
+	Database,
+	RefreshCw,
+	TrendingUp,
+	Users,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-	Database,
-	Activity,
-	CheckCircle,
-	AlertTriangle,
-	Clock,
-	Users,
-	TrendingUp,
-	RefreshCw,
-} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock database health data types
 interface DatabaseHealth {

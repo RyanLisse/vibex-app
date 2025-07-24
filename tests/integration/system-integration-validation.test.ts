@@ -380,7 +380,7 @@ describe("System Integration Validation", () => {
 					.filter((c) => c.passed)
 					.reduce((sum, c) => {
 						const match = c.message?.match(/(\d+) alert rules/);
-						return sum + (match ? parseInt(match[1]) : 0);
+						return sum + (match ? Number.parseInt(match[1]) : 0);
 					}, 0),
 			});
 		});

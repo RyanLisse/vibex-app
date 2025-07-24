@@ -3,11 +3,11 @@
  * Will detect code duplication and redundancy
  */
 
-import {
-	AnalysisPlugin,
+import type {
 	AnalysisContext,
-	PluginResult,
+	AnalysisPlugin,
 	PluginConfig,
+	PluginResult,
 	ValidationResult,
 } from "../types";
 

@@ -4,9 +4,9 @@
  */
 
 import { promises as fs } from "fs";
-import { join, relative, isAbsolute } from "path";
 import { glob } from "glob";
-import { FileSystemInterface, FileStat } from "../types";
+import { isAbsolute, join, relative } from "path";
+import type { FileStat, FileSystemInterface } from "../types";
 import { Logger } from "./logger";
 
 export class FileSystemService implements FileSystemInterface {

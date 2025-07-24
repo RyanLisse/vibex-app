@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { type AlertChannel, type AlertConfig } from "@/lib/alerts";
+import type { AlertChannel, AlertConfig } from "@/lib/alerts";
 
 export interface UseAlertConfigReturn {
 	config: AlertConfig | null;

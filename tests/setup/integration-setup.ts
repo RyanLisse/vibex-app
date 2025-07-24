@@ -1,167 +1,201 @@
 /**
  * Integration Test Setup
  *
- * Configures the test environment for integration tests including:
- * - Database connections
- * - Mock services
- * - Environment variables
- * - Cleanup procedures
+ * Setup file for integration tests including:
+ * - Database mocking
+ * - API route testing utilities
+ * - Inngest function testing
+ * - External service mocking
  */
 
-import { beforeAll, afterAll, beforeEach, afterEach } from "vitest";
-import { vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
 
+// Environment setup
 process.env.NODE_ENV = "test";
-process.env.VITEST = "true";
+process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
+process.env.INNGEST_SIGNING_KEY = "test-signing-key";
+process.env.INNGEST_EVENT_KEY = "test-event-key";
+process.env.AUTH_SECRET = "test-auth-secret";
 
-// Database setup
-let testDbSetup = null;
-
-// Mock browser APIs that aren't available in jsdom
-Object.defineProperty(window, "matchMedia", {
-	writable: true,
-	value: vi.fn().mockImplementation((query) => ({
-		matches: false,
-		media: query,
-		onchange: null,
-		addListener: vi.fn(),
-		removeListener: vi.fn(),
-		addEventListener: vi.fn(),
-		removeEventListener: vi.fn(),
-		dispatchEvent: vi.fn(),
+// Mock external services
+vi.mock("@google/generative-ai", () => ({
+	GoogleGenerativeAI: vi.fn(() => ({
+		getGenerativeModel: vi.fn(() => ({
+			generateContent: vi.fn().mockResolvedValue({
+				response: {
+					text: () => "Mocked AI response",
+				},
+			}),
+		})),
 	})),
-});
-
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-	observe: vi.fn(),
-	unobserve: vi.fn(),
-	disconnect: vi.fn(),
 }));
 
-// Mock IntersectionObserver
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-	observe: vi.fn(),
-	unobserve: vi.fn(),
-	disconnect: vi.fn(),
+// Mock Inngest client for testing
+vi.mock("@/lib/inngest", () => ({
+	inngest: {
+		createFunction: vi.fn((config, handler) => ({
+			...config,
+			handler,
+			_isMocked: true,
+		})),
+		send: vi.fn().mockResolvedValue({ ids: ["mock-event-id"] }),
+	},
 }));
 
-// Mock fetch for integration tests
+// Mock database client
+vi.mock("@/db", () => ({
+	db: {
+		query: vi.fn(),
+		execute: vi.fn(),
+		transaction: vi.fn((callback) =>
+			callback({
+				query: vi.fn(),
+				execute: vi.fn(),
+				rollback: vi.fn(),
+				commit: vi.fn(),
+			})
+		),
+	},
+}));
+
+// Mock Redis client
+vi.mock("@/lib/redis/client", () => ({
+	redis: {
+		get: vi.fn(),
+		set: vi.fn(),
+		del: vi.fn(),
+		expire: vi.fn(),
+		ttl: vi.fn(),
+		exists: vi.fn(),
+		scan: vi.fn().mockResolvedValue(["0", []]),
+		pipeline: vi.fn(() => ({
+			exec: vi.fn().mockResolvedValue([]),
+		})),
+	},
+}));
+
+// Mock fetch for API testing
 global.fetch = vi.fn();
 
-// Mock performance API
-if (typeof global.performance === "undefined") {
-	global["performance"] = { now: () => Date.now() };
-}
+// Mock NextRequest/NextResponse for API route testing
+global.Request = class Request {
+	constructor(
+		public url: string,
+		public init?: RequestInit
+	) {
+		this.method = init?.method || "GET";
+		this.headers = new Headers(init?.headers);
+		this.body = init?.body;
+	}
 
-// Mock crypto API
-if (typeof global.crypto === "undefined") {
-	global["crypto"] = {
-		getRandomValues: vi.fn((arr) => arr.map(() => Math.floor(Math.random() * 256))),
-		randomUUID: vi.fn(() => "test-uuid-" + Date.now()),
-	};
-}
+	method: string;
+	headers: Headers;
+	body: any;
 
-// Setup test environment variables
-const TEST_ENV = {
-	DATABASE_URL: process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/test",
-	ELECTRIC_URL: process.env.ELECTRIC_URL || "http://localhost:5133",
-	ELECTRIC_WEBSOCKET_URL: process.env.ELECTRIC_WEBSOCKET_URL || "ws://localhost:5133",
-	ELECTRIC_AUTH_TOKEN: process.env.ELECTRIC_AUTH_TOKEN || "test_auth_token",
-	ELECTRIC_USER_ID: process.env.ELECTRIC_USER_ID || "test_user_id",
-	ELECTRIC_API_KEY: process.env.ELECTRIC_API_KEY || "test_api_key",
-	AUTH_SECRET: process.env.AUTH_SECRET || "test_auth_secret",
-	NODE_ENV: "test",
-	INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY || "test-signing-key",
-	INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY || "test-event-key",
+	async json() {
+		return JSON.parse(this.body);
+	}
+
+	async text() {
+		return this.body;
+	}
 };
 
-// Apply test environment variables
-Object.assign(process.env, TEST_ENV);
-
-// Default mock database utilities (fallback)
-global.checkDatabaseHealth = vi.fn().mockResolvedValue(true);
-global.initializeExtensions = vi.fn().mockResolvedValue(true);
-
-// Global setup for all integration tests
-beforeAll(async () => {
-	// Check if we have a real database connection
-	const hasRealDatabase = Boolean(process.env.DATABASE_URL);
-
-	if (hasRealDatabase) {
-		try {
-			// Import and setup real database
-			const { initializeTestDatabase, setupTestTables, checkDatabaseHealth } = await import(
-				"../../db/test-config.real"
-			);
-
-			// Initialize database connection
-			testDbSetup = {
-				initializeTestDatabase,
-				setupTestTables,
-				checkDatabaseHealth,
-				cleanTestData: (await import("../../db/test-config.real")).cleanTestData,
-				closeDatabaseConnection: (await import("../../db/test-config.real"))
-					.closeDatabaseConnection,
-			};
-
-			// Test database connection
-			const isHealthy = await testDbSetup.checkDatabaseHealth();
-			if (isHealthy) {
-				// Setup test tables
-				await testDbSetup.setupTestTables();
-			}
-		} catch (error) {
-			// Tests will run with mock database
-			testDbSetup = null;
-		}
+global.Response = class Response {
+	constructor(
+		public body: any,
+		public init?: ResponseInit
+	) {
+		this.status = init?.status || 200;
+		this.statusText = init?.statusText || "OK";
+		this.headers = new Headers(init?.headers);
 	}
+
+	status: number;
+	statusText: string;
+	headers: Headers;
+	ok = this.status >= 200 && this.status < 300;
+
+	async json() {
+		return typeof this.body === "string" ? JSON.parse(this.body) : this.body;
+	}
+
+	async text() {
+		return typeof this.body === "string" ? this.body : JSON.stringify(this.body);
+	}
+
+	static json(data: any, init?: ResponseInit) {
+		return new Response(JSON.stringify(data), {
+			...init,
+			headers: {
+				"Content-Type": "application/json",
+				...init?.headers,
+			},
+		});
+	}
+
+	static error() {
+		return new Response(null, { status: 500 });
+	}
+};
+
+// Setup hooks
+beforeAll(() => {
+	console.log("🧪 Integration tests starting...");
 });
 
-// Cleanup after all tests
-afterAll(async () => {
-	if (testDbSetup?.closeDatabaseConnection) {
-		try {
-			await testDbSetup.closeDatabaseConnection();
-		} catch (error) {
-			// Silent cleanup
-		}
-	}
+afterAll(() => {
+	vi.restoreAllMocks();
+	console.log("✅ Integration tests completed");
 });
 
-// Clean data before each test
-beforeEach(async () => {
-	if (testDbSetup?.cleanTestData) {
-		try {
-			await testDbSetup.cleanTestData();
-		} catch (error) {
-			// Don't fail tests if cleanup fails
-		}
-	}
-});
-
-// Optional: Additional cleanup after each test
-afterEach(async () => {
-	// Reset all mocks
+beforeEach(() => {
 	vi.clearAllMocks();
-
-	// Clear any timers
-	vi.clearAllTimers();
 });
 
-// Export test utilities for use in tests
-export { TEST_ENV, testDbSetup };
+afterEach(() => {
+	// Clean up any test data
+});
 
-// Helper function to check if real database is available
-export function hasRealDatabase(): boolean {
-	return Boolean(process.env.DATABASE_URL) && testDbSetup !== null;
-}
+// Export test utilities
+export const mockDatabase = {
+	query: vi.mocked(vi.fn()),
+	execute: vi.mocked(vi.fn()),
+	transaction: vi.mocked(vi.fn()),
+};
 
-// Helper function to get test database instance
-export async function getTestDb() {
-	if (!hasRealDatabase()) {
-		throw new Error("Real database not available for this test");
+export const mockRedis = {
+	get: vi.mocked(vi.fn()),
+	set: vi.mocked(vi.fn()),
+	del: vi.mocked(vi.fn()),
+};
+
+export const mockInngest = {
+	send: vi.mocked(vi.fn()),
+	createFunction: vi.mocked(vi.fn()),
+};
+
+// Helper to create mock API context
+export function createMockAPIContext(
+	options: {
+		method?: string;
+		headers?: Record<string, string>;
+		body?: any;
+		query?: Record<string, string>;
+	} = {}
+) {
+	const url = new URL("http://localhost:3000/api/test");
+
+	if (options.query) {
+		Object.entries(options.query).forEach(([key, value]) => {
+			url.searchParams.set(key, value);
+		});
 	}
 
-	return testDbSetup.initializeTestDatabase();
+	return new Request(url.toString(), {
+		method: options.method || "GET",
+		headers: options.headers,
+		body: options.body ? JSON.stringify(options.body) : undefined,
+	});
 }

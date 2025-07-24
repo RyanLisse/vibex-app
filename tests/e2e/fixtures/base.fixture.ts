@@ -1,10 +1,10 @@
-import { test as base, expect } from "@playwright/test";
 import { Stagehand } from "@browserbasehq/stagehand";
+import { test as base, expect } from "@playwright/test";
 import {
-	StagehandConfig,
-	PageDataSchema,
-	TaskDataSchema,
 	EnvironmentDataSchema,
+	PageDataSchema,
+	StagehandConfig,
+	TaskDataSchema,
 } from "../../../stagehand.config";
 
 /**

@@ -204,8 +204,8 @@ export const processInChunks = async <T, R>(
  */
 export const withRetry = async <T>(
 	operation: () => Promise<T>,
-	maxRetries: number = 3,
-	baseDelay: number = 1000
+	maxRetries = 3,
+	baseDelay = 1000
 ): Promise<T> => {
 	let lastError: Error;
 
@@ -219,7 +219,7 @@ export const withRetry = async <T>(
 				break;
 			}
 
-			const delay = baseDelay * Math.pow(2, attempt);
+			const delay = baseDelay * 2 ** attempt;
 			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 	}

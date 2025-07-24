@@ -200,7 +200,7 @@ export class SQLiteWASMUtils {
 			// Try to load sql.js WASM module
 			const sqlJs = await import("sql.js");
 			const SQL = await sqlJs.default({
-				locateFile: (file: string) => `/wasm-modules/sql-wasm.wasm`,
+				locateFile: (file: string) => "/wasm-modules/sql-wasm.wasm",
 			});
 
 			// Create in-memory database
@@ -329,9 +329,8 @@ export class SQLiteWASMUtils {
 						cacheAge,
 					});
 					return cached.result;
-				} else {
-					this.queryCache.delete(cacheKey);
 				}
+				this.queryCache.delete(cacheKey);
 			}
 
 			let result: QueryResult;
@@ -544,12 +543,12 @@ export class SQLiteWASMUtils {
 
 				for (const row of result.rows) {
 					// Get index statistics
-					const statsSql = `SELECT * FROM sqlite_stat1 WHERE tbl=? AND idx=?`;
+					const statsSql = "SELECT * FROM sqlite_stat1 WHERE tbl=? AND idx=?";
 					const statsResult = await this.executeQuery(statsSql, [row.tbl_name, row.name]);
 
 					const stats = statsResult.rows[0];
-					const totalRows = stats ? parseInt(stats.stat.split(" ")[0]) : 0;
-					const uniqueValues = stats ? parseInt(stats.stat.split(" ")[1] || "1") : 1;
+					const totalRows = stats ? Number.parseInt(stats.stat.split(" ")[0]) : 0;
+					const uniqueValues = stats ? Number.parseInt(stats.stat.split(" ")[1] || "1") : 1;
 
 					analyses.push({
 						tableName: row.tbl_name,

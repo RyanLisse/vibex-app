@@ -296,9 +296,8 @@ class ClientElectricDB {
 				const result = await response.json();
 				this.realtimeStats.successfulOperations++;
 				return result.data;
-			} else {
-				throw new Error(`API call failed: ${response.statusText}`);
 			}
+			throw new Error(`API call failed: ${response.statusText}`);
 		} catch (error) {
 			this.realtimeStats.failedOperations++;
 			throw error;

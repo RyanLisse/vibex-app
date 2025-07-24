@@ -532,8 +532,8 @@ describe("Error Handling and Recovery", () => {
 		const collector = PerformanceMetricsCollector.getInstance();
 
 		// Record invalid values
-		collector.recordMetric("cpu_usage", NaN);
-		collector.recordMetric("memory_usage", Infinity);
+		collector.recordMetric("cpu_usage", Number.NaN);
+		collector.recordMetric("memory_usage", Number.POSITIVE_INFINITY);
 		collector.recordMetric("cache_hit_rate", -1);
 
 		await collector.forceFlush();

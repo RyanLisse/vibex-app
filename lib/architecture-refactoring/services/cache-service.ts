@@ -3,7 +3,7 @@
  * Provides caching functionality for analysis results
  */
 
-import { CacheInterface } from "../types";
+import type { CacheInterface } from "../types";
 import { Logger } from "./logger";
 
 interface CacheEntry<T> {
@@ -37,7 +37,7 @@ export class CacheService implements CacheInterface {
 		return entry.value as T;
 	}
 
-	async set<T>(key: string, value: T, ttl: number = 3600000): Promise<void> {
+	async set<T>(key: string, value: T, ttl = 3600000): Promise<void> {
 		const expiry = Date.now() + ttl;
 		this.cache.set(key, { value, expiry });
 		this.logger.debug(`Cache set: ${key}`, { ttl });
@@ -53,7 +53,7 @@ export class CacheService implements CacheInterface {
 	async clear(): Promise<void> {
 		const size = this.cache.size;
 		this.cache.clear();
-		this.logger.info(`Cache cleared`, { entriesRemoved: size });
+		this.logger.info("Cache cleared", { entriesRemoved: size });
 	}
 
 	/**
@@ -105,7 +105,7 @@ export class CacheService implements CacheInterface {
 		}
 
 		if (removed > 0) {
-			this.logger.info(`Cache cleanup completed`, { entriesRemoved: removed });
+			this.logger.info("Cache cleanup completed", { entriesRemoved: removed });
 		}
 
 		return removed;

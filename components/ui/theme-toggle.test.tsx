@@ -88,7 +88,7 @@ describe("ThemeToggle", () => {
 
 			if (!mounted) {
 				return (
-					<button data-testid="theme-toggle-button" disabled>
+					<button data-testid="theme-toggle-button" disabled={true}>
 						<svg className="h-[1.2rem] w-[1.2rem]" data-testid="sun-icon" />
 						<span className="sr-only">Toggle theme</span>
 					</button>

@@ -49,7 +49,7 @@ export function TaskPRLinker({ taskId, onLink, existingLinks = [] }: TaskPRLinke
 							value={prUrl}
 							onChange={(e) => setPrUrl(e.target.value)}
 							placeholder="https://github.com/owner/repo/pull/123"
-							required
+							required={true}
 						/>
 					</div>
 					<Button

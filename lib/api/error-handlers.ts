@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
 export class APIError extends Error {
 	constructor(
 		message: string,
-		public statusCode: number = 500,
+		public statusCode = 500,
 		public code?: string
 	) {
 		super(message);
@@ -25,14 +25,14 @@ export class ValidationError extends APIError {
 }
 
 export class NotFoundError extends APIError {
-	constructor(message: string = "Resource not found") {
+	constructor(message = "Resource not found") {
 		super(message, 404, "NOT_FOUND");
 		this.name = "NotFoundError";
 	}
 }
 
 export class UnauthorizedError extends APIError {
-	constructor(message: string = "Unauthorized") {
+	constructor(message = "Unauthorized") {
 		super(message, 401, "UNAUTHORIZED");
 		this.name = "UnauthorizedError";
 	}

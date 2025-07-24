@@ -4,8 +4,9 @@
  * This module consolidates common React page component test patterns to eliminate
  * code duplication identified by qlty smells analysis.
  */
-import React from "react";
+
 import { render, screen } from "@testing-library/react";
+import React from "react";
 
 // Common page component structure
 export interface PageComponentProps {

@@ -131,7 +131,7 @@ export class WASMPerformanceTracker {
 	/**
 	 * Get recent metrics
 	 */
-	getRecentMetrics(limit: number = 100): WASMPerformanceMetrics[] {
+	getRecentMetrics(limit = 100): WASMPerformanceMetrics[] {
 		return this.metrics.slice(-limit);
 	}
 

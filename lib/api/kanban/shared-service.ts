@@ -13,7 +13,10 @@ import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import { BaseAPIService } from "@/lib/api/base";
 import { NotFoundError, ValidationError } from "@/lib/api/base/errors";
-import { KanbanMoveSchema, KanbanBoardConfigSchema } from "@/src/schemas/enhanced-task-schemas";
+import type {
+	KanbanBoardConfigSchema,
+	KanbanMoveSchema,
+} from "@/src/schemas/enhanced-task-schemas";
 
 // Centralized kanban configuration - eliminates duplication
 export const DEFAULT_COLUMNS = [
@@ -90,13 +93,13 @@ export class SharedKanbanService extends BaseAPIService {
 		fn: () => Promise<T>,
 		metadata?: Record<string, any>
 	): Promise<T> {
-		console.log(`[${this.serviceName}] Starting ${operation}`, metadata);
+		console.log(`[${SharedKanbanService.serviceName}] Starting ${operation}`, metadata);
 		try {
 			const result = await fn();
-			console.log(`[${this.serviceName}] Completed ${operation}`);
+			console.log(`[${SharedKanbanService.serviceName}] Completed ${operation}`);
 			return result;
 		} catch (error) {
-			console.error(`[${this.serviceName}] Failed ${operation}`, error);
+			console.error(`[${SharedKanbanService.serviceName}] Failed ${operation}`, error);
 			throw error;
 		}
 	}
@@ -115,7 +118,7 @@ export class SharedKanbanService extends BaseAPIService {
 		userId?: string,
 		metadata?: Record<string, any>
 	): Promise<void> {
-		console.log(`[${this.serviceName}] Operation: ${operation}`, {
+		console.log(`[${SharedKanbanService.serviceName}] Operation: ${operation}`, {
 			resourceType,
 			resourceId,
 			userId,
@@ -130,7 +133,7 @@ export class SharedKanbanService extends BaseAPIService {
 	static async getKanbanBoard(
 		params: z.infer<typeof GetKanbanQuerySchema>
 	): Promise<KanbanBoardData> {
-		return this.withTracing("getKanbanBoard", async () => {
+		return SharedKanbanService.withTracing("getKanbanBoard", async () => {
 			// Build query conditions
 			const conditions = [];
 			if (params.userId) {
@@ -150,16 +153,16 @@ export class SharedKanbanService extends BaseAPIService {
 					: await db.select().from(tasks);
 
 			// Get kanban configuration
-			const kanbanConfig = this.getDefaultKanbanConfig();
+			const kanbanConfig = SharedKanbanService.getDefaultKanbanConfig();
 
 			// Organize tasks by columns
-			const columns = this.organizeTasksByColumns(allTasks, kanbanConfig.columns);
+			const columns = SharedKanbanService.organizeTasksByColumns(allTasks, kanbanConfig.columns);
 
 			// Calculate board metrics
-			const metrics = this.calculateBoardMetrics(allTasks, columns);
+			const metrics = SharedKanbanService.calculateBoardMetrics(allTasks, columns);
 
 			// Log operation
-			await this.logOperation("get_kanban_board", "kanban", null, params.userId, {
+			await SharedKanbanService.logOperation("get_kanban_board", "kanban", null, params.userId, {
 				totalTasks: metrics.totalTasks,
 				columns: columns.length,
 				wipViolations: metrics.wipLimitViolations,
@@ -177,22 +180,22 @@ export class SharedKanbanService extends BaseAPIService {
 	 * Move task between columns with validation
 	 */
 	static async moveTask(moveData: z.infer<typeof KanbanMoveSchema>) {
-		return this.withTracing(
+		return SharedKanbanService.withTracing(
 			"moveTask",
 			async () => {
-				return this.withTransaction(async (tx) => {
+				return SharedKanbanService.withTransaction(async (tx) => {
 					// Get and validate task
-					const task = await this.getTaskForMove(tx, moveData.taskId);
+					const task = await SharedKanbanService.getTaskForMove(tx, moveData.taskId);
 
 					// Validate target column and get new status
-					const newStatus = this.validateTargetColumn(moveData.toColumn);
+					const newStatus = SharedKanbanService.validateTargetColumn(moveData.toColumn);
 
 					// Check WIP limits
-					await this.validateWipLimits(tx, moveData.toColumn, newStatus);
+					await SharedKanbanService.validateWipLimits(tx, moveData.toColumn, newStatus);
 
 					// Create task updates
-					const updates = this.createTaskUpdates(task, newStatus, moveData);
-					updates.metadata = this.createKanbanMetadata(task, moveData);
+					const updates = SharedKanbanService.createTaskUpdates(task, newStatus, moveData);
+					updates.metadata = SharedKanbanService.createKanbanMetadata(task, moveData);
 
 					// Update task in database
 					const [updatedTask] = await tx
@@ -202,12 +205,18 @@ export class SharedKanbanService extends BaseAPIService {
 						.returning();
 
 					// Log operation
-					await this.logOperation("move_task", "task", moveData.taskId, moveData.userId, {
-						fromColumn: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
-						toColumn: moveData.toColumn,
-						fromStatus: task.status,
-						toStatus: newStatus,
-					});
+					await SharedKanbanService.logOperation(
+						"move_task",
+						"task",
+						moveData.taskId,
+						moveData.userId,
+						{
+							fromColumn: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
+							toColumn: moveData.toColumn,
+							fromStatus: task.status,
+							toStatus: newStatus,
+						}
+					);
 
 					return {
 						task: updatedTask,
@@ -227,12 +236,12 @@ export class SharedKanbanService extends BaseAPIService {
 	 * Update kanban board configuration
 	 */
 	static async updateConfig(config: z.infer<typeof KanbanBoardConfigSchema>) {
-		return this.withTracing("updateConfig", async () => {
+		return SharedKanbanService.withTracing("updateConfig", async () => {
 			// In a real implementation, would save to database
 			// For now, validate and return the config
 
 			// Log operation
-			await this.logOperation("update_kanban_config", "kanban", null, null, {
+			await SharedKanbanService.logOperation("update_kanban_config", "kanban", null, null, {
 				columnsCount: config.columns.length,
 				wipLimitsEnabled: config.settings.enableWipLimits,
 			});

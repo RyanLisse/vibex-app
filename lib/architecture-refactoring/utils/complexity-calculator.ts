@@ -3,8 +3,8 @@
  * Calculates various complexity metrics for code
  */
 
-import { AST, ASTNode, ComplexityMetrics } from "../types";
 import { Logger } from "../services/logger";
+import type { AST, ASTNode, ComplexityMetrics } from "../types";
 
 export class ComplexityCalculator {
 	private logger: Logger;
@@ -58,7 +58,7 @@ export class ComplexityCalculator {
 	 * Calculate cyclomatic complexity
 	 * Counts decision points in the code
 	 */
-	private calculateCyclomaticComplexity(node: ASTNode, complexity: number = 1): number {
+	private calculateCyclomaticComplexity(node: ASTNode, complexity = 1): number {
 		const decisionTypes = [
 			"IfStatement",
 			"ConditionalExpression",
@@ -93,11 +93,7 @@ export class ComplexityCalculator {
 	 * Calculate cognitive complexity
 	 * Measures how difficult code is to understand
 	 */
-	private calculateCognitiveComplexity(
-		node: ASTNode,
-		depth: number = 0,
-		complexity: number = 0
-	): number {
+	private calculateCognitiveComplexity(node: ASTNode, depth = 0, complexity = 0): number {
 		const incrementTypes = [
 			"IfStatement",
 			"ConditionalExpression",

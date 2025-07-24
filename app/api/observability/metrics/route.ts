@@ -10,7 +10,7 @@ import { performanceAggregation } from "@/lib/observability/performance-aggregat
 export async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = new URL(request.url);
-		const timeRange = parseInt(searchParams.get("timeRange") || "60"); // minutes
+		const timeRange = Number.parseInt(searchParams.get("timeRange") || "60"); // minutes
 		const format = searchParams.get("format") || "json";
 
 		// Get performance metrics

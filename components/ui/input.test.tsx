@@ -60,9 +60,9 @@ describe("Input", () => {
 		render(
 			<Input
 				autoComplete="off"
-				autoFocus
+				autoFocus={true}
 				data-testid="input"
-				disabled
+				disabled={true}
 				id="test-input"
 				maxLength={50}
 				minLength={5}
@@ -70,8 +70,8 @@ describe("Input", () => {
 				onChange={() => {}}
 				pattern="[A-Za-z]+"
 				placeholder="Enter text"
-				readOnly
-				required
+				readOnly={true}
+				required={true}
 				value="test value"
 			/>
 		);

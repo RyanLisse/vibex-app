@@ -5,7 +5,7 @@
  * using @electric-sql/client and @electric-sql/pglite
  */
 
-import { PGlite, Results } from "@electric-sql/pglite";
+import { PGlite, type Results } from "@electric-sql/pglite";
 import type * as schema from "@/db/schema";
 import { ObservabilityService } from "../observability";
 import { electricConfig, getFinalConfig, validateElectricConfig } from "./config";

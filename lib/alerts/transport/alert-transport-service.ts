@@ -1,15 +1,14 @@
 import { ComponentLogger } from "../../logging";
-import type { AlertChannel, AlertNotification, AlertTransportConfig, BaseTransport } from "./types";
 import type { CriticalError } from "../types";
+import { DiscordTransport } from "./discord-transport";
+import { EmailTransport } from "./email-transport";
+import { LogTransport } from "./log-transport";
+import { SlackTransport } from "./slack-transport";
+import { TeamsTransport } from "./teams-transport";
+import type { AlertChannel, AlertNotification, AlertTransportConfig, BaseTransport } from "./types";
 import { AlertChannelType } from "./types";
-
 // Import transports
 import { WebhookTransport } from "./webhook-transport";
-import { EmailTransport } from "./email-transport";
-import { SlackTransport } from "./slack-transport";
-import { DiscordTransport } from "./discord-transport";
-import { TeamsTransport } from "./teams-transport";
-import { LogTransport } from "./log-transport";
 
 export class AlertTransportService {
 	private transports: Map<AlertChannelType, BaseTransport> = new Map();
@@ -120,7 +119,7 @@ export class AlertTransportService {
 				// Calculate retry delay
 				let delay = retryConfig.retryDelay;
 				if (retryConfig.exponentialBackoff) {
-					delay = Math.min(retryConfig.retryDelay * Math.pow(2, attempt), 30000);
+					delay = Math.min(retryConfig.retryDelay * 2 ** attempt, 30000);
 				}
 
 				await new Promise((resolve) => setTimeout(resolve, delay));

@@ -1,16 +1,16 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GET } from "./route";
 import {
-	setupAuthTestMocks,
-	resetAuthMocks,
+	AUTH_TEST_SCENARIOS,
+	AuthCallbackAssertions,
+	type AuthTestContext,
 	createAuthCallbackTestSuite,
 	createMockCallbackRequest,
-	AuthCallbackAssertions,
-	AUTH_TEST_SCENARIOS,
 	MOCK_OAUTH_RESPONSES,
-	type AuthTestContext,
+	resetAuthMocks,
+	setupAuthTestMocks,
 } from "@/lib/test-utils/auth-test-helpers";
+import { GET } from "./route";
 
 // Mock the authentication utilities
 vi.mock("@/lib/auth/openai-codex", () => ({

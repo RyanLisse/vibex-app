@@ -5,7 +5,7 @@
  * and validation functions.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // Import types to test (they exist even if not explicitly exported)
 interface AgentMemory {
@@ -187,7 +187,7 @@ describe("Agent Memory Types", () => {
 			});
 
 			// Test invalid scores
-			const invalidScores = [-0.1, 1.1, NaN, Infinity];
+			const invalidScores = [-0.1, 1.1, Number.NaN, Number.POSITIVE_INFINITY];
 
 			invalidScores.forEach((score) => {
 				const memory = {

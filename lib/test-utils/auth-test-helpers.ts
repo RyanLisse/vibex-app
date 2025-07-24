@@ -5,8 +5,8 @@
  * reusable test setup, mocks, and assertion helpers.
  */
 
-import { vi } from "vitest";
 import type { Mock } from "vitest";
+import { vi } from "vitest";
 
 // Common test data structures
 export interface AuthTestContext {

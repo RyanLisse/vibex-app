@@ -25,7 +25,7 @@ export interface FormStateInfo {
  */
 export function createFormStateHelpers<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	isSubmitting: boolean = false
+	isSubmitting = false
 ): FormStateHelpers<T> {
 	const { formState } = form;
 
@@ -43,7 +43,7 @@ export function createFormStateHelpers<T extends FieldValues>(
  */
 export function isFormReadyForSubmission<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	isSubmitting: boolean = false
+	isSubmitting = false
 ): boolean {
 	const { formState } = form;
 
@@ -73,7 +73,7 @@ export function useFormState<T extends FieldValues>(form: UseFormReturn<T>): For
  */
 export function getFormSubmissionState<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	isSubmitting: boolean = false
+	isSubmitting = false
 ): {
 	canSubmit: boolean;
 	hasErrors: boolean;

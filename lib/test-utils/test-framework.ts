@@ -41,21 +41,13 @@ export interface DescribeFunction {
 	todo: (name: string, fn?: () => void) => void;
 }
 
-export interface BeforeEachFunction {
-	(fn: () => void | Promise<void>): void;
-}
+export type BeforeEachFunction = (fn: () => void | Promise<void>) => void;
 
-export interface AfterEachFunction {
-	(fn: () => void | Promise<void>): void;
-}
+export type AfterEachFunction = (fn: () => void | Promise<void>) => void;
 
-export interface BeforeAllFunction {
-	(fn: () => void | Promise<void>): void;
-}
+export type BeforeAllFunction = (fn: () => void | Promise<void>) => void;
 
-export interface AfterAllFunction {
-	(fn: () => void | Promise<void>): void;
-}
+export type AfterAllFunction = (fn: () => void | Promise<void>) => void;
 
 // Unified expect interface
 export interface ExpectStatic {

@@ -89,7 +89,7 @@ const customMatchers: CustomMatchers = {
 
 		return {
 			pass,
-			message: () => `Expected object to match schema structure`,
+			message: () => "Expected object to match schema structure",
 		};
 	},
 

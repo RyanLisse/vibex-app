@@ -8,7 +8,7 @@
  * - Optional action buttons and metadata
  */
 
-import React from "react";
+import type React from "react";
 import { cn } from "@/lib/utils";
 
 export interface PageTemplateProps {
@@ -150,7 +150,7 @@ export function DemoPageTemplate({
 		<PageTemplate
 			title={title}
 			description={description}
-			emptyState={!children ? defaultEmptyState : undefined}
+			emptyState={children ? undefined : defaultEmptyState}
 			{...props}
 		>
 			{children}
@@ -183,7 +183,7 @@ export function AIFeaturePageTemplate({
 		<PageTemplate
 			title={title}
 			description={description}
-			emptyState={!children ? defaultEmptyState : undefined}
+			emptyState={children ? undefined : defaultEmptyState}
 			{...props}
 		>
 			{children}

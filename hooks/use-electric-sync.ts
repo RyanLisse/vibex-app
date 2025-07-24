@@ -5,8 +5,8 @@
  * Handles sync state, conflict resolution, and offline queue management
  */
 
-import { useEffect, useState, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 
 export interface SyncState {
 	isConnected: boolean;

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 /**
@@ -8,10 +8,10 @@ import { z } from "zod";
 export class APIError extends Error {
 	constructor(
 		message: string,
-		public statusCode: number = 500,
-		public code: string = "INTERNAL_ERROR",
+		public statusCode = 500,
+		public code = "INTERNAL_ERROR",
 		public details?: any,
-		public retryable: boolean = false
+		public retryable = false
 	) {
 		super(message);
 		this.name = "APIError";
@@ -26,28 +26,28 @@ export class ValidationError extends APIError {
 }
 
 export class AuthenticationError extends APIError {
-	constructor(message: string = "Authentication required") {
+	constructor(message = "Authentication required") {
 		super(message, 401, "AUTHENTICATION_ERROR", undefined, false);
 		this.name = "AuthenticationError";
 	}
 }
 
 export class AuthorizationError extends APIError {
-	constructor(message: string = "Insufficient permissions") {
+	constructor(message = "Insufficient permissions") {
 		super(message, 403, "AUTHORIZATION_ERROR", undefined, false);
 		this.name = "AuthorizationError";
 	}
 }
 
 export class NotFoundError extends APIError {
-	constructor(message: string = "Resource not found") {
+	constructor(message = "Resource not found") {
 		super(message, 404, "NOT_FOUND_ERROR", undefined, false);
 		this.name = "NotFoundError";
 	}
 }
 
 export class RateLimitError extends APIError {
-	constructor(message: string = "Rate limit exceeded", retryAfter?: number) {
+	constructor(message = "Rate limit exceeded", retryAfter?: number) {
 		super(message, 429, "RATE_LIMIT_ERROR", { retryAfter }, true);
 		this.name = "RateLimitError";
 	}
@@ -102,7 +102,7 @@ export function createEnhancedErrorHandler(
 		let statusCode = 500;
 		let errorCode = "INTERNAL_ERROR";
 		let message = "Internal server error";
-		let details: any = undefined;
+		let details: any;
 		let retryable = false;
 
 		// Handle different error types
@@ -236,7 +236,8 @@ function getUserFriendlyMessage(errorCode: string, statusCode: number): string {
 function getGenericMessage(statusCode: number): string {
 	if (statusCode >= 500) {
 		return "We're experiencing technical difficulties. Please try again later.";
-	} else if (statusCode >= 400) {
+	}
+	if (statusCode >= 400) {
 		return "There was a problem with your request. Please check and try again.";
 	}
 	return "An unexpected error occurred.";

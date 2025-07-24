@@ -77,13 +77,13 @@ export function CreateEnvironmentDialog({
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 							placeholder="e.g., Development, Staging, Production"
-							required
+							required={true}
 						/>
 					</div>
 
 					<div className="space-y-2">
 						<Label htmlFor="type">Environment Type</Label>
-						<Select value={type} onValueChange={setType} required>
+						<Select value={type} onValueChange={setType} required={true}>
 							<SelectTrigger>
 								<SelectValue placeholder="Select environment type" />
 							</SelectTrigger>

@@ -6,14 +6,14 @@
  */
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
-import { BaseAPIError } from "./base-error";
-import { validateToken, getStoredToken, refreshUserSession } from "@/lib/auth/anthropic";
+import { getStoredToken, refreshUserSession, validateToken } from "@/lib/auth/anthropic";
+import { logger } from "@/lib/logging";
+import { csrfProtection } from "@/lib/middleware/csrf";
 import { rateLimit } from "@/lib/middleware/rate-limit";
 import { securityHeaders } from "@/lib/middleware/security-headers";
-import { csrfProtection } from "@/lib/middleware/csrf";
-import { logger } from "@/lib/logging";
 import { observabilityService } from "@/lib/observability";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
+import { BaseAPIError } from "./base-error";
 
 export type RouteHandler<T = any> = (
 	request: NextRequest,
@@ -146,8 +146,8 @@ export abstract class BaseAPIHandler {
 			input = Object.fromEntries(searchParams.entries());
 
 			// Convert numeric strings to numbers for common params
-			if ("page" in input) input.page = parseInt(input.page, 10);
-			if ("limit" in input) input.limit = parseInt(input.limit, 10);
+			if ("page" in input) input.page = Number.parseInt(input.page, 10);
+			if ("limit" in input) input.limit = Number.parseInt(input.limit, 10);
 		} else {
 			const contentType = request.headers.get("content-type");
 

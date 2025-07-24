@@ -5,8 +5,8 @@
  * reusable setup functions for different test environments.
  */
 
-import { vi } from "vitest";
 import type { MockedFunction } from "vitest";
+import { vi } from "vitest";
 
 export interface TestEnvironmentConfig {
 	nodeEnv?: string;

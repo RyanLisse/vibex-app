@@ -20,7 +20,7 @@ export function useAnthropicAuth() {
 	);
 
 	// Wrap login to handle Anthropic-specific mode parameter
-	const login = async (mode: string = "max") => {
+	const login = async (mode = "max") => {
 		await baseAuth.login({ mode });
 	};
 

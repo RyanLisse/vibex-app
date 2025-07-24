@@ -8,15 +8,15 @@ export const runtime = "nodejs";
  * Enhanced user management using base utilities for consistency and reduced duplication
  */
 
-import { NextRequest } from "next/server";
-import { z } from "zod";
-import { and, eq, like, desc } from "drizzle-orm";
-import { db } from "@/db";
-import { users, authSessions } from "@/db/schema";
+import { and, desc, eq, like } from "drizzle-orm";
+import type { NextRequest } from "next/server";
 import { ulid } from "ulid";
+import { z } from "zod";
+import { db } from "@/db";
+import { authSessions, users } from "@/db/schema";
 import { BaseService } from "@/lib/api/base-service";
 import { NotFoundError } from "@/lib/error-handling/error-classes";
-import { UpdateTaskSchema, CreateTaskSchema } from "@/src/schemas/api-routes";
+import { CreateTaskSchema, UpdateTaskSchema } from "@/src/schemas/api-routes";
 
 // Request validation schemas
 const GetUsersQuerySchema = z.object({

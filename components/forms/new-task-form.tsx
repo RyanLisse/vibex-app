@@ -48,7 +48,7 @@ export default function NewTaskForm({ onSubmit, onCancel, isLoading }: NewTaskFo
 					value={formData.title || ""}
 					onChange={(e) => handleInputChange("title", e.target.value)}
 					placeholder="Enter task title"
-					required
+					required={true}
 				/>
 			</div>
 

@@ -99,7 +99,7 @@ export class WASMModuleLoader {
 					throw new Error(`Failed to fetch WASM module: ${response.status} ${response.statusText}`);
 				}
 
-				const contentLength = parseInt(response.headers.get("content-length") || "0");
+				const contentLength = Number.parseInt(response.headers.get("content-length") || "0");
 				const reader = response.body?.getReader();
 				const chunks: Uint8Array[] = [];
 				let receivedLength = 0;
@@ -272,7 +272,7 @@ export class WASMModuleLoader {
 	 */
 	private evictLeastUsedModule(): void {
 		let leastUsed: string | null = null;
-		let minHits = Infinity;
+		let minHits = Number.POSITIVE_INFINITY;
 		let oldestTime = new Date();
 
 		for (const [name, cache] of this.moduleCache) {

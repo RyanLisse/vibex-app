@@ -6,6 +6,7 @@
 
 "use client";
 
+import { CheckCircle, Clock, Play, Plus, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +20,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle, Clock, Play, Plus, Settings } from "lucide-react";
 
 interface WorkflowStep {
 	id: string;
@@ -309,7 +309,7 @@ export default function WorkflowsPage() {
 			)}
 
 			{/* Success Message */}
-			<div data-testid="success-message" className="hidden"></div>
+			<div data-testid="success-message" className="hidden" />
 
 			{/* Workflows List */}
 			<div className="grid gap-6">

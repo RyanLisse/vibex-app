@@ -1,8 +1,8 @@
 "use client";
 
+import { AlertCircle, Loader2, Wifi, WifiOff } from "lucide-react";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wifi, WifiOff, AlertCircle } from "lucide-react";
 
 export interface ElectricConnectionStatusProps {
 	status: "connected" | "connecting" | "disconnected" | "error";

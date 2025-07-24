@@ -92,7 +92,7 @@ async function fixBunToVitestImports() {
 		}
 	}
 
-	console.log(`\n✨ Conversion complete!`);
+	console.log("\n✨ Conversion complete!");
 	console.log(`📊 Fixed ${filesFixed} out of ${totalFiles} files with bun:test imports`);
 }
 

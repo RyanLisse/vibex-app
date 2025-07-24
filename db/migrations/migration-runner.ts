@@ -429,7 +429,7 @@ export class MigrationRunner {
 
 		const executed = [];
 		const errors = [];
-		const executedMigrations_backup = [];
+		const executedMigrationsBackup = [];
 
 		// Create backup point before starting migrations
 		await this.createBackupPoint();
@@ -439,16 +439,16 @@ export class MigrationRunner {
 				console.log(`🔄 Executing migration: ${migration.name}`);
 				await this.executeMigration(migration);
 				executed.push(migration.name);
-				executedMigrations_backup.push(migration.name);
+				executedMigrationsBackup.push(migration.name);
 				console.log(`✅ Migration ${migration.name} completed successfully`);
 			} catch (error) {
 				console.error(`❌ Migration ${migration.name} failed: ${error.message}`);
 				errors.push(`${migration.name}: ${error.message}`);
 
 				// Attempt to rollback executed migrations in this batch
-				if (executedMigrations_backup.length > 0) {
+				if (executedMigrationsBackup.length > 0) {
 					console.log("🔄 Attempting to rollback executed migrations in this batch...");
-					await this.rollbackBatch(executedMigrations_backup.reverse());
+					await this.rollbackBatch(executedMigrationsBackup.reverse());
 				}
 				break; // Stop on first error
 			}

@@ -246,9 +246,9 @@ describe("Real-time Progress Monitoring Feature", () => {
 		});
 
 		it("should animate progress changes", async () => {
-			const { rerender } = render(<ProgressIndicator percentage={0} animated />);
+			const { rerender } = render(<ProgressIndicator percentage={0} animated={true} />);
 
-			rerender(<ProgressIndicator percentage={75} animated />);
+			rerender(<ProgressIndicator percentage={75} animated={true} />);
 
 			// Should have animation class
 			expect(screen.getByTestId("progress-indicator")).toHaveClass("animated");
@@ -321,7 +321,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 				<ProgressDashboard
 					taskProgress={mockTaskProgress}
 					metrics={mockProgressMetrics}
-					enableRealTime
+					enableRealTime={true}
 				/>
 			);
 
@@ -333,7 +333,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 				<ProgressDashboard
 					taskProgress={mockTaskProgress}
 					metrics={mockProgressMetrics}
-					enableRealTime
+					enableRealTime={true}
 				/>
 			);
 
@@ -365,7 +365,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 				<ProgressDashboard
 					taskProgress={mockTaskProgress}
 					metrics={mockProgressMetrics}
-					enableRealTime
+					enableRealTime={true}
 				/>
 			);
 
@@ -384,7 +384,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 				<ProgressDashboard
 					taskProgress={mockTaskProgress}
 					metrics={mockProgressMetrics}
-					enableRealTime
+					enableRealTime={true}
 				/>
 			);
 
@@ -412,7 +412,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 				<ProgressDashboard
 					taskProgress={mockTaskProgress}
 					metrics={mockProgressMetrics}
-					autoTimeTracking
+					autoTimeTracking={true}
 				/>
 			);
 
@@ -468,7 +468,7 @@ describe("Real-time Progress Monitoring Feature", () => {
 					<ProgressDashboard
 						taskProgress={mockTaskProgress}
 						metrics={mockProgressMetrics}
-						enableRealTime
+						enableRealTime={true}
 					/>
 					<AlertSystem taskProgress={mockTaskProgress} onDismiss={vi.fn()} />
 				</div>

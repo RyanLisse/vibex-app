@@ -1,6 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
 import { useAuthBase } from "./use-auth-base";
 import { useOpenAIAuth } from "./use-openai-auth";
 

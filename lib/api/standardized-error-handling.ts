@@ -7,11 +7,11 @@
  * Based on successful patterns from tests/utils/auth-test-helpers.ts
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { trace } from "@opentelemetry/api";
-import { createEnhancedErrorHandler, APIError, ValidationError } from "./enhanced-error-handling";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createErrorSpan, recordError } from "./common-handlers";
+import { APIError, createEnhancedErrorHandler, ValidationError } from "./enhanced-error-handling";
 
 /**
  * Standard API Response Types
@@ -177,7 +177,7 @@ export class StandardAPIHandler {
 	createSuccessResponse<T>(
 		data: T,
 		context: RequestContext,
-		status: number = 200
+		status = 200
 	): NextResponse<StandardAPIResponse<T>> {
 		const response: StandardAPIResponse<T> = {
 			success: true,

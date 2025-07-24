@@ -3,15 +3,15 @@
  * Provides TypeScript compiler API integration
  */
 
+import { dirname, join } from "path";
 import * as ts from "typescript";
-import { join, dirname } from "path";
-import {
-	TypeCheckerInterface,
-	TypeInfo,
-	SymbolInfo,
+import type {
 	Declaration,
 	Diagnostic,
 	Position,
+	SymbolInfo,
+	TypeCheckerInterface,
+	TypeInfo,
 } from "../types";
 import { Logger } from "./logger";
 

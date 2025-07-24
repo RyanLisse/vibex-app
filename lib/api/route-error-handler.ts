@@ -5,11 +5,11 @@
  * across API routes while maintaining proper observability and error tracking.
  */
 
+import { SpanStatusCode } from "@opentelemetry/api";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { SpanStatusCode } from "@opentelemetry/api";
-import { createApiErrorResponse } from "@/src/schemas/api-routes";
 import { observability } from "@/lib/observability";
+import { createApiErrorResponse } from "@/src/schemas/api-routes";
 
 export interface ErrorHandlerOptions {
 	/** The API route path for logging/metrics */
@@ -132,8 +132,8 @@ export async function executeWithErrorHandling<T>(
 export class TaskAPIError extends Error implements APIError {
 	constructor(
 		message: string,
-		public statusCode: number = 500,
-		public code: string = "TASK_API_ERROR",
+		public statusCode = 500,
+		public code = "TASK_API_ERROR",
 		public details?: any
 	) {
 		super(message);
@@ -143,9 +143,9 @@ export class TaskAPIError extends Error implements APIError {
 
 export class ValidationError extends Error implements APIError {
 	constructor(
-		message: string = "Validation failed",
-		public statusCode: number = 400,
-		public code: string = "VALIDATION_ERROR",
+		message = "Validation failed",
+		public statusCode = 400,
+		public code = "VALIDATION_ERROR",
 		public details?: any
 	) {
 		super(message);
@@ -155,9 +155,9 @@ export class ValidationError extends Error implements APIError {
 
 export class NotFoundError extends Error implements APIError {
 	constructor(
-		message: string = "Resource not found",
-		public statusCode: number = 404,
-		public code: string = "NOT_FOUND",
+		message = "Resource not found",
+		public statusCode = 404,
+		public code = "NOT_FOUND",
 		public details?: any
 	) {
 		super(message);
@@ -167,9 +167,9 @@ export class NotFoundError extends Error implements APIError {
 
 export class ConflictError extends Error implements APIError {
 	constructor(
-		message: string = "Resource conflict",
-		public statusCode: number = 409,
-		public code: string = "CONFLICT",
+		message = "Resource conflict",
+		public statusCode = 409,
+		public code = "CONFLICT",
 		public details?: any
 	) {
 		super(message);
@@ -183,13 +183,13 @@ export class ConflictError extends Error implements APIError {
 export const createErrorResponse = {
 	validation: (details?: any) => createApiErrorResponse("Validation failed", 400, details),
 
-	notFound: (resource: string = "Resource") => createApiErrorResponse(`${resource} not found`, 404),
+	notFound: (resource = "Resource") => createApiErrorResponse(`${resource} not found`, 404),
 
-	conflict: (message: string = "Resource conflict") => createApiErrorResponse(message, 409),
+	conflict: (message = "Resource conflict") => createApiErrorResponse(message, 409),
 
-	internal: (message: string = "Internal server error") => createApiErrorResponse(message, 500),
+	internal: (message = "Internal server error") => createApiErrorResponse(message, 500),
 
-	unauthorized: (message: string = "Unauthorized") => createApiErrorResponse(message, 401),
+	unauthorized: (message = "Unauthorized") => createApiErrorResponse(message, 401),
 
-	forbidden: (message: string = "Forbidden") => createApiErrorResponse(message, 403),
+	forbidden: (message = "Forbidden") => createApiErrorResponse(message, 403),
 };

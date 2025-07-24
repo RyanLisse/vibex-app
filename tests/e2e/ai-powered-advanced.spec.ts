@@ -1,6 +1,6 @@
-import { createAIWrapper, expect, test } from "./fixtures/base.fixture";
+import { PageDataSchema, StagehandTestUtils, TaskDataSchema } from "../../stagehand.config";
 import type { AITestFixtures } from "./fixtures/base.fixture";
-import { StagehandTestUtils, PageDataSchema, TaskDataSchema } from "../../stagehand.config";
+import { createAIWrapper, expect, test } from "./fixtures/base.fixture";
 
 /**
  * Advanced AI-Powered Testing Examples

@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { useClaudeAuth } from "@/src/hooks/useClaudeAuth";
 import { cn } from "@/lib/utils";
+import { useClaudeAuth } from "@/src/hooks/useClaudeAuth";
 
 interface ClaudeAuthButtonProps {
 	onSuccess?: (user: any) => void;

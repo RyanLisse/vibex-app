@@ -154,7 +154,8 @@ describe("ValidationService", () => {
 			mockTaskQuery.from.mockImplementation((table) => {
 				if (table === mockTasks) {
 					return mockTaskQuery;
-				} else if (table === mockEnvironments) {
+				}
+				if (table === mockEnvironments) {
 					return mockEnvQuery;
 				}
 				return mockCountQuery;

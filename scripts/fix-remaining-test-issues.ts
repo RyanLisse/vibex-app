@@ -141,7 +141,7 @@ async function fixSpecificIssues() {
 		if (content.includes("mockSql = vi.fn()")) {
 			content = content.replace(
 				/mockSql = vi\.fn\(\)\.mockImplementation\(async \(query: any\) => {/,
-				`mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {`
+				"mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {"
 			);
 		}
 
