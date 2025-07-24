@@ -13,7 +13,7 @@
 import "./tests/setup/crypto-polyfill";
 import "./tests/setup/jsdom-navigation-fix";
 import "./tests/setup/browser-apis-mock";
-
+// Note: @testing-library/jest-dom removed as part of Jest migration
 import { afterEach, vi } from "vitest";
 
 // === FIX 1: jsdom Navigation Error ===

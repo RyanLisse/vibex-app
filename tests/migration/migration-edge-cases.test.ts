@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 /**
  * Migration System Edge Cases Test Suite
  *

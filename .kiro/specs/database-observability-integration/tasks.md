@@ -70,7 +70,7 @@
   - Implement proper error handling and OpenTelemetry tracing
   - _Requirements: 1.1, 1.2, 8.1, 8.2_
 
-- [-] 11. Migrate Zustand Stores to TanStack Query
+- [x] 11. Migrate Zustand Stores to TanStack Query
   - Replace task store localStorage persistence with TanStack Query and database operations
   - Replace environment store localStorage persistence with TanStack Query and database operations
   - Implement optimistic updates and proper error handling
@@ -169,7 +169,7 @@
   - Add execution comparison and diff visualization
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 25. Production Database Configuration
+- [-] 25. Production Database Configuration
   - Set up Neon PostgreSQL with proper security settings
   - Configure database connection pooling and optimization
   - Implement database backup and disaster recovery

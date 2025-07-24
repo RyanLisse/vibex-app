@@ -1,6 +1,113 @@
 "use client";
 
 import { CheckCircle, Clock, XCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
+interface PRReviewSummaryProps {
+	reviews: {
+		approved: number;
+		changesRequested: number;
+		pending: number;
+	};
+	reviewers: string[];
+	compact?: boolean;
+	className?: string;
+}
+
+export function PRReviewSummary({
+	reviews,
+	reviewers,
+	compact = false,
+	className = "",
+}: PRReviewSummaryProps) {
+	const totalReviewers = reviewers.length;
+	const totalReviews = reviews.approved + reviews.changesRequested + reviews.pending;
+	const reviewProgress = totalReviewers > 0 ? (reviews.approved / totalReviewers) * 100 : 0;
+
+	if (totalReviewers === 0) {
+		return <div className={`text-sm text-gray-500 ${className}`}>No reviewers assigned</div>;
+	}
+
+	if (compact) {
+		return (
+			<div className={`space-y-2 ${className}`}>
+				<div className="flex items-center justify-between">
+					<span className="text-sm font-medium">Reviews</span>
+					<span className="text-sm text-gray-600">
+						{reviews.approved}/{totalReviewers} approved
+					</span>
+				</div>
+				<Progress
+					value={reviewProgress}
+					className={`h-2 ${
+						reviews.changesRequested > 0
+							? "bg-red-100"
+							: reviews.pending > 0
+								? "bg-yellow-100"
+								: "bg-green-100"
+					}`}
+				/>
+			</div>
+		);
+	}
+
+	return (
+		<div className={`space-y-3 ${className}`}>
+			<div className="flex items-center justify-between">
+				<span className="text-sm font-medium">Review Status</span>
+				<span className="text-sm text-gray-600">
+					{reviews.approved}/{totalReviewers} approved
+				</span>
+			</div>
+
+			<Progress
+				value={reviewProgress}
+				className={`h-2 ${
+					reviews.changesRequested > 0
+						? "bg-red-100"
+						: reviews.pending > 0
+							? "bg-yellow-100"
+							: "bg-green-100"
+				}`}
+			/>
+
+			<div className="flex items-center gap-4 text-xs">
+				{reviews.approved > 0 && (
+					<span className="flex items-center gap-1 text-green-600">
+						<CheckCircle className="h-3 w-3" />
+						{reviews.approved} approved
+					</span>
+				)}
+				{reviews.changesRequested > 0 && (
+					<span className="flex items-center gap-1 text-red-600">
+						<XCircle className="h-3 w-3" />
+						{reviews.changesRequested} changes requested
+					</span>
+				)}
+				{reviews.pending > 0 && (
+					<span className="flex items-center gap-1 text-yellow-600">
+						<Clock className="h-3 w-3" />
+						{reviews.pending} pending
+					</span>
+				)}
+			</div>
+
+			{/* Reviewer List */}
+			<div className="space-y-1">
+				<span className="text-xs font-medium text-gray-700">Reviewers:</span>
+				<div className="flex flex-wrap gap-1">
+					{reviewers.map((reviewer, index) => (
+						<span key={reviewer} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+							{reviewer}
+						</span>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+import { CheckCircle, Clock, XCircle } from "lucide-react";
 import type { TaskPRLink } from "@/src/schemas/enhanced-task-schemas";
 
 interface PRReviewSummaryProps {
