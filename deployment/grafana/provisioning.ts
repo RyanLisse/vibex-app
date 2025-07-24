@@ -3,10 +3,10 @@
  * Manages dashboards, data sources, and alert configurations
  */
 
-import { GrafanaDashboardBuilder } from "@/lib/metrics/grafana-dashboards";
-import { AlertRuleBuilder } from "@/lib/metrics/alert-rules";
-import { writeFile, mkdir } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
+import { AlertRuleBuilder } from "@/lib/metrics/alert-rules";
+import { GrafanaDashboardBuilder } from "@/lib/metrics/grafana-dashboards";
 
 export interface GrafanaDataSource {
 	name: string;

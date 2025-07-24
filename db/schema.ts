@@ -154,6 +154,13 @@ export const tasks = pgTable(
 		metadata: jsonb("metadata"),
 		// Vector embedding for semantic search
 		embedding: vector("embedding", { dimensions: 1536 }),
+		// Enhanced task management fields
+		assigneeId: varchar("assignee_id", { length: 255 }),
+		dueDate: timestamp("due_date"),
+		creationMethod: varchar("creation_method", { length: 50 }).default("manual"),
+		completionDate: timestamp("completion_date"),
+		kanbanPosition: integer("kanban_position"),
+		kanbanColumn: varchar("kanban_column", { length: 50 }).default("todo"),
 	},
 	(table) => ({
 		statusIdx: index("tasks_status_idx").on(table.status),
@@ -161,6 +168,10 @@ export const tasks = pgTable(
 		userIdIdx: index("tasks_user_id_idx").on(table.userId),
 		createdAtIdx: index("tasks_created_at_idx").on(table.createdAt),
 		embeddingIdx: index("tasks_embedding_idx").using("hnsw", table.embedding),
+		assigneeIdIdx: index("tasks_assignee_id_idx").on(table.assigneeId),
+		dueDateIdx: index("tasks_due_date_idx").on(table.dueDate),
+		creationMethodIdx: index("tasks_creation_method_idx").on(table.creationMethod),
+		kanbanColumnIdx: index("tasks_kanban_column_idx").on(table.kanbanColumn),
 	})
 );
 
@@ -550,6 +561,94 @@ export const migrations = pgTable(
 	})
 );
 
+// Task Enhancement Tables
+export const taskLabels = pgTable(
+	"task_labels",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		taskId: uuid("task_id")
+			.references(() => tasks.id, { onDelete: "cascade" })
+			.notNull(),
+		label: varchar("label", { length: 50 }).notNull(),
+		color: varchar("color", { length: 7 }).default("#6B7280"),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+	},
+	(table) => ({
+		taskIdIdx: index("task_labels_task_id_idx").on(table.taskId),
+		labelIdx: index("task_labels_label_idx").on(table.label),
+		uniqueTaskLabel: unique("task_labels_task_label_unique").on(table.taskId, table.label),
+	})
+);
+
+export const taskAttachments = pgTable(
+	"task_attachments",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		taskId: uuid("task_id")
+			.references(() => tasks.id, { onDelete: "cascade" })
+			.notNull(),
+		type: varchar("type", { length: 50 }).notNull(), // 'screenshot', 'voice_recording', 'document'
+		url: text("url").notNull(),
+		filename: varchar("filename", { length: 255 }),
+		sizeBytes: integer("size_bytes"),
+		mimeType: varchar("mime_type", { length: 100 }),
+		metadata: jsonb("metadata"), // For annotations, transcriptions, etc.
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		createdBy: varchar("created_by", { length: 255 }),
+	},
+	(table) => ({
+		taskIdIdx: index("task_attachments_task_id_idx").on(table.taskId),
+		typeIdx: index("task_attachments_type_idx").on(table.type),
+	})
+);
+
+export const taskPrLinks = pgTable(
+	"task_pr_links",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		taskId: uuid("task_id")
+			.references(() => tasks.id, { onDelete: "cascade" })
+			.notNull(),
+		prNumber: integer("pr_number").notNull(),
+		repository: varchar("repository", { length: 255 }).notNull(),
+		prUrl: text("pr_url").notNull(),
+		prTitle: text("pr_title"),
+		prStatus: varchar("pr_status", { length: 50 }), // 'open', 'closed', 'merged', 'draft'
+		reviewStatus: varchar("review_status", { length: 50 }), // 'pending', 'approved', 'changes_requested'
+		author: varchar("author", { length: 255 }),
+		branch: varchar("branch", { length: 255 }),
+		autoUpdateStatus: boolean("auto_update_status").default(true),
+		lastSyncedAt: timestamp("last_synced_at"),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at").defaultNow().notNull(),
+	},
+	(table) => ({
+		taskIdIdx: index("task_pr_links_task_id_idx").on(table.taskId),
+		prStatusIdx: index("task_pr_links_pr_status_idx").on(table.prStatus),
+		uniqueTaskPr: unique("task_pr_links_unique").on(table.taskId, table.prNumber, table.repository),
+	})
+);
+
+export const taskProgressSnapshots = pgTable(
+	"task_progress_snapshots",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		taskId: uuid("task_id")
+			.references(() => tasks.id, { onDelete: "cascade" })
+			.notNull(),
+		progressPercentage: integer("progress_percentage").default(0),
+		timeSpentMinutes: integer("time_spent_minutes").default(0),
+		blockers: jsonb("blockers"),
+		notes: text("notes"),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		createdBy: varchar("created_by", { length: 255 }),
+	},
+	(table) => ({
+		taskIdIdx: index("task_progress_snapshots_task_id_idx").on(table.taskId),
+		createdAtIdx: index("task_progress_snapshots_created_at_idx").on(table.createdAt),
+	})
+);
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
 	authSessions: many(authSessions),
@@ -601,6 +700,42 @@ export const tasksRelations = relations(tasks, ({ many, one }) => ({
 	user: one(users, {
 		fields: [tasks.userId],
 		references: [users.id],
+	}),
+	assignee: one(users, {
+		fields: [tasks.assigneeId],
+		references: [users.id],
+	}),
+	labels: many(taskLabels),
+	attachments: many(taskAttachments),
+	prLinks: many(taskPrLinks),
+	progressSnapshots: many(taskProgressSnapshots),
+}));
+
+export const taskLabelsRelations = relations(taskLabels, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskLabels.taskId],
+		references: [tasks.id],
+	}),
+}));
+
+export const taskAttachmentsRelations = relations(taskAttachments, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskAttachments.taskId],
+		references: [tasks.id],
+	}),
+}));
+
+export const taskPrLinksRelations = relations(taskPrLinks, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskPrLinks.taskId],
+		references: [tasks.id],
+	}),
+}));
+
+export const taskProgressSnapshotsRelations = relations(taskProgressSnapshots, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskProgressSnapshots.taskId],
+		references: [tasks.id],
 	}),
 }));
 
@@ -692,6 +827,14 @@ export const GitHubBranch = githubBranches;
 export const NewGitHubBranch = githubBranches;
 export const Task = tasks;
 export const NewTask = tasks;
+export const TaskLabel = taskLabels;
+export const NewTaskLabel = taskLabels;
+export const TaskAttachment = taskAttachments;
+export const NewTaskAttachment = taskAttachments;
+export const TaskPrLink = taskPrLinks;
+export const NewTaskPrLink = taskPrLinks;
+export const TaskProgressSnapshot = taskProgressSnapshots;
+export const NewTaskProgressSnapshot = taskProgressSnapshots;
 export const Environment = environments;
 export const NewEnvironment = environments;
 export const AgentExecution = agentExecutions;
