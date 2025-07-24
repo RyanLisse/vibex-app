@@ -128,22 +128,33 @@ export function TaskCreateModal({
 		async (audioBlob: Blob) => {
 			setIsLoading(true);
 			try {
-				// Mock voice processing - would integrate with actual API
-				await new Promise((resolve) => setTimeout(resolve, 2000));
+				// Create FormData for voice API
+				const formData = new FormData();
+				const audioFile = new File([audioBlob], "recording.webm", { type: "audio/webm" });
+				formData.append("audio", audioFile);
 
-				const mockTranscription =
-					"Create a task to fix the login issue on the dashboard page. It should be high priority.";
-				const parsedTask = {
-					title: "Fix login issue on dashboard",
-					description: "Users are experiencing login problems on the dashboard page.",
-					priority: "high" as const,
-				};
+				// First, transcribe without creating task
+				const transcribeResponse = await fetch("/api/tasks/voice", {
+					method: "PUT",
+					body: formData,
+				});
 
+				if (!transcribeResponse.ok) {
+					throw new Error("Voice transcription failed");
+				}
+
+				const { data } = await transcribeResponse.json();
+				const { transcription, suggestions } = data;
+
+				// Update task data with parsed results
 				updateTaskData({
-					...parsedTask,
+					title: suggestions.title || "Voice Task",
+					description: suggestions.description || transcription.text,
+					priority: suggestions.priority || "medium",
+					labels: suggestions.labels || [],
 					metadata: {
 						creationMethod: "voice",
-						voiceTranscription: mockTranscription,
+						voiceTranscription: transcription.text,
 					},
 				});
 
@@ -162,10 +173,22 @@ export function TaskCreateModal({
 		async (screenshot: File, annotations: any[]) => {
 			setIsLoading(true);
 			try {
-				// Mock screenshot processing - would upload to cloud storage
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				// Generate a temporary task ID for the screenshot
+				const tempTaskId = `temp-${Date.now()}`;
 
-				const mockScreenshotUrl = URL.createObjectURL(screenshot);
+				// Upload screenshot with annotations
+				const formData = new FormData();
+				formData.append("file", screenshot);
+				formData.append(
+					"data",
+					JSON.stringify({
+						attachmentType: "screenshot",
+						annotations: annotations,
+					})
+				);
+
+				// Note: We'll store the screenshot URL in metadata and upload it properly when the task is created
+				const screenshotUrl = URL.createObjectURL(screenshot);
 
 				updateTaskData({
 					title: taskData.title || "Bug report with screenshot",
@@ -175,7 +198,7 @@ export function TaskCreateModal({
 					metadata: {
 						creationMethod: "screenshot",
 						screenshot: {
-							url: mockScreenshotUrl,
+							url: screenshotUrl,
 							annotations,
 						},
 					},
