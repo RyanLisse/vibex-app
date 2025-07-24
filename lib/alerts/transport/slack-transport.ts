@@ -32,7 +32,7 @@ export class SlackTransport implements BaseTransport {
 		notification: AlertNotification
 	): Promise<void> {
 		const config = channel.config as SlackConfig;
-		
+
 		if (!this.validateConfig(config)) {
 			throw new Error("Invalid Slack transport configuration");
 		}
@@ -58,16 +58,17 @@ export class SlackTransport implements BaseTransport {
 		channel: AlertChannel,
 		config: SlackConfig
 	) {
-		const severityColor = {
-			low: "#36a64f",
-			medium: "#ff9500", 
-			high: "#ff6b6b",
-			critical: "#ff0000",
-		}[error.severity] || "#808080";
+		const severityColor =
+			{
+				low: "#36a64f",
+				medium: "#ff9500",
+				high: "#ff6b6b",
+				critical: "#ff0000",
+			}[error.severity] || "#808080";
 
 		const attachment = {
 			color: severityColor,
-			title: `=¨ ${error.severity.toUpperCase()} Alert`,
+			title: `ðŸš¨ ${error.severity.toUpperCase()} Alert`,
 			text: error.message,
 			fields: [
 				{
