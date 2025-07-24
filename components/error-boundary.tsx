@@ -1,55 +1,122 @@
 "use client";
 
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import type React from "react";
 import { Component, type ReactNode, useCallback, useState } from "react";
-import { CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { type AppError, ErrorHandler, ErrorSeverity, ErrorType } from "@/src/lib/error-handling";
 
 interface ErrorBoundaryState {
 	hasError: boolean;
-	error: Error | null;
-	resetKey: number;
+	error: AppError | null;
+	errorId: string | null;
 }
 
 interface ErrorBoundaryProps {
 	children: ReactNode;
-	fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
+	fallback?: React.ComponentType<ErrorFallbackProps>;
+	onError?: (error: AppError, errorId: string) => void;
+	isolate?: boolean;
 }
 
-interface FallbackProps {
-	error: Error;
-	resetError: () => void;
+interface ErrorFallbackProps {
+	error: AppError;
+	errorId: string;
+	retry: () => void;
 }
 
 // Default fallback component
-const DefaultFallback: React.FC<FallbackProps> = ({ error, resetError }) => (
-	<div className="flex flex-col items-center justify-center p-8 text-center">
-		<CardTitle className="mb-4">Something went wrong</CardTitle>
-		<p className="mb-4 text-gray-600">{error.message || "An unexpected error occurred"}</p>
-		<button
-			onClick={resetError}
-			className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-		>
-			Try again
-		</button>
-	</div>
-);
+const DefaultFallback: React.FC<ErrorFallbackProps> = ({ error, errorId, retry }) => {
+	const getSeverityColor = (severity: ErrorSeverity) => {
+		switch (severity) {
+			case ErrorSeverity.CRITICAL:
+				return "border-red-500 bg-red-50";
+			case ErrorSeverity.HIGH:
+				return "border-orange-500 bg-orange-50";
+			case ErrorSeverity.MEDIUM:
+				return "border-yellow-500 bg-yellow-50";
+			default:
+				return "border-gray-500 bg-gray-50";
+		}
+	};
+
+	return (
+		<Card className={`max-w-2xl mx-auto mt-8 ${getSeverityColor(error.severity)}`}>
+			<CardHeader>
+				<CardTitle className="flex items-center gap-2 text-red-700">
+					<AlertTriangle className="h-5 w-5" />
+					Something went wrong
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				<Alert>
+					<AlertTriangle className="h-4 w-4" />
+					<AlertTitle>Error Details</AlertTitle>
+					<AlertDescription>{error.userMessage || error.message}</AlertDescription>
+				</Alert>
+
+				<div className="flex gap-2">
+					{error.retryable && (
+						<Button onClick={retry} className="flex items-center gap-2">
+							<RefreshCw className="h-4 w-4" />
+							Try Again
+						</Button>
+					)}
+					<Button variant="outline" onClick={() => window.location.reload()}>
+						Reload Page
+					</Button>
+				</div>
+
+				<div className="text-xs text-gray-500">
+					Error ID: {errorId} • {error.timestamp.toLocaleString()}
+				</div>
+			</CardContent>
+		</Card>
+	);
+};
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+	private retryCount = 0;
+	private maxRetries = 3;
+
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
-		this.state = { hasError: false, error: null, resetKey: 0 };
+		this.state = {
+			hasError: false,
+			error: null,
+			errorId: null,
+		};
 	}
 
 	static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-		return { hasError: true, error };
+		const appError = ErrorHandler.handle(error);
+		const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+		ErrorHandler.trackError(appError);
+
+		return {
+			hasError: true,
+			error: appError,
+			errorId,
+		};
 	}
 
 	componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-		// Handle stream errors specially
-		if (error.message.includes("ReadableStream") || error.message.includes("cancel operation")) {
-			console.warn("Stream error caught by ErrorBoundary:", error.message);
-		} else {
-			console.error("ErrorBoundary caught an error:", error, errorInfo);
+		const appError = this.state.error;
+		if (appError && this.state.errorId) {
+			this.props.onError?.(appError, this.state.errorId);
+
+			// Log error details for debugging
+			if (process.env.NODE_ENV === "development") {
+				// eslint-disable-next-line no-console
+				console.error("Error Boundary caught an error:", {
+					error: appError.toJSON(),
+					errorInfo,
+					componentStack: errorInfo.componentStack,
+				});
+			}
 		}
 	}
 
@@ -60,21 +127,31 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 		}
 	}
 
-	resetError = () => {
-		this.setState((prevState) => ({
-			hasError: false,
-			error: null,
-			resetKey: prevState.resetKey + 1,
-		}));
+	handleRetry = () => {
+		if (this.retryCount < this.maxRetries) {
+			this.retryCount++;
+			this.setState({
+				hasError: false,
+				error: null,
+				errorId: null,
+			});
+		}
 	};
 
 	render() {
-		if (this.state.hasError && this.state.error) {
+		if (this.state.hasError && this.state.error && this.state.errorId) {
 			const FallbackComponent = this.props.fallback || DefaultFallback;
-			return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
+
+			return (
+				<FallbackComponent
+					error={this.state.error}
+					errorId={this.state.errorId}
+					retry={this.handleRetry}
+				/>
+			);
 		}
 
-		return <div key={this.state.resetKey}>{this.props.children}</div>;
+		return this.props.children;
 	}
 }
 

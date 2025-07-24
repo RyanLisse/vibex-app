@@ -2,7 +2,7 @@
  * Test for TanStack Query task hooks
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from "vitest";
 
 // Mock the observability module
 const mockObservability = {
@@ -28,7 +28,7 @@ describe("Task Query Hooks", () => {
 
 	it("should export query keys", async () => {
 		const { queryKeys } = await import("./use-task-queries-enhanced");
-		
+
 		expect(queryKeys).toBeDefined();
 		expect(queryKeys.tasks).toBeDefined();
 		expect(queryKeys.tasks.all).toEqual(["tasks"]);
@@ -37,7 +37,7 @@ describe("Task Query Hooks", () => {
 
 	it("should have task filter interface", async () => {
 		const module = await import("./use-task-queries-enhanced");
-		
+
 		// Test that the module exports the expected functions
 		expect(typeof module.useTaskQuery).toBe("function");
 		expect(typeof module.useTasksQuery).toBe("function");
@@ -48,7 +48,7 @@ describe("Task Query Hooks", () => {
 
 	it("should have utility hooks", async () => {
 		const module = await import("./use-task-queries-enhanced");
-		
+
 		expect(typeof module.useTasks).toBe("function");
 		expect(typeof module.useActiveTasks).toBe("function");
 		expect(typeof module.useCompletedTasks).toBe("function");
@@ -59,7 +59,7 @@ describe("Task Query Hooks", () => {
 
 	it("should have real-time sync hooks", async () => {
 		const module = await import("./use-task-queries-enhanced");
-		
+
 		expect(typeof module.useTaskSubscription).toBe("function");
 		expect(typeof module.useTasksWithRealTimeSync).toBe("function");
 		expect(typeof module.useTaskWithRealTimeSync).toBe("function");

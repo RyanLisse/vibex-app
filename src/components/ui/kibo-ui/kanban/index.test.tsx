@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { KanbanProvider } from "./index";
 
 // Mock dependencies

@@ -2,7 +2,7 @@
  * Test for TanStack Query environment hooks
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from "vitest";
 
 // Mock the observability module
 const mockObservability = {
@@ -28,7 +28,7 @@ describe("Environment Query Hooks", () => {
 
 	it("should export environment keys", async () => {
 		const { environmentKeys } = await import("./use-environment-queries-enhanced");
-		
+
 		expect(environmentKeys).toBeDefined();
 		expect(environmentKeys.all).toEqual(["environments"]);
 		expect(environmentKeys.detail("test-id")).toEqual(["environments", "detail", "test-id"]);
@@ -37,7 +37,7 @@ describe("Environment Query Hooks", () => {
 
 	it("should have environment query functions", async () => {
 		const module = await import("./use-environment-queries-enhanced");
-		
+
 		// Test that the module exports the expected functions
 		expect(typeof module.useEnvironments).toBe("function");
 		expect(typeof module.useEnvironment).toBe("function");
@@ -50,7 +50,7 @@ describe("Environment Query Hooks", () => {
 
 	it("should have utility hooks", async () => {
 		const module = await import("./use-environment-queries-enhanced");
-		
+
 		expect(typeof module.useListEnvironments).toBe("function");
 		expect(typeof module.useCreateEnvironmentMutation).toBe("function");
 		expect(typeof module.useUpdateEnvironmentMutation).toBe("function");
@@ -61,7 +61,7 @@ describe("Environment Query Hooks", () => {
 
 	it("should have real-time sync hooks", async () => {
 		const module = await import("./use-environment-queries-enhanced");
-		
+
 		expect(typeof module.useEnvironmentSubscription).toBe("function");
 		expect(typeof module.useEnvironmentsWithRealTimeSync).toBe("function");
 		expect(typeof module.useEnvironmentWithRealTimeSync).toBe("function");

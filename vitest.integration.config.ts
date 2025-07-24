@@ -1,12 +1,26 @@
-import { defineConfig, mergeConfig } from "vitest/config";
-import baseConfig from "./vitest.config";
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 /**
  * Integration Tests Configuration
  *
- * Extends base configuration with integration test specific settings
+ * Handles server-side integration tests, API routes, and complex workflows
  */
-export default mergeConfig(baseConfig, defineConfig({
+export default defineConfig({
+	plugins: [
+		react({
+			jsxRuntime: 'automatic',
+			jsxImportSource: 'react',
+		}),
+		tsconfigPaths()
+	],
+	esbuild: {
+		target: 'esnext',
+		minify: false,
+		keepNames: true,
+		sourcemap: true
+	},
 	test: {
 		name: "integration",
 		environment: "jsdom",
@@ -47,38 +61,77 @@ export default mergeConfig(baseConfig, defineConfig({
 		},
 		include: [
 			// Integration test directories
-			"tests/integration/**/*.{test,spec}.{js,ts}",
+			"tests/integration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"tests/alerts/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"tests/migration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			// API routes (server-side only)
 			"app/api/**/*.{test,spec}.{js,ts}",
-			"lib/inngest/**/*.{test,spec}.{js,ts}",
-			"lib/electric/**/*.{test,spec}.{js,ts}",
-			"lib/monitoring/**/*.{test,spec}.{js,ts}",
+			"app/actions/**/*.{test,spec}.{js,ts}",
+			// Server-side modules with integration requirements
+			"db/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/inngest/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/redis/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/electric/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/migration/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/monitoring/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/observability/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/workflow/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"lib/wasm/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
 			// Explicit integration test patterns
-			"**/*.integration.{test,spec}.{js,ts}",
+			"**/*.integration.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
 		],
 		exclude: [
+			// Standard exclusions
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/.next/**",
+			"**/coverage/**",
 			// Client-side tests (handled by unit config)
 			"**/*.{test,spec}.{jsx,tsx}",
-			"components/**/*.{test,spec}.*",
-			"hooks/**/*.{test,spec}.*",
+			"**/components/**/*.{test,spec}.*",
+			"**/hooks/**/*.{test,spec}.*",
+			"**/src/components/**/*.{test,spec}.*",
+			"**/src/hooks/**/*.{test,spec}.*",
 			// Unit tests (handled by unit config)
-			"lib/**/*.{test,spec}.{js,ts}",
-			"utils/**/*.{test,spec}.{js,ts}",
+			"**/lib/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"**/utils/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}",
+			"**/src/schemas/**/*.{test,spec}.*",
+			"**/src/shared/**/*.{test,spec}.*",
+			"tests/unit/**/*.{test,spec}.*",
 			// E2E tests
 			"**/*.e2e.{test,spec}.*",
-			"tests/e2e/**",
-			"playwright/**"
+			"**/e2e/**",
+			"**/cypress/**",
+			"**/playwright/**",
 		],
+
+		// Optimized integration test settings
+		maxConcurrency: 1, // Force single execution
+		pool: "forks",
+		isolate: true,
+		globals: true,
 
 		retry: 1, // Allow one retry for flaky integration tests
 		coverage: {
 			enabled: true,
 			provider: "v8",
-			reporter: ["text", "json"],
-			reportsDirectory: "./coverage/integration"
+			reporter: ["text", "json", "html", "lcov"],
+			reportsDirectory: "./coverage/integration",
+			thresholds: {
+				global: {
+					branches: 70, // Lower threshold for integration tests
+					functions: 70,
+					lines: 70,
+					statements: 70,
+				},
+			},
 		},
 
 		cache: {
-			dir: "node_modules/.vitest/integration"
-		}
+			dir: "node_modules/.vitest/integration",
+		},
+		outputFile: {
+			json: "./coverage/integration/test-results.json",
+		},
 	}
-}));
+});

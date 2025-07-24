@@ -6,14 +6,16 @@ export const TaskPrioritySchema = z.enum(["low", "medium", "high", "urgent"]);
 export const TaskStatusSchema = z.enum(["todo", "in_progress", "done", "archived"]);
 
 export const EnhancedTaskSchema = z.object({
-	id: z.string().uuid(),
+	taskId: z.string().uuid(),
 	title: z.string().min(1, "Title is required").max(200, "Title too long"),
 	description: z.string().max(1000, "Description too long").optional(),
 	status: TaskStatusSchema.default("todo"),
 	priority: TaskPrioritySchema.default("medium"),
 	assigneeId: z.string().uuid().optional(),
 	assigneeName: z.string().optional(),
+	userId: z.string().uuid(),
 	tags: z.array(z.string()).default([]),
+	labels: z.array(z.string()).default([]),
 	estimatedHours: z.number().min(0).optional(),
 	actualHours: z.number().min(0).optional(),
 	dueDate: z.date().optional(),
@@ -24,6 +26,131 @@ export const EnhancedTaskSchema = z.object({
 	updatedBy: z.string().uuid().optional(),
 	parentTaskId: z.string().uuid().optional(),
 	subtasks: z.array(z.string().uuid()).default([]),
+	dependencies: z.array(z.string().uuid()).default([]),
+	blockers: z.array(z.string()).default([]),
+
+	// Screenshot and Bug Report fields
+	screenshots: z
+		.array(
+			z.object({
+				id: z.string().uuid(),
+				url: z.string().url(),
+				filename: z.string(),
+				annotations: z
+					.array(
+						z.object({
+							type: z.enum(["arrow", "rectangle", "circle", "text", "highlight"]),
+							x: z.number(),
+							y: z.number(),
+							width: z.number().optional(),
+							height: z.number().optional(),
+							text: z.string().optional(),
+							color: z.string().optional(),
+						})
+					)
+					.default([]),
+				createdAt: z.date(),
+			})
+		)
+		.default([]),
+
+	// Voice Recording fields
+	voiceRecording: z
+		.object({
+			url: z.string().url().optional(),
+			transcription: z.string().optional(),
+			duration: z.number().optional(),
+			confidence: z.number().min(0).max(1).optional(),
+			language: z.string().optional(),
+		})
+		.optional(),
+
+	// PR Integration fields
+	linkedPRs: z
+		.array(
+			z.object({
+				id: z.string(),
+				number: z.number(),
+				url: z.string().url(),
+				title: z.string(),
+				status: z.enum(["draft", "open", "merged", "closed"]),
+				repository: z.string(),
+				branch: z.object({
+					source: z.string(),
+					target: z.string(),
+				}),
+				author: z.string(),
+				linkedAt: z.date(),
+			})
+		)
+		.default([]),
+
+	// Kanban positioning
+	kanbanPosition: z
+		.object({
+			columnId: z.string(),
+			position: z.number(),
+			boardId: z.string().optional(),
+		})
+		.optional(),
+
+	// Progress tracking
+	progress: z.number().min(0).max(100).default(0),
+	progressHistory: z
+		.array(
+			z.object({
+				progress: z.number().min(0).max(100),
+				timestamp: z.date(),
+				updatedBy: z.string().uuid(),
+				note: z.string().optional(),
+			})
+		)
+		.default([]),
+
+	// Time tracking
+	timeEntries: z
+		.array(
+			z.object({
+				id: z.string().uuid(),
+				startTime: z.date(),
+				endTime: z.date().optional(),
+				duration: z.number().optional(), // in minutes
+				description: z.string().optional(),
+				userId: z.string().uuid(),
+			})
+		)
+		.default([]),
+
+	// Comments and activity
+	comments: z
+		.array(
+			z.object({
+				id: z.string().uuid(),
+				content: z.string(),
+				author: z.string().uuid(),
+				authorName: z.string(),
+				createdAt: z.date(),
+				updatedAt: z.date().optional(),
+				parentCommentId: z.string().uuid().optional(),
+			})
+		)
+		.default([]),
+
+	// Attachments
+	attachments: z
+		.array(
+			z.object({
+				id: z.string().uuid(),
+				filename: z.string(),
+				url: z.string().url(),
+				size: z.number(),
+				mimeType: z.string(),
+				uploadedBy: z.string().uuid(),
+				uploadedAt: z.date(),
+			})
+		)
+		.default([]),
+
 	customFields: z.record(z.string(), z.unknown()).default({}),
 });
 
@@ -79,14 +206,20 @@ export const ScreenshotBugReportSchema = z.object({
 
 // Voice Task Creation Schema
 export const VoiceTaskCreationSchema = z.object({
-	audioData: z.string(), // Base64 encoded audio data
-	transcription: z.string().optional(),
+	taskId: z.string().uuid(),
+	voiceRecording: z.object({
+		url: z.string().url().optional(),
+		transcription: z.string().optional(),
+		duration: z.number().optional(),
+	}),
 	title: z.string().min(1, "Title is required").max(200, "Title too long"),
 	description: z.string().max(1000, "Description too long").optional(),
 	priority: TaskPrioritySchema.default("medium"),
-	assigneeId: z.string().uuid().optional(),
-	dueDate: z.string().datetime().optional(),
+	userId: z.string().uuid(),
+	assignee: z.string().optional(),
+	dueDate: z.date().optional(),
 	tags: z.array(z.string()).default([]),
+	labels: z.array(z.string()).default([]),
 });
 
 export type CreateEnhancedTask = z.infer<typeof CreateEnhancedTaskSchema>;
