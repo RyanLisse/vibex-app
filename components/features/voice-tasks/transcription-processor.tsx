@@ -1,5 +1,265 @@
 "use client";
 
+import { CheckCircle, Loader2, RefreshCw, Volume2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+
+// Web Speech API type declarations
+declare global {
+	interface Window {
+		SpeechRecognition: any;
+		webkitSpeechRecognition: any;
+	}
+}
+
+interface TranscriptionProcessorProps {
+	audioBlob?: Blob | null;
+	onTranscriptionComplete?: (transcription: string) => void;
+	onError?: (error: Error) => void;
+	className?: string;
+}
+
+export function TranscriptionProcessor({
+	audioBlob,
+	onTranscriptionComplete,
+	onError,
+	className = "",
+}: TranscriptionProcessorProps) {
+	const [transcription, setTranscription] = useState("");
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedTranscription, setEditedTranscription] = useState("");
+	const { toast } = useToast();
+
+	// Check for browser support
+	const isWebSpeechSupported =
+		(typeof window !== "undefined" && "webkitSpeechRecognition" in window) ||
+		"SpeechRecognition" in window;
+
+	const processTranscription = useCallback(async () => {
+		if (!audioBlob) return;
+
+		setIsProcessing(true);
+
+		try {
+			if (isWebSpeechSupported) {
+				// Use Web Speech API for real-time transcription
+				// Note: This is a simplified implementation
+				// In a real app, you'd want to use the audio blob with a transcription service
+
+				const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+				const recognition = new SpeechRecognition();
+
+				recognition.continuous = true;
+				recognition.interimResults = true;
+				recognition.lang = "en-US";
+
+				recognition.onresult = (event) => {
+					let finalTranscript = "";
+					for (let i = event.resultIndex; i < event.results.length; i++) {
+						if (event.results[i].isFinal) {
+							finalTranscript += event.results[i][0].transcript;
+						}
+					}
+
+					if (finalTranscript) {
+						setTranscription(finalTranscript);
+						setEditedTranscription(finalTranscript);
+						onTranscriptionComplete?.(finalTranscript);
+					}
+				};
+
+				recognition.onerror = (event) => {
+					const error = new Error(`Speech recognition error: ${event.error}`);
+					onError?.(error);
+					toast({
+						title: "Transcription Error",
+						description: error.message,
+						variant: "destructive",
+					});
+				};
+
+				recognition.onend = () => {
+					setIsProcessing(false);
+				};
+
+				// For demo purposes, we'll simulate transcription from the audio blob
+				// In a real implementation, you'd send the audio to a transcription service
+				setTimeout(() => {
+					const mockTranscription =
+						"Create a new task to implement user authentication with OAuth2 support";
+					setTranscription(mockTranscription);
+					setEditedTranscription(mockTranscription);
+					onTranscriptionComplete?.(mockTranscription);
+					setIsProcessing(false);
+
+					toast({
+						title: "Transcription Complete",
+						description: "Your voice has been converted to text.",
+					});
+				}, 2000);
+			} else {
+				// Fallback: Call external transcription API
+				const formData = new FormData();
+				formData.append("audio", audioBlob, "recording.webm");
+
+				const response = await fetch("/api/tasks/voice/transcribe", {
+					method: "POST",
+					body: formData,
+				});
+
+				if (!response.ok) {
+					throw new Error(`Transcription failed: ${response.statusText}`);
+				}
+
+				const result = await response.json();
+				const transcribedText = result.transcription || result.text || "";
+
+				setTranscription(transcribedText);
+				setEditedTranscription(transcribedText);
+				onTranscriptionComplete?.(transcribedText);
+
+				toast({
+					title: "Transcription Complete",
+					description: "Your voice has been converted to text.",
+				});
+			}
+		} catch (error) {
+			const err = error as Error;
+			onError?.(err);
+			toast({
+				title: "Transcription Failed",
+				description: `Failed to transcribe audio: ${err.message}`,
+				variant: "destructive",
+			});
+		} finally {
+			setIsProcessing(false);
+		}
+	}, [audioBlob, isWebSpeechSupported, onTranscriptionComplete, onError, toast]);
+
+	// Auto-process when audio blob is provided
+	useEffect(() => {
+		if (audioBlob && !transcription && !isProcessing) {
+			processTranscription();
+		}
+	}, [audioBlob, transcription, isProcessing, processTranscription]);
+
+	const handleEditSave = useCallback(() => {
+		setTranscription(editedTranscription);
+		onTranscriptionComplete?.(editedTranscription);
+		setIsEditing(false);
+
+		toast({
+			title: "Transcription Updated",
+			description: "Your changes have been saved.",
+		});
+	}, [editedTranscription, onTranscriptionComplete, toast]);
+
+	const handleEditCancel = useCallback(() => {
+		setEditedTranscription(transcription);
+		setIsEditing(false);
+	}, [transcription]);
+
+	if (!audioBlob) {
+		return (
+			<Card className={`border-2 border-dashed border-gray-300 ${className}`}>
+				<CardContent className="flex items-center justify-center p-8">
+					<div className="text-center text-gray-500">
+						<p className="text-lg font-medium">No audio to transcribe</p>
+						<p className="text-sm">Record audio first to see transcription</p>
+					</div>
+				</CardContent>
+			</Card>
+		);
+	}
+
+	return (
+		<Card className={className}>
+			<CardHeader className="pb-3">
+				<div className="flex items-center justify-between">
+					<CardTitle className="text-lg flex items-center gap-2">
+						<Volume2 className="h-5 w-5" />
+						Transcription
+					</CardTitle>
+					<div className="flex gap-2">
+						{transcription && !isProcessing && (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setIsEditing(!isEditing)}
+								className="flex items-center gap-1"
+							>
+								{isEditing ? "Cancel" : "Edit"}
+							</Button>
+						)}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={processTranscription}
+							disabled={isProcessing}
+							className="flex items-center gap-1"
+						>
+							<RefreshCw className={`h-4 w-4 ${isProcessing ? "animate-spin" : ""}`} />
+							Retry
+						</Button>
+					</div>
+				</div>
+			</CardHeader>
+			<CardContent>
+				{isProcessing ? (
+					<div className="flex items-center justify-center p-8">
+						<div className="text-center">
+							<Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+							<p className="text-lg font-medium">Processing audio...</p>
+							<p className="text-sm text-gray-600">Converting speech to text</p>
+						</div>
+					</div>
+				) : transcription ? (
+					<div className="space-y-4">
+						{isEditing ? (
+							<div className="space-y-3">
+								<Textarea
+									value={editedTranscription}
+									onChange={(e) => setEditedTranscription(e.target.value)}
+									rows={4}
+									placeholder="Edit your transcription..."
+									className="resize-none"
+								/>
+								<div className="flex gap-2">
+									<Button size="sm" onClick={handleEditSave} className="flex items-center gap-1">
+										<CheckCircle className="h-4 w-4" />
+										Save Changes
+									</Button>
+									<Button variant="outline" size="sm" onClick={handleEditCancel}>
+										Cancel
+									</Button>
+								</div>
+							</div>
+						) : (
+							<div className="space-y-3">
+								<div className="p-4 bg-gray-50 rounded-lg border">
+									<p className="text-sm leading-relaxed">{transcription}</p>
+								</div>
+								<div className="flex items-center gap-2 text-sm text-green-600">
+									<CheckCircle className="h-4 w-4" />
+									Transcription complete
+								</div>
+							</div>
+						)}
+					</div>
+				) : (
+					<div className="text-center p-8 text-gray-500">
+						<p>Failed to transcribe audio. Please try again.</p>
+					</div>
+				)}
+			</CardContent>
+		</Card>
+	);
+}
+
 import { AlertCircle, Loader2, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";

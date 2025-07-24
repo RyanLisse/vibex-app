@@ -24,37 +24,58 @@ Object.defineProperty(global.navigator, "mediaDevices", {
 	writable: true,
 });
 
-// Mock canvas for image processing
-const mockCanvas = {
-	getContext: vi.fn(() => ({
-		drawImage: vi.fn(),
-		getImageData: vi.fn(),
-		putImageData: vi.fn(),
-		clearRect: vi.fn(),
-		beginPath: vi.fn(),
-		moveTo: vi.fn(),
-		lineTo: vi.fn(),
-		stroke: vi.fn(),
-		fillText: vi.fn(),
-	})),
-	toBlob: vi.fn((callback) => {
-		const blob = new Blob(["fake-image-data"], { type: "image/png" });
-		callback(blob);
-	}),
-	width: 1920,
-	height: 1080,
-};
-
-vi.spyOn(document, "createElement").mockImplementation((tagName) => {
-	if (tagName === "canvas") {
-		return mockCanvas as any;
-	}
-	return document.createElement.wrappedMethod(tagName);
-});
-
 describe("Screenshot Bug Reporting Feature", () => {
+	// Mock canvas for image processing
+	const mockCanvas = {
+		getContext: vi.fn(() => ({
+			drawImage: vi.fn(),
+			getImageData: vi.fn(),
+			putImageData: vi.fn(),
+			clearRect: vi.fn(),
+			beginPath: vi.fn(),
+			moveTo: vi.fn(),
+			lineTo: vi.fn(),
+			stroke: vi.fn(),
+			fillText: vi.fn(),
+		})),
+		toBlob: vi.fn((callback) => {
+			const blob = new Blob(["fake-image-data"], { type: "image/png" });
+			callback(blob);
+		}),
+		width: 1920,
+		height: 1080,
+	};
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+
+		// Mock document.createElement for canvas and video
+		vi.spyOn(document, "createElement").mockImplementation((tagName) => {
+			if (tagName === "canvas") {
+				return mockCanvas as any;
+			}
+			if (tagName === "video") {
+				return {
+					play: vi.fn(),
+					onloadedmetadata: null,
+					videoWidth: 1920,
+					videoHeight: 1080,
+					srcObject: null,
+				} as any;
+			}
+			// Return a basic element for other tags
+			const element = document.createElement.wrappedMethod?.(tagName);
+			return (
+				element ||
+				({
+					appendChild: vi.fn(),
+					removeChild: vi.fn(),
+					click: vi.fn(),
+					href: "",
+					download: "",
+				} as any)
+			);
+		});
 	});
 
 	afterEach(() => {

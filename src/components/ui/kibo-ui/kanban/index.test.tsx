@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals";
 import { vi } from "vitest";
 import { KanbanProvider } from "./index";
 

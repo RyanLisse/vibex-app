@@ -1,40 +1,53 @@
-import { defineConfig, mergeConfig } from "vitest/config";
-import baseConfig from "./vitest.config";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 /**
  * Integration Tests Configuration
  *
- * Optimized for:
- * - API route testing
- * - Database integration
- * - External service integration (Inngest, Electric SQL)
- * - End-to-end workflow testing
- * - Real environment simulation
+ * Handles server-side integration tests, API routes, and complex workflows
  */
 export default defineConfig({
-	// CRITICAL FIX: Configure ESBuild for integration tests
+	plugins: [
+		react({
+			jsxRuntime: 'automatic',
+			jsxImportSource: 'react',
+		}),
+		tsconfigPaths()
+	],
 	esbuild: {
 		target: 'esnext',
 		minify: false,
 		keepNames: true,
 		sourcemap: true
 	},
-	
-	plugins: [
-		react({
-			jsxRuntime: 'automatic',
-			jsxImportSource: 'react',
-		}), 
-		tsconfigPaths()
-	],
 	test: {
 		name: "integration",
 		environment: "jsdom",
 		setupFiles: ["./tests/setup/integration-setup.ts"],
+
+		// Override base config for integration tests
+		testTimeout: 20000,
+		hookTimeout: 8000,
+		teardownTimeout: 5000,
+
+		// Force single-threaded execution for stability
+		poolOptions: {
+			forks: {
+				singleFork: true,
+				isolate: true,
+				execArgv: ['--max-old-space-size=4096']
+			}
+		},
+
+		// Sequential execution to prevent race conditions
+		sequence: {
+			concurrent: false,
+			shuffle: false,
+			hooks: 'stack'
+		},
+
 		env: {
-			// Test environment variables
 			DATABASE_URL: "postgresql://test:test@localhost:5432/test",
 			ELECTRIC_URL: "http://localhost:5133",
 			ELECTRIC_WEBSOCKET_URL: "ws://localhost:5133",
@@ -73,7 +86,7 @@ export default defineConfig({
 			"**/dist/**",
 			"**/.next/**",
 			"**/coverage/**",
-			// Client-side tests (handled by other configs)
+			// Client-side tests (handled by unit config)
 			"**/*.{test,spec}.{jsx,tsx}",
 			"**/components/**/*.{test,spec}.*",
 			"**/hooks/**/*.{test,spec}.*",
@@ -90,39 +103,19 @@ export default defineConfig({
 			"**/e2e/**",
 			"**/cypress/**",
 			"**/playwright/**",
-			// Bun-specific tests
-			"**/*.bun.{test,spec}.*",
-			"tests/bun-*.{test,spec}.*",
-			// Problematic client-side integration tests
-			"tests/integration/**/*.test.tsx",
-			"tests/integration/**/ai-chat-testing.test.ts",
-			"tests/integration/**/cache-invalidation.test.ts",
 		],
+
 		// Optimized integration test settings
-		testTimeout: 20000, // Reduced from 30s to 20s
-		hookTimeout: 8000,  // Reduced from 15s to 8s
-		teardownTimeout: 5000, // Reduced from 10s to 5s
 		maxConcurrency: 1, // Force single execution
-		// Enhanced single-process execution
 		pool: "forks",
-		poolOptions: {
-			forks: {
-				singleFork: true,
-				isolate: true,
-				execArgv: ['--max-old-space-size=4096']
-			}
-		},
-		// Force sequential execution
-		sequence: {
-			concurrent: false,
-			shuffle: false,
-			hooks: 'stack'
-		},
+		isolate: true,
+		globals: true,
+
 		retry: 1, // Allow one retry for flaky integration tests
 		coverage: {
 			enabled: true,
 			provider: "v8",
-			reporter: ["text", "json"],
+			reporter: ["text", "json", "html", "lcov"],
 			reportsDirectory: "./coverage/integration",
 			thresholds: {
 				global: {
@@ -133,11 +126,12 @@ export default defineConfig({
 				},
 			},
 		},
+
 		cache: {
 			dir: "node_modules/.vitest/integration",
 		},
 		outputFile: {
 			json: "./coverage/integration/test-results.json",
 		},
-	},
+	}
 });

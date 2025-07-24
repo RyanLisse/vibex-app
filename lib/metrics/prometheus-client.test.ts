@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 // Create chainable mocks for bun
 const createMockMetric = (methodNames: string[]) => {
@@ -6,14 +6,14 @@ const createMockMetric = (methodNames: string[]) => {
 
 	// Create mock methods
 	for (const methodName of methodNames) {
-		mockMetric[methodName] = mock(() => {});
+		mockMetric[methodName] = vi.fn(() => {});
 	}
 
 	// labels method returns object with all methods
-	mockMetric.labels = mock(() => {
+	mockMetric.labels = vi.fn(() => {
 		const labeled: any = {};
 		for (const methodName of methodNames) {
-			labeled[methodName] = mock(() => {});
+			labeled[methodName] = vi.fn(() => {});
 		}
 		return labeled;
 	});
@@ -21,14 +21,14 @@ const createMockMetric = (methodNames: string[]) => {
 	return mockMetric;
 };
 
-const mockSummary = mock(() => createMockMetric(["observe"]));
-const mockHistogram = mock(() => createMockMetric(["observe"]));
-const mockCounter = mock(() => createMockMetric(["inc"]));
-const mockGauge = mock(() => createMockMetric(["set", "inc", "dec"]));
+const mockSummary = vi.fn(() => createMockMetric(["observe"]));
+const mockHistogram = vi.fn(() => createMockMetric(["observe"]));
+const mockCounter = vi.fn(() => createMockMetric(["inc"]));
+const mockGauge = vi.fn(() => createMockMetric(["set", "inc", "dec"]));
 
 const mockRegister = {
-	clear: mock(() => {}),
-	metrics: mock(() =>
+	clear: vi.fn(() => {}),
+	metrics: vi.fn(() =>
 		Promise.resolve(
 			'# Mock metrics\nagent_operations_total{agent_id="agent-1",agent_type="code-gen",operation="execute",provider="openai",status="success"} 1'
 		)

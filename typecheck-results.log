@@ -1,0 +1,30 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+
+> vibex@0.1.0 type-check
+> ./scripts/quick-type-check.sh
+
+⚡ Running quick type validation...
+🎯 Focus: Catching obvious type errors and import issues
+🚀 Starting quick type validation...
+⚙️  Validating configuration files...
+✅ Configuration files are valid
+📝 Checking TypeScript files for basic issues...
+ℹ️  No explicit React import in: app/page.tsx (OK for Next.js 13+)
+📊 Checked 5 key TypeScript files
+📈 Found 0 errors and 0 warnings
+✅ No critical TypeScript issues found
+🔍 Quick parse check on critical files...
+  Checking: app/layout.tsx
+⚠️  Parse issues in: app/layout.tsx (but continuing...)
+  Checking: app/page.tsx
+⚠️  Parse issues in: app/page.tsx (but continuing...)
+  Checking: lib/utils.ts
+⚠️  Parse issues in: lib/utils.ts (but continuing...)
+  Checking: components/ui/button.tsx
+⚠️  Parse issues in: components/ui/button.tsx (but continuing...)
+✅ Quick parse check completed
+
+🎉 Quick type validation completed successfully!
+✅ No critical type issues found
+💡 For full type checking, run: bun run type-check
+🔧 For comprehensive testing, run: bun run test
