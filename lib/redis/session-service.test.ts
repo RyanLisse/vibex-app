@@ -4,15 +4,7 @@
  * Test-driven development for Redis/Valkey session management
  */
 
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { testRedisConfig } from "./config";
 import { RedisClientManager } from "./redis-client";
 import { SessionService } from "./session-service";
@@ -53,8 +45,7 @@ describe("SessionService", () => {
 			expect(typeof sessionId).toBe("string");
 
 			// Retrieve session
-			const retrievedSession =
-				await sessionService.getSession<SessionData>(sessionId);
+			const retrievedSession = await sessionService.getSession<SessionData>(sessionId);
 			expect(retrievedSession).not.toBeNull();
 			expect(retrievedSession!.id).toBe(sessionId);
 			expect(retrievedSession!.userId).toBe("user-123");
@@ -75,8 +66,7 @@ describe("SessionService", () => {
 			};
 
 			const sessionId = await sessionService.createSession(sessionData);
-			const originalSession =
-				await sessionService.getSession<SessionData>(sessionId);
+			const originalSession = await sessionService.getSession<SessionData>(sessionId);
 
 			// Update session
 			const updates = {
@@ -88,13 +78,12 @@ describe("SessionService", () => {
 			expect(updated).toBe(true);
 
 			// Verify updates
-			const updatedSession =
-				await sessionService.getSession<SessionData>(sessionId);
+			const updatedSession = await sessionService.getSession<SessionData>(sessionId);
 			expect(updatedSession!.role).toBe("admin");
 			expect(updatedSession!.lastLoginAt).toBeInstanceOf(Date);
 			expect(updatedSession!.userId).toBe("user-456"); // Original data preserved
 			expect(updatedSession!.lastAccessedAt.getTime()).toBeGreaterThan(
-				originalSession!.lastAccessedAt.getTime(),
+				originalSession!.lastAccessedAt.getTime()
 			);
 		});
 
@@ -121,10 +110,7 @@ describe("SessionService", () => {
 			const sessionData: SessionData = { userId: "user-expiry" };
 			const options: SessionOptions = { ttl: 2 }; // 2 seconds
 
-			const sessionId = await sessionService.createSession(
-				sessionData,
-				options,
-			);
+			const sessionId = await sessionService.createSession(sessionData, options);
 
 			// Session should exist initially
 			const initialSession = await sessionService.getSession(sessionId);
@@ -142,10 +128,7 @@ describe("SessionService", () => {
 			const sessionData: SessionData = { userId: "user-extend" };
 			const options: SessionOptions = { ttl: 5 }; // 5 seconds
 
-			const sessionId = await sessionService.createSession(
-				sessionData,
-				options,
-			);
+			const sessionId = await sessionService.createSession(sessionData, options);
 
 			// Wait some time
 			await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -169,10 +152,7 @@ describe("SessionService", () => {
 				slidingExpiration: true,
 			};
 
-			const sessionId = await sessionService.createSession(
-				sessionData,
-				options,
-			);
+			const sessionId = await sessionService.createSession(sessionData, options);
 
 			// Access session multiple times
 			for (let i = 0; i < 3; i++) {
@@ -211,17 +191,11 @@ describe("SessionService", () => {
 			const sessionId = await sessionService.createSession(sessionData);
 
 			// Verify session belongs to correct user
-			const isValid = await sessionService.validateSessionForUser(
-				sessionId,
-				"user-ownership",
-			);
+			const isValid = await sessionService.validateSessionForUser(sessionId, "user-ownership");
 			expect(isValid).toBe(true);
 
 			// Verify session doesn't belong to different user
-			const isInvalid = await sessionService.validateSessionForUser(
-				sessionId,
-				"different-user",
-			);
+			const isInvalid = await sessionService.validateSessionForUser(sessionId, "different-user");
 			expect(isInvalid).toBe(false);
 		});
 
@@ -233,8 +207,7 @@ describe("SessionService", () => {
 			const originalSessionId = await sessionService.createSession(sessionData);
 
 			// Rotate session (create new session, invalidate old)
-			const newSessionId =
-				await sessionService.rotateSession(originalSessionId);
+			const newSessionId = await sessionService.rotateSession(originalSessionId);
 			expect(newSessionId).toBeDefined();
 			expect(newSessionId).not.toBe(originalSessionId);
 
@@ -243,8 +216,7 @@ describe("SessionService", () => {
 			expect(oldSession).toBeNull();
 
 			// New session should contain same data
-			const newSession =
-				await sessionService.getSession<SessionData>(newSessionId);
+			const newSession = await sessionService.getSession<SessionData>(newSessionId);
 			expect(newSession!.userId).toBe("user-rotation");
 			expect(newSession!.role).toBe("user");
 		});
@@ -388,19 +360,14 @@ describe("SessionService", () => {
 
 			// Simulate suspicious activity
 			for (let i = 0; i < 10; i++) {
-				await sessionService.recordSessionActivity(
-					sessionId,
-					"failed_login_attempt",
-					{
-						attempt: i + 1,
-						timestamp: Date.now(),
-					},
-				);
+				await sessionService.recordSessionActivity(sessionId, "failed_login_attempt", {
+					attempt: i + 1,
+					timestamp: Date.now(),
+				});
 			}
 
 			// Check for suspicious activity
-			const suspiciousActivity =
-				await sessionService.detectSuspiciousActivity(sessionId);
+			const suspiciousActivity = await sessionService.detectSuspiciousActivity(sessionId);
 			expect(suspiciousActivity.isSuspicious).toBe(true);
 			expect(suspiciousActivity.reasons).toContain("multiple_failed_attempts");
 			expect(suspiciousActivity.riskScore).toBeGreaterThan(0.5);
@@ -413,7 +380,7 @@ describe("SessionService", () => {
 			for (let i = 0; i < 5; i++) {
 				await sessionService.createSession(
 					{ userId: `user-cleanup-${i}` },
-					{ ttl: 1 }, // 1 second
+					{ ttl: 1 } // 1 second
 				);
 			}
 
@@ -521,8 +488,7 @@ describe("SessionService", () => {
 
 			expect(refreshed).toBe(true);
 
-			const refreshedSession =
-				await sessionService.getSession<SessionData>(sessionId);
+			const refreshedSession = await sessionService.getSession<SessionData>(sessionId);
 			expect(refreshedSession!.accessToken).toBe("new-access-token");
 		});
 
@@ -543,10 +509,7 @@ describe("SessionService", () => {
 			const sessionId = await sessionService.createSession(ssoSessionData);
 
 			// Verify SSO session
-			const isSSOValid = await sessionService.validateSSOSession(
-				sessionId,
-				"saml-session-123",
-			);
+			const isSSOValid = await sessionService.validateSSOSession(sessionId, "saml-session-123");
 			expect(isSSOValid).toBe(true);
 
 			// Test SSO logout

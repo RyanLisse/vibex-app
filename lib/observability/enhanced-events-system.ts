@@ -15,10 +15,7 @@ import {
 import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { ulid } from "ulid";
 import { db } from "@/db/config";
-import {
-	agentExecutions,
-	observabilityEvents as observabilityEventsTable,
-} from "@/db/schema";
+import { agentExecutions, observabilityEvents as observabilityEventsTable } from "@/db/schema";
 import { getTelemetryConfig } from "@/lib/telemetry";
 import type {
 	EventMetadata,
@@ -65,33 +62,21 @@ export class EnhancedObservabilityService {
 	private config = getTelemetryConfig();
 
 	// Metrics instruments
-	private executionCounter = this.meter.createCounter(
-		"agent_executions_total",
-		{
-			description: "Total number of agent executions",
-		},
-	);
+	private executionCounter = this.meter.createCounter("agent_executions_total", {
+		description: "Total number of agent executions",
+	});
 
-	private executionDuration = this.meter.createHistogram(
-		"agent_execution_duration_ms",
-		{
-			description: "Agent execution duration in milliseconds",
-		},
-	);
+	private executionDuration = this.meter.createHistogram("agent_execution_duration_ms", {
+		description: "Agent execution duration in milliseconds",
+	});
 
-	private errorCounter = this.meter.createCounter(
-		"agent_execution_errors_total",
-		{
-			description: "Total number of agent execution errors",
-		},
-	);
+	private errorCounter = this.meter.createCounter("agent_execution_errors_total", {
+		description: "Total number of agent execution errors",
+	});
 
-	private memoryGauge = this.meter.createUpDownCounter(
-		"agent_memory_usage_bytes",
-		{
-			description: "Agent memory usage in bytes",
-		},
-	);
+	private memoryGauge = this.meter.createUpDownCounter("agent_memory_usage_bytes", {
+		description: "Agent memory usage in bytes",
+	});
 
 	// Active executions tracking
 	private activeExecutions: Map<string, AgentExecutionContext> = new Map();
@@ -106,8 +91,7 @@ export class EnhancedObservabilityService {
 
 	static getInstance(): EnhancedObservabilityService {
 		if (!EnhancedObservabilityService.instance) {
-			EnhancedObservabilityService.instance =
-				new EnhancedObservabilityService();
+			EnhancedObservabilityService.instance = new EnhancedObservabilityService();
 		}
 		return EnhancedObservabilityService.instance;
 	}
@@ -122,7 +106,7 @@ export class EnhancedObservabilityService {
 		taskId?: string,
 		userId?: string,
 		sessionId?: string,
-		parentExecutionId?: string,
+		parentExecutionId?: string
 	): Promise<string> {
 		const executionId = ulid();
 		const startTime = new Date();
@@ -159,9 +143,7 @@ export class EnhancedObservabilityService {
 			agentType,
 			status: "running",
 			startedAt: startTime,
-			input: this.config.agentTracking?.includeInputOutput
-				? metadata.input
-				: null,
+			input: this.config.agentTracking?.includeInputOutput ? metadata.input : null,
 			metadata: {
 				...metadata,
 				operation,
@@ -196,7 +178,7 @@ export class EnhancedObservabilityService {
 				spanId,
 			},
 			"agent",
-			["execution", "start", agentType],
+			["execution", "start", agentType]
 		);
 
 		// Start OpenTelemetry span
@@ -225,7 +207,7 @@ export class EnhancedObservabilityService {
 	async completeAgentExecution(
 		executionId: string,
 		output?: any,
-		performanceMetrics?: AgentPerformanceMetrics,
+		performanceMetrics?: AgentPerformanceMetrics
 	): Promise<void> {
 		const executionContext = this.activeExecutions.get(executionId);
 		if (!executionContext) {
@@ -284,7 +266,7 @@ export class EnhancedObservabilityService {
 				spanId: executionContext.spanId,
 			},
 			"agent",
-			["execution", "end", executionContext.agentType],
+			["execution", "end", executionContext.agentType]
 		);
 
 		// Complete OpenTelemetry span
@@ -311,16 +293,10 @@ export class EnhancedObservabilityService {
 		if (performanceMetrics) {
 			performanceMetrics.recordMetric("agent_execution_time", duration);
 			if (performanceMetrics.memoryUsage) {
-				performanceMetrics.recordMetric(
-					"agent_memory_usage",
-					performanceMetrics.memoryUsage,
-				);
+				performanceMetrics.recordMetric("agent_memory_usage", performanceMetrics.memoryUsage);
 			}
 			if (performanceMetrics.cpuUsage) {
-				performanceMetrics.recordMetric(
-					"agent_cpu_usage",
-					performanceMetrics.cpuUsage,
-				);
+				performanceMetrics.recordMetric("agent_cpu_usage", performanceMetrics.cpuUsage);
 			}
 		}
 	}
@@ -331,7 +307,7 @@ export class EnhancedObservabilityService {
 	async failAgentExecution(
 		executionId: string,
 		error: Error,
-		performanceMetrics?: AgentPerformanceMetrics,
+		performanceMetrics?: AgentPerformanceMetrics
 	): Promise<void> {
 		const executionContext = this.activeExecutions.get(executionId);
 		if (!executionContext) {
@@ -397,7 +373,7 @@ export class EnhancedObservabilityService {
 				spanId: executionContext.spanId,
 			},
 			"agent",
-			["execution", "error", executionContext.agentType],
+			["execution", "error", executionContext.agentType]
 		);
 
 		// Complete OpenTelemetry span with error
@@ -428,13 +404,11 @@ export class EnhancedObservabilityService {
 		executionId: string,
 		stepName: string,
 		stepData: any,
-		stepDuration?: number,
+		stepDuration?: number
 	): Promise<void> {
 		const executionContext = this.activeExecutions.get(executionId);
 		if (!executionContext) {
-			console.warn(
-				`Execution context not found for step recording: ${executionId}`,
-			);
+			console.warn(`Execution context not found for step recording: ${executionId}`);
 			return;
 		}
 
@@ -453,7 +427,7 @@ export class EnhancedObservabilityService {
 				spanId: executionContext.spanId,
 			},
 			"agent",
-			["execution", "step", executionContext.agentType, stepName],
+			["execution", "step", executionContext.agentType, stepName]
 		);
 
 		// Add step event to current span
@@ -476,7 +450,7 @@ export class EnhancedObservabilityService {
 		message: string,
 		metadata: EventMetadata = {},
 		source = "system",
-		tags: string[] = [],
+		tags: string[] = []
 	): Promise<void> {
 		const event: ObservabilityEvent = {
 			id: ulid(),
@@ -529,7 +503,7 @@ export class EnhancedObservabilityService {
 					spanId: event.metadata.spanId || null,
 					data: event.metadata,
 					category: event.source,
-				})),
+				}))
 			);
 		} catch (error) {
 			console.error("Failed to flush observability events:", error);
@@ -583,21 +557,14 @@ export class EnhancedObservabilityService {
 			.limit(1000);
 
 		const totalExecutions = recentExecutions.length;
-		const failedExecutions = recentExecutions.filter(
-			(e) => e.status === "failed",
-		).length;
-		const errorRate =
-			totalExecutions > 0 ? (failedExecutions / totalExecutions) * 100 : 0;
+		const failedExecutions = recentExecutions.filter((e) => e.status === "failed").length;
+		const errorRate = totalExecutions > 0 ? (failedExecutions / totalExecutions) * 100 : 0;
 
-		const completedExecutions = recentExecutions.filter(
-			(e) => e.executionTimeMs !== null,
-		);
+		const completedExecutions = recentExecutions.filter((e) => e.executionTimeMs !== null);
 		const averageExecutionTime =
 			completedExecutions.length > 0
-				? completedExecutions.reduce(
-						(sum, e) => sum + (e.executionTimeMs || 0),
-						0,
-					) / completedExecutions.length
+				? completedExecutions.reduce((sum, e) => sum + (e.executionTimeMs || 0), 0) /
+					completedExecutions.length
 				: 0;
 
 		// Get memory usage (approximate)
@@ -648,7 +615,7 @@ export const agentTracking = {
 		metadata: Record<string, any> = {},
 		taskId?: string,
 		userId?: string,
-		sessionId?: string,
+		sessionId?: string
 	): Promise<T> {
 		const executionId = await enhancedObservability.startAgentExecution(
 			agentType,
@@ -656,7 +623,7 @@ export const agentTracking = {
 			metadata,
 			taskId,
 			userId,
-			sessionId,
+			sessionId
 		);
 
 		const startTime = Date.now();
@@ -679,11 +646,7 @@ export const agentTracking = {
 				performanceMetrics.memoryUsage = memoryAfter - memoryBefore;
 			}
 
-			await enhancedObservability.completeAgentExecution(
-				executionId,
-				result,
-				performanceMetrics,
-			);
+			await enhancedObservability.completeAgentExecution(executionId, result, performanceMetrics);
 
 			return result;
 		} catch (error) {
@@ -700,7 +663,7 @@ export const agentTracking = {
 			await enhancedObservability.failAgentExecution(
 				executionId,
 				error as Error,
-				performanceMetrics,
+				performanceMetrics
 			);
 
 			throw error;
@@ -714,14 +677,9 @@ export const agentTracking = {
 		executionId: string,
 		stepName: string,
 		stepData: any,
-		stepDuration?: number,
+		stepDuration?: number
 	): Promise<void> {
-		await enhancedObservability.recordExecutionStep(
-			executionId,
-			stepName,
-			stepData,
-			stepDuration,
-		);
+		await enhancedObservability.recordExecutionStep(executionId, stepName, stepData, stepDuration);
 	},
 
 	/**

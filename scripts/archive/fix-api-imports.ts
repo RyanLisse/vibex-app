@@ -23,17 +23,17 @@ async function fixApiImports() {
 		// Fix pattern where we have missing "import {" before createApiErrorResponse
 		newContent = newContent.replace(
 			/^(\s*)createApiErrorResponse,\s*$/gm,
-			"$1import { createApiErrorResponse,",
+			"$1import { createApiErrorResponse,"
 		);
 		newContent = newContent.replace(
 			/^(\s*)createApiSuccessResponse,?\s*$/gm,
-			"$1createApiSuccessResponse,",
+			"$1createApiSuccessResponse,"
 		);
 
 		// Fix cases where import statement is split incorrectly
 		newContent = newContent.replace(
 			/;\s*\n\s*(createApiErrorResponse|createApiSuccessResponse|validateApiRequest),/gm,
-			";\nimport { $1,",
+			";\nimport { $1,"
 		);
 
 		// Fix standalone lines that should be part of import

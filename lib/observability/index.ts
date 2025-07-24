@@ -7,12 +7,9 @@ export class ObservabilityService {
 	private static instance: ObservabilityService | null = null;
 	private tracer = trace.getTracer("electric-sql-client");
 	private events: Array<{ name: string; data: any; timestamp: Date }> = [];
-	private errors: Array<{ operation: string; error: Error; timestamp: Date }> =
-		[];
-	private operations: Map<
-		string,
-		{ startTime: Date; endTime?: Date; duration?: number }
-	> = new Map();
+	private errors: Array<{ operation: string; error: Error; timestamp: Date }> = [];
+	private operations: Map<string, { startTime: Date; endTime?: Date; duration?: number }> =
+		new Map();
 
 	// Public metrics and getTracer for API routes
 	public metrics = {
@@ -53,10 +50,7 @@ export class ObservabilityService {
 	/**
 	 * Track an operation with OpenTelemetry tracing
 	 */
-	async trackOperation<T>(
-		operationName: string,
-		operation: () => Promise<T>,
-	): Promise<T> {
+	async trackOperation<T>(operationName: string, operation: () => Promise<T>): Promise<T> {
 		const span = this.tracer.startSpan(operationName, {
 			kind: SpanKind.INTERNAL,
 		});
@@ -65,10 +59,7 @@ export class ObservabilityService {
 		this.operations.set(operationId, { startTime: new Date() });
 
 		try {
-			const result = await context.with(
-				trace.setSpan(context.active(), span),
-				operation,
-			);
+			const result = await context.with(trace.setSpan(context.active(), span), operation);
 
 			// Record successful completion
 			const operationData = this.operations.get(operationId);
@@ -121,10 +112,7 @@ export class ObservabilityService {
 		this.operations.set(operationId, { startTime: new Date() });
 
 		try {
-			const result = context.with(
-				trace.setSpan(context.active(), span),
-				operation,
-			);
+			const result = context.with(trace.setSpan(context.active(), span), operation);
 
 			// Record successful completion
 			const operationData = this.operations.get(operationId);
@@ -215,7 +203,7 @@ export class ObservabilityService {
 		agentType: string,
 		operation: string,
 		execution: () => Promise<T>,
-		metadata?: any,
+		metadata?: any
 	): Promise<T> {
 		const operationName = `agent.${agentType}.${operation}`;
 
@@ -266,9 +254,7 @@ export class ObservabilityService {
 	/**
 	 * Get recent errors
 	 */
-	getErrors(
-		limit = 50,
-	): Array<{ operation: string; error: Error; timestamp: Date }> {
+	getErrors(limit = 50): Array<{ operation: string; error: Error; timestamp: Date }> {
 		return this.errors.slice(-limit);
 	}
 
@@ -286,25 +272,16 @@ export class ObservabilityService {
 		}>;
 	} {
 		const operations = Array.from(this.operations.values());
-		const completedOperations = operations.filter(
-			(op) => op.endTime && op.duration !== undefined,
-		);
+		const completedOperations = operations.filter((op) => op.endTime && op.duration !== undefined);
 
-		const totalDuration = completedOperations.reduce(
-			(sum, op) => sum + (op.duration || 0),
-			0,
-		);
+		const totalDuration = completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0);
 		const averageDuration =
-			completedOperations.length > 0
-				? totalDuration / completedOperations.length
-				: 0;
+			completedOperations.length > 0 ? totalDuration / completedOperations.length : 0;
 
 		const totalOperations = operations.length;
 		const errorCount = this.errors.length;
 		const successRate =
-			totalOperations > 0
-				? ((totalOperations - errorCount) / totalOperations) * 100
-				: 100;
+			totalOperations > 0 ? ((totalOperations - errorCount) / totalOperations) * 100 : 100;
 
 		const recentOperations = Array.from(this.operations.entries())
 			.filter(([_, op]) => op.endTime && op.duration !== undefined)
@@ -346,13 +323,9 @@ export class ObservabilityService {
 		const recentOperations = Array.from(this.operations.values()).slice(-50);
 
 		const recentErrorRate =
-			recentEvents.length > 0
-				? (recentErrors.length / recentEvents.length) * 100
-				: 0;
+			recentEvents.length > 0 ? (recentErrors.length / recentEvents.length) * 100 : 0;
 
-		const completedOperations = recentOperations.filter(
-			(op) => op.duration !== undefined,
-		);
+		const completedOperations = recentOperations.filter((op) => op.duration !== undefined);
 		const averageResponseTime =
 			completedOperations.length > 0
 				? completedOperations.reduce((sum, op) => sum + (op.duration || 0), 0) /
@@ -360,9 +333,7 @@ export class ObservabilityService {
 				: 0;
 
 		const lastActivity =
-			recentEvents.length > 0
-				? recentEvents[recentEvents.length - 1].timestamp
-				: null;
+			recentEvents.length > 0 ? recentEvents[recentEvents.length - 1].timestamp : null;
 
 		const isHealthy = recentErrorRate < 10 && averageResponseTime < 5000; // Less than 10% errors and under 5s response time
 
@@ -383,21 +354,16 @@ export const observability = {
 	metrics: performanceMetrics,
 	events: observabilityEvents,
 	getTracer: () => observabilityService.getTracer(),
-	trackOperation:
-		observabilityService.trackOperation.bind(observabilityService),
-	trackOperationSync:
-		observabilityService.trackOperationSync.bind(observabilityService),
+	trackOperation: observabilityService.trackOperation.bind(observabilityService),
+	trackOperationSync: observabilityService.trackOperationSync.bind(observabilityService),
 	recordEvent: observabilityService.recordEvent.bind(observabilityService),
 	recordError: observabilityService.recordError.bind(observabilityService),
-	trackAgentExecution:
-		observabilityService.trackAgentExecution.bind(observabilityService),
+	trackAgentExecution: observabilityService.trackAgentExecution.bind(observabilityService),
 	getEvents: observabilityService.getEvents.bind(observabilityService),
 	getErrors: observabilityService.getErrors.bind(observabilityService),
-	getOperationStats:
-		observabilityService.getOperationStats.bind(observabilityService),
+	getOperationStats: observabilityService.getOperationStats.bind(observabilityService),
 	clear: observabilityService.clear.bind(observabilityService),
-	getHealthStatus:
-		observabilityService.getHealthStatus.bind(observabilityService),
+	getHealthStatus: observabilityService.getHealthStatus.bind(observabilityService),
 };
 
 // Re-export enhanced observability services

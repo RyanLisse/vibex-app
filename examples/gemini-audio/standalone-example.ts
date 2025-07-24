@@ -176,9 +176,7 @@ class GeminiAudioExample {
 		const options = this.parseMimeType(mimeType);
 		const dataLength = rawData.reduce((a, b) => a + b.length, 0);
 		const wavHeader = this.createWavHeader(dataLength, options);
-		const buffer = Buffer.concat(
-			rawData.map((data) => Buffer.from(data, "base64")),
-		);
+		const buffer = Buffer.concat(rawData.map((data) => Buffer.from(data, "base64")));
 
 		return Buffer.concat([wavHeader, buffer]);
 	}
@@ -212,7 +210,7 @@ class GeminiAudioExample {
 
 	private createWavHeader(
 		dataLength: number,
-		options: { numChannels: number; sampleRate: number; bitsPerSample: number },
+		options: { numChannels: number; sampleRate: number; bitsPerSample: number }
 	): Buffer {
 		const { numChannels, sampleRate, bitsPerSample } = options;
 		const byteRate = (sampleRate * numChannels * bitsPerSample) / 8;
@@ -254,9 +252,7 @@ async function main() {
 	try {
 		// Connect to Gemini
 		await example.connect();
-		await example.sendMessage(
-			"Hello! Can you introduce yourself and tell me a joke?",
-		);
+		await example.sendMessage("Hello! Can you introduce yourself and tell me a joke?");
 		await example.handleTurn();
 		await example.saveAudio("example1_joke.wav");
 
@@ -269,7 +265,7 @@ async function main() {
 		// Clear audio buffer
 		example.audioParts = [];
 		await example.sendMessage(
-			"Can you explain quantum computing in simple terms, then tell me about its potential applications?",
+			"Can you explain quantum computing in simple terms, then tell me about its potential applications?"
 		);
 		await example.handleTurn();
 		await example.saveAudio("example3_quantum.wav");

@@ -87,10 +87,7 @@ describe("Migration System Edge Cases", () => {
 
 	describe("Data Corruption Edge Cases", () => {
 		it("should handle malformed JSON in task store", async () => {
-			mockLocalStorage.setItem(
-				"task-store",
-				'{"state": {"tasks": [invalid json}',
-			);
+			mockLocalStorage.setItem("task-store", '{"state": {"tasks": [invalid json}');
 
 			const result = await dataExtractor.extractTasks();
 
@@ -131,7 +128,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks: corruptedTasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const extractResult = await dataExtractor.extractTasks();
@@ -159,9 +156,7 @@ describe("Migration System Edge Cases", () => {
 			expect(() => JSON.stringify(taskWithCircular)).toThrow();
 
 			// Our system should handle this gracefully
-			const transformResult = dataMapper.transformTasks([
-				taskWithCircular as any,
-			]);
+			const transformResult = dataMapper.transformTasks([taskWithCircular as any]);
 
 			expect(transformResult.errors).toHaveLength(1);
 			expect(transformResult.errors[0].type).toBe("VALIDATION_ERROR");
@@ -180,9 +175,7 @@ describe("Migration System Edge Cases", () => {
 			const transformResult = dataMapper.transformTasks([largeTask as any]);
 
 			expect(transformResult.warnings).toEqual(
-				expect.arrayContaining([
-					expect.stringContaining("Large data detected"),
-				]),
+				expect.arrayContaining([expect.stringContaining("Large data detected")])
 			);
 		});
 
@@ -196,9 +189,7 @@ describe("Migration System Edge Cases", () => {
 				dueDate: 1_234_567_890, // Number instead of string
 			};
 
-			const transformResult = dataMapper.transformTasks([
-				taskWithInvalidDates as any,
-			]);
+			const transformResult = dataMapper.transformTasks([taskWithInvalidDates as any]);
 
 			expect(transformResult.errors).toHaveLength(1);
 			expect(transformResult.errors[0].message).toContain("Invalid date");
@@ -241,7 +232,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks: largeTasks },
 					version: 0,
-				}),
+				})
 			);
 
 			// Migration should handle this without running out of memory
@@ -275,7 +266,7 @@ describe("Migration System Edge Cases", () => {
 	describe("Network and Database Failures", () => {
 		it("should handle database connection timeout", async () => {
 			mockDb.$transaction.mockImplementation(() =>
-				Promise.reject(new Error("Connection timeout after 30000ms")),
+				Promise.reject(new Error("Connection timeout after 30000ms"))
 			);
 
 			const config: MigrationConfig = {
@@ -316,7 +307,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const config: MigrationConfig = {
@@ -333,9 +324,7 @@ describe("Migration System Edge Cases", () => {
 
 		it("should handle database constraint violations", async () => {
 			mockDb.tasks.create.mockRejectedValue(
-				new Error(
-					'duplicate key value violates unique constraint "tasks_pkey"',
-				),
+				new Error('duplicate key value violates unique constraint "tasks_pkey"')
 			);
 
 			const tasks = [
@@ -352,7 +341,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const config: MigrationConfig = {
@@ -393,7 +382,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const config: MigrationConfig = {
@@ -425,7 +414,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const config: MigrationConfig = {
@@ -441,12 +430,10 @@ describe("Migration System Edge Cases", () => {
 
 			// One should succeed, one should fail due to concurrent access
 			const successCount = results.filter(
-				(r) => r.status === "fulfilled" && r.value.success,
+				(r) => r.status === "fulfilled" && r.value.success
 			).length;
 			const failureCount = results.filter(
-				(r) =>
-					r.status === "rejected" ||
-					(r.status === "fulfilled" && !r.value.success),
+				(r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value.success)
 			).length;
 
 			expect(successCount + failureCount).toBe(2);
@@ -468,7 +455,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			// Start migration
@@ -484,13 +471,10 @@ describe("Migration System Edge Cases", () => {
 					"task-store",
 					JSON.stringify({
 						state: {
-							tasks: [
-								...tasks,
-								{ id: "task-2", title: "Added During Migration" },
-							],
+							tasks: [...tasks, { id: "task-2", title: "Added During Migration" }],
 						},
 						version: 0,
-					}),
+					})
 				);
 				return { id: "created-task" };
 			});
@@ -501,7 +485,7 @@ describe("Migration System Edge Cases", () => {
 			expect(result.warnings).toEqual(
 				expect.arrayContaining([
 					expect.stringContaining("localStorage was modified during migration"),
-				]),
+				])
 			);
 		});
 
@@ -521,7 +505,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const backupResult = await backupService.createBackup({
@@ -533,11 +517,9 @@ describe("Migration System Edge Cases", () => {
 			const backupId = backupResult.manifest!.id;
 
 			// Mock backup corruption
-			vi.spyOn(backupService as any, "loadBackupData").mockImplementation(
-				() => {
-					throw new Error("Backup file is corrupted or unreadable");
-				},
-			);
+			vi.spyOn(backupService as any, "loadBackupData").mockImplementation(() => {
+				throw new Error("Backup file is corrupted or unreadable");
+			});
 
 			const restoreResult = await backupService.restoreBackup(backupId);
 
@@ -574,9 +556,7 @@ describe("Migration System Edge Cases", () => {
 				},
 			];
 
-			const transformResult = dataMapper.transformTasks(
-				tasksWithInvalidEnums as any,
-			);
+			const transformResult = dataMapper.transformTasks(tasksWithInvalidEnums as any);
 
 			expect(transformResult.errors).toHaveLength(1);
 			expect(transformResult.errors[0].message).toContain("Invalid enum value");
@@ -593,9 +573,7 @@ describe("Migration System Edge Cases", () => {
 				},
 			];
 
-			const transformResult = dataMapper.transformTasks(
-				tasksWithTypeMismatches as any,
-			);
+			const transformResult = dataMapper.transformTasks(tasksWithTypeMismatches as any);
 
 			expect(transformResult.errors).toHaveLength(1);
 			expect(transformResult.errors[0].message).toContain("Type mismatch");
@@ -613,16 +591,14 @@ describe("Migration System Edge Cases", () => {
 				},
 			];
 
-			const transformResult = dataMapper.transformTasks(
-				tasksWithCrossFieldErrors as any,
-			);
+			const transformResult = dataMapper.transformTasks(tasksWithCrossFieldErrors as any);
 
 			expect(transformResult.warnings).toEqual(
 				expect.arrayContaining([
 					expect.stringContaining("future"),
 					expect.stringContaining("updated before created"),
 					expect.stringContaining("due date before created"),
-				]),
+				])
 			);
 		});
 	});
@@ -650,7 +626,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks: intensiveTasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const startTime = performance.now();
@@ -701,7 +677,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks },
 					version: 0,
-				}),
+				})
 			);
 
 			// Mock beforeunload event
@@ -742,14 +718,10 @@ describe("Migration System Edge Cases", () => {
 				},
 			];
 
-			const transformResult = dataMapper.transformTasks(
-				tasksWithSensitiveData as any,
-			);
+			const transformResult = dataMapper.transformTasks(tasksWithSensitiveData as any);
 
 			expect(transformResult.warnings).toEqual(
-				expect.arrayContaining([
-					expect.stringContaining("Potentially sensitive data detected"),
-				]),
+				expect.arrayContaining([expect.stringContaining("Potentially sensitive data detected")])
 			);
 
 			// Sensitive data should be masked or removed
@@ -775,9 +747,7 @@ describe("Migration System Edge Cases", () => {
 			const transformResult = dataMapper.transformTasks(tasksWithXSS as any);
 
 			expect(transformResult.warnings).toEqual(
-				expect.arrayContaining([
-					expect.stringContaining("Potentially malicious content detected"),
-				]),
+				expect.arrayContaining([expect.stringContaining("Potentially malicious content detected")])
 			);
 
 			// XSS content should be sanitized
@@ -809,7 +779,7 @@ describe("Migration System Edge Cases", () => {
 				JSON.stringify({
 					state: { tasks: tasksFromMultipleUsers },
 					version: 0,
-				}),
+				})
 			);
 
 			// Migration should only process tasks for the specified user
@@ -818,7 +788,7 @@ describe("Migration System Edge Cases", () => {
 					dryRun: true,
 					continueOnError: false,
 				},
-				"user-1", // Specific user ID
+				"user-1" // Specific user ID
 			);
 
 			expect(result.success).toBe(true);

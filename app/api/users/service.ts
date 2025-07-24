@@ -7,10 +7,7 @@
 
 import { z } from "zod";
 import { BaseCRUDService, type ServiceContext } from "@/lib/api/base-service";
-import type {
-	CreateUserSchema,
-	UpdateUserSchema,
-} from "@/src/schemas/api-routes";
+import type { CreateUserSchema, UpdateUserSchema } from "@/src/schemas/api-routes";
 
 // Query schemas
 export const GetUsersQuerySchema = z.object({
@@ -19,9 +16,7 @@ export const GetUsersQuerySchema = z.object({
 	provider: z.enum(["github", "openai", "anthropic"]).optional(),
 	isActive: z.coerce.boolean().optional(),
 	search: z.string().optional(),
-	sortBy: z
-		.enum(["created_at", "updated_at", "name", "last_login_at"])
-		.default("created_at"),
+	sortBy: z.enum(["created_at", "updated_at", "name", "last_login_at"]).default("created_at"),
 	sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 

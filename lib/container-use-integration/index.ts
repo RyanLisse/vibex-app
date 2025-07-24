@@ -113,29 +113,19 @@ export class ContainerUseIntegration {
 			let taskResult;
 			switch (params.source) {
 				case "issue":
-					taskResult = await this.taskCreator.createTaskFromIssue(
-						params.sourceData,
-					);
+					taskResult = await this.taskCreator.createTaskFromIssue(params.sourceData);
 					break;
 				case "pr_comment":
-					taskResult = await this.taskCreator.createTaskFromPRComment(
-						params.sourceData,
-					);
+					taskResult = await this.taskCreator.createTaskFromPRComment(params.sourceData);
 					break;
 				case "voice":
-					taskResult = await this.taskCreator.createTaskFromVoiceCommand(
-						params.sourceData,
-					);
+					taskResult = await this.taskCreator.createTaskFromVoiceCommand(params.sourceData);
 					break;
 				case "screenshot":
-					taskResult = await this.taskCreator.createTaskFromScreenshot(
-						params.sourceData,
-					);
+					taskResult = await this.taskCreator.createTaskFromScreenshot(params.sourceData);
 					break;
 				case "manual":
-					taskResult = await this.taskCreator.validateAndEnrichTask(
-						params.sourceData,
-					);
+					taskResult = await this.taskCreator.validateAndEnrichTask(params.sourceData);
 					break;
 				default:
 					throw new Error(`Unsupported source type: ${params.source}`);
@@ -152,10 +142,7 @@ export class ContainerUseIntegration {
 
 			// Step 2: Create Git worktree
 			const branchName = `feature/${task.id}`;
-			const worktreeResult = await this.worktreeManager.createWorktree(
-				task.id,
-				branchName,
-			);
+			const worktreeResult = await this.worktreeManager.createWorktree(task.id, branchName);
 
 			if (!worktreeResult.success || !worktreeResult.worktree) {
 				return {
@@ -189,7 +176,7 @@ export class ContainerUseIntegration {
 			throw new ContainerUseError(
 				`Failed to create agent task: ${(error as Error).message}`,
 				"TASK_CREATION_FAILED",
-				{ params },
+				{ params }
 			);
 		}
 	}

@@ -4,15 +4,7 @@
  * Test-driven development for Redis/Valkey job queue functionality
  */
 
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { testRedisConfig } from "./config";
 import { JobQueueService } from "./job-queue-service";
 import { RedisClientManager } from "./redis-client";
@@ -45,11 +37,7 @@ describe("JobQueueService", () => {
 			const jobPayload = { message: "Hello, World!", timestamp: Date.now() };
 
 			// Add job to queue
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"greeting",
-				jobPayload,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "greeting", jobPayload);
 			expect(jobId).toBeDefined();
 			expect(typeof jobId).toBe("string");
 
@@ -82,12 +70,7 @@ describe("JobQueueService", () => {
 				removeOnComplete: false,
 			};
 
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"important",
-				jobPayload,
-				options,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "important", jobPayload, options);
 
 			// Job should not be available immediately due to delay
 			const immediateJob = await jobQueueService.getNextJob(queueName);
@@ -114,19 +97,19 @@ describe("JobQueueService", () => {
 				queueName,
 				"low",
 				{ data: "low" },
-				{ priority: 1 },
+				{ priority: 1 }
 			);
 			const highPriorityId = await jobQueueService.addJob(
 				queueName,
 				"high",
 				{ data: "high" },
-				{ priority: 10 },
+				{ priority: 10 }
 			);
 			const mediumPriorityId = await jobQueueService.addJob(
 				queueName,
 				"medium",
 				{ data: "medium" },
-				{ priority: 5 },
+				{ priority: 5 }
 			);
 
 			// Jobs should be processed in priority order (high to low)
@@ -155,21 +138,13 @@ describe("JobQueueService", () => {
 			const jobPayload = { willFail: true };
 			const options: JobOptions = { maxAttempts: 3 };
 
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"retry-test",
-				jobPayload,
-				options,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "retry-test", jobPayload, options);
 
 			// First attempt
 			const attempt1 = await jobQueueService.getNextJob(queueName);
 			expect(attempt1!.attempts).toBe(0);
 
-			const failed1 = await jobQueueService.failJob(
-				attempt1!,
-				new Error("First failure"),
-			);
+			const failed1 = await jobQueueService.failJob(attempt1!, new Error("First failure"));
 			expect(failed1).toBe(true);
 
 			// Second attempt
@@ -177,10 +152,7 @@ describe("JobQueueService", () => {
 			expect(attempt2!.id).toBe(jobId);
 			expect(attempt2!.attempts).toBe(1);
 
-			const failed2 = await jobQueueService.failJob(
-				attempt2!,
-				new Error("Second failure"),
-			);
+			const failed2 = await jobQueueService.failJob(attempt2!, new Error("Second failure"));
 			expect(failed2).toBe(true);
 
 			// Third attempt
@@ -197,12 +169,7 @@ describe("JobQueueService", () => {
 			const jobPayload = { alwaysFails: true };
 			const options: JobOptions = { maxAttempts: 2 };
 
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"always-fails",
-				jobPayload,
-				options,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "always-fails", jobPayload, options);
 
 			// Fail job twice
 			for (let i = 0; i < 2; i++) {
@@ -230,12 +197,7 @@ describe("JobQueueService", () => {
 				backoff: "exponential",
 			};
 
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"backoff-test",
-				{},
-				options,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "backoff-test", {}, options);
 
 			// First failure
 			const attempt1 = await jobQueueService.getNextJob(queueName);
@@ -336,24 +298,18 @@ describe("JobQueueService", () => {
 					queueName,
 					"cleanup-fail",
 					{ index: i },
-					{ maxAttempts: 1 },
+					{ maxAttempts: 1 }
 				);
 				const job = await jobQueueService.getNextJob(queueName);
 				await jobQueueService.failJob(job!, new Error("Cleanup test failure"));
 			}
 
 			// Clean up completed jobs older than 0 seconds (all of them)
-			const cleanedCompleted = await jobQueueService.cleanupCompletedJobs(
-				queueName,
-				0,
-			);
+			const cleanedCompleted = await jobQueueService.cleanupCompletedJobs(queueName, 0);
 			expect(cleanedCompleted).toBe(5);
 
 			// Clean up failed jobs
-			const cleanedFailed = await jobQueueService.cleanupFailedJobs(
-				queueName,
-				0,
-			);
+			const cleanedFailed = await jobQueueService.cleanupFailedJobs(queueName, 0);
 			expect(cleanedFailed).toBe(3);
 		});
 	});
@@ -363,12 +319,7 @@ describe("JobQueueService", () => {
 			const queueName = "test:schedule-queue";
 			const futureTime = new Date(Date.now() + 2000); // 2 seconds in future
 
-			const jobId = await jobQueueService.scheduleJob(
-				queueName,
-				"scheduled-task",
-				{},
-				futureTime,
-			);
+			const jobId = await jobQueueService.scheduleJob(queueName, "scheduled-task", {}, futureTime);
 			expect(jobId).toBeDefined();
 
 			// Job should not be available immediately
@@ -395,7 +346,7 @@ describe("JobQueueService", () => {
 				queueName,
 				"recurring-task",
 				{},
-				cronExpression,
+				cronExpression
 			);
 
 			expect(recurringJobId).toBeDefined();
@@ -428,11 +379,7 @@ describe("JobQueueService", () => {
 			const queueName = "test:progress-queue";
 			const jobPayload = { task: "long-running-task" };
 
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"progress-test",
-				jobPayload,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "progress-test", jobPayload);
 			const job = await jobQueueService.getNextJob(queueName);
 
 			expect(job).not.toBeNull();
@@ -461,16 +408,8 @@ describe("JobQueueService", () => {
 			// Add some log entries
 			await jobQueueService.addJobLog(job!, "info", "Job started");
 			await jobQueueService.addJobLog(job!, "debug", "Processing data...");
-			await jobQueueService.addJobLog(
-				job!,
-				"warning",
-				"Temporary issue resolved",
-			);
-			await jobQueueService.addJobLog(
-				job!,
-				"info",
-				"Job completed successfully",
-			);
+			await jobQueueService.addJobLog(job!, "warning", "Temporary issue resolved");
+			await jobQueueService.addJobLog(job!, "info", "Job completed successfully");
 
 			await jobQueueService.completeJob(job!);
 
@@ -496,10 +435,7 @@ describe("JobQueueService", () => {
 			const workerId = "worker-1";
 
 			// Register worker
-			const registered = await jobQueueService.registerWorker(
-				queueName,
-				workerId,
-			);
+			const registered = await jobQueueService.registerWorker(queueName, workerId);
 			expect(registered).toBe(true);
 
 			// Get active workers
@@ -515,8 +451,7 @@ describe("JobQueueService", () => {
 			expect(unregistered).toBe(true);
 
 			// Worker should no longer be active
-			const remainingWorkers =
-				await jobQueueService.getActiveWorkers(queueName);
+			const remainingWorkers = await jobQueueService.getActiveWorkers(queueName);
 			expect(remainingWorkers).not.toContain(workerId);
 		});
 
@@ -534,10 +469,7 @@ describe("JobQueueService", () => {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// Clean up stale workers
-			const cleanedWorkers = await jobQueueService.cleanupStaleWorkers(
-				queueName,
-				500,
-			); // 500ms timeout
+			const cleanedWorkers = await jobQueueService.cleanupStaleWorkers(queueName, 500); // 500ms timeout
 			expect(cleanedWorkers).toBeGreaterThanOrEqual(1);
 
 			// Job should be available again for other workers
@@ -595,11 +527,7 @@ describe("JobQueueService", () => {
 				data: { userId: "user-456" },
 			};
 
-			const jobId = await jobQueueService.addJob(
-				queueName,
-				"inngest-workflow",
-				workflowPayload,
-			);
+			const jobId = await jobQueueService.addJob(queueName, "inngest-workflow", workflowPayload);
 			const job = await jobQueueService.getNextJob(queueName);
 
 			expect(job).not.toBeNull();

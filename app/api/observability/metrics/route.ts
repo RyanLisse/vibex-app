@@ -14,8 +14,7 @@ export async function GET(request: NextRequest) {
 		const format = searchParams.get("format") || "json";
 
 		// Get performance metrics
-		const metrics =
-			await performanceAggregation.collectPerformanceMetrics(timeRange);
+		const metrics = await performanceAggregation.collectPerformanceMetrics(timeRange);
 
 		if (format === "prometheus") {
 			// Convert to Prometheus format
@@ -38,10 +37,7 @@ export async function GET(request: NextRequest) {
 		});
 	} catch (error) {
 		console.error("Error getting performance metrics:", error);
-		return NextResponse.json(
-			{ error: "Failed to get performance metrics" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Failed to get performance metrics" }, { status: 500 });
 	}
 }
 

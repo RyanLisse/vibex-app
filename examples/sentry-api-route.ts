@@ -9,10 +9,7 @@ import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import { enhancedObservability } from "@/lib/observability/enhanced";
-import {
-	instrumentApiRoute,
-	instrumentDatabaseOperation,
-} from "@/lib/sentry/instrumentation";
+import { instrumentApiRoute, instrumentDatabaseOperation } from "@/lib/sentry/instrumentation";
 
 const logger = enhancedObservability.getLogger("api.example");
 
@@ -51,10 +48,7 @@ export async function POST(request: NextRequest) {
 					result = await handleFetchAction(validatedData.userId);
 					break;
 				case "process":
-					result = await handleProcessAction(
-						validatedData.userId,
-						validatedData.data,
-					);
+					result = await handleProcessAction(validatedData.userId, validatedData.data);
 					break;
 				case "analyze":
 					result = await handleAnalyzeAction(validatedData.userId);
@@ -102,7 +96,7 @@ export async function POST(request: NextRequest) {
 						error: "Validation failed",
 						details: error.errors,
 					},
-					{ status: 400 },
+					{ status: 400 }
 				);
 			}
 
@@ -110,12 +104,9 @@ export async function POST(request: NextRequest) {
 				{
 					success: false,
 					error: "Internal server error",
-					message:
-						process.env.NODE_ENV === "development"
-							? (error as Error).message
-							: undefined,
+					message: process.env.NODE_ENV === "development" ? (error as Error).message : undefined,
 				},
-				{ status: 500 },
+				{ status: 500 }
 			);
 		}
 	});
@@ -134,29 +125,25 @@ async function handleFetchAction(userId: string) {
 				"SELECT * FROM tasks WHERE userId = ?",
 				async () => {
 					const startTime = Date.now();
-					const result = await db
-						.select()
-						.from(tasks)
-						.where(eq(tasks.userId, userId))
-						.limit(10);
+					const result = await db.select().from(tasks).where(eq(tasks.userId, userId)).limit(10);
 
 					// Track query performance
 					enhancedObservability.trackDistribution(
 						"db.query.duration",
 						Date.now() - startTime,
 						"millisecond",
-						{ query: "fetch_user_tasks" },
+						{ query: "fetch_user_tasks" }
 					);
 
 					return result;
-				},
+				}
 			);
 
 			span?.setData("tasks.count", userTasks.length);
 			span?.setData("user.id", userId);
 
 			return userTasks;
-		},
+		}
 	);
 }
 
@@ -195,7 +182,7 @@ async function handleProcessAction(userId: string, data: any) {
 			} finally {
 				timer.end();
 			}
-		},
+		}
 	);
 }
 
@@ -217,7 +204,7 @@ async function handleAnalyzeAction(userId: string) {
 							.from(tasks)
 							.where(eq(tasks.userId, userId));
 						return result[0].count;
-					},
+					}
 				),
 				instrumentDatabaseOperation(
 					"count",
@@ -226,16 +213,13 @@ async function handleAnalyzeAction(userId: string) {
 						const result = await db
 							.select({ count: count() })
 							.from(tasks)
-							.where(
-								and(eq(tasks.userId, userId), eq(tasks.status, "completed")),
-							);
+							.where(and(eq(tasks.userId, userId), eq(tasks.status, "completed")));
 						return result[0].count;
-					},
+					}
 				),
 			]);
 
-			const completionRate =
-				taskCount > 0 ? (completedCount / taskCount) * 100 : 0;
+			const completionRate = taskCount > 0 ? (completedCount / taskCount) * 100 : 0;
 
 			// Track analysis metric
 			enhancedObservability.trackGauge("user.completion.rate", completionRate, {
@@ -251,6 +235,6 @@ async function handleAnalyzeAction(userId: string) {
 				completedTasks: completedCount,
 				completionRate: `${completionRate.toFixed(2)}%`,
 			};
-		},
+		}
 	);
 }

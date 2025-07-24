@@ -9,6 +9,21 @@ import {
 	CriticalErrorType,
 } from "../../lib/alerts/types";
 
+// Mock ComponentLogger
+const mockLogger = {
+	debug: vi.fn(),
+	info: vi.fn(),
+	warn: vi.fn(),
+	error: vi.fn(),
+	child: vi.fn().mockReturnThis(),
+	setContext: vi.fn(),
+	clearContext: vi.fn(),
+};
+
+vi.mock("../../lib/logging", () => ({
+	ComponentLogger: vi.fn().mockImplementation(() => mockLogger),
+}));
+
 // Mock Redis
 const mockRedis = {
 	get: vi.fn(),
@@ -103,7 +118,7 @@ describe("AlertManager", () => {
 			expect(mockTransportService.send).toHaveBeenCalledWith(
 				sampleConfig.channels[0],
 				sampleCriticalError,
-				expect.any(Object),
+				expect.any(Object)
 			);
 		});
 
@@ -137,13 +152,11 @@ describe("AlertManager", () => {
 
 		it("should handle transport failures gracefully", async () => {
 			mockRedis.get.mockResolvedValue(null);
-			mockTransportService.send.mockRejectedValue(
-				new Error("Transport failed"),
-			);
+			mockTransportService.send.mockRejectedValue(new Error("Transport failed"));
 
 			// Should not throw
 			await expect(
-				alertManager.processAlert(sampleCriticalError, sampleConfig),
+				alertManager.processAlert(sampleCriticalError, sampleConfig)
 			).resolves.not.toThrow();
 		});
 
@@ -203,10 +216,7 @@ describe("AlertManager", () => {
 		});
 
 		it("should return false for non-existent alert", async () => {
-			const result = await alertManager.resolveAlert(
-				"non-existent-id",
-				"test-user",
-			);
+			const result = await alertManager.resolveAlert("non-existent-id", "test-user");
 
 			expect(result).toBe(false);
 		});

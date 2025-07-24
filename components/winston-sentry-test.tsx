@@ -76,12 +76,10 @@ export function WinstonSentryTest() {
 	return (
 		<div className="space-y-6 p-6">
 			<div>
-				<h2 className="text-2xl font-bold mb-4">
-					Winston-Sentry Integration Test
-				</h2>
+				<h2 className="text-2xl font-bold mb-4">Winston-Sentry Integration Test</h2>
 				<p className="text-gray-600 mb-6">
-					Test the Winston logger integration with Sentry. Logs are sent through
-					Winston and forwarded to Sentry.
+					Test the Winston logger integration with Sentry. Logs are sent through Winston and
+					forwarded to Sentry.
 				</p>
 			</div>
 
@@ -103,9 +101,7 @@ export function WinstonSentryTest() {
 				{/* Exception Handling */}
 				<div className="border rounded-lg p-4">
 					<h3 className="font-semibold mb-2">Winston Exception Logging</h3>
-					<p className="text-sm text-gray-600 mb-3">
-						Log exceptions through Winston to Sentry.
-					</p>
+					<p className="text-sm text-gray-600 mb-3">Log exceptions through Winston to Sentry.</p>
 					<button
 						onClick={testWinstonException}
 						className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -131,9 +127,7 @@ export function WinstonSentryTest() {
 				{/* Performance Logging */}
 				<div className="border rounded-lg p-4">
 					<h3 className="font-semibold mb-2">Performance Metrics</h3>
-					<p className="text-sm text-gray-600 mb-3">
-						Log performance metrics through Winston.
-					</p>
+					<p className="text-sm text-gray-600 mb-3">Log performance metrics through Winston.</p>
 					<button
 						onClick={testPerformanceLogging}
 						className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"

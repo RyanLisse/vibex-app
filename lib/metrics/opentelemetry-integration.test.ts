@@ -70,7 +70,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 				"execute",
 				"openai",
 				"success",
-				1.5,
+				1.5
 			);
 
 			// Verify Prometheus metrics
@@ -91,7 +91,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 					route: "/api/test",
 					status_code: "200",
 				},
-				"corr-123",
+				"corr-123"
 			);
 
 			// Verify Prometheus metrics
@@ -112,7 +112,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 					operation: "SELECT",
 					table: "users",
 				},
-				"db-corr-456",
+				"db-corr-456"
 			);
 
 			const prometheusMetrics = await prometheusCollector.getMetrics();
@@ -131,7 +131,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 				"execute",
 				"openai",
 				"success",
-				2.0,
+				2.0
 			);
 
 			integration.recordSystemMetricsDual("http", "request", 0.1, {
@@ -150,12 +150,8 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 			expect(unifiedMetrics.prometheus).toContain("http_requests_total");
 
 			expect(unifiedMetrics.correlations).toHaveLength(3);
-			expect(unifiedMetrics.correlations[0].prometheus_metric).toBe(
-				"agent_operations_total",
-			);
-			expect(unifiedMetrics.correlations[0].opentelemetry_metric).toBe(
-				"agent_throughput_otel",
-			);
+			expect(unifiedMetrics.correlations[0].prometheus_metric).toBe("agent_operations_total");
+			expect(unifiedMetrics.correlations[0].opentelemetry_metric).toBe("agent_throughput_otel");
 		});
 	});
 
@@ -199,7 +195,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 				"health-check",
 				"test-provider",
 				"success",
-				0.1,
+				0.1
 			);
 
 			const health = await integration.healthCheck();
@@ -223,7 +219,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 				"execute",
 				"test-provider",
 				"success",
-				1.0,
+				1.0
 			);
 
 			// Record system operation with same correlation context
@@ -236,7 +232,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 					route: `/api/agents/${agentId}`,
 					status_code: "200",
 				},
-				correlationId,
+				correlationId
 			);
 
 			const unifiedMetrics = await integration.getUnifiedMetrics();
@@ -248,20 +244,16 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 
 			// Verify correlation mappings exist
 			const agentCorrelation = unifiedMetrics.correlations.find(
-				(c) => c.prometheus_metric === "agent_operations_total",
+				(c) => c.prometheus_metric === "agent_operations_total"
 			);
 			expect(agentCorrelation).toBeDefined();
-			expect(agentCorrelation?.opentelemetry_metric).toBe(
-				"agent_throughput_otel",
-			);
+			expect(agentCorrelation?.opentelemetry_metric).toBe("agent_throughput_otel");
 
 			const httpCorrelation = unifiedMetrics.correlations.find(
-				(c) => c.prometheus_metric === "http_requests_total",
+				(c) => c.prometheus_metric === "http_requests_total"
 			);
 			expect(httpCorrelation).toBeDefined();
-			expect(httpCorrelation?.opentelemetry_metric).toBe(
-				"system_resources_otel",
-			);
+			expect(httpCorrelation?.opentelemetry_metric).toBe("system_resources_otel");
 		});
 	});
 
@@ -281,7 +273,7 @@ describe("OpenTelemetryPrometheusIntegration", () => {
 			integration.recordSystemMetricsDual(
 				"http",
 				"request_with_missing_labels",
-				0.1,
+				0.1
 				// No labels provided
 			);
 

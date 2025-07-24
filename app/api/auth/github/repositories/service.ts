@@ -43,7 +43,7 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 		userId: string,
 		accessToken: string,
 		params: GetRepositoriesQuery,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{
 		repositories: any[];
 		pagination: {
@@ -59,11 +59,7 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 	}> {
 		return this.executeWithTracing("getRepositories", context, async (span) => {
 			// Check if sync is needed
-			const syncNeeded = await this.isSyncNeeded(
-				userId,
-				params.syncThreshold,
-				params.forceSync,
-			);
+			const syncNeeded = await this.isSyncNeeded(userId, params.syncThreshold, params.forceSync);
 
 			if (syncNeeded) {
 				await this.syncRepositories(userId, accessToken, context);
@@ -88,16 +84,12 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 				"repositories.filters.search": params.search || "none",
 			});
 
-			await this.recordEvent(
-				"query_end",
-				"GitHub repositories query completed",
-				{
-					resultCount: result.items.length,
-					totalCount: result.pagination.total,
-					syncPerformed: syncNeeded,
-					filters: params,
-				},
-			);
+			await this.recordEvent("query_end", "GitHub repositories query completed", {
+				resultCount: result.items.length,
+				totalCount: result.pagination.total,
+				syncPerformed: syncNeeded,
+				filters: params,
+			});
 
 			return {
 				repositories: result.items,
@@ -118,15 +110,13 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 	private async isSyncNeeded(
 		userId: string,
 		syncThresholdMinutes: number,
-		forceSync: boolean,
+		forceSync: boolean
 	): Promise<boolean> {
 		if (forceSync) {
 			return true;
 		}
 
-		const thresholdTime = new Date(
-			Date.now() - syncThresholdMinutes * 60 * 1000,
-		);
+		const thresholdTime = new Date(Date.now() - syncThresholdMinutes * 60 * 1000);
 
 		const recentSync = await this.executeDatabase("checkSyncTime", async () => {
 			// For build purposes, return null (no recent sync)
@@ -143,34 +133,27 @@ export class GitHubRepositoriesAPIService extends BaseAPIService {
 	private async syncRepositories(
 		userId: string,
 		accessToken: string,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<void> {
-		return this.executeWithTracing(
-			"syncRepositories",
-			context,
-			async (span) => {
-				// For build purposes, just log the sync attempt
-				// In a real implementation, this would fetch from GitHub API and store in database
-				this.log("info", "GitHub repositories sync completed (stub)", {
-					userId,
-					repositoryCount: 0,
-				});
-			},
-		);
+		return this.executeWithTracing("syncRepositories", context, async (span) => {
+			// For build purposes, just log the sync attempt
+			// In a real implementation, this would fetch from GitHub API and store in database
+			this.log("info", "GitHub repositories sync completed (stub)", {
+				userId,
+				repositoryCount: 0,
+			});
+		});
 	}
 
 	/**
 	 * Get user ID from authentication
 	 */
 	async getUserFromAuth(accessToken: string): Promise<string> {
-		const userSession = await this.executeDatabase(
-			"getUserSession",
-			async () => {
-				// For build purposes, return a stub user session
-				// In a real implementation, this would query the database
-				return { userId: "stub-user-id" };
-			},
-		);
+		const userSession = await this.executeDatabase("getUserSession", async () => {
+			// For build purposes, return a stub user session
+			// In a real implementation, this would query the database
+			return { userId: "stub-user-id" };
+		});
 
 		if (!userSession) {
 			throw new UnauthorizedError("Authentication session not found");

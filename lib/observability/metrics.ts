@@ -27,19 +27,12 @@ export interface MetricsCollector {
 	collect(metric: string, value: number): void;
 	getMetrics(): Record<string, number>;
 	reset(): void;
-	recordMetric(
-		name: string,
-		value: number,
-		labels?: Record<string, string>,
-	): void;
+	recordMetric(name: string, value: number, labels?: Record<string, string>): void;
 }
 
 export class PerformanceMetricsCollector {
 	private metrics: Map<string, MetricDataPoint[]> = new Map();
-	private aggregatedCache: Map<
-		string,
-		{ data: AggregatedMetric; lastUpdate: number }
-	> = new Map();
+	private aggregatedCache: Map<string, { data: AggregatedMetric; lastUpdate: number }> = new Map();
 	private readonly maxDataPoints: number;
 	private readonly cacheTimeout: number;
 
@@ -154,7 +147,7 @@ export class MetricsAnalyzer {
 
 	analyzePerformanceTrends(
 		metricName: string,
-		windowMinutes: number = 60,
+		windowMinutes: number = 60
 	): {
 		trend: "improving" | "degrading" | "stable";
 		change: number;
@@ -172,16 +165,11 @@ export class MetricsAnalyzer {
 			return { trend: "stable", change: 0, confidence: 0 };
 		}
 
-		const firstHalf = recentPoints.slice(
-			0,
-			Math.floor(recentPoints.length / 2),
-		);
+		const firstHalf = recentPoints.slice(0, Math.floor(recentPoints.length / 2));
 		const secondHalf = recentPoints.slice(Math.floor(recentPoints.length / 2));
 
-		const firstAvg =
-			firstHalf.reduce((sum, p) => sum + p.value, 0) / firstHalf.length;
-		const secondAvg =
-			secondHalf.reduce((sum, p) => sum + p.value, 0) / secondHalf.length;
+		const firstAvg = firstHalf.reduce((sum, p) => sum + p.value, 0) / firstHalf.length;
+		const secondAvg = secondHalf.reduce((sum, p) => sum + p.value, 0) / secondHalf.length;
 
 		const change = ((secondAvg - firstAvg) / firstAvg) * 100;
 		const confidence = Math.min(recentPoints.length / 50, 1);
@@ -194,19 +182,19 @@ export class MetricsAnalyzer {
 		return { trend, change: Math.round(change * 100) / 100, confidence };
 	}
 
-	private anomalyCache: Map<string, { result: MetricDataPoint[]; timestamp: number; threshold: number }> = new Map();
+	private anomalyCache: Map<
+		string,
+		{ result: MetricDataPoint[]; timestamp: number; threshold: number }
+	> = new Map();
 	private readonly cacheTimeout = 30000; // 30 seconds
 
-	detectAnomalies(
-		metricName: string,
-		threshold: number = 2,
-	): MetricDataPoint[] {
+	detectAnomalies(metricName: string, threshold: number = 2): MetricDataPoint[] {
 		// Check cache first
 		const cacheKey = `${metricName}_${threshold}`;
 		const cached = this.anomalyCache.get(cacheKey);
 		const now = Date.now();
 
-		if (cached && (now - cached.timestamp) < this.cacheTimeout && cached.threshold === threshold) {
+		if (cached && now - cached.timestamp < this.cacheTimeout && cached.threshold === threshold) {
 			return cached.result;
 		}
 
@@ -227,7 +215,7 @@ export class MetricsAnalyzer {
 		}
 
 		const mean = sum / points.length;
-		const variance = (sumSquares / points.length) - (mean * mean);
+		const variance = sumSquares / points.length - mean * mean;
 		const stdDev = Math.sqrt(variance);
 		const thresholdValue = threshold * stdDev;
 
@@ -291,13 +279,13 @@ export const metricsCollector: MetricsCollector & {
 
 	queryDuration: {
 		record: (value: number) => {
-			performanceCollector.collect('query_duration_ms', value);
+			performanceCollector.collect("query_duration_ms", value);
 		},
 	},
 
 	errorRate: {
 		record: (value: number) => {
-			performanceCollector.collect('error_rate', value);
+			performanceCollector.collect("error_rate", value);
 		},
 	},
 

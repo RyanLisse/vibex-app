@@ -1,22 +1,22 @@
 [
-	{
-		"path": ".next/static/js/**/*.js",
-		"maxSize": "200 kB",
-		"compression": "gzip"
-	},
-	{
-		"path": ".next/static/css/**/*.css",
-		"maxSize": "50 kB",
-		"compression": "gzip"
-	},
-	{
-		"path": ".next/static/chunks/main-*.js",
-		"maxSize": "300 kB",
-		"compression": "gzip"
-	},
-	{
-		"path": ".next/static/chunks/framework-*.js",
-		"maxSize": "150 kB",
-		"compression": "gzip"
-	}
+  {
+    "path": ".next/static/js/**/*.js",
+    "maxSize": "200 kB",
+    "compression": "gzip"
+  },
+  {
+    "path": ".next/static/css/**/*.css",
+    "maxSize": "50 kB",
+    "compression": "gzip"
+  },
+  {
+    "path": ".next/static/chunks/main-*.js",
+    "maxSize": "300 kB",
+    "compression": "gzip"
+  },
+  {
+    "path": ".next/static/chunks/framework-*.js",
+    "maxSize": "150 kB",
+    "compression": "gzip"
+  }
 ]

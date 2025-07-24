@@ -51,7 +51,7 @@ export function useTaskQuery(taskId: string) {
 			enabled: !!taskId,
 			staleTime: 2 * 60 * 1000, // 2 minutes
 			enableWASMOptimization: false, // Single record doesn't need WASM optimization
-		},
+		}
 	);
 }
 
@@ -76,15 +76,11 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 			let filteredTasks = electricTasks;
 
 			if (status?.length) {
-				filteredTasks = filteredTasks.filter((task) =>
-					status.includes(task.status),
-				);
+				filteredTasks = filteredTasks.filter((task) => status.includes(task.status));
 			}
 
 			if (priority?.length) {
-				filteredTasks = filteredTasks.filter((task) =>
-					priority.includes(task.priority),
-				);
+				filteredTasks = filteredTasks.filter((task) => priority.includes(task.priority));
 			}
 
 			if (search) {
@@ -92,7 +88,7 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 				filteredTasks = filteredTasks.filter(
 					(task) =>
 						task.title.toLowerCase().includes(searchLower) ||
-						task.description?.toLowerCase().includes(searchLower),
+						task.description?.toLowerCase().includes(searchLower)
 				);
 			}
 
@@ -113,8 +109,7 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 				// Fallback to simple filtering without WASM optimization
 				return electricTasks.filter((task) => {
 					if (status?.length && !status.includes(task.status)) return false;
-					if (priority?.length && !priority.includes(task.priority))
-						return false;
+					if (priority?.length && !priority.includes(task.priority)) return false;
 					if (search) {
 						const searchLower = search.toLowerCase();
 						if (
@@ -129,7 +124,7 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 					return true;
 				});
 			},
-		},
+		}
 	);
 
 	// Combine ElectricSQL real-time data with enhanced filtering
@@ -150,10 +145,7 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 /**
  * Hook for infinite task queries with virtualization support
  */
-export function useInfiniteTasksQuery(
-	filters: TaskFilters = {},
-	pageSize = 50,
-) {
+export function useInfiniteTasksQuery(filters: TaskFilters = {}, pageSize = 50) {
 	const queryClient = useQueryClient();
 
 	return useEnhancedInfiniteQuery(
@@ -161,9 +153,7 @@ export function useInfiniteTasksQuery(
 		async ({ pageParam = 0 }) => {
 			// This would typically fetch from a paginated API
 			// For now, we'll simulate pagination with the ElectricSQL data
-			const allTasks =
-				(queryClient.getQueryData(queryKeys.tasks.list(filters)) as Task[]) ||
-				[];
+			const allTasks = (queryClient.getQueryData(queryKeys.tasks.list(filters)) as Task[]) || [];
 
 			const start = (pageParam as number) * pageSize;
 			const end = start + pageSize;
@@ -171,8 +161,7 @@ export function useInfiniteTasksQuery(
 
 			return {
 				tasks: paginatedTasks,
-				nextCursor:
-					end < allTasks.length ? (pageParam as number) + 1 : undefined,
+				nextCursor: end < allTasks.length ? (pageParam as number) + 1 : undefined,
 				hasMore: end < allTasks.length,
 				total: allTasks.length,
 			};
@@ -183,7 +172,7 @@ export function useInfiniteTasksQuery(
 			enableVirtualization: true,
 			enableWASMOptimization: true,
 			staleTime: 2 * 60 * 1000, // 2 minutes
-		},
+		}
 	);
 }
 
@@ -210,9 +199,7 @@ export function useTaskSearchQuery(options: TaskSearchOptions) {
 			// This would typically be a database text search
 			// For now, we'll use the tasks from the main query
 			const allTasks =
-				((await queryClient.getQueryData(
-					queryKeys.tasks.list(filters || {}),
-				)) as Task[]) || [];
+				((await queryClient.getQueryData(queryKeys.tasks.list(filters || {}))) as Task[]) || [];
 
 			if (!query.trim()) return [];
 
@@ -221,7 +208,7 @@ export function useTaskSearchQuery(options: TaskSearchOptions) {
 				.filter(
 					(task) =>
 						task.title.toLowerCase().includes(searchLower) ||
-						task.description?.toLowerCase().includes(searchLower),
+						task.description?.toLowerCase().includes(searchLower)
 				)
 				.slice(0, limit);
 		},
@@ -229,25 +216,17 @@ export function useTaskSearchQuery(options: TaskSearchOptions) {
 			enabled: !shouldUseVectorSearch && query.length > 0,
 			enableWASMOptimization: true,
 			staleTime: 30 * 1000, // 30 seconds for search results
-		},
+		}
 	);
 
 	const queryClient = useQueryClient();
 
 	return {
-		tasks: shouldUseVectorSearch
-			? vectorSearchQuery.data
-			: textSearchQuery.data,
-		loading: shouldUseVectorSearch
-			? vectorSearchQuery.isLoading
-			: textSearchQuery.isLoading,
-		error: shouldUseVectorSearch
-			? vectorSearchQuery.error
-			: textSearchQuery.error,
+		tasks: shouldUseVectorSearch ? vectorSearchQuery.data : textSearchQuery.data,
+		loading: shouldUseVectorSearch ? vectorSearchQuery.isLoading : textSearchQuery.isLoading,
+		error: shouldUseVectorSearch ? vectorSearchQuery.error : textSearchQuery.error,
 		isSemanticSearch: shouldUseVectorSearch,
-		refetch: shouldUseVectorSearch
-			? vectorSearchQuery.refetch
-			: textSearchQuery.refetch,
+		refetch: shouldUseVectorSearch ? vectorSearchQuery.refetch : textSearchQuery.refetch,
 	};
 }
 
@@ -277,26 +256,24 @@ export function useCreateTaskMutation() {
 				} as Task;
 
 				// Add to all relevant caches
-				queryClient.setQueryData(
-					queryKeys.tasks.lists(),
-					(old: Task[] = []) => [optimisticTask, ...old],
-				);
+				queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) => [
+					optimisticTask,
+					...old,
+				]);
 
 				return { optimisticTask };
 			},
 			rollbackUpdate: (context) => {
 				if (context?.optimisticTask) {
 					// Remove optimistic task from cache
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: Task[] = []) =>
-							old.filter((task) => task.id !== context.optimisticTask.id),
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) =>
+						old.filter((task) => task.id !== context.optimisticTask.id)
 					);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
 			enableWASMOptimization: false, // Mutations don't typically need WASM optimization
-		},
+		}
 	);
 }
 
@@ -313,21 +290,17 @@ export function useUpdateTaskMutation() {
 		},
 		{
 			optimisticUpdate: ({ taskId, updates }) => {
-				const previousTask = queryClient.getQueryData(
-					queryKeys.tasks.detail(taskId),
-				) as Task;
+				const previousTask = queryClient.getQueryData(queryKeys.tasks.detail(taskId)) as Task;
 
 				// Update task in all relevant caches
 				queryClient.setQueryData(queryKeys.tasks.detail(taskId), (old: Task) =>
-					old ? { ...old, ...updates, updatedAt: new Date() } : old,
+					old ? { ...old, ...updates, updatedAt: new Date() } : old
 				);
 
 				queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) =>
 					old.map((task) =>
-						task.id === taskId
-							? { ...task, ...updates, updatedAt: new Date() }
-							: task,
-					),
+						task.id === taskId ? { ...task, ...updates, updatedAt: new Date() } : task
+					)
 				);
 
 				return { previousTask, taskId };
@@ -335,22 +308,15 @@ export function useUpdateTaskMutation() {
 			rollbackUpdate: (context) => {
 				if (context?.previousTask && context?.taskId) {
 					// Restore previous task data
-					queryClient.setQueryData(
-						queryKeys.tasks.detail(context.taskId),
-						context.previousTask,
-					);
+					queryClient.setQueryData(queryKeys.tasks.detail(context.taskId), context.previousTask);
 
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: Task[] = []) =>
-							old.map((task) =>
-								task.id === context.taskId ? context.previousTask : task,
-							),
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) =>
+						old.map((task) => (task.id === context.taskId ? context.previousTask : task))
 					);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
-		},
+		}
 	);
 }
 
@@ -367,15 +333,13 @@ export function useDeleteTaskMutation() {
 		},
 		{
 			optimisticUpdate: (taskId) => {
-				const previousTask = queryClient.getQueryData(
-					queryKeys.tasks.detail(taskId),
-				) as Task;
+				const previousTask = queryClient.getQueryData(queryKeys.tasks.detail(taskId)) as Task;
 
 				// Remove task from all caches
 				queryClient.removeQueries({ queryKey: queryKeys.tasks.detail(taskId) });
 
 				queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) =>
-					old.filter((task) => task.id !== taskId),
+					old.filter((task) => task.id !== taskId)
 				);
 
 				return { previousTask, taskId };
@@ -383,19 +347,16 @@ export function useDeleteTaskMutation() {
 			rollbackUpdate: (context) => {
 				if (context?.previousTask && context?.taskId) {
 					// Restore deleted task
-					queryClient.setQueryData(
-						queryKeys.tasks.detail(context.taskId),
-						context.previousTask,
-					);
+					queryClient.setQueryData(queryKeys.tasks.detail(context.taskId), context.previousTask);
 
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: Task[] = []) => [context.previousTask, ...old],
-					);
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) => [
+						context.previousTask,
+						...old,
+					]);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
-		},
+		}
 	);
 }
 
@@ -406,13 +367,7 @@ export function useBulkTaskMutation() {
 	const queryClient = useQueryClient();
 
 	return useEnhancedMutation(
-		async ({
-			taskIds,
-			updates,
-		}: {
-			taskIds: string[];
-			updates: Partial<Task>;
-		}) => {
+		async ({ taskIds, updates }: { taskIds: string[]; updates: Partial<Task> }) => {
 			// This would typically be a bulk API call
 			// For now, we'll simulate it
 			console.log("Bulk updating tasks:", taskIds, updates);
@@ -421,27 +376,20 @@ export function useBulkTaskMutation() {
 		{
 			optimisticUpdate: ({ taskIds, updates }) => {
 				const previousTasks = taskIds
-					.map(
-						(id) =>
-							queryClient.getQueryData(queryKeys.tasks.detail(id)) as Task,
-					)
+					.map((id) => queryClient.getQueryData(queryKeys.tasks.detail(id)) as Task)
 					.filter(Boolean);
 
 				// Update all tasks in cache
 				taskIds.forEach((taskId) => {
-					queryClient.setQueryData(
-						queryKeys.tasks.detail(taskId),
-						(old: Task) =>
-							old ? { ...old, ...updates, updatedAt: new Date() } : old,
+					queryClient.setQueryData(queryKeys.tasks.detail(taskId), (old: Task) =>
+						old ? { ...old, ...updates, updatedAt: new Date() } : old
 					);
 				});
 
 				queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) =>
 					old.map((task) =>
-						taskIds.includes(task.id)
-							? { ...task, ...updates, updatedAt: new Date() }
-							: task,
-					),
+						taskIds.includes(task.id) ? { ...task, ...updates, updatedAt: new Date() } : task
+					)
 				);
 
 				return { previousTasks, taskIds };
@@ -454,20 +402,16 @@ export function useBulkTaskMutation() {
 						queryClient.setQueryData(queryKeys.tasks.detail(taskId), task);
 					});
 
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: Task[] = []) =>
-							old.map((task) => {
-								const previousTask = context.previousTasks.find(
-									(pt) => pt.id === task.id,
-								);
-								return previousTask || task;
-							}),
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: Task[] = []) =>
+						old.map((task) => {
+							const previousTask = context.previousTasks.find((pt) => pt.id === task.id);
+							return previousTask || task;
+						})
 					);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
 			enableWASMOptimization: true, // Bulk operations can benefit from WASM
-		},
+		}
 	);
 }

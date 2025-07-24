@@ -226,10 +226,7 @@ export class EnhancedDataExtractor {
 		// Deduplicate by ID
 		const uniqueTasks = new Map<string, LocalStorageTask>();
 		for (const task of tasks) {
-			if (
-				!uniqueTasks.has(task.id) ||
-				this.isMoreComplete(task, uniqueTasks.get(task.id)!)
-			) {
+			if (!uniqueTasks.has(task.id) || this.isMoreComplete(task, uniqueTasks.get(task.id)!)) {
 				uniqueTasks.set(task.id, task);
 			}
 		}
@@ -240,10 +237,7 @@ export class EnhancedDataExtractor {
 	/**
 	 * Parse task data from various formats
 	 */
-	private parseTaskData(
-		data: string,
-		options: ExtractionOptions,
-	): LocalStorageTask[] {
+	private parseTaskData(data: string, options: ExtractionOptions): LocalStorageTask[] {
 		try {
 			const parsed = JSON.parse(data);
 
@@ -276,16 +270,9 @@ export class EnhancedDataExtractor {
 	/**
 	 * Extract environments with advanced detection
 	 */
-	private extractEnvironmentsAdvanced(
-		options: ExtractionOptions,
-	): LocalStorageEnvironment[] {
+	private extractEnvironmentsAdvanced(options: ExtractionOptions): LocalStorageEnvironment[] {
 		const environments: LocalStorageEnvironment[] = [];
-		const possibleKeys = [
-			"environments",
-			"envs",
-			"environment-store",
-			"env-data",
-		];
+		const possibleKeys = ["environments", "envs", "environment-store", "env-data"];
 
 		// Try known keys first
 		for (const key of possibleKeys) {
@@ -319,10 +306,7 @@ export class EnhancedDataExtractor {
 		// Deduplicate by ID
 		const uniqueEnvs = new Map<string, LocalStorageEnvironment>();
 		for (const env of environments) {
-			if (
-				!uniqueEnvs.has(env.id) ||
-				this.isMoreComplete(env, uniqueEnvs.get(env.id)!)
-			) {
+			if (!uniqueEnvs.has(env.id) || this.isMoreComplete(env, uniqueEnvs.get(env.id)!)) {
 				uniqueEnvs.set(env.id, env);
 			}
 		}
@@ -335,7 +319,7 @@ export class EnhancedDataExtractor {
 	 */
 	private parseEnvironmentData(
 		data: string,
-		options: ExtractionOptions,
+		options: ExtractionOptions
 	): LocalStorageEnvironment[] {
 		try {
 			const parsed = JSON.parse(data);
@@ -367,9 +351,7 @@ export class EnhancedDataExtractor {
 	/**
 	 * Extract form data with advanced pattern matching
 	 */
-	private extractFormDataAdvanced(
-		options: ExtractionOptions,
-	): Record<string, unknown> | undefined {
+	private extractFormDataAdvanced(options: ExtractionOptions): Record<string, unknown> | undefined {
 		const formData: Record<string, unknown> = {};
 		const formPatterns = [
 			/^form[-_]/,
@@ -406,9 +388,7 @@ export class EnhancedDataExtractor {
 
 							// Check if it looks like form data
 							if (this.looksLikeFormData(parsed)) {
-								formData[key] = options.preserveOriginal
-									? { original: value, parsed }
-									: parsed;
+								formData[key] = options.preserveOriginal ? { original: value, parsed } : parsed;
 							}
 						} catch {
 							// Keep as string if it can't be parsed
@@ -445,10 +425,7 @@ export class EnhancedDataExtractor {
 	 */
 	private isValidEnvironment(env: any): boolean {
 		return (
-			env &&
-			typeof env === "object" &&
-			typeof env.id === "string" &&
-			typeof env.name === "string"
+			env && typeof env === "object" && typeof env.id === "string" && typeof env.name === "string"
 		);
 	}
 
@@ -483,10 +460,7 @@ export class EnhancedDataExtractor {
 	/**
 	 * Normalize task data
 	 */
-	private normalizeTask(
-		task: any,
-		options: ExtractionOptions,
-	): LocalStorageTask {
+	private normalizeTask(task: any, options: ExtractionOptions): LocalStorageTask {
 		const normalized: LocalStorageTask = {
 			id: task.id,
 			title: task.title || task.name || "Untitled Task",
@@ -496,11 +470,9 @@ export class EnhancedDataExtractor {
 			branch: task.branch || task.gitBranch || "",
 			sessionId: task.sessionId || task.session || "",
 			repository: task.repository || task.repo || "",
-			createdAt: this.normalizeDate(
-				task.createdAt || task.created || task.dateCreated,
-			),
+			createdAt: this.normalizeDate(task.createdAt || task.created || task.dateCreated),
 			updatedAt: this.normalizeDate(
-				task.updatedAt || task.updated || task.lastModified || task.createdAt,
+				task.updatedAt || task.updated || task.lastModified || task.createdAt
 			),
 			statusMessage: task.statusMessage || task.message,
 			isArchived: Boolean(task.isArchived || task.archived),
@@ -519,23 +491,16 @@ export class EnhancedDataExtractor {
 	/**
 	 * Normalize environment data
 	 */
-	private normalizeEnvironment(
-		env: any,
-		options: ExtractionOptions,
-	): LocalStorageEnvironment {
+	private normalizeEnvironment(env: any, options: ExtractionOptions): LocalStorageEnvironment {
 		const normalized: LocalStorageEnvironment = {
 			id: env.id,
 			name: env.name,
 			description: env.description || env.desc || "",
-			githubOrganization:
-				env.githubOrganization || env.org || env.organization || "",
+			githubOrganization: env.githubOrganization || env.org || env.organization || "",
 			githubToken: env.githubToken || env.token || "",
-			githubRepository:
-				env.githubRepository || env.repo || env.repository || "",
+			githubRepository: env.githubRepository || env.repo || env.repository || "",
 			createdAt: this.normalizeDate(env.createdAt || env.created),
-			updatedAt: this.normalizeDate(
-				env.updatedAt || env.updated || env.createdAt,
-			),
+			updatedAt: this.normalizeDate(env.updatedAt || env.updated || env.createdAt),
 		};
 
 		if (options.preserveOriginal) {
@@ -586,76 +551,61 @@ export class EnhancedDataExtractor {
 			if (typeof value === "string") return new Date(value);
 			if (typeof value === "number") return new Date(value);
 			if (value.$date) return new Date(value.$date); // MongoDB format
-			if (value.toDate && typeof value.toDate === "function")
-				return value.toDate(); // Firestore
+			if (value.toDate && typeof value.toDate === "function") return value.toDate(); // Firestore
 			return new Date();
 		})();
 
-		return isNaN(dateValue.getTime())
-			? new Date().toISOString()
-			: dateValue.toISOString();
+		return isNaN(dateValue.getTime()) ? new Date().toISOString() : dateValue.toISOString();
 	}
 
 	/**
 	 * Check if one object is more complete than another
 	 */
 	private isMoreComplete(obj1: any, obj2: any): boolean {
-		const keys1 = Object.keys(obj1).filter(
-			(k) => obj1[k] !== null && obj1[k] !== undefined,
-		);
-		const keys2 = Object.keys(obj2).filter(
-			(k) => obj2[k] !== null && obj2[k] !== undefined,
-		);
+		const keys1 = Object.keys(obj1).filter((k) => obj1[k] !== null && obj1[k] !== undefined);
+		const keys2 = Object.keys(obj2).filter((k) => obj2[k] !== null && obj2[k] !== undefined);
 		return keys1.length > keys2.length;
 	}
 
 	/**
 	 * Generate migration recommendations
 	 */
-	private generateRecommendations(
-		data: LocalStorageData,
-		structure: any,
-	): string[] {
+	private generateRecommendations(data: LocalStorageData, structure: any): string[] {
 		const recommendations: string[] = [];
 
 		// Check data size
 		const totalSize = Object.values(structure.scan?.dataSizes || {}).reduce(
 			(sum: number, size: any) => sum + size,
-			0,
+			0
 		);
 
 		if (totalSize > 5 * 1024 * 1024) {
 			recommendations.push(
-				"Large data size detected. Consider cleaning up old data before migration.",
+				"Large data size detected. Consider cleaning up old data before migration."
 			);
 		}
 
 		// Check for duplicate storage patterns
 		if (structure.scan?.detectedPatterns.length > 1) {
 			recommendations.push(
-				"Multiple storage patterns detected. Ensure all data sources are included.",
+				"Multiple storage patterns detected. Ensure all data sources are included."
 			);
 		}
 
 		// Check for sensitive data
 		const sensitivePatterns = ["token", "password", "secret", "key", "auth"];
-		const hasSensitive = Object.keys(structure.scan?.keyPatterns || {}).some(
-			(key) =>
-				sensitivePatterns.some((pattern) =>
-					key.toLowerCase().includes(pattern),
-				),
+		const hasSensitive = Object.keys(structure.scan?.keyPatterns || {}).some((key) =>
+			sensitivePatterns.some((pattern) => key.toLowerCase().includes(pattern))
 		);
 
 		if (hasSensitive) {
-			recommendations.push(
-				"Sensitive data detected. Ensure proper encryption during migration.",
-			);
+			recommendations.push("Sensitive data detected. Ensure proper encryption during migration.");
 		}
 
 		// Check task status
 		if (data.tasks?.some((t) => t.status === "IN_PROGRESS")) {
 			recommendations.push(
-				"Active tasks detected. Consider completing or pausing them before migration.",
+				"Active tasks detected. Consider completing or pausing them before migration."
 			);
 		}
 

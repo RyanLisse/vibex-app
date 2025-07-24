@@ -3,9 +3,7 @@ import { glob } from "glob";
 import path from "path";
 
 async function fixBrokenImports() {
-	console.log(
-		"Searching for TypeScript/JavaScript files with broken imports...",
-	);
+	console.log("Searching for TypeScript/JavaScript files with broken imports...");
 
 	const files = await glob("**/*.{ts,tsx,js,jsx}", {
 		ignore: ["node_modules/**", ".next/**", "dist/**", "build/**"],
@@ -28,7 +26,7 @@ async function fixBrokenImports() {
 				(match, nextLine) => {
 					modified = true;
 					return match.replace(/;\s*$/, ";\n" + nextLine);
-				},
+				}
 			);
 
 			// Pattern 2: Fix orphaned import items (lines starting with identifiers and commas)
@@ -38,17 +36,14 @@ async function fixBrokenImports() {
 				(match, imports) => {
 					modified = true;
 					return `\n\t${imports}\n} from ${match.substring(match.indexOf("} from") + 7)}`;
-				},
+				}
 			);
 
 			// Pattern 3: Fix lines starting with ,-> or other weird syntax
-			newContent = newContent.replace(
-				/^[,\->\s]+([A-Z][a-zA-Z0-9_]*)/gm,
-				(match, identifier) => {
-					modified = true;
-					return `${identifier}`;
-				},
-			);
+			newContent = newContent.replace(/^[,\->\s]+([A-Z][a-zA-Z0-9_]*)/gm, (match, identifier) => {
+				modified = true;
+				return `${identifier}`;
+			});
 
 			// Pattern 4: Fix incomplete type imports
 			newContent = newContent.replace(
@@ -56,7 +51,7 @@ async function fixBrokenImports() {
 				(match, typeImport) => {
 					modified = true;
 					return `\n${typeImport}\n} from ${match.substring(match.indexOf("} from") + 7)}`;
-				},
+				}
 			);
 
 			// Pattern 5: Fix trailing commas in imports followed by } from
@@ -64,9 +59,7 @@ async function fixBrokenImports() {
 
 			if (modified && newContent !== content) {
 				await fs.writeFile(file, newContent, "utf-8");
-				console.log(
-					`✅ Fixed imports in: ${path.relative(process.cwd(), file)}`,
-				);
+				console.log(`✅ Fixed imports in: ${path.relative(process.cwd(), file)}`);
 				fixedCount++;
 			}
 		} catch (error) {

@@ -39,10 +39,8 @@ export function SentryFeedback() {
 						emailLabel: "Email",
 						emailPlaceholder: "your.email@example.com",
 						messageLabel: "Description",
-						messagePlaceholder:
-							"Please describe the issue you're experiencing...",
-						successMessageText:
-							"Thank you for your feedback! We'll look into this issue.",
+						messagePlaceholder: "Please describe the issue you're experiencing...",
+						successMessageText: "Thank you for your feedback! We'll look into this issue.",
 
 						// Trigger options
 						autoInject: true, // Automatically inject the widget

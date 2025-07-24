@@ -5,8 +5,4 @@
  * and WASM-optimized search capabilities.
  */
 
-import {
-	useInfiniteQuery,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";

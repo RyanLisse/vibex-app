@@ -36,7 +36,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessage from="user">
 					<div>User message</div>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByText("User message").parentElement;
@@ -47,7 +47,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessage from="assistant">
 					<div>Assistant message</div>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByText("Assistant message").parentElement;
@@ -59,7 +59,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessage className="custom-message" from="user">
 					<div>Message</div>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByText("Message").parentElement;
@@ -70,7 +70,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessage data-testid="custom-message" from="user" id="message-1">
 					<div>Message</div>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByTestId("custom-message");
@@ -81,7 +81,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessage from="user">
 					<div>Message</div>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByText("Message").parentElement;
@@ -100,7 +100,7 @@ describe("AIMessage Components", () => {
 					<div>Child 1</div>
 					<div>Child 2</div>
 					<div>Child 3</div>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			expect(screen.getByText("Child 1")).toBeInTheDocument();
@@ -114,11 +114,10 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessageContent>
 					<div>Message content</div>
-				</AIMessageContent>,
+				</AIMessageContent>
 			);
 
-			const content =
-				screen.getByText("Message content").parentElement?.parentElement;
+			const content = screen.getByText("Message content").parentElement?.parentElement;
 			expect(content).toHaveClass("flex");
 			expect(content).toHaveClass("flex-col");
 			expect(content).toHaveClass("gap-2");
@@ -132,7 +131,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessageContent>
 					<div>Content</div>
-				</AIMessageContent>,
+				</AIMessageContent>
 			);
 
 			const content = screen.getByText("Content").parentElement?.parentElement;
@@ -146,11 +145,10 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<div>User content</div>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
-			const content =
-				screen.getByText("User content").parentElement?.parentElement;
+			const content = screen.getByText("User content").parentElement?.parentElement;
 			expect(content).toHaveClass("group-[.is-user]:bg-primary");
 			expect(content).toHaveClass("group-[.is-user]:text-primary-foreground");
 		});
@@ -159,7 +157,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessageContent className="custom-content">
 					<div>Content</div>
-				</AIMessageContent>,
+				</AIMessageContent>
 			);
 
 			const content = screen.getByText("Content").parentElement?.parentElement;
@@ -170,7 +168,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessageContent data-testid="message-content" id="content-1">
 					<div>Content</div>
-				</AIMessageContent>,
+				</AIMessageContent>
 			);
 
 			const content = screen.getByTestId("message-content");
@@ -181,7 +179,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessageContent>
 					<div>Content</div>
-				</AIMessageContent>,
+				</AIMessageContent>
 			);
 
 			const wrapper = screen.getByText("Content").parentElement;
@@ -194,7 +192,7 @@ describe("AIMessage Components", () => {
 					<p>Paragraph 1</p>
 					<p>Paragraph 2</p>
 					<div>Div content</div>
-				</AIMessageContent>,
+				</AIMessageContent>
 			);
 
 			expect(screen.getByText("Paragraph 1")).toBeInTheDocument();
@@ -254,13 +252,7 @@ describe("AIMessage Components", () => {
 		});
 
 		it("applies custom className", () => {
-			render(
-				<AIMessageAvatar
-					className="custom-avatar"
-					name="Test"
-					src="/avatar.jpg"
-				/>,
-			);
+			render(<AIMessageAvatar className="custom-avatar" name="Test" src="/avatar.jpg" />);
 
 			const avatar = screen.getByTestId("avatar");
 			expect(avatar).toHaveClass("custom-avatar");
@@ -268,12 +260,7 @@ describe("AIMessage Components", () => {
 
 		it("passes through additional props", () => {
 			render(
-				<AIMessageAvatar
-					data-testid="custom-avatar"
-					id="avatar-1"
-					name="Test"
-					src="/avatar.jpg"
-				/>,
+				<AIMessageAvatar data-testid="custom-avatar" id="avatar-1" name="Test" src="/avatar.jpg" />
 			);
 
 			const avatar = screen.getByTestId("custom-avatar");
@@ -298,19 +285,16 @@ describe("AIMessage Components", () => {
 						<p>Hello, how are you?</p>
 					</AIMessageContent>
 					<AIMessageAvatar name="John Doe" src="/user.jpg" />
-				</AIMessage>,
+				</AIMessage>
 			);
 
-			const message = screen
-				.getByText("Hello, how are you?")
-				.closest(".is-user");
+			const message = screen.getByText("Hello, how are you?").closest(".is-user");
 			expect(message).toBeInTheDocument();
 
 			const avatar = screen.getByTestId("avatar");
 			expect(avatar).toBeInTheDocument();
 
-			const content = screen.getByText("Hello, how are you?").parentElement
-				?.parentElement;
+			const content = screen.getByText("Hello, how are you?").parentElement?.parentElement;
 			expect(content).toHaveClass("group-[.is-user]:bg-primary");
 		});
 
@@ -321,12 +305,10 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<p>I'm doing well, thank you!</p>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
-			const message = screen
-				.getByText("I'm doing well, thank you!")
-				.closest(".is-assistant");
+			const message = screen.getByText("I'm doing well, thank you!").closest(".is-assistant");
 			expect(message).toBeInTheDocument();
 			expect(message).toHaveClass("flex-row-reverse");
 
@@ -343,7 +325,7 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<p>Message without avatar</p>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			expect(screen.getByText("Message without avatar")).toBeInTheDocument();
@@ -354,7 +336,7 @@ describe("AIMessage Components", () => {
 			render(
 				<AIMessage from="assistant">
 					<AIMessageAvatar name="Assistant" src="/avatar.jpg" />
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			expect(screen.getByTestId("avatar")).toBeInTheDocument();
@@ -367,7 +349,7 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<p>Test message</p>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByText("Test message").closest(".is-user");
@@ -383,7 +365,7 @@ describe("AIMessage Components", () => {
 						<p>Test message</p>
 					</AIMessageContent>
 					<AIMessageAvatar name="User" src="/avatar.jpg" />
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			// The message should be in a proper container
@@ -402,7 +384,7 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<p>Message content</p>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const fallback = screen.getByTestId("avatar-fallback");
@@ -416,7 +398,7 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<p>Accessible message</p>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			const message = screen.getByRole("group");
@@ -426,12 +408,7 @@ describe("AIMessage Components", () => {
 
 	describe("Edge Cases", () => {
 		it("handles very long names in avatar", () => {
-			render(
-				<AIMessageAvatar
-					name="Very Long Name That Should Be Truncated"
-					src="/avatar.jpg"
-				/>,
-			);
+			render(<AIMessageAvatar name="Very Long Name That Should Be Truncated" src="/avatar.jpg" />);
 
 			const fallback = screen.getByTestId("avatar-fallback");
 			expect(fallback).toHaveTextContent("VE");
@@ -466,7 +443,7 @@ describe("AIMessage Components", () => {
 					<AIMessageContent>
 						<p>Valid content</p>
 					</AIMessageContent>
-				</AIMessage>,
+				</AIMessage>
 			);
 
 			expect(screen.getByText("Valid content")).toBeInTheDocument();

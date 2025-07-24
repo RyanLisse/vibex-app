@@ -48,10 +48,7 @@ describe("Enhanced Observability", () => {
 				server: "web-1",
 			});
 
-			expect(observability.metrics.gauge).toHaveBeenCalledWith(
-				75.5,
-				"cpu.usage",
-			);
+			expect(observability.metrics.gauge).toHaveBeenCalledWith(75.5, "cpu.usage");
 			expect(Sentry.metrics.gauge).toHaveBeenCalledWith("cpu.usage", 75.5, {
 				unit: "percent",
 				tags: { server: "web-1" },
@@ -63,38 +60,22 @@ describe("Enhanced Observability", () => {
 				endpoint: "/api/users",
 			});
 
-			expect(observability.metrics.requestCount).toHaveBeenCalledWith(
-				1,
-				"api.requests",
-			);
+			expect(observability.metrics.requestCount).toHaveBeenCalledWith(1, "api.requests");
 			expect(Sentry.metrics.increment).toHaveBeenCalledWith("api.requests", 1, {
 				tags: { endpoint: "/api/users" },
 			});
 		});
 
 		test("should track distribution metric in both systems", () => {
-			enhancedObservability.trackDistribution(
-				"response.time",
-				250,
-				"millisecond",
-				{
-					route: "/home",
-				},
-			);
+			enhancedObservability.trackDistribution("response.time", 250, "millisecond", {
+				route: "/home",
+			});
 
-			expect(observability.metrics.queryDuration).toHaveBeenCalledWith(
-				250,
-				"response.time",
-				true,
-			);
-			expect(Sentry.metrics.distribution).toHaveBeenCalledWith(
-				"response.time",
-				250,
-				{
-					unit: "millisecond",
-					tags: { route: "/home" },
-				},
-			);
+			expect(observability.metrics.queryDuration).toHaveBeenCalledWith(250, "response.time", true);
+			expect(Sentry.metrics.distribution).toHaveBeenCalledWith("response.time", 250, {
+				unit: "millisecond",
+				tags: { route: "/home" },
+			});
 		});
 
 		test("should track set metric in Sentry", () => {
@@ -102,25 +83,18 @@ describe("Enhanced Observability", () => {
 				region: "us-east",
 			});
 
-			expect(Sentry.metrics.set).toHaveBeenCalledWith(
-				"unique.users",
-				"user123",
-				{
-					tags: { region: "us-east" },
-				},
-			);
+			expect(Sentry.metrics.set).toHaveBeenCalledWith("unique.users", "user123", {
+				tags: { region: "us-east" },
+			});
 		});
 	});
 
 	describe("Events", () => {
 		test("should log event to both systems", async () => {
-			await enhancedObservability.logEvent(
-				"info",
-				"User logged in",
-				{ userId: "123" },
-				"auth",
-				["login", "success"],
-			);
+			await enhancedObservability.logEvent("info", "User logged in", { userId: "123" }, "auth", [
+				"login",
+				"success",
+			]);
 
 			expect(observability.events.collector.collectEvent).toHaveBeenCalledWith(
 				"system_event",
@@ -128,7 +102,7 @@ describe("Enhanced Observability", () => {
 				"User logged in",
 				{ userId: "123" },
 				"auth",
-				["login", "success"],
+				["login", "success"]
 			);
 
 			expect(Sentry.addBreadcrumb).toHaveBeenCalledWith({
@@ -142,13 +116,9 @@ describe("Enhanced Observability", () => {
 		test("should capture exception for error events", async () => {
 			const error = new Error("Test error");
 
-			await enhancedObservability.logEvent(
-				"error",
-				"Operation failed",
-				{ error },
-				"operation",
-				["failure"],
-			);
+			await enhancedObservability.logEvent("error", "Operation failed", { error }, "operation", [
+				"failure",
+			]);
 
 			expect(Sentry.captureException).toHaveBeenCalledWith(error, {
 				tags: {
@@ -211,7 +181,7 @@ describe("Enhanced Observability", () => {
 				expect.objectContaining({
 					unit: "millisecond",
 					tags: { type: "test" },
-				}),
+				})
 			);
 		});
 	});

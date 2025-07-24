@@ -100,7 +100,7 @@ export function setupAuthTestMocks(mocks: AuthMocks): void {
 		mocks.validateOAuthState.mockReturnValue(true);
 		mocks.sanitizeRedirectUrl.mockImplementation((url) => url);
 		mocks.handleAuthError.mockImplementation(
-			(error: unknown) => error?.toString() || "Unknown error",
+			(error: unknown) => error?.toString() || "Unknown error"
 		);
 	});
 }
@@ -130,7 +130,7 @@ export class AuthCallbackTestSuite {
 	constructor(
 		private config: AuthTestConfig,
 		private mocks: AuthMocks,
-		private routeHandler: (req: NextRequest) => Promise<any>,
+		private routeHandler: (req: NextRequest) => Promise<any>
 	) {}
 
 	/**
@@ -143,7 +143,7 @@ export class AuthCallbackTestSuite {
 			this.mocks.NextResponse.json.mockReturnValue({ success: true } as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state`
 			);
 
 			await this.routeHandler(request);
@@ -174,14 +174,14 @@ export class AuthCallbackTestSuite {
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?state=test-state`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?state=test-state`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Missing code parameter" },
-				{ status: 400 },
+				{ status: 400 }
 			);
 		};
 	}
@@ -196,14 +196,14 @@ export class AuthCallbackTestSuite {
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Missing state parameter" },
-				{ status: 400 },
+				{ status: 400 }
 			);
 		};
 	}
@@ -219,14 +219,14 @@ export class AuthCallbackTestSuite {
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=invalid-state`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=invalid-state`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Invalid state parameter" },
-				{ status: 400 },
+				{ status: 400 }
 			);
 		};
 	}
@@ -241,14 +241,14 @@ export class AuthCallbackTestSuite {
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?error=access_denied&error_description=User%20denied%20access`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?error=access_denied&error_description=User%20denied%20access`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "access_denied", error_description: "User denied access" },
-				{ status: 400 },
+				{ status: 400 }
 			);
 		};
 	}
@@ -258,23 +258,21 @@ export class AuthCallbackTestSuite {
 	 */
 	testTokenExchangeFailure() {
 		return async () => {
-			this.mocks.exchangeCodeForToken.mockRejectedValue(
-				new Error("Token exchange failed"),
-			);
+			this.mocks.exchangeCodeForToken.mockRejectedValue(new Error("Token exchange failed"));
 			this.mocks.handleAuthError.mockReturnValue("Token exchange failed");
 			this.mocks.NextResponse.json.mockReturnValue({
 				error: "Token exchange failed",
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Token exchange failed" },
-				{ status: 500 },
+				{ status: 500 }
 			);
 		};
 	}
@@ -289,7 +287,7 @@ export class AuthCallbackTestSuite {
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?error=invalid_grant&error_description=Invalid%20authorization%20code`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?error=invalid_grant&error_description=Invalid%20authorization%20code`
 			);
 
 			await this.routeHandler(request);
@@ -299,7 +297,7 @@ export class AuthCallbackTestSuite {
 					error: "invalid_grant",
 					error_description: "Invalid authorization code",
 				},
-				{ status: 400 },
+				{ status: 400 }
 			);
 		};
 	}
@@ -314,16 +312,16 @@ export class AuthCallbackTestSuite {
 			this.mocks.NextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.sanitizeRedirectUrl).toHaveBeenCalledWith(
-				"https://app.example.com/dashboard",
+				"https://app.example.com/dashboard"
 			);
 			expect(this.mocks.NextResponse.redirect).toHaveBeenCalledWith(
-				"https://app.example.com/dashboard",
+				"https://app.example.com/dashboard"
 			);
 		};
 	}
@@ -333,23 +331,21 @@ export class AuthCallbackTestSuite {
 	 */
 	testNetworkErrors() {
 		return async () => {
-			this.mocks.exchangeCodeForToken.mockRejectedValue(
-				new Error("Network error"),
-			);
+			this.mocks.exchangeCodeForToken.mockRejectedValue(new Error("Network error"));
 			this.mocks.handleAuthError.mockReturnValue("Network error");
 			this.mocks.NextResponse.json.mockReturnValue({
 				error: "Network error",
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Network error" },
-				{ status: 500 },
+				{ status: 500 }
 			);
 		};
 	}
@@ -367,14 +363,14 @@ export class AuthCallbackTestSuite {
 			} as any);
 
 			const request = new NextRequest(
-				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)`,
+				`https://app.example.com/api/auth/${this.config.provider}/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)`
 			);
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Invalid redirect URL" },
-				{ status: 400 },
+				{ status: 400 }
 			);
 		};
 	}
@@ -391,8 +387,7 @@ export class AuthCallbackTestSuite {
 			"should handle error parameter": this.testErrorParameter(),
 			"should handle token exchange failure": this.testTokenExchangeFailure(),
 			"should handle OAuth error responses": this.testOAuthErrorResponses(),
-			"should handle redirect after successful auth":
-				this.testSuccessfulRedirect(),
+			"should handle redirect after successful auth": this.testSuccessfulRedirect(),
 			"should handle network errors": this.testNetworkErrors(),
 			"should handle malformed URLs": this.testMalformedUrls(),
 		};
@@ -410,7 +405,7 @@ export class AuthLoginTestSuite {
 			generateCodeVerifier: ReturnType<typeof vi.fn>;
 			generateState: ReturnType<typeof vi.fn>;
 		},
-		private routeHandler: (req: NextRequest) => Promise<any>,
+		private routeHandler: (req: NextRequest) => Promise<any>
 	) {}
 
 	/**
@@ -430,29 +425,22 @@ export class AuthLoginTestSuite {
 
 			this.mocks.NextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
-			const request = new NextRequest(
-				"https://app.example.com/api/auth/openai/login",
-				{
-					method: "POST",
-				},
-			);
+			const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+				method: "POST",
+			});
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.generateCodeVerifier).toHaveBeenCalled();
-			expect(this.mocks.generateCodeChallenge).toHaveBeenCalledWith(
-				mockCodeVerifier,
-			);
+			expect(this.mocks.generateCodeChallenge).toHaveBeenCalledWith(mockCodeVerifier);
 			expect(this.mocks.generateState).toHaveBeenCalled();
 			expect(this.mocks.generateAuthUrl).toHaveBeenCalledWith(
 				expect.objectContaining({
 					state: mockState,
 					codeChallenge: mockCodeChallenge,
-				}),
+				})
 			);
-			expect(this.mocks.NextResponse.redirect).toHaveBeenCalledWith(
-				mockAuthUrl,
-			);
+			expect(this.mocks.NextResponse.redirect).toHaveBeenCalledWith(mockAuthUrl);
 		};
 	}
 
@@ -463,7 +451,7 @@ export class AuthLoginTestSuite {
 		return async () => {
 			this.mocks.generateCodeVerifier.mockReturnValue("test-code-verifier");
 			this.mocks.generateCodeChallenge.mockRejectedValue(
-				new Error("Code challenge generation failed"),
+				new Error("Code challenge generation failed")
 			);
 			this.mocks.generateState.mockReturnValue("test-state");
 
@@ -471,18 +459,15 @@ export class AuthLoginTestSuite {
 				error: "Code challenge generation failed",
 			} as any);
 
-			const request = new NextRequest(
-				"https://app.example.com/api/auth/openai/login",
-				{
-					method: "POST",
-				},
-			);
+			const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+				method: "POST",
+			});
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Code challenge generation failed" },
-				{ status: 500 },
+				{ status: 500 }
 			);
 		};
 	}
@@ -503,18 +488,15 @@ export class AuthLoginTestSuite {
 				error: "Auth URL generation failed",
 			} as any);
 
-			const request = new NextRequest(
-				"https://app.example.com/api/auth/openai/login",
-				{
-					method: "POST",
-				},
-			);
+			const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+				method: "POST",
+			});
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith(
 				{ error: "Auth URL generation failed" },
-				{ status: 500 },
+				{ status: 500 }
 			);
 		};
 	}
@@ -525,8 +507,7 @@ export class AuthLoginTestSuite {
 	getStandardTestCases() {
 		return {
 			"should generate auth URL and redirect": this.testAuthUrlGeneration(),
-			"should handle code challenge generation error":
-				this.testCodeChallengeError(),
+			"should handle code challenge generation error": this.testCodeChallengeError(),
 			"should handle auth URL generation error": this.testAuthUrlError(),
 		};
 	}
@@ -544,7 +525,7 @@ export class AuthLogoutTestSuite {
 			clearStoredState: ReturnType<typeof vi.fn>;
 			clearStoredCodeVerifier: ReturnType<typeof vi.fn>;
 		},
-		private routeHandler: (req: NextRequest) => Promise<any>,
+		private routeHandler: (req: NextRequest) => Promise<any>
 	) {}
 
 	/**
@@ -563,19 +544,14 @@ export class AuthLogoutTestSuite {
 				success: true,
 			} as unknown);
 
-			const request = new NextRequest(
-				"https://app.example.com/api/auth/openai/logout",
-				{
-					method: "POST",
-				},
-			);
+			const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+				method: "POST",
+			});
 
 			await this.routeHandler(request);
 
 			expect(this.mocks.getStoredToken).toHaveBeenCalledWith(request);
-			expect(this.mocks.revokeToken).toHaveBeenCalledWith(
-				mockToken.access_token,
-			);
+			expect(this.mocks.revokeToken).toHaveBeenCalledWith(mockToken.access_token);
 			expect(this.mocks.clearStoredToken).toHaveBeenCalledWith(request);
 			expect(this.mocks.clearStoredState).toHaveBeenCalledWith(request);
 			expect(this.mocks.clearStoredCodeVerifier).toHaveBeenCalledWith(request);
@@ -598,12 +574,9 @@ export class AuthLogoutTestSuite {
 				success: true,
 			} as unknown);
 
-			const request = new NextRequest(
-				"https://app.example.com/api/auth/openai/logout",
-				{
-					method: "POST",
-				},
-			);
+			const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+				method: "POST",
+			});
 
 			await this.routeHandler(request);
 
@@ -624,9 +597,7 @@ export class AuthLogoutTestSuite {
 			const mockToken = createMockToken();
 
 			this.mocks.getStoredToken.mockResolvedValue(mockToken);
-			this.mocks.revokeToken.mockRejectedValue(
-				new Error("Token revocation failed"),
-			);
+			this.mocks.revokeToken.mockRejectedValue(new Error("Token revocation failed"));
 			this.mocks.clearStoredToken.mockResolvedValue(undefined);
 			this.mocks.clearStoredState.mockResolvedValue(undefined);
 			this.mocks.clearStoredCodeVerifier.mockResolvedValue(undefined);
@@ -635,18 +606,13 @@ export class AuthLogoutTestSuite {
 				warning: "Token revocation failed, but local session cleared",
 			} as any);
 
-			const request = new NextRequest(
-				"https://app.example.com/api/auth/openai/logout",
-				{
-					method: "POST",
-				},
-			);
+			const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+				method: "POST",
+			});
 
 			await this.routeHandler(request);
 
-			expect(this.mocks.revokeToken).toHaveBeenCalledWith(
-				mockToken.access_token,
-			);
+			expect(this.mocks.revokeToken).toHaveBeenCalledWith(mockToken.access_token);
 			expect(this.mocks.clearStoredToken).toHaveBeenCalledWith(request);
 			expect(this.mocks.NextResponse.json).toHaveBeenCalledWith({
 				success: true,
@@ -661,10 +627,8 @@ export class AuthLogoutTestSuite {
 	getStandardTestCases() {
 		return {
 			"should handle successful logout": this.testSuccessfulLogout(),
-			"should handle logout when no token exists":
-				this.testLogoutWithoutToken(),
-			"should handle token revocation failure":
-				this.testTokenRevocationFailure(),
+			"should handle logout when no token exists": this.testLogoutWithoutToken(),
+			"should handle token revocation failure": this.testTokenRevocationFailure(),
 		};
 	}
 }

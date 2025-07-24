@@ -18,10 +18,7 @@ export const MAX_RETRY_ATTEMPTS = 3;
 /**
  * Validates workflow execution state exists
  */
-export function validateExecutionExists<T>(
-	execution: T | undefined,
-	executionId: string,
-): T {
+export function validateExecutionExists<T>(execution: T | undefined, executionId: string): T {
 	if (!execution) {
 		throw new Error(`Execution ${executionId} not found`);
 	}
@@ -31,10 +28,7 @@ export function validateExecutionExists<T>(
 /**
  * Validates step configuration exists in workflow definition
  */
-export function validateStepExists(
-	steps: Array<{ id: string }>,
-	stepId: string,
-): { id: string } {
+export function validateStepExists(steps: Array<{ id: string }>, stepId: string): { id: string } {
 	const step = steps.find((s) => s.id === stepId);
 	if (!step) {
 		throw new Error(`Step ${stepId} not found in workflow definition`);
@@ -59,7 +53,7 @@ export function shouldRetryStep(
 		initialDelay: number;
 		maxDelay?: number;
 	},
-	currentAttempts: number,
+	currentAttempts: number
 ): boolean {
 	return currentAttempts < retryPolicy.maxAttempts;
 }
@@ -73,7 +67,7 @@ export function calculateRetryDelay(
 		initialDelay: number;
 		maxDelay?: number;
 	},
-	attemptNumber: number,
+	attemptNumber: number
 ): number {
 	let delay = retryPolicy.initialDelay;
 
@@ -102,17 +96,14 @@ export function calculateRetryDelay(
  */
 export function createTimeoutPromise(timeoutMs: number): Promise<never> {
 	return new Promise((_, reject) =>
-		setTimeout(() => reject(new Error("Operation timed out")), timeoutMs),
+		setTimeout(() => reject(new Error("Operation timed out")), timeoutMs)
 	);
 }
 
 /**
  * Executes a promise with timeout
  */
-export async function executeWithTimeout<T>(
-	promise: Promise<T>,
-	timeoutMs: number,
-): Promise<T> {
+export async function executeWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 	return Promise.race([promise, createTimeoutPromise(timeoutMs)]);
 }
 
@@ -156,7 +147,7 @@ export function setNestedValue(obj: any, path: string, value: any): void {
 export function createWorkflowError(
 	code: string,
 	message: string,
-	details?: any,
+	details?: any
 ): {
 	code: string;
 	message: string;
@@ -178,11 +169,9 @@ export function createWorkflowError(
  */
 export function validateRequiredFields<T extends Record<string, any>>(
 	obj: T,
-	requiredFields: (keyof T)[],
+	requiredFields: (keyof T)[]
 ): void {
-	const missing = requiredFields.filter(
-		(field) => obj[field] === undefined || obj[field] === null,
-	);
+	const missing = requiredFields.filter((field) => obj[field] === undefined || obj[field] === null);
 
 	if (missing.length > 0) {
 		throw new Error(`Missing required fields: ${missing.join(", ")}`);
@@ -194,7 +183,7 @@ export function validateRequiredFields<T extends Record<string, any>>(
  */
 export function debounce<T extends (...args: any[]) => void>(
 	func: T,
-	delay: number,
+	delay: number
 ): (...args: Parameters<T>) => void {
 	let timeoutId: NodeJS.Timeout;
 	return (...args: Parameters<T>) => {
@@ -208,7 +197,7 @@ export function debounce<T extends (...args: any[]) => void>(
  */
 export function throttle<T extends (...args: any[]) => void>(
 	func: T,
-	limit: number,
+	limit: number
 ): (...args: Parameters<T>) => void {
 	let inThrottle: boolean;
 	return (...args: Parameters<T>) => {

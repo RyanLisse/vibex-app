@@ -15,22 +15,20 @@ export default defineConfig({
 		globals: true,
 		setupFiles: ["./test-setup-minimal.ts"],
 
-		// Only include fast, essential unit tests
+		// Ultra-fast tests only - verified existing files
 		include: [
-			// Core business logic tests (fastest)
-			"lib/utils.test.ts",
-			"lib/container-types.test.ts",
-			"lib/message-handlers.test.ts",
+			// Verified core logic tests
 			"lib/validation-utils.test.ts",
-			"lib/stream-utils.test.ts",
-			"lib/telemetry.test.ts",
-
-			// Essential schema tests
+			"lib/container-types.test.ts",
+			"tests/unit/telemetry.test.ts",
+			"tests/unit/simple.test.ts",
+			"tests/unit/basic-functionality.test.ts",
+			
+			// Essential schema validation
 			"src/schemas/**/*.test.ts",
-
-			// Critical hook tests (lightweight only)
-			"hooks/use-auth-base.test.ts",
-			"hooks/use-file-upload.test.ts",
+			
+			// Fast hook tests
+			"src/hooks/**/*.test.ts"
 		],
 
 		// Exclude everything slow or problematic
@@ -67,10 +65,10 @@ export default defineConfig({
 			},
 		},
 
-		// Aggressive timeouts for speed
-		testTimeout: 2000, // 2 seconds max per test
-		hookTimeout: 500,  // 0.5 seconds for hooks
-		teardownTimeout: 250, // 0.25 seconds for teardown
+		// Ultra-aggressive timeouts for speed
+		testTimeout: 1500, // 1.5 seconds max per test
+		hookTimeout: 300,  // 0.3 seconds for hooks
+		teardownTimeout: 200, // 0.2 seconds for teardown
 		maxConcurrency: 1, // No concurrency
 		retry: 0, // No retries
 
@@ -118,6 +116,17 @@ export default defineConfig({
 		exclude: ["@types/node"],
 	},
 
-	// CRITICAL FIX: Disable ESBuild to prevent EPIPE errors
-	esbuild: false,
+	// CRITICAL FIX: Completely disable ESBuild with detailed config
+	esbuild: {
+		include: [],
+		exclude: ['**/*'],
+		drop: ['console', 'debugger'],
+		minify: false,
+		target: 'esnext'
+	},
+	// Force Vite's built-in transformations
+	transformMode: {
+		sse: [],
+		web: ['**/*.{ts,js,mts,mjs}']
+	},
 });

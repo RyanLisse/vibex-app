@@ -80,7 +80,7 @@ describe("Cache Invalidation", () => {
 					const createMutation = useCreateTask();
 					return { tasksQuery, createMutation };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Wait for initial data
@@ -157,7 +157,7 @@ describe("Cache Invalidation", () => {
 					const updateMutation = useUpdateTask();
 					return { tasksQuery, taskQuery, updateMutation };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Mock update response
@@ -186,9 +186,7 @@ describe("Cache Invalidation", () => {
 
 			// Both queries should reflect the update
 			expect(result.current.taskQuery.data?.title).toBe("Updated Title");
-			expect(result.current.tasksQuery.data?.tasks[0].title).toBe(
-				"Updated Title",
-			);
+			expect(result.current.tasksQuery.data?.tasks[0].title).toBe("Updated Title");
 		});
 
 		it("should remove task from cache after deletion", async () => {
@@ -211,7 +209,7 @@ describe("Cache Invalidation", () => {
 					const deleteMutation = useDeleteTask();
 					return { tasksQuery, deleteMutation };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Mock delete response
@@ -267,7 +265,7 @@ describe("Cache Invalidation", () => {
 					const createMutation = useCreateTask();
 					return { allTasksQuery, completedTasksQuery, createMutation };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Mock create response
@@ -295,16 +293,11 @@ describe("Cache Invalidation", () => {
 			});
 
 			// Task queries should be invalidated, but environment queries should not
-			expect(queryClient.getQueryState(taskKeys.list({}))?.isInvalidated).toBe(
-				true,
+			expect(queryClient.getQueryState(taskKeys.list({}))?.isInvalidated).toBe(true);
+			expect(queryClient.getQueryState(taskKeys.list({ status: "completed" }))?.isInvalidated).toBe(
+				true
 			);
-			expect(
-				queryClient.getQueryState(taskKeys.list({ status: "completed" }))
-					?.isInvalidated,
-			).toBe(true);
-			expect(
-				queryClient.getQueryState(["environments", "list"])?.isInvalidated,
-			).toBeFalsy();
+			expect(queryClient.getQueryState(["environments", "list"])?.isInvalidated).toBeFalsy();
 		});
 
 		it("should handle query key patterns correctly", async () => {
@@ -334,7 +327,7 @@ describe("Cache Invalidation", () => {
 					const updateMutation = useUpdateTask();
 					return { updateMutation };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Mock update response
@@ -362,17 +355,13 @@ describe("Cache Invalidation", () => {
 			});
 
 			// All task list queries should be invalidated
-			expect(queryClient.getQueryState(taskKeys.list({}))?.isInvalidated).toBe(
-				true,
+			expect(queryClient.getQueryState(taskKeys.list({}))?.isInvalidated).toBe(true);
+			expect(queryClient.getQueryState(taskKeys.list({ status: "pending" }))?.isInvalidated).toBe(
+				true
 			);
-			expect(
-				queryClient.getQueryState(taskKeys.list({ status: "pending" }))
-					?.isInvalidated,
-			).toBe(true);
-			expect(
-				queryClient.getQueryState(taskKeys.list({ status: "completed" }))
-					?.isInvalidated,
-			).toBe(true);
+			expect(queryClient.getQueryState(taskKeys.list({ status: "completed" }))?.isInvalidated).toBe(
+				true
+			);
 
 			// The specific task should be updated in cache
 			expect(queryClient.getQueryData(taskKeys.detail("1"))).toMatchObject({
@@ -448,7 +437,7 @@ describe("Cache Invalidation", () => {
 					const updateMutation = useUpdateTask();
 					return { updateMutation };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Mock server error

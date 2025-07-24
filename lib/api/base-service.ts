@@ -32,7 +32,7 @@ export abstract class BaseService {
 	protected async executeWithTracing<T>(
 		operationName: string,
 		context: ServiceContext,
-		operation: (span?: any) => Promise<T>,
+		operation: (span?: any) => Promise<T>
 	): Promise<T> {
 		try {
 			return await operation();
@@ -47,15 +47,12 @@ export abstract class BaseService {
 	 */
 	protected async executeDatabase<T>(
 		operationName: string,
-		operation: () => Promise<T>,
+		operation: () => Promise<T>
 	): Promise<T> {
 		try {
 			return await operation();
 		} catch (error) {
-			console.error(
-				`Database error in ${this.serviceName}.${operationName}:`,
-				error,
-			);
+			console.error(`Database error in ${this.serviceName}.${operationName}:`, error);
 			throw error;
 		}
 	}
@@ -68,7 +65,7 @@ export abstract class BaseService {
 		resourceType: string,
 		resourceId: string,
 		userId: string,
-		metadata?: Record<string, any>,
+		metadata?: Record<string, any>
 	): Promise<void> {
 		console.log(`${this.serviceName}: ${operation}`, {
 			resourceType,
@@ -91,7 +88,7 @@ export abstract class BaseCRUDService<T = any> extends BaseService {
 export class DatabaseError extends Error {
 	constructor(
 		message: string,
-		public cause?: Error,
+		public cause?: Error
 	) {
 		super(message);
 		this.name = "DatabaseError";
@@ -108,7 +105,7 @@ export class NotFoundError extends Error {
 export class ValidationError extends Error {
 	constructor(
 		message: string,
-		public field?: string,
+		public field?: string
 	) {
 		super(message);
 		this.name = "ValidationError";

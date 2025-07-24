@@ -146,9 +146,7 @@ export interface ApiResponse<T = any> {
 	};
 }
 
-export class ApiResponseBuilder<T = any> extends TestDataBuilder<
-	ApiResponse<T>
-> {
+export class ApiResponseBuilder<T = any> extends TestDataBuilder<ApiResponse<T>> {
 	constructor() {
 		super({
 			success: true,
@@ -211,7 +209,7 @@ export class BuilderFactory {
 	userWithProjects(projectCount = 3): { user: User; projects: Project[] } {
 		const user = this.user().build();
 		const projects = Array.from({ length: projectCount }, () =>
-			this.project().withOwner(user).build(),
+			this.project().withOwner(user).build()
 		);
 		return { user, projects };
 	}
@@ -223,17 +221,12 @@ export class BuilderFactory {
 	} {
 		const admin = this.user().asAdmin().build();
 		const members = UserBuilder.createMany(memberCount);
-		const project = this.project()
-			.withOwner(admin)
-			.withCollaborators(memberCount)
-			.build();
+		const project = this.project().withOwner(admin).withCollaborators(memberCount).build();
 
 		return { admin, members, project };
 	}
 
-	apiErrorScenario(
-		errorType: "validation" | "auth" | "notfound" | "server" = "validation",
-	) {
+	apiErrorScenario(errorType: "validation" | "auth" | "notfound" | "server" = "validation") {
 		const errorMap = {
 			validation: { message: "Validation failed", status: 400 },
 			auth: { message: "Unauthorized", status: 401 },
@@ -249,12 +242,8 @@ export class BuilderFactory {
 // Utility functions for random data generation
 export class TestDataGenerator {
 	static randomString(length = 10): string {
-		const chars =
-			"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		return Array.from(
-			{ length },
-			() => chars[Math.floor(Math.random() * chars.length)],
-		).join("");
+		const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 	}
 
 	static randomEmail(): string {

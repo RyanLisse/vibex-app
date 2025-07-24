@@ -9,11 +9,7 @@ import { EventEmitter } from "node:events";
 import { and, desc, gte, inArray } from "drizzle-orm";
 import { db } from "@/db/config";
 import { observabilityEvents as observabilityEventsTable } from "@/db/schema";
-import type {
-	EventSeverity,
-	ObservabilityEvent,
-	ObservabilityEventType,
-} from "./events";
+import type { EventSeverity, ObservabilityEvent, ObservabilityEventType } from "./events";
 
 // Event stream filter
 export interface EventStreamFilter {
@@ -63,10 +59,7 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Subscribe to event stream with filter
 	 */
-	subscribe(
-		filter: EventStreamFilter,
-		callback: (event: ObservabilityEvent) => void,
-	): string {
+	subscribe(filter: EventStreamFilter, callback: (event: ObservabilityEvent) => void): string {
 		const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 		const subscription: EventStreamSubscription = {
@@ -102,8 +95,7 @@ export class EventStreamManager extends EventEmitter {
 	 * Get active subscriptions count
 	 */
 	getActiveSubscriptionsCount(): number {
-		return Array.from(this.subscriptions.values()).filter((sub) => sub.active)
-			.length;
+		return Array.from(this.subscriptions.values()).filter((sub) => sub.active).length;
 	}
 
 	/**
@@ -120,16 +112,13 @@ export class EventStreamManager extends EventEmitter {
 
 		// Send to matching subscriptions
 		for (const subscription of this.subscriptions.values()) {
-			if (
-				subscription.active &&
-				this.eventMatchesFilter(event, subscription.filter)
-			) {
+			if (subscription.active && this.eventMatchesFilter(event, subscription.filter)) {
 				try {
 					subscription.callback(event);
 				} catch (error) {
 					console.error(
 						`Error in event stream callback for subscription ${subscription.id}:`,
-						error,
+						error
 					);
 				}
 			}
@@ -142,10 +131,7 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Validates if event type matches filter criteria
 	 */
-	private matchesTypeFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private matchesTypeFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		if (!filter.types || filter.types.length === 0) {
 			return true;
 		}
@@ -155,10 +141,7 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Validates if event severity matches filter criteria
 	 */
-	private matchesSeverityFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private matchesSeverityFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		if (!filter.severities || filter.severities.length === 0) {
 			return true;
 		}
@@ -168,10 +151,7 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Validates if event source matches filter criteria
 	 */
-	private matchesSourceFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private matchesSourceFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		if (!filter.sources || filter.sources.length === 0) {
 			return true;
 		}
@@ -181,10 +161,7 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Validates if event tags match filter criteria
 	 */
-	private matchesTagsFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private matchesTagsFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		if (!filter.tags || filter.tags.length === 0) {
 			return true;
 		}
@@ -194,15 +171,9 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Validates if event metadata matches filter criteria
 	 */
-	private matchesMetadataFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private matchesMetadataFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		// Execution ID filter
-		if (
-			filter.executionId &&
-			event.metadata.executionId !== filter.executionId
-		) {
+		if (filter.executionId && event.metadata.executionId !== filter.executionId) {
 			return false;
 		}
 
@@ -222,10 +193,7 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Validates if event timestamp is within filter time range
 	 */
-	private matchesTimeRangeFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private matchesTimeRangeFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		if (filter.startTime && event.timestamp < filter.startTime) {
 			return false;
 		}
@@ -241,10 +209,7 @@ export class EventStreamManager extends EventEmitter {
 	 * Check if event matches all filter criteria
 	 * Uses early return pattern and delegates to specialized validation methods
 	 */
-	private eventMatchesFilter(
-		event: ObservabilityEvent,
-		filter: EventStreamFilter,
-	): boolean {
+	private eventMatchesFilter(event: ObservabilityEvent, filter: EventStreamFilter): boolean {
 		return (
 			this.matchesTypeFilter(event, filter) &&
 			this.matchesSeverityFilter(event, filter) &&
@@ -258,29 +223,18 @@ export class EventStreamManager extends EventEmitter {
 	/**
 	 * Send recent events to new subscription
 	 */
-	private async sendRecentEvents(
-		subscription: EventStreamSubscription,
-	): Promise<void> {
+	private async sendRecentEvents(subscription: EventStreamSubscription): Promise<void> {
 		try {
 			// Get recent events from database that match the filter
-			const recentEvents = await this.getRecentEventsFromDb(
-				subscription.filter,
-				50,
-			);
+			const recentEvents = await this.getRecentEventsFromDb(subscription.filter, 50);
 
 			// Send each matching event
 			for (const event of recentEvents) {
-				if (
-					subscription.active &&
-					this.eventMatchesFilter(event, subscription.filter)
-				) {
+				if (subscription.active && this.eventMatchesFilter(event, subscription.filter)) {
 					try {
 						subscription.callback(event);
 					} catch (error) {
-						console.error(
-							`Error sending recent event to subscription ${subscription.id}:`,
-							error,
-						);
+						console.error(`Error sending recent event to subscription ${subscription.id}:`, error);
 					}
 				}
 			}
@@ -294,7 +248,7 @@ export class EventStreamManager extends EventEmitter {
 	 */
 	private async getRecentEventsFromDb(
 		filter: EventStreamFilter,
-		limit = 100,
+		limit = 100
 	): Promise<ObservabilityEvent[]> {
 		let query = db.select().from(observabilityEventsTable);
 
@@ -305,9 +259,7 @@ export class EventStreamManager extends EventEmitter {
 		}
 
 		if (filter.severities && filter.severities.length > 0) {
-			conditions.push(
-				inArray(observabilityEventsTable.severity, filter.severities),
-			);
+			conditions.push(inArray(observabilityEventsTable.severity, filter.severities));
 		}
 
 		if (filter.sources && filter.sources.length > 0) {
@@ -315,18 +267,14 @@ export class EventStreamManager extends EventEmitter {
 		}
 
 		if (filter.startTime) {
-			conditions.push(
-				gte(observabilityEventsTable.timestamp, filter.startTime),
-			);
+			conditions.push(gte(observabilityEventsTable.timestamp, filter.startTime));
 		}
 
 		if (conditions.length > 0) {
 			query = query.where(and(...conditions));
 		}
 
-		const events = await query
-			.orderBy(desc(observabilityEventsTable.timestamp))
-			.limit(limit);
+		const events = await query.orderBy(desc(observabilityEventsTable.timestamp)).limit(limit);
 
 		return events.map((event) => ({
 			id: event.id,
@@ -363,9 +311,7 @@ export class EventStreamManager extends EventEmitter {
 			const newEvents = await db
 				.select()
 				.from(observabilityEventsTable)
-				.where(
-					gte(observabilityEventsTable.timestamp, this.lastPolledTimestamp),
-				)
+				.where(gte(observabilityEventsTable.timestamp, this.lastPolledTimestamp))
 				.orderBy(desc(observabilityEventsTable.timestamp))
 				.limit(1000);
 
@@ -412,9 +358,7 @@ export class EventStreamManager extends EventEmitter {
 	getBufferedEvents(filter?: EventStreamFilter): ObservabilityEvent[] {
 		if (!filter) return [...this.eventBuffer];
 
-		return this.eventBuffer.filter((event) =>
-			this.eventMatchesFilter(event, filter),
-		);
+		return this.eventBuffer.filter((event) => this.eventMatchesFilter(event, filter));
 	}
 
 	/**
@@ -478,7 +422,7 @@ export class EventStreamManager extends EventEmitter {
 				burstSize: number;
 			};
 		},
-		callback: (event: ObservabilityEvent | ObservabilityEvent[]) => void,
+		callback: (event: ObservabilityEvent | ObservabilityEvent[]) => void
 	): string {
 		const subscriptionId = `adv_sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -502,9 +446,7 @@ export class EventStreamManager extends EventEmitter {
 	 */
 	private createEnhancedCallback(
 		filter: any,
-		originalCallback: (
-			event: ObservabilityEvent | ObservabilityEvent[],
-		) => void,
+		originalCallback: (event: ObservabilityEvent | ObservabilityEvent[]) => void
 	): (event: ObservabilityEvent) => void {
 		let eventBuffer: ObservabilityEvent[] = [];
 		let lastFlush = Date.now();
@@ -534,10 +476,7 @@ export class EventStreamManager extends EventEmitter {
 				eventBuffer.push(event);
 
 				// Flush buffer if window elapsed or buffer is full
-				if (
-					now - lastFlush >= filter.aggregation.windowMs ||
-					eventBuffer.length >= 100
-				) {
+				if (now - lastFlush >= filter.aggregation.windowMs || eventBuffer.length >= 100) {
 					if (eventBuffer.length > 0) {
 						originalCallback(eventBuffer);
 						eventBuffer = [];
@@ -592,16 +531,11 @@ export const eventStream = {
 
 	// Subscribe to errors only
 	subscribeToErrors: (callback: (event: ObservabilityEvent) => void) =>
-		EventStreamManager.getInstance().subscribe(
-			{ severities: ["error", "critical"] },
-			callback,
-		),
+		EventStreamManager.getInstance().subscribe({ severities: ["error", "critical"] }, callback),
 
 	// Subscribe to specific execution
-	subscribeToExecution: (
-		executionId: string,
-		callback: (event: ObservabilityEvent) => void,
-	) => EventStreamManager.getInstance().subscribe({ executionId }, callback),
+	subscribeToExecution: (executionId: string, callback: (event: ObservabilityEvent) => void) =>
+		EventStreamManager.getInstance().subscribe({ executionId }, callback),
 
 	// Unsubscribe
 	unsubscribe: (subscriptionId: string) =>

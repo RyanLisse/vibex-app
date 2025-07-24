@@ -92,9 +92,7 @@ export class LoggerFactory {
 	static getInstance(config?: LoggingConfig): LoggerFactory {
 		if (!LoggerFactory.instance) {
 			if (!config) {
-				throw new Error(
-					"LoggerFactory requires configuration on first initialization",
-				);
+				throw new Error("LoggerFactory requires configuration on first initialization");
 			}
 			LoggerFactory.instance = new LoggerFactory(config);
 		}
@@ -120,12 +118,9 @@ export class LoggerFactory {
 		if (this.config.console.enabled) {
 			transports.push(
 				new winston.transports.Console({
-					format: winston.format.combine(
-						winston.format.colorize(),
-						winston.format.simple(),
-					),
+					format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
 					level: this.config.console.level || this.config.level,
-				}),
+				})
 			);
 		}
 
@@ -137,28 +132,19 @@ export class LoggerFactory {
 					maxSize: this.config.file.maxSize,
 					maxFiles: this.config.file.maxFiles,
 					level: this.config.file.level || this.config.level,
-					format: winston.format.combine(
-						winston.format.timestamp(),
-						winston.format.json(),
-					),
-				}),
+					format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+				})
 			);
 
 			transports.push(
 				new DailyRotateFile({
-					filename: this.config.file.errorFilename.replace(
-						".log",
-						"-%DATE%.log",
-					),
+					filename: this.config.file.errorFilename.replace(".log", "-%DATE%.log"),
 					datePattern: "YYYY-MM-DD",
 					level: "error",
 					maxSize: this.config.file.maxSize,
 					maxFiles: this.config.file.maxFiles,
-					format: winston.format.combine(
-						winston.format.timestamp(),
-						winston.format.json(),
-					),
-				}),
+					format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+				})
 			);
 		}
 
@@ -170,7 +156,7 @@ export class LoggerFactory {
 					path: this.config.http.path,
 					ssl: this.config.http.ssl,
 					level: this.config.http.level || this.config.level,
-				}),
+				})
 			);
 		}
 
@@ -240,7 +226,7 @@ export class LoggerFactory {
 			transports.push(
 				new WinstonSentryTransport({
 					level: "error", // Only send errors and above to Sentry by default
-				}),
+				})
 			);
 		}
 
@@ -254,7 +240,7 @@ export class LoggerFactory {
 			winston.format.printf((info) => {
 				const logEntry = this.enrichLogEntry(info);
 				return JSON.stringify(logEntry);
-			}),
+			})
 		);
 	}
 
@@ -275,9 +261,7 @@ export class LoggerFactory {
 			...info,
 		};
 
-		return this.config.redaction.enabled
-			? this.redactor.redact(enrichedEntry)
-			: enrichedEntry;
+		return this.config.redaction.enabled ? this.redactor.redact(enrichedEntry) : enrichedEntry;
 	}
 
 	createLogger(component: string): ComponentLogger {
@@ -287,7 +271,7 @@ export class LoggerFactory {
 			this.contextStorage,
 			this.correlationManager,
 			this.performanceTracker,
-			this.config,
+			this.config
 		);
 	}
 
@@ -295,10 +279,7 @@ export class LoggerFactory {
 		return this.contextStorage.run(context, fn);
 	}
 
-	async withContextAsync<T>(
-		context: LogContext,
-		fn: () => Promise<T>,
-	): Promise<T> {
+	async withContextAsync<T>(context: LogContext, fn: () => Promise<T>): Promise<T> {
 		return this.contextStorage.run(context, fn);
 	}
 
@@ -323,7 +304,7 @@ export class ComponentLogger {
 		private contextStorage: any,
 		private correlationManager: CorrelationIdManager,
 		private performanceTracker: PerformanceTracker,
-		private config: LoggingConfig,
+		private config: LoggingConfig
 	) {}
 
 	error(message: string, error?: Error, metadata?: any): void {

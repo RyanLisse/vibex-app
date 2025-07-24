@@ -26,19 +26,16 @@ class MonitoringSpanProcessor extends BatchSpanProcessor {
 		const spanContext = span.spanContext();
 		const attributes = span.attributes || {};
 		const duration =
-			(span.endTime[0] - span.startTime[0]) * 1000 +
-			(span.endTime[1] - span.startTime[1]) / 1e6;
+			(span.endTime[0] - span.startTime[0]) * 1000 + (span.endTime[1] - span.startTime[1]) / 1e6;
 
 		// Record metrics based on span type
 		if (attributes["http.method"]) {
 			// HTTP span
 			recordHttpRequest(
 				attributes["http.method"] as string,
-				(attributes["http.route"] as string) ||
-					(attributes["http.target"] as string) ||
-					"unknown",
+				(attributes["http.route"] as string) || (attributes["http.target"] as string) || "unknown",
 				(attributes["http.status_code"] as number) || 0,
-				duration,
+				duration
 			);
 		} else if (attributes["db.operation"]) {
 			// Database span
@@ -46,7 +43,7 @@ class MonitoringSpanProcessor extends BatchSpanProcessor {
 				attributes["db.operation"] as string,
 				(attributes["db.sql.table"] as string) || "unknown",
 				span.status.code === SpanStatusCode.OK,
-				duration,
+				duration
 			);
 		} else if (attributes["agent.type"]) {
 			// Agent execution span
@@ -54,7 +51,7 @@ class MonitoringSpanProcessor extends BatchSpanProcessor {
 				attributes["agent.type"] as string,
 				span.status.code === SpanStatusCode.OK ? "success" : "failure",
 				duration,
-				attributes["agent.token_usage"] as number,
+				attributes["agent.token_usage"] as number
 			);
 		}
 
@@ -116,7 +113,7 @@ class PrometheusMetricExporter extends ConsoleMetricExporter {
 				}>;
 			}>;
 		},
-		resultCallback: (result: { code: number; error?: Error }) => void,
+		resultCallback: (result: { code: number; error?: Error }) => void
 	): void {
 		// Process metrics and update Prometheus
 		for (const metric of metrics.resourceMetrics) {
@@ -133,7 +130,7 @@ class PrometheusMetricExporter extends ConsoleMetricExporter {
 				exporter: "prometheus-integration",
 				status: "success",
 			},
-			metrics.resourceMetrics.length,
+			metrics.resourceMetrics.length
 		);
 
 		resultCallback({ code: 0 });
@@ -152,22 +149,16 @@ class PrometheusMetricExporter extends ConsoleMetricExporter {
 				case "http.server.duration":
 					prometheusMetrics.httpRequestDuration.observe(
 						labels,
-						value / 1000, // Convert to seconds
+						value / 1000 // Convert to seconds
 					);
 					break;
 
 				case "db.client.connections.usage":
-					prometheusMetrics.dbConnectionPoolSize.set(
-						{ state: labels.state || "unknown" },
-						value,
-					);
+					prometheusMetrics.dbConnectionPoolSize.set({ state: labels.state || "unknown" }, value);
 					break;
 
 				case "process.runtime.memory":
-					prometheusMetrics.memoryUsageBytes.set(
-						{ type: labels.type || "unknown" },
-						value,
-					);
+					prometheusMetrics.memoryUsageBytes.set({ type: labels.type || "unknown" }, value);
 					break;
 
 				// Add more metric mappings as needed
@@ -191,7 +182,7 @@ export async function initializeOpenTelemetryIntegration(): Promise<void> {
 			[SEMRESATTRS_SERVICE_NAME]: telemetryConfig.serviceName || "codex-clone",
 			[SEMRESATTRS_SERVICE_VERSION]: telemetryConfig.serviceVersion || "1.0.0",
 			"deployment.environment": process.env.NODE_ENV || "development",
-		}),
+		})
 	);
 
 	// Initialize tracer provider
@@ -237,10 +228,7 @@ export async function initializeOpenTelemetryIntegration(): Promise<void> {
 					const statusCode = response.statusCode || 0;
 					if (statusCode >= 400) {
 						span.setAttribute("alert.create", true);
-						span.setAttribute(
-							"alert.severity",
-							statusCode >= 500 ? "high" : "medium",
-						);
+						span.setAttribute("alert.severity", statusCode >= 500 ? "high" : "medium");
 					}
 				},
 			}),
@@ -269,18 +257,11 @@ export class MonitoringTracer {
 		return span;
 	}
 
-	async withSpan<T>(
-		name: string,
-		fn: (span: Span) => Promise<T>,
-		options?: any,
-	): Promise<T> {
+	async withSpan<T>(name: string, fn: (span: Span) => Promise<T>, options?: any): Promise<T> {
 		const span = this.startSpan(name, options);
 
 		try {
-			const result = await context.with(
-				trace.setSpan(context.active(), span),
-				() => fn(span),
-			);
+			const result = await context.with(trace.setSpan(context.active(), span), () => fn(span));
 
 			span.setStatus({ code: SpanStatusCode.OK });
 			return result;
@@ -316,7 +297,7 @@ export class MonitoringTracer {
 export async function traceDbOperation<T>(
 	operation: string,
 	table: string,
-	fn: () => Promise<T>,
+	fn: () => Promise<T>
 ): Promise<T> {
 	const tracer = new MonitoringTracer("db-operations");
 
@@ -356,7 +337,7 @@ export async function traceDbOperation<T>(
 				throw error;
 			}
 		},
-		{ kind: SpanKind.CLIENT },
+		{ kind: SpanKind.CLIENT }
 	);
 }
 
@@ -365,7 +346,7 @@ export async function traceAgentExecution<T>(
 	agentType: string,
 	operation: string,
 	fn: () => Promise<T>,
-	metadata?: any,
+	metadata?: any
 ): Promise<T> {
 	const tracer = new MonitoringTracer("agent-executions");
 
@@ -384,23 +365,13 @@ export async function traceAgentExecution<T>(
 				const duration = Date.now() - start;
 
 				// Record execution metrics
-				recordAgentExecution(
-					agentType,
-					"success",
-					duration,
-					metadata?.tokenUsage,
-				);
+				recordAgentExecution(agentType, "success", duration, metadata?.tokenUsage);
 
 				return result;
 			} catch (error) {
 				const duration = Date.now() - start;
 
-				recordAgentExecution(
-					agentType,
-					"failure",
-					duration,
-					metadata?.tokenUsage,
-				);
+				recordAgentExecution(agentType, "failure", duration, metadata?.tokenUsage);
 
 				// Create alert for repeated failures
 				span.setAttribute("alert.create", true);
@@ -412,7 +383,7 @@ export async function traceAgentExecution<T>(
 		{
 			kind: SpanKind.INTERNAL,
 			critical: metadata?.critical,
-		},
+		}
 	);
 }
 

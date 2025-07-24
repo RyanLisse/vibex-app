@@ -43,15 +43,11 @@ export const ChatMessage = memo(function ChatMessage({
 		<div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
 			{showAvatar && (
 				<Avatar className="shrink-0">
-					<AvatarFallback className={roleConfig.color}>
-						{roleConfig.initials}
-					</AvatarFallback>
+					<AvatarFallback className={roleConfig.color}>{roleConfig.initials}</AvatarFallback>
 				</Avatar>
 			)}
 
-			<div
-				className={`flex-1 max-w-[80%] ${isUser ? "text-right" : "text-left"}`}
-			>
+			<div className={`flex-1 max-w-[80%] ${isUser ? "text-right" : "text-left"}`}>
 				<Card className={`${isUser ? "ml-auto" : "mr-auto"}`}>
 					<CardContent className="p-3">
 						{isSystem && (

@@ -21,7 +21,7 @@ export async function onRequestError(
 		routerKind: string;
 		routePath: string;
 		routeType: string;
-	},
+	}
 ) {
 	await Sentry.captureRequestError(err, request, context);
 }

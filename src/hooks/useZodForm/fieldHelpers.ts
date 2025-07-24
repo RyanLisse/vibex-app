@@ -14,9 +14,7 @@ export interface FieldHelpers<T extends FieldValues> {
 /**
  * Creates field helper functions for a form
  */
-export function createFieldHelpers<T extends FieldValues>(
-	form: UseFormReturn<T>,
-): FieldHelpers<T> {
+export function createFieldHelpers<T extends FieldValues>(form: UseFormReturn<T>): FieldHelpers<T> {
 	return {
 		getError: (field: keyof T): string | undefined => {
 			const error = form.formState.errors[field as string];
@@ -43,7 +41,7 @@ export function createFieldHelpers<T extends FieldValues>(
  * Gets all form errors as a flat object
  */
 export function getFormErrors<T extends FieldValues>(
-	form: UseFormReturn<T>,
+	form: UseFormReturn<T>
 ): Partial<Record<keyof T, string>> {
 	const errors: Partial<Record<keyof T, string>> = {};
 
@@ -59,9 +57,7 @@ export function getFormErrors<T extends FieldValues>(
 /**
  * Gets only the dirty fields with their values
  */
-export function getDirtyFields<T extends FieldValues>(
-	form: UseFormReturn<T>,
-): Partial<T> {
+export function getDirtyFields<T extends FieldValues>(form: UseFormReturn<T>): Partial<T> {
 	const dirtyFields: Partial<T> = {};
 	const allValues = form.getValues();
 	const dirtyFieldNames = form.formState.dirtyFields;
@@ -80,7 +76,7 @@ export function getDirtyFields<T extends FieldValues>(
  */
 export function getChangedFields<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	initialData: Partial<T>,
+	initialData: Partial<T>
 ): Partial<T> {
 	const changedFields: Partial<T> = {};
 	const currentValues = form.getValues();

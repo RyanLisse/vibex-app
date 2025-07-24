@@ -40,7 +40,7 @@ export class MessageTestFactory {
 
 	static createUserMessage(
 		content = "User message",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			type: "user",
@@ -51,7 +51,7 @@ export class MessageTestFactory {
 
 	static createAssistantMessage(
 		content = "Assistant message",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			type: "assistant",
@@ -62,7 +62,7 @@ export class MessageTestFactory {
 
 	static createSystemMessage(
 		content = "System message",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			type: "system",
@@ -73,7 +73,7 @@ export class MessageTestFactory {
 
 	static createErrorMessage(
 		content = "Error occurred",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			type: "error",
@@ -85,7 +85,7 @@ export class MessageTestFactory {
 
 	static createStatusMessage(
 		content = "Status update",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			type: "status",
@@ -98,7 +98,7 @@ export class MessageTestFactory {
 		toolName = "file_read",
 		input: Record<string, any> = { path: "/test.txt" },
 		output = "Tool output",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			type: "tool",
@@ -114,7 +114,7 @@ export class MessageTestFactory {
 
 	static createStreamingMessage(
 		content = "Streaming...",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			status: "streaming",
@@ -125,7 +125,7 @@ export class MessageTestFactory {
 
 	static createPendingMessage(
 		content = "Pending...",
-		overrides: Partial<TestMessage> = {},
+		overrides: Partial<TestMessage> = {}
 	): TestMessage {
 		return MessageTestFactory.createBaseMessage({
 			status: "pending",
@@ -150,9 +150,7 @@ export class MessageArrayFactory {
 			messages.push(
 				isUser
 					? MessageTestFactory.createUserMessage(`User message ${i + 1}`)
-					: MessageTestFactory.createAssistantMessage(
-							`Assistant message ${i + 1}`,
-						),
+					: MessageTestFactory.createAssistantMessage(`Assistant message ${i + 1}`)
 			);
 		}
 
@@ -182,11 +180,7 @@ export class MessageArrayFactory {
 			MessageTestFactory.createUserMessage("User question"),
 			MessageTestFactory.createAssistantMessage("Assistant response"),
 			MessageTestFactory.createSystemMessage("System notification"),
-			MessageTestFactory.createToolMessage(
-				"file_read",
-				{ path: "/test.txt" },
-				"File content",
-			),
+			MessageTestFactory.createToolMessage("file_read", { path: "/test.txt" }, "File content"),
 			MessageTestFactory.createErrorMessage("Something went wrong"),
 			MessageTestFactory.createStatusMessage("Processing..."),
 		];
@@ -211,7 +205,7 @@ export class MessageGuardTests {
 	static testMessageTypeGuard(
 		guardFunction: (msg: TestMessage) => boolean,
 		targetType: TestMessage["type"],
-		messages: TestMessage[] = MessageArrayFactory.createMixedTypeMessages(),
+		messages: TestMessage[] = MessageArrayFactory.createMixedTypeMessages()
 	) {
 		return () => {
 			const targetMessages = messages.filter((msg) => msg.type === targetType);
@@ -232,15 +226,11 @@ export class MessageGuardTests {
 	static testMessageStatusGuard(
 		guardFunction: (msg: TestMessage) => boolean,
 		targetStatus: TestMessage["status"],
-		messages: TestMessage[] = MessageArrayFactory.createMixedStatusMessages(),
+		messages: TestMessage[] = MessageArrayFactory.createMixedStatusMessages()
 	) {
 		return () => {
-			const targetMessages = messages.filter(
-				(msg) => msg.status === targetStatus,
-			);
-			const otherMessages = messages.filter(
-				(msg) => msg.status !== targetStatus,
-			);
+			const targetMessages = messages.filter((msg) => msg.status === targetStatus);
+			const otherMessages = messages.filter((msg) => msg.status !== targetStatus);
 
 			// Should return true for target status
 			targetMessages.forEach((msg) => {
@@ -266,7 +256,7 @@ export class MessageUtilTests {
 			criteria: any;
 			expectedLength: number;
 			description: string;
-		}>,
+		}>
 	) {
 		return testCases.map((testCase) => ({
 			[testCase.description]: () => {
@@ -277,11 +267,8 @@ export class MessageUtilTests {
 	}
 
 	static testMessageSorting(
-		sortFunction: (
-			messages: TestMessage[],
-			order?: "asc" | "desc",
-		) => TestMessage[],
-		messages: TestMessage[] = MessageArrayFactory.createTimestampedMessages(),
+		sortFunction: (messages: TestMessage[], order?: "asc" | "desc") => TestMessage[],
+		messages: TestMessage[] = MessageArrayFactory.createTimestampedMessages()
 	) {
 		return {
 			"should sort messages by timestamp ascending": () => {
@@ -301,7 +288,7 @@ export class MessageUtilTests {
 
 	static testMessageSearch(
 		searchFunction: (messages: TestMessage[], id: string) => TestMessage | null,
-		messages: TestMessage[] = MessageArrayFactory.createConversation(3),
+		messages: TestMessage[] = MessageArrayFactory.createConversation(3)
 	) {
 		return {
 			"should find message by id": () => {
@@ -444,10 +431,7 @@ export class MessageTestScenarios {
 	 * Test message update scenarios
 	 */
 	static getUpdateTests(
-		updateFunction: (
-			msg: TestMessage,
-			updates: Partial<TestMessage>,
-		) => TestMessage,
+		updateFunction: (msg: TestMessage, updates: Partial<TestMessage>) => TestMessage
 	) {
 		const baseMessage = MessageTestFactory.createBaseMessage();
 

@@ -22,18 +22,11 @@ export async function GET(_request: NextRequest) {
 		const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 		const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-		const last24HourAlerts = alertHistory.filter(
-			(a) => new Date(a.timestamp) >= last24Hours,
-		);
-		const last7DayAlerts = alertHistory.filter(
-			(a) => new Date(a.timestamp) >= last7Days,
-		);
+		const last24HourAlerts = alertHistory.filter((a) => new Date(a.timestamp) >= last24Hours);
+		const last7DayAlerts = alertHistory.filter((a) => new Date(a.timestamp) >= last7Days);
 
 		// Group alerts by type
-		const alertsByType: Record<CriticalErrorType, number> = {} as Record<
-			CriticalErrorType,
-			number
-		>;
+		const alertsByType: Record<CriticalErrorType, number> = {} as Record<CriticalErrorType, number>;
 		for (const alert of alertHistory) {
 			alertsByType[alert.type] = (alertsByType[alert.type] || 0) + 1;
 		}
@@ -56,7 +49,7 @@ export async function GET(_request: NextRequest) {
 		logger.error("Failed to get alert metrics", error as Error);
 		return NextResponse.json(
 			{ success: false, error: "Failed to get alert metrics" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 }

@@ -48,7 +48,7 @@ export class MemorySuggestionEngine {
 			maxSuggestions?: number;
 			minConfidence?: number;
 			strategies?: string[];
-		} = {},
+		} = {}
 	): Promise<MemorySuggestion[]> {
 		const startTime = Date.now();
 
@@ -72,9 +72,7 @@ export class MemorySuggestionEngine {
 
 			// Run all strategies in parallel
 			const strategyPromises = this.strategies
-				.filter(
-					(s) => !options.strategies || options.strategies.includes(s.name),
-				)
+				.filter((s) => !options.strategies || options.strategies.includes(s.name))
 				.map((strategy) => this.runStrategy(strategy, suggestionContext));
 
 			const allSuggestions = await Promise.all(strategyPromises);
@@ -84,14 +82,11 @@ export class MemorySuggestionEngine {
 
 			// Filter by confidence
 			const filteredSuggestions = mergedSuggestions.filter(
-				(s) => s.confidence >= (options.minConfidence || 0.5),
+				(s) => s.confidence >= (options.minConfidence || 0.5)
 			);
 
 			// Limit suggestions
-			const limitedSuggestions = filteredSuggestions.slice(
-				0,
-				options.maxSuggestions || 10,
-			);
+			const limitedSuggestions = filteredSuggestions.slice(0, options.maxSuggestions || 10);
 
 			// Cache results
 			this.setCachedSuggestions(cacheKey, limitedSuggestions);
@@ -117,7 +112,7 @@ export class MemorySuggestionEngine {
 	 */
 	private async runStrategy(
 		strategy: SuggestionStrategy,
-		context: SuggestionContext,
+		context: SuggestionContext
 	): Promise<MemorySuggestion[]> {
 		try {
 			const suggestions = await strategy.getSuggestions(context);
@@ -188,7 +183,7 @@ export class MemorySuggestionEngine {
 								reason: `Matches pattern: ${pattern}`,
 								relevanceScore: r.score.total,
 								confidence: 0.8,
-							})),
+							}))
 					);
 				}
 
@@ -206,13 +201,10 @@ export class MemorySuggestionEngine {
 
 				if (!errorContext) return [];
 
-				const results = await memorySearchService.searchByType(
-					["error_resolution"],
-					{
-						agentType: context.agentType,
-						limit: 5,
-					},
-				);
+				const results = await memorySearchService.searchByType(["error_resolution"], {
+					agentType: context.agentType,
+					limit: 5,
+				});
 
 				return results
 					.filter((r) => r.score.total > 0.5)
@@ -234,13 +226,10 @@ export class MemorySuggestionEngine {
 
 				if (Object.keys(userPrefs).length === 0) return [];
 
-				const results = await memorySearchService.searchByType(
-					["user_preference"],
-					{
-						agentType: context.agentType,
-						limit: 3,
-					},
-				);
+				const results = await memorySearchService.searchByType(["user_preference"], {
+					agentType: context.agentType,
+					limit: 3,
+				});
 
 				return results.map((r) => ({
 					memory: r.memory,
@@ -283,10 +272,7 @@ export class MemorySuggestionEngine {
 			name: "frequently_accessed",
 			weight: 0.8,
 			getSuggestions: async (context) => {
-				const memories = await memoryRepository.getMostAccessed(
-					context.agentType,
-					5,
-				);
+				const memories = await memoryRepository.getMostAccessed(context.agentType, 5);
 
 				return memories
 					.filter((m) => m.accessCount > 5)
@@ -359,10 +345,7 @@ export class MemorySuggestionEngine {
 		}
 
 		// Check for complex task patterns
-		if (
-			context.currentTask?.includes("complex") ||
-			context.currentTask?.includes("difficult")
-		) {
+		if (context.currentTask?.includes("complex") || context.currentTask?.includes("difficult")) {
 			return "complex_task";
 		}
 
@@ -371,7 +354,7 @@ export class MemorySuggestionEngine {
 			(m) =>
 				m.metadata.type === "error_resolution" ||
 				m.content.toLowerCase().includes("error") ||
-				m.content.toLowerCase().includes("failed"),
+				m.content.toLowerCase().includes("failed")
 		);
 
 		if (errorMemories.length > 0) {
@@ -389,9 +372,7 @@ export class MemorySuggestionEngine {
 
 		// Add current task terms
 		if (context.currentTask) {
-			terms.push(
-				...context.currentTask.split(/\s+/).filter((t) => t.length > 2),
-			);
+			terms.push(...context.currentTask.split(/\s+/).filter((t) => t.length > 2));
 		}
 
 		// Add environment context terms
@@ -410,9 +391,7 @@ export class MemorySuggestionEngine {
 	/**
 	 * Merge suggestions from multiple strategies
 	 */
-	private mergeSuggestions(
-		suggestions: MemorySuggestion[],
-	): MemorySuggestion[] {
+	private mergeSuggestions(suggestions: MemorySuggestion[]): MemorySuggestion[] {
 		// Group by memory ID
 		const grouped = new Map<string, MemorySuggestion[]>();
 
@@ -432,10 +411,8 @@ export class MemorySuggestionEngine {
 			const reasons = [...new Set(group.map((s) => s.reason))].join(", ");
 
 			// Average scores
-			const avgRelevance =
-				group.reduce((sum, s) => sum + s.relevanceScore, 0) / group.length;
-			const avgConfidence =
-				group.reduce((sum, s) => sum + s.confidence, 0) / group.length;
+			const avgRelevance = group.reduce((sum, s) => sum + s.relevanceScore, 0) / group.length;
+			const avgConfidence = group.reduce((sum, s) => sum + s.confidence, 0) / group.length;
 
 			// Boost for multiple strategies suggesting the same memory
 			const multiStrategyBoost = 1 + (group.length - 1) * 0.1;
@@ -470,10 +447,7 @@ export class MemorySuggestionEngine {
 
 		// Check if cache is still valid
 		const cacheData = cached as any;
-		if (
-			cacheData._timestamp &&
-			Date.now() - cacheData._timestamp < this.cacheTimeout
-		) {
+		if (cacheData._timestamp && Date.now() - cacheData._timestamp < this.cacheTimeout) {
 			return cacheData.suggestions;
 		}
 

@@ -10,8 +10,7 @@ vi.mock("ioredis", () => {
 			get: vi.fn().mockImplementation(async (key) => {
 				// Simulate Redis GET behavior
 				if (key === "existing-key") return "existing-value";
-				if (key.startsWith("session:"))
-					return JSON.stringify({ userId: "test-user" });
+				if (key.startsWith("session:")) return JSON.stringify({ userId: "test-user" });
 				return null;
 			}),
 			set: vi.fn().mockResolvedValue("OK"),
@@ -30,9 +29,7 @@ vi.mock("ioredis", () => {
 			decr: vi.fn().mockResolvedValue(0),
 			hget: vi.fn().mockResolvedValue("hash-value"),
 			hset: vi.fn().mockResolvedValue(1),
-			hgetall: vi
-				.fn()
-				.mockResolvedValue({ field1: "value1", field2: "value2" }),
+			hgetall: vi.fn().mockResolvedValue({ field1: "value1", field2: "value2" }),
 			lpush: vi.fn().mockResolvedValue(1),
 			rpop: vi.fn().mockResolvedValue("list-item"),
 			llen: vi.fn().mockResolvedValue(5),
@@ -126,12 +123,7 @@ describe("Redis/Valkey Integration", () => {
 		expect(mgetResult).toEqual(["value1", "value2", null]);
 
 		// Multi SET
-		const msetResult = await redisClient.mset(
-			"key1",
-			"value1",
-			"key2",
-			"value2",
-		);
+		const msetResult = await redisClient.mset("key1", "value1", "key2", "value2");
 		expect(msetResult).toBe("OK");
 
 		// Get all keys

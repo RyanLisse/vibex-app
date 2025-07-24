@@ -46,9 +46,7 @@ describe("WASM Compute Integration", () => {
 	let memoryManager: any;
 
 	beforeEach(async () => {
-		const { loadWasmModule, WasmMemoryManager } = await import(
-			"@/lib/wasm/wasm-loader"
-		);
+		const { loadWasmModule, WasmMemoryManager } = await import("@/lib/wasm/wasm-loader");
 		wasmModule = await loadWasmModule();
 		memoryManager = new WasmMemoryManager(wasmModule.instance.exports.memory);
 	});
@@ -273,8 +271,7 @@ describe("WASM Compute Integration", () => {
 		});
 
 		test("should track memory usage", () => {
-			const initialMemory =
-				wasmModule.instance.exports.memory.buffer.byteLength;
+			const initialMemory = wasmModule.instance.exports.memory.buffer.byteLength;
 			expect(initialMemory).toBe(1024 * 64);
 
 			// In real WASM, memory could grow

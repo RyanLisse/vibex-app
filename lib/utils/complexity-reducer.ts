@@ -32,7 +32,7 @@ export class ProcessorPipeline<T> {
 
 			// Transform input if transformer exists
 			const transformed = processor.transform ? processor.transform(current) : current;
-			
+
 			// Process the transformed input
 			return processor.process(transformed);
 		}, input);
@@ -57,12 +57,10 @@ export class StrategyProcessor<TInput, TOutput> {
 	}
 
 	process(input: TInput, strategyKey?: string): TOutput {
-		const strategy = strategyKey 
-			? this.strategies.get(strategyKey)
-			: this.defaultStrategy;
+		const strategy = strategyKey ? this.strategies.get(strategyKey) : this.defaultStrategy;
 
 		if (!strategy) {
-			throw new Error(`No strategy found for key: ${strategyKey || 'default'}`);
+			throw new Error(`No strategy found for key: ${strategyKey || "default"}`);
 		}
 
 		return strategy.process(input);
@@ -134,10 +132,11 @@ export class StateMachine<TState, TEvent> {
 	}
 
 	trigger(event: TEvent): boolean {
-		const transition = this.transitions.find(t => 
-			t.from === this.currentState && 
-			t.event === event &&
-			(!t.guard || t.guard(this.currentState, event))
+		const transition = this.transitions.find(
+			(t) =>
+				t.from === this.currentState &&
+				t.event === event &&
+				(!t.guard || t.guard(this.currentState, event))
 		);
 
 		if (!transition) {
@@ -190,13 +189,13 @@ export const processInChunks = async <T, R>(
 	processor: (chunk: T[]) => Promise<R[]>
 ): Promise<R[]> => {
 	const results: R[] = [];
-	
+
 	for (let i = 0; i < items.length; i += chunkSize) {
 		const chunk = items.slice(i, i + chunkSize);
 		const chunkResults = await processor(chunk);
 		results.push(...chunkResults);
 	}
-	
+
 	return results;
 };
 
@@ -209,21 +208,21 @@ export const withRetry = async <T>(
 	baseDelay: number = 1000
 ): Promise<T> => {
 	let lastError: Error;
-	
+
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {
 		try {
 			return await operation();
 		} catch (error) {
 			lastError = error as Error;
-			
+
 			if (attempt === maxRetries) {
 				break;
 			}
-			
+
 			const delay = baseDelay * Math.pow(2, attempt);
-			await new Promise(resolve => setTimeout(resolve, delay));
+			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 	}
-	
+
 	throw lastError!;
 };

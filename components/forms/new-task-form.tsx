@@ -12,10 +12,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type {
-	CreateEnhancedTask,
-	TaskPriority,
-} from "@/src/schemas/enhanced-task-schemas";
+import type { CreateEnhancedTask, TaskPriority } from "@/src/schemas/enhanced-task-schemas";
 
 interface NewTaskFormProps {
 	onSubmit: (task: Partial<CreateEnhancedTask>) => void;
@@ -23,11 +20,7 @@ interface NewTaskFormProps {
 	isLoading?: boolean;
 }
 
-export default function NewTaskForm({
-	onSubmit,
-	onCancel,
-	isLoading,
-}: NewTaskFormProps) {
+export default function NewTaskForm({ onSubmit, onCancel, isLoading }: NewTaskFormProps) {
 	const [formData, setFormData] = useState<Partial<CreateEnhancedTask>>({
 		title: "",
 		description: "",
@@ -42,10 +35,7 @@ export default function NewTaskForm({
 		}
 	};
 
-	const handleInputChange = (
-		field: keyof CreateEnhancedTask,
-		value: string | TaskPriority,
-	) => {
+	const handleInputChange = (field: keyof CreateEnhancedTask, value: string | TaskPriority) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
@@ -77,9 +67,7 @@ export default function NewTaskForm({
 				<Label htmlFor="priority">Priority</Label>
 				<Select
 					value={formData.priority}
-					onValueChange={(value) =>
-						handleInputChange("priority", value as TaskPriority)
-					}
+					onValueChange={(value) => handleInputChange("priority", value as TaskPriority)}
 				>
 					<SelectTrigger>
 						<SelectValue placeholder="Select priority" />

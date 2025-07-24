@@ -8,9 +8,7 @@ export default function AIAudioPage() {
 				<p className="text-gray-600">Process and analyze audio with AI</p>
 			</div>
 			<div className="bg-white rounded-lg shadow-sm border p-6">
-				<p className="text-gray-500 text-center">
-					AI Audio processing features coming soon...
-				</p>
+				<p className="text-gray-500 text-center">AI Audio processing features coming soon...</p>
 			</div>
 		</div>
 	);

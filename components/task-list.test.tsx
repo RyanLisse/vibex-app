@@ -189,10 +189,7 @@ describe("TaskList", () => {
 		render(<TaskList />);
 
 		expect(screen.getByTestId("tabs")).toBeInTheDocument();
-		expect(screen.getByTestId("tabs")).toHaveAttribute(
-			"data-default-value",
-			"active",
-		);
+		expect(screen.getByTestId("tabs")).toHaveAttribute("data-default-value", "active");
 		expect(screen.getByTestId("tabs-list")).toBeInTheDocument();
 	});
 
@@ -234,9 +231,7 @@ describe("TaskList", () => {
 
 		await waitFor(() => {
 			const taskWithChanges = screen.getByText("Test Task 2").closest("div");
-			expect(
-				taskWithChanges?.querySelector(".bg-blue-500"),
-			).toBeInTheDocument();
+			expect(taskWithChanges?.querySelector(".bg-blue-500")).toBeInTheDocument();
 		});
 	});
 
@@ -275,7 +270,7 @@ describe("TaskList", () => {
 			const archiveButton = archiveButtons.find(
 				(button) =>
 					button.getAttribute("data-variant") === "outline" &&
-					button.getAttribute("data-size") === "icon",
+					button.getAttribute("data-size") === "icon"
 			);
 			expect(archiveButton).toBeInTheDocument();
 		});
@@ -291,7 +286,7 @@ describe("TaskList", () => {
 			const archiveButton = archiveButtons.find(
 				(button) =>
 					button.getAttribute("data-variant") === "outline" &&
-					button.getAttribute("data-size") === "icon",
+					button.getAttribute("data-size") === "icon"
 			);
 
 			if (archiveButton) {
@@ -360,7 +355,7 @@ describe("TaskList", () => {
 			const removeButtons = screen.getAllByTestId("button");
 			// Find the remove button (should be in archived section)
 			const removeButton = removeButtons.find((button) =>
-				button.querySelector('[data-testid="trash-icon"]'),
+				button.querySelector('[data-testid="trash-icon"]')
 			);
 
 			if (removeButton) {
@@ -427,9 +422,7 @@ describe("TaskList", () => {
 
 		await waitFor(() => {
 			const taskElement = screen.getByText("Test Task 2").closest("div");
-			expect(
-				taskElement?.querySelector(".bg-blue-500"),
-			).not.toBeInTheDocument();
+			expect(taskElement?.querySelector(".bg-blue-500")).not.toBeInTheDocument();
 		});
 	});
 
@@ -446,7 +439,7 @@ describe("TaskList", () => {
 		await waitFor(() => {
 			const removeButtons = screen.getAllByTestId("button");
 			const removeButton = removeButtons.find((button) =>
-				button.querySelector('[data-testid="trash-icon"]'),
+				button.querySelector('[data-testid="trash-icon"]')
 			);
 
 			if (removeButton) {
@@ -467,7 +460,7 @@ describe("TaskList", () => {
 			"w-full",
 			"p-1",
 			"rounded-lg",
-			"bg-muted",
+			"bg-muted"
 		);
 	});
 });

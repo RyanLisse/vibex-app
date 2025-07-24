@@ -61,7 +61,7 @@ export function ReplayControls({
 		if (session && !isDragging) {
 			setLocalStep(session.currentStep);
 		}
-	}, [session?.currentStep, isDragging]);
+	}, [session?.currentStep, isDragging, session]);
 
 	const handleSliderChange = (value: number[]) => {
 		const step = value[0];

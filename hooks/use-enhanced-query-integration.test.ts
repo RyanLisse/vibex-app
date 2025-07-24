@@ -44,7 +44,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		const { result } = renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey: ["test-query"],
-			}),
+			})
 		);
 
 		expect(result.current.data).toBeNull();
@@ -64,7 +64,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		const { result } = renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey: ["loading-query"],
-			}),
+			})
 		);
 
 		expect(result.current.isLoading).toBe(true);
@@ -83,7 +83,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		const { result } = renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey: ["success-query"],
-			}),
+			})
 		);
 
 		await waitFor(() => {
@@ -105,7 +105,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		const { result } = renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey: ["error-query"],
-			}),
+			})
 		);
 
 		expect(result.current.error).toEqual(mockError);
@@ -125,7 +125,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 			useEnhancedQueryIntegration({
 				queryKey: ["conditional-query"],
 				enabled: false,
-			}),
+			})
 		);
 
 		expect(mockUseEnhancedQueryIntegration).toHaveBeenCalledWith({
@@ -146,7 +146,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		const { result } = renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey: ["refetch-query"],
-			}),
+			})
 		);
 
 		result.current.refetch();
@@ -165,7 +165,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 			useEnhancedQueryIntegration({
 				queryKey: ["interval-query"],
 				refetchInterval: 5000,
-			}),
+			})
 		);
 
 		expect(mockUseEnhancedQueryIntegration).toHaveBeenCalledWith({
@@ -186,7 +186,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey,
-			}),
+			})
 		);
 
 		expect(mockUseEnhancedQueryIntegration).toHaveBeenCalledWith({
@@ -212,7 +212,7 @@ describe("useEnhancedQueryIntegration Hook", () => {
 		const { result } = renderHook(() =>
 			useEnhancedQueryIntegration({
 				queryKey: ["enhanced-query"],
-			}),
+			})
 		);
 
 		expect(result.current.invalidate).toBeDefined();
@@ -237,8 +237,6 @@ describe("useEnhancedQueryIntegration Hook", () => {
 
 		renderHook(() => useEnhancedQueryIntegration(complexOptions));
 
-		expect(mockUseEnhancedQueryIntegration).toHaveBeenCalledWith(
-			complexOptions,
-		);
+		expect(mockUseEnhancedQueryIntegration).toHaveBeenCalledWith(complexOptions);
 	});
 });

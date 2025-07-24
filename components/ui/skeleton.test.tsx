@@ -38,7 +38,7 @@ describe("Skeleton", () => {
 					// Handle click event
 				}}
 				role="status"
-			/>,
+			/>
 		);
 
 		const skeleton = screen.getByTestId("skeleton");
@@ -51,7 +51,7 @@ describe("Skeleton", () => {
 		render(
 			<Skeleton data-testid="skeleton">
 				<span className="sr-only">Loading...</span>
-			</Skeleton>,
+			</Skeleton>
 		);
 
 		const skeleton = screen.getByTestId("skeleton");
@@ -60,12 +60,7 @@ describe("Skeleton", () => {
 	});
 
 	it("should handle style prop", () => {
-		render(
-			<Skeleton
-				data-testid="skeleton"
-				style={{ width: "200px", height: "20px" }}
-			/>,
-		);
+		render(<Skeleton data-testid="skeleton" style={{ width: "200px", height: "20px" }} />);
 
 		const skeleton = screen.getByTestId("skeleton");
 		expect(skeleton).toHaveStyle({
@@ -79,16 +74,12 @@ describe("Skeleton", () => {
 			<div>
 				<Skeleton className="h-4 w-[250px]" />
 				<Skeleton className="h-4 w-[200px]" />
-			</div>,
+			</div>
 		);
 
 		const skeletons = screen
 			.getAllByRole("generic")
-			.filter(
-				(el) =>
-					el.hasAttribute("data-slot") &&
-					el.getAttribute("data-slot") === "skeleton",
-			);
+			.filter((el) => el.hasAttribute("data-slot") && el.getAttribute("data-slot") === "skeleton");
 		expect(skeletons).toHaveLength(2);
 		expect(skeletons[0]).toHaveClass("h-4", "w-[250px]");
 		expect(skeletons[1]).toHaveClass("h-4", "w-[200px]");
@@ -102,16 +93,12 @@ describe("Skeleton", () => {
 					<Skeleton className="h-4 w-[250px]" />
 					<Skeleton className="h-4 w-[200px]" />
 				</div>
-			</div>,
+			</div>
 		);
 
 		const skeletons = screen
 			.getAllByRole("generic")
-			.filter(
-				(el) =>
-					el.hasAttribute("data-slot") &&
-					el.getAttribute("data-slot") === "skeleton",
-			);
+			.filter((el) => el.hasAttribute("data-slot") && el.getAttribute("data-slot") === "skeleton");
 		expect(skeletons).toHaveLength(3);
 		expect(skeletons[0]).toHaveClass("h-12", "w-12", "rounded-full");
 	});
@@ -164,9 +151,7 @@ describe("Skeleton", () => {
 	});
 
 	it("should handle data attributes", () => {
-		render(
-			<Skeleton data-loading="true" data-testid="skeleton" data-type="text" />,
-		);
+		render(<Skeleton data-loading="true" data-testid="skeleton" data-type="text" />);
 
 		const skeleton = screen.getByTestId("skeleton");
 		expect(skeleton).toHaveAttribute("data-loading", "true");
@@ -177,7 +162,7 @@ describe("Skeleton", () => {
 		render(
 			<p>
 				Loading <Skeleton className="inline-block h-4 w-20" /> content
-			</p>,
+			</p>
 		);
 
 		const skeleton = screen

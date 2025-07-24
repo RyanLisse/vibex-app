@@ -62,7 +62,7 @@ export function SentryExample() {
 				});
 
 				setResult("Performance span recorded!");
-			},
+			}
 		);
 
 		setIsLoading(false);
@@ -118,7 +118,7 @@ export function SentryExample() {
 						fetchSpan.setAttribute("api.endpoint", "/api/users");
 						await new Promise((resolve) => setTimeout(resolve, 500));
 						logger.debug("User data fetched", { userId: 123 });
-					},
+					}
 				);
 
 				// Step 2: Data processing
@@ -131,7 +131,7 @@ export function SentryExample() {
 						processSpan.setAttribute("records.count", 100);
 						await new Promise((resolve) => setTimeout(resolve, 300));
 						logger.debug("Data processed", { recordsProcessed: 100 });
-					},
+					}
 				);
 
 				// Step 3: UI update
@@ -144,11 +144,11 @@ export function SentryExample() {
 						renderSpan.setAttribute("components.updated", 5);
 						await new Promise((resolve) => setTimeout(resolve, 200));
 						logger.info("UI updated successfully");
-					},
+					}
 				);
 
 				setResult("Complex operation completed with nested spans!");
-			},
+			}
 		);
 
 		setIsLoading(false);
@@ -211,8 +211,8 @@ export function SentryExample() {
 			<div>
 				<h2 className="text-2xl font-bold mb-4">Sentry Integration Examples</h2>
 				<p className="text-gray-600 mb-6">
-					Test various Sentry features including error tracking, performance
-					monitoring, and logging.
+					Test various Sentry features including error tracking, performance monitoring, and
+					logging.
 				</p>
 			</div>
 
@@ -292,9 +292,7 @@ export function SentryExample() {
 				{/* Custom Context */}
 				<div className="border rounded-lg p-4">
 					<h3 className="font-semibold mb-2">Custom Context & Tags</h3>
-					<p className="text-sm text-gray-600 mb-3">
-						Add custom tags and context for filtering.
-					</p>
+					<p className="text-sm text-gray-600 mb-3">Add custom tags and context for filtering.</p>
 					<button
 						onClick={handleCustomContext}
 						className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
@@ -315,9 +313,7 @@ export function SentryExample() {
 				{/* Clear User */}
 				<div className="border rounded-lg p-4">
 					<h3 className="font-semibold mb-2">Clear User Context</h3>
-					<p className="text-sm text-gray-600 mb-3">
-						Remove user information from Sentry.
-					</p>
+					<p className="text-sm text-gray-600 mb-3">Remove user information from Sentry.</p>
 					<button
 						onClick={() => {
 							Sentry.setUser(null);

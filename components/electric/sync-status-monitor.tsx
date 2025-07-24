@@ -17,13 +17,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { electricDb, type SyncEvent } from "@/lib/electric/config";
@@ -55,9 +49,7 @@ export function SyncStatusMonitor({
 	const [activeUsers, setActiveUsers] = useState<any>({});
 
 	// Error handling
-	const [errors, setErrors] = useState<
-		Array<{ message: string; timestamp: Date }>
-	>([]);
+	const [errors, setErrors] = useState<Array<{ message: string; timestamp: Date }>>([]);
 	const [showErrorDetails, setShowErrorDetails] = useState(false);
 
 	// Initialize presence system
@@ -208,12 +200,8 @@ export function SyncStatusMonitor({
 				<connectionStatus.icon
 					className={`h-4 w-4 ${connectionStatus.color} ${connectionStatus.icon === RefreshCw ? "animate-spin" : ""}`}
 				/>
-				<span className="text-muted-foreground text-sm">
-					{connectionStatus.label}
-				</span>
-				{syncState === "syncing" && (
-					<RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
-				)}
+				<span className="text-muted-foreground text-sm">{connectionStatus.label}</span>
+				{syncState === "syncing" && <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />}
 				{realtimeStats.offlineQueueSize > 0 && (
 					<Badge className="text-xs" variant="outline">
 						{realtimeStats.offlineQueueSize} queued
@@ -232,9 +220,7 @@ export function SyncStatusMonitor({
 							<Database className="h-5 w-5" />
 							Real-time Sync Status
 						</CardTitle>
-						<CardDescription>
-							ElectricSQL synchronization and collaboration status
-						</CardDescription>
+						<CardDescription>ElectricSQL synchronization and collaboration status</CardDescription>
 					</div>
 					<Button
 						disabled={!isOnline || syncState === "syncing"}
@@ -309,15 +295,11 @@ export function SyncStatusMonitor({
 				<div className="grid grid-cols-2 gap-4 text-sm">
 					<div className="space-y-1">
 						<p className="text-muted-foreground">Subscribed Tables</p>
-						<p className="font-mono">
-							{realtimeStats.subscribedTables?.length || 0}
-						</p>
+						<p className="font-mono">{realtimeStats.subscribedTables?.length || 0}</p>
 					</div>
 					<div className="space-y-1">
 						<p className="text-muted-foreground">Event Listeners</p>
-						<p className="font-mono">
-							{realtimeStats.syncEventListenerCount || 0}
-						</p>
+						<p className="font-mono">{realtimeStats.syncEventListenerCount || 0}</p>
 					</div>
 					<div className="space-y-1">
 						<p className="text-muted-foreground">Reconnect Attempts</p>
@@ -375,20 +357,16 @@ export function SyncStatusMonitor({
 							Active Users ({Object.keys(activeUsers).length})
 						</h4>
 						<div className="space-y-1">
-							{Object.entries(activeUsers).map(
-								([userId, userData]: [string, any]) => (
-									<div className="flex items-center gap-2 text-xs" key={userId}>
-										<div className="h-2 w-2 rounded-full bg-green-500" />
-										<span>{userId}</span>
-										<span className="text-muted-foreground">
-											{userData.activity}
-										</span>
-										<span className="ml-auto text-muted-foreground">
-											{new Date(userData.timestamp).toLocaleTimeString()}
-										</span>
-									</div>
-								),
-							)}
+							{Object.entries(activeUsers).map(([userId, userData]: [string, any]) => (
+								<div className="flex items-center gap-2 text-xs" key={userId}>
+									<div className="h-2 w-2 rounded-full bg-green-500" />
+									<span>{userId}</span>
+									<span className="text-muted-foreground">{userData.activity}</span>
+									<span className="ml-auto text-muted-foreground">
+										{new Date(userData.timestamp).toLocaleTimeString()}
+									</span>
+								</div>
+							))}
 						</div>
 					</div>
 				)}
@@ -413,14 +391,9 @@ export function SyncStatusMonitor({
 						{showErrorDetails && (
 							<div className="max-h-32 space-y-1 overflow-y-auto">
 								{errors.slice(0, 3).map((error, index) => (
-									<div
-										className="rounded border border-red-200 bg-red-50 p-2 text-xs"
-										key={index}
-									>
+									<div className="rounded border border-red-200 bg-red-50 p-2 text-xs" key={index}>
 										<p className="text-red-800">{error.message}</p>
-										<p className="mt-1 text-red-600">
-											{error.timestamp.toLocaleString()}
-										</p>
+										<p className="mt-1 text-red-600">{error.timestamp.toLocaleString()}</p>
 									</div>
 								))}
 							</div>
@@ -464,9 +437,7 @@ export function SyncIndicator({ className = "" }: { className?: string }) {
 				<WifiOff className="h-4 w-4 text-gray-500" />
 			)}
 
-			{syncState === "syncing" && (
-				<RefreshCw className="h-3 w-3 animate-spin text-blue-500" />
-			)}
+			{syncState === "syncing" && <RefreshCw className="h-3 w-3 animate-spin text-blue-500" />}
 		</div>
 	);
 }

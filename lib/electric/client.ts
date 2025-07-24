@@ -1,119 +1,44 @@
+import { ElectricClient as BaseElectricClient, type ElectricConfig } from "@electric-sql/client";
+// Import actual ElectricSQL packages
+import { PGlite } from "@electric-sql/pglite";
 import type * as schema from "@/db/schema";
+import { logger } from "../logging";
 import { ObservabilityService } from "../observability";
-import {
-	electricConfig,
-	getFinalConfig,
-	validateElectricConfig,
-} from "./config";
-
-// Import ElectricSQL types and client
-// Note: These imports will work once @electric-sql/client is properly configured
-interface ElectricDatabase {
-	execute: (sql: string, params?: any[]) => Promise<any>;
-	[key: string]: any;
-}
-
-interface BaseElectricClient {
-	db: ElectricDatabase;
-	connect: () => Promise<void>;
-	disconnect: () => Promise<void>;
-	on: (event: string, handler: (data?: any) => void) => void;
-}
-
-// PGlite interface for local database
-interface IPGlite {
-	close: () => Promise<void>;
-	query: (sql: string, params?: any[]) => Promise<any>;
-}
-
-// Mock PGlite constructor for now - will be replaced with actual import
-class PGlite implements IPGlite {
-	constructor(config: any) {
-		console.log("PGlite initialized with config:", config);
-	}
-
-	async close(): Promise<void> {
-		console.log("PGlite closed");
-	}
-
-	async query(sql: string, params?: any[]): Promise<any> {
-		console.log("PGlite query:", sql, params);
-		return { rows: [], rowCount: 0 };
-	}
-}
-
-// Mock BaseElectricClient for now - will be replaced with actual import
-class MockElectricClient implements BaseElectricClient {
-	db: ElectricDatabase;
-	private eventHandlers = new Map<string, ((data?: any) => void)[]>();
-
-	constructor(config: any) {
-		console.log("BaseElectricClient initialized with config:", config);
-		this.db = {
-			execute: async (sql: string, params?: any[]) => {
-				console.log("Electric DB execute:", sql, params);
-				return { rows: [], rowCount: 0 };
-			},
-		};
-	}
-
-	async connect(): Promise<void> {
-		console.log("BaseElectricClient connected");
-		this.emit("connected");
-	}
-
-	async disconnect(): Promise<void> {
-		console.log("BaseElectricClient disconnected");
-		this.emit("disconnected");
-	}
-
-	on(event: string, handler: (data?: any) => void): void {
-		if (!this.eventHandlers.has(event)) {
-			this.eventHandlers.set(event, []);
-		}
-		this.eventHandlers.get(event)!.push(handler);
-	}
-
-	private emit(event: string, data?: any): void {
-		const handlers = this.eventHandlers.get(event);
-		if (handlers) {
-			handlers.forEach((handler) => {
-				try {
-					handler(data);
-				} catch (error) {
-					console.error(`Error in event handler for ${event}:`, error);
-				}
-			});
-		}
-	}
-}
+import { electricConfig, getFinalConfig, validateElectricConfig } from "./config";
 
 // Type definitions for our database schema
 export type DatabaseSchema = typeof schema;
+
+// ElectricSQL database interface
+interface ElectricDatabase {
+	execute: (sql: string, params?: unknown[]) => Promise<unknown>;
+	query: (sql: string, params?: unknown[]) => Promise<unknown>;
+	[key: string]: unknown;
+}
 
 // Enhanced ElectricSQL client with observability and error handling
 export class ElectricClient {
 	private static instance: ElectricClient | null = null;
 	private client: BaseElectricClient | null = null;
 	private database: ElectricDatabase | null = null;
-	private pglite: IPGlite | null = null;
+	private pglite: PGlite | null = null;
 	private isConnected = false;
 	private connectionPromise: Promise<void> | null = null;
 	private observability = ObservabilityService.getInstance();
+	private logger = logger.child({ component: "ElectricClient" });
 	private subscriptions = new Map<string, () => void>();
 	private offlineQueue: Array<{
 		operation: string;
-		data: any;
+		data: unknown;
 		timestamp: Date;
 	}> = [];
-	private syncStatus: "connected" | "disconnected" | "syncing" | "error" =
-		"disconnected";
+	private syncStatus: "connected" | "disconnected" | "syncing" | "error" = "disconnected";
 	private lastSyncTime: Date | null = null;
 	private conflictLog: Array<{
 		table: string;
 		id: string;
-		conflict: any;
-		resolution: any;
+		conflict: unknown;
+		resolution: unknown;
 		timestamp: Date;
 	}> = [];
 
@@ -136,46 +61,56 @@ export class ElectricClient {
 			return this.connectionPromise;
 		}
 
-		this.connectionPromise = this.observability.trackOperation(
-			"electric.initialize",
-			async () => {
-				try {
-					// Validate configuration
-					validateElectricConfig();
-					const config = getFinalConfig();
+		this.connectionPromise = this.observability.trackOperation("electric.initialize", async () => {
+			try {
+				// Validate configuration
+				validateElectricConfig();
+				const config = getFinalConfig();
 
-					// Initialize PGlite for local database
-					this.pglite = new PGlite({
-						dataDir:
-							process.env.ELECTRIC_LOCAL_DB_PATH || "idb://electric-local",
-						extensions: {
-							vector: true, // Enable vector extension for embeddings
-						},
-					});
+				this.logger.info("Initializing ElectricSQL client", { config: { url: config.url } });
 
-					// Initialize ElectricSQL client
-					this.client = new BaseElectricClient({
-						...config,
-						database: this.pglite,
-					});
+				// Initialize PGlite for local database
+				this.pglite = new PGlite({
+					dataDir: process.env.ELECTRIC_LOCAL_DB_PATH || "idb://electric-local",
+					extensions: {
+						vector: true, // Enable vector extension for embeddings
+					},
+				});
 
-					// Get database instance
-					this.database = this.client.db;
+				// Initialize ElectricSQL client with proper configuration
+				const electricConfig: ElectricConfig = {
+					url: config.url || process.env.ELECTRIC_URL || "ws://localhost:5133",
+					auth: config.auth,
+					debug: config.debug || process.env.NODE_ENV === "development",
+				};
 
-					// Set up event listeners
-					this.setupEventListeners();
+				this.client = new BaseElectricClient(electricConfig);
 
-					// Connect to ElectricSQL service
-					await this.connect();
+				// Get database instance from PGlite
+				this.database = {
+					execute: async (sql: string, params?: unknown[]) => {
+						if (!this.pglite) throw new Error("PGlite not initialized");
+						return await this.pglite.query(sql, params);
+					},
+					query: async (sql: string, params?: unknown[]) => {
+						if (!this.pglite) throw new Error("PGlite not initialized");
+						return await this.pglite.query(sql, params);
+					},
+				};
 
-					console.log("ElectricSQL client initialized successfully");
-				} catch (error) {
-					console.error("Failed to initialize ElectricSQL client:", error);
-					this.observability.recordError("electric.initialize", error as Error);
-					throw error;
-				}
-			},
-		);
+				// Set up event listeners
+				this.setupEventListeners();
+
+				// Connect to ElectricSQL service
+				await this.connect();
+
+				this.logger.info("ElectricSQL client initialized successfully");
+			} catch (error) {
+				this.logger.error("Failed to initialize ElectricSQL client", { error });
+				this.observability.recordError("electric.initialize", error as Error);
+				throw error;
+			}
+		});
 
 		return this.connectionPromise;
 	}
@@ -194,6 +129,7 @@ export class ElectricClient {
 
 			while (retryCount < config.sync.maxRetries) {
 				try {
+					// ElectricSQL client connection
 					await this.client.connect();
 					this.isConnected = true;
 					this.syncStatus = "connected";
@@ -202,25 +138,20 @@ export class ElectricClient {
 					// Process offline queue if any
 					await this.processOfflineQueue();
 
-					console.log("Connected to ElectricSQL service");
+					this.logger.info("Connected to ElectricSQL service");
 					return;
 				} catch (error) {
 					retryCount++;
 					this.syncStatus = "error";
 
 					if (retryCount >= config.sync.maxRetries) {
-						console.error(
-							"Failed to connect to ElectricSQL service after retries:",
-							error,
-						);
+						this.logger.error("Failed to connect to ElectricSQL service after retries", { error });
 						throw error;
 					}
 
 					// Exponential backoff
 					const delay = config.sync.retryBackoff * 2 ** (retryCount - 1);
-					console.warn(
-						`Connection attempt ${retryCount} failed, retrying in ${delay}ms...`,
-					);
+					this.logger.warn(`Connection attempt ${retryCount} failed, retrying in ${delay}ms...`);
 					await new Promise((resolve) => setTimeout(resolve, delay));
 				}
 			}
@@ -231,21 +162,23 @@ export class ElectricClient {
 	 * Set up event listeners for connection status and sync events
 	 */
 	private setupEventListeners(): void {
-		if (!this.client) return;
+		if (!this.client) {
+			return;
+		}
 
 		// Connection status events
 		this.client.on("connected", () => {
 			this.isConnected = true;
 			this.syncStatus = "connected";
 			this.observability.recordEvent("electric.connected", {});
-			console.log("ElectricSQL connected");
+			this.logger.info("ElectricSQL connected");
 		});
 
 		this.client.on("disconnected", () => {
 			this.isConnected = false;
 			this.syncStatus = "disconnected";
 			this.observability.recordEvent("electric.disconnected", {});
-			console.log("ElectricSQL disconnected");
+			this.logger.info("ElectricSQL disconnected");
 		});
 
 		// Sync events
@@ -254,52 +187,51 @@ export class ElectricClient {
 			this.observability.recordEvent("electric.sync.start", {});
 		});
 
-		this.client.on("sync:complete", (data: any) => {
+		this.client.on("sync:complete", (data: unknown) => {
 			this.syncStatus = "connected";
 			this.lastSyncTime = new Date();
 			this.observability.recordEvent("electric.sync.complete", { data });
 		});
 
-		this.client.on("sync:error", (error: any) => {
+		this.client.on("sync:error", (error: Error) => {
 			this.syncStatus = "error";
 			this.observability.recordError("electric.sync", error);
-			console.error("ElectricSQL sync error:", error);
+			this.logger.error("ElectricSQL sync error", { error });
 		});
 
 		// Conflict resolution events
-		this.client.on("conflict", (conflict: any) => {
+		this.client.on("conflict", (conflict: unknown) => {
 			this.handleConflict(conflict);
 		});
 
 		// Error events
-		this.client.on("error", (error: any) => {
+		this.client.on("error", (error: Error) => {
 			this.observability.recordError("electric.client", error);
-			console.error("ElectricSQL client error:", error);
+			this.logger.error("ElectricSQL client error", { error });
 		});
 	}
 
 	/**
 	 * Handle conflicts using last-write-wins with conflict detection
 	 */
-	private handleConflict(conflict: any): void {
+	private handleConflict(conflict: unknown): void {
 		this.observability.trackOperation("electric.conflict.resolve", async () => {
-			const { table, id, local, remote } = conflict;
+			const conflictData = conflict as { table: string; id: string; local: any; remote: any };
+			const { table, id, local, remote } = conflictData;
 
 			// Log conflict for debugging
 			const conflictEntry = {
 				table,
 				id,
 				conflict: { local, remote },
-				resolution: null as any,
+				resolution: null as unknown,
 				timestamp: new Date(),
 			};
 
 			try {
 				// Last-write-wins resolution
 				const localTimestamp = new Date(local.updated_at || local.created_at);
-				const remoteTimestamp = new Date(
-					remote.updated_at || remote.created_at,
-				);
+				const remoteTimestamp = new Date(remote.updated_at || remote.created_at);
 
 				const winner = remoteTimestamp > localTimestamp ? remote : local;
 				conflictEntry.resolution = {
@@ -308,10 +240,7 @@ export class ElectricClient {
 				};
 
 				// Apply resolution
-				await this.database?.execute(
-					`UPDATE ${table} SET updated_at = NOW() WHERE id = ?`,
-					[id],
-				);
+				await this.database?.execute(`UPDATE ${table} SET updated_at = NOW() WHERE id = ?`, [id]);
 
 				return conflictEntry.resolution;
 			} catch (error) {
@@ -337,20 +266,19 @@ export class ElectricClient {
 	 * Process offline queue when connection is restored
 	 */
 	private async processOfflineQueue(): Promise<void> {
-		if (this.offlineQueue.length === 0) return;
+		if (this.offlineQueue.length === 0) {
+			return;
+		}
 
-		console.log(`Processing ${this.offlineQueue.length} offline operations...`);
+		this.logger.info(`Processing ${this.offlineQueue.length} offline operations...`);
 
 		for (const operation of this.offlineQueue) {
 			try {
 				// Process each queued operation
 				await this.database?.execute(operation.operation, operation.data);
 			} catch (error) {
-				console.error("Failed to process offline operation:", error);
-				this.observability.recordError(
-					"electric.offline.process",
-					error as Error,
-				);
+				this.logger.error("Failed to process offline operation", { error });
+				this.observability.recordError("electric.offline.process", error as Error);
 			}
 		}
 
@@ -403,10 +331,72 @@ export class ElectricClient {
 			this.syncStatus = "disconnected";
 			this.connectionPromise = null;
 
-			console.log("ElectricSQL client cleaned up successfully");
+			this.logger.info("ElectricSQL client cleaned up successfully");
 		} catch (error) {
-			console.error("Error during ElectricSQL client cleanup:", error);
+			this.logger.error("Error during ElectricSQL client cleanup", { error });
 			this.observability.recordError("electric.cleanup", error as Error);
+		}
+	}
+
+	/**
+	 * Subscribe to table changes for real-time updates
+	 */
+	async subscribeToTable(
+		tableName: string,
+		callback: (data: unknown) => void
+	): Promise<() => void> {
+		if (!this.client) {
+			throw new Error("ElectricSQL client not initialized");
+		}
+
+		try {
+			// Use ElectricSQL's subscription mechanism
+			const unsubscribe = this.client.subscribe?.(tableName, callback) || (() => {});
+			this.subscriptions.set(tableName, unsubscribe);
+
+			this.logger.info("Subscribed to table", { tableName });
+			return unsubscribe;
+		} catch (error) {
+			this.logger.error("Failed to subscribe to table", { tableName, error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Execute SQL query with proper error handling
+	 */
+	async query(sql: string, params?: unknown[]): Promise<unknown> {
+		if (!this.database) {
+			throw new Error("ElectricSQL database not initialized");
+		}
+
+		try {
+			return await this.database.query(sql, params);
+		} catch (error) {
+			this.logger.error("Database query failed", { sql, params, error });
+			this.observability.recordError("electric.query", error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Force sync with remote database
+	 */
+	async sync(): Promise<void> {
+		if (!this.client) {
+			throw new Error("ElectricSQL client not initialized");
+		}
+
+		try {
+			this.syncStatus = "syncing";
+			await this.client.sync?.();
+			this.syncStatus = "connected";
+			this.lastSyncTime = new Date();
+			this.logger.info("Manual sync completed");
+		} catch (error) {
+			this.syncStatus = "error";
+			this.logger.error("Manual sync failed", { error });
+			throw error;
 		}
 	}
 }

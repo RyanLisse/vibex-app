@@ -1,9 +1,5 @@
 import { describe, expect, it, test } from "vitest";
-import type {
-	TelemetryBackend,
-	TelemetryConfig,
-	TelemetryEnvironmentConfig,
-} from "./telemetry";
+import type { TelemetryBackend, TelemetryConfig, TelemetryEnvironmentConfig } from "./telemetry";
 
 describe("TelemetryConfig interface", () => {
 	it("should accept valid telemetry configuration", () => {
@@ -17,9 +13,7 @@ describe("TelemetryConfig interface", () => {
 		};
 
 		expect(config.isEnabled).toBe(true);
-		expect(config.endpoint).toBe(
-			"https://otel-collector.example.com/v1/traces",
-		);
+		expect(config.endpoint).toBe("https://otel-collector.example.com/v1/traces");
 		expect(config.serviceName).toBe("test-service");
 		expect(config.serviceVersion).toBe("2.0.0");
 		expect(config.headers).toEqual({ "x-api-key": "test-key" });

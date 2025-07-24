@@ -75,10 +75,7 @@ export class GitHubAuth {
 	}
 
 	// Stub implementation for build purposes
-	async getRepository(
-		owner: string,
-		repo: string,
-	): Promise<GitHubRepository | null> {
+	async getRepository(owner: string, repo: string): Promise<GitHubRepository | null> {
 		if (!this.isAuthenticated()) {
 			return null;
 		}

@@ -72,9 +72,7 @@ const SuggestionItem: React.FC<SuggestionItemProps> = ({
 			case "prompt":
 				return <svg className="lightbulb-icon" data-testid="lightbulb-icon" />;
 			case "action":
-				return (
-					<svg className="arrow-right-icon" data-testid="arrow-right-icon" />
-				);
+				return <svg className="arrow-right-icon" data-testid="arrow-right-icon" />;
 			case "tip":
 				return <svg className="sparkles-icon" data-testid="sparkles-icon" />;
 			default:
@@ -83,10 +81,7 @@ const SuggestionItem: React.FC<SuggestionItemProps> = ({
 	};
 
 	return (
-		<div
-			className={`suggestion-item ${variant}`}
-			data-testid={`suggestion-${suggestion.id}`}
-		>
+		<div className={`suggestion-item ${variant}`} data-testid={`suggestion-${suggestion.id}`}>
 			<button
 				onClick={() => onClick(suggestion)}
 				className="suggestion-button"
@@ -104,28 +99,19 @@ const SuggestionItem: React.FC<SuggestionItemProps> = ({
 					</div>
 
 					{suggestion.description && (
-						<div
-							className="suggestion-description"
-							data-testid="suggestion-description"
-						>
+						<div className="suggestion-description" data-testid="suggestion-description">
 							{suggestion.description}
 						</div>
 					)}
 
 					{showCategory && suggestion.category && (
-						<div
-							className="suggestion-category"
-							data-testid="suggestion-category"
-						>
+						<div className="suggestion-category" data-testid="suggestion-category">
 							{suggestion.category}
 						</div>
 					)}
 
 					{showConfidence && suggestion.confidence !== undefined && (
-						<div
-							className="suggestion-confidence"
-							data-testid="suggestion-confidence"
-						>
+						<div className="suggestion-confidence" data-testid="suggestion-confidence">
 							{Math.round(suggestion.confidence * 100)}% confidence
 						</div>
 					)}
@@ -165,10 +151,7 @@ const AISuggestion: React.FC<AISuggestionProps> = ({
 	}
 
 	return (
-		<div
-			className={`ai-suggestion ${variant} ${className}`}
-			data-testid="ai-suggestion"
-		>
+		<div className={`ai-suggestion ${variant} ${className}`} data-testid="ai-suggestion">
 			{title && (
 				<div className="suggestion-header" data-testid="suggestion-header">
 					<h3 className="suggestion-title">{title}</h3>
@@ -235,10 +218,7 @@ describe("AISuggestion Component", () => {
 	describe("Basic Rendering", () => {
 		it("should render suggestions list", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(screen.getByTestId("ai-suggestion")).toBeInTheDocument();
@@ -248,10 +228,7 @@ describe("AISuggestion Component", () => {
 
 		it("should render all suggestions when under maxVisible limit", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(screen.getByTestId("suggestion-1")).toBeInTheDocument();
@@ -265,7 +242,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					maxVisible={2}
-				/>,
+				/>
 			);
 
 			expect(screen.getByTestId("suggestion-1")).toBeInTheDocument();
@@ -279,7 +256,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					maxVisible={2}
-				/>,
+				/>
 			);
 
 			expect(screen.getByTestId("suggestion-count")).toBeInTheDocument();
@@ -288,10 +265,7 @@ describe("AISuggestion Component", () => {
 
 		it("should not render when no suggestions", () => {
 			const { container } = render(
-				<AISuggestion
-					suggestions={[]}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={[]} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(container.firstChild).toBeNull();
@@ -301,10 +275,7 @@ describe("AISuggestion Component", () => {
 	describe("Suggestion Items", () => {
 		it("should render suggestion titles", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(screen.getByText("Explain this code")).toBeInTheDocument();
@@ -314,32 +285,24 @@ describe("AISuggestion Component", () => {
 
 		it("should render suggestion descriptions when provided", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(
-				screen.getByText("Get a detailed explanation of the selected code"),
+				screen.getByText("Get a detailed explanation of the selected code")
 			).toBeInTheDocument();
-			expect(
-				screen.getByText("Suggest error handling improvements"),
-			).toBeInTheDocument();
+			expect(screen.getByText("Suggest error handling improvements")).toBeInTheDocument();
 		});
 
 		it("should not render description when not provided", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			// Third suggestion has no description
 			const thirdSuggestion = screen.getByTestId("suggestion-3");
 			expect(
-				thirdSuggestion.querySelector('[data-testid="suggestion-description"]'),
+				thirdSuggestion.querySelector('[data-testid="suggestion-description"]')
 			).not.toBeInTheDocument();
 		});
 	});
@@ -347,10 +310,7 @@ describe("AISuggestion Component", () => {
 	describe("Category Display", () => {
 		it("should show category icons by default", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(screen.getAllByTestId("lightbulb-icon")).toHaveLength(1);
@@ -364,7 +324,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					showIcons={false}
-				/>,
+				/>
 			);
 
 			expect(screen.queryByTestId("suggestion-icon")).not.toBeInTheDocument();
@@ -376,7 +336,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					showCategory={true}
-				/>,
+				/>
 			);
 
 			expect(screen.getByText("prompt")).toBeInTheDocument();
@@ -392,7 +352,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					showConfidence={true}
-				/>,
+				/>
 			);
 
 			expect(screen.getByText("95% confidence")).toBeInTheDocument();
@@ -402,10 +362,7 @@ describe("AISuggestion Component", () => {
 
 		it("should not show confidence by default", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			expect(screen.queryByText("95% confidence")).not.toBeInTheDocument();
@@ -417,10 +374,7 @@ describe("AISuggestion Component", () => {
 			const user = userEvent.setup();
 
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			await user.click(screen.getByTestId("suggestion-button-1"));
@@ -436,7 +390,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					onDismiss={mockOnDismiss}
-				/>,
+				/>
 			);
 
 			await user.click(screen.getByTestId("suggestion-dismiss-1"));
@@ -446,25 +400,17 @@ describe("AISuggestion Component", () => {
 
 		it("should not show dismiss button when onDismiss is not provided", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
-			expect(
-				screen.queryByTestId("suggestion-dismiss-1"),
-			).not.toBeInTheDocument();
+			expect(screen.queryByTestId("suggestion-dismiss-1")).not.toBeInTheDocument();
 		});
 
 		it("should handle keyboard interactions", async () => {
 			const user = userEvent.setup();
 
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			const button = screen.getByTestId("suggestion-button-1");
@@ -481,7 +427,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					className="custom-class"
-				/>,
+				/>
 			);
 
 			expect(screen.getByTestId("ai-suggestion")).toHaveClass("custom-class");
@@ -493,7 +439,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					variant="compact"
-				/>,
+				/>
 			);
 
 			expect(screen.getByTestId("ai-suggestion")).toHaveClass("compact");
@@ -505,7 +451,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					title="Custom Title"
-				/>,
+				/>
 			);
 
 			expect(screen.getByText("Custom Title")).toBeInTheDocument();
@@ -517,7 +463,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					title=""
-				/>,
+				/>
 			);
 
 			expect(screen.queryByTestId("suggestion-header")).not.toBeInTheDocument();
@@ -531,22 +477,16 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					onDismiss={mockOnDismiss}
-				/>,
+				/>
 			);
 
 			const dismissButton = screen.getByTestId("suggestion-dismiss-1");
-			expect(dismissButton).toHaveAttribute(
-				"aria-label",
-				"Dismiss suggestion: Explain this code",
-			);
+			expect(dismissButton).toHaveAttribute("aria-label", "Dismiss suggestion: Explain this code");
 		});
 
 		it("should be focusable", () => {
 			render(
-				<AISuggestion
-					suggestions={mockSuggestions}
-					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				<AISuggestion suggestions={mockSuggestions} onSuggestionClick={mockOnSuggestionClick} />
 			);
 
 			const button = screen.getByTestId("suggestion-button-1");
@@ -562,7 +502,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					onDismiss={mockOnDismiss}
-				/>,
+				/>
 			);
 
 			await user.tab();
@@ -587,7 +527,7 @@ describe("AISuggestion Component", () => {
 				<AISuggestion
 					suggestions={suggestionsWithoutCategory}
 					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				/>
 			);
 
 			expect(screen.getByText("No category suggestion")).toBeInTheDocument();
@@ -608,7 +548,7 @@ describe("AISuggestion Component", () => {
 					suggestions={zeroConfidenceSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					showConfidence={true}
-				/>,
+				/>
 			);
 
 			expect(screen.getByText("0% confidence")).toBeInTheDocument();
@@ -628,12 +568,10 @@ describe("AISuggestion Component", () => {
 				<AISuggestion
 					suggestions={longTitleSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				/>
 			);
 
-			expect(
-				screen.getByText(/This is a very long suggestion title/),
-			).toBeInTheDocument();
+			expect(screen.getByText(/This is a very long suggestion title/)).toBeInTheDocument();
 		});
 
 		it("should handle maxVisible larger than suggestions array", () => {
@@ -642,7 +580,7 @@ describe("AISuggestion Component", () => {
 					suggestions={mockSuggestions}
 					onSuggestionClick={mockOnSuggestionClick}
 					maxVisible={10}
-				/>,
+				/>
 			);
 
 			expect(screen.getByTestId("suggestion-1")).toBeInTheDocument();
@@ -665,7 +603,7 @@ describe("AISuggestion Component", () => {
 				<AISuggestion
 					suggestions={suggestionsWithMetadata}
 					onSuggestionClick={mockOnSuggestionClick}
-				/>,
+				/>
 			);
 
 			expect(screen.getByText("Suggestion with metadata")).toBeInTheDocument();
@@ -685,7 +623,7 @@ describe("AISuggestion Component", () => {
 					suggestions={largeSuggestionList}
 					onSuggestionClick={mockOnSuggestionClick}
 					maxVisible={5}
-				/>,
+				/>
 			);
 
 			// Should only render 5 items

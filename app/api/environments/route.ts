@@ -34,8 +34,6 @@ export async function GET(request: NextRequest) {
 			const isActive = searchParams.get("isActive");
 			const userId = searchParams.get("userId");
 
-			let query = db.select().from(environments);
-
 			// Apply filters
 			const conditions = [];
 			if (isActive !== null) {
@@ -45,11 +43,15 @@ export async function GET(request: NextRequest) {
 				conditions.push(eq(environments.userId, userId));
 			}
 
-			if (conditions.length > 0) {
-				query = query.where(and(...conditions));
-			}
-
-			const result = await query.orderBy(desc(environments.createdAt));
+			// Build the query in one go to avoid type inference issues
+			const result =
+				conditions.length > 0
+					? await db
+							.select()
+							.from(environments)
+							.where(and(...conditions))
+							.orderBy(desc(environments.createdAt))
+					: await db.select().from(environments).orderBy(desc(environments.createdAt));
 
 			observability.recordEvent("api.environments.listed", {
 				count: result.length,
@@ -121,7 +123,10 @@ export async function POST(request: NextRequest) {
 					{
 						success: false,
 						error: "Validation failed",
-						details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+						details: error.issues.map((issue) => ({
+							field: issue.path.join("."),
+							message: issue.message,
+						})),
 					},
 					{ status: 400 }
 				);

@@ -4,15 +4,7 @@
  * Test-driven development for Redis/Valkey rate limiting
  */
 
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { testRedisConfig } from "./config";
 import { RateLimitService } from "./rate-limit-service";
 import { RedisClientManager } from "./redis-client";
@@ -113,32 +105,20 @@ describe("RateLimitService", () => {
 			};
 
 			// Use sliding window algorithm
-			const result1 = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const result1 = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(result1.allowed).toBe(true);
 
 			// Wait a bit and make another request
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
-			const result2 = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const result2 = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(result2.allowed).toBe(true);
 
 			// Make rapid requests
-			const result3 = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const result3 = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(result3.allowed).toBe(true);
 
-			const result4 = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const result4 = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(result4.allowed).toBe(false); // Should be blocked
 		});
 
@@ -153,30 +133,21 @@ describe("RateLimitService", () => {
 			await rateLimitService.checkSlidingWindowLimit(key, options);
 			await rateLimitService.checkSlidingWindowLimit(key, options);
 
-			const blockedResult = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const blockedResult = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(blockedResult.allowed).toBe(false);
 
 			// Wait for partial window slide
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 
 			// Should still be blocked (window hasn't fully slid)
-			const stillBlockedResult = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const stillBlockedResult = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(stillBlockedResult.allowed).toBe(false);
 
 			// Wait for full window slide
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 
 			// Should be allowed now
-			const allowedResult = await rateLimitService.checkSlidingWindowLimit(
-				key,
-				options,
-			);
+			const allowedResult = await rateLimitService.checkSlidingWindowLimit(key, options);
 			expect(allowedResult.allowed).toBe(true);
 		});
 	});
@@ -259,14 +230,8 @@ describe("RateLimitService", () => {
 			};
 
 			// Check both user and IP limits
-			const userResult = await rateLimitService.checkLimit(
-				`user:${userId}`,
-				userLimits,
-			);
-			const ipResult = await rateLimitService.checkLimit(
-				`ip:${ipAddress}`,
-				ipLimits,
-			);
+			const userResult = await rateLimitService.checkLimit(`user:${userId}`, userLimits);
+			const ipResult = await rateLimitService.checkLimit(`ip:${ipAddress}`, ipLimits);
 
 			expect(userResult.allowed).toBe(true);
 			expect(ipResult.allowed).toBe(true);
@@ -277,14 +242,8 @@ describe("RateLimitService", () => {
 			}
 
 			// IP should be blocked even if user limit is fine
-			const blockedIpResult = await rateLimitService.checkLimit(
-				`ip:${ipAddress}`,
-				ipLimits,
-			);
-			const stillValidUserResult = await rateLimitService.checkLimit(
-				`user:${userId}`,
-				userLimits,
-			);
+			const blockedIpResult = await rateLimitService.checkLimit(`ip:${ipAddress}`, ipLimits);
+			const stillValidUserResult = await rateLimitService.checkLimit(`user:${userId}`, userLimits);
 
 			expect(blockedIpResult.allowed).toBe(false);
 			expect(stillValidUserResult.allowed).toBe(true);
@@ -306,32 +265,20 @@ describe("RateLimitService", () => {
 
 			// Basic user hits limit quickly
 			for (let i = 0; i < 10; i++) {
-				const result = await rateLimitService.checkLimit(
-					basicUser,
-					basicLimits,
-				);
+				const result = await rateLimitService.checkLimit(basicUser, basicLimits);
 				expect(result.allowed).toBe(true);
 			}
 
-			const basicBlocked = await rateLimitService.checkLimit(
-				basicUser,
-				basicLimits,
-			);
+			const basicBlocked = await rateLimitService.checkLimit(basicUser, basicLimits);
 			expect(basicBlocked.allowed).toBe(false);
 
 			// Premium user can make many more requests
 			for (let i = 0; i < 50; i++) {
-				const result = await rateLimitService.checkLimit(
-					premiumUser,
-					premiumLimits,
-				);
+				const result = await rateLimitService.checkLimit(premiumUser, premiumLimits);
 				expect(result.allowed).toBe(true);
 			}
 
-			const premiumStillAllowed = await rateLimitService.checkLimit(
-				premiumUser,
-				premiumLimits,
-			);
+			const premiumStillAllowed = await rateLimitService.checkLimit(premiumUser, premiumLimits);
 			expect(premiumStillAllowed.allowed).toBe(true);
 		});
 	});
@@ -347,8 +294,7 @@ describe("RateLimitService", () => {
 			// Simulate high system load
 			await rateLimitService.setSystemLoad(0.9); // 90% load
 
-			const adaptedLimits =
-				await rateLimitService.getAdaptiveLimits(baseOptions);
+			const adaptedLimits = await rateLimitService.getAdaptiveLimits(baseOptions);
 			expect(adaptedLimits.maxRequests).toBeLessThan(baseOptions.maxRequests);
 
 			// Test with adapted limits
@@ -366,11 +312,8 @@ describe("RateLimitService", () => {
 			// Simulate low system load
 			await rateLimitService.setSystemLoad(0.2); // 20% load
 
-			const adaptedLimits =
-				await rateLimitService.getAdaptiveLimits(baseOptions);
-			expect(adaptedLimits.maxRequests).toBeGreaterThanOrEqual(
-				baseOptions.maxRequests,
-			);
+			const adaptedLimits = await rateLimitService.getAdaptiveLimits(baseOptions);
+			expect(adaptedLimits.maxRequests).toBeGreaterThanOrEqual(baseOptions.maxRequests);
 
 			// Should allow more requests
 			for (let i = 0; i < 75; i++) {
@@ -392,10 +335,7 @@ describe("RateLimitService", () => {
 
 			// Make expensive API calls
 			const expensiveCallCost = 100; // $1.00
-			const result1 = await rateLimitService.checkCostLimit(
-				apiKey,
-				expensiveCallCost,
-			);
+			const result1 = await rateLimitService.checkCostLimit(apiKey, expensiveCallCost);
 			expect(result1.allowed).toBe(true);
 			expect(result1.remaining).toBe(900);
 
@@ -405,10 +345,7 @@ describe("RateLimitService", () => {
 			}
 
 			// Should be blocked when budget exhausted
-			const blockedResult = await rateLimitService.checkCostLimit(
-				apiKey,
-				expensiveCallCost,
-			);
+			const blockedResult = await rateLimitService.checkCostLimit(apiKey, expensiveCallCost);
 			expect(blockedResult.allowed).toBe(false);
 			expect(blockedResult.remaining).toBe(0);
 		});
@@ -422,27 +359,18 @@ describe("RateLimitService", () => {
 			await rateLimitService.initializeBudget(userKey, 200); // $2.00 budget
 
 			// Use expensive model first
-			const expensiveResult = await rateLimitService.checkCostLimit(
-				userKey,
-				gpt4Cost,
-			);
+			const expensiveResult = await rateLimitService.checkCostLimit(userKey, gpt4Cost);
 			expect(expensiveResult.allowed).toBe(true);
 			expect(expensiveResult.remaining).toBe(150);
 
 			// Can still use cheaper model multiple times
 			for (let i = 0; i < 30; i++) {
-				const cheapResult = await rateLimitService.checkCostLimit(
-					userKey,
-					gpt3Cost,
-				);
+				const cheapResult = await rateLimitService.checkCostLimit(userKey, gpt3Cost);
 				expect(cheapResult.allowed).toBe(true);
 			}
 
 			// Budget should be exhausted
-			const finalResult = await rateLimitService.checkCostLimit(
-				userKey,
-				gpt3Cost,
-			);
+			const finalResult = await rateLimitService.checkCostLimit(userKey, gpt3Cost);
 			expect(finalResult.allowed).toBe(false);
 		});
 	});
@@ -566,26 +494,17 @@ describe("RateLimitService", () => {
 			};
 
 			// Check connection limit
-			const connectionResult = await rateLimitService.checkLimit(
-				connectionKey,
-				connectionLimits,
-			);
+			const connectionResult = await rateLimitService.checkLimit(connectionKey, connectionLimits);
 			expect(connectionResult.allowed).toBe(true);
 
 			// Check message rate limits
 			for (let i = 0; i < 45; i++) {
-				const messageResult = await rateLimitService.checkLimit(
-					messageKey,
-					messageLimits,
-				);
+				const messageResult = await rateLimitService.checkLimit(messageKey, messageLimits);
 				expect(messageResult.allowed).toBe(true);
 			}
 
 			// Should still allow some messages
-			const finalResult = await rateLimitService.checkLimit(
-				messageKey,
-				messageLimits,
-			);
+			const finalResult = await rateLimitService.checkLimit(messageKey, messageLimits);
 			expect(finalResult.allowed).toBe(true);
 		});
 	});

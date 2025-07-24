@@ -73,7 +73,7 @@ describe("Input", () => {
 				readOnly
 				required
 				value="test value"
-			/>,
+			/>
 		);
 
 		const input = screen.getByTestId("input");
@@ -104,7 +104,7 @@ describe("Input", () => {
 				target: expect.objectContaining({
 					value: "new value",
 				}),
-			}),
+			})
 		);
 	});
 
@@ -139,7 +139,7 @@ describe("Input", () => {
 		expect(handleKeyDown).toHaveBeenCalledWith(
 			expect.objectContaining({
 				key: "Enter",
-			}),
+			})
 		);
 	});
 
@@ -189,13 +189,7 @@ describe("Input", () => {
 	it("should handle controlled component", () => {
 		const Component = () => {
 			const [value, setValue] = React.useState("initial");
-			return (
-				<Input
-					data-testid="input"
-					onChange={(e) => setValue(e.target.value)}
-					value={value}
-				/>
-			);
+			return <Input data-testid="input" onChange={(e) => setValue(e.target.value)} value={value} />;
 		};
 
 		render(<Component />);

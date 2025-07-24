@@ -25,7 +25,7 @@ export interface FormStateInfo {
  */
 export function createFormStateHelpers<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	isSubmitting: boolean = false,
+	isSubmitting: boolean = false
 ): FormStateHelpers<T> {
 	const { formState } = form;
 
@@ -43,23 +43,17 @@ export function createFormStateHelpers<T extends FieldValues>(
  */
 export function isFormReadyForSubmission<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	isSubmitting: boolean = false,
+	isSubmitting: boolean = false
 ): boolean {
 	const { formState } = form;
 
-	return (
-		!isSubmitting &&
-		Object.keys(formState.errors).length === 0 &&
-		formState.isValid
-	);
+	return !isSubmitting && Object.keys(formState.errors).length === 0 && formState.isValid;
 }
 
 /**
  * React hook for tracking form state information
  */
-export function useFormState<T extends FieldValues>(
-	form: UseFormReturn<T>,
-): FormStateInfo {
+export function useFormState<T extends FieldValues>(form: UseFormReturn<T>): FormStateInfo {
 	const { formState } = form;
 
 	return useMemo(() => {
@@ -79,7 +73,7 @@ export function useFormState<T extends FieldValues>(
  */
 export function getFormSubmissionState<T extends FieldValues>(
 	form: UseFormReturn<T>,
-	isSubmitting: boolean = false,
+	isSubmitting: boolean = false
 ): {
 	canSubmit: boolean;
 	hasErrors: boolean;

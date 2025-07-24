@@ -1,13 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import {
 	buildAuthUrl,
 	createAuthHeaders,
@@ -186,18 +177,12 @@ describe("lib/auth", () => {
 			const url = buildAuthUrl(config);
 			const parsedUrl = new URL(url);
 
-			expect(parsedUrl.origin + parsedUrl.pathname).toBe(
-				"https://example.com/auth",
-			);
+			expect(parsedUrl.origin + parsedUrl.pathname).toBe("https://example.com/auth");
 			expect(parsedUrl.searchParams.get("client_id")).toBe("test-client");
-			expect(parsedUrl.searchParams.get("redirect_uri")).toBe(
-				"https://app.com/callback",
-			);
+			expect(parsedUrl.searchParams.get("redirect_uri")).toBe("https://app.com/callback");
 			expect(parsedUrl.searchParams.get("scope")).toBe("read write");
 			expect(parsedUrl.searchParams.get("state")).toBe("test-state");
-			expect(parsedUrl.searchParams.get("code_challenge")).toBe(
-				"test-challenge",
-			);
+			expect(parsedUrl.searchParams.get("code_challenge")).toBe("test-challenge");
 			expect(parsedUrl.searchParams.get("response_type")).toBe("code");
 			expect(parsedUrl.searchParams.get("code_challenge_method")).toBe("S256");
 		});
@@ -213,9 +198,7 @@ describe("lib/auth", () => {
 			const parsedUrl = new URL(url);
 
 			expect(parsedUrl.searchParams.get("client_id")).toBe("test-client");
-			expect(parsedUrl.searchParams.get("redirect_uri")).toBe(
-				"https://app.com/callback",
-			);
+			expect(parsedUrl.searchParams.get("redirect_uri")).toBe("https://app.com/callback");
 			expect(parsedUrl.searchParams.get("response_type")).toBe("code");
 		});
 	});
@@ -269,9 +252,7 @@ describe("lib/auth", () => {
 				codeVerifier: "test-verifier",
 			};
 
-			await expect(exchangeCodeForToken(config)).rejects.toThrow(
-				"invalid_grant",
-			);
+			await expect(exchangeCodeForToken(config)).rejects.toThrow("invalid_grant");
 		});
 	});
 

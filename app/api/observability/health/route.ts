@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 						acc[exec.agentType] = (acc[exec.agentType] || 0) + 1;
 						return acc;
 					},
-					{} as Record<string, number>,
+					{} as Record<string, number>
 				),
 				streaming: streamingMetrics,
 				subscriptions: subscriptionStats,
@@ -51,10 +51,7 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json(response);
 	} catch (error) {
 		console.error("Error getting health metrics:", error);
-		return NextResponse.json(
-			{ error: "Failed to get health metrics" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Failed to get health metrics" }, { status: 500 });
 	}
 }
 
@@ -77,9 +74,6 @@ export async function POST(request: NextRequest) {
 		}
 	} catch (error) {
 		console.error("Error processing health action:", error);
-		return NextResponse.json(
-			{ error: "Failed to process action" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Failed to process action" }, { status: 500 });
 	}
 }

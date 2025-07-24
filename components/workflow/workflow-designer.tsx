@@ -60,15 +60,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface WorkflowStep {
 	id: string;
 	name: string;
-	type:
-		| "action"
-		| "condition"
-		| "loop"
-		| "parallel"
-		| "wait"
-		| "api"
-		| "code"
-		| "notification";
+	type: "action" | "condition" | "loop" | "parallel" | "wait" | "api" | "code" | "notification";
 	config: Record<string, any>;
 	position: { x: number; y: number };
 }
@@ -125,22 +117,12 @@ function ActionNode({ data, selected }: NodeProps) {
 				selected ? "border-blue-500" : "border-gray-200"
 			}`}
 		>
-			<Handle
-				className="!bg-teal-500 w-16"
-				position={Position.Top}
-				type="target"
-			/>
+			<Handle className="!bg-teal-500 w-16" position={Position.Top} type="target" />
 			<div className="flex items-center space-x-2">
-				<div className={`rounded p-1 ${getColor()} text-white`}>
-					{getIcon()}
-				</div>
+				<div className={`rounded p-1 ${getColor()} text-white`}>{getIcon()}</div>
 				<div className="font-medium text-sm">{data.label}</div>
 			</div>
-			<Handle
-				className="!bg-teal-500 w-16"
-				position={Position.Bottom}
-				type="source"
-			/>
+			<Handle className="!bg-teal-500 w-16" position={Position.Bottom} type="source" />
 		</div>
 	);
 }
@@ -152,23 +134,14 @@ function ConditionNode({ data, selected }: NodeProps) {
 				selected ? "border-blue-500" : "border-gray-200"
 			}`}
 		>
-			<Handle
-				className="!bg-teal-500 w-16"
-				position={Position.Top}
-				type="target"
-			/>
+			<Handle className="!bg-teal-500 w-16" position={Position.Top} type="target" />
 			<div className="flex items-center space-x-2">
 				<div className="rounded bg-yellow-500 p-1 text-white">
 					<GitBranch className="h-4 w-4" />
 				</div>
 				<div className="font-medium text-sm">{data.label}</div>
 			</div>
-			<Handle
-				className="!bg-green-500 w-16"
-				id="true"
-				position={Position.Bottom}
-				type="source"
-			/>
+			<Handle className="!bg-green-500 w-16" id="true" position={Position.Bottom} type="source" />
 			<Handle
 				className="!bg-red-500 w-16"
 				id="false"
@@ -187,22 +160,14 @@ function WaitNode({ data, selected }: NodeProps) {
 				selected ? "border-blue-500" : "border-gray-200"
 			}`}
 		>
-			<Handle
-				className="!bg-teal-500 w-16"
-				position={Position.Top}
-				type="target"
-			/>
+			<Handle className="!bg-teal-500 w-16" position={Position.Top} type="target" />
 			<div className="flex items-center space-x-2">
 				<div className="rounded bg-blue-500 p-1 text-white">
 					<Clock className="h-4 w-4" />
 				</div>
 				<div className="font-medium text-sm">{data.label}</div>
 			</div>
-			<Handle
-				className="!bg-teal-500 w-16"
-				position={Position.Bottom}
-				type="source"
-			/>
+			<Handle className="!bg-teal-500 w-16" position={Position.Bottom} type="source" />
 		</div>
 	);
 }
@@ -251,13 +216,13 @@ export function WorkflowDesigner() {
 
 			setNodes((nds) => [...nds, newNode]);
 		},
-		[setNodes],
+		[setNodes]
 	);
 
 	// Connection handling
 	const onConnect = useCallback(
 		(params: Connection) => setEdges((eds) => addEdge(params, eds)),
-		[setEdges],
+		[setEdges]
 	);
 
 	// Node selection
@@ -334,15 +299,11 @@ export function WorkflowDesigner() {
 
 		setNodes((nds) =>
 			nds.map((node) =>
-				node.id === selectedNode.id
-					? { ...node, data: { ...node.data, ...updates } }
-					: node,
-			),
+				node.id === selectedNode.id ? { ...node, data: { ...node.data, ...updates } } : node
+			)
 		);
 
-		setSelectedNode((prev) =>
-			prev ? { ...prev, data: { ...prev.data, ...updates } } : null,
-		);
+		setSelectedNode((prev) => (prev ? { ...prev, data: { ...prev.data, ...updates } } : null));
 	};
 
 	// Delete selected node
@@ -351,10 +312,7 @@ export function WorkflowDesigner() {
 
 		setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id));
 		setEdges((eds) =>
-			eds.filter(
-				(edge) =>
-					edge.source !== selectedNode.id && edge.target !== selectedNode.id,
-			),
+			eds.filter((edge) => edge.source !== selectedNode.id && edge.target !== selectedNode.id)
 		);
 		setSelectedNode(null);
 	};
@@ -376,9 +334,7 @@ export function WorkflowDesigner() {
 							<h3 className="mb-3 font-semibold">Workflow Information</h3>
 							<div className="space-y-3">
 								<Input
-									onChange={(e) =>
-										setWorkflow((prev) => ({ ...prev, name: e.target.value }))
-									}
+									onChange={(e) => setWorkflow((prev) => ({ ...prev, name: e.target.value }))}
 									placeholder="Workflow name"
 									value={workflow.name}
 								/>
@@ -427,43 +383,23 @@ export function WorkflowDesigner() {
 						<div>
 							<h3 className="mb-3 font-semibold">Add Steps</h3>
 							<div className="grid grid-cols-2 gap-2">
-								<Button
-									onClick={() => addNode("action", "api")}
-									size="sm"
-									variant="outline"
-								>
+								<Button onClick={() => addNode("action", "api")} size="sm" variant="outline">
 									<Globe className="mr-1 h-4 w-4" />
 									API Call
 								</Button>
-								<Button
-									onClick={() => addNode("action", "code")}
-									size="sm"
-									variant="outline"
-								>
+								<Button onClick={() => addNode("action", "code")} size="sm" variant="outline">
 									<Code className="mr-1 h-4 w-4" />
 									Code Block
 								</Button>
-								<Button
-									onClick={() => addNode("condition")}
-									size="sm"
-									variant="outline"
-								>
+								<Button onClick={() => addNode("condition")} size="sm" variant="outline">
 									<GitBranch className="mr-1 h-4 w-4" />
 									Condition
 								</Button>
-								<Button
-									onClick={() => addNode("wait")}
-									size="sm"
-									variant="outline"
-								>
+								<Button onClick={() => addNode("wait")} size="sm" variant="outline">
 									<Clock className="mr-1 h-4 w-4" />
 									Wait/Delay
 								</Button>
-								<Button
-									onClick={() => addNode("action", "database")}
-									size="sm"
-									variant="outline"
-								>
+								<Button onClick={() => addNode("action", "database")} size="sm" variant="outline">
 									<Database className="mr-1 h-4 w-4" />
 									Database
 								</Button>
@@ -487,11 +423,7 @@ export function WorkflowDesigner() {
 										<Button onClick={() => {}} size="sm" variant="outline">
 											<Copy className="h-3 w-3" />
 										</Button>
-										<Button
-											onClick={deleteSelectedNode}
-											size="sm"
-											variant="destructive"
-										>
+										<Button onClick={deleteSelectedNode} size="sm" variant="destructive">
 											<Trash2 className="h-3 w-3" />
 										</Button>
 									</div>
@@ -499,25 +431,18 @@ export function WorkflowDesigner() {
 
 								<div className="space-y-3">
 									<div>
-										<label
-											htmlFor="node-name"
-											className="mb-1 block font-medium text-sm"
-										>
+										<label htmlFor="node-name" className="mb-1 block font-medium text-sm">
 											Name
 										</label>
 										<Input
 											id="node-name"
-											onChange={(e) =>
-												updateSelectedNode({ label: e.target.value })
-											}
+											onChange={(e) => updateSelectedNode({ label: e.target.value })}
 											value={selectedNode.data.label}
 										/>
 									</div>
 
 									<div>
-										<label className="mb-1 block font-medium text-sm">
-											Type
-										</label>
+										<label className="mb-1 block font-medium text-sm">Type</label>
 										<Badge variant="outline">{selectedNode.data.type}</Badge>
 									</div>
 
@@ -526,10 +451,7 @@ export function WorkflowDesigner() {
 											{selectedNode.data.type === "api" && (
 												<>
 													<div>
-														<label
-															htmlFor="api-url"
-															className="mb-1 block font-medium text-sm"
-														>
+														<label htmlFor="api-url" className="mb-1 block font-medium text-sm">
 															URL
 														</label>
 														<Input
@@ -547,9 +469,7 @@ export function WorkflowDesigner() {
 														/>
 													</div>
 													<div>
-														<label className="mb-1 block font-medium text-sm">
-															Method
-														</label>
+														<label className="mb-1 block font-medium text-sm">Method</label>
 														<Select
 															onValueChange={(value) =>
 																updateSelectedNode({
@@ -577,10 +497,7 @@ export function WorkflowDesigner() {
 
 											{selectedNode.data.type === "code" && (
 												<div>
-													<label
-														htmlFor="code-textarea"
-														className="mb-1 block font-medium text-sm"
-													>
+													<label htmlFor="code-textarea" className="mb-1 block font-medium text-sm">
 														Code
 													</label>
 													<Textarea
@@ -625,9 +542,7 @@ export function WorkflowDesigner() {
 														/>
 													</div>
 													<div>
-														<label className="mb-1 block font-medium text-sm">
-															Channel
-														</label>
+														<label className="mb-1 block font-medium text-sm">Channel</label>
 														<Select
 															onValueChange={(value) =>
 																updateSelectedNode({
@@ -637,9 +552,7 @@ export function WorkflowDesigner() {
 																	},
 																})
 															}
-															value={
-																selectedNode.data.config?.channel || "email"
-															}
+															value={selectedNode.data.config?.channel || "email"}
 														>
 															<SelectTrigger>
 																<SelectValue />
@@ -658,9 +571,7 @@ export function WorkflowDesigner() {
 
 									{selectedNode.type === "condition" && (
 										<div>
-											<label className="mb-1 block font-medium text-sm">
-												Condition
-											</label>
+											<label className="mb-1 block font-medium text-sm">Condition</label>
 											<Input
 												onChange={(e) =>
 													updateSelectedNode({
@@ -678,9 +589,7 @@ export function WorkflowDesigner() {
 
 									{selectedNode.type === "wait" && (
 										<div>
-											<label className="mb-1 block font-medium text-sm">
-												Duration (ms)
-											</label>
+											<label className="mb-1 block font-medium text-sm">Duration (ms)</label>
 											<Input
 												onChange={(e) =>
 													updateSelectedNode({
@@ -719,21 +628,15 @@ export function WorkflowDesigner() {
 							<h3 className="mb-3 font-semibold">Execution Settings</h3>
 							<div className="space-y-3">
 								<div>
-									<label className="mb-1 block font-medium text-sm">
-										Timeout (seconds)
-									</label>
+									<label className="mb-1 block font-medium text-sm">Timeout (seconds)</label>
 									<Input placeholder="300" type="number" />
 								</div>
 								<div>
-									<label className="mb-1 block font-medium text-sm">
-										Max Parallel Steps
-									</label>
+									<label className="mb-1 block font-medium text-sm">Max Parallel Steps</label>
 									<Input placeholder="5" type="number" />
 								</div>
 								<div>
-									<label className="mb-1 block font-medium text-sm">
-										Retry Policy
-									</label>
+									<label className="mb-1 block font-medium text-sm">Retry Policy</label>
 									<Select>
 										<SelectTrigger>
 											<SelectValue placeholder="Select policy" />
@@ -741,9 +644,7 @@ export function WorkflowDesigner() {
 										<SelectContent>
 											<SelectItem value="none">No Retry</SelectItem>
 											<SelectItem value="linear">Linear Backoff</SelectItem>
-											<SelectItem value="exponential">
-												Exponential Backoff
-											</SelectItem>
+											<SelectItem value="exponential">Exponential Backoff</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
@@ -778,11 +679,7 @@ export function WorkflowDesigner() {
 					{/* Execute Tab */}
 					<TabsContent className="h-full space-y-4 p-4" value="execute">
 						<div className="flex space-x-2">
-							<Button
-								className="flex-1"
-								disabled={isExecuting}
-								onClick={executeWorkflow}
-							>
+							<Button className="flex-1" disabled={isExecuting} onClick={executeWorkflow}>
 								{isExecuting ? (
 									<RefreshCw className="mr-2 h-4 w-4 animate-spin" />
 								) : (
@@ -813,14 +710,9 @@ export function WorkflowDesigner() {
 								</div>
 								<div className="text-muted-foreground text-sm">
 									<div>ID: {executionStatus.executionId}</div>
-									<div>
-										Started:{" "}
-										{new Date(executionStatus.startedAt).toLocaleString()}
-									</div>
+									<div>Started: {new Date(executionStatus.startedAt).toLocaleString()}</div>
 									{executionStatus.progress && (
-										<div>
-											Progress: {Math.round(executionStatus.progress * 100)}%
-										</div>
+										<div>Progress: {Math.round(executionStatus.progress * 100)}%</div>
 									)}
 								</div>
 							</Card>

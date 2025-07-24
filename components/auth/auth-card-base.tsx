@@ -5,13 +5,7 @@ import { AlertCircle, Clock, LogOut, Shield, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface AuthCardBaseProps {
 	title: string;
@@ -44,9 +38,7 @@ export function AuthCardBase({
 	authenticatedContent,
 	unauthenticatedContent,
 }: AuthCardBaseProps) {
-	const timeToExpiry = expires
-		? formatDistanceToNow(expires, { addSuffix: true })
-		: null;
+	const timeToExpiry = expires ? formatDistanceToNow(expires, { addSuffix: true }) : null;
 
 	if (loading) {
 		return (
@@ -56,9 +48,7 @@ export function AuthCardBase({
 						<Shield className="size-5" />
 						{title}
 					</CardTitle>
-					<CardDescription>
-						{description || "Checking authentication status..."}
-					</CardDescription>
+					<CardDescription>{description || "Checking authentication status..."}</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex items-center justify-center py-8">
@@ -100,9 +90,7 @@ export function AuthCardBase({
 						<User className="size-5" />
 						{title.replace("Authentication", "Authenticated")}
 					</CardTitle>
-					<CardDescription>
-						{description || "Successfully authenticated"}
-					</CardDescription>
+					<CardDescription>{description || "Successfully authenticated"}</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{authType && (

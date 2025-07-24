@@ -105,16 +105,14 @@ describe("AuthCardBase", () => {
 				loading={true}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toBeInTheDocument();
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Test Authentication",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Test Authentication");
 		expect(screen.getByTestId("shield-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Checking authentication status...",
+			"Checking authentication status..."
 		);
 		expect(screen.getByRole("generic")).toHaveClass("animate-spin");
 	});
@@ -127,12 +125,10 @@ describe("AuthCardBase", () => {
 				loading={true}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Custom loading message",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Custom loading message");
 	});
 
 	it("should render error state", () => {
@@ -143,18 +139,14 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toHaveClass("border-red-200");
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Authentication Error",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Authentication Error");
 		expect(screen.getByTestId("card-title")).toHaveClass("text-red-600");
 		expect(screen.getByTestId("alert-icon")).toBeInTheDocument();
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Authentication failed",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Authentication failed");
 		expect(screen.getByTestId("button")).toHaveTextContent("Retry");
 	});
 
@@ -167,7 +159,7 @@ describe("AuthCardBase", () => {
 				onLogout={mockOnLogout}
 				onRetry={mockOnRetry}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		const retryButton = screen.getByTestId("button");
@@ -185,7 +177,7 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		const retryButton = screen.getByTestId("button");
@@ -202,18 +194,14 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toHaveClass("border-green-200");
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Test Authenticated",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Test Authenticated");
 		expect(screen.getByTestId("card-title")).toHaveClass("text-green-600");
 		expect(screen.getByTestId("user-icon")).toBeInTheDocument();
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Successfully authenticated",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Successfully authenticated");
 		expect(screen.getByTestId("button")).toHaveTextContent("Logout");
 		expect(screen.getByTestId("logout-icon")).toBeInTheDocument();
 	});
@@ -226,12 +214,10 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Custom success message",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Custom success message");
 	});
 
 	it("should render authenticated state with auth type", () => {
@@ -242,15 +228,12 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("Auth Type:")).toBeInTheDocument();
 		expect(screen.getByTestId("badge")).toHaveTextContent("OAuth");
-		expect(screen.getByTestId("badge")).toHaveAttribute(
-			"data-variant",
-			"secondary",
-		);
+		expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "secondary");
 	});
 
 	it("should render authenticated state with expiration", () => {
@@ -262,7 +245,7 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("Expires:")).toBeInTheDocument();
@@ -280,13 +263,11 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("in 30 minutes")).toHaveClass("text-amber-600");
-		expect(
-			screen.getByText("Token expires soon. Please re-authenticate."),
-		).toBeInTheDocument();
+		expect(screen.getByText("Token expires soon. Please re-authenticate.")).toBeInTheDocument();
 		expect(screen.getAllByTestId("alert-icon")).toHaveLength(1);
 	});
 
@@ -294,13 +275,11 @@ describe("AuthCardBase", () => {
 		render(
 			<AuthCardBase
 				authenticated={true}
-				authenticatedContent={
-					<div data-testid="custom-content">Custom auth content</div>
-				}
+				authenticatedContent={<div data-testid="custom-content">Custom auth content</div>}
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("custom-content")).toBeInTheDocument();
@@ -314,7 +293,7 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		const logoutButton = screen.getByTestId("button");
@@ -331,17 +310,13 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toHaveClass("w-full", "max-w-md");
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Test Authentication",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Test Authentication");
 		expect(screen.getByTestId("shield-icon")).toBeInTheDocument();
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Please authenticate",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Please authenticate");
 	});
 
 	it("should render unauthenticated state with content", () => {
@@ -351,10 +326,8 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-				unauthenticatedContent={
-					<div data-testid="unauth-content">Login form here</div>
-				}
-			/>,
+				unauthenticatedContent={<div data-testid="unauth-content">Login form here</div>}
+			/>
 		);
 
 		expect(screen.getByTestId("unauth-content")).toBeInTheDocument();
@@ -370,7 +343,7 @@ describe("AuthCardBase", () => {
 				title="Test Authentication"
 			>
 				<div data-testid="children-content">Child content</div>
-			</AuthCardBase>,
+			</AuthCardBase>
 		);
 
 		expect(screen.getByTestId("children-content")).toBeInTheDocument();
@@ -381,9 +354,7 @@ describe("AuthCardBase", () => {
 		render(
 			<AuthCardBase
 				authenticated={true}
-				authenticatedContent={
-					<div data-testid="auth-content">Auth content</div>
-				}
+				authenticatedContent={<div data-testid="auth-content">Auth content</div>}
 				authType="API Key"
 				description="Complex test case"
 				expires={Date.now() + 1_800_000}
@@ -392,20 +363,14 @@ describe("AuthCardBase", () => {
 				onLogout={mockOnLogout}
 				onRetry={mockOnRetry}
 				title="Complex Authentication"
-			/>,
+			/>
 		);
 
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Complex Authenticated",
-		);
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Complex test case",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Complex Authenticated");
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Complex test case");
 		expect(screen.getByTestId("badge")).toHaveTextContent("API Key");
 		expect(screen.getByText("in 30 minutes")).toHaveClass("text-amber-600");
-		expect(
-			screen.getByText("Token expires soon. Please re-authenticate."),
-		).toBeInTheDocument();
+		expect(screen.getByText("Token expires soon. Please re-authenticate.")).toBeInTheDocument();
 		expect(screen.getByTestId("auth-content")).toBeInTheDocument();
 	});
 
@@ -417,12 +382,10 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Test Authentication",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Test Authentication");
 		expect(screen.queryByText("Authentication Error")).not.toBeInTheDocument();
 	});
 
@@ -434,7 +397,7 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.queryByText("Expires:")).not.toBeInTheDocument();
@@ -447,7 +410,7 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		const cardContent = screen.getByTestId("card-content");

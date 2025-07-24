@@ -98,10 +98,7 @@ describe("Electric-SQL Sync Integration", () => {
 		});
 
 		// Both updates should resolve (Electric handles conflicts internally)
-		const results = await Promise.allSettled([
-			conflictingUpdate1,
-			conflictingUpdate2,
-		]);
+		const results = await Promise.allSettled([conflictingUpdate1, conflictingUpdate2]);
 
 		expect(results[0].status).toBe("fulfilled");
 		expect(results[1].status).toBe("fulfilled");

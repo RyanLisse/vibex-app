@@ -33,7 +33,7 @@ export class MemorySharingService {
 		this.sharingConfigs.set(config.sourceAgentType, configs);
 
 		console.log(
-			`Registered sharing config: ${config.sourceAgentType} -> ${config.targetAgentTypes.join(", ")}`,
+			`Registered sharing config: ${config.sourceAgentType} -> ${config.targetAgentTypes.join(", ")}`
 		);
 	}
 
@@ -60,10 +60,7 @@ export class MemorySharingService {
 						await this.shareToAgent(memory, targetAgentType, config);
 						sharedToAgents.push(targetAgentType);
 					} catch (error) {
-						console.error(
-							`Failed to share memory to ${targetAgentType}:`,
-							error,
-						);
+						console.error(`Failed to share memory to ${targetAgentType}:`, error);
 					}
 				}
 			}
@@ -96,7 +93,7 @@ export class MemorySharingService {
 	 */
 	async shareMemories(
 		memories: MemoryEntry[],
-		targetAgentTypes?: string[],
+		targetAgentTypes?: string[]
 	): Promise<Map<string, string[]>> {
 		const results = new Map<string, string[]>();
 
@@ -122,19 +119,16 @@ export class MemorySharingService {
 			types?: MemoryType[];
 			minImportance?: number;
 			limit?: number;
-		} = {},
+		} = {}
 	): Promise<number> {
 		try {
 			// Find relevant memories from source agent
-			const searchResults = await memorySearchService.search(
-				options.query || "",
-				{
-					agentType: sourceAgentType,
-					types: options.types,
-					importance: { min: options.minImportance || 5 },
-					limit: options.limit || 20,
-				},
-			);
+			const searchResults = await memorySearchService.search(options.query || "", {
+				agentType: sourceAgentType,
+				types: options.types,
+				importance: { min: options.minImportance || 5 },
+				limit: options.limit || 20,
+			});
 
 			let sharedCount = 0;
 
@@ -194,10 +188,7 @@ export class MemorySharingService {
 	/**
 	 * Check if memory should be shared based on configuration
 	 */
-	private shouldShareMemory(
-		memory: MemoryEntry,
-		config: MemorySharingConfig,
-	): boolean {
+	private shouldShareMemory(memory: MemoryEntry, config: MemorySharingConfig): boolean {
 		// Check memory type
 		if (!config.memoryTypes.includes(memory.metadata.type)) {
 			return false;
@@ -222,17 +213,14 @@ export class MemorySharingService {
 	private async shareToAgent(
 		memory: MemoryEntry,
 		targetAgentType: string,
-		config: MemorySharingConfig,
+		config: MemorySharingConfig
 	): Promise<void> {
 		// Transform memory content if rules are defined
 		let transformedContent = memory.content;
 		const transformedMetadata = { ...memory.metadata };
 
 		if (config.transformRules) {
-			transformedContent = this.applyTransformRules(
-				transformedContent,
-				config.transformRules,
-			);
+			transformedContent = this.applyTransformRules(transformedContent, config.transformRules);
 		}
 
 		// Update metadata for shared memory
@@ -266,7 +254,7 @@ export class MemorySharingService {
 	 */
 	private async shareToSpecificAgents(
 		memory: MemoryEntry,
-		targetAgentTypes: string[],
+		targetAgentTypes: string[]
 	): Promise<string[]> {
 		const sharedTo: string[] = [];
 
@@ -292,10 +280,7 @@ export class MemorySharingService {
 	/**
 	 * Apply transform rules to content
 	 */
-	private applyTransformRules(
-		content: string,
-		rules: MemoryTransformRule[],
-	): string {
+	private applyTransformRules(content: string, rules: MemoryTransformRule[]): string {
 		let transformed = content;
 
 		for (const rule of rules) {
@@ -352,7 +337,7 @@ export class MemorySharingService {
 	async getSharedFromAgent(
 		sourceAgentType: string,
 		targetAgentType: string,
-		limit = 20,
+		limit = 20
 	): Promise<MemoryEntry[]> {
 		return memoryRepository.search({
 			agentType: targetAgentType,
@@ -367,7 +352,7 @@ export class MemorySharingService {
 	 */
 	async getShareRecommendations(
 		agentType: string,
-		limit = 10,
+		limit = 10
 	): Promise<
 		Array<{
 			memory: MemoryEntry;
@@ -392,12 +377,12 @@ export class MemorySharingService {
 			if (!memory.metadata.tags?.includes("shared")) {
 				const configs = this.sharingConfigs.get(agentType) || [];
 				const applicableConfigs = configs.filter((config) =>
-					this.shouldShareMemory(memory, config),
+					this.shouldShareMemory(memory, config)
 				);
 
 				if (applicableConfigs.length > 0) {
 					const targetAgents = Array.from(
-						new Set(applicableConfigs.flatMap((c) => c.targetAgentTypes)),
+						new Set(applicableConfigs.flatMap((c) => c.targetAgentTypes))
 					);
 
 					recommendations.push({

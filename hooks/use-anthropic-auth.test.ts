@@ -34,7 +34,7 @@ describe("useAnthropicAuth", () => {
 			{
 				authenticated: false,
 				loading: true,
-			},
+			}
 		);
 	});
 

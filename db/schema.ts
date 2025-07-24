@@ -46,11 +46,9 @@ export const alerts = pgTable(
 		environmentIdx: index("alerts_environment_idx").on(table.environment),
 		resolvedIdx: index("alerts_resolved_idx").on(table.resolved),
 		timestampIdx: index("alerts_timestamp_idx").on(table.timestamp),
-		correlationIdIdx: index("alerts_correlation_id_idx").on(
-			table.correlationId,
-		),
+		correlationIdIdx: index("alerts_correlation_id_idx").on(table.correlationId),
 		userIdIdx: index("alerts_user_id_idx").on(table.userId),
-	}),
+	})
 );
 
 export const alertChannels = pgTable(
@@ -71,7 +69,7 @@ export const alertChannels = pgTable(
 		typeIdx: index("alert_channels_type_idx").on(table.type),
 		enabledIdx: index("alert_channels_enabled_idx").on(table.enabled),
 		uniqueName: unique("alert_channels_name_unique").on(table.name),
-	}),
+	})
 );
 
 export const alertNotifications = pgTable(
@@ -97,11 +95,9 @@ export const alertNotifications = pgTable(
 	(table) => ({
 		alertIdIdx: index("alert_notifications_alert_id_idx").on(table.alertId),
 		statusIdx: index("alert_notifications_status_idx").on(table.status),
-		channelTypeIdx: index("alert_notifications_channel_type_idx").on(
-			table.channelType,
-		),
+		channelTypeIdx: index("alert_notifications_channel_type_idx").on(table.channelType),
 		sentAtIdx: index("alert_notifications_sent_at_idx").on(table.sentAt),
-	}),
+	})
 );
 
 export const alertMetrics = pgTable(
@@ -120,7 +116,7 @@ export const alertMetrics = pgTable(
 	},
 	(table) => ({
 		dateIdx: index("alert_metrics_date_idx").on(table.date),
-	}),
+	})
 );
 
 // Alert Relations
@@ -132,19 +128,16 @@ export const alertChannelsRelations = relations(alertChannels, ({ many }) => ({
 	notifications: many(alertNotifications),
 }));
 
-export const alertNotificationsRelations = relations(
-	alertNotifications,
-	({ one }) => ({
-		alert: one(alerts, {
-			fields: [alertNotifications.alertId],
-			references: [alerts.id],
-		}),
-		channel: one(alertChannels, {
-			fields: [alertNotifications.channelId],
-			references: [alertChannels.id],
-		}),
+export const alertNotificationsRelations = relations(alertNotifications, ({ one }) => ({
+	alert: one(alerts, {
+		fields: [alertNotifications.alertId],
+		references: [alerts.id],
 	}),
-);
+	channel: one(alertChannels, {
+		fields: [alertNotifications.channelId],
+		references: [alertChannels.id],
+	}),
+}));
 
 // Core Tables
 export const tasks = pgTable(
@@ -168,7 +161,7 @@ export const tasks = pgTable(
 		userIdIdx: index("tasks_user_id_idx").on(table.userId),
 		createdAtIdx: index("tasks_created_at_idx").on(table.createdAt),
 		embeddingIdx: index("tasks_embedding_idx").using("hnsw", table.embedding),
-	}),
+	})
 );
 
 export const environments = pgTable(
@@ -188,11 +181,8 @@ export const environments = pgTable(
 		nameIdx: index("environments_name_idx").on(table.name),
 		userIdIdx: index("environments_user_id_idx").on(table.userId),
 		isActiveIdx: index("environments_is_active_idx").on(table.isActive),
-		uniqueUserName: unique("environments_user_name_unique").on(
-			table.userId,
-			table.name,
-		),
-	}),
+		uniqueUserName: unique("environments_user_name_unique").on(table.userId, table.name),
+	})
 );
 
 // Observability Tables
@@ -221,10 +211,8 @@ export const agentExecutions = pgTable(
 		statusIdx: index("agent_executions_status_idx").on(table.status),
 		startedAtIdx: index("agent_executions_started_at_idx").on(table.startedAt),
 		traceIdIdx: index("agent_executions_trace_id_idx").on(table.traceId),
-		completedAtIdx: index("agent_executions_completed_at_idx").on(
-			table.completedAt,
-		),
-	}),
+		completedAtIdx: index("agent_executions_completed_at_idx").on(table.completedAt),
+	})
 );
 
 export const observabilityEvents = pgTable(
@@ -248,17 +236,13 @@ export const observabilityEvents = pgTable(
 		tags: jsonb("tags"),
 	},
 	(table) => ({
-		executionIdIdx: index("observability_events_execution_id_idx").on(
-			table.executionId,
-		),
+		executionIdIdx: index("observability_events_execution_id_idx").on(table.executionId),
 		eventTypeIdx: index("observability_events_event_type_idx").on(table.type),
-		timestampIdx: index("observability_events_timestamp_idx").on(
-			table.timestamp,
-		),
+		timestampIdx: index("observability_events_timestamp_idx").on(table.timestamp),
 		traceIdIdx: index("observability_events_trace_id_idx").on(table.traceId),
 		severityIdx: index("observability_events_severity_idx").on(table.severity),
 		categoryIdx: index("observability_events_category_idx").on(table.category),
-	}),
+	})
 );
 
 // Agent Memory System with Vector Search
@@ -281,20 +265,15 @@ export const agentMemory = pgTable(
 	(table) => ({
 		agentTypeIdx: index("agent_memory_agent_type_idx").on(table.agentType),
 		contextKeyIdx: index("agent_memory_context_key_idx").on(table.contextKey),
-		embeddingIdx: index("agent_memory_embedding_idx").using(
-			"hnsw",
-			table.embedding,
-		),
-		lastAccessedIdx: index("agent_memory_last_accessed_idx").on(
-			table.lastAccessedAt,
-		),
+		embeddingIdx: index("agent_memory_embedding_idx").using("hnsw", table.embedding),
+		lastAccessedIdx: index("agent_memory_last_accessed_idx").on(table.lastAccessedAt),
 		importanceIdx: index("agent_memory_importance_idx").on(table.importance),
 		expiresAtIdx: index("agent_memory_expires_at_idx").on(table.expiresAt),
 		uniqueAgentContext: unique("agent_memory_agent_context_unique").on(
 			table.agentType,
-			table.contextKey,
+			table.contextKey
 		),
-	}),
+	})
 );
 
 // Workflow Orchestration
@@ -317,11 +296,8 @@ export const workflows = pgTable(
 		versionIdx: index("workflows_version_idx").on(table.version),
 		isActiveIdx: index("workflows_is_active_idx").on(table.isActive),
 		createdByIdx: index("workflows_created_by_idx").on(table.createdBy),
-		uniqueNameVersion: unique("workflows_name_version_unique").on(
-			table.name,
-			table.version,
-		),
-	}),
+		uniqueNameVersion: unique("workflows_name_version_unique").on(table.name, table.version),
+	})
 );
 
 export const workflowExecutions = pgTable(
@@ -343,25 +319,19 @@ export const workflowExecutions = pgTable(
 		parentExecutionId: uuid("parent_execution_id"),
 	},
 	(table) => ({
-		workflowIdIdx: index("workflow_executions_workflow_id_idx").on(
-			table.workflowId,
-		),
+		workflowIdIdx: index("workflow_executions_workflow_id_idx").on(table.workflowId),
 		statusIdx: index("workflow_executions_status_idx").on(table.status),
-		startedAtIdx: index("workflow_executions_started_at_idx").on(
-			table.startedAt,
-		),
-		triggeredByIdx: index("workflow_executions_triggered_by_idx").on(
-			table.triggeredBy,
-		),
+		startedAtIdx: index("workflow_executions_started_at_idx").on(table.startedAt),
+		triggeredByIdx: index("workflow_executions_triggered_by_idx").on(table.triggeredBy),
 		parentExecutionIdx: index("workflow_executions_parent_execution_idx").on(
-			table.parentExecutionId,
+			table.parentExecutionId
 		),
 		parentExecutionFk: foreignKey({
 			columns: [table.parentExecutionId],
 			foreignColumns: [table.id],
 			name: "workflow_executions_parent_fk",
 		}),
-	}),
+	})
 );
 
 // Time-travel debugging support
@@ -382,23 +352,15 @@ export const executionSnapshots = pgTable(
 		metadata: jsonb("metadata"),
 	},
 	(table) => ({
-		executionIdIdx: index("execution_snapshots_execution_id_idx").on(
-			table.executionId,
-		),
-		stepNumberIdx: index("execution_snapshots_step_number_idx").on(
-			table.stepNumber,
-		),
-		timestampIdx: index("execution_snapshots_timestamp_idx").on(
-			table.timestamp,
-		),
-		checkpointIdx: index("execution_snapshots_checkpoint_idx").on(
-			table.checkpoint,
-		),
+		executionIdIdx: index("execution_snapshots_execution_id_idx").on(table.executionId),
+		stepNumberIdx: index("execution_snapshots_step_number_idx").on(table.stepNumber),
+		timestampIdx: index("execution_snapshots_timestamp_idx").on(table.timestamp),
+		checkpointIdx: index("execution_snapshots_checkpoint_idx").on(table.checkpoint),
 		uniqueExecutionStep: unique("execution_snapshots_execution_step_unique").on(
 			table.executionId,
-			table.stepNumber,
+			table.stepNumber
 		),
-	}),
+	})
 );
 
 // User Management Tables
@@ -423,11 +385,8 @@ export const users = pgTable(
 		providerIdx: index("users_provider_idx").on(table.provider),
 		providerIdIdx: index("users_provider_id_idx").on(table.providerId),
 		isActiveIdx: index("users_is_active_idx").on(table.isActive),
-		uniqueProviderUser: unique("users_provider_user_unique").on(
-			table.provider,
-			table.providerId,
-		),
-	}),
+		uniqueProviderUser: unique("users_provider_user_unique").on(table.provider, table.providerId),
+	})
 );
 
 export const authSessions = pgTable(
@@ -456,7 +415,7 @@ export const authSessions = pgTable(
 		isActiveIdx: index("auth_sessions_is_active_idx").on(table.isActive),
 		expiresAtIdx: index("auth_sessions_expires_at_idx").on(table.expiresAt),
 		lastUsedIdx: index("auth_sessions_last_used_idx").on(table.lastUsedAt),
-	}),
+	})
 );
 
 export const fileUploads = pgTable(
@@ -485,7 +444,7 @@ export const fileUploads = pgTable(
 		categoryIdx: index("file_uploads_category_idx").on(table.category),
 		isDeletedIdx: index("file_uploads_is_deleted_idx").on(table.isDeleted),
 		createdAtIdx: index("file_uploads_created_at_idx").on(table.createdAt),
-	}),
+	})
 );
 
 export const agentSessions = pgTable(
@@ -505,15 +464,11 @@ export const agentSessions = pgTable(
 	},
 	(table) => ({
 		userIdIdx: index("agent_sessions_user_id_idx").on(table.userId),
-		sessionTypeIdx: index("agent_sessions_session_type_idx").on(
-			table.sessionType,
-		),
+		sessionTypeIdx: index("agent_sessions_session_type_idx").on(table.sessionType),
 		isActiveIdx: index("agent_sessions_is_active_idx").on(table.isActive),
 		startedAtIdx: index("agent_sessions_started_at_idx").on(table.startedAt),
-		lastInteractionIdx: index("agent_sessions_last_interaction_idx").on(
-			table.lastInteractionAt,
-		),
-	}),
+		lastInteractionIdx: index("agent_sessions_last_interaction_idx").on(table.lastInteractionAt),
+	})
 );
 
 export const githubRepositories = pgTable(
@@ -546,26 +501,18 @@ export const githubRepositories = pgTable(
 		userIdIdx: index("github_repositories_user_id_idx").on(table.userId),
 		githubIdIdx: index("github_repositories_github_id_idx").on(table.githubId),
 		fullNameIdx: index("github_repositories_full_name_idx").on(table.fullName),
-		lastSyncIdx: index("github_repositories_last_sync_idx").on(
-			table.lastSyncAt,
-		),
-		uniqueUserRepo: unique("github_repositories_user_repo_unique").on(
-			table.userId,
-			table.githubId,
-		),
-	}),
+		lastSyncIdx: index("github_repositories_last_sync_idx").on(table.lastSyncAt),
+		uniqueUserRepo: unique("github_repositories_user_repo_unique").on(table.userId, table.githubId),
+	})
 );
 
 export const githubBranches = pgTable(
 	"github_branches",
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
-		repositoryId: uuid("repository_id").references(
-			() => githubRepositories.id,
-			{
-				onDelete: "cascade",
-			},
-		),
+		repositoryId: uuid("repository_id").references(() => githubRepositories.id, {
+			onDelete: "cascade",
+		}),
 		name: varchar("name", { length: 255 }).notNull(),
 		commitSha: varchar("commit_sha", { length: 40 }).notNull(),
 		commitUrl: text("commit_url").notNull(),
@@ -575,17 +522,15 @@ export const githubBranches = pgTable(
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
 	(table) => ({
-		repositoryIdIdx: index("github_branches_repository_id_idx").on(
-			table.repositoryId,
-		),
+		repositoryIdIdx: index("github_branches_repository_id_idx").on(table.repositoryId),
 		nameIdx: index("github_branches_name_idx").on(table.name),
 		isDefaultIdx: index("github_branches_is_default_idx").on(table.isDefault),
 		lastSyncIdx: index("github_branches_last_sync_idx").on(table.lastSyncAt),
 		uniqueRepoBranch: unique("github_branches_repo_branch_unique").on(
 			table.repositoryId,
-			table.name,
+			table.name
 		),
-	}),
+	})
 );
 
 // Database migration tracking
@@ -602,7 +547,7 @@ export const migrations = pgTable(
 	(table) => ({
 		nameIdx: index("migrations_name_idx").on(table.name),
 		executedAtIdx: index("migrations_executed_at_idx").on(table.executedAt),
-	}),
+	})
 );
 
 // Relations
@@ -636,16 +581,13 @@ export const agentSessionsRelations = relations(agentSessions, ({ one }) => ({
 	}),
 }));
 
-export const githubRepositoriesRelations = relations(
-	githubRepositories,
-	({ one, many }) => ({
-		user: one(users, {
-			fields: [githubRepositories.userId],
-			references: [users.id],
-		}),
-		branches: many(githubBranches),
+export const githubRepositoriesRelations = relations(githubRepositories, ({ one, many }) => ({
+	user: one(users, {
+		fields: [githubRepositories.userId],
+		references: [users.id],
 	}),
-);
+	branches: many(githubBranches),
+}));
 
 export const githubBranchesRelations = relations(githubBranches, ({ one }) => ({
 	repository: one(githubRepositories, {
@@ -669,59 +611,47 @@ export const environmentsRelations = relations(environments, ({ one }) => ({
 	}),
 }));
 
-export const agentExecutionsRelations = relations(
-	agentExecutions,
-	({ one, many }) => ({
-		task: one(tasks, {
-			fields: [agentExecutions.taskId],
-			references: [tasks.id],
-		}),
-		observabilityEvents: many(observabilityEvents),
-		executionSnapshots: many(executionSnapshots),
+export const agentExecutionsRelations = relations(agentExecutions, ({ one, many }) => ({
+	task: one(tasks, {
+		fields: [agentExecutions.taskId],
+		references: [tasks.id],
 	}),
-);
+	observabilityEvents: many(observabilityEvents),
+	executionSnapshots: many(executionSnapshots),
+}));
 
-export const observabilityEventsRelations = relations(
-	observabilityEvents,
-	({ one }) => ({
-		execution: one(agentExecutions, {
-			fields: [observabilityEvents.executionId],
-			references: [agentExecutions.id],
-		}),
+export const observabilityEventsRelations = relations(observabilityEvents, ({ one }) => ({
+	execution: one(agentExecutions, {
+		fields: [observabilityEvents.executionId],
+		references: [agentExecutions.id],
 	}),
-);
+}));
 
 export const workflowsRelations = relations(workflows, ({ many }) => ({
 	executions: many(workflowExecutions),
 }));
 
-export const workflowExecutionsRelations = relations(
-	workflowExecutions,
-	({ one, many }) => ({
-		workflow: one(workflows, {
-			fields: [workflowExecutions.workflowId],
-			references: [workflows.id],
-		}),
-		parentExecution: one(workflowExecutions, {
-			fields: [workflowExecutions.parentExecutionId],
-			references: [workflowExecutions.id],
-			relationName: "parentChild",
-		}),
-		childExecutions: many(workflowExecutions, {
-			relationName: "parentChild",
-		}),
+export const workflowExecutionsRelations = relations(workflowExecutions, ({ one, many }) => ({
+	workflow: one(workflows, {
+		fields: [workflowExecutions.workflowId],
+		references: [workflows.id],
 	}),
-);
+	parentExecution: one(workflowExecutions, {
+		fields: [workflowExecutions.parentExecutionId],
+		references: [workflowExecutions.id],
+		relationName: "parentChild",
+	}),
+	childExecutions: many(workflowExecutions, {
+		relationName: "parentChild",
+	}),
+}));
 
-export const executionSnapshotsRelations = relations(
-	executionSnapshots,
-	({ one }) => ({
-		execution: one(agentExecutions, {
-			fields: [executionSnapshots.executionId],
-			references: [agentExecutions.id],
-		}),
+export const executionSnapshotsRelations = relations(executionSnapshots, ({ one }) => ({
+	execution: one(agentExecutions, {
+		fields: [executionSnapshots.executionId],
+		references: [agentExecutions.id],
 	}),
-);
+}));
 
 // Auth Tokens Table (for secure token storage)
 export const authTokens = pgTable(
@@ -739,55 +669,55 @@ export const authTokens = pgTable(
 	(table) => ({
 		userProviderUnique: unique("auth_tokens_user_provider_unique").on(
 			table.userId,
-			table.providerId,
+			table.providerId
 		),
 		userIdIdx: index("auth_tokens_user_id_idx").on(table.userId),
 		providerIdIdx: index("auth_tokens_provider_id_idx").on(table.providerId),
 		expiresAtIdx: index("auth_tokens_expires_at_idx").on(table.expiresAt),
-	}),
+	})
 );
 
-// Type exports
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-export type AuthSession = typeof authSessions.$inferSelect;
-export type NewAuthSession = typeof authSessions.$inferInsert;
-export type FileUpload = typeof fileUploads.$inferSelect;
-export type NewFileUpload = typeof fileUploads.$inferInsert;
-export type AgentSession = typeof agentSessions.$inferSelect;
-export type NewAgentSession = typeof agentSessions.$inferInsert;
-export type GitHubRepository = typeof githubRepositories.$inferSelect;
-export type NewGitHubRepository = typeof githubRepositories.$inferInsert;
-export type GitHubBranch = typeof githubBranches.$inferSelect;
-export type NewGitHubBranch = typeof githubBranches.$inferInsert;
-export type Task = typeof tasks.$inferSelect;
-export type NewTask = typeof tasks.$inferInsert;
-export type Environment = typeof environments.$inferSelect;
-export type NewEnvironment = typeof environments.$inferInsert;
-export type AgentExecution = typeof agentExecutions.$inferSelect;
-export type NewAgentExecution = typeof agentExecutions.$inferInsert;
-export type ObservabilityEvent = typeof observabilityEvents.$inferSelect;
-export type NewObservabilityEvent = typeof observabilityEvents.$inferInsert;
-export type AgentMemory = typeof agentMemory.$inferSelect;
-export type NewAgentMemory = typeof agentMemory.$inferInsert;
-export type Workflow = typeof workflows.$inferSelect;
-export type NewWorkflow = typeof workflows.$inferInsert;
-export type WorkflowExecution = typeof workflowExecutions.$inferSelect;
-export type NewWorkflowExecution = typeof workflowExecutions.$inferInsert;
-export type ExecutionSnapshot = typeof executionSnapshots.$inferSelect;
-export type NewExecutionSnapshot = typeof executionSnapshots.$inferInsert;
-export type Migration = typeof migrations.$inferSelect;
-export type NewMigration = typeof migrations.$inferInsert;
-export type AuthToken = typeof authTokens.$inferSelect;
-export type NewAuthToken = typeof authTokens.$inferInsert;
+// Type exports converted to regular exports for build compatibility
+export const User = users;
+export const NewUser = users;
+export const AuthSession = authSessions;
+export const NewAuthSession = authSessions;
+export const FileUpload = fileUploads;
+export const NewFileUpload = fileUploads;
+export const AgentSession = agentSessions;
+export const NewAgentSession = agentSessions;
+export const GitHubRepository = githubRepositories;
+export const NewGitHubRepository = githubRepositories;
+export const GitHubBranch = githubBranches;
+export const NewGitHubBranch = githubBranches;
+export const Task = tasks;
+export const NewTask = tasks;
+export const Environment = environments;
+export const NewEnvironment = environments;
+export const AgentExecution = agentExecutions;
+export const NewAgentExecution = agentExecutions;
+export const ObservabilityEvent = observabilityEvents;
+export const NewObservabilityEvent = observabilityEvents;
+export const AgentMemory = agentMemory;
+export const NewAgentMemory = agentMemory;
+export const Workflow = workflows;
+export const NewWorkflow = workflows;
+export const WorkflowExecution = workflowExecutions;
+export const NewWorkflowExecution = workflowExecutions;
+export const ExecutionSnapshot = executionSnapshots;
+export const NewExecutionSnapshot = executionSnapshots;
+export const Migration = migrations;
+export const NewMigration = migrations;
+export const AuthToken = authTokens;
+export const NewAuthToken = authTokens;
 
 // Message types for compatibility
-export interface StreamingMessage {
-	id: string;
-	role: "user" | "assistant" | "system" | "tool";
-	type: string;
-	content: string;
-	status: "streaming";
-	timestamp?: Date | string;
-	data?: any;
-}
+export const StreamingMessage = {
+	id: "",
+	role: "user",
+	type: "",
+	content: "",
+	status: "streaming",
+	timestamp: new Date(),
+	data: null,
+};

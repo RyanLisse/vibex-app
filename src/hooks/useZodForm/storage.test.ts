@@ -1,14 +1,5 @@
 import type { UseFormReturn } from "react-hook-form";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { createStorageHelpers } from "./storage";
 
 // Mock localStorage
@@ -63,10 +54,7 @@ describe("storage helpers", () => {
 			helpers.save("test-form");
 
 			expect(mockForm.getValues).toHaveBeenCalled();
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				"test-form",
-				JSON.stringify(formData),
-			);
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith("test-form", JSON.stringify(formData));
 		});
 
 		it("should handle save errors gracefully", () => {
@@ -80,7 +68,7 @@ describe("storage helpers", () => {
 
 			expect(mockConsole.error).toHaveBeenCalledWith(
 				"Failed to save form data to storage:",
-				expect.any(Error),
+				expect.any(Error)
 			);
 		});
 
@@ -94,7 +82,7 @@ describe("storage helpers", () => {
 
 			expect(mockConsole.error).toHaveBeenCalledWith(
 				"Failed to save form data to storage:",
-				expect.any(Error),
+				expect.any(Error)
 			);
 		});
 
@@ -128,7 +116,7 @@ describe("storage helpers", () => {
 
 			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
 				"complex-form",
-				JSON.stringify(complexData),
+				JSON.stringify(complexData)
 			);
 		});
 	});
@@ -165,7 +153,7 @@ describe("storage helpers", () => {
 			expect(result).toBe(false);
 			expect(mockConsole.error).toHaveBeenCalledWith(
 				"Failed to load form data from storage:",
-				expect.any(Error),
+				expect.any(Error)
 			);
 		});
 
@@ -211,7 +199,7 @@ describe("storage helpers", () => {
 			expect(result).toBe(false);
 			expect(mockConsole.error).toHaveBeenCalledWith(
 				"Failed to load form data from storage:",
-				expect.any(Error),
+				expect.any(Error)
 			);
 		});
 
@@ -233,11 +221,7 @@ describe("storage helpers", () => {
 			const transformer = (data: any) => ({ value: data.value * 2 });
 			const setInitialData = vi.fn();
 
-			const helpers = createStorageHelpers(
-				mockForm,
-				transformer,
-				setInitialData,
-			);
+			const helpers = createStorageHelpers(mockForm, transformer, setInitialData);
 			helpers.load("test-form");
 
 			expect(mockForm.reset).toHaveBeenCalledWith(transformedData);
@@ -263,7 +247,7 @@ describe("storage helpers", () => {
 
 			expect(mockConsole.error).toHaveBeenCalledWith(
 				"Failed to clear form data from storage:",
-				expect.any(Error),
+				expect.any(Error)
 			);
 		});
 
@@ -271,9 +255,7 @@ describe("storage helpers", () => {
 			const helpers = createStorageHelpers(mockForm);
 			helpers.clear("nonexistent-key");
 
-			expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-				"nonexistent-key",
-			);
+			expect(mockLocalStorage.removeItem).toHaveBeenCalledWith("nonexistent-key");
 			expect(mockConsole.error).not.toHaveBeenCalled();
 		});
 	});
@@ -287,10 +269,7 @@ describe("storage helpers", () => {
 
 			// Save
 			helpers.save("cycle-test");
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				"cycle-test",
-				JSON.stringify(formData),
-			);
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith("cycle-test", JSON.stringify(formData));
 
 			// Load
 			mockLocalStorage.getItem.mockReturnValue(JSON.stringify(formData));
@@ -326,14 +305,8 @@ describe("storage helpers", () => {
 			mockForm.getValues.mockReturnValueOnce(form2Data);
 			helpers2.save("form2");
 
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				"form1",
-				JSON.stringify(form1Data),
-			);
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				"form2",
-				JSON.stringify(form2Data),
-			);
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith("form1", JSON.stringify(form1Data));
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith("form2", JSON.stringify(form2Data));
 		});
 	});
 });

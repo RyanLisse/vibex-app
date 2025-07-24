@@ -157,21 +157,15 @@ export class TestSpecificationGenerator {
 			className?: string;
 			componentName?: string;
 			functionName?: string;
-		},
+		}
 	): Promise<TestSpecification> {
 		switch (options.type) {
 			case "class":
 				return this.generateClassSpecification(sourceCode, options.className!);
 			case "component":
-				return this.generateComponentSpecification(
-					sourceCode,
-					options.componentName!,
-				);
+				return this.generateComponentSpecification(sourceCode, options.componentName!);
 			case "function":
-				return this.generateFunctionSpecification(
-					sourceCode,
-					options.functionName!,
-				);
+				return this.generateFunctionSpecification(sourceCode, options.functionName!);
 			default:
 				throw new Error(`Unsupported specification type: ${options.type}`);
 		}
@@ -179,7 +173,7 @@ export class TestSpecificationGenerator {
 
 	private async generateClassSpecification(
 		sourceCode: string,
-		className: string,
+		className: string
 	): Promise<TestSpecification> {
 		const methods = this.extractMethods(sourceCode);
 		const methodSpecs: MethodSpecification[] = [];
@@ -205,7 +199,7 @@ export class TestSpecificationGenerator {
 
 	private async generateComponentSpecification(
 		sourceCode: string,
-		componentName: string,
+		componentName: string
 	): Promise<TestSpecification> {
 		const props = this.extractProps(sourceCode);
 		const propSpecs: PropSpecification[] = [];
@@ -247,7 +241,7 @@ export class TestSpecificationGenerator {
 
 	private async generateFunctionSpecification(
 		sourceCode: string,
-		functionName: string,
+		functionName: string
 	): Promise<TestSpecification> {
 		const testCases = await this.inferTestCases(sourceCode, functionName);
 		const edgeCases = await this.inferEdgeCases(sourceCode, functionName);
@@ -286,10 +280,7 @@ export class TestSpecificationGenerator {
 		};
 	}
 
-	async inferTestCases(
-		sourceCode: string,
-		functionName: string,
-	): Promise<string[]> {
+	async inferTestCases(sourceCode: string, functionName: string): Promise<string[]> {
 		const testCases: string[] = [];
 
 		// Analyze code for different scenarios
@@ -321,10 +312,7 @@ export class TestSpecificationGenerator {
 		return testCases;
 	}
 
-	async inferEdgeCases(
-		sourceCode: string,
-		identifier: string,
-	): Promise<string[]> {
+	async inferEdgeCases(sourceCode: string, identifier: string): Promise<string[]> {
 		const edgeCases: string[] = [];
 
 		// Common edge cases based on types and patterns
@@ -353,7 +341,7 @@ export class TestSpecificationGenerator {
 	}
 
 	private extractMethods(
-		sourceCode: string,
+		sourceCode: string
 	): Array<{ name: string; parameters?: ParameterSpecification[] }> {
 		// Improved method extraction for class methods
 		const methods: Array<{
@@ -362,8 +350,7 @@ export class TestSpecificationGenerator {
 		}> = [];
 
 		// Match class methods with better precision
-		const methodRegex =
-			/(?:async\s+)?(\w+)\s*\([^)]*\)\s*:\s*(?:Promise<[^>]+>|[^{]+)\s*{/gm;
+		const methodRegex = /(?:async\s+)?(\w+)\s*\([^)]*\)\s*:\s*(?:Promise<[^>]+>|[^{]+)\s*{/gm;
 		let match;
 
 		while ((match = methodRegex.exec(sourceCode)) !== null) {
@@ -387,15 +374,13 @@ export class TestSpecificationGenerator {
 	}
 
 	private extractProps(
-		sourceCode: string,
+		sourceCode: string
 	): Array<{ name: string; type: string; required: boolean }> {
 		// Simplified prop extraction from interface definition
 		const props: Array<{ name: string; type: string; required: boolean }> = [];
 
 		// Extract from interface definition
-		const interfaceMatch = sourceCode.match(
-			/interface\s+\w+Props\s*{([^}]+)}/s,
-		);
+		const interfaceMatch = sourceCode.match(/interface\s+\w+Props\s*{([^}]+)}/s);
 		if (interfaceMatch) {
 			const propsString = interfaceMatch[1];
 			const propLines = propsString.split("\n").filter((line) => line.trim());
@@ -415,11 +400,7 @@ export class TestSpecificationGenerator {
 		return props;
 	}
 
-	private generatePropTestCases(prop: {
-		name: string;
-		type: string;
-		required: boolean;
-	}): string[] {
+	private generatePropTestCases(prop: { name: string; type: string; required: boolean }): string[] {
 		const testCases: string[] = [];
 
 		testCases.push(`should handle ${prop.name} prop`);
@@ -530,8 +511,7 @@ export class CoverageVisualizer {
 	async generateSummary(coverageData: CoverageData): Promise<CoverageSummary> {
 		const statements = {
 			percentage: coverageData.statements
-				? (coverageData.statements.covered / coverageData.statements.total) *
-					100
+				? (coverageData.statements.covered / coverageData.statements.total) * 100
 				: 0,
 			covered: coverageData.statements?.covered || 0,
 			total: coverageData.statements?.total || 0,
@@ -563,11 +543,7 @@ export class CoverageVisualizer {
 
 		const overall = {
 			percentage:
-				(statements.percentage +
-					branches.percentage +
-					functions.percentage +
-					lines.percentage) /
-				4,
+				(statements.percentage + branches.percentage + functions.percentage + lines.percentage) / 4,
 		};
 
 		return {
@@ -579,15 +555,12 @@ export class CoverageVisualizer {
 		};
 	}
 
-	async findUncoveredAreas(coverageData: {
-		files: FileCoverage[];
-	}): Promise<UncoveredArea[]> {
+	async findUncoveredAreas(coverageData: { files: FileCoverage[] }): Promise<UncoveredArea[]> {
 		const uncovered: UncoveredArea[] = [];
 
 		for (const file of coverageData.files) {
 			if (file.uncoveredLines && file.uncoveredLines.length > 0) {
-				const coverage =
-					(file.statements.covered / file.statements.total) * 100;
+				const coverage = (file.statements.covered / file.statements.total) * 100;
 				let priority: "high" | "medium" | "low" = "low";
 
 				if (coverage < 50) priority = "high";
@@ -658,8 +631,7 @@ export class CoverageVisualizer {
 			html += '<div class="file-list"><h2>Files</h2>';
 
 			for (const file of coverageData.files) {
-				const fileCoverage =
-					(file.statements.covered / file.statements.total) * 100;
+				const fileCoverage = (file.statements.covered / file.statements.total) * 100;
 				html += `
         <div class="file">
           <strong>${file.path}</strong>
@@ -676,8 +648,7 @@ export class CoverageVisualizer {
 	}
 
 	async generateCoverageBadge(coverage: number): Promise<string> {
-		const color =
-			coverage >= 90 ? "#4c1" : coverage >= 70 ? "#dfb317" : "#e05d44";
+		const color = coverage >= 90 ? "#4c1" : coverage >= 70 ? "#dfb317" : "#e05d44";
 		const text = `${coverage.toFixed(1)}%`;
 
 		return `
@@ -733,8 +704,7 @@ export class CoverageVisualizer {
 		const points: string[] = [];
 		trendData.forEach((point, index) => {
 			const x =
-				margin.left +
-				(index / (trendData.length - 1)) * (width - margin.left - margin.right);
+				margin.left + (index / (trendData.length - 1)) * (width - margin.left - margin.right);
 			const y =
 				height -
 				margin.bottom -
@@ -748,8 +718,7 @@ export class CoverageVisualizer {
 		// Add data points
 		trendData.forEach((point, index) => {
 			const x =
-				margin.left +
-				(index / (trendData.length - 1)) * (width - margin.left - margin.right);
+				margin.left + (index / (trendData.length - 1)) * (width - margin.left - margin.right);
 			const y =
 				height -
 				margin.bottom -
@@ -762,9 +731,7 @@ export class CoverageVisualizer {
 		return svg;
 	}
 
-	async analyzeCoverageQuality(
-		coverageData: CoverageData,
-	): Promise<CoverageAnalysis> {
+	async analyzeCoverageQuality(coverageData: CoverageData): Promise<CoverageAnalysis> {
 		const summary = await this.generateSummary(coverageData);
 		const overallScore = summary.overall.percentage;
 
@@ -791,9 +758,7 @@ export class CoverageVisualizer {
 		if (overallScore >= 90) {
 			recommendations.push("Excellent coverage - maintain current standards");
 		} else if (overallScore >= 70) {
-			recommendations.push(
-				"Good coverage - focus on increasing branch coverage",
-			);
+			recommendations.push("Good coverage - focus on increasing branch coverage");
 		} else {
 			recommendations.push("Increase test coverage significantly");
 			recommendations.push("Add tests for critical paths");
@@ -810,7 +775,7 @@ export class CoverageVisualizer {
 	async generatePRCoverageCheck(
 		baseCoverage: number,
 		currentCoverage: number,
-		threshold = 0,
+		threshold = 0
 	): Promise<PRCoverageCheck> {
 		const change = currentCoverage - baseCoverage;
 
@@ -849,7 +814,7 @@ export class CoverageVisualizer {
 
 export class DocumentationGenerator {
 	async generateTestDocumentation(
-		testFiles: Array<{ path: string; content: string }>,
+		testFiles: Array<{ path: string; content: string }>
 	): Promise<TestDocumentation> {
 		const suites: TestSuite[] = [];
 
@@ -915,7 +880,7 @@ export class DocumentationGenerator {
 	}
 
 	async generateApiTestDocs(
-		apiTests: Array<{ endpoint: string; method: string; tests: string[] }>,
+		apiTests: Array<{ endpoint: string; method: string; tests: string[] }>
 	): Promise<ApiTestDocumentation> {
 		return {
 			endpoints: apiTests,
@@ -1008,12 +973,8 @@ export class DocumentationGenerator {
 	}
 
 	async integrateWithCoverage(
-		testDocs:
-			| TestDocumentation
-			| { suites: Array<{ name: string; tests: any[] }> },
-		coverageData:
-			| CoverageData
-			| { files: Array<{ path: string; coverage: number }> },
+		testDocs: TestDocumentation | { suites: Array<{ name: string; tests: any[] }> },
+		coverageData: CoverageData | { files: Array<{ path: string; coverage: number }> }
 	): Promise<TestDocumentation> {
 		const visualizer = new CoverageVisualizer();
 
@@ -1021,8 +982,7 @@ export class DocumentationGenerator {
 		const fullTestDocs: TestDocumentation = {
 			title: (testDocs as TestDocumentation).title || "Test Documentation",
 			suites: testDocs.suites,
-			generatedAt:
-				(testDocs as TestDocumentation).generatedAt || new Date().toISOString(),
+			generatedAt: (testDocs as TestDocumentation).generatedAt || new Date().toISOString(),
 		};
 
 		// Handle both CoverageData and simplified coverage format
@@ -1078,9 +1038,7 @@ export class DocumentationGenerator {
 					if ("coverage" in relatedFile) {
 						suite.coverage = relatedFile.coverage;
 					} else if ("statements" in relatedFile) {
-						suite.coverage =
-							(relatedFile.statements.covered / relatedFile.statements.total) *
-							100;
+						suite.coverage = (relatedFile.statements.covered / relatedFile.statements.total) * 100;
 					}
 				}
 			}
@@ -1091,10 +1049,7 @@ export class DocumentationGenerator {
 		return fullTestDocs;
 	}
 
-	private async parseTestFile(file: {
-		path: string;
-		content: string;
-	}): Promise<TestSuite | null> {
+	private async parseTestFile(file: { path: string; content: string }): Promise<TestSuite | null> {
 		// Extract describe block
 		const describeMatch = file.content.match(/describe\(['"`]([^'"`]+)['"`]/);
 		if (!describeMatch) return null;

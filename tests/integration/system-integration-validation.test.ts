@@ -9,11 +9,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AlertRuleBuilder } from "../../lib/metrics/alert-rules";
 import { GrafanaDashboardBuilder } from "../../lib/metrics/grafana-dashboards";
 import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
-import {
-	getRedisConfig,
-	redisFeatures,
-	validateRedisEnvironment,
-} from "../../lib/redis/config";
+import { getRedisConfig, redisFeatures, validateRedisEnvironment } from "../../lib/redis/config";
 
 // Integration Health Report Builder
 class IntegrationHealthReport {
@@ -29,7 +25,7 @@ class IntegrationHealthReport {
 	addServiceCheck(
 		service: string,
 		status: "operational" | "degraded" | "failed",
-		checks: Array<{ name: string; passed: boolean; message?: string }>,
+		checks: Array<{ name: string; passed: boolean; message?: string }>
 	) {
 		this.results.set(service, { status, checks });
 	}
@@ -108,25 +104,17 @@ describe("System Integration Validation", () => {
 		}
 
 		if (report.services.redis?.status === "failed") {
-			recommendations.push(
-				"- Configure Redis/Valkey connection or use mock service",
-			);
+			recommendations.push("- Configure Redis/Valkey connection or use mock service");
 		}
 
 		if (report.services.monitoring?.health < 100) {
-			recommendations.push(
-				"- Complete monitoring setup for full observability",
-			);
+			recommendations.push("- Complete monitoring setup for full observability");
 		}
 
 		if (
-			report.services.external_apis?.checks.some(
-				(c: any) => !c.passed && c.name.includes("key"),
-			)
+			report.services.external_apis?.checks.some((c: any) => !c.passed && c.name.includes("key"))
 		) {
-			recommendations.push(
-				"- Add missing API keys to environment configuration",
-			);
+			recommendations.push("- Add missing API keys to environment configuration");
 		}
 
 		recommendations.forEach((rec) => console.log(rec));
@@ -142,9 +130,7 @@ describe("System Integration Validation", () => {
 				name: "Environment Configuration",
 				passed: validation.isValid || validation.errors.length === 0,
 				message:
-					validation.errors.length > 0
-						? validation.errors.join(", ")
-						: "Valid configuration",
+					validation.errors.length > 0 ? validation.errors.join(", ") : "Valid configuration",
 			});
 
 			// Check Redis config
@@ -152,9 +138,7 @@ describe("System Integration Validation", () => {
 			checks.push({
 				name: "Redis Configuration",
 				passed: !!config.primary,
-				message: config.primary
-					? "Configuration loaded"
-					: "No configuration found",
+				message: config.primary ? "Configuration loaded" : "No configuration found",
 			});
 
 			// Check feature flags
@@ -204,8 +188,7 @@ describe("System Integration Validation", () => {
 
 					serviceChecks.push({
 						name: service,
-						passed:
-							!!ServiceClass && typeof ServiceClass.getInstance === "function",
+						passed: !!ServiceClass && typeof ServiceClass.getInstance === "function",
 						message: ServiceClass ? "Service available" : "Service not found",
 					});
 				} catch (error) {
@@ -304,9 +287,7 @@ describe("System Integration Validation", () => {
 
 			healthReport.addMetrics("observability", {
 				collectorAvailable: !!metricsCollector,
-				methodsAvailable: checks.filter(
-					(c) => c.passed && c.name.startsWith("Metric"),
-				).length,
+				methodsAvailable: checks.filter((c) => c.passed && c.name.startsWith("Metric")).length,
 			});
 		});
 	});
@@ -327,8 +308,7 @@ describe("System Integration Validation", () => {
 				},
 				{
 					name: "Business Metrics",
-					builder: () =>
-						GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
+					builder: () => GrafanaDashboardBuilder.createBusinessMetricsDashboard(),
 				},
 				{
 					name: "Cost Analysis",
@@ -423,23 +403,15 @@ describe("System Integration Validation", () => {
 				checks.push({
 					name: `${name} API Key`,
 					passed: hasKey || !required,
-					message: hasKey
-						? "Configured"
-						: required
-							? "Missing (Required)"
-							: "Missing (Optional)",
+					message: hasKey ? "Configured" : required ? "Missing (Required)" : "Missing (Optional)",
 				});
 			}
 
 			const requiredMissing = checks.filter(
-				(c) => !c.passed && c.message?.includes("Required"),
+				(c) => !c.passed && c.message?.includes("Required")
 			).length;
 			const status =
-				requiredMissing === 0
-					? "operational"
-					: requiredMissing < 2
-						? "degraded"
-						: "failed";
+				requiredMissing === 0 ? "operational" : requiredMissing < 2 ? "degraded" : "failed";
 
 			healthReport.addServiceCheck("external_apis", status, checks);
 		});
@@ -529,8 +501,7 @@ describe("System Integration Validation", () => {
 				});
 			}
 
-			const status =
-				checks.filter((c) => c.passed).length >= 2 ? "operational" : "degraded";
+			const status = checks.filter((c) => c.passed).length >= 2 ? "operational" : "degraded";
 			healthReport.addServiceCheck("performance", status, checks);
 		});
 	});
@@ -543,8 +514,7 @@ describe("System Integration Validation", () => {
 			checks.push({
 				name: "Unhandled Rejection Handler",
 				passed:
-					typeof process !== "undefined" &&
-					process.listeners("unhandledRejection").length > 0,
+					typeof process !== "undefined" && process.listeners("unhandledRejection").length > 0,
 				message: "Handler configured",
 			});
 
@@ -585,7 +555,7 @@ describe("System Integration Validation", () => {
 
 			const coreServices = ["redis", "observability", "monitoring"];
 			const coreStatuses = coreServices.map(
-				(service) => summary.services[service]?.status || "failed",
+				(service) => summary.services[service]?.status || "failed"
 			);
 
 			const systemReady =
@@ -597,9 +567,7 @@ describe("System Integration Validation", () => {
 			expect(summary.services).toBeDefined();
 			expect(Object.keys(summary.services).length).toBeGreaterThan(0);
 
-			console.log(
-				`\nSystem Integration Status: ${systemReady ? "✅ READY" : "❌ NOT READY"}`,
-			);
+			console.log(`\nSystem Integration Status: ${systemReady ? "✅ READY" : "❌ NOT READY"}`);
 			console.log(`Overall Status: ${summary.overall.toUpperCase()}`);
 		});
 	});

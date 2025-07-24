@@ -64,9 +64,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 			{success && (
 				<Alert className="mb-6 border-green-200 bg-green-50">
 					<CheckCircle className="h-4 w-4" />
-					<AlertDescription className="text-green-800">
-						{success}
-					</AlertDescription>
+					<AlertDescription className="text-green-800">{success}</AlertDescription>
 				</Alert>
 			)}
 
@@ -76,9 +74,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 						<Settings className="h-6 w-6" />
 						Alert Configuration
 					</h2>
-					<p className="text-gray-600">
-						Manage alert channels and system settings
-					</p>
+					<p className="text-gray-600">Manage alert channels and system settings</p>
 				</div>
 				<Button disabled={saving} onClick={saveConfig}>
 					{saving ? "Saving..." : "Save Configuration"}
@@ -110,9 +106,7 @@ export function AlertConfigManager({ className }: AlertConfigManagerProps) {
 
 				<TabsContent value="advanced">
 					{/* TODO: Create AlertAdvancedSettings component */}
-					<div className="text-center py-8 text-gray-500">
-						Advanced settings coming soon...
-					</div>
+					<div className="text-center py-8 text-gray-500">Advanced settings coming soon...</div>
 				</TabsContent>
 			</Tabs>
 		</div>

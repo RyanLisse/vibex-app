@@ -124,96 +124,74 @@ export class VectorSearchWASM {
 	async initialize(): Promise<void> {
 		if (this.isInitialized) return;
 
-		return observability.trackOperation(
-			"wasm.vector-search.initialize",
-			async () => {
-				try {
-					// Check if WASM optimization should be used
-					if (!shouldUseWASMOptimization("vector")) {
-						observability.recordEvent("wasm.vector-search.fallback-to-js", {
-							reason: "WASM optimization disabled",
-						});
-						console.log(
-							"WASM vector search not available, using JavaScript fallback",
-						);
-						await this.initializeJavaScriptFallback();
-						this.isInitialized = true;
-						this.isWASMEnabled = false;
-						return;
-					}
-
-					// Try to load the real WASM module
-					try {
-						await loadVectorSearchWASM();
-						this.wasmVectorSearch = await createVectorSearchInstance(
-							this.config.dimensions,
-							{
-								indexType: this.config.indexType,
-								efConstruction: this.config.efConstruction,
-								efSearch: this.config.efSearch,
-								M: this.config.M,
-								nlist: this.config.nlist,
-								nprobe: this.config.nprobe,
-							},
-						);
-						this.isWASMEnabled = true;
-						observability.recordEvent("wasm.vector-search.wasm-loaded", {
-							indexType: this.config.indexType,
-							dimensions: this.config.dimensions,
-						});
-						console.log(
-							"✅ Real WASM Vector Search module loaded successfully",
-						);
-					} catch (wasmError) {
-						observability.recordError(
-							"wasm.vector-search.wasm-load-failed",
-							wasmError as Error,
-						);
-						console.warn(
-							"Failed to load real WASM module, using inline WASM fallback:",
-							wasmError,
-						);
-						// Fall back to inline WASM module
-						await this.loadInlineWASMModule();
-						this.isWASMEnabled = true; // Inline WASM is still WASM
-					}
-
-					// Load persisted index if enabled
-					if (this.config.enablePersistence) {
-						await this.loadPersistedIndex();
-					}
-
-					// Initialize metrics collection
-					if (this.config.enableMetrics) {
-						this.startMetricsCollection();
-					}
-
-					this.stats.isWASMEnabled = this.isWASMEnabled;
-					this.isInitialized = true;
-
-					observability.recordEvent("wasm.vector-search.initialized", {
-						wasmEnabled: this.isWASMEnabled,
-						indexType: this.config.indexType,
-						dimensions: this.config.dimensions,
-						cacheEnabled: this.config.enableCache,
+		return observability.trackOperation("wasm.vector-search.initialize", async () => {
+			try {
+				// Check if WASM optimization should be used
+				if (!shouldUseWASMOptimization("vector")) {
+					observability.recordEvent("wasm.vector-search.fallback-to-js", {
+						reason: "WASM optimization disabled",
 					});
-
-					console.log("✅ WASM Vector Search initialized");
-				} catch (error) {
-					observability.recordError(
-						"wasm.vector-search.initialization-failed",
-						error as Error,
-					);
-					console.warn(
-						"Failed to initialize WASM vector search, falling back to JS:",
-						error,
-					);
+					console.log("WASM vector search not available, using JavaScript fallback");
 					await this.initializeJavaScriptFallback();
 					this.isInitialized = true;
 					this.isWASMEnabled = false;
+					return;
 				}
-			},
-		);
+
+				// Try to load the real WASM module
+				try {
+					await loadVectorSearchWASM();
+					this.wasmVectorSearch = await createVectorSearchInstance(this.config.dimensions, {
+						indexType: this.config.indexType,
+						efConstruction: this.config.efConstruction,
+						efSearch: this.config.efSearch,
+						M: this.config.M,
+						nlist: this.config.nlist,
+						nprobe: this.config.nprobe,
+					});
+					this.isWASMEnabled = true;
+					observability.recordEvent("wasm.vector-search.wasm-loaded", {
+						indexType: this.config.indexType,
+						dimensions: this.config.dimensions,
+					});
+					console.log("✅ Real WASM Vector Search module loaded successfully");
+				} catch (wasmError) {
+					observability.recordError("wasm.vector-search.wasm-load-failed", wasmError as Error);
+					console.warn("Failed to load real WASM module, using inline WASM fallback:", wasmError);
+					// Fall back to inline WASM module
+					await this.loadInlineWASMModule();
+					this.isWASMEnabled = true; // Inline WASM is still WASM
+				}
+
+				// Load persisted index if enabled
+				if (this.config.enablePersistence) {
+					await this.loadPersistedIndex();
+				}
+
+				// Initialize metrics collection
+				if (this.config.enableMetrics) {
+					this.startMetricsCollection();
+				}
+
+				this.stats.isWASMEnabled = this.isWASMEnabled;
+				this.isInitialized = true;
+
+				observability.recordEvent("wasm.vector-search.initialized", {
+					wasmEnabled: this.isWASMEnabled,
+					indexType: this.config.indexType,
+					dimensions: this.config.dimensions,
+					cacheEnabled: this.config.enableCache,
+				});
+
+				console.log("✅ WASM Vector Search initialized");
+			} catch (error) {
+				observability.recordError("wasm.vector-search.initialization-failed", error as Error);
+				console.warn("Failed to initialize WASM vector search, falling back to JS:", error);
+				await this.initializeJavaScriptFallback();
+				this.isInitialized = true;
+				this.isWASMEnabled = false;
+			}
+		});
 	}
 
 	/**
@@ -274,17 +252,12 @@ export class VectorSearchWASM {
 				// Simple cosine similarity search
 				const results: Array<{ id: string; score: number }> = [];
 				for (const [id, doc] of this.documents) {
-					const similarity = this.calculateCosineSimilarity(
-						embedding,
-						doc.embedding,
-					);
+					const similarity = this.calculateCosineSimilarity(embedding, doc.embedding);
 					if (similarity >= this.config.similarityThreshold) {
 						results.push({ id, score: similarity });
 					}
 				}
-				return Promise.resolve(
-					results.sort((a, b) => b.score - a.score).slice(0, k),
-				);
+				return Promise.resolve(results.sort((a, b) => b.score - a.score).slice(0, k));
 			},
 			clear: () => Promise.resolve(),
 		};
@@ -297,9 +270,7 @@ export class VectorSearchWASM {
 		if (!this.config.persistenceKey) return;
 
 		try {
-			const stored = localStorage.getItem(
-				`vector-index-${this.config.persistenceKey}`,
-			);
+			const stored = localStorage.getItem(`vector-index-${this.config.persistenceKey}`);
 			if (stored) {
 				const data = JSON.parse(stored);
 				// Restore documents
@@ -313,10 +284,7 @@ export class VectorSearchWASM {
 				});
 			}
 		} catch (error) {
-			observability.recordError(
-				"wasm.vector-search.index-restore-failed",
-				error as Error,
-			);
+			observability.recordError("wasm.vector-search.index-restore-failed", error as Error);
 		}
 	}
 
@@ -332,16 +300,10 @@ export class VectorSearchWASM {
 				lastUpdate: new Date().toISOString(),
 				config: this.config,
 			};
-			localStorage.setItem(
-				`vector-index-${this.config.persistenceKey}`,
-				JSON.stringify(data),
-			);
+			localStorage.setItem(`vector-index-${this.config.persistenceKey}`, JSON.stringify(data));
 			this.stats.lastIndexUpdate = new Date();
 		} catch (error) {
-			observability.recordError(
-				"wasm.vector-search.index-persist-failed",
-				error as Error,
-			);
+			observability.recordError("wasm.vector-search.index-persist-failed", error as Error);
 		}
 	}
 
@@ -400,58 +362,52 @@ export class VectorSearchWASM {
 	 * Add a document to the search index
 	 */
 	async addDocument(document: VectorDocument): Promise<void> {
-		return observability.trackOperation(
-			"wasm.vector-search.add-document",
-			async () => {
-				this.documents.set(document.id, {
-					...document,
-					timestamp: document.timestamp || new Date(),
-				});
+		return observability.trackOperation("wasm.vector-search.add-document", async () => {
+			this.documents.set(document.id, {
+				...document,
+				timestamp: document.timestamp || new Date(),
+			});
 
-				if (this.index) {
-					await this.index.add(document.id, document.embedding);
-				}
+			if (this.index) {
+				await this.index.add(document.id, document.embedding);
+			}
 
-				// Clear cache as index has changed
-				this.cache.clear();
-				this.cacheHits = 0;
-				this.cacheRequests = 0;
+			// Clear cache as index has changed
+			this.cache.clear();
+			this.cacheHits = 0;
+			this.cacheRequests = 0;
 
-				// Persist if enabled
-				await this.persistIndex();
+			// Persist if enabled
+			await this.persistIndex();
 
-				observability.recordEvent("wasm.vector-search.document-added", {
-					documentId: document.id,
-					dimensions: document.embedding.length,
-					totalDocuments: this.documents.size,
-				});
-			},
-		);
+			observability.recordEvent("wasm.vector-search.document-added", {
+				documentId: document.id,
+				dimensions: document.embedding.length,
+				totalDocuments: this.documents.size,
+			});
+		});
 	}
 
 	/**
 	 * Add multiple documents in batch
 	 */
 	async addDocuments(documents: VectorDocument[]): Promise<void> {
-		return observability.trackOperation(
-			"wasm.vector-search.add-documents-batch",
-			async () => {
-				const batches = [];
-				for (let i = 0; i < documents.length; i += this.config.batchSize) {
-					batches.push(documents.slice(i, i + this.config.batchSize));
-				}
+		return observability.trackOperation("wasm.vector-search.add-documents-batch", async () => {
+			const batches = [];
+			for (let i = 0; i < documents.length; i += this.config.batchSize) {
+				batches.push(documents.slice(i, i + this.config.batchSize));
+			}
 
-				for (const batch of batches) {
-					await Promise.all(batch.map((doc) => this.addDocument(doc)));
-				}
+			for (const batch of batches) {
+				await Promise.all(batch.map((doc) => this.addDocument(doc)));
+			}
 
-				observability.recordEvent("wasm.vector-search.batch-added", {
-					documentsCount: documents.length,
-					batchCount: batches.length,
-					totalDocuments: this.documents.size,
-				});
-			},
-		);
+			observability.recordEvent("wasm.vector-search.batch-added", {
+				documentsCount: documents.length,
+				batchCount: batches.length,
+				totalDocuments: this.documents.size,
+			});
+		});
 	}
 
 	/**
@@ -459,150 +415,133 @@ export class VectorSearchWASM {
 	 */
 	async search(
 		queryEmbedding: number[],
-		options: VectorSearchOptions = {},
+		options: VectorSearchOptions = {}
 	): Promise<VectorSearchResult[]> {
-		return observability.trackOperation(
-			"wasm.vector-search.search",
-			async () => {
-				const startTime = performance.now();
+		return observability.trackOperation("wasm.vector-search.search", async () => {
+			const startTime = performance.now();
 
-				const {
-					threshold = this.config.similarityThreshold,
-					maxResults = this.config.maxResults,
-					filters = {},
-					includeMetadata = true,
-					useApproximateSearch = false,
-				} = options;
+			const {
+				threshold = this.config.similarityThreshold,
+				maxResults = this.config.maxResults,
+				filters = {},
+				includeMetadata = true,
+				useApproximateSearch = false,
+			} = options;
 
-				// Check cache first
-				const cacheKey = this.generateCacheKey(queryEmbedding, options);
-				this.cacheRequests++;
+			// Check cache first
+			const cacheKey = this.generateCacheKey(queryEmbedding, options);
+			this.cacheRequests++;
 
-				if (this.config.enableCache && this.cache.has(cacheKey)) {
-					this.cacheHits++;
-					const cached = this.cache.get(cacheKey)!;
-					observability.recordEvent("wasm.vector-search.cache-hit", {
-						cacheKey: cacheKey.substring(0, 16),
-						resultsCount: cached.length,
-					});
-					return cached;
-				}
+			if (this.config.enableCache && this.cache.has(cacheKey)) {
+				this.cacheHits++;
+				const cached = this.cache.get(cacheKey)!;
+				observability.recordEvent("wasm.vector-search.cache-hit", {
+					cacheKey: cacheKey.substring(0, 16),
+					resultsCount: cached.length,
+				});
+				return cached;
+			}
 
-				let results: VectorSearchResult[] = [];
+			let results: VectorSearchResult[] = [];
 
-				if (this.index && this.isWASMEnabled) {
-					// Use WASM index for search
-					const wasmResults = await this.index.search(
-						queryEmbedding,
-						maxResults * 2,
-					); // Get more for filtering
+			if (this.index && this.isWASMEnabled) {
+				// Use WASM index for search
+				const wasmResults = await this.index.search(queryEmbedding, maxResults * 2); // Get more for filtering
 
-					results = wasmResults
-						.filter((result: any) => result.score >= threshold)
-						.map((result: any, index: number) => {
-							const document = this.documents.get(result.id);
-							if (!document) return null;
+				results = wasmResults
+					.filter((result: any) => result.score >= threshold)
+					.map((result: any, index: number) => {
+						const document = this.documents.get(result.id);
+						if (!document) return null;
 
-							// Apply filters
-							if (Object.keys(filters).length > 0) {
-								for (const [key, value] of Object.entries(filters)) {
-									if (document.metadata?.[key] !== value) {
-										return null;
-									}
-								}
-							}
-
-							return {
-								document: includeMetadata
-									? document
-									: { ...document, metadata: undefined },
-								similarity: result.score,
-								rank: index + 1,
-								distance: 1 - result.score,
-								metadata: document.metadata,
-							};
-						})
-						.filter(Boolean)
-						.slice(0, maxResults);
-				} else {
-					// Fallback to JavaScript implementation
-					const allResults: Array<{
-						document: VectorDocument;
-						similarity: number;
-					}> = [];
-
-					for (const document of this.documents.values()) {
-						// Apply filters first
+						// Apply filters
 						if (Object.keys(filters).length > 0) {
-							let passesFilter = true;
 							for (const [key, value] of Object.entries(filters)) {
 								if (document.metadata?.[key] !== value) {
-									passesFilter = false;
-									break;
+									return null;
 								}
 							}
-							if (!passesFilter) continue;
 						}
 
-						const similarity = this.calculateCosineSimilarity(
-							queryEmbedding,
-							document.embedding,
-						);
-						if (similarity >= threshold) {
-							allResults.push({ document, similarity });
-						}
-					}
-
-					results = allResults
-						.sort((a, b) => b.similarity - a.similarity)
-						.slice(0, maxResults)
-						.map((result, index) => ({
-							document: includeMetadata
-								? result.document
-								: { ...result.document, metadata: undefined },
-							similarity: result.similarity,
+						return {
+							document: includeMetadata ? document : { ...document, metadata: undefined },
+							similarity: result.score,
 							rank: index + 1,
-							distance: 1 - result.similarity,
-							metadata: result.document.metadata,
-						}));
-				}
+							distance: 1 - result.score,
+							metadata: document.metadata,
+						};
+					})
+					.filter(Boolean)
+					.slice(0, maxResults);
+			} else {
+				// Fallback to JavaScript implementation
+				const allResults: Array<{
+					document: VectorDocument;
+					similarity: number;
+				}> = [];
 
-				// Cache results
-				if (this.config.enableCache) {
-					if (this.cache.size >= this.config.cacheSize) {
-						// Remove oldest entries
-						const entries = Array.from(this.cache.entries());
-						const toRemove = entries.slice(
-							0,
-							Math.floor(this.config.cacheSize * 0.2),
-						);
-						toRemove.forEach(([key]) => this.cache.delete(key));
+				for (const document of this.documents.values()) {
+					// Apply filters first
+					if (Object.keys(filters).length > 0) {
+						let passesFilter = true;
+						for (const [key, value] of Object.entries(filters)) {
+							if (document.metadata?.[key] !== value) {
+								passesFilter = false;
+								break;
+							}
+						}
+						if (!passesFilter) continue;
 					}
-					this.cache.set(cacheKey, results);
+
+					const similarity = this.calculateCosineSimilarity(queryEmbedding, document.embedding);
+					if (similarity >= threshold) {
+						allResults.push({ document, similarity });
+					}
 				}
 
-				const queryTime = performance.now() - startTime;
-				this.queryTimes.push(queryTime);
+				results = allResults
+					.sort((a, b) => b.similarity - a.similarity)
+					.slice(0, maxResults)
+					.map((result, index) => ({
+						document: includeMetadata
+							? result.document
+							: { ...result.document, metadata: undefined },
+						similarity: result.similarity,
+						rank: index + 1,
+						distance: 1 - result.similarity,
+						metadata: result.document.metadata,
+					}));
+			}
 
-				observability.recordEvent("wasm.vector-search.search-completed", {
-					queryTime,
-					resultsCount: results.length,
-					wasmEnabled: this.isWASMEnabled,
-					cacheHit: false,
-				});
+			// Cache results
+			if (this.config.enableCache) {
+				if (this.cache.size >= this.config.cacheSize) {
+					// Remove oldest entries
+					const entries = Array.from(this.cache.entries());
+					const toRemove = entries.slice(0, Math.floor(this.config.cacheSize * 0.2));
+					toRemove.forEach(([key]) => this.cache.delete(key));
+				}
+				this.cache.set(cacheKey, results);
+			}
 
-				return results;
-			},
-		);
+			const queryTime = performance.now() - startTime;
+			this.queryTimes.push(queryTime);
+
+			observability.recordEvent("wasm.vector-search.search-completed", {
+				queryTime,
+				resultsCount: results.length,
+				wasmEnabled: this.isWASMEnabled,
+				cacheHit: false,
+			});
+
+			return results;
+		});
 	}
 
 	/**
 	 * Generate cache key for search parameters
 	 */
-	private generateCacheKey(
-		embedding: number[],
-		options: VectorSearchOptions,
-	): string {
+	private generateCacheKey(embedding: number[], options: VectorSearchOptions): string {
 		const optionsStr = JSON.stringify(options);
 		const embeddingHash = this.hashArray(embedding);
 		return `${embeddingHash}-${btoa(optionsStr).substring(0, 16)}`;
@@ -625,29 +564,26 @@ export class VectorSearchWASM {
 	 * Remove a document from the index
 	 */
 	async removeDocument(documentId: string): Promise<boolean> {
-		return observability.trackOperation(
-			"wasm.vector-search.remove-document",
-			async () => {
-				const existed = this.documents.has(documentId);
-				this.documents.delete(documentId);
+		return observability.trackOperation("wasm.vector-search.remove-document", async () => {
+			const existed = this.documents.has(documentId);
+			this.documents.delete(documentId);
 
-				// Clear cache as index has changed
-				this.cache.clear();
-				this.cacheHits = 0;
-				this.cacheRequests = 0;
+			// Clear cache as index has changed
+			this.cache.clear();
+			this.cacheHits = 0;
+			this.cacheRequests = 0;
 
-				// Persist if enabled
-				await this.persistIndex();
+			// Persist if enabled
+			await this.persistIndex();
 
-				observability.recordEvent("wasm.vector-search.document-removed", {
-					documentId,
-					existed,
-					totalDocuments: this.documents.size,
-				});
+			observability.recordEvent("wasm.vector-search.document-removed", {
+				documentId,
+				existed,
+				totalDocuments: this.documents.size,
+			});
 
-				return existed;
-			},
-		);
+			return existed;
+		});
 	}
 
 	/**
@@ -719,7 +655,7 @@ class VectorSearchManager {
 
 	getSearchEngine(
 		name: string = "default",
-		config?: Partial<VectorSearchConfig>,
+		config?: Partial<VectorSearchConfig>
 	): VectorSearchWASM {
 		if (!this.engines.has(name)) {
 			this.engines.set(name, new VectorSearchWASM(config));
@@ -747,10 +683,7 @@ export function calculateFastSimilarity(a: number[], b: number[]): number {
 	return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-export function createOptimizedEmbedding(
-	text: string,
-	dimensions: number = 384,
-): number[] {
+export function createOptimizedEmbedding(text: string, dimensions: number = 384): number[] {
 	// Simple hash-based embedding for testing
 	const embedding = new Array(dimensions).fill(0);
 	for (let i = 0; i < text.length; i++) {
@@ -761,14 +694,10 @@ export function createOptimizedEmbedding(
 	return embedding.map((val) => val / norm);
 }
 
-export function createVectorSearchEngine(
-	config?: Partial<VectorSearchConfig>,
-): VectorSearchWASM {
+export function createVectorSearchEngine(config?: Partial<VectorSearchConfig>): VectorSearchWASM {
 	return new VectorSearchWASM(config);
 }
 
-export function getVectorSearchEngine(
-	name: string = "default",
-): VectorSearchWASM {
+export function getVectorSearchEngine(name: string = "default"): VectorSearchWASM {
 	return vectorSearchManager.getSearchEngine(name);
 }

@@ -134,11 +134,7 @@ async function updatePackageJsonScripts() {
 
 	packageJson.scripts = updatedScripts;
 
-	await fs.writeFile(
-		packageJsonPath,
-		JSON.stringify(packageJson, null, 2) + "\n",
-		"utf-8",
-	);
+	await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n", "utf-8");
 
 	console.log("✓ Updated package.json test scripts");
 }

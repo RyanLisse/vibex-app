@@ -50,20 +50,12 @@ describe("Navbar", () => {
 		const homeLink = screen.getByText("Home").closest("a");
 		expect(homeLink).toBeInTheDocument();
 		expect(homeLink).toHaveAttribute("href", "/");
-		expect(homeLink).toHaveClass(
-			"hover:opacity-45",
-			"transition-opacity",
-			"duration-300",
-		);
+		expect(homeLink).toHaveClass("hover:opacity-45", "transition-opacity", "duration-300");
 
 		const environmentsLink = screen.getByText("Environments").closest("a");
 		expect(environmentsLink).toBeInTheDocument();
 		expect(environmentsLink).toHaveAttribute("href", "/environments");
-		expect(environmentsLink).toHaveClass(
-			"hover:opacity-45",
-			"transition-opacity",
-			"duration-300",
-		);
+		expect(environmentsLink).toHaveClass("hover:opacity-45", "transition-opacity", "duration-300");
 	});
 
 	it("should render dot separator between nav links", () => {
@@ -124,9 +116,7 @@ describe("Navbar", () => {
 		render(<Navbar />);
 
 		const leftSection = screen.getByText("VibeX").closest("a");
-		const rightSection = screen
-			.getByTestId("theme-toggle")
-			.closest("div")?.parentElement;
+		const rightSection = screen.getByTestId("theme-toggle").closest("div")?.parentElement;
 
 		expect(leftSection).toBeInTheDocument();
 		expect(rightSection).toBeInTheDocument();
@@ -134,9 +124,7 @@ describe("Navbar", () => {
 	});
 
 	it("should render without any console errors", () => {
-		const consoleSpy = mock
-			.spyOn(console, "error")
-			.mockImplementation(() => {});
+		const consoleSpy = mock.spyOn(console, "error").mockImplementation(() => {});
 
 		render(<Navbar />);
 

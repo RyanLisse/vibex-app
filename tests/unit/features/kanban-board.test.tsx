@@ -80,12 +80,8 @@ describe("Kanban Board Feature", () => {
 		it("should render kanban board with columns", () => {
 			render(
 				<DnDWrapper>
-					<KanbanBoard
-						tasks={mockTasks}
-						columns={mockColumns}
-						onTaskMove={vi.fn()}
-					/>
-				</DnDWrapper>,
+					<KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
+				</DnDWrapper>
 			);
 
 			expect(screen.getByText("To Do")).toBeInTheDocument();
@@ -97,12 +93,8 @@ describe("Kanban Board Feature", () => {
 		it("should organize tasks by column", () => {
 			render(
 				<DnDWrapper>
-					<KanbanBoard
-						tasks={mockTasks}
-						columns={mockColumns}
-						onTaskMove={vi.fn()}
-					/>
-				</DnDWrapper>,
+					<KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
+				</DnDWrapper>
 			);
 
 			// Check tasks are in correct columns
@@ -111,26 +103,16 @@ describe("Kanban Board Feature", () => {
 			const doneColumn = screen.getByTestId("column-done");
 
 			expect(todoColumn).toContainElement(screen.getByText("Fix login bug"));
-			expect(todoColumn).toContainElement(
-				screen.getByText("Database optimization"),
-			);
-			expect(inProgressColumn).toContainElement(
-				screen.getByText("Add user profile page"),
-			);
-			expect(doneColumn).toContainElement(
-				screen.getByText("Update documentation"),
-			);
+			expect(todoColumn).toContainElement(screen.getByText("Database optimization"));
+			expect(inProgressColumn).toContainElement(screen.getByText("Add user profile page"));
+			expect(doneColumn).toContainElement(screen.getByText("Update documentation"));
 		});
 
 		it("should show task count for each column", () => {
 			render(
 				<DnDWrapper>
-					<KanbanBoard
-						tasks={mockTasks}
-						columns={mockColumns}
-						onTaskMove={vi.fn()}
-					/>
-				</DnDWrapper>,
+					<KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={vi.fn()} />
+				</DnDWrapper>
 			);
 
 			expect(screen.getByText("To Do (2)")).toBeInTheDocument();
@@ -143,12 +125,8 @@ describe("Kanban Board Feature", () => {
 
 			render(
 				<DnDWrapper>
-					<KanbanBoard
-						tasks={mockTasks}
-						columns={mockColumns}
-						onTaskMove={mockOnTaskMove}
-					/>
-				</DnDWrapper>,
+					<KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+				</DnDWrapper>
 			);
 
 			// Simulate drag and drop (simplified - real implementation would use react-dnd testing utils)
@@ -207,7 +185,7 @@ describe("Kanban Board Feature", () => {
 						columns={mockColumns}
 						onTaskMove={mockOnTaskMove}
 					/>
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			// Try to move task to full column (In Progress has maxItems: 3)
@@ -230,12 +208,8 @@ describe("Kanban Board Feature", () => {
 		it("should render column with tasks", () => {
 			render(
 				<DnDWrapper>
-					<KanbanColumn
-						column={todoColumn}
-						tasks={todoTasks}
-						onTaskMove={vi.fn()}
-					/>
-				</DnDWrapper>,
+					<KanbanColumn column={todoColumn} tasks={todoTasks} onTaskMove={vi.fn()} />
+				</DnDWrapper>
 			);
 
 			expect(screen.getByText("To Do")).toBeInTheDocument();
@@ -244,9 +218,7 @@ describe("Kanban Board Feature", () => {
 		});
 
 		it("should show overload indicator when column is full", () => {
-			const inProgressColumn = mockColumns.find(
-				(col) => col.id === "in-progress",
-			)!;
+			const inProgressColumn = mockColumns.find((col) => col.id === "in-progress")!;
 			const tooManyTasks = Array.from({ length: 5 }, (_, i) => ({
 				id: `task-${i}`,
 				name: `Task ${i}`,
@@ -258,12 +230,8 @@ describe("Kanban Board Feature", () => {
 
 			render(
 				<DnDWrapper>
-					<KanbanColumn
-						column={inProgressColumn}
-						tasks={tooManyTasks}
-						onTaskMove={vi.fn()}
-					/>
-				</DnDWrapper>,
+					<KanbanColumn column={inProgressColumn} tasks={tooManyTasks} onTaskMove={vi.fn()} />
+				</DnDWrapper>
 			);
 
 			expect(screen.getByTestId("overload-indicator")).toBeInTheDocument();
@@ -281,7 +249,7 @@ describe("Kanban Board Feature", () => {
 						onTaskMove={mockOnTaskMove}
 						onDrop={mockOnTaskMove}
 					/>
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			const column = screen.getByTestId("column-todo");
@@ -296,7 +264,7 @@ describe("Kanban Board Feature", () => {
 			render(
 				<DnDWrapper>
 					<KanbanCard task={task} onEdit={vi.fn()} />
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			expect(screen.getByText("Fix login bug")).toBeInTheDocument();
@@ -310,7 +278,7 @@ describe("Kanban Board Feature", () => {
 			render(
 				<DnDWrapper>
 					<KanbanCard task={task} onEdit={vi.fn()} />
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			expect(screen.getByText(/jan 15/i)).toBeInTheDocument();
@@ -325,7 +293,7 @@ describe("Kanban Board Feature", () => {
 			render(
 				<DnDWrapper>
 					<KanbanCard task={overdueTask} onEdit={vi.fn()} />
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			expect(screen.getByTestId("overdue-indicator")).toBeInTheDocument();
@@ -335,7 +303,7 @@ describe("Kanban Board Feature", () => {
 			render(
 				<DnDWrapper>
 					<KanbanCard task={task} onEdit={vi.fn()} />
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			const card = screen.getByTestId("task-card-task-1");
@@ -348,7 +316,7 @@ describe("Kanban Board Feature", () => {
 			render(
 				<DnDWrapper>
 					<KanbanCard task={task} onEdit={mockOnEdit} />
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			const card = screen.getByTestId("task-card-task-1");
@@ -363,7 +331,7 @@ describe("Kanban Board Feature", () => {
 			render(
 				<DnDWrapper>
 					<KanbanCard task={urgentTask} onEdit={vi.fn()} />
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			const priorityBadge = screen.getByText("URGENT");
@@ -378,7 +346,7 @@ describe("Kanban Board Feature", () => {
 					onFilterChange={vi.fn()}
 					assignees={["John Doe", "Jane Smith", "Bob Wilson"]}
 					tags={["bug", "feature", "docs"]}
-				/>,
+				/>
 			);
 
 			expect(screen.getByLabelText(/assignee/i)).toBeInTheDocument();
@@ -395,14 +363,11 @@ describe("Kanban Board Feature", () => {
 					onFilterChange={mockOnFilterChange}
 					assignees={["John Doe", "Jane Smith"]}
 					tags={["bug", "feature"]}
-				/>,
+				/>
 			);
 
 			// Filter by assignee
-			await userEvent.selectOptions(
-				screen.getByLabelText(/assignee/i),
-				"John Doe",
-			);
+			await userEvent.selectOptions(screen.getByLabelText(/assignee/i), "John Doe");
 
 			expect(mockOnFilterChange).toHaveBeenCalledWith({
 				assignee: "John Doe",
@@ -420,7 +385,7 @@ describe("Kanban Board Feature", () => {
 					onFilterChange={mockOnFilterChange}
 					assignees={[]}
 					tags={["bug", "feature", "docs"]}
-				/>,
+				/>
 			);
 
 			// Select multiple tags
@@ -441,13 +406,7 @@ describe("Kanban Board Feature", () => {
 		it("should filter by search text", async () => {
 			const mockOnFilterChange = vi.fn();
 
-			render(
-				<TaskFilters
-					onFilterChange={mockOnFilterChange}
-					assignees={[]}
-					tags={[]}
-				/>,
-			);
+			render(<TaskFilters onFilterChange={mockOnFilterChange} assignees={[]} tags={[]} />);
 
 			const searchInput = screen.getByPlaceholderText(/search tasks/i);
 			await userEvent.type(searchInput, "login");
@@ -464,11 +423,7 @@ describe("Kanban Board Feature", () => {
 			const mockOnFilterChange = vi.fn();
 
 			render(
-				<TaskFilters
-					onFilterChange={mockOnFilterChange}
-					assignees={["John Doe"]}
-					tags={["bug"]}
-				/>,
+				<TaskFilters onFilterChange={mockOnFilterChange} assignees={["John Doe"]} tags={["bug"]} />
 			);
 
 			const clearButton = screen.getByText(/clear filters/i);
@@ -489,34 +444,24 @@ describe("Kanban Board Feature", () => {
 
 			const { rerender } = render(
 				<DnDWrapper>
-					<KanbanBoard
-						tasks={mockTasks}
-						columns={mockColumns}
-						onTaskMove={mockOnTaskMove}
-					/>
-				</DnDWrapper>,
+					<KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+				</DnDWrapper>
 			);
 
 			// Simulate real-time update (task moved by another user)
 			const updatedTasks = mockTasks.map((task) =>
-				task.id === "task-1" ? { ...task, column: "in-progress" } : task,
+				task.id === "task-1" ? { ...task, column: "in-progress" } : task
 			);
 
 			rerender(
 				<DnDWrapper>
-					<KanbanBoard
-						tasks={updatedTasks}
-						columns={mockColumns}
-						onTaskMove={mockOnTaskMove}
-					/>
-				</DnDWrapper>,
+					<KanbanBoard tasks={updatedTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
+				</DnDWrapper>
 			);
 
 			// Task should now be in In Progress column
 			const inProgressColumn = screen.getByTestId("column-in-progress");
-			expect(inProgressColumn).toContainElement(
-				screen.getByText("Fix login bug"),
-			);
+			expect(inProgressColumn).toContainElement(screen.getByText("Fix login bug"));
 		});
 	});
 
@@ -533,20 +478,13 @@ describe("Kanban Board Feature", () => {
 							assignees={["John Doe", "Jane Smith"]}
 							tags={["bug", "feature"]}
 						/>
-						<KanbanBoard
-							tasks={mockTasks}
-							columns={mockColumns}
-							onTaskMove={mockOnTaskMove}
-						/>
+						<KanbanBoard tasks={mockTasks} columns={mockColumns} onTaskMove={mockOnTaskMove} />
 					</div>
-				</DnDWrapper>,
+				</DnDWrapper>
 			);
 
 			// Filter tasks
-			await userEvent.selectOptions(
-				screen.getByLabelText(/assignee/i),
-				"John Doe",
-			);
+			await userEvent.selectOptions(screen.getByLabelText(/assignee/i), "John Doe");
 
 			// Move task
 			const taskCard = screen.getByTestId("task-card-task-1");

@@ -229,13 +229,7 @@ describe("OpenAIAuthButton", () => {
 		render(<OpenAIAuthButton />);
 
 		const userInfo = screen.getByText("test@example.com").closest("div");
-		expect(userInfo).toHaveClass(
-			"flex",
-			"items-center",
-			"gap-1",
-			"text-sm",
-			"text-green-600",
-		);
+		expect(userInfo).toHaveClass("flex", "items-center", "gap-1", "text-sm", "text-green-600");
 	});
 
 	it("should handle authentication state transitions", () => {
@@ -295,9 +289,7 @@ describe("OpenAIAuthButton", () => {
 
 		render(<OpenAIAuthButton />);
 
-		const container = screen
-			.getByText("test@example.com")
-			.closest("div")?.parentElement;
+		const container = screen.getByText("test@example.com").closest("div")?.parentElement;
 		expect(container).toHaveClass("flex", "items-center", "gap-2");
 	});
 

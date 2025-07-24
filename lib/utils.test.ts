@@ -45,11 +45,9 @@ describe("cn (classname utility)", () => {
 				undefined,
 				null,
 				false,
-				"conditional-true",
-			),
-		).toBe(
-			"base-class active-class array-class-1 array-class-2 conditional-true",
-		);
+				"conditional-true"
+			)
+		).toBe("base-class active-class array-class-1 array-class-2 conditional-true");
 	});
 
 	it("should handle empty input", () => {

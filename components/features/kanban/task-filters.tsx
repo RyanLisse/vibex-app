@@ -7,11 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -34,12 +30,7 @@ interface TaskFiltersProps {
 	className?: string;
 }
 
-export function TaskFilters({
-	onFilterChange,
-	assignees,
-	tags,
-	className = "",
-}: TaskFiltersProps) {
+export function TaskFilters({ onFilterChange, assignees, tags, className = "" }: TaskFiltersProps) {
 	const [filters, setFilters] = useState<FilterState>({
 		tags: [],
 		search: "",
@@ -62,9 +53,7 @@ export function TaskFilters({
 	};
 
 	const handleTagToggle = (tag: string, checked: boolean) => {
-		const newTags = checked
-			? [...filters.tags, tag]
-			: filters.tags.filter((t) => t !== tag);
+		const newTags = checked ? [...filters.tags, tag] : filters.tags.filter((t) => t !== tag);
 
 		updateFilters({ tags: newTags });
 	};
@@ -98,16 +87,11 @@ export function TaskFilters({
 
 			{/* Quick Assignee Filter */}
 			<div className="flex items-center gap-2">
-				<Label
-					className="whitespace-nowrap font-medium text-sm"
-					htmlFor="assignee"
-				>
+				<Label className="whitespace-nowrap font-medium text-sm" htmlFor="assignee">
 					Assignee:
 				</Label>
 				<Select
-					onValueChange={(value) =>
-						updateFilters({ assignee: value || undefined })
-					}
+					onValueChange={(value) => updateFilters({ assignee: value || undefined })}
 					value={filters.assignee || ""}
 				>
 					<SelectTrigger className="w-40">
@@ -126,16 +110,11 @@ export function TaskFilters({
 
 			{/* Quick Priority Filter */}
 			<div className="flex items-center gap-2">
-				<Label
-					className="whitespace-nowrap font-medium text-sm"
-					htmlFor="priority"
-				>
+				<Label className="whitespace-nowrap font-medium text-sm" htmlFor="priority">
 					Priority:
 				</Label>
 				<Select
-					onValueChange={(value) =>
-						updateFilters({ priority: value || undefined })
-					}
+					onValueChange={(value) => updateFilters({ priority: value || undefined })}
 					value={filters.priority || ""}
 				>
 					<SelectTrigger className="w-32">
@@ -158,10 +137,7 @@ export function TaskFilters({
 						<Filter className="h-4 w-4" />
 						Tags
 						{activeFilterCount > 0 && (
-							<Badge
-								className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
-								variant="secondary"
-							>
+							<Badge className="ml-1 h-5 w-5 rounded-full p-0 text-xs" variant="secondary">
 								{activeFilterCount}
 							</Badge>
 						)}
@@ -190,23 +166,16 @@ export function TaskFilters({
 							</Label>
 							<div className="max-h-40 space-y-2 overflow-y-auto">
 								{tags.length === 0 ? (
-									<p className="text-muted-foreground text-sm">
-										No tags available
-									</p>
+									<p className="text-muted-foreground text-sm">No tags available</p>
 								) : (
 									tags.map((tag) => (
 										<div className="flex items-center space-x-2" key={tag}>
 											<Checkbox
 												checked={filters.tags.includes(tag)}
 												id={`tag-${tag}`}
-												onCheckedChange={(checked) =>
-													handleTagToggle(tag, checked as boolean)
-												}
+												onCheckedChange={(checked) => handleTagToggle(tag, checked as boolean)}
 											/>
-											<Label
-												className="flex-1 cursor-pointer text-sm"
-												htmlFor={`tag-${tag}`}
-											>
+											<Label className="flex-1 cursor-pointer text-sm" htmlFor={`tag-${tag}`}>
 												{tag}
 											</Label>
 										</div>

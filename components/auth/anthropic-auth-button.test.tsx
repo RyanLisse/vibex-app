@@ -236,13 +236,7 @@ describe("AnthropicAuthButton", () => {
 		render(<AnthropicAuthButton />);
 
 		const userInfo = screen.getByText("Claude Max").closest("div");
-		expect(userInfo).toHaveClass(
-			"flex",
-			"items-center",
-			"gap-1",
-			"text-sm",
-			"text-green-600",
-		);
+		expect(userInfo).toHaveClass("flex", "items-center", "gap-1", "text-sm", "text-green-600");
 	});
 
 	it("should handle authentication state transitions", () => {
@@ -313,9 +307,7 @@ describe("AnthropicAuthButton", () => {
 
 		render(<AnthropicAuthButton />);
 
-		const container = screen
-			.getByText("Claude Max")
-			.closest("div")?.parentElement;
+		const container = screen.getByText("Claude Max").closest("div")?.parentElement;
 		expect(container).toHaveClass("flex", "items-center", "gap-2");
 	});
 

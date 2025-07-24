@@ -9,14 +9,7 @@ async function fixRemainingImports() {
 
 	// Find all TypeScript/JavaScript files
 	const files = await glob("**/*.{ts,tsx,js,jsx}", {
-		ignore: [
-			"node_modules/**",
-			".next/**",
-			"dist/**",
-			"build/**",
-			".git/**",
-			"scripts/fix-*.ts",
-		],
+		ignore: ["node_modules/**", ".next/**", "dist/**", "build/**", ".git/**", "scripts/fix-*.ts"],
 	});
 
 	let totalFixed = 0;
@@ -115,13 +108,13 @@ async function fixRemainingImports() {
 		// Fix broken Button components
 		newContent = newContent.replace(
 			/(<Button[^>]*variant="outline"\s*)(\n\s*)(>?\s*)(\n\s*)([A-Z][a-zA-Z]*)\s*$/gm,
-			"$1$3>$5",
+			"$1$3>$5"
 		);
 
 		// Fix other broken JSX elements
 		newContent = newContent.replace(
 			/(<Button[^>]*)\n\s*([A-Z][a-zA-Z]*)\s*(<\/Button>)/gm,
-			"$1>$2$3",
+			"$1>$2$3"
 		);
 
 		if (newContent !== content) {

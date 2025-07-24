@@ -24,8 +24,7 @@ export function useAsyncOperation<T>() {
 			setData(result);
 			return result;
 		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "Operation failed";
+			const errorMessage = err instanceof Error ? err.message : "Operation failed";
 			setError(errorMessage);
 			throw err;
 		} finally {
@@ -72,7 +71,7 @@ export function useDebounce<T>(value: T, delay: number): T {
  */
 export function useFormState<T extends Record<string, any>>(
 	initialState: T,
-	validators?: Partial<Record<keyof T, (value: any) => string | null>>,
+	validators?: Partial<Record<keyof T, (value: any) => string | null>>
 ) {
 	const [values, setValues] = useState<T>(initialState);
 	const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
@@ -88,14 +87,14 @@ export function useFormState<T extends Record<string, any>>(
 				setErrors((prev) => ({ ...prev, [field]: error || undefined }));
 			}
 		},
-		[validators],
+		[validators]
 	);
 
 	const setFieldTouched = useCallback(
 		(field: keyof T) => {
 			setTouched((prev) => ({ ...prev, [field]: true }));
 		},
-		[setTouched],
+		[setTouched]
 	);
 
 	const validateAll = useCallback(() => {
@@ -158,9 +157,7 @@ export function usePrevious<T>(value: T): T | undefined {
 /**
  * Custom hook for detecting clicks outside element
  */
-export function useClickOutside<T extends HTMLElement>(
-	callback: () => void,
-): React.RefObject<T> {
+export function useClickOutside<T extends HTMLElement>(callback: () => void): React.RefObject<T> {
 	const ref = useRef<T>(null);
 
 	useEffect(() => {
@@ -184,7 +181,7 @@ export function useClickOutside<T extends HTMLElement>(
  */
 export function useLocalStorage<T>(
 	key: string,
-	initialValue: T,
+	initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void] {
 	const [storedValue, setStoredValue] = useState<T>(() => {
 		try {
@@ -199,15 +196,14 @@ export function useLocalStorage<T>(
 	const setValue = useCallback(
 		(value: T | ((val: T) => T)) => {
 			try {
-				const valueToStore =
-					value instanceof Function ? value(storedValue) : value;
+				const valueToStore = value instanceof Function ? value(storedValue) : value;
 				setStoredValue(valueToStore);
 				window.localStorage.setItem(key, JSON.stringify(valueToStore));
 			} catch (error) {
 				console.error(`Error setting localStorage key "${key}":`, error);
 			}
 		},
-		[key, storedValue],
+		[key, storedValue]
 	);
 
 	return [storedValue, setValue];
@@ -236,9 +232,7 @@ export function useInterval(callback: () => void, delay: number | null) {
 /**
  * Utility for creating conditional class names
  */
-export function classNames(
-	...classes: (string | undefined | null | boolean)[]
-): string {
+export function classNames(...classes: (string | undefined | null | boolean)[]): string {
 	return classes.filter(Boolean).join(" ");
 }
 
@@ -247,7 +241,7 @@ export function classNames(
  */
 export function createAsyncHandler<T extends any[]>(
 	handler: (...args: T) => Promise<void>,
-	onError?: (error: Error) => void,
+	onError?: (error: Error) => void
 ) {
 	return (...args: T) => {
 		handler(...args).catch((error) => {
@@ -263,11 +257,7 @@ export function createAsyncHandler<T extends any[]>(
 /**
  * Utility for safe array access
  */
-export function safeArrayAccess<T>(
-	array: T[],
-	index: number,
-	fallback?: T,
-): T | undefined {
+export function safeArrayAccess<T>(array: T[], index: number, fallback?: T): T | undefined {
 	if (index >= 0 && index < array.length) {
 		return array[index];
 	}

@@ -5,11 +5,7 @@ import { fn } from "@storybook/test";
 const Button = ({ primary, backgroundColor, size, label, ...props }: any) => {
 	const mode = primary ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900";
 	const sizeClass =
-		size === "small"
-			? "px-2 py-1 text-sm"
-			: size === "large"
-				? "px-6 py-3 text-lg"
-				: "px-4 py-2";
+		size === "small" ? "px-2 py-1 text-sm" : size === "large" ? "px-6 py-3 text-lg" : "px-4 py-2";
 
 	return (
 		<button

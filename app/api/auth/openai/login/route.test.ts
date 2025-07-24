@@ -64,12 +64,9 @@ describe("POST /api/auth/openai/login", () => {
 
 		mockNextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -90,8 +87,7 @@ describe("POST /api/auth/openai/login", () => {
 		const mockCodeVerifier = "test-code-verifier";
 		const mockCodeChallenge = "test-code-challenge";
 		const mockState = "test-state";
-		const mockAuthUrl =
-			"https://auth.openai.com/oauth/authorize?scope=read+write";
+		const mockAuthUrl = "https://auth.openai.com/oauth/authorize?scope=read+write";
 
 		mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier);
 		mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge);
@@ -104,7 +100,7 @@ describe("POST /api/auth/openai/login", () => {
 			"https://app.example.com/api/auth/openai/login?scope=read+write",
 			{
 				method: "POST",
-			},
+			}
 		);
 
 		const _response = await POST(request);
@@ -122,8 +118,7 @@ describe("POST /api/auth/openai/login", () => {
 		const mockCodeVerifier = "test-code-verifier";
 		const mockCodeChallenge = "test-code-challenge";
 		const mockState = "test-state";
-		const mockAuthUrl =
-			"https://auth.openai.com/oauth/authorize?redirect_uri=custom";
+		const mockAuthUrl = "https://auth.openai.com/oauth/authorize?redirect_uri=custom";
 
 		mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier);
 		mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge);
@@ -136,7 +131,7 @@ describe("POST /api/auth/openai/login", () => {
 			"https://app.example.com/api/auth/openai/login?redirect_uri=https%3A%2F%2Fcustom.example.com%2Fcallback",
 			{
 				method: "POST",
-			},
+			}
 		);
 
 		const _response = await POST(request);
@@ -155,27 +150,22 @@ describe("POST /api/auth/openai/login", () => {
 		const mockState = "test-state";
 
 		mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier);
-		mockGenerateCodeChallenge.mockRejectedValue(
-			new Error("Code challenge generation failed"),
-		);
+		mockGenerateCodeChallenge.mockRejectedValue(new Error("Code challenge generation failed"));
 		mockGenerateState.mockReturnValue(mockState);
 
 		mockNextResponse.json.mockReturnValue({
 			error: "Code challenge generation failed",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Code challenge generation failed" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	});
 
@@ -193,18 +183,15 @@ describe("POST /api/auth/openai/login", () => {
 			error: "Missing OpenAI configuration",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Missing OpenAI configuration" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	});
 
@@ -224,18 +211,15 @@ describe("POST /api/auth/openai/login", () => {
 			error: "Auth URL generation failed",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Auth URL generation failed" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	});
 
@@ -259,14 +243,14 @@ describe("POST /api/auth/openai/login", () => {
 			"https://app.example.com/api/auth/openai/login?redirect_uri=javascript%3Aalert(1)",
 			{
 				method: "POST",
-			},
+			}
 		);
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Invalid redirect URI" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -274,8 +258,7 @@ describe("POST /api/auth/openai/login", () => {
 		const mockCodeVerifier = "test-code-verifier";
 		const mockCodeChallenge = "test-code-challenge";
 		const mockState = "test-state";
-		const mockAuthUrl =
-			"https://auth.openai.com/oauth/authorize?scope=read+write";
+		const mockAuthUrl = "https://auth.openai.com/oauth/authorize?scope=read+write";
 
 		mockGenerateCodeVerifier.mockReturnValue(mockCodeVerifier);
 		mockGenerateCodeChallenge.mockResolvedValue(mockCodeChallenge);
@@ -284,19 +267,16 @@ describe("POST /api/auth/openai/login", () => {
 
 		mockNextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-				body: JSON.stringify({
-					scope: "read write",
-					redirect_uri: "https://custom.example.com/callback",
-				}),
-				headers: {
-					"Content-Type": "application/json",
-				},
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+			body: JSON.stringify({
+				scope: "read write",
+				redirect_uri: "https://custom.example.com/callback",
+			}),
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		const _response = await POST(request);
 
@@ -314,22 +294,19 @@ describe("POST /api/auth/openai/login", () => {
 			error: "Invalid request body",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-				body: "invalid-json",
-				headers: {
-					"Content-Type": "application/json",
-				},
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+			body: "invalid-json",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Invalid request body" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -347,12 +324,9 @@ describe("POST /api/auth/openai/login", () => {
 		const mockRedirectResponse = { status: 302 } as any;
 		mockNextResponse.redirect.mockReturnValue(mockRedirectResponse);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -373,12 +347,9 @@ describe("POST /api/auth/openai/login", () => {
 
 		mockNextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/login",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/login", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 

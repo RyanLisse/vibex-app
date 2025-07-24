@@ -5,10 +5,7 @@
  */
 
 import { notificationManager } from "../notifications";
-import {
-	metrics as prometheusMetrics,
-	prometheusRegistry,
-} from "../prometheus";
+import { metrics as prometheusMetrics, prometheusRegistry } from "../prometheus";
 
 export interface SLATarget {
 	name: string;
@@ -123,9 +120,7 @@ export class SLAMonitor {
 		// Start reporting
 		this.startReporting(config.reportingInterval || 3_600_000); // Default 1 hour
 
-		console.log(
-			`📊 SLA monitoring initialized with ${this.targets.length} targets`,
-		);
+		console.log(`📊 SLA monitoring initialized with ${this.targets.length} targets`);
 	}
 
 	private startMonitoring(): void {
@@ -198,40 +193,50 @@ export class SLAMonitor {
 
 		switch (target.metric) {
 			case "availability": {
-				const { availabilityResult, availabilitySamples } =
-					await this.calculateAvailability(start, now);
+				const { availabilityResult, availabilitySamples } = await this.calculateAvailability(
+					start,
+					now
+				);
 				actual = availabilityResult;
 				samples = availabilitySamples;
 				break;
 			}
 
 			case "response_time_p95": {
-				const { p95Result, p95Samples } =
-					await this.calculateResponseTimePercentile(start, now, 0.95);
+				const { p95Result, p95Samples } = await this.calculateResponseTimePercentile(
+					start,
+					now,
+					0.95
+				);
 				actual = p95Result;
 				samples = p95Samples;
 				break;
 			}
 
 			case "response_time_p99": {
-				const { p99Result, p99Samples } =
-					await this.calculateResponseTimePercentile(start, now, 0.99);
+				const { p99Result, p99Samples } = await this.calculateResponseTimePercentile(
+					start,
+					now,
+					0.99
+				);
 				actual = p99Result;
 				samples = p99Samples;
 				break;
 			}
 
 			case "error_rate": {
-				const { errorRateResult, errorRateSamples } =
-					await this.calculateErrorRate(start, now);
+				const { errorRateResult, errorRateSamples } = await this.calculateErrorRate(start, now);
 				actual = errorRateResult;
 				samples = errorRateSamples;
 				break;
 			}
 
 			case "db_query_time_p95": {
-				const { dbP95Result, dbP95Samples } =
-					await this.calculateDatabasePercentile(start, now, 0.95);
+				const { dbP95Result, dbP95Samples } = await this.calculateDatabasePercentile(
+					start,
+					now,
+					0.95
+				);
 				actual = dbP95Result;
 				samples = dbP95Samples;
 				break;
@@ -270,7 +275,7 @@ export class SLAMonitor {
 
 	private async calculateAvailability(
 		start: Date,
-		end: Date,
+		end: Date
 	): Promise<{ availabilityResult: number; availabilitySamples: number }> {
 		// In a real implementation, query actual metrics
 		// For demo, we'll use mock data
@@ -286,10 +291,9 @@ export class SLAMonitor {
 	private async calculateResponseTimePercentile(
 		start: Date,
 		end: Date,
-		percentile: number,
+		percentile: number
 	): Promise<
-		| { p95Result: number; p95Samples: number }
-		| { p99Result: number; p99Samples: number }
+		{ p95Result: number; p95Samples: number } | { p99Result: number; p99Samples: number }
 	> {
 		// Mock implementation
 		const baseTime = 500; // 500ms base
@@ -303,7 +307,7 @@ export class SLAMonitor {
 
 	private async calculateErrorRate(
 		start: Date,
-		end: Date,
+		end: Date
 	): Promise<{ errorRateResult: number; errorRateSamples: number }> {
 		// Mock implementation
 		const errorRate = Math.random() * 2; // 0-2% error rate
@@ -317,7 +321,7 @@ export class SLAMonitor {
 	private async calculateDatabasePercentile(
 		start: Date,
 		end: Date,
-		percentile: number,
+		percentile: number
 	): Promise<{ dbP95Result: number; dbP95Samples: number }> {
 		// Mock implementation
 		const baseTime = 50; // 50ms base
@@ -344,10 +348,7 @@ export class SLAMonitor {
 		return windows[window];
 	}
 
-	private calculateSeverity(
-		target: SLATarget,
-		result: SLAResult,
-	): SLAViolation["severity"] {
+	private calculateSeverity(target: SLATarget, result: SLAResult): SLAViolation["severity"] {
 		const deviationPercent = Math.abs(100 - result.percentage);
 
 		if (deviationPercent < 5) return "minor";
@@ -355,9 +356,7 @@ export class SLAMonitor {
 		return "critical";
 	}
 
-	async generateReport(
-		period: "hour" | "day" | "week" | "month",
-	): Promise<SLAReport> {
+	async generateReport(period: "hour" | "day" | "week" | "month"): Promise<SLAReport> {
 		const now = new Date();
 		const windowMs = this.getWindowMs(period);
 		const start = new Date(now.getTime() - windowMs);
@@ -376,15 +375,10 @@ export class SLAMonitor {
 		// Calculate error budget
 		const errorBudgetTotal = 100 - 99.9; // 0.1% error budget for 99.9% SLA
 		const errorBudgetUsed = 100 - overallCompliance;
-		const errorBudgetRemaining = Math.max(
-			0,
-			errorBudgetTotal - errorBudgetUsed,
-		);
+		const errorBudgetRemaining = Math.max(0, errorBudgetTotal - errorBudgetUsed);
 
 		// Get violations for the period
-		const periodViolations = this.violations.filter(
-			(v) => v.timestamp.getTime() > start.getTime(),
-		);
+		const periodViolations = this.violations.filter((v) => v.timestamp.getTime() > start.getTime());
 
 		const report: SLAReport = {
 			period,
@@ -442,7 +436,7 @@ export class SLAMonitor {
 	}
 
 	async getHistoricalCompliance(
-		period: "day" | "week" | "month",
+		period: "day" | "week" | "month"
 	): Promise<{ date: Date; compliance: number }[]> {
 		// Mock historical data
 		const data: { date: Date; compliance: number }[] = [];
@@ -482,9 +476,7 @@ export async function initializeSLAMonitoring(config: any): Promise<void> {
 }
 
 // Convenience functions
-export async function getSLAReport(
-	period: "hour" | "day" | "week" | "month",
-): Promise<SLAReport> {
+export async function getSLAReport(period: "hour" | "day" | "week" | "month"): Promise<SLAReport> {
 	return slaMonitor.generateReport(period);
 }
 
@@ -497,7 +489,7 @@ export function getSLAViolations(limit?: number): SLAViolation[] {
 }
 
 export async function getHistoricalSLACompliance(
-	period: "day" | "week" | "month",
+	period: "day" | "week" | "month"
 ): Promise<{ date: Date; compliance: number }[]> {
 	return slaMonitor.getHistoricalCompliance(period);
 }

@@ -42,11 +42,7 @@ vi.mock("next/font/google", () => ({
 vi.mock("next-themes", () => ({
 	ThemeProvider: ({ children, ...props }: any) => {
 		const React = require("react");
-		return React.createElement(
-			"div",
-			{ "data-testid": "theme-provider", ...props },
-			children,
-		);
+		return React.createElement("div", { "data-testid": "theme-provider", ...props }, children);
 	},
 	useTheme: () => ({
 		theme: "light",

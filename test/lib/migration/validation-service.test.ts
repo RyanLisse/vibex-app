@@ -88,10 +88,7 @@ describe("ValidationService", () => {
 	describe("validateMigration", () => {
 		beforeEach(() => {
 			// Mock localStorage data extraction
-			vi.spyOn(
-				validationService as any,
-				"extractLocalStorageData",
-			).mockReturnValue({
+			vi.spyOn(validationService as any, "extractLocalStorageData").mockReturnValue({
 				tasks: [
 					{
 						id: "task-1",
@@ -219,9 +216,7 @@ describe("ValidationService", () => {
 
 			expect(result.valid).toBe(false);
 			expect(
-				result.errors.some(
-					(error) => error.type === "MISSING_FIELD" && error.field === "task",
-				),
+				result.errors.some((error) => error.type === "MISSING_FIELD" && error.field === "task")
 			).toBe(true);
 			expect(result.statistics.failed).toBeGreaterThan(0);
 		});
@@ -242,10 +237,7 @@ describe("ValidationService", () => {
 
 		it("should skip validation when no local data exists", async () => {
 			// Mock empty localStorage
-			vi.spyOn(
-				validationService as any,
-				"extractLocalStorageData",
-			).mockReturnValue({
+			vi.spyOn(validationService as any, "extractLocalStorageData").mockReturnValue({
 				tasks: [],
 				environments: [],
 			});
@@ -260,10 +252,7 @@ describe("ValidationService", () => {
 	describe("compareData", () => {
 		beforeEach(() => {
 			// Mock localStorage extraction
-			vi.spyOn(
-				validationService as any,
-				"extractLocalStorageData",
-			).mockReturnValue({
+			vi.spyOn(validationService as any, "extractLocalStorageData").mockReturnValue({
 				tasks: [
 					{
 						id: "task-1",
@@ -357,9 +346,7 @@ describe("ValidationService", () => {
 			expect(result.identical).toBe(false);
 			expect(result.differences.length).toBeGreaterThan(0);
 			expect(
-				result.differences.some(
-					(diff) => diff.field === "title" && diff.type === "task",
-				),
+				result.differences.some((diff) => diff.field === "title" && diff.type === "task")
 			).toBe(true);
 			expect(result.summary.mismatched).toBeGreaterThan(0);
 		});
@@ -410,7 +397,7 @@ describe("ValidationService", () => {
 			});
 
 			await expect(validationService.compareData()).rejects.toThrow(
-				"Failed to compare data: Database query failed",
+				"Failed to compare data: Database query failed"
 			);
 		});
 	});
@@ -560,9 +547,7 @@ describe("ValidationService", () => {
 			});
 
 			it("should handle invalid JSON data gracefully", () => {
-				const consoleSpy = vi
-					.spyOn(console, "error")
-					.mockImplementation(() => {});
+				const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 				localStorageMock.getItem = vi.fn().mockReturnValue("invalid-json");
 
 				const result = (validationService as any).extractLocalStorageData();
@@ -570,7 +555,7 @@ describe("ValidationService", () => {
 				expect(result).toEqual({});
 				expect(consoleSpy).toHaveBeenCalledWith(
 					"Failed to extract localStorage data:",
-					expect.any(Error),
+					expect.any(Error)
 				);
 
 				consoleSpy.mockRestore();
@@ -579,24 +564,12 @@ describe("ValidationService", () => {
 
 		describe("mapTaskStatus", () => {
 			it("should map task statuses correctly", () => {
-				expect((validationService as any).mapTaskStatus("IN_PROGRESS")).toBe(
-					"in_progress",
-				);
-				expect((validationService as any).mapTaskStatus("DONE")).toBe(
-					"completed",
-				);
-				expect((validationService as any).mapTaskStatus("MERGED")).toBe(
-					"completed",
-				);
-				expect((validationService as any).mapTaskStatus("CANCELLED")).toBe(
-					"cancelled",
-				);
-				expect((validationService as any).mapTaskStatus("PAUSED")).toBe(
-					"pending",
-				);
-				expect((validationService as any).mapTaskStatus("UNKNOWN_STATUS")).toBe(
-					"pending",
-				);
+				expect((validationService as any).mapTaskStatus("IN_PROGRESS")).toBe("in_progress");
+				expect((validationService as any).mapTaskStatus("DONE")).toBe("completed");
+				expect((validationService as any).mapTaskStatus("MERGED")).toBe("completed");
+				expect((validationService as any).mapTaskStatus("CANCELLED")).toBe("cancelled");
+				expect((validationService as any).mapTaskStatus("PAUSED")).toBe("pending");
+				expect((validationService as any).mapTaskStatus("UNKNOWN_STATUS")).toBe("pending");
 			});
 		});
 
@@ -611,10 +584,7 @@ describe("ValidationService", () => {
 					updatedAt: new Date(),
 				};
 
-				const errors = (validationService as any).validateTaskSchema(
-					localTask,
-					dbTask,
-				);
+				const errors = (validationService as any).validateTaskSchema(localTask, dbTask);
 
 				expect(errors).toHaveLength(0);
 			});
@@ -626,20 +596,11 @@ describe("ValidationService", () => {
 					// missing title, status, createdAt, updatedAt
 				};
 
-				const errors = (validationService as any).validateTaskSchema(
-					localTask,
-					dbTask,
-				);
+				const errors = (validationService as any).validateTaskSchema(localTask, dbTask);
 
 				expect(errors.length).toBeGreaterThan(0);
-				expect(
-					errors.some((e) => e.field === "title" && e.type === "MISSING_FIELD"),
-				).toBe(true);
-				expect(
-					errors.some(
-						(e) => e.field === "status" && e.type === "MISSING_FIELD",
-					),
-				).toBe(true);
+				expect(errors.some((e) => e.field === "title" && e.type === "MISSING_FIELD")).toBe(true);
+				expect(errors.some((e) => e.field === "status" && e.type === "MISSING_FIELD")).toBe(true);
 			});
 
 			it("should validate field types", () => {
@@ -652,16 +613,9 @@ describe("ValidationService", () => {
 					updatedAt: new Date(),
 				};
 
-				const errors = (validationService as any).validateTaskSchema(
-					localTask,
-					dbTask,
-				);
+				const errors = (validationService as any).validateTaskSchema(localTask, dbTask);
 
-				expect(
-					errors.some(
-						(e) => e.field === "createdAt" && e.type === "INVALID_TYPE",
-					),
-				).toBe(true);
+				expect(errors.some((e) => e.field === "createdAt" && e.type === "INVALID_TYPE")).toBe(true);
 			});
 		});
 	});
@@ -680,10 +634,7 @@ describe("ValidationService", () => {
 
 	describe("Edge Cases", () => {
 		it("should handle null localStorage data", () => {
-			vi.spyOn(
-				validationService as any,
-				"extractLocalStorageData",
-			).mockReturnValue(null);
+			vi.spyOn(validationService as any, "extractLocalStorageData").mockReturnValue(null);
 
 			expect(async () => {
 				await validationService.validateMigration();
@@ -691,10 +642,7 @@ describe("ValidationService", () => {
 		});
 
 		it("should handle undefined task messages", async () => {
-			vi.spyOn(
-				validationService as any,
-				"extractLocalStorageData",
-			).mockReturnValue({
+			vi.spyOn(validationService as any, "extractLocalStorageData").mockReturnValue({
 				tasks: [
 					{
 						id: "task-1",
@@ -737,10 +685,7 @@ describe("ValidationService", () => {
 				createdAt: "2024-01-01T00:00:00.000Z",
 			}));
 
-			vi.spyOn(
-				validationService as any,
-				"extractLocalStorageData",
-			).mockReturnValue({
+			vi.spyOn(validationService as any, "extractLocalStorageData").mockReturnValue({
 				tasks: largeTasks,
 				environments: [],
 			});

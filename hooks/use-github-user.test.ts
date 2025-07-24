@@ -45,7 +45,7 @@ describe("useGitHubUser", () => {
 			JSON.stringify({
 				user: storedUser,
 				token: "test-token",
-			}),
+			})
 		);
 
 		const { result } = renderHook(() => useGitHubUser());
@@ -98,7 +98,7 @@ describe("useGitHubUser", () => {
 		expect(result.current.error).toBeNull();
 		expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
 			"github_auth",
-			expect.stringContaining("github-token"),
+			expect.stringContaining("github-token")
 		);
 	});
 
@@ -128,7 +128,7 @@ describe("useGitHubUser", () => {
 			JSON.stringify({
 				user: { id: "123", login: "testuser" },
 				token: "test-token",
-			}),
+			})
 		);
 
 		const { result } = renderHook(() => useGitHubUser());
@@ -171,7 +171,7 @@ describe("useGitHubUser", () => {
 		mockLocalStorage.getItem.mockReturnValue(
 			JSON.stringify({
 				token: "test-token",
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
@@ -191,7 +191,7 @@ describe("useGitHubUser", () => {
 				headers: expect.objectContaining({
 					Authorization: "Bearer test-token",
 				}),
-			}),
+			})
 		);
 	});
 
@@ -213,7 +213,7 @@ describe("useGitHubUser", () => {
 			JSON.stringify({
 				token: "test-token",
 				user: { id: "123", login: "testuser" },
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
@@ -232,7 +232,7 @@ describe("useGitHubUser", () => {
 			expect.objectContaining({
 				method: "PATCH",
 				body: JSON.stringify(updates),
-			}),
+			})
 		);
 	});
 
@@ -255,7 +255,7 @@ describe("useGitHubUser", () => {
 		mockLocalStorage.getItem.mockReturnValue(
 			JSON.stringify({
 				token: "test-token",
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
@@ -283,7 +283,7 @@ describe("useGitHubUser", () => {
 				token: "old-token",
 				refresh_token: "refresh-token",
 				user: { id: "123", login: "testuser" },
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
@@ -298,7 +298,7 @@ describe("useGitHubUser", () => {
 
 		expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
 			"github_auth",
-			expect.stringContaining("new-github-token"),
+			expect.stringContaining("new-github-token")
 		);
 	});
 
@@ -307,7 +307,7 @@ describe("useGitHubUser", () => {
 			JSON.stringify({
 				token: "test-token",
 				expires_at: Date.now() + 3_600_000, // 1 hour from now
-			}),
+			})
 		);
 
 		const { result } = renderHook(() => useGitHubUser());
@@ -319,7 +319,7 @@ describe("useGitHubUser", () => {
 			JSON.stringify({
 				token: "test-token",
 				expires_at: Date.now() - 1000, // 1 second ago
-			}),
+			})
 		);
 
 		const { result: expiredResult } = renderHook(() => useGitHubUser());
@@ -337,9 +337,7 @@ describe("useGitHubUser", () => {
 			result.current.initiateOAuthFlow();
 		});
 
-		expect(window.location.href).toContain(
-			"https://github.com/login/oauth/authorize",
-		);
+		expect(window.location.href).toContain("https://github.com/login/oauth/authorize");
 		expect(window.location.href).toContain("client_id=");
 		expect(window.location.href).toContain("scope=repo%20user");
 	});
@@ -348,10 +346,10 @@ describe("useGitHubUser", () => {
 		mockLocalStorage.getItem.mockReturnValue(
 			JSON.stringify({
 				token: "test-token",
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-			new Error("Network error"),
+			new Error("Network error")
 		);
 
 		const { result } = renderHook(() => useGitHubUser());
@@ -368,7 +366,7 @@ describe("useGitHubUser", () => {
 		mockLocalStorage.getItem.mockReturnValue(
 			JSON.stringify({
 				token: "test-token",
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: false,
@@ -416,7 +414,7 @@ describe("useGitHubUser", () => {
 		mockLocalStorage.getItem.mockReturnValue(
 			JSON.stringify({
 				token: "test-token",
-			}),
+			})
 		);
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
 			ok: true,
@@ -438,7 +436,7 @@ describe("useGitHubUser", () => {
 			JSON.stringify({
 				token: "test-token",
 				scope: "repo user read:org",
-			}),
+			})
 		);
 
 		const { result } = renderHook(() => useGitHubUser());

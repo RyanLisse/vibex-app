@@ -26,11 +26,7 @@ export const testAsyncError = async (
 /**
  * Standard error test pattern for sync functions
  */
-export const testSyncError = (
-	testFn: () => any,
-	expectedMessage: string,
-	errorType?: string
-) => {
+export const testSyncError = (testFn: () => any, expectedMessage: string, errorType?: string) => {
 	try {
 		testFn();
 		expect.fail("Expected function to throw an error");
@@ -58,9 +54,7 @@ export const testValidationError = (
 /**
  * Standard success validation test
  */
-export const testValidationSuccess = (
-	result: { isValid: boolean; errors: string[] }
-) => {
+export const testValidationSuccess = (result: { isValid: boolean; errors: string[] }) => {
 	expect(result.isValid).toBe(true);
 	expect(result.errors).toEqual([]);
 };
@@ -71,9 +65,7 @@ export const testValidationSuccess = (
 export const createNetworkErrorTests = (mockHandler: any, requestFn: () => Promise<any>) => {
 	return {
 		async testNetworkError() {
-			mockHandler.mockImplementation(
-				Promise.reject(new Error("Network error"))
-			);
+			mockHandler.mockImplementation(Promise.reject(new Error("Network error")));
 			await testAsyncError(requestFn, "Network error");
 		},
 
@@ -91,17 +83,14 @@ export const createNetworkErrorTests = (mockHandler: any, requestFn: () => Promi
 			error.name = "RateLimitError";
 			mockHandler.mockImplementation(() => Promise.reject(error));
 			await testAsyncError(requestFn, "Rate limit exceeded", "RateLimitError");
-		}
+		},
 	};
 };
 
 /**
  * HTTP status code test patterns
  */
-export const createHttpStatusTests = (
-	mockHandler: any,
-	requestFn: () => Promise<Response>
-) => {
+export const createHttpStatusTests = (mockHandler: any, requestFn: () => Promise<Response>) => {
 	return {
 		async testSuccessResponse(expectedBody: string) {
 			const mockResponse = new Response(expectedBody);
@@ -127,6 +116,6 @@ export const createHttpStatusTests = (
 
 		async testServerError() {
 			await this.testErrorResponse(500, "Internal Server Error");
-		}
+		},
 	};
 };

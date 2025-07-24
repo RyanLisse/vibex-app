@@ -14,9 +14,7 @@ import { observability } from "@/lib/observability";
 const CreateTaskSchema = z.object({
 	title: z.string().min(1).max(255),
 	description: z.string().optional(),
-	status: z
-		.enum(["pending", "in_progress", "completed", "cancelled"])
-		.default("pending"),
+	status: z.enum(["pending", "in_progress", "completed", "cancelled"]).default("pending"),
 	priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
 	userId: z.string().optional(),
 	metadata: z.record(z.string(), z.any()).optional(),
@@ -30,9 +28,7 @@ const QuerySchema = z.object({
 	userId: z.string().optional(),
 	limit: z.coerce.number().min(1).max(100).default(20),
 	offset: z.coerce.number().min(0).default(0),
-	orderBy: z
-		.enum(["createdAt", "updatedAt", "title", "priority"])
-		.default("createdAt"),
+	orderBy: z.enum(["createdAt", "updatedAt", "title", "priority"]).default("createdAt"),
 	order: z.enum(["asc", "desc"]).default("desc"),
 });
 
@@ -91,14 +87,11 @@ export async function GET(request: NextRequest) {
 			if (error instanceof z.ZodError) {
 				return NextResponse.json(
 					{ error: "Invalid query parameters", details: error.issues },
-					{ status: 400 },
+					{ status: 400 }
 				);
 			}
 
-			return NextResponse.json(
-				{ error: "Failed to fetch tasks" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
 		}
 	});
 }
@@ -131,14 +124,11 @@ export async function POST(request: NextRequest) {
 			if (error instanceof z.ZodError) {
 				return NextResponse.json(
 					{ error: "Invalid task data", details: error.issues },
-					{ status: 400 },
+					{ status: 400 }
 				);
 			}
 
-			return NextResponse.json(
-				{ error: "Failed to create task" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
 		}
 	});
 }

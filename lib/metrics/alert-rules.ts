@@ -49,8 +49,7 @@ export class AlertRuleBuilder {
 				},
 				annotations: {
 					summary: "High token usage detected",
-					description:
-						"Token usage rate is {{ $value }} tokens/hour for {{ $labels.provider }}",
+					description: "Token usage rate is {{ $value }} tokens/hour for {{ $labels.provider }}",
 					runbook_url: "https://docs.example.com/runbooks/token-usage",
 				},
 			},
@@ -84,8 +83,7 @@ export class AlertRuleBuilder {
 				},
 				annotations: {
 					summary: "High number of database connections",
-					description:
-						"Database has {{ $value }} active connections for {{ $labels.database }}",
+					description: "Database has {{ $value }} active connections for {{ $labels.database }}",
 					runbook_url: "https://docs.example.com/runbooks/database-connections",
 				},
 			},
@@ -99,8 +97,7 @@ export class AlertRuleBuilder {
 				},
 				annotations: {
 					summary: "Slow database queries detected",
-					description:
-						"95th percentile query time is {{ $value }}s for {{ $labels.operation }}",
+					description: "95th percentile query time is {{ $value }}s for {{ $labels.operation }}",
 					runbook_url: "https://docs.example.com/runbooks/slow-queries",
 				},
 			},

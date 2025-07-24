@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useFileUpload } from "./use-file-upload";
 
 // Mock fetch
@@ -38,9 +29,7 @@ describe("useFileUpload", () => {
 				size: 1024,
 			}),
 		};
-		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-			mockResponse as unknown,
-		);
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse as unknown);
 
 		const { result } = renderHook(() => useFileUpload());
 		const file = new File(["test content"], "test.pdf", {
@@ -131,7 +120,7 @@ describe("useFileUpload", () => {
 
 	it("should handle upload errors", async () => {
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-			new Error("Network error"),
+			new Error("Network error")
 		);
 
 		const { result } = renderHook(() => useFileUpload());
@@ -154,9 +143,7 @@ describe("useFileUpload", () => {
 			status: 413,
 			statusText: "Payload Too Large",
 		};
-		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-			mockResponse as unknown,
-		);
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse as unknown);
 
 		const { result } = renderHook(() => useFileUpload());
 		const file = new File(["test content"], "test.pdf", {
@@ -174,7 +161,7 @@ describe("useFileUpload", () => {
 		const { result } = renderHook(() =>
 			useFileUpload({
 				acceptedTypes: ["image/jpeg", "image/png"],
-			}),
+			})
 		);
 
 		const invalidFile = new File(["test"], "test.pdf", {
@@ -193,7 +180,7 @@ describe("useFileUpload", () => {
 		const { result } = renderHook(() =>
 			useFileUpload({
 				maxSize: 1024, // 1KB
-			}),
+			})
 		);
 
 		const largeContent = "x".repeat(2048); // 2KB
@@ -238,9 +225,7 @@ describe("useFileUpload", () => {
 				size: 1024,
 			}),
 		};
-		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-			mockResponse as unknown,
-		);
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse as unknown);
 
 		const { result } = renderHook(() => useFileUpload());
 		const file = new File(["test content"], "test.pdf", {
@@ -316,9 +301,7 @@ describe("useFileUpload", () => {
 				size: 2048,
 			}),
 		};
-		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-			mockResponse as unknown,
-		);
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse as unknown);
 
 		const { result } = renderHook(() => useFileUpload());
 
@@ -343,9 +326,7 @@ describe("useFileUpload", () => {
 				url: "https://example.com/test.pdf",
 			}),
 		};
-		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-			mockResponse as unknown,
-		);
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse as unknown);
 
 		const { result } = renderHook(() =>
 			useFileUpload({
@@ -353,7 +334,7 @@ describe("useFileUpload", () => {
 					Authorization: "Bearer token123",
 					"X-Custom-Header": "custom-value",
 				},
-			}),
+			})
 		);
 
 		const file = new File(["test"], "test.pdf", { type: "application/pdf" });
@@ -369,7 +350,7 @@ describe("useFileUpload", () => {
 					Authorization: "Bearer token123",
 					"X-Custom-Header": "custom-value",
 				}),
-			}),
+			})
 		);
 	});
 
@@ -378,14 +359,12 @@ describe("useFileUpload", () => {
 			ok: true,
 			json: async () => ({ id: "file-123" }),
 		};
-		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-			mockResponse as unknown,
-		);
+		(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse as unknown);
 
 		const { result } = renderHook(() =>
 			useFileUpload({
 				endpoint: "https://api.example.com/upload",
-			}),
+			})
 		);
 
 		const file = new File(["test"], "test.pdf", { type: "application/pdf" });
@@ -394,10 +373,7 @@ describe("useFileUpload", () => {
 			await result.current.uploadFile(file);
 		});
 
-		expect(fetch).toHaveBeenCalledWith(
-			"https://api.example.com/upload",
-			expect.any(Object),
-		);
+		expect(fetch).toHaveBeenCalledWith("https://api.example.com/upload", expect.any(Object));
 	});
 
 	it("should handle concurrent uploads", async () => {
@@ -411,22 +387,20 @@ describe("useFileUpload", () => {
 		}));
 
 		mockResponses.forEach((response) => {
-			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(
-				response as any,
-			);
+			(fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(response as any);
 		});
 
 		const { result } = renderHook(() =>
 			useFileUpload({
 				maxConcurrent: 2,
-			}),
+			})
 		);
 
 		const files = new Array(3).fill(null).map(
 			(_, i) =>
 				new File([`content${i}`], `test${i}.pdf`, {
 					type: "application/pdf",
-				}),
+				})
 		);
 
 		await act(async () => {
@@ -439,7 +413,7 @@ describe("useFileUpload", () => {
 
 	it("should reset error state", async () => {
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-			new Error("Network error"),
+			new Error("Network error")
 		);
 
 		const { result } = renderHook(() => useFileUpload());
@@ -469,7 +443,7 @@ describe("useFileUpload", () => {
 		const { result } = renderHook(() =>
 			useFileUpload({
 				retryAttempts: 1,
-			}),
+			})
 		);
 
 		const file = new File(["test"], "test.pdf", { type: "application/pdf" });

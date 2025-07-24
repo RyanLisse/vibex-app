@@ -5,13 +5,7 @@
  * with Redis caching integration for optimal performance.
  */
 
-import {
-	agentExecutions,
-	environments,
-	observabilityEvents,
-	Task,
-	tasks,
-} from "@/db/schema";
+import { agentExecutions, environments, observabilityEvents, Task, tasks } from "@/db/schema";
 
 /**
  * Electric database client for managing database operations

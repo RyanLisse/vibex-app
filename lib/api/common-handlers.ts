@@ -2,10 +2,7 @@ import { SpanStatusCode, trace } from "@opentelemetry/api";
 import { type NextRequest, NextResponse } from "next/server";
 import { type ZodSchema, z } from "zod";
 import { getLogger } from "@/lib/logging/safe-wrapper";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 
 // Export commonly used functions that API routes expect
 export { createApiErrorResponse as createApiResponse };
@@ -29,11 +26,11 @@ type HandlerFunction<TBody, TQuery, TParams> = (context: {
 
 export function createApiHandler<TBody = any, TQuery = any, TParams = any>(
 	options: HandlerOptions<TBody, TQuery, TParams>,
-	handler: HandlerFunction<TBody, TQuery, TParams>,
+	handler: HandlerFunction<TBody, TQuery, TParams>
 ) {
 	return async (
 		request: NextRequest,
-		routeContext?: { params?: TParams },
+		routeContext?: { params?: TParams }
 	): Promise<NextResponse> => {
 		const tracer = trace.getTracer(options.tracerName || "api");
 		const span = tracer.startSpan(options.operationName);
@@ -45,20 +42,13 @@ export function createApiHandler<TBody = any, TQuery = any, TParams = any>(
 			let params: TParams | undefined;
 
 			// Parse and validate body if schema provided
-			if (
-				options.bodySchema &&
-				["POST", "PUT", "PATCH"].includes(request.method)
-			) {
+			if (options.bodySchema && ["POST", "PUT", "PATCH"].includes(request.method)) {
 				try {
 					const rawBody = await request.json();
 					body = options.bodySchema.parse(rawBody);
 				} catch (error) {
 					if (error instanceof z.ZodError) {
-						return createApiErrorResponse(
-							"Invalid request data",
-							400,
-							error.issues,
-						);
+						return createApiErrorResponse("Invalid request data", 400, error.issues);
 					}
 					throw error;
 				}
@@ -103,16 +93,12 @@ export function createApiHandler<TBody = any, TQuery = any, TParams = any>(
 			logger.error(`Error in ${options.operationName}`, error as Error);
 
 			if (error instanceof z.ZodError) {
-				return createApiErrorResponse(
-					"Invalid request data",
-					400,
-					error.issues,
-				);
+				return createApiErrorResponse("Invalid request data", 400, error.issues);
 			}
 
 			return createApiErrorResponse(
 				error instanceof Error ? error.message : "Internal server error",
-				500,
+				500
 			);
 		} finally {
 			span.end();
@@ -124,7 +110,7 @@ export function createApiHandler<TBody = any, TQuery = any, TParams = any>(
 export function createPaginatedHandler<T>(
 	options: HandlerOptions<any, any, any> & {
 		fetchData: (params: any) => Promise<{ items: T[]; total: number }>;
-	},
+	}
 ) {
 	return createApiHandler(options, async ({ query }) => {
 		const { items, total } = await options.fetchData(query);

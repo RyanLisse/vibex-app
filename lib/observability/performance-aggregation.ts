@@ -91,33 +91,23 @@ export class PerformanceAggregationService {
 		{
 			description: "Agent execution duration in seconds",
 			unit: "s",
-		},
+		}
 	);
 
-	private executionCounter = this.meter.createCounter(
-		"agent_executions_total",
-		{
-			description: "Total number of agent executions",
-		},
-	);
+	private executionCounter = this.meter.createCounter("agent_executions_total", {
+		description: "Total number of agent executions",
+	});
 
-	private errorCounter = this.meter.createCounter(
-		"agent_execution_errors_total",
-		{
-			description: "Total number of agent execution errors",
-		},
-	);
+	private errorCounter = this.meter.createCounter("agent_execution_errors_total", {
+		description: "Total number of agent execution errors",
+	});
 
-	private memoryGauge = this.meter.createUpDownCounter(
-		"system_memory_usage_bytes",
-		{
-			description: "System memory usage in bytes",
-		},
-	);
+	private memoryGauge = this.meter.createUpDownCounter("system_memory_usage_bytes", {
+		description: "System memory usage in bytes",
+	});
 
 	// Metrics cache
-	private metricsCache: Map<string, { data: any; timestamp: number }> =
-		new Map();
+	private metricsCache: Map<string, { data: any; timestamp: number }> = new Map();
 	private readonly CACHE_TTL = 30000; // 30 seconds
 
 	private constructor() {
@@ -126,8 +116,7 @@ export class PerformanceAggregationService {
 
 	static getInstance(): PerformanceAggregationService {
 		if (!PerformanceAggregationService.instance) {
-			PerformanceAggregationService.instance =
-				new PerformanceAggregationService();
+			PerformanceAggregationService.instance = new PerformanceAggregationService();
 		}
 		return PerformanceAggregationService.instance;
 	}
@@ -136,7 +125,7 @@ export class PerformanceAggregationService {
 	 * Collect and aggregate performance metrics
 	 */
 	async collectPerformanceMetrics(
-		timeRangeMinutes: number = 60,
+		timeRangeMinutes: number = 60
 	): Promise<AggregatedPerformanceMetric[]> {
 		const cacheKey = `performance_metrics_${timeRangeMinutes}`;
 		const cached = this.metricsCache.get(cacheKey);
@@ -146,16 +135,11 @@ export class PerformanceAggregationService {
 		}
 
 		const endTime = new Date();
-		const startTime = new Date(
-			endTime.getTime() - timeRangeMinutes * 60 * 1000,
-		);
+		const startTime = new Date(endTime.getTime() - timeRangeMinutes * 60 * 1000);
 
 		try {
 			// Get execution metrics
-			const executionMetrics = await this.getExecutionMetrics(
-				startTime,
-				endTime,
-			);
+			const executionMetrics = await this.getExecutionMetrics(startTime, endTime);
 
 			// Get error metrics
 			const errorMetrics = await this.getErrorMetrics(startTime, endTime);
@@ -163,11 +147,7 @@ export class PerformanceAggregationService {
 			// Get system metrics
 			const systemMetrics = await this.getSystemMetrics();
 
-			const aggregatedMetrics = [
-				...executionMetrics,
-				...errorMetrics,
-				...systemMetrics,
-			];
+			const aggregatedMetrics = [...executionMetrics, ...errorMetrics, ...systemMetrics];
 
 			// Cache results
 			this.metricsCache.set(cacheKey, {
@@ -187,7 +167,7 @@ export class PerformanceAggregationService {
 	 */
 	private async getExecutionMetrics(
 		startTime: Date,
-		endTime: Date,
+		endTime: Date
 	): Promise<AggregatedPerformanceMetric[]> {
 		const executions = await db
 			.select({
@@ -198,10 +178,7 @@ export class PerformanceAggregationService {
 			})
 			.from(agentExecutions)
 			.where(
-				and(
-					gte(agentExecutions.startedAt, startTime),
-					lte(agentExecutions.startedAt, endTime),
-				),
+				and(gte(agentExecutions.startedAt, startTime), lte(agentExecutions.startedAt, endTime))
 			);
 
 		// Group by agent type
@@ -214,7 +191,7 @@ export class PerformanceAggregationService {
 				acc[key].push(execution);
 				return acc;
 			},
-			{} as Record<string, typeof executions>,
+			{} as Record<string, typeof executions>
 		);
 
 		const metrics: AggregatedPerformanceMetric[] = [];
@@ -237,8 +214,7 @@ export class PerformanceAggregationService {
 
 				// Calculate standard deviation
 				const variance =
-					durations.reduce((acc, val) => acc + (val - average) ** 2, 0) /
-					durations.length;
+					durations.reduce((acc, val) => acc + (val - average) ** 2, 0) / durations.length;
 				const stdDev = Math.sqrt(variance);
 
 				// Calculate trend (simplified)
@@ -268,9 +244,7 @@ export class PerformanceAggregationService {
 			}
 
 			// Success rate metric
-			const successful = agentExecutions.filter(
-				(e) => e.status === "completed",
-			).length;
+			const successful = agentExecutions.filter((e) => e.status === "completed").length;
 			const total = agentExecutions.length;
 			const successRate = total > 0 ? (successful / total) * 100 : 0;
 
@@ -299,7 +273,7 @@ export class PerformanceAggregationService {
 	 */
 	private async getErrorMetrics(
 		startTime: Date,
-		endTime: Date,
+		endTime: Date
 	): Promise<AggregatedPerformanceMetric[]> {
 		const errorEvents = await db
 			.select({
@@ -313,13 +287,12 @@ export class PerformanceAggregationService {
 				and(
 					eq(observabilityEvents.severity, "error"),
 					gte(observabilityEvents.timestamp, startTime),
-					lte(observabilityEvents.timestamp, endTime),
-				),
+					lte(observabilityEvents.timestamp, endTime)
+				)
 			);
 
 		const errorCount = errorEvents.length;
-		const timeRangeHours =
-			(endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+		const timeRangeHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
 		const errorRate = errorCount / timeRangeHours;
 
 		// Record OpenTelemetry metrics
@@ -414,16 +387,9 @@ export class PerformanceAggregationService {
 				.where(gte(agentExecutions.startedAt, startTime));
 
 			const totalExecutions = executions.length;
-			const successfulExecutions = executions.filter(
-				(e) => e.status === "completed",
-			).length;
-			const failedExecutions = executions.filter(
-				(e) => e.status === "failed",
-			).length;
-			const successRate =
-				totalExecutions > 0
-					? (successfulExecutions / totalExecutions) * 100
-					: 0;
+			const successfulExecutions = executions.filter((e) => e.status === "completed").length;
+			const failedExecutions = executions.filter((e) => e.status === "failed").length;
+			const successRate = totalExecutions > 0 ? (successfulExecutions / totalExecutions) * 100 : 0;
 
 			// Calculate execution durations
 			const durations = executions
@@ -432,13 +398,8 @@ export class PerformanceAggregationService {
 				.sort((a, b) => a - b);
 
 			const averageDuration =
-				durations.length > 0
-					? durations.reduce((a, b) => a + b, 0) / durations.length
-					: 0;
-			const p95Duration =
-				durations.length > 0
-					? durations[Math.floor(durations.length * 0.95)]
-					: 0;
+				durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+			const p95Duration = durations.length > 0 ? durations[Math.floor(durations.length * 0.95)] : 0;
 
 			// Get error statistics
 			const errorEvents = await db
@@ -451,12 +412,11 @@ export class PerformanceAggregationService {
 				.where(
 					and(
 						eq(observabilityEvents.severity, "error"),
-						gte(observabilityEvents.timestamp, startTime),
-					),
+						gte(observabilityEvents.timestamp, startTime)
+					)
 				);
 
-			const errorRate =
-				totalExecutions > 0 ? (errorEvents.length / totalExecutions) * 100 : 0;
+			const errorRate = totalExecutions > 0 ? (errorEvents.length / totalExecutions) * 100 : 0;
 
 			// Group errors by type
 			const errorsByType = errorEvents.reduce(
@@ -464,7 +424,7 @@ export class PerformanceAggregationService {
 					acc[error.type] = (acc[error.type] || 0) + 1;
 					return acc;
 				},
-				{} as Record<string, number>,
+				{} as Record<string, number>
 			);
 
 			// Get agent statistics
@@ -473,7 +433,7 @@ export class PerformanceAggregationService {
 					acc[execution.agentType] = (acc[execution.agentType] || 0) + 1;
 					return acc;
 				},
-				{} as Record<string, number>,
+				{} as Record<string, number>
 			);
 
 			const agentExecutionTimes = executions.reduce(
@@ -486,35 +446,27 @@ export class PerformanceAggregationService {
 					}
 					return acc;
 				},
-				{} as Record<string, number[]>,
+				{} as Record<string, number[]>
 			);
 
-			const averageExecutionTimeByAgent = Object.entries(
-				agentExecutionTimes,
-			).reduce(
+			const averageExecutionTimeByAgent = Object.entries(agentExecutionTimes).reduce(
 				(acc, [agentType, times]) => {
 					acc[agentType] = times.reduce((a, b) => a + b, 0) / times.length;
 					return acc;
 				},
-				{} as Record<string, number>,
+				{} as Record<string, number>
 			);
 
 			// Calculate error rates by agent
 			const errorRatesByAgent = Object.keys(agentsByType).reduce(
 				(acc, agentType) => {
-					const agentExecutions = executions.filter(
-						(e) => e.agentType === agentType,
-					);
-					const agentErrors = agentExecutions.filter(
-						(e) => e.status === "failed",
-					);
+					const agentExecutions = executions.filter((e) => e.agentType === agentType);
+					const agentErrors = agentExecutions.filter((e) => e.status === "failed");
 					acc[agentType] =
-						agentExecutions.length > 0
-							? (agentErrors.length / agentExecutions.length) * 100
-							: 0;
+						agentExecutions.length > 0 ? (agentErrors.length / agentExecutions.length) * 100 : 0;
 					return acc;
 				},
-				{} as Record<string, number>,
+				{} as Record<string, number>
 			);
 
 			// Calculate overall health score
@@ -526,11 +478,7 @@ export class PerformanceAggregationService {
 			});
 
 			const healthStatus: "healthy" | "degraded" | "critical" =
-				healthScore >= 80
-					? "healthy"
-					: healthScore >= 60
-						? "degraded"
-						: "critical";
+				healthScore >= 80 ? "healthy" : healthScore >= 60 ? "degraded" : "critical";
 
 			// Get system performance metrics
 			const memoryUsage = process.memoryUsage().heapUsed;
@@ -569,21 +517,19 @@ export class PerformanceAggregationService {
 				agents: {
 					active: Object.keys(agentsByType).length,
 					byType: agentsByType,
-					averageExecutionTime: Object.entries(
-						averageExecutionTimeByAgent,
-					).reduce(
+					averageExecutionTime: Object.entries(averageExecutionTimeByAgent).reduce(
 						(acc, [key, value]) => {
 							acc[key] = Math.round(value);
 							return acc;
 						},
-						{} as Record<string, number>,
+						{} as Record<string, number>
 					),
 					errorRates: Object.entries(errorRatesByAgent).reduce(
 						(acc, [key, value]) => {
 							acc[key] = Math.round(value * 100) / 100;
 							return acc;
 						},
-						{} as Record<string, number>,
+						{} as Record<string, number>
 					),
 				},
 			};
@@ -604,9 +550,7 @@ export class PerformanceAggregationService {
 	/**
 	 * Calculate trend from a series of values
 	 */
-	private calculateTrend(
-		values: number[],
-	): "increasing" | "decreasing" | "stable" {
+	private calculateTrend(values: number[]): "increasing" | "decreasing" | "stable" {
 		if (values.length < 2) return "stable";
 
 		const firstHalf = values.slice(0, Math.floor(values.length / 2));
@@ -671,5 +615,4 @@ export class PerformanceAggregationService {
 }
 
 // Export singleton instance
-export const performanceAggregation =
-	PerformanceAggregationService.getInstance();
+export const performanceAggregation = PerformanceAggregationService.getInstance();

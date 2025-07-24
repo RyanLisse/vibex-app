@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 import { ElectricConnectionStatus } from "@/components/electric/electric-connection-status";
-import {
-	ElectricSyncButton,
-	useElectricContext,
-} from "@/components/providers/electric-provider";
+import { ElectricSyncButton, useElectricContext } from "@/components/providers/electric-provider";
 import { useElectricEnvironments } from "@/hooks/use-electric-environments";
 import { useElectricTasks } from "@/hooks/use-electric-tasks";
 
@@ -123,25 +120,19 @@ export function ElectricDemo() {
 				<div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
 					<div>
 						<span className="text-gray-600">Ready:</span>
-						<span
-							className={`ml-2 ${isReady ? "text-green-600" : "text-red-600"}`}
-						>
+						<span className={`ml-2 ${isReady ? "text-green-600" : "text-red-600"}`}>
 							{isReady ? "Yes" : "No"}
 						</span>
 					</div>
 					<div>
 						<span className="text-gray-600">Connected:</span>
-						<span
-							className={`ml-2 ${isConnected ? "text-green-600" : "text-red-600"}`}
-						>
+						<span className={`ml-2 ${isConnected ? "text-green-600" : "text-red-600"}`}>
 							{isConnected ? "Yes" : "No"}
 						</span>
 					</div>
 					<div>
 						<span className="text-gray-600">Syncing:</span>
-						<span
-							className={`ml-2 ${isSyncing ? "text-blue-600" : "text-gray-600"}`}
-						>
+						<span className={`ml-2 ${isSyncing ? "text-blue-600" : "text-gray-600"}`}>
 							{isSyncing ? "Yes" : "No"}
 						</span>
 					</div>
@@ -156,44 +147,31 @@ export function ElectricDemo() {
 			<div className="rounded-lg border bg-white p-6">
 				<div className="mb-4 flex items-center justify-between">
 					<h2 className="font-semibold text-xl">Tasks</h2>
-					{tasksLoading && (
-						<div className="text-gray-500 text-sm">Loading...</div>
-					)}
+					{tasksLoading && <div className="text-gray-500 text-sm">Loading...</div>}
 				</div>
 
 				{/* Task Statistics */}
 				<div className="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4 md:grid-cols-4">
 					<div className="text-center">
-						<div className="font-bold text-2xl text-blue-600">
-							{taskStats.total}
-						</div>
+						<div className="font-bold text-2xl text-blue-600">{taskStats.total}</div>
 						<div className="text-gray-600 text-sm">Total</div>
 					</div>
 					<div className="text-center">
-						<div className="font-bold text-2xl text-yellow-600">
-							{taskStats.pending}
-						</div>
+						<div className="font-bold text-2xl text-yellow-600">{taskStats.pending}</div>
 						<div className="text-gray-600 text-sm">Pending</div>
 					</div>
 					<div className="text-center">
-						<div className="font-bold text-2xl text-blue-600">
-							{taskStats.inProgress}
-						</div>
+						<div className="font-bold text-2xl text-blue-600">{taskStats.inProgress}</div>
 						<div className="text-gray-600 text-sm">In Progress</div>
 					</div>
 					<div className="text-center">
-						<div className="font-bold text-2xl text-green-600">
-							{taskStats.completed}
-						</div>
+						<div className="font-bold text-2xl text-green-600">{taskStats.completed}</div>
 						<div className="text-gray-600 text-sm">Completed</div>
 					</div>
 				</div>
 
 				{/* Create Task Form */}
-				<form
-					className="mb-6 rounded-lg border p-4"
-					onSubmit={handleCreateTask}
-				>
+				<form className="mb-6 rounded-lg border p-4" onSubmit={handleCreateTask}>
 					<h3 className="mb-3 font-medium">Create New Task</h3>
 					<div className="space-y-3">
 						<input
@@ -222,9 +200,7 @@ export function ElectricDemo() {
 
 				{/* Tasks List */}
 				{tasksError ? (
-					<div className="text-red-600 text-sm">
-						Error loading tasks: {tasksError.message}
-					</div>
+					<div className="text-red-600 text-sm">Error loading tasks: {tasksError.message}</div>
 				) : (
 					<div className="space-y-3">
 						{tasks.length === 0 ? (
@@ -238,24 +214,17 @@ export function ElectricDemo() {
 										<div className="flex-1">
 											<h4 className="font-medium">{task.title}</h4>
 											{task.description && (
-												<p className="mt-1 text-gray-600 text-sm">
-													{task.description}
-												</p>
+												<p className="mt-1 text-gray-600 text-sm">{task.description}</p>
 											)}
 											<div className="mt-2 flex items-center space-x-4 text-gray-500 text-xs">
 												<span>Priority: {task.priority}</span>
-												<span>
-													Created:{" "}
-													{new Date(task.createdAt).toLocaleDateString()}
-												</span>
+												<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
 											</div>
 										</div>
 										<div className="flex items-center space-x-2">
 											<select
 												className="rounded border px-2 py-1 text-sm"
-												onChange={(e) =>
-													handleUpdateTaskStatus(task.id, e.target.value)
-												}
+												onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value)}
 												value={task.status}
 											>
 												<option value="pending">Pending</option>
@@ -282,16 +251,11 @@ export function ElectricDemo() {
 			<div className="rounded-lg border bg-white p-6">
 				<div className="mb-4 flex items-center justify-between">
 					<h2 className="font-semibold text-xl">Environments</h2>
-					{environmentsLoading && (
-						<div className="text-gray-500 text-sm">Loading...</div>
-					)}
+					{environmentsLoading && <div className="text-gray-500 text-sm">Loading...</div>}
 				</div>
 
 				{/* Create Environment Form */}
-				<form
-					className="mb-6 rounded-lg border p-4"
-					onSubmit={handleCreateEnvironment}
-				>
+				<form className="mb-6 rounded-lg border p-4" onSubmit={handleCreateEnvironment}>
 					<h3 className="mb-3 font-medium">Create New Environment</h3>
 					<div className="flex space-x-3">
 						<input
@@ -326,9 +290,7 @@ export function ElectricDemo() {
 							environments.map((env) => (
 								<div
 									className={`rounded-lg border p-4 ${
-										env.isActive
-											? "border-green-500 bg-green-50"
-											: "border-gray-200"
+										env.isActive ? "border-green-500 bg-green-50" : "border-gray-200"
 									}`}
 									key={env.id}
 								>

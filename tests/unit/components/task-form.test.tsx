@@ -40,13 +40,7 @@ vi.mock("@/app/actions/inngest", () => ({
 }));
 
 vi.mock("next/link", () => {
-	const MockLink = ({
-		children,
-		href,
-	}: {
-		children: React.ReactNode;
-		href: string;
-	}) => {
+	const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
 		return <a href={href}>{children}</a>;
 	};
 	return { default: MockLink };
@@ -59,10 +53,7 @@ describe("NewTaskForm", () => {
 		// Use querySelector since the form is rendering correctly
 		const textarea = container.querySelector("textarea");
 		expect(textarea).toBeInTheDocument();
-		expect(textarea).toHaveAttribute(
-			"placeholder",
-			"Describe a task you want to ship...",
-		);
+		expect(textarea).toHaveAttribute("placeholder", "Describe a task you want to ship...");
 
 		// Check for the heading text
 		const heading = container.querySelector("h1");
@@ -72,8 +63,7 @@ describe("NewTaskForm", () => {
 		// Initially no action buttons are shown
 		const buttons = container.querySelectorAll("button");
 		const actionButtons = Array.from(buttons).filter(
-			(btn) =>
-				btn.textContent?.includes("Code") || btn.textContent?.includes("Ask"),
+			(btn) => btn.textContent?.includes("Code") || btn.textContent?.includes("Ask")
 		);
 		expect(actionButtons).toHaveLength(0);
 	});
@@ -91,17 +81,13 @@ describe("NewTaskForm", () => {
 		await waitFor(
 			() => {
 				const buttons = container.querySelectorAll("button");
-				const codeButton = Array.from(buttons).find((btn) =>
-					btn.textContent?.includes("Code"),
-				);
-				const askButton = Array.from(buttons).find((btn) =>
-					btn.textContent?.includes("Ask"),
-				);
+				const codeButton = Array.from(buttons).find((btn) => btn.textContent?.includes("Code"));
+				const askButton = Array.from(buttons).find((btn) => btn.textContent?.includes("Ask"));
 
 				expect(codeButton).toBeDefined();
 				expect(askButton).toBeDefined();
 			},
-			{ timeout: 3000 },
+			{ timeout: 3000 }
 		);
 	});
 
@@ -116,17 +102,13 @@ describe("NewTaskForm", () => {
 		// Wait for the buttons to appear and click
 		await waitFor(() => {
 			const buttons = container.querySelectorAll("button");
-			const codeButton = Array.from(buttons).find((btn) =>
-				btn.textContent?.includes("Code"),
-			);
+			const codeButton = Array.from(buttons).find((btn) => btn.textContent?.includes("Code"));
 			expect(codeButton).toBeDefined();
 			return codeButton;
 		});
 
 		const buttons = container.querySelectorAll("button");
-		const codeButton = Array.from(buttons).find((btn) =>
-			btn.textContent?.includes("Code"),
-		);
+		const codeButton = Array.from(buttons).find((btn) => btn.textContent?.includes("Code"));
 		fireEvent.click(codeButton);
 
 		await waitFor(() => {
@@ -145,17 +127,13 @@ describe("NewTaskForm", () => {
 		// Wait for the buttons to appear and click
 		await waitFor(() => {
 			const buttons = container.querySelectorAll("button");
-			const askButton = Array.from(buttons).find((btn) =>
-				btn.textContent?.includes("Ask"),
-			);
+			const askButton = Array.from(buttons).find((btn) => btn.textContent?.includes("Ask"));
 			expect(askButton).toBeDefined();
 			return askButton;
 		});
 
 		const buttons = container.querySelectorAll("button");
-		const askButton = Array.from(buttons).find((btn) =>
-			btn.textContent?.includes("Ask"),
-		);
+		const askButton = Array.from(buttons).find((btn) => btn.textContent?.includes("Ask"));
 		fireEvent.click(askButton);
 
 		await waitFor(() => {

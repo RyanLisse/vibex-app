@@ -122,9 +122,7 @@ describe.skip("Auth", () => {
 
 		it("should handle mkdir failure gracefully", async () => {
 			mkdirMock.mockRejectedValueOnce(new Error("Permission denied"));
-			readFileMock.mockResolvedValueOnce(
-				JSON.stringify({ provider1: oauthAuth }),
-			);
+			readFileMock.mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }));
 
 			const result = await Auth.get("provider1");
 
@@ -184,8 +182,8 @@ describe.skip("Auth", () => {
 						provider2: oauthAuth,
 					},
 					null,
-					2,
-				),
+					2
+				)
 			);
 			expect(chmodMock).toHaveBeenCalledWith(mockFilepath, 0o600);
 		});
@@ -203,8 +201,8 @@ describe.skip("Auth", () => {
 						provider1: apiAuth,
 					},
 					null,
-					2,
-				),
+					2
+				)
 			);
 			expect(chmodMock).toHaveBeenCalledWith(mockFilepath, 0o600);
 		});
@@ -231,8 +229,8 @@ describe.skip("Auth", () => {
 						provider1: newAuth,
 					},
 					null,
-					2,
-				),
+					2
+				)
 			);
 		});
 
@@ -240,9 +238,7 @@ describe.skip("Auth", () => {
 			readFileMock.mockResolvedValueOnce(JSON.stringify({}));
 			writeFileMock.mockRejectedValueOnce(new Error("Permission denied"));
 
-			await expect(Auth.set("provider1", apiAuth)).rejects.toThrow(
-				"Permission denied",
-			);
+			await expect(Auth.set("provider1", apiAuth)).rejects.toThrow("Permission denied");
 		});
 
 		it("should handle chmod errors", async () => {
@@ -250,9 +246,7 @@ describe.skip("Auth", () => {
 			writeFileMock.mockResolvedValueOnce(undefined);
 			chmodMock.mockRejectedValueOnce(new Error("Permission denied"));
 
-			await expect(Auth.set("provider1", apiAuth)).rejects.toThrow(
-				"Permission denied",
-			);
+			await expect(Auth.set("provider1", apiAuth)).rejects.toThrow("Permission denied");
 		});
 	});
 
@@ -275,8 +269,8 @@ describe.skip("Auth", () => {
 						provider2: apiAuth,
 					},
 					null,
-					2,
-				),
+					2
+				)
 			);
 			expect(chmodMock).toHaveBeenCalledWith(mockFilepath, 0o600);
 		});
@@ -298,8 +292,8 @@ describe.skip("Auth", () => {
 						provider1: oauthAuth,
 					},
 					null,
-					2,
-				),
+					2
+				)
 			);
 		});
 
@@ -309,16 +303,11 @@ describe.skip("Auth", () => {
 
 			await Auth.remove("provider1");
 
-			expect(writeFileMock).toHaveBeenCalledWith(
-				mockFilepath,
-				JSON.stringify({}, null, 2),
-			);
+			expect(writeFileMock).toHaveBeenCalledWith(mockFilepath, JSON.stringify({}, null, 2));
 		});
 
 		it("should handle write errors during removal", async () => {
-			readFileMock.mockResolvedValueOnce(
-				JSON.stringify({ provider1: oauthAuth }),
-			);
+			readFileMock.mockResolvedValueOnce(JSON.stringify({ provider1: oauthAuth }));
 			writeFileMock.mockRejectedValueOnce(new Error("Disk full"));
 
 			await expect(Auth.remove("provider1")).rejects.toThrow("Disk full");
@@ -391,11 +380,7 @@ describe.skip("Auth", () => {
 
 			readFileMock.mockResolvedValue(JSON.stringify(mockData));
 
-			const results = await Promise.all([
-				Auth.get("provider1"),
-				Auth.get("provider2"),
-				Auth.all(),
-			]);
+			const results = await Promise.all([Auth.get("provider1"), Auth.get("provider2"), Auth.all()]);
 
 			expect(results[0]).toEqual(oauthAuth);
 			expect(results[1]).toEqual(apiAuth);
@@ -412,10 +397,7 @@ describe.skip("Auth", () => {
 			// Note: In real scenarios, this could cause race conditions
 			// The test demonstrates the API usage, but the implementation
 			// might need locking for production use
-			await Promise.all([
-				Auth.set("provider1", newAuth1),
-				Auth.set("provider2", newAuth2),
-			]);
+			await Promise.all([Auth.set("provider1", newAuth1), Auth.set("provider2", newAuth2)]);
 
 			expect(writeFileMock).toHaveBeenCalled();
 		});
@@ -432,9 +414,7 @@ describe.skip("Auth", () => {
 		});
 
 		it("should maintain permissions on update", async () => {
-			readFileMock.mockResolvedValueOnce(
-				JSON.stringify({ existing: oauthAuth }),
-			);
+			readFileMock.mockResolvedValueOnce(JSON.stringify({ existing: oauthAuth }));
 			writeFileMock.mockResolvedValueOnce(undefined);
 
 			await Auth.set("new", apiAuth);
@@ -459,7 +439,7 @@ describe.skip("Auth", () => {
 
 			expect(writeFileMock).toHaveBeenCalledWith(
 				mockFilepath,
-				expect.stringContaining("x".repeat(1000)),
+				expect.stringContaining("x".repeat(1000))
 			);
 		});
 

@@ -1,13 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { ClaudeAuthClient } from "./claude-auth";
 import * as pkce from "./pkce";
 
@@ -22,12 +13,8 @@ global.fetch = vi.fn();
 
 describe("ClaudeAuthClient", () => {
 	let client: ClaudeAuthClient;
-	const mockGenerateCodeVerifier = pkce.generateCodeVerifier as ReturnType<
-		typeof mock
-	>;
-	const mockGenerateCodeChallenge = pkce.generateCodeChallenge as ReturnType<
-		typeof mock
-	>;
+	const mockGenerateCodeVerifier = pkce.generateCodeVerifier as ReturnType<typeof mock>;
+	const mockGenerateCodeChallenge = pkce.generateCodeChallenge as ReturnType<typeof mock>;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -77,20 +64,14 @@ describe("ClaudeAuthClient", () => {
 			expect(mockGenerateCodeChallenge).toHaveBeenCalledWith("test-verifier");
 
 			const url = new URL(authData.url);
-			expect(url.origin + url.pathname).toBe(
-				"https://claude.ai/oauth/authorize",
-			);
+			expect(url.origin + url.pathname).toBe("https://claude.ai/oauth/authorize");
 			expect(url.searchParams.get("response_type")).toBe("code");
 			expect(url.searchParams.get("client_id")).toBe("test-client-id");
-			expect(url.searchParams.get("redirect_uri")).toBe(
-				"https://app.example.com/callback",
-			);
+			expect(url.searchParams.get("redirect_uri")).toBe("https://app.example.com/callback");
 			expect(url.searchParams.get("code_challenge")).toBe("test-challenge");
 			expect(url.searchParams.get("code_challenge_method")).toBe("S256");
 			expect(url.searchParams.get("state")).toBeDefined();
-			expect(url.searchParams.get("scope")).toBe(
-				"org:create_api_key user:profile user:inference",
-			);
+			expect(url.searchParams.get("scope")).toBe("org:create_api_key user:profile user:inference");
 		});
 
 		it("should return verifier and state", () => {
@@ -127,9 +108,7 @@ describe("ClaudeAuthClient", () => {
 			const authData = customClient.getAuthorizationUrl();
 			const url = new URL(authData.url);
 
-			expect(url.searchParams.get("scope")).toBe(
-				"scope:one scope:two scope:three",
-			);
+			expect(url.searchParams.get("scope")).toBe("scope:one scope:two scope:three");
 		});
 	});
 
@@ -148,21 +127,15 @@ describe("ClaudeAuthClient", () => {
 				json: async () => mockTokenResponse,
 			} as Response);
 
-			const result = await client.exchangeCodeForToken(
-				"auth-code",
-				"code-verifier",
-			);
+			const result = await client.exchangeCodeForToken("auth-code", "code-verifier");
 
-			expect(fetch).toHaveBeenCalledWith(
-				"https://console.anthropic.com/v1/oauth/token",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded",
-					},
-					body: expect.any(URLSearchParams),
+			expect(fetch).toHaveBeenCalledWith("https://console.anthropic.com/v1/oauth/token", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
 				},
-			);
+				body: expect.any(URLSearchParams),
+			});
 
 			const callArgs = (fetch as any).mock.calls[0];
 			const body = callArgs[1]?.body as URLSearchParams;
@@ -188,19 +161,17 @@ describe("ClaudeAuthClient", () => {
 				json: async () => errorResponse,
 			} as Response);
 
-			await expect(
-				client.exchangeCodeForToken("invalid-code", "verifier"),
-			).rejects.toThrow(
-				'Failed to exchange code for token: 400 Bad Request - {"error":"invalid_grant","error_description":"Invalid authorization code"}',
+			await expect(client.exchangeCodeForToken("invalid-code", "verifier")).rejects.toThrow(
+				'Failed to exchange code for token: 400 Bad Request - {"error":"invalid_grant","error_description":"Invalid authorization code"}'
 			);
 		});
 
 		it("should handle network errors", async () => {
 			(fetch as any).mockRejectedValueOnce(new Error("Network error"));
 
-			await expect(
-				client.exchangeCodeForToken("code", "verifier"),
-			).rejects.toThrow("Network error");
+			await expect(client.exchangeCodeForToken("code", "verifier")).rejects.toThrow(
+				"Network error"
+			);
 		});
 
 		it("should handle non-JSON error responses", async () => {
@@ -213,10 +184,8 @@ describe("ClaudeAuthClient", () => {
 				},
 			} as Response);
 
-			await expect(
-				client.exchangeCodeForToken("code", "verifier"),
-			).rejects.toThrow(
-				"Failed to exchange code for token: 500 Internal Server Error - {}",
+			await expect(client.exchangeCodeForToken("code", "verifier")).rejects.toThrow(
+				"Failed to exchange code for token: 500 Internal Server Error - {}"
 			);
 		});
 
@@ -234,10 +203,7 @@ describe("ClaudeAuthClient", () => {
 
 			await customClient.exchangeCodeForToken("code", "verifier");
 
-			expect(fetch).toHaveBeenCalledWith(
-				"https://custom.token.url",
-				expect.any(Object),
-			);
+			expect(fetch).toHaveBeenCalledWith("https://custom.token.url", expect.any(Object));
 		});
 	});
 
@@ -257,16 +223,13 @@ describe("ClaudeAuthClient", () => {
 
 			const result = await client.refreshToken("old-refresh-token");
 
-			expect(fetch).toHaveBeenCalledWith(
-				"https://console.anthropic.com/v1/oauth/token",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded",
-					},
-					body: expect.any(URLSearchParams),
+			expect(fetch).toHaveBeenCalledWith("https://console.anthropic.com/v1/oauth/token", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
 				},
-			);
+				body: expect.any(URLSearchParams),
+			});
 
 			const callArgs = (fetch as any).mock.calls[0];
 			const body = callArgs[1]?.body as URLSearchParams;
@@ -291,16 +254,14 @@ describe("ClaudeAuthClient", () => {
 			} as Response);
 
 			await expect(client.refreshToken("expired-token")).rejects.toThrow(
-				'Failed to refresh token: 401 Unauthorized - {"error":"invalid_grant","error_description":"Refresh token expired"}',
+				'Failed to refresh token: 401 Unauthorized - {"error":"invalid_grant","error_description":"Refresh token expired"}'
 			);
 		});
 
 		it("should handle network errors during refresh", async () => {
 			(fetch as any).mockRejectedValueOnce(new Error("Connection timeout"));
 
-			await expect(client.refreshToken("token")).rejects.toThrow(
-				"Connection timeout",
-			);
+			await expect(client.refreshToken("token")).rejects.toThrow("Connection timeout");
 		});
 
 		it("should handle non-JSON error responses during refresh", async () => {
@@ -314,7 +275,7 @@ describe("ClaudeAuthClient", () => {
 			} as Response);
 
 			await expect(client.refreshToken("token")).rejects.toThrow(
-				"Failed to refresh token: 503 Service Unavailable - {}",
+				"Failed to refresh token: 503 Service Unavailable - {}"
 			);
 		});
 	});
@@ -363,15 +324,12 @@ describe("ClaudeAuthClient", () => {
 			const url = new URL(authData.url);
 
 			expect(url.searchParams.get("redirect_uri")).toBe(
-				"https://test.com/callback?param=value&other=123",
+				"https://test.com/callback?param=value&other=123"
 			);
 		});
 
 		it("should handle concurrent token exchanges", async () => {
-			const responses = [
-				{ access_token: "token1" },
-				{ access_token: "token2" },
-			];
+			const responses = [{ access_token: "token1" }, { access_token: "token2" }];
 
 			(fetch as any)
 				.mockResolvedValueOnce({

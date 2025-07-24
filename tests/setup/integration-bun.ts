@@ -19,8 +19,7 @@ const createMockRedisClient = () => ({
 	disconnect: async () => undefined,
 	get: async (key: string) => {
 		if (key === "existing-key") return "existing-value";
-		if (key.startsWith("session:"))
-			return JSON.stringify({ userId: "test-user" });
+		if (key.startsWith("session:")) return JSON.stringify({ userId: "test-user" });
 		return null;
 	},
 	set: async () => "OK",
@@ -214,8 +213,7 @@ afterEach(async () => {
 });
 
 // Environment variable defaults for testing
-process.env.DATABASE_URL =
-	process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/test";
+process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/test";
 process.env.ELECTRIC_URL = process.env.ELECTRIC_URL || "http://localhost:5133";
 process.env.NODE_ENV = "test";
 process.env.AUTH_SECRET = "test_auth_secret";

@@ -8,8 +8,7 @@ export const runtime = "nodejs";
 // Mock environment variables
 const env = {
 	OPENAI_CLIENT_ID: process.env.OPENAI_CLIENT_ID || "test-client-id",
-	OPENAI_CLIENT_SECRET:
-		process.env.OPENAI_CLIENT_SECRET || "test-client-secret",
+	OPENAI_CLIENT_SECRET: process.env.OPENAI_CLIENT_SECRET || "test-client-secret",
 	NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
 };
 
@@ -103,12 +102,7 @@ export async function POST(request: NextRequest) {
 		clearAuthCookies(response);
 
 		// Attempt to revoke token if requested and available
-		if (
-			shouldRevokeToken &&
-			token &&
-			env.OPENAI_CLIENT_ID &&
-			env.OPENAI_CLIENT_SECRET
-		) {
+		if (shouldRevokeToken && token && env.OPENAI_CLIENT_ID && env.OPENAI_CLIENT_SECRET) {
 			try {
 				await revokeToken({
 					token,

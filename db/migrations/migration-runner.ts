@@ -1,64 +1,53 @@
 import { createHash } from "crypto";
 import { desc, eq, sql as sqlOperator } from "drizzle-orm";
-import {
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	unlinkSync,
-	writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import { db, sql } from "../config";
-import { migrations, type NewMigration } from "../schema";
+import { migrations, NewMigration } from "../schema";
 
-export interface MigrationFile {
-	name: string;
-	up: string;
-	down: string;
-	checksum: string;
-	metadata?: {
-		description?: string;
-		author?: string;
-		tags?: string[];
-		dependencies?: string[];
-	};
-}
+export const MigrationFile = {
+	name: "",
+	up: "",
+	down: "",
+	checksum: "",
+	metadata: {
+		description: "",
+		author: "",
+		tags: [],
+		dependencies: [],
+	},
+};
 
-export interface MigrationValidationResult {
-	valid: boolean;
-	errors: string[];
-	warnings: string[];
-}
+export const MigrationValidationResult = {
+	valid: false,
+	errors: [],
+	warnings: [],
+};
 
-export interface MigrationExecutionResult {
-	success: boolean;
-	executed: string[];
-	errors: string[];
-	warnings: string[];
-	executionTime: number;
-}
+export const MigrationExecutionResult = {
+	success: false,
+	executed: [],
+	errors: [],
+	warnings: [],
+	executionTime: 0,
+};
 
 export class MigrationRunner {
-	private migrationsPath: string;
-
-	constructor(
-		migrationsPath: string = join(process.cwd(), "db/migrations/sql"),
-	) {
+	constructor(migrationsPath = join(process.cwd(), "db/migrations/sql")) {
 		this.migrationsPath = migrationsPath;
 	}
 
 	/**
 	 * Generate checksum for migration content
 	 */
-	private generateChecksum(content: string): string {
+	generateChecksum(content) {
 		return createHash("sha256").update(content).digest("hex");
 	}
 
 	/**
 	 * Load migration files from filesystem
 	 */
-	private loadMigrationFiles(dir: string): MigrationFile[] {
+	loadMigrationFiles(dir) {
 		const files = readdirSync(dir).filter((file) => file.endsWith(".sql"));
 		const migrationRegex = /^\d{3}_[a-z0-9_-]+\.sql$/i;
 
@@ -72,12 +61,10 @@ export class MigrationRunner {
 
 				// Try to find Up/Down sections
 				const upStartIndex = lines.findIndex((line) => line.trim() === "-- Up");
-				const downStartIndex = lines.findIndex(
-					(line) => line.trim() === "-- Down",
-				);
+				const downStartIndex = lines.findIndex((line) => line.trim() === "-- Down");
 
-				let upSql: string;
-				let downSql: string;
+				let upSql;
+				let downSql;
 
 				if (upStartIndex !== -1 && downStartIndex !== -1) {
 					// File has proper Up/Down sections
@@ -95,15 +82,11 @@ export class MigrationRunner {
 					upSql = content.trim();
 
 					// Extract table names for Down section
-					const tableMatches = content.match(
-						/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/gi,
-					);
+					const tableMatches = content.match(/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/gi);
 					const tables = tableMatches
 						? tableMatches
 								.map((match) => {
-									const tableMatch = match.match(
-										/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/i,
-									);
+									const tableMatch = match.match(/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/i);
 									return tableMatch ? tableMatch[1] : null;
 								})
 								.filter(Boolean)
@@ -130,9 +113,7 @@ export class MigrationRunner {
 	/**
 	 * Get executed migrations from database
 	 */
-	private async getExecutedMigrations(): Promise<
-		Array<{ name: string; checksum: string; executedAt: Date }>
-	> {
+	async getExecutedMigrations() {
 		try {
 			return await db
 				.select({
@@ -152,9 +133,9 @@ export class MigrationRunner {
 	/**
 	 * Validate migration integrity with comprehensive checks
 	 */
-	private async validateMigrations(): Promise<MigrationValidationResult> {
-		const errors: string[] = [];
-		const warnings: string[] = [];
+	async validateMigrations() {
+		const errors = [];
+		const warnings = [];
 		const migrationFiles = this.loadMigrationFiles();
 		const executedMigrations = await this.getExecutedMigrations();
 
@@ -175,7 +156,7 @@ export class MigrationRunner {
 		}
 
 		// Check for duplicate migration names
-		const nameCount = new Map<string, number>();
+		const nameCount = new Map();
 		migrationFiles.forEach((file) => {
 			nameCount.set(file.name, (nameCount.get(file.name) || 0) + 1);
 		});
@@ -196,14 +177,10 @@ export class MigrationRunner {
 		migrationFiles.forEach((file) => {
 			const upSql = file.up.toLowerCase();
 			if (upSql.includes("drop table") && !upSql.includes("if exists")) {
-				warnings.push(
-					`Migration ${file.name} contains DROP TABLE without IF EXISTS`,
-				);
+				warnings.push(`Migration ${file.name} contains DROP TABLE without IF EXISTS`);
 			}
 			if (upSql.includes("alter table") && upSql.includes("drop column")) {
-				warnings.push(
-					`Migration ${file.name} drops columns - ensure data backup`,
-				);
+				warnings.push(`Migration ${file.name} drops columns - ensure data backup`);
 			}
 		});
 
@@ -213,9 +190,7 @@ export class MigrationRunner {
 				this.validateSQLSyntax(file.up);
 				this.validateSQLSyntax(file.down);
 			} catch (error) {
-				errors.push(
-					`SQL syntax error in migration ${file.name}: ${error.message}`,
-				);
+				errors.push(`SQL syntax error in migration ${file.name}: ${error.message}`);
 			}
 		});
 
@@ -229,7 +204,7 @@ export class MigrationRunner {
 	/**
 	 * Basic SQL syntax validation
 	 */
-	private validateSQLSyntax(sql: string): void {
+	validateSQLSyntax(sql) {
 		const statements = sql.split(";").filter((stmt) => stmt.trim());
 
 		for (const statement of statements) {
@@ -244,9 +219,7 @@ export class MigrationRunner {
 
 			// Check for basic SQL structure
 			if (trimmed && !this.isValidSQLStatement(trimmed)) {
-				throw new Error(
-					`Invalid SQL statement: ${statement.substring(0, 50)}...`,
-				);
+				throw new Error(`Invalid SQL statement: ${statement.substring(0, 50)}...`);
 			}
 		}
 	}
@@ -254,7 +227,7 @@ export class MigrationRunner {
 	/**
 	 * Check if statement starts with valid SQL keywords
 	 */
-	private isValidSQLStatement(statement: string): boolean {
+	isValidSQLStatement(statement) {
 		const validKeywords = [
 			"select",
 			"insert",
@@ -354,11 +327,7 @@ export class MigrationRunner {
 		}
 
 		// Allow plpgsql blocks that start with variable declarations or control structures
-		if (
-			statement.match(
-				/^\s*(declare|begin|if|for|while|case|return|perform|raise)/i,
-			)
-		) {
+		if (statement.match(/^\s*(declare|begin|if|for|while|case|return|perform|raise)/i)) {
 			return true;
 		}
 
@@ -368,7 +337,7 @@ export class MigrationRunner {
 	/**
 	 * Execute a single migration
 	 */
-	private async executeMigration(migration: MigrationFile): Promise<void> {
+	async executeMigration(migration) {
 		const startTime = Date.now();
 
 		try {
@@ -406,7 +375,7 @@ export class MigrationRunner {
 			}
 
 			console.log(
-				`✅ Migration ${migration.name} executed successfully (${Date.now() - startTime}ms)`,
+				`✅ Migration ${migration.name} executed successfully (${Date.now() - startTime}ms)`
 			);
 		} catch (error) {
 			console.error(`❌ Migration ${migration.name} failed:`, error);
@@ -417,7 +386,7 @@ export class MigrationRunner {
 	/**
 	 * Run pending migrations with enhanced validation and rollback capabilities
 	 */
-	async migrate(): Promise<MigrationExecutionResult> {
+	async migrate() {
 		const startTime = Date.now();
 		console.log("🚀 Starting database migration...");
 
@@ -443,9 +412,7 @@ export class MigrationRunner {
 		const executedMigrations = await this.getExecutedMigrations();
 		const executedNames = new Set(executedMigrations.map((m) => m.name));
 
-		const pendingMigrations = migrationFiles.filter(
-			(m) => !executedNames.has(m.name),
-		);
+		const pendingMigrations = migrationFiles.filter((m) => !executedNames.has(m.name));
 
 		if (pendingMigrations.length === 0) {
 			console.log("✅ No pending migrations");
@@ -460,9 +427,9 @@ export class MigrationRunner {
 
 		console.log(`📋 Found ${pendingMigrations.length} pending migrations`);
 
-		const executed: string[] = [];
-		const errors: string[] = [];
-		const executedMigrations_backup: string[] = [];
+		const executed = [];
+		const errors = [];
+		const executedMigrations_backup = [];
 
 		// Create backup point before starting migrations
 		await this.createBackupPoint();
@@ -475,16 +442,12 @@ export class MigrationRunner {
 				executedMigrations_backup.push(migration.name);
 				console.log(`✅ Migration ${migration.name} completed successfully`);
 			} catch (error) {
-				console.error(
-					`❌ Migration ${migration.name} failed: ${error.message}`,
-				);
+				console.error(`❌ Migration ${migration.name} failed: ${error.message}`);
 				errors.push(`${migration.name}: ${error.message}`);
 
 				// Attempt to rollback executed migrations in this batch
 				if (executedMigrations_backup.length > 0) {
-					console.log(
-						"🔄 Attempting to rollback executed migrations in this batch...",
-					);
+					console.log("🔄 Attempting to rollback executed migrations in this batch...");
 					await this.rollbackBatch(executedMigrations_backup.reverse());
 				}
 				break; // Stop on first error
@@ -513,7 +476,7 @@ export class MigrationRunner {
 	/**
 	 * Create a backup point before migrations
 	 */
-	private async createBackupPoint(): Promise<void> {
+	async createBackupPoint() {
 		try {
 			// This would typically create a database snapshot or backup
 			// For now, we'll just log the current state
@@ -531,7 +494,7 @@ export class MigrationRunner {
 
 			writeFileSync(
 				join(backupPath, `backup-${Date.now()}.json`),
-				JSON.stringify(backupMetadata, null, 2),
+				JSON.stringify(backupMetadata, null, 2)
 			);
 
 			console.log("✅ Backup point created");
@@ -543,15 +506,13 @@ export class MigrationRunner {
 	/**
 	 * Clean up backup point after successful migration
 	 */
-	private async cleanupBackupPoint(): Promise<void> {
+	async cleanupBackupPoint() {
 		try {
 			// Clean up old backup files (keep last 5)
 			const backupPath = join(this.migrationsPath, "..", "backup");
 			if (existsSync(backupPath)) {
 				const backupFiles = readdirSync(backupPath)
-					.filter(
-						(file) => file.startsWith("backup-") && file.endsWith(".json"),
-					)
+					.filter((file) => file.startsWith("backup-") && file.endsWith(".json"))
 					.sort()
 					.reverse();
 
@@ -561,10 +522,7 @@ export class MigrationRunner {
 					try {
 						unlinkSync(join(backupPath, file));
 					} catch (error) {
-						console.warn(
-							`Failed to delete backup file ${file}:`,
-							error.message,
-						);
+						console.warn(`Failed to delete backup file ${file}:`, error.message);
 					}
 				});
 			}
@@ -576,7 +534,7 @@ export class MigrationRunner {
 	/**
 	 * Rollback a batch of migrations
 	 */
-	private async rollbackBatch(migrationNames: string[]): Promise<void> {
+	async rollbackBatch(migrationNames) {
 		for (const name of migrationNames) {
 			try {
 				console.log(`🔄 Rolling back migration: ${name}`);
@@ -600,9 +558,7 @@ export class MigrationRunner {
 							await sql(statement);
 						}
 
-						await db
-							.delete(migrations)
-							.where(eq(migrations.id, migration[0].id));
+						await db.delete(migrations).where(eq(migrations.id, migration[0].id));
 
 						await sql`COMMIT`;
 					} catch (error) {
@@ -613,10 +569,7 @@ export class MigrationRunner {
 					console.log(`✅ Rolled back migration: ${name}`);
 				}
 			} catch (error) {
-				console.error(
-					`❌ Failed to rollback migration ${name}:`,
-					error.message,
-				);
+				console.error(`❌ Failed to rollback migration ${name}:`, error.message);
 			}
 		}
 	}
@@ -624,11 +577,7 @@ export class MigrationRunner {
 	/**
 	 * Rollback last migration
 	 */
-	async rollback(): Promise<{
-		success: boolean;
-		rolledBack?: string;
-		error?: string;
-	}> {
+	async rollback() {
 		console.log("🔄 Starting migration rollback...");
 
 		try {
@@ -685,18 +634,12 @@ export class MigrationRunner {
 	/**
 	 * Get migration status
 	 */
-	async getStatus(): Promise<{
-		executed: Array<{ name: string; executedAt: Date }>;
-		pending: string[];
-		total: number;
-	}> {
+	async getStatus() {
 		const migrationFiles = this.loadMigrationFiles();
 		const executedMigrations = await this.getExecutedMigrations();
 		const executedNames = new Set(executedMigrations.map((m) => m.name));
 
-		const pending = migrationFiles
-			.filter((m) => !executedNames.has(m.name))
-			.map((m) => m.name);
+		const pending = migrationFiles.filter((m) => !executedNames.has(m.name)).map((m) => m.name);
 
 		return {
 			executed: executedMigrations.map((m) => ({
@@ -711,18 +654,8 @@ export class MigrationRunner {
 	/**
 	 * Create a new migration file with enhanced template
 	 */
-	async createMigration(
-		name: string,
-		options?: {
-			description?: string;
-			author?: string;
-			tags?: string[];
-		},
-	): Promise<string> {
-		const timestamp = new Date()
-			.toISOString()
-			.replace(/[:.]/g, "-")
-			.split("T")[0];
+	async createMigration(name, options) {
+		const timestamp = new Date().toISOString().replace(/[:.]/g, "-").split("T")[0];
 		const filename = `${timestamp}_${name}.sql`;
 		const filepath = join(this.migrationsPath, filename);
 
@@ -758,13 +691,9 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 	/**
 	 * Validate database schema integrity
 	 */
-	async validateSchema(): Promise<{
-		valid: boolean;
-		issues: string[];
-		recommendations: string[];
-	}> {
-		const issues: string[] = [];
-		const recommendations: string[] = [];
+	async validateSchema() {
+		const issues = [];
+		const recommendations = [];
 
 		try {
 			// Check for missing indexes on foreign keys
@@ -795,7 +724,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 				const indexes = await sql(indexQuery);
 				if (indexes.length === 0) {
 					recommendations.push(
-						`Consider adding index on ${fk.table_name}.${fk.column_name} (foreign key)`,
+						`Consider adding index on ${fk.table_name}.${fk.column_name} (foreign key)`
 					);
 				}
 			}
@@ -833,9 +762,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 
 				const unusedIndexes = await sql(unusedIndexQuery);
 				unusedIndexes.forEach((row) => {
-					recommendations.push(
-						`Index ${row.indexname} on ${row.tablename} appears unused`,
-					);
+					recommendations.push(`Index ${row.indexname} on ${row.tablename} appears unused`);
 				});
 			} catch (error) {
 				// pg_stat_user_indexes might not be available
@@ -855,17 +782,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 	/**
 	 * Get database statistics and health metrics
 	 */
-	async getDatabaseStats(): Promise<{
-		tables: Array<{
-			name: string;
-			rowCount: number;
-			size: string;
-			indexes: number;
-		}>;
-		totalSize: string;
-		connectionCount: number;
-		extensions: string[];
-	}> {
+	async getDatabaseStats() {
 		try {
 			// Get table statistics
 			const tableStatsQuery = `
@@ -895,13 +812,10 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
       `;
 
 			const indexCounts = await sql(indexCountQuery);
-			const indexCountMap = new Map(
-				indexCounts.map((row) => [row.tablename, row.index_count]),
-			);
+			const indexCountMap = new Map(indexCounts.map((row) => [row.tablename, row.index_count]));
 
 			// Get total database size
-			const dbSizeQuery =
-				"SELECT pg_size_pretty(pg_database_size(current_database())) as size";
+			const dbSizeQuery = "SELECT pg_size_pretty(pg_database_size(current_database())) as size";
 			const dbSize = await sql(dbSizeQuery);
 
 			// Get connection count
@@ -909,8 +823,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 			const connections = await sql(connectionQuery);
 
 			// Get installed extensions
-			const extensionsQuery =
-				"SELECT extname FROM pg_extension ORDER BY extname";
+			const extensionsQuery = "SELECT extname FROM pg_extension ORDER BY extname";
 			const extensions = await sql(extensionsQuery);
 
 			return {
@@ -938,13 +851,9 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 	/**
 	 * Optimize database performance
 	 */
-	async optimizeDatabase(): Promise<{
-		success: boolean;
-		operations: string[];
-		errors: string[];
-	}> {
-		const operations: string[] = [];
-		const errors: string[] = [];
+	async optimizeDatabase() {
+		const operations = [];
+		const errors = [];
 
 		try {
 			// Update table statistics
@@ -983,9 +892,7 @@ ${options?.tags ? `-- Tags: ${options.tags.join(", ")}` : ""}
 							await sql(`REINDEX TABLE ${table.tablename}`);
 							operations.push(`Reindexed table: ${table.tablename}`);
 						} catch (tableError) {
-							errors.push(
-								`Failed to reindex ${table.tablename}: ${tableError.message}`,
-							);
+							errors.push(`Failed to reindex ${table.tablename}: ${tableError.message}`);
 						}
 					}
 				}

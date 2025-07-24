@@ -1,6 +1,6 @@
 /**
  * DocumentationGenerator - Automated Test Documentation Generator
- * 
+ *
  * Generates comprehensive documentation from test files and results
  */
 
@@ -136,19 +136,19 @@ Overall Coverage: **${docs.coverage.overall.toFixed(1)}%**
 
 ${Object.entries(docs.coverage.byType)
 	.map(([type, coverage]) => `- ${type}: ${coverage.toFixed(1)}%`)
-	.join('\n')}
+	.join("\n")}
 
 ## Test Suites
 
-${docs.suites.map(suite => this.generateSuiteMarkdown(suite)).join('\n\n')}
+${docs.suites.map((suite) => this.generateSuiteMarkdown(suite)).join("\n\n")}
 
 ## Code Examples
 
-${docs.examples.map(example => this.generateExampleMarkdown(example)).join('\n\n')}
+${docs.examples.map((example) => this.generateExampleMarkdown(example)).join("\n\n")}
 
 ## API Reference
 
-${docs.apiReference.map(api => this.generateApiMarkdown(api)).join('\n\n')}
+${docs.apiReference.map((api) => this.generateApiMarkdown(api)).join("\n\n")}
 `;
 	}
 
@@ -199,13 +199,13 @@ ${docs.apiReference.map(api => this.generateApiMarkdown(api)).join('\n\n')}
     </div>
 
     <h2>Test Suites</h2>
-    ${docs.suites.map(suite => this.generateSuiteHtml(suite)).join('')}
+    ${docs.suites.map((suite) => this.generateSuiteHtml(suite)).join("")}
 
     <h2>Code Examples</h2>
-    ${docs.examples.map(example => this.generateExampleHtml(example)).join('')}
+    ${docs.examples.map((example) => this.generateExampleHtml(example)).join("")}
 
     <h2>API Reference</h2>
-    ${docs.apiReference.map(api => this.generateApiHtml(api)).join('')}
+    ${docs.apiReference.map((api) => this.generateApiHtml(api)).join("")}
 </body>
 </html>`;
 	}
@@ -241,8 +241,10 @@ ${docs.apiReference.map(api => this.generateApiMarkdown(api)).join('\n\n')}
 		return Array.from({ length: testCount }, (_, i) => ({
 			name: `Test case ${i + 1}`,
 			description: `Test description for ${file}`,
-			type: ["unit", "integration", "e2e", "performance"][Math.floor(Math.random() * 4)] as TestCase["type"],
-			status: Math.random() > 0.1 ? "pass" : "fail" as TestCase["status"],
+			type: ["unit", "integration", "e2e", "performance"][
+				Math.floor(Math.random() * 4)
+			] as TestCase["type"],
+			status: Math.random() > 0.1 ? "pass" : ("fail" as TestCase["status"]),
 			duration: Math.random() * 1000,
 			assertions: Math.floor(Math.random() * 5) + 1,
 			tags: ["smoke", "regression", "critical"].slice(0, Math.floor(Math.random() * 3) + 1),
@@ -250,9 +252,9 @@ ${docs.apiReference.map(api => this.generateApiMarkdown(api)).join('\n\n')}
 	}
 
 	private generateOverview(suites: TestSuite[]): TestOverview {
-		const allTests = suites.flatMap(s => s.tests);
-		const passCount = allTests.filter(t => t.status === "pass").length;
-		
+		const allTests = suites.flatMap((s) => s.tests);
+		const passCount = allTests.filter((t) => t.status === "pass").length;
+
 		const testTypes = allTests.reduce(
 			(acc, test) => {
 				acc[test.type]++;
@@ -332,9 +334,9 @@ ${docs.apiReference.map(api => this.generateApiMarkdown(api)).join('\n\n')}
 ${suite.description}
 
 **Tests**: ${suite.tests.length}
-**Pass Rate**: ${((suite.tests.filter(t => t.status === "pass").length / suite.tests.length) * 100).toFixed(1)}%
+**Pass Rate**: ${((suite.tests.filter((t) => t.status === "pass").length / suite.tests.length) * 100).toFixed(1)}%
 
-${suite.tests.map(test => `- ${test.status === "pass" ? "✅" : "❌"} ${test.name}`).join('\n')}`;
+${suite.tests.map((test) => `- ${test.status === "pass" ? "✅" : "❌"} ${test.name}`).join("\n")}`;
 	}
 
 	private generateExampleMarkdown(example: CodeExample): string {
@@ -355,10 +357,14 @@ ${example.code}
 
 ${api.description}
 
-${api.parameters.length > 0 ? `
+${
+	api.parameters.length > 0
+		? `
 **Parameters**:
-${api.parameters.map(p => `- \`${p.name}\` (${p.type}${p.optional ? '?' : ''}): ${p.description}`).join('\n')}
-` : ''}
+${api.parameters.map((p) => `- \`${p.name}\` (${p.type}${p.optional ? "?" : ""}): ${p.description}`).join("\n")}
+`
+		: ""
+}
 
 **Returns**: ${api.returns.type} - ${api.returns.description}`;
 	}
@@ -370,12 +376,16 @@ ${api.parameters.map(p => `- \`${p.name}\` (${p.type}${p.optional ? '?' : ''}): 
         <p><strong>File:</strong> ${suite.file}</p>
         <p>${suite.description}</p>
     </div>
-    ${suite.tests.map(test => `
+    ${suite.tests
+			.map(
+				(test) => `
     <div class="test-case test-${test.status}">
         <strong>${test.name}</strong> (${test.duration.toFixed(0)}ms)
         <span style="float: right;">${test.status.toUpperCase()}</span>
     </div>
-    `).join('')}
+    `
+			)
+			.join("")}
 </div>`;
 	}
 
@@ -392,7 +402,7 @@ ${api.parameters.map(p => `- \`${p.name}\` (${p.type}${p.optional ? '?' : ''}): 
     <h3>${api.name} <span style="font-size: 0.8em; color: #666;">(${api.type})</span></h3>
     <p>${api.description}</p>
     <p><strong>Test Coverage:</strong> ${api.testCoverage.toFixed(1)}%</p>
-    ${api.examples.length > 0 ? `<pre><code>${api.examples[0]}</code></pre>` : ''}
+    ${api.examples.length > 0 ? `<pre><code>${api.examples[0]}</code></pre>` : ""}
 </div>`;
 	}
 }

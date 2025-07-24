@@ -6,10 +6,7 @@
  */
 
 import { useElectricEnvironments } from "@/hooks/use-electric-environments";
-import {
-	useEnhancedMutation,
-	useEnhancedQuery,
-} from "@/hooks/use-enhanced-query";
+import { useEnhancedMutation, useEnhancedQuery } from "@/hooks/use-enhanced-query";
 
 export interface Environment {
 	id: string;

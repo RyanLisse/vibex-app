@@ -71,14 +71,9 @@ export class PerformanceBenchmark {
 
 	async measureFunction<T>(
 		fn: () => T | Promise<T>,
-		options: BenchmarkOptions = {},
+		options: BenchmarkOptions = {}
 	): Promise<BenchmarkResult> {
-		const {
-			iterations = 10,
-			warmupIterations = 3,
-			thresholds,
-			timeout = 30_000,
-		} = options;
+		const { iterations = 10, warmupIterations = 3, thresholds, timeout = 30_000 } = options;
 
 		// Warmup iterations
 		for (let i = 0; i < warmupIterations; i++) {
@@ -97,13 +92,10 @@ export class PerformanceBenchmark {
 		}
 
 		// Calculate statistics
-		const averageTime =
-			times.reduce((sum, time) => sum + time, 0) / times.length;
+		const averageTime = times.reduce((sum, time) => sum + time, 0) / times.length;
 		const minTime = Math.min(...times);
 		const maxTime = Math.max(...times);
-		const variance =
-			times.reduce((sum, time) => sum + (time - averageTime) ** 2, 0) /
-			times.length;
+		const variance = times.reduce((sum, time) => sum + (time - averageTime) ** 2, 0) / times.length;
 		const standardDeviation = Math.sqrt(variance);
 
 		// Check thresholds
@@ -134,7 +126,7 @@ export class PerformanceBenchmark {
 
 	async measureComponentRender(
 		renderFn: (props?: any) => any,
-		options: BenchmarkOptions & { props?: any[] } = {},
+		options: BenchmarkOptions & { props?: any[] } = {}
 	): Promise<ComponentRenderResult> {
 		const baseResult = await this.measureFunction(renderFn, options);
 
@@ -147,7 +139,7 @@ export class PerformanceBenchmark {
 
 	async measureComponentWithProps(
 		Component: (props: any) => any,
-		propsVariations: any[],
+		propsVariations: any[]
 	): Promise<ComponentRenderResult[]> {
 		const results: ComponentRenderResult[] = [];
 
@@ -175,7 +167,7 @@ export class PerformanceBenchmark {
 			method?: string;
 			headers?: Record<string, string>;
 			body?: any;
-		} = {},
+		} = {}
 	): Promise<ApiPerformanceResult> {
 		const { method = "GET", headers, body } = options;
 
@@ -208,13 +200,12 @@ export class PerformanceBenchmark {
 	detectRegression(
 		baseline: BenchmarkResult,
 		current: BenchmarkResult,
-		options: { threshold?: number } = {},
+		options: { threshold?: number } = {}
 	): RegressionResult {
 		const { threshold = 0.1 } = options; // Default 10% threshold
 
 		const percentageIncrease =
-			((current.averageTime - baseline.averageTime) / baseline.averageTime) *
-			100;
+			((current.averageTime - baseline.averageTime) / baseline.averageTime) * 100;
 		const hasRegression = Math.abs(percentageIncrease) > threshold * 100;
 
 		let significance: "minor" | "moderate" | "major";
@@ -248,10 +239,7 @@ export class PerformanceBenchmark {
 		return this.baselineResults.get(name);
 	}
 
-	compareWithBaseline(
-		name: string,
-		current: BenchmarkResult,
-	): RegressionResult | null {
+	compareWithBaseline(name: string, current: BenchmarkResult): RegressionResult | null {
 		const baseline = this.getBaseline(name);
 		if (!baseline) {
 			return null;
@@ -260,10 +248,7 @@ export class PerformanceBenchmark {
 		return this.detectRegression(baseline, current);
 	}
 
-	private async executionWrapper<T>(
-		fn: () => T | Promise<T>,
-		timeout: number,
-	): Promise<T> {
+	private async executionWrapper<T>(fn: () => T | Promise<T>, timeout: number): Promise<T> {
 		const timeoutPromise = new Promise<never>((_, reject) => {
 			setTimeout(() => reject(new Error("Benchmark timeout")), timeout);
 		});
@@ -302,13 +287,10 @@ export class MemoryProfiler {
 
 		const peakMemoryUsage = Math.max(
 			0,
-			afterSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize,
+			afterSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize
 		);
 		const averageMemoryUsage = peakMemoryUsage / 2; // Simplified calculation
-		const memoryLeaked = Math.max(
-			0,
-			finalSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize,
-		);
+		const memoryLeaked = Math.max(0, finalSnapshot.usedJSHeapSize - beforeSnapshot.usedJSHeapSize);
 		const hasMemoryLeak = memoryLeaked > 1024 * 1024; // 1MB threshold
 
 		return {
@@ -325,8 +307,7 @@ export class MemoryProfiler {
 		// Simulate gradual memory increase for predictable testing
 		this.mockMemoryCounter++;
 		const mockMemory = {
-			usedJSHeapSize:
-				this.mockMemoryBase + this.mockMemoryCounter * 1024 * 1024, // Increase by 1MB per snapshot
+			usedJSHeapSize: this.mockMemoryBase + this.mockMemoryCounter * 1024 * 1024, // Increase by 1MB per snapshot
 			totalJSHeapSize: 100 * 1024 * 1024, // 100MB
 			jsHeapSizeLimit: 2 * 1024 * 1024 * 1024, // 2GB
 		};
@@ -342,8 +323,7 @@ export class MemoryProfiler {
 
 	compareSnapshots(snapshot1: MemorySnapshot, snapshot2: MemorySnapshot) {
 		const memoryIncrease = snapshot2.usedJSHeapSize - snapshot1.usedJSHeapSize;
-		const percentageIncrease =
-			(memoryIncrease / snapshot1.usedJSHeapSize) * 100;
+		const percentageIncrease = (memoryIncrease / snapshot1.usedJSHeapSize) * 100;
 
 		return {
 			memoryIncrease,
@@ -412,13 +392,9 @@ export interface CIOutput {
 export class PerformanceReporter {
 	async generateReport(
 		results: Array<Partial<BenchmarkResult> & { name: string }>,
-		options: ReportOptions = {},
+		options: ReportOptions = {}
 	): Promise<string> {
-		const {
-			format = "text",
-			includeGraphs = false,
-			includeDetails = true,
-		} = options;
+		const { format = "text", includeGraphs = false, includeDetails = true } = options;
 
 		switch (format) {
 			case "html":
@@ -432,7 +408,7 @@ export class PerformanceReporter {
 
 	private generateTextReport(
 		results: Array<Partial<BenchmarkResult> & { name: string }>,
-		includeDetails: boolean,
+		includeDetails: boolean
 	): string {
 		let report = "Performance Report\n";
 		report += "==================\n\n";
@@ -460,7 +436,7 @@ export class PerformanceReporter {
 
 	private generateHtmlReport(
 		results: Array<Partial<BenchmarkResult> & { name: string }>,
-		includeGraphs: boolean,
+		includeGraphs: boolean
 	): string {
 		let html = `
 <!DOCTYPE html>
@@ -505,9 +481,7 @@ export class PerformanceReporter {
 		return html;
 	}
 
-	private generateSvgChart(
-		results: Array<Partial<BenchmarkResult> & { name: string }>,
-	): string {
+	private generateSvgChart(results: Array<Partial<BenchmarkResult> & { name: string }>): string {
 		// Simple SVG bar chart
 		const maxTime = Math.max(...results.map((r) => r.averageTime || 0));
 		const chartWidth = 600;
@@ -521,8 +495,7 @@ export class PerformanceReporter {
 `;
 
 		results.forEach((result, index) => {
-			const barHeight =
-				((result.averageTime || 0) / maxTime) * (chartHeight - 40);
+			const barHeight = ((result.averageTime || 0) / maxTime) * (chartHeight - 40);
 			const x = index * (barWidth + 10) + 10;
 			const y = chartHeight - barHeight - 20;
 
@@ -539,9 +512,7 @@ export class PerformanceReporter {
 		return svg;
 	}
 
-	private generateJsonReport(
-		results: Array<Partial<BenchmarkResult> & { name: string }>,
-	): string {
+	private generateJsonReport(results: Array<Partial<BenchmarkResult> & { name: string }>): string {
 		const summary = {
 			total: results.length,
 			passed: results.filter((r) => r.passedThresholds !== false).length,
@@ -555,7 +526,7 @@ export class PerformanceReporter {
 				results,
 			},
 			null,
-			2,
+			2
 		);
 	}
 
@@ -586,8 +557,7 @@ export class PerformanceReporter {
 
 		let recommendation: string;
 		if (direction === "increasing" && isSignificant) {
-			recommendation =
-				"Performance is degrading over time - investigate recent changes";
+			recommendation = "Performance is degrading over time - investigate recent changes";
 		} else if (direction === "decreasing" && isSignificant) {
 			recommendation = "Performance improvements detected - good work!";
 		} else {
@@ -603,11 +573,9 @@ export class PerformanceReporter {
 	}
 
 	async generateCIOutput(
-		results: Array<Partial<BenchmarkResult> & { name: string }>,
+		results: Array<Partial<BenchmarkResult> & { name: string }>
 	): Promise<CIOutput> {
-		const failedTests = results
-			.filter((r) => r.passedThresholds === false)
-			.map((r) => r.name);
+		const failedTests = results.filter((r) => r.passedThresholds === false).map((r) => r.name);
 
 		const success = failedTests.length === 0;
 		const exitCode = success ? 0 : 1;

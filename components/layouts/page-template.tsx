@@ -6,11 +6,7 @@ interface PageTemplateProps {
 	children: React.ReactNode;
 }
 
-export default function PageTemplate({
-	title,
-	description,
-	children,
-}: PageTemplateProps) {
+export default function PageTemplate({ title, description, children }: PageTemplateProps) {
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="mb-8">

@@ -56,15 +56,12 @@ export function useTaskQuery(taskId: string) {
 			const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
 			try {
-				const response = await fetch(
-					`/api/tasks/${taskId}?include=executions`,
-					{
-						signal: controller.signal,
-						headers: {
-							"Cache-Control": "max-age=120", // 2 minutes browser cache
-						},
+				const response = await fetch(`/api/tasks/${taskId}?include=executions`, {
+					signal: controller.signal,
+					headers: {
+						"Cache-Control": "max-age=120", // 2 minutes browser cache
 					},
-				);
+				});
 				clearTimeout(timeoutId);
 
 				if (!response.ok) {
@@ -96,7 +93,7 @@ export function useTaskQuery(taskId: string) {
 				return failureCount < 3;
 			},
 			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-		},
+		}
 	);
 }
 
@@ -104,8 +101,7 @@ export function useTaskQuery(taskId: string) {
  * Hook for querying tasks with enhanced caching, WASM optimization, and real-time sync
  */
 export function useTasksQuery(filters: TaskFilters = {}) {
-	const { userId, status, priority, search, dateRange, tags, assignedTo } =
-		filters;
+	const { userId, status, priority, search, dateRange, tags, assignedTo } = filters;
 
 	// Memoize the search params to prevent unnecessary re-renders
 	const searchParamsString = useMemo(() => {
@@ -187,16 +183,12 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 				// Apply client-side filtering efficiently
 				if (status?.length) {
 					const statusSet = new Set(status);
-					filteredTasks = filteredTasks.filter((task: Task) =>
-						statusSet.has(task.status),
-					);
+					filteredTasks = filteredTasks.filter((task: Task) => statusSet.has(task.status));
 				}
 
 				if (priority?.length) {
 					const prioritySet = new Set(priority);
-					filteredTasks = filteredTasks.filter((task: Task) =>
-						prioritySet.has(task.priority),
-					);
+					filteredTasks = filteredTasks.filter((task: Task) => prioritySet.has(task.priority));
 				}
 
 				if (search && search.trim()) {
@@ -204,23 +196,20 @@ export function useTasksQuery(filters: TaskFilters = {}) {
 					filteredTasks = filteredTasks.filter(
 						(task: Task) =>
 							task.title.toLowerCase().includes(searchLower) ||
-							task.description?.toLowerCase().includes(searchLower),
+							task.description?.toLowerCase().includes(searchLower)
 					);
 				}
 
 				return filteredTasks;
 			},
-		},
+		}
 	);
 }
 
 /**
  * Hook for infinite task queries with virtualization support
  */
-export function useInfiniteTasksQuery(
-	filters: TaskFilters = {},
-	pageSize = 50,
-) {
+export function useInfiniteTasksQuery(filters: TaskFilters = {}, pageSize = 50) {
 	return useInfiniteQuery({
 		queryKey: queryKeys.tasks.infinite(filters),
 		queryFn: async ({ pageParam = 0 }) => {
@@ -229,15 +218,11 @@ export function useInfiniteTasksQuery(
 			searchParams.append("limit", pageSize.toString());
 
 			if (filters.userId) searchParams.append("userId", filters.userId);
-			if (filters.status?.length)
-				searchParams.append("status", filters.status.join(","));
-			if (filters.priority?.length)
-				searchParams.append("priority", filters.priority.join(","));
+			if (filters.status?.length) searchParams.append("status", filters.status.join(","));
+			if (filters.priority?.length) searchParams.append("priority", filters.priority.join(","));
 			if (filters.search) searchParams.append("search", filters.search);
 
-			const response = await fetch(
-				`/api/tasks/infinite?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/tasks/infinite?${searchParams.toString()}`);
 			if (!response.ok) {
 				throw new Error(`Failed to fetch tasks: ${response.statusText}`);
 			}
@@ -260,13 +245,7 @@ export function useInfiniteTasksQuery(
  * Hook for semantic task search using WASM vector search
  */
 export function useTaskSearchQuery(options: TaskSearchOptions) {
-	const {
-		query,
-		useSemanticSearch = false,
-		filters,
-		limit = 20,
-		threshold = 0.7,
-	} = options;
+	const { query, useSemanticSearch = false, filters, limit = 20, threshold = 0.7 } = options;
 
 	// Use vector search if semantic search is enabled and query is substantial
 	const shouldUseVectorSearch = useSemanticSearch && query.length > 10;
@@ -288,15 +267,11 @@ export function useTaskSearchQuery(options: TaskSearchOptions) {
 			searchParams.append("q", query);
 			searchParams.append("limit", limit.toString());
 
-			if (filters?.status?.length)
-				searchParams.append("status", filters.status.join(","));
-			if (filters?.priority?.length)
-				searchParams.append("priority", filters.priority.join(","));
+			if (filters?.status?.length) searchParams.append("status", filters.status.join(","));
+			if (filters?.priority?.length) searchParams.append("priority", filters.priority.join(","));
 			if (filters?.userId) searchParams.append("userId", filters.userId);
 
-			const response = await fetch(
-				`/api/tasks/search?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/tasks/search?${searchParams.toString()}`);
 			if (!response.ok) {
 				throw new Error(`Failed to search tasks: ${response.statusText}`);
 			}
@@ -310,23 +285,15 @@ export function useTaskSearchQuery(options: TaskSearchOptions) {
 			enableRealTimeSync: true,
 			syncTable: "tasks",
 			staleTime: 30 * 1000, // 30 seconds for search results
-		},
+		}
 	);
 
 	return {
-		tasks: shouldUseVectorSearch
-			? vectorSearchQuery.data
-			: textSearchQuery.data,
-		loading: shouldUseVectorSearch
-			? vectorSearchQuery.isLoading
-			: textSearchQuery.isLoading,
-		error: shouldUseVectorSearch
-			? vectorSearchQuery.error
-			: textSearchQuery.error,
+		tasks: shouldUseVectorSearch ? vectorSearchQuery.data : textSearchQuery.data,
+		loading: shouldUseVectorSearch ? vectorSearchQuery.isLoading : textSearchQuery.isLoading,
+		error: shouldUseVectorSearch ? vectorSearchQuery.error : textSearchQuery.error,
 		isSemanticSearch: shouldUseVectorSearch,
-		refetch: shouldUseVectorSearch
-			? vectorSearchQuery.refetch
-			: textSearchQuery.refetch,
+		refetch: shouldUseVectorSearch ? vectorSearchQuery.refetch : textSearchQuery.refetch,
 	};
 }
 
@@ -364,27 +331,25 @@ export function useCreateTaskMutation() {
 				} as TaskWithRelations;
 
 				// Add to all relevant caches
-				queryClient.setQueryData(
-					queryKeys.tasks.lists(),
-					(old: TaskWithRelations[] = []) => [optimisticTask, ...old],
-				);
+				queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) => [
+					optimisticTask,
+					...old,
+				]);
 
 				return { optimisticTask };
 			},
 			rollbackUpdate: (context) => {
 				if (context?.optimisticTask) {
 					// Remove optimistic task from cache
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: TaskWithRelations[] = []) =>
-							old.filter((task) => task.id !== context.optimisticTask.id),
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) =>
+						old.filter((task) => task.id !== context.optimisticTask.id)
 					);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
 			enableRealTimeSync: true,
 			syncTable: "tasks",
-		},
+		}
 	);
 }
 
@@ -412,24 +377,18 @@ export function useUpdateTaskMutation() {
 		{
 			optimisticUpdate: ({ taskId, updates }) => {
 				const previousTask = queryClient.getQueryData(
-					queryKeys.tasks.detail(taskId),
+					queryKeys.tasks.detail(taskId)
 				) as TaskWithRelations;
 
 				// Update task in all relevant caches
-				queryClient.setQueryData(
-					queryKeys.tasks.detail(taskId),
-					(old: TaskWithRelations) =>
-						old ? { ...old, ...updates, updatedAt: new Date() } : old,
+				queryClient.setQueryData(queryKeys.tasks.detail(taskId), (old: TaskWithRelations) =>
+					old ? { ...old, ...updates, updatedAt: new Date() } : old
 				);
 
-				queryClient.setQueryData(
-					queryKeys.tasks.lists(),
-					(old: TaskWithRelations[] = []) =>
-						old.map((task) =>
-							task.id === taskId
-								? { ...task, ...updates, updatedAt: new Date() }
-								: task,
-						),
+				queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) =>
+					old.map((task) =>
+						task.id === taskId ? { ...task, ...updates, updatedAt: new Date() } : task
+					)
 				);
 
 				return { previousTask, taskId };
@@ -437,24 +396,17 @@ export function useUpdateTaskMutation() {
 			rollbackUpdate: (context) => {
 				if (context?.previousTask && context?.taskId) {
 					// Restore previous task data
-					queryClient.setQueryData(
-						queryKeys.tasks.detail(context.taskId),
-						context.previousTask,
-					);
+					queryClient.setQueryData(queryKeys.tasks.detail(context.taskId), context.previousTask);
 
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: TaskWithRelations[] = []) =>
-							old.map((task) =>
-								task.id === context.taskId ? context.previousTask : task,
-							),
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) =>
+						old.map((task) => (task.id === context.taskId ? context.previousTask : task))
 					);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
 			enableRealTimeSync: true,
 			syncTable: "tasks",
-		},
+		}
 	);
 }
 
@@ -479,16 +431,14 @@ export function useDeleteTaskMutation() {
 		{
 			optimisticUpdate: (taskId) => {
 				const previousTask = queryClient.getQueryData(
-					queryKeys.tasks.detail(taskId),
+					queryKeys.tasks.detail(taskId)
 				) as TaskWithRelations;
 
 				// Remove task from all caches
 				queryClient.removeQueries({ queryKey: queryKeys.tasks.detail(taskId) });
 
-				queryClient.setQueryData(
-					queryKeys.tasks.lists(),
-					(old: TaskWithRelations[] = []) =>
-						old.filter((task) => task.id !== taskId),
+				queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) =>
+					old.filter((task) => task.id !== taskId)
 				);
 
 				return { previousTask, taskId };
@@ -496,21 +446,18 @@ export function useDeleteTaskMutation() {
 			rollbackUpdate: (context) => {
 				if (context?.previousTask && context?.taskId) {
 					// Restore deleted task
-					queryClient.setQueryData(
-						queryKeys.tasks.detail(context.taskId),
-						context.previousTask,
-					);
+					queryClient.setQueryData(queryKeys.tasks.detail(context.taskId), context.previousTask);
 
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: TaskWithRelations[] = []) => [context.previousTask, ...old],
-					);
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) => [
+						context.previousTask,
+						...old,
+					]);
 				}
 			},
 			invalidateQueries: [queryKeys.tasks.all],
 			enableRealTimeSync: true,
 			syncTable: "tasks",
-		},
+		}
 	);
 }
 
@@ -521,13 +468,7 @@ export function useBulkTaskMutation() {
 	const queryClient = useQueryClient();
 
 	return useEnhancedMutation(
-		async ({
-			taskIds,
-			updates,
-		}: {
-			taskIds: string[];
-			updates: Partial<Task>;
-		}) => {
+		async ({ taskIds, updates }: { taskIds: string[]; updates: Partial<Task> }) => {
 			const response = await fetch("/api/tasks/bulk", {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
@@ -544,31 +485,20 @@ export function useBulkTaskMutation() {
 		{
 			optimisticUpdate: ({ taskIds, updates }) => {
 				const previousTasks = taskIds
-					.map(
-						(id) =>
-							queryClient.getQueryData(
-								queryKeys.tasks.detail(id),
-							) as TaskWithRelations,
-					)
+					.map((id) => queryClient.getQueryData(queryKeys.tasks.detail(id)) as TaskWithRelations)
 					.filter(Boolean);
 
 				// Update all tasks in cache
 				taskIds.forEach((taskId) => {
-					queryClient.setQueryData(
-						queryKeys.tasks.detail(taskId),
-						(old: TaskWithRelations) =>
-							old ? { ...old, ...updates, updatedAt: new Date() } : old,
+					queryClient.setQueryData(queryKeys.tasks.detail(taskId), (old: TaskWithRelations) =>
+						old ? { ...old, ...updates, updatedAt: new Date() } : old
 					);
 				});
 
-				queryClient.setQueryData(
-					queryKeys.tasks.lists(),
-					(old: TaskWithRelations[] = []) =>
-						old.map((task) =>
-							taskIds.includes(task.id)
-								? { ...task, ...updates, updatedAt: new Date() }
-								: task,
-						),
+				queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) =>
+					old.map((task) =>
+						taskIds.includes(task.id) ? { ...task, ...updates, updatedAt: new Date() } : task
+					)
 				);
 
 				return { previousTasks, taskIds };
@@ -581,15 +511,11 @@ export function useBulkTaskMutation() {
 						queryClient.setQueryData(queryKeys.tasks.detail(taskId), task);
 					});
 
-					queryClient.setQueryData(
-						queryKeys.tasks.lists(),
-						(old: TaskWithRelations[] = []) =>
-							old.map((task) => {
-								const previousTask = context.previousTasks.find(
-									(pt) => pt.id === task.id,
-								);
-								return previousTask || task;
-							}),
+					queryClient.setQueryData(queryKeys.tasks.lists(), (old: TaskWithRelations[] = []) =>
+						old.map((task) => {
+							const previousTask = context.previousTasks.find((pt) => pt.id === task.id);
+							return previousTask || task;
+						})
 					);
 				}
 			},
@@ -597,7 +523,7 @@ export function useBulkTaskMutation() {
 			enableWASMOptimization: true, // Bulk operations can benefit from WASM
 			enableRealTimeSync: true,
 			syncTable: "tasks",
-		},
+		}
 	);
 }
 
@@ -616,13 +542,9 @@ export function useTaskAnalyticsQuery(filters: TaskFilters = {}) {
 				searchParams.append("endDate", filters.dateRange.end.toISOString());
 			}
 
-			const response = await fetch(
-				`/api/tasks/analytics?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/tasks/analytics?${searchParams.toString()}`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch task analytics: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch task analytics: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -633,7 +555,7 @@ export function useTaskAnalyticsQuery(filters: TaskFilters = {}) {
 			enableWASMOptimization: true,
 			enableRealTimeSync: true,
 			syncTable: "tasks",
-		},
+		}
 	);
 }
 
@@ -646,9 +568,7 @@ export function useTaskDependenciesQuery(taskId: string) {
 		async () => {
 			const response = await fetch(`/api/tasks/${taskId}/dependencies`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch task dependencies: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch task dependencies: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -659,6 +579,6 @@ export function useTaskDependenciesQuery(taskId: string) {
 			staleTime: 2 * 60 * 1000, // 2 minutes
 			enableRealTimeSync: true,
 			syncTable: "tasks",
-		},
+		}
 	);
 }

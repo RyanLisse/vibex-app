@@ -16,10 +16,7 @@ import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import { observability } from "@/lib/observability";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import { ScreenshotBugReportSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // File upload handling (mock implementation for now)
@@ -92,7 +89,7 @@ export async function POST(request: NextRequest) {
 				annotationsCount: validatedData.screenshot.annotations.length,
 			},
 			"api",
-			["tasks", "screenshot", "bug-report"],
+			["tasks", "screenshot", "bug-report"]
 		);
 
 		span.setAttributes({
@@ -108,37 +105,29 @@ export async function POST(request: NextRequest) {
 					task: createdTask,
 					screenshotUrl,
 				},
-				"Bug report created successfully",
+				"Bug report created successfully"
 			),
-			{ status: 201 },
+			{ status: 201 }
 		);
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
 		if (error instanceof z.ZodError) {
-			const mappedIssues = error.issues.map(issue => ({
-				field: issue.path.join('.') || 'unknown',
-				message: issue.message
+			const mappedIssues = error.issues.map((issue) => ({
+				field: issue.path.join(".") || "unknown",
+				message: issue.message,
 			}));
-			return NextResponse.json(
-				createApiErrorResponse("Validation failed", 400, mappedIssues),
-				{
-					status: 400,
-				},
-			);
+			return NextResponse.json(createApiErrorResponse("Validation failed", 400, mappedIssues), {
+				status: 400,
+			});
 		}
 
-		observability.metrics.errorRate(1, "screenshot_api");
+		observability.metrics.errorRate.record(1);
 
-		return NextResponse.json(
-			createApiErrorResponse(
-				"Failed to create bug report",
-				500,
-				"CREATE_BUG_REPORT_ERROR",
-			),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to create bug report", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -164,10 +153,7 @@ export async function GET(request: NextRequest) {
 		// Filter for tasks with screenshot metadata
 		const allTasks = await query;
 		const screenshotTasks = allTasks.filter(
-			(task) =>
-				task.metadata &&
-				typeof task.metadata === "object" &&
-				"screenshot" in task.metadata,
+			(task) => task.metadata && typeof task.metadata === "object" && "screenshot" in task.metadata
 		);
 
 		span.setAttributes({
@@ -176,23 +162,15 @@ export async function GET(request: NextRequest) {
 		});
 
 		return NextResponse.json(
-			createApiSuccessResponse(
-				screenshotTasks,
-				"Screenshot tasks retrieved successfully",
-			),
+			createApiSuccessResponse(screenshotTasks, "Screenshot tasks retrieved successfully")
 		);
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
-		return NextResponse.json(
-			createApiErrorResponse(
-				"Failed to fetch screenshot tasks",
-				500,
-				"FETCH_SCREENSHOTS_ERROR",
-			),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to fetch screenshot tasks", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}

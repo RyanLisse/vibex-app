@@ -9,11 +9,9 @@ export const runtime = "nodejs";
 // Mock environment variables
 const env = {
 	OPENAI_CLIENT_ID: process.env.OPENAI_CLIENT_ID || "test-client-id",
-	OPENAI_CLIENT_SECRET:
-		process.env.OPENAI_CLIENT_SECRET || "test-client-secret",
+	OPENAI_CLIENT_SECRET: process.env.OPENAI_CLIENT_SECRET || "test-client-secret",
 	OPENAI_REDIRECT_URI:
-		process.env.OPENAI_REDIRECT_URI ||
-		"http://localhost:3000/auth/openai/callback",
+		process.env.OPENAI_REDIRECT_URI || "http://localhost:3000/auth/openai/callback",
 	NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
 };
 
@@ -27,17 +25,12 @@ const openaiConfig: OAuthConfig = {
 
 // Token exchange function specific to OpenAI
 async function exchangeOpenAIToken(code: string, config: OAuthConfig): Promise<any> {
-	return exchangeCodeForToken(
-		code,
-		config.clientId,
-		config.clientSecret,
-		config.redirectUri,
-	);
+	return exchangeCodeForToken(code, config.clientId, config.clientSecret, config.redirectUri);
 }
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
-	
+
 	return handleOAuthCallback({
 		searchParams,
 		config: openaiConfig,

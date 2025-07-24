@@ -1,14 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useTaskSubscription } from "./use-task-subscription-refactored";
 
 // Mock the dependencies
@@ -45,9 +36,7 @@ global.fetch = mockFetch;
 
 describe("useTaskSubscription", () => {
 	const mockTaskId = "test-task-id";
-	const mockTaskMessages = [
-		{ role: "user" as const, type: "message", data: { text: "Hello" } },
-	];
+	const mockTaskMessages = [{ role: "user" as const, type: "message", data: { text: "Hello" } }];
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -70,7 +59,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		expect(result.current.subscriptionEnabled).toBe(false);
@@ -88,7 +77,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		await waitFor(() => {
@@ -101,7 +90,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		await waitFor(() => {
@@ -125,7 +114,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		await waitFor(() => {
@@ -143,7 +132,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		await waitFor(() => {
@@ -166,7 +155,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		await waitFor(() => {
@@ -189,7 +178,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		act(() => {
@@ -199,7 +188,7 @@ describe("useTaskSubscription", () => {
 		expect(require("@/lib/stream-utils").safeAsync).toHaveBeenCalledWith(
 			expect.any(Function),
 			undefined,
-			"Error disconnecting subscription:",
+			"Error disconnecting subscription:"
 		);
 	});
 
@@ -208,7 +197,7 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		expect(result.current.streamingMessages).toBeInstanceOf(Map);
@@ -220,25 +209,20 @@ describe("useTaskSubscription", () => {
 			useTaskSubscription({
 				taskId: mockTaskId,
 				taskMessages: mockTaskMessages,
-			}),
+			})
 		);
 
 		await waitFor(() => {
-			expect(result.current.isConnected).toBe(
-				result.current.connectionState === "connected",
-			);
-			expect(result.current.isConnecting).toBe(
-				result.current.connectionState === "connecting",
-			);
+			expect(result.current.isConnected).toBe(result.current.connectionState === "connected");
+			expect(result.current.isConnecting).toBe(result.current.connectionState === "connecting");
 			expect(result.current.hasError).toBe(result.current.lastError !== null);
 		});
 	});
 
 	it("should handle taskId changes correctly", async () => {
 		const { result, rerender } = renderHook(
-			({ taskId }) =>
-				useTaskSubscription({ taskId, taskMessages: mockTaskMessages }),
-			{ initialProps: { taskId: mockTaskId } },
+			({ taskId }) => useTaskSubscription({ taskId, taskMessages: mockTaskMessages }),
+			{ initialProps: { taskId: mockTaskId } }
 		);
 
 		await waitFor(() => {
@@ -253,9 +237,7 @@ describe("useTaskSubscription", () => {
 	});
 
 	it("should handle empty task messages", () => {
-		const { result } = renderHook(() =>
-			useTaskSubscription({ taskId: mockTaskId }),
-		);
+		const { result } = renderHook(() => useTaskSubscription({ taskId: mockTaskId }));
 
 		expect(result.current.streamingMessages).toBeInstanceOf(Map);
 		expect(result.current.messagesCount).toBe(0);

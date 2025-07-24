@@ -154,9 +154,7 @@ describe("Database Migration System Integration", () => {
 				// Simulate transaction usage
 				return mockDb.transaction(async (tx) => {
 					await tx.execute("CREATE TABLE test_table (id SERIAL PRIMARY KEY)");
-					await tx.execute(
-						"INSERT INTO migration_log (version) VALUES ('test')",
-					);
+					await tx.execute("INSERT INTO migration_log (version) VALUES ('test')");
 					return {
 						applied: ["20240102000000_test"],
 						errors: [],
@@ -232,9 +230,7 @@ describe("Database Migration System Integration", () => {
 				};
 			});
 
-			const result = await migrationManager.validate(
-				"20240103000000_add_projects_table",
-			);
+			const result = await migrationManager.validate("20240103000000_add_projects_table");
 
 			expect(result.valid).toBe(true);
 			expect(result.errors).toHaveLength(0);
@@ -248,9 +244,7 @@ describe("Database Migration System Integration", () => {
 				warnings: ["No foreign key constraints defined"],
 			});
 
-			const result = await migrationManager.validate(
-				"20240103000000_bad_migration",
-			);
+			const result = await migrationManager.validate("20240103000000_bad_migration");
 
 			expect(result.valid).toBe(false);
 			expect(result.errors).toHaveLength(2);
@@ -264,10 +258,7 @@ describe("Database Migration System Integration", () => {
 
 			rollbackMigration.mockResolvedValue({
 				targetVersion: "20240101000000_initial",
-				rolledBack: [
-					"20240103000000_add_tasks_table",
-					"20240102000000_add_users_table",
-				],
+				rolledBack: ["20240103000000_add_tasks_table", "20240102000000_add_users_table"],
 				executionTime: 3200,
 			});
 
@@ -282,13 +273,11 @@ describe("Database Migration System Integration", () => {
 			const { rollbackMigration } = await import("@/db/migrate");
 
 			rollbackMigration.mockRejectedValue(
-				new Error(
-					"Cannot rollback migration: foreign key constraint violation",
-				),
+				new Error("Cannot rollback migration: foreign key constraint violation")
 			);
 
 			await expect(rollbackMigration("20240101000000_initial")).rejects.toThrow(
-				"foreign key constraint violation",
+				"foreign key constraint violation"
 			);
 		});
 
@@ -296,19 +285,17 @@ describe("Database Migration System Integration", () => {
 			const { rollbackMigration } = await import("@/db/migrate");
 
 			rollbackMigration.mockRejectedValue(
-				new Error("Migration 20240102000000_drop_old_data is not reversible"),
+				new Error("Migration 20240102000000_drop_old_data is not reversible")
 			);
 
-			await expect(rollbackMigration("20240101000000_initial")).rejects.toThrow(
-				"not reversible",
-			);
+			await expect(rollbackMigration("20240101000000_initial")).rejects.toThrow("not reversible");
 		});
 	});
 
 	describe("Migration Locking and Concurrency", () => {
 		test("should prevent concurrent migration execution", async () => {
 			migrationManager.up.mockRejectedValueOnce(
-				new Error("Migration lock is held by another process"),
+				new Error("Migration lock is held by another process")
 			);
 
 			await expect(migrationManager.up()).rejects.toThrow("lock is held");
@@ -350,9 +337,9 @@ describe("Database Migration System Integration", () => {
 									errors: ["Migration timeout after 30 seconds"],
 									executionTime: 30000,
 								}),
-							100,
+							100
 						);
-					}),
+					})
 			);
 
 			const result = await migrationManager.up();
@@ -400,9 +387,7 @@ describe("Database Migration System Integration", () => {
 			});
 
 			const result = await migrationManager.validate("circular_dep_migration");
-			expect(result.errors).toContain(
-				"Circular dependency detected between migrations",
-			);
+			expect(result.errors).toContain("Circular dependency detected between migrations");
 		});
 	});
 
@@ -599,9 +584,7 @@ describe("Database Migration System Integration", () => {
 
 			expect(result.schemaValidation.valid).toBe(false);
 			expect(result.schemaValidation.issues).toHaveLength(2);
-			expect(result.errors).toContain(
-				"Missing foreign key constraint on tasks.user_id",
-			);
+			expect(result.errors).toContain("Missing foreign key constraint on tasks.user_id");
 		});
 
 		test("should verify referential integrity", async () => {
@@ -659,9 +642,7 @@ describe("Database Migration System Integration", () => {
 			const dryRunResult = await migrationManager.up({ dryRun: true });
 
 			expect(dryRunResult.dryRun).toBe(true);
-			expect(dryRunResult.wouldApply).toContain(
-				"20240103000000_test_migration",
-			);
+			expect(dryRunResult.wouldApply).toContain("20240103000000_test_migration");
 			expect(dryRunResult.sqlPreview).toContain("CREATE TABLE");
 
 			// Test actual run
@@ -692,9 +673,7 @@ describe("Database Migration System Integration", () => {
 				};
 			});
 
-			const result = await migrationManager.validate(
-				"20240103000000_rollback_test",
-			);
+			const result = await migrationManager.validate("20240103000000_rollback_test");
 
 			expect(result.rollbackTest.canRollback).toBe(true);
 			expect(result.rollbackTest.dataLoss).toBe(false);

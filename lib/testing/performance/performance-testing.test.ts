@@ -1,7 +1,4 @@
-import {
-	MemoryProfiler,
-	PerformanceBenchmark,
-} from "./performance-benchmarker";
+import { MemoryProfiler, PerformanceBenchmark } from "./performance-benchmarker";
 
 describe("PerformanceBenchmark", () => {
 	let benchmark: PerformanceBenchmark;
@@ -90,10 +87,7 @@ describe("PerformanceBenchmark", () => {
 				{ data: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }] },
 			];
 
-			const result = await benchmark.measureComponentWithProps(
-				Component,
-				propsVariations,
-			);
+			const result = await benchmark.measureComponentWithProps(Component, propsVariations);
 
 			expect(result.length).toBe(3);
 			expect(result[0].props).toEqual(propsVariations[0]);
@@ -130,9 +124,9 @@ describe("PerformanceBenchmark", () => {
 			const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
 			global.fetch = mockFetch;
 
-			await expect(
-				benchmark.measureApiEndpoint("/api/error", { iterations: 1 }),
-			).rejects.toThrow("Network error");
+			await expect(benchmark.measureApiEndpoint("/api/error", { iterations: 1 })).rejects.toThrow(
+				"Network error"
+			);
 		});
 	});
 
@@ -239,9 +233,7 @@ describe("MemoryProfiler", () => {
 		it("should measure memory usage during function execution", async () => {
 			const memoryIntensiveFunction = () => {
 				// Create some objects to use memory
-				const largeArray = new Array(10_000)
-					.fill(0)
-					.map((_, i) => ({ id: i, data: `item-${i}` }));
+				const largeArray = new Array(10_000).fill(0).map((_, i) => ({ id: i, data: `item-${i}` }));
 				return largeArray.length;
 			};
 
@@ -292,12 +284,8 @@ describe("MemoryProfiler", () => {
 
 			const snapshot2 = await profiler.createSnapshot();
 
-			expect(snapshot2.usedJSHeapSize).toBeGreaterThan(
-				snapshot1.usedJSHeapSize,
-			);
-			expect(snapshot2.totalJSHeapSize).toBeGreaterThanOrEqual(
-				snapshot1.totalJSHeapSize,
-			);
+			expect(snapshot2.usedJSHeapSize).toBeGreaterThan(snapshot1.usedJSHeapSize);
+			expect(snapshot2.totalJSHeapSize).toBeGreaterThanOrEqual(snapshot1.totalJSHeapSize);
 		});
 
 		it("should compare memory snapshots", async () => {
@@ -399,9 +387,7 @@ describe("PerformanceReporter", () => {
 		});
 
 		it("should generate JSON report for CI integration", async () => {
-			const results = [
-				{ name: "API Test", averageTime: 100, passedThresholds: true },
-			];
+			const results = [{ name: "API Test", averageTime: 100, passedThresholds: true }];
 
 			const jsonReport = await reporter.generateReport(results, {
 				format: "json",
@@ -462,19 +448,13 @@ describe("PerformanceReporter", () => {
 
 			expect(ciOutput.success).toBe(false);
 			expect(ciOutput.failedTests).toHaveLength(1);
-			expect(ciOutput.summary).toContain(
-				"1 performance test(s) failed thresholds",
-			);
+			expect(ciOutput.summary).toContain("1 performance test(s) failed thresholds");
 		});
 
 		it("should provide exit codes for CI", async () => {
-			const passingResults = [
-				{ name: "Fast Test", averageTime: 10, passedThresholds: true },
-			];
+			const passingResults = [{ name: "Fast Test", averageTime: 10, passedThresholds: true }];
 
-			const failingResults = [
-				{ name: "Slow Test", averageTime: 100, passedThresholds: false },
-			];
+			const failingResults = [{ name: "Slow Test", averageTime: 100, passedThresholds: false }];
 
 			const passingOutput = await reporter.generateCIOutput(passingResults);
 			const failingOutput = await reporter.generateCIOutput(failingResults);

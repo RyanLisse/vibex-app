@@ -92,8 +92,7 @@ export class SQLiteWASMUtils {
 	private isWASMEnabled = false;
 	private config: SQLiteWASMConfig;
 	private db: any = null; // SQLite WASM database instance
-	private queryCache: Map<string, { result: QueryResult; timestamp: number }> =
-		new Map();
+	private queryCache: Map<string, { result: QueryResult; timestamp: number }> = new Map();
 	private preparedStatements: Map<string, any> = new Map();
 	private stats: SQLiteStats;
 	private queryTimes: number[] = [];
@@ -160,14 +159,8 @@ export class SQLiteWASMUtils {
 						config: this.config,
 					});
 				} catch (wasmError) {
-					observability.recordError(
-						"wasm.sqlite.wasm-load-failed",
-						wasmError as Error,
-					);
-					console.warn(
-						"Failed to load SQLite WASM, using JavaScript fallback:",
-						wasmError,
-					);
+					observability.recordError("wasm.sqlite.wasm-load-failed", wasmError as Error);
+					console.warn("Failed to load SQLite WASM, using JavaScript fallback:", wasmError);
 					await this.initializeJavaScriptFallback();
 					this.isWASMEnabled = false;
 				}
@@ -190,10 +183,7 @@ export class SQLiteWASMUtils {
 
 				console.log("✅ SQLite WASM utilities initialized");
 			} catch (error) {
-				observability.recordError(
-					"wasm.sqlite.initialization-failed",
-					error as Error,
-				);
+				observability.recordError("wasm.sqlite.initialization-failed", error as Error);
 				console.warn("Failed to initialize SQLite WASM utilities:", error);
 				await this.initializeJavaScriptFallback();
 				this.isInitialized = true;
@@ -225,7 +215,7 @@ export class SQLiteWASMUtils {
 			}
 			this.db.exec(`PRAGMA page_size=${this.config.pageSize};`);
 			this.db.exec(
-				`PRAGMA cache_size=${Math.floor(this.config.maxMemory / this.config.pageSize)};`,
+				`PRAGMA cache_size=${Math.floor(this.config.maxMemory / this.config.pageSize)};`
 			);
 
 			console.log("✅ SQLite WASM module loaded successfully");
@@ -261,29 +251,26 @@ export class SQLiteWASMUtils {
 	private async applyOptimizations(): Promise<void> {
 		if (!this.config.enablePragmaOptimizations) return;
 
-		return observability.trackOperation(
-			"wasm.sqlite.apply-optimizations",
-			async () => {
-				const optimizations = [
-					"PRAGMA synchronous=NORMAL;",
-					"PRAGMA temp_store=MEMORY;",
-					"PRAGMA mmap_size=268435456;", // 256MB
-					"PRAGMA optimize;",
-				];
+		return observability.trackOperation("wasm.sqlite.apply-optimizations", async () => {
+			const optimizations = [
+				"PRAGMA synchronous=NORMAL;",
+				"PRAGMA temp_store=MEMORY;",
+				"PRAGMA mmap_size=268435456;", // 256MB
+				"PRAGMA optimize;",
+			];
 
-				for (const pragma of optimizations) {
-					try {
-						this.db.exec(pragma);
-					} catch (error) {
-						console.warn(`Failed to apply optimization: ${pragma}`, error);
-					}
+			for (const pragma of optimizations) {
+				try {
+					this.db.exec(pragma);
+				} catch (error) {
+					console.warn(`Failed to apply optimization: ${pragma}`, error);
 				}
+			}
 
-				observability.recordEvent("wasm.sqlite.optimizations-applied", {
-					optimizationsCount: optimizations.length,
-				});
-			},
-		);
+			observability.recordEvent("wasm.sqlite.optimizations-applied", {
+				optimizationsCount: optimizations.length,
+			});
+		});
 	}
 
 	/**
@@ -309,7 +296,7 @@ export class SQLiteWASMUtils {
 			() => {
 				this.cleanupCache();
 			},
-			5 * 60 * 1000,
+			5 * 60 * 1000
 		); // Every 5 minutes
 
 		// Stats update task
@@ -322,102 +309,96 @@ export class SQLiteWASMUtils {
 	 * Execute a SQL query with caching and optimization
 	 */
 	async executeQuery(sql: string, params: any[] = []): Promise<QueryResult> {
-		return observability.trackOperation(
-			"wasm.sqlite.execute-query",
-			async () => {
-				const startTime = performance.now();
-				this.stats.totalQueries++;
+		return observability.trackOperation("wasm.sqlite.execute-query", async () => {
+			const startTime = performance.now();
+			this.stats.totalQueries++;
 
-				// Check cache for SELECT queries
-				const cacheKey = this.generateCacheKey(sql, params);
-				this.cacheRequests++;
+			// Check cache for SELECT queries
+			const cacheKey = this.generateCacheKey(sql, params);
+			this.cacheRequests++;
 
-				if (
-					sql.trim().toUpperCase().startsWith("SELECT") &&
-					this.queryCache.has(cacheKey)
-				) {
-					const cached = this.queryCache.get(cacheKey)!;
-					const cacheAge = Date.now() - cached.timestamp;
+			if (sql.trim().toUpperCase().startsWith("SELECT") && this.queryCache.has(cacheKey)) {
+				const cached = this.queryCache.get(cacheKey)!;
+				const cacheAge = Date.now() - cached.timestamp;
 
-					// Cache valid for 5 minutes
-					if (cacheAge < 5 * 60 * 1000) {
-						this.cacheHits++;
-						observability.recordEvent("wasm.sqlite.cache-hit", {
-							cacheKey: cacheKey.substring(0, 16),
-							cacheAge,
-						});
-						return cached.result;
-					} else {
-						this.queryCache.delete(cacheKey);
-					}
-				}
-
-				let result: QueryResult;
-
-				try {
-					if (sql.trim().toUpperCase().startsWith("SELECT")) {
-						// Handle SELECT queries
-						const stmt = this.db.prepare(sql);
-						const rows = stmt.all(params);
-						stmt.free();
-
-						result = {
-							rows: rows || [],
-							rowCount: rows ? rows.length : 0,
-							queryTime: performance.now() - startTime,
-							metadata: {
-								columns: rows && rows.length > 0 ? Object.keys(rows[0]) : [],
-								types: [], // Would need to be extracted from SQLite
-							},
-						};
-					} else {
-						// Handle INSERT, UPDATE, DELETE queries
-						const stmt = this.db.prepare(sql);
-						const info = stmt.run(params);
-						stmt.free();
-
-						result = {
-							rows: [],
-							rowCount: 0,
-							queryTime: performance.now() - startTime,
-							affectedRows: info.changes || 0,
-							lastInsertId: info.lastInsertRowid,
-							changes: info.changes || 0,
-						};
-					}
-
-					// Cache SELECT results
-					if (sql.trim().toUpperCase().startsWith("SELECT")) {
-						if (this.queryCache.size >= this.config.cacheSize) {
-							// Remove oldest entries
-							const entries = Array.from(this.queryCache.entries());
-							const toRemove = entries
-								.sort((a, b) => a[1].timestamp - b[1].timestamp)
-								.slice(0, Math.floor(this.config.cacheSize * 0.2));
-							toRemove.forEach(([key]) => this.queryCache.delete(key));
-						}
-						this.queryCache.set(cacheKey, { result, timestamp: Date.now() });
-					}
-
-					this.queryTimes.push(result.queryTime);
-					if (this.queryTimes.length > 100) {
-						this.queryTimes = this.queryTimes.slice(-50);
-					}
-
-					observability.recordEvent("wasm.sqlite.query-executed", {
-						queryType: sql.trim().split(" ")[0].toUpperCase(),
-						queryTime: result.queryTime,
-						rowCount: result.rowCount,
-						wasmEnabled: this.isWASMEnabled,
+				// Cache valid for 5 minutes
+				if (cacheAge < 5 * 60 * 1000) {
+					this.cacheHits++;
+					observability.recordEvent("wasm.sqlite.cache-hit", {
+						cacheKey: cacheKey.substring(0, 16),
+						cacheAge,
 					});
-
-					return result;
-				} catch (error) {
-					observability.recordError("wasm.sqlite.query-failed", error as Error);
-					throw error;
+					return cached.result;
+				} else {
+					this.queryCache.delete(cacheKey);
 				}
-			},
-		);
+			}
+
+			let result: QueryResult;
+
+			try {
+				if (sql.trim().toUpperCase().startsWith("SELECT")) {
+					// Handle SELECT queries
+					const stmt = this.db.prepare(sql);
+					const rows = stmt.all(params);
+					stmt.free();
+
+					result = {
+						rows: rows || [],
+						rowCount: rows ? rows.length : 0,
+						queryTime: performance.now() - startTime,
+						metadata: {
+							columns: rows && rows.length > 0 ? Object.keys(rows[0]) : [],
+							types: [], // Would need to be extracted from SQLite
+						},
+					};
+				} else {
+					// Handle INSERT, UPDATE, DELETE queries
+					const stmt = this.db.prepare(sql);
+					const info = stmt.run(params);
+					stmt.free();
+
+					result = {
+						rows: [],
+						rowCount: 0,
+						queryTime: performance.now() - startTime,
+						affectedRows: info.changes || 0,
+						lastInsertId: info.lastInsertRowid,
+						changes: info.changes || 0,
+					};
+				}
+
+				// Cache SELECT results
+				if (sql.trim().toUpperCase().startsWith("SELECT")) {
+					if (this.queryCache.size >= this.config.cacheSize) {
+						// Remove oldest entries
+						const entries = Array.from(this.queryCache.entries());
+						const toRemove = entries
+							.sort((a, b) => a[1].timestamp - b[1].timestamp)
+							.slice(0, Math.floor(this.config.cacheSize * 0.2));
+						toRemove.forEach(([key]) => this.queryCache.delete(key));
+					}
+					this.queryCache.set(cacheKey, { result, timestamp: Date.now() });
+				}
+
+				this.queryTimes.push(result.queryTime);
+				if (this.queryTimes.length > 100) {
+					this.queryTimes = this.queryTimes.slice(-50);
+				}
+
+				observability.recordEvent("wasm.sqlite.query-executed", {
+					queryType: sql.trim().split(" ")[0].toUpperCase(),
+					queryTime: result.queryTime,
+					rowCount: result.rowCount,
+					wasmEnabled: this.isWASMEnabled,
+				});
+
+				return result;
+			} catch (error) {
+				observability.recordError("wasm.sqlite.query-failed", error as Error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -425,50 +406,41 @@ export class SQLiteWASMUtils {
 	 */
 	async executeTransaction(
 		queries: Array<{ sql: string; params?: any[] }>,
-		options: TransactionOptions = { mode: "deferred" },
+		options: TransactionOptions = { mode: "deferred" }
 	): Promise<QueryResult[]> {
-		return observability.trackOperation(
-			"wasm.sqlite.execute-transaction",
-			async () => {
-				const results: QueryResult[] = [];
+		return observability.trackOperation("wasm.sqlite.execute-transaction", async () => {
+			const results: QueryResult[] = [];
 
-				try {
-					// Begin transaction
-					this.db.exec(`BEGIN ${options.mode.toUpperCase()};`);
+			try {
+				// Begin transaction
+				this.db.exec(`BEGIN ${options.mode.toUpperCase()};`);
 
-					for (const query of queries) {
-						const result = await this.executeQuery(
-							query.sql,
-							query.params || [],
-						);
-						results.push(result);
-					}
-
-					// Commit transaction
-					this.db.exec("COMMIT;");
-
-					observability.recordEvent("wasm.sqlite.transaction-completed", {
-						queryCount: queries.length,
-						mode: options.mode,
-					});
-
-					return results;
-				} catch (error) {
-					// Rollback on error
-					try {
-						this.db.exec("ROLLBACK;");
-					} catch (rollbackError) {
-						console.warn("Failed to rollback transaction:", rollbackError);
-					}
-
-					observability.recordError(
-						"wasm.sqlite.transaction-failed",
-						error as Error,
-					);
-					throw error;
+				for (const query of queries) {
+					const result = await this.executeQuery(query.sql, query.params || []);
+					results.push(result);
 				}
-			},
-		);
+
+				// Commit transaction
+				this.db.exec("COMMIT;");
+
+				observability.recordEvent("wasm.sqlite.transaction-completed", {
+					queryCount: queries.length,
+					mode: options.mode,
+				});
+
+				return results;
+			} catch (error) {
+				// Rollback on error
+				try {
+					this.db.exec("ROLLBACK;");
+				} catch (rollbackError) {
+					console.warn("Failed to rollback transaction:", rollbackError);
+				}
+
+				observability.recordError("wasm.sqlite.transaction-failed", error as Error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -477,7 +449,7 @@ export class SQLiteWASMUtils {
 	async bulkInsert(
 		table: string,
 		data: Record<string, any>[],
-		options: BulkInsertOptions = { batchSize: 1000, useTransaction: true },
+		options: BulkInsertOptions = { batchSize: 1000, useTransaction: true }
 	): Promise<void> {
 		if (data.length === 0) return;
 
@@ -534,86 +506,69 @@ export class SQLiteWASMUtils {
 	 * Analyze query performance
 	 */
 	async analyzeQuery(sql: string, params: any[] = []): Promise<QueryPlan[]> {
-		return observability.trackOperation(
-			"wasm.sqlite.analyze-query",
-			async () => {
-				try {
-					const explainSql = `EXPLAIN QUERY PLAN ${sql}`;
-					const result = await this.executeQuery(explainSql, params);
+		return observability.trackOperation("wasm.sqlite.analyze-query", async () => {
+			try {
+				const explainSql = `EXPLAIN QUERY PLAN ${sql}`;
+				const result = await this.executeQuery(explainSql, params);
 
-					return result.rows.map((row, index) => ({
-						id: `${index}`,
-						operation: row.detail || row.operation || "unknown",
-						table: row.table,
-						index: row.index,
-						cost: row.cost || 0,
-						rows: row.rows,
-						detail: row.detail,
-					}));
-				} catch (error) {
-					observability.recordError(
-						"wasm.sqlite.analyze-query-failed",
-						error as Error,
-					);
-					return [];
-				}
-			},
-		);
+				return result.rows.map((row, index) => ({
+					id: `${index}`,
+					operation: row.detail || row.operation || "unknown",
+					table: row.table,
+					index: row.index,
+					cost: row.cost || 0,
+					rows: row.rows,
+					detail: row.detail,
+				}));
+			} catch (error) {
+				observability.recordError("wasm.sqlite.analyze-query-failed", error as Error);
+				return [];
+			}
+		});
 	}
 
 	/**
 	 * Analyze table indexes
 	 */
 	async analyzeIndexes(tableName?: string): Promise<IndexAnalysis[]> {
-		return observability.trackOperation(
-			"wasm.sqlite.analyze-indexes",
-			async () => {
-				try {
-					const sql = tableName
-						? "SELECT * FROM sqlite_master WHERE type='index' AND tbl_name=?"
-						: "SELECT * FROM sqlite_master WHERE type='index'";
-					const params = tableName ? [tableName] : [];
+		return observability.trackOperation("wasm.sqlite.analyze-indexes", async () => {
+			try {
+				const sql = tableName
+					? "SELECT * FROM sqlite_master WHERE type='index' AND tbl_name=?"
+					: "SELECT * FROM sqlite_master WHERE type='index'";
+				const params = tableName ? [tableName] : [];
 
-					const result = await this.executeQuery(sql, params);
+				const result = await this.executeQuery(sql, params);
 
-					const analyses: IndexAnalysis[] = [];
+				const analyses: IndexAnalysis[] = [];
 
-					for (const row of result.rows) {
-						// Get index statistics
-						const statsSql = `SELECT * FROM sqlite_stat1 WHERE tbl=? AND idx=?`;
-						const statsResult = await this.executeQuery(statsSql, [
-							row.tbl_name,
-							row.name,
-						]);
+				for (const row of result.rows) {
+					// Get index statistics
+					const statsSql = `SELECT * FROM sqlite_stat1 WHERE tbl=? AND idx=?`;
+					const statsResult = await this.executeQuery(statsSql, [row.tbl_name, row.name]);
 
-						const stats = statsResult.rows[0];
-						const totalRows = stats ? parseInt(stats.stat.split(" ")[0]) : 0;
-						const uniqueValues = stats
-							? parseInt(stats.stat.split(" ")[1] || "1")
-							: 1;
+					const stats = statsResult.rows[0];
+					const totalRows = stats ? parseInt(stats.stat.split(" ")[0]) : 0;
+					const uniqueValues = stats ? parseInt(stats.stat.split(" ")[1] || "1") : 1;
 
-						analyses.push({
-							tableName: row.tbl_name,
-							indexName: row.name,
-							columns: [], // Would need to parse from SQL
-							uniqueValues,
-							selectivity: totalRows > 0 ? uniqueValues / totalRows : 0,
-							recommended: true, // Would need more analysis
-							currentUsage: 0, // Would need query log analysis
-							estimatedImprovement: 0, // Would need benchmarking
-						});
-					}
-
-					return analyses;
-				} catch (error) {
-					observability.recordError(
-						"wasm.sqlite.analyze-indexes-failed",
-						error as Error,
-					);
-					return [];
+					analyses.push({
+						tableName: row.tbl_name,
+						indexName: row.name,
+						columns: [], // Would need to parse from SQL
+						uniqueValues,
+						selectivity: totalRows > 0 ? uniqueValues / totalRows : 0,
+						recommended: true, // Would need more analysis
+						currentUsage: 0, // Would need query log analysis
+						estimatedImprovement: 0, // Would need benchmarking
+					});
 				}
-			},
-		);
+
+				return analyses;
+			} catch (error) {
+				observability.recordError("wasm.sqlite.analyze-indexes-failed", error as Error);
+				return [];
+			}
+		});
 	}
 
 	/**
@@ -734,8 +689,6 @@ export class SQLiteWASMUtils {
 
 export const sqliteWASMUtils = new SQLiteWASMUtils();
 
-export function createSQLiteWASMUtils(
-	config?: Partial<SQLiteWASMConfig>,
-): SQLiteWASMUtils {
+export function createSQLiteWASMUtils(config?: Partial<SQLiteWASMConfig>): SQLiteWASMUtils {
 	return new SQLiteWASMUtils(config);
 }

@@ -1,8 +1,5 @@
-import Redis, {
-	Cluster,
-	type ClusterOptions,
-	type RedisOptions,
-} from "ioredis";
+import Redis, { Cluster, type ClusterOptions, type RedisOptions } from "ioredis";
+import { logger } from "../logging";
 import { ObservabilityService } from "../observability";
 import { getRedisConfig } from "./config";
 import {
@@ -25,12 +22,11 @@ export class RedisClientManager {
 
 	static getInstance(config?: RedisConfig): RedisClientManager {
 		if (!RedisClientManager.instance) {
-			if (!config) {
+			if (config) {
+				RedisClientManager.instance = new RedisClientManager(config);
+			} else {
 				// During build or when Redis is disabled, return a mock instance
-				if (
-					process.env.NODE_ENV === "production" ||
-					process.env.REDIS_ENABLED === "false"
-				) {
+				if (process.env.NODE_ENV === "production" || process.env.REDIS_ENABLED === "false") {
 					// Create a minimal config for build time
 					const mockConfig: RedisConfig = {
 						primary: {
@@ -43,12 +39,8 @@ export class RedisClientManager {
 					};
 					RedisClientManager.instance = new RedisClientManager(mockConfig);
 				} else {
-					throw new Error(
-						"RedisClientManager requires configuration on first initialization",
-					);
+					throw new Error("RedisClientManager requires configuration on first initialization");
 				}
-			} else {
-				RedisClientManager.instance = new RedisClientManager(config);
 			}
 		}
 		return RedisClientManager.instance;
@@ -62,17 +54,12 @@ export class RedisClientManager {
 		return this.observability.trackOperation("redis.initialize", async () => {
 			try {
 				// Initialize primary client
-				const primaryClient = await this.createClient(
-					"primary",
-					this.config.primary,
-				);
+				const primaryClient = await this.createClient("primary", this.config.primary);
 				this.clients.set("primary", primaryClient);
 
 				// Initialize replica clients if configured
 				if (this.config.replicas) {
-					for (const [name, replicaConfig] of Object.entries(
-						this.config.replicas,
-					)) {
+					for (const [name, replicaConfig] of Object.entries(this.config.replicas)) {
 						const replicaClient = await this.createClient(name, replicaConfig);
 						this.clients.set(name, replicaClient);
 					}
@@ -80,17 +67,14 @@ export class RedisClientManager {
 
 				// Initialize pub/sub client
 				if (this.config.pubsub) {
-					const pubsubClient = await this.createClient(
-						"pubsub",
-						this.config.pubsub,
-					);
+					const pubsubClient = await this.createClient("pubsub", this.config.pubsub);
 					this.clients.set("pubsub", pubsubClient);
 				}
 
 				this.isInitialized = true;
-				console.log("Redis/Valkey clients initialized successfully");
+				logger.info("Redis/Valkey clients initialized successfully");
 			} catch (error) {
-				console.error("Failed to initialize Redis clients:", error);
+				logger.error("Failed to initialize Redis clients", { error });
 				throw error;
 			}
 		});
@@ -98,7 +82,7 @@ export class RedisClientManager {
 
 	private async createClient(
 		name: string,
-		config: RedisConnectionConfig,
+		config: RedisConnectionConfig
 	): Promise<Redis | Cluster> {
 		const clientConfig: RedisOptions = {
 			host: config.host,
@@ -159,33 +143,33 @@ export class RedisClientManager {
 
 	private setupEventHandlers(client: Redis | Cluster, name: string): void {
 		client.on("connect", () => {
-			console.log(`Redis client '${name}' connected`);
+			logger.info("Redis client connected", { client: name });
 			this.observability.recordEvent("redis.connection.established", {
 				client: name,
 			});
 		});
 
 		client.on("ready", () => {
-			console.log(`Redis client '${name}' ready`);
+			logger.info("Redis client ready", { client: name });
 			this.observability.recordEvent("redis.connection.ready", {
 				client: name,
 			});
 		});
 
 		client.on("error", (error) => {
-			console.error(`Redis client '${name}' error:`, error);
+			logger.error("Redis client error", { client: name, error });
 			this.observability.recordError("redis.connection.error", error);
 		});
 
 		client.on("close", () => {
-			console.log(`Redis client '${name}' connection closed`);
+			logger.info("Redis client connection closed", { client: name });
 			this.observability.recordEvent("redis.connection.closed", {
 				client: name,
 			});
 		});
 
 		client.on("reconnecting", () => {
-			console.log(`Redis client '${name}' reconnecting`);
+			logger.info("Redis client reconnecting", { client: name });
 			this.observability.recordEvent("redis.connection.reconnecting", {
 				client: name,
 			});
@@ -212,9 +196,7 @@ export class RedisClientManager {
 		}
 
 		if (!this.isInitialized) {
-			throw new Error(
-				"RedisClientManager not initialized. Call initialize() first.",
-			);
+			throw new Error("RedisClientManager not initialized. Call initialize() first.");
 		}
 
 		const client = this.clients.get(name);
@@ -224,11 +206,7 @@ export class RedisClientManager {
 		return client;
 	}
 
-	async executeCommand<T>(
-		command: string,
-		args: any[],
-		clientName = "primary",
-	): Promise<T> {
+	async executeCommand<T>(command: string, args: any[], clientName = "primary"): Promise<T> {
 		return this.observability.trackOperation("redis.command", async () => {
 			const client = this.getClient(clientName);
 			const startTime = Date.now();
@@ -295,18 +273,16 @@ export class RedisClientManager {
 	}
 
 	async shutdown(): Promise<void> {
-		console.log("Shutting down Redis clients...");
+		logger.info("Shutting down Redis clients...");
 
-		const shutdownPromises = Array.from(this.clients.entries()).map(
-			async ([name, client]) => {
-				try {
-					await client.quit();
-					console.log(`Redis client '${name}' shut down successfully`);
-				} catch (error) {
-					console.error(`Error shutting down Redis client '${name}':`, error);
-				}
-			},
-		);
+		const shutdownPromises = Array.from(this.clients.entries()).map(async ([name, client]) => {
+			try {
+				await client.quit();
+				logger.info("Redis client shut down successfully", { client: name });
+			} catch (error) {
+				logger.error("Error shutting down Redis client", { client: name, error });
+			}
+		});
 
 		await Promise.all(shutdownPromises);
 		this.clients.clear();
@@ -328,7 +304,7 @@ export class RedisClientManager {
 	async flushAll(clientName = "primary"): Promise<void> {
 		const client = this.getClient(clientName);
 		await client.flushall();
-		console.log(`Flushed all data from Redis client '${clientName}'`);
+		logger.info("Flushed all data from Redis client", { client: clientName });
 	}
 }
 

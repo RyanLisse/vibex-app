@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useAnthropicAuthRefactored } from "./use-anthropic-auth-refactored";
 
 // Mock the base auth hook
@@ -110,7 +101,7 @@ describe("useAnthropicAuthRefactored", () => {
 				scope: "claude:read claude:write model:claude-3-opus",
 				model_request: "claude-3-opus",
 				usage_tier_request: "professional",
-			}),
+			})
 		);
 	});
 
@@ -134,11 +125,7 @@ describe("useAnthropicAuthRefactored", () => {
 		mockUseAuthBase.state = {
 			authenticated: true,
 			user: {
-				model_access: [
-					"claude-3-opus",
-					"claude-3-sonnet",
-					"claude-instant-1.2",
-				],
+				model_access: ["claude-3-opus", "claude-3-sonnet", "claude-instant-1.2"],
 			},
 			token: { access_token: "test-token" },
 		};
@@ -241,7 +228,7 @@ describe("useAnthropicAuthRefactored", () => {
 					harmlessness: "moderate",
 					honesty: "high",
 				},
-			}),
+			})
 		);
 	});
 
@@ -257,7 +244,7 @@ describe("useAnthropicAuthRefactored", () => {
 				api_key: "sk-ant-test-key",
 				auth_type: "api_key",
 				provider: "anthropic",
-			}),
+			})
 		);
 	});
 
@@ -356,7 +343,7 @@ describe("useAnthropicAuthRefactored", () => {
 		expect(mockUseAuthBase.actions.login).toHaveBeenCalledWith(
 			expect.objectContaining({
 				workspace_id: "ws-2",
-			}),
+			})
 		);
 	});
 

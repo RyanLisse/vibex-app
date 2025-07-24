@@ -1,14 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "./card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card";
 
 describe("Card Components", () => {
 	describe("Card", () => {
@@ -22,7 +15,7 @@ describe("Card Components", () => {
 				"border",
 				"bg-card",
 				"text-card-foreground",
-				"shadow-sm",
+				"shadow-sm"
 			);
 			expect(card).toHaveTextContent("Card content");
 		});
@@ -31,7 +24,7 @@ describe("Card Components", () => {
 			render(
 				<Card className="custom-class" data-testid="card">
 					Content
-				</Card>,
+				</Card>
 			);
 			const card = screen.getByTestId("card");
 
@@ -50,7 +43,7 @@ describe("Card Components", () => {
 			render(
 				<Card aria-label="Test card" data-testid="card" id="test-id">
 					Content
-				</Card>,
+				</Card>
 			);
 			const card = screen.getByTestId("card");
 
@@ -73,7 +66,7 @@ describe("Card Components", () => {
 			render(
 				<CardHeader className="custom-header" data-testid="header">
 					Content
-				</CardHeader>,
+				</CardHeader>
 			);
 			const header = screen.getByTestId("header");
 
@@ -96,12 +89,7 @@ describe("Card Components", () => {
 
 			expect(title).toBeInTheDocument();
 			expect(title.tagName).toBe("H3");
-			expect(title).toHaveClass(
-				"text-2xl",
-				"font-semibold",
-				"leading-none",
-				"tracking-tight",
-			);
+			expect(title).toHaveClass("text-2xl", "font-semibold", "leading-none", "tracking-tight");
 			expect(title).toHaveTextContent("Title text");
 		});
 
@@ -109,7 +97,7 @@ describe("Card Components", () => {
 			render(
 				<CardTitle className="text-3xl" data-testid="title">
 					Title
-				</CardTitle>,
+				</CardTitle>
 			);
 			const title = screen.getByTestId("title");
 
@@ -127,9 +115,7 @@ describe("Card Components", () => {
 
 	describe("CardDescription", () => {
 		it("should render description with default classes", () => {
-			render(
-				<CardDescription data-testid="desc">Description text</CardDescription>,
-			);
+			render(<CardDescription data-testid="desc">Description text</CardDescription>);
 			const desc = screen.getByTestId("desc");
 
 			expect(desc).toBeInTheDocument();
@@ -142,7 +128,7 @@ describe("Card Components", () => {
 			render(
 				<CardDescription className="italic" data-testid="desc">
 					Desc
-				</CardDescription>,
+				</CardDescription>
 			);
 			const desc = screen.getByTestId("desc");
 
@@ -172,7 +158,7 @@ describe("Card Components", () => {
 			render(
 				<CardContent className="pb-8" data-testid="content">
 					Content
-				</CardContent>,
+				</CardContent>
 			);
 			const content = screen.getByTestId("content");
 
@@ -202,7 +188,7 @@ describe("Card Components", () => {
 			render(
 				<CardFooter className="justify-end" data-testid="footer">
 					Footer
-				</CardFooter>,
+				</CardFooter>
 			);
 			const footer = screen.getByTestId("footer");
 
@@ -232,7 +218,7 @@ describe("Card Components", () => {
 					<CardFooter>
 						<button>Action</button>
 					</CardFooter>
-				</Card>,
+				</Card>
 			);
 
 			const card = screen.getByTestId("card");

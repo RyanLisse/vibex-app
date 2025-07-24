@@ -6,10 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	agentTracking,
-	EnhancedObservabilityService,
-} from "./enhanced-events-system";
+import { agentTracking, EnhancedObservabilityService } from "./enhanced-events-system";
 
 // Mock dependencies
 vi.mock("@/db/config", () => ({
@@ -126,7 +123,7 @@ describe("EnhancedObservabilityService", () => {
 				{ input: "test-input" },
 				"task-123",
 				"user-456",
-				"session-789",
+				"session-789"
 			);
 
 			expect(executionId).toBeDefined();
@@ -141,10 +138,7 @@ describe("EnhancedObservabilityService", () => {
 		});
 
 		it("should complete agent execution successfully", async () => {
-			const executionId = await service.startAgentExecution(
-				"test-agent",
-				"test-operation",
-			);
+			const executionId = await service.startAgentExecution("test-agent", "test-operation");
 
 			const performanceMetrics = {
 				executionTime: 1500,
@@ -152,21 +146,14 @@ describe("EnhancedObservabilityService", () => {
 				tokenCount: 100,
 			};
 
-			await service.completeAgentExecution(
-				executionId,
-				{ result: "success" },
-				performanceMetrics,
-			);
+			await service.completeAgentExecution(executionId, { result: "success" }, performanceMetrics);
 
 			const context = service.getExecutionContext(executionId);
 			expect(context).toBeUndefined(); // Should be removed after completion
 		});
 
 		it("should handle agent execution failure", async () => {
-			const executionId = await service.startAgentExecution(
-				"test-agent",
-				"test-operation",
-			);
+			const executionId = await service.startAgentExecution("test-agent", "test-operation");
 
 			const error = new Error("Test error");
 			const performanceMetrics = {
@@ -181,30 +168,22 @@ describe("EnhancedObservabilityService", () => {
 		});
 
 		it("should record execution steps", async () => {
-			const executionId = await service.startAgentExecution(
-				"test-agent",
-				"test-operation",
-			);
+			const executionId = await service.startAgentExecution("test-agent", "test-operation");
 
-			await service.recordExecutionStep(
-				executionId,
-				"step-1",
-				{ data: "test-data" },
-				100,
-			);
+			await service.recordExecutionStep(executionId, "step-1", { data: "test-data" }, 100);
 
 			// Should not throw and should record the step
 			expect(true).toBe(true);
 		});
 
 		it("should handle invalid execution ID gracefully", async () => {
-			await expect(
-				service.completeAgentExecution("invalid-id", {}),
-			).rejects.toThrow("Execution context not found");
+			await expect(service.completeAgentExecution("invalid-id", {})).rejects.toThrow(
+				"Execution context not found"
+			);
 
-			await expect(
-				service.failAgentExecution("invalid-id", new Error("test")),
-			).rejects.toThrow("Execution context not found");
+			await expect(service.failAgentExecution("invalid-id", new Error("test"))).rejects.toThrow(
+				"Execution context not found"
+			);
 		});
 	});
 
@@ -227,12 +206,8 @@ describe("EnhancedObservabilityService", () => {
 
 			const activeExecutions = service.getActiveExecutions();
 			expect(activeExecutions).toHaveLength(2);
-			expect(activeExecutions.map((e) => e.executionId)).toContain(
-				executionId1,
-			);
-			expect(activeExecutions.map((e) => e.executionId)).toContain(
-				executionId2,
-			);
+			expect(activeExecutions.map((e) => e.executionId)).toContain(executionId1);
+			expect(activeExecutions.map((e) => e.executionId)).toContain(executionId2);
 
 			await service.completeAgentExecution(executionId1, {});
 
@@ -247,9 +222,7 @@ describe("EnhancedObservabilityService", () => {
 			// Start multiple executions to generate events
 			const promises = [];
 			for (let i = 0; i < 50; i++) {
-				promises.push(
-					service.startAgentExecution(`agent-${i}`, "test-operation"),
-				);
+				promises.push(service.startAgentExecution(`agent-${i}`, "test-operation"));
 			}
 
 			await Promise.all(promises);
@@ -284,7 +257,7 @@ describe("agentTracking convenience functions", () => {
 				{ input: "test" },
 				"task-123",
 				"user-456",
-				"session-789",
+				"session-789"
 			);
 
 			expect(result).toBe("success");
@@ -296,11 +269,7 @@ describe("agentTracking convenience functions", () => {
 			const mockExecution = vi.fn().mockRejectedValue(error);
 
 			await expect(
-				agentTracking.trackExecution(
-					"test-agent",
-					"test-operation",
-					mockExecution,
-				),
+				agentTracking.trackExecution("test-agent", "test-operation", mockExecution)
 			).rejects.toThrow("Test error");
 
 			expect(mockExecution).toHaveBeenCalledOnce();
@@ -323,7 +292,7 @@ describe("agentTracking convenience functions", () => {
 			const result = await agentTracking.trackExecution(
 				"test-agent",
 				"test-operation",
-				mockExecution,
+				mockExecution
 			);
 
 			expect(result).toBe("success");
@@ -336,12 +305,7 @@ describe("agentTracking convenience functions", () => {
 
 	describe("recordStep", () => {
 		it("should record execution step", async () => {
-			await agentTracking.recordStep(
-				"test-execution-id",
-				"test-step",
-				{ data: "test" },
-				100,
-			);
+			await agentTracking.recordStep("test-execution-id", "test-step", { data: "test" }, 100);
 
 			// Should complete without error
 			expect(true).toBe(true);
@@ -377,9 +341,7 @@ describe("Performance and Memory Management", () => {
 
 		// Start many executions
 		for (let i = 0; i < 100; i++) {
-			executionPromises.push(
-				service.startAgentExecution(`agent-${i % 5}`, `operation-${i}`),
-			);
+			executionPromises.push(service.startAgentExecution(`agent-${i % 5}`, `operation-${i}`));
 		}
 
 		const executionIds = await Promise.all(executionPromises);
@@ -388,9 +350,7 @@ describe("Performance and Memory Management", () => {
 		// Complete half of them
 		const completionPromises = [];
 		for (let i = 0; i < 50; i++) {
-			completionPromises.push(
-				service.completeAgentExecution(executionIds[i], { result: i }),
-			);
+			completionPromises.push(service.completeAgentExecution(executionIds[i], { result: i }));
 		}
 
 		await Promise.all(completionPromises);

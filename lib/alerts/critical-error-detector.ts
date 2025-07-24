@@ -1,10 +1,5 @@
 import type { LogEntry } from "winston";
-import {
-	AlertSeverity,
-	type CriticalError,
-	CriticalErrorType,
-	type ErrorTemplate,
-} from "./types";
+import { AlertSeverity, type CriticalError, CriticalErrorType, type ErrorTemplate } from "./types";
 
 /**
  * Critical Error Detector
@@ -104,8 +99,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.DATABASE_CONNECTION_FAILURE,
 			subject: "⚠️ Database Connection Failure",
 			severity: AlertSeverity.CRITICAL,
-			description:
-				"Database connection has failed. This may affect all database operations.",
+			description: "Database connection has failed. This may affect all database operations.",
 			actionItems: [
 				"Check database server status",
 				"Verify connection credentials",
@@ -118,8 +112,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.REDIS_CONNECTION_FAILURE,
 			subject: "⚠️ Redis Connection Failure",
 			severity: AlertSeverity.CRITICAL,
-			description:
-				"Redis connection has failed. This may affect caching and session management.",
+			description: "Redis connection has failed. This may affect caching and session management.",
 			actionItems: [
 				"Check Redis server status",
 				"Verify Redis configuration",
@@ -132,8 +125,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.AUTH_SERVICE_FAILURE,
 			subject: "⚠️ Authentication Service Failure",
 			severity: AlertSeverity.CRITICAL,
-			description:
-				"Authentication service has failed. Users may not be able to log in.",
+			description: "Authentication service has failed. Users may not be able to log in.",
 			actionItems: [
 				"Check OAuth providers",
 				"Verify API keys and secrets",
@@ -146,8 +138,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.WORKFLOW_EXECUTION_FAILURE,
 			subject: "⚠️ Workflow Execution Failure",
 			severity: AlertSeverity.HIGH,
-			description:
-				"A workflow execution has failed. This may affect background processing.",
+			description: "A workflow execution has failed. This may affect background processing.",
 			actionItems: [
 				"Check workflow logs",
 				"Verify Inngest configuration",
@@ -160,8 +151,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.SYSTEM_HEALTH_FAILURE,
 			subject: "⚠️ System Health Failure",
 			severity: AlertSeverity.CRITICAL,
-			description:
-				"System health check has failed. The system may be experiencing issues.",
+			description: "System health check has failed. The system may be experiencing issues.",
 			actionItems: [
 				"Check system resources",
 				"Review application logs",
@@ -174,8 +164,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.EXTERNAL_API_FAILURE,
 			subject: "⚠️ External API Failure",
 			severity: AlertSeverity.HIGH,
-			description:
-				"External API service is failing. This may affect integrations.",
+			description: "External API service is failing. This may affect integrations.",
 			actionItems: [
 				"Check API status pages",
 				"Verify API keys",
@@ -188,8 +177,7 @@ export class CriticalErrorDetector {
 			type: CriticalErrorType.MEMORY_USAGE_CRITICAL,
 			subject: "⚠️ Critical Memory Usage",
 			severity: AlertSeverity.CRITICAL,
-			description:
-				"Memory usage is critically high. The system may become unstable.",
+			description: "Memory usage is critically high. The system may become unstable.",
 			actionItems: [
 				"Check memory usage patterns",
 				"Review for memory leaks",

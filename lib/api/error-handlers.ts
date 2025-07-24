@@ -10,7 +10,7 @@ export class APIError extends Error {
 	constructor(
 		message: string,
 		public statusCode: number = 500,
-		public code?: string,
+		public code?: string
 	) {
 		super(message);
 		this.name = "APIError";
@@ -49,7 +49,7 @@ export function handleAPIError(error: unknown): NextResponse {
 					code: error.code,
 				},
 			},
-			{ status: error.statusCode },
+			{ status: error.statusCode }
 		);
 	}
 
@@ -61,7 +61,7 @@ export function handleAPIError(error: unknown): NextResponse {
 					code: "INTERNAL_ERROR",
 				},
 			},
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 
@@ -72,7 +72,7 @@ export function handleAPIError(error: unknown): NextResponse {
 				code: "UNKNOWN_ERROR",
 			},
 		},
-		{ status: 500 },
+		{ status: 500 }
 	);
 }
 

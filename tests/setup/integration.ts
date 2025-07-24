@@ -68,59 +68,53 @@ const createMockDb = () => {
 vi.mock("@neondatabase/serverless", () => ({
 	neon: vi.fn(() => {
 		// Create a mock SQL function that handles both template literal and direct string calls
-		const mockSql = vi
-			.fn()
-			.mockImplementation(async (query: any, ...params: any[]) => {
-				// Handle template literal calls
-				if (Array.isArray(query)) {
-					const queryStr = query[0];
-					if (queryStr === "SELECT 1") {
-						return [{ "?column?": 1 }];
-					}
-					if (queryStr === "SELECT 1 as value") {
-						return [{ value: 1 }];
-					}
-					if (queryStr.includes("SELECT current_timestamp")) {
-						return [{ now: new Date().toISOString() }];
-					}
-					if (
-						queryStr === "BEGIN" ||
-						queryStr === "COMMIT" ||
-						queryStr === "ROLLBACK"
-					) {
-						return [];
-					}
-					if (queryStr === "ANALYZE") {
-						return [];
-					}
+		const mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {
+			// Handle template literal calls
+			if (Array.isArray(query)) {
+				const queryStr = query[0];
+				if (queryStr === "SELECT 1") {
+					return [{ "?column?": 1 }];
 				}
-
-				// Handle direct string queries
-				if (typeof query === "string") {
-					// For migration-related queries
-					if (
-						query.includes("pg_indexes") ||
-						query.includes("pg_tables") ||
-						query.includes("pg_stat_") ||
-						query.includes("pg_extension") ||
-						query.includes("information_schema")
-					) {
-						return [];
-					}
-					// For CREATE INDEX, CREATE EXTENSION etc.
-					if (
-						query.toLowerCase().includes("create") ||
-						query.toLowerCase().includes("drop") ||
-						query.toLowerCase().includes("alter") ||
-						query.toLowerCase().includes("vacuum") ||
-						query.toLowerCase().includes("reindex")
-					) {
-						return [];
-					}
+				if (queryStr === "SELECT 1 as value") {
+					return [{ value: 1 }];
 				}
+				if (queryStr.includes("SELECT current_timestamp")) {
+					return [{ now: new Date().toISOString() }];
+				}
+				if (queryStr === "BEGIN" || queryStr === "COMMIT" || queryStr === "ROLLBACK") {
+					return [];
+				}
+				if (queryStr === "ANALYZE") {
+					return [];
+				}
+			}
 
-				return [];
-			});
+			// Handle direct string queries
+			if (typeof query === "string") {
+				// For migration-related queries
+				if (
+					query.includes("pg_indexes") ||
+					query.includes("pg_tables") ||
+					query.includes("pg_stat_") ||
+					query.includes("pg_extension") ||
+					query.includes("information_schema")
+				) {
+					return [];
+				}
+				// For CREATE INDEX, CREATE EXTENSION etc.
+				if (
+					query.toLowerCase().includes("create") ||
+					query.toLowerCase().includes("drop") ||
+					query.toLowerCase().includes("alter") ||
+					query.toLowerCase().includes("vacuum") ||
+					query.toLowerCase().includes("reindex")
+				) {
+					return [];
+				}
+			}
+
+			return [];
+		});
 
 		// Make the SQL function callable as a template literal tag
 		Object.setPrototypeOf(mockSql, Function.prototype);
@@ -198,14 +192,12 @@ vi.mock("drizzle-orm/pg-core", () => {
 // Mock the db/config module directly
 vi.mock("../../db/config", () => {
 	const mockDb = createMockDb();
-	const mockSql = vi
-		.fn()
-		.mockImplementation(async (query: any, ...params: any[]) => {
-			if (Array.isArray(query) && query[0] === "SELECT 1") {
-				return [{ "?column?": 1 }];
-			}
-			return [];
-		});
+	const mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {
+		if (Array.isArray(query) && query[0] === "SELECT 1") {
+			return [{ "?column?": 1 }];
+		}
+		return [];
+	});
 
 	return {
 		db: mockDb,
@@ -554,11 +546,9 @@ vi.mock("../../lib/letta/client", () => ({
 // Mock observability service and related modules
 vi.mock("../../lib/observability", () => ({
 	observability: {
-		trackAgentExecution: vi
-			.fn()
-			.mockImplementation(async (agentType, operation, fn) => {
-				return await fn();
-			}),
+		trackAgentExecution: vi.fn().mockImplementation(async (agentType, operation, fn) => {
+			return await fn();
+		}),
 		recordEvent: vi.fn(),
 		recordError: vi.fn(),
 		getTracer: vi.fn().mockReturnValue({
@@ -574,11 +564,9 @@ vi.mock("../../lib/observability", () => ({
 		getInstance: vi.fn().mockReturnThis(),
 		recordEvent: vi.fn(),
 		recordMetric: vi.fn(),
-		trackAgentExecution: vi
-			.fn()
-			.mockImplementation(async (agentType, operation, fn) => {
-				return await fn();
-			}),
+		trackAgentExecution: vi.fn().mockImplementation(async (agentType, operation, fn) => {
+			return await fn();
+		}),
 	})),
 }));
 
@@ -777,9 +765,7 @@ const localStorageMock = {
 		delete localStorageData[key];
 	}),
 	clear: vi.fn(() => {
-		Object.keys(localStorageData).forEach(
-			(key) => delete localStorageData[key],
-		);
+		Object.keys(localStorageData).forEach((key) => delete localStorageData[key]);
 	}),
 	length: 0,
 	key: vi.fn(),
@@ -801,9 +787,7 @@ const sessionStorageMock = {
 		delete sessionStorageData[key];
 	}),
 	clear: vi.fn(() => {
-		Object.keys(sessionStorageData).forEach(
-			(key) => delete sessionStorageData[key],
-		);
+		Object.keys(sessionStorageData).forEach((key) => delete sessionStorageData[key]);
 	}),
 	length: 0,
 	key: vi.fn(),

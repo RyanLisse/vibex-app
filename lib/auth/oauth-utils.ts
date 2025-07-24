@@ -59,31 +59,22 @@ export function validateOAuthParameters(params: OAuthValidationParams): NextResp
 				error: params.error,
 				error_description: params.errorDescription,
 			},
-			{ status: 400 },
+			{ status: 400 }
 		);
 	}
 
 	// Validate required parameters
 	if (!params.code) {
-		return NextResponse.json(
-			{ error: "Missing code parameter" },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: "Missing code parameter" }, { status: 400 });
 	}
 
 	if (!params.state) {
-		return NextResponse.json(
-			{ error: "Missing state parameter" },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: "Missing state parameter" }, { status: 400 });
 	}
 
 	// Validate state parameter
 	if (!validateOAuthState(params.state)) {
-		return NextResponse.json(
-			{ error: "Invalid state parameter" },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: "Invalid state parameter" }, { status: 400 });
 	}
 
 	return null; // No validation errors
@@ -96,7 +87,7 @@ export function validateOAuthConfiguration(config: OAuthConfig): NextResponse | 
 	if (!config.clientId || !config.clientSecret) {
 		return NextResponse.json(
 			{ error: `Missing ${config.providerName} configuration` },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 	return null;
@@ -130,10 +121,7 @@ export function handleOAuthRedirect(
 
 		return response;
 	} catch (error) {
-		return NextResponse.json(
-			{ error: handleAuthError(error) },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: handleAuthError(error) }, { status: 400 });
 	}
 }
 
@@ -195,11 +183,7 @@ export async function handleOAuthCallback({
 		const tokenResponse = await tokenExchanger(code!, config);
 
 		// Handle redirect if specified
-		const redirectResponse = handleOAuthRedirect(
-			redirectUri,
-			tokenResponse,
-			cookieName
-		);
+		const redirectResponse = handleOAuthRedirect(redirectUri, tokenResponse, cookieName);
 		if (redirectResponse) {
 			return redirectResponse;
 		}
@@ -217,9 +201,6 @@ export async function handleOAuthCallback({
 
 		return response;
 	} catch (error) {
-		return NextResponse.json(
-			{ error: handleAuthError(error) },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: handleAuthError(error) }, { status: 500 });
 	}
 }

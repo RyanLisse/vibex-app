@@ -26,10 +26,7 @@ const ElectricQueryRequestSchema = z.object({
 	query: z.string().min(1, "Query is required"),
 	params: z.array(z.unknown()).default([]).optional(),
 	userId: z.string().optional(),
-	syncMode: z
-		.enum(["local-first", "server-first", "hybrid"])
-		.default("hybrid")
-		.optional(),
+	syncMode: z.enum(["local-first", "server-first", "hybrid"]).default("hybrid").optional(),
 });
 
 // Response schema
@@ -52,10 +49,9 @@ function validateQuerySecurity(query: string, span: any) {
 			code: SpanStatusCode.ERROR,
 			message: "Invalid query type",
 		});
-		return NextResponse.json(
-			createApiErrorResponse("Only SELECT queries are allowed", 400, []),
-			{ status: 400 },
-		);
+		return NextResponse.json(createApiErrorResponse("Only SELECT queries are allowed", 400, []), {
+			status: 400,
+		});
 	}
 	return null;
 }
@@ -73,11 +69,7 @@ function addUserFiltering(query: string, params: unknown[], userId?: string) {
 	return { finalQuery, finalParams };
 }
 
-function setQuerySpanAttributes(
-	span: any,
-	data: ElectricQueryRequest,
-	finalParams: unknown[],
-) {
+function setQuerySpanAttributes(span: any, data: ElectricQueryRequest, finalParams: unknown[]) {
 	span.setAttributes({
 		"electric.query.type": "SELECT",
 		"electric.query.hasUserId": !!data.userId,
@@ -86,11 +78,7 @@ function setQuerySpanAttributes(
 	});
 }
 
-function setExecutionSpanAttributes(
-	span: any,
-	executionTime: number,
-	result: any,
-) {
+function setExecutionSpanAttributes(span: any, executionTime: number, result: any) {
 	span.setAttributes({
 		"electric.query.executionTime": executionTime,
 		"electric.query.rowCount": Array.isArray(result) ? result.length : 0,
@@ -107,8 +95,7 @@ function createQueryResponse(result: any): ElectricQueryResponse {
 }
 
 function handleQueryError(error: unknown, span: any) {
-	const errorMessage =
-		error instanceof Error ? error.message : "Unknown error occurred";
+	const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
 
 	span.recordException(error as Error);
 	span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage });
@@ -119,9 +106,9 @@ function handleQueryError(error: unknown, span: any) {
 			500,
 			process.env.NODE_ENV === "development"
 				? [{ field: "query", message: errorMessage }]
-				: undefined,
+				: undefined
 		),
-		{ status: 500 },
+		{ status: 500 }
 	);
 }
 
@@ -140,20 +127,16 @@ export async function POST(request: NextRequest) {
 			});
 
 			// Validate request
-			const validationResult = await validateApiRequest(
-				request,
-				ElectricQueryRequestSchema,
-			);
+			const validationResult = await validateApiRequest(request, ElectricQueryRequestSchema);
 			if (validationResult.error) {
 				span.recordException(new Error("Validation failed"));
 				span.setStatus({
 					code: SpanStatusCode.ERROR,
 					message: "Validation failed",
 				});
-				return NextResponse.json(
-					createApiErrorResponse(validationResult.error, 400, []),
-					{ status: 400 },
-				);
+				return NextResponse.json(createApiErrorResponse(validationResult.error, 400, []), {
+					status: 400,
+				});
 			}
 
 			const { query, params, userId, syncMode } = validationResult.data;
@@ -165,18 +148,10 @@ export async function POST(request: NextRequest) {
 			}
 
 			// Add user filtering
-			const { finalQuery, finalParams } = addUserFiltering(
-				query,
-				params,
-				userId,
-			);
+			const { finalQuery, finalParams } = addUserFiltering(query, params, userId);
 
 			// Set query span attributes
-			setQuerySpanAttributes(
-				span,
-				{ query, params, userId, syncMode },
-				finalParams,
-			);
+			setQuerySpanAttributes(span, { query, params, userId, syncMode }, finalParams);
 
 			// Execute query
 			const startTime = Date.now();
@@ -190,9 +165,7 @@ export async function POST(request: NextRequest) {
 			// Create and return response
 			const response = createQueryResponse(result);
 			span.setStatus({ code: SpanStatusCode.OK });
-			return NextResponse.json(
-				createApiSuccessResponse(response, "Query executed successfully"),
-			);
+			return NextResponse.json(createApiSuccessResponse(response, "Query executed successfully"));
 		} catch (error) {
 			return handleQueryError(error, span);
 		} finally {
@@ -234,8 +207,7 @@ export async function GET() {
 			span.setStatus({ code: SpanStatusCode.OK });
 			return NextResponse.json(createApiSuccessResponse(response));
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Unknown error occurred";
+			const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
 
 			span.recordException(error as Error);
 			span.setStatus({ code: SpanStatusCode.ERROR, message: errorMessage });
@@ -244,7 +216,7 @@ export async function GET() {
 				createApiErrorResponse("Health check failed", 500, [
 					{ field: "health", message: errorMessage },
 				]),
-				{ status: 500 },
+				{ status: 500 }
 			);
 		} finally {
 			span.end();

@@ -5,18 +5,28 @@
 
 /**
  * Generate a cryptographically random code verifier
+ * @param length The length of the random bytes to generate (default: 32)
  * @returns A URL-safe string of length 43-128 characters
  */
-export function generateCodeVerifier(): string {
-	// Create a 32-byte (256-bit) random array
-	const array = new Uint8Array(32);
-	crypto.getRandomValues(array);
+export function generateCodeVerifier(length: number = 32): string {
+	try {
+		// Try Node.js crypto first
+		const { randomBytes } = require("node:crypto");
+		const buffer = randomBytes(length);
 
-	// Convert to base64url encoding (RFC 4648 Section 5)
-	return btoa(String.fromCharCode.apply(null, Array.from(array)))
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_")
-		.replace(/=/g, "");
+		// Convert to base64url encoding (RFC 4648 Section 5)
+		return buffer.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+	} catch {
+		// Fallback to browser crypto
+		const array = new Uint8Array(length);
+		crypto.getRandomValues(array);
+
+		// Convert to base64url encoding (RFC 4648 Section 5)
+		return btoa(String.fromCharCode.apply(null, Array.from(array)))
+			.replace(/\+/g, "-")
+			.replace(/\//g, "_")
+			.replace(/=/g, "");
+	}
 }
 
 /**
@@ -27,7 +37,7 @@ export function generateCodeVerifier(): string {
 export function generateCodeChallenge(verifier: string): string {
 	try {
 		// Try to use Node.js crypto for synchronous hashing
-		const { createHash } = await import("node:crypto");
+		const { createHash } = require("node:crypto");
 		const hash = createHash("sha256").update(verifier).digest("base64");
 		return hash.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 	} catch {
@@ -42,24 +52,6 @@ export function generateCodeChallenge(verifier: string): string {
 		// Convert to base64-like string
 		const hashStr = Math.abs(hash).toString(36);
 		return hashStr.padEnd(43, "0"); // Ensure minimum length of 43
-	}
-}
-
-/**
- * Synchronous version of generateCodeChallenge for environments that support it
- * Falls back to Promise-based version if sync crypto is not available
- */
-export function generateCodeChallengeSync(verifier: string): string {
-	try {
-		// Try to use synchronous crypto if available (Node.js)
-		const { createHash } = await import("node:crypto");
-		const hash = createHash("sha256").update(verifier).digest("base64");
-		return hash.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-	} catch {
-		// Fall back to browser crypto (async) - this will throw in sync context
-		throw new Error(
-			"Synchronous code challenge generation not supported in this environment",
-		);
 	}
 }
 

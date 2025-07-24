@@ -15,7 +15,7 @@ export interface ValidationResult<T> {
  * Creates a schema validator function that can validate data against a Zod schema
  */
 export function createSchemaValidator<T>(
-	schema: z.ZodSchema<T>,
+	schema: z.ZodSchema<T>
 ): (data: unknown) => ValidationResult<T> {
 	return (data: unknown): ValidationResult<T> => {
 		try {
@@ -56,7 +56,7 @@ export function createSchemaValidator<T>(
 export async function validateSingleField<T>(
 	schema: z.ZodSchema<T>,
 	form: UseFormReturn<T>,
-	field: keyof T,
+	field: keyof T
 ): Promise<boolean> {
 	try {
 		const fieldValue = form.getValues(field as string);
@@ -90,7 +90,7 @@ export async function validateSingleField<T>(
  */
 export async function validateAllFormFields<T>(
 	form: UseFormReturn<T>,
-	validateSchema: (data: unknown) => ValidationResult<T>,
+	validateSchema: (data: unknown) => ValidationResult<T>
 ): Promise<boolean> {
 	const formData = form.getValues();
 	const result = validateSchema(formData);

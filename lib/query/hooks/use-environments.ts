@@ -15,15 +15,14 @@ export type UpdateEnvironmentInput = z.infer<typeof UpdateEnvironmentSchema>;
 export const environmentKeys = {
 	all: ["environments"] as const,
 	lists: () => [...environmentKeys.all, "list"] as const,
-	list: (filters: Record<string, any>) =>
-		[...environmentKeys.lists(), { filters }] as const,
+	list: (filters: Record<string, any>) => [...environmentKeys.lists(), { filters }] as const,
 	details: () => [...environmentKeys.all, "detail"] as const,
 	detail: (id: string) => [...environmentKeys.details(), id] as const,
 };
 
 // API functions
 async function fetchEnvironments(
-	params: { page?: number; limit?: number; search?: string } = {},
+	params: { page?: number; limit?: number; search?: string } = {}
 ): Promise<{ environments: Environment[]; total: number; hasMore: boolean }> {
 	const searchParams = new URLSearchParams();
 	Object.entries(params).forEach(([key, value]) => {
@@ -51,9 +50,7 @@ async function fetchEnvironment(id: string): Promise<Environment> {
 	return environment;
 }
 
-async function createEnvironment(
-	data: CreateEnvironmentInput,
-): Promise<Environment> {
+async function createEnvironment(data: CreateEnvironmentInput): Promise<Environment> {
 	const response = await fetch("/api/environments", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -69,10 +66,7 @@ async function createEnvironment(
 	return environment;
 }
 
-async function updateEnvironment(
-	id: string,
-	data: UpdateEnvironmentInput,
-): Promise<Environment> {
+async function updateEnvironment(id: string, data: UpdateEnvironmentInput): Promise<Environment> {
 	const response = await fetch(`/api/environments/${id}`, {
 		method: "PATCH",
 		headers: { "Content-Type": "application/json" },
@@ -127,8 +121,7 @@ export function useCreateEnvironment() {
 		onSuccess: (newEnvironment) => {
 			// Update the environments list cache
 			queryClient.setQueryData(environmentKeys.lists(), (old: any) => {
-				if (!old)
-					return { environments: [newEnvironment], total: 1, hasMore: false };
+				if (!old) return { environments: [newEnvironment], total: 1, hasMore: false };
 				return {
 					...old,
 					environments: [newEnvironment, ...old.environments],
@@ -137,10 +130,7 @@ export function useCreateEnvironment() {
 			});
 
 			// Set the individual environment cache
-			queryClient.setQueryData(
-				environmentKeys.detail(newEnvironment.id),
-				newEnvironment,
-			);
+			queryClient.setQueryData(environmentKeys.detail(newEnvironment.id), newEnvironment);
 
 			// Invalidate and refetch environments lists
 			queryClient.invalidateQueries({ queryKey: environmentKeys.lists() });
@@ -159,24 +149,18 @@ export function useUpdateEnvironment() {
 			updateEnvironment(id, data),
 		onSuccess: (updatedEnvironment) => {
 			// Update the individual environment cache
-			queryClient.setQueryData(
-				environmentKeys.detail(updatedEnvironment.id),
-				updatedEnvironment,
-			);
+			queryClient.setQueryData(environmentKeys.detail(updatedEnvironment.id), updatedEnvironment);
 
 			// Update environments in lists
-			queryClient.setQueriesData(
-				{ queryKey: environmentKeys.lists() },
-				(old: any) => {
-					if (!old) return old;
-					return {
-						...old,
-						environments: old.environments.map((env: Environment) =>
-							env.id === updatedEnvironment.id ? updatedEnvironment : env,
-						),
-					};
-				},
-			);
+			queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: any) => {
+				if (!old) return old;
+				return {
+					...old,
+					environments: old.environments.map((env: Environment) =>
+						env.id === updatedEnvironment.id ? updatedEnvironment : env
+					),
+				};
+			});
 		},
 		onError: (error) => {
 			console.error("Failed to update environment:", error);
@@ -196,19 +180,14 @@ export function useDeleteEnvironment() {
 			});
 
 			// Update environments in lists
-			queryClient.setQueriesData(
-				{ queryKey: environmentKeys.lists() },
-				(old: any) => {
-					if (!old) return old;
-					return {
-						...old,
-						environments: old.environments.filter(
-							(env: Environment) => env.id !== deletedId,
-						),
-						total: old.total - 1,
-					};
-				},
-			);
+			queryClient.setQueriesData({ queryKey: environmentKeys.lists() }, (old: any) => {
+				if (!old) return old;
+				return {
+					...old,
+					environments: old.environments.filter((env: Environment) => env.id !== deletedId),
+					total: old.total - 1,
+				};
+			});
 		},
 		onError: (error) => {
 			console.error("Failed to delete environment:", error);
@@ -237,8 +216,7 @@ export function useValidateEnvironmentName() {
 		if (!environments) return true;
 
 		return !environments.environments.some(
-			(env) =>
-				env.name.toLowerCase() === name.toLowerCase() && env.id !== excludeId,
+			(env) => env.name.toLowerCase() === name.toLowerCase() && env.id !== excludeId
 		);
 	};
 }

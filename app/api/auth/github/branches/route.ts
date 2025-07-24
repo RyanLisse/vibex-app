@@ -15,10 +15,7 @@ interface GitHubBranch {
 
 // Mock GitHub API service
 const mockGitHubService = {
-	getBranches: async (
-		repo: string,
-		token?: string,
-	): Promise<GitHubBranch[]> => {
+	getBranches: async (repo: string, token?: string): Promise<GitHubBranch[]> => {
 		// Mock branches data
 		return [
 			{
@@ -52,18 +49,12 @@ const mockGitHubService = {
 // Helper functions to reduce early returns
 function validateRepoParameters(repo: string | null) {
 	if (!repo) {
-		return NextResponse.json(
-			{ error: "Missing repo parameter" },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: "Missing repo parameter" }, { status: 400 });
 	}
 
 	// Validate repo format (owner/repo)
 	if (!repo.includes("/") || repo.split("/").length !== 2) {
-		return NextResponse.json(
-			{ error: "Invalid repo format. Use 'owner/repo'" },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: "Invalid repo format. Use 'owner/repo'" }, { status: 400 });
 	}
 
 	return null; // No validation errors
@@ -75,31 +66,22 @@ function handleGitHubError(error: unknown) {
 	// Handle different types of errors
 	if (error instanceof Error) {
 		if (error.message.includes("404")) {
-			return NextResponse.json(
-				{ error: "Repository not found" },
-				{ status: 404 },
-			);
+			return NextResponse.json({ error: "Repository not found" }, { status: 404 });
 		}
 
 		if (error.message.includes("403")) {
 			return NextResponse.json(
 				{ error: "Access denied. Check your GitHub token permissions." },
-				{ status: 403 },
+				{ status: 403 }
 			);
 		}
 
 		if (error.message.includes("401")) {
-			return NextResponse.json(
-				{ error: "Authentication required" },
-				{ status: 401 },
-			);
+			return NextResponse.json({ error: "Authentication required" }, { status: 401 });
 		}
 	}
 
-	return NextResponse.json(
-		{ error: "Failed to fetch branches" },
-		{ status: 500 },
-	);
+	return NextResponse.json({ error: "Failed to fetch branches" }, { status: 500 });
 }
 
 export async function GET(request: NextRequest) {
@@ -115,10 +97,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Get branches from GitHub API
-		const branches = await mockGitHubService.getBranches(
-			repo!,
-			token || undefined,
-		);
+		const branches = await mockGitHubService.getBranches(repo!, token || undefined);
 
 		return NextResponse.json({
 			success: true,
@@ -140,25 +119,16 @@ export async function POST(request: NextRequest) {
 
 		// Validate required parameters
 		if (!repo) {
-			return NextResponse.json(
-				{ error: "Missing repo parameter" },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: "Missing repo parameter" }, { status: 400 });
 		}
 
 		if (!branchName) {
-			return NextResponse.json(
-				{ error: "Missing branchName parameter" },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: "Missing branchName parameter" }, { status: 400 });
 		}
 
 		// Validate branch name format
 		if (!/^[a-zA-Z0-9._/-]+$/.test(branchName)) {
-			return NextResponse.json(
-				{ error: "Invalid branch name format" },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: "Invalid branch name format" }, { status: 400 });
 		}
 
 		// Mock branch creation
@@ -180,14 +150,11 @@ export async function POST(request: NextRequest) {
 					message: `Branch '${branchName}' created from '${fromBranch}'`,
 				},
 			},
-			{ status: 201 },
+			{ status: 201 }
 		);
 	} catch (error) {
 		console.error("Error creating GitHub branch:", error);
 
-		return NextResponse.json(
-			{ error: "Failed to create branch" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Failed to create branch" }, { status: 500 });
 	}
 }

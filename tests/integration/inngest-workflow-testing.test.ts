@@ -28,7 +28,7 @@ describe("Inngest Workflow Integration", () => {
 			{ event: "test.event" },
 			async ({ event, step }) => {
 				return { success: true, eventId: event.id };
-			},
+			}
 		);
 	});
 
@@ -71,15 +71,13 @@ describe("Inngest Workflow Integration", () => {
 		const mockEvent = { id: "test-id", data: { test: true } };
 
 		// Simulate function execution
-		const workflowFunction = vi
-			.fn()
-			.mockImplementation(async ({ event, step }) => {
-				const stepResult = await step.run("process-data", async () => {
-					return { processed: true, eventId: event.id };
-				});
-
-				return { success: true, result: stepResult };
+		const workflowFunction = vi.fn().mockImplementation(async ({ event, step }) => {
+			const stepResult = await step.run("process-data", async () => {
+				return { processed: true, eventId: event.id };
 			});
+
+			return { success: true, result: stepResult };
+		});
 
 		const result = await workflowFunction({
 			event: mockEvent,
@@ -99,9 +97,7 @@ describe("Inngest Workflow Integration", () => {
 			{ name: "test.event", data: { id: 3 } },
 		];
 
-		const batchResult = await Promise.all(
-			batchEvents.map((event) => inngestClient.send(event)),
-		);
+		const batchResult = await Promise.all(batchEvents.map((event) => inngestClient.send(event)));
 
 		expect(batchResult).toHaveLength(3);
 		expect(inngestClient.send).toHaveBeenCalledTimes(3);
@@ -115,17 +111,15 @@ describe("Inngest Workflow Integration", () => {
 
 	test("should handle workflow retries", async () => {
 		let attempts = 0;
-		const retryFunction = vi
-			.fn()
-			.mockImplementation(async ({ event, step }) => {
-				attempts++;
+		const retryFunction = vi.fn().mockImplementation(async ({ event, step }) => {
+			attempts++;
 
-				if (attempts < 3) {
-					throw new Error("Simulated failure");
-				}
+			if (attempts < 3) {
+				throw new Error("Simulated failure");
+			}
 
-				return { success: true, attempts };
-			});
+			return { success: true, attempts };
+		});
 
 		// Simulate retry logic
 		let result;
@@ -167,7 +161,7 @@ describe("Inngest Workflow Integration", () => {
 				});
 
 				return processResult;
-			},
+			}
 		);
 
 		expect(scheduledFunction).toBeDefined();
@@ -177,20 +171,18 @@ describe("Inngest Workflow Integration", () => {
 				concurrency: { limit: 1 },
 			}),
 			{ cron: "0 9 * * *" },
-			expect.any(Function),
+			expect.any(Function)
 		);
 	});
 
 	test("should handle workflow cancellation", async () => {
-		const cancellableFunction = vi
-			.fn()
-			.mockImplementation(async ({ event, step }) => {
-				// Simulate long-running process
-				await step.sleep("wait-step", "30s");
+		const cancellableFunction = vi.fn().mockImplementation(async ({ event, step }) => {
+			// Simulate long-running process
+			await step.sleep("wait-step", "30s");
 
-				// This would be cancelled before completion
-				return { completed: false };
-			});
+			// This would be cancelled before completion
+			return { completed: false };
+		});
 
 		// Simulate cancellation (in real Inngest, this would be done via API)
 		const mockCancellation = vi.fn().mockResolvedValue({
@@ -207,31 +199,26 @@ describe("Inngest Workflow Integration", () => {
 	});
 
 	test("should handle workflow error recovery", async () => {
-		const errorHandlingFunction = vi
-			.fn()
-			.mockImplementation(async ({ event, step }) => {
-				try {
-					const riskyOperation = await step.run("risky-operation", async () => {
-						throw new Error("Simulated operation failure");
-					});
+		const errorHandlingFunction = vi.fn().mockImplementation(async ({ event, step }) => {
+			try {
+				const riskyOperation = await step.run("risky-operation", async () => {
+					throw new Error("Simulated operation failure");
+				});
 
-					return riskyOperation;
-				} catch (error) {
-					// Error recovery
-					const fallbackResult = await step.run(
-						"fallback-operation",
-						async () => {
-							return {
-								success: true,
-								recovered: true,
-								originalError: error.message,
-							};
-						},
-					);
+				return riskyOperation;
+			} catch (error) {
+				// Error recovery
+				const fallbackResult = await step.run("fallback-operation", async () => {
+					return {
+						success: true,
+						recovered: true,
+						originalError: error.message,
+					};
+				});
 
-					return fallbackResult;
-				}
-			});
+				return fallbackResult;
+			}
+		});
 
 		const result = await errorHandlingFunction({
 			event: { id: "test", data: {} },

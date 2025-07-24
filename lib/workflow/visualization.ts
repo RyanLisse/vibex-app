@@ -92,7 +92,7 @@ export class WorkflowVisualizer {
 	 */
 	static toGraph(
 		definition: WorkflowDefinition,
-		execution?: WorkflowExecutionState,
+		execution?: WorkflowExecutionState
 	): WorkflowGraph {
 		const nodes: GraphNode[] = [];
 		const edges: GraphEdge[] = [];
@@ -156,11 +156,7 @@ export class WorkflowVisualizer {
 
 		// Process each step to create edges
 		definition.steps.forEach((step, index) => {
-			const edgesFromStep = WorkflowVisualizer.createEdgesForStep(
-				step,
-				definition,
-				execution,
-			);
+			const edgesFromStep = WorkflowVisualizer.createEdgesForStep(step, definition, execution);
 			edges.push(...edgesFromStep);
 		});
 
@@ -186,9 +182,7 @@ export class WorkflowVisualizer {
 				version: definition.version,
 				executionId: execution?.executionId,
 				status: execution?.status,
-				progress: execution
-					? WorkflowVisualizer.calculateProgress(execution)
-					: 0,
+				progress: execution ? WorkflowVisualizer.calculateProgress(execution) : 0,
 				timestamp: new Date(),
 			},
 		};
@@ -214,10 +208,7 @@ export class WorkflowVisualizer {
 	/**
 	 * Get node style based on step and status
 	 */
-	private static getNodeStyle(
-		step: StepConfig,
-		status?: StepStatus,
-	): NodeStyle {
+	private static getNodeStyle(step: StepConfig, status?: StepStatus): NodeStyle {
 		const backgroundColor = status ? STATUS_COLORS[status] : "#e2e8f0";
 		const shape = STEP_TYPE_SHAPES[step.type] || "rectangle";
 
@@ -225,8 +216,7 @@ export class WorkflowVisualizer {
 			backgroundColor,
 			borderColor: status === "running" ? "#3b82f6" : "#64748b",
 			borderWidth: status === "running" ? 3 : 1,
-			textColor:
-				status === "completed" || status === "failed" ? "#ffffff" : "#1e293b",
+			textColor: status === "completed" || status === "failed" ? "#ffffff" : "#1e293b",
 			shape,
 			icon: WorkflowVisualizer.getStepIcon(step.type),
 		};
@@ -258,7 +248,7 @@ export class WorkflowVisualizer {
 	private static createEdgesForStep(
 		step: StepConfig,
 		definition: WorkflowDefinition,
-		execution?: WorkflowExecutionState,
+		execution?: WorkflowExecutionState
 	): GraphEdge[] {
 		const edges: GraphEdge[] = [];
 
@@ -363,9 +353,7 @@ export class WorkflowVisualizer {
 
 			default: {
 				// For regular steps, find next step in sequence
-				const currentIndex = definition.steps.findIndex(
-					(s) => s.id === step.id,
-				);
+				const currentIndex = definition.steps.findIndex((s) => s.id === step.id);
 				if (currentIndex < definition.steps.length - 1) {
 					const nextStep = definition.steps[currentIndex + 1];
 					edges.push({
@@ -427,9 +415,7 @@ export class WorkflowVisualizer {
 			}
 		});
 
-		return definition.steps
-			.filter((step) => !hasOutgoingEdge.has(step.id))
-			.map((step) => step.id);
+		return definition.steps.filter((step) => !hasOutgoingEdge.has(step.id)).map((step) => step.id);
 	}
 
 	/**
@@ -499,7 +485,7 @@ export class WorkflowVisualizer {
 		if (totalSteps === 0) return 0;
 
 		const completedSteps = Object.values(execution.stepStates).filter(
-			(state) => state.status === "completed" || state.status === "skipped",
+			(state) => state.status === "completed" || state.status === "skipped"
 		).length;
 
 		return (completedSteps / totalSteps) * 100;
@@ -508,9 +494,7 @@ export class WorkflowVisualizer {
 	/**
 	 * Generate execution timeline
 	 */
-	static generateTimeline(
-		execution: WorkflowExecutionState,
-	): ExecutionTimeline {
+	static generateTimeline(execution: WorkflowExecutionState): ExecutionTimeline {
 		const events: TimelineEvent[] = [];
 
 		// Add workflow start event
@@ -559,8 +543,7 @@ export class WorkflowVisualizer {
 				title: `Workflow ${execution.status}`,
 				description: execution.error?.message,
 				status: execution.status as any,
-				duration:
-					execution.completedAt.getTime() - execution.startedAt.getTime(),
+				duration: execution.completedAt.getTime() - execution.startedAt.getTime(),
 			});
 		}
 

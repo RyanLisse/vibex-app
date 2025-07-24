@@ -17,10 +17,7 @@ import { databaseQueryAnalyzer } from "@/lib/performance/database-query-analyzer
 import { performanceBenchmarker } from "@/lib/performance/performance-benchmarker";
 import { withPerformanceMonitoring } from "@/lib/performance/performance-middleware";
 import { queryPerformanceMonitor } from "@/lib/performance/query-performance-monitor";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 
 // Request schemas
 const PerformanceMetricsSchema = z.object({
@@ -59,15 +56,13 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 
 		// Get slow queries report
 		const timeRangeMs = getTimeRangeMs(validatedParams.timeRange);
-		const slowQueries =
-			await queryPerformanceMonitor.getSlowQueriesReport();
+		const slowQueries = await queryPerformanceMonitor.getSlowQueriesReport();
 
 		// Get database statistics if details requested
 		let databaseStats = null;
 		if (validatedParams.includeDetails) {
 			try {
-				const indexAnalysis =
-					await databaseIndexOptimizer.analyzeCurrentIndexes();
+				const indexAnalysis = await databaseIndexOptimizer.analyzeCurrentIndexes();
 				const indexes = indexAnalysis.indexes;
 				databaseStats = {
 					totalIndexes: indexes.length,
@@ -96,9 +91,7 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 		};
 
 		span.setStatus({ code: SpanStatusCode.OK });
-		return NextResponse.json(
-			createApiSuccessResponse(response, "Performance metrics retrieved"),
-		);
+		return NextResponse.json(createApiSuccessResponse(response, "Performance metrics retrieved"));
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({
@@ -114,15 +107,15 @@ export const GET = withPerformanceMonitoring(async (request: NextRequest) => {
 					error.issues.map((issue) => ({
 						field: issue.path.join("."),
 						message: issue.message,
-					})),
+					}))
 				),
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 
 		return NextResponse.json(
 			createApiErrorResponse("Failed to retrieve performance metrics", 500),
-			{ status: 500 },
+			{ status: 500 }
 		);
 	} finally {
 		span.end();
@@ -145,26 +138,18 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 
 		// Get optimization plan if recommendations requested
 		let optimizationPlan = null;
-		if (
-			validatedBody.includeRecommendations &&
-			analysisReport.missingIndexes.length > 0
-		) {
+		if (validatedBody.includeRecommendations && analysisReport.missingIndexes.length > 0) {
 			optimizationPlan = await databaseIndexOptimizer.generateOptimizationPlan();
 		}
 
 		// Analyze slow queries if requested
 		let slowQueryAnalysis = null;
-		if (
-			validatedBody.analyzeSlowQueries &&
-			analysisReport.slowQueries.length > 0
-		) {
+		if (validatedBody.analyzeSlowQueries && analysisReport.slowQueries.length > 0) {
 			slowQueryAnalysis = {
 				totalSlowQueries: analysisReport.slowQueries.length,
 				averageSlowQueryTime:
-					analysisReport.slowQueries.reduce(
-						(sum, q) => sum + q.executionTime,
-						0,
-					) / analysisReport.slowQueries.length,
+					analysisReport.slowQueries.reduce((sum, q) => sum + q.executionTime, 0) /
+					analysisReport.slowQueries.length,
 				mostProblematicQueries: analysisReport.slowQueries
 					.sort((a, b) => b.executionTime - a.executionTime)
 					.slice(0, 5)
@@ -191,9 +176,7 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 		};
 
 		span.setStatus({ code: SpanStatusCode.OK });
-		return NextResponse.json(
-			createApiSuccessResponse(response, "Performance analysis completed"),
-		);
+		return NextResponse.json(createApiSuccessResponse(response, "Performance analysis completed"));
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({
@@ -209,18 +192,15 @@ export const POST = withPerformanceMonitoring(async (request: NextRequest) => {
 					error.issues.map((issue) => ({
 						field: issue.path.join("."),
 						message: issue.message,
-					})),
+					}))
 				),
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 
-		return NextResponse.json(
-			createApiErrorResponse("Performance analysis failed", 500),
-			{
-				status: 500,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Performance analysis failed", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -244,8 +224,7 @@ export async function PUT(request: NextRequest) {
 		let baselineComparison = null;
 		if (validatedBody.compareWithBaseline) {
 			try {
-				baselineComparison =
-					await performanceBenchmarker.compareAgainstBaseline();
+				baselineComparison = await performanceBenchmarker.compareAgainstBaseline();
 			} catch (_error) {
 				// Continue without baseline comparison
 			}
@@ -255,7 +234,7 @@ export async function PUT(request: NextRequest) {
 		let filteredResults = benchmarkResults;
 		if (validatedBody.suites && validatedBody.suites.length > 0) {
 			filteredResults = benchmarkResults.filter((suite) =>
-				validatedBody.suites?.includes(suite.name),
+				validatedBody.suites?.includes(suite.name)
 			);
 		}
 
@@ -265,30 +244,17 @@ export async function PUT(request: NextRequest) {
 			baselineComparison,
 			summary: {
 				totalSuites: filteredResults.length,
-				totalTests: filteredResults.reduce(
-					(sum, suite) => sum + suite.summary.totalTests,
-					0,
-				),
-				totalPassed: filteredResults.reduce(
-					(sum, suite) => sum + suite.summary.passed,
-					0,
-				),
-				totalFailed: filteredResults.reduce(
-					(sum, suite) => sum + suite.summary.failed,
-					0,
-				),
+				totalTests: filteredResults.reduce((sum, suite) => sum + suite.summary.totalTests, 0),
+				totalPassed: filteredResults.reduce((sum, suite) => sum + suite.summary.passed, 0),
+				totalFailed: filteredResults.reduce((sum, suite) => sum + suite.summary.failed, 0),
 				averageExecutionTime:
-					filteredResults.reduce(
-						(sum, suite) => sum + suite.summary.averageExecutionTime,
-						0,
-					) / filteredResults.length,
+					filteredResults.reduce((sum, suite) => sum + suite.summary.averageExecutionTime, 0) /
+					filteredResults.length,
 			},
 		};
 
 		span.setStatus({ code: SpanStatusCode.OK });
-		return NextResponse.json(
-			createApiSuccessResponse(response, "Benchmarks completed"),
-		);
+		return NextResponse.json(createApiSuccessResponse(response, "Benchmarks completed"));
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({
@@ -304,18 +270,15 @@ export async function PUT(request: NextRequest) {
 					error.issues.map((issue) => ({
 						field: issue.path.join("."),
 						message: issue.message,
-					})),
+					}))
 				),
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 
-		return NextResponse.json(
-			createApiErrorResponse("Benchmark execution failed", 500),
-			{
-				status: 500,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Benchmark execution failed", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}

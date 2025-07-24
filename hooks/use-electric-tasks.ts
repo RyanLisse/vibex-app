@@ -4,10 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Environment, NewEnvironment, NewTask, Task } from "@/db/schema";
 import { electricDb, type SyncEvent } from "@/lib/electric/config-client";
 import { useElectricQuery, useElectricSubscription } from "./use-electric";
-import {
-	useEnvironmentsSubscription,
-	useTasksSubscription,
-} from "./use-electric-subscriptions";
+import { useEnvironmentsSubscription, useTasksSubscription } from "./use-electric-subscriptions";
 
 interface ConflictEvent {
 	type: "conflict";
@@ -51,9 +48,7 @@ export function useElectricTasks(userId?: string) {
 
 	// Use subscription data when available, fallback otherwise
 	const tasks = subscriptionActive ? subscriptionTasks : fallbackTasks || [];
-	const tasksLoading = subscriptionActive
-		? subscriptionLoading
-		: fallbackLoading;
+	const tasksLoading = subscriptionActive ? subscriptionLoading : fallbackLoading;
 	const tasksError = subscriptionActive ? subscriptionError : fallbackError;
 
 	// Subscribe to real-time task updates
@@ -137,12 +132,7 @@ export function useElectricTasks(userId?: string) {
 
 			try {
 				// Use ElectricSQL client for real-time sync
-				const result = await electricDb.executeRealtimeOperation(
-					"tasks",
-					"insert",
-					newTask,
-					true,
-				);
+				const result = await electricDb.executeRealtimeOperation("tasks", "insert", newTask, true);
 
 				console.log("✅ Task created with real-time sync:", result);
 				return result;
@@ -157,7 +147,7 @@ export function useElectricTasks(userId?: string) {
 				throw error;
 			}
 		},
-		[userId, refetchTasks, isOnline],
+		[userId, refetchTasks, isOnline]
 	);
 
 	// Update a task with real-time sync and conflict resolution
@@ -175,7 +165,7 @@ export function useElectricTasks(userId?: string) {
 					"tasks",
 					"update",
 					updateData,
-					true,
+					true
 				);
 
 				console.log("✅ Task updated with real-time sync:", result);
@@ -191,7 +181,7 @@ export function useElectricTasks(userId?: string) {
 				throw error;
 			}
 		},
-		[refetchTasks, isOnline],
+		[refetchTasks, isOnline]
 	);
 
 	// Delete a task with real-time sync
@@ -203,7 +193,7 @@ export function useElectricTasks(userId?: string) {
 					"tasks",
 					"delete",
 					{ id: taskId },
-					true,
+					true
 				);
 
 				console.log("✅ Task deleted with real-time sync:", result);
@@ -219,7 +209,7 @@ export function useElectricTasks(userId?: string) {
 				throw error;
 			}
 		},
-		[refetchTasks, isOnline],
+		[refetchTasks, isOnline]
 	);
 
 	// Batch update multiple tasks
@@ -238,7 +228,7 @@ export function useElectricTasks(userId?: string) {
 
 			return results;
 		},
-		[updateTask],
+		[updateTask]
 	);
 
 	// Optimistic task update (immediate UI update, sync later)
@@ -268,7 +258,7 @@ export function useElectricTasks(userId?: string) {
 				await refetchTasks();
 			}
 		},
-		[updateTask, refetchTasks, userId],
+		[updateTask, refetchTasks, userId]
 	);
 
 	// Get tasks by status
@@ -276,7 +266,7 @@ export function useElectricTasks(userId?: string) {
 		(status: string) => {
 			return finalTasks.filter((task) => task.status === status);
 		},
-		[finalTasks],
+		[finalTasks]
 	);
 
 	// Get tasks by priority
@@ -284,7 +274,7 @@ export function useElectricTasks(userId?: string) {
 		(priority: string) => {
 			return finalTasks.filter((task) => task.priority === priority);
 		},
-		[finalTasks],
+		[finalTasks]
 	);
 
 	// Search tasks
@@ -294,10 +284,10 @@ export function useElectricTasks(userId?: string) {
 			return finalTasks.filter(
 				(task) =>
 					task.title.toLowerCase().includes(lowercaseQuery) ||
-					task.description?.toLowerCase().includes(lowercaseQuery),
+					task.description?.toLowerCase().includes(lowercaseQuery)
 			);
 		},
-		[finalTasks],
+		[finalTasks]
 	);
 
 	// Get task statistics
@@ -401,8 +391,7 @@ export function useElectricTasks(userId?: string) {
 export function useElectricTaskExecutions(taskId?: string) {
 	// Query for task executions
 	const executionsQuery = useMemo(() => {
-		if (!taskId)
-			return "SELECT * FROM agent_executions ORDER BY started_at DESC";
+		if (!taskId) return "SELECT * FROM agent_executions ORDER BY started_at DESC";
 		return "SELECT * FROM agent_executions WHERE task_id = $1 ORDER BY started_at DESC";
 	}, [taskId]);
 
@@ -421,9 +410,7 @@ export function useElectricTaskExecutions(taskId?: string) {
 	});
 
 	// Subscribe to real-time execution updates
-	const executionSubscriptionFilter = taskId
-		? `task_id = '${taskId}'`
-		: undefined;
+	const executionSubscriptionFilter = taskId ? `task_id = '${taskId}'` : undefined;
 
 	const {
 		data: realtimeExecutions,
@@ -440,8 +427,7 @@ export function useElectricTaskExecutions(taskId?: string) {
 	});
 
 	// Use subscription data if available, otherwise use query data
-	const finalExecutions =
-		realtimeExecutions.length > 0 ? realtimeExecutions : executions;
+	const finalExecutions = realtimeExecutions.length > 0 ? realtimeExecutions : executions;
 
 	// Get execution statistics
 	const executionStats = useMemo(() => {
@@ -480,15 +466,12 @@ export function useElectricTaskExecutions(taskId?: string) {
 			}
 
 			// Count by agent type
-			stats.byAgentType[execution.agentType] =
-				(stats.byAgentType[execution.agentType] || 0) + 1;
+			stats.byAgentType[execution.agentType] = (stats.byAgentType[execution.agentType] || 0) + 1;
 		});
 
 		// Calculate average execution time
 		if (completedCount > 0) {
-			stats.averageExecutionTime = Math.round(
-				totalExecutionTime / completedCount,
-			);
+			stats.averageExecutionTime = Math.round(totalExecutionTime / completedCount);
 		}
 
 		return stats;
@@ -541,15 +524,9 @@ export function useElectricEnvironments(userId?: string) {
 	});
 
 	// Use subscription data when available, fallback otherwise
-	const environments = subscriptionActive
-		? subscriptionEnvironments
-		: fallbackEnvironments || [];
-	const environmentsLoading = subscriptionActive
-		? subscriptionLoading
-		: fallbackLoading;
-	const environmentsError = subscriptionActive
-		? subscriptionError
-		: fallbackError;
+	const environments = subscriptionActive ? subscriptionEnvironments : fallbackEnvironments || [];
+	const environmentsLoading = subscriptionActive ? subscriptionLoading : fallbackLoading;
+	const environmentsError = subscriptionActive ? subscriptionError : fallbackError;
 
 	// Subscribe to real-time environment updates
 	const envSubscriptionFilter = userId ? `user_id = '${userId}'` : undefined;
@@ -572,8 +549,7 @@ export function useElectricEnvironments(userId?: string) {
 	});
 
 	// Use subscription data if available, otherwise use query data
-	const finalEnvironments =
-		realtimeEnvironments.length > 0 ? realtimeEnvironments : environments;
+	const finalEnvironments = realtimeEnvironments.length > 0 ? realtimeEnvironments : environments;
 
 	// State for sync events
 	const [envSyncEvents, setEnvSyncEvents] = useState<SyncEvent[]>([]);
@@ -601,10 +577,7 @@ export function useElectricEnvironments(userId?: string) {
 		electricDb.addStateListener(handleStateChange);
 
 		return () => {
-			electricDb.removeSyncEventListener(
-				"environments",
-				handleEnvironmentSyncEvent,
-			);
+			electricDb.removeSyncEventListener("environments", handleEnvironmentSyncEvent);
 			electricDb.removeStateListener(handleStateChange);
 		};
 	}, [refetchEnvironments]);
@@ -644,7 +617,7 @@ export function useElectricEnvironments(userId?: string) {
 					"environments",
 					"insert",
 					newEnvironment,
-					true,
+					true
 				);
 
 				console.log("✅ Environment created with real-time sync:", result);
@@ -660,7 +633,7 @@ export function useElectricEnvironments(userId?: string) {
 				throw error;
 			}
 		},
-		[userId, refetchEnvironments, isOnline],
+		[userId, refetchEnvironments, isOnline]
 	);
 
 	// Update an environment with real-time sync
@@ -678,7 +651,7 @@ export function useElectricEnvironments(userId?: string) {
 					"environments",
 					"update",
 					updateData,
-					true,
+					true
 				);
 
 				console.log("✅ Environment updated with real-time sync:", result);
@@ -694,7 +667,7 @@ export function useElectricEnvironments(userId?: string) {
 				throw error;
 			}
 		},
-		[refetchEnvironments, isOnline],
+		[refetchEnvironments, isOnline]
 	);
 
 	// Delete an environment with real-time sync
@@ -706,7 +679,7 @@ export function useElectricEnvironments(userId?: string) {
 					"environments",
 					"delete",
 					{ id: environmentId },
-					true,
+					true
 				);
 
 				console.log("✅ Environment deleted with real-time sync:", result);
@@ -722,7 +695,7 @@ export function useElectricEnvironments(userId?: string) {
 				throw error;
 			}
 		},
-		[refetchEnvironments, isOnline],
+		[refetchEnvironments, isOnline]
 	);
 
 	// Activate an environment with batch operations
@@ -745,7 +718,7 @@ export function useElectricEnvironments(userId?: string) {
 				throw error;
 			}
 		},
-		[finalEnvironments, updateEnvironment],
+		[finalEnvironments, updateEnvironment]
 	);
 
 	return {

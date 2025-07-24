@@ -129,10 +129,7 @@ export class MemoryLifecycleManager {
 
 			for (const agentType of agentTypes) {
 				// Archive memories older than 30 days with low access
-				const archived = await memoryRepository.archiveOldMemories(
-					agentType,
-					30,
-				);
+				const archived = await memoryRepository.archiveOldMemories(agentType, 30);
 				totalArchived += archived;
 
 				if (archived > 0) {
@@ -165,17 +162,14 @@ export class MemoryLifecycleManager {
 
 			for (const agentType of agentTypes) {
 				// Get frequently accessed memories with low importance
-				const frequentMemories = await memoryRepository.getMostAccessed(
-					agentType,
-					50,
-				);
+				const frequentMemories = await memoryRepository.getMostAccessed(agentType, 50);
 
 				for (const memory of frequentMemories) {
 					// Increase importance if frequently accessed but low importance
 					if (memory.accessCount > 10 && memory.importance < 5) {
 						const newImportance = Math.min(
 							10,
-							memory.importance + Math.floor(memory.accessCount / 10),
+							memory.importance + Math.floor(memory.accessCount / 10)
 						) as MemoryImportance;
 
 						await memoryRepository.update(memory.id, {
@@ -197,14 +191,10 @@ export class MemoryLifecycleManager {
 				for (const memory of oldMemories) {
 					// Decrease importance if rarely accessed
 					const daysSinceAccess =
-						(Date.now() - memory.lastAccessedAt.getTime()) /
-						(1000 * 60 * 60 * 24);
+						(Date.now() - memory.lastAccessedAt.getTime()) / (1000 * 60 * 60 * 24);
 
 					if (daysSinceAccess > 14 && memory.accessCount < 3) {
-						const newImportance = Math.max(
-							1,
-							memory.importance - 2,
-						) as MemoryImportance;
+						const newImportance = Math.max(1, memory.importance - 2) as MemoryImportance;
 
 						await memoryRepository.update(memory.id, {
 							importance: newImportance,
@@ -244,10 +234,7 @@ export class MemoryLifecycleManager {
 	/**
 	 * Extend memory lifetime
 	 */
-	async extendLifetime(
-		memoryId: string,
-		additionalDays: number,
-	): Promise<void> {
+	async extendLifetime(memoryId: string, additionalDays: number): Promise<void> {
 		try {
 			const memory = await memoryRepository.findById(memoryId);
 			if (!memory) {
@@ -271,10 +258,7 @@ export class MemoryLifecycleManager {
 	/**
 	 * Promote memory (increase importance and remove expiration)
 	 */
-	async promoteMemory(
-		memoryId: string,
-		newImportance?: MemoryImportance,
-	): Promise<void> {
+	async promoteMemory(memoryId: string, newImportance?: MemoryImportance): Promise<void> {
 		try {
 			const memory = await memoryRepository.findById(memoryId);
 			if (!memory) {
@@ -282,9 +266,7 @@ export class MemoryLifecycleManager {
 			}
 
 			const updates = {
-				importance:
-					newImportance ||
-					(Math.min(10, memory.importance + 3) as MemoryImportance),
+				importance: newImportance || (Math.min(10, memory.importance + 3) as MemoryImportance),
 				expiresAt: null,
 			};
 
@@ -378,42 +360,33 @@ export class MemoryLifecycleManager {
 		});
 
 		const expiringCount = expiringMemories.filter(
-			(m) =>
-				m.expiresAt &&
-				m.expiresAt.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000,
+			(m) => m.expiresAt && m.expiresAt.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
 		).length;
 
 		// Get archived memories count
 		const archivedCount = expiringMemories.filter(
-			(m) => m.metadata.accessPattern === "archived",
+			(m) => m.metadata.accessPattern === "archived"
 		).length;
 
 		// Calculate average age
 		const ages = expiringMemories.map(
-			(m) => (Date.now() - m.createdAt.getTime()) / (1000 * 60 * 60 * 24),
+			(m) => (Date.now() - m.createdAt.getTime()) / (1000 * 60 * 60 * 24)
 		);
-		const averageAge =
-			ages.length > 0 ? ages.reduce((a, b) => a + b, 0) / ages.length : 0;
+		const averageAge = ages.length > 0 ? ages.reduce((a, b) => a + b, 0) / ages.length : 0;
 
 		// Generate recommendations
 		const recommendations: string[] = [];
 
 		if (stats.totalCount > 10_000) {
-			recommendations.push(
-				"Consider archiving old memories to improve performance",
-			);
+			recommendations.push("Consider archiving old memories to improve performance");
 		}
 
 		if (expiringCount > stats.totalCount * 0.2) {
-			recommendations.push(
-				"Many memories are expiring soon, review retention policies",
-			);
+			recommendations.push("Many memories are expiring soon, review retention policies");
 		}
 
 		if (stats.averageImportance < 3) {
-			recommendations.push(
-				"Low average importance, consider cleaning up low-value memories",
-			);
+			recommendations.push("Low average importance, consider cleaning up low-value memories");
 		}
 
 		return {

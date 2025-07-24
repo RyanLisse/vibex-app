@@ -12,14 +12,7 @@ import {
 
 // Mock the Button component
 vi.mock("@/components/ui/button", () => ({
-	Button: ({
-		children,
-		onClick,
-		disabled,
-		className,
-		"aria-label": ariaLabel,
-		...props
-	}: any) => (
+	Button: ({ children, onClick, disabled, className, "aria-label": ariaLabel, ...props }: any) => (
 		<button
 			aria-label={ariaLabel}
 			className={className}
@@ -53,7 +46,7 @@ describe("AIBranch Components", () => {
 			render(
 				<AIBranch>
 					<div>Content</div>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("Content")).toBeInTheDocument();
@@ -72,7 +65,7 @@ describe("AIBranch Components", () => {
 						<AIBranchPrevious />
 						<AIBranchNext />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			const nextButton = screen.getByLabelText("Next branch");
@@ -89,7 +82,7 @@ describe("AIBranch Components", () => {
 						<div>Branch 2</div>
 					</AIBranchMessages>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("2 of 2")).toBeInTheDocument();
@@ -117,7 +110,7 @@ describe("AIBranch Components", () => {
 						<div>Branch 2</div>
 						<div>Branch 3</div>
 					</AIBranchMessages>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			// Only the first branch should be visible initially
@@ -132,7 +125,7 @@ describe("AIBranch Components", () => {
 					<AIBranchMessages>
 						<div>Single Branch</div>
 					</AIBranchMessages>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("Single Branch")).toBeInTheDocument();
@@ -148,7 +141,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<AIBranchNext />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("Branch 1")).toBeInTheDocument();
@@ -172,7 +165,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<div>Controls</div>
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			const selector = screen.getByText("Controls").parentElement;
@@ -189,7 +182,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="user">
 						<div>Controls</div>
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			const selector = screen.getByText("Controls").parentElement;
@@ -205,7 +198,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<div>Controls</div>
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.queryByText("Controls")).not.toBeInTheDocument();
@@ -223,7 +216,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<AIBranchPrevious />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByTestId("chevron-left")).toBeInTheDocument();
@@ -239,7 +232,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<AIBranchPrevious>Custom Previous</AIBranchPrevious>
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("Custom Previous")).toBeInTheDocument();
@@ -256,7 +249,7 @@ describe("AIBranch Components", () => {
 						<AIBranchPrevious />
 					</AIBranchSelector>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("2 of 2")).toBeInTheDocument();
@@ -278,7 +271,7 @@ describe("AIBranch Components", () => {
 						<AIBranchPrevious />
 					</AIBranchSelector>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 3")).toBeInTheDocument();
@@ -297,13 +290,11 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<AIBranchPrevious />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			// Selector should not render with single branch
-			expect(
-				screen.queryByLabelText("Previous branch"),
-			).not.toBeInTheDocument();
+			expect(screen.queryByLabelText("Previous branch")).not.toBeInTheDocument();
 		});
 	});
 
@@ -318,7 +309,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<AIBranchNext />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByTestId("chevron-right")).toBeInTheDocument();
@@ -334,7 +325,7 @@ describe("AIBranch Components", () => {
 					<AIBranchSelector from="assistant">
 						<AIBranchNext>Custom Next</AIBranchNext>
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("Custom Next")).toBeInTheDocument();
@@ -351,7 +342,7 @@ describe("AIBranch Components", () => {
 						<AIBranchNext />
 					</AIBranchSelector>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 2")).toBeInTheDocument();
@@ -373,7 +364,7 @@ describe("AIBranch Components", () => {
 						<AIBranchNext />
 					</AIBranchSelector>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("3 of 3")).toBeInTheDocument();
@@ -394,7 +385,7 @@ describe("AIBranch Components", () => {
 						<div>Branch 3</div>
 					</AIBranchMessages>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 3")).toBeInTheDocument();
@@ -411,7 +402,7 @@ describe("AIBranch Components", () => {
 						<AIBranchNext />
 					</AIBranchSelector>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 2")).toBeInTheDocument();
@@ -428,7 +419,7 @@ describe("AIBranch Components", () => {
 						<div>Branch 1</div>
 					</AIBranchMessages>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 1")).toBeInTheDocument();
@@ -441,7 +432,7 @@ describe("AIBranch Components", () => {
 						<div>Branch 1</div>
 					</AIBranchMessages>
 					<AIBranchPage className="custom-class" />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			const pageElement = screen.getByText("1 of 1");
@@ -463,7 +454,7 @@ describe("AIBranch Components", () => {
 						<AIBranchPage />
 						<AIBranchNext />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			// Initial state
@@ -493,7 +484,7 @@ describe("AIBranch Components", () => {
 						<div>Branch 1</div>
 					</AIBranchMessages>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 1")).toBeInTheDocument();
@@ -509,7 +500,7 @@ describe("AIBranch Components", () => {
 						<AIBranchNext />
 					</AIBranchSelector>
 					<AIBranchPage />
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByText("1 of 2")).toBeInTheDocument();
@@ -529,7 +520,7 @@ describe("AIBranch Components", () => {
 						<AIBranchPrevious />
 						<AIBranchNext />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			expect(screen.getByLabelText("Previous branch")).toBeInTheDocument();
@@ -546,13 +537,11 @@ describe("AIBranch Components", () => {
 						<AIBranchPrevious />
 						<AIBranchNext />
 					</AIBranchSelector>
-				</AIBranch>,
+				</AIBranch>
 			);
 
 			// With single branch, selector should not render
-			expect(
-				screen.queryByLabelText("Previous branch"),
-			).not.toBeInTheDocument();
+			expect(screen.queryByLabelText("Previous branch")).not.toBeInTheDocument();
 			expect(screen.queryByLabelText("Next branch")).not.toBeInTheDocument();
 		});
 	});

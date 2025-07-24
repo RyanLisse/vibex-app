@@ -59,12 +59,7 @@ const connectionManager = new ConnectionManager();
 
 // Public API for sending real-time updates (used by other API routes)
 export class TaskRealtimeNotifier {
-	static async notifyTaskUpdate(
-		taskId: string,
-		userId: string,
-		updateType: string,
-		data: any,
-	) {
+	static async notifyTaskUpdate(taskId: string, userId: string, updateType: string, data: any) {
 		const tracer = trace.getTracer("task-realtime-notifier");
 		const span = tracer.startSpan("notify_task_update");
 
@@ -122,33 +117,25 @@ export class TaskRealtimeNotifier {
 		}
 	}
 
-	static async notifyProgressUpdate(
-		taskId: string,
-		userId: string,
-		progressData: any,
-	) {
+	static async notifyProgressUpdate(taskId: string, userId: string, progressData: any) {
 		return TaskRealtimeNotifier.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.PROGRESS_UPDATED,
 			{
 				progress: progressData,
-			},
+			}
 		);
 	}
 
-	static async notifyMilestoneReached(
-		taskId: string,
-		userId: string,
-		milestone: any,
-	) {
+	static async notifyMilestoneReached(taskId: string, userId: string, milestone: any) {
 		return TaskRealtimeNotifier.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.MILESTONE_REACHED,
 			{
 				milestone,
-			},
+			}
 		);
 	}
 
@@ -159,52 +146,40 @@ export class TaskRealtimeNotifier {
 			REALTIME_MESSAGE_TYPES.KANBAN_MOVED,
 			{
 				movement: moveData,
-			},
+			}
 		);
 	}
 
-	static async notifyPRStatusChange(
-		taskId: string,
-		userId: string,
-		prData: any,
-	) {
+	static async notifyPRStatusChange(taskId: string, userId: string, prData: any) {
 		return TaskRealtimeNotifier.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.PR_STATUS_CHANGED,
 			{
 				pr: prData,
-			},
+			}
 		);
 	}
 
-	static async notifyOverdueAlert(
-		taskId: string,
-		userId: string,
-		taskData: any,
-	) {
+	static async notifyOverdueAlert(taskId: string, userId: string, taskData: any) {
 		return TaskRealtimeNotifier.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.OVERDUE_ALERT,
 			{
 				task: taskData,
-			},
+			}
 		);
 	}
 
-	static async notifyBlockedAlert(
-		taskId: string,
-		userId: string,
-		taskData: any,
-	) {
+	static async notifyBlockedAlert(taskId: string, userId: string, taskData: any) {
 		return TaskRealtimeNotifier.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.BLOCKED_ALERT,
 			{
 				task: taskData,
-			},
+			}
 		);
 	}
 }

@@ -58,9 +58,7 @@ export class ValidationService {
 	/**
 	 * Validate migration completeness and integrity
 	 */
-	async validateMigration(
-		options?: Partial<ValidationOptions>,
-	): Promise<ValidationResult> {
+	async validateMigration(options?: Partial<ValidationOptions>): Promise<ValidationResult> {
 		const opts = { ...this.defaultOptions, ...options };
 		const errors: ValidationError[] = [];
 		const warnings: string[] = [];
@@ -88,10 +86,7 @@ export class ValidationService {
 
 			// Validate environments
 			if (localData.environments && localData.environments.length > 0) {
-				const envValidation = await this.validateEnvironments(
-					localData.environments,
-					opts,
-				);
+				const envValidation = await this.validateEnvironments(localData.environments, opts);
 				errors.push(...envValidation.errors);
 				warnings.push(...envValidation.warnings);
 				statistics.totalChecked += envValidation.statistics.totalChecked;
@@ -102,8 +97,7 @@ export class ValidationService {
 
 			// Validate completeness
 			if (opts.validateCompleteness) {
-				const completenessValidation =
-					await this.validateCompleteness(localData);
+				const completenessValidation = await this.validateCompleteness(localData);
 				errors.push(...completenessValidation.errors);
 				warnings.push(...completenessValidation.warnings);
 			}
@@ -140,7 +134,7 @@ export class ValidationService {
 	 */
 	private async validateTasks(
 		localTasks: LocalStorageTask[],
-		options: ValidationOptions,
+		options: ValidationOptions
 	): Promise<ValidationResult> {
 		const errors: ValidationError[] = [];
 		const warnings: string[] = [];
@@ -154,11 +148,7 @@ export class ValidationService {
 		for (const localTask of localTasks) {
 			try {
 				// Check if task exists in database
-				const [dbTask] = await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.id, localTask.id))
-					.limit(1);
+				const [dbTask] = await db.select().from(tasks).where(eq(tasks.id, localTask.id)).limit(1);
 
 				if (!dbTask) {
 					errors.push({
@@ -218,7 +208,7 @@ export class ValidationService {
 	 */
 	private async validateEnvironments(
 		localEnvs: LocalStorageEnvironment[],
-		options: ValidationOptions,
+		options: ValidationOptions
 	): Promise<ValidationResult> {
 		const errors: ValidationError[] = [];
 		const warnings: string[] = [];
@@ -262,10 +252,7 @@ export class ValidationService {
 				}
 
 				// Validate data integrity
-				const integrityErrors = this.validateEnvironmentIntegrity(
-					localEnv,
-					dbEnv,
-				);
+				const integrityErrors = this.validateEnvironmentIntegrity(localEnv, dbEnv);
 				errors.push(...integrityErrors);
 
 				if (integrityErrors.length > 0) {
@@ -297,10 +284,7 @@ export class ValidationService {
 	/**
 	 * Validate task schema
 	 */
-	private validateTaskSchema(
-		localTask: LocalStorageTask,
-		dbTask: any,
-	): ValidationError[] {
+	private validateTaskSchema(localTask: LocalStorageTask, dbTask: any): ValidationError[] {
 		const errors: ValidationError[] = [];
 
 		// Required fields
@@ -337,10 +321,7 @@ export class ValidationService {
 	/**
 	 * Validate task data integrity
 	 */
-	private validateTaskIntegrity(
-		localTask: LocalStorageTask,
-		dbTask: any,
-	): ValidationError[] {
+	private validateTaskIntegrity(localTask: LocalStorageTask, dbTask: any): ValidationError[] {
 		const errors: ValidationError[] = [];
 
 		// Critical fields must match exactly
@@ -403,7 +384,7 @@ export class ValidationService {
 	 */
 	private validateEnvironmentSchema(
 		localEnv: LocalStorageEnvironment,
-		dbEnv: any,
+		dbEnv: any
 	): ValidationError[] {
 		const errors: ValidationError[] = [];
 
@@ -431,7 +412,7 @@ export class ValidationService {
 	 */
 	private validateEnvironmentIntegrity(
 		localEnv: LocalStorageEnvironment,
-		dbEnv: any,
+		dbEnv: any
 	): ValidationError[] {
 		const errors: ValidationError[] = [];
 
@@ -459,10 +440,7 @@ export class ValidationService {
 		}
 
 		// Config validation
-		if (
-			dbEnv.config &&
-			localEnv.githubOrganization !== dbEnv.config.githubOrganization
-		) {
+		if (dbEnv.config && localEnv.githubOrganization !== dbEnv.config.githubOrganization) {
 			errors.push({
 				type: "CONSTRAINT_VIOLATION",
 				field: "githubOrganization",
@@ -479,18 +457,14 @@ export class ValidationService {
 	/**
 	 * Validate data completeness
 	 */
-	private async validateCompleteness(
-		localData: LocalStorageData,
-	): Promise<ValidationResult> {
+	private async validateCompleteness(localData: LocalStorageData): Promise<ValidationResult> {
 		const errors: ValidationError[] = [];
 		const warnings: string[] = [];
 
 		try {
 			// Count items in database
 			const [dbTaskCount] = await db.select({ count: tasks.id }).from(tasks);
-			const [dbEnvCount] = await db
-				.select({ count: environments.id })
-				.from(environments);
+			const [dbEnvCount] = await db.select({ count: environments.id }).from(environments);
 
 			const localTaskCount = localData.tasks?.length || 0;
 			const localEnvCount = localData.environments?.length || 0;
@@ -522,13 +496,13 @@ export class ValidationService {
 			// Warnings for extra items in database
 			if (Number(dbTaskCount.count) > localTaskCount) {
 				warnings.push(
-					`Database has more tasks (${dbTaskCount.count}) than localStorage (${localTaskCount})`,
+					`Database has more tasks (${dbTaskCount.count}) than localStorage (${localTaskCount})`
 				);
 			}
 
 			if (Number(dbEnvCount.count) > localEnvCount) {
 				warnings.push(
-					`Database has more environments (${dbEnvCount.count}) than localStorage (${localEnvCount})`,
+					`Database has more environments (${dbEnvCount.count}) than localStorage (${localEnvCount})`
 				);
 			}
 		} catch (error) {
@@ -574,12 +548,8 @@ export class ValidationService {
 			const dbEnvs = await db.select().from(environments);
 
 			// Create maps for efficient lookup
-			const localTaskMap = new Map(
-				localData.tasks?.map((t) => [t.id, t]) || [],
-			);
-			const localEnvMap = new Map(
-				localData.environments?.map((e) => [e.id, e]) || [],
-			);
+			const localTaskMap = new Map(localData.tasks?.map((t) => [t.id, t]) || []);
+			const localEnvMap = new Map(localData.environments?.map((e) => [e.id, e]) || []);
 			const dbTaskMap = new Map(dbTasks.map((t) => [t.id, t]));
 			const dbEnvMap = new Map(dbEnvs.map((e) => [e.id, e]));
 
@@ -626,17 +596,12 @@ export class ValidationService {
 			}
 
 			return {
-				identical:
-					differences.length === 0 &&
-					localOnly.length === 0 &&
-					databaseOnly.length === 0,
+				identical: differences.length === 0 && localOnly.length === 0 && databaseOnly.length === 0,
 				differences,
 				localOnly,
 				databaseOnly,
 				summary: {
-					totalLocal:
-						(localData.tasks?.length || 0) +
-						(localData.environments?.length || 0),
+					totalLocal: (localData.tasks?.length || 0) + (localData.environments?.length || 0),
 					totalDatabase: dbTasks.length + dbEnvs.length,
 					matched,
 					mismatched,
@@ -650,10 +615,7 @@ export class ValidationService {
 	/**
 	 * Compare individual task
 	 */
-	private compareTask(
-		localTask: LocalStorageTask,
-		dbTask: any,
-	): DataDifference[] {
+	private compareTask(localTask: LocalStorageTask, dbTask: any): DataDifference[] {
 		const differences: DataDifference[] = [];
 
 		// Compare critical fields
@@ -702,10 +664,7 @@ export class ValidationService {
 	/**
 	 * Compare individual environment
 	 */
-	private compareEnvironment(
-		localEnv: LocalStorageEnvironment,
-		dbEnv: any,
-	): DataDifference[] {
+	private compareEnvironment(localEnv: LocalStorageEnvironment, dbEnv: any): DataDifference[] {
 		const differences: DataDifference[] = [];
 
 		if (localEnv.name !== dbEnv.name) {
@@ -751,8 +710,7 @@ export class ValidationService {
 			const envData = localStorage.getItem("environments");
 			if (envData) {
 				const parsed = JSON.parse(envData);
-				data.environments =
-					parsed?.state?.environments || parsed?.environments || [];
+				data.environments = parsed?.state?.environments || parsed?.environments || [];
 			}
 		} catch (error) {
 			console.error("Failed to extract localStorage data:", error);

@@ -40,5 +40,4 @@ export const LETTA_AGENT_TYPES = {
 	EXECUTOR: "executor",
 } as const;
 
-export type LettaAgentType =
-	(typeof LETTA_AGENT_TYPES)[keyof typeof LETTA_AGENT_TYPES];
+export type LettaAgentType = (typeof LETTA_AGENT_TYPES)[keyof typeof LETTA_AGENT_TYPES];

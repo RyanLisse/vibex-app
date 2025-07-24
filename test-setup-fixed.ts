@@ -60,7 +60,7 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 // Fix matchMedia
 Object.defineProperty(window, "matchMedia", {
 	writable: true,
-	value: vi.fn().mockImplementation((query: string) => ({
+	value: vi.fn().mockImplementation((query) => ({
 		matches: false,
 		media: query,
 		onchange: null,
@@ -117,7 +117,7 @@ Object.defineProperty(global, "performance", {
 });
 
 // === FIX 4: Enhanced Fetch Mock ===
-const mockResponse = (data: any = {}, ok = true, status = 200) => ({
+const mockResponse = (data = {}, ok = true, status = 200) => ({
 	ok,
 	status,
 	statusText: ok ? "OK" : "Error",
@@ -129,26 +129,26 @@ const mockResponse = (data: any = {}, ok = true, status = 200) => ({
 	clone: vi.fn().mockReturnThis(),
 });
 
-global.fetch = vi.fn().mockImplementation((url: string) => {
+global.fetch = vi.fn().mockImplementation((url) => {
 	// Default successful response
 	return Promise.resolve(mockResponse({ success: true, data: null }));
 });
 
 // === FIX 5: Storage API Mocks ===
 const createStorageMock = () => {
-	const store = new Map<string, string>();
+	const store = new Map();
 	return {
-		getItem: vi.fn((key: string) => store.get(key) ?? null),
-		setItem: vi.fn((key: string, value: string) => {
+		getItem: vi.fn((key) => store.get(key) ?? null),
+		setItem: vi.fn((key, value) => {
 			store.set(key, value);
 		}),
-		removeItem: vi.fn((key: string) => {
+		removeItem: vi.fn((key) => {
 			store.delete(key);
 		}),
 		clear: vi.fn(() => {
 			store.clear();
 		}),
-		key: vi.fn((index: number) => {
+		key: vi.fn((index) => {
 			const keys = Array.from(store.keys());
 			return keys[index] ?? null;
 		}),
@@ -182,7 +182,7 @@ global.console = {
 // === FIX 7: Crypto API Comprehensive Mock ===
 Object.defineProperty(global, "crypto", {
 	value: {
-		getRandomValues: vi.fn((arr: any) => {
+		getRandomValues: vi.fn((arr) => {
 			for (let i = 0; i < arr.length; i++) {
 				arr[i] = Math.floor(Math.random() * 256);
 			}
@@ -193,7 +193,7 @@ Object.defineProperty(global, "crypto", {
 				const r = (Math.random() * 16) | 0;
 				const v = c === "x" ? r : (r & 0x3) | 0x8;
 				return v.toString(16);
-			}),
+			})
 		),
 		subtle: {
 			encrypt: vi.fn().mockResolvedValue(new ArrayBuffer(16)),

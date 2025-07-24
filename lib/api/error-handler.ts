@@ -36,7 +36,7 @@ export function createErrorResponse(
 	message: string,
 	status: number = 500,
 	code?: string,
-	details?: any,
+	details?: any
 ): NextResponse<ApiErrorResponse> {
 	const response: ApiErrorResponse = {
 		error: {
@@ -56,7 +56,7 @@ export function createErrorResponse(
  */
 export function createSuccessResponse<T>(
 	data: T,
-	status: number = 200,
+	status: number = 200
 ): NextResponse<ApiSuccessResponse<T>> {
 	const response: ApiSuccessResponse<T> = {
 		data,
@@ -75,10 +75,7 @@ export const createApiResponse = createSuccessResponse;
 /**
  * Handle API errors with proper logging and response formatting
  */
-export function handleApiError(
-	error: unknown,
-	context?: string,
-): NextResponse<ApiErrorResponse> {
+export function handleApiError(error: unknown, context?: string): NextResponse<ApiErrorResponse> {
 	console.error(`API Error${context ? ` in ${context}` : ""}:`, error);
 
 	if (error instanceof Error) {
@@ -100,18 +97,11 @@ export function handleApiError(
 		}
 
 		// Generic error
-		return createErrorResponse(
-			error.message || "Internal server error",
-			500,
-			"INTERNAL_ERROR",
-		);
+		return createErrorResponse(error.message || "Internal server error", 500, "INTERNAL_ERROR");
 	}
 
 	// Unknown error type
-	return createErrorResponse(
-		"An unexpected error occurred",
-		500,
-		"UNKNOWN_ERROR",
-		{ originalError: String(error) },
-	);
+	return createErrorResponse("An unexpected error occurred", 500, "UNKNOWN_ERROR", {
+		originalError: String(error),
+	});
 }

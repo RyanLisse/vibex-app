@@ -25,14 +25,9 @@ const ApiTokenSchema = z.object({
 	key: z.string(),
 });
 
-export type AuthToken =
-	| z.infer<typeof OauthTokenSchema>
-	| z.infer<typeof ApiTokenSchema>;
+export type AuthToken = z.infer<typeof OauthTokenSchema> | z.infer<typeof ApiTokenSchema>;
 
-const TokenSchema = z.discriminatedUnion("type", [
-	OauthTokenSchema,
-	ApiTokenSchema,
-]);
+const TokenSchema = z.discriminatedUnion("type", [OauthTokenSchema, ApiTokenSchema]);
 
 // Encryption configuration
 const ALGORITHM = "aes-256-gcm";
@@ -46,9 +41,7 @@ export class SecureTokenStorage {
 	constructor() {
 		const key = process.env.ENCRYPTION_SECRET;
 		if (!key || key.length < 32) {
-			throw new Error(
-				"ENCRYPTION_SECRET must be set and at least 32 characters long",
-			);
+			throw new Error("ENCRYPTION_SECRET must be set and at least 32 characters long");
 		}
 		// Derive a consistent key from the secret
 		this.encryptionKey = crypto.scryptSync(key, "salt", 32);
@@ -61,10 +54,7 @@ export class SecureTokenStorage {
 		const iv = crypto.randomBytes(IV_LENGTH);
 		const cipher = crypto.createCipheriv(ALGORITHM, this.encryptionKey, iv);
 
-		const encrypted = Buffer.concat([
-			cipher.update(data, "utf8"),
-			cipher.final(),
-		]);
+		const encrypted = Buffer.concat([cipher.update(data, "utf8"), cipher.final()]);
 
 		const tag = cipher.getAuthTag();
 
@@ -87,10 +77,7 @@ export class SecureTokenStorage {
 		const decipher = crypto.createDecipheriv(ALGORITHM, this.encryptionKey, iv);
 		decipher.setAuthTag(tag);
 
-		const decrypted = Buffer.concat([
-			decipher.update(encrypted),
-			decipher.final(),
-		]);
+		const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
 
 		return decrypted.toString("utf8");
 	}
@@ -98,11 +85,7 @@ export class SecureTokenStorage {
 	/**
 	 * Store encrypted token in database
 	 */
-	async store(
-		userId: string,
-		providerId: string,
-		token: AuthToken,
-	): Promise<void> {
+	async store(userId: string, providerId: string, token: AuthToken): Promise<void> {
 		try {
 			const serialized = JSON.stringify(token);
 			const encrypted = this.encrypt(serialized);
@@ -149,20 +132,12 @@ export class SecureTokenStorage {
 	/**
 	 * Retrieve and decrypt token from database
 	 */
-	async retrieve(
-		userId: string,
-		providerId: string,
-	): Promise<AuthToken | null> {
+	async retrieve(userId: string, providerId: string): Promise<AuthToken | null> {
 		try {
 			const [record] = await db
 				.select()
 				.from(authTokens)
-				.where(
-					and(
-						eq(authTokens.userId, userId),
-						eq(authTokens.providerId, providerId),
-					),
-				)
+				.where(and(eq(authTokens.userId, userId), eq(authTokens.providerId, providerId)))
 				.limit(1);
 
 			if (!record) {
@@ -206,10 +181,7 @@ export class SecureTokenStorage {
 	 */
 	async retrieveAll(userId: string): Promise<Record<string, AuthToken>> {
 		try {
-			const records = await db
-				.select()
-				.from(authTokens)
-				.where(eq(authTokens.userId, userId));
+			const records = await db.select().from(authTokens).where(eq(authTokens.userId, userId));
 
 			const tokens: Record<string, AuthToken> = {};
 
@@ -248,12 +220,7 @@ export class SecureTokenStorage {
 		try {
 			await db
 				.delete(authTokens)
-				.where(
-					and(
-						eq(authTokens.userId, userId),
-						eq(authTokens.providerId, providerId),
-					),
-				);
+				.where(and(eq(authTokens.userId, userId), eq(authTokens.providerId, providerId)));
 
 			observabilityService.recordEvent({
 				type: "security",
@@ -302,9 +269,7 @@ export class SecureTokenStorage {
 		try {
 			const result = await db
 				.delete(authTokens)
-				.where(
-					and(authTokens.expiresAt !== null, authTokens.expiresAt < new Date()),
-				);
+				.where(and(authTokens.expiresAt !== null, authTokens.expiresAt < new Date()));
 
 			const count = result.rowCount || 0;
 

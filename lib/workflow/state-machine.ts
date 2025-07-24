@@ -14,7 +14,7 @@ export interface StateMachineConfig {
 	onStateChange?: (
 		fromStatus: WorkflowStatus,
 		toStatus: WorkflowStatus,
-		state: WorkflowExecutionState,
+		state: WorkflowExecutionState
 	) => void;
 	onError?: (error: WorkflowError, state: WorkflowExecutionState) => void;
 }
@@ -61,8 +61,7 @@ export class WorkflowStateMachine extends EventEmitter {
 			return false;
 		}
 
-		const possibleTransitions =
-			this.transitions.get(this.currentState.status) || [];
+		const possibleTransitions = this.transitions.get(this.currentState.status) || [];
 
 		return possibleTransitions.some((t) => {
 			if (t.toStatus !== toStatus) {
@@ -86,7 +85,7 @@ export class WorkflowStateMachine extends EventEmitter {
 	 */
 	async transition(
 		toStatus: WorkflowStatus,
-		updates?: Partial<WorkflowExecutionState>,
+		updates?: Partial<WorkflowExecutionState>
 	): Promise<void> {
 		if (!this.currentState) {
 			throw new Error("State machine not initialized");
@@ -101,15 +100,11 @@ export class WorkflowStateMachine extends EventEmitter {
 		// Find the matching transition
 		const possibleTransitions = this.transitions.get(fromStatus) || [];
 		const transition = possibleTransitions.find(
-			(t) =>
-				t.toStatus === toStatus &&
-				(!t.condition || t.condition(this.currentState!)),
+			(t) => t.toStatus === toStatus && (!t.condition || t.condition(this.currentState!))
 		);
 
 		if (!transition) {
-			throw new Error(
-				`No valid transition found from ${fromStatus} to ${toStatus}`,
-			);
+			throw new Error(`No valid transition found from ${fromStatus} to ${toStatus}`);
 		}
 
 		// Update state
@@ -183,8 +178,7 @@ export class WorkflowStateMachine extends EventEmitter {
 			return [];
 		}
 
-		const possibleTransitions =
-			this.transitions.get(this.currentState.status) || [];
+		const possibleTransitions = this.transitions.get(this.currentState.status) || [];
 
 		return possibleTransitions
 			.filter((t) => !t.condition || t.condition(this.currentState!))
@@ -254,7 +248,7 @@ export const DEFAULT_WORKFLOW_TRANSITIONS: WorkflowTransition[] = [
 
 // State machine factory
 export function createWorkflowStateMachine(
-	config?: Partial<StateMachineConfig>,
+	config?: Partial<StateMachineConfig>
 ): WorkflowStateMachine {
 	return new WorkflowStateMachine({
 		initialStatus: "pending",
@@ -310,23 +304,20 @@ export const StateValidation = {
 
 // State machine hooks for React
 export interface UseStateMachineOptions {
-	onStateChange?: (
-		fromStatus: WorkflowStatus,
-		toStatus: WorkflowStatus,
-	) => void;
+	onStateChange?: (fromStatus: WorkflowStatus, toStatus: WorkflowStatus) => void;
 	onError?: (error: WorkflowError) => void;
 }
 
 export function useWorkflowStateMachine(
 	initialState?: WorkflowExecutionState,
-	options?: UseStateMachineOptions,
+	options?: UseStateMachineOptions
 ): {
 	state: WorkflowExecutionState | null;
 	status: WorkflowStatus | null;
 	canTransition: (toStatus: WorkflowStatus) => boolean;
 	transition: (
 		toStatus: WorkflowStatus,
-		updates?: Partial<WorkflowExecutionState>,
+		updates?: Partial<WorkflowExecutionState>
 	) => Promise<void>;
 	availableTransitions: WorkflowStatus[];
 	isTerminal: boolean;
@@ -352,8 +343,7 @@ export function useWorkflowStateMachine(
 		state,
 		status,
 		canTransition: (toStatus) => stateMachine.canTransition(toStatus),
-		transition: (toStatus, updates) =>
-			stateMachine.transition(toStatus, updates),
+		transition: (toStatus, updates) => stateMachine.transition(toStatus, updates),
 		availableTransitions: stateMachine.getAvailableTransitions(),
 		isTerminal: status ? StateValidation.isTerminal(status) : false,
 		isActive: status ? StateValidation.isActive(status) : false,

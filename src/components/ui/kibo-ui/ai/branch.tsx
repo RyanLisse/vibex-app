@@ -40,7 +40,7 @@ export function AIBranch({
 
 	const childrenArray = React.Children.toArray(children);
 	const messagesChild = childrenArray.find(
-		(child) => React.isValidElement(child) && child.type === AIBranchMessages,
+		(child) => React.isValidElement(child) && child.type === AIBranchMessages
 	);
 
 	const messagesChildren = React.isValidElement(messagesChild)
@@ -54,9 +54,7 @@ export function AIBranch({
 	};
 
 	return (
-		<AIBranchContext.Provider
-			value={{ currentBranch, totalBranches, setBranch, onBranchChange }}
-		>
+		<AIBranchContext.Provider value={{ currentBranch, totalBranches, setBranch, onBranchChange }}>
 			<div className={cn("ai-branch", className)}>{children}</div>
 		</AIBranchContext.Provider>
 	);
@@ -67,10 +65,7 @@ interface AIBranchMessagesProps {
 	children?: React.ReactNode;
 }
 
-export function AIBranchMessages({
-	messages = [],
-	children,
-}: AIBranchMessagesProps) {
+export function AIBranchMessages({ messages = [], children }: AIBranchMessagesProps) {
 	const { currentBranch } = useAIBranch();
 	const childrenArray = React.Children.toArray(children);
 
@@ -78,10 +73,7 @@ export function AIBranchMessages({
 		<div className="ai-branch-messages">
 			{children
 				? childrenArray.map((child, index) => (
-						<div
-							key={index}
-							style={{ display: index === currentBranch ? "block" : "none" }}
-						>
+						<div key={index} style={{ display: index === currentBranch ? "block" : "none" }}>
 							{child}
 						</div>
 					))
@@ -107,9 +99,7 @@ export function AIBranchPage({ className, children }: AIBranchPageProps) {
 	const { currentBranch, totalBranches } = useAIBranch();
 
 	return (
-		<div
-			className={cn("ai-branch-page text-xs text-muted-foreground", className)}
-		>
+		<div className={cn("ai-branch-page text-xs text-muted-foreground", className)}>
 			{children || (
 				<span className="page-indicator">
 					{currentBranch + 1} of {totalBranches}
@@ -136,7 +126,7 @@ export function AIBranchSelector({ from, children }: AIBranchSelectorProps) {
 		<div
 			className={cn(
 				"ai-branch-selector flex items-center gap-2 mt-2",
-				from === "assistant" ? "justify-start" : "justify-end",
+				from === "assistant" ? "justify-start" : "justify-end"
 			)}
 		>
 			{children}
@@ -152,8 +142,7 @@ export function AIBranchPrevious({ children }: AIBranchNavigationProps) {
 	const { currentBranch, totalBranches, setBranch } = useAIBranch();
 
 	const handlePrevious = () => {
-		const prevBranch =
-			currentBranch === 0 ? totalBranches - 1 : currentBranch - 1;
+		const prevBranch = currentBranch === 0 ? totalBranches - 1 : currentBranch - 1;
 		setBranch(prevBranch);
 	};
 
@@ -174,8 +163,7 @@ export function AIBranchNext({ children }: AIBranchNavigationProps) {
 	const { currentBranch, totalBranches, setBranch } = useAIBranch();
 
 	const handleNext = () => {
-		const nextBranch =
-			currentBranch === totalBranches - 1 ? 0 : currentBranch + 1;
+		const nextBranch = currentBranch === totalBranches - 1 ? 0 : currentBranch + 1;
 		setBranch(nextBranch);
 	};
 
@@ -198,11 +186,7 @@ interface AIBranchSelectorProps {
 	onBranchSelect?: (branch: string) => void;
 }
 
-export function AIBranchSelector({
-	from,
-	children,
-	onBranchSelect,
-}: AIBranchSelectorProps) {
+export function AIBranchSelector({ from, children, onBranchSelect }: AIBranchSelectorProps) {
 	return (
 		<div className="ai-branch-selector" data-from={from}>
 			{children}

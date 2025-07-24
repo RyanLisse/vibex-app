@@ -103,8 +103,7 @@ export const queryPatterns = {
 	prefetchCommon: (queryClient: any) => {
 		queryClient.prefetchQuery({
 			queryKey: taskKeys.list({ archived: false }),
-			queryFn: () =>
-				fetch("/api/tasks?archived=false").then((res) => res.json()),
+			queryFn: () => fetch("/api/tasks?archived=false").then((res) => res.json()),
 		});
 
 		queryClient.prefetchQuery({
@@ -166,14 +165,13 @@ export const createQueryKey = {
 	task: (id: string) => taskKeys.detail(id),
 	tasks: (filters: Record<string, any> = {}) => taskKeys.list(filters),
 	environment: (id: string) => environmentKeys.detail(id),
-	environments: (filters: Record<string, any> = {}) =>
-		environmentKeys.list(filters),
+	environments: (filters: Record<string, any> = {}) => environmentKeys.list(filters),
 
 	// Custom query keys
-	custom: (
-		namespace: string,
-		...parts: (string | number | Record<string, any>)[]
-	) => [namespace, ...parts],
+	custom: (namespace: string, ...parts: (string | number | Record<string, any>)[]) => [
+		namespace,
+		...parts,
+	],
 };
 
 // Hook utilities and types
@@ -190,11 +188,7 @@ export * from "./use-workflows";
 // Optimistic update helpers
 export const optimisticUpdates = {
 	// Add item to list
-	addToList: <T extends { id: string }>(
-		queryClient: any,
-		queryKey: unknown[],
-		newItem: T,
-	) => {
+	addToList: <T extends { id: string }>(queryClient: any, queryKey: unknown[], newItem: T) => {
 		queryClient.setQueryData(queryKey, (old: any) => {
 			if (!old) return { items: [newItem], total: 1 };
 			return {
@@ -209,15 +203,13 @@ export const optimisticUpdates = {
 	updateInList: <T extends { id: string }>(
 		queryClient: any,
 		queryKey: unknown[],
-		updatedItem: T,
+		updatedItem: T
 	) => {
 		queryClient.setQueryData(queryKey, (old: any) => {
 			if (!old) return old;
 			return {
 				...old,
-				items: old.items.map((item: T) =>
-					item.id === updatedItem.id ? updatedItem : item,
-				),
+				items: old.items.map((item: T) => (item.id === updatedItem.id ? updatedItem : item)),
 			};
 		});
 	},
@@ -226,7 +218,7 @@ export const optimisticUpdates = {
 	removeFromList: <T extends { id: string }>(
 		queryClient: any,
 		queryKey: unknown[],
-		itemId: string,
+		itemId: string
 	) => {
 		queryClient.setQueryData(queryKey, (old: any) => {
 			if (!old) return old;

@@ -1,8 +1,5 @@
 import { useCallback } from "react";
-import type {
-	IncomingMessage,
-	StreamingMessage,
-} from "@/app/task/[id]/_types/message-types";
+import type { IncomingMessage, StreamingMessage } from "@/app/task/[id]/_types/message-types";
 import { useUpdateTask } from "@/lib/query/hooks";
 import {
 	isCompletedStreamMessage,
@@ -18,9 +15,7 @@ interface UseMessageProcessorProps {
 		data: Record<string, unknown>;
 	}>;
 	streamingMessages: Map<string, StreamingMessage>;
-	setStreamingMessages: React.Dispatch<
-		React.SetStateAction<Map<string, StreamingMessage>>
-	>;
+	setStreamingMessages: React.Dispatch<React.SetStateAction<Map<string, StreamingMessage>>>;
 }
 
 export function useMessageProcessor({
@@ -35,7 +30,7 @@ export function useMessageProcessor({
 		(
 			message: IncomingMessage & {
 				data: { isStreaming: true; streamId: string };
-			},
+			}
 		) => {
 			const streamId = message.data.streamId;
 
@@ -48,8 +43,7 @@ export function useMessageProcessor({
 						...existingMessage,
 						data: {
 							...existingMessage.data,
-							text:
-								(existingMessage.data.text || "") + (message.data.text || ""),
+							text: (existingMessage.data.text || "") + (message.data.text || ""),
 							chunkIndex: message.data.chunkIndex,
 							totalChunks: message.data.totalChunks,
 						},
@@ -61,14 +55,14 @@ export function useMessageProcessor({
 				return newMap;
 			});
 		},
-		[setStreamingMessages],
+		[setStreamingMessages]
 	);
 
 	const processCompletedStream = useCallback(
 		(
 			message: IncomingMessage & {
 				data: { streamId: string; isStreaming: false };
-			},
+			}
 		) => {
 			const streamId = message.data.streamId;
 			const streamingMessage = streamingMessages.get(streamId);
@@ -82,8 +76,7 @@ export function useMessageProcessor({
 							...streamingMessage,
 							data: {
 								...streamingMessage.data,
-								text:
-									(message.data.text as string) || streamingMessage.data.text,
+								text: (message.data.text as string) || streamingMessage.data.text,
 								isStreaming: false,
 							},
 						} as {
@@ -101,13 +94,7 @@ export function useMessageProcessor({
 				});
 			}
 		},
-		[
-			taskId,
-			taskMessages,
-			streamingMessages,
-			updateTaskMutation,
-			setStreamingMessages,
-		],
+		[taskId, taskMessages, streamingMessages, updateTaskMutation, setStreamingMessages]
 	);
 
 	const processRegularMessage = useCallback(
@@ -124,7 +111,7 @@ export function useMessageProcessor({
 				],
 			});
 		},
-		[taskId, taskMessages, updateTaskMutation],
+		[taskId, taskMessages, updateTaskMutation]
 	);
 
 	const processMessage = useCallback(
@@ -141,7 +128,7 @@ export function useMessageProcessor({
 				processRegularMessage(message);
 			}
 		},
-		[processStreamingMessage, processCompletedStream, processRegularMessage],
+		[processStreamingMessage, processCompletedStream, processRegularMessage]
 	);
 
 	return { processMessage };

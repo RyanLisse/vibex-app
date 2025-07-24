@@ -4,25 +4,11 @@
  * Handles database operations for agent memory storage and retrieval.
  */
 
-import {
-	and,
-	cosineDistance,
-	desc,
-	eq,
-	gte,
-	inArray,
-	lte,
-	sql,
-} from "drizzle-orm";
+import { and, cosineDistance, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { ulid } from "ulid";
 import { db } from "@/db/config";
 import { agentMemory } from "@/db/schema";
-import type {
-	CreateMemoryInput,
-	MemoryBatchResult,
-	MemoryEntry,
-	UpdateMemoryInput,
-} from "./types";
+import type { CreateMemoryInput, MemoryBatchResult, MemoryEntry, UpdateMemoryInput } from "./types";
 
 export class MemoryRepository {
 	/**
@@ -82,11 +68,7 @@ export class MemoryRepository {
 	 * Find memory by ID
 	 */
 	async findById(id: string): Promise<MemoryEntry | null> {
-		const [memory] = await db
-			.select()
-			.from(agentMemory)
-			.where(eq(agentMemory.id, id))
-			.limit(1);
+		const [memory] = await db.select().from(agentMemory).where(eq(agentMemory.id, id)).limit(1);
 
 		return memory ? this.mapToMemoryEntry(memory) : null;
 	}
@@ -94,19 +76,11 @@ export class MemoryRepository {
 	/**
 	 * Find memory by agent type and context key
 	 */
-	async findByContext(
-		agentType: string,
-		contextKey: string,
-	): Promise<MemoryEntry | null> {
+	async findByContext(agentType: string, contextKey: string): Promise<MemoryEntry | null> {
 		const [memory] = await db
 			.select()
 			.from(agentMemory)
-			.where(
-				and(
-					eq(agentMemory.agentType, agentType),
-					eq(agentMemory.contextKey, contextKey),
-				),
-			)
+			.where(and(eq(agentMemory.agentType, agentType), eq(agentMemory.contextKey, contextKey)))
 			.limit(1);
 
 		return memory ? this.mapToMemoryEntry(memory) : null;
@@ -115,16 +89,12 @@ export class MemoryRepository {
 	/**
 	 * Update memory entry
 	 */
-	async update(
-		id: string,
-		input: UpdateMemoryInput,
-	): Promise<MemoryEntry | null> {
+	async update(id: string, input: UpdateMemoryInput): Promise<MemoryEntry | null> {
 		const updateData: any = {};
 
 		if (input.content !== undefined) updateData.content = input.content;
 		if (input.embedding !== undefined) updateData.embedding = input.embedding;
-		if (input.importance !== undefined)
-			updateData.importance = input.importance;
+		if (input.importance !== undefined) updateData.importance = input.importance;
 		if (input.expiresAt !== undefined) updateData.expiresAt = input.expiresAt;
 
 		// Handle metadata update

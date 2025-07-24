@@ -1,6 +1,6 @@
 /**
  * TestLifecycleManager - Comprehensive Test Lifecycle Management
- * 
+ *
  * Manages test setup, execution, cleanup, and resource coordination
  */
 
@@ -165,10 +165,10 @@ export class TestLifecycleManager {
 		}
 
 		this.activeTests.delete(context.id);
-		this.log("info", `Completed test: ${context.name}`, { 
-			testId: context.id, 
+		this.log("info", `Completed test: ${context.name}`, {
+			testId: context.id,
 			status: context.status,
-			duration 
+			duration,
 		});
 
 		return result;
@@ -184,11 +184,13 @@ export class TestLifecycleManager {
 		const result: TestResult = {
 			context,
 			duration: 0,
-			logs: [{ 
-				timestamp: new Date(), 
-				level: "info", 
-				message: `Test skipped: ${reason}` 
-			}],
+			logs: [
+				{
+					timestamp: new Date(),
+					level: "info",
+					message: `Test skipped: ${reason}`,
+				},
+			],
 			metrics: this.getEmptyMetrics(),
 		};
 
@@ -205,15 +207,12 @@ export class TestLifecycleManager {
 		testFn: (context: TestContext) => Promise<T>
 	): Promise<TestResult> {
 		const context = this.createTestContext(name, suite);
-		
+
 		try {
 			await this.startTest(context);
-			
+
 			// Run test with timeout
-			const result = await this.withTimeout(
-				testFn(context),
-				this.config.timeout
-			);
+			const result = await this.withTimeout(testFn(context), this.config.timeout);
 
 			return await this.completeTest(context);
 		} catch (error) {
@@ -235,10 +234,8 @@ export class TestLifecycleManager {
 
 		if (this.config.parallel) {
 			// Run tests in parallel
-			const promises = tests.map(test => 
-				this.runTest(test.name, suiteName, test.fn)
-			);
-			results.push(...await Promise.all(promises));
+			const promises = tests.map((test) => this.runTest(test.name, suiteName, test.fn));
+			results.push(...(await Promise.all(promises)));
 		} else {
 			// Run tests sequentially
 			for (const test of tests) {
@@ -248,9 +245,9 @@ export class TestLifecycleManager {
 		}
 
 		const totalDuration = Date.now() - startTime;
-		const passCount = results.filter(r => r.context.status === "passed").length;
-		const failCount = results.filter(r => r.context.status === "failed").length;
-		const skipCount = results.filter(r => r.context.status === "skipped").length;
+		const passCount = results.filter((r) => r.context.status === "passed").length;
+		const failCount = results.filter((r) => r.context.status === "failed").length;
+		const skipCount = results.filter((r) => r.context.status === "skipped").length;
 
 		const suiteResult: TestSuiteResult = {
 			name: suiteName,
@@ -305,8 +302,12 @@ export class TestLifecycleManager {
 	 */
 	getLogs(testId?: string): LogEntry[] {
 		if (testId) {
-			return this.logs.filter(log => 
-				log.data && typeof log.data === 'object' && 'testId' in log.data && log.data.testId === testId
+			return this.logs.filter(
+				(log) =>
+					log.data &&
+					typeof log.data === "object" &&
+					"testId" in log.data &&
+					log.data.testId === testId
 			);
 		}
 		return [...this.logs];
@@ -409,8 +410,12 @@ export class TestLifecycleManager {
 	}
 
 	private getTestLogs(testId: string): LogEntry[] {
-		return this.logs.filter(log => 
-			log.data && typeof log.data === 'object' && 'testId' in log.data && log.data.testId === testId
+		return this.logs.filter(
+			(log) =>
+				log.data &&
+				typeof log.data === "object" &&
+				"testId" in log.data &&
+				log.data.testId === testId
 		);
 	}
 
@@ -426,7 +431,10 @@ export class TestLifecycleManager {
 
 		// Also log to console in development
 		if (process.env.NODE_ENV !== "test") {
-			console[level === "error" ? "error" : "log"](`[${level.toUpperCase()}] ${message}`, data || "");
+			console[level === "error" ? "error" : "log"](
+				`[${level.toUpperCase()}] ${message}`,
+				data || ""
+			);
 		}
 	}
 

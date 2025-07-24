@@ -145,8 +145,7 @@ export function getMonitoringConfig(): MonitoringConfig {
 		},
 		grafana: {
 			enabled: process.env.GRAFANA_ENABLED === "true",
-			dashboardPath:
-				process.env.GRAFANA_DASHBOARD_PATH || "./grafana/dashboards",
+			dashboardPath: process.env.GRAFANA_DASHBOARD_PATH || "./grafana/dashboards",
 			datasourceName: process.env.GRAFANA_DATASOURCE || "Prometheus",
 		},
 		alertManager: {
@@ -185,9 +184,7 @@ export function getMonitoringConfig(): MonitoringConfig {
 				? {
 						enabled: true,
 						url: process.env.WEBHOOK_URL,
-						headers: process.env.WEBHOOK_HEADERS
-							? JSON.parse(process.env.WEBHOOK_HEADERS)
-							: {},
+						headers: process.env.WEBHOOK_HEADERS ? JSON.parse(process.env.WEBHOOK_HEADERS) : {},
 						method: (process.env.WEBHOOK_METHOD as "POST" | "PUT") || "POST",
 					}
 				: undefined,
@@ -200,18 +197,12 @@ export function getMonitoringConfig(): MonitoringConfig {
 		sla: {
 			enabled: process.env.SLA_MONITORING_ENABLED === "true",
 			targets: [], // Loaded from configuration
-			reportingInterval: Number.parseInt(
-				process.env.SLA_REPORTING_INTERVAL || "3600000",
-				10,
-			), // 1 hour
+			reportingInterval: Number.parseInt(process.env.SLA_REPORTING_INTERVAL || "3600000", 10), // 1 hour
 		},
 		capacity: {
 			enabled: process.env.CAPACITY_PLANNING_ENABLED === "true",
 			thresholds: [], // Loaded from configuration
-			forecastDays: Number.parseInt(
-				process.env.CAPACITY_FORECAST_DAYS || "30",
-				10,
-			),
+			forecastDays: Number.parseInt(process.env.CAPACITY_FORECAST_DAYS || "30", 10),
 		},
 	};
 }

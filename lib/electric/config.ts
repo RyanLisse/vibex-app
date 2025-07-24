@@ -74,9 +74,7 @@ export const electricConfig: ElectricConfig = {
 		// Enable offline support
 		enabled: true,
 		// Maximum offline queue size
-		maxQueueSize: Number.parseInt(
-			process.env.ELECTRIC_MAX_QUEUE_SIZE || "1000",
-		),
+		maxQueueSize: Number.parseInt(process.env.ELECTRIC_MAX_QUEUE_SIZE || "1000"),
 		// Offline storage type
 		storage: "indexeddb", // or 'memory' for testing
 	},
@@ -95,36 +93,27 @@ export const electricConfig: ElectricConfig = {
 	debug: process.env.NODE_ENV === "development",
 
 	// Connection timeout in milliseconds
-	connectionTimeout: Number.parseInt(
-		process.env.ELECTRIC_CONNECTION_TIMEOUT || "10000",
-	),
+	connectionTimeout: Number.parseInt(process.env.ELECTRIC_CONNECTION_TIMEOUT || "10000"),
 
 	// Heartbeat interval for connection health
-	heartbeatInterval: Number.parseInt(
-		process.env.ELECTRIC_HEARTBEAT_INTERVAL || "30000",
-	),
+	heartbeatInterval: Number.parseInt(process.env.ELECTRIC_HEARTBEAT_INTERVAL || "30000"),
 };
 
 // Validate configuration
 export function validateElectricConfig(): void {
 	if (!electricConfig.url) {
 		throw new Error(
-			"ElectricSQL URL is required. Set ELECTRIC_URL or DATABASE_URL environment variable.",
+			"ElectricSQL URL is required. Set ELECTRIC_URL or DATABASE_URL environment variable."
 		);
 	}
 
 	if (electricConfig.sync?.interval && electricConfig.sync.interval < 100) {
-		console.warn(
-			"ElectricSQL sync interval is very low (<100ms). This may impact performance.",
-		);
+		console.warn("ElectricSQL sync interval is very low (<100ms). This may impact performance.");
 	}
 
-	if (
-		electricConfig.offline?.maxQueueSize &&
-		electricConfig.offline.maxQueueSize > 10_000
-	) {
+	if (electricConfig.offline?.maxQueueSize && electricConfig.offline.maxQueueSize > 10_000) {
 		console.warn(
-			"ElectricSQL offline queue size is very large (>10000). This may impact memory usage.",
+			"ElectricSQL offline queue size is very large (>10000). This may impact memory usage."
 		);
 	}
 }
@@ -199,13 +188,8 @@ export interface SyncEvent {
 
 // Real ElectricDB implementation that integrates all services
 class ElectricDB {
-	private stateListeners = new Set<
-		(state: { connection: string; sync: string }) => void
-	>();
-	private syncEventListeners = new Map<
-		string,
-		Set<(event: SyncEvent) => void>
-	>();
+	private stateListeners = new Set<(state: { connection: string; sync: string }) => void>();
+	private syncEventListeners = new Map<string, Set<(event: SyncEvent) => void>>();
 	private realtimeStats = {
 		totalOperations: 0,
 		pendingOperations: 0,
@@ -228,27 +212,18 @@ class ElectricDB {
 
 			console.log("✅ ElectricDB initialized with real-time sync");
 		} catch (error) {
-			console.warn(
-				"⚠️ Failed to initialize real-time sync, using fallback mode:",
-				error,
-			);
+			console.warn("⚠️ Failed to initialize real-time sync, using fallback mode:", error);
 		}
 	};
 
-	addSyncEventListener(
-		table: string,
-		handler: (event: SyncEvent) => void,
-	): void {
+	addSyncEventListener(table: string, handler: (event: SyncEvent) => void): void {
 		if (!this.syncEventListeners.has(table)) {
 			this.syncEventListeners.set(table, new Set());
 		}
 		this.syncEventListeners.get(table)!.add(handler);
 	}
 
-	removeSyncEventListener(
-		table: string,
-		handler: (event: SyncEvent) => void,
-	): void {
+	removeSyncEventListener(table: string, handler: (event: SyncEvent) => void): void {
 		const listeners = this.syncEventListeners.get(table);
 		if (listeners) {
 			listeners.delete(handler);
@@ -258,15 +233,11 @@ class ElectricDB {
 		}
 	}
 
-	addStateListener(
-		handler: (state: { connection: string; sync: string }) => void,
-	): void {
+	addStateListener(handler: (state: { connection: string; sync: string }) => void): void {
 		this.stateListeners.add(handler);
 	}
 
-	removeStateListener(
-		handler: (state: { connection: string; sync: string }) => void,
-	): void {
+	removeStateListener(handler: (state: { connection: string; sync: string }) => void): void {
 		this.stateListeners.delete(handler);
 	}
 
@@ -282,9 +253,7 @@ class ElectricDB {
 
 	async getSyncState(): Promise<string> {
 		try {
-			const { conflictResolutionService } = await import(
-				"./conflict-resolution"
-			);
+			const { conflictResolutionService } = await import("./conflict-resolution");
 			const queueStatus = conflictResolutionService.getOfflineQueueStatus();
 			return queueStatus.pendingOperations > 0 ? "syncing" : "idle";
 		} catch {
@@ -311,7 +280,7 @@ class ElectricDB {
 						});
 					}
 				},
-				filters,
+				filters
 			);
 		} catch (error) {
 			console.error("Failed to subscribe to table:", error);
@@ -323,7 +292,7 @@ class ElectricDB {
 		table: string,
 		operation: string,
 		data: any,
-		realtime = true,
+		realtime = true
 	): Promise<any> {
 		try {
 			this.realtimeStats.totalOperations++;
@@ -345,12 +314,7 @@ class ElectricDB {
 				if (realtime) {
 					try {
 						const { realtimeSyncService } = await import("./realtime-sync");
-						await realtimeSyncService.sendUpdate(
-							table,
-							operation,
-							result.data,
-							data.userId,
-						);
+						await realtimeSyncService.sendUpdate(table, operation, result.data, data.userId);
 					} catch (error) {
 						console.warn("Failed to send real-time update:", error);
 					}
@@ -374,9 +338,7 @@ class ElectricDB {
 
 	async sync(): Promise<void> {
 		try {
-			const { conflictResolutionService } = await import(
-				"./conflict-resolution"
-			);
+			const { conflictResolutionService } = await import("./conflict-resolution");
 			await conflictResolutionService.processOfflineQueue();
 
 			// Notify state listeners
@@ -389,9 +351,7 @@ class ElectricDB {
 
 	async getStats(): Promise<{ pendingChanges: number }> {
 		try {
-			const { conflictResolutionService } = await import(
-				"./conflict-resolution"
-			);
+			const { conflictResolutionService } = await import("./conflict-resolution");
 			const queueStatus = conflictResolutionService.getOfflineQueueStatus();
 			return {
 				pendingChanges: queueStatus.pendingOperations,

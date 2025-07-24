@@ -3,7 +3,7 @@
  *
  * Implements kanban board operations with base infrastructure patterns
  * for consistent error handling, tracing, and observability.
- * 
+ *
  * REFACTORED: Uses shared kanban service to eliminate duplication
  */
 
@@ -53,10 +53,7 @@ export class TasksKanbanAPIService extends BaseAPIService {
 	/**
 	 * Get kanban board data - REFACTORED to use shared service
 	 */
-	async getKanbanBoard(
-		params: GetKanbanQuery,
-		context: ServiceContext,
-	): Promise<KanbanBoardData> {
+	async getKanbanBoard(params: GetKanbanQuery, context: ServiceContext): Promise<KanbanBoardData> {
 		return this.executeWithTracing("getKanbanBoard", context, async (span) => {
 			// Delegate to shared service to eliminate duplication
 			const result = await SharedKanbanService.getKanbanBoard(params);
@@ -83,7 +80,7 @@ export class TasksKanbanAPIService extends BaseAPIService {
 	 */
 	async moveTask(
 		moveData: KanbanMoveDTO,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{
 		task: any;
 		movement: {
@@ -101,11 +98,14 @@ export class TasksKanbanAPIService extends BaseAPIService {
 			}
 
 			// Use simplified task movement utility
-			const result = await executeTaskMove({
-				taskId: moveData.taskId,
-				toColumn: moveData.toColumn,
-				newOrder: moveData.position,
-			}, task);
+			const result = await executeTaskMove(
+				{
+					taskId: moveData.taskId,
+					toColumn: moveData.toColumn,
+					newOrder: moveData.position,
+				},
+				task
+			);
 
 			// Add observability
 			span.setAttributes({
@@ -116,16 +116,12 @@ export class TasksKanbanAPIService extends BaseAPIService {
 				"kanban.to_status": result.movement.to,
 			});
 
-			await this.recordEvent(
-				"user_action",
-				`Task moved in kanban: ${result.task.title}`,
-				{
-					taskId: moveData.taskId,
-					userId: "system",
-					fromColumn: result.movement.from,
-					toColumn: result.movement.to,
-				},
-			);
+			await this.recordEvent("user_action", `Task moved in kanban: ${result.task.title}`, {
+				taskId: moveData.taskId,
+				userId: "system",
+				fromColumn: result.movement.from,
+				toColumn: result.movement.to,
+			});
 
 			return result;
 		});
@@ -136,33 +132,25 @@ export class TasksKanbanAPIService extends BaseAPIService {
 	 */
 	async updateKanbanConfig(
 		config: KanbanConfigDTO,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<KanbanConfigDTO> {
-		return this.executeWithTracing(
-			"updateKanbanConfig",
-			context,
-			async (span) => {
-				// Delegate to shared service to eliminate duplication
-				const result = await SharedKanbanService.updateConfig(config);
+		return this.executeWithTracing("updateKanbanConfig", context, async (span) => {
+			// Delegate to shared service to eliminate duplication
+			const result = await SharedKanbanService.updateConfig(config);
 
-				// Add instance-specific observability
-				span.setAttributes({
-					"kanban.config_update": true,
-					"kanban.columns_count": config.columns.length,
-					"kanban.wip_limits_enabled": config.settings?.enableWipLimits || false,
-				});
+			// Add instance-specific observability
+			span.setAttributes({
+				"kanban.config_update": true,
+				"kanban.columns_count": config.columns.length,
+				"kanban.wip_limits_enabled": config.settings?.enableWipLimits || false,
+			});
 
-				await this.recordEvent(
-					"config_update",
-					"Kanban configuration updated",
-					{
-						config: result,
-					},
-				);
+			await this.recordEvent("config_update", "Kanban configuration updated", {
+				config: result,
+			});
 
-				return result;
-			},
-		);
+			return result;
+		});
 	}
 }
 

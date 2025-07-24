@@ -75,9 +75,7 @@ describe("AgentNode Component", () => {
 		expect(AgentNode.displayName).toBe("AgentNode");
 
 		// Test that multiple renders with same props don't cause issues
-		const { rerender } = render(
-			<AgentNode id="test" data={{ label: "Test" }} />,
-		);
+		const { rerender } = render(<AgentNode id="test" data={{ label: "Test" }} />);
 		expect(screen.getByText("Test")).toBeInTheDocument();
 
 		rerender(<AgentNode id="test" data={{ label: "Test" }} />);

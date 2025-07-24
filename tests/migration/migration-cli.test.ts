@@ -6,12 +6,4 @@
  */
 
 import { join } from "path";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	type MockedFunction,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type MockedFunction, vi } from "vitest";

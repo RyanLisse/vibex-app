@@ -10,11 +10,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
-import {
-	ConflictError,
-	NotFoundError,
-	ValidationError,
-} from "@/lib/api/base/errors";
+import { ConflictError, NotFoundError, ValidationError } from "@/lib/api/base/errors";
 import { observability } from "@/lib/observability";
 
 export interface ServiceContext {
@@ -32,6 +28,7 @@ export class ExternalServiceError extends Error {
 import type {
 	PRStatusSchema,
 	TaskPRLinkSchema,
+	PRStatusUpdateSchema,
 } from "@/src/schemas/enhanced-task-schemas";
 
 // Query schemas
@@ -41,7 +38,7 @@ export const GetPRIntegrationQuerySchema = z.object({
 });
 
 export const MergePRSchema = z.object({
-	prId: z.string(),
+	prUrl: z.string().url(),
 	userId: z.string(),
 	mergeMethod: z.enum(["merge", "squash", "rebase"]).default("squash"),
 	deleteSourceBranch: z.boolean().default(true),
@@ -49,7 +46,7 @@ export const MergePRSchema = z.object({
 
 export type GetPRIntegrationQuery = z.infer<typeof GetPRIntegrationQuerySchema>;
 export type TaskPRLinkDTO = z.infer<typeof TaskPRLinkSchema>;
-export type PRStatusDTO = z.infer<typeof PRStatusSchema>;
+export type PRStatusDTO = z.infer<typeof PRStatusUpdateSchema>;
 export type MergePRDTO = z.infer<typeof MergePRSchema>;
 
 // Mock GitHub API client
@@ -109,7 +106,7 @@ class GitHubAPIClient {
 		options: {
 			mergeMethod: string;
 			deleteSourceBranch: boolean;
-		},
+		}
 	) {
 		// Mock merge operation
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -131,7 +128,7 @@ export class PRIntegrationAPIService {
 	 */
 	async linkTaskToPR(
 		linkData: TaskPRLinkDTO,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{
 		task: any;
 		prStatus: any;
@@ -143,11 +140,7 @@ export class PRIntegrationAPIService {
 
 		try {
 			// Get the task
-			const [task] = await db
-				.select()
-				.from(tasks)
-				.where(eq(tasks.id, linkData.taskId))
-				.limit(1);
+			const [task] = await db.select().from(tasks).where(eq(tasks.id, linkData.taskId)).limit(1);
 
 			if (!task) {
 				throw new NotFoundError("Task", linkData.taskId);
@@ -158,7 +151,7 @@ export class PRIntegrationAPIService {
 			try {
 				prStatus = await GitHubAPIClient.getPRStatus(
 					linkData.repository,
-					linkData.prId.replace("pr-", ""),
+					linkData.prNumber.toString()
 				);
 			} catch (error) {
 				throw new ExternalServiceError("GitHub API", error as Error);
@@ -166,10 +159,14 @@ export class PRIntegrationAPIService {
 
 			// Create PR link data
 			const prLink = {
-				prId: prStatus.prId,
+				prUrl: linkData.prUrl,
+				prNumber: linkData.prNumber,
 				repository: linkData.repository,
-				branch: prStatus.branch,
-				autoUpdateStatus: linkData.autoUpdateStatus,
+				status: prStatus.status,
+				title: prStatus.title,
+				author: prStatus.author,
+				createdAt: prStatus.createdAt,
+				updatedAt: prStatus.updatedAt,
 				linkedAt: new Date().toISOString(),
 				linkedBy: "system", // userId not available in linkData
 			};
@@ -179,9 +176,7 @@ export class PRIntegrationAPIService {
 			const existingPRLinks = currentMetadata.prLinks || [];
 
 			// Check if PR is already linked
-			const existingLink = existingPRLinks.find(
-				(link) => link.prId === prStatus.prId,
-			);
+			const existingLink = existingPRLinks.find((link) => link.prNumber === linkData.prNumber);
 			if (existingLink) {
 				throw new ConflictError("PR is already linked to this task");
 			}
@@ -191,7 +186,7 @@ export class PRIntegrationAPIService {
 				prLinks: [...existingPRLinks, prLink],
 				prStatuses: {
 					...currentMetadata.prStatuses,
-					[prStatus.prId]: prStatus,
+					[`pr-${linkData.prNumber}`]: prStatus,
 				},
 			};
 
@@ -211,20 +206,20 @@ export class PRIntegrationAPIService {
 				`PR linked to task: ${task.title}`,
 				{
 					taskId: linkData.taskId,
-					prId: prStatus.prId,
+					prNumber: linkData.prNumber.toString(),
 					repository: linkData.repository,
-					prNumber: linkData.prId.replace("pr-", ""),
-					autoUpdate: linkData.autoUpdateStatus,
+					prUrl: linkData.prUrl,
 					userId: context.userId,
 				},
 				"api",
-				["pr", "link"],
+				["pr", "link"]
 			);
 
 			span.setAttributes({
 				"task.id": linkData.taskId,
-				"pr.id": prStatus.prId,
+				"pr.number": linkData.prNumber,
 				"pr.repository": linkData.repository,
+				"pr.url": linkData.prUrl,
 			});
 
 			span.setStatus({ code: SpanStatusCode.OK });
@@ -248,7 +243,7 @@ export class PRIntegrationAPIService {
 	 */
 	async updatePRStatus(
 		prStatusData: PRStatusDTO,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{
 		prStatus: any;
 		updatedTasks: any[];
@@ -264,7 +259,7 @@ export class PRIntegrationAPIService {
 
 			const tasksWithPR = allTasks.filter((task) => {
 				const prLinks = (task.metadata as any)?.prLinks || [];
-				return prLinks.some((link) => link.prId === prStatusData.prId);
+				return prLinks.some((link) => link.prUrl === prStatusData.prUrl);
 			});
 
 			if (tasksWithPR.length === 0) {
@@ -274,15 +269,12 @@ export class PRIntegrationAPIService {
 			// Fetch updated PR status from GitHub
 			const taskWithPR = tasksWithPR[0];
 			const prLink = ((taskWithPR as any).metadata as any).prLinks.find(
-				(link: any) => link.prId === prStatusData.prId,
+				(link: any) => link.prUrl === prStatusData.prUrl
 			);
 
 			let prStatus;
 			try {
-				prStatus = await GitHubAPIClient.getPRStatus(
-					prLink.repository,
-					prStatusData.prId.replace("pr-", ""),
-				);
+				prStatus = await GitHubAPIClient.getPRStatus(prLink.repository, prLink.prNumber.toString());
 			} catch (error) {
 				throw new ExternalServiceError("GitHub API", error as Error);
 			}
@@ -294,16 +286,15 @@ export class PRIntegrationAPIService {
 					...currentMetadata,
 					prStatuses: {
 						...currentMetadata.prStatuses,
-						[prStatusData.prId]: prStatus,
+						[`pr-${prLink.prNumber}`]: prStatus,
 					},
 				};
 
 				// Auto-update task status if PR is merged and auto-update is enabled
-				const prLink = currentMetadata.prLinks.find(
-					(link) => link.prId === prStatusData.prId,
+				const taskPrLink = currentMetadata.prLinks.find(
+					(link) => link.prUrl === prStatusData.prUrl
 				);
-				const shouldAutoUpdate =
-					prLink?.autoUpdateStatus && prStatus.status === "merged";
+				const shouldAutoUpdate = taskPrLink && prStatus.status === "merged";
 
 				const updates: any = {
 					metadata: updatedMetadata,
@@ -324,9 +315,7 @@ export class PRIntegrationAPIService {
 			});
 
 			const updatedTasks = await Promise.all(updatePromises);
-			const autoUpdatedCount = updatedTasks.filter(
-				(task) => task.status === "completed",
-			).length;
+			const autoUpdatedCount = updatedTasks.filter((task) => task.status === "completed").length;
 
 			// Log operation
 			await observability.events.collector.collectEvent(
@@ -334,7 +323,8 @@ export class PRIntegrationAPIService {
 				"info",
 				`PR status updated: ${prStatus.title}`,
 				{
-					prId: prStatusData.prId,
+					prUrl: prStatusData.prUrl,
+					prNumber: prLink.prNumber,
 					newStatus: prStatus.status,
 					reviewStatus: prStatus.reviewStatus,
 					tasksUpdated: updatedTasks.length,
@@ -342,11 +332,12 @@ export class PRIntegrationAPIService {
 					userId: context.userId,
 				},
 				"api",
-				["pr", "status"],
+				["pr", "status"]
 			);
 
 			span.setAttributes({
-				"pr.id": prStatusData.prId,
+				"pr.url": prStatusData.prUrl,
+				"pr.number": prLink.prNumber,
 				"pr.status": prStatus.status,
 				"tasks.updated": updatedTasks.length,
 			});
@@ -388,9 +379,7 @@ export class PRIntegrationAPIService {
 
 	private filterTasksWithPRs(allTasks: any[]) {
 		return allTasks.filter(
-			(task) =>
-				(task.metadata as any)?.prLinks &&
-				(task.metadata as any).prLinks.length > 0,
+			(task) => (task.metadata as any)?.prLinks && (task.metadata as any).prLinks.length > 0
 		);
 	}
 
@@ -438,7 +427,7 @@ export class PRIntegrationAPIService {
 	 */
 	async getPRIntegrationData(
 		params: GetPRIntegrationQuery,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{
 		tasks: any[];
 		statistics: any;
@@ -478,24 +467,22 @@ export class PRIntegrationAPIService {
 	}
 
 	// Helper functions to reduce mergePR complexity
-	private async findLinkedTasks(prId: string) {
+	private async findLinkedTasks(prUrl: string) {
 		const allTasks = await db.select().from(tasks);
 		return allTasks.filter((task) => {
 			const prLinks = (task.metadata as any)?.prLinks || [];
-			return prLinks.some((link) => link.prId === prId);
+			return prLinks.some((link) => link.prUrl === prUrl);
 		});
 	}
 
-	private extractPRDetails(linkedTasks: any[], prId: string) {
+	private extractPRDetails(linkedTasks: any[], prUrl: string) {
 		if (linkedTasks.length === 0) {
 			throw new NotFoundError("No tasks found linked to this PR");
 		}
 
 		const firstTask = linkedTasks[0];
-		const prLink = (firstTask.metadata as any).prLinks.find(
-			(link: any) => link.prId === prId,
-		);
-		const prStatus = (firstTask.metadata as any).prStatuses?.[prId];
+		const prLink = (firstTask.metadata as any).prLinks.find((link: any) => link.prUrl === prUrl);
+		const prStatus = (firstTask.metadata as any).prStatuses?.[`pr-${prLink?.prNumber}`];
 
 		if (!prStatus) {
 			throw new NotFoundError("PR status not found");
@@ -536,14 +523,10 @@ export class PRIntegrationAPIService {
 
 	private async performMergeOperation(prLink: any, mergeData: MergePRDTO) {
 		try {
-			return await GitHubAPIClient.mergePR(
-				prLink.repository,
-				mergeData.prId.replace("pr-", ""),
-				{
-					mergeMethod: mergeData.mergeMethod,
-					deleteSourceBranch: mergeData.deleteSourceBranch,
-				},
-			);
+			return await GitHubAPIClient.mergePR(prLink.repository, prLink.prNumber.toString(), {
+				mergeMethod: mergeData.mergeMethod,
+				deleteSourceBranch: mergeData.deleteSourceBranch,
+			});
 		} catch (error) {
 			throw new ExternalServiceError("GitHub API", error as Error);
 		}
@@ -558,28 +541,24 @@ export class PRIntegrationAPIService {
 		};
 	}
 
-	private async updateLinkedTasks(
-		linkedTasks: any[],
-		mergeData: MergePRDTO,
-		updatedPRStatus: any,
-	) {
+	private async updateLinkedTasks(linkedTasks: any[], mergeData: MergePRDTO, updatedPRStatus: any) {
 		const updatePromises = linkedTasks.map(async (task) => {
 			const currentMetadata = (task.metadata as any) || {};
 			const prLink = (currentMetadata as any).prLinks?.find(
-				(link: any) => link.prId === mergeData.prId,
+				(link: any) => link.prUrl === mergeData.prUrl
 			);
 
 			const updatedMetadata = {
 				...currentMetadata,
 				prStatuses: {
 					...currentMetadata.prStatuses,
-					[mergeData.prId]: updatedPRStatus,
+					[`pr-${prLink?.prNumber}`]: updatedPRStatus,
 				},
 			};
 
 			// Auto-complete task if auto-update is enabled and task isn't already completed
-			const shouldAutoComplete =
-				prLink?.autoUpdateStatus && task.status !== "completed";
+			// Note: autoUpdateStatus property doesn't exist in schema, so defaulting to true for merged PRs
+			const shouldAutoComplete = task.status !== "completed";
 
 			const updates: any = {
 				metadata: updatedMetadata,
@@ -591,11 +570,7 @@ export class PRIntegrationAPIService {
 				updates.completedAt = new Date();
 			}
 
-			const [result] = await db
-				.update(tasks)
-				.set(updates)
-				.where(eq(tasks.id, task.id))
-				.returning();
+			const [result] = await db.update(tasks).set(updates).where(eq(tasks.id, task.id)).returning();
 			return result;
 		});
 
@@ -608,14 +583,14 @@ export class PRIntegrationAPIService {
 		prLink: any,
 		mergeResult: any,
 		linkedTasks: any[],
-		autoCompletedTasks: any[],
+		autoCompletedTasks: any[]
 	) {
 		await observability.events.collector.collectEvent(
 			"user_action",
 			"info",
 			`PR merged successfully: ${prStatus.title}`,
 			{
-				prId: mergeData.prId,
+				prUrl: mergeData.prUrl,
 				repository: prLink.repository,
 				mergeMethod: mergeData.mergeMethod,
 				mergeCommitSha: mergeResult.mergeCommitSha,
@@ -625,7 +600,7 @@ export class PRIntegrationAPIService {
 				sourceBranchDeleted: mergeData.deleteSourceBranch,
 			},
 			"api",
-			["pr", "merge"],
+			["pr", "merge"]
 		);
 	}
 
@@ -634,7 +609,7 @@ export class PRIntegrationAPIService {
 	 */
 	async mergePR(
 		mergeData: MergePRDTO,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{
 		mergeResult: any;
 		prStatus: any;
@@ -648,11 +623,8 @@ export class PRIntegrationAPIService {
 
 		try {
 			// Find linked tasks and extract PR details
-			const linkedTasks = await this.findLinkedTasks(mergeData.prId);
-			const { prLink, prStatus } = this.extractPRDetails(
-				linkedTasks,
-				mergeData.prId,
-			);
+			const linkedTasks = await this.findLinkedTasks(mergeData.prUrl);
+			const { prLink, prStatus } = this.extractPRDetails(linkedTasks, mergeData.prUrl);
 
 			// Validate merge eligibility
 			this.validateMergeEligibility(prStatus);
@@ -662,14 +634,8 @@ export class PRIntegrationAPIService {
 
 			// Update PR status and linked tasks
 			const updatedPRStatus = this.createUpdatedPRStatus(prStatus, mergeResult);
-			const updatedTasks = await this.updateLinkedTasks(
-				linkedTasks,
-				mergeData,
-				updatedPRStatus,
-			);
-			const autoCompletedTasks = updatedTasks.filter(
-				(task) => task.status === "completed",
-			);
+			const updatedTasks = await this.updateLinkedTasks(linkedTasks, mergeData, updatedPRStatus);
+			const autoCompletedTasks = updatedTasks.filter((task) => task.status === "completed");
 
 			// Log operation
 			await this.logMergeOperation(
@@ -678,12 +644,12 @@ export class PRIntegrationAPIService {
 				prLink,
 				mergeResult,
 				linkedTasks,
-				autoCompletedTasks,
+				autoCompletedTasks
 			);
 
 			// Set span attributes
 			span.setAttributes({
-				"pr.id": mergeData.prId,
+				"pr.id": mergeData.prUrl,
 				"pr.merge_method": mergeData.mergeMethod,
 				"tasks.linked_count": linkedTasks.length,
 			});

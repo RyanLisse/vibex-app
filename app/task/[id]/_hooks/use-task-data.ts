@@ -20,10 +20,7 @@ interface UseTaskDataReturn {
 	isTaskInProgress: boolean;
 }
 
-export function useTaskData({
-	task,
-	streamingMessages,
-}: UseTaskDataProps): UseTaskDataReturn {
+export function useTaskData({ task, streamingMessages }: UseTaskDataProps): UseTaskDataReturn {
 	const updateTaskMutation = useUpdateTask();
 
 	// Mark task as viewed when component mounts

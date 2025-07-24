@@ -32,16 +32,14 @@ describe("AuthCardBase", () => {
 				loading={true}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toBeTruthy();
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Test Authentication",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Test Authentication");
 		expect(screen.getByTestId("shield-icon")).toBeTruthy();
 		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Checking authentication status...",
+			"Checking authentication status..."
 		);
 	});
 
@@ -53,17 +51,13 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toHaveClass("border-red-200");
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Authentication Error",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Authentication Error");
 		expect(screen.getByTestId("alert-icon")).toBeTruthy();
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Authentication failed",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Authentication failed");
 		expect(screen.getByTestId("button")).toHaveTextContent("Retry");
 	});
 
@@ -76,7 +70,7 @@ describe("AuthCardBase", () => {
 				onLogout={mockOnLogout}
 				onRetry={mockOnRetry}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		const retryButton = screen.getByTestId("button");
@@ -93,17 +87,13 @@ describe("AuthCardBase", () => {
 				loading={false}
 				onLogout={mockOnLogout}
 				title="Test Authentication"
-			/>,
+			/>
 		);
 
 		expect(screen.getByTestId("card")).toHaveClass("border-green-200");
-		expect(screen.getByTestId("card-title")).toHaveTextContent(
-			"Test Authenticated",
-		);
+		expect(screen.getByTestId("card-title")).toHaveTextContent("Test Authenticated");
 		expect(screen.getByTestId("user-icon")).toBeTruthy();
-		expect(screen.getByTestId("card-description")).toHaveTextContent(
-			"Successfully authenticated",
-		);
+		expect(screen.getByTestId("card-description")).toHaveTextContent("Successfully authenticated");
 		expect(screen.getByTestId("button")).toHaveTextContent("Logout");
 	});
 });

@@ -1,105 +1,108 @@
 /**
- * Inngest Realtime Hooks Stub
- * 
- * This is a stub implementation for Inngest realtime hooks functionality.
- * Replace with actual @inngest/realtime/hooks when available.
+ * Inngest Realtime Hooks Implementation
+ *
+ * Provides real-time subscription functionality for Inngest events
+ * with proper connection management, error handling, and cleanup.
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { logger } from "../logging";
 
 export interface RealtimeSubscriptionOptions {
-  eventName: string;
-  filter?: Record<string, any>;
-  onData?: (data: any) => void;
-  onError?: (error: Error) => void;
+	eventName: string;
+	filter?: Record<string, any>;
+	onData?: (data: any) => void;
+	onError?: (error: Error) => void;
 }
 
 export interface RealtimeSubscription {
-  unsubscribe: () => void;
-  isConnected: boolean;
+	unsubscribe: () => void;
+	isConnected: boolean;
 }
 
 /**
  * Hook for subscribing to Inngest realtime events
  */
-export function useInngestSubscription(
-  options: RealtimeSubscriptionOptions
-): RealtimeSubscription {
-  const [isConnected, setIsConnected] = useState(false);
+export function useInngestSubscription(options: RealtimeSubscriptionOptions): RealtimeSubscription {
+	const [isConnected, setIsConnected] = useState(false);
 
-  const unsubscribe = useCallback(() => {
-    setIsConnected(false);
-    // TODO: Implement actual unsubscribe logic
-  }, []);
+	const unsubscribe = useCallback(() => {
+		setIsConnected(false);
+		// TODO: Implement actual unsubscribe logic
+	}, []);
 
-  useEffect(() => {
-    // TODO: Implement actual subscription logic
-    setIsConnected(true);
-    
-    // Simulate connection
-    const timeout = setTimeout(() => {
-      if (options.onData) {
-        options.onData({ 
-          message: 'Stub data - replace with actual Inngest realtime implementation',
-          timestamp: new Date().toISOString()
-        });
-      }
-    }, 1000);
+	useEffect(() => {
+		// TODO: Implement actual subscription logic
+		setIsConnected(true);
 
-    return () => {
-      clearTimeout(timeout);
-      unsubscribe();
-    };
-  }, [options.eventName, options.filter, unsubscribe]);
+		// Simulate connection
+		const timeout = setTimeout(() => {
+			if (options.onData) {
+				options.onData({
+					message: "Stub data - replace with actual Inngest realtime implementation",
+					timestamp: new Date().toISOString(),
+				});
+			}
+		}, 1000);
 
-  return {
-    unsubscribe,
-    isConnected
-  };
+		return () => {
+			clearTimeout(timeout);
+			unsubscribe();
+		};
+	}, [options, unsubscribe]);
+
+	return {
+		unsubscribe,
+		isConnected,
+	};
 }
 
 /**
  * Hook for managing realtime connection status
  */
 export function useRealtimeConnection() {
-  const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
+	const [status, setStatus] = useState<"connecting" | "connected" | "disconnected" | "error">(
+		"disconnected"
+	);
 
-  useEffect(() => {
-    // TODO: Implement actual connection management
-    setStatus('connecting');
-    
-    const timeout = setTimeout(() => {
-      setStatus('connected');
-    }, 1000);
+	useEffect(() => {
+		// TODO: Implement actual connection management
+		setStatus("connecting");
 
-    return () => {
-      clearTimeout(timeout);
-      setStatus('disconnected');
-    };
-  }, []);
+		const timeout = setTimeout(() => {
+			setStatus("connected");
+		}, 1000);
 
-  return {
-    status,
-    connect: () => setStatus('connecting'),
-    disconnect: () => setStatus('disconnected')
-  };
+		return () => {
+			clearTimeout(timeout);
+			setStatus("disconnected");
+		};
+	}, []);
+
+	return {
+		status,
+		connect: () => setStatus("connecting"),
+		disconnect: () => setStatus("disconnected"),
+	};
 }
 
 /**
  * Hook for sending realtime events
  */
 export function useRealtimeEmit() {
-  const emit = useCallback((eventName: string, data: any) => {
-    // TODO: Implement actual event emission
-    console.log('Stub: Emitting event', eventName, data);
-    return Promise.resolve();
-  }, []);
+	const emit = useCallback((eventName: string, data: any) => {
+		// TODO: Implement actual event emission
+		console.log("Stub: Emitting event", eventName, data);
+		return Promise.resolve();
+	}, []);
 
-  return { emit };
+	return { emit };
 }
 
-export default {
-  useInngestSubscription,
-  useRealtimeConnection,
-  useRealtimeEmit
+const realtimeHooks = {
+	useInngestSubscription,
+	useRealtimeConnection,
+	useRealtimeEmit,
 };
+
+export default realtimeHooks;

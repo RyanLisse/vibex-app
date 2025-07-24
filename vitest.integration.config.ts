@@ -14,8 +14,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
  * - Real environment simulation
  */
 export default defineConfig({
-	// CRITICAL FIX: Disable ESBuild to prevent EPIPE errors
-	esbuild: false,
+	// CRITICAL FIX: Configure ESBuild for integration tests
+	esbuild: {
+		target: 'esnext',
+		minify: false,
+		keepNames: true,
+		sourcemap: true
+	},
 	
 	plugins: [
 		react({
@@ -26,8 +31,8 @@ export default defineConfig({
 	],
 	test: {
 		name: "integration",
-		environment: "node",
-		setupFiles: ["./test-setup-fixed.ts"],
+		environment: "jsdom",
+		setupFiles: ["./tests/setup/integration-setup.ts"],
 		env: {
 			// Test environment variables
 			DATABASE_URL: "postgresql://test:test@localhost:5432/test",
@@ -93,16 +98,25 @@ export default defineConfig({
 			"tests/integration/**/ai-chat-testing.test.ts",
 			"tests/integration/**/cache-invalidation.test.ts",
 		],
-		// Integration test specific settings
-		testTimeout: 30000, // Longer timeout for integration tests
-		hookTimeout: 15000,
-		teardownTimeout: 10000,
-		maxConcurrency: 2, // Limit parallel tests to prevent resource conflicts
-		// Single thread execution to prevent race conditions
+		// Optimized integration test settings
+		testTimeout: 20000, // Reduced from 30s to 20s
+		hookTimeout: 8000,  // Reduced from 15s to 8s
+		teardownTimeout: 5000, // Reduced from 10s to 5s
+		maxConcurrency: 1, // Force single execution
+		// Enhanced single-process execution
+		pool: "forks",
 		poolOptions: {
-			threads: {
-				singleThread: true,
-			},
+			forks: {
+				singleFork: true,
+				isolate: true,
+				execArgv: ['--max-old-space-size=4096']
+			}
+		},
+		// Force sequential execution
+		sequence: {
+			concurrent: false,
+			shuffle: false,
+			hooks: 'stack'
 		},
 		retry: 1, // Allow one retry for flaky integration tests
 		coverage: {

@@ -61,9 +61,7 @@ export class DataExtractor {
 			// Check for unknown localStorage keys
 			const unknownKeys = this.findUnknownKeys();
 			if (unknownKeys.length > 0) {
-				warnings.push(
-					`Found unknown localStorage keys: ${unknownKeys.join(", ")}`,
-				);
+				warnings.push(`Found unknown localStorage keys: ${unknownKeys.join(", ")}`);
 			}
 		} catch (error) {
 			errors.push({
@@ -124,14 +122,14 @@ export class DataExtractor {
 							message: `Task ${i}: ${err.message}`,
 							item: task,
 							field: err.field,
-						})),
+						}))
 					);
 				}
 			}
 
 			if (validatedTasks.length < tasks.length) {
 				warnings.push(
-					`${tasks.length - validatedTasks.length} tasks failed validation and were skipped`,
+					`${tasks.length - validatedTasks.length} tasks failed validation and were skipped`
 				);
 			}
 
@@ -198,14 +196,14 @@ export class DataExtractor {
 							message: `Environment ${i}: ${err.message}`,
 							item: env,
 							field: err.field,
-						})),
+						}))
 					);
 				}
 			}
 
 			if (validatedEnvironments.length < environments.length) {
 				warnings.push(
-					`${environments.length - validatedEnvironments.length} environments failed validation and were skipped`,
+					`${environments.length - validatedEnvironments.length} environments failed validation and were skipped`
 				);
 			}
 
@@ -242,11 +240,7 @@ export class DataExtractor {
 				if (!key || this.knownKeys.has(key)) continue;
 
 				// Check if it looks like form data (contains 'form' or has JSON structure)
-				if (
-					key.includes("form") ||
-					key.includes("draft") ||
-					key.includes("temp")
-				) {
+				if (key.includes("form") || key.includes("draft") || key.includes("temp")) {
 					try {
 						const value = localStorage.getItem(key);
 						if (value) {
@@ -254,9 +248,7 @@ export class DataExtractor {
 							formData[key] = parsed;
 						}
 					} catch (parseError) {
-						warnings.push(
-							`Could not parse potential form data for key: ${key}`,
-						);
+						warnings.push(`Could not parse potential form data for key: ${key}`);
 					}
 				}
 			}
@@ -403,13 +395,7 @@ export class DataExtractor {
 		}
 
 		// Status validation
-		const validStatuses = [
-			"IN_PROGRESS",
-			"DONE",
-			"MERGED",
-			"PAUSED",
-			"CANCELLED",
-		];
+		const validStatuses = ["IN_PROGRESS", "DONE", "MERGED", "PAUSED", "CANCELLED"];
 		if (t.status && !validStatuses.includes(t.status as string)) {
 			errors.push({
 				field: "status",
@@ -491,10 +477,7 @@ export class DataExtractor {
 					message: "Invalid date format",
 					severity: "ERROR",
 				});
-			} else if (
-				!(e.createdAt instanceof Date) &&
-				typeof e.createdAt !== "string"
-			) {
+			} else if (!(e.createdAt instanceof Date) && typeof e.createdAt !== "string") {
 				errors.push({
 					field: "createdAt",
 					message: "Date must be Date object or ISO string",
@@ -510,10 +493,7 @@ export class DataExtractor {
 					message: "Invalid date format",
 					severity: "ERROR",
 				});
-			} else if (
-				!(e.updatedAt instanceof Date) &&
-				typeof e.updatedAt !== "string"
-			) {
+			} else if (!(e.updatedAt instanceof Date) && typeof e.updatedAt !== "string") {
 				errors.push({
 					field: "updatedAt",
 					message: "Date must be Date object or ISO string",

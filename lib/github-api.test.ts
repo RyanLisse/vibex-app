@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GitHubAPI } from "./github-api";
 
-describe.skip("GitHubAPI", () => {
+describe("GitHubAPI", () => {
 	let api: GitHubAPI;
 	const mockToken = "github-token-123";
 	let fetchMock: ReturnType<typeof vi.fn>;
@@ -51,9 +51,7 @@ describe.skip("GitHubAPI", () => {
 				statusText: "Unauthorized",
 			} as Response);
 
-			await expect(api.getUser()).rejects.toThrow(
-				"GitHub API error: 401 Unauthorized",
-			);
+			await expect(api.getUser()).rejects.toThrow("GitHub API error: 401 Unauthorized");
 		});
 	});
 
@@ -78,7 +76,7 @@ describe.skip("GitHubAPI", () => {
 						Authorization: `Bearer ${mockToken}`,
 						Accept: "application/vnd.github.v3+json",
 					},
-				},
+				}
 			);
 			expect(result).toEqual(mockRepos);
 		});
@@ -99,7 +97,7 @@ describe.skip("GitHubAPI", () => {
 
 			expect(fetchMock).toHaveBeenCalledWith(
 				"https://api.github.com/user/repos?sort=created&per_page=50&page=2",
-				expect.any(Object),
+				expect.any(Object)
 			);
 			expect(result).toEqual(mockRepos);
 		});
@@ -119,15 +117,12 @@ describe.skip("GitHubAPI", () => {
 
 			const result = await api.getBranches("user", "repo");
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"https://api.github.com/repos/user/repo/branches",
-				{
-					headers: {
-						Authorization: `Bearer ${mockToken}`,
-						Accept: "application/vnd.github.v3+json",
-					},
+			expect(fetchMock).toHaveBeenCalledWith("https://api.github.com/repos/user/repo/branches", {
+				headers: {
+					Authorization: `Bearer ${mockToken}`,
+					Accept: "application/vnd.github.v3+json",
 				},
-			);
+			});
 			expect(result).toEqual(mockBranches);
 		});
 
@@ -164,18 +159,15 @@ describe.skip("GitHubAPI", () => {
 
 			const result = await api.createRepository(newRepo);
 
-			expect(fetchMock).toHaveBeenCalledWith(
-				"https://api.github.com/user/repos",
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${mockToken}`,
-						Accept: "application/vnd.github.v3+json",
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(newRepo),
+			expect(fetchMock).toHaveBeenCalledWith("https://api.github.com/user/repos", {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${mockToken}`,
+					Accept: "application/vnd.github.v3+json",
+					"Content-Type": "application/json",
 				},
-			);
+				body: JSON.stringify(newRepo),
+			});
 			expect(result).toEqual(mockResponse);
 		});
 	});
@@ -195,7 +187,7 @@ describe.skip("GitHubAPI", () => {
 			} as Response);
 
 			await expect(api.getBranches("user", "nonexistent")).rejects.toThrow(
-				"GitHub API error: 404 Not Found",
+				"GitHub API error: 404 Not Found"
 			);
 		});
 
@@ -207,7 +199,7 @@ describe.skip("GitHubAPI", () => {
 			} as Response);
 
 			await expect(api.getRepositories()).rejects.toThrow(
-				"GitHub API error: 429 Too Many Requests",
+				"GitHub API error: 429 Too Many Requests"
 			);
 		});
 	});

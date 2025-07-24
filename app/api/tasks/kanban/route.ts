@@ -11,12 +11,12 @@ export const runtime = "nodejs";
 
 import { z } from "zod";
 import { KanbanMoveSchema, KanbanBoardConfigSchema } from "@/src/schemas/enhanced-task-schemas";
-import { 
+import {
 	SharedKanbanService,
 	GetKanbanQuerySchema,
 	DEFAULT_COLUMNS,
 	STATUS_COLUMN_MAP,
-	KanbanUtils
+	KanbanUtils,
 } from "@/lib/api/kanban/shared-service";
 import {
 	createRouteHandler,
@@ -24,7 +24,7 @@ import {
 	createPostHandler,
 	createPutHandler,
 	QueryParsers,
-	ResponseBuilders
+	ResponseBuilders,
 } from "@/lib/api/shared/route-helpers";
 import { withErrorHandling, RouteErrorHandlers } from "@/lib/api/shared/error-handlers";
 
@@ -34,16 +34,16 @@ import { withErrorHandling, RouteErrorHandlers } from "@/lib/api/shared/error-ha
  * GET /api/tasks/kanban - Get kanban board data
  */
 export const GET = createRouteHandler({
-	method: 'GET',
-	serviceName: 'kanban-api',
+	method: "GET",
+	serviceName: "kanban-api",
 	enableCaching: true,
 	cacheMaxAge: 60, // 1 minute cache for kanban data
 	handler: async ({ request }) => {
 		const params = QueryParsers.search(request);
 		const queryParams = GetKanbanQuerySchema.parse({
-			userId: new URL(request.url).searchParams.get('userId'),
-			projectId: new URL(request.url).searchParams.get('projectId'),
-			assignee: new URL(request.url).searchParams.get('assignee'),
+			userId: new URL(request.url).searchParams.get("userId"),
+			projectId: new URL(request.url).searchParams.get("projectId"),
+			assignee: new URL(request.url).searchParams.get("assignee"),
 		});
 
 		// Delegate to shared service
@@ -55,8 +55,8 @@ export const GET = createRouteHandler({
  * POST /api/tasks/kanban - Move task between columns
  */
 export const POST = createRouteHandler({
-	method: 'POST',
-	serviceName: 'kanban-api',
+	method: "POST",
+	serviceName: "kanban-api",
 	bodySchema: KanbanMoveSchema,
 	handler: async ({ body }) => {
 		// Delegate to shared service
@@ -68,8 +68,8 @@ export const POST = createRouteHandler({
  * PUT /api/tasks/kanban - Update kanban configuration
  */
 export const PUT = createRouteHandler({
-	method: 'PUT',
-	serviceName: 'kanban-api',
+	method: "PUT",
+	serviceName: "kanban-api",
 	bodySchema: KanbanBoardConfigSchema,
 	handler: async ({ body }) => {
 		// Delegate to shared service

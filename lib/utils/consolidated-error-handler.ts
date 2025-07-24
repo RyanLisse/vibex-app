@@ -1,13 +1,15 @@
 /**
  * Consolidated Error Handling Utilities
- * 
+ *
  * This module consolidates common error handling patterns to eliminate code duplication
  * identified by qlty smells analysis across API routes and services.
  */
+
+import type { Span } from "@opentelemetry/api";
+import { SpanStatusCode } from "@opentelemetry/api";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { SpanStatusCode } from "@opentelemetry/api";
-import type { Span } from "@opentelemetry/api";
+import { logger } from "../logging";
 
 // Standard error response structure
 export interface ErrorResponse {
@@ -34,14 +36,14 @@ export function handleAPIError(
 	config: ErrorHandlerConfig
 ): NextResponse<ErrorResponse> {
 	const { operation, observability, span, includeDetails = false } = config;
-	
-	console.error(`Failed to ${operation}:`, error);
-	
+
+	logger.error(`Failed to ${operation}`, { error });
+
 	// Record error in observability system
 	if (observability) {
 		observability.recordError(`api.${operation}`, error as Error);
 	}
-	
+
 	// Record error in span if provided
 	if (span) {
 		span.recordException(error as Error);
@@ -50,7 +52,7 @@ export function handleAPIError(
 			message: (error as Error).message,
 		});
 	}
-	
+
 	// Handle Zod validation errors
 	if (error instanceof ZodError) {
 		return NextResponse.json(
@@ -62,10 +64,10 @@ export function handleAPIError(
 			{ status: 400 }
 		);
 	}
-	
+
 	// Handle generic errors
 	const errorMessage = error instanceof Error ? error.message : "Internal server error";
-	
+
 	return NextResponse.json(
 		{
 			error: errorMessage,
@@ -103,11 +105,11 @@ export function handlePerformanceError(
 		code: SpanStatusCode.ERROR,
 		message: (error as Error).message,
 	});
-	
-	console.error(`Performance monitoring error in ${operation}:`, error);
-	
+
+	logger.error(`Performance monitoring error in ${operation}`, { error });
+
 	const errorMessage = error instanceof Error ? error.message : "Performance monitoring failed";
-	
+
 	return NextResponse.json(
 		{
 			error: errorMessage,

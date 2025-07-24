@@ -64,15 +64,12 @@ export const MultiAgentChat = React.memo(function MultiAgentChat({
 				sendMessage();
 			}
 		},
-		[sendMessage],
+		[sendMessage]
 	);
 
-	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setInputValue(e.target.value);
-		},
-		[],
-	);
+	const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setInputValue(e.target.value);
+	}, []);
 
 	const emptyState = useMemo(
 		() => (
@@ -81,7 +78,7 @@ export const MultiAgentChat = React.memo(function MultiAgentChat({
 				<p>Start a conversation with the agents</p>
 			</div>
 		),
-		[],
+		[]
 	);
 
 	const messagesList = useMemo(
@@ -92,7 +89,7 @@ export const MultiAgentChat = React.memo(function MultiAgentChat({
 					<div>{message.content}</div>
 				</div>
 			)),
-		[messages],
+		[messages]
 	);
 
 	return (
@@ -122,11 +119,7 @@ export const MultiAgentChat = React.memo(function MultiAgentChat({
 							variant={isRecording ? "destructive" : "outline"}
 							size="icon"
 						>
-							{isRecording ? (
-								<MicOff className="h-4 w-4" />
-							) : (
-								<Mic className="h-4 w-4" />
-							)}
+							{isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
 						</Button>
 					</div>
 				</div>

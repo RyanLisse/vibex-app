@@ -26,12 +26,10 @@ export interface Environment {
 
 interface EnvironmentStore {
 	environments: Environment[];
-	createEnvironment: (
-		environment: Omit<Environment, "id" | "createdAt" | "updatedAt">,
-	) => void;
+	createEnvironment: (environment: Omit<Environment, "id" | "createdAt" | "updatedAt">) => void;
 	updateEnvironment: (
 		id: string,
-		updates: Partial<Omit<Environment, "id" | "createdAt" | "updatedAt">>,
+		updates: Partial<Omit<Environment, "id" | "createdAt" | "updatedAt">>
 	) => void;
 	deleteEnvironment: (id: string) => void;
 	listEnvironments: () => Environment[];
@@ -61,7 +59,7 @@ export const useEnvironmentStore = create<EnvironmentStore>()(
 			updateEnvironment: (id, updates) => {
 				set((state) => ({
 					environments: state.environments.map((env) =>
-						env.id === id ? { ...env, ...updates, updatedAt: new Date() } : env,
+						env.id === id ? { ...env, ...updates, updatedAt: new Date() } : env
 					),
 				}));
 			},
@@ -76,6 +74,6 @@ export const useEnvironmentStore = create<EnvironmentStore>()(
 		}),
 		{
 			name: "environments",
-		},
-	),
+		}
+	)
 );

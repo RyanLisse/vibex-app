@@ -7,7 +7,7 @@ import { join } from "path";
 // Fix 1: Memory icon import in performance-monitor.tsx
 const performanceMonitorPath = join(
 	process.cwd(),
-	"components/ambient-agents/monitors/performance-monitor.tsx",
+	"components/ambient-agents/monitors/performance-monitor.tsx"
 );
 if (existsSync(performanceMonitorPath)) {
 	let content = readFileSync(performanceMonitorPath, "utf-8");
@@ -24,7 +24,7 @@ if (existsSync(performanceMonitorPath)) {
 				imports[memoryIndex] = "MemoryStick";
 			}
 			return `${imports.join(", ")} } from 'lucide-react'`;
-		},
+		}
 	);
 	// Replace Memory usage with MemoryStick
 	content = content.replace(/<Memory\s/g, "<MemoryStick ");
@@ -33,16 +33,13 @@ if (existsSync(performanceMonitorPath)) {
 }
 
 // Fix 2: ReactFlow import in visualization-engine.tsx
-const visualizationPath = join(
-	process.cwd(),
-	"components/ambient-agents/visualization-engine.tsx",
-);
+const visualizationPath = join(process.cwd(), "components/ambient-agents/visualization-engine.tsx");
 if (existsSync(visualizationPath)) {
 	let content = readFileSync(visualizationPath, "utf-8");
 	// Fix ReactFlow import - it's a named export
 	content = content.replace(
 		/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/,
-		"ReactFlow } from '@xyflow/react'",
+		"ReactFlow } from '@xyflow/react'"
 	);
 	writeFileSync(visualizationPath, content);
 	console.log("✅ Fixed ReactFlow import in visualization-engine.tsx");
@@ -58,9 +55,7 @@ if (existsSync(observabilityPath)) {
 		content +=
 			"\n\n// Export observability service instance\nexport const observabilityService = observability\n";
 		writeFileSync(observabilityPath, content);
-		console.log(
-			"✅ Added observabilityService export to observability/index.ts",
-		);
+		console.log("✅ Added observabilityService export to observability/index.ts");
 	}
 }
 
@@ -72,10 +67,7 @@ if (existsSync(vectorSearchPath)) {
 	if (!content.includes("export const vectorSearchService")) {
 		// Find the service definition and export it
 		if (content.includes("const vectorSearchService")) {
-			content = content.replace(
-				/const vectorSearchService/,
-				"export const vectorSearchService",
-			);
+			content = content.replace(/const vectorSearchService/, "export const vectorSearchService");
 		} else {
 			// Add a default export
 			content +=
@@ -89,7 +81,7 @@ if (existsSync(vectorSearchPath)) {
 // Fix 5: Create missing WASM module stub
 const wasmModulePath = join(
 	process.cwd(),
-	"lib/wasm/generated/vector-search/vector_search_wasm.js",
+	"lib/wasm/generated/vector-search/vector_search_wasm.js"
 );
 const wasmDir = join(process.cwd(), "lib/wasm/generated/vector-search");
 if (!existsSync(wasmModulePath)) {

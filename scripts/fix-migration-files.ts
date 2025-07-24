@@ -21,9 +21,7 @@ async function fixMigrationFiles() {
 
 			// Check if file already has Up/Down sections
 			if (content.includes("-- Up") && content.includes("-- Down")) {
-				console.log(
-					`✓ Already formatted: ${path.relative(process.cwd(), file)}`,
-				);
+				console.log(`✓ Already formatted: ${path.relative(process.cwd(), file)}`);
 				continue;
 			}
 
@@ -32,15 +30,11 @@ async function fixMigrationFiles() {
 			const fileName = path.basename(file, ".sql");
 
 			// Extract table names from CREATE TABLE statements
-			const tableMatches = content.match(
-				/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/gi,
-			);
+			const tableMatches = content.match(/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/gi);
 			const tables = tableMatches
 				? tableMatches
 						.map((match) => {
-							const tableMatch = match.match(
-								/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/i,
-							);
+							const tableMatch = match.match(/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?(\w+)/i);
 							return tableMatch ? tableMatch[1] : null;
 						})
 						.filter(Boolean)
@@ -73,10 +67,7 @@ async function updateMigrationRunner() {
 	console.log("\n🔧 Updating migration runner...");
 
 	try {
-		const runnerPath = path.join(
-			process.cwd(),
-			"db/migrations/migration-runner.ts",
-		);
+		const runnerPath = path.join(process.cwd(), "db/migrations/migration-runner.ts");
 		let content = await readFile(runnerPath, "utf-8");
 
 		// Update loadMigrationFiles to handle both formats
@@ -140,10 +131,7 @@ async function updateMigrationRunner() {
   }`;
 
 		// Replace the method
-		content =
-			content.slice(0, loadMethodStart) +
-			newLoadMethod +
-			content.slice(loadMethodEnd);
+		content = content.slice(0, loadMethodStart) + newLoadMethod + content.slice(loadMethodEnd);
 
 		await writeFile(runnerPath, content, "utf-8");
 		console.log("✅ Updated migration runner to handle both formats");

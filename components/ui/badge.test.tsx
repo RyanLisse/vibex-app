@@ -24,7 +24,7 @@ describe("Badge", () => {
 			"border-transparent",
 			"bg-secondary",
 			"text-secondary-foreground",
-			"hover:bg-secondary/80",
+			"hover:bg-secondary/80"
 		);
 	});
 
@@ -36,7 +36,7 @@ describe("Badge", () => {
 			"border-transparent",
 			"bg-destructive",
 			"text-destructive-foreground",
-			"hover:bg-destructive/80",
+			"hover:bg-destructive/80"
 		);
 	});
 
@@ -68,7 +68,7 @@ describe("Badge", () => {
 				}}
 			>
 				Badge
-			</Badge>,
+			</Badge>
 		);
 
 		const badge = screen.getByTestId("badge");
@@ -94,7 +94,7 @@ describe("Badge", () => {
 					<circle cx="6" cy="6" r="6" />
 				</svg>
 				<span>Badge with icon</span>
-			</Badge>,
+			</Badge>
 		);
 
 		const badge = screen.getByText("Badge with icon").parentElement;
@@ -117,7 +117,7 @@ describe("Badge", () => {
 			"focus:outline-none",
 			"focus:ring-2",
 			"focus:ring-ring",
-			"focus:ring-offset-2",
+			"focus:ring-offset-2"
 		);
 	});
 
@@ -139,7 +139,7 @@ describe("Badge", () => {
 		render(
 			<div>
 				Text before <Badge>Inline Badge</Badge> text after
-			</div>,
+			</div>
 		);
 
 		const badge = screen.getByText("Inline Badge");
@@ -154,11 +154,7 @@ describe("Badge", () => {
 	});
 
 	it("should handle style prop", () => {
-		render(
-			<Badge style={{ backgroundColor: "red", color: "white" }}>
-				Styled Badge
-			</Badge>,
-		);
+		render(<Badge style={{ backgroundColor: "red", color: "white" }}>Styled Badge</Badge>);
 
 		const badge = screen.getByText("Styled Badge");
 		expect(badge.style.backgroundColor).toBe("red");

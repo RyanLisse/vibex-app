@@ -43,11 +43,7 @@ describe("BrainstormAgent", () => {
 
 			// Mock the brainstorming response
 			const mockResponse = {
-				ideas: [
-					"Interactive tutorial",
-					"Gamified onboarding",
-					"Personalized experience",
-				],
+				ideas: ["Interactive tutorial", "Gamified onboarding", "Personalized experience"],
 				reasoning: "Based on UX best practices",
 			};
 

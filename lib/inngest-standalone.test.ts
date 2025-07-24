@@ -95,13 +95,9 @@ describe("inngest module (standalone tests)", () => {
 			handler: vi.fn(() => Promise.resolve({ success: true })),
 		}));
 
-		const fn = mockCreateFunction(
-			{ id: "test-function" },
-			{ event: "test.event" },
-			async () => ({
-				result: "test",
-			}),
-		);
+		const fn = mockCreateFunction({ id: "test-function" }, { event: "test.event" }, async () => ({
+			result: "test",
+		}));
 
 		expect(fn.id).toBe("test-function");
 		expect(fn.trigger).toEqual({ event: "test.event" });
@@ -113,14 +109,14 @@ describe("inngest module (standalone tests)", () => {
 			id: typeof window !== "undefined" ? "client" : "server",
 		});
 
-		// Server environment (default)
-		expect(mockGetApp().id).toBe("server");
-
-		// Client environment
-		const originalWindow = global.window;
-		// @ts-expect-error - Mocking window
-		global.window = {};
+		// In jsdom environment, window is defined, so this should be "client"
 		expect(mockGetApp().id).toBe("client");
+
+		// Server environment (simulate Node.js)
+		const originalWindow = global.window;
+		// @ts-expect-error - Temporarily removing window
+		delete (global as any).window;
+		expect(mockGetApp().id).toBe("server");
 		global.window = originalWindow;
 	});
 

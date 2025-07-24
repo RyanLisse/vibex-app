@@ -19,13 +19,7 @@ import { useElectricContext } from "@/components/providers/electric-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	type Environment,
@@ -49,7 +43,7 @@ function useEnvironmentHandlers(
 	deleteEnvironmentMutation: any,
 	activateEnvironmentMutation: any,
 	refetchEnvironments: () => void,
-	login: () => Promise<void>,
+	login: () => Promise<void>
 ) {
 	const handleGitHubAuth = async () => {
 		try {
@@ -60,20 +54,17 @@ function useEnvironmentHandlers(
 				"GitHub authentication initiated",
 				{ userId, action: "github_auth" },
 				"ui",
-				["auth", "github"],
+				["auth", "github"]
 			);
 		} catch (error) {
 			logger.error("GitHub authentication failed", error as Error);
 		}
 	};
 
-	const handleDeleteEnvironment = async (
-		environmentId: string,
-		environmentName: string,
-	) => {
+	const handleDeleteEnvironment = async (environmentId: string, environmentName: string) => {
 		if (
 			!confirm(
-				`Are you sure you want to delete the environment "${environmentName}"? This action cannot be undone.`,
+				`Are you sure you want to delete the environment "${environmentName}"? This action cannot be undone.`
 			)
 		) {
 			return;
@@ -87,7 +78,7 @@ function useEnvironmentHandlers(
 				`Environment deleted: ${environmentName}`,
 				{ environmentId, userId, environmentName, action: "delete" },
 				"ui",
-				["environment", "delete"],
+				["environment", "delete"]
 			);
 		} catch (error) {
 			logger.error("Failed to delete environment", error as Error);
@@ -108,7 +99,7 @@ function useEnvironmentHandlers(
 				`Environment activated: ${environmentId}`,
 				{ environmentId, userId, action: "activate" },
 				"ui",
-				["environment", "activate"],
+				["environment", "activate"]
 			);
 		} catch (error) {
 			logger.error("Failed to activate environment", error as Error);
@@ -152,13 +143,7 @@ const ConnectionStatus = ({
 );
 
 // Error display component
-const ErrorDisplay = ({
-	error,
-	onRetry,
-}: {
-	error: Error;
-	onRetry: () => void;
-}) => (
+const ErrorDisplay = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
 	<Alert className="mb-4" variant="destructive">
 		<AlertCircle className="h-4 w-4" />
 		<AlertDescription className="flex items-center justify-between">
@@ -232,9 +217,7 @@ const EnvironmentCard = ({
 					)}
 					<Button
 						disabled={deleteEnvironmentMutation.isPending}
-						onClick={() =>
-							handleDeleteEnvironment(environment.id, environment.name)
-						}
+						onClick={() => handleDeleteEnvironment(environment.id, environment.name)}
 						size="icon"
 						variant="ghost"
 					>
@@ -247,9 +230,7 @@ const EnvironmentCard = ({
 			<div className="space-y-2">
 				<div className="flex items-center gap-2 text-muted-foreground text-sm">
 					<GithubIcon className="h-4 w-4" />
-					<span>
-						{environment.config?.githubOrganization || "No organization"}
-					</span>
+					<span>{environment.config?.githubOrganization || "No organization"}</span>
 					<Dot className="h-4 w-4" />
 					<span>{environment.config?.githubRepository || "No repository"}</span>
 				</div>
@@ -299,15 +280,8 @@ const EnvironmentsHeader = ({
 			)}
 		</div>
 		<div className="flex items-center gap-2">
-			<Button
-				disabled={environmentsFetching}
-				onClick={handleRefresh}
-				size="sm"
-				variant="ghost"
-			>
-				<RefreshCw
-					className={`h-4 w-4 ${environmentsFetching ? "animate-spin" : ""}`}
-				/>
+			<Button disabled={environmentsFetching} onClick={handleRefresh} size="sm" variant="ghost">
+				<RefreshCw className={`h-4 w-4 ${environmentsFetching ? "animate-spin" : ""}`} />
 			</Button>
 			{isAuthenticated ? (
 				<Button onClick={() => setIsDialogOpen(true)}>
@@ -325,11 +299,7 @@ const EnvironmentsHeader = ({
 );
 
 // Empty state components
-const EmptyEnvironments = ({
-	setIsDialogOpen,
-}: {
-	setIsDialogOpen: (open: boolean) => void;
-}) => (
+const EmptyEnvironments = ({ setIsDialogOpen }: { setIsDialogOpen: (open: boolean) => void }) => (
 	<Card>
 		<CardContent className="pt-6">
 			<div className="text-center">
@@ -343,18 +313,12 @@ const EmptyEnvironments = ({
 	</Card>
 );
 
-const UnauthenticatedState = ({
-	handleGitHubAuth,
-}: {
-	handleGitHubAuth: () => Promise<void>;
-}) => (
+const UnauthenticatedState = ({ handleGitHubAuth }: { handleGitHubAuth: () => Promise<void> }) => (
 	<Card>
 		<CardContent className="pt-6">
 			<div className="text-center">
 				<GithubIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-				<p className="mb-4 text-muted-foreground">
-					Connect your Github account to get started
-				</p>
+				<p className="mb-4 text-muted-foreground">Connect your Github account to get started</p>
 				<Button onClick={handleGitHubAuth}>
 					<GithubIcon className="mr-2 h-4 w-4" />
 					Connect Github
@@ -386,18 +350,14 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
 	const activateEnvironmentMutation = useActivateEnvironmentMutation();
 
 	// Event handlers
-	const {
-		handleGitHubAuth,
-		handleDeleteEnvironment,
-		handleActivateEnvironment,
-		handleRefresh,
-	} = useEnvironmentHandlers(
-		userId,
-		deleteEnvironmentMutation,
-		activateEnvironmentMutation,
-		refetchEnvironments,
-		login,
-	);
+	const { handleGitHubAuth, handleDeleteEnvironment, handleActivateEnvironment, handleRefresh } =
+		useEnvironmentHandlers(
+			userId,
+			deleteEnvironmentMutation,
+			activateEnvironmentMutation,
+			refetchEnvironments,
+			login
+		);
 
 	// Loading state
 	if (authLoading || environmentsLoading) {
@@ -440,10 +400,7 @@ export default function EnvironmentsList({ userId }: EnvironmentsListProps) {
 
 				{/* Error display */}
 				{environmentsError && (
-					<ErrorDisplay
-						error={environmentsError}
-						onRetry={refetchEnvironments}
-					/>
+					<ErrorDisplay error={environmentsError} onRetry={refetchEnvironments} />
 				)}
 
 				{/* Environments list */}

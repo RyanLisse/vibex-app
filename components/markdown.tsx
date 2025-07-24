@@ -5,10 +5,7 @@ import type React from "react";
 import { memo, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-	oneDark,
-	oneLight,
-} from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { oneDark, oneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
@@ -79,12 +76,8 @@ export const CodeComponent: React.FC<CodeComponentProps> = ({
 				<ScrollArea className="max-w-full">
 					<div className="px-4 py-2" style={{ maxWidth: "100%" }}>
 						<SyntaxHighlighter
-							codeTagProps={{
-								style: {
-									whiteSpace: "pre",
-									display: "block",
-								},
-							}}
+							language={match[1]}
+							style={theme === "dark" ? oneDark : oneLight}
 							customStyle={{
 								fontSize: "12.5px",
 								backgroundColor: "transparent",
@@ -93,9 +86,20 @@ export const CodeComponent: React.FC<CodeComponentProps> = ({
 								background: "none",
 								overflow: "visible",
 							}}
-							language={match[1]}
-							PreTag="div"
-							style={theme === "dark" ? oneDark : oneLight}
+							PreTag={({ children: preChildren, ...preProps }) => (
+								<div {...preProps}>{preChildren}</div>
+							)}
+							CodeTag={({ children: codeChildren, ...codeProps }) => (
+								<code
+									style={{
+										whiteSpace: "pre",
+										display: "block",
+									}}
+									{...codeProps}
+								>
+									{codeChildren}
+								</code>
+							)}
 							wrapLongLines={false}
 						>
 							{String(children).replace(/\n$/, "")}
@@ -141,11 +145,7 @@ const components: Partial<Components> = {
 		</span>
 	),
 	p: ({ children, ...props }) => (
-		<p
-			className="mb-2"
-			style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
-			{...props}
-		>
+		<p className="mb-2" style={{ wordBreak: "break-word", overflowWrap: "break-word" }} {...props}>
 			{children}
 		</p>
 	),
@@ -175,13 +175,10 @@ const components: Partial<Components> = {
 			<Link
 				className="text-blue-500 hover:underline"
 				href={href || "#"}
-				passHref
-				rel="noreferrer"
 				style={{
 					wordBreak: "break-word",
 					overflowWrap: "break-word",
 				}}
-				target="_blank"
 				{...props}
 			>
 				{children}
@@ -189,38 +186,22 @@ const components: Partial<Components> = {
 		);
 	},
 	h1: ({ children, ...props }) => (
-		<h1
-			className="mt-6 mb-2 font-semibold text-3xl"
-			style={{ wordBreak: "break-word" }}
-			{...props}
-		>
+		<h1 className="mt-6 mb-2 font-semibold text-3xl" style={{ wordBreak: "break-word" }} {...props}>
 			{children}
 		</h1>
 	),
 	h2: ({ children, ...props }) => (
-		<h2
-			className="mt-6 mb-2 font-semibold text-2xl"
-			style={{ wordBreak: "break-word" }}
-			{...props}
-		>
+		<h2 className="mt-6 mb-2 font-semibold text-2xl" style={{ wordBreak: "break-word" }} {...props}>
 			{children}
 		</h2>
 	),
 	h3: ({ children, ...props }) => (
-		<h3
-			className="mt-6 mb-2 font-semibold text-xl"
-			style={{ wordBreak: "break-word" }}
-			{...props}
-		>
+		<h3 className="mt-6 mb-2 font-semibold text-xl" style={{ wordBreak: "break-word" }} {...props}>
 			{children}
 		</h3>
 	),
 	h4: ({ children, ...props }) => (
-		<h4
-			className="mt-6 mb-2 font-semibold text-lg"
-			style={{ wordBreak: "break-word" }}
-			{...props}
-		>
+		<h4 className="mt-6 mb-2 font-semibold text-lg" style={{ wordBreak: "break-word" }} {...props}>
 			{children}
 		</h4>
 	),
@@ -234,23 +215,13 @@ const components: Partial<Components> = {
 		</h5>
 	),
 	h6: ({ children, ...props }) => (
-		<h6
-			className="mt-6 mb-2 font-semibold text-sm"
-			style={{ wordBreak: "break-word" }}
-			{...props}
-		>
+		<h6 className="mt-6 mb-2 font-semibold text-sm" style={{ wordBreak: "break-word" }} {...props}>
 			{children}
 		</h6>
 	),
 	img: ({ alt, src, title, ...props }) => (
 		// eslint-disable-next-line @next/next/no-img-element
-		<img
-			alt={alt}
-			className="my-2 h-auto max-w-full rounded"
-			src={src}
-			title={title}
-			{...props}
-		/>
+		<img alt={alt} className="my-2 h-auto max-w-full rounded" src={src} title={title} {...props} />
 	),
 	blockquote: ({ children, ...props }) => (
 		<blockquote
@@ -269,15 +240,9 @@ const components: Partial<Components> = {
 			<ScrollBar orientation="horizontal" />
 		</ScrollArea>
 	),
-	thead: ({ children, ...props }) => (
-		<TableHeader {...props}>{children}</TableHeader>
-	),
-	tbody: ({ children, ...props }) => (
-		<TableBody {...props}>{children}</TableBody>
-	),
-	tfoot: ({ children, ...props }) => (
-		<TableFooter {...props}>{children}</TableFooter>
-	),
+	thead: ({ children, ...props }) => <TableHeader {...props}>{children}</TableHeader>,
+	tbody: ({ children, ...props }) => <TableBody {...props}>{children}</TableBody>,
+	tfoot: ({ children, ...props }) => <TableFooter {...props}>{children}</TableFooter>,
 	tr: ({ children, ...props }) => <TableRow {...props}>{children}</TableRow>,
 	th: ({ children, ...props }) => <TableHead {...props}>{children}</TableHead>,
 	td: ({ children, ...props }) => <TableCell {...props}>{children}</TableCell>,
@@ -288,31 +253,22 @@ const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeRaw];
 
 // Function to process citations and convert them to proper format
-const processCitations = (
-	content: string,
-	repoUrl?: string,
-	branch?: string,
-): string => {
+const processCitations = (content: string, repoUrl?: string, branch?: string): string => {
 	// Match citations in format 【F:filename†L1-L1】
 	const citationRegex = /【F:([^†]+)†L(\d+)-L(\d+)】/g;
 
-	return content.replace(
-		citationRegex,
-		(_match, filename, startLine, endLine) => {
-			const displayText =
-				startLine === endLine
-					? `${filename}:${startLine}`
-					: `${filename}:${startLine}-${endLine}`;
+	return content.replace(citationRegex, (_match, filename, startLine, endLine) => {
+		const displayText =
+			startLine === endLine ? `${filename}:${startLine}` : `${filename}:${startLine}-${endLine}`;
 
-			const repoBaseUrl = repoUrl ? `${repoUrl}/blob/${branch || "main"}` : "#";
-			const linkUrl =
-				startLine === endLine
-					? `${repoBaseUrl}/${filename}#L${startLine}`
-					: `${repoBaseUrl}/${filename}#L${startLine}-L${endLine}`;
+		const repoBaseUrl = repoUrl ? `${repoUrl}/blob/${branch || "main"}` : "#";
+		const linkUrl =
+			startLine === endLine
+				? `${repoBaseUrl}/${filename}#L${startLine}`
+				: `${repoBaseUrl}/${filename}#L${startLine}-L${endLine}`;
 
-			return `[${displayText}](${linkUrl}) `;
-		},
-	);
+		return `[${displayText}](${linkUrl}) `;
+	});
 };
 
 interface MarkdownProps {

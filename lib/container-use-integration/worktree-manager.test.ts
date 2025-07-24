@@ -51,17 +51,11 @@ describe("GitWorktreeManager", () => {
 			const branchName = "feature/existing-branch";
 
 			// First creation should succeed
-			const firstResult = await worktreeManager.createWorktree(
-				taskId,
-				branchName,
-			);
+			const firstResult = await worktreeManager.createWorktree(taskId, branchName);
 			expect(firstResult.success).toBe(true);
 
 			// Second creation with same branch should fail
-			const secondResult = await worktreeManager.createWorktree(
-				`${taskId}-2`,
-				branchName,
-			);
+			const secondResult = await worktreeManager.createWorktree(`${taskId}-2`, branchName);
 			expect(secondResult.success).toBe(false);
 			expect(secondResult.error).toContain("branch already exists");
 		});
@@ -104,11 +98,7 @@ describe("GitWorktreeManager", () => {
 			const commitMessage = "Add new feature implementation";
 			const files = ["src/feature.ts", "tests/feature.test.ts"];
 
-			const result = await worktreeManager.commitChanges(
-				worktreeId,
-				commitMessage,
-				files,
-			);
+			const result = await worktreeManager.commitChanges(worktreeId, commitMessage, files);
 
 			expect(result.success).toBe(true);
 			expect(result.commit).toBeDefined();
@@ -121,11 +111,7 @@ describe("GitWorktreeManager", () => {
 			const worktreeId = "wt-empty";
 			const commitMessage = "Empty commit";
 
-			const result = await worktreeManager.commitChanges(
-				worktreeId,
-				commitMessage,
-				[],
-			);
+			const result = await worktreeManager.commitChanges(worktreeId, commitMessage, []);
 
 			expect(result.success).toBe(false);
 			expect(result.error).toContain("no changes to commit");
@@ -135,10 +121,7 @@ describe("GitWorktreeManager", () => {
 			const worktreeId = "wt-auto-stage";
 			const commitMessage = "Auto-staged commit";
 
-			const result = await worktreeManager.commitChanges(
-				worktreeId,
-				commitMessage,
-			);
+			const result = await worktreeManager.commitChanges(worktreeId, commitMessage);
 
 			expect(result.success).toBe(true);
 			expect(result.commit?.files.length).toBeGreaterThan(0);
@@ -159,9 +142,7 @@ describe("GitWorktreeManager", () => {
 			const worktreeId = "wt-conflict-files";
 
 			// Simulate conflicting changes
-			await worktreeManager.commitChanges(worktreeId, "Conflicting change", [
-				"package.json",
-			]);
+			await worktreeManager.commitChanges(worktreeId, "Conflicting change", ["package.json"]);
 
 			const conflicts = await worktreeManager.detectConflicts(worktreeId);
 
@@ -184,10 +165,7 @@ describe("GitWorktreeManager", () => {
 				},
 			];
 
-			const result = await worktreeManager.resolveConflicts(
-				worktreeId,
-				conflicts,
-			);
+			const result = await worktreeManager.resolveConflicts(worktreeId, conflicts);
 
 			expect(result.success).toBe(true);
 			expect(result.resolvedConflicts).toBeGreaterThan(0);
@@ -203,10 +181,7 @@ describe("GitWorktreeManager", () => {
 				},
 			];
 
-			const result = await worktreeManager.resolveConflicts(
-				worktreeId,
-				complexConflicts,
-			);
+			const result = await worktreeManager.resolveConflicts(worktreeId, complexConflicts);
 
 			expect(result.success).toBe(false);
 			expect(result.error).toContain("manual intervention required");
@@ -364,8 +339,8 @@ describe("GitWorktreeManager", () => {
 				taskIds.map((taskId) =>
 					worktreeManager.createWorktree(taskId, `feature/${taskId}`, {
 						reusePool: true,
-					}),
-				),
+					})
+				)
 			);
 
 			results.forEach((result) => {

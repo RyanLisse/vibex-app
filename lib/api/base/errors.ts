@@ -10,12 +10,7 @@ export class BaseAPIError extends Error {
 	public readonly code: string;
 	public readonly details?: any;
 
-	constructor(
-		message: string,
-		statusCode = 500,
-		code = "INTERNAL_ERROR",
-		details?: any,
-	) {
+	constructor(message: string, statusCode = 500, code = "INTERNAL_ERROR", details?: any) {
 		super(message);
 		this.name = this.constructor.name;
 		this.statusCode = statusCode;
@@ -65,9 +60,7 @@ export class ForbiddenError extends BaseAPIError {
 
 export class NotFoundError extends BaseAPIError {
 	constructor(resource: string, id?: string) {
-		const message = id
-			? `${resource} with id ${id} not found`
-			: `${resource} not found`;
+		const message = id ? `${resource} with id ${id} not found` : `${resource} not found`;
 		super(message, 404, "NOT_FOUND");
 	}
 }
@@ -95,7 +88,7 @@ export class ExternalServiceError extends BaseAPIError {
 		super(
 			`External service error from ${service}: ${message}`,
 			statusCode || 502,
-			"EXTERNAL_SERVICE_ERROR",
+			"EXTERNAL_SERVICE_ERROR"
 		);
 	}
 }

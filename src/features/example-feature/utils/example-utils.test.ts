@@ -1,11 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, test } from "vitest";
 import type { ExampleFilter, ExampleItem } from "../types";
-import {
-	filterItems,
-	getPriorityColor,
-	getStatusIcon,
-	sortItems,
-} from "./example-utils";
+import { filterItems, getPriorityColor, getStatusIcon, sortItems } from "./example-utils";
 
 describe("filterItems", () => {
 	const mockItems: ExampleItem[] = [
@@ -78,11 +73,9 @@ describe("filterItems", () => {
 		const filter: ExampleFilter = { searchTerm: "important" };
 		const result = filterItems(mockItems, filter);
 		expect(result).toHaveLength(2);
-		expect(
-			result.every((item) =>
-				item.description?.toLowerCase().includes("important"),
-			),
-		).toBe(true);
+		expect(result.every((item) => item.description?.toLowerCase().includes("important"))).toBe(
+			true
+		);
 	});
 
 	it("should handle case-insensitive search", () => {
@@ -99,11 +92,9 @@ describe("filterItems", () => {
 		};
 		const result = filterItems(mockItems, filter);
 		expect(result).toHaveLength(2);
-		expect(
-			result.every(
-				(item) => item.status === "pending" && item.priority === "high",
-			),
-		).toBe(true);
+		expect(result.every((item) => item.status === "pending" && item.priority === "high")).toBe(
+			true
+		);
 	});
 
 	it("should return empty array when no items match", () => {
@@ -162,15 +153,9 @@ describe("sortItems", () => {
 
 	it("should sort by date (newest first)", () => {
 		const result = sortItems(mockItems, "date");
-		expect(result[0].createdAt.getTime()).toBe(
-			new Date("2023-01-03").getTime(),
-		);
-		expect(result[1].createdAt.getTime()).toBe(
-			new Date("2023-01-02").getTime(),
-		);
-		expect(result[2].createdAt.getTime()).toBe(
-			new Date("2023-01-01").getTime(),
-		);
+		expect(result[0].createdAt.getTime()).toBe(new Date("2023-01-03").getTime());
+		expect(result[1].createdAt.getTime()).toBe(new Date("2023-01-02").getTime());
+		expect(result[2].createdAt.getTime()).toBe(new Date("2023-01-01").getTime());
 	});
 
 	it("should sort by status (pending, in_progress, completed)", () => {
@@ -353,8 +338,8 @@ describe("Advanced filterItems tests", () => {
 			result.every(
 				(item) =>
 					item.title.toLowerCase().includes("auth") ||
-					item.description?.toLowerCase().includes("auth"),
-			),
+					item.description?.toLowerCase().includes("auth")
+			)
 		).toBe(true);
 	});
 
@@ -501,8 +486,7 @@ describe("Advanced sortItems tests", () => {
 	it("should maintain stable sort for equal date items", () => {
 		const result = sortItems(complexSortItems, "date");
 		const sameDateItems = result.filter(
-			(item) =>
-				item.createdAt.getTime() === new Date("2023-01-01T10:00:00Z").getTime(),
+			(item) => item.createdAt.getTime() === new Date("2023-01-01T10:00:00Z").getTime()
 		);
 		expect(sameDateItems).toHaveLength(2);
 		expect(sameDateItems[0].id).toBe("1");
@@ -540,11 +524,7 @@ describe("Advanced sortItems tests", () => {
 			id: `item-${i}`,
 			title: `Item ${i}`,
 			status: "pending" as const,
-			priority: (i % 3 === 0
-				? "high"
-				: i % 3 === 1
-					? "medium"
-					: "low") as const,
+			priority: (i % 3 === 0 ? "high" : i % 3 === 1 ? "medium" : "low") as const,
 			createdAt: new Date(2023, 0, 1 + (i % 31)),
 			updatedAt: new Date(2023, 0, 1 + (i % 31)),
 		}));
@@ -596,11 +576,7 @@ describe("Advanced sortItems tests", () => {
 describe("Advanced getPriorityColor tests", () => {
 	it("should handle all priority values consistently", () => {
 		const priorities: ExampleItem["priority"][] = ["low", "medium", "high"];
-		const expectedColors = [
-			"text-green-600",
-			"text-yellow-600",
-			"text-red-600",
-		];
+		const expectedColors = ["text-green-600", "text-yellow-600", "text-red-600"];
 
 		for (const [index, priority] of priorities.entries()) {
 			const result = getPriorityColor(priority);
@@ -659,11 +635,7 @@ describe("Advanced getPriorityColor tests", () => {
 
 describe("Advanced getStatusIcon tests", () => {
 	it("should handle all status values consistently", () => {
-		const statuses: ExampleItem["status"][] = [
-			"pending",
-			"in_progress",
-			"completed",
-		];
+		const statuses: ExampleItem["status"][] = ["pending", "in_progress", "completed"];
 		const expectedIcons = ["○", "◐", "●"];
 
 		for (const [index, status] of statuses.entries()) {
@@ -691,11 +663,7 @@ describe("Advanced getStatusIcon tests", () => {
 	});
 
 	it("should return single character icons", () => {
-		const statuses: ExampleItem["status"][] = [
-			"pending",
-			"in_progress",
-			"completed",
-		];
+		const statuses: ExampleItem["status"][] = ["pending", "in_progress", "completed"];
 
 		for (const status of statuses) {
 			const result = getStatusIcon(status);
@@ -868,7 +836,7 @@ describe("Function integration tests", () => {
 		// Step 2: Sort by creation date (newest first)
 		const sortedByDate = sortItems(highPriorityItems, "date");
 		expect(sortedByDate[0].createdAt.getTime()).toBeGreaterThan(
-			sortedByDate[1].createdAt.getTime(),
+			sortedByDate[1].createdAt.getTime()
 		);
 
 		// Step 3: Add UI metadata
@@ -880,9 +848,7 @@ describe("Function integration tests", () => {
 		}));
 
 		expect(enrichedItems).toHaveLength(2);
-		expect(
-			enrichedItems.every((item) => item.priorityColor === "text-red-600"),
-		).toBe(true);
+		expect(enrichedItems.every((item) => item.priorityColor === "text-red-600")).toBe(true);
 		expect(enrichedItems.filter((item) => item.isUrgent)).toHaveLength(2);
 		expect(enrichedItems[0].id).toBe("task-4"); // Newest first
 		expect(enrichedItems[1].id).toBe("task-1");

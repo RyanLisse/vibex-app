@@ -51,11 +51,7 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 
 	// Implement abstract methods from BaseCRUDService
 	async findById(id: string): Promise<any | null> {
-		const result = await db
-			.select()
-			.from(environments)
-			.where(eq(environments.id, id))
-			.limit(1);
+		const result = await db.select().from(environments).where(eq(environments.id, id)).limit(1);
 		return result[0] || null;
 	}
 
@@ -74,7 +70,7 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	async getAll(
 		params: GetEnvironmentsQuery,
 		_pagination: { page: number; limit: number },
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{ items: any[]; total: number }> {
 		return this.executeWithTracing("getEnvironments", context, async (span) => {
 			// Build query with filters
@@ -140,36 +136,25 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	 * Get environment by ID
 	 */
 	async getById(id: string, context: ServiceContext): Promise<any> {
-		return this.executeWithTracing(
-			"getEnvironmentById",
-			context,
-			async (span) => {
-				const environment = await this.executeDatabase(
-					"selectEnvironment",
-					async () => {
-						const result = await db
-							.select()
-							.from(environments)
-							.where(eq(environments.id, id))
-							.limit(1);
+		return this.executeWithTracing("getEnvironmentById", context, async (span) => {
+			const environment = await this.executeDatabase("selectEnvironment", async () => {
+				const result = await db.select().from(environments).where(eq(environments.id, id)).limit(1);
 
-						return result[0];
-					},
-				);
+				return result[0];
+			});
 
-				if (!environment) {
-					throw new NotFoundError("Environment", id);
-				}
+			if (!environment) {
+				throw new NotFoundError("Environment", id);
+			}
 
-				span.setAttributes({
-					"environment.id": environment.id,
-					"environment.name": environment.name,
-					"environment.userId": environment.userId,
-				});
+			span.setAttributes({
+				"environment.id": environment.id,
+				"environment.name": environment.name,
+				"environment.userId": environment.userId,
+			});
 
-				return environment;
-			},
-		);
+			return environment;
+		});
 	}
 
 	/**
@@ -179,76 +164,57 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	async create(data: CreateEnvironmentDTO): Promise<any> {
 		const context: ServiceContext = {};
 		const envData = data;
-		return this.executeWithTracing(
-			"createEnvironment",
-			context,
-			async (span) => {
-				// Extract userId from context or use system default
-				const userId = context.userId || "system";
+		return this.executeWithTracing("createEnvironment", context, async (span) => {
+			// Extract userId from context or use system default
+			const userId = context.userId || "system";
 
-				// By default, first environment is active
-				const isActive = true;
+			// By default, first environment is active
+			const isActive = true;
 
-				// If this environment should be active, deactivate others for the same user
-				if (isActive) {
-					await this.executeDatabase("deactivateEnvironments", async () => {
-						return db
-							.update(environments)
-							.set({ isActive: false, updatedAt: new Date() })
-							.where(
-								and(
-									eq(environments.userId, userId),
-									eq(environments.isActive, true),
-								),
-							);
-					});
-				}
-
-				const newEnvironment = {
-					id: ulid(),
-					name: envData.name,
-					config: {
-						description: envData.description,
-						variables: envData.variables,
-					},
-					userId,
-					isActive,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				};
-
-				const environment = await this.executeDatabase(
-					"insertEnvironment",
-					async () => {
-						const result = await db
-							.insert(environments)
-							.values(newEnvironment)
-							.returning();
-
-						return result[0];
-					},
-				);
-
-				span.setAttributes({
-					"environment.id": environment.id,
-					"environment.name": environment.name,
-					"environment.userId": environment.userId,
-					"environment.isActive": environment.isActive,
+			// If this environment should be active, deactivate others for the same user
+			if (isActive) {
+				await this.executeDatabase("deactivateEnvironments", async () => {
+					return db
+						.update(environments)
+						.set({ isActive: false, updatedAt: new Date() })
+						.where(and(eq(environments.userId, userId), eq(environments.isActive, true)));
 				});
+			}
 
-				await this.recordEvent(
-					"user_action",
-					`Environment created: ${environment.name}`,
-					{
-						environmentId: environment.id,
-						userId: environment.userId,
-						isActive: environment.isActive,
-					},
-				);
+			const newEnvironment = {
+				id: ulid(),
+				name: envData.name,
+				config: {
+					description: envData.description,
+					variables: envData.variables,
+				},
+				userId,
+				isActive,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 
-				return environment;
-			},
-		);
+			const environment = await this.executeDatabase("insertEnvironment", async () => {
+				const result = await db.insert(environments).values(newEnvironment).returning();
+
+				return result[0];
+			});
+
+			span.setAttributes({
+				"environment.id": environment.id,
+				"environment.name": environment.name,
+				"environment.userId": environment.userId,
+				"environment.isActive": environment.isActive,
+			});
+
+			await this.recordEvent("user_action", `Environment created: ${environment.name}`, {
+				environmentId: environment.id,
+				userId: environment.userId,
+				isActive: environment.isActive,
+			});
+
+			return environment;
+		});
 	}
 
 	/**
@@ -258,13 +224,9 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	async update(id: string, data: any): Promise<any> {
 		const context: ServiceContext = {};
 		const updates = data;
-		return this.executeWithTracing(
-			"updateEnvironment",
-			context,
-			async (span) => {
-				throw new DatabaseError("Environment update not implemented");
-			},
-		);
+		return this.executeWithTracing("updateEnvironment", context, async (span) => {
+			throw new DatabaseError("Environment update not implemented");
+		});
 	}
 
 	/**
@@ -273,13 +235,9 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	// Override base method to match signature
 	async delete(id: string): Promise<void> {
 		const context: ServiceContext = {};
-		return this.executeWithTracing(
-			"deleteEnvironment",
-			context,
-			async (span) => {
-				throw new DatabaseError("Environment deletion not implemented");
-			},
-		);
+		return this.executeWithTracing("deleteEnvironment", context, async (span) => {
+			throw new DatabaseError("Environment deletion not implemented");
+		});
 	}
 
 	/**
@@ -288,61 +246,45 @@ export class EnvironmentsAPIService extends BaseCRUDService {
 	async activateEnvironment(
 		environmentId: string,
 		userId: string,
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<any> {
-		return this.executeWithTracing(
-			"activateEnvironment",
-			context,
-			async (span) => {
-				// First, deactivate all environments for this user
-				await this.executeDatabase("deactivateAll", async () => {
-					return db
-						.update(environments)
-						.set({ isActive: false, updatedAt: new Date() })
-						.where(eq(environments.userId, userId));
-				});
+		return this.executeWithTracing("activateEnvironment", context, async (span) => {
+			// First, deactivate all environments for this user
+			await this.executeDatabase("deactivateAll", async () => {
+				return db
+					.update(environments)
+					.set({ isActive: false, updatedAt: new Date() })
+					.where(eq(environments.userId, userId));
+			});
 
-				// Then activate the specified environment
-				const activatedEnvironment = await this.executeDatabase(
-					"activateOne",
-					async () => {
-						const result = await db
-							.update(environments)
-							.set({ isActive: true, updatedAt: new Date() })
-							.where(
-								and(
-									eq(environments.id, environmentId),
-									eq(environments.userId, userId),
-								),
-							)
-							.returning();
+			// Then activate the specified environment
+			const activatedEnvironment = await this.executeDatabase("activateOne", async () => {
+				const result = await db
+					.update(environments)
+					.set({ isActive: true, updatedAt: new Date() })
+					.where(and(eq(environments.id, environmentId), eq(environments.userId, userId)))
+					.returning();
 
-						return result[0];
-					},
-				);
+				return result[0];
+			});
 
-				if (!activatedEnvironment) {
-					throw new NotFoundError("Environment", environmentId);
-				}
+			if (!activatedEnvironment) {
+				throw new NotFoundError("Environment", environmentId);
+			}
 
-				span.setAttributes({
-					"environment.id": activatedEnvironment.id,
-					"environment.name": activatedEnvironment.name,
-					"environment.userId": userId,
-				});
+			span.setAttributes({
+				"environment.id": activatedEnvironment.id,
+				"environment.name": activatedEnvironment.name,
+				"environment.userId": userId,
+			});
 
-				await this.recordEvent(
-					"user_action",
-					`Environment activated: ${activatedEnvironment.name}`,
-					{
-						environmentId: activatedEnvironment.id,
-						userId: activatedEnvironment.userId,
-					},
-				);
+			await this.recordEvent("user_action", `Environment activated: ${activatedEnvironment.name}`, {
+				environmentId: activatedEnvironment.id,
+				userId: activatedEnvironment.userId,
+			});
 
-				return activatedEnvironment;
-			},
-		);
+			return activatedEnvironment;
+		});
 	}
 }
 

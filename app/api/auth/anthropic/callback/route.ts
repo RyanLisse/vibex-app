@@ -37,13 +37,10 @@ const AuthAnthropic = {
 // Mock environment variables (these would come from env)
 const env = {
 	ANTHROPIC_CLIENT_ID: process.env.ANTHROPIC_CLIENT_ID || "test-client-id",
-	ANTHROPIC_CLIENT_SECRET:
-		process.env.ANTHROPIC_CLIENT_SECRET || "test-client-secret",
+	ANTHROPIC_CLIENT_SECRET: process.env.ANTHROPIC_CLIENT_SECRET || "test-client-secret",
 	ANTHROPIC_REDIRECT_URI:
-		process.env.ANTHROPIC_REDIRECT_URI ||
-		"http://localhost:3000/auth/anthropic/callback",
-	ANTHROPIC_TOKEN_URL:
-		process.env.ANTHROPIC_TOKEN_URL || "https://api.anthropic.com/oauth/token",
+		process.env.ANTHROPIC_REDIRECT_URI || "http://localhost:3000/auth/anthropic/callback",
+	ANTHROPIC_TOKEN_URL: process.env.ANTHROPIC_TOKEN_URL || "https://api.anthropic.com/oauth/token",
 	NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
 };
 
@@ -70,7 +67,7 @@ async function exchangeAnthropicToken(code: string, config: OAuthConfig): Promis
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
-	
+
 	return handleOAuthCallback({
 		searchParams,
 		config: anthropicConfig,

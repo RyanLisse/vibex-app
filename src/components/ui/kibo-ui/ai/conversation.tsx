@@ -10,24 +10,15 @@ interface AIConversationProps extends React.HTMLAttributes<HTMLDivElement> {
 	children: React.ReactNode;
 }
 
-export function AIConversation({
-	children,
-	className,
-	...props
-}: AIConversationProps) {
+export function AIConversation({ children, className, ...props }: AIConversationProps) {
 	return (
-		<StickToBottom
-			className={cn("flex flex-col h-full", className)}
-			role="log"
-			{...props}
-		>
+		<StickToBottom className={cn("flex flex-col h-full", className)} role="log" {...props}>
 			{children}
 		</StickToBottom>
 	);
 }
 
-interface AIConversationContentProps
-	extends React.HTMLAttributes<HTMLDivElement> {
+interface AIConversationContentProps extends React.HTMLAttributes<HTMLDivElement> {
 	children: React.ReactNode;
 }
 
@@ -37,17 +28,13 @@ export function AIConversationContent({
 	...props
 }: AIConversationContentProps) {
 	return (
-		<div
-			className={cn("flex-1 overflow-y-auto p-4 space-y-4", className)}
-			{...props}
-		>
+		<div className={cn("flex-1 overflow-y-auto p-4 space-y-4", className)} {...props}>
 			{children}
 		</div>
 	);
 }
 
-interface AIConversationScrollButtonProps
-	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface AIConversationScrollButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	className?: string;
 }
 
@@ -68,7 +55,7 @@ export function AIConversationScrollButton({
 			size="sm"
 			className={cn(
 				"absolute bottom-4 left-[50%] translate-x-[-50%] rounded-full shadow-lg",
-				className,
+				className
 			)}
 			onClick={scrollToBottom}
 			{...props}

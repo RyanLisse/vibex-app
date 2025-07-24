@@ -1,332 +1,227 @@
-import { cookies } from "next/headers";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
-import {
-	clearGitHubAuth,
-	createRepository,
-	exchangeCodeForToken,
-	GitHubClient,
-	getGitHubOAuthUrl,
-	getGitHubUser,
-	getRepoBranches,
-	getUserRepositories,
-} from "./github";
-
-// Mock dependencies
-vi.mock("next/headers", () => ({
-	cookies: vi.fn(),
-}));
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { GitHubAuth } from "./github";
 
 // Mock fetch
 global.fetch = vi.fn();
 
-describe("GitHub Authentication", () => {
-	const mockCookies = {
-		get: vi.fn(),
-		set: vi.fn(),
-		delete: vi.fn(),
-	};
-
+describe("GitHubAuth", () => {
 	const originalEnv = process.env;
+	let githubAuth: GitHubAuth;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(cookies as any).mockResolvedValue(mockCookies as any);
 		process.env = {
 			...originalEnv,
 			GITHUB_CLIENT_ID: "test-client-id",
 			GITHUB_CLIENT_SECRET: "test-client-secret",
 			NEXT_PUBLIC_APP_URL: "http://localhost:3000",
 		};
+		githubAuth = new GitHubAuth();
 	});
 
 	afterEach(() => {
 		process.env = originalEnv;
 	});
 
-	describe("getGitHubOAuthUrl", () => {
+	describe("constructor", () => {
+		it("should initialize with environment variables", () => {
+			expect(githubAuth).toBeInstanceOf(GitHubAuth);
+		});
+
+		it("should use NEXT_PUBLIC_APP_URL for redirect URI", () => {
+			const url = githubAuth.getAuthUrl("test-state");
+			expect(url).toContain(
+				"redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fgithub%2Fcallback"
+			);
+		});
+
+		it("should use production default when NODE_ENV is production", () => {
+			process.env.NODE_ENV = "production";
+			delete process.env.NEXT_PUBLIC_APP_URL;
+			const prodAuth = new GitHubAuth();
+			const url = prodAuth.getAuthUrl("test-state");
+			expect(url).toContain(
+				"redirect_uri=https%3A%2F%2Fvibex-app.vercel.app%2Fapi%2Fauth%2Fgithub%2Fcallback"
+			);
+		});
+
+		it("should use localhost default in development", () => {
+			delete process.env.NEXT_PUBLIC_APP_URL;
+			process.env.NODE_ENV = "development";
+			const devAuth = new GitHubAuth();
+			const url = devAuth.getAuthUrl("test-state");
+			expect(url).toContain(
+				"redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fgithub%2Fcallback"
+			);
+		});
+	});
+
+	describe("getAuthUrl", () => {
 		it("should generate OAuth URL with correct parameters", () => {
-			const url = getGitHubOAuthUrl();
+			const url = githubAuth.getAuthUrl("test-state");
 			const parsedUrl = new URL(url);
 
 			expect(parsedUrl.origin).toBe("https://github.com");
 			expect(parsedUrl.pathname).toBe("/login/oauth/authorize");
 			expect(parsedUrl.searchParams.get("client_id")).toBe("test-client-id");
-			expect(parsedUrl.searchParams.get("redirect_uri")).toBe(
-				"http://localhost:3000/api/auth/github/callback",
-			);
-			expect(parsedUrl.searchParams.get("scope")).toBe("repo user");
-			expect(parsedUrl.searchParams.get("state")).toBeTruthy();
+			expect(parsedUrl.searchParams.get("scope")).toBe("repo user:email");
+			expect(parsedUrl.searchParams.get("state")).toBe("test-state");
 		});
 
-		it("should throw error when GITHUB_CLIENT_ID is missing", () => {
-			process.env.GITHUB_CLIENT_ID = undefined;
+		it("should generate random state when not provided", () => {
+			const url = githubAuth.getAuthUrl();
+			const parsedUrl = new URL(url);
+			const state = parsedUrl.searchParams.get("state");
 
-			expect(() => getGitHubOAuthUrl()).toThrow(
-				"GitHub OAuth is not configured",
-			);
-		});
-
-		it("should throw error when NEXT_PUBLIC_APP_URL is missing", () => {
-			process.env.NEXT_PUBLIC_APP_URL = undefined;
-
-			expect(() => getGitHubOAuthUrl()).toThrow(
-				"GitHub OAuth is not configured",
-			);
+			expect(state).toBeTruthy();
+			expect(state!.length).toBeGreaterThanOrEqual(6);
+			expect(state!.length).toBeLessThanOrEqual(8); // More flexible range for random generation
+			// Verify it's a valid base36 string (only alphanumeric characters)
+			expect(state).toMatch(/^[a-z0-9]+$/);
 		});
 	});
 
 	describe("exchangeCodeForToken", () => {
 		it("should exchange code for access token successfully", async () => {
 			const mockResponse = {
-				access_token: "github-access-token-123",
+				access_token: "test-access-token",
 				token_type: "bearer",
-				scope: "repo,user",
+				scope: "repo,user:email",
 			};
 
-			(fetch as any).mockResolvedValueOnce({
-				ok: true,
-				json: async () => mockResponse,
-			} as Response);
+			(global.fetch as any).mockResolvedValueOnce({
+				json: () => Promise.resolve(mockResponse),
+			});
 
-			const result = await exchangeCodeForToken("auth-code-123");
+			const token = await githubAuth.exchangeCodeForToken("test-code");
 
-			expect(fetch).toHaveBeenCalledWith(
-				"https://github.com/login/oauth/access_token",
-				{
-					method: "POST",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						client_id: "test-client-id",
-						client_secret: "test-client-secret",
-						code: "auth-code-123",
-						redirect_uri: "http://localhost:3000/api/auth/github/callback",
-					}),
+			expect(token).toBe("test-access-token");
+			expect(global.fetch).toHaveBeenCalledWith("https://github.com/login/oauth/access_token", {
+				method: "POST",
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json",
 				},
-			);
-
-			expect(mockCookies.set).toHaveBeenCalledWith(
-				"github_access_token",
-				"github-access-token-123",
-				{
-					httpOnly: true,
-					secure: false,
-					sameSite: "lax",
-					path: "/",
-					maxAge: 60 * 60 * 24 * 30, // 30 days
-				},
-			);
-
-			expect(result).toEqual(mockResponse);
+				body: JSON.stringify({
+					client_id: "test-client-id",
+					client_secret: "test-client-secret",
+					code: "test-code",
+				}),
+			});
 		});
 
-		it("should throw error when response is not ok", async () => {
-			(fetch as any).mockResolvedValueOnce({
-				ok: false,
-				statusText: "Bad Request",
-			} as Response);
+		it("should throw error when GitHub returns error", async () => {
+			const mockResponse = {
+				error: "bad_verification_code",
+				error_description: "The code passed is incorrect or expired.",
+			};
 
-			await expect(exchangeCodeForToken("invalid-code")).rejects.toThrow(
-				"Failed to exchange code for token: Bad Request",
-			);
-		});
+			(global.fetch as any).mockResolvedValueOnce({
+				json: () => Promise.resolve(mockResponse),
+			});
 
-		it("should throw error when environment variables are missing", async () => {
-			process.env.GITHUB_CLIENT_SECRET = undefined;
-
-			await expect(exchangeCodeForToken("code")).rejects.toThrow(
-				"GitHub OAuth is not configured",
+			await expect(githubAuth.exchangeCodeForToken("invalid-code")).rejects.toThrow(
+				"GitHub OAuth error: The code passed is incorrect or expired."
 			);
 		});
 	});
 
-	describe("getGitHubUser", () => {
+	describe("getUser", () => {
 		it("should fetch user data with valid token", async () => {
-			mockCookies.get.mockReturnValue({ value: "valid-token" });
-
 			const mockUser = {
+				id: 12345,
 				login: "testuser",
-				id: 123,
+				avatar_url: "https://github.com/images/error/testuser.png",
 				name: "Test User",
 				email: "test@example.com",
 			};
 
-			(fetch as any).mockResolvedValueOnce({
+			(global.fetch as any).mockResolvedValueOnce({
 				ok: true,
-				json: async () => mockUser,
-			} as Response);
+				json: () => Promise.resolve(mockUser),
+			});
 
-			const result = await getGitHubUser();
+			const user = await githubAuth.getUser("test-token");
 
-			expect(fetch).toHaveBeenCalledWith("https://api.github.com/user", {
+			expect(user).toEqual(mockUser);
+			expect(global.fetch).toHaveBeenCalledWith("https://api.github.com/user", {
 				headers: {
-					Authorization: "Bearer valid-token",
+					Authorization: "Bearer test-token",
 					Accept: "application/vnd.github.v3+json",
 				},
 			});
-
-			expect(result).toEqual(mockUser);
 		});
 
-		it("should return null when no token is available", async () => {
-			mockCookies.get.mockReturnValue(undefined);
+		it("should throw error when API request fails", async () => {
+			(global.fetch as any).mockResolvedValueOnce({
+				ok: false,
+				status: 401,
+			});
 
-			const result = await getGitHubUser();
-
-			expect(result).toBeNull();
-			expect(fetch).not.toHaveBeenCalled();
+			await expect(githubAuth.getUser("invalid-token")).rejects.toThrow("GitHub API error: 401");
 		});
 	});
 
 	describe("getUserRepositories", () => {
-		it("should fetch repositories with default options", async () => {
-			mockCookies.get.mockReturnValue({ value: "valid-token" });
-
+		it("should fetch repositories with valid token", async () => {
 			const mockRepos = [
-				{ id: 1, name: "repo1" },
-				{ id: 2, name: "repo2" },
+				{
+					id: 1,
+					name: "test-repo",
+					full_name: "testuser/test-repo",
+					private: false,
+					html_url: "https://github.com/testuser/test-repo",
+					clone_url: "https://github.com/testuser/test-repo.git",
+					ssh_url: "git@github.com:testuser/test-repo.git",
+					default_branch: "main",
+					fork: false,
+					archived: false,
+					language: "TypeScript",
+					stargazers_count: 5,
+					forks_count: 2,
+					open_issues_count: 1,
+					size: 1024,
+					created_at: "2023-01-01T00:00:00Z",
+					updated_at: "2023-12-01T00:00:00Z",
+					pushed_at: "2023-12-01T00:00:00Z",
+					owner: {
+						id: 12345,
+						login: "testuser",
+						avatar_url: "https://github.com/images/error/testuser.png",
+						name: "Test User",
+						email: "test@example.com",
+					},
+				},
 			];
 
-			(fetch as any).mockResolvedValueOnce({
+			(global.fetch as any).mockResolvedValueOnce({
 				ok: true,
-				json: async () => mockRepos,
-			} as Response);
-
-			const result = await getUserRepositories();
-
-			expect(fetch).toHaveBeenCalledWith(
-				"https://api.github.com/user/repos?sort=updated&per_page=30",
-				expect.any(Object),
-			);
-
-			expect(result).toEqual(mockRepos);
-		});
-
-		it("should return empty array when no token", async () => {
-			mockCookies.get.mockReturnValue(undefined);
-
-			const result = await getUserRepositories();
-
-			expect(result).toEqual([]);
-		});
-
-		it("should pass custom options to API", async () => {
-			mockCookies.get.mockReturnValue({ value: "valid-token" });
-			(fetch as any).mockResolvedValueOnce({
-				ok: true,
-				json: async () => [],
-			} as Response);
-
-			await getUserRepositories({ sort: "created", per_page: 50 });
-
-			expect(fetch).toHaveBeenCalledWith(
-				"https://api.github.com/user/repos?sort=created&per_page=50",
-				expect.any(Object),
-			);
-		});
-	});
-
-	describe("getRepoBranches", () => {
-		it("should fetch branches for a repository", async () => {
-			mockCookies.get.mockReturnValue({ value: "valid-token" });
-
-			const mockBranches = [{ name: "main" }, { name: "develop" }];
-
-			(fetch as any).mockResolvedValueOnce({
-				ok: true,
-				json: async () => mockBranches,
-			} as Response);
-
-			const result = await getRepoBranches("user", "repo");
-
-			expect(fetch).toHaveBeenCalledWith(
-				"https://api.github.com/repos/user/repo/branches",
-				expect.any(Object),
-			);
-
-			expect(result).toEqual(mockBranches);
-		});
-
-		it("should return empty array when no token", async () => {
-			mockCookies.get.mockReturnValue(undefined);
-
-			const result = await getRepoBranches("user", "repo");
-
-			expect(result).toEqual([]);
-		});
-	});
-
-	describe("createRepository", () => {
-		it("should create repository successfully", async () => {
-			mockCookies.get.mockReturnValue({ value: "valid-token" });
-
-			const newRepo = {
-				name: "new-repo",
-				description: "Test repository",
-				private: false,
-			};
-
-			const mockResponse = {
-				id: 123,
-				...newRepo,
-			};
-
-			(fetch as any).mockResolvedValueOnce({
-				ok: true,
-				json: async () => mockResponse,
-			} as Response);
-
-			const result = await createRepository(newRepo);
-
-			expect(fetch).toHaveBeenCalledWith("https://api.github.com/user/repos", {
-				method: "POST",
-				headers: {
-					Authorization: "Bearer valid-token",
-					Accept: "application/vnd.github.v3+json",
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(newRepo),
+				json: () => Promise.resolve(mockRepos),
 			});
 
-			expect(result).toEqual(mockResponse);
-		});
+			const repos = await githubAuth.getUserRepositories("test-token");
 
-		it("should throw error when no token", async () => {
-			mockCookies.get.mockReturnValue(undefined);
-
-			await expect(createRepository({ name: "test" })).rejects.toThrow(
-				"GitHub authentication required",
+			expect(repos).toEqual(mockRepos);
+			expect(global.fetch).toHaveBeenCalledWith(
+				"https://api.github.com/user/repos?sort=updated&per_page=100",
+				{
+					headers: {
+						Authorization: "Bearer test-token",
+						Accept: "application/vnd.github.v3+json",
+					},
+				}
 			);
 		});
-	});
 
-	describe("clearGitHubAuth", () => {
-		it("should clear GitHub authentication cookie", async () => {
-			await clearGitHubAuth();
+		it("should throw error when API request fails", async () => {
+			(global.fetch as any).mockResolvedValueOnce({
+				ok: false,
+				status: 403,
+			});
 
-			expect(mockCookies.delete).toHaveBeenCalledWith("github_access_token");
-		});
-	});
-
-	describe("GitHubClient", () => {
-		it("should create client instance with token", () => {
-			const client = new GitHubClient("test-token");
-			expect(client).toBeDefined();
-			expect(client.getUser).toBeDefined();
-			expect(client.getRepositories).toBeDefined();
-			expect(client.getBranches).toBeDefined();
-			expect(client.createRepository).toBeDefined();
+			await expect(githubAuth.getUserRepositories("invalid-token")).rejects.toThrow(
+				"GitHub API error: 403"
+			);
 		});
 	});
 });

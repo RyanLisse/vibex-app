@@ -44,7 +44,10 @@ export async function POST(request: NextRequest) {
 				{
 					success: false,
 					error: "Invalid request data",
-					details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+					details: error.issues.map((issue) => ({
+						field: issue.path.join("."),
+						message: issue.message,
+					})),
 				},
 				{ status: 400 }
 			);
@@ -94,7 +97,10 @@ export async function PUT(request: NextRequest) {
 				{
 					success: false,
 					error: "Invalid request data",
-					details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+					details: error.issues.map((issue) => ({
+						field: issue.path.join("."),
+						message: issue.message,
+					})),
 				},
 				{ status: 400 }
 			);
@@ -167,7 +173,10 @@ export async function PATCH(request: NextRequest) {
 				{
 					success: false,
 					error: "Invalid request data",
-					details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+					details: error.issues.map((issue) => ({
+						field: issue.path.join("."),
+						message: issue.message,
+					})),
 				},
 				{ status: 400 }
 			);

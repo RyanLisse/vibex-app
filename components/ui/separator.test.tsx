@@ -37,7 +37,7 @@ describe("Separator", () => {
 		expect(separator).toHaveAttribute("data-orientation", "horizontal");
 		expect(separator).toHaveClass(
 			"data-[orientation=horizontal]:h-px",
-			"data-[orientation=horizontal]:w-full",
+			"data-[orientation=horizontal]:w-full"
 		);
 	});
 
@@ -48,7 +48,7 @@ describe("Separator", () => {
 		expect(separator).toHaveAttribute("data-orientation", "vertical");
 		expect(separator).toHaveClass(
 			"data-[orientation=vertical]:h-full",
-			"data-[orientation=vertical]:w-px",
+			"data-[orientation=vertical]:w-px"
 		);
 	});
 
@@ -77,13 +77,7 @@ describe("Separator", () => {
 	});
 
 	it("should pass through other props", () => {
-		render(
-			<Separator
-				aria-label="Section separator"
-				data-custom="value"
-				id="test-separator"
-			/>,
-		);
+		render(<Separator aria-label="Section separator" data-custom="value" id="test-separator" />);
 
 		const separator = screen.getByTestId("separator-root");
 		expect(separator).toHaveAttribute("id", "test-separator");
@@ -114,7 +108,7 @@ describe("Separator", () => {
 				<div>Content above</div>
 				<Separator />
 				<div>Content below</div>
-			</div>,
+			</div>
 		);
 
 		const separator = screen.getByTestId("separator-root");
@@ -127,7 +121,7 @@ describe("Separator", () => {
 				<div>Left content</div>
 				<Separator orientation="vertical" />
 				<div>Right content</div>
-			</div>,
+			</div>
 		);
 
 		const separator = screen.getByTestId("separator-root");

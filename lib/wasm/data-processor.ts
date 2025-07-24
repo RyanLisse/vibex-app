@@ -72,35 +72,29 @@ export class WASMDataProcessor {
 	async initialize(): Promise<void> {
 		if (this.isInitialized) return;
 
-		return observability.trackOperation(
-			"wasm.data-processor.initialize",
-			async () => {
-				try {
-					if (shouldUseWASMOptimization("data-processing")) {
-						await this.loadDataProcessingWASM();
-						this.isWASMEnabled = true;
-					} else {
-						await this.initializeJavaScriptFallback();
-						this.isWASMEnabled = false;
-					}
-
-					this.isInitialized = true;
-
-					observability.recordEvent("wasm.data-processor.initialized", {
-						wasmEnabled: this.isWASMEnabled,
-						config: this.config,
-					});
-				} catch (error) {
-					observability.recordError(
-						"wasm.data-processor.initialization-failed",
-						error as Error,
-					);
+		return observability.trackOperation("wasm.data-processor.initialize", async () => {
+			try {
+				if (shouldUseWASMOptimization("data-processing")) {
+					await this.loadDataProcessingWASM();
+					this.isWASMEnabled = true;
+				} else {
 					await this.initializeJavaScriptFallback();
-					this.isInitialized = true;
 					this.isWASMEnabled = false;
 				}
-			},
-		);
+
+				this.isInitialized = true;
+
+				observability.recordEvent("wasm.data-processor.initialized", {
+					wasmEnabled: this.isWASMEnabled,
+					config: this.config,
+				});
+			} catch (error) {
+				observability.recordError("wasm.data-processor.initialization-failed", error as Error);
+				await this.initializeJavaScriptFallback();
+				this.isInitialized = true;
+				this.isWASMEnabled = false;
+			}
+		});
 	}
 
 	/**
@@ -132,68 +126,60 @@ export class WASMDataProcessor {
 	 * Process data with the configured processor
 	 */
 	async processData(task: ProcessingTask): Promise<ProcessingResult> {
-		return observability.trackOperation(
-			"wasm.data-processor.process",
-			async () => {
-				const startTime = performance.now();
+		return observability.trackOperation("wasm.data-processor.process", async () => {
+			const startTime = performance.now();
 
-				let result: any[];
+			let result: any[];
 
-				switch (task.type) {
-					case "transform":
-						result = await this.transformData(task.data, task.options);
-						break;
-					case "filter":
-						result = await this.filterData(task.data, task.options);
-						break;
-					case "aggregate":
-						result = await this.aggregateData(task.data, task.options);
-						break;
-					case "sort":
-						result = await this.sortData(task.data, task.options);
-						break;
-					case "join":
-						result = await this.joinData(task.data, task.options);
-						break;
-					case "compress":
-						result = await this.compressData(task.data, task.options);
-						break;
-					default:
-						throw new Error(`Unknown processing type: ${task.type}`);
-				}
+			switch (task.type) {
+				case "transform":
+					result = await this.transformData(task.data, task.options);
+					break;
+				case "filter":
+					result = await this.filterData(task.data, task.options);
+					break;
+				case "aggregate":
+					result = await this.aggregateData(task.data, task.options);
+					break;
+				case "sort":
+					result = await this.sortData(task.data, task.options);
+					break;
+				case "join":
+					result = await this.joinData(task.data, task.options);
+					break;
+				case "compress":
+					result = await this.compressData(task.data, task.options);
+					break;
+				default:
+					throw new Error(`Unknown processing type: ${task.type}`);
+			}
 
-				const processingTime = performance.now() - startTime;
+			const processingTime = performance.now() - startTime;
 
-				return {
-					taskId: task.id,
-					data: result,
-					processingTime,
-					memoryUsage: 0, // Would be calculated from WASM
-					metadata: {
-						originalSize: task.data.length,
-						resultSize: result.length,
-						wasmEnabled: this.isWASMEnabled,
-					},
-				};
-			},
-		);
+			return {
+				taskId: task.id,
+				data: result,
+				processingTime,
+				memoryUsage: 0, // Would be calculated from WASM
+				metadata: {
+					originalSize: task.data.length,
+					resultSize: result.length,
+					wasmEnabled: this.isWASMEnabled,
+				},
+			};
+		});
 	}
 
 	/**
 	 * Transform data based on options
 	 */
-	private async transformData(
-		data: any[],
-		options: DataTransformOptions,
-	): Promise<any[]> {
+	private async transformData(data: any[], options: DataTransformOptions): Promise<any[]> {
 		const { fields, transformations, filters } = options;
 
 		return data
 			.filter((item) => {
 				if (!filters) return true;
-				return Object.entries(filters).every(([field, filterFn]) =>
-					filterFn(item[field]),
-				);
+				return Object.entries(filters).every(([field, filterFn]) => filterFn(item[field]));
 			})
 			.map((item) => {
 				const transformed: any = {};
@@ -221,10 +207,7 @@ export class WASMDataProcessor {
 	/**
 	 * Aggregate data
 	 */
-	private async aggregateData(
-		data: any[],
-		options: AggregationOptions,
-	): Promise<any[]> {
+	private async aggregateData(data: any[], options: AggregationOptions): Promise<any[]> {
 		const { groupBy, aggregations } = options;
 		const groups = new Map<string, any[]>();
 
@@ -250,17 +233,14 @@ export class WASMDataProcessor {
 
 			// Calculate aggregations
 			for (const [field, aggType] of Object.entries(aggregations)) {
-				const values = group
-					.map((item) => item[field])
-					.filter((v) => v != null);
+				const values = group.map((item) => item[field]).filter((v) => v != null);
 
 				switch (aggType) {
 					case "sum":
 						result[`${field}_sum`] = values.reduce((sum, val) => sum + val, 0);
 						break;
 					case "avg":
-						result[`${field}_avg`] =
-							values.reduce((sum, val) => sum + val, 0) / values.length;
+						result[`${field}_avg`] = values.reduce((sum, val) => sum + val, 0) / values.length;
 						break;
 					case "count":
 						result[`${field}_count`] = values.length;
@@ -305,7 +285,7 @@ export class WASMDataProcessor {
 
 		for (const leftItem of data) {
 			const matches = rightData.filter(
-				(rightItem: any) => leftItem[leftKey] === rightItem[rightKey],
+				(rightItem: any) => leftItem[leftKey] === rightItem[rightKey]
 			);
 
 			if (matches.length > 0) {
@@ -352,8 +332,6 @@ export class WASMDataProcessor {
 export const dataProcessor = new WASMDataProcessor();
 
 // Utility function
-export function createDataProcessor(
-	config?: Partial<DataProcessingConfig>,
-): WASMDataProcessor {
+export function createDataProcessor(config?: Partial<DataProcessingConfig>): WASMDataProcessor {
 	return new WASMDataProcessor(config);
 }

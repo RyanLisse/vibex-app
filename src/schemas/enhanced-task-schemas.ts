@@ -3,12 +3,7 @@ import { z } from "zod";
 // Enhanced task schemas with additional validation and features
 
 export const TaskPrioritySchema = z.enum(["low", "medium", "high", "urgent"]);
-export const TaskStatusSchema = z.enum([
-	"todo",
-	"in_progress",
-	"done",
-	"archived",
-]);
+export const TaskStatusSchema = z.enum(["todo", "in_progress", "done", "archived"]);
 
 export const EnhancedTaskSchema = z.object({
 	id: z.string().uuid(),
@@ -56,6 +51,9 @@ export type EnhancedTask = z.infer<typeof EnhancedTaskSchema>;
 export const TaskProgressSchema = z.object({
 	taskId: z.string().uuid(),
 	progress: z.number().min(0).max(100),
+	completionPercentage: z.number().min(0).max(100),
+	timeSpent: z.number().min(0).optional(),
+	status: z.string().optional(),
 	milestone: z.string().optional(),
 	notes: z.string().optional(),
 	timestamp: z.string().datetime().optional(),
@@ -116,14 +114,14 @@ export const KanbanBoardConfigSchema = z.object({
 			title: z.string(),
 			color: z.string().optional(),
 			limit: z.number().optional(),
-		}),
+		})
 	),
 	swimlanes: z
 		.array(
 			z.object({
 				id: z.string(),
 				title: z.string(),
-			}),
+			})
 		)
 		.optional(),
 	settings: z
@@ -181,7 +179,7 @@ export const PRStatusUpdateSchema = z.object({
 				name: z.string(),
 				status: z.enum(["pending", "success", "failure", "error"]),
 				conclusion: z.string().optional(),
-			}),
+			})
 		)
 		.optional(),
 });
@@ -199,7 +197,7 @@ export const ProgressMetricsSchema = z.object({
 				name: z.string(),
 				completed: z.boolean(),
 				dueDate: z.string().datetime().optional(),
-			}),
+			})
 		)
 		.default([]),
 });
@@ -242,7 +240,7 @@ export const ScreenshotDataSchema = z.object({
 				height: z.number().optional(),
 				text: z.string().optional(),
 				color: z.string().optional(),
-			}),
+			})
 		)
 		.default([]),
 	createdAt: z.string().datetime(),
@@ -261,7 +259,7 @@ export const TranscriptionResultSchema = z.object({
 				end: z.number(),
 				text: z.string(),
 				confidence: z.number(),
-			}),
+			})
 		)
 		.optional(),
 });

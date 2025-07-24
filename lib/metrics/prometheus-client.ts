@@ -28,18 +28,14 @@ export class PrometheusMetricsCollector {
 		this.initializeMetrics();
 	}
 
-
-
 	public recordAgentOperation(
 		agentId: string,
 		agentType: string,
 		operation: string,
 		provider: string,
-		status: string,
+		status: string
 	): void {
-		this.agentOperationsTotal
-			.labels(agentId, agentType, operation, provider, status)
-			.inc();
+		this.agentOperationsTotal.labels(agentId, agentType, operation, provider, status).inc();
 	}
 
 	public recordAgentExecution(
@@ -47,33 +43,27 @@ export class PrometheusMetricsCollector {
 		agentType: string,
 		taskType: string,
 		provider: string,
-		duration: number,
+		duration: number
 	): void {
-		this.agentExecutionDuration
-			.labels(agentId, agentType, taskType, provider)
-			.observe(duration);
+		this.agentExecutionDuration.labels(agentId, agentType, taskType, provider).observe(duration);
 	}
 
 	public recordTaskExecution(
 		taskId: string,
 		taskType: string,
 		status: string,
-		duration: number,
+		duration: number
 	): void {
-		this.taskExecutionDuration
-			.labels(taskId, taskType, status)
-			.observe(duration);
+		this.taskExecutionDuration.labels(taskId, taskType, status).observe(duration);
 	}
 
 	public recordWorkflowStep(
 		workflowId: string,
 		stepId: string,
 		stepType: string,
-		duration: number,
+		duration: number
 	): void {
-		this.workflowStepDuration
-			.labels(workflowId, stepId, stepType)
-			.observe(duration);
+		this.workflowStepDuration.labels(workflowId, stepId, stepType).observe(duration);
 	}
 
 	public async getMetrics(): Promise<string> {
@@ -173,27 +163,16 @@ export class PrometheusMetricsCollector {
 		agentType: string,
 		provider: string,
 		tokenType: string,
-		count: number,
+		count: number
 	): void {
-		this.tokenUsageTotal
-			.labels(agentId, agentType, provider, tokenType)
-			.inc(count);
+		this.tokenUsageTotal.labels(agentId, agentType, provider, tokenType).inc(count);
 	}
 
-	public recordAgentCost(
-		agentId: string,
-		agentType: string,
-		provider: string,
-		cost: number,
-	): void {
+	public recordAgentCost(agentId: string, agentType: string, provider: string, cost: number): void {
 		this.agentCostTotal.labels(agentId, agentType, provider).inc(cost);
 	}
 
-	public setActiveAgents(
-		agentType: string,
-		provider: string,
-		count: number,
-	): void {
+	public setActiveAgents(agentType: string, provider: string, count: number): void {
 		this.activeAgentsGauge.labels(agentType, provider).set(count);
 	}
 
@@ -201,11 +180,7 @@ export class PrometheusMetricsCollector {
 		this.featureUsageTotal.labels(feature, tier).inc();
 	}
 
-	public createCustomCounter(
-		name: string,
-		help: string,
-		labelNames: string[],
-	): Counter<string> {
+	public createCustomCounter(name: string, help: string, labelNames: string[]): Counter<string> {
 		return new Counter({
 			name,
 			help,
@@ -217,7 +192,7 @@ export class PrometheusMetricsCollector {
 		name: string,
 		help: string,
 		labelNames: string[],
-		buckets: number[],
+		buckets: number[]
 	): Histogram<string> {
 		return new Histogram({
 			name,
@@ -227,11 +202,7 @@ export class PrometheusMetricsCollector {
 		});
 	}
 
-	public createCustomGauge(
-		name: string,
-		help: string,
-		labelNames: string[],
-	): Gauge<string> {
+	public createCustomGauge(name: string, help: string, labelNames: string[]): Gauge<string> {
 		return new Gauge({
 			name,
 			help,
@@ -246,15 +217,11 @@ export class PrometheusMetricsCollector {
 		method: string,
 		route: string,
 		statusCode: number,
-		duration: number,
+		duration: number
 	): void {
-		this.httpRequestsTotal
-			.labels(method, route, statusCode.toString())
-			.inc();
+		this.httpRequestsTotal.labels(method, route, statusCode.toString()).inc();
 
-		this.httpRequestDuration
-			.labels(method, route, statusCode.toString())
-			.observe(duration);
+		this.httpRequestDuration.labels(method, route, statusCode.toString()).observe(duration);
 	}
 
 	/**

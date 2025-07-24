@@ -24,12 +24,9 @@ export default function AuthSuccessPage() {
 							</svg>
 						</div>
 					</div>
-					<h1 className="text-2xl font-bold text-gray-900 mb-2">
-						Authentication Successful
-					</h1>
+					<h1 className="text-2xl font-bold text-gray-900 mb-2">Authentication Successful</h1>
 					<p className="text-gray-600 mb-6">
-						You have been successfully authenticated. You can now access your
-						account.
+						You have been successfully authenticated. You can now access your account.
 					</p>
 					<button
 						className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"

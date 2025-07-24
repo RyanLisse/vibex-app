@@ -6,12 +6,7 @@
  */
 
 import { db } from "@/db/config";
-import {
-	agentExecutions,
-	environments,
-	observabilityEvents,
-	tasks,
-} from "@/db/schema";
+import { agentExecutions, environments, observabilityEvents, tasks } from "@/db/schema";
 
 export interface BenchmarkResult {
 	name: string;
@@ -44,10 +39,7 @@ export interface BaselineComparison {
 export class PerformanceBenchmarker {
 	private results: BenchmarkResult[] = [];
 
-	async benchmarkQuery(
-		name: string,
-		queryFn: () => Promise<any>,
-	): Promise<BenchmarkResult> {
+	async benchmarkQuery(name: string, queryFn: () => Promise<any>): Promise<BenchmarkResult> {
 		const start = performance.now();
 		await queryFn();
 		const end = performance.now();
@@ -82,8 +74,8 @@ export class PerformanceBenchmarker {
 					totalTests: 10,
 					passed: 9,
 					failed: 1,
-					averageExecutionTime: 150
-				}
+					averageExecutionTime: 150,
+				},
 			},
 			{
 				name: "API Response Times",
@@ -91,9 +83,9 @@ export class PerformanceBenchmarker {
 					totalTests: 8,
 					passed: 8,
 					failed: 0,
-					averageExecutionTime: 75
-				}
-			}
+					averageExecutionTime: 75,
+				},
+			},
 		];
 	}
 
@@ -107,15 +99,15 @@ export class PerformanceBenchmarker {
 					name: "Database Operations",
 					current: 150,
 					baseline: 175,
-					change: -14.3
+					change: -14.3,
 				},
 				{
 					name: "API Response Times",
 					current: 75,
 					baseline: 85,
-					change: -11.8
-				}
-			]
+					change: -11.8,
+				},
+			],
 		};
 	}
 }

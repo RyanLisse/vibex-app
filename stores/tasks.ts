@@ -41,13 +41,8 @@ export interface Task {
 
 interface TaskStore {
 	tasks: Task[];
-	addTask: (
-		task: Omit<Task, "id" | "createdAt" | "updatedAt" | "isArchived">,
-	) => Task;
-	updateTask: (
-		id: string,
-		updates: Partial<Omit<Task, "id" | "createdAt">>,
-	) => void;
+	addTask: (task: Omit<Task, "id" | "createdAt" | "updatedAt" | "isArchived">) => Task;
+	updateTask: (id: string, updates: Partial<Omit<Task, "id" | "createdAt">>) => void;
 	setTasks: (tasks: Task[]) => void;
 	removeTask: (id: string) => void;
 	archiveTask: (id: string) => void;
@@ -89,9 +84,7 @@ export const useTaskStore = create<TaskStore>()(
 			updateTask: (id, updates) => {
 				set((state) => ({
 					tasks: state.tasks.map((task) =>
-						task.id === id
-							? { ...task, ...updates, updatedAt: new Date().toISOString() }
-							: task,
+						task.id === id ? { ...task, ...updates, updatedAt: new Date().toISOString() } : task
 					),
 				}));
 			},
@@ -110,7 +103,7 @@ export const useTaskStore = create<TaskStore>()(
 									isArchived: true,
 									updatedAt: new Date().toISOString(),
 								}
-							: task,
+							: task
 					),
 				}));
 			},
@@ -123,7 +116,7 @@ export const useTaskStore = create<TaskStore>()(
 									isArchived: false,
 									updatedAt: new Date().toISOString(),
 								}
-							: task,
+							: task
 					),
 				}));
 			},
@@ -137,7 +130,7 @@ export const useTaskStore = create<TaskStore>()(
 									statusMessage: "Task paused",
 									updatedAt: new Date().toISOString(),
 								}
-							: task,
+							: task
 					),
 				}));
 			},
@@ -151,7 +144,7 @@ export const useTaskStore = create<TaskStore>()(
 									statusMessage: "Task resumed",
 									updatedAt: new Date().toISOString(),
 								}
-							: task,
+							: task
 					),
 				}));
 			},
@@ -165,7 +158,7 @@ export const useTaskStore = create<TaskStore>()(
 									statusMessage: "Task cancelled",
 									updatedAt: new Date().toISOString(),
 								}
-							: task,
+							: task
 					),
 				}));
 			},
@@ -177,8 +170,7 @@ export const useTaskStore = create<TaskStore>()(
 					.reverse(),
 			getArchivedTasks: () => get().tasks.filter((task) => task.isArchived),
 			getTaskById: (id) => get().tasks.find((task) => task.id === id),
-			getTasksByStatus: (status) =>
-				get().tasks.filter((task) => task.status === status),
+			getTasksByStatus: (status) => get().tasks.filter((task) => task.status === status),
 			getTasksBySessionId: (sessionId) =>
 				get().tasks.filter((task) => task.sessionId === sessionId),
 		}),
@@ -186,6 +178,6 @@ export const useTaskStore = create<TaskStore>()(
 			name: "task-store", // key in localStorage
 			// Optionally, customize storage or partialize which fields to persist
 			// storage: () => sessionStorage, // for sessionStorage instead
-		},
-	),
+		}
+	)
 );

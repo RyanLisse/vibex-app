@@ -9,10 +9,7 @@ import {
 	ValidationError,
 } from "../../../lib/api/base/errors";
 import { BaseAPIHandler } from "../../../lib/api/base/handler";
-import {
-	createQueryBuilder,
-	QueryBuilder,
-} from "../../../lib/api/base/query-builder";
+import { createQueryBuilder, QueryBuilder } from "../../../lib/api/base/query-builder";
 import { ResponseBuilder } from "../../../lib/api/base/response-builder";
 import {
 	BaseAPIService,
@@ -116,7 +113,7 @@ class TaskService extends BaseCRUDService<Task, CreateTaskDTO, UpdateTaskDTO> {
 	async getAll(
 		filters: Record<string, any>,
 		pagination: { page: number; limit: number },
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{ items: Task[]; total: number }> {
 		return this.executeWithTracing("getAll", context, async (span) => {
 			const queryBuilder = createQueryBuilder<Task>(tasksTable)
@@ -132,15 +129,11 @@ class TaskService extends BaseCRUDService<Task, CreateTaskDTO, UpdateTaskDTO> {
 				"tasks.total": result.pagination.total,
 			});
 
-			await this.recordEvent(
-				"tasks_listed",
-				`Listed ${result.items.length} tasks`,
-				{
-					userId: context.userId,
-					filters,
-					pagination,
-				},
-			);
+			await this.recordEvent("tasks_listed", `Listed ${result.items.length} tasks`, {
+				userId: context.userId,
+				filters,
+				pagination,
+			});
 
 			return {
 				items: result.items,
@@ -204,11 +197,7 @@ class TaskService extends BaseCRUDService<Task, CreateTaskDTO, UpdateTaskDTO> {
 		});
 	}
 
-	async update(
-		id: string,
-		data: UpdateTaskDTO,
-		context: ServiceContext,
-	): Promise<Task> {
+	async update(id: string, data: UpdateTaskDTO, context: ServiceContext): Promise<Task> {
 		return this.executeWithTracing("update", context, async (span) => {
 			const existingTask = await this.getById(id, context);
 
@@ -228,15 +217,11 @@ class TaskService extends BaseCRUDService<Task, CreateTaskDTO, UpdateTaskDTO> {
 				"task.updated_fields": Object.keys(data).join(","),
 			});
 
-			await this.recordEvent(
-				"task_updated",
-				`Task updated: ${updatedTask.title}`,
-				{
-					taskId: id,
-					userId: context.userId,
-					changes: data,
-				},
-			);
+			await this.recordEvent("task_updated", `Task updated: ${updatedTask.title}`, {
+				taskId: id,
+				userId: context.userId,
+				changes: data,
+			});
 
 			return updatedTask;
 		});
@@ -262,10 +247,7 @@ class TaskService extends BaseCRUDService<Task, CreateTaskDTO, UpdateTaskDTO> {
 	}
 
 	// Additional business logic methods
-	async getByStatus(
-		status: Task["status"],
-		context: ServiceContext,
-	): Promise<Task[]> {
+	async getByStatus(status: Task["status"], context: ServiceContext): Promise<Task[]> {
 		return this.executeWithTracing("getByStatus", context, async (span) => {
 			const queryBuilder = createQueryBuilder<Task>(tasksTable)
 				.where(tasksTable.userId, context.userId!)
@@ -284,26 +266,22 @@ class TaskService extends BaseCRUDService<Task, CreateTaskDTO, UpdateTaskDTO> {
 	}
 
 	async getHighPriorityTasks(context: ServiceContext): Promise<Task[]> {
-		return this.executeWithTracing(
-			"getHighPriorityTasks",
-			context,
-			async (span) => {
-				const queryBuilder = createQueryBuilder<Task>(tasksTable)
-					.where(tasksTable.userId, context.userId!)
-					.where(tasksTable.priority, "high")
-					.where(tasksTable.status, "pending")
-					.orderBy(tasksTable.createdAt, "asc")
-					.limit(10);
+		return this.executeWithTracing("getHighPriorityTasks", context, async (span) => {
+			const queryBuilder = createQueryBuilder<Task>(tasksTable)
+				.where(tasksTable.userId, context.userId!)
+				.where(tasksTable.priority, "high")
+				.where(tasksTable.status, "pending")
+				.orderBy(tasksTable.createdAt, "asc")
+				.limit(10);
 
-				const tasks = await queryBuilder.execute();
+			const tasks = await queryBuilder.execute();
 
-				span.setAttributes({
-					"tasks.count": tasks.length,
-				});
+			span.setAttributes({
+				"tasks.count": tasks.length,
+			});
 
-				return tasks;
-			},
-		);
+			return tasks;
+		});
 	}
 }
 
@@ -315,7 +293,7 @@ function createRequest(
 		headers?: Record<string, string>;
 		body?: any;
 		searchParams?: Record<string, string>;
-	} = {},
+	} = {}
 ) {
 	const fullUrl = new URL(url, "http://localhost:3000");
 
@@ -417,7 +395,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 					const result = await taskService.getAll(
 						{},
 						{ page, limit },
-						{ ...context, userId: mockUserId },
+						{ ...context, userId: mockUserId }
 					);
 
 					return ResponseBuilder.paginated(result.items, {
@@ -429,7 +407,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 						hasPrev: page > 1,
 					});
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks", {
@@ -465,7 +443,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 					const result = await taskService.getAll(
 						{ status },
 						{ page: 1, limit: 10 },
-						{ ...context, userId: mockUserId },
+						{ ...context, userId: mockUserId }
 					);
 
 					return ResponseBuilder.paginated(
@@ -478,10 +456,10 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 							hasNext: false,
 							hasPrev: false,
 						},
-						`Found ${result.total} ${status} tasks`,
+						`Found ${result.total} ${status} tasks`
 					);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks", {
@@ -500,10 +478,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 		it("should create task with valid data", async () => {
 			const handler = BaseAPIHandler.POST(
 				async (context) => {
-					const body = await BaseAPIHandler.validateBody(
-						context as any,
-						CreateTaskDTO,
-					);
+					const body = await BaseAPIHandler.validateBody(context as any, CreateTaskDTO);
 
 					const task = await taskService.create(body, {
 						...context,
@@ -512,7 +487,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 
 					return ResponseBuilder.created(task, "Task created successfully");
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const newTaskData = {
@@ -548,17 +523,14 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 				expect.any(Object),
 				expect.any(Object),
 				"api",
-				expect.any(Array),
+				expect.any(Array)
 			);
 		});
 
 		it("should handle validation errors", async () => {
 			const handler = BaseAPIHandler.POST(
 				async (context) => {
-					const body = await BaseAPIHandler.validateBody(
-						context as any,
-						CreateTaskDTO,
-					);
+					const body = await BaseAPIHandler.validateBody(context as any, CreateTaskDTO);
 
 					const task = await taskService.create(body, {
 						...context,
@@ -567,7 +539,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 
 					return ResponseBuilder.created(task);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const invalidData = {
@@ -605,7 +577,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 
 					return ResponseBuilder.success(task);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks/task-1", {
@@ -646,7 +618,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 
 					return ResponseBuilder.success(task);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks/non-existent", {
@@ -670,10 +642,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 			const handler = BaseAPIHandler.PUT(
 				async (context) => {
 					const taskId = context.path.split("/").pop()!;
-					const body = await BaseAPIHandler.validateBody(
-						context as any,
-						UpdateTaskDTO,
-					);
+					const body = await BaseAPIHandler.validateBody(context as any, UpdateTaskDTO);
 
 					const task = await taskService.update(taskId, body, {
 						...context,
@@ -682,7 +651,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 
 					return ResponseBuilder.updated(task);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const updateData = {
@@ -721,7 +690,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 
 					return ResponseBuilder.deleted("Task deleted successfully");
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks/task-1", {
@@ -752,12 +721,12 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 					const result = await taskService.getAll(
 						{},
 						{ page: 1, limit: 10 },
-						{ ...context, userId: mockUserId },
+						{ ...context, userId: mockUserId }
 					);
 
 					return ResponseBuilder.success(result);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks", {
@@ -782,12 +751,9 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 						userId: mockUserId,
 					});
 
-					return ResponseBuilder.success(
-						tasks,
-						`Found ${tasks.length} high priority tasks`,
-					);
+					return ResponseBuilder.success(tasks, `Found ${tasks.length} high priority tasks`);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const requests = Array(5)
@@ -795,7 +761,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 				.map(() =>
 					createRequest("/api/tasks/high-priority", {
 						headers: { "x-auth-token": "valid-token" },
-					}),
+					})
 				);
 
 			const responses = await Promise.all(requests.map((req) => handler(req)));
@@ -806,9 +772,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 			});
 
 			// Verify metrics were recorded for all requests
-			expect(observability.metrics.httpRequestDuration).toHaveBeenCalledTimes(
-				5,
-			);
+			expect(observability.metrics.httpRequestDuration).toHaveBeenCalledTimes(5);
 		});
 
 		it("should maintain tracing context through service calls", async () => {
@@ -818,24 +782,24 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 					const tasks = await Promise.all([
 						taskService.create(
 							{ title: "Task 1", priority: "high" },
-							{ ...context, userId: mockUserId },
+							{ ...context, userId: mockUserId }
 						),
 						taskService.create(
 							{ title: "Task 2", priority: "medium" },
-							{ ...context, userId: mockUserId },
+							{ ...context, userId: mockUserId }
 						),
 						taskService.create(
 							{ title: "Task 3", priority: "low" },
-							{ ...context, userId: mockUserId },
+							{ ...context, userId: mockUserId }
 						),
 					]);
 
 					return ResponseBuilder.batch(
 						tasks.map((task) => ({ success: true, data: task })),
-						"Batch task creation completed",
+						"Batch task creation completed"
 					);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks/batch", {
@@ -868,12 +832,12 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 					const result = await taskService.getAll(
 						{},
 						{ page: 1, limit: 10 },
-						{ ...context, userId: mockUserId },
+						{ ...context, userId: mockUserId }
 					);
 
 					return ResponseBuilder.success(result);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks", {
@@ -901,12 +865,12 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 					const result = await taskService.getAll(
 						{},
 						{ page: 1, limit: 10 },
-						{ ...context, userId: mockUserId },
+						{ ...context, userId: mockUserId }
 					);
 
 					return ResponseBuilder.success(result);
 				},
-				{ requireAuth: true },
+				{ requireAuth: true }
 			);
 
 			const request = createRequest("/api/tasks", {
@@ -917,9 +881,7 @@ describe("Base API Infrastructure End-to-End Tests", () => {
 			await handler(request);
 			const endTime = Date.now();
 
-			const httpDurationCall = (
-				observability.metrics.httpRequestDuration as any
-			).mock.calls[0];
+			const httpDurationCall = (observability.metrics.httpRequestDuration as any).mock.calls[0];
 			const recordedDuration = httpDurationCall[0];
 
 			expect(recordedDuration).toBeGreaterThanOrEqual(50);

@@ -1,6 +1,6 @@
 /**
  * TestDataBuilder - Comprehensive Test Data Generation and Management
- * 
+ *
  * Provides builders and factories for creating consistent test data
  */
 
@@ -120,7 +120,7 @@ export class TestDataBuilder {
 		const id = this.generateId("user");
 		const firstName = this.generateFirstName();
 		const lastName = this.generateLastName();
-		
+
 		return {
 			id,
 			email: this.generateEmail(firstName, lastName),
@@ -146,7 +146,7 @@ export class TestDataBuilder {
 	 */
 	buildTask(overrides: Partial<TaskTestData> = {}): TaskTestData {
 		const createdAt = this.generatePastDate(90);
-		
+
 		return {
 			id: this.generateId("task"),
 			title: this.generateTaskTitle(),
@@ -177,7 +177,7 @@ export class TestDataBuilder {
 	buildAgent(overrides: Partial<AgentTestData> = {}): AgentTestData {
 		const type = this.randomChoice(["code-gen", "code-review", "brainstorm", "research"]);
 		const provider = this.randomChoice(["openai", "anthropic", "google", "local"]);
-		
+
 		return {
 			id: this.generateId("agent"),
 			name: this.generateAgentName(type),
@@ -198,7 +198,7 @@ export class TestDataBuilder {
 	buildSession(overrides: Partial<SessionTestData> = {}): SessionTestData {
 		const createdAt = this.generatePastDate(7);
 		const expiresAt = this.generateDateAfter(createdAt, 30);
-		
+
 		return {
 			id: this.generateId("session"),
 			userId: this.generateId("user"),
@@ -217,12 +217,9 @@ export class TestDataBuilder {
 	/**
 	 * Build realistic test dataset
 	 */
-	buildDataset(options: {
-		users?: number;
-		tasks?: number;
-		agents?: number;
-		sessions?: number;
-	} = {}): {
+	buildDataset(
+		options: { users?: number; tasks?: number; agents?: number; sessions?: number } = {}
+	): {
 		users: UserTestData[];
 		tasks: TaskTestData[];
 		agents: AgentTestData[];
@@ -230,9 +227,9 @@ export class TestDataBuilder {
 	} {
 		const users = this.buildUsers(options.users ?? 10);
 		const agents = Array.from({ length: options.agents ?? 5 }, () => this.buildAgent());
-		
+
 		// Create tasks assigned to users
-		const tasks = Array.from({ length: options.tasks ?? 25 }, () => 
+		const tasks = Array.from({ length: options.tasks ?? 25 }, () =>
 			this.buildTask({
 				assigneeId: this.randomChoice(users).id,
 				createdBy: this.randomChoice(users).id,
@@ -240,7 +237,7 @@ export class TestDataBuilder {
 		);
 
 		// Create sessions for users
-		const sessions = users.flatMap(user => 
+		const sessions = users.flatMap((user) =>
 			Array.from({ length: Math.floor(Math.random() * 3) + 1 }, () =>
 				this.buildSession({ userId: user.id })
 			)
@@ -271,12 +268,34 @@ export class TestDataBuilder {
 	}
 
 	private generateFirstName(): string {
-		const names = ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack"];
+		const names = [
+			"Alice",
+			"Bob",
+			"Charlie",
+			"Diana",
+			"Eve",
+			"Frank",
+			"Grace",
+			"Henry",
+			"Ivy",
+			"Jack",
+		];
 		return this.randomChoice(names);
 	}
 
 	private generateLastName(): string {
-		const names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
+		const names = [
+			"Smith",
+			"Johnson",
+			"Williams",
+			"Brown",
+			"Jones",
+			"Garcia",
+			"Miller",
+			"Davis",
+			"Rodriguez",
+			"Martinez",
+		];
 		return this.randomChoice(names);
 	}
 
@@ -298,16 +317,28 @@ export class TestDataBuilder {
 		return {
 			firstName,
 			lastName,
-			avatar: this.randomBoolean() ? `https://avatar.example.com/${firstName.toLowerCase()}` : undefined,
+			avatar: this.randomBoolean()
+				? `https://avatar.example.com/${firstName.toLowerCase()}`
+				: undefined,
 			bio: this.randomBoolean() ? "Software developer and tech enthusiast" : undefined,
-			company: this.randomBoolean() ? this.randomChoice(["TechCorp", "DevStudio", "CodeWorks"]) : undefined,
-			location: this.randomBoolean() ? this.randomChoice(["New York", "London", "Tokyo", "Berlin"]) : undefined,
+			company: this.randomBoolean()
+				? this.randomChoice(["TechCorp", "DevStudio", "CodeWorks"])
+				: undefined,
+			location: this.randomBoolean()
+				? this.randomChoice(["New York", "London", "Tokyo", "Berlin"])
+				: undefined,
 		};
 	}
 
 	private generateTaskTitle(): string {
 		const actions = ["Implement", "Fix", "Update", "Refactor", "Add", "Remove", "Optimize"];
-		const subjects = ["user authentication", "API endpoints", "database schema", "UI components", "test coverage"];
+		const subjects = [
+			"user authentication",
+			"API endpoints",
+			"database schema",
+			"UI components",
+			"test coverage",
+		];
 		return `${this.randomChoice(actions)} ${this.randomChoice(subjects)}`;
 	}
 
@@ -316,7 +347,17 @@ export class TestDataBuilder {
 	}
 
 	private generateTags(): string[] {
-		const allTags = ["frontend", "backend", "api", "database", "testing", "security", "performance", "ui", "ux"];
+		const allTags = [
+			"frontend",
+			"backend",
+			"api",
+			"database",
+			"testing",
+			"security",
+			"performance",
+			"ui",
+			"ux",
+		];
 		const count = Math.floor(Math.random() * 4) + 1;
 		return this.shuffleArray(allTags).slice(0, count);
 	}
@@ -333,8 +374,8 @@ export class TestDataBuilder {
 		const prefixes = {
 			"code-gen": ["CodeGen", "Generator", "Builder"],
 			"code-review": ["Reviewer", "Analyzer", "Inspector"],
-			"brainstorm": ["Ideator", "Creator", "Thinker"],
-			"research": ["Researcher", "Explorer", "Investigator"],
+			brainstorm: ["Ideator", "Creator", "Thinker"],
+			research: ["Researcher", "Explorer", "Investigator"],
 		};
 		return `${this.randomChoice(prefixes[type as keyof typeof prefixes])} Agent`;
 	}
@@ -351,7 +392,7 @@ export class TestDataBuilder {
 
 	private buildAgentConfig(): AgentConfig {
 		return {
-			temperature: Math.round((Math.random() * 2) * 100) / 100,
+			temperature: Math.round(Math.random() * 2 * 100) / 100,
 			maxTokens: this.randomChoice([1000, 2000, 4000, 8000]),
 			systemPrompt: "You are a helpful AI assistant.",
 			tools: this.shuffleArray(["web_search", "code_execution", "file_system"]).slice(0, 2),
@@ -388,7 +429,9 @@ export class TestDataBuilder {
 			browser: this.randomChoice(["Chrome", "Firefox", "Safari", "Edge"]),
 			os: this.randomChoice(["Windows", "macOS", "Linux", "iOS", "Android"]),
 			device: this.randomChoice(["Desktop", "Mobile", "Tablet"]),
-			location: this.randomBoolean() ? this.randomChoice(["US", "UK", "CA", "DE", "JP"]) : undefined,
+			location: this.randomBoolean()
+				? this.randomChoice(["US", "UK", "CA", "DE", "JP"])
+				: undefined,
 			referrer: this.randomBoolean() ? "https://google.com" : undefined,
 		};
 	}

@@ -34,18 +34,11 @@ export class ResponseBuilder {
 	/**
 	 * Create a paginated response
 	 */
-	static paginated<T>(
-		data: T[],
-		pagination: PaginationInfo,
-		message?: string,
-	): NextResponse {
-		return NextResponse.json(
-			createPaginatedResponse(data, pagination, message),
-			{
-				status: 200,
-				headers: ResponseBuilder.getDefaultHeaders(),
-			},
-		);
+	static paginated<T>(data: T[], pagination: PaginationInfo, message?: string): NextResponse {
+		return NextResponse.json(createPaginatedResponse(data, pagination, message), {
+			status: 200,
+			headers: ResponseBuilder.getDefaultHeaders(),
+		});
 	}
 
 	/**
@@ -55,36 +48,26 @@ export class ResponseBuilder {
 		message: string,
 		statusCode = 500,
 		code = "INTERNAL_ERROR",
-		details?: any,
+		details?: any
 	): NextResponse {
-		return NextResponse.json(
-			createApiErrorResponse(message, statusCode, details),
-			{
-				status: statusCode,
-				headers: ResponseBuilder.getDefaultHeaders(),
-			},
-		);
+		return NextResponse.json(createApiErrorResponse(message, statusCode, details), {
+			status: statusCode,
+			headers: ResponseBuilder.getDefaultHeaders(),
+		});
 	}
 
 	/**
 	 * Create a validation error response
 	 */
 	static validationError(errors: any[]): NextResponse {
-		return ResponseBuilder.error(
-			"Validation failed",
-			400,
-			"VALIDATION_ERROR",
-			errors,
-		);
+		return ResponseBuilder.error("Validation failed", 400, "VALIDATION_ERROR", errors);
 	}
 
 	/**
 	 * Create a not found response
 	 */
 	static notFound(resource: string, id?: string): NextResponse {
-		const message = id
-			? `${resource} with id ${id} not found`
-			: `${resource} not found`;
+		const message = id ? `${resource} with id ${id} not found` : `${resource} not found`;
 
 		return ResponseBuilder.error(message, 404, "NOT_FOUND");
 	}
@@ -111,18 +94,13 @@ export class ResponseBuilder {
 
 		if (retryAfter) {
 			headers["Retry-After"] = retryAfter.toString();
-			headers["X-RateLimit-Reset"] = new Date(
-				Date.now() + retryAfter * 1000,
-			).toISOString();
+			headers["X-RateLimit-Reset"] = new Date(Date.now() + retryAfter * 1000).toISOString();
 		}
 
-		return NextResponse.json(
-			createApiErrorResponse("Rate limit exceeded", 429, { retryAfter }),
-			{
-				status: 429,
-				headers,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Rate limit exceeded", 429, { retryAfter }), {
+			status: 429,
+			headers,
+		});
 	}
 
 	/**
@@ -182,14 +160,11 @@ export class ResponseBuilder {
 	static withCORS(
 		response: NextResponse,
 		origin = "*",
-		methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 	): NextResponse {
 		response.headers.set("Access-Control-Allow-Origin", origin);
 		response.headers.set("Access-Control-Allow-Methods", methods.join(", "));
-		response.headers.set(
-			"Access-Control-Allow-Headers",
-			"Content-Type, Authorization",
-		);
+		response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 		response.headers.set("Access-Control-Max-Age", "86400");
 
 		return response;

@@ -31,8 +31,8 @@ const mockRegister = {
 	clear: mock(() => {}),
 	metrics: mock(() =>
 		Promise.resolve(
-			'# Mock metrics\nagent_operations_total{agent_id="agent-1",agent_type="code-gen",operation="execute",provider="openai",status="success"} 1',
-		),
+			'# Mock metrics\nagent_operations_total{agent_id="agent-1",agent_type="code-gen",operation="execute",provider="openai",status="success"} 1'
+		)
 	),
 };
 
@@ -77,13 +77,7 @@ describe("PrometheusMetricsCollector", () => {
 
 	describe("agent metrics", () => {
 		it("should record agent operations with correct labels", async () => {
-			collector.recordAgentOperation(
-				"agent-1",
-				"code-gen",
-				"execute",
-				"openai",
-				"success",
-			);
+			collector.recordAgentOperation("agent-1", "code-gen", "execute", "openai", "success");
 
 			const metrics = await collector.getMetrics();
 			expect(metrics).toContain("agent_operations_total");
@@ -96,13 +90,7 @@ describe("PrometheusMetricsCollector", () => {
 		});
 
 		it("should record agent execution duration", async () => {
-			collector.recordAgentExecution(
-				"agent-1",
-				"code-gen",
-				"task",
-				"openai",
-				2.5,
-			);
+			collector.recordAgentExecution("agent-1", "code-gen", "task", "openai", 2.5);
 
 			const metrics = await collector.getMetrics();
 			expect(metrics).toContain("agent_execution_duration_seconds");
@@ -242,7 +230,7 @@ describe("PrometheusMetricsCollector", () => {
 			const counter = collector.createCustomCounter(
 				"custom_operations_total",
 				"Custom operations counter",
-				["operation", "status"],
+				["operation", "status"]
 			);
 
 			expect(counter).toBeDefined();
@@ -254,7 +242,7 @@ describe("PrometheusMetricsCollector", () => {
 				"custom_duration_seconds",
 				"Custom duration histogram",
 				["operation"],
-				[0.1, 1, 5, 10],
+				[0.1, 1, 5, 10]
 			);
 
 			expect(histogram).toBeDefined();
@@ -265,7 +253,7 @@ describe("PrometheusMetricsCollector", () => {
 			const gauge = collector.createCustomGauge(
 				"custom_active_count",
 				"Custom active count gauge",
-				["type"],
+				["type"]
 			);
 
 			expect(gauge).toBeDefined();
@@ -275,13 +263,7 @@ describe("PrometheusMetricsCollector", () => {
 
 	describe("metrics output", () => {
 		it("should return Prometheus-formatted metrics", async () => {
-			collector.recordAgentOperation(
-				"agent-1",
-				"test",
-				"execute",
-				"openai",
-				"success",
-			);
+			collector.recordAgentOperation("agent-1", "test", "execute", "openai", "success");
 
 			const metrics = await collector.getMetrics();
 			expect(metrics).toContain("# HELP");
@@ -290,13 +272,7 @@ describe("PrometheusMetricsCollector", () => {
 		});
 
 		it("should clear all metrics", async () => {
-			collector.recordAgentOperation(
-				"agent-1",
-				"test",
-				"execute",
-				"openai",
-				"success",
-			);
+			collector.recordAgentOperation("agent-1", "test", "execute", "openai", "success");
 
 			let metrics = await collector.getMetrics();
 			expect(metrics).toContain("agent_operations_total");

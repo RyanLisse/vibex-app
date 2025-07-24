@@ -6,15 +6,7 @@
  * compatibility validation.
  */
 
-import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Vector search types
 interface VectorEmbedding {
@@ -55,41 +47,34 @@ const createMockVectorSearch = () => {
 
 	return {
 		// Vector operations
-		createEmbedding: vi.fn(
-			async (text: string, model = "default"): Promise<VectorEmbedding> => {
-				// Mock embedding generation
-				const dimensions = model === "large" ? 1536 : 384;
-				const vector = new Float32Array(dimensions);
+		createEmbedding: vi.fn(async (text: string, model = "default"): Promise<VectorEmbedding> => {
+			// Mock embedding generation
+			const dimensions = model === "large" ? 1536 : 384;
+			const vector = new Float32Array(dimensions);
 
-				// Generate deterministic but realistic embeddings based on text
-				const hash = text
-					.split("")
-					.reduce((acc, char) => acc + char.charCodeAt(0), 0);
-				for (let i = 0; i < dimensions; i++) {
-					vector[i] = Math.sin((hash + i) * 0.01) * Math.cos(i * 0.02);
-				}
+			// Generate deterministic but realistic embeddings based on text
+			const hash = text.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+			for (let i = 0; i < dimensions; i++) {
+				vector[i] = Math.sin((hash + i) * 0.01) * Math.cos(i * 0.02);
+			}
 
-				// Normalize vector
-				const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-				for (let i = 0; i < dimensions; i++) {
-					vector[i] /= norm;
-				}
+			// Normalize vector
+			const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
+			for (let i = 0; i < dimensions; i++) {
+				vector[i] /= norm;
+			}
 
-				return {
-					id: `embedding-${hash}`,
-					vector,
-					dimensions,
-					norm: 1.0,
-					metadata: { text, model, length: text.length },
-				};
-			},
-		),
+			return {
+				id: `embedding-${hash}`,
+				vector,
+				dimensions,
+				norm: 1.0,
+				metadata: { text, model, length: text.length },
+			};
+		}),
 
 		batchCreateEmbeddings: vi.fn(
-			async (
-				texts: string[],
-				model = "default",
-			): Promise<VectorEmbedding[]> => {
+			async (texts: string[], model = "default"): Promise<VectorEmbedding[]> => {
 				// Generate embeddings directly without recursive calls
 				const embeddings: VectorEmbedding[] = [];
 				for (const text of texts) {
@@ -97,9 +82,7 @@ const createMockVectorSearch = () => {
 					const vector = new Float32Array(dimensions);
 
 					// Generate pseudo-random but deterministic embedding based on text
-					const hash = text
-						.split("")
-						.reduce((acc, char) => acc + char.charCodeAt(0), 0);
+					const hash = text.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
 					for (let i = 0; i < dimensions; i++) {
 						vector[i] = Math.sin(hash + i) * 0.5;
 					}
@@ -123,7 +106,7 @@ const createMockVectorSearch = () => {
 					});
 				}
 				return embeddings;
-			},
+			}
 		),
 
 		// Index operations
@@ -147,7 +130,7 @@ const createMockVectorSearch = () => {
 					k?: number;
 					threshold?: number;
 					filter?: (metadata: any) => boolean;
-				} = {},
+				} = {}
 			): Promise<SimilarityResult[]> => {
 				const { k = 10, threshold = 0.0, filter } = options;
 				const results: SimilarityResult[] = [];
@@ -157,11 +140,7 @@ const createMockVectorSearch = () => {
 
 					// Calculate cosine similarity
 					let dotProduct = 0;
-					for (
-						let i = 0;
-						i < Math.min(queryVector.length, embedding.vector.length);
-						i++
-					) {
+					for (let i = 0; i < Math.min(queryVector.length, embedding.vector.length); i++) {
 						dotProduct += queryVector[i] * embedding.vector[i];
 					}
 
@@ -177,7 +156,7 @@ const createMockVectorSearch = () => {
 				}
 
 				return results.sort((a, b) => b.score - a.score).slice(0, k);
-			},
+			}
 		),
 
 		searchByText: vi.fn(
@@ -188,7 +167,7 @@ const createMockVectorSearch = () => {
 					threshold?: number;
 					model?: string;
 					filter?: (metadata: any) => boolean;
-				} = {},
+				} = {}
 			): Promise<SimilarityResult[]> => {
 				const { k = 10, threshold = 0.0, filter, model = "default" } = options;
 
@@ -197,9 +176,7 @@ const createMockVectorSearch = () => {
 				const queryVector = new Float32Array(dimensions);
 
 				// Generate pseudo-random but deterministic embedding based on text
-				const hash = query
-					.split("")
-					.reduce((acc, char) => acc + char.charCodeAt(0), 0);
+				const hash = query.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
 				for (let i = 0; i < dimensions; i++) {
 					queryVector[i] = Math.sin(hash + i) * 0.5;
 				}
@@ -222,11 +199,7 @@ const createMockVectorSearch = () => {
 
 					// Calculate cosine similarity
 					let dotProduct = 0;
-					for (
-						let i = 0;
-						i < Math.min(queryVector.length, embedding.vector.length);
-						i++
-					) {
+					for (let i = 0; i < Math.min(queryVector.length, embedding.vector.length); i++) {
 						dotProduct += queryVector[i] * embedding.vector[i];
 					}
 
@@ -242,32 +215,29 @@ const createMockVectorSearch = () => {
 				}
 
 				return results.sort((a, b) => b.score - a.score).slice(0, k);
-			},
+			}
 		),
 
 		// Index management
-		buildIndex: vi.fn(
-			async (type: "flat" | "ivf" | "hnsw" = "flat"): Promise<VectorIndex> => {
-				const startTime = performance.now();
+		buildIndex: vi.fn(async (type: "flat" | "ivf" | "hnsw" = "flat"): Promise<VectorIndex> => {
+			const startTime = performance.now();
 
-				// Mock index building
-				await new Promise((resolve) => setTimeout(resolve, 100));
+			// Mock index building
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
-				const buildTime = performance.now() - startTime;
-				const dimensions =
-					vectors.size > 0 ? Array.from(vectors.values())[0].dimensions : 0;
+			const buildTime = performance.now() - startTime;
+			const dimensions = vectors.size > 0 ? Array.from(vectors.values())[0].dimensions : 0;
 
-				index = {
-					size: vectors.size,
-					dimensions,
-					indexType: type,
-					memoryUsage: vectors.size * dimensions * 4, // 4 bytes per float
-					buildTime,
-				};
+			index = {
+				size: vectors.size,
+				dimensions,
+				indexType: type,
+				memoryUsage: vectors.size * dimensions * 4, // 4 bytes per float
+				buildTime,
+			};
 
-				return index;
-			},
-		),
+			return index;
+		}),
 
 		getIndex: vi.fn((): VectorIndex | null => index),
 
@@ -322,16 +292,12 @@ const createMockVectorSearch = () => {
 
 		// Performance monitoring
 		getMemoryUsage: vi.fn((): number => {
-			return (
-				vectors.size *
-				(vectors.size > 0 ? Array.from(vectors.values())[0].dimensions * 4 : 0)
-			);
+			return vectors.size * (vectors.size > 0 ? Array.from(vectors.values())[0].dimensions * 4 : 0);
 		}),
 
 		getStatistics: vi.fn(() => ({
 			vectorCount: vectors.size,
-			dimensions:
-				vectors.size > 0 ? Array.from(vectors.values())[0].dimensions : 0,
+			dimensions: vectors.size > 0 ? Array.from(vectors.values())[0].dimensions : 0,
 			memoryUsage: createMockVectorSearch().getMemoryUsage(),
 			indexType: index?.indexType || null,
 			indexSize: index?.size || 0,
@@ -406,25 +372,16 @@ describe("WASM Vector Search Integration Tests", () => {
 		});
 
 		it("should handle different model sizes", async () => {
-			const smallEmbedding = await vectorSearch.createEmbedding(
-				"Test text",
-				"default",
-			);
-			const largeEmbedding = await vectorSearch.createEmbedding(
-				"Test text",
-				"large",
-			);
+			const smallEmbedding = await vectorSearch.createEmbedding("Test text", "default");
+			const largeEmbedding = await vectorSearch.createEmbedding("Test text", "large");
 
 			expect(smallEmbedding.dimensions).toBe(384);
 			expect(largeEmbedding.dimensions).toBe(1536);
-			expect(largeEmbedding.dimensions).toBeGreaterThan(
-				smallEmbedding.dimensions,
-			);
+			expect(largeEmbedding.dimensions).toBeGreaterThan(smallEmbedding.dimensions);
 		});
 
 		it("should normalize vectors correctly", async () => {
-			const embedding =
-				await vectorSearch.createEmbedding("Normalization test");
+			const embedding = await vectorSearch.createEmbedding("Normalization test");
 
 			// Calculate actual norm
 			let norm = 0;
@@ -488,11 +445,7 @@ describe("WASM Vector Search Integration Tests", () => {
 		});
 
 		it("should build different index types", async () => {
-			const indexTypes: Array<"flat" | "ivf" | "hnsw"> = [
-				"flat",
-				"ivf",
-				"hnsw",
-			];
+			const indexTypes: Array<"flat" | "ivf" | "hnsw"> = ["flat", "ivf", "hnsw"];
 
 			for (const indexType of indexTypes) {
 				const index = await vectorSearch.buildIndex(indexType);
@@ -524,12 +477,10 @@ describe("WASM Vector Search Integration Tests", () => {
 			// Create large dataset
 			const largeTexts = Array.from(
 				{ length: 1000 },
-				(_, i) =>
-					`Large dataset text number ${i} with some unique content ${Math.random()}`,
+				(_, i) => `Large dataset text number ${i} with some unique content ${Math.random()}`
 			);
 
-			const largeEmbeddings =
-				await vectorSearch.batchCreateEmbeddings(largeTexts);
+			const largeEmbeddings = await vectorSearch.batchCreateEmbeddings(largeTexts);
 
 			const startTime = performance.now();
 			await vectorSearch.addVectors(largeEmbeddings);
@@ -679,10 +630,7 @@ describe("WASM Vector Search Integration Tests", () => {
 				await vectorSearch.clear();
 
 				// Generate test data
-				const texts = Array.from(
-					{ length: size },
-					(_, i) => `Performance test text ${i}`,
-				);
+				const texts = Array.from({ length: size }, (_, i) => `Performance test text ${i}`);
 				const embeddings = await vectorSearch.batchCreateEmbeddings(texts);
 				await vectorSearch.addVectors(embeddings);
 				await vectorSearch.buildIndex("flat");
@@ -717,22 +665,15 @@ describe("WASM Vector Search Integration Tests", () => {
 
 				if (index > 0) {
 					// Memory usage should scale with index size
-					expect(result.memoryUsage).toBeGreaterThan(
-						performanceResults[index - 1].memoryUsage,
-					);
+					expect(result.memoryUsage).toBeGreaterThan(performanceResults[index - 1].memoryUsage);
 				}
 			});
 		});
 
 		it("should compare performance across different index types", async () => {
 			await setupTestData();
-			const indexTypes: Array<"flat" | "ivf" | "hnsw"> = [
-				"flat",
-				"ivf",
-				"hnsw",
-			];
-			const performanceComparison: Record<string, SearchPerformanceMetrics> =
-				{};
+			const indexTypes: Array<"flat" | "ivf" | "hnsw"> = ["flat", "ivf", "hnsw"];
+			const performanceComparison: Record<string, SearchPerformanceMetrics> = {};
 
 			for (const indexType of indexTypes) {
 				const buildStartTime = performance.now();
@@ -765,7 +706,7 @@ describe("WASM Vector Search Integration Tests", () => {
 				expect(metrics.queryTime).toBeLessThan(500); // Less than 500ms
 				expect(metrics.throughput).toBeGreaterThan(2); // At least 2 QPS
 				console.log(
-					`${indexType} index - Query time: ${metrics.queryTime}ms, Throughput: ${metrics.throughput} QPS`,
+					`${indexType} index - Query time: ${metrics.queryTime}ms, Throughput: ${metrics.throughput} QPS`
 				);
 			});
 		});
@@ -780,7 +721,7 @@ describe("WASM Vector Search Integration Tests", () => {
 			for (let batch = 0; batch < 5; batch++) {
 				const texts = Array.from(
 					{ length: batchSize },
-					(_, i) => `Memory test batch ${batch} item ${i}`,
+					(_, i) => `Memory test batch ${batch} item ${i}`
 				);
 				const embeddings = await vectorSearch.batchCreateEmbeddings(texts);
 				await vectorSearch.addVectors(embeddings);
@@ -877,14 +818,9 @@ describe("WASM Vector Search Integration Tests", () => {
 			await setupTestData();
 			await vectorSearch.buildIndex("flat");
 
-			const queries = Array.from(
-				{ length: 10 },
-				(_, i) => `Concurrent query ${i}`,
-			);
+			const queries = Array.from({ length: 10 }, (_, i) => `Concurrent query ${i}`);
 
-			const searchPromises = queries.map((query) =>
-				vectorSearch.searchByText(query, { k: 3 }),
-			);
+			const searchPromises = queries.map((query) => vectorSearch.searchByText(query, { k: 3 }));
 
 			const results = await Promise.all(searchPromises);
 
@@ -916,8 +852,7 @@ describe("WASM Vector Search Integration Tests", () => {
 				"Write unit tests for services",
 			];
 
-			const embeddings =
-				await vectorSearch.batchCreateEmbeddings(taskDescriptions);
+			const embeddings = await vectorSearch.batchCreateEmbeddings(taskDescriptions);
 			await vectorSearch.addVectors(embeddings);
 			await vectorSearch.buildIndex("flat");
 
@@ -928,9 +863,7 @@ describe("WASM Vector Search Integration Tests", () => {
 			expect(results.length).toBeGreaterThan(0);
 
 			// Should find authentication-related task
-			const authResult = results.find((r) =>
-				r.metadata?.text?.includes("authentication"),
-			);
+			const authResult = results.find((r) => r.metadata?.text?.includes("authentication"));
 			expect(authResult).toBeDefined();
 		});
 

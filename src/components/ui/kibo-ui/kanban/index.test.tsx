@@ -2,12 +2,8 @@ import { KanbanProvider } from "./index";
 
 // Mock dependencies
 vi.mock("@dnd-kit/core", () => ({
-	DndContext: ({ children }: any) => (
-		<div data-testid="dnd-context">{children}</div>
-	),
-	DragOverlay: ({ children }: any) => (
-		<div data-testid="drag-overlay">{children}</div>
-	),
+	DndContext: ({ children }: any) => <div data-testid="dnd-context">{children}</div>,
+	DragOverlay: ({ children }: any) => <div data-testid="drag-overlay">{children}</div>,
 	useDroppable: () => ({
 		isOver: false,
 		setNodeRef: vi.fn(),

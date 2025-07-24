@@ -11,11 +11,7 @@ interface TaskErrorFallbackProps {
 	taskId?: string;
 }
 
-export function TaskErrorFallback({
-	error,
-	onRetry,
-	taskId,
-}: TaskErrorFallbackProps) {
+export function TaskErrorFallback({ error, onRetry, taskId }: TaskErrorFallbackProps) {
 	return (
 		<Card className="border-destructive">
 			<CardHeader>
@@ -27,8 +23,7 @@ export function TaskErrorFallback({
 			<CardContent className="space-y-4">
 				<Alert variant="destructive">
 					<AlertDescription>
-						{error.message ||
-							"An unexpected error occurred while loading the task."}
+						{error.message || "An unexpected error occurred while loading the task."}
 					</AlertDescription>
 				</Alert>
 
@@ -45,11 +40,7 @@ export function TaskErrorFallback({
 							Retry
 						</Button>
 					)}
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => window.location.reload()}
-					>
+					<Button variant="outline" size="sm" onClick={() => window.location.reload()}>
 						Reload Page
 					</Button>
 				</div>

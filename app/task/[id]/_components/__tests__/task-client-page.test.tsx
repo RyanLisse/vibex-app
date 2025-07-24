@@ -12,9 +12,7 @@ vi.mock("../../_hooks/use-task-subscription");
 vi.mock("../../_hooks/use-auto-scroll");
 vi.mock("../../_hooks/use-task-data");
 vi.mock("@/components/navigation/task-navbar", () => ({
-	default: ({ id }: { id: string }) => (
-		<div data-testid="task-navbar">TaskNavbar-{id}</div>
-	),
+	default: ({ id }: { id: string }) => <div data-testid="task-navbar">TaskNavbar-{id}</div>,
 }));
 vi.mock("../../_components/message-input", () => ({
 	default: ({ task }: { task: any }) => (
@@ -22,19 +20,13 @@ vi.mock("../../_components/message-input", () => ({
 	),
 }));
 vi.mock("../../_components/chat-messages-panel", () => ({
-	ChatMessagesPanel: () => (
-		<div data-testid="chat-messages-panel">ChatMessagesPanel</div>
-	),
+	ChatMessagesPanel: () => <div data-testid="chat-messages-panel">ChatMessagesPanel</div>,
 }));
 vi.mock("../../_components/shell-output-panel", () => ({
-	ShellOutputPanel: () => (
-		<div data-testid="shell-output-panel">ShellOutputPanel</div>
-	),
+	ShellOutputPanel: () => <div data-testid="shell-output-panel">ShellOutputPanel</div>,
 }));
 vi.mock("../../_components/task-loading-state", () => ({
-	TaskLoadingState: () => (
-		<div data-testid="task-loading-state">TaskLoadingState</div>
-	),
+	TaskLoadingState: () => <div data-testid="task-loading-state">TaskLoadingState</div>,
 }));
 
 const mockTask = {
@@ -114,9 +106,7 @@ describe("TaskClientPage", () => {
 
 		await waitFor(() => {
 			expect(screen.getByText("Task not found")).toBeInTheDocument();
-			expect(
-				screen.getByText("The requested task could not be found."),
-			).toBeInTheDocument();
+			expect(screen.getByText("The requested task could not be found.")).toBeInTheDocument();
 		});
 	});
 

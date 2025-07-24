@@ -4,13 +4,7 @@ import { TaskLoadingState } from "./task-loading-state";
 
 // Mock the TextShimmer component
 vi.mock("@/components/ui/text-shimmer", () => ({
-	TextShimmer: ({
-		children,
-		className,
-	}: {
-		children: React.ReactNode;
-		className?: string;
-	}) => (
+	TextShimmer: ({ children, className }: { children: React.ReactNode; className?: string }) => (
 		<span className={className} data-testid="text-shimmer">
 			{children}
 		</span>
@@ -21,9 +15,7 @@ describe("TaskLoadingState", () => {
 	it("should render default loading message", () => {
 		render(<TaskLoadingState />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent(
-			"Working on task...",
-		);
+		expect(screen.getByTestId("text-shimmer")).toHaveTextContent("Working on task...");
 	});
 
 	it("should render custom status message", () => {
@@ -57,24 +49,20 @@ describe("TaskLoadingState", () => {
 			"justify-start",
 			"animate-in",
 			"slide-in-from-left",
-			"duration-300",
+			"duration-300"
 		);
 	});
 
 	it("should handle empty string status message", () => {
 		render(<TaskLoadingState statusMessage="" />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent(
-			"Working on task...",
-		);
+		expect(screen.getByTestId("text-shimmer")).toHaveTextContent("Working on task...");
 	});
 
 	it("should handle undefined status message", () => {
 		render(<TaskLoadingState statusMessage={undefined} />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent(
-			"Working on task...",
-		);
+		expect(screen.getByTestId("text-shimmer")).toHaveTextContent("Working on task...");
 	});
 
 	it("should render with accessible structure", () => {

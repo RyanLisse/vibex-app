@@ -15,9 +15,7 @@ import {
 describe("Monitoring System", () => {
 	describe("Prometheus Metrics", () => {
 		it("should record HTTP requests", () => {
-			expect(() =>
-				recordHttpRequest("GET", "/api/test", 200, 100),
-			).not.toThrow();
+			expect(() => recordHttpRequest("GET", "/api/test", 200, 100)).not.toThrow();
 		});
 
 		it("should record database queries", () => {
@@ -25,9 +23,7 @@ describe("Monitoring System", () => {
 		});
 
 		it("should record agent executions", () => {
-			expect(() =>
-				recordAgentExecution("test-agent", "success", 1000),
-			).not.toThrow();
+			expect(() => recordAgentExecution("test-agent", "success", 1000)).not.toThrow();
 		});
 	});
 

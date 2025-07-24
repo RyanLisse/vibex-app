@@ -1,14 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useAuthBase } from "./use-auth-base";
 
 // Mock fetch
@@ -53,9 +44,7 @@ describe("useAuthBase", () => {
 			json: async () => ({ authenticated: false, loading: false }),
 		});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		expect(result.current.authenticated).toBe(false);
 		expect(result.current.loading).toBe(true);
@@ -87,9 +76,7 @@ describe("useAuthBase", () => {
 			json: async () => mockResponse,
 		});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(true);
@@ -104,9 +91,7 @@ describe("useAuthBase", () => {
 			status: 401,
 		});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -118,9 +103,7 @@ describe("useAuthBase", () => {
 	it("should handle network error during status check", async () => {
 		mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -144,9 +127,7 @@ describe("useAuthBase", () => {
 				json: async () => ({ authenticated: false, loading: false }),
 			});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(true);
@@ -176,9 +157,7 @@ describe("useAuthBase", () => {
 				status: 400,
 			});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(true);
@@ -189,6 +168,7 @@ describe("useAuthBase", () => {
 		});
 
 		expect(result.current.error).toBe("Failed to logout");
+		expect(result.current.authenticated).toBe(true);
 	});
 
 	it("should handle login with loginEndpoint", async () => {
@@ -206,9 +186,7 @@ describe("useAuthBase", () => {
 				json: async () => ({ authenticated: true, loading: false }),
 			});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -238,9 +216,7 @@ describe("useAuthBase", () => {
 				json: async () => ({ success: false, error: "Invalid credentials" }),
 			});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -269,9 +245,7 @@ describe("useAuthBase", () => {
 			json: async () => ({ authenticated: false, loading: false }),
 		});
 
-		const { result } = renderHook(() =>
-			useAuthBase(configWithAuthorize, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(configWithAuthorize, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -295,9 +269,7 @@ describe("useAuthBase", () => {
 			json: async () => ({ authenticated: false, loading: false }),
 		});
 
-		const { result } = renderHook(() =>
-			useAuthBase(configWithAuthorize, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(configWithAuthorize, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -307,9 +279,7 @@ describe("useAuthBase", () => {
 			result.current.login({ mode: "max", redirect: "/dashboard" });
 		});
 
-		expect(mockLocation.href).toBe(
-			"/api/auth/authorize?mode=max&redirect=%2Fdashboard",
-		);
+		expect(mockLocation.href).toBe("/api/auth/authorize?mode=max&redirect=%2Fdashboard");
 	});
 
 	it("should handle refresh (checkAuthStatus)", async () => {
@@ -323,9 +293,7 @@ describe("useAuthBase", () => {
 				json: async () => ({ authenticated: true, loading: false }),
 			});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -346,9 +314,7 @@ describe("useAuthBase", () => {
 			})
 			.mockRejectedValueOnce(new Error("Network error"));
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -377,9 +343,7 @@ describe("useAuthBase", () => {
 				json: async () => ({ success: false, message: "Custom message" }),
 			});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -405,9 +369,7 @@ describe("useAuthBase", () => {
 			})
 			.mockRejectedValueOnce("String error");
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(false);
@@ -441,9 +403,7 @@ describe("useAuthBase", () => {
 			}),
 		});
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, extendedInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, extendedInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(true);
@@ -460,9 +420,7 @@ describe("useAuthBase", () => {
 			})
 			.mockRejectedValueOnce(new Error("Network error during logout"));
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(true);
@@ -483,9 +441,7 @@ describe("useAuthBase", () => {
 			})
 			.mockRejectedValueOnce("Unknown error");
 
-		const { result } = renderHook(() =>
-			useAuthBase(mockConfig, mockInitialState),
-		);
+		const { result } = renderHook(() => useAuthBase(mockConfig, mockInitialState));
 
 		await waitFor(() => {
 			expect(result.current.authenticated).toBe(true);

@@ -1,0 +1,20 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+
+> vibex@0.1.0 lint
+> next lint
+
+
+./components/time-travel/ReplayControls.tsx
+64:5  Warning: React Hook useEffect has a missing dependency: 'session'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./lib/inngest/realtime-hooks.ts
+51:5  Warning: React Hook useEffect has a missing dependency: 'options'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+101:1  Warning: Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+./lib/monitoring/prometheus/index.ts
+90:1  Warning: Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+./lib/test-utils/bun-test-shim.ts
+53:1  Warning: Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

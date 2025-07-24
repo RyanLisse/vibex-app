@@ -11,14 +11,7 @@
  * - Performance regression detection
  */
 
-import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { PrometheusMetricsCollector } from "../../lib/metrics/prometheus-client";
 import { observability } from "../../lib/observability";
 
@@ -31,7 +24,7 @@ class LoadTester {
 		name: string,
 		concurrency: number,
 		iterations: number,
-		fn: (index: number) => Promise<T>,
+		fn: (index: number) => Promise<T>
 	): Promise<{
 		totalTime: number;
 		avgTime: number;
@@ -70,8 +63,7 @@ class LoadTester {
 		const successCount = iterations - errors.length;
 		const result = {
 			totalTime: Date.now() - this.startTime,
-			avgTime:
-				times.length > 0 ? times.reduce((a, b) => a + b, 0) / times.length : 0,
+			avgTime: times.length > 0 ? times.reduce((a, b) => a + b, 0) / times.length : 0,
 			minTime: times.length > 0 ? Math.min(...times) : 0,
 			maxTime: times.length > 0 ? Math.max(...times) : 0,
 			throughput: successCount / ((Date.now() - this.startTime) / 1000),
@@ -85,7 +77,7 @@ class LoadTester {
 
 	private async measureExecution<T>(
 		fn: (index: number) => Promise<T>,
-		index: number,
+		index: number
 	): Promise<{ duration: number; result: T }> {
 		const start = Date.now();
 		const result = await fn(index);
@@ -97,13 +89,10 @@ class LoadTester {
 		for (const [name, results] of this.results) {
 			report[name] = {
 				runs: results.length,
-				avgThroughput:
-					results.reduce((a, b) => a + b.throughput, 0) / results.length,
-				avgResponseTime:
-					results.reduce((a, b) => a + b.avgTime, 0) / results.length,
+				avgThroughput: results.reduce((a, b) => a + b.throughput, 0) / results.length,
+				avgResponseTime: results.reduce((a, b) => a + b.avgTime, 0) / results.length,
 				totalErrors: results.reduce((a, b) => a + b.errors, 0),
-				avgSuccessRate:
-					results.reduce((a, b) => a + b.successRate, 0) / results.length,
+				avgSuccessRate: results.reduce((a, b) => a + b.successRate, 0) / results.length,
 			};
 		}
 		return report;
@@ -152,8 +141,7 @@ class MemoryMonitor {
 			heapGrowth: growth,
 			growthRate:
 				(growth /
-					(this.snapshots[this.snapshots.length - 1].timestamp -
-						this.snapshots[0].timestamp)) *
+					(this.snapshots[this.snapshots.length - 1].timestamp - this.snapshots[0].timestamp)) *
 				1000,
 			possibleLeak: growth > 50 * 1024 * 1024, // 50MB growth indicates possible leak
 		};
@@ -212,7 +200,7 @@ describe("Performance and Load Testing", () => {
 				"API Endpoint Test",
 				100, // 100 concurrent requests
 				1000, // 1000 total requests
-				mockAPICall,
+				mockAPICall
 			);
 
 			// Performance assertions
@@ -221,12 +209,7 @@ describe("Performance and Load Testing", () => {
 			expect(result.successRate).toBeGreaterThan(94); // Account for 5% simulated errors
 
 			// Record metrics
-			metricsCollector.recordHttpRequest(
-				"GET",
-				"/api/test",
-				200,
-				result.avgTime / 1000,
-			);
+			metricsCollector.recordHttpRequest("GET", "/api/test", 200, result.avgTime / 1000);
 			observability.performance.recordMetric("api_load_test", {
 				throughput: result.throughput,
 				avgLatency: result.avgTime,
@@ -240,9 +223,7 @@ describe("Performance and Load Testing", () => {
 			const results = [];
 
 			const mockAPICall = async () => {
-				await new Promise((resolve) =>
-					setTimeout(resolve, 10 + Math.random() * 10),
-				);
+				await new Promise((resolve) => setTimeout(resolve, 10 + Math.random() * 10));
 				return { success: true };
 			};
 
@@ -256,7 +237,7 @@ describe("Performance and Load Testing", () => {
 					"Sustained Load Test",
 					requestsPerSecond,
 					requestsPerSecond,
-					mockAPICall,
+					mockAPICall
 				);
 
 				results.push({
@@ -274,8 +255,7 @@ describe("Performance and Load Testing", () => {
 
 			// Verify consistent performance
 			const throughputs = results.map((r) => r.throughput);
-			const avgThroughput =
-				throughputs.reduce((a, b) => a + b) / throughputs.length;
+			const avgThroughput = throughputs.reduce((a, b) => a + b) / throughputs.length;
 
 			// Throughput shouldn't vary more than 20%
 			throughputs.forEach((t) => {
@@ -293,15 +273,9 @@ describe("Performance and Load Testing", () => {
 				// Simulate query execution time
 				const baseTimes = { SELECT: 10, INSERT: 20, UPDATE: 15, DELETE: 25 };
 				const baseTime = baseTimes[queryType as keyof typeof baseTimes];
-				await new Promise((resolve) =>
-					setTimeout(resolve, baseTime + Math.random() * 10),
-				);
+				await new Promise((resolve) => setTimeout(resolve, baseTime + Math.random() * 10));
 
-				metricsCollector.recordDatabaseQuery(
-					queryType,
-					"test_table",
-					baseTime / 1000,
-				);
+				metricsCollector.recordDatabaseQuery(queryType, "test_table", baseTime / 1000);
 
 				return { queryType, index, result: "success" };
 			};
@@ -310,7 +284,7 @@ describe("Performance and Load Testing", () => {
 				"Database Operations",
 				50, // 50 concurrent connections
 				500, // 500 total queries
-				mockDbQuery,
+				mockDbQuery
 			);
 
 			expect(result.successRate).toBe(100);
@@ -329,9 +303,7 @@ describe("Performance and Load Testing", () => {
 			const mockComplexQuery = async (index: number) => {
 				// 10% of queries are slow
 				const isSlow = index % 10 === 0;
-				const duration = isSlow
-					? 500 + Math.random() * 500
-					: 20 + Math.random() * 30;
+				const duration = isSlow ? 500 + Math.random() * 500 : 20 + Math.random() * 30;
 
 				await new Promise((resolve) => setTimeout(resolve, duration));
 
@@ -342,20 +314,11 @@ describe("Performance and Load Testing", () => {
 					});
 				}
 
-				observability.database.recordQuery(
-					"select",
-					`query_${index}`,
-					duration,
-				);
+				observability.database.recordQuery("select", `query_${index}`, duration);
 				return { duration };
 			};
 
-			await loadTester.runConcurrent(
-				"Complex Query Test",
-				20,
-				100,
-				mockComplexQuery,
-			);
+			await loadTester.runConcurrent("Complex Query Test", 20, 100, mockComplexQuery);
 
 			// Verify slow query detection
 			expect(slowQueries.length).toBeGreaterThan(5);
@@ -364,8 +327,7 @@ describe("Performance and Load Testing", () => {
 			});
 
 			// Check if alerts would trigger
-			const avgSlowQueryTime =
-				slowQueries.reduce((a, b) => a + b.duration, 0) / slowQueries.length;
+			const avgSlowQueryTime = slowQueries.reduce((a, b) => a + b.duration, 0) / slowQueries.length;
 			expect(avgSlowQueryTime).toBeGreaterThan(500);
 		});
 	});
@@ -398,12 +360,7 @@ describe("Performance and Load Testing", () => {
 			const initialMemory = process.memoryUsage().heapUsed;
 
 			// Run operations that leak memory
-			await loadTester.runConcurrent(
-				"Memory Leak Test",
-				10,
-				1000,
-				leakyOperation,
-			);
+			await loadTester.runConcurrent("Memory Leak Test", 10, 1000, leakyOperation);
 
 			// Force garbage collection if available
 			if (global.gc) global.gc();
@@ -443,12 +400,7 @@ describe("Performance and Load Testing", () => {
 			const baselineMemory = process.memoryUsage().heapUsed;
 
 			// Run stable operations
-			await loadTester.runConcurrent(
-				"Stable Memory Test",
-				20,
-				500,
-				stableOperation,
-			);
+			await loadTester.runConcurrent("Stable Memory Test", 20, 500, stableOperation);
 
 			// Check memory stability
 			if (global.gc) global.gc();
@@ -485,7 +437,7 @@ describe("Performance and Load Testing", () => {
 				"CPU Intensive Test",
 				4, // Limit concurrency for CPU-bound work
 				20,
-				cpuIntensiveOperation,
+				cpuIntensiveOperation
 			);
 
 			expect(result.successRate).toBe(100);
@@ -511,16 +463,12 @@ describe("Performance and Load Testing", () => {
 
 					case 2: {
 						// Memory-intensive
-						const data = new Array(10000)
-							.fill(index)
-							.map((i) => ({ id: i, data: `Item ${i}` }));
+						const data = new Array(10000).fill(index).map((i) => ({ id: i, data: `Item ${i}` }));
 						return { type: "memory", result: data.length };
 					}
 
 					case 3: // Network simulation
-						await new Promise((resolve) =>
-							setTimeout(resolve, 20 + Math.random() * 30),
-						);
+						await new Promise((resolve) => setTimeout(resolve, 20 + Math.random() * 30));
 						return { type: "network", result: "response" };
 
 					default:
@@ -528,12 +476,7 @@ describe("Performance and Load Testing", () => {
 				}
 			};
 
-			const result = await loadTester.runConcurrent(
-				"Mixed Workload Test",
-				50,
-				400,
-				mixedOperation,
-			);
+			const result = await loadTester.runConcurrent("Mixed Workload Test", 50, 400, mixedOperation);
 
 			expect(result.successRate).toBe(100);
 			expect(result.throughput).toBeGreaterThan(100); // Should handle mixed load well
@@ -554,7 +497,7 @@ describe("Performance and Load Testing", () => {
 					`Scalability Test ${concurrency}`,
 					concurrency,
 					concurrency * 10, // Total requests = 10x concurrency
-					baseOperation,
+					baseOperation
 				);
 
 				scalabilityResults.push({
@@ -565,13 +508,9 @@ describe("Performance and Load Testing", () => {
 				});
 
 				// Record metrics
-				metricsCollector.gauge(
-					"scalability_test_throughput",
-					result.throughput,
-					{
-						concurrency: String(concurrency),
-					},
-				);
+				metricsCollector.gauge("scalability_test_throughput", result.throughput, {
+					concurrency: String(concurrency),
+				});
 				metricsCollector.gauge("scalability_test_latency", result.avgTime, {
 					concurrency: String(concurrency),
 				});
@@ -579,8 +518,7 @@ describe("Performance and Load Testing", () => {
 
 			// Analyze scalability
 			const efficiencies = scalabilityResults.map((r) => r.efficiency);
-			const avgEfficiency =
-				efficiencies.reduce((a, b) => a + b) / efficiencies.length;
+			const avgEfficiency = efficiencies.reduce((a, b) => a + b) / efficiencies.length;
 
 			// System should maintain reasonable efficiency
 			expect(avgEfficiency).toBeGreaterThan(0.5); // At least 50% efficiency
@@ -619,7 +557,7 @@ describe("Performance and Load Testing", () => {
 						`Limit Test ${concurrency}`,
 						concurrency,
 						concurrency * 5,
-						findLimitOperation,
+						findLimitOperation
 					);
 
 					if (result.throughput > maxThroughput) {
@@ -659,7 +597,7 @@ describe("Performance and Load Testing", () => {
 				"Performance Baseline",
 				50,
 				200,
-				baselineOperation,
+				baselineOperation
 			);
 
 			// Simulate degraded performance
@@ -674,7 +612,7 @@ describe("Performance and Load Testing", () => {
 				"Performance Degraded",
 				50,
 				200,
-				degradedOperation,
+				degradedOperation
 			);
 
 			// Detect regression
@@ -697,10 +635,7 @@ describe("Performance and Load Testing", () => {
 
 	describe("7. Real-world Scenario Testing", () => {
 		test("should handle realistic user behavior patterns", async () => {
-			const userSessions = new Map<
-				number,
-				{ actions: number; lastAction: number }
-			>();
+			const userSessions = new Map<number, { actions: number; lastAction: number }>();
 
 			const simulateUserAction = async (index: number) => {
 				const userId = index % 100; // 100 concurrent users
@@ -736,15 +671,11 @@ describe("Performance and Load Testing", () => {
 				const timeSinceLastAction = Date.now() - session.lastAction;
 
 				if (timeSinceLastAction < thinkTime) {
-					await new Promise((resolve) =>
-						setTimeout(resolve, thinkTime - timeSinceLastAction),
-					);
+					await new Promise((resolve) => setTimeout(resolve, thinkTime - timeSinceLastAction));
 				}
 
 				// Execute action
-				await new Promise((resolve) =>
-					setTimeout(resolve, selectedAction.delay),
-				);
+				await new Promise((resolve) => setTimeout(resolve, selectedAction.delay));
 
 				// Update session
 				session.actions++;
@@ -756,7 +687,7 @@ describe("Performance and Load Testing", () => {
 					"POST",
 					`/api/${selectedAction.type}`,
 					200,
-					selectedAction.delay / 1000,
+					selectedAction.delay / 1000
 				);
 
 				return {
@@ -770,7 +701,7 @@ describe("Performance and Load Testing", () => {
 				"Realistic User Behavior",
 				100, // 100 concurrent users
 				1000, // 1000 total actions
-				simulateUserAction,
+				simulateUserAction
 			);
 
 			expect(result.successRate).toBe(100);

@@ -3,37 +3,24 @@
 import { Activity, Clock, TrendingUp, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import type {
-	ProgressMetrics,
-	TaskProgress,
-} from "@/src/schemas/enhanced-task-schemas";
+import type { ProgressMetrics, TaskProgress } from "@/src/schemas/enhanced-task-schemas";
 
 interface ProgressDashboardProps {
 	taskProgress: TaskProgress[];
 	metrics?: ProgressMetrics[];
 }
 
-export function ProgressDashboard({
-	taskProgress,
-	metrics = [],
-}: ProgressDashboardProps) {
+export function ProgressDashboard({ taskProgress, metrics = [] }: ProgressDashboardProps) {
 	const totalTasks = taskProgress.length;
-	const completedTasks = taskProgress.filter(
-		(task) => task.progress === 100,
-	).length;
+	const completedTasks = taskProgress.filter((task) => task.progress === 100).length;
 	const inProgressTasks = taskProgress.filter(
-		(task) => task.progress > 0 && task.progress < 100,
+		(task) => task.progress > 0 && task.progress < 100
 	).length;
-	const notStartedTasks = taskProgress.filter(
-		(task) => task.progress === 0,
-	).length;
+	const notStartedTasks = taskProgress.filter((task) => task.progress === 0).length;
 
-	const overallProgress =
-		totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+	const overallProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 	const averageProgress =
-		totalTasks > 0
-			? taskProgress.reduce((sum, task) => sum + task.progress, 0) / totalTasks
-			: 0;
+		totalTasks > 0 ? taskProgress.reduce((sum, task) => sum + task.progress, 0) / totalTasks : 0;
 
 	return (
 		<div className="space-y-6">
@@ -55,9 +42,7 @@ export function ProgressDashboard({
 						<TrendingUp className="h-4 w-4 text-green-600" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-green-600">
-							{completedTasks}
-						</div>
+						<div className="text-2xl font-bold text-green-600">{completedTasks}</div>
 					</CardContent>
 				</Card>
 
@@ -67,9 +52,7 @@ export function ProgressDashboard({
 						<Clock className="h-4 w-4 text-blue-600" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-blue-600">
-							{inProgressTasks}
-						</div>
+						<div className="text-2xl font-bold text-blue-600">{inProgressTasks}</div>
 					</CardContent>
 				</Card>
 
@@ -79,9 +62,7 @@ export function ProgressDashboard({
 						<Users className="h-4 w-4 text-gray-600" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-gray-600">
-							{notStartedTasks}
-						</div>
+						<div className="text-2xl font-bold text-gray-600">{notStartedTasks}</div>
 					</CardContent>
 				</Card>
 			</div>
@@ -119,25 +100,16 @@ export function ProgressDashboard({
 					<CardContent>
 						<div className="space-y-3">
 							{taskProgress.slice(0, 5).map((task) => (
-								<div
-									key={task.taskId}
-									className="flex items-center justify-between"
-								>
+								<div key={task.taskId} className="flex items-center justify-between">
 									<div className="flex-1">
-										<div className="text-sm font-medium">
-											Task {task.taskId}
-										</div>
+										<div className="text-sm font-medium">Task {task.taskId}</div>
 										{task.milestone && (
-											<div className="text-xs text-gray-600">
-												{task.milestone}
-											</div>
+											<div className="text-xs text-gray-600">{task.milestone}</div>
 										)}
 									</div>
 									<div className="flex items-center gap-2">
 										<Progress value={task.progress} className="w-20 h-2" />
-										<span className="text-sm font-medium w-12">
-											{task.progress}%
-										</span>
+										<span className="text-sm font-medium w-12">{task.progress}%</span>
 									</div>
 								</div>
 							))}

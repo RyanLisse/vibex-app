@@ -5,31 +5,22 @@ interface CustomMatchers {
 	toBeWithinRange(
 		received: number,
 		min: number,
-		max: number,
+		max: number
 	): { pass: boolean; message: () => string };
 	toHaveValidEmail(received: string): { pass: boolean; message: () => string };
 	toBeValidUrl(received: string): { pass: boolean; message: () => string };
 	toHaveProperty(
 		received: object,
 		property: string,
-		value?: any,
+		value?: any
 	): { pass: boolean; message: () => string };
-	toBeArrayOfType(
-		received: any[],
-		type: string,
-	): { pass: boolean; message: () => string };
-	toMatchSchema(
-		received: object,
-		schema: object,
-	): { pass: boolean; message: () => string };
+	toBeArrayOfType(received: any[], type: string): { pass: boolean; message: () => string };
+	toMatchSchema(received: object, schema: object): { pass: boolean; message: () => string };
 	toBeValidDate(received: any): { pass: boolean; message: () => string };
-	toHaveLength(
-		received: any[],
-		expectedLength: number,
-	): { pass: boolean; message: () => string };
+	toHaveLength(received: any[], expectedLength: number): { pass: boolean; message: () => string };
 	toContainObject(
 		received: object[],
-		expectedObject: object,
+		expectedObject: object
 	): { pass: boolean; message: () => string };
 	toBeValidJSON(received: string): { pass: boolean; message: () => string };
 }
@@ -71,9 +62,7 @@ const customMatchers: CustomMatchers = {
 	toHaveProperty(received: object, property: string, value?: any) {
 		const hasProperty = Object.hasOwn(received, property);
 		const pass =
-			value !== undefined
-				? hasProperty && (received as any)[property] === value
-				: hasProperty;
+			value !== undefined ? hasProperty && (received as any)[property] === value : hasProperty;
 
 		return {
 			pass,
@@ -85,8 +74,7 @@ const customMatchers: CustomMatchers = {
 	},
 
 	toBeArrayOfType(received: any[], type: string) {
-		const pass =
-			Array.isArray(received) && received.every((item) => typeof item === type);
+		const pass = Array.isArray(received) && received.every((item) => typeof item === type);
 		return {
 			pass,
 			message: () => `Expected array to contain only ${type} values`,
@@ -117,19 +105,15 @@ const customMatchers: CustomMatchers = {
 		const pass = Array.isArray(received) && received.length === expectedLength;
 		return {
 			pass,
-			message: () =>
-				`Expected array to have length ${expectedLength}, but got ${received.length}`,
+			message: () => `Expected array to have length ${expectedLength}, but got ${received.length}`,
 		};
 	},
 
 	toContainObject(received: object[], expectedObject: object) {
-		const pass = received.some(
-			(item) => JSON.stringify(item) === JSON.stringify(expectedObject),
-		);
+		const pass = received.some((item) => JSON.stringify(item) === JSON.stringify(expectedObject));
 		return {
 			pass,
-			message: () =>
-				`Expected array to contain object ${JSON.stringify(expectedObject)}`,
+			message: () => `Expected array to contain object ${JSON.stringify(expectedObject)}`,
 		};
 	},
 
@@ -179,11 +163,7 @@ describe("Custom Matchers", () => {
 
 	describe("toHaveValidEmail", () => {
 		it("should pass for valid email addresses", () => {
-			const validEmails = [
-				"test@example.com",
-				"user.name@domain.co.uk",
-				"admin+tag@company.org",
-			];
+			const validEmails = ["test@example.com", "user.name@domain.co.uk", "admin+tag@company.org"];
 
 			validEmails.forEach((email) => {
 				const result = customMatchers.toHaveValidEmail(email);
@@ -192,12 +172,7 @@ describe("Custom Matchers", () => {
 		});
 
 		it("should fail for invalid email addresses", () => {
-			const invalidEmails = [
-				"invalid.email",
-				"@domain.com",
-				"user@",
-				"user name@domain.com",
-			];
+			const invalidEmails = ["invalid.email", "@domain.com", "user@", "user name@domain.com"];
 
 			invalidEmails.forEach((email) => {
 				const result = customMatchers.toHaveValidEmail(email);
@@ -208,11 +183,7 @@ describe("Custom Matchers", () => {
 
 	describe("toBeValidUrl", () => {
 		it("should pass for valid URLs", () => {
-			const validUrls = [
-				"https://example.com",
-				"http://localhost:3000",
-				"ftp://files.example.com",
-			];
+			const validUrls = ["https://example.com", "http://localhost:3000", "ftp://files.example.com"];
 
 			validUrls.forEach((url) => {
 				const result = customMatchers.toBeValidUrl(url);
@@ -295,11 +266,7 @@ describe("Custom Matchers", () => {
 
 	describe("toBeValidDate", () => {
 		it("should pass for valid Date objects", () => {
-			const validDates = [
-				new Date(),
-				new Date("2023-01-01"),
-				new Date(2023, 0, 1),
-			];
+			const validDates = [new Date(), new Date("2023-01-01"), new Date(2023, 0, 1)];
 
 			validDates.forEach((date) => {
 				const result = customMatchers.toBeValidDate(date);
@@ -360,13 +327,7 @@ describe("Custom Matchers", () => {
 
 	describe("toBeValidJSON", () => {
 		it("should pass for valid JSON strings", () => {
-			const validJson = [
-				'{"name": "test"}',
-				"[1, 2, 3]",
-				'"string"',
-				"42",
-				"true",
-			];
+			const validJson = ['{"name": "test"}', "[1, 2, 3]", '"string"', "42", "true"];
 
 			validJson.forEach((json) => {
 				const result = customMatchers.toBeValidJSON(json);
@@ -375,12 +336,7 @@ describe("Custom Matchers", () => {
 		});
 
 		it("should fail for invalid JSON strings", () => {
-			const invalidJson = [
-				"{name: 'test'}",
-				"[1, 2, 3,]",
-				"undefined",
-				"{broken json",
-			];
+			const invalidJson = ["{name: 'test'}", "[1, 2, 3,]", "undefined", "{broken json"];
 
 			invalidJson.forEach((json) => {
 				const result = customMatchers.toBeValidJSON(json);

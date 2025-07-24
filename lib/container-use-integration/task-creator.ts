@@ -66,7 +66,7 @@ export class MultiSourceTaskCreator {
 
 	async createTaskFromIssue(
 		issueData: IssueData,
-		options: EnrichmentOptions = {},
+		options: EnrichmentOptions = {}
 	): Promise<TaskCreationResult> {
 		try {
 			// Validate issue data
@@ -128,9 +128,7 @@ export class MultiSourceTaskCreator {
 		}
 	}
 
-	async createTaskFromPRComment(
-		commentData: CommentData,
-	): Promise<TaskCreationResult> {
+	async createTaskFromPRComment(commentData: CommentData): Promise<TaskCreationResult> {
 		try {
 			// Check if comment mentions agent
 			if (!commentData.body.includes("@agent")) {
@@ -174,7 +172,7 @@ export class MultiSourceTaskCreator {
 
 	async createTaskFromVoiceCommand(
 		voiceInput: File | VoiceCommand,
-		options: TaskCreationOptions = {},
+		options: TaskCreationOptions = {}
 	): Promise<TaskCreationResult> {
 		try {
 			let voiceCommand: VoiceCommand;
@@ -221,9 +219,7 @@ export class MultiSourceTaskCreator {
 			};
 		} catch (error) {
 			if (options.retries && options.retries > 0) {
-				await new Promise((resolve) =>
-					setTimeout(resolve, options.retryDelay || 1000),
-				);
+				await new Promise((resolve) => setTimeout(resolve, options.retryDelay || 1000));
 				return this.createTaskFromVoiceCommand(voiceInput, {
 					...options,
 					retries: options.retries - 1,
@@ -238,7 +234,7 @@ export class MultiSourceTaskCreator {
 	}
 
 	async createTaskFromScreenshot(
-		screenshotInput: File | ScreenshotAnalysis,
+		screenshotInput: File | ScreenshotAnalysis
 	): Promise<TaskCreationResult> {
 		try {
 			let analysis: ScreenshotAnalysis;
@@ -293,7 +289,7 @@ export class MultiSourceTaskCreator {
 
 	async validateAndEnrichTask(
 		taskData: Partial<Task>,
-		options: EnrichmentOptions = {},
+		options: EnrichmentOptions = {}
 	): Promise<TaskCreationResult> {
 		try {
 			// Validate required fields
@@ -384,9 +380,7 @@ export class MultiSourceTaskCreator {
 	async batchCreateTasks(tasks: Array<Partial<Task>>): Promise<BatchResult[]> {
 		const startTime = Date.now();
 
-		const results = await Promise.all(
-			tasks.map((task) => this.validateAndEnrichTask(task)),
-		);
+		const results = await Promise.all(tasks.map((task) => this.validateAndEnrichTask(task)));
 
 		const endTime = Date.now();
 
@@ -396,16 +390,10 @@ export class MultiSourceTaskCreator {
 		}));
 	}
 
-	private extractPriorityFromLabels(
-		labels: Array<{ name: string }>,
-	): Task["priority"] {
+	private extractPriorityFromLabels(labels: Array<{ name: string }>): Task["priority"] {
 		const labelNames = labels.map((l) => l.name.toLowerCase());
 
-		if (
-			labelNames.some((name) =>
-				["critical", "urgent", "security"].includes(name),
-			)
-		) {
+		if (labelNames.some((name) => ["critical", "urgent", "security"].includes(name))) {
 			return "urgent";
 		}
 		if (labelNames.some((name) => ["high", "important"].includes(name))) {
@@ -429,14 +417,10 @@ export class MultiSourceTaskCreator {
 		// Simple extraction logic
 		const title = taskText.split(" ").slice(0, 5).join(" ");
 		const priority =
-			taskText.includes("refactor") || taskText.includes("integration")
-				? "high"
-				: "medium";
+			taskText.includes("refactor") || taskText.includes("integration") ? "high" : "medium";
 
 		return {
-			title: title.includes("unit tests")
-				? "Add unit tests for authentication module"
-				: title,
+			title: title.includes("unit tests") ? "Add unit tests for authentication module" : title,
 			description: taskText,
 			priority,
 		};
@@ -449,8 +433,7 @@ export class MultiSourceTaskCreator {
 			"Crear una nueva funcionalidad para autenticación",
 		];
 
-		const transcription =
-			transcriptions[Math.floor(Math.random() * transcriptions.length)];
+		const transcription = transcriptions[Math.floor(Math.random() * transcriptions.length)];
 		const confidence = audioFile.name.includes("noisy") ? 0.6 : 0.95;
 
 		return {
@@ -529,9 +512,7 @@ export class MultiSourceTaskCreator {
 		return `Detected issues: ${issues}. Suggested fixes: ${fixes}`;
 	}
 
-	private mapSeverityToPriority(
-		severity: "low" | "medium" | "high",
-	): Task["priority"] {
+	private mapSeverityToPriority(severity: "low" | "medium" | "high"): Task["priority"] {
 		switch (severity) {
 			case "high":
 				return "urgent";

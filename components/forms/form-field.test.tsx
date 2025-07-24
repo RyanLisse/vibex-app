@@ -60,9 +60,7 @@ describe("FormField", () => {
 		it("renders placeholder text", () => {
 			render(<FormField {...defaultProps} placeholder="Enter your name" />);
 
-			expect(
-				screen.getByPlaceholderText("Enter your name"),
-			).toBeInTheDocument();
+			expect(screen.getByPlaceholderText("Enter your name")).toBeInTheDocument();
 		});
 
 		it("renders required indicator", () => {
@@ -81,13 +79,7 @@ describe("FormField", () => {
 
 	describe("Error Handling", () => {
 		it("shows error message when hasError is true", () => {
-			render(
-				<FormField
-					{...defaultProps}
-					errorMessage="This field is required"
-					hasError={true}
-				/>,
-			);
+			render(<FormField {...defaultProps} errorMessage="This field is required" hasError={true} />);
 
 			const errorElement = screen.getByRole("alert");
 			expect(errorElement).toBeInTheDocument();
@@ -97,11 +89,7 @@ describe("FormField", () => {
 
 		it("does not show error message when hasError is false", () => {
 			render(
-				<FormField
-					{...defaultProps}
-					errorMessage="This field is required"
-					hasError={false}
-				/>,
+				<FormField {...defaultProps} errorMessage="This field is required" hasError={false} />
 			);
 
 			expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -110,21 +98,13 @@ describe("FormField", () => {
 		it("sets aria-invalid when hasError is true", () => {
 			render(<FormField {...defaultProps} hasError={true} />);
 
-			expect(screen.getByRole("textbox")).toHaveAttribute(
-				"aria-invalid",
-				"true",
-			);
+			expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
 		});
 
 		it("sets aria-describedby when hasError is true", () => {
-			render(
-				<FormField {...defaultProps} errorMessage="Error" hasError={true} />,
-			);
+			render(<FormField {...defaultProps} errorMessage="Error" hasError={true} />);
 
-			expect(screen.getByRole("textbox")).toHaveAttribute(
-				"aria-describedby",
-				"name-error",
-			);
+			expect(screen.getByRole("textbox")).toHaveAttribute("aria-describedby", "name-error");
 		});
 	});
 
@@ -203,9 +183,7 @@ describe("FormField", () => {
 		});
 
 		it("updates value when prop changes", () => {
-			const { rerender } = render(
-				<FormField {...defaultProps} value="Initial" />,
-			);
+			const { rerender } = render(<FormField {...defaultProps} value="Initial" />);
 
 			expect(screen.getByRole("textbox")).toHaveValue("Initial");
 

@@ -37,9 +37,7 @@ describe("MultiSourceTaskCreator", () => {
 			expect(result.task?.description).toBe(issueData.body);
 			expect(result.task?.source).toBe("issue");
 			expect(result.task?.sourceId).toBe("123");
-			expect(["low", "medium", "high", "urgent"]).toContain(
-				result.task?.priority,
-			);
+			expect(["low", "medium", "high", "urgent"]).toContain(result.task?.priority);
 		});
 
 		test("should extract priority from issue labels", async () => {
@@ -64,9 +62,7 @@ describe("MultiSourceTaskCreator", () => {
 				body: null,
 			};
 
-			const result = await taskCreator.createTaskFromIssue(
-				malformedIssue as any,
-			);
+			const result = await taskCreator.createTaskFromIssue(malformedIssue as any);
 
 			expect(result.success).toBe(false);
 			expect(result.error).toContain("invalid issue data");
@@ -168,8 +164,7 @@ describe("MultiSourceTaskCreator", () => {
 				type: "audio/wav",
 			});
 
-			const result =
-				await taskCreator.createTaskFromVoiceCommand(noisyAudioFile);
+			const result = await taskCreator.createTaskFromVoiceCommand(noisyAudioFile);
 
 			if (!result.success) {
 				expect(result.error).toContain("low confidence");
@@ -216,8 +211,7 @@ describe("MultiSourceTaskCreator", () => {
 				status: "completed",
 			};
 
-			const result =
-				await taskCreator.createTaskFromVoiceCommand(spanishCommand);
+			const result = await taskCreator.createTaskFromVoiceCommand(spanishCommand);
 
 			expect(result.success).toBe(true);
 			expect(result.task?.metadata.language).toBe("es");
@@ -273,8 +267,7 @@ describe("MultiSourceTaskCreator", () => {
 				type: "image/png",
 			});
 
-			const result =
-				await taskCreator.createTaskFromScreenshot(cleanScreenshot);
+			const result = await taskCreator.createTaskFromScreenshot(cleanScreenshot);
 
 			if (!result.success) {
 				expect(result.error).toContain("no issues detected");
@@ -295,8 +288,7 @@ describe("MultiSourceTaskCreator", () => {
 				processedAt: new Date(),
 			};
 
-			const result =
-				await taskCreator.createTaskFromScreenshot(securityAnalysis);
+			const result = await taskCreator.createTaskFromScreenshot(securityAnalysis);
 
 			expect(result.success).toBe(true);
 			expect(result.task?.priority).toBe("urgent");
@@ -347,8 +339,7 @@ describe("MultiSourceTaskCreator", () => {
 			expect(firstResult.success).toBe(true);
 
 			// Try to create duplicate
-			const duplicateResult =
-				await taskCreator.validateAndEnrichTask(existingTask);
+			const duplicateResult = await taskCreator.validateAndEnrichTask(existingTask);
 
 			expect(duplicateResult.success).toBe(false);
 			expect(duplicateResult.error).toContain("duplicate task");
@@ -380,12 +371,10 @@ describe("MultiSourceTaskCreator", () => {
 				source: "manual" as const,
 			}));
 
-			const results = await Promise.all(
-				tasks.map((task) => taskCreator.createAndQueueTask(task)),
-			);
+			const results = await Promise.all(tasks.map((task) => taskCreator.createAndQueueTask(task)));
 
 			const overflowResults = results.filter(
-				(result) => !result.success && result.error?.includes("queue full"),
+				(result) => !result.success && result.error?.includes("queue full")
 			);
 
 			expect(overflowResults.length).toBeGreaterThan(0);
@@ -435,7 +424,7 @@ describe("MultiSourceTaskCreator", () => {
 					title: `Rate limit test ${i}`,
 					body: "Testing rate limits",
 					repository: { full_name: "org/repo" },
-				}),
+				})
 			);
 
 			const results = await Promise.allSettled(promises);
@@ -443,7 +432,7 @@ describe("MultiSourceTaskCreator", () => {
 				(result) =>
 					result.status === "fulfilled" &&
 					!result.value.success &&
-					result.value.error?.includes("rate limit"),
+					result.value.error?.includes("rate limit")
 			);
 
 			expect(rateLimitedResults.length).toBeGreaterThan(0);

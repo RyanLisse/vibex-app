@@ -1,6 +1,6 @@
 /**
  * Consolidated Auth Test Utilities
- * 
+ *
  * This module consolidates common OAuth callback test patterns to eliminate code duplication
  * identified by qlty smells analysis.
  */
@@ -57,7 +57,9 @@ export function createValidCallbackTest(
 		authMocks.mockTokenStorage.mockResolvedValue(mockToken);
 		mockNextResponse.json.mockReturnValue({ success: true } as any);
 
-		const request = new NextRequest("https://app.example.com/api/auth/callback?code=test&state=valid");
+		const request = new NextRequest(
+			"https://app.example.com/api/auth/callback?code=test&state=valid"
+		);
 		const response = await POST(request);
 
 		expect(authMocks.mockTokenStorage).toHaveBeenCalledWith("test", "valid");
@@ -79,7 +81,9 @@ export function createInvalidStateTest(
 			error: "Invalid state parameter",
 		} as any);
 
-		const request = new NextRequest("https://app.example.com/api/auth/callback?code=test&state=invalid");
+		const request = new NextRequest(
+			"https://app.example.com/api/auth/callback?code=test&state=invalid"
+		);
 		const response = await POST(request);
 
 		expect(authMocks.mockValidateOAuthState).toHaveBeenCalledWith("invalid");
@@ -98,21 +102,19 @@ export function createTokenExchangeErrorTest(
 	mockNextResponse: MockNextResponse
 ) {
 	return async () => {
-		authMocks.mockTokenStorage.mockRejectedValue(
-			new Error("Token exchange failed"),
-		);
+		authMocks.mockTokenStorage.mockRejectedValue(new Error("Token exchange failed"));
 		authMocks.mockHandleAuthError.mockReturnValue("Token exchange failed");
 		mockNextResponse.json.mockReturnValue({
 			error: "Token exchange failed",
 		} as any);
 
-		const request = new NextRequest("https://app.example.com/api/auth/callback?code=test&state=valid");
+		const request = new NextRequest(
+			"https://app.example.com/api/auth/callback?code=test&state=valid"
+		);
 		const response = await POST(request);
 
 		expect(authMocks.mockTokenStorage).toHaveBeenCalledWith("test", "valid");
-		expect(authMocks.mockHandleAuthError).toHaveBeenCalledWith(
-			expect.any(Error)
-		);
+		expect(authMocks.mockHandleAuthError).toHaveBeenCalledWith(expect.any(Error));
 		expect(mockNextResponse.json).toHaveBeenCalledWith({
 			error: "Token exchange failed",
 		});

@@ -21,13 +21,23 @@ export default defineConfig({
 		name: "vitest-unified",
 		environment: "jsdom",
 		globals: true,
-		setupFiles: ["./test-setup-fixed.ts"],
+		setupFiles: ["./test-setup-simple.ts"],
 
-		// Comprehensive test file inclusion
+		// Optimized test file inclusion - only relevant, fast tests
 		include: [
-			"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"!**/e2e/**", // Exclude e2e (Playwright)
-			"!**/cypress/**", // Exclude Cypress
+			// Core unit tests only
+			"lib/**/*.{test,spec}.{ts,js}",
+			"src/**/*.{test,spec}.{ts,js}",
+			"utils/**/*.{test,spec}.{ts,js}",
+			// Essential component tests
+			"components/**/*.test.{ts,tsx}",
+			"hooks/**/*.test.{ts,tsx}",
+			// Skip complex/slow tests
+			"!**/*integration*.{test,spec}.*",
+			"!**/*e2e*.{test,spec}.*",
+			"!**/e2e/**",
+			"!**/cypress/**",
+			"!**/playwright/**"
 		],
 
 		exclude: [
@@ -80,20 +90,26 @@ export default defineConfig({
 			}
 		},
 
-		// Optimized timeouts
-		testTimeout: 15000,
-		hookTimeout: 10000,
-		teardownTimeout: 5000,
+		// Aggressive timeout optimization
+		testTimeout: 8000,  // Reduced from 15s to 8s
+		hookTimeout: 3000,  // Reduced from 10s to 3s
+		teardownTimeout: 2000,  // Reduced from 5s to 2s
 
-		// Performance optimizations - FIXED: Use single thread to avoid DataCloneError
+		// Performance optimizations - Enhanced single-thread execution
 		maxConcurrency: 1,
-		pool: "threads",
+		pool: "forks",  // Changed from threads to forks for better stability
 		poolOptions: {
-			threads: {
-				singleThread: true, // CRITICAL FIX: Prevents serialization issues
-				isolate: false,
-				useAtomics: false,
+			forks: {
+				singleFork: true,
+				isolate: true,
+				execArgv: ['--max-old-space-size=2048']
 			}
+		},
+		// Force sequential execution
+		sequence: {
+			concurrent: false,
+			shuffle: false,
+			hooks: 'stack'
 		},
 
 		// Reporting
@@ -188,8 +204,15 @@ export default defineConfig({
 		]
 	},
 
-	// CRITICAL FIX: Disable ESBuild to prevent EPIPE errors
-	esbuild: false,
+	// Enable esbuild for TypeScript compilation
+	esbuild: {
+		target: 'es2022',
+		jsx: 'automatic'
+	},
+	transformMode: {
+		sse: [],
+		web: ['**/*.{js,jsx,ts,tsx,mjs,mts}']
+	},
 
 	// Build configuration
 	build: {

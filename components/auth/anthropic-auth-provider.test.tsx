@@ -42,12 +42,10 @@ describe("AnthropicAuthProvider", () => {
 		render(
 			<AnthropicAuthProvider>
 				<TestComponent />
-			</AnthropicAuthProvider>,
+			</AnthropicAuthProvider>
 		);
 
-		expect(screen.getByTestId("auth-status")).toHaveTextContent(
-			"not authenticated",
-		);
+		expect(screen.getByTestId("auth-status")).toHaveTextContent("not authenticated");
 	});
 
 	it("should throw error when useAuth is used outside provider", () => {
@@ -57,7 +55,7 @@ describe("AnthropicAuthProvider", () => {
 		};
 
 		expect(() => render(<TestComponent />)).toThrow(
-			"useAuth must be used within an AnthropicAuthProvider",
+			"useAuth must be used within an AnthropicAuthProvider"
 		);
 	});
 
@@ -76,7 +74,7 @@ describe("AnthropicAuthProvider", () => {
 		render(
 			<AnthropicAuthProvider>
 				<TestComponent />
-			</AnthropicAuthProvider>,
+			</AnthropicAuthProvider>
 		);
 
 		await waitFor(() => {
@@ -97,7 +95,7 @@ describe("AnthropicAuthProvider", () => {
 		render(
 			<AnthropicAuthProvider>
 				<TestComponent />
-			</AnthropicAuthProvider>,
+			</AnthropicAuthProvider>
 		);
 
 		await waitFor(() => {
@@ -122,7 +120,7 @@ describe("AnthropicAuthProvider", () => {
 		render(
 			<AnthropicAuthProvider>
 				<TestComponent />
-			</AnthropicAuthProvider>,
+			</AnthropicAuthProvider>
 		);
 
 		// Verify that refresh would be called after timeout
@@ -146,7 +144,7 @@ describe("AnthropicAuthProvider", () => {
 		render(
 			<AnthropicAuthProvider>
 				<TestComponent />
-			</AnthropicAuthProvider>,
+			</AnthropicAuthProvider>
 		);
 
 		await waitFor(() => {
@@ -170,7 +168,7 @@ describe("AnthropicAuthProvider", () => {
 		render(
 			<AnthropicAuthProvider>
 				<TestComponent />
-			</AnthropicAuthProvider>,
+			</AnthropicAuthProvider>
 		);
 
 		const loginMaxBtn = screen.getByText("Login Max");

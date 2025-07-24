@@ -67,8 +67,7 @@ export function isShellMessage(message: any): message is ShellMessage {
 		typeof message === "object" &&
 		typeof message.id === "string" &&
 		message.role === "assistant" &&
-		(message.type === "local_shell_call" ||
-			message.type === "local_shell_call_output") &&
+		(message.type === "local_shell_call" || message.type === "local_shell_call_output") &&
 		message.data &&
 		typeof message.data === "object"
 	);
@@ -127,9 +126,7 @@ export function filterToolMessages(messages: BaseMessage[]): ToolMessage[] {
 /**
  * Filter messages to get only streaming messages
  */
-export function filterStreamingMessages(
-	messages: BaseMessage[],
-): StreamingMessage[] {
+export function filterStreamingMessages(messages: BaseMessage[]): StreamingMessage[] {
 	return messages.filter(isStreamingMessage);
 }
 
@@ -140,7 +137,7 @@ export function createMessage(
 	role: BaseMessage["role"],
 	type: string,
 	content?: string,
-	data?: any,
+	data?: any
 ): BaseMessage {
 	return {
 		id: crypto.randomUUID(),
@@ -156,10 +153,7 @@ export function createMessage(
 /**
  * Update message with new data
  */
-export function updateMessage(
-	message: BaseMessage,
-	updates: Partial<BaseMessage>,
-): BaseMessage {
+export function updateMessage(message: BaseMessage, updates: Partial<BaseMessage>): BaseMessage {
 	return {
 		...message,
 		...updates,

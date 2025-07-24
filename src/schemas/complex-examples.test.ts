@@ -1,12 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from "vitest";
 import {
 	type FormField,
 	FormFieldSchema,

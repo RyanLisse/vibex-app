@@ -4,10 +4,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 // Fix correlation-id-manager to be browser-safe
-const correlationIdPath = join(
-	process.cwd(),
-	"lib/logging/correlation-id-manager.ts",
-);
+const correlationIdPath = join(process.cwd(), "lib/logging/correlation-id-manager.ts");
 if (existsSync(correlationIdPath)) {
 	let content = readFileSync(correlationIdPath, "utf-8");
 
@@ -29,7 +26,7 @@ AsyncLocalStorage = class {
       return this.store
     }
   }
-}`,
+}`
 	);
 
 	writeFileSync(correlationIdPath, content);
@@ -59,7 +56,7 @@ import { AsyncLocalStorage = class {
       return this.store
     }
   }
-}`,
+}`
 		);
 		writeFileSync(loggerFactoryPath, content);
 		console.log("✅ Fixed logger-factory for browser compatibility");

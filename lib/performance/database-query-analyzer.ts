@@ -6,12 +6,10 @@
  */
 
 export interface DatabaseQueryAnalyzer {
-	analyze(
-		query: string,
-	): Promise<{ performance: number; recommendations: string[] }>;
-	generateAnalysisReport(): Promise<{ 
-		overallHealth: number; 
-		slowQueries: any[]; 
+	analyze(query: string): Promise<{ performance: number; recommendations: string[] }>;
+	generateAnalysisReport(): Promise<{
+		overallHealth: number;
+		slowQueries: any[];
 		recommendations: string[];
 		summary: any;
 		missingIndexes: any[];
@@ -31,14 +29,14 @@ export const databaseQueryAnalyzer: DatabaseQueryAnalyzer = {
 			slowQueries: [],
 			recommendations: [
 				"Consider adding indexes for frequently queried columns",
-				"Optimize JOIN operations by using appropriate indexes"
+				"Optimize JOIN operations by using appropriate indexes",
 			],
 			summary: {
 				totalQueriesAnalyzed: 0,
 				averageExecutionTime: 0,
-				issuesFound: 0
+				issuesFound: 0,
 			},
-			missingIndexes: []
+			missingIndexes: [],
 		};
 	},
 };

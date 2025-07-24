@@ -34,12 +34,8 @@ describe("MultiAgentSystem Schemas", () => {
 		});
 
 		it("should validate numeric limits", () => {
-			expect(() =>
-				MultiAgentConfigSchema.parse({ maxConcurrentSessions: 0 }),
-			).not.toThrow();
-			expect(() =>
-				MultiAgentConfigSchema.parse({ maxConcurrentSessions: -1 }),
-			).toThrow();
+			expect(() => MultiAgentConfigSchema.parse({ maxConcurrentSessions: 0 })).not.toThrow();
+			expect(() => MultiAgentConfigSchema.parse({ maxConcurrentSessions: -1 })).toThrow();
 		});
 	});
 

@@ -63,8 +63,7 @@ export class GitHubAuth {
 			this.redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/github/callback`;
 		} else if (process.env.NODE_ENV === "production") {
 			// Production default
-			this.redirectUri =
-				"https://vibex-app.vercel.app/api/auth/github/callback";
+			this.redirectUri = "https://vibex-app.vercel.app/api/auth/github/callback";
 		} else {
 			// Local development default
 			this.redirectUri = "http://localhost:3000/api/auth/github/callback";
@@ -89,21 +88,18 @@ export class GitHubAuth {
 
 	// Exchange code for access token
 	async exchangeCodeForToken(code: string): Promise<string> {
-		const response = await fetch(
-			"https://github.com/login/oauth/access_token",
-			{
-				method: "POST",
-				headers: {
-					Accept: "application/json",
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					client_id: this.clientId,
-					client_secret: this.clientSecret,
-					code,
-				}),
+		const response = await fetch("https://github.com/login/oauth/access_token", {
+			method: "POST",
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json",
 			},
-		);
+			body: JSON.stringify({
+				client_id: this.clientId,
+				client_secret: this.clientSecret,
+				code,
+			}),
+		});
 
 		const data = await response.json();
 
@@ -133,15 +129,12 @@ export class GitHubAuth {
 
 	// Get user repositories
 	async getUserRepositories(accessToken: string): Promise<GitHubRepository[]> {
-		const response = await fetch(
-			"https://api.github.com/user/repos?sort=updated&per_page=100",
-			{
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					Accept: "application/vnd.github.v3+json",
-				},
+		const response = await fetch("https://api.github.com/user/repos?sort=updated&per_page=100", {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: "application/vnd.github.v3+json",
 			},
-		);
+		});
 
 		if (!response.ok) {
 			throw new Error(`GitHub API error: ${response.status}`);

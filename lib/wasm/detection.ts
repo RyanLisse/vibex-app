@@ -64,81 +64,76 @@ export class WASMDetector {
 			return this.capabilities;
 		}
 
-		return observability.trackOperation(
-			"wasm.detect-capabilities",
-			async () => {
-				const capabilities: WASMCapabilities = {
-					isSupported: false,
-					hasThreads: false,
-					hasSIMD: false,
-					hasExceptionHandling: false,
-					hasBulkMemory: false,
-					hasReferenceTypes: false,
-					hasMultiValue: false,
-					hasSignExtension: false,
-					hasNonTrappingFloatToInt: false,
-					performance: "unknown",
-					memoryInfo: {
-						available: 0,
-						limit: 0,
-						usage: 0,
-					},
-					browserInfo: {
-						name: "unknown",
-						version: "unknown",
-						engine: "unknown",
-					},
-				};
+		return observability.trackOperation("wasm.detect-capabilities", async () => {
+			const capabilities: WASMCapabilities = {
+				isSupported: false,
+				hasThreads: false,
+				hasSIMD: false,
+				hasExceptionHandling: false,
+				hasBulkMemory: false,
+				hasReferenceTypes: false,
+				hasMultiValue: false,
+				hasSignExtension: false,
+				hasNonTrappingFloatToInt: false,
+				performance: "unknown",
+				memoryInfo: {
+					available: 0,
+					limit: 0,
+					usage: 0,
+				},
+				browserInfo: {
+					name: "unknown",
+					version: "unknown",
+					engine: "unknown",
+				},
+			};
 
-				try {
-					// Basic WASM support check
-					if (typeof WebAssembly === "undefined") {
-						observability.recordEvent("wasm.detection.no-support", {
-							reason: "WebAssembly not available",
-						});
-						this.capabilities = capabilities;
-						return capabilities;
-					}
-
-					capabilities.isSupported = true;
-					observability.recordEvent("wasm.detection.basic-support", {});
-
-					// Detect browser information
-					capabilities.browserInfo = this.detectBrowserInfo();
-
-					// Get memory information
-					capabilities.memoryInfo = this.getMemoryInfo();
-
-					// Check for specific WASM features
-					await this.checkWASMFeatures(capabilities);
-
-					// Benchmark WASM performance
-					capabilities.performance = await this.benchmarkPerformance();
-
-					// Log comprehensive capabilities
-					observability.recordEvent("wasm.detection.complete", {
-						capabilities,
-						detectionTime: Date.now(),
+			try {
+				// Basic WASM support check
+				if (typeof WebAssembly === "undefined") {
+					observability.recordEvent("wasm.detection.no-support", {
+						reason: "WebAssembly not available",
 					});
-
-					this.capabilities = capabilities;
-					return capabilities;
-				} catch (error) {
-					observability.recordError("wasm.detection.failed", error as Error);
-					console.warn("WASM capability detection failed:", error);
 					this.capabilities = capabilities;
 					return capabilities;
 				}
-			},
-		);
+
+				capabilities.isSupported = true;
+				observability.recordEvent("wasm.detection.basic-support", {});
+
+				// Detect browser information
+				capabilities.browserInfo = this.detectBrowserInfo();
+
+				// Get memory information
+				capabilities.memoryInfo = this.getMemoryInfo();
+
+				// Check for specific WASM features
+				await this.checkWASMFeatures(capabilities);
+
+				// Benchmark WASM performance
+				capabilities.performance = await this.benchmarkPerformance();
+
+				// Log comprehensive capabilities
+				observability.recordEvent("wasm.detection.complete", {
+					capabilities,
+					detectionTime: Date.now(),
+				});
+
+				this.capabilities = capabilities;
+				return capabilities;
+			} catch (error) {
+				observability.recordError("wasm.detection.failed", error as Error);
+				console.warn("WASM capability detection failed:", error);
+				this.capabilities = capabilities;
+				return capabilities;
+			}
+		});
 	}
 
 	/**
 	 * Check for specific WASM features with comprehensive testing
 	 */
-	private async checkWASMFeatures(
-		capabilities: WASMCapabilities,
-	): Promise<void> {
+	private async checkWASMFeatures(capabilities: WASMCapabilities): Promise<void> {
 		return observability.trackOperation("wasm.check-features", async () => {
 			try {
 				// Check for threads support (SharedArrayBuffer + Worker + cross-origin isolation)
@@ -152,9 +147,7 @@ export class WASMDetector {
 					hasSharedArrayBuffer: typeof SharedArrayBuffer !== "undefined",
 					hasWorker: typeof Worker !== "undefined",
 					isCrossOriginIsolated:
-						typeof crossOriginIsolated !== "undefined"
-							? crossOriginIsolated
-							: "unknown",
+						typeof crossOriginIsolated !== "undefined" ? crossOriginIsolated : "unknown",
 				});
 
 				// Check for SIMD support (128-bit vectors)
@@ -177,36 +170,33 @@ export class WASMDetector {
 				]);
 
 				// Check for exception handling
-				capabilities.hasExceptionHandling = await this.testWASMFeature(
-					"exception-handling",
-					[
-						0x00,
-						0x61,
-						0x73,
-						0x6d,
-						0x01,
-						0x00,
-						0x00,
-						0x00, // WASM header
-						0x01,
-						0x04,
-						0x01,
-						0x60,
-						0x00,
-						0x00, // Type section
-						0x03,
-						0x02,
-						0x01,
-						0x00, // Function section
-						0x0a,
-						0x05,
-						0x01,
-						0x03,
-						0x00,
-						0x06,
-						0x0b, // Code section with try
-					],
-				);
+				capabilities.hasExceptionHandling = await this.testWASMFeature("exception-handling", [
+					0x00,
+					0x61,
+					0x73,
+					0x6d,
+					0x01,
+					0x00,
+					0x00,
+					0x00, // WASM header
+					0x01,
+					0x04,
+					0x01,
+					0x60,
+					0x00,
+					0x00, // Type section
+					0x03,
+					0x02,
+					0x01,
+					0x00, // Function section
+					0x0a,
+					0x05,
+					0x01,
+					0x03,
+					0x00,
+					0x06,
+					0x0b, // Code section with try
+				]);
 
 				// Check for bulk memory operations
 				capabilities.hasBulkMemory = await this.testWASMFeature("bulk-memory", [
@@ -241,26 +231,23 @@ export class WASMDetector {
 				]);
 
 				// Check for reference types
-				capabilities.hasReferenceTypes = await this.testWASMFeature(
-					"reference-types",
-					[
-						0x00,
-						0x61,
-						0x73,
-						0x6d,
-						0x01,
-						0x00,
-						0x00,
-						0x00, // WASM header
-						0x01,
-						0x05,
-						0x01,
-						0x60,
-						0x00,
-						0x01,
-						0x6f, // Type section (externref)
-					],
-				);
+				capabilities.hasReferenceTypes = await this.testWASMFeature("reference-types", [
+					0x00,
+					0x61,
+					0x73,
+					0x6d,
+					0x01,
+					0x00,
+					0x00,
+					0x00, // WASM header
+					0x01,
+					0x05,
+					0x01,
+					0x60,
+					0x00,
+					0x01,
+					0x6f, // Type section (externref)
+				]);
 
 				// Check for multi-value returns
 				capabilities.hasMultiValue = await this.testWASMFeature("multi-value", [
@@ -283,38 +270,35 @@ export class WASMDetector {
 				]);
 
 				// Check for sign extension operations
-				capabilities.hasSignExtension = await this.testWASMFeature(
-					"sign-extension",
-					[
-						0x00,
-						0x61,
-						0x73,
-						0x6d,
-						0x01,
-						0x00,
-						0x00,
-						0x00, // WASM header
-						0x01,
-						0x04,
-						0x01,
-						0x60,
-						0x00,
-						0x00, // Type section
-						0x03,
-						0x02,
-						0x01,
-						0x00, // Function section
-						0x0a,
-						0x06,
-						0x01,
-						0x04,
-						0x00,
-						0x41,
-						0x00,
-						0xc0,
-						0x0b, // i32.extend8_s
-					],
-				);
+				capabilities.hasSignExtension = await this.testWASMFeature("sign-extension", [
+					0x00,
+					0x61,
+					0x73,
+					0x6d,
+					0x01,
+					0x00,
+					0x00,
+					0x00, // WASM header
+					0x01,
+					0x04,
+					0x01,
+					0x60,
+					0x00,
+					0x00, // Type section
+					0x03,
+					0x02,
+					0x01,
+					0x00, // Function section
+					0x0a,
+					0x06,
+					0x01,
+					0x04,
+					0x00,
+					0x41,
+					0x00,
+					0xc0,
+					0x0b, // i32.extend8_s
+				]);
 
 				// Check for non-trapping float-to-int conversions
 				capabilities.hasNonTrappingFloatToInt = await this.testWASMFeature(
@@ -351,7 +335,7 @@ export class WASMDetector {
 						0xfc,
 						0x00,
 						0x0b, // i32.trunc_sat_f32_s
-					],
+					]
 				);
 
 				observability.recordEvent("wasm.features.detected", {
@@ -365,10 +349,7 @@ export class WASMDetector {
 					nonTrappingFloatToInt: capabilities.hasNonTrappingFloatToInt,
 				});
 			} catch (error) {
-				observability.recordError(
-					"wasm.feature-detection.failed",
-					error as Error,
-				);
+				observability.recordError("wasm.feature-detection.failed", error as Error);
 				console.warn("WASM feature detection failed:", error);
 			}
 		});
@@ -377,10 +358,7 @@ export class WASMDetector {
 	/**
 	 * Test a specific WASM feature by attempting to compile a test module
 	 */
-	private async testWASMFeature(
-		featureName: string,
-		wasmBytes: number[],
-	): Promise<boolean> {
+	private async testWASMFeature(featureName: string, wasmBytes: number[]): Promise<boolean> {
 		try {
 			await WebAssembly.compile(new Uint8Array(wasmBytes));
 			observability.recordEvent(`wasm.feature.${featureName}`, {
@@ -434,9 +412,7 @@ export class WASMDetector {
 	/**
 	 * Benchmark WASM performance
 	 */
-	private async benchmarkPerformance(): Promise<
-		"high" | "medium" | "low" | "unknown"
-	> {
+	private async benchmarkPerformance(): Promise<"high" | "medium" | "low" | "unknown"> {
 		if (this.performanceBenchmark !== null) {
 			return this.categorizePerformance(this.performanceBenchmark);
 		}
@@ -486,14 +462,11 @@ export class WASMDetector {
 					0x01,
 					0x6a,
 					0x0b, // add function
-				]),
+				])
 			);
 
 			const wasmInstance = await WebAssembly.instantiate(wasmModule);
-			const addFunction = wasmInstance.exports.add as (
-				a: number,
-				b: number,
-			) => number;
+			const addFunction = wasmInstance.exports.add as (a: number, b: number) => number;
 
 			// Benchmark: perform 1M additions
 			const iterations = 1_000_000;
@@ -517,9 +490,7 @@ export class WASMDetector {
 	/**
 	 * Categorize performance based on benchmark results
 	 */
-	private categorizePerformance(
-		executionTime: number,
-	): "high" | "medium" | "low" | "unknown" {
+	private categorizePerformance(executionTime: number): "high" | "medium" | "low" | "unknown" {
 		if (executionTime < 10) return "high";
 		if (executionTime < 50) return "medium";
 		if (executionTime < 200) return "low";
@@ -554,8 +525,7 @@ export class WASMDetector {
 		} = this.capabilities;
 
 		// Browser-specific optimizations
-		const isChromeOrEdge =
-			browserInfo.name === "chrome" || browserInfo.name === "edge";
+		const isChromeOrEdge = browserInfo.name === "chrome" || browserInfo.name === "edge";
 		const isFirefox = browserInfo.name === "firefox";
 		const isSafari = browserInfo.name === "safari";
 
@@ -578,11 +548,7 @@ export class WASMDetector {
 				!isLowMemory,
 
 			enableComputeOptimizations:
-				isSupported &&
-				performance === "high" &&
-				hasThreads &&
-				hasEnoughMemory &&
-				isChromeOrEdge, // Best thread support
+				isSupported && performance === "high" && hasThreads && hasEnoughMemory && isChromeOrEdge, // Best thread support
 
 			enableDataProcessing:
 				isSupported &&
@@ -591,25 +557,19 @@ export class WASMDetector {
 				hasEnoughMemory,
 
 			fallbackToJS:
-				!isSupported ||
-				performance === "low" ||
-				performance === "unknown" ||
-				isLowMemory,
+				!isSupported || performance === "low" || performance === "unknown" || isLowMemory,
 
 			performanceThreshold: this.performanceBenchmark || 0,
 			memoryThreshold: memoryInfo.available,
 
-			adaptiveOptimization:
-				isSupported && performance !== "unknown" && hasEnoughMemory,
+			adaptiveOptimization: isSupported && performance !== "unknown" && hasEnoughMemory,
 		};
 	}
 
 	/**
 	 * Check if a specific optimization should be enabled with runtime adaptation
 	 */
-	shouldUseOptimization(
-		type: "vector" | "sqlite" | "compute" | "data-processing",
-	): boolean {
+	shouldUseOptimization(type: "vector" | "sqlite" | "compute" | "data-processing"): boolean {
 		const config = this.getOptimizationConfig();
 
 		// Runtime memory check for adaptive optimization
@@ -704,14 +664,8 @@ export class WASMDetector {
 			return "WASM capabilities not detected yet";
 		}
 
-		const {
-			isSupported,
-			performance,
-			hasThreads,
-			hasSIMD,
-			memoryInfo,
-			browserInfo,
-		} = this.capabilities;
+		const { isSupported, performance, hasThreads, hasSIMD, memoryInfo, browserInfo } =
+			this.capabilities;
 		const config = this.getOptimizationConfig();
 		const strategy = this.getProgressiveEnhancementStrategy();
 
@@ -745,10 +699,7 @@ Enabled Features: ${strategy.enabledFeatures.join(", ") || "None"}`;
 		};
 
 		try {
-			if (
-				"memory" in performance &&
-				"usedJSHeapSize" in (performance as any).memory
-			) {
+			if ("memory" in performance && "usedJSHeapSize" in (performance as any).memory) {
 				const memory = (performance as any).memory;
 				return {
 					available: memory.jsHeapSizeLimit - memory.usedJSHeapSize,
@@ -759,8 +710,7 @@ Enabled Features: ${strategy.enabledFeatures.join(", ") || "None"}`;
 
 			// Fallback: estimate based on navigator.deviceMemory if available
 			if ("deviceMemory" in navigator) {
-				const deviceMemory =
-					(navigator as any).deviceMemory * 1024 * 1024 * 1024; // GB to bytes
+				const deviceMemory = (navigator as any).deviceMemory * 1024 * 1024 * 1024; // GB to bytes
 				return {
 					available: deviceMemory * 0.5, // Assume 50% available for WASM
 					limit: deviceMemory,
@@ -781,8 +731,6 @@ export const wasmDetector = WASMDetector.getInstance();
 
 // Utility functions
 export const detectWASMCapabilities = () => wasmDetector.detectCapabilities();
-export const getWASMOptimizationConfig = () =>
-	wasmDetector.getOptimizationConfig();
-export const shouldUseWASMOptimization = (
-	type: "vector" | "sqlite" | "compute",
-) => wasmDetector.shouldUseOptimization(type);
+export const getWASMOptimizationConfig = () => wasmDetector.getOptimizationConfig();
+export const shouldUseWASMOptimization = (type: "vector" | "sqlite" | "compute") =>
+	wasmDetector.shouldUseOptimization(type);

@@ -4,15 +4,7 @@
  * Test-driven development for Redis/Valkey distributed locks
  */
 
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { testRedisConfig } from "./config";
 import { LockService } from "./lock-service";
 import { RedisClientManager } from "./redis-client";
@@ -124,10 +116,7 @@ describe("LockService", () => {
 			};
 
 			// Acquire initial lock with short TTL
-			const initialLock = await lockService.acquireLock(
-				lockKey,
-				shortLockOptions,
-			);
+			const initialLock = await lockService.acquireLock(lockKey, shortLockOptions);
 			expect(initialLock).not.toBeNull();
 
 			const startTime = Date.now();
@@ -358,9 +347,7 @@ describe("LockService", () => {
 			}
 
 			// Release all locks
-			const released = await lockService.releaseMultipleLocks(
-				locks as DistributedLock[],
-			);
+			const released = await lockService.releaseMultipleLocks(locks as DistributedLock[]);
 			expect(released).toBe(true);
 
 			// Verify all locks are released

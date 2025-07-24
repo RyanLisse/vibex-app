@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useAudioRecorder } from "./use-audio-recorder";
 
 // Mock MediaRecorder
@@ -20,7 +11,7 @@ class MockMediaRecorder {
 
 	constructor(
 		public stream: MediaStream,
-		public options?: any,
+		public options?: any
 	) {}
 
 	start() {
@@ -134,9 +125,7 @@ describe("useAudioRecorder", () => {
 	});
 
 	it("should handle permission denied error", async () => {
-		mockGetUserMedia.mockRejectedValueOnce(
-			new DOMException("Permission denied"),
-		);
+		mockGetUserMedia.mockRejectedValueOnce(new DOMException("Permission denied"));
 
 		const { result } = renderHook(() => useAudioRecorder());
 
@@ -332,7 +321,7 @@ describe("useAudioRecorder", () => {
 		const { result } = renderHook(() =>
 			useAudioRecorder({
 				mimeType: "audio/mp4",
-			}),
+			})
 		);
 
 		await act(async () => {
@@ -340,7 +329,7 @@ describe("useAudioRecorder", () => {
 		});
 
 		expect(result.current.mediaRecorder?.options).toEqual(
-			expect.objectContaining({ mimeType: "audio/mp4" }),
+			expect.objectContaining({ mimeType: "audio/mp4" })
 		);
 	});
 
@@ -412,7 +401,7 @@ describe("useAudioRecorder", () => {
 		const { result } = renderHook(() =>
 			useAudioRecorder({
 				enableVisualization: true,
-			}),
+			})
 		);
 
 		await act(async () => {

@@ -35,9 +35,7 @@ export default function VoiceBrainstormPage() {
 		averageSessionTime: 0,
 		voiceAccuracy: 95.2,
 	});
-	const [activeDemo, setActiveDemo] = useState<"voice" | "chat" | "multi">(
-		"voice",
-	);
+	const [activeDemo, setActiveDemo] = useState<"voice" | "chat" | "multi">("voice");
 
 	useEffect(() => {
 		// Simulate demo stats
@@ -53,9 +51,7 @@ export default function VoiceBrainstormPage() {
 		setDemoStats((prev) => ({
 			...prev,
 			totalSessions: prev.totalSessions + 1,
-			averageSessionTime: Math.floor(
-				(prev.averageSessionTime + session.duration / 60) / 2,
-			),
+			averageSessionTime: Math.floor((prev.averageSessionTime + session.duration / 60) / 2),
 		}));
 	};
 
@@ -75,9 +71,8 @@ export default function VoiceBrainstormPage() {
 						AI-Powered Voice Brainstorming
 					</h1>
 					<p className="mx-auto max-w-3xl text-muted-foreground text-xl">
-						Experience the future of ideation with real-time voice
-						transcription, intelligent brainstorming agents, and multi-modal AI
-						collaboration.
+						Experience the future of ideation with real-time voice transcription, intelligent
+						brainstorming agents, and multi-modal AI collaboration.
 					</p>
 				</div>
 
@@ -90,9 +85,7 @@ export default function VoiceBrainstormPage() {
 									<Brain className="h-5 w-5 text-blue-600" />
 								</div>
 								<div>
-									<p className="font-bold text-2xl">
-										{demoStats.totalSessions}
-									</p>
+									<p className="font-bold text-2xl">{demoStats.totalSessions}</p>
 									<p className="text-muted-foreground text-sm">Sessions</p>
 								</div>
 							</div>
@@ -106,12 +99,8 @@ export default function VoiceBrainstormPage() {
 									<Lightbulb className="h-5 w-5 text-green-600" />
 								</div>
 								<div>
-									<p className="font-bold text-2xl">
-										{demoStats.ideasGenerated}
-									</p>
-									<p className="text-muted-foreground text-sm">
-										Ideas Generated
-									</p>
+									<p className="font-bold text-2xl">{demoStats.ideasGenerated}</p>
+									<p className="text-muted-foreground text-sm">Ideas Generated</p>
 								</div>
 							</div>
 						</CardContent>
@@ -124,9 +113,7 @@ export default function VoiceBrainstormPage() {
 									<TrendingUp className="h-5 w-5 text-purple-600" />
 								</div>
 								<div>
-									<p className="font-bold text-2xl">
-										{demoStats.averageSessionTime}m
-									</p>
+									<p className="font-bold text-2xl">{demoStats.averageSessionTime}m</p>
 									<p className="text-muted-foreground text-sm">Avg. Session</p>
 								</div>
 							</div>
@@ -140,12 +127,8 @@ export default function VoiceBrainstormPage() {
 									<Mic className="h-5 w-5 text-orange-600" />
 								</div>
 								<div>
-									<p className="font-bold text-2xl">
-										{demoStats.voiceAccuracy.toFixed(1)}%
-									</p>
-									<p className="text-muted-foreground text-sm">
-										Voice Accuracy
-									</p>
+									<p className="font-bold text-2xl">{demoStats.voiceAccuracy.toFixed(1)}%</p>
+									<p className="text-muted-foreground text-sm">Voice Accuracy</p>
 								</div>
 							</div>
 						</CardContent>
@@ -167,12 +150,10 @@ export default function VoiceBrainstormPage() {
 									<Mic className="h-5 w-5 text-blue-600" />
 								</div>
 								<div>
-									<h3 className="mb-1 font-semibold">
-										Real-time Transcription
-									</h3>
+									<h3 className="mb-1 font-semibold">Real-time Transcription</h3>
 									<p className="text-muted-foreground text-sm">
-										OpenAI Whisper-powered voice recognition with live feedback
-										and confidence scoring.
+										OpenAI Whisper-powered voice recognition with live feedback and confidence
+										scoring.
 									</p>
 								</div>
 							</div>
@@ -182,12 +163,9 @@ export default function VoiceBrainstormPage() {
 									<Brain className="h-5 w-5 text-green-600" />
 								</div>
 								<div>
-									<h3 className="mb-1 font-semibold">
-										Intelligent Brainstorming
-									</h3>
+									<h3 className="mb-1 font-semibold">Intelligent Brainstorming</h3>
 									<p className="text-muted-foreground text-sm">
-										Letta-powered agents guide you through structured
-										brainstorming stages.
+										Letta-powered agents guide you through structured brainstorming stages.
 									</p>
 								</div>
 							</div>
@@ -199,8 +177,7 @@ export default function VoiceBrainstormPage() {
 								<div>
 									<h3 className="mb-1 font-semibold">Multi-Agent System</h3>
 									<p className="text-muted-foreground text-sm">
-										Orchestrator and specialized agents work together for
-										optimal results.
+										Orchestrator and specialized agents work together for optimal results.
 									</p>
 								</div>
 							</div>
@@ -223,9 +200,7 @@ export default function VoiceBrainstormPage() {
 								<Mic className="h-6 w-6" />
 								<div className="text-center">
 									<div className="font-semibold">Voice Brainstorming</div>
-									<div className="text-muted-foreground text-xs">
-										Pure voice-driven ideation
-									</div>
+									<div className="text-muted-foreground text-xs">Pure voice-driven ideation</div>
 								</div>
 							</Button>
 
@@ -237,9 +212,7 @@ export default function VoiceBrainstormPage() {
 								<MessageSquare className="h-6 w-6" />
 								<div className="text-center">
 									<div className="font-semibold">Text Chat</div>
-									<div className="text-muted-foreground text-xs">
-										Traditional chat interface
-									</div>
+									<div className="text-muted-foreground text-xs">Traditional chat interface</div>
 								</div>
 							</Button>
 
@@ -251,9 +224,7 @@ export default function VoiceBrainstormPage() {
 								<Users className="h-6 w-6" />
 								<div className="text-center">
 									<div className="font-semibold">Multi-Modal</div>
-									<div className="text-muted-foreground text-xs">
-										Voice + text + agents
-									</div>
+									<div className="text-muted-foreground text-xs">Voice + text + agents</div>
 								</div>
 							</Button>
 						</div>
@@ -283,8 +254,8 @@ export default function VoiceBrainstormPage() {
 										Multi-Modal Brainstorming
 									</CardTitle>
 									<p className="text-muted-foreground">
-										Combine voice input, text chat, and AI agents for the
-										ultimate brainstorming experience.
+										Combine voice input, text chat, and AI agents for the ultimate brainstorming
+										experience.
 									</p>
 								</CardHeader>
 							</Card>
@@ -297,11 +268,7 @@ export default function VoiceBrainstormPage() {
 									sessionId={`multi_voice_${userId}`}
 								/>
 
-								<MultiAgentChat
-									className="h-fit"
-									initialSessionType="brainstorm"
-									userId={userId}
-								/>
+								<MultiAgentChat className="h-fit" initialSessionType="brainstorm" userId={userId} />
 							</div>
 						</div>
 					)}
@@ -365,10 +332,7 @@ export default function VoiceBrainstormPage() {
 								{ name: "Tailwind CSS", desc: "Modern styling" },
 								{ name: "TypeScript", desc: "Type safety" },
 							].map((tech) => (
-								<div
-									className="rounded-lg bg-muted/30 p-3 text-center"
-									key={tech.name}
-								>
+								<div className="rounded-lg bg-muted/30 p-3 text-center" key={tech.name}>
 									<Badge className="mb-2" variant="outline">
 										{tech.name}
 									</Badge>

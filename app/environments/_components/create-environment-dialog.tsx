@@ -23,11 +23,7 @@ import {
 interface CreateEnvironmentDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onCreateEnvironment?: (environment: {
-		name: string;
-		type: string;
-		description?: string;
-	}) => void;
+	onCreateEnvironment?: (environment: { name: string; type: string; description?: string }) => void;
 }
 
 export function CreateEnvironmentDialog({

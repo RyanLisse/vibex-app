@@ -3,159 +3,155 @@
  * Provides caching functionality for analysis results
  */
 
-import { CacheInterface } from '../types';
-import { Logger } from './logger';
+import { CacheInterface } from "../types";
+import { Logger } from "./logger";
 
 interface CacheEntry<T> {
-  value: T;
-  expiry: number;
+	value: T;
+	expiry: number;
 }
 
 export class CacheService implements CacheInterface {
-  private cache: Map<string, CacheEntry<any>> = new Map();
-  private logger: Logger;
+	private cache: Map<string, CacheEntry<any>> = new Map();
+	private logger: Logger;
 
-  constructor() {
-    this.logger = new Logger('CacheService');
-  }
+	constructor() {
+		this.logger = new Logger("CacheService");
+	}
 
-  async get<T>(key: string): Promise<T | null> {
-    const entry = this.cache.get(key);
-    
-    if (!entry) {
-      this.logger.debug(`Cache miss: ${key}`);
-      return null;
-    }
+	async get<T>(key: string): Promise<T | null> {
+		const entry = this.cache.get(key);
 
-    if (Date.now() > entry.expiry) {
-      this.logger.debug(`Cache expired: ${key}`);
-      this.cache.delete(key);
-      return null;
-    }
+		if (!entry) {
+			this.logger.debug(`Cache miss: ${key}`);
+			return null;
+		}
 
-    this.logger.debug(`Cache hit: ${key}`);
-    return entry.value as T;
-  }
+		if (Date.now() > entry.expiry) {
+			this.logger.debug(`Cache expired: ${key}`);
+			this.cache.delete(key);
+			return null;
+		}
 
-  async set<T>(key: string, value: T, ttl: number = 3600000): Promise<void> {
-    const expiry = Date.now() + ttl;
-    this.cache.set(key, { value, expiry });
-    this.logger.debug(`Cache set: ${key}`, { ttl });
-  }
+		this.logger.debug(`Cache hit: ${key}`);
+		return entry.value as T;
+	}
 
-  async delete(key: string): Promise<void> {
-    const deleted = this.cache.delete(key);
-    if (deleted) {
-      this.logger.debug(`Cache deleted: ${key}`);
-    }
-  }
+	async set<T>(key: string, value: T, ttl: number = 3600000): Promise<void> {
+		const expiry = Date.now() + ttl;
+		this.cache.set(key, { value, expiry });
+		this.logger.debug(`Cache set: ${key}`, { ttl });
+	}
 
-  async clear(): Promise<void> {
-    const size = this.cache.size;
-    this.cache.clear();
-    this.logger.info(`Cache cleared`, { entriesRemoved: size });
-  }
+	async delete(key: string): Promise<void> {
+		const deleted = this.cache.delete(key);
+		if (deleted) {
+			this.logger.debug(`Cache deleted: ${key}`);
+		}
+	}
 
-  /**
-   * Get cache statistics
-   */
-  getStats(): {
-    size: number;
-    entries: string[];
-    memoryUsage: number;
-  } {
-    const entries = Array.from(this.cache.keys());
-    const memoryUsage = this.estimateMemoryUsage();
+	async clear(): Promise<void> {
+		const size = this.cache.size;
+		this.cache.clear();
+		this.logger.info(`Cache cleared`, { entriesRemoved: size });
+	}
 
-    return {
-      size: this.cache.size,
-      entries,
-      memoryUsage,
-    };
-  }
+	/**
+	 * Get cache statistics
+	 */
+	getStats(): {
+		size: number;
+		entries: string[];
+		memoryUsage: number;
+	} {
+		const entries = Array.from(this.cache.keys());
+		const memoryUsage = this.estimateMemoryUsage();
 
-  /**
-   * Estimate memory usage of cache
-   */
-  private estimateMemoryUsage(): number {
-    let totalSize = 0;
+		return {
+			size: this.cache.size,
+			entries,
+			memoryUsage,
+		};
+	}
 
-    for (const [key, entry] of this.cache.entries()) {
-      // Rough estimation
-      totalSize += key.length * 2; // UTF-16
-      totalSize += JSON.stringify(entry.value).length * 2;
-      totalSize += 16; // overhead for expiry number
-    }
+	/**
+	 * Estimate memory usage of cache
+	 */
+	private estimateMemoryUsage(): number {
+		let totalSize = 0;
 
-    return totalSize;
-  }
+		for (const [key, entry] of this.cache.entries()) {
+			// Rough estimation
+			totalSize += key.length * 2; // UTF-16
+			totalSize += JSON.stringify(entry.value).length * 2;
+			totalSize += 16; // overhead for expiry number
+		}
 
-  /**
-   * Clean up expired entries
-   */
-  async cleanup(): Promise<number> {
-    const now = Date.now();
-    let removed = 0;
+		return totalSize;
+	}
 
-    for (const [key, entry] of this.cache.entries()) {
-      if (now > entry.expiry) {
-        this.cache.delete(key);
-        removed++;
-      }
-    }
+	/**
+	 * Clean up expired entries
+	 */
+	async cleanup(): Promise<number> {
+		const now = Date.now();
+		let removed = 0;
 
-    if (removed > 0) {
-      this.logger.info(`Cache cleanup completed`, { entriesRemoved: removed });
-    }
+		for (const [key, entry] of this.cache.entries()) {
+			if (now > entry.expiry) {
+				this.cache.delete(key);
+				removed++;
+			}
+		}
 
-    return removed;
-  }
+		if (removed > 0) {
+			this.logger.info(`Cache cleanup completed`, { entriesRemoved: removed });
+		}
 
-  /**
-   * Check if key exists and is not expired
-   */
-  async has(key: string): Promise<boolean> {
-    const value = await this.get(key);
-    return value !== null;
-  }
+		return removed;
+	}
 
-  /**
-   * Get multiple values at once
-   */
-  async getMany<T>(keys: string[]): Promise<Map<string, T | null>> {
-    const results = new Map<string, T | null>();
+	/**
+	 * Check if key exists and is not expired
+	 */
+	async has(key: string): Promise<boolean> {
+		const value = await this.get(key);
+		return value !== null;
+	}
 
-    for (const key of keys) {
-      results.set(key, await this.get<T>(key));
-    }
+	/**
+	 * Get multiple values at once
+	 */
+	async getMany<T>(keys: string[]): Promise<Map<string, T | null>> {
+		const results = new Map<string, T | null>();
 
-    return results;
-  }
+		for (const key of keys) {
+			results.set(key, await this.get<T>(key));
+		}
 
-  /**
-   * Set multiple values at once
-   */
-  async setMany<T>(entries: Array<{ key: string; value: T; ttl?: number }>): Promise<void> {
-    for (const { key, value, ttl } of entries) {
-      await this.set(key, value, ttl);
-    }
-  }
+		return results;
+	}
 
-  /**
-   * Get or set a value with a factory function
-   */
-  async getOrSet<T>(
-    key: string,
-    factory: () => Promise<T>,
-    ttl?: number
-  ): Promise<T> {
-    const cached = await this.get<T>(key);
-    if (cached !== null) {
-      return cached;
-    }
+	/**
+	 * Set multiple values at once
+	 */
+	async setMany<T>(entries: Array<{ key: string; value: T; ttl?: number }>): Promise<void> {
+		for (const { key, value, ttl } of entries) {
+			await this.set(key, value, ttl);
+		}
+	}
 
-    const value = await factory();
-    await this.set(key, value, ttl);
-    return value;
-  }
+	/**
+	 * Get or set a value with a factory function
+	 */
+	async getOrSet<T>(key: string, factory: () => Promise<T>, ttl?: number): Promise<T> {
+		const cached = await this.get<T>(key);
+		if (cached !== null) {
+			return cached;
+		}
+
+		const value = await factory();
+		await this.set(key, value, ttl);
+		return value;
+	}
 }

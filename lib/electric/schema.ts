@@ -144,8 +144,7 @@ WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})`,
 
 		// Agent executions are read-only for users
 		agent_executions: {
-			select:
-				"task_id IN (SELECT id FROM tasks WHERE user_id = ${auth.user_id})",
+			select: "task_id IN (SELECT id FROM tasks WHERE user_id = ${auth.user_id})",
 			insert: false, // Only system can create executions
 			update: false,
 			delete: false,
@@ -180,8 +179,7 @@ WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
 
 		// Workflow executions are mostly read-only
 		workflow_executions: {
-			select:
-				"workflow_id IN (SELECT id FROM workflows WHERE is_active = true)",
+			select: "workflow_id IN (SELECT id FROM workflows WHERE is_active = true)",
 			insert: false, // Only system creates executions
 			update: false,
 			delete: false,
@@ -207,8 +205,7 @@ WHERE task_id IN (SELECT id FROM tasks WHERE user_id = \${auth.user_id})
 		// Subscribe to task executions
 		taskExecutions: {
 			table: "agent_executions",
-			filter:
-				"task_id IN (SELECT id FROM tasks WHERE user_id = ${auth.user_id})",
+			filter: "task_id IN (SELECT id FROM tasks WHERE user_id = ${auth.user_id})",
 			events: ["insert", "update"],
 		},
 

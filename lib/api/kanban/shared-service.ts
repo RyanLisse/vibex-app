@@ -1,9 +1,9 @@
 /**
  * Shared Kanban Service - Eliminates Service Logic Duplication
- * 
+ *
  * Consolidates the identical 26-line DEFAULT_COLUMNS and STATUS_COLUMN_MAP
  * definitions that were duplicated between service.ts and route.ts files.
- * 
+ *
  * This eliminates the exact duplication mentioned in the task requirements.
  */
 
@@ -17,19 +17,19 @@ import { KanbanMoveSchema, KanbanBoardConfigSchema } from "@/src/schemas/enhance
 
 // Centralized kanban configuration - eliminates duplication
 export const DEFAULT_COLUMNS = [
-  { id: "todo", title: "To Do", limit: null, color: "#64748b" },
-  { id: "in_progress", title: "In Progress", limit: 5, color: "#3b82f6" },
-  { id: "review", title: "Review", limit: 3, color: "#f59e0b" },
-  { id: "completed", title: "Completed", limit: null, color: "#10b981" },
+	{ id: "todo", title: "To Do", limit: null, color: "#64748b" },
+	{ id: "in_progress", title: "In Progress", limit: 5, color: "#3b82f6" },
+	{ id: "review", title: "Review", limit: 3, color: "#f59e0b" },
+	{ id: "completed", title: "Completed", limit: null, color: "#10b981" },
 ];
 
 // Centralized status mapping - eliminates duplication
 export const STATUS_COLUMN_MAP = {
-  todo: "todo",
-  in_progress: "in_progress",
-  review: "review",
-  completed: "completed",
-  blocked: "in_progress", // Blocked tasks stay in progress column
+	todo: "todo",
+	in_progress: "in_progress",
+	review: "review",
+	completed: "completed",
+	blocked: "in_progress", // Blocked tasks stay in progress column
 } as const;
 
 // Type definitions for better type safety
@@ -37,44 +37,44 @@ export type KanbanColumnId = keyof typeof STATUS_COLUMN_MAP;
 export type TaskStatus = KanbanColumnId;
 
 export interface KanbanColumn {
-  id: string;
-  title: string;
-  limit: number | null;
-  color: string;
-  tasks?: any[];
-  count?: number;
-  isOverLimit?: boolean;
+	id: string;
+	title: string;
+	limit: number | null;
+	color: string;
+	tasks?: any[];
+	count?: number;
+	isOverLimit?: boolean;
 }
 
 export interface KanbanBoardData {
-  columns: KanbanColumn[];
-  config: KanbanBoardConfig;
-  metrics: KanbanMetrics;
+	columns: KanbanColumn[];
+	config: KanbanBoardConfig;
+	metrics: KanbanMetrics;
 }
 
 export interface KanbanBoardConfig {
-  columns: KanbanColumn[];
-  settings: {
-    enableWipLimits: boolean;
-    autoAssignReviewer: boolean;
-    allowMultipleAssignees: boolean;
-    showTaskEstimates: boolean;
-  };
+	columns: KanbanColumn[];
+	settings: {
+		enableWipLimits: boolean;
+		autoAssignReviewer: boolean;
+		allowMultipleAssignees: boolean;
+		showTaskEstimates: boolean;
+	};
 }
 
 export interface KanbanMetrics {
-  totalTasks: number;
-  tasksInProgress: number;
-  blockedTasks: number;
-  completedToday: number;
-  wipLimitViolations: number;
+	totalTasks: number;
+	tasksInProgress: number;
+	blockedTasks: number;
+	completedToday: number;
+	wipLimitViolations: number;
 }
 
 // Request validation schemas
 export const GetKanbanQuerySchema = z.object({
-  userId: z.string().optional(),
-  projectId: z.string().optional(),
-  assignee: z.string().optional(),
+	userId: z.string().optional(),
+	projectId: z.string().optional(),
+	assignee: z.string().optional(),
 });
 
 /**
@@ -82,345 +82,341 @@ export const GetKanbanQuerySchema = z.object({
  * Consolidates all kanban business logic to eliminate duplication
  */
 export class SharedKanbanService extends BaseAPIService {
-  protected static serviceName = "shared-kanban";
-  
-  // Static methods inherited from BaseAPIService - make them public
-  static async withTracing<T>(
-    operation: string,
-    fn: () => Promise<T>,
-    metadata?: Record<string, any>
-  ): Promise<T> {
-    console.log(`[${this.serviceName}] Starting ${operation}`, metadata);
-    try {
-      const result = await fn();
-      console.log(`[${this.serviceName}] Completed ${operation}`);
-      return result;
-    } catch (error) {
-      console.error(`[${this.serviceName}] Failed ${operation}`, error);
-      throw error;
-    }
-  }
+	protected static serviceName = "shared-kanban";
 
-  static async withTransaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
-    // For now, just use the db instance directly
-    // In a real implementation, this would start a transaction
-    const { db } = await import("@/db/config");
-    return await fn(db);
-  }
+	// Static methods inherited from BaseAPIService - make them public
+	static async withTracing<T>(
+		operation: string,
+		fn: () => Promise<T>,
+		metadata?: Record<string, any>
+	): Promise<T> {
+		console.log(`[${this.serviceName}] Starting ${operation}`, metadata);
+		try {
+			const result = await fn();
+			console.log(`[${this.serviceName}] Completed ${operation}`);
+			return result;
+		} catch (error) {
+			console.error(`[${this.serviceName}] Failed ${operation}`, error);
+			throw error;
+		}
+	}
 
-  static async logOperation(
-    operation: string,
-    resourceType: string,
-    resourceId: string | null,
-    userId?: string,
-    metadata?: Record<string, any>
-  ): Promise<void> {
-    console.log(`[${this.serviceName}] Operation: ${operation}`, {
-      resourceType,
-      resourceId,
-      userId,
-      metadata,
-      timestamp: new Date().toISOString()
-    });
-  }
+	static async withTransaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+		// For now, just use the db instance directly
+		// In a real implementation, this would start a transaction
+		const { db } = await import("@/db/config");
+		return await fn(db);
+	}
 
-  /**
-   * Get kanban board data with all columns and metrics
-   */
-  static async getKanbanBoard(params: z.infer<typeof GetKanbanQuerySchema>): Promise<KanbanBoardData> {
-    return this.withTracing("getKanbanBoard", async () => {
-      // Build query conditions
-      const conditions = [];
-      if (params.userId) {
-        conditions.push(eq(tasks.userId, params.userId));
-      }
-      if (params.assignee) {
-        conditions.push(eq(tasks.userId, params.assignee));
-      }
+	static async logOperation(
+		operation: string,
+		resourceType: string,
+		resourceId: string | null,
+		userId?: string,
+		metadata?: Record<string, any>
+	): Promise<void> {
+		console.log(`[${this.serviceName}] Operation: ${operation}`, {
+			resourceType,
+			resourceId,
+			userId,
+			metadata,
+			timestamp: new Date().toISOString(),
+		});
+	}
 
-      // Get all tasks
-      const allTasks = conditions.length > 0 
-        ? await db.select().from(tasks).where(and(...conditions))
-        : await db.select().from(tasks);
+	/**
+	 * Get kanban board data with all columns and metrics
+	 */
+	static async getKanbanBoard(
+		params: z.infer<typeof GetKanbanQuerySchema>
+	): Promise<KanbanBoardData> {
+		return this.withTracing("getKanbanBoard", async () => {
+			// Build query conditions
+			const conditions = [];
+			if (params.userId) {
+				conditions.push(eq(tasks.userId, params.userId));
+			}
+			if (params.assignee) {
+				conditions.push(eq(tasks.userId, params.assignee));
+			}
 
-      // Get kanban configuration
-      const kanbanConfig = this.getDefaultKanbanConfig();
+			// Get all tasks
+			const allTasks =
+				conditions.length > 0
+					? await db
+							.select()
+							.from(tasks)
+							.where(and(...conditions))
+					: await db.select().from(tasks);
 
-      // Organize tasks by columns
-      const columns = this.organizeTasksByColumns(allTasks, kanbanConfig.columns);
+			// Get kanban configuration
+			const kanbanConfig = this.getDefaultKanbanConfig();
 
-      // Calculate board metrics
-      const metrics = this.calculateBoardMetrics(allTasks, columns);
+			// Organize tasks by columns
+			const columns = this.organizeTasksByColumns(allTasks, kanbanConfig.columns);
 
-      // Log operation
-      await this.logOperation(
-        "get_kanban_board",
-        "kanban",
-        null,
-        params.userId,
-        {
-          totalTasks: metrics.totalTasks,
-          columns: columns.length,
-          wipViolations: metrics.wipLimitViolations,
-        }
-      );
+			// Calculate board metrics
+			const metrics = this.calculateBoardMetrics(allTasks, columns);
 
-      return {
-        columns,
-        config: kanbanConfig,
-        metrics,
-      };
-    });
-  }
+			// Log operation
+			await this.logOperation("get_kanban_board", "kanban", null, params.userId, {
+				totalTasks: metrics.totalTasks,
+				columns: columns.length,
+				wipViolations: metrics.wipLimitViolations,
+			});
 
-  /**
-   * Move task between columns with validation
-   */
-  static async moveTask(moveData: z.infer<typeof KanbanMoveSchema>) {
-    return this.withTracing(
-      "moveTask",
-      async () => {
-        return this.withTransaction(async (tx) => {
-          // Get and validate task
-          const task = await this.getTaskForMove(tx, moveData.taskId);
+			return {
+				columns,
+				config: kanbanConfig,
+				metrics,
+			};
+		});
+	}
 
-          // Validate target column and get new status
-          const newStatus = this.validateTargetColumn(moveData.toColumn);
+	/**
+	 * Move task between columns with validation
+	 */
+	static async moveTask(moveData: z.infer<typeof KanbanMoveSchema>) {
+		return this.withTracing(
+			"moveTask",
+			async () => {
+				return this.withTransaction(async (tx) => {
+					// Get and validate task
+					const task = await this.getTaskForMove(tx, moveData.taskId);
 
-          // Check WIP limits
-          await this.validateWipLimits(tx, moveData.toColumn, newStatus);
+					// Validate target column and get new status
+					const newStatus = this.validateTargetColumn(moveData.toColumn);
 
-          // Create task updates
-          const updates = this.createTaskUpdates(task, newStatus, moveData);
-          updates.metadata = this.createKanbanMetadata(task, moveData);
+					// Check WIP limits
+					await this.validateWipLimits(tx, moveData.toColumn, newStatus);
 
-          // Update task in database
-          const [updatedTask] = await tx
-            .update(tasks)
-            .set(updates)
-            .where(eq(tasks.id, moveData.taskId))
-            .returning();
+					// Create task updates
+					const updates = this.createTaskUpdates(task, newStatus, moveData);
+					updates.metadata = this.createKanbanMetadata(task, moveData);
 
-          // Log operation
-          await this.logOperation(
-            "move_task",
-            "task",
-            moveData.taskId,
-            moveData.userId,
-            {
-              fromColumn: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
-              toColumn: moveData.toColumn,
-              fromStatus: task.status,
-              toStatus: newStatus,
-            }
-          );
+					// Update task in database
+					const [updatedTask] = await tx
+						.update(tasks)
+						.set(updates)
+						.where(eq(tasks.id, moveData.taskId))
+						.returning();
 
-          return {
-            task: updatedTask,
-            movement: {
-              from: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
-              to: moveData.toColumn,
-              timestamp: new Date().toISOString(),
-            },
-          };
-        });
-      },
-      { "task.id": moveData.taskId }
-    );
-  }
+					// Log operation
+					await this.logOperation("move_task", "task", moveData.taskId, moveData.userId, {
+						fromColumn: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
+						toColumn: moveData.toColumn,
+						fromStatus: task.status,
+						toStatus: newStatus,
+					});
 
-  /**
-   * Update kanban board configuration
-   */
-  static async updateConfig(config: z.infer<typeof KanbanBoardConfigSchema>) {
-    return this.withTracing("updateConfig", async () => {
-      // In a real implementation, would save to database
-      // For now, validate and return the config
+					return {
+						task: updatedTask,
+						movement: {
+							from: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
+							to: moveData.toColumn,
+							timestamp: new Date().toISOString(),
+						},
+					};
+				});
+			},
+			{ "task.id": moveData.taskId }
+		);
+	}
 
-      // Log operation
-      await this.logOperation(
-        "update_kanban_config",
-        "kanban",
-        null,
-        null,
-        {
-          columnsCount: config.columns.length,
-          wipLimitsEnabled: config.settings.enableWipLimits,
-        }
-      );
+	/**
+	 * Update kanban board configuration
+	 */
+	static async updateConfig(config: z.infer<typeof KanbanBoardConfigSchema>) {
+		return this.withTracing("updateConfig", async () => {
+			// In a real implementation, would save to database
+			// For now, validate and return the config
 
-      return config;
-    });
-  }
+			// Log operation
+			await this.logOperation("update_kanban_config", "kanban", null, null, {
+				columnsCount: config.columns.length,
+				wipLimitsEnabled: config.settings.enableWipLimits,
+			});
 
-  // === Helper Methods ===
+			return config;
+		});
+	}
 
-  /**
-   * Get default kanban configuration
-   */
-  private static getDefaultKanbanConfig(): KanbanBoardConfig {
-    return {
-      columns: DEFAULT_COLUMNS,
-      settings: {
-        enableWipLimits: true,
-        autoAssignReviewer: true,
-        allowMultipleAssignees: false,
-        showTaskEstimates: true,
-      },
-    };
-  }
+	// === Helper Methods ===
 
-  /**
-   * Organize tasks into kanban columns
-   */
-  private static organizeTasksByColumns(allTasks: any[], columnConfig: KanbanColumn[]): KanbanColumn[] {
-    return columnConfig.map((column) => {
-      const columnTasks = allTasks.filter((task) => {
-        const mappedColumn = STATUS_COLUMN_MAP[task.status as TaskStatus] || "todo";
-        return mappedColumn === column.id;
-      });
+	/**
+	 * Get default kanban configuration
+	 */
+	private static getDefaultKanbanConfig(): KanbanBoardConfig {
+		return {
+			columns: DEFAULT_COLUMNS,
+			settings: {
+				enableWipLimits: true,
+				autoAssignReviewer: true,
+				allowMultipleAssignees: false,
+				showTaskEstimates: true,
+			},
+		};
+	}
 
-      // Sort tasks by priority and creation date
-      columnTasks.sort((a, b) => {
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        const priorityDiff = priorityOrder[b.priority as keyof typeof priorityOrder] - 
-                           priorityOrder[a.priority as keyof typeof priorityOrder];
-        if (priorityDiff !== 0) {
-          return priorityDiff;
-        }
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
+	/**
+	 * Organize tasks into kanban columns
+	 */
+	private static organizeTasksByColumns(
+		allTasks: any[],
+		columnConfig: KanbanColumn[]
+	): KanbanColumn[] {
+		return columnConfig.map((column) => {
+			const columnTasks = allTasks.filter((task) => {
+				const mappedColumn = STATUS_COLUMN_MAP[task.status as TaskStatus] || "todo";
+				return mappedColumn === column.id;
+			});
 
-      return {
-        ...column,
-        tasks: columnTasks,
-        count: columnTasks.length,
-        isOverLimit: column.limit && columnTasks.length > column.limit,
-      };
-    });
-  }
+			// Sort tasks by priority and creation date
+			columnTasks.sort((a, b) => {
+				const priorityOrder = { high: 3, medium: 2, low: 1 };
+				const priorityDiff =
+					priorityOrder[b.priority as keyof typeof priorityOrder] -
+					priorityOrder[a.priority as keyof typeof priorityOrder];
+				if (priorityDiff !== 0) {
+					return priorityDiff;
+				}
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+			});
 
-  /**
-   * Calculate board metrics
-   */
-  private static calculateBoardMetrics(allTasks: any[], columns: KanbanColumn[]): KanbanMetrics {
-    return {
-      totalTasks: allTasks.length,
-      tasksInProgress: allTasks.filter((t) => t.status === "in_progress").length,
-      blockedTasks: allTasks.filter((t) => t.status === "blocked").length,
-      completedToday: allTasks.filter(
-        (t) =>
-          t.status === "completed" &&
-          t.completedAt &&
-          new Date(t.completedAt).toDateString() === new Date().toDateString()
-      ).length,
-      wipLimitViolations: columns.filter((c) => c.isOverLimit).length,
-    };
-  }
+			return {
+				...column,
+				tasks: columnTasks,
+				count: columnTasks.length,
+				isOverLimit: column.limit && columnTasks.length > column.limit,
+			};
+		});
+	}
 
-  /**
-   * Get task for move operation with validation
-   */
-  private static async getTaskForMove(tx: any, taskId: string) {
-    const [task] = await tx.select().from(tasks).where(eq(tasks.id, taskId));
+	/**
+	 * Calculate board metrics
+	 */
+	private static calculateBoardMetrics(allTasks: any[], columns: KanbanColumn[]): KanbanMetrics {
+		return {
+			totalTasks: allTasks.length,
+			tasksInProgress: allTasks.filter((t) => t.status === "in_progress").length,
+			blockedTasks: allTasks.filter((t) => t.status === "blocked").length,
+			completedToday: allTasks.filter(
+				(t) =>
+					t.status === "completed" &&
+					t.completedAt &&
+					new Date(t.completedAt).toDateString() === new Date().toDateString()
+			).length,
+			wipLimitViolations: columns.filter((c) => c.isOverLimit).length,
+		};
+	}
 
-    if (!task) {
-      throw new NotFoundError("Task", taskId);
-    }
+	/**
+	 * Get task for move operation with validation
+	 */
+	private static async getTaskForMove(tx: any, taskId: string) {
+		const [task] = await tx.select().from(tasks).where(eq(tasks.id, taskId));
 
-    return task;
-  }
+		if (!task) {
+			throw new NotFoundError("Task", taskId);
+		}
 
-  /**
-   * Validate target column and return new status
-   */
-  private static validateTargetColumn(targetColumn: string): string {
-    const columnStatusMap = {
-      todo: "todo",
-      in_progress: "in_progress",
-      review: "review",
-      completed: "completed",
-    };
+		return task;
+	}
 
-    const newStatus = columnStatusMap[targetColumn as keyof typeof columnStatusMap];
-    if (!newStatus) {
-      throw new ValidationError("Invalid target column");
-    }
+	/**
+	 * Validate target column and return new status
+	 */
+	private static validateTargetColumn(targetColumn: string): string {
+		const columnStatusMap = {
+			todo: "todo",
+			in_progress: "in_progress",
+			review: "review",
+			completed: "completed",
+		};
 
-    return newStatus;
-  }
+		const newStatus = columnStatusMap[targetColumn as keyof typeof columnStatusMap];
+		if (!newStatus) {
+			throw new ValidationError("Invalid target column");
+		}
 
-  /**
-   * Validate WIP limits for target column
-   */
-  private static async validateWipLimits(tx: any, targetColumn: string, newStatus: string) {
-    if (targetColumn === "todo" || targetColumn === "completed") {
-      return; // No WIP limits for these columns
-    }
+		return newStatus;
+	}
 
-    const columnConfig = DEFAULT_COLUMNS.find((c) => c.id === targetColumn);
-    if (!columnConfig?.limit) {
-      return; // No limit configured
-    }
+	/**
+	 * Validate WIP limits for target column
+	 */
+	private static async validateWipLimits(tx: any, targetColumn: string, newStatus: string) {
+		if (targetColumn === "todo" || targetColumn === "completed") {
+			return; // No WIP limits for these columns
+		}
 
-    const currentColumnTasks = await tx
-      .select()
-      .from(tasks)
-      .where(eq(tasks.status, newStatus as any));
+		const columnConfig = DEFAULT_COLUMNS.find((c) => c.id === targetColumn);
+		if (!columnConfig?.limit) {
+			return; // No limit configured
+		}
 
-    if (currentColumnTasks.length >= columnConfig.limit) {
-      throw new ValidationError(
-        `Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`
-      );
-    }
-  }
+		const currentColumnTasks = await tx
+			.select()
+			.from(tasks)
+			.where(eq(tasks.status, newStatus as any));
 
-  /**
-   * Create task update object
-   */
-  private static createTaskUpdates(task: any, newStatus: string, moveData: z.infer<typeof KanbanMoveSchema>) {
-    const updates: any = {
-      status: newStatus,
-      updatedAt: new Date(),
-    };
+		if (currentColumnTasks.length >= columnConfig.limit) {
+			throw new ValidationError(
+				`Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`
+			);
+		}
+	}
 
-    // Set completion time if moving to completed
-    if (newStatus === "completed") {
-      updates.completedAt = new Date();
-    }
+	/**
+	 * Create task update object
+	 */
+	private static createTaskUpdates(
+		task: any,
+		newStatus: string,
+		moveData: z.infer<typeof KanbanMoveSchema>
+	) {
+		const updates: any = {
+			status: newStatus,
+			updatedAt: new Date(),
+		};
 
-    return updates;
-  }
+		// Set completion time if moving to completed
+		if (newStatus === "completed") {
+			updates.completedAt = new Date();
+		}
 
-  /**
-   * Create kanban metadata for task history
-   */
-  private static createKanbanMetadata(task: any, moveData: z.infer<typeof KanbanMoveSchema>) {
-    const currentMetadata = task.metadata || {};
-    return {
-      ...currentMetadata,
-      kanban: {
-        columnHistory: [
-          ...(currentMetadata.kanban?.columnHistory || []),
-          {
-            from: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
-            to: moveData.toColumn,
-            timestamp: new Date().toISOString(),
-            movedBy: moveData.userId,
-          },
-        ],
-        position: moveData.position,
-        lastMoved: new Date().toISOString(),
-      },
-    };
-  }
+		return updates;
+	}
+
+	/**
+	 * Create kanban metadata for task history
+	 */
+	private static createKanbanMetadata(task: any, moveData: z.infer<typeof KanbanMoveSchema>) {
+		const currentMetadata = task.metadata || {};
+		return {
+			...currentMetadata,
+			kanban: {
+				columnHistory: [
+					...(currentMetadata.kanban?.columnHistory || []),
+					{
+						from: STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP],
+						to: moveData.toColumn,
+						timestamp: new Date().toISOString(),
+						movedBy: moveData.userId,
+					},
+				],
+				position: moveData.position,
+				lastMoved: new Date().toISOString(),
+			},
+		};
+	}
 }
 
 // Export utility functions for direct use
 export const KanbanUtils = {
-  getDefaultColumns: () => DEFAULT_COLUMNS,
-  getStatusColumnMap: () => STATUS_COLUMN_MAP,
-  mapTaskStatusToColumn: (status: string) => STATUS_COLUMN_MAP[status as TaskStatus] || "todo",
-  validateColumnId: (columnId: string) => DEFAULT_COLUMNS.some(col => col.id === columnId),
-  getColumnConfig: (columnId: string) => DEFAULT_COLUMNS.find(col => col.id === columnId),
+	getDefaultColumns: () => DEFAULT_COLUMNS,
+	getStatusColumnMap: () => STATUS_COLUMN_MAP,
+	mapTaskStatusToColumn: (status: string) => STATUS_COLUMN_MAP[status as TaskStatus] || "todo",
+	validateColumnId: (columnId: string) => DEFAULT_COLUMNS.some((col) => col.id === columnId),
+	getColumnConfig: (columnId: string) => DEFAULT_COLUMNS.find((col) => col.id === columnId),
 };

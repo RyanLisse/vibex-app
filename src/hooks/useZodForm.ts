@@ -24,9 +24,7 @@ import {
 
 // Type definitions
 export type ZodFormData<T extends FieldValues> = T;
-export type ZodFormErrors<T extends FieldValues> = Partial<
-	Record<keyof T, string>
->;
+export type ZodFormErrors<T extends FieldValues> = Partial<Record<keyof T, string>>;
 
 export interface UseZodFormOptions<T extends FieldValues>
 	extends Omit<UseFormProps<T>, "resolver"> {
@@ -39,8 +37,7 @@ export interface UseZodFormOptions<T extends FieldValues>
 	transformOnLoad?: (data: Partial<T>) => Partial<T>;
 }
 
-export interface UseZodFormReturn<T extends FieldValues>
-	extends UseFormReturn<T> {
+export interface UseZodFormReturn<T extends FieldValues> extends UseFormReturn<T> {
 	// Enhanced form state
 	isSubmitting: boolean;
 	hasErrors: boolean;
@@ -82,7 +79,7 @@ export interface UseZodFormReturn<T extends FieldValues>
 }
 
 export function useZodForm<T extends FieldValues>(
-	options: UseZodFormOptions<T>,
+	options: UseZodFormOptions<T>
 ): UseZodFormReturn<T> {
 	const {
 		schema,
@@ -111,7 +108,7 @@ export function useZodForm<T extends FieldValues>(
 	const validateSchema = useMemo(() => createSchemaValidator(schema), [schema]);
 	const storageHelpers = useMemo(
 		() => createStorageHelpers(form, transformOnLoad, setInitialData),
-		[form, transformOnLoad],
+		[form, transformOnLoad]
 	);
 	const fieldHelpers = useMemo(() => createFieldHelpers(form), [form]);
 	const formState = useFormState(form);
@@ -119,28 +116,25 @@ export function useZodForm<T extends FieldValues>(
 	// Validation methods
 	const validateField = useCallback(
 		(field: keyof T) => validateSingleField(schema, form, field),
-		[schema, form],
+		[schema, form]
 	);
 
 	const validateFieldAsync = useCallback(
 		async (field: keyof T, value: unknown): Promise<boolean> => {
 			try {
-				const fieldSchema = schema.pick({ [field]: true } as Record<
-					keyof T,
-					true
-				>);
+				const fieldSchema = schema.pick({ [field]: true } as Record<keyof T, true>);
 				fieldSchema.parse({ [field]: value });
 				return true;
 			} catch {
 				return false;
 			}
 		},
-		[schema],
+		[schema]
 	);
 
 	const validateAllFields = useCallback(
 		() => validateAllFormFields(form, validateSchema),
-		[form, validateSchema],
+		[form, validateSchema]
 	);
 
 	// Form data methods
@@ -155,7 +149,7 @@ export function useZodForm<T extends FieldValues>(
 
 	const getChangedFieldsMemo = useCallback(
 		() => getChangedFields(form, initialData),
-		[form, initialData],
+		[form, initialData]
 	);
 
 	// Submit handler
@@ -179,26 +173,17 @@ export function useZodForm<T extends FieldValues>(
 		} finally {
 			setIsSubmitting(false);
 		}
-	}, [
-		isSubmitting,
-		validateAllFields,
-		getFormErrorsMemo,
-		onError,
-		getFormData,
-		onSubmit,
-	]);
+	}, [isSubmitting, validateAllFields, getFormErrorsMemo, onError, getFormData, onSubmit]);
 
 	// Reset handler
 	const resetForm = useCallback(
 		(data?: Partial<T>) => {
 			const resetData = data || initialData;
-			const transformedData = transformOnLoad
-				? transformOnLoad(resetData)
-				: resetData;
+			const transformedData = transformOnLoad ? transformOnLoad(resetData) : resetData;
 			form.reset(transformedData as T);
 			setInitialData(transformedData);
 		},
-		[form, initialData, transformOnLoad],
+		[form, initialData, transformOnLoad]
 	);
 
 	// Initialize on mount
@@ -208,16 +193,9 @@ export function useZodForm<T extends FieldValues>(
 		}
 
 		const defaultValues = formOptions.defaultValues || {};
-		const transformedDefaults = transformOnLoad
-			? transformOnLoad(defaultValues)
-			: defaultValues;
+		const transformedDefaults = transformOnLoad ? transformOnLoad(defaultValues) : defaultValues;
 		setInitialData(transformedDefaults);
-	}, [
-		validateOnMount,
-		validateAllFields,
-		formOptions.defaultValues,
-		transformOnLoad,
-	]);
+	}, [validateOnMount, validateAllFields, formOptions.defaultValues, transformOnLoad]);
 
 	return {
 		...form,
@@ -255,7 +233,7 @@ export function useZodForm<T extends FieldValues>(
 export function useZodFormPersistence<T extends FieldValues>(
 	form: UseZodFormReturn<T>,
 	storageKey: string,
-	autoSave = true,
+	autoSave = true
 ) {
 	const [isLoaded, setIsLoaded] = useState(false);
 
@@ -290,7 +268,7 @@ export function useZodFormPersistence<T extends FieldValues>(
 
 export function useZodFormValidation<T extends FieldValues>(
 	form: UseZodFormReturn<T>,
-	realTimeValidation = false,
+	realTimeValidation = false
 ) {
 	const [validationState, setValidationState] = useState<{
 		[K in keyof T]?: { isValid: boolean; error?: string };
@@ -320,9 +298,7 @@ export function useZodFormValidation<T extends FieldValues>(
 }
 
 // Higher-order component
-export function createZodFormProvider<T extends FieldValues>(
-	schema: z.ZodSchema<T>,
-) {
+export function createZodFormProvider<T extends FieldValues>(schema: z.ZodSchema<T>) {
 	return function ZodFormProvider({
 		children,
 		...props

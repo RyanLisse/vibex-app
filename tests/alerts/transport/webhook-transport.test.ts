@@ -86,7 +86,7 @@ describe("WebhookTransport", () => {
 						"User-Agent": "ClaudeFlow-AlertSystem/1.0",
 					}),
 					body: expect.stringContaining("test-error-123"),
-				}),
+				})
 			);
 		});
 
@@ -113,7 +113,7 @@ describe("WebhookTransport", () => {
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-token-123",
 					}),
-				}),
+				})
 			);
 		});
 
@@ -125,9 +125,7 @@ describe("WebhookTransport", () => {
 			};
 			const successResponse = { ok: true, status: 200, statusText: "OK" };
 
-			(fetch as any)
-				.mockResolvedValueOnce(failResponse)
-				.mockResolvedValueOnce(successResponse);
+			(fetch as any).mockResolvedValueOnce(failResponse).mockResolvedValueOnce(successResponse);
 
 			await transport.send(sampleChannel, sampleError, sampleNotification);
 
@@ -142,9 +140,9 @@ describe("WebhookTransport", () => {
 			};
 			(fetch as any).mockResolvedValue(failResponse);
 
-			await expect(
-				transport.send(sampleChannel, sampleError, sampleNotification),
-			).rejects.toThrow("HTTP 500: Internal Server Error");
+			await expect(transport.send(sampleChannel, sampleError, sampleNotification)).rejects.toThrow(
+				"HTTP 500: Internal Server Error"
+			);
 
 			expect(fetch).toHaveBeenCalledTimes(3); // Initial + 2 retries
 		});
@@ -152,9 +150,9 @@ describe("WebhookTransport", () => {
 		it("should handle network errors", async () => {
 			(fetch as any).mockRejectedValue(new Error("Network error"));
 
-			await expect(
-				transport.send(sampleChannel, sampleError, sampleNotification),
-			).rejects.toThrow("Network error");
+			await expect(transport.send(sampleChannel, sampleError, sampleNotification)).rejects.toThrow(
+				"Network error"
+			);
 		});
 
 		it("should include custom headers when configured", async () => {
@@ -181,7 +179,7 @@ describe("WebhookTransport", () => {
 						"X-Custom-Header": "custom-value",
 						"X-Service": "alert-system",
 					}),
-				}),
+				})
 			);
 		});
 	});

@@ -74,7 +74,7 @@ export class GitHubAPIClient {
 		options: {
 			mergeMethod: string;
 			deleteSourceBranch: boolean;
-		},
+		}
 	) {
 		// Mock merge operation
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -94,11 +94,7 @@ export class GitHubAPIClient {
 	 * @param reviewers Array of reviewer usernames
 	 * @returns Review request result
 	 */
-	static async requestReview(
-		_repository: string,
-		_prNumber: string,
-		reviewers: string[],
-	) {
+	static async requestReview(_repository: string, _prNumber: string, reviewers: string[]) {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		return {
 			requested: reviewers,

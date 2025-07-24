@@ -11,11 +11,7 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { useElectricContext } from "@/components/providers/electric-provider";
-import {
-	getOptimizedQueryConfig,
-	mutationKeys,
-	queryKeys,
-} from "@/lib/query/config";
+import { getOptimizedQueryConfig, mutationKeys, queryKeys } from "@/lib/query/config";
 
 /**
  * Enhanced query hook with WASM optimization and real-time sync
@@ -27,7 +23,7 @@ export function useEnhancedQuery<TData = unknown, TError = Error>(
 		enableWASMOptimization?: boolean;
 		enableRealTimeSync?: boolean;
 		syncTable?: string;
-	},
+	}
 ) {
 	const queryClient = useQueryClient();
 	const electricContext = useElectricContext();
@@ -53,7 +49,7 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
 		enableVirtualization?: boolean;
 		enableRealTimeSync?: boolean;
 		syncTable?: string;
-	},
+	}
 ) {
 	const config = getOptimizedQueryConfig(options);
 
@@ -68,11 +64,7 @@ export function useEnhancedInfiniteQuery<TData = unknown, TError = Error>(
 /**
  * Enhanced mutation hook with optimistic updates
  */
-export function useEnhancedMutation<
-	TData = unknown,
-	TError = Error,
-	TVariables = void,
->(
+export function useEnhancedMutation<TData = unknown, TError = Error, TVariables = void>(
 	mutationFn: (variables: TVariables) => Promise<TData>,
 	options?: UseMutationOptions<TData, TError, TVariables> & {
 		enableWASMOptimization?: boolean;
@@ -81,7 +73,7 @@ export function useEnhancedMutation<
 		optimisticUpdate?: (variables: TVariables) => void;
 		rollbackUpdate?: (context?: unknown) => void;
 		invalidateQueries?: unknown[][];
-	},
+	}
 ) {
 	const queryClient = useQueryClient();
 
@@ -110,7 +102,7 @@ export function useVectorSearchQuery<TData = unknown>(
 		filters?: Record<string, unknown>;
 		limit?: number;
 		threshold?: number;
-	},
+	}
 ) {
 	return useEnhancedQuery(
 		["vector-search", query, options?.filters],
@@ -119,10 +111,8 @@ export function useVectorSearchQuery<TData = unknown>(
 
 			const searchParams = new URLSearchParams();
 			searchParams.append("q", query);
-			if (options?.limit)
-				searchParams.append("limit", options.limit.toString());
-			if (options?.threshold)
-				searchParams.append("threshold", options.threshold.toString());
+			if (options?.limit) searchParams.append("limit", options.limit.toString());
+			if (options?.threshold) searchParams.append("threshold", options.threshold.toString());
 			if (options?.filters) {
 				Object.entries(options.filters).forEach(([key, value]) => {
 					if (value !== undefined) {
@@ -131,9 +121,7 @@ export function useVectorSearchQuery<TData = unknown>(
 				});
 			}
 
-			const response = await fetch(
-				`/api/search/vector?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/search/vector?${searchParams.toString()}`);
 			if (!response.ok) {
 				throw new Error(`Vector search failed: ${response.statusText}`);
 			}
@@ -145,6 +133,6 @@ export function useVectorSearchQuery<TData = unknown>(
 			enabled: options?.enabled !== false && query.length > 0,
 			enableWASMOptimization: true,
 			staleTime: 5 * 60 * 1000, // 5 minutes
-		},
+		}
 	);
 }

@@ -11,12 +11,7 @@ vi.mock("@radix-ui/react-tabs", () => ({
 		</div>
 	),
 	List: ({ children, className, ...props }: any) => (
-		<div
-			className={className}
-			data-testid="tabs-list-primitive"
-			role="tablist"
-			{...props}
-		>
+		<div className={className} data-testid="tabs-list-primitive" role="tablist" {...props}>
 			{children}
 		</div>
 	),
@@ -53,7 +48,7 @@ describe("Tabs Components", () => {
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
 					<TabsContent value="tab1">Content 1</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const root = screen.getByTestId("tabs-root-primitive");
@@ -68,7 +63,7 @@ describe("Tabs Components", () => {
 					<TabsList>
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const root = screen.getByTestId("tabs-root-primitive");
@@ -82,7 +77,7 @@ describe("Tabs Components", () => {
 					<TabsList>
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const root = screen.getByTestId("tabs-root-primitive");
@@ -99,7 +94,7 @@ describe("Tabs Components", () => {
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 						<TabsTrigger value="tab2">Tab 2</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const list = screen.getByTestId("tabs-list-primitive");
@@ -110,7 +105,7 @@ describe("Tabs Components", () => {
 				"text-muted-foreground",
 				"inline-flex",
 				"h-9",
-				"rounded-lg",
+				"rounded-lg"
 			);
 		});
 
@@ -120,7 +115,7 @@ describe("Tabs Components", () => {
 					<TabsList className="w-full justify-start">
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const list = screen.getByTestId("tabs-list-primitive");
@@ -133,7 +128,7 @@ describe("Tabs Components", () => {
 					<TabsList>
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const list = screen.getByRole("tablist");
@@ -148,7 +143,7 @@ describe("Tabs Components", () => {
 					<TabsList>
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");
@@ -156,13 +151,7 @@ describe("Tabs Components", () => {
 			expect(trigger).toHaveAttribute("data-slot", "tabs-trigger");
 			expect(trigger).toHaveAttribute("data-value", "tab1");
 			expect(trigger).toHaveTextContent("Tab 1");
-			expect(trigger).toHaveClass(
-				"inline-flex",
-				"rounded-md",
-				"border",
-				"px-2",
-				"py-1",
-			);
+			expect(trigger).toHaveClass("inline-flex", "rounded-md", "border", "px-2", "py-1");
 		});
 
 		it("should merge custom className", () => {
@@ -173,7 +162,7 @@ describe("Tabs Components", () => {
 							Tab 1
 						</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");
@@ -188,15 +177,12 @@ describe("Tabs Components", () => {
 							Disabled Tab
 						</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");
 			expect(trigger).toHaveAttribute("disabled");
-			expect(trigger).toHaveClass(
-				"disabled:pointer-events-none",
-				"disabled:opacity-50",
-			);
+			expect(trigger).toHaveClass("disabled:pointer-events-none", "disabled:opacity-50");
 		});
 
 		it("should handle active state styling", () => {
@@ -207,7 +193,7 @@ describe("Tabs Components", () => {
 							Active Tab
 						</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");
@@ -226,7 +212,7 @@ describe("Tabs Components", () => {
 							<span>Tab with Icon</span>
 						</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");
@@ -240,7 +226,7 @@ describe("Tabs Components", () => {
 					<TabsList>
 						<TabsTrigger value="tab1">Tab 1</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByRole("tab");
@@ -256,7 +242,7 @@ describe("Tabs Components", () => {
 							Tab 1
 						</TabsTrigger>
 					</TabsList>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");
@@ -273,7 +259,7 @@ describe("Tabs Components", () => {
 					<TabsContent value="tab1">
 						<p>Tab 1 content</p>
 					</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const content = screen.getByTestId("tabs-content-primitive");
@@ -290,7 +276,7 @@ describe("Tabs Components", () => {
 					<TabsContent className="bg-gray-50 p-4" value="tab1">
 						Content
 					</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const content = screen.getByTestId("tabs-content-primitive");
@@ -301,7 +287,7 @@ describe("Tabs Components", () => {
 			render(
 				<Tabs>
 					<TabsContent value="tab1">Content</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const content = screen.getByRole("tabpanel");
@@ -318,17 +304,13 @@ describe("Tabs Components", () => {
 							<button>Action Button</button>
 						</div>
 					</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const content = screen.getByTestId("tabs-content-primitive");
 			expect(content.querySelector("h3")).toHaveTextContent("Section Title");
-			expect(content.querySelector("p")).toHaveTextContent(
-				"Some paragraph text",
-			);
-			expect(content.querySelector("button")).toHaveTextContent(
-				"Action Button",
-			);
+			expect(content.querySelector("p")).toHaveTextContent("Some paragraph text");
+			expect(content.querySelector("button")).toHaveTextContent("Action Button");
 		});
 	});
 
@@ -350,21 +332,15 @@ describe("Tabs Components", () => {
 					<TabsContent value="settings">
 						<p>Manage your settings here.</p>
 					</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			expect(screen.getByText("Account")).toBeInTheDocument();
 			expect(screen.getByText("Password")).toBeInTheDocument();
 			expect(screen.getByText("Settings")).toBeInTheDocument();
-			expect(
-				screen.getByText("Make changes to your account here."),
-			).toBeInTheDocument();
-			expect(
-				screen.getByText("Change your password here."),
-			).toBeInTheDocument();
-			expect(
-				screen.getByText("Manage your settings here."),
-			).toBeInTheDocument();
+			expect(screen.getByText("Make changes to your account here.")).toBeInTheDocument();
+			expect(screen.getByText("Change your password here.")).toBeInTheDocument();
+			expect(screen.getByText("Manage your settings here.")).toBeInTheDocument();
 		});
 
 		it("should work with controlled value", () => {
@@ -384,10 +360,7 @@ describe("Tabs Components", () => {
 
 			render(<ControlledTabs />);
 
-			expect(screen.getByTestId("tabs-root-primitive")).toHaveAttribute(
-				"value",
-				"tab1",
-			);
+			expect(screen.getByTestId("tabs-root-primitive")).toHaveAttribute("value", "tab1");
 		});
 
 		it("should handle vertical orientation", () => {
@@ -399,7 +372,7 @@ describe("Tabs Components", () => {
 					</TabsList>
 					<TabsContent value="tab1">Content 1</TabsContent>
 					<TabsContent value="tab2">Content 2</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const root = screen.getByTestId("tabs-root-primitive");
@@ -416,7 +389,7 @@ describe("Tabs Components", () => {
 						</TabsTrigger>
 					</TabsList>
 					<TabsContent value="tab1">Content</TabsContent>
-				</Tabs>,
+				</Tabs>
 			);
 
 			const trigger = screen.getByTestId("tabs-trigger-primitive");

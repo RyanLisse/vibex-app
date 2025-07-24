@@ -49,10 +49,7 @@ export type VoiceTaskCreation = z.infer<typeof VoiceTaskCreationSchema>
 }
 
 // Fix 2: timeTravelService export
-const replayEnginePath = join(
-	process.cwd(),
-	"lib/time-travel/replay-engine.ts",
-);
+const replayEnginePath = join(process.cwd(), "lib/time-travel/replay-engine.ts");
 if (existsSync(replayEnginePath)) {
 	let content = readFileSync(replayEnginePath, "utf-8");
 	if (!content.includes("export const timeTravelService")) {
@@ -80,11 +77,9 @@ const searchForLoggingConfig = async () => {
 			{
 				cwd: process.cwd(),
 				encoding: "utf-8",
-			},
+			}
 		);
-		return result
-			.split("\n")
-			.filter((line) => line && !line.includes("scripts/"));
+		return result.split("\n").filter((line) => line && !line.includes("scripts/"));
 	} catch {
 		return [];
 	}
@@ -113,13 +108,13 @@ for (const usage of loggingConfigUsages) {
 						return match.replace(/,?\s*createDefaultLoggingConfig\s*,?/g, "");
 					}
 					return "";
-				},
+				}
 			);
 
 			// Replace usage with default config
 			content = content.replace(
 				/createDefaultLoggingConfig\(\)/g,
-				'{ level: "info", format: "json" }',
+				'{ level: "info", format: "json" }'
 			);
 
 			writeFileSync(filePath, content);
@@ -129,10 +124,7 @@ for (const usage of loggingConfigUsages) {
 }
 
 // Fix 4: One more attempt at ReactFlow
-const visualizationPath = join(
-	process.cwd(),
-	"components/ambient-agents/visualization-engine.tsx",
-);
+const visualizationPath = join(process.cwd(), "components/ambient-agents/visualization-engine.tsx");
 if (existsSync(visualizationPath)) {
 	let content = readFileSync(visualizationPath, "utf-8");
 
@@ -145,11 +137,11 @@ if (existsSync(visualizationPath)) {
 	// Try multiple patterns
 	content = content.replace(
 		/import\s+ReactFlow[^'"]*from\s*['"]@xyflow\/react['"]/g,
-		"ReactFlow } from '@xyflow/react'",
+		"ReactFlow } from '@xyflow/react'"
 	);
 	content = content.replace(
 		/import\s+{\s*default\s+as\s+ReactFlow[^}]*}\s*from\s*['"]@xyflow\/react['"]/g,
-		"ReactFlow } from '@xyflow/react'",
+		"ReactFlow } from '@xyflow/react'"
 	);
 
 	writeFileSync(visualizationPath, content);

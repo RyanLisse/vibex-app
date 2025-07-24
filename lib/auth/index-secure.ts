@@ -20,10 +20,7 @@ export const Auth = {
 	 * @param providerID - The provider identifier (e.g., 'github', 'openai')
 	 * @param userId - Optional user ID, defaults to DEFAULT_USER_ID
 	 */
-	async get(
-		providerID: string,
-		userId?: string,
-	): Promise<AuthInfo | undefined> {
+	async get(providerID: string, userId?: string): Promise<AuthInfo | undefined> {
 		try {
 			const uid = userId || DEFAULT_USER_ID;
 			const token = await secureTokenStorage.retrieve(uid, providerID);

@@ -31,9 +31,7 @@ describe("AI Chat Testing Patterns", () => {
 
 		it("should return code responses for code prompts", async () => {
 			const model = createTestChatModel();
-			const prompt = AITestUtils.createTestPrompt(
-				"Write a TypeScript function",
-			);
+			const prompt = AITestUtils.createTestPrompt("Write a TypeScript function");
 
 			const result = await generateText({
 				model,
@@ -61,9 +59,7 @@ describe("AI Chat Testing Patterns", () => {
 
 		it("should handle error responses", async () => {
 			const model = createTestChatModel();
-			const prompt = AITestUtils.createTestPrompt(
-				"This should trigger an error",
-			);
+			const prompt = AITestUtils.createTestPrompt("This should trigger an error");
 
 			const result = await generateText({
 				model,
@@ -184,21 +180,19 @@ describe("AI Chat Testing Patterns", () => {
 				generateText({
 					model,
 					prompt,
-				}),
+				})
 			).rejects.toThrow("Test AI error");
 		});
 
 		it("should handle streaming errors", async () => {
 			const model = createErrorTestChatModel("Streaming error");
-			const prompt = AITestUtils.createTestPrompt(
-				"This should fail in streaming",
-			);
+			const prompt = AITestUtils.createTestPrompt("This should fail in streaming");
 
 			await expect(
 				streamText({
 					model,
 					prompt,
-				}),
+				})
 			).rejects.toThrow("Streaming error");
 		});
 	});
@@ -223,7 +217,7 @@ describe("AI Chat Testing Patterns", () => {
 
 		it("should maintain context across conversation turns", async () => {
 			const model = createStaticTestChatModel(
-				"I understand your question about the previous topic.",
+				"I understand your question about the previous topic."
 			);
 			const conversation = AITestUtils.createConversation([
 				{ role: "user", content: "What is TypeScript?" },
@@ -249,13 +243,8 @@ describe("AI Chat Testing Patterns", () => {
 			const userPrompt = AITestUtils.createTestPrompt("Test message");
 			expect(userPrompt).toEqual([{ role: "user", content: "Test message" }]);
 
-			const assistantPrompt = AITestUtils.createTestPrompt(
-				"Assistant message",
-				"assistant",
-			);
-			expect(assistantPrompt).toEqual([
-				{ role: "assistant", content: "Assistant message" },
-			]);
+			const assistantPrompt = AITestUtils.createTestPrompt("Assistant message", "assistant");
+			expect(assistantPrompt).toEqual([{ role: "assistant", content: "Assistant message" }]);
 		});
 
 		it("should create conversations correctly", () => {

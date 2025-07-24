@@ -5,10 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Debounce hook for performance optimization
-export function useDebounce<T extends (...args: any[]) => void>(
-	callback: T,
-	delay: number,
-): T {
+export function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: number): T {
 	const timeoutRef = useRef<NodeJS.Timeout>();
 	const callbackRef = useRef(callback);
 
@@ -27,15 +24,12 @@ export function useDebounce<T extends (...args: any[]) => void>(
 				callbackRef.current(...args);
 			}, delay);
 		},
-		[delay],
+		[delay]
 	) as T;
 }
 
 // Throttle hook for performance optimization
-export function useThrottle<T extends (...args: any[]) => void>(
-	callback: T,
-	delay: number,
-): T {
+export function useThrottle<T extends (...args: any[]) => void>(callback: T, delay: number): T {
 	const lastRun = useRef(Date.now());
 	const callbackRef = useRef(callback);
 
@@ -50,14 +44,14 @@ export function useThrottle<T extends (...args: any[]) => void>(
 				lastRun.current = Date.now();
 			}
 		},
-		[delay],
+		[delay]
 	) as T;
 }
 
 // Intersection Observer hook for lazy loading
 export function useIntersectionObserver(
 	elementRef: React.RefObject<Element>,
-	options: IntersectionObserverInit = {},
+	options: IntersectionObserverInit = {}
 ) {
 	const [isIntersecting, setIsIntersecting] = useState(false);
 	const [hasIntersected, setHasIntersected] = useState(false);
@@ -79,7 +73,7 @@ export function useIntersectionObserver(
 				threshold: 0.1,
 				rootMargin: "50px",
 				...options,
-			},
+			}
 		);
 
 		observer.observe(element);
@@ -133,13 +127,10 @@ export class PerformanceMonitor {
 // React component performance wrapper
 export function withPerformanceMonitoring<P extends object>(
 	WrappedComponent: React.ComponentType<P>,
-	componentName?: string,
+	componentName?: string
 ) {
 	const name =
-		componentName ||
-		WrappedComponent.displayName ||
-		WrappedComponent.name ||
-		"Component";
+		componentName || WrappedComponent.displayName || WrappedComponent.name || "Component";
 
 	return function PerformanceMonitoredComponent(props: P) {
 		useEffect(() => {
@@ -211,9 +202,7 @@ export function OptimizedImage({
 					loading={loading}
 					onLoad={handleLoad}
 					onError={handleError}
-					className={`transition-opacity duration-300 ${
-						isLoaded ? "opacity-100" : "opacity-0"
-					}`}
+					className={`transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
 					style={{
 						width: "100%",
 						height: "100%",
@@ -243,10 +232,7 @@ export function OptimizedImage({
 
 // Cache management utilities
 export class CacheManager {
-	private static cache = new Map<
-		string,
-		{ data: any; timestamp: number; ttl: number }
-	>();
+	private static cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
 	static set(key: string, data: any, ttlMs: number = 5 * 60 * 1000) {
 		this.cache.set(key, {
@@ -283,17 +269,13 @@ export class CacheManager {
 }
 
 // Virtual scrolling utilities
-export function useVirtualList<T>(
-	items: T[],
-	containerHeight: number,
-	itemHeight: number,
-) {
+export function useVirtualList<T>(items: T[], containerHeight: number, itemHeight: number) {
 	const [scrollTop, setScrollTop] = useState(0);
 
 	const startIndex = Math.floor(scrollTop / itemHeight);
 	const endIndex = Math.min(
 		startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-		items.length - 1,
+		items.length - 1
 	);
 
 	const visibleItems = items.slice(startIndex, endIndex + 1);

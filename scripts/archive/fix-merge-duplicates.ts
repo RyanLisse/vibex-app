@@ -17,9 +17,7 @@ async function fixDuplicateExports(content: string): Promise<string> {
 
 		// Check for duplicate exports
 		if (line.match(/^export\s+(const|function|class|interface|type)\s+\w+/)) {
-			const exportMatch = line.match(
-				/^export\s+(?:const|function|class|interface|type)\s+(\w+)/,
-			);
+			const exportMatch = line.match(/^export\s+(?:const|function|class|interface|type)\s+(\w+)/);
 			if (exportMatch) {
 				const exportName = exportMatch[1];
 				if (seen.has(exportName)) {
@@ -85,10 +83,7 @@ async function fixDuplicateDescribeBlocks(content: string): Promise<string> {
 			// Keep only the first one
 			result.push(line);
 			skipNext = true;
-		} else if (
-			line.match(/^\s*beforeEach\(/) &&
-			nextLine?.match(/^\s*beforeEach\(/)
-		) {
+		} else if (line.match(/^\s*beforeEach\(/) && nextLine?.match(/^\s*beforeEach\(/)) {
 			// Keep only the first beforeEach
 			result.push(line);
 			skipNext = true;
@@ -135,11 +130,7 @@ async function findFiles(dir: string, extensions: string[]): Promise<string[]> {
 
 			if (entry.isDirectory()) {
 				// Skip node_modules and other build directories
-				if (
-					!["node_modules", ".next", "coverage", "dist", ".git"].includes(
-						entry.name,
-					)
-				) {
+				if (!["node_modules", ".next", "coverage", "dist", ".git"].includes(entry.name)) {
 					await walk(fullPath);
 				}
 			} else if (entry.isFile()) {

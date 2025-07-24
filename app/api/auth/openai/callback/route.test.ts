@@ -9,7 +9,7 @@ import {
 	AuthCallbackAssertions,
 	AUTH_TEST_SCENARIOS,
 	MOCK_OAUTH_RESPONSES,
-	type AuthTestContext
+	type AuthTestContext,
 } from "@/lib/test-utils/auth-test-helpers";
 
 // Mock the authentication utilities
@@ -57,7 +57,7 @@ describe("GET /api/auth/openai/callback", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		authMocks = setupAuthTestMocks();
-		
+
 		// Assign mock variables from authMocks
 		mockExchangeCodeForToken = authMocks.mockExchangeCodeForToken;
 		mockSanitizeRedirectUrl = authMocks.mockSanitizeRedirectUrl;
@@ -76,7 +76,7 @@ describe("GET /api/auth/openai/callback", () => {
 
 		const request = createMockCallbackRequest({
 			code: "test-code",
-			state: "test-state"
+			state: "test-state",
 		});
 
 		const response = await GET(request);
@@ -92,9 +92,9 @@ describe("GET /api/auth/openai/callback", () => {
 			error: "Missing code parameter",
 		} as any);
 
-		const request = createMockCallbackRequest({ 
-			code: undefined, 
-			state: "test-state" 
+		const request = createMockCallbackRequest({
+			code: undefined,
+			state: "test-state",
 		});
 
 		const response = await GET(request);
@@ -107,8 +107,8 @@ describe("GET /api/auth/openai/callback", () => {
 			error: "Missing state parameter",
 		} as any);
 
-		const request = createMockCallbackRequest({ 
-			code: "test-code" 
+		const request = createMockCallbackRequest({
+			code: "test-code",
 		});
 
 		const response = await GET(request);
@@ -124,7 +124,7 @@ describe("GET /api/auth/openai/callback", () => {
 
 		const request = createMockCallbackRequest({
 			code: "test-code",
-			state: "invalid-state"
+			state: "invalid-state",
 		});
 
 		const response = await GET(request);
@@ -136,21 +136,19 @@ describe("GET /api/auth/openai/callback", () => {
 		mockNextResponse.json.mockReturnValue({ error: "access_denied" } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?error=access_denied&error_description=User%20denied%20access",
+			"https://app.example.com/api/auth/openai/callback?error=access_denied&error_description=User%20denied%20access"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "access_denied", error_description: "User denied access" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
 	it(AUTH_TEST_SCENARIOS.TOKEN_EXCHANGE_ERROR, async () => {
-		authMocks.mockTokenStorage.mockRejectedValue(
-			new Error("Token exchange failed"),
-		);
+		authMocks.mockTokenStorage.mockRejectedValue(new Error("Token exchange failed"));
 		authMocks.mockHandleAuthError.mockReturnValue("Token exchange failed");
 		mockNextResponse.json.mockReturnValue({
 			error: "Token exchange failed",
@@ -158,7 +156,7 @@ describe("GET /api/auth/openai/callback", () => {
 
 		const request = createMockCallbackRequest({
 			code: "test-code",
-			state: "test-state"
+			state: "test-state",
 		});
 
 		const response = await GET(request);
@@ -170,7 +168,7 @@ describe("GET /api/auth/openai/callback", () => {
 		mockNextResponse.json.mockReturnValue({ error: "invalid_grant" } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?error=invalid_grant&error_description=Invalid%20authorization%20code",
+			"https://app.example.com/api/auth/openai/callback?error=invalid_grant&error_description=Invalid%20authorization%20code"
 		);
 
 		const _response = await GET(request);
@@ -180,7 +178,7 @@ describe("GET /api/auth/openai/callback", () => {
 				error: "invalid_grant",
 				error_description: "Invalid authorization code",
 			},
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -197,17 +195,13 @@ describe("GET /api/auth/openai/callback", () => {
 		mockNextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard",
+			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=https://app.example.com/dashboard"
 		);
 
 		const _response = await GET(request);
 
-		expect(mockSanitizeRedirectUrl).toHaveBeenCalledWith(
-			"https://app.example.com/dashboard",
-		);
-		expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-			"https://app.example.com/dashboard",
-		);
+		expect(mockSanitizeRedirectUrl).toHaveBeenCalledWith("https://app.example.com/dashboard");
+		expect(mockNextResponse.redirect).toHaveBeenCalledWith("https://app.example.com/dashboard");
 	});
 
 	it("should handle user info extraction from id_token", async () => {
@@ -224,7 +218,7 @@ describe("GET /api/auth/openai/callback", () => {
 		mockNextResponse.json.mockReturnValue({ success: true } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state",
+			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state"
 		);
 
 		const _response = await GET(request);
@@ -248,7 +242,7 @@ describe("GET /api/auth/openai/callback", () => {
 
 		// Mock session storage or cookies for code verifier
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state",
+			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state"
 		);
 
 		const _response = await GET(request);
@@ -279,14 +273,14 @@ describe("GET /api/auth/openai/callback", () => {
 		} as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state",
+			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Missing configuration" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	});
 
@@ -296,15 +290,12 @@ describe("GET /api/auth/openai/callback", () => {
 		mockNextResponse.json.mockReturnValue({ error: "Network error" } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state",
+			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state"
 		);
 
 		const _response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Network error" },
-			{ status: 500 },
-		);
+		expect(mockNextResponse.json).toHaveBeenCalledWith({ error: "Network error" }, { status: 500 });
 	});
 
 	it("should handle malformed URLs", async () => {
@@ -316,14 +307,14 @@ describe("GET /api/auth/openai/callback", () => {
 		} as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)",
+			"https://app.example.com/api/auth/openai/callback?code=test-code&state=test-state&redirect_uri=javascript:alert(1)"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Invalid redirect URL" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 });

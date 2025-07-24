@@ -1,4 +1,7 @@
-import { CriticalErrorType } from "./types";
+import type Redis from "ioredis";
+import { ComponentLogger } from "../logging";
+import type { AlertTransportService } from "./transport/alert-transport-service";
+import { AlertChannelType, type AlertConfig, type CriticalError, CriticalErrorType } from "./types";
 
 export class AlertManager {
 	private readonly logger: ComponentLogger;
@@ -43,10 +46,7 @@ export class AlertManager {
 		};
 	}
 
-	async processAlert(
-		criticalError: CriticalError,
-		config?: AlertConfig,
-	): Promise<void> {
+	async processAlert(criticalError: CriticalError, config?: AlertConfig): Promise<void> {
 		const alertConfig = config || this.defaultConfig;
 
 		if (!alertConfig.enabled) {
@@ -61,7 +61,7 @@ export class AlertManager {
 			if (alertConfig.deduplication.enabled) {
 				const existingAlert = await this.findDuplicateAlert(
 					criticalError,
-					alertConfig.deduplication.windowMinutes,
+					alertConfig.deduplication.windowMinutes
 				);
 				if (existingAlert) {
 					await this.updateDuplicateAlert(existingAlert, criticalError);
@@ -106,7 +106,7 @@ export class AlertManager {
 
 	private async findDuplicateAlert(
 		criticalError: CriticalError,
-		windowMinutes: number,
+		windowMinutes: number
 	): Promise<CriticalError | null> {
 		const key = this.getDeduplicationKey(criticalError);
 		const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000);
@@ -133,7 +133,7 @@ export class AlertManager {
 
 	private async updateDuplicateAlert(
 		existingAlert: CriticalError,
-		newError: CriticalError,
+		newError: CriticalError
 	): Promise<void> {
 		existingAlert.occurrenceCount += 1;
 		existingAlert.lastOccurrence = newError.timestamp;
@@ -154,7 +154,7 @@ export class AlertManager {
 
 	private async isRateLimited(
 		criticalError: CriticalError,
-		rateLimiting: AlertConfig["rateLimiting"],
+		rateLimiting: AlertConfig["rateLimiting"]
 	): Promise<boolean> {
 		const key = `alert_rate_limit:${criticalError.type}:${criticalError.source}`;
 		const count = await this.redis.get(key);
@@ -175,17 +175,14 @@ export class AlertManager {
 
 	private async sendNotifications(
 		criticalError: CriticalError,
-		channels: AlertChannel[],
+		channels: AlertChannel[]
 	): Promise<void> {
 		const applicableChannels = channels.filter(
-			(channel) =>
-				channel.enabled && channel.errorTypes.includes(criticalError.type),
+			(channel) => channel.enabled && channel.errorTypes.includes(criticalError.type)
 		);
 
 		const notifications = await Promise.allSettled(
-			applicableChannels.map((channel) =>
-				this.sendNotification(criticalError, channel),
-			),
+			applicableChannels.map((channel) => this.sendNotification(criticalError, channel))
 		);
 
 		const failures = notifications
@@ -196,16 +193,14 @@ export class AlertManager {
 			this.logger.warn("Some notifications failed", {
 				errorId: criticalError.id,
 				failedChannels: failures.map((f) => f.channel.name),
-				errors: failures.map((f) =>
-					f.result.status === "rejected" ? f.result.reason : "Unknown",
-				),
+				errors: failures.map((f) => (f.result.status === "rejected" ? f.result.reason : "Unknown")),
 			});
 		}
 	}
 
 	private async sendNotification(
 		criticalError: CriticalError,
-		channel: AlertChannel,
+		channel: AlertChannel
 	): Promise<AlertNotification> {
 		const notification: AlertNotification = {
 			id: randomUUID(),
@@ -230,8 +225,7 @@ export class AlertManager {
 		} catch (error) {
 			notification.status = AlertNotificationStatus.FAILED;
 			notification.failedAt = new Date();
-			notification.errorMessage =
-				error instanceof Error ? error.message : "Unknown error";
+			notification.errorMessage = error instanceof Error ? error.message : "Unknown error";
 
 			this.logger.error("Notification failed", {
 				notificationId: notification.id,
@@ -246,11 +240,10 @@ export class AlertManager {
 
 	private async scheduleEscalation(
 		criticalError: CriticalError,
-		escalation: AlertConfig["escalation"],
+		escalation: AlertConfig["escalation"]
 	): Promise<void> {
 		const escalationKey = `alert_escalation:${criticalError.id}`;
-		const escalationTime =
-			Date.now() + escalation.escalateAfterMinutes * 60 * 1000;
+		const escalationTime = Date.now() + escalation.escalateAfterMinutes * 60 * 1000;
 
 		await this.redis.zadd("alert_escalations", escalationTime, escalationKey);
 
@@ -277,9 +270,7 @@ export class AlertManager {
 			.exec();
 	}
 
-	private async storeNotification(
-		notification: AlertNotification,
-	): Promise<void> {
+	private async storeNotification(notification: AlertNotification): Promise<void> {
 		const key = `notification:${notification.id}`;
 		await this.redis.setex(key, 86_400, JSON.stringify(notification));
 	}

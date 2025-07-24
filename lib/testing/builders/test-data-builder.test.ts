@@ -114,10 +114,7 @@ describe("TestDataBuilder", () => {
 
 	describe("ApiResponseBuilder", () => {
 		it("should create successful API response", () => {
-			const response = new ApiResponseBuilder()
-				.success()
-				.withData({ message: "Hello" })
-				.build();
+			const response = new ApiResponseBuilder().success().withData({ message: "Hello" }).build();
 
 			expect(response.success).toBe(true);
 			expect(response.status).toBe(200);
@@ -143,10 +140,7 @@ describe("TestDataBuilder", () => {
 
 		it("should create paginated response", () => {
 			const users = UserBuilder.createMany(5);
-			const response = new ApiResponseBuilder()
-				.success()
-				.withPagination(users, 1, 10, 25)
-				.build();
+			const response = new ApiResponseBuilder().success().withPagination(users, 1, 10, 25).build();
 
 			expect(response.data).toEqual(users);
 			expect(response.pagination).toEqual({

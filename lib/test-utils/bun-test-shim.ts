@@ -1,21 +1,21 @@
 /**
  * Bun Test Compatibility Shim
- * 
+ *
  * Provides bun:test API compatibility with Vitest
  * Fixes "externalize bun:test" module errors
  */
 
-import { 
-  describe as vitestDescribe,
-  it as vitestIt,
-  test as vitestTest,
-  expect as vitestExpected,
-  beforeAll as vitestBeforeAll,
-  beforeEach as vitestBeforeEach,
-  afterAll as vitestAfterAll,
-  afterEach as vitestAfterEach,
-  vi
-} from 'vitest';
+import {
+	describe as vitestDescribe,
+	it as vitestIt,
+	test as vitestTest,
+	expect as vitestExpected,
+	beforeAll as vitestBeforeAll,
+	beforeEach as vitestBeforeEach,
+	afterAll as vitestAfterAll,
+	afterEach as vitestAfterEach,
+	vi,
+} from "vitest";
 
 // Export Vitest functions with bun:test names
 export const describe = vitestDescribe;
@@ -38,31 +38,33 @@ export const restoreAllMocks = vi.restoreAllMocks;
 
 // Additional Bun test API compatibility
 export const jest = {
-  fn: vi.fn,
-  spyOn: vi.spyOn,
-  clearAllMocks: vi.clearAllMocks,
-  resetAllMocks: vi.resetAllMocks,
-  restoreAllMocks: vi.restoreAllMocks,
-  mock: vi.mock,
-  unmock: vi.unmock,
-  doMock: vi.doMock,
-  dontMock: vi.dontMock
+	fn: vi.fn,
+	spyOn: vi.spyOn,
+	clearAllMocks: vi.clearAllMocks,
+	resetAllMocks: vi.resetAllMocks,
+	restoreAllMocks: vi.restoreAllMocks,
+	mock: vi.mock,
+	unmock: vi.unmock,
+	doMock: vi.doMock,
+	dontMock: vi.dontMock,
 };
 
 // Default export for compatibility
-export default {
-  describe,
-  it,
-  test,
-  expect,
-  beforeAll,
-  beforeEach,
-  afterAll,
-  afterEach,
-  mock,
-  spyOn,
-  clearAllMocks,
-  resetAllMocks,
-  restoreAllMocks,
-  jest
+const bunTestShim = {
+	describe,
+	it,
+	test,
+	expect,
+	beforeAll,
+	beforeEach,
+	afterAll,
+	afterEach,
+	mock,
+	spyOn,
+	clearAllMocks,
+	resetAllMocks,
+	restoreAllMocks,
+	jest,
 };
+
+export default bunTestShim;

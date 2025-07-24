@@ -21,10 +21,7 @@ async function fixBunToVitestImports() {
 			const content = await readFile(file, "utf-8");
 
 			// Check if file uses bun:test
-			if (
-				!content.includes("from 'bun:test'") &&
-				!content.includes('from "bun:test"')
-			) {
+			if (!content.includes("from 'bun:test'") && !content.includes('from "bun:test"')) {
 				continue;
 			}
 
@@ -34,10 +31,7 @@ async function fixBunToVitestImports() {
 			let updatedContent = content;
 
 			// Replace bun:test imports with vitest
-			updatedContent = updatedContent.replace(
-				/from\s+['"]bun:test['"]/g,
-				"from 'vitest'",
-			);
+			updatedContent = updatedContent.replace(/from\s+['"]bun:test['"]/g, "from 'vitest'");
 
 			// Replace any Bun-specific test utilities that don't exist in vitest
 			// For example, if using Bun's mock function differently
@@ -78,7 +72,7 @@ async function fixBunToVitestImports() {
 					const finalImports = cleanedImports.replace(/\bmock\b/g, "vi");
 
 					return `import { ${finalImports} } from 'vitest'`;
-				},
+				}
 			);
 
 			// Replace mock() calls with vi.fn()
@@ -99,9 +93,7 @@ async function fixBunToVitestImports() {
 	}
 
 	console.log(`\n✨ Conversion complete!`);
-	console.log(
-		`📊 Fixed ${filesFixed} out of ${totalFiles} files with bun:test imports`,
-	);
+	console.log(`📊 Fixed ${filesFixed} out of ${totalFiles} files with bun:test imports`);
 }
 
 // Run the script

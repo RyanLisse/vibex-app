@@ -32,9 +32,7 @@ describe("Database Connection Integration", () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
 
-		const { db, sql, checkDatabaseHealth, DatabasePool } = await import(
-			"@/db/config"
-		);
+		const { db, sql, checkDatabaseHealth, DatabasePool } = await import("@/db/config");
 		mockDb = db;
 		mockSql = sql;
 		mockCheckDatabaseHealth = checkDatabaseHealth;
@@ -76,9 +74,7 @@ describe("Database Connection Integration", () => {
 			values: vi.fn().mockResolvedValue([{ id: 1, test: "value" }]),
 		});
 
-		const insertResult = await mockDb
-			.insert({} as any)
-			.values({ test: "value" });
+		const insertResult = await mockDb.insert({} as any).values({ test: "value" });
 		expect(insertResult).toBeDefined();
 		expect(mockDb.insert).toHaveBeenCalled();
 

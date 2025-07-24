@@ -43,7 +43,7 @@ async function testWASMServices() {
 			// Search for similar documents
 			const results = await vectorSearch.search(
 				new Array(384).fill(0).map(() => Math.random()),
-				{ maxResults: 5 },
+				{ maxResults: 5 }
 			);
 
 			console.log("✅ Vector search working:", {
@@ -62,7 +62,7 @@ async function testWASMServices() {
 
 			// Test a simple query
 			const result = await sqliteUtils.executeQuery(
-				"SELECT 1 as test_value, 'hello' as test_string",
+				"SELECT 1 as test_value, 'hello' as test_string"
 			);
 
 			console.log("✅ SQLite utils working:", {

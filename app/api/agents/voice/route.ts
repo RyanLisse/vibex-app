@@ -4,11 +4,7 @@ export const runtime = "nodejs";
 
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import {
-	createApiResponse,
-	createErrorResponse,
-	handleApiError,
-} from "@/lib/api/error-handler";
+import { createApiResponse, createErrorResponse, handleApiError } from "@/lib/api/error-handler";
 import { getMultiAgentSystem } from "@/lib/letta/multi-agent-system";
 import { getLogger } from "@/lib/logging/safe-wrapper";
 

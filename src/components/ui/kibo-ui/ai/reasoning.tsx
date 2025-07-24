@@ -4,11 +4,7 @@ import { Brain, ChevronDown, ChevronRight } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface AIReasoningProps {
 	children: React.ReactNode;
@@ -39,11 +35,7 @@ export function AIReasoning({
 								<Brain className="h-4 w-4" />
 								{title}
 							</CardTitle>
-							{open ? (
-								<ChevronDown className="h-4 w-4" />
-							) : (
-								<ChevronRight className="h-4 w-4" />
-							)}
+							{open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
 						</Button>
 					</CollapsibleTrigger>
 				</CardHeader>
@@ -65,22 +57,14 @@ interface AIReasoningContentProps {
 	}>;
 }
 
-export function AIReasoningContent({
-	children,
-	steps = [],
-}: AIReasoningContentProps) {
+export function AIReasoningContent({ children, steps = [] }: AIReasoningContentProps) {
 	return (
 		<div className="ai-reasoning-content space-y-3">
 			{children ||
 				steps.map((step) => (
-					<div
-						key={step.id}
-						className={`reasoning-step step-${step.status || "pending"}`}
-					>
+					<div key={step.id} className={`reasoning-step step-${step.status || "pending"}`}>
 						<div className="font-medium text-sm">{step.title}</div>
-						<div className="text-sm text-muted-foreground mt-1">
-							{step.content}
-						</div>
+						<div className="text-sm text-muted-foreground mt-1">{step.content}</div>
 					</div>
 				))}
 		</div>
@@ -93,17 +77,9 @@ interface AIReasoningTriggerProps {
 	className?: string;
 }
 
-export function AIReasoningTrigger({
-	children,
-	onClick,
-	className,
-}: AIReasoningTriggerProps) {
+export function AIReasoningTrigger({ children, onClick, className }: AIReasoningTriggerProps) {
 	return (
-		<Button
-			variant="ghost"
-			onClick={onClick}
-			className={`ai-reasoning-trigger ${className || ""}`}
-		>
+		<Button variant="ghost" onClick={onClick} className={`ai-reasoning-trigger ${className || ""}`}>
 			{children || (
 				<>
 					<Brain className="h-4 w-4 mr-2" />

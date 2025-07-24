@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useInngestSubscriptionManagement } from "./use-inngest-subscription";
 
 // Mock dependencies
@@ -29,9 +20,7 @@ vi.mock("@/app/actions/inngest", () => ({
 }));
 
 const mockConsoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
-const mockConsoleError = vi
-	.spyOn(console, "error")
-	.mockImplementation(() => {});
+const mockConsoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
 describe("useInngestSubscriptionManagement", () => {
 	beforeEach(() => {
@@ -76,7 +65,7 @@ describe("useInngestSubscriptionManagement", () => {
 		});
 
 		expect(mockConsoleLog).toHaveBeenCalledWith(
-			"Inngest subscription disabled: No token available",
+			"Inngest subscription disabled: No token available"
 		);
 		expect(result.current.subscriptionEnabled).toBe(false);
 	});
@@ -90,10 +79,7 @@ describe("useInngestSubscriptionManagement", () => {
 			await result.current.refreshToken();
 		});
 
-		expect(mockConsoleError).toHaveBeenCalledWith(
-			"Failed to refresh Inngest token:",
-			error,
-		);
+		expect(mockConsoleError).toHaveBeenCalledWith("Failed to refresh Inngest token:", error);
 		expect(result.current.subscriptionEnabled).toBe(false);
 	});
 
@@ -111,10 +97,7 @@ describe("useInngestSubscriptionManagement", () => {
 			result.current.handleError(error);
 		});
 
-		expect(mockConsoleError).toHaveBeenCalledWith(
-			"Container Inngest subscription error:",
-			error,
-		);
+		expect(mockConsoleError).toHaveBeenCalledWith("Container Inngest subscription error:", error);
 		expect(result.current.subscriptionEnabled).toBe(false);
 	});
 
@@ -127,8 +110,6 @@ describe("useInngestSubscriptionManagement", () => {
 
 		renderHook(() => useInngestSubscriptionManagement());
 
-		expect(mockConsoleLog).toHaveBeenCalledWith(
-			"Container Inngest subscription closed",
-		);
+		expect(mockConsoleLog).toHaveBeenCalledWith("Container Inngest subscription closed");
 	});
 });

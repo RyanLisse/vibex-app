@@ -5,7 +5,7 @@ import { defineConfig } from "vitest/config";
 
 /**
  * ESBuild-Free Vitest Configuration - CRITICAL FIX
- * 
+ *
  * FIXES APPLIED:
  * ✅ Completely disabled ESBuild to prevent EPIPE errors
  * ✅ Uses SWC for transformation instead
@@ -17,25 +17,25 @@ export default defineConfig({
 	plugins: [
 		react({
 			// Use SWC instead of ESBuild
-			jsxRuntime: 'automatic',
-			jsxImportSource: 'react',
-		}), 
-		tsconfigPaths()
+			jsxRuntime: "automatic",
+			jsxImportSource: "react",
+		}),
+		tsconfigPaths(),
 	],
-	
+
 	test: {
 		name: "vitest-esbuild-free",
 		environment: "jsdom",
 		globals: true,
 		setupFiles: ["./test-setup-fixed.ts"],
-		
+
 		// Comprehensive test file inclusion
 		include: [
 			"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
 			"!**/e2e/**", // Exclude e2e (Playwright)
 			"!**/cypress/**", // Exclude Cypress
 		],
-		
+
 		exclude: [
 			"**/node_modules/**",
 			"**/dist/**",
@@ -49,18 +49,18 @@ export default defineConfig({
 			"**/*.config.*",
 			"**/vite.config.*",
 		],
-		
+
 		// Enhanced jsdom environment with navigation fixes
 		environmentOptions: {
 			jsdom: {
 				resources: "usable",
 				runScripts: "dangerously",
 				pretendToBeVisual: true,
-				html: '<!DOCTYPE html><html><head></head><body></body></html>',
+				html: "<!DOCTYPE html><html><head></head><body></body></html>",
 				url: "http://localhost:3000",
 				beforeParse(window) {
 					// Mock navigation API to prevent "Not implemented" errors
-					Object.defineProperty(window, 'navigation', {
+					Object.defineProperty(window, "navigation", {
 						value: {
 							navigate: () => Promise.resolve(),
 							back: () => Promise.resolve(),
@@ -71,15 +71,15 @@ export default defineConfig({
 						writable: true,
 						configurable: true,
 					});
-				}
-			}
+				},
+			},
 		},
-		
-		// Conservative timeouts for stability 
+
+		// Conservative timeouts for stability
 		testTimeout: 20000,
 		hookTimeout: 15000,
 		teardownTimeout: 10000,
-		
+
 		// Performance optimizations without ESBuild
 		maxConcurrency: 4,
 		pool: "threads",
@@ -88,18 +88,18 @@ export default defineConfig({
 				singleThread: false,
 				isolate: true,
 				useAtomics: false, // Disable atomics which can cause issues
-			}
+			},
 		},
-		
+
 		// Simplified reporting
 		reporters: ["default"],
-		
+
 		// Coverage configuration
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html", "lcov"],
 			reportsDirectory: "./coverage",
-			
+
 			include: [
 				"lib/**/*.{js,ts,jsx,tsx}",
 				"components/**/*.{js,ts,jsx,tsx}",
@@ -108,7 +108,7 @@ export default defineConfig({
 				"hooks/**/*.{js,ts,jsx,tsx}",
 				"utils/**/*.{js,ts,jsx,tsx}",
 			],
-			
+
 			exclude: [
 				"**/*.d.ts",
 				"**/*.test.*",
@@ -122,7 +122,7 @@ export default defineConfig({
 				"**/*.stories.*",
 				"**/e2e/**",
 			],
-			
+
 			thresholds: {
 				global: {
 					branches: 60, // Lower threshold for stability
@@ -133,7 +133,7 @@ export default defineConfig({
 			},
 		},
 	},
-	
+
 	// Resolve configuration
 	resolve: {
 		alias: {
@@ -148,17 +148,17 @@ export default defineConfig({
 			"@/db": path.resolve(__dirname, "db"),
 		},
 	},
-	
+
 	// Define globals for compatibility
 	define: {
 		"import.meta.vitest": false,
 		global: "globalThis",
 		"process.env.NODE_ENV": JSON.stringify("test"),
 	},
-	
+
 	// CRITICAL: Completely disable ESBuild
 	esbuild: false,
-	
+
 	// Optimize dependencies without ESBuild
 	optimizeDeps: {
 		include: [
@@ -180,18 +180,18 @@ export default defineConfig({
 		// Force no ESBuild usage
 		esbuildOptions: undefined,
 	},
-	
+
 	// Build configuration without ESBuild
 	build: {
 		target: "es2020", // Lower target for compatibility
 		minify: false,
 		sourcemap: true,
 	},
-	
+
 	// Development server
 	server: {
 		fs: {
-			allow: [".."]
-		}
-	}
+			allow: [".."],
+		},
+	},
 });

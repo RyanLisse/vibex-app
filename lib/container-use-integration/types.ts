@@ -156,13 +156,7 @@ export interface AgentPR {
 export interface AgentState {
 	id: string;
 	taskId: string;
-	status:
-		| "idle"
-		| "initializing"
-		| "working"
-		| "waiting"
-		| "completed"
-		| "failed";
+	status: "idle" | "initializing" | "working" | "waiting" | "completed" | "failed";
 	currentOperation: string;
 	context: Record<string, unknown>;
 	memory: Record<string, unknown>;
@@ -226,13 +220,9 @@ export function isTask(obj: unknown): obj is Task {
 		typeof (obj as Task).id === "string" &&
 		typeof (obj as Task).title === "string" &&
 		typeof (obj as Task).description === "string" &&
-		["issue", "pr_comment", "voice", "screenshot", "manual"].includes(
-			(obj as Task).source,
-		) &&
+		["issue", "pr_comment", "voice", "screenshot", "manual"].includes((obj as Task).source) &&
 		["low", "medium", "high", "urgent"].includes((obj as Task).priority) &&
-		["queued", "assigned", "in_progress", "completed", "failed"].includes(
-			(obj as Task).status,
-		)
+		["queued", "assigned", "in_progress", "completed", "failed"].includes((obj as Task).status)
 	);
 }
 
@@ -244,7 +234,7 @@ export function isAgentEnvironment(obj: unknown): obj is AgentEnvironment {
 		typeof (obj as AgentEnvironment).taskId === "string" &&
 		typeof (obj as AgentEnvironment).modalFunctionId === "string" &&
 		["initializing", "ready", "running", "completed", "failed"].includes(
-			(obj as AgentEnvironment).status,
+			(obj as AgentEnvironment).status
 		)
 	);
 }

@@ -44,7 +44,7 @@ describe("External API Integration", () => {
 						Authorization: "token test-token",
 						Accept: "application/vnd.github.v3+json",
 					}),
-				}),
+				})
 			);
 
 			const userData = await response.json();
@@ -74,15 +74,11 @@ describe("External API Integration", () => {
 				json: vi.fn().mockResolvedValue(mockRepoData),
 			});
 
-			const response = await fetch(
-				"https://api.github.com/repos/testuser/test-repo",
-			);
+			const response = await fetch("https://api.github.com/repos/testuser/test-repo");
 			const repoData = await response.json();
 
 			expect(repoData).toMatchObject(mockRepoData);
-			expect(fetch).toHaveBeenCalledWith(
-				"https://api.github.com/repos/testuser/test-repo",
-			);
+			expect(fetch).toHaveBeenCalledWith("https://api.github.com/repos/testuser/test-repo");
 		});
 
 		test("should handle GitHub API rate limiting", async () => {
@@ -140,20 +136,17 @@ describe("External API Integration", () => {
 				json: vi.fn().mockResolvedValue(mockResponse),
 			});
 
-			const response = await fetch(
-				"https://api.openai.com/v1/chat/completions",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: "Bearer test-api-key",
-					},
-					body: JSON.stringify({
-						model: "gpt-4",
-						messages: [{ role: "user", content: "Hello!" }],
-					}),
+			const response = await fetch("https://api.openai.com/v1/chat/completions", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: "Bearer test-api-key",
 				},
-			);
+				body: JSON.stringify({
+					model: "gpt-4",
+					messages: [{ role: "user", content: "Hello!" }],
+				}),
+			});
 
 			expect(response.ok).toBe(true);
 			expect(fetch).toHaveBeenCalledWith(
@@ -164,7 +157,7 @@ describe("External API Integration", () => {
 						"Content-Type": "application/json",
 						Authorization: "Bearer test-api-key",
 					}),
-				}),
+				})
 			);
 
 			const completion = await response.json();
@@ -184,20 +177,17 @@ describe("External API Integration", () => {
 				}),
 			});
 
-			const response = await fetch(
-				"https://api.openai.com/v1/chat/completions",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: "Bearer invalid-key",
-					},
-					body: JSON.stringify({
-						model: "gpt-4",
-						messages: [],
-					}),
+			const response = await fetch("https://api.openai.com/v1/chat/completions", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: "Bearer invalid-key",
 				},
-			);
+				body: JSON.stringify({
+					model: "gpt-4",
+					messages: [],
+				}),
+			});
 
 			expect(response.status).toBe(400);
 			expect(response.ok).toBe(false);
@@ -237,23 +227,13 @@ describe("External API Integration", () => {
 			const mockSignature = "sha256=test-signature";
 			const mockPayload = { event: "test", data: {} };
 
-			const validateSignature = vi
-				.fn()
-				.mockImplementation((signature, payload, secret) => {
-					return signature === "sha256=test-signature";
-				});
+			const validateSignature = vi.fn().mockImplementation((signature, payload, secret) => {
+				return signature === "sha256=test-signature";
+			});
 
-			const isValid = validateSignature(
-				mockSignature,
-				mockPayload,
-				"webhook-secret",
-			);
+			const isValid = validateSignature(mockSignature, mockPayload, "webhook-secret");
 
-			expect(validateSignature).toHaveBeenCalledWith(
-				mockSignature,
-				mockPayload,
-				"webhook-secret",
-			);
+			expect(validateSignature).toHaveBeenCalledWith(mockSignature, mockPayload, "webhook-secret");
 			expect(isValid).toBe(true);
 		});
 	});
@@ -274,14 +254,11 @@ describe("External API Integration", () => {
 				json: vi.fn().mockResolvedValue(mockCustomer),
 			});
 
-			const response = await fetch(
-				"https://api.stripe.com/v1/customers/cus_test123",
-				{
-					headers: {
-						Authorization: "Bearer sk_test_123",
-					},
+			const response = await fetch("https://api.stripe.com/v1/customers/cus_test123", {
+				headers: {
+					Authorization: "Bearer sk_test_123",
 				},
-			);
+			});
 
 			expect(response.ok).toBe(true);
 			const customer = await response.json();
@@ -417,7 +394,7 @@ describe("External API Integration", () => {
 					headers: expect.objectContaining({
 						"If-None-Match": "test-etag",
 					}),
-				}),
+				})
 			);
 		});
 	});

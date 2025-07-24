@@ -48,10 +48,7 @@ export interface LatestData {
  * @param comparison - Optional comparison data or version string
  * @returns true if data is latest, false otherwise
  */
-export function isLatestData(
-	data: ContainerData,
-	comparison?: ContainerData | string,
-): boolean {
+export function isLatestData(data: ContainerData, comparison?: ContainerData | string): boolean {
 	if (!data) {
 		return false;
 	}
@@ -85,7 +82,7 @@ export function isLatestData(
 export function createContainerData(
 	id: string,
 	data: any,
-	version: string = "1.0.0",
+	version: string = "1.0.0"
 ): ContainerData {
 	return {
 		id,
@@ -130,10 +127,7 @@ export function validateContainerData(data: ContainerData): boolean {
  * @param b - Second container data
  * @returns -1 if a < b, 0 if equal, 1 if a > b
  */
-export function compareContainerVersions(
-	a: ContainerData,
-	b: ContainerData,
-): number {
+export function compareContainerVersions(a: ContainerData, b: ContainerData): number {
 	if (a.version === b.version) {
 		return a.timestamp === b.timestamp ? 0 : a.timestamp > b.timestamp ? 1 : -1;
 	}

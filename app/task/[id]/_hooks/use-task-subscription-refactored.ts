@@ -4,9 +4,7 @@ interface UseTaskSubscriptionRefactoredProps {
 	taskId: string;
 }
 
-export function useTaskSubscriptionRefactored({
-	taskId,
-}: UseTaskSubscriptionRefactoredProps) {
+export function useTaskSubscriptionRefactored({ taskId }: UseTaskSubscriptionRefactoredProps) {
 	const [isConnected, setIsConnected] = useState(false);
 
 	const connect = useCallback(() => {

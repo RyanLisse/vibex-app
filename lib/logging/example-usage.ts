@@ -46,15 +46,11 @@ export function basicComponentLogging() {
 		fallback: 5000,
 	});
 
-	logger.error(
-		"Failed to connect to service",
-		new Error("Connection timeout"),
-		{
-			service: "external-api",
-			timeout: 5000,
-			retryCount: 3,
-		},
-	);
+	logger.error("Failed to connect to service", new Error("Connection timeout"), {
+		service: "external-api",
+		timeout: 5000,
+		retryCount: 3,
+	});
 
 	logger.debug("Processing user request", {
 		userId: "user-123",
@@ -97,19 +93,14 @@ export function agentLoggingExamples() {
 			completionTokens: 300,
 			totalTokens: 800,
 		},
-		2500,
+		2500
 	);
 
 	// Error scenarios
-	agentLogger.taskFailed(
-		"agent-001",
-		"task-124",
-		new Error("API rate limit exceeded"),
-		{
-			attemptNumber: 3,
-			nextRetryAt: "2024-01-20T14:30:00Z",
-		},
-	);
+	agentLogger.taskFailed("agent-001", "task-124", new Error("API rate limit exceeded"), {
+		attemptNumber: 3,
+		nextRetryAt: "2024-01-20T14:30:00Z",
+	});
 
 	// Agent communication
 	agentLogger.agentCommunication("agent-001", "agent-002", "delegation", 1024);
@@ -134,13 +125,13 @@ export function databaseLoggingExamples() {
 	dbLogger.slowQuery(
 		"SELECT u.*, p.* FROM users u JOIN profiles p ON u.id = p.user_id WHERE u.created_at > ?",
 		2500,
-		1000,
+		1000
 	);
 
 	// Database errors
 	dbLogger.queryError(
 		"UPDATE users SET last_login = NOW() WHERE id = ?",
-		new Error("Deadlock found when trying to get lock"),
+		new Error("Deadlock found when trying to get lock")
 	);
 
 	// Connection pool monitoring
@@ -162,39 +153,20 @@ export function securityLoggingExamples() {
 		clientIp: "192.168.1.100",
 	});
 
-	securityLogger.authenticationFailure(
-		"user-456",
-		"invalid_credentials",
-		"192.168.1.100",
-	);
+	securityLogger.authenticationFailure("user-456", "invalid_credentials", "192.168.1.100");
 
 	// Authorization events
-	securityLogger.unauthorizedAccess(
-		"user-789",
-		"/admin/users",
-		"read",
-		"192.168.1.101",
-	);
+	securityLogger.unauthorizedAccess("user-789", "/admin/users", "read", "192.168.1.101");
 
 	// Rate limiting
-	securityLogger.rateLimitExceeded(
-		"user-123",
-		"/api/search",
-		100,
-		"192.168.1.100",
-	);
+	securityLogger.rateLimitExceeded("user-123", "/api/search", 100, "192.168.1.100");
 
 	// Suspicious activity
-	securityLogger.suspiciousActivity(
-		"user-999",
-		"multiple_failed_logins",
-		"high",
-		{
-			failedAttempts: 10,
-			timeWindow: "5 minutes",
-			sourceIps: ["192.168.1.200", "192.168.1.201"],
-		},
-	);
+	securityLogger.suspiciousActivity("user-999", "multiple_failed_logins", "high", {
+		failedAttempts: 10,
+		timeWindow: "5 minutes",
+		sourceIps: ["192.168.1.200", "192.168.1.201"],
+	});
 
 	// Data access auditing
 	securityLogger.dataAccess("user-123", "user_profiles", "read", 25);
@@ -242,8 +214,7 @@ export function apiRouteExample() {
 
 		logger.info("Fetching user data", {
 			userId: req.nextUrl.searchParams.get("id"),
-			includeProfile:
-				req.nextUrl.searchParams.get("include_profile") === "true",
+			includeProfile: req.nextUrl.searchParams.get("include_profile") === "true",
 		});
 
 		// Simulate some work
@@ -298,7 +269,7 @@ export function contextAwareLogging() {
 			logger.info("Profile update completed");
 
 			return { success: true };
-		},
+		}
 	);
 }
 

@@ -1,13 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import {
 	exchangeCodexToken,
 	generateCodexAuthUrl,
@@ -54,7 +45,7 @@ describe("OpenAI Codex Auth", () => {
 			expect(urlObj.pathname).toBe("/codex/v1/oauth/authorize");
 			expect(urlObj.searchParams.get("client_id")).toBe("test-codex-client-id");
 			expect(urlObj.searchParams.get("redirect_uri")).toBe(
-				"https://app.example.com/auth/codex/callback",
+				"https://app.example.com/auth/codex/callback"
 			);
 			expect(urlObj.searchParams.get("response_type")).toBe("code");
 			expect(urlObj.searchParams.get("scope")).toBe("code:read code:write");
@@ -67,9 +58,7 @@ describe("OpenAI Codex Auth", () => {
 			const url = generateCodexAuthUrl();
 			const urlObj = new URL(url);
 
-			expect(urlObj.searchParams.get("scope")).toBe(
-				"code:read code:write code:execute",
-			);
+			expect(urlObj.searchParams.get("scope")).toBe("code:read code:write code:execute");
 		});
 
 		it("should handle custom parameters", () => {
@@ -118,7 +107,7 @@ describe("OpenAI Codex Auth", () => {
 						Authorization: expect.stringMatching(/^Basic /),
 					}),
 					body: expect.stringContaining("grant_type=authorization_code"),
-				}),
+				})
 			);
 
 			expect(result).toEqual(mockTokenResponse);
@@ -131,8 +120,7 @@ describe("OpenAI Codex Auth", () => {
 				status: 400,
 				json: async () => ({
 					error: "invalid_grant",
-					error_description:
-						"The provided authorization code is invalid or expired",
+					error_description: "The provided authorization code is invalid or expired",
 					error_code: "CODEX_AUTH_001",
 				}),
 			} as unknown);
@@ -141,7 +129,7 @@ describe("OpenAI Codex Auth", () => {
 				exchangeCodexToken({
 					code: "invalid-code",
 					codeVerifier: "test-verifier",
-				}),
+				})
 			).rejects.toThrow("Codex token exchange failed: CODEX_AUTH_001");
 		});
 	});
@@ -169,7 +157,7 @@ describe("OpenAI Codex Auth", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: expect.stringContaining("grant_type=refresh_token"),
-				}),
+				})
 			);
 
 			expect(result.model_permissions).toContain("ada-codex");
@@ -204,7 +192,7 @@ describe("OpenAI Codex Auth", () => {
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-codex-token",
 					}),
-				}),
+				})
 			);
 
 			expect(result.active).toBe(true);
@@ -240,7 +228,7 @@ describe("OpenAI Codex Auth", () => {
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-codex-token",
 					}),
-				}),
+				})
 			);
 
 			expect(result.codex_access.models).toContain("davinci-codex");
@@ -265,7 +253,7 @@ describe("OpenAI Codex Auth", () => {
 						"Content-Type": "application/x-www-form-urlencoded",
 					}),
 					body: expect.stringContaining("token=test-codex-token"),
-				}),
+				})
 			);
 		});
 
@@ -281,7 +269,7 @@ describe("OpenAI Codex Auth", () => {
 				expect.any(String),
 				expect.objectContaining({
 					body: expect.stringContaining("token_type_hint=refresh_token"),
-				}),
+				})
 			);
 		});
 	});
@@ -319,8 +307,7 @@ describe("OpenAI Codex Auth", () => {
 				error: {
 					type: "invalid_request_error",
 					code: "model_not_available",
-					message:
-						"The requested Codex model is not available for your account",
+					message: "The requested Codex model is not available for your account",
 					param: "model",
 					internal_code: "CODEX_MODEL_001",
 				},
@@ -380,16 +367,10 @@ describe("OpenAI Codex Auth", () => {
 
 	describe("getCodexScopes", () => {
 		it("should parse scope string into array", () => {
-			const scopeString =
-				"code:read code:write code:execute model:davinci-codex";
+			const scopeString = "code:read code:write code:execute model:davinci-codex";
 			const scopes = getCodexScopes(scopeString);
 
-			expect(scopes).toEqual([
-				"code:read",
-				"code:write",
-				"code:execute",
-				"model:davinci-codex",
-			]);
+			expect(scopes).toEqual(["code:read", "code:write", "code:execute", "model:davinci-codex"]);
 		});
 
 		it("should handle empty scope string", () => {

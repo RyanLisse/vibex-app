@@ -44,9 +44,7 @@ describe("ExampleItem", () => {
 
 	it("should call onDelete when delete button is clicked", async () => {
 		const onDelete = vi.fn();
-		const { user } = render(
-			<ExampleItem item={mockItem} onDelete={onDelete} />,
-		);
+		const { user } = render(<ExampleItem item={mockItem} onDelete={onDelete} />);
 
 		await user.click(screen.getByRole("button", { name: /delete/i }));
 		expect(onDelete).toHaveBeenCalledWith("1");
@@ -54,9 +52,7 @@ describe("ExampleItem", () => {
 
 	it("should call onStatusChange when status is changed", async () => {
 		const onStatusChange = vi.fn();
-		const { user } = render(
-			<ExampleItem item={mockItem} onStatusChange={onStatusChange} />,
-		);
+		const { user } = render(<ExampleItem item={mockItem} onStatusChange={onStatusChange} />);
 
 		const checkbox = screen.getByRole("checkbox");
 		await user.click(checkbox);

@@ -49,8 +49,7 @@ export function TranscriptionProcessor({
 
 		try {
 			// Check browser support
-			const SpeechRecognition =
-				window.SpeechRecognition || window.webkitSpeechRecognition;
+			const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 			if (!SpeechRecognition) {
 				throw new Error("Speech recognition is not supported in this browser");
@@ -143,8 +142,7 @@ export function TranscriptionProcessor({
 						text: finalTranscript.trim(),
 						confidence:
 							segments.length > 0
-								? segments.reduce((sum, seg) => sum + seg.confidence, 0) /
-									segments.length
+								? segments.reduce((sum, seg) => sum + seg.confidence, 0) / segments.length
 								: 0.8,
 						language,
 						segments,
@@ -182,8 +180,7 @@ export function TranscriptionProcessor({
 				clearInterval(progressInterval);
 			}, recording.duration + 2000);
 		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "Transcription failed";
+			const errorMessage = err instanceof Error ? err.message : "Transcription failed";
 			setError(errorMessage);
 			onError?.(errorMessage);
 			setIsTranscribing(false);
@@ -223,9 +220,7 @@ export function TranscriptionProcessor({
 				<div className="space-y-3">
 					<div className="flex items-center gap-2">
 						<Loader2 className="h-4 w-4 animate-spin" />
-						<span className="text-muted-foreground text-sm">
-							Processing speech...
-						</span>
+						<span className="text-muted-foreground text-sm">Processing speech...</span>
 					</div>
 
 					<Progress className="w-full" role="progressbar" value={progress} />
@@ -241,9 +236,7 @@ export function TranscriptionProcessor({
 
 			{transcriptionText && (
 				<div className="space-y-2">
-					<h4 className="font-medium text-muted-foreground text-sm">
-						Live Transcription:
-					</h4>
+					<h4 className="font-medium text-muted-foreground text-sm">Live Transcription:</h4>
 					<div className="min-h-[60px] rounded-lg border bg-muted/50 p-3">
 						<p className="text-sm leading-relaxed">{transcriptionText}</p>
 					</div>

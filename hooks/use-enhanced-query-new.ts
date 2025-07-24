@@ -11,8 +11,4 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { ObservabilityService } from "@/lib/observability";
-import {
-	getOptimizedQueryConfig,
-	mutationKeys,
-	queryKeys,
-} from "@/lib/query/config";
+import { getOptimizedQueryConfig, mutationKeys, queryKeys } from "@/lib/query/config";

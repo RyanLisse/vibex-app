@@ -167,9 +167,7 @@ export function TaskListExample({ className = "" }: TaskListExampleProps) {
 				<div className="flex items-center space-x-4">
 					<button
 						className={`rounded-md px-3 py-1 text-sm ${
-							showArchived
-								? "bg-gray-200 text-gray-800"
-								: "bg-blue-100 text-blue-800"
+							showArchived ? "bg-gray-200 text-gray-800" : "bg-blue-100 text-blue-800"
 						}`}
 						onClick={() => setShowArchived(!showArchived)}
 					>
@@ -198,9 +196,7 @@ export function TaskListExample({ className = "" }: TaskListExampleProps) {
 							isUpdating={updateTask.isPending}
 							key={task.id}
 							onAction={(action) => handleTaskAction(task.id, action)}
-							onUpdateTitle={(newTitle) =>
-								handleUpdateTaskTitle(task.id, newTitle)
-							}
+							onUpdateTitle={(newTitle) => handleUpdateTaskTitle(task.id, newTitle)}
 							task={task}
 						/>
 					))
@@ -211,9 +207,7 @@ export function TaskListExample({ className = "" }: TaskListExampleProps) {
 			{(createTask.error || updateTask.error || deleteTask.error) && (
 				<div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
 					<div className="text-red-800 text-sm">
-						{createTask.error?.message ||
-							updateTask.error?.message ||
-							deleteTask.error?.message}
+						{createTask.error?.message || updateTask.error?.message || deleteTask.error?.message}
 					</div>
 				</div>
 			)}
@@ -228,12 +222,7 @@ interface TaskItemProps {
 	isUpdating: boolean;
 }
 
-function TaskItem({
-	task,
-	onUpdateTitle,
-	onAction,
-	isUpdating,
-}: TaskItemProps) {
+function TaskItem({ task, onUpdateTitle, onAction, isUpdating }: TaskItemProps) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editTitle, setEditTitle] = useState(task.title);
 
@@ -285,9 +274,7 @@ function TaskItem({
 					)}
 
 					<div className="mt-2 flex items-center space-x-2">
-						<span
-							className={`rounded-full px-2 py-1 text-xs ${getStatusColor(task.status)}`}
-						>
+						<span className={`rounded-full px-2 py-1 text-xs ${getStatusColor(task.status)}`}>
 							{task.status}
 						</span>
 						<span className="text-gray-500 text-xs">

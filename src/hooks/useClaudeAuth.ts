@@ -18,12 +18,12 @@ export function useClaudeAuth() {
 
 			// Simulate authentication process
 			// In a real implementation, this would integrate with Claude's OAuth
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			const mockUser: User = {
 				id: "claude-user-123",
 				name: "Claude User",
-				email: "user@claude.ai"
+				email: "user@claude.ai",
 			};
 
 			setUser(mockUser);
@@ -43,7 +43,7 @@ export function useClaudeAuth() {
 			setError(null);
 
 			// Simulate logout process
-			await new Promise(resolve => setTimeout(resolve, 500));
+			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			setUser(null);
 		} catch (err) {

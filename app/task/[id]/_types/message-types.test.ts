@@ -1,12 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from "vitest";
 import type { IncomingMessage, StreamingMessage } from "./message-types";
 
 describe("Message Types", () => {
@@ -122,11 +114,7 @@ describe("Message Types", () => {
 			};
 
 			expect(message.data.call_id).toBe("call-789");
-			expect(message.data.action?.command).toEqual([
-				"npm",
-				"install",
-				"package",
-			]);
+			expect(message.data.action?.command).toEqual(["npm", "install", "package"]);
 			expect(message.data.output).toBe("Package installed successfully");
 		});
 

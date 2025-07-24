@@ -2,10 +2,7 @@
 
 import type { ObservabilityEvent } from "@/db/schema";
 import { invalidateQueries, mutationKeys, queryKeys } from "@/lib/query/config";
-import {
-	useEnhancedMutation,
-	useEnhancedQuery,
-} from "./use-enhanced-query-new";
+import { useEnhancedMutation, useEnhancedQuery } from "./use-enhanced-query-new";
 
 /**
  * Enhanced agent execution queries with comprehensive database integration, observability, and real-time sync
@@ -64,10 +61,7 @@ export interface ExecutionMetrics {
 /**
  * Hook for querying a single agent execution with full details
  */
-export function useExecutionQuery(
-	executionId: string,
-	options?: { includeSnapshots?: boolean },
-) {
+export function useExecutionQuery(executionId: string, options?: { includeSnapshots?: boolean }) {
 	const { includeSnapshots = false } = options || {};
 
 	return useEnhancedQuery(
@@ -79,9 +73,7 @@ export function useExecutionQuery(
 				searchParams.append("include", "events,task,snapshots");
 			}
 
-			const response = await fetch(
-				`/api/executions/${executionId}?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/executions/${executionId}?${searchParams.toString()}`);
 			if (!response.ok) {
 				if (response.status === 404) {
 					throw new Error(`Execution with id ${executionId} not found`);
@@ -97,7 +89,7 @@ export function useExecutionQuery(
 			enableWASMOptimization: false, // Single record doesn't need WASM optimization
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }
 
@@ -105,16 +97,8 @@ export function useExecutionQuery(
  * Hook for querying agent executions with enhanced filtering and real-time sync
  */
 export function useExecutionsQuery(filters: ExecutionFilters = {}) {
-	const {
-		taskId,
-		agentType,
-		status,
-		userId,
-		dateRange,
-		traceId,
-		minDuration,
-		maxDuration,
-	} = filters;
+	const { taskId, agentType, status, userId, dateRange, traceId, minDuration, maxDuration } =
+		filters;
 
 	return useEnhancedQuery(
 		queryKeys.executions.list(filters),
@@ -126,18 +110,14 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
 			if (status?.length) searchParams.append("status", status.join(","));
 			if (userId) searchParams.append("userId", userId);
 			if (traceId) searchParams.append("traceId", traceId);
-			if (minDuration)
-				searchParams.append("minDuration", minDuration.toString());
-			if (maxDuration)
-				searchParams.append("maxDuration", maxDuration.toString());
+			if (minDuration) searchParams.append("minDuration", minDuration.toString());
+			if (maxDuration) searchParams.append("maxDuration", maxDuration.toString());
 			if (dateRange) {
 				searchParams.append("startDate", dateRange.start.toISOString());
 				searchParams.append("endDate", dateRange.end.toISOString());
 			}
 
-			const response = await fetch(
-				`/api/executions?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/executions?${searchParams.toString()}`);
 			if (!response.ok) {
 				throw new Error(`Failed to fetch executions: ${response.statusText}`);
 			}
@@ -162,26 +142,26 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
 				let filteredExecutions = result.data;
 
 				if (status?.length) {
-					filteredExecutions = filteredExecutions.filter(
-						(exec: AgentExecution) => status.includes(exec.status),
+					filteredExecutions = filteredExecutions.filter((exec: AgentExecution) =>
+						status.includes(exec.status)
 					);
 				}
 
 				if (agentType) {
 					filteredExecutions = filteredExecutions.filter(
-						(exec: AgentExecution) => exec.agentType === agentType,
+						(exec: AgentExecution) => exec.agentType === agentType
 					);
 				}
 
 				if (taskId) {
 					filteredExecutions = filteredExecutions.filter(
-						(exec: AgentExecution) => exec.taskId === taskId,
+						(exec: AgentExecution) => exec.taskId === taskId
 					);
 				}
 
 				return filteredExecutions;
 			},
-		},
+		}
 	);
 }
 
@@ -192,13 +172,9 @@ export function useExecutionsByTaskQuery(taskId: string) {
 	return useEnhancedQuery(
 		queryKeys.executions.byTask(taskId),
 		async (): Promise<ExecutionWithDetails[]> => {
-			const response = await fetch(
-				`/api/tasks/${taskId}/executions?include=events`,
-			);
+			const response = await fetch(`/api/tasks/${taskId}/executions?include=events`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch executions for task: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch executions for task: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -209,17 +185,14 @@ export function useExecutionsByTaskQuery(taskId: string) {
 			staleTime: 30 * 1000, // 30 seconds
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }
 
 /**
  * Hook for infinite execution queries with virtualization support
  */
-export function useInfiniteExecutionsQuery(
-	filters: ExecutionFilters = {},
-	pageSize = 50,
-) {
+export function useInfiniteExecutionsQuery(filters: ExecutionFilters = {}, pageSize = 50) {
 	return useEnhancedInfiniteQuery(
 		queryKeys.executions.infinite(filters),
 		async ({ pageParam = 0 }) => {
@@ -228,18 +201,14 @@ export function useInfiniteExecutionsQuery(
 			searchParams.append("limit", pageSize.toString());
 
 			if (filters.taskId) searchParams.append("taskId", filters.taskId);
-			if (filters.agentType)
-				searchParams.append("agentType", filters.agentType);
-			if (filters.status?.length)
-				searchParams.append("status", filters.status.join(","));
+			if (filters.agentType) searchParams.append("agentType", filters.agentType);
+			if (filters.status?.length) searchParams.append("status", filters.status.join(","));
 			if (filters.dateRange) {
 				searchParams.append("startDate", filters.dateRange.start.toISOString());
 				searchParams.append("endDate", filters.dateRange.end.toISOString());
 			}
 
-			const response = await fetch(
-				`/api/executions/infinite?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/executions/infinite?${searchParams.toString()}`);
 			if (!response.ok) {
 				throw new Error(`Failed to fetch executions: ${response.statusText}`);
 			}
@@ -260,7 +229,7 @@ export function useInfiniteExecutionsQuery(
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
 			staleTime: 30 * 1000, // 30 seconds
-		},
+		}
 	);
 }
 
@@ -301,14 +270,14 @@ export function useCreateExecutionMutation() {
 				// Add to all relevant caches
 				queryClient.setQueryData(
 					queryKeys.executions.lists(),
-					(old: ExecutionWithDetails[] = []) => [optimisticExecution, ...old],
+					(old: ExecutionWithDetails[] = []) => [optimisticExecution, ...old]
 				);
 
 				// Add to task-specific cache if taskId exists
 				if (variables.taskId) {
 					queryClient.setQueryData(
 						queryKeys.executions.byTask(variables.taskId),
-						(old: ExecutionWithDetails[] = []) => [optimisticExecution, ...old],
+						(old: ExecutionWithDetails[] = []) => [optimisticExecution, ...old]
 					);
 				}
 
@@ -320,7 +289,7 @@ export function useCreateExecutionMutation() {
 					queryClient.setQueryData(
 						queryKeys.executions.lists(),
 						(old: ExecutionWithDetails[] = []) =>
-							old.filter((exec) => exec.id !== context.optimisticExecution.id),
+							old.filter((exec) => exec.id !== context.optimisticExecution.id)
 					);
 
 					// Remove from task-specific cache
@@ -328,9 +297,7 @@ export function useCreateExecutionMutation() {
 						queryClient.setQueryData(
 							queryKeys.executions.byTask(context.optimisticExecution.taskId),
 							(old: ExecutionWithDetails[] = []) =>
-								old.filter(
-									(exec) => exec.id !== context.optimisticExecution.id,
-								),
+								old.filter((exec) => exec.id !== context.optimisticExecution.id)
 						);
 					}
 				}
@@ -338,7 +305,7 @@ export function useCreateExecutionMutation() {
 			invalidateQueries: [queryKeys.executions.all],
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }
 
@@ -349,13 +316,7 @@ export function useUpdateExecutionMutation() {
 	const queryClient = useQueryClient();
 
 	return useEnhancedMutation(
-		async ({
-			executionId,
-			updates,
-		}: {
-			executionId: string;
-			updates: Partial<AgentExecution>;
-		}) => {
+		async ({ executionId, updates }: { executionId: string; updates: Partial<AgentExecution> }) => {
 			const response = await fetch(`/api/executions/${executionId}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
@@ -372,21 +333,17 @@ export function useUpdateExecutionMutation() {
 		{
 			optimisticUpdate: ({ executionId, updates }) => {
 				const previousExecution = queryClient.getQueryData(
-					queryKeys.executions.detail(executionId),
+					queryKeys.executions.detail(executionId)
 				) as ExecutionWithDetails;
 
 				// Update execution in all relevant caches
 				queryClient.setQueryData(
 					queryKeys.executions.detail(executionId),
-					(old: ExecutionWithDetails) => (old ? { ...old, ...updates } : old),
+					(old: ExecutionWithDetails) => (old ? { ...old, ...updates } : old)
 				);
 
-				queryClient.setQueryData(
-					queryKeys.executions.lists(),
-					(old: ExecutionWithDetails[] = []) =>
-						old.map((exec) =>
-							exec.id === executionId ? { ...exec, ...updates } : exec,
-						),
+				queryClient.setQueryData(queryKeys.executions.lists(), (old: ExecutionWithDetails[] = []) =>
+					old.map((exec) => (exec.id === executionId ? { ...exec, ...updates } : exec))
 				);
 
 				// Update task-specific cache
@@ -394,9 +351,7 @@ export function useUpdateExecutionMutation() {
 					queryClient.setQueryData(
 						queryKeys.executions.byTask(previousExecution.taskId),
 						(old: ExecutionWithDetails[] = []) =>
-							old.map((exec) =>
-								exec.id === executionId ? { ...exec, ...updates } : exec,
-							),
+							old.map((exec) => (exec.id === executionId ? { ...exec, ...updates } : exec))
 					);
 				}
 
@@ -407,17 +362,15 @@ export function useUpdateExecutionMutation() {
 					// Restore previous execution data
 					queryClient.setQueryData(
 						queryKeys.executions.detail(context.executionId),
-						context.previousExecution,
+						context.previousExecution
 					);
 
 					queryClient.setQueryData(
 						queryKeys.executions.lists(),
 						(old: ExecutionWithDetails[] = []) =>
 							old.map((exec) =>
-								exec.id === context.executionId
-									? context.previousExecution
-									: exec,
-							),
+								exec.id === context.executionId ? context.previousExecution : exec
+							)
 					);
 
 					// Restore task-specific cache
@@ -426,10 +379,8 @@ export function useUpdateExecutionMutation() {
 							queryKeys.executions.byTask(context.previousExecution.taskId),
 							(old: ExecutionWithDetails[] = []) =>
 								old.map((exec) =>
-									exec.id === context.executionId
-										? context.previousExecution
-										: exec,
-								),
+									exec.id === context.executionId ? context.previousExecution : exec
+								)
 						);
 					}
 				}
@@ -437,7 +388,7 @@ export function useUpdateExecutionMutation() {
 			invalidateQueries: [queryKeys.executions.all],
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }
 
@@ -466,19 +417,15 @@ export function useCancelExecutionMutation() {
 				queryClient.setQueryData(
 					queryKeys.executions.detail(executionId),
 					(old: ExecutionWithDetails) =>
-						old
-							? { ...old, status: "cancelled", completedAt: new Date() }
-							: old,
+						old ? { ...old, status: "cancelled", completedAt: new Date() } : old
 				);
 
-				queryClient.setQueryData(
-					queryKeys.executions.lists(),
-					(old: ExecutionWithDetails[] = []) =>
-						old.map((exec) =>
-							exec.id === executionId
-								? { ...exec, status: "cancelled", completedAt: new Date() }
-								: exec,
-						),
+				queryClient.setQueryData(queryKeys.executions.lists(), (old: ExecutionWithDetails[] = []) =>
+					old.map((exec) =>
+						exec.id === executionId
+							? { ...exec, status: "cancelled", completedAt: new Date() }
+							: exec
+					)
 				);
 
 				return { executionId };
@@ -486,7 +433,7 @@ export function useCancelExecutionMutation() {
 			invalidateQueries: [queryKeys.executions.all],
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }
 
@@ -500,21 +447,16 @@ export function useExecutionMetricsQuery(filters: ExecutionFilters = {}) {
 			const searchParams = new URLSearchParams();
 
 			if (filters.taskId) searchParams.append("taskId", filters.taskId);
-			if (filters.agentType)
-				searchParams.append("agentType", filters.agentType);
+			if (filters.agentType) searchParams.append("agentType", filters.agentType);
 			if (filters.userId) searchParams.append("userId", filters.userId);
 			if (filters.dateRange) {
 				searchParams.append("startDate", filters.dateRange.start.toISOString());
 				searchParams.append("endDate", filters.dateRange.end.toISOString());
 			}
 
-			const response = await fetch(
-				`/api/executions/metrics?${searchParams.toString()}`,
-			);
+			const response = await fetch(`/api/executions/metrics?${searchParams.toString()}`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch execution metrics: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch execution metrics: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -525,7 +467,7 @@ export function useExecutionMetricsQuery(filters: ExecutionFilters = {}) {
 			enableWASMOptimization: true,
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }
 
@@ -537,12 +479,10 @@ export function useExecutionEventsQuery(executionId: string) {
 		queryKeys.events.byExecution(executionId),
 		async ({ pageParam = 0 }) => {
 			const response = await fetch(
-				`/api/executions/${executionId}/events?page=${pageParam}&limit=50`,
+				`/api/executions/${executionId}/events?page=${pageParam}&limit=50`
 			);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch execution events: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch execution events: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -560,7 +500,7 @@ export function useExecutionEventsQuery(executionId: string) {
 			enableRealTimeSync: true,
 			syncTable: "observability_events",
 			staleTime: 10 * 1000, // 10 seconds for real-time events
-		},
+		}
 	);
 }
 
@@ -573,9 +513,7 @@ export function useExecutionSnapshotsQuery(executionId: string) {
 		async (): Promise<ExecutionSnapshot[]> => {
 			const response = await fetch(`/api/executions/${executionId}/snapshots`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch execution snapshots: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch execution snapshots: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -586,7 +524,7 @@ export function useExecutionSnapshotsQuery(executionId: string) {
 			staleTime: 60 * 1000, // 1 minute for snapshots
 			enableRealTimeSync: true,
 			syncTable: "execution_snapshots",
-		},
+		}
 	);
 }
 
@@ -597,13 +535,9 @@ export function useExecutionPerformanceQuery(executionId: string) {
 	return useEnhancedQuery(
 		[...queryKeys.executions.detail(executionId), "performance"],
 		async () => {
-			const response = await fetch(
-				`/api/executions/${executionId}/performance`,
-			);
+			const response = await fetch(`/api/executions/${executionId}/performance`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch execution performance: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch execution performance: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -613,7 +547,7 @@ export function useExecutionPerformanceQuery(executionId: string) {
 			enabled: !!executionId,
 			staleTime: 5 * 60 * 1000, // 5 minutes for performance data
 			enableWASMOptimization: true,
-		},
+		}
 	);
 }
 
@@ -626,9 +560,7 @@ export function useExecutionTraceQuery(traceId: string) {
 		async () => {
 			const response = await fetch(`/api/executions/trace/${traceId}`);
 			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch execution trace: ${response.statusText}`,
-				);
+				throw new Error(`Failed to fetch execution trace: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -639,6 +571,6 @@ export function useExecutionTraceQuery(traceId: string) {
 			staleTime: 2 * 60 * 1000, // 2 minutes for trace data
 			enableRealTimeSync: true,
 			syncTable: "agent_executions",
-		},
+		}
 	);
 }

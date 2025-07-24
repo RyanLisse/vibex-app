@@ -116,7 +116,7 @@ export class GitWorktreeManager {
 	async createWorktree(
 		taskId: string,
 		branchName: string,
-		options: CreateWorktreeOptions = {},
+		options: CreateWorktreeOptions = {}
 	): Promise<WorktreeOperationResult> {
 		try {
 			// Check for invalid branch names
@@ -193,7 +193,7 @@ export class GitWorktreeManager {
 	async commitChanges(
 		worktreeId: string,
 		commitMessage: string,
-		files?: string[],
+		files?: string[]
 	): Promise<CommitResult> {
 		const worktree = this.worktrees.get(worktreeId);
 		if (!worktree) {
@@ -212,10 +212,7 @@ export class GitWorktreeManager {
 		}
 
 		const commitHash = Math.random().toString(36).substring(2, 42);
-		const commitFiles = files || [
-			"src/auto-staged.ts",
-			"tests/auto-staged.test.ts",
-		];
+		const commitFiles = files || ["src/auto-staged.ts", "tests/auto-staged.test.ts"];
 
 		const commit: GitCommit = {
 			hash: commitHash,
@@ -261,7 +258,7 @@ export class GitWorktreeManager {
 
 	async resolveConflicts(
 		worktreeId: string,
-		conflicts: ConflictResolution[],
+		conflicts: ConflictResolution[]
 	): Promise<ResolveResult> {
 		const worktree = this.worktrees.get(worktreeId);
 		if (!worktree) {
@@ -296,10 +293,7 @@ export class GitWorktreeManager {
 		};
 	}
 
-	async mergeToMain(
-		worktreeId: string,
-		options: MergeOptions = {},
-	): Promise<MergeResult> {
+	async mergeToMain(worktreeId: string, options: MergeOptions = {}): Promise<MergeResult> {
 		const worktree = this.worktrees.get(worktreeId);
 		if (!worktree) {
 			return {
@@ -346,10 +340,7 @@ export class GitWorktreeManager {
 		};
 	}
 
-	async cleanupWorktree(
-		worktreeId: string,
-		options: CleanupOptions = {},
-	): Promise<CleanupResult> {
+	async cleanupWorktree(worktreeId: string, options: CleanupOptions = {}): Promise<CleanupResult> {
 		const worktree = this.worktrees.get(worktreeId);
 		if (!worktree) {
 			return {
@@ -436,8 +427,6 @@ export class GitWorktreeManager {
 	}
 
 	private branchExists(branchName: string): boolean {
-		return Array.from(this.worktrees.values()).some(
-			(w) => w.branchName === branchName,
-		);
+		return Array.from(this.worktrees.values()).some((w) => w.branchName === branchName);
 	}
 }

@@ -9,8 +9,7 @@ export const runtime = "nodejs";
 const env = {
 	OPENAI_CLIENT_ID: process.env.OPENAI_CLIENT_ID || "test-client-id",
 	OPENAI_REDIRECT_URI:
-		process.env.OPENAI_REDIRECT_URI ||
-		"http://localhost:3000/auth/openai/callback",
+		process.env.OPENAI_REDIRECT_URI || "http://localhost:3000/auth/openai/callback",
 	NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
 };
 
@@ -23,10 +22,7 @@ const generateState = (): string => {
 const validateRedirectUri = (redirectUri: string): boolean => {
 	// Basic validation to ensure redirect URI is safe
 	if (!redirectUri) return false;
-	if (
-		redirectUri.startsWith("javascript:") ||
-		redirectUri.startsWith("data:")
-	) {
+	if (redirectUri.startsWith("javascript:") || redirectUri.startsWith("data:")) {
 		return false;
 	}
 	return true;
@@ -39,18 +35,12 @@ export async function GET(request: NextRequest) {
 
 		// Validate redirect URI
 		if (!validateRedirectUri(redirectUri)) {
-			return NextResponse.json(
-				{ error: "Invalid redirect URI" },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: "Invalid redirect URI" }, { status: 400 });
 		}
 
 		// Check configuration
 		if (!env.OPENAI_CLIENT_ID) {
-			return NextResponse.json(
-				{ error: "Missing configuration" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Missing configuration" }, { status: 500 });
 		}
 
 		// Generate state for CSRF protection
@@ -91,7 +81,7 @@ export async function GET(request: NextRequest) {
 	} catch (error) {
 		return NextResponse.json(
 			{ error: error instanceof Error ? error.message : String(error) },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 }
@@ -103,18 +93,12 @@ export async function POST(request: NextRequest) {
 
 		// Validate redirect URI if provided
 		if (redirect_uri && !validateRedirectUri(redirect_uri)) {
-			return NextResponse.json(
-				{ error: "Invalid redirect URI" },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: "Invalid redirect URI" }, { status: 400 });
 		}
 
 		// Check configuration
 		if (!env.OPENAI_CLIENT_ID) {
-			return NextResponse.json(
-				{ error: "Missing configuration" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Missing configuration" }, { status: 500 });
 		}
 
 		// Generate state for CSRF protection
@@ -157,7 +141,7 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		return NextResponse.json(
 			{ error: error instanceof Error ? error.message : String(error) },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 }

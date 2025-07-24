@@ -13,10 +13,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { handleAPIRouteError } from "@/lib/api/route-error-handler";
 import { dataMigrationManager } from "@/lib/migration/data-migration";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 
 // Request schemas
 const StartMigrationSchema = z.object({
@@ -65,8 +62,7 @@ export async function GET(request: NextRequest) {
 			recommendations: {
 				shouldMigrate: migrationCheck.needed && !currentMigration,
 				canMigrate:
-					migrationCheck.needed &&
-					(!currentMigration || currentMigration.status !== "in_progress"),
+					migrationCheck.needed && (!currentMigration || currentMigration.status !== "in_progress"),
 				hasBackup:
 					typeof window !== "undefined" &&
 					(localStorage.getItem("task-store-backup") !== null ||
@@ -75,16 +71,13 @@ export async function GET(request: NextRequest) {
 		};
 
 		return NextResponse.json(
-			createApiSuccessResponse(
-				response,
-				"Migration status retrieved successfully",
-			),
+			createApiSuccessResponse(response, "Migration status retrieved successfully")
 		);
 	} catch (error) {
 		return handleAPIRouteError(error, {
 			route: "GET /api/migration",
 			genericErrorMessage: "Failed to check migration status",
-			metricName: "migration_api"
+			metricName: "migration_api",
 		});
 	}
 }
@@ -102,29 +95,23 @@ export async function POST(request: NextRequest) {
 		// Check if migration is already in progress
 		const currentMigration = dataMigrationManager.getCurrentMigration();
 		if (currentMigration && currentMigration.status === "in_progress") {
-			return NextResponse.json(
-				createApiErrorResponse("Migration already in progress", 409),
-				{
-					status: 409,
-				},
-			);
+			return NextResponse.json(createApiErrorResponse("Migration already in progress", 409), {
+				status: 409,
+			});
 		}
 
 		// Start migration
 		const migrationResult = await dataMigrationManager.startMigration();
 
 		return NextResponse.json(
-			createApiSuccessResponse(
-				migrationResult,
-				"Migration started successfully",
-			),
-			{ status: 201 },
+			createApiSuccessResponse(migrationResult, "Migration started successfully"),
+			{ status: 201 }
 		);
 	} catch (error) {
 		return handleAPIRouteError(error, {
 			route: "POST /api/migration",
 			genericErrorMessage: "Failed to start migration",
-			metricName: "migration_api"
+			metricName: "migration_api",
 		});
 	}
 }
@@ -139,11 +126,8 @@ export function DELETE(_request: NextRequest) {
 
 		if (process.env.NODE_ENV === "production") {
 			return NextResponse.json(
-				createApiErrorResponse(
-					"Migration cleanup not allowed in production",
-					403,
-				),
-				{ status: 403 },
+				createApiErrorResponse("Migration cleanup not allowed in production", 403),
+				{ status: 403 }
 			);
 		}
 
@@ -156,17 +140,15 @@ export function DELETE(_request: NextRequest) {
 		}
 
 		return NextResponse.json(
-			createApiSuccessResponse(null, "Migration data cleaned up successfully"),
+			createApiSuccessResponse(null, "Migration data cleaned up successfully")
 		);
 	} catch (error) {
 		return NextResponse.json(
 			createApiErrorResponse(
-				error instanceof Error
-					? error.message
-					: "Failed to clean up migration data",
-				500,
+				error instanceof Error ? error.message : "Failed to clean up migration data",
+				500
 			),
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 }

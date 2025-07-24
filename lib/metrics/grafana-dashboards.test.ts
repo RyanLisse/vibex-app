@@ -29,71 +29,53 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include active agents panel", () => {
 			dashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
 
-			const activeAgentsPanel = dashboard.panels.find(
-				(p) => p.title === "Active Agents",
-			);
+			const activeAgentsPanel = dashboard.panels.find((p) => p.title === "Active Agents");
 			expect(activeAgentsPanel).toBeDefined();
 			expect(activeAgentsPanel?.type).toBe("stat");
-			expect(activeAgentsPanel?.targets[0].expr).toBe(
-				"sum(agent_active_count)",
-			);
-			expect(activeAgentsPanel?.targets[0].legendFormat).toBe(
-				"Total Active Agents",
-			);
+			expect(activeAgentsPanel?.targets[0].expr).toBe("sum(agent_active_count)");
+			expect(activeAgentsPanel?.targets[0].legendFormat).toBe("Total Active Agents");
 		});
 
 		it("should include agent operations rate panel", () => {
 			dashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
 
-			const operationsPanel = dashboard.panels.find(
-				(p) => p.title === "Agent Operations Rate",
-			);
+			const operationsPanel = dashboard.panels.find((p) => p.title === "Agent Operations Rate");
 			expect(operationsPanel).toBeDefined();
 			expect(operationsPanel?.type).toBe("graph");
-			expect(operationsPanel?.targets[0].expr).toBe(
-				"rate(agent_operations_total[5m])",
-			);
-			expect(operationsPanel?.targets[0].legendFormat).toBe(
-				"{{agent_type}} - {{operation}}",
-			);
+			expect(operationsPanel?.targets[0].expr).toBe("rate(agent_operations_total[5m])");
+			expect(operationsPanel?.targets[0].legendFormat).toBe("{{agent_type}} - {{operation}}");
 		});
 
 		it("should include execution duration heatmap", () => {
 			dashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
 
-			const heatmapPanel = dashboard.panels.find(
-				(p) => p.title === "Agent Execution Duration",
-			);
+			const heatmapPanel = dashboard.panels.find((p) => p.title === "Agent Execution Duration");
 			expect(heatmapPanel).toBeDefined();
 			expect(heatmapPanel?.type).toBe("heatmap");
 			expect(heatmapPanel?.targets[0].expr).toBe(
-				"rate(agent_execution_duration_seconds_bucket[5m])",
+				"rate(agent_execution_duration_seconds_bucket[5m])"
 			);
 		});
 
 		it("should include token usage pie chart", () => {
 			dashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
 
-			const pieChart = dashboard.panels.find(
-				(p) => p.title === "Token Usage by Provider",
-			);
+			const pieChart = dashboard.panels.find((p) => p.title === "Token Usage by Provider");
 			expect(pieChart).toBeDefined();
 			expect(pieChart?.type).toBe("piechart");
 			expect(pieChart?.targets[0].expr).toBe(
-				"sum by (provider) (rate(agent_token_usage_total[1h]))",
+				"sum by (provider) (rate(agent_token_usage_total[1h]))"
 			);
 		});
 
 		it("should include cost analysis panel", () => {
 			dashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
 
-			const costPanel = dashboard.panels.find(
-				(p) => p.title === "Cost Analysis",
-			);
+			const costPanel = dashboard.panels.find((p) => p.title === "Cost Analysis");
 			expect(costPanel).toBeDefined();
 			expect(costPanel?.type).toBe("bargauge");
 			expect(costPanel?.targets[0].expr).toBe(
-				"sum by (provider) (rate(agent_cost_total[1h]) * 3600)",
+				"sum by (provider) (rate(agent_cost_total[1h]) * 3600)"
 			);
 			expect(costPanel?.targets[0].legendFormat).toBe("{{provider}} ($/hour)");
 		});
@@ -103,22 +85,14 @@ describe("GrafanaDashboardBuilder", () => {
 
 			expect(dashboard.templating.list).toHaveLength(2);
 
-			const agentTypeVar = dashboard.templating.list.find(
-				(v) => v.name === "agent_type",
-			);
+			const agentTypeVar = dashboard.templating.list.find((v) => v.name === "agent_type");
 			expect(agentTypeVar).toBeDefined();
 			expect(agentTypeVar?.type).toBe("query");
-			expect(agentTypeVar?.query).toBe(
-				"label_values(agent_operations_total, agent_type)",
-			);
+			expect(agentTypeVar?.query).toBe("label_values(agent_operations_total, agent_type)");
 
-			const providerVar = dashboard.templating.list.find(
-				(v) => v.name === "provider",
-			);
+			const providerVar = dashboard.templating.list.find((v) => v.name === "provider");
 			expect(providerVar).toBeDefined();
-			expect(providerVar?.query).toBe(
-				"label_values(agent_operations_total, provider)",
-			);
+			expect(providerVar?.query).toBe("label_values(agent_operations_total, provider)");
 		});
 
 		it("should have proper panel grid positions", () => {
@@ -153,9 +127,7 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include HTTP request rate panel", () => {
 			dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
 
-			const httpPanel = dashboard.panels.find(
-				(p) => p.title === "HTTP Request Rate",
-			);
+			const httpPanel = dashboard.panels.find((p) => p.title === "HTTP Request Rate");
 			expect(httpPanel).toBeDefined();
 			expect(httpPanel?.type).toBe("graph");
 			expect(httpPanel?.targets[0].expr).toBe("rate(http_requests_total[5m])");
@@ -165,25 +137,17 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include HTTP response times panel", () => {
 			dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
 
-			const responseTimePanel = dashboard.panels.find(
-				(p) => p.title === "HTTP Response Times",
-			);
+			const responseTimePanel = dashboard.panels.find((p) => p.title === "HTTP Response Times");
 			expect(responseTimePanel).toBeDefined();
 			expect(responseTimePanel?.targets).toHaveLength(2);
-			expect(responseTimePanel?.targets[0].expr).toContain(
-				"histogram_quantile(0.95",
-			);
-			expect(responseTimePanel?.targets[1].expr).toContain(
-				"histogram_quantile(0.50",
-			);
+			expect(responseTimePanel?.targets[0].expr).toContain("histogram_quantile(0.95");
+			expect(responseTimePanel?.targets[1].expr).toContain("histogram_quantile(0.50");
 		});
 
 		it("should include database connections panel", () => {
 			dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
 
-			const dbPanel = dashboard.panels.find(
-				(p) => p.title === "Database Connections",
-			);
+			const dbPanel = dashboard.panels.find((p) => p.title === "Database Connections");
 			expect(dbPanel).toBeDefined();
 			expect(dbPanel?.targets[0].expr).toBe("database_connections_active");
 		});
@@ -191,12 +155,10 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include database query performance panel", () => {
 			dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
 
-			const queryPanel = dashboard.panels.find(
-				(p) => p.title === "Database Query Performance",
-			);
+			const queryPanel = dashboard.panels.find((p) => p.title === "Database Query Performance");
 			expect(queryPanel).toBeDefined();
 			expect(queryPanel?.targets[0].expr).toContain(
-				"histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m]))",
+				"histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m]))"
 			);
 		});
 	});
@@ -224,9 +186,7 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include active user sessions panel", () => {
 			dashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
 
-			const sessionsPanel = dashboard.panels.find(
-				(p) => p.title === "Active User Sessions",
-			);
+			const sessionsPanel = dashboard.panels.find((p) => p.title === "Active User Sessions");
 			expect(sessionsPanel).toBeDefined();
 			expect(sessionsPanel?.type).toBe("stat");
 			expect(sessionsPanel?.targets[0].expr).toBe("user_sessions_active");
@@ -235,9 +195,7 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include feature usage trends panel", () => {
 			dashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
 
-			const usagePanel = dashboard.panels.find(
-				(p) => p.title === "Feature Usage Trends",
-			);
+			const usagePanel = dashboard.panels.find((p) => p.title === "Feature Usage Trends");
 			expect(usagePanel).toBeDefined();
 			expect(usagePanel?.type).toBe("graph");
 			expect(usagePanel?.targets[0].expr).toBe("rate(feature_usage_total[1h])");
@@ -246,26 +204,22 @@ describe("GrafanaDashboardBuilder", () => {
 		it("should include cost per operation table", () => {
 			dashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
 
-			const costPanel = dashboard.panels.find(
-				(p) => p.title === "Cost per Operation",
-			);
+			const costPanel = dashboard.panels.find((p) => p.title === "Cost per Operation");
 			expect(costPanel).toBeDefined();
 			expect(costPanel?.type).toBe("table");
 			expect(costPanel?.targets[0].expr).toContain(
-				"sum by (provider) (rate(agent_cost_total[1h])) / sum by (provider) (rate(agent_operations_total[1h]))",
+				"sum by (provider) (rate(agent_cost_total[1h])) / sum by (provider) (rate(agent_operations_total[1h]))"
 			);
 		});
 
 		it("should include system efficiency gauge", () => {
 			dashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
 
-			const efficiencyPanel = dashboard.panels.find(
-				(p) => p.title === "System Efficiency",
-			);
+			const efficiencyPanel = dashboard.panels.find((p) => p.title === "System Efficiency");
 			expect(efficiencyPanel).toBeDefined();
 			expect(efficiencyPanel?.type).toBe("gauge");
 			expect(efficiencyPanel?.targets[0].expr).toContain(
-				'sum(rate(agent_operations_total{status="success"}[5m])) / sum(rate(agent_operations_total[5m]))',
+				'sum(rate(agent_operations_total{status="success"}[5m])) / sum(rate(agent_operations_total[5m]))'
 			);
 		});
 	});
@@ -280,12 +234,9 @@ describe("GrafanaDashboardBuilder", () => {
 		});
 
 		it("should have unique panel IDs across all dashboards", () => {
-			const agentDashboard =
-				GrafanaDashboardBuilder.createAgentOverviewDashboard();
-			const systemDashboard =
-				GrafanaDashboardBuilder.createSystemHealthDashboard();
-			const businessDashboard =
-				GrafanaDashboardBuilder.createBusinessMetricsDashboard();
+			const agentDashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
+			const systemDashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
+			const businessDashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
 
 			const allPanelIds = [
 				...agentDashboard.panels.map((p) => p.id),

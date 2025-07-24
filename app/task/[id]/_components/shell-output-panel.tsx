@@ -51,9 +51,7 @@ export function ShellOutputPanel({
 				<ScrollArea className="h-[400px] p-4">
 					<div className="space-y-1">
 						{output.length === 0 ? (
-							<div className="text-gray-500 text-sm italic">
-								No output yet...
-							</div>
+							<div className="text-gray-500 text-sm italic">No output yet...</div>
 						) : (
 							output.map((line) => (
 								<div key={line.id} className={getLineClass(line.type)}>

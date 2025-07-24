@@ -44,14 +44,14 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 				"query_duration",
 				125.5,
 				{ queryType: "select", table: "users" },
-				{ rowCount: 100, cacheHit: false },
+				{ rowCount: 100, cacheHit: false }
 			);
 
 			collector.recordMetric(
 				"memory_usage",
 				1024 * 1024 * 256,
 				{ component: "api-server" },
-				{ pid: 1234 },
+				{ pid: 1234 }
 			);
 
 			collector.recordMetric("cache_hit_rate", 0.85, { cacheType: "redis" });
@@ -63,9 +63,7 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 			const events = await db.select().from(observabilityEventsTable);
 			expect(events.length).toBeGreaterThanOrEqual(3);
 
-			const queryMetric = events.find(
-				(e) => e.metadata?.metric === "query_duration",
-			);
+			const queryMetric = events.find((e) => e.metadata?.metric === "query_duration");
 			expect(queryMetric).toBeDefined();
 			expect(queryMetric?.metadata?.aggregation?.avg).toBe(125.5);
 		});
@@ -85,9 +83,7 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 			const events = await db.select().from(observabilityEventsTable);
 			expect(events.length).toBeGreaterThan(0);
 
-			const throughputEvent = events.find(
-				(e) => e.metadata?.metric === "throughput",
-			);
+			const throughputEvent = events.find((e) => e.metadata?.metric === "throughput");
 			expect(throughputEvent).toBeDefined();
 			expect(throughputEvent?.metadata?.dataPointCount).toBe(BUFFER_SIZE);
 		});
@@ -102,9 +98,7 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 			await collector.forceFlush();
 
 			const events = await db.select().from(observabilityEventsTable);
-			const responseTimeEvent = events.find(
-				(e) => e.metadata?.metric === "response_time",
-			);
+			const responseTimeEvent = events.find((e) => e.metadata?.metric === "response_time");
 
 			expect(responseTimeEvent?.metadata?.aggregation).toMatchObject({
 				count: 10,
@@ -144,9 +138,7 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 			const events = await db.select().from(observabilityEventsTable);
 
 			// Verify all metric types were recorded
-			const recordedMetrics = new Set(
-				events.map((e) => e.metadata?.metric).filter(Boolean),
-			);
+			const recordedMetrics = new Set(events.map((e) => e.metadata?.metric).filter(Boolean));
 
 			expect(recordedMetrics.size).toBe(metricTests.length);
 			metricTests.forEach(([metric]) => {
@@ -174,21 +166,15 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 
 			const events = await db.select().from(observabilityEventsTable);
 
-			const throughputEvents = events.filter(
-				(e) => e.metadata?.metric === "throughput",
-			);
+			const throughputEvents = events.filter((e) => e.metadata?.metric === "throughput");
 			expect(throughputEvents).toHaveLength(2);
 
 			const durationEvent = events.find(
-				(e) =>
-					e.metadata?.metric === "query_duration" &&
-					e.metadata?.tags?.includes("success:true"),
+				(e) => e.metadata?.metric === "query_duration" && e.metadata?.tags?.includes("success:true")
 			);
 			expect(durationEvent).toBeDefined();
 
-			const errorEvent = events.find(
-				(e) => e.metadata?.metric === "error_rate",
-			);
+			const errorEvent = events.find((e) => e.metadata?.metric === "error_rate");
 			expect(errorEvent).toBeDefined();
 			expect(errorEvent?.metadata?.tags).toContain("error:Validation error");
 		});
@@ -201,16 +187,12 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 			await collector.forceFlush();
 
 			const events = await db.select().from(observabilityEventsTable);
-			const queryEvents = events.filter(
-				(e) => e.metadata?.metric === "query_duration",
-			);
+			const queryEvents = events.filter((e) => e.metadata?.metric === "query_duration");
 
 			expect(queryEvents.length).toBeGreaterThan(0);
 
 			// Check that tags properly encode query type and success
-			const insertEvent = queryEvents.find((e) =>
-				e.metadata?.tags?.includes("queryType:insert"),
-			);
+			const insertEvent = queryEvents.find((e) => e.metadata?.tags?.includes("queryType:insert"));
 			expect(insertEvent?.metadata?.tags).toContain("success:false");
 		});
 
@@ -223,14 +205,10 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 
 			const events = await db.select().from(observabilityEventsTable);
 
-			const initEvent = events.find(
-				(e) => e.metadata?.metric === "wasm_init_time",
-			);
+			const initEvent = events.find((e) => e.metadata?.metric === "wasm_init_time");
 			expect(initEvent?.metadata?.tags).toContain("service:vector-search");
 
-			const execEvents = events.filter(
-				(e) => e.metadata?.metric === "wasm_execution_time",
-			);
+			const execEvents = events.filter((e) => e.metadata?.metric === "wasm_execution_time");
 			expect(execEvents.length).toBeGreaterThan(0);
 		});
 
@@ -248,19 +226,13 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 
 			const events = await db.select().from(observabilityEventsTable);
 
-			const memoryEvents = events.filter(
-				(e) => e.metadata?.metric === "memory_usage",
-			);
+			const memoryEvents = events.filter((e) => e.metadata?.metric === "memory_usage");
 			expect(memoryEvents.length).toBeGreaterThan(0);
 
-			const cacheEvents = events.filter(
-				(e) => e.metadata?.metric === "cache_hit_rate",
-			);
+			const cacheEvents = events.filter((e) => e.metadata?.metric === "cache_hit_rate");
 			expect(cacheEvents.length).toBeGreaterThan(0);
 
-			const errorEvents = events.filter(
-				(e) => e.metadata?.metric === "error_rate",
-			);
+			const errorEvents = events.filter((e) => e.metadata?.metric === "error_rate");
 			expect(errorEvents.length).toBeGreaterThan(0);
 		});
 	});
@@ -278,10 +250,10 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 							"throughput",
 							Math.random() * 1000,
 							{ endpoint: `/api/endpoint-${i % 10}` },
-							{ requestId: ulid() },
+							{ requestId: ulid() }
 						);
 						resolve();
-					}),
+					})
 				);
 			}
 
@@ -292,9 +264,7 @@ describe("PerformanceMetricsCollector Integration Tests", () => {
 			expect(events.length).toBeGreaterThan(0);
 
 			// Verify aggregation happened
-			const throughputEvents = events.filter(
-				(e) => e.metadata?.metric === "throughput",
-			);
+			const throughputEvents = events.filter((e) => e.metadata?.metric === "throughput");
 			expect(throughputEvents.length).toBeGreaterThan(0);
 
 			// Should have aggregated metrics
@@ -378,7 +348,7 @@ describe("MetricsAnalyzer Integration Tests", () => {
 				["query_duration"],
 				dayAgo,
 				now,
-				"hour",
+				"hour"
 			);
 
 			expect(hourlyMetrics.length).toBeGreaterThan(0);
@@ -394,13 +364,11 @@ describe("MetricsAnalyzer Integration Tests", () => {
 				["query_duration"],
 				dayAgo,
 				now,
-				"day",
+				"day"
 			);
 
 			expect(dailyMetrics.length).toBeGreaterThan(0);
-			expect(dailyMetrics[0].aggregation.count).toBeGreaterThan(
-				hourlyMetrics[0].aggregation.count,
-			);
+			expect(dailyMetrics[0].aggregation.count).toBeGreaterThan(hourlyMetrics[0].aggregation.count);
 		});
 
 		it("should get performance trends over time", async () => {
@@ -410,7 +378,7 @@ describe("MetricsAnalyzer Integration Tests", () => {
 			const trends = await MetricsAnalyzer.getPerformanceTrends(
 				"query_duration",
 				{ start: dayAgo, end: now },
-				"hour",
+				"hour"
 			);
 
 			expect(trends.length).toBeGreaterThan(0);
@@ -419,9 +387,7 @@ describe("MetricsAnalyzer Integration Tests", () => {
 
 			// Verify chronological order
 			for (let i = 1; i < trends.length; i++) {
-				expect(trends[i].timestamp.getTime()).toBeGreaterThan(
-					trends[i - 1].timestamp.getTime(),
-				);
+				expect(trends[i].timestamp.getTime()).toBeGreaterThan(trends[i - 1].timestamp.getTime());
 			}
 		});
 	});
@@ -520,14 +486,12 @@ describe("MetricsAnalyzer Integration Tests", () => {
 					start: new Date(now.getTime() - 10 * 60 * 1000),
 					end: now,
 				},
-				"minute",
+				"minute"
 			);
 
 			// Performance should show degradation (increasing values over time)
-			const recentAvg =
-				trends.slice(0, 3).reduce((sum, t) => sum + t.value, 0) / 3;
-			const olderAvg =
-				trends.slice(-3).reduce((sum, t) => sum + t.value, 0) / 3;
+			const recentAvg = trends.slice(0, 3).reduce((sum, t) => sum + t.value, 0) / 3;
+			const olderAvg = trends.slice(-3).reduce((sum, t) => sum + t.value, 0) / 3;
 
 			expect(recentAvg).toBeLessThan(olderAvg);
 		});

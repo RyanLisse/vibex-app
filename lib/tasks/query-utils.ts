@@ -96,7 +96,7 @@ export function calculatePagination(params: TaskQueryParams) {
  */
 export function buildPaginationMetadata(
 	params: TaskQueryParams,
-	totalCount: number,
+	totalCount: number
 ): TaskQueryResult["pagination"] {
 	return {
 		page: params.page,
@@ -127,7 +127,6 @@ export function buildTaskQuery(params: TaskQueryParams) {
 		sortOrder,
 		pagination,
 		whereClause,
-		buildPagination: (totalCount: number) =>
-			buildPaginationMetadata(params, totalCount),
+		buildPagination: (totalCount: number) => buildPaginationMetadata(params, totalCount),
 	};
 }

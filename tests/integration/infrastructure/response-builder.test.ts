@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	BaseAPIError,
-	NotFoundError,
-	ValidationError,
-} from "../../../lib/api/base/errors";
+import { BaseAPIError, NotFoundError, ValidationError } from "../../../lib/api/base/errors";
 import {
 	type ErrorResponse,
 	type PaginatedResponse,
@@ -58,11 +54,7 @@ describe("ResponseBuilder Integration Tests", () => {
 
 		it("should create success response with custom requestId", () => {
 			const customRequestId = "custom-request-id";
-			const response = ResponseBuilder.success(
-				{ test: true },
-				undefined,
-				customRequestId,
-			);
+			const response = ResponseBuilder.success({ test: true }, undefined, customRequestId);
 
 			expect(response.meta.requestId).toBe(customRequestId);
 		});
@@ -294,11 +286,7 @@ describe("ResponseBuilder Integration Tests", () => {
 			const message = "Query returned no results";
 			const requestId = "query-request-id";
 
-			const response = ResponseBuilder.fromQueryResult(
-				queryResult,
-				message,
-				requestId,
-			);
+			const response = ResponseBuilder.fromQueryResult(queryResult, message, requestId);
 
 			expect(response.message).toBe(message);
 			expect(response.meta.requestId).toBe(requestId);
@@ -318,10 +306,7 @@ describe("ResponseBuilder Integration Tests", () => {
 		});
 
 		it("should create created response with custom message", () => {
-			const response = ResponseBuilder.created(
-				{ id: 1 },
-				"User account created",
-			);
+			const response = ResponseBuilder.created({ id: 1 }, "User account created");
 
 			expect(response.message).toBe("User account created");
 		});
@@ -375,10 +360,7 @@ describe("ResponseBuilder Integration Tests", () => {
 		});
 
 		it("should create accepted response with custom message", () => {
-			const response = ResponseBuilder.accepted(
-				{ taskId: "task-456" },
-				"Export job queued",
-			);
+			const response = ResponseBuilder.accepted({ taskId: "task-456" }, "Export job queued");
 
 			expect(response.message).toBe("Export job queued");
 		});
@@ -451,10 +433,7 @@ describe("ResponseBuilder Integration Tests", () => {
 
 		it("should include custom message for batch", () => {
 			const results = [{ success: true, data: { processed: true } }];
-			const response = ResponseBuilder.batch(
-				results,
-				"Batch processing complete",
-			);
+			const response = ResponseBuilder.batch(results, "Batch processing complete");
 
 			expect(response.message).toBe("Batch processing complete");
 		});
@@ -489,17 +468,14 @@ describe("ResponseBuilder Integration Tests", () => {
 				{ id: 2, name: "Product 2", price: 20.99 },
 			];
 
-			const response: PaginatedResponse<Product> = ResponseBuilder.paginated(
-				products,
-				{
-					page: 1,
-					limit: 10,
-					total: 2,
-					totalPages: 1,
-					hasNext: false,
-					hasPrev: false,
-				},
-			);
+			const response: PaginatedResponse<Product> = ResponseBuilder.paginated(products, {
+				page: 1,
+				limit: 10,
+				total: 2,
+				totalPages: 1,
+				hasNext: false,
+				hasPrev: false,
+			});
 
 			expect(response.data[0].price).toBe(10.99);
 			expect(response.data[1].price).toBe(20.99);
@@ -540,10 +516,7 @@ describe("ResponseBuilder Integration Tests", () => {
 			const requestId = "consistent-request-id";
 
 			const successResponse = ResponseBuilder.success({}, undefined, requestId);
-			const errorResponse = ResponseBuilder.error(
-				new BaseAPIError("Error"),
-				requestId,
-			);
+			const errorResponse = ResponseBuilder.error(new BaseAPIError("Error"), requestId);
 			const paginatedResponse = ResponseBuilder.paginated(
 				[],
 				{
@@ -555,7 +528,7 @@ describe("ResponseBuilder Integration Tests", () => {
 					hasPrev: false,
 				},
 				undefined,
-				requestId,
+				requestId
 			);
 
 			expect(successResponse.meta.requestId).toBe(requestId);
@@ -574,7 +547,7 @@ describe("ResponseBuilder Integration Tests", () => {
 
 			const response = ResponseBuilder.created(
 				newUser,
-				"User registration successful. Please check your email for verification.",
+				"User registration successful. Please check your email for verification."
 			);
 
 			expect(response.success).toBe(true);
@@ -600,7 +573,7 @@ describe("ResponseBuilder Integration Tests", () => {
 
 			const response = ResponseBuilder.fromQueryResult(
 				searchResults,
-				`Found ${searchResults.pagination.total} results`,
+				`Found ${searchResults.pagination.total} results`
 			);
 
 			expect(response.message).toBe("Found 2 results");
@@ -616,10 +589,7 @@ describe("ResponseBuilder Integration Tests", () => {
 				{ success: false, error: "Invalid data format" },
 			];
 
-			const response = ResponseBuilder.batch(
-				bulkResults,
-				"Bulk import completed with errors",
-			);
+			const response = ResponseBuilder.batch(bulkResults, "Bulk import completed with errors");
 
 			expect(response.data.succeeded).toBe(3);
 			expect(response.data.failed).toBe(2);
@@ -635,7 +605,7 @@ describe("ResponseBuilder Integration Tests", () => {
 
 			const response = ResponseBuilder.accepted(
 				jobInfo,
-				"Export job submitted. You will receive an email when complete.",
+				"Export job submitted. You will receive an email when complete."
 			);
 
 			expect(response.data.jobId).toBe("export-job-456");

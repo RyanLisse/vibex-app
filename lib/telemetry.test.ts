@@ -52,10 +52,30 @@ describe("telemetry", () => {
 			expect(config).toEqual({
 				isEnabled: true,
 				endpoint: "http://localhost:4318/v1/traces", // Default OTLP endpoint
+				metricsEndpoint: "http://localhost:4318/v1/metrics",
 				serviceName: "vibex",
 				serviceVersion: "1.0.0",
 				samplingRatio: 1.0,
 				headers: undefined,
+				agentTracking: {
+					enabled: true,
+					includeInputOutput: false,
+					maxPayloadSize: 10240,
+					trackMemoryUsage: false,
+					trackPerformanceMetrics: true,
+				},
+				metrics: {
+					aggregationWindow: 60000,
+					collectInterval: 10000,
+					enabled: true,
+					retentionPeriod: 86400000,
+				},
+				streaming: {
+					bufferSize: 1000,
+					enabled: true,
+					flushInterval: 5000,
+					maxSubscriptions: 100,
+				},
 			});
 		});
 
@@ -114,13 +134,10 @@ describe("telemetry", () => {
 			["otlp", "http://localhost:4318/v1/traces"],
 		];
 
-		it.each(backends)(
-			"should return correct endpoint for %s",
-			(backend, expectedEndpoint) => {
-				const endpoint = getDefaultEndpoint(backend);
-				expect(endpoint).toBe(expectedEndpoint);
-			},
-		);
+		it.each(backends)("should return correct endpoint for %s", (backend, expectedEndpoint) => {
+			const endpoint = getDefaultEndpoint(backend);
+			expect(endpoint).toBe(expectedEndpoint);
+		});
 	});
 
 	describe("validateTelemetryConfig", () => {
@@ -157,9 +174,7 @@ describe("telemetry", () => {
 			const result = validateTelemetryConfig(config);
 
 			expect(result.valid).toBe(false);
-			expect(result.errors).toContain(
-				"endpoint is required when telemetry is enabled",
-			);
+			expect(result.errors).toContain("endpoint is required when telemetry is enabled");
 		});
 
 		it("should validate sampling ratio bounds", () => {
@@ -171,9 +186,7 @@ describe("telemetry", () => {
 
 			const result1 = validateTelemetryConfig(config1);
 			expect(result1.valid).toBe(false);
-			expect(result1.errors).toContain(
-				"samplingRatio must be between 0.0 and 1.0",
-			);
+			expect(result1.errors).toContain("samplingRatio must be between 0.0 and 1.0");
 
 			const config2: TelemetryConfig = {
 				isEnabled: true,
@@ -183,9 +196,7 @@ describe("telemetry", () => {
 
 			const result2 = validateTelemetryConfig(config2);
 			expect(result2.valid).toBe(false);
-			expect(result2.errors).toContain(
-				"samplingRatio must be between 0.0 and 1.0",
-			);
+			expect(result2.errors).toContain("samplingRatio must be between 0.0 and 1.0");
 		});
 
 		it("should accept valid sampling ratios", () => {
@@ -291,12 +302,7 @@ describe("telemetry", () => {
 
 		it("should handle edge case sampling ratios", () => {
 			process.env.NODE_ENV = "development";
-			const testCases = [
-				{ ratio: 0 },
-				{ ratio: 1 },
-				{ ratio: 0.333 },
-				{ ratio: 0.999 },
-			];
+			const testCases = [{ ratio: 0 }, { ratio: 1 }, { ratio: 0.333 }, { ratio: 0.999 }];
 
 			for (const { ratio } of testCases) {
 				consoleSpy.mockClear();

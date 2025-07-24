@@ -13,7 +13,7 @@ describe("Button Integration Tests", () => {
 				<form onSubmit={handleSubmit}>
 					<input defaultValue="value" name="test" />
 					<Button type="submit">Submit</Button>
-				</form>,
+				</form>
 			);
 
 			const button = screen.getByRole("button", { name: "Submit" });
@@ -29,7 +29,7 @@ describe("Button Integration Tests", () => {
 				<form onSubmit={handleSubmit}>
 					<input defaultValue="value" name="test" />
 					<Button type="button">Don&apos;t Submit</Button>
-				</form>,
+				</form>
 			);
 
 			const button = screen.getByRole("button", { name: "Don't Submit" });
@@ -45,7 +45,7 @@ describe("Button Integration Tests", () => {
 				<div>
 					<Button>First</Button>
 					<Button>Second</Button>
-				</div>,
+				</div>
 			);
 
 			const firstButton = screen.getByRole("button", { name: "First" });
@@ -88,7 +88,7 @@ describe("Button Integration Tests", () => {
 					<Button>First</Button>
 					<Button disabled>Disabled</Button>
 					<Button>Third</Button>
-				</div>,
+				</div>
 			);
 
 			const firstButton = screen.getByRole("button", { name: "First" });
@@ -111,7 +111,7 @@ describe("Button Integration Tests", () => {
 					<a href="/test" onClick={handleClick}>
 						Link Button
 					</a>
-				</Button>,
+				</Button>
 			);
 
 			const link = screen.getByRole("link", { name: "Link Button" });
@@ -123,10 +123,7 @@ describe("Button Integration Tests", () => {
 		});
 
 		it("works with custom components", async () => {
-			const CustomComponent = ({
-				children,
-				...props
-			}: React.ComponentProps<"div">) => (
+			const CustomComponent = ({ children, ...props }: React.ComponentProps<"div">) => (
 				<div data-testid="custom-component" {...props}>
 					{children}
 				</div>
@@ -135,7 +132,7 @@ describe("Button Integration Tests", () => {
 			render(
 				<Button asChild>
 					<CustomComponent>Custom Button</CustomComponent>
-				</Button>,
+				</Button>
 			);
 
 			const customElement = screen.getByTestId("custom-component");
@@ -161,7 +158,7 @@ describe("Button Integration Tests", () => {
 					onMouseLeave={handleMouseLeave}
 				>
 					Multi Event Button
-				</Button>,
+				</Button>
 			);
 
 			const button = screen.getByRole("button", { name: "Multi Event Button" });
@@ -189,7 +186,7 @@ describe("Button Integration Tests", () => {
 			render(
 				<div onClick={parentClick}>
 					<Button onClick={buttonClick}>Stop Propagation</Button>
-				</div>,
+				</div>
 			);
 
 			const button = screen.getByRole("button", { name: "Stop Propagation" });
@@ -220,9 +217,7 @@ describe("Button Integration Tests", () => {
 			await userEvent.click(button);
 
 			await waitFor(() => {
-				expect(
-					screen.getByRole("button", { name: "Loading..." }),
-				).toBeDisabled();
+				expect(screen.getByRole("button", { name: "Loading..." })).toBeDisabled();
 			});
 		});
 
@@ -261,7 +256,7 @@ describe("Button Integration Tests", () => {
 					aria-label="Close dialog"
 				>
 					×
-				</Button>,
+				</Button>
 			);
 
 			const button = screen.getByRole("button", { name: "Close dialog" });

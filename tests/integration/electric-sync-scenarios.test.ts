@@ -8,10 +8,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Environment, Task } from "../../db/schema";
 import { useElectric } from "../../hooks/use-electric";
-import {
-	useElectricEnvironments,
-	useElectricTasks,
-} from "../../hooks/use-electric-tasks";
+import { useElectricEnvironments, useElectricTasks } from "../../hooks/use-electric-tasks";
 import { useOfflineSync } from "../../hooks/use-offline-sync";
 import { electricDb } from "../../lib/electric/config";
 
@@ -62,9 +59,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 
 	describe("Real-time Sync", () => {
 		it("should sync task creation in real-time", async () => {
-			const mockTasks = [
-				{ id: "1", title: "Existing Task", status: "pending" },
-			] as Task[];
+			const mockTasks = [{ id: "1", title: "Existing Task", status: "pending" }] as Task[];
 
 			const newTask = {
 				id: "2",
@@ -102,7 +97,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 					status: "pending",
 					priority: "medium",
 				}),
-				true, // optimistic update
+				true // optimistic update
 			);
 		});
 
@@ -140,7 +135,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 					title: "Updated Title",
 					status: "completed",
 				}),
-				true,
+				true
 			);
 		});
 
@@ -171,7 +166,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				expect.objectContaining({
 					type: "insert",
 					table: "tasks",
-				}),
+				})
 			);
 		});
 	});
@@ -213,11 +208,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				await mockElectricDb.handleConflict("tasks", localTask, remoteTask);
 			});
 
-			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith(
-				"tasks",
-				localTask,
-				remoteTask,
-			);
+			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith("tasks", localTask, remoteTask);
 		});
 
 		it("should resolve conflicts using user-priority strategy", async () => {
@@ -251,11 +242,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				await mockElectricDb.handleConflict("tasks", adminTask, userTask);
 			});
 
-			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith(
-				"tasks",
-				adminTask,
-				userTask,
-			);
+			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith("tasks", adminTask, userTask);
 		});
 
 		it("should handle field-merge conflict resolution", async () => {
@@ -292,14 +279,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				winner: "merged",
 				metadata: {
 					conflicts: ["title", "status", "priority"],
-					mergedFields: [
-						"id",
-						"title",
-						"description",
-						"status",
-						"priority",
-						"updatedAt",
-					],
+					mergedFields: ["id", "title", "description", "status", "priority", "updatedAt"],
 				},
 			});
 
@@ -307,11 +287,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				await mockElectricDb.handleConflict("tasks", localTask, remoteTask);
 			});
 
-			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith(
-				"tasks",
-				localTask,
-				remoteTask,
-			);
+			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith("tasks", localTask, remoteTask);
 		});
 	});
 
@@ -326,25 +302,18 @@ describe("ElectricSQL Sync Scenarios", () => {
 				priority: "medium" as const,
 			};
 
-			mockElectricDb.queueOfflineOperation.mockResolvedValue(
-				"queued-operation-id",
-			);
+			mockElectricDb.queueOfflineOperation.mockResolvedValue("queued-operation-id");
 
 			const { result } = renderHook(() => useOfflineSync());
 
 			act(() => {
-				result.current.queueOperation(
-					"insert",
-					"tasks",
-					offlineTask,
-					"user-123",
-				);
+				result.current.queueOperation("insert", "tasks", offlineTask, "user-123");
 			});
 
 			expect(mockElectricDb.queueOfflineOperation).toHaveBeenCalledWith(
 				"tasks",
 				"insert",
-				offlineTask,
+				offlineTask
 			);
 
 			expect(result.current.getStats().queueSize).toBeGreaterThan(0);
@@ -415,9 +384,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				await result.current.manualSync();
 			});
 
-			expect(result.current.syncErrors).toContain(
-				"Failed to sync insert on tasks after 3 retries",
-			);
+			expect(result.current.syncErrors).toContain("Failed to sync insert on tasks after 3 retries");
 		});
 
 		it("should implement retry logic with exponential backoff", async () => {
@@ -497,11 +464,9 @@ describe("ElectricSQL Sync Scenarios", () => {
 			});
 
 			// Should only include user A's task
-			expect(result.current.tasks).toContainEqual(
-				expect.objectContaining({ userId: "user-a" }),
-			);
+			expect(result.current.tasks).toContainEqual(expect.objectContaining({ userId: "user-a" }));
 			expect(result.current.tasks).not.toContainEqual(
-				expect.objectContaining({ userId: "user-b" }),
+				expect.objectContaining({ userId: "user-b" })
 			);
 		});
 
@@ -541,11 +506,7 @@ describe("ElectricSQL Sync Scenarios", () => {
 				await mockElectricDb.handleConflict("tasks", userAUpdate, userBUpdate);
 			});
 
-			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith(
-				"tasks",
-				userAUpdate,
-				userBUpdate,
-			);
+			expect(mockElectricDb.handleConflict).toHaveBeenCalledWith("tasks", userAUpdate, userBUpdate);
 		});
 	});
 

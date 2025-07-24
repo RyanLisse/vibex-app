@@ -21,8 +21,7 @@ export interface MessageHandler {
  */
 export class MessageHandlers {
 	private handlers: Map<string, MessageHandler[]> = new Map();
-	private middlewares: ((message: Message) => Promise<Message> | Message)[] =
-		[];
+	private middlewares: ((message: Message) => Promise<Message> | Message)[] = [];
 
 	/**
 	 * Register a message handler for a specific message type
@@ -30,11 +29,7 @@ export class MessageHandlers {
 	 * @param handler - Handler function
 	 * @param priority - Handler priority (higher priority runs first)
 	 */
-	register(
-		type: string,
-		handler: MessageHandler["handler"],
-		priority: number = 0,
-	): void {
+	register(type: string, handler: MessageHandler["handler"], priority: number = 0): void {
 		if (!this.handlers.has(type)) {
 			this.handlers.set(type, []);
 		}
@@ -100,9 +95,7 @@ export class MessageHandlers {
 
 		const handlers = this.handlers.get(processedMessage.type);
 		if (!handlers || handlers.length === 0) {
-			console.warn(
-				`No handlers registered for message type: ${processedMessage.type}`,
-			);
+			console.warn(`No handlers registered for message type: ${processedMessage.type}`);
 			return [];
 		}
 
@@ -113,10 +106,7 @@ export class MessageHandlers {
 				const result = await handler(processedMessage);
 				results.push(result);
 			} catch (error) {
-				console.error(
-					`Error in message handler for type ${processedMessage.type}:`,
-					error,
-				);
+				console.error(`Error in message handler for type ${processedMessage.type}:`, error);
 				results.push({ error: error.message });
 			}
 		}
@@ -232,7 +222,7 @@ export class MessageHandlers {
 export function createMessage(
 	type: string,
 	payload: any,
-	options: Partial<Omit<Message, "id" | "type" | "payload" | "timestamp">> = {},
+	options: Partial<Omit<Message, "id" | "type" | "payload" | "timestamp">> = {}
 ): Message {
 	// Generate UUID compatible with both Node.js and Bun
 	const generateUUID = (): string => {

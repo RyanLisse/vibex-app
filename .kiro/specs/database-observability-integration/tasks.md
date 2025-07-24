@@ -49,7 +49,7 @@
   - Set up automatic context summarization and archival
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [-] 8. Workflow Orchestration Engine
+- [x] 8. Workflow Orchestration Engine
   - Create workflow definition storage using existing database schema with versioning support
   - Implement workflow execution engine with pause/resume functionality
   - Build checkpoint system for reliable workflow recovery
@@ -70,7 +70,7 @@
   - Implement proper error handling and OpenTelemetry tracing
   - _Requirements: 1.1, 1.2, 8.1, 8.2_
 
-- [x] 11. Migrate Zustand Stores to TanStack Query
+- [-] 11. Migrate Zustand Stores to TanStack Query
   - Replace task store localStorage persistence with TanStack Query and database operations
   - Replace environment store localStorage persistence with TanStack Query and database operations
   - Implement optimistic updates and proper error handling
@@ -106,7 +106,7 @@
   - Add performance tests for query cache efficiency and sync latency
   - _Requirements: 1.3, 2.3, 3.5, 5.4_
 
-- [ ] 16. Deployment Configuration and Monitoring
+- [x] 16. Deployment Configuration and Monitoring
   - Configure Neon PostgreSQL database with proper security and scaling settings
   - Set up ElectricSQL service deployment with monitoring and alerting
   - Configure OpenTelemetry exporters for production observability platform

@@ -5,16 +5,7 @@ import { AIInputTools } from "./input";
 
 // Mock components - using @/ prefix for consistency
 vi.mock("@/components/ui/button", () => ({
-	Button: ({
-		children,
-		onClick,
-		disabled,
-		className,
-		size,
-		variant,
-		type,
-		...props
-	}: any) => (
+	Button: ({ children, onClick, disabled, className, size, variant, type, ...props }: any) => (
 		<button
 			className={className}
 			data-size={size}
@@ -30,14 +21,7 @@ vi.mock("@/components/ui/button", () => ({
 }));
 
 vi.mock("@/components/ui/textarea", () => ({
-	Textarea: ({
-		onChange,
-		onKeyDown,
-		className,
-		placeholder,
-		name,
-		...props
-	}: any) => (
+	Textarea: ({ onChange, onKeyDown, className, placeholder, name, ...props }: any) => (
 		<textarea
 			className={className}
 			name={name}

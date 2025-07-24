@@ -11,7 +11,7 @@ import * as schema from "./schema";
 const databaseUrl = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL or NEON_DATABASE_URL environment variable is required");
+	throw new Error("DATABASE_URL or NEON_DATABASE_URL environment variable is required");
 }
 
 // Create Neon serverless client
@@ -24,80 +24,80 @@ export const db = drizzle(neonClient, { schema });
 export * from "./schema";
 
 // Database utilities
-export async function getDatabaseHealth(): Promise<{ 
-  connected: boolean; 
-  latency?: number; 
-  error?: string 
+export async function getDatabaseHealth(): Promise<{
+	connected: boolean;
+	latency?: number;
+	error?: string;
 }> {
-  const start = Date.now();
-  try {
-    await neonClient("SELECT 1");
-    return { 
-      connected: true, 
-      latency: Date.now() - start 
-    };
-  } catch (error) {
-    return { 
-      connected: false, 
-      error: error instanceof Error ? error.message : String(error) 
-    };
-  }
+	const start = Date.now();
+	try {
+		await neonClient("SELECT 1");
+		return {
+			connected: true,
+			latency: Date.now() - start,
+		};
+	} catch (error) {
+		return {
+			connected: false,
+			error: error instanceof Error ? error.message : String(error),
+		};
+	}
 }
 
 // Database connection pool management
 export class DatabasePool {
-  private static instance: DatabasePool;
-  
-  static getInstance(): DatabasePool {
-    if (!DatabasePool.instance) {
-      DatabasePool.instance = new DatabasePool();
-    }
-    return DatabasePool.instance;
-  }
-  
-  async healthCheck(): Promise<boolean> {
-    const health = await getDatabaseHealth();
-    return health.connected;
-  }
-  
-  async close(): Promise<void> {
-    // Neon serverless handles connection cleanup automatically
-  }
+	private static instance: DatabasePool;
+
+	static getInstance(): DatabasePool {
+		if (!DatabasePool.instance) {
+			DatabasePool.instance = new DatabasePool();
+		}
+		return DatabasePool.instance;
+	}
+
+	async healthCheck(): Promise<boolean> {
+		const health = await getDatabaseHealth();
+		return health.connected;
+	}
+
+	async close(): Promise<void> {
+		// Neon serverless handles connection cleanup automatically
+	}
 }
 
 // Initialize database extensions
 export async function initializeExtensions(): Promise<void> {
-  try {
-    // Enable required PostgreSQL extensions
-    await neonClient("CREATE EXTENSION IF NOT EXISTS vector");
-    await neonClient("CREATE EXTENSION IF NOT EXISTS pg_trgm");
-    await neonClient('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-  } catch (error) {
-    console.error("Failed to initialize database extensions:", error);
-    throw error;
-  }
+	try {
+		// Enable required PostgreSQL extensions
+		await neonClient("CREATE EXTENSION IF NOT EXISTS vector");
+		await neonClient("CREATE EXTENSION IF NOT EXISTS pg_trgm");
+		await neonClient('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+	} catch (error) {
+		console.error("Failed to initialize database extensions:", error);
+		throw error;
+	}
 }
 
 // Database health check function
 export async function checkDatabaseHealth(): Promise<boolean> {
-  const health = await getDatabaseHealth();
-  return health.connected;
+	const health = await getDatabaseHealth();
+	return health.connected;
 }
 
 // Graceful shutdown
 export async function closeDatabaseConnection(): Promise<void> {
-  const pool = DatabasePool.getInstance();
-  await pool.close();
+	const pool = DatabasePool.getInstance();
+	await pool.close();
 }
 
 // Database client export for compatibility
 export const client = {
-  end: closeDatabaseConnection,
+	end: closeDatabaseConnection,
 };
 
 // Process exit handlers for graceful shutdown
 if (typeof process !== "undefined") {
-  process.on("SIGINT", closeDatabaseConnection);
-  process.on("SIGTERM", closeDatabaseConnection);
-  process.on("exit", closeDatabaseConnection);
+	process.on("SIGINT", closeDatabaseConnection);
+	process.on("SIGTERM", closeDatabaseConnection);
+	process.on("exit", closeDatabaseConnection);
 }

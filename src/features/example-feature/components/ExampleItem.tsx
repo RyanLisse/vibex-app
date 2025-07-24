@@ -13,12 +13,7 @@ interface ExampleItemProps {
 	onStatusChange?: (id: string, status: ExampleItemType["status"]) => void;
 }
 
-export function ExampleItem({
-	item,
-	onEdit,
-	onDelete,
-	onStatusChange,
-}: ExampleItemProps) {
+export function ExampleItem({ item, onEdit, onDelete, onStatusChange }: ExampleItemProps) {
 	const handleStatusToggle = () => {
 		const newStatus = item.status === "completed" ? "pending" : "completed";
 		onStatusChange?.(item.id, newStatus);
@@ -28,7 +23,7 @@ export function ExampleItem({
 		<article
 			className={cn(
 				"rounded-lg border bg-white p-4 shadow-sm",
-				item.status === "completed" && "opacity-60",
+				item.status === "completed" && "opacity-60"
 			)}
 			data-testid={`example-item-${item.id}`}
 		>
@@ -49,30 +44,26 @@ export function ExampleItem({
 						<h3
 							className={cn(
 								"font-medium text-gray-900",
-								item.status === "completed" && "line-through",
+								item.status === "completed" && "line-through"
 							)}
 						>
 							{item.title}
 						</h3>
 
-						{item.description && (
-							<p className="mt-1 text-gray-600 text-sm">{item.description}</p>
-						)}
+						{item.description && <p className="mt-1 text-gray-600 text-sm">{item.description}</p>}
 
 						<div className="mt-2 flex items-center gap-2">
 							<span
 								className={cn(
 									"rounded px-2 py-1 font-medium text-xs",
 									getPriorityColor(item.priority),
-									"bg-gray-100",
+									"bg-gray-100"
 								)}
 							>
 								{item.priority}
 							</span>
 
-							<span className="text-gray-500 text-xs">
-								{item.createdAt.toLocaleDateString()}
-							</span>
+							<span className="text-gray-500 text-xs">{item.createdAt.toLocaleDateString()}</span>
 						</div>
 					</div>
 				</div>

@@ -25,10 +25,7 @@ export class MemorySearchService {
 	/**
 	 * Search memories using text query
 	 */
-	async search(
-		query: string,
-		options: MemorySearchOptions = {},
-	): Promise<MemorySearchResult[]> {
+	async search(query: string, options: MemorySearchOptions = {}): Promise<MemorySearchResult[]> {
 		const startTime = Date.now();
 
 		try {
@@ -75,7 +72,7 @@ export class MemorySearchService {
 	 */
 	async findSimilar(
 		memoryId: string,
-		options: MemorySearchOptions = {},
+		options: MemorySearchOptions = {}
 	): Promise<MemorySearchResult[]> {
 		const memory = await memoryRepository.findById(memoryId);
 		if (!memory) {
@@ -91,9 +88,7 @@ export class MemorySearchService {
 
 			return results
 				.filter((result) => result.memory.id !== memoryId)
-				.map((result) =>
-					this.createSearchResult(result.memory, result.similarity),
-				);
+				.map((result) => this.createSearchResult(result.memory, result.similarity));
 		}
 
 		// Fallback to content-based search
@@ -108,7 +103,7 @@ export class MemorySearchService {
 	 */
 	async searchByType(
 		types: MemoryType[],
-		options: MemorySearchOptions = {},
+		options: MemorySearchOptions = {}
 	): Promise<MemorySearchResult[]> {
 		const memories = await memoryRepository.search({
 			...options,
@@ -123,7 +118,7 @@ export class MemorySearchService {
 	 */
 	async searchByTags(
 		tags: string[],
-		options: MemorySearchOptions = {},
+		options: MemorySearchOptions = {}
 	): Promise<MemorySearchResult[]> {
 		const memories = await memoryRepository.search({
 			...options,
@@ -138,17 +133,14 @@ export class MemorySearchService {
 	 */
 	private async semanticSearch(
 		query: string,
-		options: MemorySearchOptions,
+		options: MemorySearchOptions
 	): Promise<MemorySearchResult[]> {
 		try {
 			// Generate embedding for the query
 			const queryEmbedding = await this.generateEmbedding(query);
 
 			// Search using vector similarity
-			const results = await memoryRepository.semanticSearch(
-				queryEmbedding,
-				options,
-			);
+			const results = await memoryRepository.semanticSearch(queryEmbedding, options);
 
 			// Calculate comprehensive scores
 			return results.map((result) => {
@@ -162,10 +154,7 @@ export class MemorySearchService {
 
 				// Weighted total score
 				const totalScore =
-					semanticScore * 0.4 +
-					recencyScore * 0.2 +
-					importanceScore * 0.3 +
-					accessScore * 0.1;
+					semanticScore * 0.4 + recencyScore * 0.2 + importanceScore * 0.3 + accessScore * 0.1;
 
 				return this.createSearchResult(memory, totalScore, {
 					semantic: semanticScore,
@@ -175,10 +164,7 @@ export class MemorySearchService {
 				});
 			});
 		} catch (error) {
-			console.warn(
-				"Semantic search failed, falling back to text search:",
-				error,
-			);
+			console.warn("Semantic search failed, falling back to text search:", error);
 			return this.textSearch(query, options);
 		}
 	}
@@ -188,7 +174,7 @@ export class MemorySearchService {
 	 */
 	private async textSearch(
 		query: string,
-		options: MemorySearchOptions,
+		options: MemorySearchOptions
 	): Promise<MemorySearchResult[]> {
 		const memories = await memoryRepository.search({
 			...options,
@@ -217,10 +203,7 @@ export class MemorySearchService {
 			const accessScore = Math.min(memory.accessCount / 100, 1);
 
 			const totalScore =
-				textScore * 0.5 +
-				recencyScore * 0.2 +
-				importanceScore * 0.2 +
-				accessScore * 0.1;
+				textScore * 0.5 + recencyScore * 0.2 + importanceScore * 0.2 + accessScore * 0.1;
 
 			return this.createSearchResult(memory, totalScore, {
 				semantic: textScore,
@@ -265,9 +248,7 @@ export class MemorySearchService {
 		}
 
 		// Normalize
-		const magnitude = Math.sqrt(
-			embedding.reduce((sum, val) => sum + val * val, 0),
-		);
+		const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
 		return magnitude > 0 ? embedding.map((val) => val / magnitude) : embedding;
 	}
 
@@ -294,17 +275,15 @@ export class MemorySearchService {
 			recency: number;
 			importance: number;
 			accessFrequency: number;
-		},
+		}
 	): MemorySearchResult {
 		return {
 			memory,
 			score: {
 				semantic: scores?.semantic || totalScore,
-				recency:
-					scores?.recency || this.calculateRecencyScore(memory.lastAccessedAt),
+				recency: scores?.recency || this.calculateRecencyScore(memory.lastAccessedAt),
 				importance: scores?.importance || memory.importance / 10,
-				accessFrequency:
-					scores?.accessFrequency || Math.min(memory.accessCount / 100, 1),
+				accessFrequency: scores?.accessFrequency || Math.min(memory.accessCount / 100, 1),
 				total: totalScore,
 			},
 			highlights: [], // TODO: Implement text highlighting
@@ -334,10 +313,7 @@ export class MemorySearchService {
 
 		// Check if cache is still valid
 		const cacheData = cached as any;
-		if (
-			cacheData.timestamp &&
-			Date.now() - cacheData.timestamp > this.CACHE_TTL
-		) {
+		if (cacheData.timestamp && Date.now() - cacheData.timestamp > this.CACHE_TTL) {
 			this.searchCache.delete(key);
 			return null;
 		}
@@ -383,9 +359,7 @@ export class MemorySearchService {
 
 			// Generate embeddings for memories without them
 			const memories = [...recentMemories, ...importantMemories];
-			const uniqueMemories = Array.from(
-				new Map(memories.map((m) => [m.id, m])).values(),
-			);
+			const uniqueMemories = Array.from(new Map(memories.map((m) => [m.id, m])).values());
 
 			for (const memory of uniqueMemories) {
 				if (!memory.embedding) {
@@ -394,9 +368,7 @@ export class MemorySearchService {
 				}
 			}
 
-			console.log(
-				`Warmed up search index for ${agentType} with ${uniqueMemories.length} memories`,
-			);
+			console.log(`Warmed up search index for ${agentType} with ${uniqueMemories.length} memories`);
 		} catch (error) {
 			console.error("Failed to warm up search index:", error);
 		}

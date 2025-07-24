@@ -9,9 +9,7 @@ export async function GET(request: NextRequest) {
 	try {
 		// Get token from Authorization header or cookies
 		const authHeader = request.headers.get("authorization");
-		const token =
-			authHeader?.replace("Bearer ", "") ||
-			request.cookies.get("openai-token")?.value;
+		const token = authHeader?.replace("Bearer ", "") || request.cookies.get("openai-token")?.value;
 
 		if (!token) {
 			return NextResponse.json({
@@ -56,7 +54,7 @@ export async function GET(request: NextRequest) {
 				user: null,
 				error: "Failed to check authentication status",
 			},
-			{ status: 500 },
+			{ status: 500 }
 		);
 	}
 }
@@ -80,9 +78,6 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		console.error("Error validating OpenAI token:", error);
 
-		return NextResponse.json(
-			{ error: "Failed to validate token" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Failed to validate token" }, { status: 500 });
 	}
 }

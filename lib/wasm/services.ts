@@ -11,16 +11,8 @@ import { type WASMCapabilities, wasmDetector } from "./detection";
 import { moduleLoader } from "./module-loader";
 import { wasmObservability } from "./observability-integration";
 import { wasmPerformanceTracker } from "./performance-tracker";
-import {
-	type SQLiteWASMConfig,
-	SQLiteWASMUtils,
-	sqliteWASMUtils,
-} from "./sqlite-utils";
-import {
-	type VectorSearchConfig,
-	VectorSearchWASM,
-	vectorSearchManager,
-} from "./vector-search";
+import { type SQLiteWASMConfig, SQLiteWASMUtils, sqliteWASMUtils } from "./sqlite-utils";
+import { type VectorSearchConfig, VectorSearchWASM, vectorSearchManager } from "./vector-search";
 
 export interface WASMServicesConfig {
 	vectorSearch?: Partial<VectorSearchConfig>;
@@ -91,7 +83,7 @@ export class WASMServices {
 			this.capabilities = await wasmDetector.detectCapabilities();
 			console.log(
 				"✅ WASM capabilities detected:",
-				this.capabilities.isSupported ? "Supported" : "Not supported",
+				this.capabilities.isSupported ? "Supported" : "Not supported"
 			);
 
 			// Initialize services in parallel
@@ -134,9 +126,7 @@ export class WASMServices {
 			this.initializationTime = performance.now() - startTime;
 			this.isInitialized = true;
 
-			console.log(
-				`✅ WASM Services initialized in ${this.initializationTime.toFixed(2)}ms`,
-			);
+			console.log(`✅ WASM Services initialized in ${this.initializationTime.toFixed(2)}ms`);
 
 			if (process.env.NODE_ENV === "development") {
 				this.logServicesStatus();
@@ -160,16 +150,14 @@ export class WASMServices {
 		try {
 			this.vectorSearchEngine = vectorSearchManager.getSearchEngine(
 				"default",
-				this.config.vectorSearch,
+				this.config.vectorSearch
 			);
 			await this.vectorSearchEngine.initialize();
 			console.log("✅ Vector Search WASM initialized");
 		} catch (error) {
 			console.warn("⚠️ Vector Search WASM initialization failed:", error);
 			if (this.config.enableFallbacks) {
-				this.vectorSearchEngine = new VectorSearchWASM(
-					this.config.vectorSearch,
-				);
+				this.vectorSearchEngine = new VectorSearchWASM(this.config.vectorSearch);
 				await this.vectorSearchEngine.initialize();
 			}
 		}
@@ -274,9 +262,7 @@ export class WASMServices {
 	 */
 	getVectorSearch(): VectorSearchWASM {
 		if (!this.vectorSearchEngine) {
-			throw new Error(
-				"Vector Search service not initialized. Call initialize() first.",
-			);
+			throw new Error("Vector Search service not initialized. Call initialize() first.");
 		}
 		return this.vectorSearchEngine;
 	}
@@ -286,9 +272,7 @@ export class WASMServices {
 	 */
 	getSQLiteUtils(): SQLiteWASMUtils {
 		if (!this.sqliteUtils) {
-			throw new Error(
-				"SQLite WASM utilities not initialized. Call initialize() first.",
-			);
+			throw new Error("SQLite WASM utilities not initialized. Call initialize() first.");
 		}
 		return this.sqliteUtils;
 	}
@@ -298,9 +282,7 @@ export class WASMServices {
 	 */
 	getComputeEngine(): ComputeWASM {
 		if (!this.computeEngine) {
-			throw new Error(
-				"Compute engine not initialized. Call initialize() first.",
-			);
+			throw new Error("Compute engine not initialized. Call initialize() first.");
 		}
 		return this.computeEngine;
 	}
@@ -359,9 +341,7 @@ export class WASMServices {
 			compute: this.computeEngine?.getStats() || null,
 			dataProcessing: dataProcessor.getStats() || null,
 			performance: wasmPerformanceTracker.getMetrics() || null,
-			observability: this.config.enableObservability
-				? wasmObservability.getHealthStatus()
-				: null,
+			observability: this.config.enableObservability ? wasmObservability.getHealthStatus() : null,
 			initializationTime: this.initializationTime,
 			isFullyInitialized: this.isInitialized,
 		};
@@ -375,22 +355,10 @@ export class WASMServices {
 
 		console.group("🔧 WASM Services Status");
 		console.log("Capabilities:", stats.capabilities);
-		console.log(
-			"Vector Search:",
-			stats.vectorSearch ? "✅ Ready" : "❌ Not available",
-		);
-		console.log(
-			"SQLite Utils:",
-			stats.sqlite ? "✅ Ready" : "❌ Not available",
-		);
-		console.log(
-			"Compute Engine:",
-			stats.compute ? "✅ Ready" : "❌ Not available",
-		);
-		console.log(
-			"Initialization Time:",
-			`${stats.initializationTime.toFixed(2)}ms`,
-		);
+		console.log("Vector Search:", stats.vectorSearch ? "✅ Ready" : "❌ Not available");
+		console.log("SQLite Utils:", stats.sqlite ? "✅ Ready" : "❌ Not available");
+		console.log("Compute Engine:", stats.compute ? "✅ Ready" : "❌ Not available");
+		console.log("Initialization Time:", `${stats.initializationTime.toFixed(2)}ms`);
 		console.groupEnd();
 	}
 
@@ -418,9 +386,7 @@ export class WASMServices {
 			try {
 				const stats = this.vectorSearchEngine.getStats();
 				services.vectorSearch = stats.isWASMEnabled ? "healthy" : "unhealthy";
-				details.push(
-					`Vector Search: ${stats.documentsCount} documents indexed`,
-				);
+				details.push(`Vector Search: ${stats.documentsCount} documents indexed`);
 			} catch (error) {
 				services.vectorSearch = "unhealthy";
 				details.push(`Vector Search error: ${error}`);
@@ -452,11 +418,9 @@ export class WASMServices {
 		}
 
 		// Determine overall health
-		const healthyCount = Object.values(services).filter(
-			(status) => status === "healthy",
-		).length;
+		const healthyCount = Object.values(services).filter((status) => status === "healthy").length;
 		const unhealthyCount = Object.values(services).filter(
-			(status) => status === "unhealthy",
+			(status) => status === "unhealthy"
 		).length;
 
 		let overall: "healthy" | "degraded" | "unhealthy";

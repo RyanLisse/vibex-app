@@ -24,9 +24,7 @@ describe("Button Component", () => {
 	it("handles click events", async () => {
 		const user = userEvent.setup();
 		const handleClick = vi.fn();
-		const { container } = render(
-			<Button onClick={handleClick}>Click me</Button>,
-		);
+		const { container } = render(<Button onClick={handleClick}>Click me</Button>);
 
 		const button = container.querySelector("button");
 		expect(button).toBeInTheDocument();

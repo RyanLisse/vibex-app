@@ -77,9 +77,7 @@ const alertManager = new AlertManager({
 	// Fix auth routes
 	{
 		file: "app/api/auth/electric/route.ts",
-		fixes: [
-			{ find: /\.errors(?=\s*\.|\s*\)|\s*;|\s*\}|\s*,)/g, replace: ".issues" },
-		],
+		fixes: [{ find: /\.errors(?=\s*\.|\s*\)|\s*;|\s*\}|\s*,)/g, replace: ".issues" }],
 	},
 	{
 		file: "app/api/auth/github/repositories/route.ts",

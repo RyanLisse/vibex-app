@@ -5,11 +5,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import {
-	createNeonBranchingManager,
-	createNeonTestUtils,
-	type NeonBranch,
-} from "./branching";
+import { createNeonBranchingManager, createNeonTestUtils, type NeonBranch } from "./branching";
 
 // Test configuration
 const TEST_CONFIG = {
@@ -18,9 +14,7 @@ const TEST_CONFIG = {
 };
 
 // Skip tests if no real Neon credentials are provided
-const shouldSkipIntegrationTests = !(
-	process.env.NEON_PROJECT_ID && process.env.NEON_API_KEY
-);
+const shouldSkipIntegrationTests = !(process.env.NEON_PROJECT_ID && process.env.NEON_API_KEY);
 
 describe("Neon Branching Integration", () => {
 	let branchingManager: ReturnType<typeof createNeonBranchingManager>;
@@ -29,9 +23,7 @@ describe("Neon Branching Integration", () => {
 
 	beforeAll(async () => {
 		if (shouldSkipIntegrationTests) {
-			console.log(
-				"⚠️ Skipping Neon integration tests - no credentials provided",
-			);
+			console.log("⚠️ Skipping Neon integration tests - no credentials provided");
 			return;
 		}
 
@@ -120,16 +112,12 @@ describe("Neon Branching Integration", () => {
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 
 			// Get branch endpoints
-			const endpoints = await branchingManager.getBranchEndpoints(
-				createdBranch.id,
-			);
+			const endpoints = await branchingManager.getBranchEndpoints(createdBranch.id);
 
 			expect(Array.isArray(endpoints)).toBe(true);
 			expect(endpoints.length).toBeGreaterThan(0);
 
-			const readWriteEndpoint = endpoints.find(
-				(ep) => ep.type === "read_write",
-			);
+			const readWriteEndpoint = endpoints.find((ep) => ep.type === "read_write");
 			expect(readWriteEndpoint).toBeDefined();
 			expect(readWriteEndpoint?.host).toBeDefined();
 		});
@@ -148,9 +136,7 @@ describe("Neon Branching Integration", () => {
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 
 			// Get connection string
-			const connectionString = await branchingManager.getBranchConnectionString(
-				createdBranch.id,
-			);
+			const connectionString = await branchingManager.getBranchConnectionString(createdBranch.id);
 
 			expect(connectionString).toBeDefined();
 			expect(connectionString).toContain("postgres://");
@@ -201,7 +187,7 @@ describe("Neon Branching Integration", () => {
 				{
 					cleanupOnSuccess: true,
 					cleanupOnError: true,
-				},
+				}
 			);
 
 			expect(branchCreated).toBe(true);
@@ -251,8 +237,7 @@ describe("Neon Branching Integration", () => {
 			if (shouldSkipIntegrationTests) return;
 
 			const featureName = "test-feature";
-			const { branch, connectionString } =
-				await branchingManager.createFeatureBranch(featureName);
+			const { branch, connectionString } = await branchingManager.createFeatureBranch(featureName);
 
 			testBranches.push(branch);
 
@@ -266,15 +251,14 @@ describe("Neon Branching Integration", () => {
 
 			// First create a feature branch
 			const featureName = "parent-feature";
-			const { branch: parentBranch } =
-				await branchingManager.createFeatureBranch(featureName);
+			const { branch: parentBranch } = await branchingManager.createFeatureBranch(featureName);
 			testBranches.push(parentBranch);
 
 			// Then create a test branch from the feature branch
 			const testName = "child-test";
 			const { branch: testBranch } = await branchingManager.createTestBranch(
 				testName,
-				parentBranch.id,
+				parentBranch.id
 			);
 			testBranches.push(testBranch);
 

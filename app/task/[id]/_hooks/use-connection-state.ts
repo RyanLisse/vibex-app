@@ -39,7 +39,7 @@ function useConnectionActions(connectionInfo: ConnectionInfo, config: Required<C
 				lastConnected: state === "connected" ? new Date() : connectionInfo.lastConnected,
 			};
 		},
-		[connectionInfo],
+		[connectionInfo]
 	);
 
 	return { updateConnectionState };
@@ -66,7 +66,7 @@ function useConnectionRetry(connectionInfo: ConnectionInfo, config: Required<Con
 export function useConnectionState(options: UseConnectionStateOptions = {}) {
 	// Normalize config with defaults
 	const config: Required<ConnectionConfig> = {
-		url: options.url || '',
+		url: options.url || "",
 		autoReconnect: options.autoReconnect ?? true,
 		maxRetries: options.maxRetries ?? 3,
 		retryDelay: options.retryDelay ?? 2000,
@@ -78,7 +78,10 @@ export function useConnectionState(options: UseConnectionStateOptions = {}) {
 	});
 
 	const { updateConnectionState } = useConnectionActions(connectionInfo, config);
-	const { shouldRetry, incrementRetryCount, resetRetryCount, retryDelay } = useConnectionRetry(connectionInfo, config);
+	const { shouldRetry, incrementRetryCount, resetRetryCount, retryDelay } = useConnectionRetry(
+		connectionInfo,
+		config
+	);
 
 	// Simplified connection logic
 	const performConnection = useCallback(async () => {
@@ -98,20 +101,28 @@ export function useConnectionState(options: UseConnectionStateOptions = {}) {
 		setConnectionInfo(updateConnectionState("connecting"));
 
 		const isConnected = await performConnection();
-		
+
 		if (isConnected) {
 			setConnectionInfo(resetRetryCount());
-			setConnectionInfo(prev => updateConnectionState("connected"));
+			setConnectionInfo((prev) => updateConnectionState("connected"));
 		} else {
 			const errorMessage = "Connection failed";
-			setConnectionInfo(prev => updateConnectionState("error", errorMessage));
+			setConnectionInfo((prev) => updateConnectionState("error", errorMessage));
 
 			if (shouldRetry()) {
 				setConnectionInfo(incrementRetryCount());
 				setTimeout(connect, retryDelay);
 			}
 		}
-	}, [config.url, updateConnectionState, resetRetryCount, performConnection, shouldRetry, incrementRetryCount, retryDelay]);
+	}, [
+		config.url,
+		updateConnectionState,
+		resetRetryCount,
+		performConnection,
+		shouldRetry,
+		incrementRetryCount,
+		retryDelay,
+	]);
 
 	const disconnect = useCallback(() => {
 		setConnectionInfo(updateConnectionState("disconnected"));

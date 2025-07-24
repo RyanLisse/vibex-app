@@ -2,11 +2,7 @@
 import { Pause, Play, Square, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import {
-	cancelTaskAction,
-	pauseTaskAction,
-	resumeTaskAction,
-} from "@/app/actions/inngest";
+import { cancelTaskAction, pauseTaskAction, resumeTaskAction } from "@/app/actions/inngest";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -63,12 +59,7 @@ export default function TaskNavbar({
 	const canCancel = taskStatus === "running" || taskStatus === "pending";
 
 	return (
-		<nav
-			className={cn(
-				"flex items-center justify-between p-4 border-b bg-background",
-				className,
-			)}
-		>
+		<nav className={cn("flex items-center justify-between p-4 border-b bg-background", className)}>
 			<div className="flex items-center gap-4">
 				<Link href="/tasks">
 					<Button variant="ghost" size="sm">
@@ -76,47 +67,28 @@ export default function TaskNavbar({
 					</Button>
 				</Link>
 				<div>
-					<h1 className="text-lg font-semibold truncate">
-						{taskTitle || `Task ${taskId}`}
-					</h1>
-					<p className="text-sm text-muted-foreground capitalize">
-						{taskStatus}
-					</p>
+					<h1 className="text-lg font-semibold truncate">{taskTitle || `Task ${taskId}`}</h1>
+					<p className="text-sm text-muted-foreground capitalize">{taskStatus}</p>
 				</div>
 			</div>
 
 			<div className="flex items-center gap-2">
 				{canResume && (
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handleResume}
-						disabled={isLoading}
-					>
+					<Button variant="outline" size="sm" onClick={handleResume} disabled={isLoading}>
 						<Play className="h-4 w-4 mr-2" />
 						Resume
 					</Button>
 				)}
 
 				{canPause && (
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handlePause}
-						disabled={isLoading}
-					>
+					<Button variant="outline" size="sm" onClick={handlePause} disabled={isLoading}>
 						<Pause className="h-4 w-4 mr-2" />
 						Pause
 					</Button>
 				)}
 
 				{canCancel && (
-					<Button
-						variant="destructive"
-						size="sm"
-						onClick={handleCancel}
-						disabled={isLoading}
-					>
+					<Button variant="destructive" size="sm" onClick={handleCancel} disabled={isLoading}>
 						<Square className="h-4 w-4 mr-2" />
 						Cancel
 					</Button>

@@ -42,7 +42,7 @@ export function MessageInput({
 				setIsLoading(false);
 			}
 		},
-		[message, isLoading, disabled, onSendMessage],
+		[message, isLoading, disabled, onSendMessage]
 	);
 
 	const handleKeyDown = useCallback(
@@ -52,15 +52,12 @@ export function MessageInput({
 				handleSubmit(e);
 			}
 		},
-		[handleSubmit],
+		[handleSubmit]
 	);
 
-	const handleChange = useCallback(
-		(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-			setMessage(e.target.value);
-		},
-		[],
-	);
+	const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setMessage(e.target.value);
+	}, []);
 
 	return (
 		<form onSubmit={handleSubmit} className="flex gap-2 items-end">
@@ -80,11 +77,7 @@ export function MessageInput({
 				disabled={!message.trim() || disabled || isLoading}
 				className="shrink-0"
 			>
-				{isLoading ? (
-					<Loader2 className="h-4 w-4 animate-spin" />
-				) : (
-					<Send className="h-4 w-4" />
-				)}
+				{isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
 			</Button>
 		</form>
 	);

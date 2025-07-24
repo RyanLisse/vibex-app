@@ -105,10 +105,7 @@ describe("Redis/Valkey Core Implementation", () => {
 	test("should export correct TypeScript types", () => {
 		// Read the types file and verify it contains expected interfaces
 		const fs = require("fs");
-		const typesContent = fs.readFileSync(
-			"/root/repo/lib/redis/types.ts",
-			"utf8",
-		);
+		const typesContent = fs.readFileSync("/root/repo/lib/redis/types.ts", "utf8");
 
 		// Check for required type definitions
 		expect(typesContent).toContain("RedisConnectionConfig");
@@ -136,10 +133,7 @@ describe("Redis/Valkey Core Implementation", () => {
 		];
 
 		for (const service of services) {
-			const content = fs.readFileSync(
-				`/root/repo/lib/redis/${service.file}`,
-				"utf8",
-			);
+			const content = fs.readFileSync(`/root/repo/lib/redis/${service.file}`, "utf8");
 
 			// Check for singleton pattern
 			expect(content).toContain(`export class ${service.class}`);
@@ -168,10 +162,7 @@ describe("Redis/Valkey Core Implementation", () => {
 		];
 
 		for (const testFile of testFiles) {
-			const content = fs.readFileSync(
-				`/root/repo/lib/redis/${testFile}`,
-				"utf8",
-			);
+			const content = fs.readFileSync(`/root/repo/lib/redis/${testFile}`, "utf8");
 
 			// Check for comprehensive test coverage
 			expect(content).toContain("describe(");

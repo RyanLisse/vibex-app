@@ -80,9 +80,7 @@ export async function generateCodeChallenge(verifier: string): Promise<string> {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(verifier);
 	const digest = await crypto.subtle.digest("SHA-256", data);
-	return btoa(
-		String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))),
-	)
+	return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
 		.replace(/\+/g, "-")
 		.replace(/\//g, "_")
 		.replace(/=/g, "");
@@ -103,10 +101,7 @@ export function generateState(): string {
 /**
  * Validate OAuth state parameter
  */
-export function validateOAuthState(
-	receivedState: string,
-	storedState: string,
-): boolean {
+export function validateOAuthState(receivedState: string, storedState: string): boolean {
 	if (!(receivedState && storedState)) {
 		return false;
 	}
@@ -141,9 +136,7 @@ export function buildAuthUrl(config: AuthConfig): string {
 /**
  * Exchange authorization code for access token
  */
-export async function exchangeCodeForToken(
-	config: TokenExchangeConfig,
-): Promise<TokenResponse> {
+export async function exchangeCodeForToken(config: TokenExchangeConfig): Promise<TokenResponse> {
 	const body = new URLSearchParams({
 		grant_type: "authorization_code",
 		client_id: config.clientId,
@@ -167,9 +160,7 @@ export async function exchangeCodeForToken(
 
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
-		throw new Error(
-			error.error_description || error.error || "Token exchange failed",
-		);
+		throw new Error(error.error_description || error.error || "Token exchange failed");
 	}
 
 	return response.json();
@@ -178,9 +169,7 @@ export async function exchangeCodeForToken(
 /**
  * Refresh access token using refresh token
  */
-export async function refreshAuthToken(
-	config: TokenRefreshConfig,
-): Promise<TokenResponse> {
+export async function refreshAuthToken(config: TokenRefreshConfig): Promise<TokenResponse> {
 	const body = new URLSearchParams({
 		grant_type: "refresh_token",
 		client_id: config.clientId,
@@ -202,9 +191,7 @@ export async function refreshAuthToken(
 
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
-		throw new Error(
-			error.error_description || error.error || "Token refresh failed",
-		);
+		throw new Error(error.error_description || error.error || "Token refresh failed");
 	}
 
 	return response.json();
@@ -234,18 +221,14 @@ export async function revokeToken(config: TokenRevokeConfig): Promise<void> {
 
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
-		throw new Error(
-			error.error_description || error.error || "Token revocation failed",
-		);
+		throw new Error(error.error_description || error.error || "Token revocation failed");
 	}
 }
 
 /**
  * Validate a token using introspection endpoint
  */
-export async function validateToken(
-	config: TokenValidationConfig,
-): Promise<any> {
+export async function validateToken(config: TokenValidationConfig): Promise<any> {
 	const body = new URLSearchParams({
 		token: config.token,
 		client_id: config.clientId,
@@ -266,9 +249,7 @@ export async function validateToken(
 
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
-		throw new Error(
-			error.error_description || error.error || "Token validation failed",
-		);
+		throw new Error(error.error_description || error.error || "Token validation failed");
 	}
 
 	return response.json();
@@ -304,10 +285,7 @@ export function isTokenExpired(token: TokenInfo): boolean {
 /**
  * Check if token is expiring soon (within threshold)
  */
-export function isTokenExpiring(
-	token: TokenInfo,
-	thresholdMs: number = 10 * 60 * 1000,
-): boolean {
+export function isTokenExpiring(token: TokenInfo, thresholdMs: number = 10 * 60 * 1000): boolean {
 	const expirationTime = getTokenExpirationTime(token);
 	if (!expirationTime) {
 		return false;
@@ -373,7 +351,7 @@ export function sanitizeRedirectUrl(url: string): string {
 export function createAuthHeaders(
 	token: string,
 	additionalHeaders: Record<string, string> = {},
-	tokenType = "Bearer",
+	tokenType = "Bearer"
 ): Record<string, string> {
 	return {
 		Authorization: `${tokenType} ${token}`,
@@ -396,9 +374,7 @@ export function handleAuthError(error: unknown): string {
 
 	if (error && typeof error === "object" && "error" in error) {
 		const authError = error as { error: string; error_description?: string };
-		return (
-			authError.error_description || `Authentication failed: ${authError.error}`
-		);
+		return authError.error_description || `Authentication failed: ${authError.error}`;
 	}
 
 	return "An authentication error occurred";

@@ -24,23 +24,23 @@ export const queryPerformanceMonitor: QueryPerformanceMonitor = {
 	},
 
 	async getCurrentMetrics() {
-		return { 
-			queries: [], 
-			performance: { avgDuration: 100, totalQueries: 0 } 
+		return {
+			queries: [],
+			performance: { avgDuration: 100, totalQueries: 0 },
 		};
 	},
 
 	async analyzePerformanceTrends() {
-		return { 
-			trends: [], 
-			insights: [] 
+		return {
+			trends: [],
+			insights: [],
 		};
 	},
 
 	async getSlowQueriesReport() {
-		return { 
-			slowQueries: [], 
-			summary: { count: 0, averageDuration: 0 } 
+		return {
+			slowQueries: [],
+			summary: { count: 0, averageDuration: 0 },
 		};
 	},
 };

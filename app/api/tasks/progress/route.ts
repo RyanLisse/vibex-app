@@ -15,10 +15,7 @@ import { z } from "zod";
 import { db } from "@/db/config";
 import { tasks } from "@/db/schema";
 import { observability } from "@/lib/observability";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import { TaskProgressSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // WebSocket connection manager (mock implementation)
@@ -66,11 +63,7 @@ const calculateProgressMetrics = (tasks: any[]) => {
 	const blocked = tasks.filter((t) => t.status === "blocked").length;
 	const overdue = tasks.filter((t) => {
 		const metadata = t.metadata as any;
-		return (
-			metadata?.dueDate &&
-			new Date(metadata.dueDate) < new Date() &&
-			t.status !== "completed"
-		);
+		return metadata?.dueDate && new Date(metadata.dueDate) < new Date() && t.status !== "completed";
 	}).length;
 
 	const completionRate = total > 0 ? (completed / total) * 100 : 0;
@@ -117,9 +110,7 @@ const calculateBurndown = (tasks: any[]) => {
 			const metadata = t.metadata as any;
 			return metadata?.completedAt && new Date(metadata.completedAt) <= date;
 		}).length;
-		const totalByDate = tasks.filter(
-			(t) => new Date(t.createdAt) <= date,
-		).length;
+		const totalByDate = tasks.filter((t) => new Date(t.createdAt) <= date).length;
 
 		days.push({
 			date: date.toISOString().split("T")[0],
@@ -144,10 +135,8 @@ export async function POST(request: NextRequest) {
 		const validatedData = TaskProgressSchema.parse(body);
 
 		// Get current task
-		const [task] = await db
-			.select()
-			.from(tasks)
-			.where(eq(tasks.id, validatedData.taskId));
+		const taskResults = await db.select().from(tasks).where(eq(tasks.id, validatedData.taskId));
+		const task = taskResults[0];
 
 		if (!task) {
 			return NextResponse.json(createApiErrorResponse("Task not found", 404), {
@@ -174,11 +163,8 @@ export async function POST(request: NextRequest) {
 
 		// Update progress
 		const progressData = {
-			percentage: validatedData.completionPercentage,
-			milestones:
-				(validatedData as any).milestones ||
-				currentMetadata.progress?.milestones ||
-				[],
+			percentage: validatedData.progress,
+			milestones: (validatedData as any).milestones || currentMetadata.progress?.milestones || [],
 			blockers: (validatedData as any).blockers || [],
 			timeTracking,
 			lastUpdated: new Date().toISOString(),
@@ -188,9 +174,7 @@ export async function POST(request: NextRequest) {
 		// Check for milestone completion
 		const previousMilestones = currentMetadata.progress?.milestones || [];
 		const newMilestones = progressData.milestones.filter(
-			(m) =>
-				m.completed &&
-				!previousMilestones.find((pm) => pm.id === m.id && pm.completed),
+			(m) => m.completed && !previousMilestones.find((pm) => pm.id === m.id && pm.completed)
 		);
 
 		// Update task with new progress
@@ -231,17 +215,17 @@ export async function POST(request: NextRequest) {
 				taskId: validatedData.taskId,
 				userId: (validatedData as any).userId || "system",
 				previousProgress: currentMetadata.progress?.percentage || 0,
-				newProgress: validatedData.completionPercentage,
+				newProgress: validatedData.progress,
 				milestonesCompleted: newMilestones.length,
 				timeSpent: validatedData.timeSpent,
 			},
 			"api",
-			["tasks", "progress", "update"],
+			["tasks", "progress", "update"]
 		);
 
 		span.setAttributes({
 			"task.id": validatedData.taskId,
-			"progress.percentage": validatedData.completionPercentage,
+			"progress.percentage": validatedData.progress,
 			"progress.milestones_completed": newMilestones.length,
 			"progress.time_spent": validatedData.timeSpent || 0,
 		});
@@ -253,8 +237,8 @@ export async function POST(request: NextRequest) {
 					progressData,
 					milestonesCompleted: newMilestones,
 				},
-				"Progress updated successfully",
-			),
+				"Progress updated successfully"
+			)
 		);
 	} catch (error) {
 		span.recordException(error as Error);
@@ -268,20 +252,17 @@ export async function POST(request: NextRequest) {
 					error.issues.map((issue) => ({
 						field: issue.path.join("."),
 						message: issue.message,
-					})),
+					}))
 				),
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 
-		observability.metrics.errorRate(1, "progress_api");
+		observability.metrics.errorRate.record(1);
 
-		return NextResponse.json(
-			createApiErrorResponse("Failed to update progress", 500),
-			{
-				status: 500,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to update progress", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -308,12 +289,10 @@ export async function GET(request: NextRequest) {
 			conditions.push(eq(tasks.userId, userId));
 		}
 
-		const query = db
+		const taskResults = await db
 			.select()
 			.from(tasks)
 			.where(and(...conditions));
-
-		const taskResults = await query;
 
 		// Calculate metrics
 		const metrics = calculateProgressMetrics(taskResults);
@@ -322,9 +301,7 @@ export async function GET(request: NextRequest) {
 		const overdueTasks = taskResults.filter((t) => {
 			const metadata = t.metadata as any;
 			return (
-				metadata?.dueDate &&
-				new Date(metadata.dueDate) < new Date() &&
-				t.status !== "completed"
+				metadata?.dueDate && new Date(metadata.dueDate) < new Date() && t.status !== "completed"
 			);
 		});
 
@@ -355,19 +332,16 @@ export async function GET(request: NextRequest) {
 					teamStats,
 					timeframe: `${daysAgo} days`,
 				},
-				"Progress analytics retrieved successfully",
-			),
+				"Progress analytics retrieved successfully"
+			)
 		);
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
-		return NextResponse.json(
-			createApiErrorResponse("Failed to fetch progress analytics", 500),
-			{
-				status: 500,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to fetch progress analytics", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -413,6 +387,6 @@ const findMostProductiveDay = (tasks: any[]) => {
 	return Object.entries(dayCompletion).reduce(
 		(most, [day, count]) =>
 			(count as number) > most.count ? { day, count: count as number } : most,
-		{ day: "No data", count: 0 },
+		{ day: "No data", count: 0 }
 	);
 };

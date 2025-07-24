@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useOpenAIAuthRefactored } from "./use-openai-auth-refactored";
 
 // Mock the base auth hook
@@ -110,7 +101,7 @@ describe("useOpenAIAuthRefactored", () => {
 				scope: "read write model:gpt-4",
 				state: "custom-state",
 				prompt: "consent",
-			}),
+			})
 		);
 	});
 
@@ -179,7 +170,7 @@ describe("useOpenAIAuthRefactored", () => {
 		expect(mockUseAuthBase.actions.login).toHaveBeenCalledWith(
 			expect.objectContaining({
 				organization_id: "org-2",
-			}),
+			})
 		);
 	});
 
@@ -303,7 +294,7 @@ describe("useOpenAIAuthRefactored", () => {
 			expect.objectContaining({
 				api_key: "sk-test-api-key",
 				auth_type: "api_key",
-			}),
+			})
 		);
 	});
 
@@ -347,9 +338,7 @@ describe("useOpenAIAuthRefactored", () => {
 
 		const { result } = renderHook(() => useOpenAIAuthRefactored());
 
-		expect(result.current.error).toBe(
-			"Authentication failed: Invalid credentials",
-		);
+		expect(result.current.error).toBe("Authentication failed: Invalid credentials");
 		expect(result.current.authenticated).toBe(false);
 	});
 

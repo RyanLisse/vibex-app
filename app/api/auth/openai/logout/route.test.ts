@@ -46,8 +46,7 @@ const mockGetStoredToken = getStoredToken as any;
 const mockClearStoredState = clearStoredState as any;
 const mockClearStoredCodeVerifier = clearStoredCodeVerifier as any;
 
-const mockNextResponse = (await import("next/server" as unknown as string))
-	.NextResponse;
+const mockNextResponse = (await import("next/server" as unknown as string)).NextResponse;
 
 describe("POST /api/auth/openai/logout", () => {
 	beforeEach(() => {
@@ -69,12 +68,9 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.json.mockReturnValue({ success: true } as unknown);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -93,12 +89,9 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.json.mockReturnValue({ success: true } as unknown);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -126,12 +119,9 @@ describe("POST /api/auth/openai/logout", () => {
 			warning: "Token revocation failed, but local session cleared",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -153,25 +143,20 @@ describe("POST /api/auth/openai/logout", () => {
 
 		mockGetStoredToken.mockResolvedValue(mockToken);
 		mockRevokeToken.mockResolvedValue(undefined);
-		mockClearStoredToken.mockRejectedValue(
-			new Error("Storage clearing failed"),
-		);
+		mockClearStoredToken.mockRejectedValue(new Error("Storage clearing failed"));
 		mockNextResponse.json.mockReturnValue({
 			error: "Storage clearing failed",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Storage clearing failed" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	});
 
@@ -194,14 +179,12 @@ describe("POST /api/auth/openai/logout", () => {
 			"https://app.example.com/api/auth/openai/logout?redirect_uri=https%3A%2F%2Fapp.example.com%2Flogin",
 			{
 				method: "POST",
-			},
+			}
 		);
 
 		const _response = await POST(request);
 
-		expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-			"https://app.example.com/login",
-		);
+		expect(mockNextResponse.redirect).toHaveBeenCalledWith("https://app.example.com/login");
 	});
 
 	it("should handle logout with invalid redirect URI", async () => {
@@ -223,7 +206,7 @@ describe("POST /api/auth/openai/logout", () => {
 			"https://app.example.com/api/auth/openai/logout?redirect_uri=javascript%3Aalert(1)",
 			{
 				method: "POST",
-			},
+			}
 		);
 
 		const _response = await POST(request);
@@ -248,24 +231,19 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.redirect.mockReturnValue({ status: 302 } as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-				body: JSON.stringify({
-					redirect_uri: "https://app.example.com/login",
-				}),
-				headers: {
-					"Content-Type": "application/json",
-				},
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+			body: JSON.stringify({
+				redirect_uri: "https://app.example.com/login",
+			}),
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		const _response = await POST(request);
 
-		expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-			"https://app.example.com/login",
-		);
+		expect(mockNextResponse.redirect).toHaveBeenCalledWith("https://app.example.com/login");
 	});
 
 	it("should handle malformed JSON in request body", async () => {
@@ -283,16 +261,13 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.json.mockReturnValue({ success: true } as unknown);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-				body: "invalid-json",
-				headers: {
-					"Content-Type": "application/json",
-				},
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+			body: "invalid-json",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		);
+		});
 
 		const _response = await POST(request);
 
@@ -312,25 +287,20 @@ describe("POST /api/auth/openai/logout", () => {
 		mockRevokeToken.mockRejectedValue(new Error("Token revocation failed"));
 		mockClearStoredToken.mockRejectedValue(new Error("Token clearing failed"));
 		mockClearStoredState.mockRejectedValue(new Error("State clearing failed"));
-		mockClearStoredCodeVerifier.mockRejectedValue(
-			new Error("Code verifier clearing failed"),
-		);
+		mockClearStoredCodeVerifier.mockRejectedValue(new Error("Code verifier clearing failed"));
 		mockNextResponse.json.mockReturnValue({
 			error: "Multiple cleanup failures",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Multiple cleanup failures" },
-			{ status: 500 },
+			{ status: 500 }
 		);
 	});
 
@@ -348,12 +318,9 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.json.mockReturnValue({ success: true } as unknown);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -376,12 +343,9 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.json.mockReturnValue({ success: true } as unknown);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -407,12 +371,9 @@ describe("POST /api/auth/openai/logout", () => {
 			warning: "Network error, but local session cleared",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 
@@ -437,12 +398,9 @@ describe("POST /api/auth/openai/logout", () => {
 		mockClearStoredCodeVerifier.mockResolvedValue(undefined);
 		mockNextResponse.json.mockReturnValue({ success: true } as unknown);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/openai/logout",
-			{
-				method: "POST",
-			},
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/openai/logout", {
+			method: "POST",
+		});
 
 		const _response = await POST(request);
 

@@ -16,7 +16,7 @@ export interface StorageHelpers {
 export function createStorageHelpers<T extends FieldValues>(
 	form: UseFormReturn<T>,
 	transformOnLoad?: (data: Partial<T>) => Partial<T>,
-	setInitialData?: (data: Partial<T>) => void,
+	setInitialData?: (data: Partial<T>) => void
 ): StorageHelpers {
 	const getStorageKey = (key: string) => `form_${key}`;
 

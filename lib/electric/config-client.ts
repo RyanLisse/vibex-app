@@ -54,10 +54,7 @@ export { pgliteConfig } from "./simple-config";
 // ElectricSQL configuration for client-side
 export const electricConfig: ElectricConfig = {
 	// Database connection URL - will be set from environment
-	url:
-		process.env.NEXT_PUBLIC_ELECTRIC_URL ||
-		process.env.NEXT_PUBLIC_DATABASE_URL ||
-		"",
+	url: process.env.NEXT_PUBLIC_ELECTRIC_URL || process.env.NEXT_PUBLIC_DATABASE_URL || "",
 
 	// Authentication configuration
 	auth: {
@@ -72,17 +69,11 @@ export const electricConfig: ElectricConfig = {
 		// Enable real-time sync
 		enabled: true,
 		// Sync interval in milliseconds (default: 1000ms)
-		interval: Number.parseInt(
-			process.env.NEXT_PUBLIC_ELECTRIC_SYNC_INTERVAL || "1000",
-		),
+		interval: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_SYNC_INTERVAL || "1000"),
 		// Maximum retry attempts for failed syncs
-		maxRetries: Number.parseInt(
-			process.env.NEXT_PUBLIC_ELECTRIC_MAX_RETRIES || "3",
-		),
+		maxRetries: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_MAX_RETRIES || "3"),
 		// Retry backoff multiplier
-		retryBackoff: Number.parseInt(
-			process.env.NEXT_PUBLIC_ELECTRIC_RETRY_BACKOFF || "1000",
-		),
+		retryBackoff: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_RETRY_BACKOFF || "1000"),
 	},
 
 	// Offline configuration
@@ -90,9 +81,7 @@ export const electricConfig: ElectricConfig = {
 		// Enable offline support
 		enabled: true,
 		// Maximum offline queue size
-		maxQueueSize: Number.parseInt(
-			process.env.NEXT_PUBLIC_ELECTRIC_MAX_QUEUE_SIZE || "1000",
-		),
+		maxQueueSize: Number.parseInt(process.env.NEXT_PUBLIC_ELECTRIC_MAX_QUEUE_SIZE || "1000"),
 		// Offline storage type
 		storage: "indexeddb", // or 'memory' for testing
 	},
@@ -112,12 +101,12 @@ export const electricConfig: ElectricConfig = {
 
 	// Connection timeout in milliseconds
 	connectionTimeout: Number.parseInt(
-		process.env.NEXT_PUBLIC_ELECTRIC_CONNECTION_TIMEOUT || "10000",
+		process.env.NEXT_PUBLIC_ELECTRIC_CONNECTION_TIMEOUT || "10000"
 	),
 
 	// Heartbeat interval for connection health
 	heartbeatInterval: Number.parseInt(
-		process.env.NEXT_PUBLIC_ELECTRIC_HEARTBEAT_INTERVAL || "30000",
+		process.env.NEXT_PUBLIC_ELECTRIC_HEARTBEAT_INTERVAL || "30000"
 	),
 };
 
@@ -125,22 +114,17 @@ export const electricConfig: ElectricConfig = {
 export function validateElectricConfig(): void {
 	if (!electricConfig.url) {
 		console.warn(
-			"ElectricSQL URL is not set. Set NEXT_PUBLIC_ELECTRIC_URL or NEXT_PUBLIC_DATABASE_URL environment variable.",
+			"ElectricSQL URL is not set. Set NEXT_PUBLIC_ELECTRIC_URL or NEXT_PUBLIC_DATABASE_URL environment variable."
 		);
 	}
 
 	if (electricConfig.sync?.interval && electricConfig.sync.interval < 100) {
-		console.warn(
-			"ElectricSQL sync interval is very low (<100ms). This may impact performance.",
-		);
+		console.warn("ElectricSQL sync interval is very low (<100ms). This may impact performance.");
 	}
 
-	if (
-		electricConfig.offline?.maxQueueSize &&
-		electricConfig.offline.maxQueueSize > 10_000
-	) {
+	if (electricConfig.offline?.maxQueueSize && electricConfig.offline.maxQueueSize > 10_000) {
 		console.warn(
-			"ElectricSQL offline queue size is very large (>10000). This may impact memory usage.",
+			"ElectricSQL offline queue size is very large (>10000). This may impact memory usage."
 		);
 	}
 }
@@ -215,13 +199,8 @@ export interface SyncEvent {
 
 // Client-side ElectricDB implementation that doesn't use server-side dependencies
 class ClientElectricDB {
-	private stateListeners = new Set<
-		(state: { connection: string; sync: string }) => void
-	>();
-	private syncEventListeners = new Map<
-		string,
-		Set<(event: SyncEvent) => void>
-	>();
+	private stateListeners = new Set<(state: { connection: string; sync: string }) => void>();
+	private syncEventListeners = new Map<string, Set<(event: SyncEvent) => void>>();
 	private realtimeStats = {
 		totalOperations: 0,
 		pendingOperations: 0,
@@ -241,20 +220,14 @@ class ClientElectricDB {
 		}
 	};
 
-	addSyncEventListener(
-		table: string,
-		handler: (event: SyncEvent) => void,
-	): void {
+	addSyncEventListener(table: string, handler: (event: SyncEvent) => void): void {
 		if (!this.syncEventListeners.has(table)) {
 			this.syncEventListeners.set(table, new Set());
 		}
 		this.syncEventListeners.get(table)!.add(handler);
 	}
 
-	removeSyncEventListener(
-		table: string,
-		handler: (event: SyncEvent) => void,
-	): void {
+	removeSyncEventListener(table: string, handler: (event: SyncEvent) => void): void {
 		const listeners = this.syncEventListeners.get(table);
 		if (listeners) {
 			listeners.delete(handler);
@@ -264,23 +237,17 @@ class ClientElectricDB {
 		}
 	}
 
-	addStateListener(
-		handler: (state: { connection: string; sync: string }) => void,
-	): void {
+	addStateListener(handler: (state: { connection: string; sync: string }) => void): void {
 		this.stateListeners.add(handler);
 	}
 
-	removeStateListener(
-		handler: (state: { connection: string; sync: string }) => void,
-	): void {
+	removeStateListener(handler: (state: { connection: string; sync: string }) => void): void {
 		this.stateListeners.delete(handler);
 	}
 
 	getConnectionState(): string {
 		// For client-side, we'll check navigator.onLine
-		return typeof window !== "undefined" && navigator.onLine
-			? "connected"
-			: "disconnected";
+		return typeof window !== "undefined" && navigator.onLine ? "connected" : "disconnected";
 	}
 
 	getSyncState(): string {
@@ -305,7 +272,7 @@ class ClientElectricDB {
 		table: string,
 		operation: string,
 		data: any,
-		realtime = true,
+		realtime = true
 	): Promise<any> {
 		try {
 			this.realtimeStats.totalOperations++;

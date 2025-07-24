@@ -1,12 +1,7 @@
 import { StreamingMessage } from "@/app/task/[id]/_types/message-types";
 
 // Task status helpers
-export type TaskStatus =
-	| "IN_PROGRESS"
-	| "DONE"
-	| "MERGED"
-	| "PAUSED"
-	| "CANCELLED";
+export type TaskStatus = "IN_PROGRESS" | "DONE" | "MERGED" | "PAUSED" | "CANCELLED";
 
 export interface TaskStatusInfo {
 	status: TaskStatus;

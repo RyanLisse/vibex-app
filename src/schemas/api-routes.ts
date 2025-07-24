@@ -1,16 +1,19 @@
 import { z } from "zod";
 
 // Base API Response Schemas
-export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) => z.object({
-	success: z.literal(true),
-	data: dataSchema,
-	message: z.string().optional(),
-	meta: z.object({
-		timestamp: z.string(),
-		version: z.string(),
-		requestId: z.string(),
-	}).optional(),
-});
+export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+	z.object({
+		success: z.literal(true),
+		data: dataSchema,
+		message: z.string().optional(),
+		meta: z
+			.object({
+				timestamp: z.string(),
+				version: z.string(),
+				requestId: z.string(),
+			})
+			.optional(),
+	});
 
 export const ApiErrorResponseSchema = z.object({
 	success: z.literal(false),
@@ -32,26 +35,27 @@ export const ValidationErrorSchema = z.object({
 				field: z.string(),
 				code: z.string(),
 				message: z.string(),
-			}),
+			})
 		),
 	}),
 	timestamp: z.date().default(() => new Date()),
 });
 
 // Pagination Schema
-export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) => z.object({
-	success: z.literal(true),
-	data: z.array(dataSchema),
-	pagination: z.object({
-		page: z.number().min(1),
-		limit: z.number().min(1),
-		total: z.number().min(0),
-		totalPages: z.number().min(0),
-		hasNext: z.boolean(),
-		hasPrev: z.boolean(),
-	}),
-	message: z.string().optional(),
-});
+export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+	z.object({
+		success: z.literal(true),
+		data: z.array(dataSchema),
+		pagination: z.object({
+			page: z.number().min(1),
+			limit: z.number().min(1),
+			total: z.number().min(0),
+			totalPages: z.number().min(0),
+			hasNext: z.boolean(),
+			hasPrev: z.boolean(),
+		}),
+		message: z.string().optional(),
+	});
 
 // GitHub OAuth Schemas
 export const GitHubOAuthCallbackSchema = z.object({
@@ -109,12 +113,8 @@ export const GitHubBranchSchema = z.object({
 // Request Schemas
 export const GitHubRepositoriesRequestSchema = z.object({
 	visibility: z.enum(["all", "public", "private"]).default("all"),
-	affiliation: z
-		.enum(["owner", "collaborator", "organization_member"])
-		.default("owner"),
-	sort: z
-		.enum(["created", "updated", "pushed", "full_name"])
-		.default("updated"),
+	affiliation: z.enum(["owner", "collaborator", "organization_member"]).default("owner"),
+	sort: z.enum(["created", "updated", "pushed", "full_name"]).default("updated"),
 	direction: z.enum(["asc", "desc"]).default("desc"),
 	per_page: z.number().min(1).max(100).default(30),
 	page: z.number().min(1).default(1),
@@ -180,11 +180,18 @@ export const CreateEnvironmentSchema = EnvironmentSchema.omit({
 // File Upload Schemas
 export const FileUploadRequestSchema = z.object({
 	filename: z.string().min(1, "Filename is required"),
-	content_type: z.string().min(1, "Content type is required").refine(
-		(type) => ["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"].includes(type),
-		"File type not supported"
-	),
-	size: z.number().positive("File size must be positive").max(10 * 1024 * 1024, "File size must be less than 10MB"),
+	content_type: z
+		.string()
+		.min(1, "Content type is required")
+		.refine(
+			(type) =>
+				["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"].includes(type),
+			"File type not supported"
+		),
+	size: z
+		.number()
+		.positive("File size must be positive")
+		.max(10 * 1024 * 1024, "File size must be less than 10MB"),
 });
 
 export const FileUploadResponseSchema = z.object({
@@ -229,17 +236,21 @@ export const InngestFunctionSchema = z.object({
 		expression: z.string().optional(),
 		cron: z.string().optional(),
 	}),
-	config: z.object({
-		retries: z.number().default(3),
-		timeout: z.string().default("30s"),
-		rateLimit: z.object({
-			limit: z.number(),
-			period: z.string(),
-		}).optional(),
-	}).default({
-		retries: 3,
-		timeout: "30s",
-	}),
+	config: z
+		.object({
+			retries: z.number().default(3),
+			timeout: z.string().default("30s"),
+			rateLimit: z
+				.object({
+					limit: z.number(),
+					period: z.string(),
+				})
+				.optional(),
+		})
+		.default({
+			retries: 3,
+			timeout: "30s",
+		}),
 });
 
 // Helper Functions
@@ -259,7 +270,7 @@ export function createApiSuccessResponse<T>(data: T, message?: string) {
 export function createApiErrorResponse(
 	message: string,
 	statusCode: number = 400,
-	details?: Array<{ field: string; message: string }>,
+	details?: Array<{ field: string; message: string }>
 ) {
 	return {
 		success: false as const,
@@ -277,7 +288,7 @@ export function createApiErrorResponse(
 
 export function createPaginatedResponse<T>(
 	data: T[],
-	pagination: { page: number; limit: number; total: number },
+	pagination: { page: number; limit: number; total: number }
 ) {
 	const totalPages = Math.ceil(pagination.total / pagination.limit);
 	return {
@@ -294,7 +305,7 @@ export function createPaginatedResponse<T>(
 
 export async function validateApiRequest<T>(
 	request: Request,
-	schema: z.ZodSchema<T>,
+	schema: z.ZodSchema<T>
 ): Promise<{ success: boolean; data?: T; error?: string }> {
 	try {
 		const body = await request.json();

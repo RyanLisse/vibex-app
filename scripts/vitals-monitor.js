@@ -141,11 +141,7 @@ class VitalsMonitor {
 		Object.keys(evaluation).forEach((metric) => {
 			const result = evaluation[metric];
 			const _icon =
-				result.status === "good"
-					? "✅"
-					: result.status === "needs-improvement"
-						? "⚠️"
-						: "❌";
+				result.status === "good" ? "✅" : result.status === "needs-improvement" ? "⚠️" : "❌";
 		});
 
 		if (report.recommendations.length > 0) {
@@ -193,27 +189,27 @@ class VitalsMonitor {
 				switch (metric) {
 					case "cls":
 						recommendations.push(
-							"Optimize layout stability: use CSS aspect-ratio, avoid dynamic content insertion above the fold",
+							"Optimize layout stability: use CSS aspect-ratio, avoid dynamic content insertion above the fold"
 						);
 						break;
 					case "fid":
 						recommendations.push(
-							"Reduce JavaScript execution time: code splitting, optimize event handlers, use Web Workers",
+							"Reduce JavaScript execution time: code splitting, optimize event handlers, use Web Workers"
 						);
 						break;
 					case "fcp":
 						recommendations.push(
-							"Optimize First Contentful Paint: reduce server response time, eliminate render-blocking resources",
+							"Optimize First Contentful Paint: reduce server response time, eliminate render-blocking resources"
 						);
 						break;
 					case "lcp":
 						recommendations.push(
-							"Optimize Largest Contentful Paint: optimize images, preload key resources, reduce server response time",
+							"Optimize Largest Contentful Paint: optimize images, preload key resources, reduce server response time"
 						);
 						break;
 					case "ttfb":
 						recommendations.push(
-							"Optimize Time to First Byte: use CDN, optimize server-side rendering, implement caching",
+							"Optimize Time to First Byte: use CDN, optimize server-side rendering, implement caching"
 						);
 						break;
 				}

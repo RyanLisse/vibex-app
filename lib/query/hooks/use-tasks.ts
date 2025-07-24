@@ -4,12 +4,7 @@
  * Replaces Zustand task store with TanStack Query + Redis caching
  */
 
-import {
-	useInfiniteQuery,
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { UpdateTaskSchema } from "@/src/schemas/api-routes";
 
 // Types
@@ -21,12 +16,10 @@ export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>;
 export const taskKeys = {
 	all: ["tasks"] as const,
 	lists: () => [...taskKeys.all, "list"] as const,
-	list: (filters: Record<string, any>) =>
-		[...taskKeys.lists(), { filters }] as const,
+	list: (filters: Record<string, any>) => [...taskKeys.lists(), { filters }] as const,
 	details: () => [...taskKeys.all, "detail"] as const,
 	detail: (id: string) => [...taskKeys.details(), id] as const,
-	infinite: (filters: Record<string, any>) =>
-		[...taskKeys.all, "infinite", { filters }] as const,
+	infinite: (filters: Record<string, any>) => [...taskKeys.all, "infinite", { filters }] as const,
 };
 
 // API functions
@@ -108,12 +101,7 @@ async function deleteTask(id: string): Promise<void> {
 
 // Hooks
 export function useTasks(
-	filters: {
-		status?: string;
-		sessionId?: string;
-		archived?: boolean;
-		search?: string;
-	} = {},
+	filters: { status?: string; sessionId?: string; archived?: boolean; search?: string } = {}
 ) {
 	return useQuery({
 		queryKey: taskKeys.list(filters),
@@ -134,20 +122,13 @@ export function useTask(id: string) {
 }
 
 export function useInfiniteTasks(
-	filters: {
-		status?: string;
-		sessionId?: string;
-		archived?: boolean;
-		search?: string;
-	} = {},
+	filters: { status?: string; sessionId?: string; archived?: boolean; search?: string } = {}
 ) {
 	return useInfiniteQuery({
 		queryKey: taskKeys.infinite(filters),
-		queryFn: ({ pageParam = 1 }) =>
-			fetchTasks({ ...filters, page: pageParam, limit: 20 }),
+		queryFn: ({ pageParam = 1 }) => fetchTasks({ ...filters, page: pageParam, limit: 20 }),
 		initialPageParam: 1,
-		getNextPageParam: (lastPage, allPages) =>
-			lastPage.hasMore ? allPages.length + 1 : undefined,
+		getNextPageParam: (lastPage, allPages) => (lastPage.hasMore ? allPages.length + 1 : undefined),
 		staleTime: 1000 * 60 * 2, // 2 minutes
 	});
 }
@@ -182,8 +163,7 @@ export function useUpdateTask() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateTaskInput }) =>
-			updateTask(id, data),
+		mutationFn: ({ id, data }: { id: string; data: UpdateTaskInput }) => updateTask(id, data),
 		onSuccess: (updatedTask) => {
 			// Update the individual task cache
 			queryClient.setQueryData(taskKeys.detail(updatedTask.id), updatedTask);
@@ -193,9 +173,7 @@ export function useUpdateTask() {
 				if (!old) return old;
 				return {
 					...old,
-					tasks: old.tasks.map((task: Task) =>
-						task.id === updatedTask.id ? updatedTask : task,
-					),
+					tasks: old.tasks.map((task: Task) => (task.id === updatedTask.id ? updatedTask : task)),
 				};
 			});
 

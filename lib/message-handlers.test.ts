@@ -1,19 +1,6 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import type { StatusData, UpdateData } from "./container-types";
-import {
-	MessageHandlers,
-	createMessage,
-	validateMessage,
-} from "./message-handlers";
+import { MessageHandlers, createMessage, validateMessage } from "./message-handlers";
 
 describe("MessageHandlers", () => {
 	let mockUpdateTask: ReturnType<typeof vi.fn>;
@@ -164,9 +151,7 @@ describe("MessageHandlers", () => {
 		it("should handle shell call messages", () => {
 			const existingTask = {
 				id: "task-123",
-				messages: [
-					{ role: "user", type: "message", data: { text: "existing" } },
-				],
+				messages: [{ role: "user", type: "message", data: { text: "existing" } }],
 			};
 			mockGetTaskById.mockReturnValue(existingTask);
 
@@ -227,9 +212,7 @@ describe("MessageHandlers", () => {
 		it("should handle shell output messages", () => {
 			const existingTask = {
 				id: "task-123",
-				messages: [
-					{ role: "user", type: "message", data: { text: "existing" } },
-				],
+				messages: [{ role: "user", type: "message", data: { text: "existing" } }],
 			};
 			mockGetTaskById.mockReturnValue(existingTask);
 
@@ -260,9 +243,7 @@ describe("MessageHandlers", () => {
 		it("should handle completed assistant messages", () => {
 			const existingTask = {
 				id: "task-123",
-				messages: [
-					{ role: "user", type: "message", data: { text: "existing" } },
-				],
+				messages: [{ role: "user", type: "message", data: { text: "existing" } }],
 			};
 			mockGetTaskById.mockReturnValue(existingTask);
 

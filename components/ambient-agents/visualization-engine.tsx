@@ -34,15 +34,11 @@ export function VisualizationEngine({
 				<Panel position="top-left">
 					<div className="bg-white p-2 rounded shadow">
 						<p className="text-sm font-medium">View Mode: {viewMode}</p>
-						<p className="text-sm text-gray-600">
-							Algorithm: {layoutAlgorithm}
-						</p>
+						<p className="text-sm text-gray-600">Algorithm: {layoutAlgorithm}</p>
 						{showPerformanceMetrics && (
 							<p className="text-xs text-green-600">Performance: Active</p>
 						)}
-						{enableCollaboration && (
-							<p className="text-xs text-blue-600">Collaboration: Enabled</p>
-						)}
+						{enableCollaboration && <p className="text-xs text-blue-600">Collaboration: Enabled</p>}
 					</div>
 				</Panel>
 			</ReactFlow>
@@ -50,9 +46,7 @@ export function VisualizationEngine({
 	);
 }
 
-export function VisualizationEngineWithProvider(
-	props: VisualizationEngineProps,
-) {
+export function VisualizationEngineWithProvider(props: VisualizationEngineProps) {
 	return (
 		<ReactFlowProvider>
 			<VisualizationEngine {...props} />

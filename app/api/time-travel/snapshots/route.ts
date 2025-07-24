@@ -53,7 +53,10 @@ export async function POST(request: NextRequest) {
 				{
 					success: false,
 					error: "Invalid request data",
-					details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+					details: error.issues.map((issue) => ({
+						field: issue.path.join("."),
+						message: issue.message,
+					})),
 				},
 				{ status: 400 }
 			);
@@ -103,7 +106,10 @@ export async function GET(request: NextRequest) {
 				{
 					success: false,
 					error: "Invalid query parameters",
-					details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+					details: error.issues.map((issue) => ({
+						field: issue.path.join("."),
+						message: issue.message,
+					})),
 				},
 				{ status: 400 }
 			);

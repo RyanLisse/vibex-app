@@ -4,16 +4,7 @@
  * Test-driven development for Redis/Valkey pub/sub functionality
  */
 
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-	vi,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { testRedisConfig } from "./config";
 import { PubSubService } from "./pubsub-service";
 import { RedisClientManager } from "./redis-client";
@@ -78,12 +69,9 @@ describe("PubSubService", () => {
 			const channels = ["test:pattern:one", "test:pattern:two", "test:other"];
 
 			// Subscribe to pattern
-			const subscription = await pubsubService.subscribePattern(
-				pattern,
-				(message) => {
-					messages.push(message);
-				},
-			);
+			const subscription = await pubsubService.subscribePattern(pattern, (message) => {
+				messages.push(message);
+			});
 
 			expect(subscription.pattern).toBe(pattern);
 			expect(subscription.isActive).toBe(true);
@@ -99,10 +87,7 @@ describe("PubSubService", () => {
 
 			// Should only receive messages from matching channels
 			expect(messages).toHaveLength(2);
-			expect(messages.map((m) => m.channel)).toEqual([
-				channels[0],
-				channels[1],
-			]);
+			expect(messages.map((m) => m.channel)).toEqual([channels[0], channels[1]]);
 		});
 
 		test("should unsubscribe from channels", async () => {
@@ -141,12 +126,8 @@ describe("PubSubService", () => {
 			const testData = { broadcast: true };
 
 			// Create two subscriptions
-			const sub1 = await pubsubService.subscribe(channel, (msg) =>
-				messages1.push(msg),
-			);
-			const sub2 = await pubsubService.subscribe(channel, (msg) =>
-				messages2.push(msg),
-			);
+			const sub1 = await pubsubService.subscribe(channel, (msg) => messages1.push(msg));
+			const sub2 = await pubsubService.subscribe(channel, (msg) => messages2.push(msg));
 
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -166,12 +147,8 @@ describe("PubSubService", () => {
 			const messages2: PubSubMessage[] = [];
 			const channel = "test:selective";
 
-			const sub1 = await pubsubService.subscribe(channel, (msg) =>
-				messages1.push(msg),
-			);
-			const sub2 = await pubsubService.subscribe(channel, (msg) =>
-				messages2.push(msg),
-			);
+			const sub1 = await pubsubService.subscribe(channel, (msg) => messages1.push(msg));
+			const sub2 = await pubsubService.subscribe(channel, (msg) => messages2.push(msg));
 
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -194,10 +171,7 @@ describe("PubSubService", () => {
 				throw new Error("Callback error");
 			});
 
-			const subscription = await pubsubService.subscribe(
-				"test:error",
-				errorCallback,
-			);
+			const subscription = await pubsubService.subscribe("test:error", errorCallback);
 
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -212,11 +186,11 @@ describe("PubSubService", () => {
 		});
 
 		test("should handle invalid channel names", async () => {
-			expect(async () => {
+			await expect(async () => {
 				await pubsubService.subscribe("", () => {});
 			}).rejects.toThrow("Channel name cannot be empty");
 
-			expect(async () => {
+			await expect(async () => {
 				await pubsubService.publish("", {});
 			}).rejects.toThrow("Channel name cannot be empty");
 		});
@@ -247,7 +221,7 @@ describe("PubSubService", () => {
 						throw new Error("Temporary error");
 					}
 				},
-				options,
+				options
 			);
 
 			await new Promise((resolve) => setTimeout(resolve, 100));

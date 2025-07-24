@@ -17,9 +17,7 @@ describe("Environment Configuration", () => {
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
-		mockValidateEnv = vi.mocked(
-			await import("@/src/shared/schemas/validation"),
-		).validateEnv;
+		mockValidateEnv = vi.mocked(await import("@/src/shared/schemas/validation")).validateEnv;
 	});
 
 	describe("Environment Validation", () => {
@@ -100,9 +98,7 @@ describe("Environment Configuration", () => {
 
 		it("should handle validation failure in production and exit", async () => {
 			const originalNodeEnv = process.env.NODE_ENV;
-			const exitSpy = vi
-				.spyOn(process, "exit")
-				.mockImplementation(() => undefined as never);
+			const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
 			process.env.NODE_ENV = "production";
 			mockValidateEnv.mockImplementation(() => {
@@ -313,9 +309,7 @@ describe("Environment Configuration", () => {
 			await import("@/lib/env");
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				expect.stringContaining(
-					"Environment validation warning on module load:",
-				),
+				expect.stringContaining("Environment validation warning on module load:")
 			);
 
 			consoleSpy.mockRestore();

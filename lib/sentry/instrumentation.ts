@@ -34,7 +34,7 @@ export function addBreadcrumb(
 	message: string,
 	category: string,
 	level: "debug" | "info" | "warning" | "error" | "fatal" = "info",
-	data?: Record<string, any>,
+	data?: Record<string, any>
 ) {
 	Sentry.addBreadcrumb({
 		message,
@@ -54,7 +54,7 @@ export async function instrumentServerAction<T extends (...args: any[]) => any>(
 	options?: {
 		data?: Record<string, any>;
 		description?: string;
-	},
+	}
 ): Promise<ReturnType<T>> {
 	return Sentry.startSpan(
 		{
@@ -80,7 +80,7 @@ export async function instrumentServerAction<T extends (...args: any[]) => any>(
 				});
 				throw error;
 			}
-		},
+		}
 	);
 }
 
@@ -94,7 +94,7 @@ export async function instrumentApiRoute<T extends (...args: any[]) => any>(
 	options?: {
 		userId?: string;
 		data?: Record<string, any>;
-	},
+	}
 ): Promise<ReturnType<T>> {
 	return Sentry.startSpan(
 		{
@@ -123,16 +123,18 @@ export async function instrumentApiRoute<T extends (...args: any[]) => any>(
 				});
 				throw error;
 			}
-		},
+		}
 	);
 }
 
 /**
  * Instrument a database operation with Sentry performance monitoring
  */
-export async function instrumentDatabaseOperation<
-	T extends (...args: any[]) => any,
->(operation: string, query: string, fn: T): Promise<ReturnType<T>> {
+export async function instrumentDatabaseOperation<T extends (...args: any[]) => any>(
+	operation: string,
+	query: string,
+	fn: T
+): Promise<ReturnType<T>> {
 	return Sentry.startSpan(
 		{
 			op: "db.query",
@@ -156,20 +158,18 @@ export async function instrumentDatabaseOperation<
 				});
 				throw error;
 			}
-		},
+		}
 	);
 }
 
 /**
  * Instrument an Inngest function with Sentry monitoring
  */
-export async function instrumentInngestFunction<
-	T extends (...args: any[]) => any,
->(
+export async function instrumentInngestFunction<T extends (...args: any[]) => any>(
 	functionName: string,
 	eventName: string,
 	fn: T,
-	eventData?: Record<string, any>,
+	eventData?: Record<string, any>
 ): Promise<ReturnType<T>> {
 	return Sentry.startSpan(
 		{
@@ -182,14 +182,9 @@ export async function instrumentInngestFunction<
 		},
 		async (span) => {
 			try {
-				addBreadcrumb(
-					`Starting Inngest function: ${functionName}`,
-					"inngest",
-					"info",
-					{
-						event: eventName,
-					},
-				);
+				addBreadcrumb(`Starting Inngest function: ${functionName}`, "inngest", "info", {
+					event: eventName,
+				});
 				const result = await fn();
 				span.setStatus({ code: 1 }); // OK
 				return result;
@@ -204,7 +199,7 @@ export async function instrumentInngestFunction<
 				});
 				throw error;
 			}
-		},
+		}
 	);
 }
 
@@ -214,7 +209,7 @@ export async function instrumentInngestFunction<
 export function logWithSentry(
 	level: "trace" | "debug" | "info" | "warn" | "error" | "fatal",
 	message: string,
-	data?: Record<string, any>,
+	data?: Record<string, any>
 ) {
 	// Use Winston logger which is integrated with Sentry
 	switch (level) {
@@ -230,11 +225,7 @@ export function logWithSentry(
 			break;
 		case "error":
 		case "fatal":
-			logger.error(
-				message,
-				data instanceof Error ? data : new Error(message),
-				data,
-			);
+			logger.error(message, data instanceof Error ? data : new Error(message), data);
 			break;
 	}
 }
@@ -242,10 +233,7 @@ export function logWithSentry(
 /**
  * Example usage in a React component
  */
-export function trackButtonClick(
-	buttonName: string,
-	metadata?: Record<string, any>,
-) {
+export function trackButtonClick(buttonName: string, metadata?: Record<string, any>) {
 	Sentry.startSpan(
 		{
 			op: "ui.click",
@@ -261,7 +249,7 @@ export function trackButtonClick(
 
 			// Add breadcrumb
 			addBreadcrumb(`Clicked ${buttonName} button`, "ui", "info", metadata);
-		},
+		}
 	);
 }
 
@@ -271,7 +259,7 @@ export function trackButtonClick(
 export async function trackApiCall<T>(
 	url: string,
 	method: string,
-	fn: () => Promise<T>,
+	fn: () => Promise<T>
 ): Promise<T> {
 	return Sentry.startSpan(
 		{
@@ -292,6 +280,6 @@ export async function trackApiCall<T>(
 				});
 				throw error;
 			}
-		},
+		}
 	);
 }

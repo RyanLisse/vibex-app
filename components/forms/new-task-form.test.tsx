@@ -55,9 +55,7 @@ vi.mock("@/hooks/use-github-auth", () => ({
 
 // Mock Lucide React icons
 vi.mock("lucide-react", () => ({
-	HardDrive: ({ ...props }: any) => (
-		<svg data-testid="hard-drive-icon" {...props} />
-	),
+	HardDrive: ({ ...props }: any) => <svg data-testid="hard-drive-icon" {...props} />,
 	Split: ({ ...props }: any) => <svg data-testid="split-icon" {...props} />,
 }));
 
@@ -79,10 +77,7 @@ vi.mock("@/components/ui/button", () => ({
 vi.mock("@/components/ui/select", () => ({
 	Select: ({ children, onValueChange, value, ...props }: any) => (
 		<div data-testid="select" data-value={value} {...props}>
-			<button
-				data-testid="select-trigger"
-				onClick={() => onValueChange?.("test-value")}
-			>
+			<button data-testid="select-trigger" onClick={() => onValueChange?.("test-value")}>
 				Select Trigger
 			</button>
 			{children}
@@ -132,17 +127,13 @@ describe("NewTaskForm", () => {
 	it("should render the form title", () => {
 		render(<NewTaskForm />);
 
-		expect(
-			screen.getByText("Ready to ship something new?"),
-		).toBeInTheDocument();
+		expect(screen.getByText("Ready to ship something new?")).toBeInTheDocument();
 	});
 
 	it("should render the textarea", () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		expect(textarea).toBeInTheDocument();
 		expect(textarea).toHaveClass("w-full", "min-h-[100px]", "resize-none");
 	});
@@ -156,9 +147,7 @@ describe("NewTaskForm", () => {
 	});
 
 	it("should render create environment link when no environments exist", () => {
-		mocked(
-			require("@/stores/environments").useEnvironmentStore,
-		).mockReturnValue({
+		mocked(require("@/stores/environments").useEnvironmentStore).mockReturnValue({
 			environments: [],
 		});
 
@@ -181,9 +170,7 @@ describe("NewTaskForm", () => {
 	it("should handle textarea input", () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "Test task description" } });
 
 		expect(textarea).toHaveValue("Test task description");
@@ -192,9 +179,7 @@ describe("NewTaskForm", () => {
 	it("should show action buttons when textarea has value", () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "Test task" } });
 
 		const buttons = screen.getAllByTestId("button");
@@ -218,9 +203,7 @@ describe("NewTaskForm", () => {
 	it("should handle ask button click", async () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "Test ask task" } });
 
 		const buttons = screen.getAllByTestId("button");
@@ -250,9 +233,7 @@ describe("NewTaskForm", () => {
 	it("should handle code button click", async () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "Test code task" } });
 
 		const buttons = screen.getAllByTestId("button");
@@ -278,9 +259,7 @@ describe("NewTaskForm", () => {
 	it("should clear textarea after task submission", async () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "Test task" } });
 
 		const buttons = screen.getAllByTestId("button");
@@ -296,9 +275,7 @@ describe("NewTaskForm", () => {
 	it("should not submit empty task", async () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "" } });
 
 		// Try to click code button (should not exist)
@@ -315,9 +292,7 @@ describe("NewTaskForm", () => {
 	});
 
 	it("should handle environment without repository", () => {
-		mocked(
-			require("@/stores/environments").useEnvironmentStore,
-		).mockReturnValue({
+		mocked(require("@/stores/environments").useEnvironmentStore).mockReturnValue({
 			environments: [{ id: "env1" }],
 		});
 
@@ -341,9 +316,7 @@ describe("NewTaskForm", () => {
 	it("should handle textarea height adjustment", () => {
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 
 		// Simulate typing to trigger height adjustment
 		fireEvent.change(textarea, { target: { value: "A".repeat(200) } });
@@ -355,31 +328,20 @@ describe("NewTaskForm", () => {
 	it("should render proper form structure", () => {
 		render(<NewTaskForm />);
 
-		const formContainer = screen
-			.getByText("Ready to ship something new?")
-			.closest("div");
+		const formContainer = screen.getByText("Ready to ship something new?").closest("div");
 		expect(formContainer).toHaveClass("max-w-3xl", "mx-auto", "w-full");
 
 		const innerContainer = screen
 			.getByPlaceholderText("Describe a task you want to ship...")
 			.closest("div");
-		expect(innerContainer).toHaveClass(
-			"border",
-			"bg-background",
-			"rounded-lg",
-			"p-4",
-		);
+		expect(innerContainer).toHaveClass("border", "bg-background", "rounded-lg", "p-4");
 	});
 
 	it("should handle component initialization", () => {
 		render(<NewTaskForm />);
 
-		expect(
-			screen.getByText("Ready to ship something new?"),
-		).toBeInTheDocument();
-		expect(
-			screen.getByPlaceholderText("Describe a task you want to ship..."),
-		).toBeInTheDocument();
+		expect(screen.getByText("Ready to ship something new?")).toBeInTheDocument();
+		expect(screen.getByPlaceholderText("Describe a task you want to ship...")).toBeInTheDocument();
 		expect(mockFetchBranches).toHaveBeenCalled();
 	});
 
@@ -388,9 +350,7 @@ describe("NewTaskForm", () => {
 
 		render(<NewTaskForm />);
 
-		const textarea = screen.getByPlaceholderText(
-			"Describe a task you want to ship...",
-		);
+		const textarea = screen.getByPlaceholderText("Describe a task you want to ship...");
 		fireEvent.change(textarea, { target: { value: "Test task" } });
 
 		const buttons = screen.getAllByTestId("button");

@@ -1,12 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from "vitest";
 import { z } from "zod";
 import {
 	ApiErrorResponseSchema,
@@ -47,9 +39,7 @@ describe("API Routes Schemas", () => {
 					state: "random_state",
 				};
 
-				expect(() =>
-					GitHubOAuthCallbackSchema.parse(validCallback),
-				).not.toThrow();
+				expect(() => GitHubOAuthCallbackSchema.parse(validCallback)).not.toThrow();
 			});
 
 			it("should validate OAuth callback with error", () => {
@@ -59,23 +49,17 @@ describe("API Routes Schemas", () => {
 					error_description: "User denied access",
 				};
 
-				expect(() => GitHubOAuthCallbackSchema.parse(errorCallback)).toThrow(
-					/required/,
-				);
+				expect(() => GitHubOAuthCallbackSchema.parse(errorCallback)).toThrow(/required/);
 			});
 
 			it("should require code to be non-empty", () => {
 				const invalidCallback = { code: "" };
-				expect(() => GitHubOAuthCallbackSchema.parse(invalidCallback)).toThrow(
-					/required/,
-				);
+				expect(() => GitHubOAuthCallbackSchema.parse(invalidCallback)).toThrow(/required/);
 			});
 
 			it("should make state and error fields optional", () => {
 				const minimalCallback = { code: "auth_code_123" };
-				expect(() =>
-					GitHubOAuthCallbackSchema.parse(minimalCallback),
-				).not.toThrow();
+				expect(() => GitHubOAuthCallbackSchema.parse(minimalCallback)).not.toThrow();
 			});
 		});
 
@@ -98,9 +82,7 @@ describe("API Routes Schemas", () => {
 
 			it("should validate redirect URI format", () => {
 				const invalidUrl = { redirect_uri: "not-a-valid-url" };
-				expect(() => GitHubOAuthUrlSchema.parse(invalidUrl)).toThrow(
-					/Invalid redirect URI/,
-				);
+				expect(() => GitHubOAuthUrlSchema.parse(invalidUrl)).toThrow(/Invalid redirect URI/);
 			});
 		});
 
@@ -255,9 +237,7 @@ describe("API Routes Schemas", () => {
 					},
 				};
 
-				expect(() =>
-					GitHubRepositorySchema.parse(repoWithPermissions),
-				).not.toThrow();
+				expect(() => GitHubRepositorySchema.parse(repoWithPermissions)).not.toThrow();
 			});
 		});
 
@@ -300,9 +280,7 @@ describe("API Routes Schemas", () => {
 						page: 2,
 					};
 
-					expect(() =>
-						GitHubRepositoriesRequestSchema.parse(validRequest),
-					).not.toThrow();
+					expect(() => GitHubRepositoriesRequestSchema.parse(validRequest)).not.toThrow();
 				});
 
 				it("should apply default values", () => {
@@ -316,12 +294,8 @@ describe("API Routes Schemas", () => {
 				});
 
 				it("should enforce per_page limits", () => {
-					expect(() =>
-						GitHubRepositoriesRequestSchema.parse({ per_page: 0 }),
-					).toThrow();
-					expect(() =>
-						GitHubRepositoriesRequestSchema.parse({ per_page: 101 }),
-					).toThrow();
+					expect(() => GitHubRepositoriesRequestSchema.parse({ per_page: 0 })).toThrow();
+					expect(() => GitHubRepositoriesRequestSchema.parse({ per_page: 101 })).toThrow();
 				});
 			});
 
@@ -334,27 +308,21 @@ describe("API Routes Schemas", () => {
 						page: 2,
 					};
 
-					expect(() =>
-						GitHubBranchesRequestSchema.parse(validRequest),
-					).not.toThrow();
+					expect(() => GitHubBranchesRequestSchema.parse(validRequest)).not.toThrow();
 				});
 
 				it("should require owner and repo", () => {
-					expect(() =>
-						GitHubBranchesRequestSchema.parse({ owner: "test" }),
-					).toThrow(/expected string, received undefined/);
-					expect(() =>
-						GitHubBranchesRequestSchema.parse({ repo: "test" }),
-					).toThrow(/expected string, received undefined/);
+					expect(() => GitHubBranchesRequestSchema.parse({ owner: "test" })).toThrow(
+						/expected string, received undefined/
+					);
+					expect(() => GitHubBranchesRequestSchema.parse({ repo: "test" })).toThrow(
+						/expected string, received undefined/
+					);
 				});
 
 				it("should enforce non-empty owner and repo", () => {
-					expect(() =>
-						GitHubBranchesRequestSchema.parse({ owner: "", repo: "test" }),
-					).toThrow();
-					expect(() =>
-						GitHubBranchesRequestSchema.parse({ owner: "test", repo: "" }),
-					).toThrow();
+					expect(() => GitHubBranchesRequestSchema.parse({ owner: "", repo: "test" })).toThrow();
+					expect(() => GitHubBranchesRequestSchema.parse({ owner: "test", repo: "" })).toThrow();
 				});
 			});
 		});
@@ -400,12 +368,10 @@ describe("API Routes Schemas", () => {
 					updated_at: new Date("2023-01-01T00:00:00Z"),
 				};
 
-				expect(() => TaskSchema.parse({ ...baseTask, title: "" })).toThrow(
-					/required/,
+				expect(() => TaskSchema.parse({ ...baseTask, title: "" })).toThrow(/required/);
+				expect(() => TaskSchema.parse({ ...baseTask, title: "a".repeat(201) })).toThrow(
+					/less than 200/
 				);
-				expect(() =>
-					TaskSchema.parse({ ...baseTask, title: "a".repeat(201) }),
-				).toThrow(/less than 200/);
 			});
 
 			it("should validate enum values", () => {
@@ -416,20 +382,14 @@ describe("API Routes Schemas", () => {
 					updated_at: new Date("2023-01-01T00:00:00Z"),
 				};
 
-				const validStatuses = [
-					"todo",
-					"in_progress",
-					"done",
-				];
+				const validStatuses = ["todo", "in_progress", "done"];
 				validStatuses.forEach((status) => {
 					expect(() => TaskSchema.parse({ ...baseTask, status })).not.toThrow();
 				});
 
 				const validPriorities = ["low", "medium", "high", "urgent"];
 				validPriorities.forEach((priority) => {
-					expect(() =>
-						TaskSchema.parse({ ...baseTask, priority }),
-					).not.toThrow();
+					expect(() => TaskSchema.parse({ ...baseTask, priority })).not.toThrow();
 				});
 			});
 		});
@@ -539,9 +499,7 @@ describe("API Routes Schemas", () => {
 
 				const validTypes = ["development", "staging", "production", "testing"];
 				validTypes.forEach((type) => {
-					expect(() =>
-						EnvironmentSchema.parse({ ...baseEnv, type }),
-					).not.toThrow();
+					expect(() => EnvironmentSchema.parse({ ...baseEnv, type })).not.toThrow();
 				});
 			});
 		});
@@ -583,9 +541,7 @@ describe("API Routes Schemas", () => {
 			});
 
 			it("should require event name", () => {
-				expect(() => InngestEventSchema.parse({ name: "" })).toThrow(
-					/required/,
-				);
+				expect(() => InngestEventSchema.parse({ name: "" })).toThrow(/required/);
 			});
 
 			it("should apply default data", () => {
@@ -645,14 +601,12 @@ describe("API Routes Schemas", () => {
 			});
 
 			it("should require event and timestamp", () => {
-				expect(() => WebhookPayloadSchema.parse({ event: "" })).toThrow(
-					/Too small/,
-				);
+				expect(() => WebhookPayloadSchema.parse({ event: "" })).toThrow(/Too small/);
 				expect(() =>
 					WebhookPayloadSchema.parse({
 						event: "test.event",
 						timestamp: "invalid-date",
-					}),
+					})
 				).toThrow();
 			});
 		});
@@ -699,9 +653,7 @@ describe("API Routes Schemas", () => {
 					size: 11 * 1024 * 1024, // 11MB
 				};
 
-				expect(() =>
-					FileUploadRequestSchema.parse(largeRequest),
-				).toThrow();
+				expect(() => FileUploadRequestSchema.parse(largeRequest)).toThrow();
 			});
 
 			it("should reject unsupported file types", () => {
@@ -711,9 +663,7 @@ describe("API Routes Schemas", () => {
 					size: 1024,
 				};
 
-				expect(() =>
-					FileUploadRequestSchema.parse(unsupportedRequest),
-				).toThrow();
+				expect(() => FileUploadRequestSchema.parse(unsupportedRequest)).toThrow();
 			});
 
 			it("should apply default category", () => {
@@ -737,9 +687,7 @@ describe("API Routes Schemas", () => {
 					expires_at: new Date("2023-01-01T01:00:00Z"),
 				};
 
-				expect(() =>
-					FileUploadResponseSchema.parse(validResponse),
-				).not.toThrow();
+				expect(() => FileUploadResponseSchema.parse(validResponse)).not.toThrow();
 			});
 
 			it("should validate URL format", () => {
@@ -793,9 +741,7 @@ describe("API Routes Schemas", () => {
 					timestamp: new Date("2023-01-01T00:00:00Z"),
 				};
 
-				expect(() =>
-					ValidationErrorSchema.parse(errorWithoutCode),
-				).not.toThrow();
+				expect(() => ValidationErrorSchema.parse(errorWithoutCode)).not.toThrow();
 			});
 		});
 
@@ -806,9 +752,7 @@ describe("API Routes Schemas", () => {
 					error: {
 						code: "HTTP_400",
 						message: "Validation failed",
-						details: [
-							{ field: "email", message: "Invalid email format" },
-						],
+						details: [{ field: "email", message: "Invalid email format" }],
 					},
 					timestamp: new Date("2023-01-01T00:00:00Z"),
 				};
@@ -917,7 +861,7 @@ describe("API Routes Schemas", () => {
 				const mockRequest = new Request("http://localhost", {
 					method: "POST",
 					body: JSON.stringify({ name: "Test" }),
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				});
 				const result = await validateApiRequest(mockRequest, schema);
 
@@ -933,7 +877,7 @@ describe("API Routes Schemas", () => {
 				const mockRequest = new Request("http://localhost", {
 					method: "POST",
 					body: JSON.stringify({ name: 123 }),
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				});
 				const result = await validateApiRequest(mockRequest, schema);
 
@@ -947,7 +891,7 @@ describe("API Routes Schemas", () => {
 				const mockRequest = new Request("http://localhost", {
 					method: "POST",
 					body: "invalid json",
-					headers: { "Content-Type": "application/json" }
+					headers: { "Content-Type": "application/json" },
 				});
 				const result = await validateApiRequest(mockRequest, schema);
 
@@ -996,11 +940,7 @@ describe("API Routes Schemas", () => {
 
 			it("should create error response with custom values", () => {
 				const validationErrors = [{ field: "email", message: "Invalid email" }];
-				const response = createApiErrorResponse(
-					"Validation failed",
-					422,
-					validationErrors,
-				);
+				const response = createApiErrorResponse("Validation failed", 422, validationErrors);
 
 				expect(response.success).toBe(false);
 				expect(response.error.code).toBe("HTTP_422");

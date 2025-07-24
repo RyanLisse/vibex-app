@@ -4,13 +4,7 @@ import { ShellOutput } from "./shell-output";
 
 // Mock the ScrollArea component
 vi.mock("@/components/ui/scroll-area", () => ({
-	ScrollArea: ({
-		children,
-		className,
-	}: {
-		children: React.ReactNode;
-		className?: string;
-	}) => (
+	ScrollArea: ({ children, className }: { children: React.ReactNode; className?: string }) => (
 		<div className={className} data-testid="scroll-area">
 			{children}
 		</div>
@@ -19,19 +13,11 @@ vi.mock("@/components/ui/scroll-area", () => ({
 
 // Mock the Tooltip components
 vi.mock("@/components/ui/tooltip", () => ({
-	TooltipProvider: ({ children }: { children: React.ReactNode }) => (
-		<div>{children}</div>
+	TooltipProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+	Tooltip: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+	TooltipTrigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) => (
+		<div data-testid="tooltip-trigger">{children}</div>
 	),
-	Tooltip: ({ children }: { children: React.ReactNode }) => (
-		<div>{children}</div>
-	),
-	TooltipTrigger: ({
-		children,
-		asChild,
-	}: {
-		children: React.ReactNode;
-		asChild?: boolean;
-	}) => <div data-testid="tooltip-trigger">{children}</div>,
 	TooltipContent: ({ children }: { children: React.ReactNode }) => (
 		<div data-testid="tooltip-content">{children}</div>
 	),
@@ -130,16 +116,14 @@ describe("ShellOutput", () => {
 		const command = ["sh", "-c", "long command that should be truncated"];
 		render(<ShellOutput command={command} />);
 
-		const commandElement = screen.getByText(
-			"-c long command that should be truncated",
-		);
+		const commandElement = screen.getByText("-c long command that should be truncated");
 		expect(commandElement).toHaveClass(
 			"font-medium",
 			"font-mono",
 			"text-sm",
 			"truncate",
 			"max-w-md",
-			"cursor-help",
+			"cursor-help"
 		);
 	});
 
@@ -172,18 +156,14 @@ describe("ShellOutput", () => {
 		render(<ShellOutput command={command} output={output} />);
 
 		expect(
-			screen.getByText(
-				"Multi-line\noutput with\nspecial characters: !@#$%^&*()",
-			),
+			screen.getByText("Multi-line\noutput with\nspecial characters: !@#$%^&*()")
 		).toBeTruthy();
 	});
 
 	it("should apply proper CSS classes for animation", () => {
 		const command = ["sh", "-c", "test"];
 		const output = JSON.stringify({ output: "test" });
-		const { container } = render(
-			<ShellOutput command={command} output={output} />,
-		);
+		const { container } = render(<ShellOutput command={command} output={output} />);
 
 		const outputContainer = container.querySelector(".animate-in");
 		expect(outputContainer).toBeTruthy();

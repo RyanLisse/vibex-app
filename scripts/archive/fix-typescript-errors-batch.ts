@@ -40,8 +40,7 @@ const batchFixes: BatchFix[] = [
 	{
 		// Fix redis
 		files: ["app/api/alerts/**/*.ts", "lib/redis/**/*.ts"],
-		pattern:
-			/import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
+		pattern: /import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
 		replacement:
 			"createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()",
 		description: "Fix redis import",
@@ -50,8 +49,7 @@ const batchFixes: BatchFix[] = [
 	{
 		// Fix observabilityService
 		files: ["**/*.ts"],
-		pattern:
-			/import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
+		pattern: /import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
 		replacement: "observability } from '@/lib/observability'",
 		description: "Fix observabilityService import",
 	},
@@ -89,8 +87,7 @@ const batchFixes: BatchFix[] = [
 	// Fix metrics recordOperation
 	{
 		files: ["**/*.ts"],
-		pattern:
-			/metrics\.recordOperation\s*\(\s*{\s*operation:\s*['"]([^'"]+)['"]\s*}\s*\)/g,
+		pattern: /metrics\.recordOperation\s*\(\s*{\s*operation:\s*['"]([^'"]+)['"]\s*}\s*\)/g,
 		replacement: "metrics.recordDuration('$1', Date.now())",
 		description: "Fix metrics.recordOperation calls",
 	},
@@ -98,8 +95,7 @@ const batchFixes: BatchFix[] = [
 	// Fix vectorSearchService
 	{
 		files: ["app/api/agent-memory/**/*.ts"],
-		pattern:
-			/vectorSearchService\.(generateEmbedding|searchMemories|analyzeSearchPatterns)/g,
+		pattern: /vectorSearchService\.(generateEmbedding|searchMemories|analyzeSearchPatterns)/g,
 		replacement: "(vectorSearchService as any).$1",
 		description: "Fix vectorSearchService method calls",
 	},
@@ -214,7 +210,7 @@ async function applySpecificFixes() {
 		} else if (content.includes("export function { level:")) {
 			content = content.replace(
 				/export function { level: "info", format: "json" }: LoggingConfig {/,
-				"export function createDefaultLoggingConfig(): LoggingConfig {",
+				"export function createDefaultLoggingConfig(): LoggingConfig {"
 			);
 			writeFileSync(loggingConfig, content);
 			console.log("   ✅ Fixed logging config");
@@ -226,8 +222,7 @@ async function applySpecificFixes() {
 		{
 			file: "lib/redis/redis-client.ts",
 			check: "export const redis",
-			append:
-				"\n// Auto-generated export\nexport const redis = createRedisClient()\n",
+			append: "\n// Auto-generated export\nexport const redis = createRedisClient()\n",
 		},
 		{
 			file: "lib/observability/index.ts",

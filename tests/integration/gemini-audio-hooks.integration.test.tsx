@@ -79,7 +79,7 @@ describe("Gemini Audio Hooks Integration", () => {
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			expect(result.current.isConnected).toBe(false);
@@ -93,7 +93,7 @@ describe("Gemini Audio Hooks Integration", () => {
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			await act(async () => {
@@ -108,7 +108,7 @@ describe("Gemini Audio Hooks Integration", () => {
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			await act(async () => {
@@ -133,16 +133,14 @@ describe("Gemini Audio Hooks Integration", () => {
 				convertToWav: vi.fn(),
 			};
 
-			const { GeminiRealtimeSession } = await import(
-				"@/lib/ai/gemini-realtime"
-			);
+			const { GeminiRealtimeSession } = await import("@/lib/ai/gemini-realtime");
 			vi.mocked(GeminiRealtimeSession).mockReturnValue(mockSession as any);
 
 			const { result } = renderHook(() =>
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			await act(async () => {
@@ -169,16 +167,14 @@ describe("Gemini Audio Hooks Integration", () => {
 				convertToWav: vi.fn().mockReturnValue(new ArrayBuffer(1024)),
 			};
 
-			const { GeminiRealtimeSession } = await import(
-				"@/lib/ai/gemini-realtime"
-			);
+			const { GeminiRealtimeSession } = await import("@/lib/ai/gemini-realtime");
 			vi.mocked(GeminiRealtimeSession).mockReturnValue(mockSession as any);
 
 			const { result } = renderHook(() =>
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			const audioData = new Uint8Array(1024);
@@ -206,16 +202,14 @@ describe("Gemini Audio Hooks Integration", () => {
 				convertToWav: vi.fn(),
 			};
 
-			const { GeminiRealtimeSession } = await import(
-				"@/lib/ai/gemini-realtime"
-			);
+			const { GeminiRealtimeSession } = await import("@/lib/ai/gemini-realtime");
 			vi.mocked(GeminiRealtimeSession).mockReturnValue(mockSession as any);
 
 			const { result } = renderHook(() =>
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			// Simulate message handler being called
@@ -294,9 +288,7 @@ describe("Gemini Audio Hooks Integration", () => {
 		});
 
 		it("should handle recording errors", async () => {
-			const mockGetUserMedia = vi
-				.fn()
-				.mockRejectedValue(new Error("Permission denied"));
+			const mockGetUserMedia = vi.fn().mockRejectedValue(new Error("Permission denied"));
 			Object.defineProperty(navigator, "mediaDevices", {
 				value: {
 					getUserMedia: mockGetUserMedia,
@@ -391,9 +383,7 @@ describe("Gemini Audio Hooks Integration", () => {
 			expect(result.current.isSupported).toBe(true);
 
 			// Test with no MediaRecorder support
-			const originalMediaRecorder = (global.MediaRecorder(
-				global as any,
-			).MediaRecorder = undefined);
+			const originalMediaRecorder = (global.MediaRecorder(global as any).MediaRecorder = undefined);
 
 			const { result: result2 } = renderHook(() => useAudioRecorder());
 
@@ -420,16 +410,14 @@ describe("Gemini Audio Hooks Integration", () => {
 				convertToWav: vi.fn().mockReturnValue(new ArrayBuffer(1024)),
 			};
 
-			const { GeminiRealtimeSession } = await import(
-				"@/lib/ai/gemini-realtime"
-			);
+			const { GeminiRealtimeSession } = await import("@/lib/ai/gemini-realtime");
 			vi.mocked(GeminiRealtimeSession).mockReturnValue(mockSession as any);
 
 			const { result: geminiResult } = renderHook(() =>
 				useGeminiAudio({
 					apiKey: "test-api-key",
 					voiceName: "Aoede",
-				}),
+				})
 			);
 
 			const { result: recorderResult } = renderHook(() => useAudioRecorder());

@@ -33,7 +33,7 @@ describe("Label", () => {
 			"text-sm",
 			"leading-none",
 			"font-medium",
-			"select-none",
+			"select-none"
 		);
 		expect(label).toHaveAttribute("data-slot", "label");
 	});
@@ -58,7 +58,7 @@ describe("Label", () => {
 			<Label>
 				<span>Icon</span>
 				<span>Label Text</span>
-			</Label>,
+			</Label>
 		);
 
 		const label = screen.getByTestId("label-root");
@@ -70,7 +70,7 @@ describe("Label", () => {
 		render(
 			<Label data-custom="test" id="label-id" onClick={() => {}}>
 				Label
-			</Label>,
+			</Label>
 		);
 
 		const label = screen.getByTestId("label-root");
@@ -93,7 +93,7 @@ describe("Label", () => {
 			<div>
 				<Label htmlFor="test-input">Username</Label>
 				<input id="test-input" type="text" />
-			</div>,
+			</div>
 		);
 
 		const label = screen.getByTestId("label-root");
@@ -114,10 +114,7 @@ describe("Label", () => {
 		render(<Label>Label</Label>);
 
 		const label = screen.getByTestId("label-root");
-		expect(label).toHaveClass(
-			"peer-disabled:cursor-not-allowed",
-			"peer-disabled:opacity-50",
-		);
+		expect(label).toHaveClass("peer-disabled:cursor-not-allowed", "peer-disabled:opacity-50");
 	});
 
 	it("should apply group-disabled styles appropriately", () => {
@@ -126,7 +123,7 @@ describe("Label", () => {
 		const label = screen.getByTestId("label-root");
 		expect(label).toHaveClass(
 			"group-data-[disabled=true]:pointer-events-none",
-			"group-data-[disabled=true]:opacity-50",
+			"group-data-[disabled=true]:opacity-50"
 		);
 	});
 
@@ -146,7 +143,7 @@ describe("Label", () => {
 				</svg>
 				<span>Label with icon</span>
 				<span className="text-red-500">*</span>
-			</Label>,
+			</Label>
 		);
 
 		const label = screen.getByTestId("label-root");
@@ -159,7 +156,7 @@ describe("Label", () => {
 			<Label htmlFor="accessible-input">
 				Accessible Label
 				<span aria-hidden="true">*</span>
-			</Label>,
+			</Label>
 		);
 
 		const label = screen.getByTestId("label-root");

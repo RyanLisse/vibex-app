@@ -10,15 +10,9 @@ export const domMatchers = {
 		};
 	},
 
-	toHaveAttribute: (
-		received: any,
-		attributeName: string,
-		expected?: string,
-	) => {
+	toHaveAttribute: (received: any, attributeName: string, expected?: string) => {
 		const attributeValue = received.getAttribute(attributeName);
-		const pass = expected
-			? attributeValue === expected
-			: attributeValue !== null;
+		const pass = expected ? attributeValue === expected : attributeValue !== null;
 
 		return {
 			pass,

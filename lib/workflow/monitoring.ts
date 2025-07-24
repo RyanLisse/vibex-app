@@ -103,17 +103,13 @@ export class WorkflowMonitor extends EventEmitter {
 		const timestamp = new Date();
 
 		// Collect workflow metrics
-		const workflowMetrics =
-			await this.metricsCollector.collectWorkflowMetrics();
+		const workflowMetrics = await this.metricsCollector.collectWorkflowMetrics();
 
 		// Analyze performance
 		const performanceReport = this.performanceAnalyzer.analyze(workflowMetrics);
 
 		// Check for alerts
-		const alerts = this.alertManager.checkAlerts(
-			workflowMetrics,
-			performanceReport,
-		);
+		const alerts = this.alertManager.checkAlerts(workflowMetrics, performanceReport);
 
 		// Emit metrics event
 		this.emit("metrics", {
@@ -190,12 +186,9 @@ export class WorkflowMonitor extends EventEmitter {
 			.from(workflowExecutions)
 			.where(
 				and(
-					gte(
-						workflowExecutions.startedAt,
-						new Date(Date.now() - 24 * 60 * 60 * 1000),
-					),
-					sql`status in ('running', 'paused')`,
-				),
+					gte(workflowExecutions.startedAt, new Date(Date.now() - 24 * 60 * 60 * 1000)),
+					sql`status in ('running', 'paused')`
+				)
 			);
 
 		return {
@@ -219,8 +212,7 @@ export class WorkflowMonitor extends EventEmitter {
 			.where(gte(workflowExecutions.completedAt, oneHourAgo));
 
 		const total = Number(metrics.completed) + Number(metrics.failed);
-		const successRate =
-			total > 0 ? (Number(metrics.completed) / total) * 100 : 100;
+		const successRate = total > 0 ? (Number(metrics.completed) / total) * 100 : 100;
 
 		return {
 			completedLastHour: Number(metrics.completed),
@@ -293,8 +285,7 @@ class MetricsCollector {
 			if (exec.status === "completed") {
 				wfMetrics.completed++;
 				if (exec.completedAt && exec.startedAt) {
-					const duration =
-						exec.completedAt.getTime() - exec.startedAt.getTime();
+					const duration = exec.completedAt.getTime() - exec.startedAt.getTime();
 					wfMetrics.durations.push(duration);
 				}
 			} else if (exec.status === "failed") {
@@ -314,21 +305,14 @@ class MetricsCollector {
 		Object.values(byWorkflow).forEach((metrics) => {
 			if (metrics.durations.length > 0) {
 				metrics.avgDuration =
-					metrics.durations.reduce((a, b) => a + b, 0) /
-					metrics.durations.length;
+					metrics.durations.reduce((a, b) => a + b, 0) / metrics.durations.length;
 			}
 			delete (metrics as any).durations;
 		});
 
 		// Overall performance
-		const totalCompleted = Object.values(byWorkflow).reduce(
-			(sum, m) => sum + m.completed,
-			0,
-		);
-		const totalFailed = Object.values(byWorkflow).reduce(
-			(sum, m) => sum + m.failed,
-			0,
-		);
+		const totalCompleted = Object.values(byWorkflow).reduce((sum, m) => sum + m.completed, 0);
+		const totalFailed = Object.values(byWorkflow).reduce((sum, m) => sum + m.failed, 0);
 		const total = totalCompleted + totalFailed;
 
 		const performance: PerformanceMetrics = {
@@ -363,10 +347,7 @@ class MetricsCollector {
 class AlertManager {
 	constructor(private thresholds: AlertThresholds) {}
 
-	checkAlerts(
-		metrics: WorkflowMetricsCollection,
-		performance: PerformanceReport,
-	): Alert[] {
+	checkAlerts(metrics: WorkflowMetricsCollection, performance: PerformanceReport): Alert[] {
 		const alerts: Alert[] = [];
 
 		// Check error rate
@@ -432,15 +413,12 @@ class PerformanceAnalyzer {
 		};
 	}
 
-	private identifyBottlenecks(
-		metrics: WorkflowMetricsCollection,
-	): Bottleneck[] {
+	private identifyBottlenecks(metrics: WorkflowMetricsCollection): Bottleneck[] {
 		const bottlenecks: Bottleneck[] = [];
 
 		// Find workflows with high failure rates
 		Object.entries(metrics.byWorkflow).forEach(([workflowId, wfMetrics]) => {
-			const failureRate =
-				wfMetrics.total > 0 ? (wfMetrics.failed / wfMetrics.total) * 100 : 0;
+			const failureRate = wfMetrics.total > 0 ? (wfMetrics.failed / wfMetrics.total) * 100 : 0;
 			if (failureRate > 20) {
 				bottlenecks.push({
 					type: "high_failure_rate",
@@ -465,7 +443,7 @@ class PerformanceAnalyzer {
 
 	private generateRecommendations(
 		metrics: WorkflowMetricsCollection,
-		bottlenecks: Bottleneck[],
+		bottlenecks: Bottleneck[]
 	): Recommendation[] {
 		const recommendations: Recommendation[] = [];
 
@@ -493,8 +471,7 @@ class PerformanceAnalyzer {
 			recommendations.push({
 				type: "performance",
 				priority: "medium",
-				message:
-					"Optimize slow workflows by parallelizing steps or caching results",
+				message: "Optimize slow workflows by parallelizing steps or caching results",
 				details: {
 					slowWorkflows,
 				},
@@ -646,12 +623,7 @@ export class WorkflowDashboard {
 				successRate: sql`(count(*) filter (where status = 'completed') * 100.0 / count(*))`,
 			})
 			.from(workflowExecutions)
-			.where(
-				gte(
-					workflowExecutions.startedAt,
-					new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-				),
-			)
+			.where(gte(workflowExecutions.startedAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
 			.groupBy(workflowExecutions.workflowId)
 			.orderBy(sql`count(*) desc`)
 			.limit(10);

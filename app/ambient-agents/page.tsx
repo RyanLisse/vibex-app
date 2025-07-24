@@ -16,15 +16,13 @@ const LoadingSkeleton = () => (
 // Dynamic import with loading state and SSR disabled for better performance
 const VisualizationEngineWithProvider = dynamic(
 	() =>
-		import("../../components/ambient-agents/visualization-engine").then(
-			(mod) => ({
-				default: mod.VisualizationEngineWithProvider,
-			}),
-		),
+		import("../../components/ambient-agents/visualization-engine").then((mod) => ({
+			default: mod.VisualizationEngineWithProvider,
+		})),
 	{
 		loading: () => <LoadingSkeleton />,
 		ssr: false, // Disable SSR for heavy visualization component
-	},
+	}
 );
 
 export default function AmbientAgentsPage() {
@@ -33,9 +31,7 @@ export default function AmbientAgentsPage() {
 			{/* Header */}
 			<div className="flex h-16 items-center border-gray-200 border-b bg-white px-6">
 				<div className="flex items-center space-x-4">
-					<h1 className="font-bold text-2xl text-gray-900">
-						Ambient Agent Visualization
-					</h1>
+					<h1 className="font-bold text-2xl text-gray-900">Ambient Agent Visualization</h1>
 					<div className="text-gray-600 text-sm">
 						Real-time monitoring and management of AI agent workflows
 					</div>

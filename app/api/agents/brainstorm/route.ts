@@ -1,9 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -14,9 +11,7 @@ const BrainstormRequestSchema = z.object({
 	topic: z.string().min(1, "Topic is required"),
 	context: z.string().optional(),
 	maxIdeas: z.number().min(1).max(20).default(5),
-	creativeLevel: z
-		.enum(["conservative", "balanced", "creative"])
-		.default("balanced"),
+	creativeLevel: z.enum(["conservative", "balanced", "creative"]).default("balanced"),
 });
 
 /**
@@ -26,8 +21,7 @@ const BrainstormRequestSchema = z.object({
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		const { topic, context, maxIdeas, creativeLevel } =
-			BrainstormRequestSchema.parse(body);
+		const { topic, context, maxIdeas, creativeLevel } = BrainstormRequestSchema.parse(body);
 
 		// Simulate brainstorming process
 		const ideas = Array.from({ length: maxIdeas }, (_, i) => ({
@@ -47,16 +41,12 @@ export async function POST(request: NextRequest) {
 			generatedAt: new Date().toISOString(),
 			metadata: {
 				totalIdeas: ideas.length,
-				avgConfidence:
-					ideas.reduce((sum, idea) => sum + idea.confidence, 0) / ideas.length,
+				avgConfidence: ideas.reduce((sum, idea) => sum + idea.confidence, 0) / ideas.length,
 			},
 		};
 
 		return NextResponse.json(
-			createApiSuccessResponse(
-				response,
-				"Brainstorming completed successfully",
-			),
+			createApiSuccessResponse(response, "Brainstorming completed successfully")
 		);
 	} catch (error) {
 		if (error instanceof z.ZodError) {
@@ -67,16 +57,13 @@ export async function POST(request: NextRequest) {
 					error.issues.map((issue) => ({
 						field: issue.path.join("."),
 						message: issue.message,
-					})),
+					}))
 				),
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 
-		return NextResponse.json(
-			createApiErrorResponse("Internal server error", 500),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Internal server error", 500), { status: 500 });
 	}
 }
 
@@ -99,6 +86,6 @@ export async function GET() {
 	};
 
 	return NextResponse.json(
-		createApiSuccessResponse(capabilities, "Brainstorming agent capabilities"),
+		createApiSuccessResponse(capabilities, "Brainstorming agent capabilities")
 	);
 }

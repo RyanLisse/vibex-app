@@ -36,46 +36,33 @@ async function fixImportPaths() {
 
 			// Fix imports from lib when inside lib directory
 			if (file.includes("/lib/") && content.includes("from '@/lib/")) {
-				const relativePath = path.relative(
-					path.dirname(file),
-					path.join(process.cwd(), "lib"),
-				);
-				content = content.replace(
-					/from\s+['"]@\/lib\/([^'"]+)['"]/g,
-					(match, importPath) => {
-						const parts = importPath.split("/");
-						const currentDir = path.dirname(file);
-						const targetPath = path.join(process.cwd(), "lib", importPath);
-						let relPath = path.relative(currentDir, targetPath);
+				const relativePath = path.relative(path.dirname(file), path.join(process.cwd(), "lib"));
+				content = content.replace(/from\s+['"]@\/lib\/([^'"]+)['"]/g, (match, importPath) => {
+					const parts = importPath.split("/");
+					const currentDir = path.dirname(file);
+					const targetPath = path.join(process.cwd(), "lib", importPath);
+					let relPath = path.relative(currentDir, targetPath);
 
-						// Ensure relative path starts with ./
-						if (!relPath.startsWith(".")) {
-							relPath = "./" + relPath;
-						}
+					// Ensure relative path starts with ./
+					if (!relPath.startsWith(".")) {
+						relPath = "./" + relPath;
+					}
 
-						// Remove .ts extension if present
-						relPath = relPath.replace(/\.ts$/, "");
+					// Remove .ts extension if present
+					relPath = relPath.replace(/\.ts$/, "");
 
-						return `from '${relPath}'`;
-					},
-				);
+					return `from '${relPath}'`;
+				});
 				updated = true;
 			}
 
 			// Fix imports from components when inside components directory
-			if (
-				file.includes("/components/") &&
-				content.includes("from '@/components/")
-			) {
+			if (file.includes("/components/") && content.includes("from '@/components/")) {
 				content = content.replace(
 					/from\s+['"]@\/components\/([^'"]+)['"]/g,
 					(match, importPath) => {
 						const currentDir = path.dirname(file);
-						const targetPath = path.join(
-							process.cwd(),
-							"components",
-							importPath,
-						);
+						const targetPath = path.join(process.cwd(), "components", importPath);
 						let relPath = path.relative(currentDir, targetPath);
 
 						if (!relPath.startsWith(".")) {
@@ -85,59 +72,51 @@ async function fixImportPaths() {
 						relPath = relPath.replace(/\.tsx?$/, "");
 
 						return `from '${relPath}'`;
-					},
+					}
 				);
 				updated = true;
 			}
 
 			// Fix imports from hooks when inside hooks directory
 			if (file.includes("/hooks/") && content.includes("from '@/hooks/")) {
-				content = content.replace(
-					/from\s+['"]@\/hooks\/([^'"]+)['"]/g,
-					(match, importPath) => {
-						const currentDir = path.dirname(file);
-						const targetPath = path.join(process.cwd(), "hooks", importPath);
-						let relPath = path.relative(currentDir, targetPath);
+				content = content.replace(/from\s+['"]@\/hooks\/([^'"]+)['"]/g, (match, importPath) => {
+					const currentDir = path.dirname(file);
+					const targetPath = path.join(process.cwd(), "hooks", importPath);
+					let relPath = path.relative(currentDir, targetPath);
 
-						if (!relPath.startsWith(".")) {
-							relPath = "./" + relPath;
-						}
+					if (!relPath.startsWith(".")) {
+						relPath = "./" + relPath;
+					}
 
-						relPath = relPath.replace(/\.ts$/, "");
+					relPath = relPath.replace(/\.ts$/, "");
 
-						return `from '${relPath}'`;
-					},
-				);
+					return `from '${relPath}'`;
+				});
 				updated = true;
 			}
 
 			// Fix imports from app when inside app directory
 			if (file.includes("/app/") && content.includes("from '@/app/")) {
-				content = content.replace(
-					/from\s+['"]@\/app\/([^'"]+)['"]/g,
-					(match, importPath) => {
-						const currentDir = path.dirname(file);
-						const targetPath = path.join(process.cwd(), "app", importPath);
-						let relPath = path.relative(currentDir, targetPath);
+				content = content.replace(/from\s+['"]@\/app\/([^'"]+)['"]/g, (match, importPath) => {
+					const currentDir = path.dirname(file);
+					const targetPath = path.join(process.cwd(), "app", importPath);
+					let relPath = path.relative(currentDir, targetPath);
 
-						if (!relPath.startsWith(".")) {
-							relPath = "./" + relPath;
-						}
+					if (!relPath.startsWith(".")) {
+						relPath = "./" + relPath;
+					}
 
-						relPath = relPath.replace(/\.tsx?$/, "");
+					relPath = relPath.replace(/\.tsx?$/, "");
 
-						return `from '${relPath}'`;
-					},
-				);
+					return `from '${relPath}'`;
+				});
 				updated = true;
 			}
 
 			if (updated) {
 				await writeFile(file, content, "utf-8");
 				fixedCount++;
-				console.log(
-					`✅ Fixed imports in: ${path.relative(process.cwd(), file)}`,
-				);
+				console.log(`✅ Fixed imports in: ${path.relative(process.cwd(), file)}`);
 			}
 		} catch (error) {
 			console.error(`❌ Error processing ${file}:`, error);
@@ -176,7 +155,7 @@ async function fixMockIssues() {
 							importList.push("vi");
 						}
 						return `import { ${importList.join(", ")} } from 'vitest'`;
-					},
+					}
 				);
 				updated = true;
 			}
@@ -187,22 +166,17 @@ async function fixMockIssues() {
 				!content.includes("import React from 'react'") &&
 				!content.includes("import * as React")
 			) {
-				const importMatch = content.match(
-					/import\s*{[^}]+}\s*from\s*['"]react['"]/,
-				);
+				const importMatch = content.match(/import\s*{[^}]+}\s*from\s*['"]react['"]/);
 				if (importMatch) {
 					content = content.replace(
 						importMatch[0],
-						"import React, " + importMatch[0].replace("import", ""),
+						"import React, " + importMatch[0].replace("import", "")
 					);
-				} else if (
-					!content.includes("from 'react'") &&
-					!content.includes('from "react"')
-				) {
+				} else if (!content.includes("from 'react'") && !content.includes('from "react"')) {
 					// Add React import at the top after vitest imports
 					content = content.replace(
 						/(import\s*{[^}]+}\s*from\s*['"]vitest['"])/,
-						"$1\nimport React from 'react'",
+						"$1\nimport React from 'react'"
 					);
 				}
 				updated = true;
@@ -238,14 +212,8 @@ async function fixTestTimeouts() {
 
 			// Increase test timeout for integration tests
 			if (configFile.includes("integration")) {
-				content = content.replace(
-					/testTimeout:\s*\d+_?\d*/g,
-					"testTimeout: 60_000",
-				);
-				content = content.replace(
-					/hookTimeout:\s*\d+_?\d*/g,
-					"hookTimeout: 30_000",
-				);
+				content = content.replace(/testTimeout:\s*\d+_?\d*/g, "testTimeout: 60_000");
+				content = content.replace(/hookTimeout:\s*\d+_?\d*/g, "hookTimeout: 30_000");
 			}
 
 			await writeFile(filePath, content, "utf-8");

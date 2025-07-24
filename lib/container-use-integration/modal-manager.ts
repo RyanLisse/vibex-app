@@ -48,10 +48,7 @@ export class ModalFunctionManager {
 	private config: ModalManagerConfig;
 	private environments: Map<string, AgentEnvironment> = new Map();
 	private functions: Map<string, any> = new Map();
-	private circuitBreakers: Map<
-		string,
-		{ failures: number; lastFailure: Date }
-	> = new Map();
+	private circuitBreakers: Map<string, { failures: number; lastFailure: Date }> = new Map();
 
 	constructor(config: ModalManagerConfig) {
 		this.config = config;
@@ -59,7 +56,7 @@ export class ModalFunctionManager {
 
 	async createAgentEnvironment(
 		taskId: string,
-		config: ModalFunctionConfig,
+		config: ModalFunctionConfig
 	): Promise<EnvironmentCreationResult> {
 		try {
 			// Validate configuration
@@ -153,7 +150,7 @@ export class ModalFunctionManager {
 
 	async executeFunction(
 		functionId: string,
-		payload: Record<string, unknown>,
+		payload: Record<string, unknown>
 	): Promise<ModalFunctionResponse> {
 		// Check circuit breaker
 		const circuitBreaker = this.circuitBreakers.get(functionId);
@@ -229,9 +226,7 @@ export class ModalFunctionManager {
 		}
 	}
 
-	async *monitorEnvironment(
-		environmentId: string,
-	): AsyncGenerator<AgentEnvironment> {
+	async *monitorEnvironment(environmentId: string): AsyncGenerator<AgentEnvironment> {
 		// Create a dummy environment for testing if it doesn't exist
 		let environment = this.environments.get(environmentId);
 		if (!environment && environmentId === "env-123") {
@@ -265,7 +260,7 @@ export class ModalFunctionManager {
 
 	async cleanupEnvironment(
 		environmentId: string,
-		options: { force?: boolean } = {},
+		options: { force?: boolean } = {}
 	): Promise<CleanupResult> {
 		const environment = this.environments.get(environmentId);
 
@@ -297,10 +292,7 @@ export class ModalFunctionManager {
 		};
 	}
 
-	async getEnvironmentLogs(
-		environmentId: string,
-		filter: LogFilter = {},
-	): Promise<LogEntry[]> {
+	async getEnvironmentLogs(environmentId: string, filter: LogFilter = {}): Promise<LogEntry[]> {
 		const environment = this.environments.get(environmentId);
 		if (!environment) {
 			return [];
@@ -341,9 +333,7 @@ export class ModalFunctionManager {
 		return logs;
 	}
 
-	async optimizeConfiguration(
-		requirements: TaskRequirements,
-	): Promise<ModalFunctionConfig> {
+	async optimizeConfiguration(requirements: TaskRequirements): Promise<ModalFunctionConfig> {
 		return {
 			name: "optimized-agent",
 			image: "node:18",

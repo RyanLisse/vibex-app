@@ -74,10 +74,7 @@ export class WorkflowErrorClassifier {
 		return WorkflowErrorClassifier.classifications.get(error.code) || "unknown";
 	}
 
-	static addClassification(
-		code: WorkflowErrorCode,
-		classification: string,
-	): void {
+	static addClassification(code: WorkflowErrorCode, classification: string): void {
 		WorkflowErrorClassifier.classifications.set(code, classification);
 	}
 }

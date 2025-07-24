@@ -4,15 +4,7 @@
  * Test-driven development for Redis/Valkey real-time analytics and metrics
  */
 
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { testRedisConfig } from "./config";
 import { MetricsService } from "./metrics-service";
 import { RedisClientManager } from "./redis-client";
@@ -85,10 +77,7 @@ describe("MetricsService", () => {
 			await metricsService.incrementCounter(`${baseCounter}:contact`, 25);
 			await metricsService.incrementCounter(`${baseCounter}:blog`, 75);
 
-			const topCounters = await metricsService.getTopCounters(
-				`${baseCounter}:*`,
-				3,
-			);
+			const topCounters = await metricsService.getTopCounters(`${baseCounter}:*`, 3);
 
 			expect(topCounters).toHaveLength(3);
 			expect(topCounters[0].key).toBe(`${baseCounter}:home`);
@@ -185,8 +174,7 @@ describe("MetricsService", () => {
 			await metricsService.recordHistogram(histogramName, 5000); // bucket: 10000
 			await metricsService.recordHistogram(histogramName, 50_000); // bucket: infinity
 
-			const bucketCounts =
-				await metricsService.getHistogramBuckets(histogramName);
+			const bucketCounts = await metricsService.getHistogramBuckets(histogramName);
 
 			expect(bucketCounts.get(10)).toBe(1);
 			expect(bucketCounts.get(100)).toBe(1);
@@ -207,22 +195,14 @@ describe("MetricsService", () => {
 			await metricsService.recordTimeSeries(seriesName, 8, now); // now
 
 			// Query last hour
-			const hourData = await metricsService.getTimeSeries(
-				seriesName,
-				now - 3_600_000,
-				now,
-			);
+			const hourData = await metricsService.getTimeSeries(seriesName, now - 3_600_000, now);
 			expect(hourData).toHaveLength(3);
 			expect(hourData[0].value).toBe(10);
 			expect(hourData[1].value).toBe(15);
 			expect(hourData[2].value).toBe(8);
 
 			// Query last 30 minutes
-			const recentData = await metricsService.getTimeSeries(
-				seriesName,
-				now - 1_800_000,
-				now,
-			);
+			const recentData = await metricsService.getTimeSeries(seriesName, now - 1_800_000, now);
 			expect(recentData).toHaveLength(2);
 		});
 
@@ -235,7 +215,7 @@ describe("MetricsService", () => {
 				await metricsService.recordTimeSeries(
 					seriesName,
 					Math.floor(Math.random() * 100),
-					now - i * 60_000, // Each minute for the past hour
+					now - i * 60_000 // Each minute for the past hour
 				);
 			}
 
@@ -245,7 +225,7 @@ describe("MetricsService", () => {
 				now - 3_600_000,
 				now,
 				300_000, // 5 minutes
-				"avg",
+				"avg"
 			);
 
 			expect(aggregated).toHaveLength(12); // 60 minutes / 5 minutes = 12 intervals
@@ -260,11 +240,7 @@ describe("MetricsService", () => {
 			// Record sales data
 			const salesData = [100, 200, 150, 300, 250];
 			for (let i = 0; i < salesData.length; i++) {
-				await metricsService.recordTimeSeries(
-					seriesName,
-					salesData[i],
-					now - i * 3_600_000,
-				);
+				await metricsService.recordTimeSeries(seriesName, salesData[i], now - i * 3_600_000);
 			}
 
 			const sumResult = await metricsService.aggregateTimeSeries(
@@ -272,28 +248,28 @@ describe("MetricsService", () => {
 				now - 18_000_000,
 				now,
 				3_600_000,
-				"sum",
+				"sum"
 			);
 			const avgResult = await metricsService.aggregateTimeSeries(
 				seriesName,
 				now - 18_000_000,
 				now,
 				3_600_000,
-				"avg",
+				"avg"
 			);
 			const maxResult = await metricsService.aggregateTimeSeries(
 				seriesName,
 				now - 18_000_000,
 				now,
 				3_600_000,
-				"max",
+				"max"
 			);
 			const minResult = await metricsService.aggregateTimeSeries(
 				seriesName,
 				now - 18_000_000,
 				now,
 				3_600_000,
-				"min",
+				"min"
 			);
 
 			expect(sumResult[0].value).toBe(1000); // 100+200+150+300+250
@@ -325,9 +301,7 @@ describe("MetricsService", () => {
 
 			expect(dashboardMetrics["dashboard:active-users"].type).toBe("counter");
 			expect(dashboardMetrics["dashboard:cpu-usage"].type).toBe("gauge");
-			expect(dashboardMetrics["dashboard:response-time"].type).toBe(
-				"histogram",
-			);
+			expect(dashboardMetrics["dashboard:response-time"].type).toBe("histogram");
 		});
 
 		test("should support metric streaming for real-time updates", async () => {
@@ -335,12 +309,9 @@ describe("MetricsService", () => {
 			const streamName = "dashboard-stream";
 
 			// Subscribe to metric updates
-			const subscription = await metricsService.subscribeToMetrics(
-				streamName,
-				(metric) => {
-					metrics.push(metric);
-				},
-			);
+			const subscription = await metricsService.subscribeToMetrics(streamName, (metric) => {
+				metrics.push(metric);
+			});
 
 			expect(subscription.id).toBeDefined();
 
@@ -426,8 +397,7 @@ describe("MetricsService", () => {
 			});
 
 			// Get performance analytics
-			const performanceMetrics =
-				await metricsService.getPerformanceMetrics(sessionId);
+			const performanceMetrics = await metricsService.getPerformanceMetrics(sessionId);
 
 			expect(performanceMetrics.totalPageViews).toBe(2);
 			expect(performanceMetrics.averageLoadTime).toBe(1100); // (1250 + 950) / 2
@@ -460,47 +430,26 @@ describe("MetricsService", () => {
 
 		test("should provide funnel analysis", async () => {
 			const funnelName = "signup-funnel";
-			const steps = [
-				"landing",
-				"signup-form",
-				"email-verification",
-				"completed",
-			];
+			const steps = ["landing", "signup-form", "email-verification", "completed"];
 
 			// Initialize funnel
 			await metricsService.initializeFunnel(funnelName, steps);
 
 			// Track users through funnel
 			for (let i = 0; i < 100; i++) {
-				await metricsService.trackFunnelStep(
-					funnelName,
-					"landing",
-					`user-${i}`,
-				);
+				await metricsService.trackFunnelStep(funnelName, "landing", `user-${i}`);
 			}
 
 			for (let i = 0; i < 75; i++) {
-				await metricsService.trackFunnelStep(
-					funnelName,
-					"signup-form",
-					`user-${i}`,
-				);
+				await metricsService.trackFunnelStep(funnelName, "signup-form", `user-${i}`);
 			}
 
 			for (let i = 0; i < 60; i++) {
-				await metricsService.trackFunnelStep(
-					funnelName,
-					"email-verification",
-					`user-${i}`,
-				);
+				await metricsService.trackFunnelStep(funnelName, "email-verification", `user-${i}`);
 			}
 
 			for (let i = 0; i < 45; i++) {
-				await metricsService.trackFunnelStep(
-					funnelName,
-					"completed",
-					`user-${i}`,
-				);
+				await metricsService.trackFunnelStep(funnelName, "completed", `user-${i}`);
 			}
 
 			const funnelAnalysis = await metricsService.getFunnelAnalysis(funnelName);
@@ -556,21 +505,16 @@ describe("MetricsService", () => {
 			await metricsService.recordCustomerPurchase(
 				customerId,
 				99.99,
-				new Date(Date.now() - 86_400_000 * 30),
+				new Date(Date.now() - 86_400_000 * 30)
 			); // 30 days ago
 			await metricsService.recordCustomerPurchase(
 				customerId,
 				149.99,
-				new Date(Date.now() - 86_400_000 * 15),
+				new Date(Date.now() - 86_400_000 * 15)
 			); // 15 days ago
-			await metricsService.recordCustomerPurchase(
-				customerId,
-				199.99,
-				new Date(),
-			); // today
+			await metricsService.recordCustomerPurchase(customerId, 199.99, new Date()); // today
 
-			const clv =
-				await metricsService.calculateCustomerLifetimeValue(customerId);
+			const clv = await metricsService.calculateCustomerLifetimeValue(customerId);
 
 			expect(clv.totalRevenue).toBe(449.97);
 			expect(clv.averageOrderValue).toBe(149.99); // 449.97 / 3
@@ -589,15 +533,10 @@ describe("MetricsService", () => {
 			// Simulate retention over months
 			for (let month = 0; month < 6; month++) {
 				const retainedUsers = 100 * 0.8 ** month; // 20% churn each month
-				await metricsService.recordCohortRetention(
-					cohortMonth,
-					month,
-					Math.floor(retainedUsers),
-				);
+				await metricsService.recordCohortRetention(cohortMonth, month, Math.floor(retainedUsers));
 			}
 
-			const cohortAnalysis =
-				await metricsService.getCohortAnalysis(cohortMonth);
+			const cohortAnalysis = await metricsService.getCohortAnalysis(cohortMonth);
 
 			expect(cohortAnalysis.cohortSize).toBe(100);
 			expect(cohortAnalysis.retentionRates).toHaveLength(6);
@@ -641,34 +580,21 @@ describe("MetricsService", () => {
 			const now = Date.now();
 
 			// Record old data points
-			await metricsService.recordTimeSeries(
-				metricName,
-				100,
-				now - 86_400_000 * 7,
-			); // 7 days ago
-			await metricsService.recordTimeSeries(
-				metricName,
-				200,
-				now - 86_400_000 * 3,
-			); // 3 days ago
+			await metricsService.recordTimeSeries(metricName, 100, now - 86_400_000 * 7); // 7 days ago
+			await metricsService.recordTimeSeries(metricName, 200, now - 86_400_000 * 3); // 3 days ago
 			await metricsService.recordTimeSeries(metricName, 300, now); // now
 
 			// Apply retention policy (keep only last 5 days)
-			const deleted = await metricsService.applyRetentionPolicy(
-				metricName,
-				86_400_000 * 5,
-			); // 5 days
+			const deleted = await metricsService.applyRetentionPolicy(metricName, 86_400_000 * 5); // 5 days
 			expect(deleted).toBeGreaterThanOrEqual(1);
 
 			// Verify old data is gone
 			const remainingData = await metricsService.getTimeSeries(
 				metricName,
 				now - 86_400_000 * 10,
-				now,
+				now
 			);
-			expect(
-				remainingData.every((point) => point.timestamp > now - 86_400_000 * 5),
-			).toBe(true);
+			expect(remainingData.every((point) => point.timestamp > now - 86_400_000 * 5)).toBe(true);
 		});
 
 		test("should cleanup expired metrics automatically", async () => {

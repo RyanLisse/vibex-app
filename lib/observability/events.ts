@@ -9,10 +9,7 @@ import { SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { ulid } from "ulid";
 import { db } from "@/db/config";
-import {
-	agentExecutions,
-	observabilityEvents as observabilityEventsTable,
-} from "@/db/schema";
+import { agentExecutions, observabilityEvents as observabilityEventsTable } from "@/db/schema";
 
 // Event types for categorization
 export type ObservabilityEventType =
@@ -112,7 +109,7 @@ export class ObservabilityEventCollector {
 		message: string,
 		metadata: EventMetadata = {},
 		source = "system",
-		tags: string[] = [],
+		tags: string[] = []
 	): Promise<void> {
 		const event: ObservabilityEvent = {
 			id: ulid(),
@@ -166,7 +163,7 @@ export class ObservabilityEventCollector {
 					spanId: event.metadata.spanId || null,
 					data: event.metadata,
 					category: event.source,
-				})),
+				}))
 			);
 		} catch (error) {
 			console.error("Failed to flush observability events:", error);
@@ -199,7 +196,7 @@ export class ObservabilityEventCollector {
 						}
 						return acc;
 					},
-					{} as Record<string, string | number | boolean>,
+					{} as Record<string, string | number | boolean>
 				),
 			},
 		});
@@ -243,9 +240,7 @@ export class ObservabilityEventQuery {
 	/**
 	 * Get events by execution ID
 	 */
-	static async getEventsByExecution(
-		executionId: string,
-	): Promise<ObservabilityEvent[]> {
+	static async getEventsByExecution(executionId: string): Promise<ObservabilityEvent[]> {
 		const events = await db
 			.select()
 			.from(observabilityEventsTable)
@@ -262,7 +257,7 @@ export class ObservabilityEventQuery {
 		types: ObservabilityEventType[],
 		startTime: Date,
 		endTime: Date,
-		limit = 1000,
+		limit = 1000
 	): Promise<ObservabilityEvent[]> {
 		const events = await db
 			.select()
@@ -271,8 +266,8 @@ export class ObservabilityEventQuery {
 				and(
 					inArray(observabilityEventsTable.type, types as any),
 					gte(observabilityEventsTable.timestamp, startTime),
-					lte(observabilityEventsTable.timestamp, endTime),
-				),
+					lte(observabilityEventsTable.timestamp, endTime)
+				)
 			)
 			.orderBy(desc(observabilityEventsTable.timestamp))
 			.limit(limit);
@@ -285,7 +280,7 @@ export class ObservabilityEventQuery {
 	 */
 	static async getEventsBySeverity(
 		severity: EventSeverity[],
-		limit = 1000,
+		limit = 1000
 	): Promise<ObservabilityEvent[]> {
 		const events = await db
 			.select()
@@ -340,28 +335,20 @@ export const observabilityEvents = {
 			`Execution started: ${executionId}`,
 			{ ...metadata, executionId },
 			"agent",
-			["execution", "start"],
+			["execution", "start"]
 		),
 
-	executionEnd: (
-		executionId: string,
-		duration: number,
-		metadata: EventMetadata = {},
-	) =>
+	executionEnd: (executionId: string, duration: number, metadata: EventMetadata = {}) =>
 		ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_end",
 			"info",
 			`Execution completed: ${executionId}`,
 			{ ...metadata, executionId, duration },
 			"agent",
-			["execution", "end"],
+			["execution", "end"]
 		),
 
-	executionError: (
-		executionId: string,
-		error: Error,
-		metadata: EventMetadata = {},
-	) =>
+	executionError: (executionId: string, error: Error, metadata: EventMetadata = {}) =>
 		ObservabilityEventCollector.getInstance().collectEvent(
 			"execution_error",
 			"error",
@@ -376,29 +363,25 @@ export const observabilityEvents = {
 				},
 			},
 			"agent",
-			["execution", "error"],
+			["execution", "error"]
 		),
 
 	// Performance events
-	performanceMetric: (
-		metric: string,
-		value: number,
-		metadata: EventMetadata = {},
-	) =>
+	performanceMetric: (metric: string, value: number, metadata: EventMetadata = {}) =>
 		ObservabilityEventCollector.getInstance().collectEvent(
 			"performance_metric",
 			"debug",
 			`Performance metric: ${metric} = ${value}`,
 			{ ...metadata, [metric]: value },
 			"system",
-			["performance", metric],
+			["performance", metric]
 		),
 
 	// WASM events
 	wasmOperation: (
 		operation: string,
 		performance: EventMetadata["wasmPerformance"],
-		metadata: EventMetadata = {},
+		metadata: EventMetadata = {}
 	) =>
 		ObservabilityEventCollector.getInstance().collectEvent(
 			"wasm_operation",
@@ -406,6 +389,6 @@ export const observabilityEvents = {
 			`WASM operation: ${operation}`,
 			{ ...metadata, wasmPerformance: performance },
 			"wasm",
-			["wasm", operation],
+			["wasm", operation]
 		),
 };

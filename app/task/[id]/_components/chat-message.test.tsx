@@ -24,11 +24,7 @@ vi.mock("@/components/markdown", () => ({
 // Mock the StreamingIndicator component
 vi.mock("@/components/streaming-indicator", () => ({
 	StreamingIndicator: ({ size, variant }: any) => (
-		<div
-			data-size={size}
-			data-testid="streaming-indicator"
-			data-variant={variant}
-		/>
+		<div data-size={size} data-testid="streaming-indicator" data-variant={variant} />
 	),
 }));
 
@@ -45,9 +41,7 @@ describe("ChatMessage", () => {
 	it("should render user message", () => {
 		render(<ChatMessage role="user" text="Hello, this is a test message" />);
 
-		expect(
-			screen.getByText("Hello, this is a test message"),
-		).toBeInTheDocument();
+		expect(screen.getByText("Hello, this is a test message")).toBeInTheDocument();
 		expect(screen.getByTestId("user-icon")).toBeInTheDocument();
 	});
 
@@ -59,13 +53,7 @@ describe("ChatMessage", () => {
 	});
 
 	it("should render streaming assistant message", () => {
-		render(
-			<ChatMessage
-				isStreaming={true}
-				role="assistant"
-				text="This is a streaming message"
-			/>,
-		);
+		render(<ChatMessage isStreaming={true} role="assistant" text="This is a streaming message" />);
 
 		expect(screen.getByText("This is a streaming message")).toBeInTheDocument();
 		expect(screen.getByTestId("streaming-indicator")).toBeInTheDocument();
@@ -78,7 +66,7 @@ describe("ChatMessage", () => {
 				role="assistant"
 				streamProgress={{ chunkIndex: 2, totalChunks: 10 }}
 				text="This is a streaming message"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("30%")).toBeInTheDocument();
@@ -92,14 +80,11 @@ describe("ChatMessage", () => {
 				repoUrl="https://github.com/test/repo"
 				role="user"
 				text="# Hello\n\nThis is **bold** text"
-			/>,
+			/>
 		);
 
 		const markdown = screen.getByTestId("markdown");
-		expect(markdown).toHaveAttribute(
-			"data-repo-url",
-			"https://github.com/test/repo",
-		);
+		expect(markdown).toHaveAttribute("data-repo-url", "https://github.com/test/repo");
 		expect(markdown).toHaveAttribute("data-branch", "main");
 		expect(markdown).toHaveTextContent("# Hello\n\nThis is **bold** text");
 	});
@@ -127,9 +112,7 @@ describe("ChatMessage", () => {
 	it("should apply correct styling for assistant messages", () => {
 		render(<ChatMessage role="assistant" text="Assistant message" />);
 
-		const messageContainer = screen
-			.getByText("Assistant message")
-			.closest("div");
+		const messageContainer = screen.getByText("Assistant message").closest("div");
 		expect(messageContainer).toHaveClass("bg-card", "border", "border-border");
 	});
 
@@ -137,33 +120,18 @@ describe("ChatMessage", () => {
 		render(<ChatMessage role="user" text="User message" />);
 
 		const messageContainer = screen.getByText("User message").closest("div");
-		expect(messageContainer).toHaveClass(
-			"bg-primary",
-			"text-primary-foreground",
-		);
+		expect(messageContainer).toHaveClass("bg-primary", "text-primary-foreground");
 	});
 
 	it("should show streaming animation for assistant avatar", () => {
-		render(
-			<ChatMessage
-				isStreaming={true}
-				role="assistant"
-				text="Streaming message"
-			/>,
-		);
+		render(<ChatMessage isStreaming={true} role="assistant" text="Streaming message" />);
 
 		const avatarContainer = screen.getByTestId("bot-icon").closest("div");
 		expect(avatarContainer).toHaveClass("relative", "overflow-hidden");
 	});
 
 	it("should handle streaming indicator variants", () => {
-		render(
-			<ChatMessage
-				isStreaming={true}
-				role="assistant"
-				text="Streaming message"
-			/>,
-		);
+		render(<ChatMessage isStreaming={true} role="assistant" text="Streaming message" />);
 
 		const streamingIndicator = screen.getByTestId("streaming-indicator");
 		expect(streamingIndicator).toHaveAttribute("data-size", "sm");
@@ -177,7 +145,7 @@ describe("ChatMessage", () => {
 				role="assistant"
 				streamProgress={{ chunkIndex: 4, totalChunks: 8 }}
 				text="Streaming message"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("63%")).toBeInTheDocument();
@@ -190,7 +158,7 @@ describe("ChatMessage", () => {
 				role="assistant"
 				streamProgress={{ chunkIndex: 0, totalChunks: 10 }}
 				text="Streaming message"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("10%")).toBeInTheDocument();
@@ -203,7 +171,7 @@ describe("ChatMessage", () => {
 				role="assistant"
 				streamProgress={{ chunkIndex: 9, totalChunks: 10 }}
 				text="Streaming message"
-			/>,
+			/>
 		);
 
 		expect(screen.getByText("100%")).toBeInTheDocument();
@@ -212,33 +180,22 @@ describe("ChatMessage", () => {
 	it("should position user message on the right", () => {
 		render(<ChatMessage role="user" text="User message" />);
 
-		const container = screen
-			.getByText("User message")
-			.closest("div")?.parentElement;
+		const container = screen.getByText("User message").closest("div")?.parentElement;
 		expect(container).toHaveClass("justify-end");
 	});
 
 	it("should position assistant message on the left", () => {
 		render(<ChatMessage role="assistant" text="Assistant message" />);
 
-		const container = screen
-			.getByText("Assistant message")
-			.closest("div")?.parentElement;
+		const container = screen.getByText("Assistant message").closest("div")?.parentElement;
 		expect(container).toHaveClass("justify-start");
 	});
 
 	it("should handle code blocks in markdown", () => {
-		render(
-			<ChatMessage
-				role="assistant"
-				text="```javascript\nconsole.log('Hello World');\n```"
-			/>,
-		);
+		render(<ChatMessage role="assistant" text="```javascript\nconsole.log('Hello World');\n```" />);
 
 		const markdown = screen.getByTestId("markdown");
-		expect(markdown).toHaveTextContent(
-			"```javascript\nconsole.log('Hello World');\n```",
-		);
+		expect(markdown).toHaveTextContent("```javascript\nconsole.log('Hello World');\n```");
 	});
 
 	it("should handle markdown with repository context", () => {
@@ -248,14 +205,11 @@ describe("ChatMessage", () => {
 				repoUrl="https://github.com/test/repo"
 				role="user"
 				text="Check out this [file](./src/index.ts)"
-			/>,
+			/>
 		);
 
 		const markdown = screen.getByTestId("markdown");
-		expect(markdown).toHaveAttribute(
-			"data-repo-url",
-			"https://github.com/test/repo",
-		);
+		expect(markdown).toHaveAttribute("data-repo-url", "https://github.com/test/repo");
 		expect(markdown).toHaveAttribute("data-branch", "feature-branch");
 	});
 

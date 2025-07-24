@@ -6,11 +6,7 @@
  */
 
 import { CacheService } from "./cache-service";
-import {
-	getRedisServiceConfig,
-	redisFeatures,
-	validateRedisEnvironment,
-} from "./config";
+import { getRedisServiceConfig, redisFeatures, validateRedisEnvironment } from "./config";
 import type { RedisHealthStatus, RedisServiceConfig } from "./types";
 
 export class RedisService {
@@ -57,45 +53,40 @@ export class RedisService {
 			return;
 		}
 
-		return this.observability.trackOperation(
-			"redis.service.initialize",
-			async () => {
-				try {
-					// Validate environment
-					const validation = validateRedisEnvironment();
-					if (!validation.isValid) {
-						throw new Error(
-							`Redis environment validation failed: ${validation.errors.join(", ")}`,
-						);
-					}
-
-					// Initialize Redis client manager
-					await this.clientManager.initialize();
-
-					// Start monitoring if enabled
-					if (this.config.monitoring.enableHealthChecks) {
-						this.startHealthChecks();
-					}
-
-					if (this.config.monitoring.enableMetrics) {
-						this.startMetricsCollection();
-					}
-
-					this.isInitialized = true;
-					console.log("Redis service initialized successfully");
-
-					// Log enabled features
-					const enabledFeatures = Object.entries(redisFeatures)
-						.filter(([, enabled]) => enabled)
-						.map(([feature]) => feature);
-
-					console.log("Redis features enabled:", enabledFeatures.join(", "));
-				} catch (error) {
-					console.error("Failed to initialize Redis service:", error);
-					throw error;
+		return this.observability.trackOperation("redis.service.initialize", async () => {
+			try {
+				// Validate environment
+				const validation = validateRedisEnvironment();
+				if (!validation.isValid) {
+					throw new Error(`Redis environment validation failed: ${validation.errors.join(", ")}`);
 				}
-			},
-		);
+
+				// Initialize Redis client manager
+				await this.clientManager.initialize();
+
+				// Start monitoring if enabled
+				if (this.config.monitoring.enableHealthChecks) {
+					this.startHealthChecks();
+				}
+
+				if (this.config.monitoring.enableMetrics) {
+					this.startMetricsCollection();
+				}
+
+				this.isInitialized = true;
+				console.log("Redis service initialized successfully");
+
+				// Log enabled features
+				const enabledFeatures = Object.entries(redisFeatures)
+					.filter(([, enabled]) => enabled)
+					.map(([feature]) => feature);
+
+				console.log("Redis features enabled:", enabledFeatures.join(", "));
+			} catch (error) {
+				console.error("Failed to initialize Redis service:", error);
+				throw error;
+			}
+		});
 	}
 
 	// Service Access
@@ -219,9 +210,7 @@ export class RedisService {
 	// Private Methods
 	private ensureInitialized(): void {
 		if (!this.isInitialized) {
-			throw new Error(
-				"Redis service not initialized. Call initialize() first.",
-			);
+			throw new Error("Redis service not initialized. Call initialize() first.");
 		}
 	}
 
@@ -251,7 +240,7 @@ export class RedisService {
 							clientHealth.responseTime,
 							{
 								client: clientName,
-							},
+							}
 						);
 					}
 				});
@@ -263,15 +252,12 @@ export class RedisService {
 						.map(([name]) => name);
 
 					console.warn(
-						`Redis health check: ${health.overall} - Unhealthy clients: ${unhealthyClients.join(", ")}`,
+						`Redis health check: ${health.overall} - Unhealthy clients: ${unhealthyClients.join(", ")}`
 					);
 				}
 			} catch (error) {
 				console.error("Redis health check failed:", error);
-				this.observability.recordError(
-					"redis.health.check.error",
-					error as Error,
-				);
+				this.observability.recordError("redis.health.check.error", error as Error);
 			}
 		}, interval);
 	}
@@ -286,28 +272,13 @@ export class RedisService {
 				// Record cache metrics
 				const cacheMetrics = metrics.cache;
 				this.observability.recordEvent("redis.cache.hits", cacheMetrics.hits);
-				this.observability.recordEvent(
-					"redis.cache.misses",
-					cacheMetrics.misses,
-				);
-				this.observability.recordEvent(
-					"redis.cache.hit_rate",
-					cacheMetrics.hitRate,
-				);
-				this.observability.recordEvent(
-					"redis.cache.operations",
-					cacheMetrics.totalOperations,
-				);
-				this.observability.recordEvent(
-					"redis.cache.errors",
-					cacheMetrics.errors,
-				);
+				this.observability.recordEvent("redis.cache.misses", cacheMetrics.misses);
+				this.observability.recordEvent("redis.cache.hit_rate", cacheMetrics.hitRate);
+				this.observability.recordEvent("redis.cache.operations", cacheMetrics.totalOperations);
+				this.observability.recordEvent("redis.cache.errors", cacheMetrics.errors);
 
 				// Record connection metrics
-				this.observability.recordEvent(
-					"redis.connections.total",
-					metrics.connections.total,
-				);
+				this.observability.recordEvent("redis.connections.total", metrics.connections.total);
 
 				// Log metrics summary in development
 				if (process.env.NODE_ENV === "development") {
@@ -323,10 +294,7 @@ export class RedisService {
 				}
 			} catch (error) {
 				console.error("Redis metrics collection failed:", error);
-				this.observability.recordError(
-					"redis.metrics.collection.error",
-					error as Error,
-				);
+				this.observability.recordError("redis.metrics.collection.error", error as Error);
 			}
 		}, interval);
 	}
@@ -362,14 +330,9 @@ export async function initializeRedis(): Promise<void> {
 	try {
 		await redisService.initialize();
 	} catch (error) {
-		console.warn(
-			"Redis initialization failed, falling back to mock Redis:",
-			error,
-		);
+		console.warn("Redis initialization failed, falling back to mock Redis:", error);
 		// Fall back to mock Redis
-		const { initializeMockRedis, mockRedisCache } = await import(
-			"./mock-redis"
-		);
+		const { initializeMockRedis, mockRedisCache } = await import("./mock-redis");
 		await initializeMockRedis();
 
 		// Replace the cache with mock cache

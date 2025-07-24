@@ -9,33 +9,31 @@ import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 export const LazyMultiAgentChat = lazy(() =>
 	import("@/components/agents/multi-agent-chat").then((module) => ({
 		default: module.MultiAgentChat,
-	})),
+	}))
 );
 
 export const LazyVoiceBrainstorm = lazy(() =>
 	import("@/components/agents/voice-brainstorm").then((module) => ({
 		default: module.VoiceBrainstorm,
-	})),
+	}))
 );
 
 export const LazyComprehensiveObservabilityDashboard = lazy(() =>
-	import(
-		"@/components/observability/comprehensive-observability-dashboard"
-	).then((module) => ({
+	import("@/components/observability/comprehensive-observability-dashboard").then((module) => ({
 		default: module.ComprehensiveObservabilityDashboard,
-	})),
+	}))
 );
 
 export const LazyKanbanBoard = lazy(() =>
 	import("@/components/features/kanban/kanban-board").then((module) => ({
 		default: module.KanbanBoard,
-	})),
+	}))
 );
 
 export const LazyWorkflowDesigner = lazy(() =>
 	import("@/components/workflow/workflow-designer").then((module) => ({
 		default: module.WorkflowDesigner,
-	})),
+	}))
 );
 
 // Wrapper component with loading fallback
@@ -74,9 +72,7 @@ export const preloadComponents = {
 };
 
 // Preload on hover or focus for instant loading
-export function preloadOnInteraction(
-	componentKey: keyof typeof preloadComponents,
-) {
+export function preloadOnInteraction(componentKey: keyof typeof preloadComponents) {
 	return {
 		onMouseEnter: () => preloadComponents[componentKey](),
 		onFocus: () => preloadComponents[componentKey](),

@@ -25,102 +25,81 @@ async function finalTestFixes() {
 			const rootDir = process.cwd();
 
 			// Replace @/components imports
-			content = content.replace(
-				/from\s+['"]@\/components\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "components", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/components\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "components", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/lib imports
-			content = content.replace(
-				/from\s+['"]@\/lib\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "lib", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/lib\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "lib", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/hooks imports
-			content = content.replace(
-				/from\s+['"]@\/hooks\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "hooks", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/hooks\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "hooks", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/app imports
-			content = content.replace(
-				/from\s+['"]@\/app\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "app", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/app\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "app", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/src imports
-			content = content.replace(
-				/from\s+['"]@\/src\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "src", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/src\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "src", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/stores imports
-			content = content.replace(
-				/from\s+['"]@\/stores\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "stores", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/stores\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "stores", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/db imports
-			content = content.replace(
-				/from\s+['"]@\/db\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "db", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/db\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "db", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/test and @/tests imports
 			content = content.replace(
@@ -130,7 +109,7 @@ async function finalTestFixes() {
 						rootDir,
 						"tests",
 						folder === "test" ? "" : folder,
-						importPath,
+						importPath
 					);
 					let relPath = path.relative(fileDir, targetPath);
 					if (!relPath.startsWith(".")) {
@@ -138,50 +117,41 @@ async function finalTestFixes() {
 					}
 					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
 					return `from '${relPath}'`;
-				},
+				}
 			);
 
 			// Replace @/features imports
-			content = content.replace(
-				/from\s+['"]@\/features\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "src/features", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/features\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "src/features", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Replace @/shared imports
-			content = content.replace(
-				/from\s+['"]@\/shared\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, "src/shared", importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/shared\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, "src/shared", importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Fix any remaining @ imports (root imports)
-			content = content.replace(
-				/from\s+['"]@\/([^'"]+)['"]/g,
-				(match, importPath) => {
-					const targetPath = path.join(rootDir, importPath);
-					let relPath = path.relative(fileDir, targetPath);
-					if (!relPath.startsWith(".")) {
-						relPath = "./" + relPath;
-					}
-					relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
-					return `from '${relPath}'`;
-				},
-			);
+			content = content.replace(/from\s+['"]@\/([^'"]+)['"]/g, (match, importPath) => {
+				const targetPath = path.join(rootDir, importPath);
+				let relPath = path.relative(fileDir, targetPath);
+				if (!relPath.startsWith(".")) {
+					relPath = "./" + relPath;
+				}
+				relPath = relPath.replace(/\.(tsx?|jsx?)$/, "");
+				return `from '${relPath}'`;
+			});
 
 			// Check if content was changed
 			if (content !== (await readFile(file, "utf-8"))) {

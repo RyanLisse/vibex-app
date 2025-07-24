@@ -1,14 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import type { UseGeminiAudioOptions } from "./use-gemini-audio";
 import { useGeminiAudio } from "./use-gemini-audio";
 
@@ -161,9 +152,7 @@ describe("useGeminiAudio", () => {
 
 			const fetchMock = vi.fn(global.fetch);
 			const disconnectCall = fetchMock.mock.calls[1];
-			expect(disconnectCall[0]).toMatch(
-				/\/api\/ai\/gemini\/session\?sessionId=session-/,
-			);
+			expect(disconnectCall[0]).toMatch(/\/api\/ai\/gemini\/session\?sessionId=session-/);
 			expect(disconnectCall[1]).toEqual({ method: "DELETE" });
 		});
 
@@ -178,9 +167,7 @@ describe("useGeminiAudio", () => {
 		});
 
 		it("should handle disconnect errors gracefully", async () => {
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 			const { result } = renderHook(() => useGeminiAudio());
 
 			// Connect first
@@ -196,10 +183,7 @@ describe("useGeminiAudio", () => {
 				await result.current.disconnect();
 			});
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Failed to disconnect:",
-				expect.any(Error),
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Failed to disconnect:", expect.any(Error));
 
 			consoleSpy.mockRestore();
 		});
@@ -272,7 +256,7 @@ describe("useGeminiAudio", () => {
 			await expect(
 				act(async () => {
 					await result.current.sendMessage("Hello");
-				}),
+				})
 			).rejects.toThrow("Not connected");
 		});
 
@@ -317,9 +301,7 @@ describe("useGeminiAudio", () => {
 				onloadend: null as any,
 				result: base64Audio,
 			};
-			global.FileReader = vi
-				.fn()
-				.mockImplementation(() => mockFileReader) as any;
+			global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any;
 
 			await act(async () => {
 				const promise = result.current.sendAudio(audioBlob);
@@ -345,7 +327,7 @@ describe("useGeminiAudio", () => {
 			await expect(
 				act(async () => {
 					await result.current.sendAudio(audioBlob);
-				}),
+				})
 			).rejects.toThrow("Not connected");
 		});
 
@@ -365,9 +347,7 @@ describe("useGeminiAudio", () => {
 				onloadend: null as any,
 				result: base64Audio,
 			};
-			global.FileReader = vi
-				.fn()
-				.mockImplementation(() => mockFileReader) as any;
+			global.FileReader = vi.fn().mockImplementation(() => mockFileReader) as any;
 
 			const fetchMock = vi.fn(global.fetch);
 			fetchMock.mockResolvedValueOnce({
@@ -418,9 +398,7 @@ describe("useGeminiAudio", () => {
 
 			const fetchMock = vi.fn(global.fetch);
 			const disconnectCall = fetchMock.mock.calls[1];
-			expect(disconnectCall[0]).toMatch(
-				/\/api\/ai\/gemini\/session\?sessionId=/,
-			);
+			expect(disconnectCall[0]).toMatch(/\/api\/ai\/gemini\/session\?sessionId=/);
 			expect(disconnectCall[1]).toEqual({ method: "DELETE" });
 		});
 

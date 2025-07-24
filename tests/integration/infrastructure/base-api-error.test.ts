@@ -71,14 +71,10 @@ describe("BaseAPIError Integration Tests", () => {
 				code: "NOT_FOUND",
 			});
 
-			expect(observability.metrics.errorRate).toHaveBeenCalledWith(
-				1,
-				"api_error",
-				{
-					error_code: "NOT_FOUND",
-					status_code: "404",
-				},
-			);
+			expect(observability.metrics.errorRate).toHaveBeenCalledWith(1, "api_error", {
+				error_code: "NOT_FOUND",
+				status_code: "404",
+			});
 		});
 
 		it("should record error event", async () => {
@@ -88,9 +84,7 @@ describe("BaseAPIError Integration Tests", () => {
 			});
 
 			await vi.waitFor(() => {
-				expect(
-					observability.events.collector.collectEvent,
-				).toHaveBeenCalledWith(
+				expect(observability.events.collector.collectEvent).toHaveBeenCalledWith(
 					"api_error",
 					"error",
 					"Test error",
@@ -101,7 +95,7 @@ describe("BaseAPIError Integration Tests", () => {
 						stack: expect.any(String),
 					}),
 					"api",
-					["error", "test_error"],
+					["error", "test_error"]
 				);
 			});
 		});
@@ -176,14 +170,10 @@ describe("BaseAPIError Integration Tests", () => {
 		it("should integrate with observability", () => {
 			const error = new ValidationError("Invalid input");
 
-			expect(observability.metrics.errorRate).toHaveBeenCalledWith(
-				1,
-				"api_error",
-				{
-					error_code: "VALIDATION_ERROR",
-					status_code: "400",
-				},
-			);
+			expect(observability.metrics.errorRate).toHaveBeenCalledWith(1, "api_error", {
+				error_code: "VALIDATION_ERROR",
+				status_code: "400",
+			});
 		});
 	});
 
@@ -208,14 +198,10 @@ describe("BaseAPIError Integration Tests", () => {
 		it("should integrate with observability", () => {
 			const error = new NotFoundError("Task", "abc-123");
 
-			expect(observability.metrics.errorRate).toHaveBeenCalledWith(
-				1,
-				"api_error",
-				{
-					error_code: "NOT_FOUND",
-					status_code: "404",
-				},
-			);
+			expect(observability.metrics.errorRate).toHaveBeenCalledWith(1, "api_error", {
+				error_code: "NOT_FOUND",
+				status_code: "404",
+			});
 		});
 	});
 
@@ -408,9 +394,7 @@ describe("BaseAPIError Integration Tests", () => {
 				.spyOn(observability.events.collector, "collectEvent")
 				.mockRejectedValueOnce(new Error("Observability failed"));
 
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 			const error = new BaseAPIError("Test error");
 
@@ -434,9 +418,7 @@ describe("BaseAPIError Integration Tests", () => {
 			});
 
 			await vi.waitFor(() => {
-				expect(
-					observability.events.collector.collectEvent,
-				).toHaveBeenCalledWith(
+				expect(observability.events.collector.collectEvent).toHaveBeenCalledWith(
 					"api_error",
 					"error",
 					"Complex error",
@@ -448,7 +430,7 @@ describe("BaseAPIError Integration Tests", () => {
 						stack: expect.any(String),
 					}),
 					"api",
-					["error", "complex_error"],
+					["error", "complex_error"]
 				);
 			});
 		});

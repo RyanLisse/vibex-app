@@ -24,32 +24,26 @@ describe("AlertRuleBuilder", () => {
 			const errorAlert = alerts.find((a) => a.alert === "HighAgentErrorRate");
 			expect(errorAlert).toBeDefined();
 			expect(errorAlert?.expr).toBe(
-				'rate(agent_operations_total{status="error"}[5m]) / rate(agent_operations_total[5m]) > 0.1',
+				'rate(agent_operations_total{status="error"}[5m]) / rate(agent_operations_total[5m]) > 0.1'
 			);
 			expect(errorAlert?.for).toBe("2m");
 			expect(errorAlert?.labels.severity).toBe("warning");
 			expect(errorAlert?.labels.component).toBe("ai-agents");
-			expect(errorAlert?.annotations.summary).toContain(
-				"High error rate detected",
-			);
+			expect(errorAlert?.annotations.summary).toContain("High error rate detected");
 			expect(errorAlert?.annotations.runbook_url).toBeDefined();
 		});
 
 		it("should include agent execution timeout alert", () => {
 			alerts = AlertRuleBuilder.createAgentAlerts();
 
-			const timeoutAlert = alerts.find(
-				(a) => a.alert === "AgentExecutionTimeout",
-			);
+			const timeoutAlert = alerts.find((a) => a.alert === "AgentExecutionTimeout");
 			expect(timeoutAlert).toBeDefined();
 			expect(timeoutAlert?.expr).toBe(
-				"histogram_quantile(0.95, rate(agent_execution_duration_seconds_bucket[5m])) > 60",
+				"histogram_quantile(0.95, rate(agent_execution_duration_seconds_bucket[5m])) > 60"
 			);
 			expect(timeoutAlert?.for).toBe("5m");
 			expect(timeoutAlert?.labels.severity).toBe("critical");
-			expect(timeoutAlert?.annotations.summary).toContain(
-				"execution times are too high",
-			);
+			expect(timeoutAlert?.annotations.summary).toContain("execution times are too high");
 		});
 
 		it("should include high token usage alert", () => {
@@ -57,14 +51,10 @@ describe("AlertRuleBuilder", () => {
 
 			const tokenAlert = alerts.find((a) => a.alert === "HighTokenUsage");
 			expect(tokenAlert).toBeDefined();
-			expect(tokenAlert?.expr).toBe(
-				"rate(agent_token_usage_total[1h]) > 100000",
-			);
+			expect(tokenAlert?.expr).toBe("rate(agent_token_usage_total[1h]) > 100000");
 			expect(tokenAlert?.for).toBe("10m");
 			expect(tokenAlert?.labels.severity).toBe("warning");
-			expect(tokenAlert?.annotations.summary).toContain(
-				"High token usage detected",
-			);
+			expect(tokenAlert?.annotations.summary).toContain("High token usage detected");
 		});
 
 		it("should have valid PromQL expressions", () => {
@@ -104,7 +94,7 @@ describe("AlertRuleBuilder", () => {
 			const httpAlert = alerts.find((a) => a.alert === "HighHTTPErrorRate");
 			expect(httpAlert).toBeDefined();
 			expect(httpAlert?.expr).toBe(
-				'rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05',
+				'rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05'
 			);
 			expect(httpAlert?.labels.severity).toBe("critical");
 			expect(httpAlert?.labels.component).toBe("api");
@@ -127,7 +117,7 @@ describe("AlertRuleBuilder", () => {
 			const slowAlert = alerts.find((a) => a.alert === "SlowDatabaseQueries");
 			expect(slowAlert).toBeDefined();
 			expect(slowAlert?.expr).toBe(
-				"histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1",
+				"histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1"
 			);
 			expect(slowAlert?.labels.component).toBe("database");
 		});
@@ -148,16 +138,12 @@ describe("AlertRuleBuilder", () => {
 		it("should include low user engagement alert", () => {
 			alerts = AlertRuleBuilder.createBusinessAlerts();
 
-			const engagementAlert = alerts.find(
-				(a) => a.alert === "LowUserEngagement",
-			);
+			const engagementAlert = alerts.find((a) => a.alert === "LowUserEngagement");
 			expect(engagementAlert).toBeDefined();
 			expect(engagementAlert?.expr).toBe("user_sessions_active < 10");
 			expect(engagementAlert?.for).toBe("15m");
 			expect(engagementAlert?.labels.severity).toBe("info");
-			expect(engagementAlert?.annotations.summary).toContain(
-				"Low user engagement",
-			);
+			expect(engagementAlert?.annotations.summary).toContain("Low user engagement");
 		});
 
 		it("should include high operational cost alert", () => {
@@ -165,14 +151,10 @@ describe("AlertRuleBuilder", () => {
 
 			const costAlert = alerts.find((a) => a.alert === "HighOperationalCost");
 			expect(costAlert).toBeDefined();
-			expect(costAlert?.expr).toBe(
-				"sum(rate(agent_cost_total[1h])) * 24 > 100",
-			);
+			expect(costAlert?.expr).toBe("sum(rate(agent_cost_total[1h])) * 24 > 100");
 			expect(costAlert?.for).toBe("30m");
 			expect(costAlert?.labels.severity).toBe("warning");
-			expect(costAlert?.annotations.summary).toContain(
-				"High operational costs",
-			);
+			expect(costAlert?.annotations.summary).toContain("High operational costs");
 		});
 	});
 
@@ -259,7 +241,7 @@ describe("AlertRuleBuilder", () => {
 			const templatedAlerts = allAlerts.filter(
 				(alert) =>
 					alert.annotations.description.includes("{{ $value }}") ||
-					alert.annotations.description.includes("{{ $labels"),
+					alert.annotations.description.includes("{{ $labels")
 			);
 
 			expect(templatedAlerts.length).toBeGreaterThan(0);

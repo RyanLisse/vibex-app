@@ -6,24 +6,11 @@
  */
 
 "use client";
-import {
-	QueryClient,
-	QueryClientProvider,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 import { observability } from "@/lib/observability";
-import {
-	type ElectricBridgeConfig,
-	electricQueryBridge,
-} from "./electric-bridge";
+import { type ElectricBridgeConfig, electricQueryBridge } from "./electric-bridge";
 
 export interface QueryProviderConfig {
 	electricBridge?: Partial<ElectricBridgeConfig>;
@@ -55,16 +42,12 @@ interface QueryProviderContextValue {
 	refreshBridgeStats: () => void;
 }
 
-const QueryProviderContext = createContext<QueryProviderContextValue | null>(
-	null,
-);
+const QueryProviderContext = createContext<QueryProviderContextValue | null>(null);
 
 /**
  * Create a query client with optimized defaults for ElectricSQL integration
  */
-function createQueryClient(
-	config?: QueryProviderConfig["queryClient"],
-): QueryClient {
+function createQueryClient(config?: QueryProviderConfig["queryClient"]): QueryClient {
 	return new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -97,8 +80,7 @@ export function QueryProvider({
 	config?: QueryProviderConfig;
 }) {
 	const [queryClient] = useState(() => createQueryClient(config.queryClient));
-	const [bridgeStats, setBridgeStats] =
-		useState<QueryProviderContextValue["bridgeStats"]>(null);
+	const [bridgeStats, setBridgeStats] = useState<QueryProviderContextValue["bridgeStats"]>(null);
 	const [isInitialized, setIsInitialized] = useState(false);
 
 	const refreshBridgeStats = () => {
@@ -141,10 +123,7 @@ export function QueryProvider({
 			} catch (error) {
 				console.error("Failed to initialize ElectricSQL bridge:", error);
 				if (config.enableObservability !== false) {
-					observability.recordError(
-						"query-provider.initialize",
-						error as Error,
-					);
+					observability.recordError("query-provider.initialize", error as Error);
 				}
 			}
 		};
@@ -173,13 +152,9 @@ export function QueryProvider({
 		<QueryProviderContext.Provider value={contextValue}>
 			<QueryClientProvider client={queryClient}>
 				{children}
-				{config.enableDevtools !== false &&
-					process.env.NODE_ENV === "development" && (
-						<ReactQueryDevtools
-							buttonPosition="bottom-left"
-							initialIsOpen={false}
-						/>
-					)}
+				{config.enableDevtools !== false && process.env.NODE_ENV === "development" && (
+					<ReactQueryDevtools buttonPosition="bottom-left" initialIsOpen={false} />
+				)}
 			</QueryClientProvider>
 		</QueryProviderContext.Provider>
 	);
@@ -228,9 +203,9 @@ export function useTableInvalidation() {
  */
 export function useElectricConnection() {
 	const { bridgeStats } = useQueryProvider();
-	const [connectionHealth, setConnectionHealth] = useState<
-		"healthy" | "degraded" | "disconnected"
-	>("disconnected");
+	const [connectionHealth, setConnectionHealth] = useState<"healthy" | "degraded" | "disconnected">(
+		"disconnected"
+	);
 
 	useEffect(() => {
 		if (!bridgeStats?.connectionStatus) {
@@ -238,8 +213,7 @@ export function useElectricConnection() {
 			return;
 		}
 
-		const { isConnected, syncStatus, offlineQueueSize } =
-			bridgeStats.connectionStatus;
+		const { isConnected, syncStatus, offlineQueueSize } = bridgeStats.connectionStatus;
 
 		if (!isConnected) {
 			setConnectionHealth("disconnected");
@@ -289,9 +263,7 @@ export function QueryDevStatus() {
 			<div className="mb-2 font-semibold">🔄 Query Bridge Status</div>
 
 			<div className="space-y-1">
-				<div
-					className={`flex justify-between ${getHealthColor(connection.health)}`}
-				>
+				<div className={`flex justify-between ${getHealthColor(connection.health)}`}>
 					<span>Connection:</span>
 					<span className="capitalize">{connection.health}</span>
 				</div>
@@ -343,7 +315,7 @@ export function QueryDevStatus() {
  * Utility function to set up the query provider with default configuration
  */
 export function createQueryProviderConfig(
-	overrides?: Partial<QueryProviderConfig>,
+	overrides?: Partial<QueryProviderConfig>
 ): QueryProviderConfig {
 	return {
 		enableDevtools: process.env.NODE_ENV === "development",

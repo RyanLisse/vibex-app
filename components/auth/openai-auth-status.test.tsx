@@ -40,12 +40,7 @@ vi.mock("lucide-react", () => ({
 // Mock UI components
 vi.mock("@/components/ui/badge", () => ({
 	Badge: ({ children, variant, className, ...props }: any) => (
-		<span
-			className={className}
-			data-testid="badge"
-			data-variant={variant}
-			{...props}
-		>
+		<span className={className} data-testid="badge" data-variant={variant} {...props}>
 			{children}
 		</span>
 	),
@@ -90,10 +85,7 @@ describe("OpenAIAuthStatus", () => {
 
 		expect(screen.getByTestId("loader-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("badge")).toHaveTextContent("Loading...");
-		expect(screen.getByTestId("badge")).toHaveAttribute(
-			"data-variant",
-			"secondary",
-		);
+		expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "secondary");
 	});
 
 	it("should render authenticated state", () => {
@@ -112,10 +104,7 @@ describe("OpenAIAuthStatus", () => {
 
 		expect(screen.getByTestId("check-circle-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("badge")).toHaveTextContent("Connected");
-		expect(screen.getByTestId("badge")).toHaveAttribute(
-			"data-variant",
-			"success",
-		);
+		expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "success");
 	});
 
 	it("should render unauthenticated state", () => {
@@ -134,10 +123,7 @@ describe("OpenAIAuthStatus", () => {
 
 		expect(screen.getByTestId("x-circle-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("badge")).toHaveTextContent("Disconnected");
-		expect(screen.getByTestId("badge")).toHaveAttribute(
-			"data-variant",
-			"destructive",
-		);
+		expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "destructive");
 	});
 
 	it("should render error state", () => {
@@ -156,10 +142,7 @@ describe("OpenAIAuthStatus", () => {
 
 		expect(screen.getByTestId("alert-circle-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("badge")).toHaveTextContent("Error");
-		expect(screen.getByTestId("badge")).toHaveAttribute(
-			"data-variant",
-			"destructive",
-		);
+		expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "destructive");
 	});
 
 	it("should render expiring soon state", () => {
@@ -178,10 +161,7 @@ describe("OpenAIAuthStatus", () => {
 
 		expect(screen.getByTestId("clock-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("badge")).toHaveTextContent("Expiring Soon");
-		expect(screen.getByTestId("badge")).toHaveAttribute(
-			"data-variant",
-			"warning",
-		);
+		expect(screen.getByTestId("badge")).toHaveAttribute("data-variant", "warning");
 	});
 
 	it("should render with detailed view", () => {

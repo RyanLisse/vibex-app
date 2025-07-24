@@ -1,9 +1,6 @@
 "use client";
 
-import type {
-	KanbanColumn,
-	KanbanTask,
-} from "@/src/schemas/enhanced-task-schemas";
+import type { KanbanColumn, KanbanTask } from "@/src/schemas/enhanced-task-schemas";
 
 interface KanbanBoardProps {
 	columns: KanbanColumn[];
@@ -21,15 +18,10 @@ export function KanbanBoard({ columns, tasks, onTaskMove }: KanbanBoardProps) {
 						{tasks
 							.filter((task) => task.status === column.id)
 							.map((task) => (
-								<div
-									key={task.id}
-									className="bg-white p-3 rounded shadow-sm border"
-								>
+								<div key={task.id} className="bg-white p-3 rounded shadow-sm border">
 									<h4 className="font-medium">{task.title}</h4>
 									{task.description && (
-										<p className="text-sm text-gray-600 mt-1">
-											{task.description}
-										</p>
+										<p className="text-sm text-gray-600 mt-1">{task.description}</p>
 									)}
 									<div className="flex justify-between items-center mt-2">
 										<span
@@ -44,9 +36,7 @@ export function KanbanBoard({ columns, tasks, onTaskMove }: KanbanBoardProps) {
 											{task.priority}
 										</span>
 										{task.assignee && (
-											<span className="text-xs text-gray-500">
-												{task.assignee}
-											</span>
+											<span className="text-xs text-gray-500">{task.assignee}</span>
 										)}
 									</div>
 								</div>

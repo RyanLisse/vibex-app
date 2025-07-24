@@ -104,10 +104,7 @@ export class AgentMemorySystem {
 	/**
 	 * Update an existing memory
 	 */
-	async updateMemory(
-		memoryId: string,
-		updates: UpdateMemoryInput,
-	): Promise<MemoryEntry | null> {
+	async updateMemory(memoryId: string, updates: UpdateMemoryInput): Promise<MemoryEntry | null> {
 		try {
 			const memory = await memoryRepository.update(memoryId, updates);
 
@@ -129,7 +126,7 @@ export class AgentMemorySystem {
 	 */
 	async searchMemories(
 		query: string,
-		options: MemorySearchOptions = {},
+		options: MemorySearchOptions = {}
 	): Promise<MemorySearchResult[]> {
 		return memorySearchService.search(query, options);
 	}
@@ -139,7 +136,7 @@ export class AgentMemorySystem {
 	 */
 	async findSimilarMemories(
 		memoryId: string,
-		options: MemorySearchOptions = {},
+		options: MemorySearchOptions = {}
 	): Promise<MemorySearchResult[]> {
 		return memorySearchService.findSimilar(memoryId, options);
 	}
@@ -155,7 +152,7 @@ export class AgentMemorySystem {
 			currentTask?: string;
 			userContext?: Record<string, any>;
 			environmentContext?: Record<string, any>;
-		} = {},
+		} = {}
 	): Promise<MemoryContext> {
 		return memoryContextManager.getContext(agentType, contextKey, options);
 	}
@@ -169,7 +166,7 @@ export class AgentMemorySystem {
 			currentTask?: string;
 			userContext?: Record<string, any>;
 			environmentContext?: Record<string, any>;
-		},
+		}
 	): Promise<MemoryContext> {
 		return memoryContextManager.updateContext(context, updates);
 	}
@@ -183,7 +180,7 @@ export class AgentMemorySystem {
 			maxSuggestions?: number;
 			minConfidence?: number;
 			strategies?: string[];
-		} = {},
+		} = {}
 	): Promise<MemorySuggestion[]> {
 		return memorySuggestionEngine.getSuggestions(context, options);
 	}
@@ -191,15 +188,9 @@ export class AgentMemorySystem {
 	/**
 	 * Share memory with other agents
 	 */
-	async shareMemory(
-		memory: MemoryEntry,
-		targetAgentTypes?: string[],
-	): Promise<string[]> {
+	async shareMemory(memory: MemoryEntry, targetAgentTypes?: string[]): Promise<string[]> {
 		if (targetAgentTypes) {
-			const results = await memorySharingService.shareMemories(
-				[memory],
-				targetAgentTypes,
-			);
+			const results = await memorySharingService.shareMemories([memory], targetAgentTypes);
 			return results.get(memory.id) || [];
 		}
 		return memorySharingService.shareMemory(memory);
@@ -216,13 +207,9 @@ export class AgentMemorySystem {
 			types?: string[];
 			minImportance?: number;
 			limit?: number;
-		} = {},
+		} = {}
 	): Promise<number> {
-		return memorySharingService.crossPollinate(
-			sourceAgentType,
-			targetAgentType,
-			options as any,
-		);
+		return memorySharingService.crossPollinate(sourceAgentType, targetAgentType, options as any);
 	}
 
 	/**
@@ -235,17 +222,11 @@ export class AgentMemorySystem {
 	/**
 	 * Memory lifecycle operations
 	 */
-	async setMemoryExpiration(
-		memoryId: string,
-		expiresAt: Date | null,
-	): Promise<void> {
+	async setMemoryExpiration(memoryId: string, expiresAt: Date | null): Promise<void> {
 		return memoryLifecycleManager.setExpiration(memoryId, expiresAt);
 	}
 
-	async extendMemoryLifetime(
-		memoryId: string,
-		additionalDays: number,
-	): Promise<void> {
+	async extendMemoryLifetime(memoryId: string, additionalDays: number): Promise<void> {
 		return memoryLifecycleManager.extendLifetime(memoryId, additionalDays);
 	}
 

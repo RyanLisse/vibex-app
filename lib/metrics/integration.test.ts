@@ -18,49 +18,13 @@ describe("Metrics Integration", () => {
 	describe("End-to-End Metric Collection and Dashboard Correlation", () => {
 		it("should collect agent metrics that correlate with dashboard queries", async () => {
 			// Record various agent operations
-			collector.recordAgentOperation(
-				"agent-1",
-				"code-gen",
-				"execute",
-				"openai",
-				"success",
-			);
-			collector.recordAgentOperation(
-				"agent-2",
-				"code-gen",
-				"execute",
-				"anthropic",
-				"success",
-			);
-			collector.recordAgentOperation(
-				"agent-3",
-				"code-review",
-				"analyze",
-				"openai",
-				"error",
-			);
+			collector.recordAgentOperation("agent-1", "code-gen", "execute", "openai", "success");
+			collector.recordAgentOperation("agent-2", "code-gen", "execute", "anthropic", "success");
+			collector.recordAgentOperation("agent-3", "code-review", "analyze", "openai", "error");
 
-			collector.recordAgentExecution(
-				"agent-1",
-				"code-gen",
-				"typescript",
-				"openai",
-				2.5,
-			);
-			collector.recordAgentExecution(
-				"agent-2",
-				"code-gen",
-				"python",
-				"anthropic",
-				1.8,
-			);
-			collector.recordAgentExecution(
-				"agent-3",
-				"code-review",
-				"security",
-				"openai",
-				45.2,
-			);
+			collector.recordAgentExecution("agent-1", "code-gen", "typescript", "openai", 2.5);
+			collector.recordAgentExecution("agent-2", "code-gen", "python", "anthropic", 1.8);
+			collector.recordAgentExecution("agent-3", "code-review", "security", "openai", 45.2);
 
 			collector.recordTokenUsage("agent-1", "code-gen", "openai", "input", 150);
 			collector.recordTokenUsage("agent-1", "code-gen", "openai", "output", 85);
@@ -83,19 +47,11 @@ describe("Metrics Integration", () => {
 			expect(dashboard.panels).toHaveLength(5);
 
 			// Check that dashboard queries would work with collected metrics
-			const activeAgentsPanel = dashboard.panels.find(
-				(p) => p.title === "Active Agents",
-			);
-			expect(activeAgentsPanel?.targets[0].expr).toBe(
-				"sum(agent_active_count)",
-			);
+			const activeAgentsPanel = dashboard.panels.find((p) => p.title === "Active Agents");
+			expect(activeAgentsPanel?.targets[0].expr).toBe("sum(agent_active_count)");
 
-			const operationsPanel = dashboard.panels.find(
-				(p) => p.title === "Agent Operations Rate",
-			);
-			expect(operationsPanel?.targets[0].expr).toBe(
-				"rate(agent_operations_total[5m])",
-			);
+			const operationsPanel = dashboard.panels.find((p) => p.title === "Agent Operations Rate");
+			expect(operationsPanel?.targets[0].expr).toBe("rate(agent_operations_total[5m])");
 		});
 
 		it("should collect system metrics that correlate with system health dashboard", async () => {
@@ -121,14 +77,10 @@ describe("Metrics Integration", () => {
 
 			// Verify dashboard correlation
 			const dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
-			const httpPanel = dashboard.panels.find(
-				(p) => p.title === "HTTP Request Rate",
-			);
+			const httpPanel = dashboard.panels.find((p) => p.title === "HTTP Request Rate");
 			expect(httpPanel?.targets[0].expr).toBe("rate(http_requests_total[5m])");
 
-			const dbPanel = dashboard.panels.find(
-				(p) => p.title === "Database Connections",
-			);
+			const dbPanel = dashboard.panels.find((p) => p.title === "Database Connections");
 			expect(dbPanel?.targets[0].expr).toBe("database_connections_active");
 		});
 
@@ -142,20 +94,8 @@ describe("Metrics Integration", () => {
 			// Also record some agent costs for cost analysis
 			collector.recordAgentCost("agent-1", "code-gen", "openai", 0.05);
 			collector.recordAgentCost("agent-2", "code-gen", "anthropic", 0.03);
-			collector.recordAgentOperation(
-				"agent-1",
-				"code-gen",
-				"execute",
-				"openai",
-				"success",
-			);
-			collector.recordAgentOperation(
-				"agent-2",
-				"code-gen",
-				"execute",
-				"anthropic",
-				"success",
-			);
+			collector.recordAgentOperation("agent-1", "code-gen", "execute", "openai", "success");
+			collector.recordAgentOperation("agent-2", "code-gen", "execute", "anthropic", "success");
 
 			const metrics = await collector.getMetrics();
 
@@ -165,22 +105,13 @@ describe("Metrics Integration", () => {
 			expect(metrics).toContain("agent_cost_total");
 
 			// Verify dashboard correlation
-			const dashboard =
-				GrafanaDashboardBuilder.createBusinessMetricsDashboard();
-			const sessionsPanel = dashboard.panels.find(
-				(p) => p.title === "Active User Sessions",
-			);
+			const dashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
+			const sessionsPanel = dashboard.panels.find((p) => p.title === "Active User Sessions");
 			expect(sessionsPanel?.targets[0].expr).toBe("user_sessions_active");
 
-			const costPanel = dashboard.panels.find(
-				(p) => p.title === "Cost per Operation",
-			);
-			expect(costPanel?.targets[0].expr).toContain(
-				"rate(agent_cost_total[1h])",
-			);
-			expect(costPanel?.targets[0].expr).toContain(
-				"rate(agent_operations_total[1h])",
-			);
+			const costPanel = dashboard.panels.find((p) => p.title === "Cost per Operation");
+			expect(costPanel?.targets[0].expr).toContain("rate(agent_cost_total[1h])");
+			expect(costPanel?.targets[0].expr).toContain("rate(agent_operations_total[1h])");
 		});
 	});
 
@@ -190,75 +121,35 @@ describe("Metrics Integration", () => {
 
 			// High error rate
 			for (let i = 0; i < 8; i++) {
-				collector.recordAgentOperation(
-					`agent-${i}`,
-					"code-gen",
-					"execute",
-					"openai",
-					"error",
-				);
+				collector.recordAgentOperation(`agent-${i}`, "code-gen", "execute", "openai", "error");
 			}
 			for (let i = 0; i < 2; i++) {
-				collector.recordAgentOperation(
-					`agent-${i}`,
-					"code-gen",
-					"execute",
-					"openai",
-					"success",
-				);
+				collector.recordAgentOperation(`agent-${i}`, "code-gen", "execute", "openai", "success");
 			}
 
 			// High execution times
-			collector.recordAgentExecution(
-				"agent-slow",
-				"code-gen",
-				"complex",
-				"openai",
-				75.5,
-			);
-			collector.recordAgentExecution(
-				"agent-slow",
-				"code-gen",
-				"complex",
-				"anthropic",
-				82.1,
-			);
+			collector.recordAgentExecution("agent-slow", "code-gen", "complex", "openai", 75.5);
+			collector.recordAgentExecution("agent-slow", "code-gen", "complex", "anthropic", 82.1);
 
 			// High token usage
-			collector.recordTokenUsage(
-				"agent-heavy",
-				"code-gen",
-				"openai",
-				"total",
-				150_000,
-			);
+			collector.recordTokenUsage("agent-heavy", "code-gen", "openai", "total", 150_000);
 
 			const metrics = await collector.getMetrics();
 
 			// Verify metrics would trigger alerts
 			const agentAlerts = AlertRuleBuilder.createAgentAlerts();
 
-			const errorRateAlert = agentAlerts.find(
-				(a) => a.alert === "HighAgentErrorRate",
-			);
-			expect(errorRateAlert?.expr).toContain(
-				'rate(agent_operations_total{status="error"}[5m])',
-			);
-			expect(errorRateAlert?.expr).toContain(
-				"rate(agent_operations_total[5m]) > 0.1",
-			);
+			const errorRateAlert = agentAlerts.find((a) => a.alert === "HighAgentErrorRate");
+			expect(errorRateAlert?.expr).toContain('rate(agent_operations_total{status="error"}[5m])');
+			expect(errorRateAlert?.expr).toContain("rate(agent_operations_total[5m]) > 0.1");
 
-			const timeoutAlert = agentAlerts.find(
-				(a) => a.alert === "AgentExecutionTimeout",
-			);
+			const timeoutAlert = agentAlerts.find((a) => a.alert === "AgentExecutionTimeout");
 			expect(timeoutAlert?.expr).toContain(
-				"histogram_quantile(0.95, rate(agent_execution_duration_seconds_bucket[5m])) > 60",
+				"histogram_quantile(0.95, rate(agent_execution_duration_seconds_bucket[5m])) > 60"
 			);
 
 			const tokenAlert = agentAlerts.find((a) => a.alert === "HighTokenUsage");
-			expect(tokenAlert?.expr).toContain(
-				"rate(agent_token_usage_total[1h]) > 100000",
-			);
+			expect(tokenAlert?.expr).toContain("rate(agent_token_usage_total[1h]) > 100000");
 
 			// Verify metrics contain the data that would trigger these alerts
 			expect(metrics).toContain("agent_operations_total");
@@ -290,26 +181,16 @@ describe("Metrics Integration", () => {
 
 			const systemAlerts = AlertRuleBuilder.createSystemAlerts();
 
-			const httpErrorAlert = systemAlerts.find(
-				(a) => a.alert === "HighHTTPErrorRate",
-			);
-			expect(httpErrorAlert?.expr).toContain(
-				'rate(http_requests_total{status_code=~"5.."}[5m])',
-			);
-			expect(httpErrorAlert?.expr).toContain(
-				"rate(http_requests_total[5m]) > 0.05",
-			);
+			const httpErrorAlert = systemAlerts.find((a) => a.alert === "HighHTTPErrorRate");
+			expect(httpErrorAlert?.expr).toContain('rate(http_requests_total{status_code=~"5.."}[5m])');
+			expect(httpErrorAlert?.expr).toContain("rate(http_requests_total[5m]) > 0.05");
 
-			const dbConnectionAlert = systemAlerts.find(
-				(a) => a.alert === "DatabaseConnectionsHigh",
-			);
+			const dbConnectionAlert = systemAlerts.find((a) => a.alert === "DatabaseConnectionsHigh");
 			expect(dbConnectionAlert?.expr).toBe("database_connections_active > 80");
 
-			const slowQueryAlert = systemAlerts.find(
-				(a) => a.alert === "SlowDatabaseQueries",
-			);
+			const slowQueryAlert = systemAlerts.find((a) => a.alert === "SlowDatabaseQueries");
 			expect(slowQueryAlert?.expr).toContain(
-				"histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1",
+				"histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1"
 			);
 
 			// Verify relevant metrics are collected
@@ -335,17 +216,11 @@ describe("Metrics Integration", () => {
 
 			const businessAlerts = AlertRuleBuilder.createBusinessAlerts();
 
-			const engagementAlert = businessAlerts.find(
-				(a) => a.alert === "LowUserEngagement",
-			);
+			const engagementAlert = businessAlerts.find((a) => a.alert === "LowUserEngagement");
 			expect(engagementAlert?.expr).toBe("user_sessions_active < 10");
 
-			const costAlert = businessAlerts.find(
-				(a) => a.alert === "HighOperationalCost",
-			);
-			expect(costAlert?.expr).toBe(
-				"sum(rate(agent_cost_total[1h])) * 24 > 100",
-			);
+			const costAlert = businessAlerts.find((a) => a.alert === "HighOperationalCost");
+			expect(costAlert?.expr).toBe("sum(rate(agent_cost_total[1h])) * 24 > 100");
 
 			// Verify relevant metrics are collected
 			expect(metrics).toContain("user_sessions_active");
@@ -357,20 +232,8 @@ describe("Metrics Integration", () => {
 	describe("Metric Lifecycle and Consistency", () => {
 		it("should maintain metric consistency across dashboard and alert queries", async () => {
 			// Record comprehensive metrics
-			collector.recordAgentOperation(
-				"agent-1",
-				"code-gen",
-				"execute",
-				"openai",
-				"success",
-			);
-			collector.recordAgentExecution(
-				"agent-1",
-				"code-gen",
-				"typescript",
-				"openai",
-				1.5,
-			);
+			collector.recordAgentOperation("agent-1", "code-gen", "execute", "openai", "success");
+			collector.recordAgentExecution("agent-1", "code-gen", "typescript", "openai", 1.5);
 			collector.recordTokenUsage("agent-1", "code-gen", "openai", "total", 200);
 			collector.recordAgentCost("agent-1", "code-gen", "openai", 0.03);
 			collector.setActiveAgents("code-gen", "openai", 1);
@@ -385,12 +248,9 @@ describe("Metrics Integration", () => {
 			const metrics = await collector.getMetrics();
 
 			// Get all dashboards and alerts
-			const agentDashboard =
-				GrafanaDashboardBuilder.createAgentOverviewDashboard();
-			const systemDashboard =
-				GrafanaDashboardBuilder.createSystemHealthDashboard();
-			const businessDashboard =
-				GrafanaDashboardBuilder.createBusinessMetricsDashboard();
+			const agentDashboard = GrafanaDashboardBuilder.createAgentOverviewDashboard();
+			const systemDashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
+			const businessDashboard = GrafanaDashboardBuilder.createBusinessMetricsDashboard();
 
 			const agentAlerts = AlertRuleBuilder.createAgentAlerts();
 			const systemAlerts = AlertRuleBuilder.createSystemAlerts();
@@ -410,7 +270,7 @@ describe("Metrics Integration", () => {
 			allPanels.forEach((panel) => {
 				panel.targets.forEach((target) => {
 					const metricNames = target.expr.match(
-						/[a-z_][a-z0-9_]*(?:_total|_seconds|_bytes|_count|_active)/g,
+						/[a-z_][a-z0-9_]*(?:_total|_seconds|_bytes|_count|_active)/g
 					);
 					metricNames?.forEach((name) => dashboardMetrics.add(name));
 				});
@@ -420,7 +280,7 @@ describe("Metrics Integration", () => {
 			const alertMetrics = new Set<string>();
 			allAlerts.forEach((alert) => {
 				const metricNames = alert.expr.match(
-					/[a-z_][a-z0-9_]*(?:_total|_seconds|_bytes|_count|_active)/g,
+					/[a-z_][a-z0-9_]*(?:_total|_seconds|_bytes|_count|_active)/g
 				);
 				metricNames?.forEach((name) => alertMetrics.add(name));
 			});
@@ -442,13 +302,7 @@ describe("Metrics Integration", () => {
 
 		it("should handle metric updates and maintain data integrity", async () => {
 			// Initial metrics
-			collector.recordAgentOperation(
-				"agent-1",
-				"code-gen",
-				"execute",
-				"openai",
-				"success",
-			);
+			collector.recordAgentOperation("agent-1", "code-gen", "execute", "openai", "success");
 			collector.setActiveAgents("code-gen", "openai", 1);
 
 			let metrics = await collector.getMetrics();
@@ -456,20 +310,8 @@ describe("Metrics Integration", () => {
 			expect(metrics).toContain("agent_active_count");
 
 			// Update metrics
-			collector.recordAgentOperation(
-				"agent-1",
-				"code-gen",
-				"execute",
-				"openai",
-				"success",
-			);
-			collector.recordAgentOperation(
-				"agent-2",
-				"code-gen",
-				"execute",
-				"anthropic",
-				"error",
-			);
+			collector.recordAgentOperation("agent-1", "code-gen", "execute", "openai", "success");
+			collector.recordAgentOperation("agent-2", "code-gen", "execute", "anthropic", "error");
 			collector.setActiveAgents("code-gen", "openai", 2);
 			collector.setActiveAgents("code-gen", "anthropic", 1);
 

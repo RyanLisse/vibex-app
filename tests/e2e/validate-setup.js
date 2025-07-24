@@ -100,10 +100,7 @@ try {
 	}
 
 	// Check if stagehand config exists
-	const stagehandConfig = fs.readFileSync(
-		"tests/e2e/stagehand.config.ts",
-		"utf8",
-	);
+	const stagehandConfig = fs.readFileSync("tests/e2e/stagehand.config.ts", "utf8");
 	if (stagehandConfig.includes("OPENAI_API_KEY")) {
 	} else {
 	}

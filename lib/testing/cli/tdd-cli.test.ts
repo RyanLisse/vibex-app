@@ -17,7 +17,15 @@ vi.mock("fs", () => ({
 // Mock path operations
 vi.mock("path", () => ({
 	default: {
-		join: vi.fn((...args) => args.join("/")),
+		join: vi.fn((...args) => {
+			// Join paths and normalize "./" prefix
+			let result = args.join("/");
+			// Remove leading "./" if present
+			if (result.startsWith("./")) {
+				result = result.slice(2);
+			}
+			return result;
+		}),
 		resolve: vi.fn((...args) => "/" + args.join("/")),
 		dirname: vi.fn((p) => p.split("/").slice(0, -1).join("/")),
 		extname: vi.fn((p) => "." + p.split(".").pop()),
@@ -68,10 +76,7 @@ class TDDCli {
 			// Generate test file content
 			const testContent = this.generateTestContent(options);
 			const testFileName = `${options.componentName}.test.${options.type === "component" ? "tsx" : "ts"}`;
-			const outputPath = path.join(
-				this.options.outputDir || "./tests",
-				testFileName,
-			);
+			const outputPath = path.join(this.options.outputDir || "./tests", testFileName);
 
 			if (!this.options.dryRun) {
 				await fs.writeFile(outputPath, testContent);
@@ -108,10 +113,7 @@ class TDDCli {
 			const testContent = this.analyzeAndGenerateTests(sourceContent);
 
 			const outputDir = options.outputDir || path.dirname(options.inputFile);
-			const baseName = path.basename(
-				options.inputFile,
-				path.extname(options.inputFile),
-			);
+			const baseName = path.basename(options.inputFile, path.extname(options.inputFile));
 			const testFileName = `${baseName}.test${path.extname(options.inputFile)}`;
 			const outputPath = path.join(outputDir, testFileName);
 
@@ -152,16 +154,10 @@ class TDDCli {
 		}
 	}
 
-	async createTestSuite(
-		suiteName: string,
-		options: CLIOptions = {},
-	): Promise<ScaffoldResult> {
+	async createTestSuite(suiteName: string, options: CLIOptions = {}): Promise<ScaffoldResult> {
 		try {
 			const files: string[] = [];
-			const suiteDir = path.join(
-				this.options.outputDir || "./tests",
-				suiteName,
-			);
+			const suiteDir = path.join(this.options.outputDir || "./tests", suiteName);
 
 			// Create suite directory
 			if (!this.options.dryRun) {
@@ -253,8 +249,7 @@ import { ${options.componentName} } from "./${options.componentName}";`;
 
 	private analyzeAndGenerateTests(sourceContent: string): string {
 		// Simple analysis - look for exported functions/components
-		const exports =
-			sourceContent.match(/export\s+(function|const|class)\s+(\w+)/g) || [];
+		const exports = sourceContent.match(/export\s+(function|const|class)\s+(\w+)/g) || [];
 
 		let testContent = `import { describe, expect, it } from "vitest";\n\n`;
 
@@ -509,7 +504,7 @@ export const multiply = (a, b) => a * b;
 
 			expect(mockWriteFile).toHaveBeenCalledWith(
 				"custom-output/CustomComponent.test.tsx",
-				expect.any(String),
+				expect.any(String)
 			);
 		});
 	});

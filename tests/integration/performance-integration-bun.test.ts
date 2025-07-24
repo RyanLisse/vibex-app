@@ -143,23 +143,17 @@ describe("Performance Integration Tests (Bun Compatible)", () => {
 
 			// Simulate streaming processing
 			for (let i = 0; i < totalRecords; i += batchSize) {
-				const batch = Array.from(
-					{ length: Math.min(batchSize, totalRecords - i) },
-					(_, j) => ({
-						id: i + j,
-						value: Math.random(),
-					}),
-				);
+				const batch = Array.from({ length: Math.min(batchSize, totalRecords - i) }, (_, j) => ({
+					id: i + j,
+					value: Math.random(),
+				}));
 
 				// Process batch
 				const processed = batch.filter((item) => item.value > 0.5);
 				processedBatches.push(processed);
 			}
 
-			const totalProcessed = processedBatches.reduce(
-				(sum, batch) => sum + batch.length,
-				0,
-			);
+			const totalProcessed = processedBatches.reduce((sum, batch) => sum + batch.length, 0);
 
 			expect(processedBatches.length).toBe(Math.ceil(totalRecords / batchSize));
 			expect(totalProcessed).toBeGreaterThan(0);
@@ -175,10 +169,7 @@ describe("Performance Integration Tests (Bun Compatible)", () => {
 				const dbPromise = mockDb.select().where({ id: i }).execute();
 				const cachePromise = mockRedis.get(`cache-${i}`);
 
-				const [dbResult, cacheResult] = await Promise.all([
-					dbPromise,
-					cachePromise,
-				]);
+				const [dbResult, cacheResult] = await Promise.all([dbPromise, cachePromise]);
 
 				return {
 					db: dbResult,
@@ -248,9 +239,7 @@ describe("Performance Integration Tests (Bun Compatible)", () => {
 
 			const startTime = Date.now();
 			const responses = await Promise.all(
-				endpoints.map((endpoint) =>
-					simulateApiCall(endpoint.path, endpoint.delay),
-				),
+				endpoints.map((endpoint) => simulateApiCall(endpoint.path, endpoint.delay))
 			);
 			const duration = Date.now() - startTime;
 
@@ -304,9 +293,7 @@ describe("Performance Integration Tests (Bun Compatible)", () => {
 		test("should handle burst load scenarios", async () => {
 			const burstSize = 100;
 			const burst1 = Array.from({ length: burstSize }, () => mockRedis.ping());
-			const burst2 = Array.from({ length: burstSize }, () =>
-				mockDb.select().execute(),
-			);
+			const burst2 = Array.from({ length: burstSize }, () => mockDb.select().execute());
 
 			const startTime = Date.now();
 			const [redisResults, dbResults] = await Promise.all([

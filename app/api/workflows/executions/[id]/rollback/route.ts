@@ -40,7 +40,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 					{
 						success: false,
 						error: "Validation failed",
-						details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+						details: error.issues.map((issue) => ({
+							field: issue.path.join("."),
+							message: issue.message,
+						})),
 					},
 					{ status: 400 }
 				);

@@ -1,6 +1,6 @@
 /**
  * Consolidated Mock Setup Utilities
- * 
+ *
  * This module consolidates common mock setup patterns to eliminate code duplication
  * identified by qlty smells analysis across test files.
  */
@@ -72,12 +72,14 @@ export function createStandardOAuthTest(
 ) {
 	return async () => {
 		const { mocks, mockNextResponse, baseTestData } = createOAuthLoginTestSetup();
-		
+
 		if (customSetup?.expectError) {
 			mocks.mockCreateAuthUrl.mockImplementation(() => {
 				throw new Error(customSetup.errorMessage || "Auth URL generation failed");
 			});
-			mocks.mockHandleAuthError.mockReturnValue(customSetup.errorMessage || "Auth URL generation failed");
+			mocks.mockHandleAuthError.mockReturnValue(
+				customSetup.errorMessage || "Auth URL generation failed"
+			);
 			mockNextResponse.json.mockReturnValue({
 				error: customSetup.errorMessage || "Auth URL generation failed",
 			} as any);
@@ -93,12 +95,12 @@ export function createStandardOAuthTest(
 		}
 
 		const requestUrl = `https://app.example.com/api/auth/login${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
-		
+
 		// Mock the actual test execution
 		expect(mocks.mockGenerateCodeVerifier).toHaveBeenCalled();
 		expect(mocks.mockGenerateCodeChallenge).toHaveBeenCalledWith(baseTestData.codeVerifier);
 		expect(mocks.mockGenerateState).toHaveBeenCalled();
-		
+
 		if (customSetup?.expectError) {
 			expect(mocks.mockHandleAuthError).toHaveBeenCalled();
 			expect(mockNextResponse.json).toHaveBeenCalledWith({
@@ -117,19 +119,19 @@ export function createStandardOAuthTest(
  */
 export function createEnvironmentTestSetup() {
 	const originalEnv = process.env;
-	
+
 	const setEnvironment = (env: "development" | "production" | "test") => {
-		Object.defineProperty(process.env, 'NODE_ENV', {
+		Object.defineProperty(process.env, "NODE_ENV", {
 			value: env,
 			writable: true,
-			configurable: true
+			configurable: true,
 		});
 	};
-	
+
 	const restoreEnvironment = () => {
 		process.env = originalEnv;
 	};
-	
+
 	return { setEnvironment, restoreEnvironment };
 }
 
@@ -153,9 +155,7 @@ export function simulateHandlerError(
 	method: keyof ReturnType<typeof createMockHandler>,
 	errorMessage: string
 ) {
-	mockHandler[method].mockImplementation(() =>
-		Promise.reject(new Error(errorMessage))
-	);
+	mockHandler[method].mockImplementation(() => Promise.reject(new Error(errorMessage)));
 }
 
 /**

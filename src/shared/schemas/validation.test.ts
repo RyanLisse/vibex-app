@@ -1,12 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test } from "vitest";
 import { z } from "zod";
 import {
 	ApiResponseSchema,
@@ -66,12 +58,7 @@ describe("EmailSchema", () => {
 
 describe("PasswordSchema", () => {
 	it("should validate strong passwords", () => {
-		const validPasswords = [
-			"Password123",
-			"MySecure123",
-			"Abc123def",
-			"Test1234",
-		];
+		const validPasswords = ["Password123", "MySecure123", "Abc123def", "Test1234"];
 
 		validPasswords.forEach((password) => {
 			const result = PasswordSchema.safeParse(password);
@@ -99,13 +86,7 @@ describe("PasswordSchema", () => {
 
 describe("UsernameSchema", () => {
 	it("should validate correct usernames", () => {
-		const validUsernames = [
-			"user123",
-			"test_user",
-			"user-name",
-			"abc",
-			"Username123",
-		];
+		const validUsernames = ["user123", "test_user", "user-name", "abc", "Username123"];
 
 		validUsernames.forEach((username) => {
 			const result = UsernameSchema.safeParse(username);
@@ -146,12 +127,7 @@ describe("UrlSchema", () => {
 	});
 
 	it("should reject invalid URLs", () => {
-		const invalidUrls = [
-			"not-a-url",
-			"ftp://example.com",
-			"example.com",
-			"www.example.com",
-		];
+		const invalidUrls = ["not-a-url", "ftp://example.com", "example.com", "www.example.com"];
 
 		invalidUrls.forEach((url) => {
 			const result = UrlSchema.safeParse(url);
@@ -162,13 +138,7 @@ describe("UrlSchema", () => {
 
 describe("SlugSchema", () => {
 	it("should validate correct slugs", () => {
-		const validSlugs = [
-			"hello-world",
-			"test123",
-			"my-slug",
-			"a",
-			"slug-with-numbers-123",
-		];
+		const validSlugs = ["hello-world", "test123", "my-slug", "a", "slug-with-numbers-123"];
 
 		validSlugs.forEach((slug) => {
 			const result = SlugSchema.safeParse(slug);
@@ -197,12 +167,7 @@ describe("SlugSchema", () => {
 
 describe("PhoneSchema", () => {
 	it("should validate correct phone numbers", () => {
-		const validPhones = [
-			"+1234567890",
-			"+12345678901234",
-			"1234567890",
-			"+44123456789",
-		];
+		const validPhones = ["+1234567890", "+12345678901234", "1234567890", "+44123456789"];
 
 		validPhones.forEach((phone) => {
 			const result = PhoneSchema.safeParse(phone);
@@ -211,13 +176,7 @@ describe("PhoneSchema", () => {
 	});
 
 	it("should reject invalid phone numbers", () => {
-		const invalidPhones = [
-			"+0123456789",
-			"phone",
-			"123",
-			"+123456789012345678",
-			"123-456-7890",
-		];
+		const invalidPhones = ["+0123456789", "phone", "123", "+123456789012345678", "123-456-7890"];
 
 		invalidPhones.forEach((phone) => {
 			const result = PhoneSchema.safeParse(phone);

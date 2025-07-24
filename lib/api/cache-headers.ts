@@ -98,7 +98,7 @@ export const CacheConfigs = {
  */
 export function addCacheHeaders(
 	response: Response | NextResponse,
-	options: CacheOptions = CacheConfigs.NO_CACHE,
+	options: CacheOptions = CacheConfigs.NO_CACHE
 ): Response | NextResponse {
 	const headers = response.headers;
 
@@ -153,7 +153,7 @@ export function addCacheHeaders(
 export function cachedJsonResponse(
 	data: any,
 	options: CacheOptions = CacheConfigs.SHORT,
-	status = 200,
+	status = 200
 ): NextResponse {
 	const response = NextResponse.json(data, { status });
 	return addCacheHeaders(response, options) as NextResponse;
@@ -212,11 +212,7 @@ export function getCacheConfigForRoute(pathname: string): CacheOptions {
 	// API routes with specific cache strategies
 	if (pathname.startsWith("/api/")) {
 		// Real-time endpoints - no cache
-		if (
-			pathname.includes("/realtime") ||
-			pathname.includes("/ws") ||
-			pathname.includes("/sse")
-		) {
+		if (pathname.includes("/realtime") || pathname.includes("/ws") || pathname.includes("/sse")) {
 			return CacheConfigs.NO_CACHE;
 		}
 
@@ -277,8 +273,7 @@ export const withCache = {
 	/**
 	 * Error responses - no cache
 	 */
-	error: (error: any, status = 500) =>
-		cachedJsonResponse(error, CacheConfigs.NO_CACHE, status),
+	error: (error: any, status = 500) => cachedJsonResponse(error, CacheConfigs.NO_CACHE, status),
 };
 
 /**

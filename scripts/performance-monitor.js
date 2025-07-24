@@ -94,21 +94,16 @@ class PerformanceMonitor {
 			const performanceMetrics = await page.evaluate(() => {
 				return {
 					domContentLoaded:
-						performance.timing.domContentLoadedEventEnd -
-						performance.timing.navigationStart,
-					loadComplete:
-						performance.timing.loadEventEnd -
-						performance.timing.navigationStart,
+						performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart,
+					loadComplete: performance.timing.loadEventEnd - performance.timing.navigationStart,
 					firstPaint: performance
 						.getEntriesByType("paint")
 						.find((entry) => entry.name === "first-paint")?.startTime,
 					firstContentfulPaint: performance
 						.getEntriesByType("paint")
-						.find((entry) => entry.name === "first-contentful-paint")
+						.find((entry) => entry.name === "first-contentful-paint")?.startTime,
+					largestContentfulPaint: performance.getEntriesByType("largest-contentful-paint")[0]
 						?.startTime,
-					largestContentfulPaint: performance.getEntriesByType(
-						"largest-contentful-paint",
-					)[0]?.startTime,
 				};
 			});
 
@@ -157,8 +152,7 @@ class PerformanceMonitor {
 				type: "load",
 				severity: "high",
 				issue: "Page load time exceeds 3 seconds",
-				suggestion:
-					"Optimize images, implement caching, and reduce bundle size",
+				suggestion: "Optimize images, implement caching, and reduce bundle size",
 			});
 		}
 

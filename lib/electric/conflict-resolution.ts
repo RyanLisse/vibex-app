@@ -6,10 +6,7 @@
  */
 
 import { ObservabilityService } from "@/lib/observability";
-import {
-	type DatabaseOperation,
-	electricDatabaseClient,
-} from "./database-client";
+import { type DatabaseOperation, electricDatabaseClient } from "./database-client";
 
 export interface ConflictData {
 	table: string;
@@ -22,12 +19,7 @@ export interface ConflictData {
 }
 
 export interface ConflictResolution {
-	strategy:
-		| "last-write-wins"
-		| "user-priority"
-		| "field-merge"
-		| "server-wins"
-		| "manual";
+	strategy: "last-write-wins" | "user-priority" | "field-merge" | "server-wins" | "manual";
 	resolvedData: any;
 	metadata: {
 		resolvedBy: string;
@@ -59,10 +51,8 @@ export class ConflictResolutionService {
 	private static instance: ConflictResolutionService;
 	private observability = ObservabilityService.getInstance();
 	private offlineQueue: Map<string, OfflineOperation> = new Map();
-	private conflictResolvers: Map<
-		string,
-		(conflict: ConflictData) => Promise<ConflictResolution>
-	> = new Map();
+	private conflictResolvers: Map<string, (conflict: ConflictData) => Promise<ConflictResolution>> =
+		new Map();
 	private isOnline = true;
 	private syncInProgress = false;
 
@@ -84,74 +74,53 @@ export class ConflictResolutionService {
 	async executeOperationWithConflictResolution(
 		operation: DatabaseOperation,
 		options: {
-			conflictStrategy?:
-				| "last-write-wins"
-				| "user-priority"
-				| "field-merge"
-				| "server-wins";
+			conflictStrategy?: "last-write-wins" | "user-priority" | "field-merge" | "server-wins";
 			offlineSupport?: boolean;
 			maxRetries?: number;
-		} = {},
+		} = {}
 	): Promise<any> {
-		const {
-			conflictStrategy = "last-write-wins",
-			offlineSupport = true,
-			maxRetries = 3,
-		} = options;
+		const { conflictStrategy = "last-write-wins", offlineSupport = true, maxRetries = 3 } = options;
 
-		return this.observability.trackOperation(
-			"conflict-resolution.execute",
-			async () => {
-				// If offline and offline support is enabled, queue the operation
-				if (!this.isOnline && offlineSupport) {
+		return this.observability.trackOperation("conflict-resolution.execute", async () => {
+			// If offline and offline support is enabled, queue the operation
+			if (!this.isOnline && offlineSupport) {
+				return this.queueOfflineOperation(operation, maxRetries);
+			}
+
+			try {
+				// Check for potential conflicts before executing
+				if (operation.operation === "update") {
+					const conflict = await this.detectConflict(operation);
+					if (conflict) {
+						const resolution = await this.resolveConflict(conflict, conflictStrategy);
+						operation.data = resolution.resolvedData;
+					}
+				}
+
+				// Execute the operation
+				const result = await electricDatabaseClient.executeOperation(operation);
+
+				if (!result.success) {
+					throw new Error(result.error || "Operation failed");
+				}
+
+				return result.data;
+			} catch (error) {
+				// If operation fails and offline support is enabled, queue it
+				if (offlineSupport) {
+					console.warn("Operation failed, queuing for offline sync:", error);
 					return this.queueOfflineOperation(operation, maxRetries);
 				}
-
-				try {
-					// Check for potential conflicts before executing
-					if (operation.operation === "update") {
-						const conflict = await this.detectConflict(operation);
-						if (conflict) {
-							const resolution = await this.resolveConflict(
-								conflict,
-								conflictStrategy,
-							);
-							operation.data = resolution.resolvedData;
-						}
-					}
-
-					// Execute the operation
-					const result =
-						await electricDatabaseClient.executeOperation(operation);
-
-					if (!result.success) {
-						throw new Error(result.error || "Operation failed");
-					}
-
-					return result.data;
-				} catch (error) {
-					// If operation fails and offline support is enabled, queue it
-					if (offlineSupport) {
-						console.warn("Operation failed, queuing for offline sync:", error);
-						return this.queueOfflineOperation(operation, maxRetries);
-					}
-					throw error;
-				}
-			},
-		);
+				throw error;
+			}
+		});
 	}
 
 	/**
 	 * Detect conflicts for update operations
 	 */
-	async detectConflict(
-		operation: DatabaseOperation,
-	): Promise<ConflictData | null> {
-		if (
-			operation.operation !== "update" ||
-			!operation.data ||
-			!operation.where?.id
-		) {
+	async detectConflict(operation: DatabaseOperation): Promise<ConflictData | null> {
+		if (operation.operation !== "update" || !operation.data || !operation.where?.id) {
 			return null;
 		}
 
@@ -164,10 +133,7 @@ export class ConflictResolutionService {
 				options: operation.options,
 			});
 
-			if (
-				!(currentResult.success && currentResult.data) ||
-				currentResult.data.length === 0
-			) {
+			if (!(currentResult.success && currentResult.data) || currentResult.data.length === 0) {
 				return null; // Record doesn't exist, no conflict
 			}
 
@@ -175,10 +141,7 @@ export class ConflictResolutionService {
 			const updateData = operation.data;
 
 			// Check if there are conflicting fields
-			const conflictFields = this.findConflictingFields(
-				currentRecord,
-				updateData,
-			);
+			const conflictFields = this.findConflictingFields(currentRecord, updateData);
 
 			if (conflictFields.length === 0) {
 				return null; // No conflicts
@@ -186,9 +149,7 @@ export class ConflictResolutionService {
 
 			// Check timestamps to determine if this is actually a conflict
 			const currentUpdatedAt = new Date(currentRecord.updatedAt);
-			const localUpdatedAt = updateData.updatedAt
-				? new Date(updateData.updatedAt)
-				: new Date();
+			const localUpdatedAt = updateData.updatedAt ? new Date(updateData.updatedAt) : new Date();
 
 			if (currentUpdatedAt > localUpdatedAt) {
 				return {
@@ -212,36 +173,27 @@ export class ConflictResolutionService {
 	/**
 	 * Resolve conflicts using specified strategy
 	 */
-	async resolveConflict(
-		conflict: ConflictData,
-		strategy: string,
-	): Promise<ConflictResolution> {
-		return this.observability.trackOperation(
-			"conflict-resolution.resolve",
-			async () => {
-				const resolver = this.conflictResolvers.get(strategy);
+	async resolveConflict(conflict: ConflictData, strategy: string): Promise<ConflictResolution> {
+		return this.observability.trackOperation("conflict-resolution.resolve", async () => {
+			const resolver = this.conflictResolvers.get(strategy);
 
-				if (!resolver) {
-					throw new Error(`Unknown conflict resolution strategy: ${strategy}`);
-				}
+			if (!resolver) {
+				throw new Error(`Unknown conflict resolution strategy: ${strategy}`);
+			}
 
-				const resolution = await resolver(conflict);
+			const resolution = await resolver(conflict);
 
-				// Log the conflict resolution
-				await this.logConflictResolution(conflict, resolution);
+			// Log the conflict resolution
+			await this.logConflictResolution(conflict, resolution);
 
-				return resolution;
-			},
-		);
+			return resolution;
+		});
 	}
 
 	/**
 	 * Queue operation for offline sync
 	 */
-	async queueOfflineOperation(
-		operation: DatabaseOperation,
-		maxRetries = 3,
-	): Promise<string> {
+	async queueOfflineOperation(operation: DatabaseOperation, maxRetries = 3): Promise<string> {
 		const operationId = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 		const offlineOp: OfflineOperation = {
@@ -272,91 +224,81 @@ export class ConflictResolutionService {
 
 		this.syncInProgress = true;
 
-		return this.observability.trackOperation(
-			"conflict-resolution.sync",
-			async () => {
-				const result: SyncResult = {
-					success: true,
-					operationsProcessed: 0,
-					operationsFailed: 0,
-					conflictsResolved: 0,
-					errors: [],
-				};
+		return this.observability.trackOperation("conflict-resolution.sync", async () => {
+			const result: SyncResult = {
+				success: true,
+				operationsProcessed: 0,
+				operationsFailed: 0,
+				conflictsResolved: 0,
+				errors: [],
+			};
 
-				try {
-					// Load offline queue from Redis
-					await this.loadOfflineQueue();
+			try {
+				// Load offline queue from Redis
+				await this.loadOfflineQueue();
 
-					const pendingOperations = Array.from(this.offlineQueue.values())
-						.filter((op) => op.status === "pending" || op.status === "failed")
-						.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+				const pendingOperations = Array.from(this.offlineQueue.values())
+					.filter((op) => op.status === "pending" || op.status === "failed")
+					.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-					for (const offlineOp of pendingOperations) {
-						try {
-							offlineOp.status = "syncing";
+				for (const offlineOp of pendingOperations) {
+					try {
+						offlineOp.status = "syncing";
 
-							// Check for conflicts
-							let conflictResolved = false;
-							if (offlineOp.operation.operation === "update") {
-								const conflict = await this.detectConflict(offlineOp.operation);
-								if (conflict) {
-									const resolution = await this.resolveConflict(
-										conflict,
-										"last-write-wins",
-									);
-									offlineOp.operation.data = resolution.resolvedData;
-									conflictResolved = true;
-									result.conflictsResolved++;
-								}
-							}
-
-							// Execute the operation
-							const operationResult =
-								await electricDatabaseClient.executeOperation(
-									offlineOp.operation,
-								);
-
-							if (operationResult.success) {
-								offlineOp.status = "completed";
-								result.operationsProcessed++;
-							} else {
-								throw new Error(operationResult.error || "Operation failed");
-							}
-						} catch (error) {
-							offlineOp.retryCount++;
-							offlineOp.error =
-								error instanceof Error ? error.message : "Unknown error";
-
-							if (offlineOp.retryCount >= offlineOp.maxRetries) {
-								offlineOp.status = "failed";
-								result.operationsFailed++;
-								result.errors.push(
-									`Operation ${offlineOp.id} failed: ${offlineOp.error}`,
-								);
-							} else {
-								offlineOp.status = "pending";
+						// Check for conflicts
+						let conflictResolved = false;
+						if (offlineOp.operation.operation === "update") {
+							const conflict = await this.detectConflict(offlineOp.operation);
+							if (conflict) {
+								const resolution = await this.resolveConflict(conflict, "last-write-wins");
+								offlineOp.operation.data = resolution.resolvedData;
+								conflictResolved = true;
+								result.conflictsResolved++;
 							}
 						}
+
+						// Execute the operation
+						const operationResult = await electricDatabaseClient.executeOperation(
+							offlineOp.operation
+						);
+
+						if (operationResult.success) {
+							offlineOp.status = "completed";
+							result.operationsProcessed++;
+						} else {
+							throw new Error(operationResult.error || "Operation failed");
+						}
+					} catch (error) {
+						offlineOp.retryCount++;
+						offlineOp.error = error instanceof Error ? error.message : "Unknown error";
+
+						if (offlineOp.retryCount >= offlineOp.maxRetries) {
+							offlineOp.status = "failed";
+							result.operationsFailed++;
+							result.errors.push(`Operation ${offlineOp.id} failed: ${offlineOp.error}`);
+						} else {
+							offlineOp.status = "pending";
+						}
 					}
-
-					// Clean up completed operations
-					this.cleanupCompletedOperations();
-
-					// Persist updated queue
-					await this.persistOfflineQueue();
-
-					result.success = result.operationsFailed === 0;
-
-					console.log(
-						`Offline sync completed: ${result.operationsProcessed} processed, ${result.operationsFailed} failed`,
-					);
-
-					return result;
-				} finally {
-					this.syncInProgress = false;
 				}
-			},
-		);
+
+				// Clean up completed operations
+				this.cleanupCompletedOperations();
+
+				// Persist updated queue
+				await this.persistOfflineQueue();
+
+				result.success = result.operationsFailed === 0;
+
+				console.log(
+					`Offline sync completed: ${result.operationsProcessed} processed, ${result.operationsFailed} failed`
+				);
+
+				return result;
+			} finally {
+				this.syncInProgress = false;
+			}
+		});
 	}
 
 	/**
@@ -372,12 +314,9 @@ export class ConflictResolutionService {
 
 		return {
 			totalOperations: operations.length,
-			pendingOperations: operations.filter((op) => op.status === "pending")
-				.length,
-			failedOperations: operations.filter((op) => op.status === "failed")
-				.length,
-			completedOperations: operations.filter((op) => op.status === "completed")
-				.length,
+			pendingOperations: operations.filter((op) => op.status === "pending").length,
+			failedOperations: operations.filter((op) => op.status === "failed").length,
+			completedOperations: operations.filter((op) => op.status === "completed").length,
 		};
 	}
 
@@ -410,9 +349,7 @@ export class ConflictResolutionService {
 				const remoteTime = new Date(conflict.remoteVersion.updatedAt);
 
 				const useLocal = localTime >= remoteTime;
-				const resolvedData = useLocal
-					? conflict.localVersion
-					: conflict.remoteVersion;
+				const resolvedData = useLocal ? conflict.localVersion : conflict.remoteVersion;
 
 				return {
 					strategy: "last-write-wins",
@@ -424,7 +361,7 @@ export class ConflictResolutionService {
 						conflictId: `conflict_${Date.now()}`,
 					},
 				};
-			},
+			}
 		);
 
 		// Server-wins resolver
@@ -441,7 +378,7 @@ export class ConflictResolutionService {
 						conflictId: `conflict_${Date.now()}`,
 					},
 				};
-			},
+			}
 		);
 
 		// Field-merge resolver
@@ -467,7 +404,7 @@ export class ConflictResolutionService {
 						conflictId: `conflict_${Date.now()}`,
 					},
 				};
-			},
+			}
 		);
 	}
 
@@ -519,7 +456,7 @@ export class ConflictResolutionService {
 	 */
 	private async logConflictResolution(
 		conflict: ConflictData,
-		resolution: ConflictResolution,
+		resolution: ConflictResolution
 	): Promise<void> {
 		try {
 			const redis = await this.getRedisCache();
@@ -563,9 +500,8 @@ export class ConflictResolutionService {
 			const redis = await this.getRedisCache();
 			if (!redis) return;
 
-			const queueData = await redis.get<Array<[string, OfflineOperation]>>(
-				"electric:offline-queue",
-			);
+			const queueData =
+				await redis.get<Array<[string, OfflineOperation]>>("electric:offline-queue");
 			if (queueData) {
 				this.offlineQueue = new Map(queueData);
 			}
@@ -581,10 +517,7 @@ export class ConflictResolutionService {
 		const cutoffTime = new Date(Date.now() - 86_400 * 1000); // 1 day ago
 
 		for (const [id, operation] of this.offlineQueue.entries()) {
-			if (
-				operation.status === "completed" &&
-				operation.timestamp < cutoffTime
-			) {
+			if (operation.status === "completed" && operation.timestamp < cutoffTime) {
 				this.offlineQueue.delete(id);
 			}
 		}
@@ -605,5 +538,4 @@ export class ConflictResolutionService {
 }
 
 // Export singleton instance
-export const conflictResolutionService =
-	ConflictResolutionService.getInstance();
+export const conflictResolutionService = ConflictResolutionService.getInstance();

@@ -27,7 +27,7 @@ vi.mock("@/lib/observability", () => ({
 					recordException: vi.fn(),
 					setStatus: vi.fn(),
 					end: vi.fn(),
-				}),
+				})
 			),
 		})),
 	},
@@ -121,9 +121,7 @@ describe("ElectricSQL Query API", () => {
 		});
 
 		it("should add user filtering when userId is provided", async () => {
-			const mockResults = [
-				{ id: "1", title: "User Task", status: "pending", user_id: "user-123" },
-			];
+			const mockResults = [{ id: "1", title: "User Task", status: "pending", user_id: "user-123" }];
 
 			mockDb.execute.mockResolvedValue(mockResults);
 			mockSql.raw.mockReturnValue("mocked-sql-query-with-user-filter");
@@ -147,10 +145,9 @@ describe("ElectricSQL Query API", () => {
 			expect(data.data.data).toEqual(mockResults);
 
 			// Verify that user filtering was applied
-			expect(mockSql.raw).toHaveBeenCalledWith(
-				"SELECT * FROM tasks WHERE user_id = $1",
-				["user-123"],
-			);
+			expect(mockSql.raw).toHaveBeenCalledWith("SELECT * FROM tasks WHERE user_id = $1", [
+				"user-123",
+			]);
 		});
 
 		it("should reject non-SELECT queries", async () => {
@@ -243,7 +240,7 @@ describe("ElectricSQL Query API", () => {
 			// Verify parameters were passed correctly
 			expect(mockSql.raw).toHaveBeenCalledWith(
 				"SELECT * FROM tasks WHERE status = $1 AND priority = $2",
-				["pending", "high"],
+				["pending", "high"]
 			);
 		});
 

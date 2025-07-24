@@ -21,10 +21,7 @@ let mockRestoreCount = 0;
 testFiles.forEach((file) => {
 	const content = readFileSync(file, "utf-8");
 	if (content.includes("mock.restore()")) {
-		const updatedContent = content.replace(
-			/mock\.restore\(\)/g,
-			"vi.clearAllMocks()",
-		);
+		const updatedContent = content.replace(/mock\.restore\(\)/g, "vi.clearAllMocks()");
 		writeFileSync(file, updatedContent);
 		mockRestoreCount++;
 	}
@@ -45,7 +42,7 @@ configFiles.forEach((file) => {
 		const content = readFileSync(file, "utf-8");
 		const updatedContent = content.replace(
 			/file::memory:\?cache=shared/g,
-			"postgresql://test:test@localhost:5432/test",
+			"postgresql://test:test@localhost:5432/test"
 		);
 		if (content !== updatedContent) {
 			writeFileSync(file, updatedContent);
@@ -63,10 +60,7 @@ componentTestFiles.forEach((file) => {
 	let updatedContent = content;
 
 	// Fix common import path issues
-	updatedContent = updatedContent.replace(
-		/from '\/components\//g,
-		"from '@/components/",
-	);
+	updatedContent = updatedContent.replace(/from '\/components\//g, "from '@/components/");
 	updatedContent = updatedContent.replace(/from '\/lib\//g, "from '@/lib/");
 	updatedContent = updatedContent.replace(/from '\/hooks\//g, "from '@/hooks/");
 	updatedContent = updatedContent.replace(/from '\/utils\//g, "from '@/utils/");
@@ -86,15 +80,13 @@ testFiles.forEach((file) => {
 	// Check if it's a React component test
 	if (content.includes("render(") && !content.includes("from 'vitest'")) {
 		const lines = content.split("\n");
-		const firstImportIndex = lines.findIndex((line) =>
-			line.startsWith("import"),
-		);
+		const firstImportIndex = lines.findIndex((line) => line.startsWith("import"));
 
 		if (firstImportIndex !== -1) {
 			lines.splice(
 				firstImportIndex,
 				0,
-				"vi, describe, it, expect, beforeEach, afterEach } from 'vitest'",
+				"vi, describe, it, expect, beforeEach, afterEach } from 'vitest'"
 			);
 			writeFileSync(file, lines.join("\n"));
 			console.log(`✅ Added vitest imports to ${file}`);
@@ -156,9 +148,7 @@ setupFiles.forEach((file) => {
 		if (!content.includes("vi.mock('redis')")) {
 			// Add at the top of the file
 			const lines = content.split("\n");
-			const firstImportIndex = lines.findIndex((line) =>
-				line.startsWith("import"),
-			);
+			const firstImportIndex = lines.findIndex((line) => line.startsWith("import"));
 			if (firstImportIndex !== -1) {
 				lines.splice(0, 0, redisSetupContent, "");
 				writeFileSync(file, lines.join("\n"));
@@ -189,7 +179,7 @@ testFiles.forEach((file) => {
 				return `it('${testName}', async () => {`;
 			}
 			return match;
-		},
+		}
 	);
 
 	if (content !== updatedContent) {
@@ -202,13 +192,10 @@ console.log();
 // 7. Run tests to see remaining issues
 console.log("7️⃣ Running tests to check remaining issues...");
 try {
-	execSync(
-		'bun run test --reporter=verbose 2>&1 | grep -E "(FAIL|failed|error)" | head -50',
-		{
-			stdio: "inherit",
-			shell: true,
-		},
-	);
+	execSync('bun run test --reporter=verbose 2>&1 | grep -E "(FAIL|failed|error)" | head -50', {
+		stdio: "inherit",
+		shell: true,
+	});
 } catch (error) {
 	// Test failures are expected at this point
 }

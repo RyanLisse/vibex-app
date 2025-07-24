@@ -13,11 +13,7 @@ interface TaskPRLinkerProps {
 	existingLinks?: TaskPRLink[];
 }
 
-export function TaskPRLinker({
-	taskId,
-	onLink,
-	existingLinks = [],
-}: TaskPRLinkerProps) {
+export function TaskPRLinker({ taskId, onLink, existingLinks = [] }: TaskPRLinkerProps) {
 	const [prUrl, setPrUrl] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -69,10 +65,7 @@ export function TaskPRLinker({
 					<div className="space-y-2">
 						<h4 className="text-sm font-medium">Linked PRs</h4>
 						{existingLinks.map((link) => (
-							<div
-								key={link.prUrl}
-								className="flex items-center justify-between text-sm"
-							>
+							<div key={link.prUrl} className="flex items-center justify-between text-sm">
 								<span>PR #{link.prNumber}</span>
 								<a
 									href={link.prUrl}

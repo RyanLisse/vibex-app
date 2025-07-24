@@ -92,9 +92,7 @@ class CoverageValidator {
 			const reportPath = path.join(coverageDir, "coverage-final.json");
 
 			if (!fs.existsSync(reportPath)) {
-				this.warnings.push(
-					`${tierName}: Coverage report not found at ${reportPath}`,
-				);
+				this.warnings.push(`${tierName}: Coverage report not found at ${reportPath}`);
 				console.log(`    ⚠️  Report not found: ${reportPath}`);
 				continue;
 			}
@@ -104,18 +102,14 @@ class CoverageValidator {
 				const summary = this.calculateSummary(coverage);
 				const thresholds =
 					COVERAGE_THRESHOLDS[
-						tierName === "bun"
-							? "logic"
-							: tierName === "vitest"
-								? "components"
-								: tierName
+						tierName === "bun" ? "logic" : tierName === "vitest" ? "components" : tierName
 					];
 
 				console.log(
-					`    📈 Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`,
+					`    📈 Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
 				);
 				console.log(
-					`    🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`,
+					`    🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`
 				);
 
 				const passed = this.validateThresholds(summary, thresholds, tierName);
@@ -129,9 +123,7 @@ class CoverageValidator {
 					console.log(`    ❌ ${tierName} coverage validation failed`);
 				}
 			} catch (error) {
-				this.errors.push(
-					`${tierName}: Failed to parse coverage report - ${error.message}`,
-				);
+				this.errors.push(`${tierName}: Failed to parse coverage report - ${error.message}`);
 				console.log(`    ❌ Failed to parse coverage report: ${error.message}`);
 			}
 		}
@@ -140,11 +132,7 @@ class CoverageValidator {
 	async validateMergedReport() {
 		console.log("\n🔗 Validating merged report...");
 
-		const mergedReportPath = path.join(
-			this.coverageDir,
-			"merged",
-			"coverage-final.json",
-		);
+		const mergedReportPath = path.join(this.coverageDir, "merged", "coverage-final.json");
 
 		if (!fs.existsSync(mergedReportPath)) {
 			this.warnings.push("Merged coverage report not found");
@@ -158,10 +146,10 @@ class CoverageValidator {
 			const thresholds = COVERAGE_THRESHOLDS.merged;
 
 			console.log(
-				`  📈 Overall Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`,
+				`  📈 Overall Coverage: ${summary.lines.pct}%L ${summary.functions.pct}%F ${summary.branches.pct}%B ${summary.statements.pct}%S`
 			);
 			console.log(
-				`  🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`,
+				`  🎯 Thresholds: ${thresholds.lines}%L ${thresholds.functions}%F ${thresholds.branches}%B ${thresholds.statements}%S`
 			);
 
 			const passed = this.validateThresholds(summary, thresholds, "merged");
@@ -178,12 +166,8 @@ class CoverageValidator {
 			// Check against quality gates
 			this.validateQualityGates(summary);
 		} catch (error) {
-			this.errors.push(
-				`Merged report: Failed to parse coverage report - ${error.message}`,
-			);
-			console.log(
-				`  ❌ Failed to parse merged coverage report: ${error.message}`,
-			);
+			this.errors.push(`Merged report: Failed to parse coverage report - ${error.message}`);
+			console.log(`  ❌ Failed to parse merged coverage report: ${error.message}`);
 		}
 	}
 
@@ -194,7 +178,7 @@ class CoverageValidator {
 		for (const metric of metrics) {
 			if (summary[metric].pct < thresholds[metric]) {
 				this.errors.push(
-					`${tierName}: ${metric} coverage ${summary[metric].pct}% below threshold ${thresholds[metric]}%`,
+					`${tierName}: ${metric} coverage ${summary[metric].pct}% below threshold ${thresholds[metric]}%`
 				);
 				passed = false;
 			}
@@ -242,9 +226,7 @@ class CoverageValidator {
 			console.log("  ✅ Target quality gate: PASSED");
 		} else {
 			console.log("  ⚠️  Target quality gate: NOT MET");
-			this.warnings.push(
-				"Target quality gate not met - consider improving test coverage",
-			);
+			this.warnings.push("Target quality gate not met - consider improving test coverage");
 		}
 
 		// Check excellence quality gate
@@ -274,29 +256,27 @@ class CoverageValidator {
 		for (const fileCoverage of Object.values(coverage)) {
 			if (fileCoverage.lines) {
 				summary.lines.total += Object.keys(fileCoverage.lines).length;
-				summary.lines.covered += Object.values(fileCoverage.lines).filter(
-					(v) => v > 0,
-				).length;
+				summary.lines.covered += Object.values(fileCoverage.lines).filter((v) => v > 0).length;
 			}
 
 			if (fileCoverage.functions) {
 				summary.functions.total += Object.keys(fileCoverage.functions).length;
-				summary.functions.covered += Object.values(
-					fileCoverage.functions,
-				).filter((v) => v > 0).length;
+				summary.functions.covered += Object.values(fileCoverage.functions).filter(
+					(v) => v > 0
+				).length;
 			}
 
 			if (fileCoverage.statements) {
 				summary.statements.total += Object.keys(fileCoverage.statements).length;
-				summary.statements.covered += Object.values(
-					fileCoverage.statements,
-				).filter((v) => v > 0).length;
+				summary.statements.covered += Object.values(fileCoverage.statements).filter(
+					(v) => v > 0
+				).length;
 			}
 
 			if (fileCoverage.branches) {
 				summary.branches.total += Object.keys(fileCoverage.branches).length;
 				summary.branches.covered += Object.values(fileCoverage.branches).filter(
-					(v) => v > 0,
+					(v) => v > 0
 				).length;
 			}
 		}
@@ -304,9 +284,7 @@ class CoverageValidator {
 		// Calculate percentages
 		for (const type of ["lines", "functions", "statements", "branches"]) {
 			if (summary[type].total > 0) {
-				summary[type].pct = Math.round(
-					(summary[type].covered / summary[type].total) * 100,
-				);
+				summary[type].pct = Math.round((summary[type].covered / summary[type].total) * 100);
 			}
 		}
 
@@ -355,9 +333,7 @@ class CoverageValidator {
 		if (this.errors.length === 0) {
 			console.log("🎉 All coverage validations passed!");
 		} else {
-			console.log(
-				"💔 Coverage validation failed - please improve test coverage",
-			);
+			console.log("💔 Coverage validation failed - please improve test coverage");
 		}
 	}
 }

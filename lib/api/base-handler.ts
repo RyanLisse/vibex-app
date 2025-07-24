@@ -6,15 +6,18 @@
  */
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import { BaseAPIError } from "./base-error";
+import { validateToken, getStoredToken, refreshUserSession } from "@/lib/auth/anthropic";
+import { rateLimit } from "@/lib/middleware/rate-limit";
+import { securityHeaders } from "@/lib/middleware/security-headers";
+import { csrfProtection } from "@/lib/middleware/csrf";
+import { logger } from "@/lib/logging";
+import { observabilityService } from "@/lib/observability";
 
 export type RouteHandler<T = any> = (
 	request: NextRequest,
-	context?: any,
+	context?: any
 ) => Promise<NextResponse<T>>;
 
 export interface HandlerOptions<TInput = any, TOutput = any> {
@@ -24,33 +27,109 @@ export interface HandlerOptions<TInput = any, TOutput = any> {
 		requests: number;
 		window: number;
 	};
+	csrfProtection?: boolean;
+	securityHeaders?: boolean;
+	requiredScopes?: string[];
+	allowedMethods?: string[];
 }
 
 export abstract class BaseAPIHandler {
 	/**
-	 * Create a standardized route handler
+	 * Create a standardized route handler with security middleware
 	 */
 	static createHandler<TInput = any, TOutput = any>(
 		options: HandlerOptions<TInput, TOutput>,
-		handler: (params: TInput, request: NextRequest) => Promise<TOutput>,
+		handler: (params: TInput, request: NextRequest, userId?: string) => Promise<TOutput>
 	): RouteHandler<TOutput> {
 		return async (request: NextRequest, context?: any) => {
+			const startTime = Date.now();
+			let userId: string | undefined;
+
 			try {
+				// Method validation
+				if (options.allowedMethods && !options.allowedMethods.includes(request.method)) {
+					return NextResponse.json(
+						createApiErrorResponse(`Method ${request.method} not allowed`, 405),
+						{ status: 405 }
+					);
+				}
+
+				// Rate limiting
+				if (options.rateLimit) {
+					const rateLimitResult = await rateLimit(request, options.rateLimit);
+					if (!rateLimitResult.allowed) {
+						return NextResponse.json(createApiErrorResponse("Rate limit exceeded", 429), {
+							status: 429,
+							headers: {
+								"X-RateLimit-Limit": options.rateLimit.requests.toString(),
+								"X-RateLimit-Remaining": "0",
+								"X-RateLimit-Reset": rateLimitResult.resetTime?.toString() || "",
+							},
+						});
+					}
+				}
+
+				// CSRF protection
+				if (options.csrfProtection && ["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
+					const csrfResult = await csrfProtection(request);
+					if (!csrfResult.valid) {
+						return NextResponse.json(createApiErrorResponse("CSRF token validation failed", 403), {
+							status: 403,
+						});
+					}
+				}
+
+				// Authentication
+				if (options.authenticate) {
+					userId = await BaseAPIHandler.authenticateUser(request, options.requiredScopes);
+					if (!userId) {
+						return NextResponse.json(createApiErrorResponse("Authentication required", 401), {
+							status: 401,
+						});
+					}
+				}
+
 				// Parse and validate input
-				const params = await BaseAPIHandler.parseInput<TInput>(
-					request,
-					options.schema,
-				);
+				const params = await BaseAPIHandler.parseInput<TInput>(request, options.schema);
 
 				// Execute handler
-				const result = await handler(params, request);
+				const result = await handler(params, request, userId);
 
-				// Return success response
-				return BaseAPIHandler.successResponse(
+				// Create response with security headers
+				const response = BaseAPIHandler.successResponse(
 					result,
-					request.method === "POST" ? 201 : 200,
+					request.method === "POST" ? 201 : 200
 				);
+
+				if (options.securityHeaders !== false) {
+					securityHeaders(response);
+				}
+
+				// Record success metrics
+				observabilityService.recordEvent({
+					type: "api",
+					category: "request_success",
+					message: "API request completed successfully",
+					metadata: {
+						method: request.method,
+						path: new URL(request.url).pathname,
+						userId,
+						duration: Date.now() - startTime,
+						statusCode: response.status,
+					},
+				});
+
+				return response;
 			} catch (error) {
+				// Record error metrics
+				observabilityService.recordError(error as Error, {
+					context: "api_handler",
+					method: request.method,
+					path: new URL(request.url).pathname,
+					userId,
+					duration: Date.now() - startTime,
+				});
+
 				return BaseAPIHandler.handleError(error);
 			}
 		};
@@ -59,10 +138,7 @@ export abstract class BaseAPIHandler {
 	/**
 	 * Parse request input based on method
 	 */
-	private static async parseInput<T>(
-		request: NextRequest,
-		schema?: z.ZodSchema<T>,
-	): Promise<T> {
+	private static async parseInput<T>(request: NextRequest, schema?: z.ZodSchema<T>): Promise<T> {
 		let input: any = {};
 
 		if (request.method === "GET" || request.method === "DELETE") {
@@ -106,19 +182,16 @@ export abstract class BaseAPIHandler {
 	static handleError(error: unknown): NextResponse {
 		// Zod validation errors
 		if (error instanceof z.ZodError) {
-			return NextResponse.json(
-				createApiErrorResponse("Validation failed", 400, error.issues),
-				{
-					status: 400,
-				},
-			);
+			return NextResponse.json(createApiErrorResponse("Validation failed", 400, error.issues), {
+				status: 400,
+			});
 		}
 
 		// Our custom API errors
 		if (error instanceof BaseAPIError) {
 			return NextResponse.json(
 				createApiErrorResponse(error.message, error.statusCode, error.details),
-				{ status: error.statusCode },
+				{ status: error.statusCode }
 			);
 		}
 
@@ -128,9 +201,7 @@ export abstract class BaseAPIHandler {
 
 			// Don't expose internal error details in production
 			const message =
-				process.env.NODE_ENV === "production"
-					? "Internal server error"
-					: error.message;
+				process.env.NODE_ENV === "production" ? "Internal server error" : error.message;
 
 			return NextResponse.json(createApiErrorResponse(message, 500), {
 				status: 500,
@@ -139,35 +210,154 @@ export abstract class BaseAPIHandler {
 
 		// Unknown errors
 		console.error("Unknown error:", error);
-		return NextResponse.json(
-			createApiErrorResponse("Internal server error", 500),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Internal server error", 500), { status: 500 });
 	}
 
 	/**
-	 * Extract user from request (to be implemented based on auth strategy)
+	 * Authenticate user and validate token
 	 */
-	protected static async getUser(request: NextRequest): Promise<string | null> {
-		// This should be implemented based on your authentication strategy
-		// For example, extracting from JWT token, session, etc.
-		const authHeader = request.headers.get("authorization");
-		if (!authHeader?.startsWith("Bearer ")) {
+	private static async authenticateUser(
+		request: NextRequest,
+		requiredScopes?: string[]
+	): Promise<string | null> {
+		try {
+			// Try Bearer token first
+			const authHeader = request.headers.get("authorization");
+			if (authHeader?.startsWith("Bearer ")) {
+				const token = authHeader.substring(7);
+				const validation = await validateToken(token);
+
+				if (!validation.active) {
+					return null;
+				}
+
+				// Check scopes if required
+				if (requiredScopes && requiredScopes.length > 0) {
+					const tokenScopes = validation.scope?.split(" ") || [];
+					const hasRequiredScope = requiredScopes.some((scope) => tokenScopes.includes(scope));
+
+					if (!hasRequiredScope) {
+						return null;
+					}
+				}
+
+				return validation.user_id || validation.sub || null;
+			}
+
+			// Try session cookie
+			const sessionToken = await getStoredToken(request);
+			if (sessionToken) {
+				// Check if token is expired
+				if (sessionToken.expires_at < Date.now()) {
+					// Try to refresh
+					const userId = await BaseAPIHandler.getUserFromSession(request);
+					if (userId) {
+						const refreshed = await refreshUserSession(userId);
+						if (refreshed) {
+							return userId;
+						}
+					}
+					return null;
+				}
+
+				// Validate session token
+				const validation = await validateToken(sessionToken.access_token);
+				if (!validation.active) {
+					return null;
+				}
+
+				return validation.user_id || validation.sub || null;
+			}
+
+			return null;
+		} catch (error) {
+			logger.error("Authentication failed", { error });
 			return null;
 		}
+	}
 
-		// TODO: Validate token and extract user
+	/**
+	 * Get user ID from session (helper method)
+	 */
+	private static async getUserFromSession(request: NextRequest): Promise<string | null> {
+		// This would typically involve looking up the session in the database
+		// For now, we'll extract from the session token structure
+		const sessionToken = await getStoredToken(request);
+		if (!sessionToken) return null;
+
+		try {
+			// If it's a JWT, parse it to get user info
+			const parts = sessionToken.access_token.split(".");
+			if (parts.length === 3) {
+				const payload = JSON.parse(atob(parts[1]));
+				return payload.sub || payload.user_id || null;
+			}
+		} catch {
+			// Not a JWT or parsing failed
+		}
+
 		return null;
 	}
 
 	/**
-	 * Check rate limits (to be implemented with Redis or similar)
+	 * Create CORS-enabled response
 	 */
-	protected static async checkRateLimit(
-		identifier: string,
-		limits: { requests: number; window: number },
-	): Promise<boolean> {
-		// TODO: Implement rate limiting logic
-		return true;
+	static corsResponse<T>(data: T, statusCode = 200, origin?: string): NextResponse {
+		const response = NextResponse.json(createApiSuccessResponse(data), {
+			status: statusCode,
+		});
+
+		// CORS headers
+		if (origin && BaseAPIHandler.isAllowedOrigin(origin)) {
+			response.headers.set("Access-Control-Allow-Origin", origin);
+		} else {
+			response.headers.set("Access-Control-Allow-Origin", "*");
+		}
+
+		response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+		response.headers.set(
+			"Access-Control-Allow-Headers",
+			"Content-Type, Authorization, X-CSRF-Token"
+		);
+		response.headers.set("Access-Control-Allow-Credentials", "true");
+		response.headers.set("Access-Control-Max-Age", "86400");
+
+		return response;
+	}
+
+	/**
+	 * Handle preflight OPTIONS requests
+	 */
+	static handlePreflight(request: NextRequest): NextResponse {
+		const origin = request.headers.get("origin");
+		const response = new NextResponse(null, { status: 200 });
+
+		if (origin && BaseAPIHandler.isAllowedOrigin(origin)) {
+			response.headers.set("Access-Control-Allow-Origin", origin);
+		}
+
+		response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+		response.headers.set(
+			"Access-Control-Allow-Headers",
+			"Content-Type, Authorization, X-CSRF-Token"
+		);
+		response.headers.set("Access-Control-Allow-Credentials", "true");
+		response.headers.set("Access-Control-Max-Age", "86400");
+
+		return response;
+	}
+
+	/**
+	 * Check if origin is allowed
+	 */
+	private static isAllowedOrigin(origin: string): boolean {
+		const allowedOrigins = [
+			"http://localhost:3000",
+			"http://localhost:3001",
+			"https://vibex.app",
+			...(process.env.ALLOWED_ORIGINS?.split(",") || []),
+		];
+
+		return allowedOrigins.includes(origin);
 	}
 }

@@ -9,7 +9,7 @@ export const userRegistrationSchema = z
 			.max(50, "First name must be less than 50 characters")
 			.regex(
 				/^[a-zA-Z\s-']+$/,
-				"First name can only contain letters, spaces, hyphens, and apostrophes",
+				"First name can only contain letters, spaces, hyphens, and apostrophes"
 			),
 
 		lastName: z
@@ -18,7 +18,7 @@ export const userRegistrationSchema = z
 			.max(50, "Last name must be less than 50 characters")
 			.regex(
 				/^[a-zA-Z\s-']+$/,
-				"Last name can only contain letters, spaces, hyphens, and apostrophes",
+				"Last name can only contain letters, spaces, hyphens, and apostrophes"
 			),
 
 		email: z
@@ -33,7 +33,7 @@ export const userRegistrationSchema = z
 			.max(100, "Password must be less than 100 characters")
 			.regex(
 				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-				"Password must contain at least one uppercase letter, one lowercase letter, and one number",
+				"Password must contain at least one uppercase letter, one lowercase letter, and one number"
 			),
 
 		confirmPassword: z.string(),
@@ -44,12 +44,7 @@ export const userRegistrationSchema = z
 			.max(150, "Please enter a valid age")
 			.int("Age must be a whole number"),
 
-		terms: z
-			.boolean()
-			.refine(
-				(val) => val === true,
-				"You must accept the terms and conditions",
-			),
+		terms: z.boolean().refine((val) => val === true, "You must accept the terms and conditions"),
 
 		newsletter: z.boolean().optional(),
 	})
@@ -77,16 +72,11 @@ export const contactFormSchema = z.object({
 		.min(10, "Message must be at least 10 characters")
 		.max(1000, "Message must be less than 1000 characters"),
 
-	priority: z
-		.enum(["low", "medium", "high"])
-		.refine((val) => val !== undefined, {
-			message: "Please select a priority level",
-		}),
+	priority: z.enum(["low", "medium", "high"]).refine((val) => val !== undefined, {
+		message: "Please select a priority level",
+	}),
 
-	attachments: z
-		.array(z.instanceof(File))
-		.max(5, "Maximum 5 attachments allowed")
-		.optional(),
+	attachments: z.array(z.instanceof(File)).max(5, "Maximum 5 attachments allowed").optional(),
 });
 
 // Login schema
@@ -110,10 +100,7 @@ export const searchSchema = z.object({
 		.default("all")
 		.optional(),
 
-	sortBy: z
-		.enum(["relevance", "date", "popularity"])
-		.default("relevance")
-		.optional(),
+	sortBy: z.enum(["relevance", "date", "popularity"]).default("relevance").optional(),
 
 	dateRange: z
 		.object({
@@ -131,7 +118,7 @@ export const searchSchema = z.object({
 			{
 				message: "End date must be after start date",
 				path: ["to"],
-			},
+			}
 		),
 
 	filters: z
@@ -152,7 +139,7 @@ export const searchSchema = z.object({
 			{
 				message: "Maximum price must be greater than minimum price",
 				path: ["maxPrice"],
-			},
+			}
 		),
 });
 
@@ -166,26 +153,16 @@ export const profileUpdateSchema = z.object({
 
 	bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
 
-	website: z
-		.string()
-		.url("Please enter a valid URL")
-		.optional()
-		.or(z.literal("")),
+	website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
 
-	location: z
-		.string()
-		.max(100, "Location must be less than 100 characters")
-		.optional(),
+	location: z.string().max(100, "Location must be less than 100 characters").optional(),
 
 	avatar: z
 		.instanceof(File)
-		.refine(
-			(file) => file.size <= 5 * 1024 * 1024,
-			"Avatar must be less than 5MB",
-		)
+		.refine((file) => file.size <= 5 * 1024 * 1024, "Avatar must be less than 5MB")
 		.refine(
 			(file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
-			"Avatar must be a JPEG, PNG, or WebP image",
+			"Avatar must be a JPEG, PNG, or WebP image"
 		)
 		.optional(),
 
@@ -201,10 +178,7 @@ export const profileUpdateSchema = z.object({
 				.default({}),
 			privacy: z
 				.object({
-					profileVisibility: z
-						.enum(["public", "private", "friends"])
-						.default("public")
-						.optional(),
+					profileVisibility: z.enum(["public", "private", "friends"]).default("public").optional(),
 					showEmail: z.boolean().default(false).optional(),
 					showLocation: z.boolean().default(true).optional(),
 				})
@@ -258,7 +232,7 @@ export const validateSchema = <T>(schema: z.ZodSchema<T>, data: unknown) => {
 
 export const getFieldError = (
 	error: z.ZodFlattenedError<unknown> | null,
-	field: string,
+	field: string
 ): string | undefined => {
 	if (!error?.fieldErrors) {
 		return;
@@ -269,7 +243,7 @@ export const getFieldError = (
 
 export const hasFieldError = (
 	error: z.ZodFlattenedError<unknown> | null,
-	field: string,
+	field: string
 ): boolean => {
 	return !!getFieldError(error, field);
 };

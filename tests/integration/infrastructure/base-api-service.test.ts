@@ -1,10 +1,6 @@
 import { type Span, SpanStatusCode, trace } from "@opentelemetry/api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	BaseAPIError,
-	DatabaseError,
-	ValidationError,
-} from "../../../lib/api/base/errors";
+import { BaseAPIError, DatabaseError, ValidationError } from "../../../lib/api/base/errors";
 import {
 	BaseAPIService,
 	BaseCRUDService,
@@ -59,23 +55,16 @@ class TestService extends BaseAPIService {
 	async publicExecuteWithTracing<T>(
 		operation: string,
 		context: ServiceContext,
-		fn: (span: Span) => Promise<T>,
+		fn: (span: Span) => Promise<T>
 	): Promise<T> {
 		return this.executeWithTracing(operation, context, fn);
 	}
 
-	async publicExecuteDatabase<T>(
-		operation: string,
-		fn: () => Promise<T>,
-	): Promise<T> {
+	async publicExecuteDatabase<T>(operation: string, fn: () => Promise<T>): Promise<T> {
 		return this.executeDatabase(operation, fn);
 	}
 
-	async publicRecordEvent(
-		action: string,
-		message: string,
-		data?: Record<string, any>,
-	) {
+	async publicRecordEvent(action: string, message: string, data?: Record<string, any>) {
 		return this.recordEvent(action, message, data);
 	}
 }
@@ -95,11 +84,7 @@ interface UpdateTestDTO {
 	name?: string;
 }
 
-class TestCRUDService extends BaseCRUDService<
-	TestEntity,
-	CreateTestDTO,
-	UpdateTestDTO
-> {
+class TestCRUDService extends BaseCRUDService<TestEntity, CreateTestDTO, UpdateTestDTO> {
 	protected tableName = "test_entities";
 
 	constructor() {
@@ -109,7 +94,7 @@ class TestCRUDService extends BaseCRUDService<
 	async getAll(
 		filters: Record<string, any>,
 		pagination: { page: number; limit: number },
-		context: ServiceContext,
+		context: ServiceContext
 	): Promise<{ items: TestEntity[]; total: number }> {
 		return this.executeWithTracing("getAll", context, async () => {
 			// Mock implementation
@@ -132,10 +117,7 @@ class TestCRUDService extends BaseCRUDService<
 		});
 	}
 
-	async create(
-		data: CreateTestDTO,
-		context: ServiceContext,
-	): Promise<TestEntity> {
+	async create(data: CreateTestDTO, context: ServiceContext): Promise<TestEntity> {
 		return this.executeWithTracing("create", context, async () => {
 			return {
 				id: crypto.randomUUID(),
@@ -145,11 +127,7 @@ class TestCRUDService extends BaseCRUDService<
 		});
 	}
 
-	async update(
-		id: string,
-		data: UpdateTestDTO,
-		context: ServiceContext,
-	): Promise<TestEntity> {
+	async update(id: string, data: UpdateTestDTO, context: ServiceContext): Promise<TestEntity> {
 		return this.executeWithTracing("update", context, async () => {
 			return {
 				id,
@@ -203,18 +181,12 @@ describe("BaseAPIService Integration Tests", () => {
 		};
 
 		it("should execute operation with tracing", async () => {
-			const result = await service.publicExecuteWithTracing(
-				"testOperation",
-				context,
-				async () => {
-					return { success: true };
-				},
-			);
+			const result = await service.publicExecuteWithTracing("testOperation", context, async () => {
+				return { success: true };
+			});
 
 			expect(result).toEqual({ success: true });
-			expect(mockTracer.startSpan).toHaveBeenCalledWith(
-				"test-service.testOperation",
-			);
+			expect(mockTracer.startSpan).toHaveBeenCalledWith("test-service.testOperation");
 			expect(mockSpan.setAttributes).toHaveBeenCalledWith({
 				"service.name": "test-service",
 				"operation.name": "testOperation",
@@ -226,51 +198,41 @@ describe("BaseAPIService Integration Tests", () => {
 		});
 
 		it("should record success metrics", async () => {
-			await service.publicExecuteWithTracing(
-				"successOperation",
-				context,
-				async () => "success",
-			);
+			await service.publicExecuteWithTracing("successOperation", context, async () => "success");
 
 			expect(observability.metrics.queryDuration).toHaveBeenCalledWith(
 				expect.any(Number),
 				"successOperation",
 				true,
-				{ service: "test-service" },
+				{ service: "test-service" }
 			);
 			expect(mockSpan.setAttributes).toHaveBeenCalledWith(
 				expect.objectContaining({
 					"operation.duration": expect.any(Number),
 					"operation.success": true,
-				}),
+				})
 			);
 		});
 
 		it("should handle BaseAPIError correctly", async () => {
-			const error = new ValidationError("Invalid input", [
-				{ field: "name", message: "Required" },
-			]);
+			const error = new ValidationError("Invalid input", [{ field: "name", message: "Required" }]);
 
 			await expect(
 				service.publicExecuteWithTracing("failOperation", context, async () => {
 					throw error;
-				}),
+				})
 			).rejects.toThrow(error);
 
 			expect(observability.metrics.queryDuration).toHaveBeenCalledWith(
 				expect.any(Number),
 				"failOperation",
 				false,
-				{ service: "test-service" },
+				{ service: "test-service" }
 			);
-			expect(observability.metrics.errorRate).toHaveBeenCalledWith(
-				1,
-				"test-service",
-				{
-					operation: "failOperation",
-					error_type: "VALIDATION_ERROR",
-				},
-			);
+			expect(observability.metrics.errorRate).toHaveBeenCalledWith(1, "test-service", {
+				operation: "failOperation",
+				error_type: "VALIDATION_ERROR",
+			});
 			expect(mockSpan.recordException).toHaveBeenCalledWith(error);
 			expect(mockSpan.setStatus).toHaveBeenCalledWith({
 				code: SpanStatusCode.ERROR,
@@ -282,23 +244,15 @@ describe("BaseAPIService Integration Tests", () => {
 			const error = new Error("Generic error");
 
 			await expect(
-				service.publicExecuteWithTracing(
-					"errorOperation",
-					context,
-					async () => {
-						throw error;
-					},
-				),
+				service.publicExecuteWithTracing("errorOperation", context, async () => {
+					throw error;
+				})
 			).rejects.toThrow(error);
 
-			expect(observability.metrics.errorRate).toHaveBeenCalledWith(
-				1,
-				"test-service",
-				{
-					operation: "errorOperation",
-					error_type: "UNKNOWN",
-				},
-			);
+			expect(observability.metrics.errorRate).toHaveBeenCalledWith(1, "test-service", {
+				operation: "errorOperation",
+				error_type: "UNKNOWN",
+			});
 			expect(mockSpan.recordException).toHaveBeenCalledWith(error);
 			expect(mockSpan.setStatus).toHaveBeenCalledWith({
 				code: SpanStatusCode.ERROR,
@@ -316,7 +270,7 @@ describe("BaseAPIService Integration Tests", () => {
 			await service.publicExecuteWithTracing(
 				"partialContext",
 				partialContext,
-				async () => "result",
+				async () => "result"
 			);
 
 			expect(mockSpan.setAttributes).toHaveBeenCalledWith(
@@ -324,26 +278,22 @@ describe("BaseAPIService Integration Tests", () => {
 					"context.userId": "user-123",
 					"context.requestId": "req-789",
 					// sessionId should be omitted
-				}),
+				})
 			);
 			expect(mockSpan.setAttributes).not.toHaveBeenCalledWith(
 				expect.objectContaining({
 					"context.sessionId": expect.anything(),
-				}),
+				})
 			);
 		});
 
 		it("should provide span to operation function", async () => {
 			let capturedSpan: Span | undefined;
 
-			await service.publicExecuteWithTracing(
-				"spanCapture",
-				context,
-				async (span) => {
-					capturedSpan = span;
-					return "result";
-				},
-			);
+			await service.publicExecuteWithTracing("spanCapture", context, async (span) => {
+				capturedSpan = span;
+				return "result";
+			});
 
 			expect(capturedSpan).toBe(mockSpan);
 		});
@@ -351,17 +301,12 @@ describe("BaseAPIService Integration Tests", () => {
 		it("should measure operation duration accurately", async () => {
 			const delay = 100; // ms
 
-			await service.publicExecuteWithTracing(
-				"timedOperation",
-				context,
-				async () => {
-					await new Promise((resolve) => setTimeout(resolve, delay));
-					return "delayed result";
-				},
-			);
+			await service.publicExecuteWithTracing("timedOperation", context, async () => {
+				await new Promise((resolve) => setTimeout(resolve, delay));
+				return "delayed result";
+			});
 
-			const durationCall = (observability.metrics.queryDuration as any).mock
-				.calls[0];
+			const durationCall = (observability.metrics.queryDuration as any).mock.calls[0];
 			const duration = durationCall[0];
 
 			expect(duration).toBeGreaterThanOrEqual(delay);
@@ -371,13 +316,10 @@ describe("BaseAPIService Integration Tests", () => {
 
 	describe("executeDatabase", () => {
 		it("should execute database operation successfully", async () => {
-			const result = await service.publicExecuteDatabase(
-				"dbQuery",
-				async () => ({
-					id: 1,
-					name: "Test",
-				}),
-			);
+			const result = await service.publicExecuteDatabase("dbQuery", async () => ({
+				id: 1,
+				name: "Test",
+			}));
 
 			expect(result).toEqual({ id: 1, name: "Test" });
 		});
@@ -388,7 +330,7 @@ describe("BaseAPIService Integration Tests", () => {
 			await expect(
 				service.publicExecuteDatabase("dbOperation", async () => {
 					throw dbError;
-				}),
+				})
 			).rejects.toThrow(DatabaseError);
 
 			try {
@@ -397,9 +339,7 @@ describe("BaseAPIService Integration Tests", () => {
 				});
 			} catch (error) {
 				expect(error).toBeInstanceOf(DatabaseError);
-				expect((error as DatabaseError).message).toBe(
-					"Database operation failed: dbOperation",
-				);
+				expect((error as DatabaseError).message).toBe("Database operation failed: dbOperation");
 				expect((error as DatabaseError).details).toBe("Connection refused");
 			}
 		});
@@ -422,7 +362,7 @@ describe("BaseAPIService Integration Tests", () => {
 					ip: "192.168.1.1",
 				},
 				"api",
-				["test-service", "user_login"],
+				["test-service", "user_login"]
 			);
 		});
 
@@ -431,9 +371,7 @@ describe("BaseAPIService Integration Tests", () => {
 				.spyOn(observability.events.collector, "collectEvent")
 				.mockRejectedValueOnce(new Error("Event collection failed"));
 
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 			await service.publicRecordEvent("test_event", "Test message");
 
@@ -454,7 +392,7 @@ describe("BaseAPIService Integration Tests", () => {
 					service: "test-service",
 				},
 				"api",
-				["test-service", "simple_event"],
+				["test-service", "simple_event"]
 			);
 		});
 	});
@@ -482,7 +420,7 @@ describe("BaseCRUDService Integration Tests", () => {
 			const result = await crudService.getAll(
 				{ status: "active" },
 				{ page: 1, limit: 10 },
-				context,
+				context
 			);
 
 			expect(result).toHaveProperty("items");
@@ -490,9 +428,7 @@ describe("BaseCRUDService Integration Tests", () => {
 			expect(result.items).toHaveLength(2);
 			expect(result.total).toBe(2);
 
-			expect(mockTracer.startSpan).toHaveBeenCalledWith(
-				"test-crud-service.getAll",
-			);
+			expect(mockTracer.startSpan).toHaveBeenCalledWith("test-crud-service.getAll");
 		});
 
 		it("should get item by ID", async () => {
@@ -504,24 +440,16 @@ describe("BaseCRUDService Integration Tests", () => {
 			});
 			expect(result.createdAt).toBeInstanceOf(Date);
 
-			expect(mockTracer.startSpan).toHaveBeenCalledWith(
-				"test-crud-service.getById",
-			);
+			expect(mockTracer.startSpan).toHaveBeenCalledWith("test-crud-service.getById");
 		});
 
 		it("should handle not found errors", async () => {
-			await expect(crudService.getById("not-found", context)).rejects.toThrow(
-				BaseAPIError,
-			);
+			await expect(crudService.getById("not-found", context)).rejects.toThrow(BaseAPIError);
 
-			expect(observability.metrics.errorRate).toHaveBeenCalledWith(
-				1,
-				"test-crud-service",
-				{
-					operation: "getById",
-					error_type: "INTERNAL_ERROR",
-				},
-			);
+			expect(observability.metrics.errorRate).toHaveBeenCalledWith(1, "test-crud-service", {
+				operation: "getById",
+				error_type: "INTERNAL_ERROR",
+			});
 		});
 
 		it("should create new item", async () => {
@@ -534,9 +462,7 @@ describe("BaseCRUDService Integration Tests", () => {
 			});
 			expect(result.createdAt).toBeInstanceOf(Date);
 
-			expect(mockTracer.startSpan).toHaveBeenCalledWith(
-				"test-crud-service.create",
-			);
+			expect(mockTracer.startSpan).toHaveBeenCalledWith("test-crud-service.create");
 		});
 
 		it("should update existing item", async () => {
@@ -548,17 +474,13 @@ describe("BaseCRUDService Integration Tests", () => {
 				name: "Updated Entity",
 			});
 
-			expect(mockTracer.startSpan).toHaveBeenCalledWith(
-				"test-crud-service.update",
-			);
+			expect(mockTracer.startSpan).toHaveBeenCalledWith("test-crud-service.update");
 		});
 
 		it("should delete item", async () => {
 			await expect(crudService.delete("123", context)).resolves.toBeUndefined();
 
-			expect(mockTracer.startSpan).toHaveBeenCalledWith(
-				"test-crud-service.delete",
-			);
+			expect(mockTracer.startSpan).toHaveBeenCalledWith("test-crud-service.delete");
 		});
 	});
 
@@ -590,10 +512,7 @@ describe("BaseCRUDService Integration Tests", () => {
 		it("should handle database errors in CRUD operations", async () => {
 			// Mock a service that throws database errors
 			class ErrorCRUDService extends TestCRUDService {
-				async getById(
-					id: string,
-					context: ServiceContext,
-				): Promise<TestEntity> {
+				async getById(id: string, context: ServiceContext): Promise<TestEntity> {
 					return this.executeWithTracing("getById", context, async () => {
 						return this.executeDatabase("select", async () => {
 							throw new Error("Connection lost");
@@ -604,9 +523,7 @@ describe("BaseCRUDService Integration Tests", () => {
 
 			const errorService = new ErrorCRUDService();
 
-			await expect(errorService.getById("123", context)).rejects.toThrow(
-				DatabaseError,
-			);
+			await expect(errorService.getById("123", context)).rejects.toThrow(DatabaseError);
 		});
 	});
 });

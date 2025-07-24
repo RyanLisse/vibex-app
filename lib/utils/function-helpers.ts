@@ -96,13 +96,13 @@ export const validateConfig = <T extends Record<string, any>>(
 	config: T,
 	requiredFields: (keyof T)[]
 ): { isValid: boolean; missingFields: string[] } => {
-	const missingFields = requiredFields.filter(field => 
-		config[field] === undefined || config[field] === null
+	const missingFields = requiredFields.filter(
+		(field) => config[field] === undefined || config[field] === null
 	) as string[];
 
 	return {
 		isValid: missingFields.length === 0,
-		missingFields
+		missingFields,
 	};
 };
 
@@ -140,8 +140,8 @@ export interface SuccessConfig<T = any> {
 /**
  * Generic result type to reduce parameter complexity
  */
-export type Result<T = any, E = ErrorConfig> = 
-	| { success: true; } & SuccessConfig<T>
+export type Result<T = any, E = ErrorConfig> =
+	| ({ success: true } & SuccessConfig<T>)
 	| { success: false; error: E };
 
 /**
@@ -152,13 +152,13 @@ export const createResult = {
 		success: true,
 		data,
 		message,
-		metadata
+		metadata,
 	}),
 
 	error: <E = ErrorConfig>(error: E): Result<never, E> => ({
 		success: false,
-		error
-	})
+		error,
+	}),
 };
 
 /**
@@ -172,11 +172,13 @@ export const safeAsync = async <T>(
 		const data = await operation();
 		return createResult.success(data);
 	} catch (error: any) {
-		const errorConfig = errorHandler ? errorHandler(error) : {
-			message: error.message || "Unknown error",
-			code: error.code,
-			statusCode: error.statusCode
-		};
+		const errorConfig = errorHandler
+			? errorHandler(error)
+			: {
+					message: error.message || "Unknown error",
+					code: error.code,
+					statusCode: error.statusCode,
+				};
 		return createResult.error(errorConfig);
 	}
 };

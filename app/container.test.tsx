@@ -43,9 +43,7 @@ vi.mock("@/hooks/use-task-message-processing", () => ({
 
 // Mock console methods
 const _mockConsoleLog = mock.spyOn(console, "log").mockImplementation(() => {});
-const _mockConsoleError = mock
-	.spyOn(console, "error")
-	.mockImplementation(() => {});
+const _mockConsoleError = mock.spyOn(console, "error").mockImplementation(() => {});
 
 describe("Container", () => {
 	beforeEach(() => {
@@ -65,7 +63,7 @@ describe("Container", () => {
 		render(
 			<Container>
 				<div data-testid="child-content">Test Content</div>
-			</Container>,
+			</Container>
 		);
 
 		expect(screen.getByTestId("child-content")).toBeInTheDocument();
@@ -78,7 +76,7 @@ describe("Container", () => {
 				<div data-testid="child-1">Child 1</div>
 				<div data-testid="child-2">Child 2</div>
 				<span data-testid="child-3">Child 3</span>
-			</Container>,
+			</Container>
 		);
 
 		expect(screen.getByTestId("child-1")).toBeInTheDocument();
@@ -96,7 +94,7 @@ describe("Container", () => {
 		render(
 			<Container>
 				<div>Test</div>
-			</Container>,
+			</Container>
 		);
 
 		// The container should render without errors and the hooks should be called

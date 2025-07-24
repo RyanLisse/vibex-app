@@ -36,11 +36,9 @@ describe("DatabaseObservabilityDemo", () => {
 		render(<DatabaseObservabilityDemo />);
 
 		await waitFor(() => {
-			// Check for health status indicators
-			const healthIndicator = screen.queryByText(/healthy|status/i);
-			if (healthIndicator) {
-				expect(healthIndicator).toBeInTheDocument();
-			}
+			// Check for specific health status badge
+			const healthBadge = screen.getByText("healthy");
+			expect(healthBadge).toBeInTheDocument();
 		});
 	});
 
@@ -48,11 +46,9 @@ describe("DatabaseObservabilityDemo", () => {
 		render(<DatabaseObservabilityDemo />);
 
 		await waitFor(() => {
-			// Look for connection-related information
-			const connectionInfo = screen.queryByText(/connection|pool/i);
-			if (connectionInfo) {
-				expect(connectionInfo).toBeInTheDocument();
-			}
+			// Look for connection pool title
+			const connectionPoolTitle = screen.getByText("Connection Pool");
+			expect(connectionPoolTitle).toBeInTheDocument();
 		});
 	});
 
@@ -60,11 +56,9 @@ describe("DatabaseObservabilityDemo", () => {
 		render(<DatabaseObservabilityDemo />);
 
 		await waitFor(() => {
-			// Check for query performance indicators
-			const queryMetrics = screen.queryByText(/latency|query|performance/i);
-			if (queryMetrics) {
-				expect(queryMetrics).toBeInTheDocument();
-			}
+			// Check for query latency card title
+			const queryLatencyTitle = screen.getByText("Query Latency");
+			expect(queryLatencyTitle).toBeInTheDocument();
 		});
 	});
 

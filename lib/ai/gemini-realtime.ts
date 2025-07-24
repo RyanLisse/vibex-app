@@ -47,14 +47,11 @@ export class GeminiRealtimeSession {
 	}
 
 	async connect(): Promise<void> {
-		const model =
-			this.config.model ||
-			"models/gemini-2.5-flash-preview-native-audio-dialog";
+		const model = this.config.model || "models/gemini-2.5-flash-preview-native-audio-dialog";
 
 		const sessionConfig = {
 			responseModalities: this.config.responseModalities || [Modality.AUDIO],
-			mediaResolution:
-				this.config.mediaResolution || MediaResolution.MEDIA_RESOLUTION_MEDIUM,
+			mediaResolution: this.config.mediaResolution || MediaResolution.MEDIA_RESOLUTION_MEDIUM,
 			speechConfig: {
 				voiceConfig: {
 					prebuiltVoiceConfig: {
@@ -143,12 +140,13 @@ export class GeminiRealtimeSession {
 
 			// Send tool responses if needed
 			if (this.session && message.toolCall.functionCalls) {
-				const responses: FunctionResponse[] =
-					message.toolCall.functionCalls.map((functionCall) => ({
+				const responses: FunctionResponse[] = message.toolCall.functionCalls.map(
+					(functionCall) => ({
 						id: functionCall.id,
 						name: functionCall.name,
 						response: { response: "Function executed successfully" },
-					}));
+					})
+				);
 				this.sendToolResponse(responses);
 			}
 		}
@@ -209,9 +207,7 @@ export function convertToWav(rawData: string[], mimeType: string): Buffer {
 	const options = parseMimeType(mimeType);
 	const dataLength = rawData.reduce((a, b) => a + b.length, 0);
 	const wavHeader = createWavHeader(dataLength, options);
-	const buffer = Buffer.concat(
-		rawData.map((data) => Buffer.from(data, "base64")),
-	);
+	const buffer = Buffer.concat(rawData.map((data) => Buffer.from(data, "base64")));
 
 	return Buffer.concat([wavHeader, buffer]);
 }
@@ -245,10 +241,7 @@ export function parseMimeType(mimeType: string): WavConversionOptions {
 	return options as WavConversionOptions;
 }
 
-export function createWavHeader(
-	dataLength: number,
-	options: WavConversionOptions,
-): Buffer {
+export function createWavHeader(dataLength: number, options: WavConversionOptions): Buffer {
 	const { numChannels, sampleRate, bitsPerSample } = options;
 
 	// WAV file format specification: http://soundfile.sapp.org/doc/WaveFormat

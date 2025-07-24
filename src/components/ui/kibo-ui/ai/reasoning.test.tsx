@@ -2,11 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, mock, vi } from "vitest";
-import {
-	AIReasoning,
-	AIReasoningContent,
-	AIReasoningTrigger,
-} from "./reasoning";
+import { AIReasoning, AIReasoningContent, AIReasoningTrigger } from "./reasoning";
 
 // Mock dependencies
 vi.mock("@radix-ui/react-use-controllable-state", () => ({
@@ -88,7 +84,7 @@ describe("AIReasoning", () => {
 		render(
 			<AIReasoning>
 				<div>Reasoning content</div>
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Reasoning content")).toBeInTheDocument();
@@ -115,13 +111,10 @@ describe("AIReasoning", () => {
 		const { rerender } = render(
 			<AIReasoning onOpenChange={handleOpenChange} open={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
-		expect(screen.getByTestId("collapsible")).toHaveAttribute(
-			"data-open",
-			"false",
-		);
+		expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "false");
 
 		await user.click(screen.getByTestId("collapsible"));
 		expect(handleOpenChange).toHaveBeenCalledWith(true);
@@ -129,71 +122,53 @@ describe("AIReasoning", () => {
 		rerender(
 			<AIReasoning onOpenChange={handleOpenChange} open={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
-		expect(screen.getByTestId("collapsible")).toHaveAttribute(
-			"data-open",
-			"true",
-		);
+		expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "true");
 	});
 
 	it("should auto-open when streaming starts", () => {
 		const { rerender } = render(
 			<AIReasoning isStreaming={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
-		expect(screen.getByTestId("collapsible")).toHaveAttribute(
-			"data-open",
-			"false",
-		);
+		expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "false");
 
 		rerender(
 			<AIReasoning isStreaming={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
-		expect(screen.getByTestId("collapsible")).toHaveAttribute(
-			"data-open",
-			"true",
-		);
+		expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "true");
 	});
 
 	it("should auto-close after streaming ends with delay", async () => {
 		const { rerender } = render(
 			<AIReasoning isStreaming={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
-		expect(screen.getByTestId("collapsible")).toHaveAttribute(
-			"data-open",
-			"true",
-		);
+		expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "true");
 
 		rerender(
 			<AIReasoning isStreaming={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		// Should still be open immediately
-		expect(screen.getByTestId("collapsible")).toHaveAttribute(
-			"data-open",
-			"true",
-		);
+		expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "true");
 
 		// Advance timer to trigger auto-close
 		vi.advanceTimersByTime(1000);
 
 		await waitFor(() => {
-			expect(screen.getByTestId("collapsible")).toHaveAttribute(
-				"data-open",
-				"false",
-			);
+			expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "false");
 		});
 	});
 
@@ -201,22 +176,19 @@ describe("AIReasoning", () => {
 		const { rerender } = render(
 			<AIReasoning defaultOpen={true} isStreaming={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		rerender(
 			<AIReasoning defaultOpen={true} isStreaming={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		vi.advanceTimersByTime(2000);
 
 		await waitFor(() => {
-			expect(screen.getByTestId("collapsible")).toHaveAttribute(
-				"data-open",
-				"true",
-			);
+			expect(screen.getByTestId("collapsible")).toHaveAttribute("data-open", "true");
 		});
 	});
 
@@ -224,7 +196,7 @@ describe("AIReasoning", () => {
 		const { rerender } = render(
 			<AIReasoning isStreaming={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Thought for 0 seconds")).toBeInTheDocument();
@@ -233,7 +205,7 @@ describe("AIReasoning", () => {
 		rerender(
 			<AIReasoning isStreaming={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Thinking...")).toBeInTheDocument();
@@ -245,7 +217,7 @@ describe("AIReasoning", () => {
 		rerender(
 			<AIReasoning isStreaming={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Thought for 3 seconds")).toBeInTheDocument();
@@ -255,7 +227,7 @@ describe("AIReasoning", () => {
 		render(
 			<AIReasoning aria-label="AI reasoning" data-testid="ai-reasoning">
 				Content
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		const reasoning = screen.getByTestId("ai-reasoning");
@@ -279,7 +251,7 @@ describe("AIReasoningTrigger", () => {
 		render(
 			<AIReasoning duration={5}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Thought for 5 seconds")).toBeInTheDocument();
@@ -290,7 +262,7 @@ describe("AIReasoningTrigger", () => {
 		render(
 			<AIReasoning isStreaming={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Thinking...")).toBeInTheDocument();
@@ -302,7 +274,7 @@ describe("AIReasoningTrigger", () => {
 				<AIReasoningTrigger>
 					<span>Custom trigger</span>
 				</AIReasoningTrigger>
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByText("Custom trigger")).toBeInTheDocument();
@@ -313,7 +285,7 @@ describe("AIReasoningTrigger", () => {
 		const { rerender } = render(
 			<AIReasoning open={false}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		const chevron = screen.getByTestId("chevron-icon");
@@ -323,7 +295,7 @@ describe("AIReasoningTrigger", () => {
 		rerender(
 			<AIReasoning open={true}>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(chevron).toHaveClass("rotate-180");
@@ -334,7 +306,7 @@ describe("AIReasoningTrigger", () => {
 		render(
 			<AIReasoning>
 				<AIReasoningTrigger />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		const trigger = screen.getByTestId("collapsible-trigger");
@@ -343,7 +315,7 @@ describe("AIReasoningTrigger", () => {
 			"items-center",
 			"gap-2",
 			"text-muted-foreground",
-			"text-sm",
+			"text-sm"
 		);
 	});
 
@@ -351,7 +323,7 @@ describe("AIReasoningTrigger", () => {
 		render(
 			<AIReasoning>
 				<AIReasoningTrigger className="custom-trigger" />
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		const trigger = screen.getByTestId("collapsible-trigger");
@@ -375,20 +347,18 @@ describe("AIReasoningContent", () => {
 		render(
 			<AIReasoning>
 				<AIReasoningContent>## Reasoning content</AIReasoningContent>
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		expect(screen.getByTestId("ai-response")).toBeInTheDocument();
-		expect(screen.getByTestId("ai-response")).toHaveTextContent(
-			"## Reasoning content",
-		);
+		expect(screen.getByTestId("ai-response")).toHaveTextContent("## Reasoning content");
 	});
 
 	it("should apply default classes", () => {
 		render(
 			<AIReasoning>
 				<AIReasoningContent>Content</AIReasoningContent>
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		const content = screen.getByTestId("collapsible-content");
@@ -398,10 +368,8 @@ describe("AIReasoningContent", () => {
 	it("should apply custom className", () => {
 		render(
 			<AIReasoning>
-				<AIReasoningContent className="custom-content">
-					Content
-				</AIReasoningContent>
-			</AIReasoning>,
+				<AIReasoningContent className="custom-content">Content</AIReasoningContent>
+			</AIReasoning>
 		);
 
 		const content = screen.getByTestId("collapsible-content");
@@ -412,7 +380,7 @@ describe("AIReasoningContent", () => {
 		render(
 			<AIReasoning>
 				<AIReasoningContent>Content</AIReasoningContent>
-			</AIReasoning>,
+			</AIReasoning>
 		);
 
 		const response = screen.getByTestId("ai-response");

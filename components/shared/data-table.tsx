@@ -172,9 +172,7 @@ export function DataTable<T extends Record<string, any>>({
 						{emptyState || (
 							<div className="text-center text-muted-foreground">
 								<div className="font-medium text-lg">No data found</div>
-								<div className="text-sm">
-									Try adjusting your search or filters
-								</div>
+								<div className="text-sm">Try adjusting your search or filters</div>
 							</div>
 						)}
 					</div>
@@ -194,9 +192,7 @@ export function DataTable<T extends Record<string, any>>({
 									<TableHead
 										className={`${column.width || ""} ${column.sortable ? "cursor-pointer select-none" : ""}`}
 										key={String(column.key)}
-										onClick={() =>
-											column.sortable && sorting?.onSort(column.key)
-										}
+										onClick={() => column.sortable && sorting?.onSort(column.key)}
 									>
 										<div className="flex items-center space-x-2">
 											<span>{column.label}</span>
@@ -229,9 +225,7 @@ export function DataTable<T extends Record<string, any>>({
 												: String(row[column.key] || "")}
 										</TableCell>
 									))}
-									{actions?.rowActions && (
-										<TableCell>{actions.rowActions(row)}</TableCell>
-									)}
+									{actions?.rowActions && <TableCell>{actions.rowActions(row)}</TableCell>}
 								</TableRow>
 							))}
 						</TableBody>
@@ -244,13 +238,9 @@ export function DataTable<T extends Record<string, any>>({
 				<div className="border-t p-4">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center space-x-2">
-							<span className="text-muted-foreground text-sm">
-								Rows per page:
-							</span>
+							<span className="text-muted-foreground text-sm">Rows per page:</span>
 							<Select
-								onValueChange={(value) =>
-									pagination.onPageSizeChange(Number.parseInt(value))
-								}
+								onValueChange={(value) => pagination.onPageSizeChange(Number.parseInt(value))}
 								value={pagination.pageSize.toString()}
 							>
 								<SelectTrigger className="w-20">
@@ -267,16 +257,9 @@ export function DataTable<T extends Record<string, any>>({
 
 						<div className="flex items-center space-x-2">
 							<span className="text-muted-foreground text-sm">
-								{Math.min(
-									(pagination.page - 1) * pagination.pageSize + 1,
-									pagination.total,
-								)}{" "}
-								-{" "}
-								{Math.min(
-									pagination.page * pagination.pageSize,
-									pagination.total,
-								)}{" "}
-								of {pagination.total}
+								{Math.min((pagination.page - 1) * pagination.pageSize + 1, pagination.total)} -{" "}
+								{Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}
+								{pagination.total}
 							</span>
 
 							<div className="flex items-center space-x-1">
@@ -297,9 +280,7 @@ export function DataTable<T extends Record<string, any>>({
 									<ChevronLeft className="h-4 w-4" />
 								</Button>
 								<Button
-									disabled={
-										pagination.page * pagination.pageSize >= pagination.total
-									}
+									disabled={pagination.page * pagination.pageSize >= pagination.total}
 									onClick={() => pagination.onPageChange(pagination.page + 1)}
 									size="sm"
 									variant="outline"
@@ -307,13 +288,9 @@ export function DataTable<T extends Record<string, any>>({
 									<ChevronRight className="h-4 w-4" />
 								</Button>
 								<Button
-									disabled={
-										pagination.page * pagination.pageSize >= pagination.total
-									}
+									disabled={pagination.page * pagination.pageSize >= pagination.total}
 									onClick={() =>
-										pagination.onPageChange(
-											Math.ceil(pagination.total / pagination.pageSize),
-										)
+										pagination.onPageChange(Math.ceil(pagination.total / pagination.pageSize))
 									}
 									size="sm"
 									variant="outline"

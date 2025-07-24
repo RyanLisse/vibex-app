@@ -127,7 +127,7 @@ describe("Real-time Sync Integration", () => {
 					const tasks = useTasks();
 					return { sync, tasks };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			const { result: client2 } = renderHook(
@@ -136,7 +136,7 @@ describe("Real-time Sync Integration", () => {
 					const tasks = useTasks();
 					return { sync, tasks };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Setup sync event simulation
@@ -178,10 +178,10 @@ describe("Real-time Sync Integration", () => {
 			// Both clients should have the new task
 			await waitFor(() => {
 				expect(client1.result.tasks.data?.tasks).toContainEqual(
-					expect.objectContaining({ id: "sync-task-1" }),
+					expect.objectContaining({ id: "sync-task-1" })
 				);
 				expect(client2.result.tasks.data?.tasks).toContainEqual(
-					expect.objectContaining({ id: "sync-task-1" }),
+					expect.objectContaining({ id: "sync-task-1" })
 				);
 			});
 		});
@@ -196,22 +196,20 @@ describe("Real-time Sync Integration", () => {
 			});
 
 			// Setup conflict resolution
-			mockElectricDb.handleConflict.mockImplementation(
-				async (table, local, remote) => {
-					// Last-write-wins strategy
-					const resolution: ConflictResolution = {
-						resolved: local.updatedAt > remote.updatedAt ? local : remote,
-						strategy: "last-write-wins",
-						winner: local.updatedAt > remote.updatedAt ? "local" : "remote",
-						metadata: {
-							localVersion: local.version,
-							remoteVersion: remote.version,
-							conflictedFields: ["title", "status"],
-						},
-					};
-					return resolution;
-				},
-			);
+			mockElectricDb.handleConflict.mockImplementation(async (table, local, remote) => {
+				// Last-write-wins strategy
+				const resolution: ConflictResolution = {
+					resolved: local.updatedAt > remote.updatedAt ? local : remote,
+					strategy: "last-write-wins",
+					winner: local.updatedAt > remote.updatedAt ? "local" : "remote",
+					metadata: {
+						localVersion: local.version,
+						remoteVersion: remote.version,
+						conflictedFields: ["title", "status"],
+					},
+				};
+				return resolution;
+			});
 
 			const wrapper = createWrapper();
 			const { result } = renderHook(() => useElectricSync(), { wrapper });
@@ -233,11 +231,7 @@ describe("Real-time Sync Integration", () => {
 
 			// Trigger conflict
 			const conflictResult = await act(async () => {
-				return await result.current.resolveConflict(
-					"tasks",
-					client1Update,
-					client2Update,
-				);
+				return await result.current.resolveConflict("tasks", client1Update, client2Update);
 			});
 
 			expect(conflictResult.winner).toBe("remote");
@@ -255,7 +249,7 @@ describe("Real-time Sync Integration", () => {
 					const sync = useElectricSync();
 					return { queue, sync };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Go offline
@@ -376,9 +370,7 @@ describe("Real-time Sync Integration", () => {
 			});
 
 			// Mock permanent failure
-			mockElectricDb.processOfflineQueue.mockRejectedValue(
-				new Error("Task not found"),
-			);
+			mockElectricDb.processOfflineQueue.mockRejectedValue(new Error("Task not found"));
 
 			// Attempt processing
 			for (let i = 0; i <= 3; i++) {
@@ -415,7 +407,7 @@ describe("Real-time Sync Integration", () => {
 					const sync = useElectricSync();
 					return sync;
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// User joins
@@ -441,16 +433,16 @@ describe("Real-time Sync Integration", () => {
 					cb({
 						type: "user-joined",
 						data: otherUserPresence,
-					}),
+					})
 				);
 			});
 
 			// Should show both users
 			expect(result.current.activeUsers).toContainEqual(
-				expect.objectContaining({ userId: "user-1" }),
+				expect.objectContaining({ userId: "user-1" })
 			);
 			expect(result.current.activeUsers).toContainEqual(
-				expect.objectContaining({ userId: "user-2" }),
+				expect.objectContaining({ userId: "user-2" })
 			);
 
 			// Simulate user leaving
@@ -459,7 +451,7 @@ describe("Real-time Sync Integration", () => {
 					cb({
 						type: "user-left",
 						data: { userId: "user-2" },
-					}),
+					})
 				);
 			});
 
@@ -502,17 +494,12 @@ describe("Real-time Sync Integration", () => {
 
 			// Apply operational transforms
 			const transformed = await act(async () => {
-				return await result.current.applyOperationalTransform(sharedTask, [
-					user1Edit,
-					user2Edit,
-				]);
+				return await result.current.applyOperationalTransform(sharedTask, [user1Edit, user2Edit]);
 			});
 
 			// Both edits should be applied
 			expect(transformed.title).toBe("Updated Title by User 1");
-			expect(transformed.description).toBe(
-				"Original description - edited by User 2",
-			);
+			expect(transformed.description).toBe("Original description - edited by User 2");
 		});
 	});
 
@@ -557,7 +544,7 @@ describe("Real-time Sync Integration", () => {
 				expect.objectContaining({
 					operations: expect.arrayContaining(operations),
 				}),
-				true,
+				true
 			);
 		});
 
@@ -597,23 +584,19 @@ describe("Real-time Sync Integration", () => {
 					id: `large-${i}`,
 					title: `Task ${i}`,
 					description: "A".repeat(1000), // Large description
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
 			const { result } = renderHook(() => useElectricSync(), { wrapper });
 
 			// Mock compression
-			mockElectricDb.executeRealtimeOperation.mockImplementation(
-				async (table, op, data) => {
-					if (data.compressed) {
-						expect(data.payload.length).toBeLessThan(
-							JSON.stringify(largeTasks).length,
-						);
-					}
-					return { success: true };
-				},
-			);
+			mockElectricDb.executeRealtimeOperation.mockImplementation(async (table, op, data) => {
+				if (data.compressed) {
+					expect(data.payload.length).toBeLessThan(JSON.stringify(largeTasks).length);
+				}
+				return { success: true };
+			});
 
 			// Sync large payload
 			await act(async () => {
@@ -628,7 +611,7 @@ describe("Real-time Sync Integration", () => {
 				expect.objectContaining({
 					compressed: true,
 				}),
-				false,
+				false
 			);
 		});
 	});
@@ -665,11 +648,7 @@ describe("Real-time Sync Integration", () => {
 				result.current.handleConnectionChange("connected");
 			});
 
-			expect(connectionStates).toEqual([
-				"disconnected",
-				"reconnecting",
-				"connected",
-			]);
+			expect(connectionStates).toEqual(["disconnected", "reconnecting", "connected"]);
 
 			// Should trigger resync after reconnection
 			expect(result.current.needsResync).toBe(true);

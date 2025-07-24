@@ -24,7 +24,7 @@ describe("Button", () => {
 			render(
 				<Button asChild>
 					<a href="/test">Link Button</a>
-				</Button>,
+				</Button>
 			);
 			const link = screen.getByRole("link");
 			expect(link).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe("Button", () => {
 			render(
 				<Button disabled onClick={handleClick}>
 					Disabled
-				</Button>,
+				</Button>
 			);
 
 			const button = screen.getByRole("button");
@@ -157,7 +157,7 @@ describe("Button", () => {
 				<div>
 					<Button aria-describedby="description">Action</Button>
 					<div id="description">This button performs an action</div>
-				</div>,
+				</div>
 			);
 			const button = screen.getByRole("button");
 			expect(button).toHaveAttribute("aria-describedby", "description");
@@ -182,7 +182,7 @@ describe("Button", () => {
 			render(
 				<Button>
 					Text with <svg>icon</svg>
-				</Button>,
+				</Button>
 			);
 			const button = screen.getByRole("button");
 			expect(button).toHaveClass("[&_svg]:pointer-events-none");
@@ -193,7 +193,7 @@ describe("Button", () => {
 			render(
 				<Button size="sm">
 					Text with <svg>icon</svg>
-				</Button>,
+				</Button>
 			);
 			const button = screen.getByRole("button");
 			expect(button).toHaveClass("has-[>svg]:px-2.5");
@@ -205,7 +205,7 @@ describe("Button", () => {
 			render(
 				<Button name="submit-btn" type="submit" value="submit">
 					Submit
-				</Button>,
+				</Button>
 			);
 			const button = screen.getByRole("button");
 			expect(button).toHaveAttribute("type", "submit");
@@ -217,7 +217,7 @@ describe("Button", () => {
 			render(
 				<Button data-custom="value" data-testid="custom-button">
 					Test
-				</Button>,
+				</Button>
 			);
 			const button = screen.getByRole("button");
 			expect(button).toHaveAttribute("data-testid", "custom-button");

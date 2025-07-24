@@ -125,9 +125,7 @@ Object.defineProperty(global, "crypto", {
 			}
 			return arr;
 		}),
-		randomUUID: vi.fn(
-			() => "test-uuid-" + Math.random().toString(36).substr(2, 9),
-		),
+		randomUUID: vi.fn(() => "test-uuid-" + Math.random().toString(36).substr(2, 9)),
 		subtle: {
 			encrypt: vi.fn().mockResolvedValue(new ArrayBuffer(16)),
 			decrypt: vi.fn().mockResolvedValue(new ArrayBuffer(16)),
@@ -236,7 +234,7 @@ if (typeof global.Blob === "undefined") {
 	global.Blob = class MockBlob {
 		constructor(
 			public parts: any[],
-			public options: any = {},
+			public options: any = {}
 		) {}
 		get size() {
 			return 0;
@@ -255,7 +253,7 @@ if (typeof global.File === "undefined") {
 		constructor(
 			public fileBits: any[],
 			public fileName: string,
-			options: any = {},
+			options: any = {}
 		) {
 			super(fileBits, options);
 		}

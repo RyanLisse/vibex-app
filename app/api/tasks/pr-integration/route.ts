@@ -76,11 +76,7 @@ class GitHubAPIClient {
 		};
 	}
 
-	static async requestReview(
-		_repository: string,
-		_prNumber: string,
-		reviewers: string[],
-	) {
+	static async requestReview(_repository: string, _prNumber: string, reviewers: string[]) {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		return {
 			requested: reviewers,

@@ -1,13 +1,7 @@
 "use client";
 
 import { PGliteProvider } from "@electric-sql/pglite-react";
-import {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 
 interface ElectricContextValue {
 	isConnected: boolean;
@@ -21,9 +15,7 @@ const ElectricContext = createContext<ElectricContextValue | null>(null);
 export function useElectricContext(): ElectricContextValue {
 	const context = useContext(ElectricContext);
 	if (!context) {
-		throw new Error(
-			"useElectricContext must be used within an ElectricProvider",
-		);
+		throw new Error("useElectricContext must be used within an ElectricProvider");
 	}
 	return context;
 }

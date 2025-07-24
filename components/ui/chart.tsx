@@ -59,12 +59,7 @@ export function SimpleLineChart({
 					<XAxis dataKey="name" />
 					<YAxis />
 					<Tooltip />
-					<Line
-						dataKey={dataKey}
-						stroke={color}
-						strokeWidth={2}
-						type="monotone"
-					/>
+					<Line dataKey={dataKey} stroke={color} strokeWidth={2} type="monotone" />
 				</LineChart>
 			</ResponsiveContainer>
 		</div>
@@ -86,13 +81,7 @@ export function SimpleAreaChart({
 					<XAxis dataKey="name" />
 					<YAxis />
 					<Tooltip />
-					<Area
-						dataKey={dataKey}
-						fill={color}
-						fillOpacity={0.6}
-						stroke={color}
-						type="monotone"
-					/>
+					<Area dataKey={dataKey} fill={color} fillOpacity={0.6} stroke={color} type="monotone" />
 				</AreaChart>
 			</ResponsiveContainer>
 		</div>
@@ -144,10 +133,7 @@ export function SimplePieChart({
 						outerRadius={80}
 					>
 						{data.map((entry, index) => (
-							<Cell
-								fill={colors[index % colors.length]}
-								key={`cell-${index}`}
-							/>
+							<Cell fill={colors[index % colors.length]} key={`cell-${index}`} />
 						))}
 					</Pie>
 					<Tooltip />

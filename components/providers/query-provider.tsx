@@ -34,10 +34,7 @@ export function QueryProvider({
 				setIsWASMInitialized(true);
 
 				if (process.env.NODE_ENV === "development") {
-					console.log(
-						"WASM Capabilities:",
-						wasmDetector.getCapabilitiesSummary(),
-					);
+					console.log("WASM Capabilities:", wasmDetector.getCapabilitiesSummary());
 				}
 			} catch (error) {
 				console.warn("WASM initialization failed:", error);
@@ -88,32 +85,21 @@ export const QueryPerformanceMonitor = React.memo(() => {
 			try {
 				const queries = cache.getAll();
 				const totalQueries = queries.length;
-				const successfulQueries = queries.filter(
-					(q) => q.state.status === "success",
-				).length;
-				const failedQueries = queries.filter(
-					(q) => q.state.status === "error",
-				).length;
+				const successfulQueries = queries.filter((q) => q.state.status === "success").length;
+				const failedQueries = queries.filter((q) => q.state.status === "error").length;
 				const wasmOptimizedQueries = queries.filter((q) =>
-					q.queryKey.some(
-						(key) => typeof key === "string" && key.includes("wasm"),
-					),
+					q.queryKey.some((key) => typeof key === "string" && key.includes("wasm"))
 				).length;
 
 				// Calculate average query time (simplified)
 				const queryTimes = queries
 					.filter((q) => q.state.dataUpdatedAt && q.state.dataUpdatedAt > 0)
-					.map(
-						(q) =>
-							q.state.dataUpdatedAt -
-							(q.state.fetchFailureReason?.timestamp || 0),
-					)
+					.map((q) => q.state.dataUpdatedAt - (q.state.fetchFailureReason?.timestamp || 0))
 					.filter((time) => time > 0);
 
 				const averageQueryTime =
 					queryTimes.length > 0
-						? queryTimes.reduce((sum, time) => sum + time, 0) /
-							queryTimes.length
+						? queryTimes.reduce((sum, time) => sum + time, 0) / queryTimes.length
 						: 0;
 
 				setStats({
@@ -239,12 +225,8 @@ export const WASMOptimizationStatus = React.memo(() => {
 
 	return (
 		<details className="fixed top-4 right-4 max-w-sm rounded-lg border bg-white p-3 text-xs shadow-lg">
-			<summary className="cursor-pointer font-bold text-blue-600">
-				WASM Status
-			</summary>
-			<pre className="mt-2 whitespace-pre-wrap text-gray-700">
-				{capabilities}
-			</pre>
+			<summary className="cursor-pointer font-bold text-blue-600">WASM Status</summary>
+			<pre className="mt-2 whitespace-pre-wrap text-gray-700">{capabilities}</pre>
 		</details>
 	);
 });

@@ -27,12 +27,8 @@ describe("ContactForm", () => {
 		it("renders submit and clear buttons", () => {
 			render(<ContactForm {...defaultProps} />);
 
-			expect(
-				screen.getByRole("button", { name: /send message/i }),
-			).toBeInTheDocument();
-			expect(
-				screen.getByRole("button", { name: /clear/i }),
-			).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: /send message/i })).toBeInTheDocument();
+			expect(screen.getByRole("button", { name: /clear/i })).toBeInTheDocument();
 		});
 
 		it("has correct default values", () => {
@@ -46,9 +42,7 @@ describe("ContactForm", () => {
 		});
 
 		it("applies custom className", () => {
-			const { container } = render(
-				<ContactForm {...defaultProps} className="custom-form" />,
-			);
+			const { container } = render(<ContactForm {...defaultProps} className="custom-form" />);
 
 			expect(container.firstChild).toHaveClass("custom-form");
 		});
@@ -64,18 +58,10 @@ describe("ContactForm", () => {
 			await userEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(
-					screen.getByText(/name must be at least 2 characters/i),
-				).toBeInTheDocument();
-				expect(
-					screen.getByText(/please enter a valid email address/i),
-				).toBeInTheDocument();
-				expect(
-					screen.getByText(/subject must be at least 5 characters/i),
-				).toBeInTheDocument();
-				expect(
-					screen.getByText(/message must be at least 10 characters/i),
-				).toBeInTheDocument();
+				expect(screen.getByText(/name must be at least 2 characters/i)).toBeInTheDocument();
+				expect(screen.getByText(/please enter a valid email address/i)).toBeInTheDocument();
+				expect(screen.getByText(/subject must be at least 5 characters/i)).toBeInTheDocument();
+				expect(screen.getByText(/message must be at least 10 characters/i)).toBeInTheDocument();
 			});
 
 			expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -93,9 +79,7 @@ describe("ContactForm", () => {
 			await userEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(
-					screen.getByText(/please enter a valid email address/i),
-				).toBeInTheDocument();
+				expect(screen.getByText(/please enter a valid email address/i)).toBeInTheDocument();
 			});
 		});
 
@@ -116,15 +100,9 @@ describe("ContactForm", () => {
 			await userEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(
-					screen.getByText(/name must be at least 2 characters/i),
-				).toBeInTheDocument();
-				expect(
-					screen.getByText(/subject must be at least 5 characters/i),
-				).toBeInTheDocument();
-				expect(
-					screen.getByText(/message must be at least 10 characters/i),
-				).toBeInTheDocument();
+				expect(screen.getByText(/name must be at least 2 characters/i)).toBeInTheDocument();
+				expect(screen.getByText(/subject must be at least 5 characters/i)).toBeInTheDocument();
+				expect(screen.getByText(/message must be at least 10 characters/i)).toBeInTheDocument();
 			});
 		});
 
@@ -141,10 +119,7 @@ describe("ContactForm", () => {
 			await userEvent.type(nameInput, "John Doe");
 			await userEvent.type(emailInput, "john@example.com");
 			await userEvent.type(subjectInput, "Test Subject");
-			await userEvent.type(
-				messageInput,
-				"This is a test message with sufficient length.",
-			);
+			await userEvent.type(messageInput, "This is a test message with sufficient length.");
 
 			const submitButton = screen.getByRole("button", {
 				name: /send message/i,
@@ -176,18 +151,14 @@ describe("ContactForm", () => {
 			await userEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(
-					screen.getByText(/name must be at least 2 characters/i),
-				).toBeInTheDocument();
+				expect(screen.getByText(/name must be at least 2 characters/i)).toBeInTheDocument();
 			});
 
 			// Start typing to clear error
 			await userEvent.type(nameInput, "John");
 
 			await waitFor(() => {
-				expect(
-					screen.queryByText(/name must be at least 2 characters/i),
-				).not.toBeInTheDocument();
+				expect(screen.queryByText(/name must be at least 2 characters/i)).not.toBeInTheDocument();
 			});
 		});
 
@@ -280,18 +251,14 @@ describe("ContactForm", () => {
 			await userEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(
-					screen.getByText(/name must be at least 2 characters/i),
-				).toBeInTheDocument();
+				expect(screen.getByText(/name must be at least 2 characters/i)).toBeInTheDocument();
 			});
 
 			const clearButton = screen.getByRole("button", { name: /clear/i });
 			await userEvent.click(clearButton);
 
 			await waitFor(() => {
-				expect(
-					screen.queryByText(/name must be at least 2 characters/i),
-				).not.toBeInTheDocument();
+				expect(screen.queryByText(/name must be at least 2 characters/i)).not.toBeInTheDocument();
 			});
 		});
 	});
@@ -335,7 +302,7 @@ describe("ContactForm", () => {
 				expect(mockOnSubmit).toHaveBeenCalledWith(
 					expect.objectContaining({
 						priority: "high",
-					}),
+					})
 				);
 			});
 		});

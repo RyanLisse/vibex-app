@@ -13,10 +13,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { observability } from "@/lib/observability";
 import { TaskRealtimeNotifier } from "@/lib/realtime/task-realtime-notifier";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 
 // WebSocket connection manager
 class RealTimeConnectionManager {
@@ -51,8 +48,7 @@ class RealTimeConnectionManager {
 		if (connection) {
 			// Remove from all subscriptions
 			connection.subscriptions.forEach((subscription) => {
-				const subscribers =
-					RealTimeConnectionManager.subscriptions.get(subscription);
+				const subscribers = RealTimeConnectionManager.subscriptions.get(subscription);
 				if (subscribers) {
 					subscribers.delete(connectionId);
 					if (subscribers.size === 0) {
@@ -75,9 +71,7 @@ class RealTimeConnectionManager {
 		if (!RealTimeConnectionManager.subscriptions.has(subscriptionKey)) {
 			RealTimeConnectionManager.subscriptions.set(subscriptionKey, new Set());
 		}
-		RealTimeConnectionManager.subscriptions
-			.get(subscriptionKey)
-			?.add(connectionId);
+		RealTimeConnectionManager.subscriptions.get(subscriptionKey)?.add(connectionId);
 
 		// Add to connection's subscriptions
 		connection.subscriptions.push(subscriptionKey);
@@ -93,8 +87,7 @@ class RealTimeConnectionManager {
 		}
 
 		// Remove from subscription
-		const subscribers =
-			RealTimeConnectionManager.subscriptions.get(subscriptionKey);
+		const subscribers = RealTimeConnectionManager.subscriptions.get(subscriptionKey);
 		if (subscribers) {
 			subscribers.delete(connectionId);
 			if (subscribers.size === 0) {
@@ -103,17 +96,14 @@ class RealTimeConnectionManager {
 		}
 
 		// Remove from connection's subscriptions
-		connection.subscriptions = connection.subscriptions.filter(
-			(sub) => sub !== subscriptionKey,
-		);
+		connection.subscriptions = connection.subscriptions.filter((sub) => sub !== subscriptionKey);
 		connection.lastActivity = new Date();
 
 		return true;
 	}
 
 	static broadcast(subscriptionKey: string, _message: any) {
-		const subscribers =
-			RealTimeConnectionManager.subscriptions.get(subscriptionKey);
+		const subscribers = RealTimeConnectionManager.subscriptions.get(subscriptionKey);
 		if (!subscribers || subscribers.size === 0) {
 			return 0;
 		}
@@ -121,8 +111,7 @@ class RealTimeConnectionManager {
 		let sentCount = 0;
 
 		subscribers.forEach((connectionId) => {
-			const connection =
-				RealTimeConnectionManager.connections.get(connectionId);
+			const connection = RealTimeConnectionManager.connections.get(connectionId);
 			if (connection) {
 				connection.lastActivity = new Date();
 				sentCount++;
@@ -135,10 +124,8 @@ class RealTimeConnectionManager {
 	static getStats() {
 		const totalConnections = RealTimeConnectionManager.connections.size;
 		const totalSubscriptions = RealTimeConnectionManager.subscriptions.size;
-		const activeConnections = Array.from(
-			RealTimeConnectionManager.connections.values(),
-		).filter(
-			(conn) => Date.now() - conn.lastActivity.getTime() < 5 * 60 * 1000, // Active in last 5 minutes
+		const activeConnections = Array.from(RealTimeConnectionManager.connections.values()).filter(
+			(conn) => Date.now() - conn.lastActivity.getTime() < 5 * 60 * 1000 // Active in last 5 minutes
 		).length;
 
 		const subscriptionBreakdown = {};
@@ -160,13 +147,11 @@ class RealTimeConnectionManager {
 		const now = Date.now();
 
 		const staleConnections = [];
-		RealTimeConnectionManager.connections.forEach(
-			(connection, connectionId) => {
-				if (now - connection.lastActivity.getTime() > staleThreshold) {
-					staleConnections.push(connectionId);
-				}
-			},
-		);
+		RealTimeConnectionManager.connections.forEach((connection, connectionId) => {
+			if (now - connection.lastActivity.getTime() > staleThreshold) {
+				staleConnections.push(connectionId);
+			}
+		});
 
 		staleConnections.forEach((connectionId) => {
 			RealTimeConnectionManager.removeConnection(connectionId);
@@ -181,7 +166,7 @@ setInterval(
 	() => {
 		RealTimeConnectionManager.cleanup();
 	},
-	5 * 60 * 1000,
+	5 * 60 * 1000
 ); // Every 5 minutes
 
 // Message types for real-time updates
@@ -203,12 +188,7 @@ const REALTIME_MESSAGE_TYPES = {
 // Public API for sending real-time updates (used by other API routes)
 // Note: This class is also available from @/lib/realtime/task-realtime-notifier
 class TaskRealtimeNotifierLocal {
-	static async notifyTaskUpdate(
-		taskId: string,
-		userId: string,
-		updateType: string,
-		data: any,
-	) {
+	static async notifyTaskUpdate(taskId: string, userId: string, updateType: string, data: any) {
 		const message = {
 			type: updateType,
 			taskId,
@@ -246,39 +226,31 @@ class TaskRealtimeNotifierLocal {
 				recipientCount: totalSent,
 			},
 			"api",
-			["tasks", "realtime", updateType],
+			["tasks", "realtime", updateType]
 		);
 
 		return totalSent;
 	}
 
-	static async notifyProgressUpdate(
-		taskId: string,
-		userId: string,
-		progressData: any,
-	) {
+	static async notifyProgressUpdate(taskId: string, userId: string, progressData: any) {
 		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.PROGRESS_UPDATED,
 			{
 				progress: progressData,
-			},
+			}
 		);
 	}
 
-	static async notifyMilestoneReached(
-		taskId: string,
-		userId: string,
-		milestone: any,
-	) {
+	static async notifyMilestoneReached(taskId: string, userId: string, milestone: any) {
 		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.MILESTONE_REACHED,
 			{
 				milestone,
-			},
+			}
 		);
 	}
 
@@ -289,30 +261,22 @@ class TaskRealtimeNotifierLocal {
 			REALTIME_MESSAGE_TYPES.KANBAN_MOVED,
 			{
 				movement: moveData,
-			},
+			}
 		);
 	}
 
-	static async notifyPRStatusChange(
-		taskId: string,
-		userId: string,
-		prData: any,
-	) {
+	static async notifyPRStatusChange(taskId: string, userId: string, prData: any) {
 		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
 			REALTIME_MESSAGE_TYPES.PR_STATUS_CHANGED,
 			{
 				pr: prData,
-			},
+			}
 		);
 	}
 
-	static async notifyOverdueAlert(
-		taskId: string,
-		userId: string,
-		taskData: any,
-	) {
+	static async notifyOverdueAlert(taskId: string, userId: string, taskData: any) {
 		return TaskRealtimeNotifierLocal.notifyTaskUpdate(
 			taskId,
 			userId,
@@ -320,7 +284,7 @@ class TaskRealtimeNotifierLocal {
 			{
 				task: taskData,
 				alertType: "overdue",
-			},
+			}
 		);
 	}
 }
@@ -355,19 +319,14 @@ export async function GET(request: NextRequest) {
 			"realtime.connections": response.stats?.totalConnections || 0,
 		});
 
-		return NextResponse.json(
-			createApiSuccessResponse(response, "Real-time service status"),
-		);
+		return NextResponse.json(createApiSuccessResponse(response, "Real-time service status"));
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
-		return NextResponse.json(
-			createApiErrorResponse("Failed to get real-time stats", 500),
-			{
-				status: 500,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to get real-time stats", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -390,13 +349,9 @@ export async function POST(request: NextRequest) {
 			.parse(body);
 
 		const finalConnectionId =
-			connectionId ||
-			`conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+			connectionId || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-		const connection = RealTimeConnectionManager.addConnection(
-			finalConnectionId,
-			userId,
-		);
+		const connection = RealTimeConnectionManager.addConnection(finalConnectionId, userId);
 
 		span.setAttributes({
 			"realtime.connection_id": finalConnectionId,
@@ -411,8 +366,8 @@ export async function POST(request: NextRequest) {
 					subscriptions: connection?.subscriptions || [],
 					status: "connected",
 				},
-				"Real-time connection established",
-			),
+				"Real-time connection established"
+			)
 		);
 	} catch (error) {
 		span.recordException(error as Error);
@@ -426,18 +381,15 @@ export async function POST(request: NextRequest) {
 					error.issues.map((issue) => ({
 						field: issue.path.join("."),
 						message: issue.message,
-					})),
+					}))
 				),
-				{ status: 400 },
+				{ status: 400 }
 			);
 		}
 
-		return NextResponse.json(
-			createApiErrorResponse("Failed to establish connection", 500),
-			{
-				status: 500,
-			},
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to establish connection", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -455,12 +407,9 @@ export async function DELETE(request: NextRequest) {
 		const connectionId = searchParams.get("connectionId");
 
 		if (!connectionId) {
-			return NextResponse.json(
-				createApiErrorResponse("Connection ID is required", 400),
-				{
-					status: 400,
-				},
-			);
+			return NextResponse.json(createApiErrorResponse("Connection ID is required", 400), {
+				status: 400,
+			});
 		}
 
 		RealTimeConnectionManager.removeConnection(connectionId);
@@ -472,17 +421,14 @@ export async function DELETE(request: NextRequest) {
 		return NextResponse.json(
 			createApiSuccessResponse(
 				{ connectionId, status: "disconnected" },
-				"Real-time connection closed",
-			),
+				"Real-time connection closed"
+			)
 		);
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
-		return NextResponse.json(
-			createApiErrorResponse("Failed to disconnect", 500),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to disconnect", 500), { status: 500 });
 	} finally {
 		span.end();
 	}

@@ -132,10 +132,7 @@ describe("QueryBuilder Integration Tests", () => {
 		});
 
 		it("should add multiple where conditions", async () => {
-			await queryBuilder
-				.where(mockTable.status, "active")
-				.where(mockTable.age, 25)
-				.execute();
+			await queryBuilder.where(mockTable.status, "active").where(mockTable.age, 25).execute();
 
 			const state = mockQueryChain.getState();
 			expect(state.whereClause).toBeDefined();
@@ -184,18 +181,14 @@ describe("QueryBuilder Integration Tests", () => {
 
 	describe("Search functionality", () => {
 		it("should search across multiple fields", async () => {
-			await queryBuilder
-				.search([mockTable.name, mockTable.email], "john")
-				.execute();
+			await queryBuilder.search([mockTable.name, mockTable.email], "john").execute();
 
 			const state = mockQueryChain.getState();
 			expect(state.whereClause).toBeDefined();
 		});
 
 		it("should handle empty search query", async () => {
-			await queryBuilder
-				.search([mockTable.name, mockTable.email], "")
-				.execute();
+			await queryBuilder.search([mockTable.name, mockTable.email], "").execute();
 
 			const state = mockQueryChain.getState();
 			expect(state.whereClause).toBeUndefined();
@@ -437,9 +430,7 @@ describe("QueryBuilder Integration Tests", () => {
 			mockQueryChain = new MockQueryChain(countResults);
 			vi.mocked(db.select).mockImplementation(() => mockQueryChain as any);
 
-			const count = await queryBuilder
-				.where(mockTable.status, "active")
-				.count();
+			const count = await queryBuilder.where(mockTable.status, "active").count();
 
 			expect(count).toBe(5);
 		});
@@ -465,9 +456,7 @@ describe("QueryBuilder Integration Tests", () => {
 			const result = await queryBuilder.paginate(2, 10).executePaginated();
 
 			expect(result).toMatchObject({
-				items: expect.arrayContaining([
-					expect.objectContaining({ id: 1, name: "Test" }),
-				]),
+				items: expect.arrayContaining([expect.objectContaining({ id: 1, name: "Test" })]),
 				pagination: {
 					page: 2,
 					limit: 10,
@@ -484,9 +473,7 @@ describe("QueryBuilder Integration Tests", () => {
 			vi.mocked(db.select).mockImplementation(() => {
 				callCount++;
 				if (callCount === 1) {
-					return new MockQueryChain(
-						Array(15).fill({ count: "mock.id" }),
-					) as any;
+					return new MockQueryChain(Array(15).fill({ count: "mock.id" })) as any;
 				} else {
 					return new MockQueryChain(Array(10).fill({ id: 1 })) as any;
 				}
@@ -506,9 +493,7 @@ describe("QueryBuilder Integration Tests", () => {
 			vi.mocked(db.select).mockImplementation(() => {
 				callCount++;
 				if (callCount === 1) {
-					return new MockQueryChain(
-						Array(25).fill({ count: "mock.id" }),
-					) as any;
+					return new MockQueryChain(Array(25).fill({ count: "mock.id" })) as any;
 				} else {
 					return new MockQueryChain(Array(5).fill({ id: 1 })) as any;
 				}
@@ -525,9 +510,7 @@ describe("QueryBuilder Integration Tests", () => {
 		});
 
 		it("should handle empty results", async () => {
-			vi.mocked(db.select).mockImplementation(
-				() => new MockQueryChain([]) as any,
-			);
+			vi.mocked(db.select).mockImplementation(() => new MockQueryChain([]) as any);
 
 			const result = await queryBuilder.paginate(1, 10).executePaginated();
 
@@ -553,10 +536,7 @@ describe("QueryBuilder Integration Tests", () => {
 				return new MockQueryChain([]) as any;
 			});
 
-			await queryBuilder
-				.where(mockTable.status, "active")
-				.filter({ age: 25 })
-				.executePaginated();
+			await queryBuilder.where(mockTable.status, "active").filter({ age: 25 }).executePaginated();
 
 			expect(countQueryCalled).toBe(true);
 		});

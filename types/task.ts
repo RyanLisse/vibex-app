@@ -90,13 +90,7 @@ export interface TaskFilter {
 }
 
 export interface TaskSort {
-	field:
-		| "title"
-		| "priority"
-		| "status"
-		| "createdAt"
-		| "updatedAt"
-		| "dueDate";
+	field: "title" | "priority" | "status" | "createdAt" | "updatedAt" | "dueDate";
 	direction: "asc" | "desc";
 }
 
@@ -126,13 +120,7 @@ export type TaskRole = TaskMessage["role"];
 export interface TaskEvent {
 	id: string;
 	taskId: string;
-	type:
-		| "created"
-		| "updated"
-		| "completed"
-		| "deleted"
-		| "assigned"
-		| "commented";
+	type: "created" | "updated" | "completed" | "deleted" | "assigned" | "commented";
 	userId: string;
 	data?: any;
 	timestamp: Date | string;

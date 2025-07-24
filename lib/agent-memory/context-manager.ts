@@ -8,12 +8,7 @@
 import { observability } from "@/lib/observability";
 import { memoryRepository } from "./repository";
 import { memorySearchService } from "./search-service";
-import type {
-	MemoryContext,
-	MemoryEntry,
-	MemorySuggestion,
-	MemoryType,
-} from "./types";
+import type { MemoryContext, MemoryEntry, MemorySuggestion, MemoryType } from "./types";
 
 export class MemoryContextManager {
 	private static instance: MemoryContextManager;
@@ -40,7 +35,7 @@ export class MemoryContextManager {
 			currentTask?: string;
 			userContext?: Record<string, any>;
 			environmentContext?: Record<string, any>;
-		} = {},
+		} = {}
 	): Promise<MemoryContext> {
 		const startTime = Date.now();
 
@@ -66,8 +61,7 @@ export class MemoryContextManager {
 				agentType,
 				contextKey,
 				sessionId: options.sessionId,
-				memoriesCount:
-					context.recentMemories.length + context.relevantMemories.length,
+				memoriesCount: context.recentMemories.length + context.relevantMemories.length,
 				duration,
 			});
 
@@ -87,7 +81,7 @@ export class MemoryContextManager {
 			currentTask?: string;
 			userContext?: Record<string, any>;
 			environmentContext?: Record<string, any>;
-		},
+		}
 	): Promise<MemoryContext> {
 		// Update basic fields
 		if (updates.currentTask !== undefined) {
@@ -108,7 +102,7 @@ export class MemoryContextManager {
 			context.relevantMemories = await this.findRelevantMemories(
 				context.agentType,
 				updates.currentTask,
-				context.contextKey,
+				context.contextKey
 			);
 			context.suggestions = await this.generateSuggestions(context);
 		}
@@ -131,22 +125,14 @@ export class MemoryContextManager {
 			currentTask?: string;
 			userContext?: Record<string, any>;
 			environmentContext?: Record<string, any>;
-		},
+		}
 	): Promise<MemoryContext> {
 		// Get recent memories
-		const recentMemories = await memoryRepository.getRecent(
-			agentType,
-			10,
-			contextKey,
-		);
+		const recentMemories = await memoryRepository.getRecent(agentType, 10, contextKey);
 
 		// Get relevant memories based on current task
 		const relevantMemories = options.currentTask
-			? await this.findRelevantMemories(
-					agentType,
-					options.currentTask,
-					contextKey,
-				)
+			? await this.findRelevantMemories(agentType, options.currentTask, contextKey)
 			: [];
 
 		// Get shared memories from other agents
@@ -156,7 +142,7 @@ export class MemoryContextManager {
 		const summary = await this.generateContextSummary(
 			recentMemories,
 			relevantMemories,
-			sharedMemories,
+			sharedMemories
 		);
 
 		const context: MemoryContext = {
@@ -185,7 +171,7 @@ export class MemoryContextManager {
 	private async findRelevantMemories(
 		agentType: string,
 		currentTask: string,
-		contextKey?: string,
+		contextKey?: string
 	): Promise<MemoryEntry[]> {
 		const searchResults = await memorySearchService.search(currentTask, {
 			agentType,
@@ -200,10 +186,7 @@ export class MemoryContextManager {
 	/**
 	 * Find shared memories from other agents
 	 */
-	private async findSharedMemories(
-		agentType: string,
-		contextKey: string,
-	): Promise<MemoryEntry[]> {
+	private async findSharedMemories(agentType: string, contextKey: string): Promise<MemoryEntry[]> {
 		// Look for memories tagged as shareable from other agent types
 		const sharedMemories = await memoryRepository.search({
 			tags: ["shared", "cross-agent"],
@@ -221,13 +204,9 @@ export class MemoryContextManager {
 	private generateContextSummary(
 		recentMemories: MemoryEntry[],
 		relevantMemories: MemoryEntry[],
-		sharedMemories: MemoryEntry[],
+		sharedMemories: MemoryEntry[]
 	): string {
-		const allMemories = [
-			...recentMemories,
-			...relevantMemories,
-			...sharedMemories,
-		];
+		const allMemories = [...recentMemories, ...relevantMemories, ...sharedMemories];
 
 		if (allMemories.length === 0) {
 			return "No relevant context available.";
@@ -248,14 +227,11 @@ export class MemoryContextManager {
 		const summaryParts: string[] = [];
 
 		// Add high-importance memories
-		const criticalMemories = allMemories
-			.filter((m) => m.importance >= 8)
-			.slice(0, 3);
+		const criticalMemories = allMemories.filter((m) => m.importance >= 8).slice(0, 3);
 
 		if (criticalMemories.length > 0) {
 			summaryParts.push(
-				"Critical context: " +
-					criticalMemories.map((m) => m.content.substring(0, 100)).join("; "),
+				"Critical context: " + criticalMemories.map((m) => m.content.substring(0, 100)).join("; ")
 			);
 		}
 
@@ -264,7 +240,7 @@ export class MemoryContextManager {
 			if (memories.length > 0) {
 				const typeMemories = memories.slice(0, 2);
 				summaryParts.push(
-					`${type}: ${typeMemories.map((m) => m.content.substring(0, 50)).join(", ")}`,
+					`${type}: ${typeMemories.map((m) => m.content.substring(0, 50)).join(", ")}`
 				);
 			}
 		}
@@ -275,21 +251,16 @@ export class MemoryContextManager {
 	/**
 	 * Generate memory suggestions
 	 */
-	private async generateSuggestions(
-		context: MemoryContext,
-	): Promise<MemorySuggestion[]> {
+	private async generateSuggestions(context: MemoryContext): Promise<MemorySuggestion[]> {
 		const suggestions: MemorySuggestion[] = [];
 
 		// Suggest memories based on current task
 		if (context.currentTask) {
-			const taskRelatedMemories = await memorySearchService.search(
-				context.currentTask,
-				{
-					agentType: context.agentType,
-					limit: 5,
-					types: ["task_execution", "learned_pattern", "error_resolution"],
-				},
-			);
+			const taskRelatedMemories = await memorySearchService.search(context.currentTask, {
+				agentType: context.agentType,
+				limit: 5,
+				types: ["task_execution", "learned_pattern", "error_resolution"],
+			});
 
 			for (const result of taskRelatedMemories) {
 				if (result.score.total > 0.7) {
@@ -304,10 +275,7 @@ export class MemoryContextManager {
 		}
 
 		// Suggest frequently accessed memories
-		const frequentMemories = await memoryRepository.getMostAccessed(
-			context.agentType,
-			5,
-		);
+		const frequentMemories = await memoryRepository.getMostAccessed(context.agentType, 5);
 
 		for (const memory of frequentMemories) {
 			if (!suggestions.find((s) => s.memory.id === memory.id)) {
@@ -322,13 +290,10 @@ export class MemoryContextManager {
 
 		// Suggest error resolution memories if recent errors
 		if (context.environmentContext.hasRecentErrors) {
-			const errorMemories = await memorySearchService.searchByType(
-				["error_resolution"],
-				{
-					agentType: context.agentType,
-					limit: 3,
-				},
-			);
+			const errorMemories = await memorySearchService.searchByType(["error_resolution"], {
+				agentType: context.agentType,
+				limit: 3,
+			});
 
 			for (const result of errorMemories) {
 				if (!suggestions.find((s) => s.memory.id === result.memory.id)) {
@@ -357,10 +322,7 @@ export class MemoryContextManager {
 
 		// Check if cache is still valid
 		const cacheData = cached as any;
-		if (
-			cacheData._timestamp &&
-			Date.now() - cacheData._timestamp > this.CACHE_TTL
-		) {
+		if (cacheData._timestamp && Date.now() - cacheData._timestamp > this.CACHE_TTL) {
 			this.contextCache.delete(key);
 			return null;
 		}
@@ -395,13 +357,8 @@ export class MemoryContextManager {
 	/**
 	 * Preload context for an agent
 	 */
-	async preloadContext(
-		agentType: string,
-		contextKeys: string[],
-	): Promise<void> {
-		const preloadPromises = contextKeys.map((contextKey) =>
-			this.getContext(agentType, contextKey),
-		);
+	async preloadContext(agentType: string, contextKeys: string[]): Promise<void> {
+		const preloadPromises = contextKeys.map((contextKey) => this.getContext(agentType, contextKey));
 
 		await Promise.all(preloadPromises);
 		console.log(`Preloaded ${contextKeys.length} contexts for ${agentType}`);

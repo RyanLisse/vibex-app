@@ -16,12 +16,7 @@ export interface KanbanColumn {
 }
 
 // Task status type
-export type TaskStatus =
-	| "todo"
-	| "in_progress"
-	| "review"
-	| "completed"
-	| "blocked";
+export type TaskStatus = "todo" | "in_progress" | "review" | "completed" | "blocked";
 
 // Column ID type
 export type ColumnId = "todo" | "in_progress" | "review" | "completed";
@@ -90,23 +85,17 @@ export class KanbanUtils {
 	/**
 	 * Check if a column has a WIP limit violation
 	 */
-	static hasWipLimitViolation(
-		column: KanbanColumn,
-		taskCount: number,
-	): boolean {
+	static hasWipLimitViolation(column: KanbanColumn, taskCount: number): boolean {
 		return column.limit !== null && taskCount > column.limit;
 	}
 
 	/**
 	 * Sort tasks by priority and creation date
 	 */
-	static sortTasks<T extends { priority: Priority; createdAt: Date | string }>(
-		tasks: T[],
-	): T[] {
+	static sortTasks<T extends { priority: Priority; createdAt: Date | string }>(tasks: T[]): T[] {
 		return [...tasks].sort((a, b) => {
 			// First sort by priority
-			const priorityDiff =
-				PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority];
+			const priorityDiff = PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority];
 			if (priorityDiff !== 0) {
 				return priorityDiff;
 			}
@@ -142,10 +131,7 @@ export class KanbanUtils {
 				...column,
 				tasks: sortedTasks,
 				count: sortedTasks.length,
-				isOverLimit: KanbanUtils.hasWipLimitViolation(
-					column,
-					sortedTasks.length,
-				),
+				isOverLimit: KanbanUtils.hasWipLimitViolation(column, sortedTasks.length),
 			};
 		});
 	}
@@ -171,11 +157,7 @@ export class KanbanUtils {
 					: 0,
 			wipUtilization:
 				metrics.totalTasks > 0
-					? Math.round(
-							((metrics.tasksInProgress + metrics.reviewTasks) /
-								metrics.totalTasks) *
-								100,
-						)
+					? Math.round(((metrics.tasksInProgress + metrics.reviewTasks) / metrics.totalTasks) * 100)
 					: 0,
 		};
 	}
@@ -185,7 +167,7 @@ export class KanbanUtils {
 	 */
 	static getWipLimitViolations<T extends { status: TaskStatus }>(
 		tasks: T[],
-		columns: KanbanColumn[] = DEFAULT_KANBAN_COLUMNS,
+		columns: KanbanColumn[] = DEFAULT_KANBAN_COLUMNS
 	) {
 		const organizedColumns = KanbanUtils.organizeTasks(tasks, columns);
 		return organizedColumns.filter((column) => column.isOverLimit);
@@ -198,7 +180,7 @@ export class KanbanUtils {
 		fromColumn: ColumnId,
 		toColumn: ColumnId,
 		toColumnTaskCount: number,
-		columns: KanbanColumn[] = DEFAULT_KANBAN_COLUMNS,
+		columns: KanbanColumn[] = DEFAULT_KANBAN_COLUMNS
 	): { valid: boolean; reason?: string } {
 		const targetColumn = columns.find((col) => col.id === toColumn);
 
@@ -275,7 +257,7 @@ export class KanbanTestFactory {
 			status: TaskStatus;
 			priority: Priority;
 			createdAt: Date;
-		}> = {},
+		}> = {}
 	) {
 		return {
 			id: `task-${Date.now()}`,
@@ -373,9 +355,7 @@ export class KanbanAnalytics {
 			completedAt?: Date | string;
 		},
 	>(tasks: T[]): number {
-		const completedTasks = tasks.filter(
-			(t) => t.status === "completed" && t.completedAt,
-		);
+		const completedTasks = tasks.filter((t) => t.status === "completed" && t.completedAt);
 
 		if (completedTasks.length === 0) return 0;
 
@@ -386,9 +366,7 @@ export class KanbanAnalytics {
 		}, 0);
 
 		// Return average cycle time in days
-		return Math.round(
-			totalTime / completedTasks.length / (1000 * 60 * 60 * 24),
-		);
+		return Math.round(totalTime / completedTasks.length / (1000 * 60 * 60 * 24));
 	}
 
 	/**

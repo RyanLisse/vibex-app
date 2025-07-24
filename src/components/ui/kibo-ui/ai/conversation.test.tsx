@@ -1,10 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
-import {
-	AIConversation,
-	AIConversationContent,
-	AIConversationScrollButton,
-} from "./conversation";
+import { AIConversation, AIConversationContent, AIConversationScrollButton } from "./conversation";
 
 // Mock the Button component
 vi.mock("@/components/ui/button", () => ({
@@ -54,7 +50,7 @@ describe("AIConversation Components", () => {
 			render(
 				<AIConversation>
 					<div>Conversation content</div>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			expect(screen.getByText("Conversation content")).toBeInTheDocument();
@@ -64,7 +60,7 @@ describe("AIConversation Components", () => {
 			render(
 				<AIConversation className="custom-class">
 					<div>Content</div>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			const conversation = screen.getByRole("log");
@@ -75,7 +71,7 @@ describe("AIConversation Components", () => {
 			render(
 				<AIConversation>
 					<div>Content</div>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			expect(screen.getByRole("log")).toBeInTheDocument();
@@ -83,12 +79,9 @@ describe("AIConversation Components", () => {
 
 		it("passes through all props to StickToBottom", () => {
 			render(
-				<AIConversation
-					aria-label="Chat conversation"
-					data-testid="conversation"
-				>
+				<AIConversation aria-label="Chat conversation" data-testid="conversation">
 					<div>Content</div>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			const conversation = screen.getByTestId("conversation");
@@ -101,7 +94,7 @@ describe("AIConversation Components", () => {
 			render(
 				<AIConversationContent>
 					<div>Content</div>
-				</AIConversationContent>,
+				</AIConversationContent>
 			);
 
 			expect(screen.getByText("Content")).toBeInTheDocument();
@@ -111,7 +104,7 @@ describe("AIConversation Components", () => {
 			render(
 				<AIConversationContent className="custom-content">
 					<div>Content</div>
-				</AIConversationContent>,
+				</AIConversationContent>
 			);
 
 			const content = screen.getByText("Content").parentElement;
@@ -122,7 +115,7 @@ describe("AIConversation Components", () => {
 			render(
 				<AIConversationContent data-testid="content" id="conversation-content">
 					<div>Content</div>
-				</AIConversationContent>,
+				</AIConversationContent>
 			);
 
 			const content = screen.getByTestId("content");
@@ -135,7 +128,7 @@ describe("AIConversation Components", () => {
 					<div>Message 1</div>
 					<div>Message 2</div>
 					<div>Message 3</div>
-				</AIConversationContent>,
+				</AIConversationContent>
 			);
 
 			expect(screen.getByText("Message 1")).toBeInTheDocument();
@@ -227,7 +220,7 @@ describe("AIConversation Components", () => {
 						<div>Message 2</div>
 					</AIConversationContent>
 					<AIConversationScrollButton />
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			// All components should be present
@@ -244,10 +237,8 @@ describe("AIConversation Components", () => {
 		it("handles empty conversation", () => {
 			render(
 				<AIConversation>
-					<AIConversationContent>
-						{/* Empty conversation */}
-					</AIConversationContent>
-				</AIConversation>,
+					<AIConversationContent>{/* Empty conversation */}</AIConversationContent>
+				</AIConversation>
 			);
 
 			expect(screen.getByRole("log")).toBeInTheDocument();
@@ -259,7 +250,7 @@ describe("AIConversation Components", () => {
 					<AIConversationContent>
 						<div>Initial message</div>
 					</AIConversationContent>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			expect(screen.getByText("Initial message")).toBeInTheDocument();
@@ -270,7 +261,7 @@ describe("AIConversation Components", () => {
 						<div>Initial message</div>
 						<div>New message</div>
 					</AIConversationContent>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			expect(screen.getByText("Initial message")).toBeInTheDocument();
@@ -285,7 +276,7 @@ describe("AIConversation Components", () => {
 					<AIConversationContent>
 						<div>Message content</div>
 					</AIConversationContent>
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			const conversation = screen.getByRole("log");
@@ -301,7 +292,7 @@ describe("AIConversation Components", () => {
 						<div>Content</div>
 					</AIConversationContent>
 					<AIConversationScrollButton />
-				</AIConversation>,
+				</AIConversation>
 			);
 
 			const button = screen.getByRole("button");
@@ -353,9 +344,7 @@ describe("AIConversation Components", () => {
 			console.error = vi.fn();
 
 			vi.doMock("use-stick-to-bottom", () => ({
-				StickToBottom: ({ children, ...props }: any) => (
-					<div {...props}>{children}</div>
-				),
+				StickToBottom: ({ children, ...props }: any) => <div {...props}>{children}</div>,
 				useStickToBottomContext: () => {
 					throw new Error("Context not found");
 				},

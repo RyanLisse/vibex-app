@@ -68,7 +68,7 @@ export async function exchangeCodeForToken(
 	code: string,
 	clientId: string,
 	clientSecret: string,
-	redirectUri: string,
+	redirectUri: string
 ): Promise<TokenResponse> {
 	if (!code) {
 		throw new Error("Authorization code is required");
@@ -96,9 +96,7 @@ export async function exchangeCodeForToken(
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
 		throw new Error(
-			error.error_description ||
-				error.error ||
-				`Token exchange failed: ${response.status}`,
+			error.error_description || error.error || `Token exchange failed: ${response.status}`
 		);
 	}
 
@@ -111,7 +109,7 @@ export async function exchangeCodeForToken(
 export async function refreshAccessToken(
 	refreshToken: string,
 	clientId: string,
-	clientSecret: string,
+	clientSecret: string
 ): Promise<TokenResponse> {
 	if (!refreshToken) {
 		throw new Error("Refresh token is required");
@@ -138,9 +136,7 @@ export async function refreshAccessToken(
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
 		throw new Error(
-			error.error_description ||
-				error.error ||
-				`Token refresh failed: ${response.status}`,
+			error.error_description || error.error || `Token refresh failed: ${response.status}`
 		);
 	}
 
@@ -176,9 +172,7 @@ export async function revokeToken(params: RevokeTokenParams): Promise<void> {
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
 		throw new Error(
-			error.error_description ||
-				error.error ||
-				`Token revocation failed: ${response.status}`,
+			error.error_description || error.error || `Token revocation failed: ${response.status}`
 		);
 	}
 }

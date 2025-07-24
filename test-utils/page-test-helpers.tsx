@@ -1,6 +1,6 @@
 /**
  * Consolidated Page Component Test Utilities
- * 
+ *
  * This module consolidates common React page component test patterns to eliminate
  * code duplication identified by qlty smells analysis.
  */
@@ -34,16 +34,17 @@ export function createPageComponentTest(
 ) {
 	return () => {
 		render(React.createElement(Component));
-		
+
 		// Check for standard page structure
-		const container = screen.getByRole("main") || screen.getByText(expectedTitle).closest(".container");
+		const container =
+			screen.getByRole("main") || screen.getByText(expectedTitle).closest(".container");
 		expect(container).toBeInTheDocument();
-		
+
 		// Check for title
 		const title = screen.getByText(expectedTitle);
 		expect(title).toBeInTheDocument();
 		expect(title).toHaveClass("text-3xl", "font-bold");
-		
+
 		// Check for description
 		const description = screen.getByText(expectedDescription);
 		expect(description).toBeInTheDocument();
@@ -71,9 +72,7 @@ export function BasePage({
 				<h1 className={PAGE_WRAPPER_STRUCTURE.title}>{title}</h1>
 				<p className={PAGE_WRAPPER_STRUCTURE.description}>{description}</p>
 			</div>
-			<div className={PAGE_WRAPPER_STRUCTURE.content}>
-				{children}
-			</div>
+			<div className={PAGE_WRAPPER_STRUCTURE.content}>{children}</div>
 		</div>
 	);
 }

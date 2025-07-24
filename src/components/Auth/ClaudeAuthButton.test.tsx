@@ -19,14 +19,7 @@ vi.mock("next/navigation", () => ({
 
 // Mock Button component
 vi.mock("@/components/ui/button", () => ({
-	Button: ({
-		children,
-		onClick,
-		disabled,
-		variant,
-		className,
-		...props
-	}: any) => (
+	Button: ({ children, onClick, disabled, variant, className, ...props }: any) => (
 		<button
 			onClick={onClick}
 			disabled={disabled}
@@ -68,8 +61,7 @@ const ClaudeAuthButton: React.FC<ClaudeAuthButtonProps> = ({
 				onSuccess?.(result);
 			}
 		} catch (err) {
-			const error =
-				err instanceof Error ? err : new Error("Authentication failed");
+			const error = err instanceof Error ? err : new Error("Authentication failed");
 			onError?.(error);
 		}
 	};

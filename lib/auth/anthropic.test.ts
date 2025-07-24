@@ -1,13 +1,4 @@
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import {
 	clearStoredToken,
 	exchangeCodeForToken,
@@ -88,10 +79,7 @@ describe("Anthropic Auth", () => {
 			const verifier = "test-verifier";
 			const challenge = await generateCodeChallenge(verifier);
 
-			expect(mockCrypto.subtle.digest).toHaveBeenCalledWith(
-				"SHA-256",
-				expect.any(ArrayBuffer),
-			);
+			expect(mockCrypto.subtle.digest).toHaveBeenCalledWith("SHA-256", expect.any(ArrayBuffer));
 			expect(challenge).toMatch(/^[A-Za-z0-9_-]+$/);
 		});
 	});
@@ -119,9 +107,7 @@ describe("Anthropic Auth", () => {
 			expect(urlObj.origin).toBe("https://auth.anthropic.com");
 			expect(urlObj.pathname).toBe("/oauth/authorize");
 			expect(urlObj.searchParams.get("client_id")).toBe("test-client-id");
-			expect(urlObj.searchParams.get("redirect_uri")).toBe(
-				"https://app.example.com/callback",
-			);
+			expect(urlObj.searchParams.get("redirect_uri")).toBe("https://app.example.com/callback");
 			expect(urlObj.searchParams.get("response_type")).toBe("code");
 			expect(urlObj.searchParams.get("scope")).toBe("read write");
 			expect(urlObj.searchParams.get("state")).toBe("test-state");
@@ -173,7 +159,7 @@ describe("Anthropic Auth", () => {
 						"Content-Type": "application/x-www-form-urlencoded",
 					}),
 					body: expect.stringContaining("grant_type=authorization_code"),
-				}),
+				})
 			);
 
 			expect(result).toEqual(mockTokenResponse);
@@ -191,7 +177,7 @@ describe("Anthropic Auth", () => {
 					code: "invalid-code",
 					codeVerifier: "test-verifier",
 					redirectUri: "https://app.example.com/callback",
-				}),
+				})
 			).rejects.toThrow("Token exchange failed");
 		});
 	});
@@ -217,7 +203,7 @@ describe("Anthropic Auth", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: expect.stringContaining("grant_type=refresh_token"),
-				}),
+				})
 			);
 
 			expect(result).toEqual(mockRefreshResponse);
@@ -247,7 +233,7 @@ describe("Anthropic Auth", () => {
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-token",
 					}),
-				}),
+				})
 			);
 
 			expect(result).toEqual(mockValidationResponse);
@@ -259,9 +245,7 @@ describe("Anthropic Auth", () => {
 				status: 401,
 			} as any);
 
-			await expect(validateToken("invalid-token")).rejects.toThrow(
-				"Token validation failed",
-			);
+			await expect(validateToken("invalid-token")).rejects.toThrow("Token validation failed");
 		});
 	});
 
@@ -314,7 +298,7 @@ describe("Anthropic Auth", () => {
 					secure: true,
 					sameSite: "lax",
 					path: "/",
-				}),
+				})
 			);
 		});
 
@@ -357,7 +341,7 @@ describe("Anthropic Auth", () => {
 					code: "test-code",
 					codeVerifier: "test-verifier",
 					redirectUri: "https://app.example.com/callback",
-				}),
+				})
 			).rejects.toThrow("Network error");
 		});
 
@@ -414,7 +398,7 @@ describe("Anthropic Auth", () => {
 					httpOnly: true,
 					secure: true,
 					sameSite: "lax",
-				}),
+				})
 			);
 		});
 	});

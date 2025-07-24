@@ -1,8 +1,5 @@
 import { type DefaultOptions, QueryClient } from "@tanstack/react-query";
-import {
-	type WASMOptimizationConfig,
-	wasmDetector,
-} from "@/lib/wasm/detection";
+import { type WASMOptimizationConfig, wasmDetector } from "@/lib/wasm/detection";
 
 /**
  * Enhanced TanStack Query configuration with WASM optimization support
@@ -40,9 +37,7 @@ export function getOptimizedQueryConfig(): QueryOptimizationConfig {
 		wasm: wasmConfig,
 		caching: {
 			// Longer stale time for WASM-optimized queries since they're faster to recompute
-			staleTime: wasmConfig.enableSQLiteOptimizations
-				? 5 * 60 * 1000
-				: 2 * 60 * 1000, // 5min vs 2min
+			staleTime: wasmConfig.enableSQLiteOptimizations ? 5 * 60 * 1000 : 2 * 60 * 1000, // 5min vs 2min
 			gcTime: 10 * 60 * 1000, // 10 minutes
 			refetchOnWindowFocus: false,
 			refetchOnReconnect: true,
@@ -114,12 +109,7 @@ export function createOptimizedQueryClient(): QueryClient {
 		},
 		onSuccess: (data, query) => {
 			if (process.env.NODE_ENV === "development") {
-				console.log(
-					"Query success:",
-					query.queryKey,
-					"Data size:",
-					JSON.stringify(data).length,
-				);
+				console.log("Query success:", query.queryKey, "Data size:", JSON.stringify(data).length);
 			}
 		},
 	});
@@ -131,20 +121,12 @@ export function createOptimizedQueryClient(): QueryClient {
 
 			// Automatic rollback for optimistic updates
 			if (config.mutations.rollbackOnError && context) {
-				console.log(
-					"Performing automatic rollback for mutation:",
-					mutation.mutationId,
-				);
+				console.log("Performing automatic rollback for mutation:", mutation.mutationId);
 			}
 		},
 		onSuccess: (data, variables, context, mutation) => {
 			if (process.env.NODE_ENV === "development") {
-				console.log(
-					"Mutation success:",
-					mutation.mutationId,
-					"Variables:",
-					variables,
-				);
+				console.log("Mutation success:", mutation.mutationId, "Variables:", variables);
 			}
 		},
 	});
@@ -164,12 +146,10 @@ export const queryKeys = {
 	tasks: {
 		all: ["tasks"] as const,
 		lists: () => [...queryKeys.tasks.all, "list"] as const,
-		list: (filters: Record<string, any>) =>
-			[...queryKeys.tasks.lists(), filters] as const,
+		list: (filters: Record<string, any>) => [...queryKeys.tasks.lists(), filters] as const,
 		details: () => [...queryKeys.tasks.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.tasks.details(), id] as const,
-		search: (query: string) =>
-			[...queryKeys.tasks.all, "search", query] as const,
+		search: (query: string) => [...queryKeys.tasks.all, "search", query] as const,
 		infinite: (filters: Record<string, any>) =>
 			[...queryKeys.tasks.all, "infinite", filters] as const,
 	},
@@ -178,8 +158,7 @@ export const queryKeys = {
 	environments: {
 		all: ["environments"] as const,
 		lists: () => [...queryKeys.environments.all, "list"] as const,
-		list: (filters: Record<string, any>) =>
-			[...queryKeys.environments.lists(), filters] as const,
+		list: (filters: Record<string, any>) => [...queryKeys.environments.lists(), filters] as const,
 		details: () => [...queryKeys.environments.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.environments.details(), id] as const,
 		active: () => [...queryKeys.environments.all, "active"] as const,
@@ -189,12 +168,10 @@ export const queryKeys = {
 	executions: {
 		all: ["executions"] as const,
 		lists: () => [...queryKeys.executions.all, "list"] as const,
-		list: (filters: Record<string, any>) =>
-			[...queryKeys.executions.lists(), filters] as const,
+		list: (filters: Record<string, any>) => [...queryKeys.executions.lists(), filters] as const,
 		details: () => [...queryKeys.executions.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.executions.details(), id] as const,
-		byTask: (taskId: string) =>
-			[...queryKeys.executions.all, "task", taskId] as const,
+		byTask: (taskId: string) => [...queryKeys.executions.all, "task", taskId] as const,
 		infinite: (filters: Record<string, any>) =>
 			[...queryKeys.executions.all, "infinite", filters] as const,
 	},
@@ -203,8 +180,7 @@ export const queryKeys = {
 	events: {
 		all: ["events"] as const,
 		lists: () => [...queryKeys.events.all, "list"] as const,
-		list: (filters: Record<string, any>) =>
-			[...queryKeys.events.lists(), filters] as const,
+		list: (filters: Record<string, any>) => [...queryKeys.events.lists(), filters] as const,
 		details: () => [...queryKeys.events.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.events.details(), id] as const,
 		byExecution: (executionId: string) =>
@@ -217,30 +193,20 @@ export const queryKeys = {
 	memory: {
 		all: ["memory"] as const,
 		lists: () => [...queryKeys.memory.all, "list"] as const,
-		list: (filters: Record<string, any>) =>
-			[...queryKeys.memory.lists(), filters] as const,
+		list: (filters: Record<string, any>) => [...queryKeys.memory.lists(), filters] as const,
 		search: (query: string, agentType?: string) =>
 			[...queryKeys.memory.all, "search", query, agentType] as const,
-		byAgent: (agentType: string) =>
-			[...queryKeys.memory.all, "agent", agentType] as const,
+		byAgent: (agentType: string) => [...queryKeys.memory.all, "agent", agentType] as const,
 		context: (agentType: string, contextType: string, contextId?: string) =>
-			[
-				...queryKeys.memory.all,
-				"context",
-				agentType,
-				contextType,
-				contextId,
-			] as const,
-		analytics: (agentType?: string) =>
-			[...queryKeys.memory.all, "analytics", agentType] as const,
+			[...queryKeys.memory.all, "context", agentType, contextType, contextId] as const,
+		analytics: (agentType?: string) => [...queryKeys.memory.all, "analytics", agentType] as const,
 	},
 
 	// Workflow queries
 	workflows: {
 		all: ["workflows"] as const,
 		lists: () => [...queryKeys.workflows.all, "list"] as const,
-		list: (filters: Record<string, any>) =>
-			[...queryKeys.workflows.lists(), filters] as const,
+		list: (filters: Record<string, any>) => [...queryKeys.workflows.lists(), filters] as const,
 		details: () => [...queryKeys.workflows.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.workflows.details(), id] as const,
 		executions: (workflowId: string) =>
@@ -251,31 +217,24 @@ export const queryKeys = {
 	wasm: {
 		vectorSearch: (query: string, filters?: Record<string, any>) =>
 			["wasm", "vector-search", query, filters] as const,
-		sqliteQuery: (sql: string, params?: any[]) =>
-			["wasm", "sqlite", sql, params] as const,
-		compute: (operation: string, data: any) =>
-			["wasm", "compute", operation, data] as const,
+		sqliteQuery: (sql: string, params?: any[]) => ["wasm", "sqlite", sql, params] as const,
+		compute: (operation: string, data: any) => ["wasm", "compute", operation, data] as const,
 	},
 
 	// Real-time subscription queries
 	realtime: {
-		executions: (filters?: Record<string, any>) =>
-			["realtime", "executions", filters] as const,
-		events: (filters?: Record<string, any>) =>
-			["realtime", "events", filters] as const,
-		workflows: (filters?: Record<string, any>) =>
-			["realtime", "workflows", filters] as const,
+		executions: (filters?: Record<string, any>) => ["realtime", "executions", filters] as const,
+		events: (filters?: Record<string, any>) => ["realtime", "events", filters] as const,
+		workflows: (filters?: Record<string, any>) => ["realtime", "workflows", filters] as const,
 		memory: (agentType?: string) => ["realtime", "memory", agentType] as const,
 	},
 
 	// Analytics and metrics queries
 	analytics: {
-		execution: (timeRange?: Record<string, any>) =>
-			["analytics", "execution", timeRange] as const,
+		execution: (timeRange?: Record<string, any>) => ["analytics", "execution", timeRange] as const,
 		performance: (timeRange?: Record<string, any>) =>
 			["analytics", "performance", timeRange] as const,
-		errors: (timeRange?: Record<string, any>) =>
-			["analytics", "errors", timeRange] as const,
+		errors: (timeRange?: Record<string, any>) => ["analytics", "errors", timeRange] as const,
 		memory: (agentType?: string, timeRange?: Record<string, any>) =>
 			["analytics", "memory", agentType, timeRange] as const,
 	},
@@ -369,11 +328,7 @@ export const invalidateQueries = {
 /**
  * Selective invalidation based on table changes from ElectricSQL
  */
-export const invalidateByTable = (
-	queryClient: QueryClient,
-	tableName: string,
-	data?: any,
-) => {
+export const invalidateByTable = (queryClient: QueryClient, tableName: string, data?: any) => {
 	const tableInvalidationMap: Record<string, () => void> = {
 		agent_executions: () => invalidateQueries.executions(queryClient),
 		observability_events: () => invalidateQueries.events(queryClient),

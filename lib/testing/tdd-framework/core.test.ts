@@ -76,11 +76,7 @@ class TDDFramework {
 		}
 	}
 
-	addHook(
-		suiteName: string,
-		hookType: keyof TestHooks,
-		fn: () => void | Promise<void>,
-	): void {
+	addHook(suiteName: string, hookType: keyof TestHooks, fn: () => void | Promise<void>): void {
 		const suite = this.suites.get(suiteName);
 		if (suite) {
 			suite.hooks[hookType].push(fn);
@@ -140,10 +136,7 @@ class TDDFramework {
 						await Promise.race([
 							testPromise,
 							new Promise((_, reject) =>
-								setTimeout(
-									() => reject(new Error("Test timeout")),
-									test.timeout,
-								),
+								setTimeout(() => reject(new Error("Test timeout")), test.timeout)
 							),
 						]);
 					} else {
@@ -386,18 +379,10 @@ describe("TDD Framework Core", () => {
 			const execution: string[] = [];
 			const suite = framework.createTestSuite("Hook Order Suite");
 
-			framework.addHook("Hook Order Suite", "beforeAll", () =>
-				execution.push("beforeAll"),
-			);
-			framework.addHook("Hook Order Suite", "beforeEach", () =>
-				execution.push("beforeEach"),
-			);
-			framework.addHook("Hook Order Suite", "afterEach", () =>
-				execution.push("afterEach"),
-			);
-			framework.addHook("Hook Order Suite", "afterAll", () =>
-				execution.push("afterAll"),
-			);
+			framework.addHook("Hook Order Suite", "beforeAll", () => execution.push("beforeAll"));
+			framework.addHook("Hook Order Suite", "beforeEach", () => execution.push("beforeEach"));
+			framework.addHook("Hook Order Suite", "afterEach", () => execution.push("afterEach"));
+			framework.addHook("Hook Order Suite", "afterAll", () => execution.push("afterAll"));
 
 			framework.addTest("Hook Order Suite", {
 				name: "test",
@@ -406,13 +391,7 @@ describe("TDD Framework Core", () => {
 
 			await framework.runAllSuites();
 
-			expect(execution).toEqual([
-				"beforeAll",
-				"beforeEach",
-				"test",
-				"afterEach",
-				"afterAll",
-			]);
+			expect(execution).toEqual(["beforeAll", "beforeEach", "test", "afterEach", "afterAll"]);
 		});
 
 		it("should reset framework state", () => {
@@ -446,10 +425,7 @@ describe("TDD Framework Core", () => {
 
 			runner.configure(config);
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Configured Vitest runner",
-				config,
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Configured Vitest runner", config);
 			consoleSpy.mockRestore();
 		});
 
@@ -458,9 +434,7 @@ describe("TDD Framework Core", () => {
 
 			runner.watch("*.test.ts");
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Watching for changes in *.test.ts",
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Watching for changes in *.test.ts");
 			consoleSpy.mockRestore();
 		});
 	});

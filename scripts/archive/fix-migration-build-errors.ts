@@ -25,8 +25,7 @@ const fixes = [
 	},
 	{
 		pattern: /this\.currentMigration([!?])\.errors\.push\(/g,
-		replacement:
-			"if (this.currentMigration) {\n            this.currentMigration.errors.push(",
+		replacement: "if (this.currentMigration) {\n            this.currentMigration.errors.push(",
 	},
 ];
 
@@ -38,19 +37,19 @@ for (const fix of fixes) {
 // Handle the error push case more carefully
 content = content.replace(
 	/(\s*)this\.currentMigration([!?])\.summary\.failedRecords\+\+\n(\s*)this\.currentMigration([!?])\.errors\.push\(/g,
-	"$1if (this.currentMigration) {\n$1  this.currentMigration.summary.failedRecords++\n$1  this.currentMigration.errors.push(",
+	"$1if (this.currentMigration) {\n$1  this.currentMigration.summary.failedRecords++\n$1  this.currentMigration.errors.push("
 );
 
 // Fix any remaining standalone error pushes
 content = content.replace(
 	/(\s*)this\.currentMigration([!?])\.errors\.push\(/g,
-	"$1if (this.currentMigration) {\n$1  this.currentMigration.errors.push(",
+	"$1if (this.currentMigration) {\n$1  this.currentMigration.errors.push("
 );
 
 // Add closing braces for the error push blocks
 content = content.replace(
 	/(if \(this\.currentMigration\) \{\n\s+this\.currentMigration\.errors\.push\([^)]+\))\n/g,
-	"$1\n          }\n",
+	"$1\n          }\n"
 );
 
 writeFileSync(filePath, content);

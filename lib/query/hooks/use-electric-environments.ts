@@ -8,27 +8,20 @@ import type { UpdateEnvironmentSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type ElectricEnvironment = z.infer<typeof EnvironmentSchema>;
-export type CreateElectricEnvironmentInput = z.infer<
-	typeof CreateEnvironmentSchema
->;
-export type UpdateElectricEnvironmentInput = z.infer<
-	typeof UpdateEnvironmentSchema
->;
+export type CreateElectricEnvironmentInput = z.infer<typeof CreateEnvironmentSchema>;
+export type UpdateElectricEnvironmentInput = z.infer<typeof UpdateEnvironmentSchema>;
 
 // Query keys for cache management
 export const electricEnvironmentKeys = {
 	all: ["electric-environments"] as const,
 	lists: () => [...electricEnvironmentKeys.all, "list"] as const,
-	list: (userId?: string) =>
-		[...electricEnvironmentKeys.lists(), { userId }] as const,
+	list: (userId?: string) => [...electricEnvironmentKeys.lists(), { userId }] as const,
 	details: () => [...electricEnvironmentKeys.all, "detail"] as const,
 	detail: (id: string) => [...electricEnvironmentKeys.details(), id] as const,
 };
 
 // Fetch functions
-async function fetchEnvironments(
-	userId?: string,
-): Promise<ElectricEnvironment[]> {
+async function fetchEnvironments(userId?: string): Promise<ElectricEnvironment[]> {
 	const url = new URL("/api/environments", window.location.origin);
 	if (userId) {
 		url.searchParams.set("userId", userId);
@@ -54,7 +47,7 @@ async function fetchEnvironment(id: string): Promise<ElectricEnvironment> {
 }
 
 async function createEnvironment(
-	data: CreateElectricEnvironmentInput,
+	data: CreateElectricEnvironmentInput
 ): Promise<ElectricEnvironment> {
 	const response = await fetch("/api/environments", {
 		method: "POST",
@@ -72,7 +65,7 @@ async function createEnvironment(
 
 async function updateEnvironment(
 	id: string,
-	data: UpdateElectricEnvironmentInput,
+	data: UpdateElectricEnvironmentInput
 ): Promise<ElectricEnvironment> {
 	const response = await fetch(`/api/environments/${id}`, {
 		method: "PATCH",
@@ -129,10 +122,7 @@ export function useCreateElectricEnvironment() {
 			});
 
 			// Add the new environment to cache
-			queryClient.setQueryData(
-				electricEnvironmentKeys.detail(newEnvironment.id),
-				newEnvironment,
-			);
+			queryClient.setQueryData(electricEnvironmentKeys.detail(newEnvironment.id), newEnvironment);
 		},
 	});
 }
@@ -141,18 +131,13 @@ export function useUpdateElectricEnvironment() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: UpdateElectricEnvironmentInput;
-		}) => updateEnvironment(id, data),
+		mutationFn: ({ id, data }: { id: string; data: UpdateElectricEnvironmentInput }) =>
+			updateEnvironment(id, data),
 		onSuccess: (updatedEnvironment) => {
 			// Update the specific environment in cache
 			queryClient.setQueryData(
 				electricEnvironmentKeys.detail(updatedEnvironment.id),
-				updatedEnvironment,
+				updatedEnvironment
 			);
 
 			// Invalidate and refetch environments list

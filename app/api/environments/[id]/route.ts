@@ -110,7 +110,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 					{
 						success: false,
 						error: "Validation failed",
-						details: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })),
+						details: error.issues.map((issue) => ({
+							field: issue.path.join("."),
+							message: issue.message,
+						})),
 					},
 					{ status: 400 }
 				);
@@ -131,7 +134,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 /**
  * DELETE /api/environments/[id] - Delete environment
  */
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> }
+) {
 	return observability.trackOperation("api.environments.delete", async () => {
 		try {
 			const { id } = await params;

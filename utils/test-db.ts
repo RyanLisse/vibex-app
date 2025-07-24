@@ -31,9 +31,7 @@ export class NeonTestDatabase {
 		const apiKey = process.env.NEON_API_KEY;
 
 		if (!apiKey) {
-			throw new Error(
-				"NEON_API_KEY environment variable is required for test database branching",
-			);
+			throw new Error("NEON_API_KEY environment variable is required for test database branching");
 		}
 
 		this.config = {
@@ -66,7 +64,7 @@ export class NeonTestDatabase {
 							parent_id: await this.getMainBranchId(),
 						},
 					}),
-				},
+				}
 			);
 
 			if (!response.ok) {
@@ -109,7 +107,7 @@ export class NeonTestDatabase {
 					headers: {
 						Authorization: `Bearer ${this.config.apiKey}`,
 					},
-				},
+				}
 			);
 
 			if (!response.ok && response.status !== 404) {
@@ -142,8 +140,8 @@ export class NeonTestDatabase {
 	 * Cleanup all active test branches
 	 */
 	async cleanupAllBranches(): Promise<void> {
-		const cleanupPromises = Array.from(this.activeBranches.keys()).map(
-			(branchId) => this.deleteTestBranch(branchId),
+		const cleanupPromises = Array.from(this.activeBranches.keys()).map((branchId) =>
+			this.deleteTestBranch(branchId)
 		);
 
 		await Promise.allSettled(cleanupPromises);
@@ -161,7 +159,7 @@ export class NeonTestDatabase {
 					headers: {
 						Authorization: `Bearer ${this.config.apiKey}`,
 					},
-				},
+				}
 			);
 
 			if (!response.ok) {
@@ -206,7 +204,7 @@ export class NeonTestDatabase {
 				headers: {
 					Authorization: `Bearer ${this.config.apiKey}`,
 				},
-			},
+			}
 		);
 
 		if (!response.ok) {
@@ -214,9 +212,7 @@ export class NeonTestDatabase {
 		}
 
 		const data = await response.json();
-		const mainBranch = data.branches.find(
-			(b: any) => b.name === "main" || b.primary,
-		);
+		const mainBranch = data.branches.find((b: any) => b.name === "main" || b.primary);
 
 		if (!mainBranch) {
 			throw new Error("Main branch not found");
@@ -235,7 +231,7 @@ export class NeonTestDatabase {
 				headers: {
 					Authorization: `Bearer ${this.config.apiKey}`,
 				},
-			},
+			}
 		);
 
 		if (!response.ok) {
@@ -266,7 +262,7 @@ export class NeonTestDatabase {
 				headers: {
 					Authorization: `Bearer ${this.config.apiKey}`,
 				},
-			},
+			}
 		);
 
 		if (!response.ok) {

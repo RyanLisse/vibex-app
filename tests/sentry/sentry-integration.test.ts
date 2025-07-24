@@ -57,7 +57,7 @@ describe("Sentry Integration", () => {
 					op: "http.server",
 					name: "GET /api/test",
 				}),
-				expect.any(Function),
+				expect.any(Function)
 			);
 		});
 
@@ -65,9 +65,7 @@ describe("Sentry Integration", () => {
 			const error = new Error("API Error");
 			const handler = vi.fn().mockRejectedValue(error);
 
-			await expect(
-				instrumentApiRoute("POST", "/api/test", handler),
-			).rejects.toThrow("API Error");
+			await expect(instrumentApiRoute("POST", "/api/test", handler)).rejects.toThrow("API Error");
 			expect(Sentry.captureException).toHaveBeenCalledWith(error);
 		});
 	});
@@ -76,11 +74,7 @@ describe("Sentry Integration", () => {
 		test("should instrument successful database operation", async () => {
 			const operation = vi.fn().mockResolvedValue([{ id: 1, name: "Test" }]);
 
-			const result = await instrumentDatabaseOperation(
-				"select",
-				"SELECT * FROM users",
-				operation,
-			);
+			const result = await instrumentDatabaseOperation("select", "SELECT * FROM users", operation);
 
 			expect(result).toEqual([{ id: 1, name: "Test" }]);
 			expect(operation).toHaveBeenCalled();
@@ -89,7 +83,7 @@ describe("Sentry Integration", () => {
 					op: "db.select",
 					name: expect.stringContaining("SELECT * FROM users"),
 				}),
-				expect.any(Function),
+				expect.any(Function)
 			);
 		});
 
@@ -98,7 +92,7 @@ describe("Sentry Integration", () => {
 			const operation = vi.fn().mockRejectedValue(error);
 
 			await expect(
-				instrumentDatabaseOperation("insert", "INSERT INTO users", operation),
+				instrumentDatabaseOperation("insert", "INSERT INTO users", operation)
 			).rejects.toThrow("Database Error");
 			expect(Sentry.captureException).toHaveBeenCalledWith(error);
 		});
@@ -117,7 +111,7 @@ describe("Sentry Integration", () => {
 					op: "action.createTask",
 					name: "Server Action: createTask",
 				}),
-				expect.any(Function),
+				expect.any(Function)
 			);
 		});
 
@@ -125,9 +119,7 @@ describe("Sentry Integration", () => {
 			const error = new Error("Action Error");
 			const action = vi.fn().mockRejectedValue(error);
 
-			await expect(
-				instrumentServerAction("failedAction", action),
-			).rejects.toThrow("Action Error");
+			await expect(instrumentServerAction("failedAction", action)).rejects.toThrow("Action Error");
 			expect(Sentry.captureException).toHaveBeenCalledWith(error);
 		});
 	});
@@ -135,10 +127,7 @@ describe("Sentry Integration", () => {
 	describe("instrumentInngestFunction", () => {
 		test("should instrument Inngest function", async () => {
 			const handler = vi.fn().mockResolvedValue({ processed: true });
-			const instrumentedHandler = instrumentInngestFunction(
-				"processJob",
-				handler,
-			);
+			const instrumentedHandler = instrumentInngestFunction("processJob", handler);
 
 			const result = await instrumentedHandler("arg1", "arg2");
 
@@ -149,7 +138,7 @@ describe("Sentry Integration", () => {
 					op: "job.processJob",
 					name: "Background Job: processJob",
 				}),
-				expect.any(Function),
+				expect.any(Function)
 			);
 		});
 	});

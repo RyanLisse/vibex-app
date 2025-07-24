@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useAuth } from "./use-auth";
 
 // Mock the individual auth hooks
@@ -119,10 +110,7 @@ describe("useAuth", () => {
 		expect(result.current.isAuthenticated).toBe(true);
 		expect(result.current.providers.openai.authenticated).toBe(true);
 		expect(result.current.providers.anthropic.authenticated).toBe(true);
-		expect(result.current.authenticatedProviders).toEqual([
-			"openai",
-			"anthropic",
-		]);
+		expect(result.current.authenticatedProviders).toEqual(["openai", "anthropic"]);
 	});
 
 	it("should handle loading states", () => {
@@ -282,7 +270,7 @@ describe("useAuth", () => {
 		await expect(
 			act(async () => {
 				await result.current.login("invalid" as any);
-			}),
+			})
 		).rejects.toThrow("Invalid provider: invalid");
 	});
 
@@ -348,7 +336,7 @@ describe("useAuth", () => {
 		await expect(
 			act(async () => {
 				await result.current.login("openai");
-			}),
+			})
 		).rejects.toThrow("OpenAI login failed");
 	});
 

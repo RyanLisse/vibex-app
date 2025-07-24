@@ -5,22 +5,13 @@
  * with Redis caching and conflict resolution.
  */
 
-import {
-	useInfiniteQuery,
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import type { z } from "zod";
 import { enhancedElectricSyncService } from "@/lib/electric";
 import { conflictResolutionService } from "@/lib/electric/conflict-resolution";
 import { electricDatabaseClient } from "@/lib/electric/database-client";
-import type {
-	CreateTaskSchema,
-	TaskSchema,
-	UpdateTaskSchema,
-} from "@/src/schemas/api-routes";
+import type { CreateTaskSchema, TaskSchema, UpdateTaskSchema } from "@/src/schemas/api-routes";
 
 // Types
 export type ElectricTask = z.infer<typeof TaskSchema>;
@@ -39,11 +30,7 @@ export interface ElectricTaskFilters {
 export interface ElectricTaskOptions {
 	realtime?: boolean;
 	cacheFirst?: boolean;
-	conflictResolution?:
-		| "last-write-wins"
-		| "user-priority"
-		| "field-merge"
-		| "server-wins";
+	conflictResolution?: "last-write-wins" | "user-priority" | "field-merge" | "server-wins";
 	offlineSupport?: boolean;
 }
 
@@ -51,8 +38,7 @@ export interface ElectricTaskOptions {
 export const electricTaskKeys = {
 	all: ["electric-tasks"] as const,
 	lists: () => [...electricTaskKeys.all, "list"] as const,
-	list: (filters: ElectricTaskFilters) =>
-		[...electricTaskKeys.lists(), filters] as const,
+	list: (filters: ElectricTaskFilters) => [...electricTaskKeys.lists(), filters] as const,
 	details: () => [...electricTaskKeys.all, "detail"] as const,
 	detail: (id: string) => [...electricTaskKeys.details(), id] as const,
 	infinite: (filters: ElectricTaskFilters) =>
@@ -64,7 +50,7 @@ export const electricTaskKeys = {
  */
 export function useElectricTasks(
 	filters: ElectricTaskFilters = {},
-	options: ElectricTaskOptions = {},
+	options: ElectricTaskOptions = {}
 ) {
 	const queryClient = useQueryClient();
 	const [realtimeData, setRealtimeData] = useState<ElectricTask[]>([]);
@@ -85,25 +71,24 @@ export function useElectricTasks(
 
 		const setupSubscription = async () => {
 			try {
-				unsubscribe =
-					await enhancedElectricSyncService.subscribeToTable<ElectricTask>(
-						"tasks",
-						(tasks) => {
-							setRealtimeData(tasks);
-							// Update TanStack Query cache
-							queryClient.setQueryData(electricTaskKeys.list(filters), tasks);
+				unsubscribe = await enhancedElectricSyncService.subscribeToTable<ElectricTask>(
+					"tasks",
+					(tasks) => {
+						setRealtimeData(tasks);
+						// Update TanStack Query cache
+						queryClient.setQueryData(electricTaskKeys.list(filters), tasks);
+					},
+					{
+						userId: filters.userId,
+						filters: {
+							status: filters.status,
+							archived: filters.archived,
+							sessionId: filters.sessionId,
 						},
-						{
-							userId: filters.userId,
-							filters: {
-								status: filters.status,
-								archived: filters.archived,
-								sessionId: filters.sessionId,
-							},
-							cacheFirst,
-							realtime: true,
-						},
-					);
+						cacheFirst,
+						realtime: true,
+					}
+				);
 				setIsSubscribed(true);
 			} catch (error) {
 				console.error("Failed to set up task subscription:", error);
@@ -124,9 +109,7 @@ export function useElectricTasks(
 	const query = useQuery({
 		queryKey: electricTaskKeys.list(filters),
 		queryFn: async () => {
-			const result = await electricDatabaseClient.executeOperation<
-				ElectricTask[]
-			>({
+			const result = await electricDatabaseClient.executeOperation<ElectricTask[]>({
 				table: "tasks",
 				operation: "select",
 				where: {
@@ -153,8 +136,7 @@ export function useElectricTasks(
 	});
 
 	// Use realtime data if available, otherwise fallback to query data
-	const data =
-		realtime && realtimeData.length > 0 ? realtimeData : query.data || [];
+	const data = realtime && realtimeData.length > 0 ? realtimeData : query.data || [];
 
 	return {
 		tasks: data,
@@ -169,10 +151,7 @@ export function useElectricTasks(
 /**
  * Enhanced hook for querying a single task with real-time updates
  */
-export function useElectricTask(
-	taskId: string,
-	options: ElectricTaskOptions = {},
-) {
+export function useElectricTask(taskId: string, options: ElectricTaskOptions = {}) {
 	const queryClient = useQueryClient();
 	const [realtimeTask, setRealtimeTask] = useState<ElectricTask | null>(null);
 
@@ -186,22 +165,21 @@ export function useElectricTask(
 
 		const setupSubscription = async () => {
 			try {
-				unsubscribe =
-					await enhancedElectricSyncService.subscribeToTable<ElectricTask>(
-						"tasks",
-						(tasks) => {
-							const task = tasks.find((t) => t.id === taskId);
-							if (task) {
-								setRealtimeTask(task);
-								queryClient.setQueryData(electricTaskKeys.detail(taskId), task);
-							}
-						},
-						{
-							filters: { id: taskId },
-							cacheFirst,
-							realtime: true,
-						},
-					);
+				unsubscribe = await enhancedElectricSyncService.subscribeToTable<ElectricTask>(
+					"tasks",
+					(tasks) => {
+						const task = tasks.find((t) => t.id === taskId);
+						if (task) {
+							setRealtimeTask(task);
+							queryClient.setQueryData(electricTaskKeys.detail(taskId), task);
+						}
+					},
+					{
+						filters: { id: taskId },
+						cacheFirst,
+						realtime: true,
+					}
+				);
 			} catch (error) {
 				console.error("Failed to set up task subscription:", error);
 			}
@@ -219,9 +197,7 @@ export function useElectricTask(
 	const query = useQuery({
 		queryKey: electricTaskKeys.detail(taskId),
 		queryFn: async () => {
-			const result = await electricDatabaseClient.executeOperation<
-				ElectricTask[]
-			>({
+			const result = await electricDatabaseClient.executeOperation<ElectricTask[]>({
 				table: "tasks",
 				operation: "select",
 				where: { id: taskId },
@@ -252,28 +228,26 @@ export function useElectricTask(
  */
 export function useCreateElectricTask(options: ElectricTaskOptions = {}) {
 	const queryClient = useQueryClient();
-	const { conflictResolution = "last-write-wins", offlineSupport = true } =
-		options;
+	const { conflictResolution = "last-write-wins", offlineSupport = true } = options;
 
 	return useMutation({
 		mutationFn: async (taskData: CreateElectricTaskInput) => {
-			const result =
-				await conflictResolutionService.executeOperationWithConflictResolution(
-					{
-						table: "tasks",
-						operation: "insert",
-						data: taskData,
-						options: {
-							userId: taskData.userId,
-							realtime: true,
-							cache: true,
-						},
+			const result = await conflictResolutionService.executeOperationWithConflictResolution(
+				{
+					table: "tasks",
+					operation: "insert",
+					data: taskData,
+					options: {
+						userId: taskData.userId,
+						realtime: true,
+						cache: true,
 					},
-					{
-						conflictStrategy: conflictResolution,
-						offlineSupport,
-					},
-				);
+				},
+				{
+					conflictStrategy: conflictResolution,
+					offlineSupport,
+				}
+			);
 
 			return result;
 		},
@@ -288,7 +262,7 @@ export function useCreateElectricTask(options: ElectricTaskOptions = {}) {
 					(old: ElectricTask[] | undefined) => {
 						if (!old) return [newTask];
 						return [newTask, ...old];
-					},
+					}
 				);
 
 				// Invalidate infinite queries
@@ -306,35 +280,27 @@ export function useCreateElectricTask(options: ElectricTaskOptions = {}) {
  */
 export function useUpdateElectricTask(options: ElectricTaskOptions = {}) {
 	const queryClient = useQueryClient();
-	const { conflictResolution = "last-write-wins", offlineSupport = true } =
-		options;
+	const { conflictResolution = "last-write-wins", offlineSupport = true } = options;
 
 	return useMutation({
-		mutationFn: async ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: UpdateElectricTaskInput;
-		}) => {
-			const result =
-				await conflictResolutionService.executeOperationWithConflictResolution(
-					{
-						table: "tasks",
-						operation: "update",
-						data: { ...data, updatedAt: new Date() },
-						where: { id },
-						options: {
-							userId: data.userId,
-							realtime: true,
-							cache: true,
-						},
+		mutationFn: async ({ id, data }: { id: string; data: UpdateElectricTaskInput }) => {
+			const result = await conflictResolutionService.executeOperationWithConflictResolution(
+				{
+					table: "tasks",
+					operation: "update",
+					data: { ...data, updatedAt: new Date() },
+					where: { id },
+					options: {
+						userId: data.userId,
+						realtime: true,
+						cache: true,
 					},
-					{
-						conflictStrategy: conflictResolution,
-						offlineSupport,
-					},
-				);
+				},
+				{
+					conflictStrategy: conflictResolution,
+					offlineSupport,
+				}
+			);
 
 			return result;
 		},
@@ -345,9 +311,7 @@ export function useUpdateElectricTask(options: ElectricTaskOptions = {}) {
 			});
 
 			// Snapshot previous value
-			const previousTask = queryClient.getQueryData<ElectricTask>(
-				electricTaskKeys.detail(id),
-			);
+			const previousTask = queryClient.getQueryData<ElectricTask>(electricTaskKeys.detail(id));
 
 			// Optimistically update
 			if (previousTask) {
@@ -364,10 +328,7 @@ export function useUpdateElectricTask(options: ElectricTaskOptions = {}) {
 		onError: (error, { id }, context) => {
 			// Rollback on error
 			if (context?.previousTask) {
-				queryClient.setQueryData(
-					electricTaskKeys.detail(id),
-					context.previousTask,
-				);
+				queryClient.setQueryData(electricTaskKeys.detail(id), context.previousTask);
 			}
 			console.error("Failed to update task:", error);
 		},
@@ -382,7 +343,7 @@ export function useUpdateElectricTask(options: ElectricTaskOptions = {}) {
 					(old: ElectricTask[] | undefined) => {
 						if (!old) return old;
 						return old.map((task) => (task.id === id ? updatedTask : task));
-					},
+					}
 				);
 			}
 		},
@@ -398,21 +359,20 @@ export function useDeleteElectricTask(options: ElectricTaskOptions = {}) {
 
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const result =
-				await conflictResolutionService.executeOperationWithConflictResolution(
-					{
-						table: "tasks",
-						operation: "delete",
-						where: { id },
-						options: {
-							realtime: true,
-							cache: true,
-						},
+			const result = await conflictResolutionService.executeOperationWithConflictResolution(
+				{
+					table: "tasks",
+					operation: "delete",
+					where: { id },
+					options: {
+						realtime: true,
+						cache: true,
 					},
-					{
-						offlineSupport,
-					},
-				);
+				},
+				{
+					offlineSupport,
+				}
+			);
 
 			return result;
 		},
@@ -428,7 +388,7 @@ export function useDeleteElectricTask(options: ElectricTaskOptions = {}) {
 				(old: ElectricTask[] | undefined) => {
 					if (!old) return old;
 					return old.filter((task) => task.id !== deletedId);
-				},
+				}
 			);
 
 			// Invalidate infinite queries
@@ -444,9 +404,7 @@ export function useDeleteElectricTask(options: ElectricTaskOptions = {}) {
  * Hook for offline queue status
  */
 export function useOfflineTaskStatus() {
-	const [status, setStatus] = useState(
-		conflictResolutionService.getOfflineQueueStatus(),
-	);
+	const [status, setStatus] = useState(conflictResolutionService.getOfflineQueueStatus());
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -490,7 +448,7 @@ export function useForceTaskSync() {
 				throw error;
 			}
 		},
-		[queryClient],
+		[queryClient]
 	);
 }
 
@@ -501,25 +459,18 @@ export function useActiveTasks(userId?: string, options?: ElectricTaskOptions) {
 	return useElectricTasks({ archived: false, userId }, options);
 }
 
-export function useArchivedTasks(
-	userId?: string,
-	options?: ElectricTaskOptions,
-) {
+export function useArchivedTasks(userId?: string, options?: ElectricTaskOptions) {
 	return useElectricTasks({ archived: true, userId }, options);
 }
 
-export function useTasksByStatus(
-	status: string[],
-	userId?: string,
-	options?: ElectricTaskOptions,
-) {
+export function useTasksByStatus(status: string[], userId?: string, options?: ElectricTaskOptions) {
 	return useElectricTasks({ status, userId }, options);
 }
 
 export function useTasksBySession(
 	sessionId: string,
 	userId?: string,
-	options?: ElectricTaskOptions,
+	options?: ElectricTaskOptions
 ) {
 	return useElectricTasks({ sessionId, userId }, options);
 }

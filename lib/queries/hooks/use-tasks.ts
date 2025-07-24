@@ -2,12 +2,7 @@
  * TanStack Query hooks for task operations with ElectricSQL integration
  */
 
-import {
-	useInfiniteQuery,
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import type { NewTask, Task } from "@/db/schema";
 import { observability } from "@/lib/observability";
@@ -83,11 +78,7 @@ const taskApi = {
 /**
  * Hook to fetch tasks with filters
  */
-export function useTasks(filters?: {
-	status?: string;
-	priority?: string;
-	userId?: string;
-}) {
+export function useTasks(filters?: { status?: string; priority?: string; userId?: string }) {
 	return useQuery({
 		queryKey: queryKeys.tasks.list(filters || {}),
 		queryFn: () => taskApi.getTasks(filters),
@@ -141,9 +132,7 @@ export function useCreateTask() {
 	return useMutation({
 		mutationKey: mutationKeys.tasks.create,
 		mutationFn: (data: NewTask) => {
-			return observability.trackOperation("tasks.create", () =>
-				taskApi.createTask(data),
-			);
+			return observability.trackOperation("tasks.create", () => taskApi.createTask(data));
 		},
 		onMutate: async (newTask) => {
 			// Cancel outgoing refetches
@@ -168,33 +157,25 @@ export function useCreateTask() {
 			};
 
 			// Update all relevant queries
-			queryClient.setQueriesData(
-				{ queryKey: queryKeys.tasks.lists() },
-				(old: any) => {
-					if (!old) return { tasks: [optimisticTask], total: 1 };
-					return {
-						tasks: [optimisticTask, ...old.tasks],
-						total: old.total + 1,
-					};
-				},
-			);
+			queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, (old: any) => {
+				if (!old) return { tasks: [optimisticTask], total: 1 };
+				return {
+					tasks: [optimisticTask, ...old.tasks],
+					total: old.total + 1,
+				};
+			});
 
 			return { previousTasks, tempId };
 		},
 		onSuccess: (newTask, variables, context) => {
 			// Replace optimistic update with real data
-			queryClient.setQueriesData(
-				{ queryKey: queryKeys.tasks.lists() },
-				(old: any) => {
-					if (!old) return old;
-					return {
-						...old,
-						tasks: old.tasks.map((task: Task) =>
-							task.id === context?.tempId ? newTask : task,
-						),
-					};
-				},
-			);
+			queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, (old: any) => {
+				if (!old) return old;
+				return {
+					...old,
+					tasks: old.tasks.map((task: Task) => (task.id === context?.tempId ? newTask : task)),
+				};
+			});
 
 			// Invalidate to ensure consistency
 			queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
@@ -202,10 +183,7 @@ export function useCreateTask() {
 		onError: (error, variables, context) => {
 			// Rollback optimistic update
 			if (context?.previousTasks) {
-				queryClient.setQueriesData(
-					{ queryKey: queryKeys.tasks.lists() },
-					context.previousTasks,
-				);
+				queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, context.previousTasks);
 			}
 			console.error("Failed to create task:", error);
 		},
@@ -221,9 +199,7 @@ export function useUpdateTask() {
 	return useMutation({
 		mutationKey: mutationKeys.tasks.update(""),
 		mutationFn: ({ id, data }: { id: string; data: Partial<Task> }) => {
-			return observability.trackOperation("tasks.update", () =>
-				taskApi.updateTask(id, data),
-			);
+			return observability.trackOperation("tasks.update", () => taskApi.updateTask(id, data));
 		},
 		onMutate: async ({ id, data }) => {
 			// Cancel outgoing refetches
@@ -241,34 +217,23 @@ export function useUpdateTask() {
 			} as Task;
 
 			queryClient.setQueryData(queryKeys.tasks.detail(id), updatedTask);
-			queryClient.setQueriesData(
-				{ queryKey: queryKeys.tasks.lists() },
-				(old: any) => {
-					if (!old) return old;
-					return {
-						...old,
-						tasks: old.tasks.map((task: Task) =>
-							task.id === id ? updatedTask : task,
-						),
-					};
-				},
-			);
+			queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, (old: any) => {
+				if (!old) return old;
+				return {
+					...old,
+					tasks: old.tasks.map((task: Task) => (task.id === id ? updatedTask : task)),
+				};
+			});
 
 			return { previousTask, previousTasks };
 		},
 		onError: (error, { id }, context) => {
 			// Rollback optimistic updates
 			if (context?.previousTask) {
-				queryClient.setQueryData(
-					queryKeys.tasks.detail(id),
-					context.previousTask,
-				);
+				queryClient.setQueryData(queryKeys.tasks.detail(id), context.previousTask);
 			}
 			if (context?.previousTasks) {
-				queryClient.setQueriesData(
-					{ queryKey: queryKeys.tasks.lists() },
-					context.previousTasks,
-				);
+				queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, context.previousTasks);
 			}
 			console.error("Failed to update task:", error);
 		},
@@ -289,9 +254,7 @@ export function useDeleteTask() {
 	return useMutation({
 		mutationKey: mutationKeys.tasks.delete(""),
 		mutationFn: (id: string) => {
-			return observability.trackOperation("tasks.delete", () =>
-				taskApi.deleteTask(id),
-			);
+			return observability.trackOperation("tasks.delete", () => taskApi.deleteTask(id));
 		},
 		onMutate: async (id) => {
 			// Cancel outgoing refetches
@@ -303,33 +266,24 @@ export function useDeleteTask() {
 
 			// Optimistically remove
 			queryClient.removeQueries({ queryKey: queryKeys.tasks.detail(id) });
-			queryClient.setQueriesData(
-				{ queryKey: queryKeys.tasks.lists() },
-				(old: any) => {
-					if (!old) return old;
-					return {
-						...old,
-						tasks: old.tasks.filter((task: Task) => task.id !== id),
-						total: old.total - 1,
-					};
-				},
-			);
+			queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, (old: any) => {
+				if (!old) return old;
+				return {
+					...old,
+					tasks: old.tasks.filter((task: Task) => task.id !== id),
+					total: old.total - 1,
+				};
+			});
 
 			return { previousTask, previousTasks };
 		},
 		onError: (error, id, context) => {
 			// Rollback optimistic updates
 			if (context?.previousTask) {
-				queryClient.setQueryData(
-					queryKeys.tasks.detail(id),
-					context.previousTask,
-				);
+				queryClient.setQueryData(queryKeys.tasks.detail(id), context.previousTask);
 			}
 			if (context?.previousTasks) {
-				queryClient.setQueriesData(
-					{ queryKey: queryKeys.tasks.lists() },
-					context.previousTasks,
-				);
+				queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, context.previousTasks);
 			}
 			console.error("Failed to delete task:", error);
 		},
@@ -345,39 +299,32 @@ export function useDeleteTask() {
  */
 export function useTasksSubscription(
 	filters?: { status?: string; priority?: string },
-	callback?: (tasks: Task[]) => void,
+	callback?: (tasks: Task[]) => void
 ) {
 	const queryClient = useQueryClient();
 
 	// Set up real-time subscription
 	React.useEffect(() => {
-		const unsubscribe = electricQueryBridge.subscribeToTable(
-			"tasks",
-			(updatedTasks: Task[]) => {
-				// Update cache with real-time data
-				queryClient.setQueriesData(
-					{ queryKey: queryKeys.tasks.lists() },
-					(old: any) => {
-						if (!old)
-							return { tasks: updatedTasks, total: updatedTasks.length };
+		const unsubscribe = electricQueryBridge.subscribeToTable("tasks", (updatedTasks: Task[]) => {
+			// Update cache with real-time data
+			queryClient.setQueriesData({ queryKey: queryKeys.tasks.lists() }, (old: any) => {
+				if (!old) return { tasks: updatedTasks, total: updatedTasks.length };
 
-						// Merge updated tasks with existing data
-						const taskMap = new Map(old.tasks.map((t: Task) => [t.id, t]));
-						updatedTasks.forEach((task) => taskMap.set(task.id, task));
+				// Merge updated tasks with existing data
+				const taskMap = new Map(old.tasks.map((t: Task) => [t.id, t]));
+				updatedTasks.forEach((task) => taskMap.set(task.id, task));
 
-						return {
-							tasks: Array.from(taskMap.values()),
-							total: taskMap.size,
-						};
-					},
-				);
+				return {
+					tasks: Array.from(taskMap.values()),
+					total: taskMap.size,
+				};
+			});
 
-				// Call user callback
-				if (callback) {
-					callback(updatedTasks);
-				}
-			},
-		);
+			// Call user callback
+			if (callback) {
+				callback(updatedTasks);
+			}
+		});
 
 		return unsubscribe;
 	}, [queryClient, callback]);

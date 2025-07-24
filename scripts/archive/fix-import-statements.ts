@@ -101,11 +101,7 @@ async function findFiles(dir: string, extensions: string[]): Promise<string[]> {
 
 			if (entry.isDirectory()) {
 				// Skip node_modules and other build directories
-				if (
-					!["node_modules", ".next", "coverage", "dist", ".git"].includes(
-						entry.name,
-					)
-				) {
+				if (!["node_modules", ".next", "coverage", "dist", ".git"].includes(entry.name)) {
 					await walk(fullPath);
 				}
 			} else if (entry.isFile()) {

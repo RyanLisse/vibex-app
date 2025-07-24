@@ -27,15 +27,11 @@ export function PRReviewSummary({ prLink, checks = [] }: PRReviewSummaryProps) {
 		}
 	};
 
-	const successCount = checks.filter(
-		(check) => check.status === "success",
-	).length;
+	const successCount = checks.filter((check) => check.status === "success").length;
 	const failureCount = checks.filter(
-		(check) => check.status === "failure" || check.status === "error",
+		(check) => check.status === "failure" || check.status === "error"
 	).length;
-	const pendingCount = checks.filter(
-		(check) => check.status === "pending",
-	).length;
+	const pendingCount = checks.filter((check) => check.status === "pending").length;
 
 	return (
 		<div className="space-y-3">

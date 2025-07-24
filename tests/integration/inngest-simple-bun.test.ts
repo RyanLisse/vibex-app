@@ -38,9 +38,7 @@ describe("inngest simple mock test (Bun)", () => {
 		const startTime = Date.now();
 
 		// Import the mocked module
-		const { inngest, taskChannel, taskControl, createTask } = await import(
-			"@/lib/inngest"
-		);
+		const { inngest, taskChannel, taskControl, createTask } = await import("@/lib/inngest");
 
 		// Basic assertions
 		expect(inngest).toBeDefined();

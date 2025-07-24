@@ -48,9 +48,7 @@ vi.mock("./auth-card-base", () => ({
 				<div data-testid="authenticated-content">{authenticatedContent}</div>
 			)}
 			{unauthenticatedContent && (
-				<div data-testid="unauthenticated-content">
-					{unauthenticatedContent}
-				</div>
+				<div data-testid="unauthenticated-content">{unauthenticatedContent}</div>
 			)}
 			{children && <div data-testid="children">{children}</div>}
 		</div>
@@ -104,9 +102,7 @@ describe("OpenAIAuthCard", () => {
 		render(<OpenAIAuthCard />);
 
 		expect(screen.getByTestId("auth-card-base")).toBeInTheDocument();
-		expect(screen.getByTestId("title")).toHaveTextContent(
-			"OpenAI Authentication",
-		);
+		expect(screen.getByTestId("title")).toHaveTextContent("OpenAI Authentication");
 		expect(screen.getByTestId("loading")).toBeInTheDocument();
 	});
 
@@ -124,13 +120,9 @@ describe("OpenAIAuthCard", () => {
 		render(<OpenAIAuthCard />);
 
 		expect(screen.getByTestId("auth-card-base")).toBeInTheDocument();
-		expect(screen.getByTestId("title")).toHaveTextContent(
-			"OpenAI Authentication",
-		);
+		expect(screen.getByTestId("title")).toHaveTextContent("OpenAI Authentication");
 		expect(screen.getByTestId("unauthenticated-content")).toBeInTheDocument();
-		expect(screen.getByTestId("button")).toHaveTextContent(
-			"Sign in with OpenAI",
-		);
+		expect(screen.getByTestId("button")).toHaveTextContent("Sign in with OpenAI");
 		expect(screen.getByTestId("login-icon")).toBeInTheDocument();
 		expect(screen.getByTestId("external-link-icon")).toBeInTheDocument();
 	});
@@ -168,9 +160,7 @@ describe("OpenAIAuthCard", () => {
 		render(<OpenAIAuthCard />);
 
 		expect(screen.getByTestId("auth-card-base")).toBeInTheDocument();
-		expect(screen.getByTestId("title")).toHaveTextContent(
-			"OpenAI Authentication",
-		);
+		expect(screen.getByTestId("title")).toHaveTextContent("OpenAI Authentication");
 		expect(screen.getByTestId("authenticated")).toBeInTheDocument();
 		expect(screen.getByTestId("expires")).toBeInTheDocument();
 		expect(screen.getByTestId("auth-type")).toHaveTextContent("ChatGPT OAuth");
@@ -206,9 +196,7 @@ describe("OpenAIAuthCard", () => {
 
 		render(<OpenAIAuthCard />);
 
-		expect(screen.getByTestId("error")).toHaveTextContent(
-			"Authentication failed",
-		);
+		expect(screen.getByTestId("error")).toHaveTextContent("Authentication failed");
 	});
 
 	it("should handle logout", () => {
@@ -263,9 +251,7 @@ describe("OpenAIAuthCard", () => {
 
 		render(<OpenAIAuthCard description="Custom description" />);
 
-		expect(screen.getByTestId("description")).toHaveTextContent(
-			"Custom description",
-		);
+		expect(screen.getByTestId("description")).toHaveTextContent("Custom description");
 	});
 
 	it("should handle user with name", () => {
@@ -434,9 +420,7 @@ describe("OpenAIAuthCard", () => {
 		render(<OpenAIAuthCard />);
 
 		expect(screen.getByTestId("loading")).toBeInTheDocument();
-		expect(
-			screen.queryByTestId("unauthenticated-content"),
-		).not.toBeInTheDocument();
+		expect(screen.queryByTestId("unauthenticated-content")).not.toBeInTheDocument();
 	});
 
 	it("should handle custom title", () => {

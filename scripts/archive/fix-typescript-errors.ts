@@ -1,26 +1,14 @@
 #!/usr/bin/env bun
 
 import { execSync } from "child_process";
-import {
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	statSync,
-	writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { dirname, join, relative } from "path";
 
 interface ErrorPattern {
 	code: string;
 	description: string;
 	pattern: RegExp;
-	fix: (
-		content: string,
-		match: RegExpMatchArray,
-		filePath: string,
-		error: FileError,
-	) => string;
+	fix: (content: string, match: RegExpMatchArray, filePath: string, error: FileError) => string;
 }
 
 interface FileError {
@@ -49,10 +37,7 @@ const errorPatterns: ErrorPattern[] = [
 
 			// ZodError.errors -> ZodError.issues
 			if (propertyName === "errors" && content.includes("ZodError")) {
-				return content.replace(
-					new RegExp(`\\.${propertyName}\\b`, "g"),
-					".issues",
-				);
+				return content.replace(new RegExp(`\\.${propertyName}\\b`, "g"), ".issues");
 			}
 
 			// Add type assertion for unknown types
@@ -67,7 +52,7 @@ const errorPatterns: ErrorPattern[] = [
 						const varName = varMatch[1];
 						lines[lineIndex] = line.replace(
 							new RegExp(`\\b${varName}\\.${propertyName}\\b`),
-							`(${varName} as any).${propertyName}`,
+							`(${varName} as any).${propertyName}`
 						);
 						return lines.join("\n");
 					}
@@ -90,31 +75,25 @@ const errorPatterns: ErrorPattern[] = [
 			if (modulePath.includes("redis-client") && memberName === "redis") {
 				content = content.replace(
 					/import\s*{\s*redis\s*}\s*from\s*['"]@\/lib\/redis\/redis-client['"]/g,
-					"createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()",
+					"createRedisClient } from '@/lib/redis/redis-client'\nconst redis = createRedisClient()"
 				);
 			}
 
 			// Observability fixes
-			if (
-				modulePath.includes("observability") &&
-				memberName === "observabilityService"
-			) {
+			if (modulePath.includes("observability") && memberName === "observabilityService") {
 				content = content
 					.replace(
 						/import\s*{\s*observabilityService\s*}\s*from\s*['"]@\/lib\/observability['"]/g,
-						"observability } from '@/lib/observability'",
+						"observability } from '@/lib/observability'"
 					)
 					.replace(/observabilityService\./g, "observability.");
 			}
 
 			// Vector search fixes
-			if (
-				modulePath.includes("vector-search") &&
-				memberName === "vectorSearchService"
-			) {
+			if (modulePath.includes("vector-search") && memberName === "vectorSearchService") {
 				content = content.replace(
 					/import\s*{\s*vectorSearchService\s*}\s*from\s*['"]@\/lib\/wasm\/vector-search['"]/g,
-					"VectorSearchService } from '@/lib/wasm/vector-search'\nconst vectorSearchService = new VectorSearchService()",
+					"VectorSearchService } from '@/lib/wasm/vector-search'\nconst vectorSearchService = new VectorSearchService()"
 				);
 			}
 
@@ -126,20 +105,16 @@ const errorPatterns: ErrorPattern[] = [
 	{
 		code: "TS2724",
 		description: "Export name case mismatch",
-		pattern:
-			/has no exported member named ["'](\w+)["']\. Did you mean ["'](\w+)["']\?/,
+		pattern: /has no exported member named ["'](\w+)["']\. Did you mean ["'](\w+)["']\?/,
 		fix: (content, match) => {
 			const [, wrongName, correctName] = match;
 			// Replace in imports
 			content = content.replace(
 				new RegExp(`(import\\s*{[^}]*\\b)${wrongName}(\\b[^}]*})`, "g"),
-				`$1${correctName}$2`,
+				`$1${correctName}$2`
 			);
 			// Replace usage
-			content = content.replace(
-				new RegExp(`\\b${wrongName}\\.`, "g"),
-				`${correctName}.`,
-			);
+			content = content.replace(new RegExp(`\\b${wrongName}\\.`, "g"), `${correctName}.`);
 			return content;
 		},
 	},
@@ -154,11 +129,7 @@ const errorPatterns: ErrorPattern[] = [
 			const got = Number.parseInt(match[3]);
 
 			// AlertManager constructor fix
-			if (
-				error.message.includes("AlertManager") &&
-				expectedMin === 6 &&
-				got === 1
-			) {
+			if (error.message.includes("AlertManager") && expectedMin === 6 && got === 1) {
 				content = content.replace(
 					/new\s+AlertManager\s*\(\s*{\s*redis:\s*[^}]+}\s*\)/g,
 					`new AlertManager({
@@ -168,7 +139,7 @@ const errorPatterns: ErrorPattern[] = [
             historyRetention: 7 * 24 * 60 * 60 * 1000,
             metricsInterval: 60000,
             defaultTimeout: 30000
-          })`,
+          })`
 				);
 			}
 
@@ -176,7 +147,7 @@ const errorPatterns: ErrorPattern[] = [
 			if (error.message.includes("startSpan") && got === 1) {
 				content = content.replace(
 					/\.startSpan\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-					".startSpan('$1', {})",
+					".startSpan('$1', {})"
 				);
 			}
 
@@ -184,7 +155,7 @@ const errorPatterns: ErrorPattern[] = [
 			if (error.message.includes("recordOperation")) {
 				content = content.replace(
 					/\.recordOperation\s*\(\s*{\s*operation:\s*['"]([^'"]+)['"]\s*}\s*\)/g,
-					".recordDuration('$1', Date.now())",
+					".recordDuration('$1', Date.now())"
 				);
 			}
 
@@ -196,8 +167,7 @@ const errorPatterns: ErrorPattern[] = [
 	{
 		code: "TS2353",
 		description: "Unknown property in object literal",
-		pattern:
-			/Object literal may only specify known properties, and ["'](\w+)["'] does not exist/,
+		pattern: /Object literal may only specify known properties, and ["'](\w+)["'] does not exist/,
 		fix: (content, match, filePath, error) => {
 			const propertyName = match[1];
 
@@ -253,10 +223,7 @@ const errorPatterns: ErrorPattern[] = [
 			const [, sourceType, targetType] = match;
 
 			// Async function type fixes
-			if (
-				targetType.includes("RequestHandler") &&
-				sourceType.includes("Promise")
-			) {
+			if (targetType.includes("RequestHandler") && sourceType.includes("Promise")) {
 				const lines = content.split("\n");
 				const lineIndex = error.line - 1;
 				if (lineIndex >= 0 && lineIndex < lines.length) {
@@ -264,7 +231,7 @@ const errorPatterns: ErrorPattern[] = [
 					// Add type assertion
 					lines[lineIndex] = line.replace(
 						/(async\s+\([^)]*\)\s*=>\s*{)/,
-						"$1 // @ts-expect-error Async handler",
+						"$1 // @ts-expect-error Async handler"
 					);
 				}
 				return lines.join("\n");
@@ -287,10 +254,7 @@ const errorPatterns: ErrorPattern[] = [
 				const lines = content.split("\n");
 				const lineIndex = error.line - 1;
 				if (lineIndex >= 0 && lineIndex < lines.length) {
-					lines[lineIndex] = lines[lineIndex].replace(
-						/(\w+)\.toString\(\)/g,
-						"String($1)",
-					);
+					lines[lineIndex] = lines[lineIndex].replace(/(\w+)\.toString\(\)/g, "String($1)");
 				}
 				return lines.join("\n");
 			}
@@ -306,9 +270,7 @@ function parseTypeScriptErrors(output: string): FileError[] {
 	const lines = output.split("\n");
 
 	for (const line of lines) {
-		const match = line.match(
-			/^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/,
-		);
+		const match = line.match(/^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/);
 		if (match) {
 			const [, file, lineStr, columnStr, code, message] = match;
 			errors.push({
@@ -408,8 +370,7 @@ function fixMissingExports() {
 		{
 			file: "lib/redis/redis-client.ts",
 			check: "export const redis",
-			append:
-				"\n// Auto-generated export\nexport const redis = createRedisClient()\n",
+			append: "\n// Auto-generated export\nexport const redis = createRedisClient()\n",
 		},
 		{
 			file: "lib/observability/index.ts",
@@ -502,9 +463,7 @@ async function main() {
 
 		for (const [code, count] of errorCounts) {
 			const pattern = errorPatterns.find((p) => p.code === code);
-			console.log(
-				`   ${code}: ${count} (${pattern?.description || "Unknown"})`,
-			);
+			console.log(`   ${code}: ${count} (${pattern?.description || "Unknown"})`);
 		}
 
 		// Apply fixes

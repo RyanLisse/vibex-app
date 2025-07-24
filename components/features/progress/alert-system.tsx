@@ -62,9 +62,7 @@ export function AlertSystem({ alerts, onDismiss }: AlertSystemProps) {
 					</AlertTitle>
 					<AlertDescription>
 						{alert.message}
-						<div className="text-xs opacity-70 mt-1">
-							{alert.timestamp.toLocaleTimeString()}
-						</div>
+						<div className="text-xs opacity-70 mt-1">{alert.timestamp.toLocaleTimeString()}</div>
 					</AlertDescription>
 				</Alert>
 			))}

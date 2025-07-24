@@ -83,28 +83,18 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
 	}
 };
 
-async function handleStatisticsTask(
-	operation: string,
-	data: any,
-	options?: any,
-): Promise<any> {
+async function handleStatisticsTask(operation: string, data: any, options?: any): Promise<any> {
 	switch (operation) {
 		case "mean":
-			return (
-				data.values.reduce((sum: number, val: number) => sum + val, 0) /
-				data.values.length
-			);
+			return data.values.reduce((sum: number, val: number) => sum + val, 0) / data.values.length;
 		case "sum":
 			return data.values.reduce((sum: number, val: number) => sum + val, 0);
 		case "std": {
 			const mean =
-				data.values.reduce((sum: number, val: number) => sum + val, 0) /
-				data.values.length;
+				data.values.reduce((sum: number, val: number) => sum + val, 0) / data.values.length;
 			const variance =
-				data.values.reduce(
-					(sum: number, val: number) => sum + (val - mean) ** 2,
-					0,
-				) / data.values.length;
+				data.values.reduce((sum: number, val: number) => sum + (val - mean) ** 2, 0) /
+				data.values.length;
 			return Math.sqrt(variance);
 		}
 		default:
@@ -112,20 +102,12 @@ async function handleStatisticsTask(
 	}
 }
 
-async function handleAnalyticsTask(
-	operation: string,
-	data: any,
-	options?: any,
-): Promise<any> {
+async function handleAnalyticsTask(operation: string, data: any, options?: any): Promise<any> {
 	// Placeholder for analytics operations
 	return { operation, dataSize: data.length, result: "analytics completed" };
 }
 
-async function handleMatrixTask(
-	operation: string,
-	data: any,
-	options?: any,
-): Promise<any> {
+async function handleMatrixTask(operation: string, data: any, options?: any): Promise<any> {
 	switch (operation) {
 		case "multiply": {
 			// Simple matrix multiplication
@@ -135,8 +117,7 @@ async function handleMatrixTask(
 			for (let i = 0; i < rows; i++) {
 				for (let j = 0; j < cols; j++) {
 					for (let k = 0; k < cols; k++) {
-						result[i * cols + j] +=
-							matrixA[i * cols + k] * matrixB[k * cols + j];
+						result[i * cols + j] += matrixA[i * cols + k] * matrixB[k * cols + j];
 					}
 				}
 			}
@@ -148,11 +129,7 @@ async function handleMatrixTask(
 	}
 }
 
-async function handleSignalTask(
-	operation: string,
-	data: any,
-	options?: any,
-): Promise<any> {
+async function handleSignalTask(operation: string, data: any, options?: any): Promise<any> {
 	switch (operation) {
 		case "fft": {
 			// Simple DFT implementation
@@ -181,20 +158,12 @@ async function handleSignalTask(
 	}
 }
 
-async function handleMLTask(
-	operation: string,
-	data: any,
-	options?: any,
-): Promise<any> {
+async function handleMLTask(operation: string, data: any, options?: any): Promise<any> {
 	// Placeholder for ML operations
 	return { operation, dataSize: data.length, result: "ml completed" };
 }
 
-async function handleCryptoTask(
-	operation: string,
-	data: any,
-	options?: any,
-): Promise<any> {
+async function handleCryptoTask(operation: string, data: any, options?: any): Promise<any> {
 	// Placeholder for crypto operations
 	return { operation, dataSize: data.length, result: "crypto completed" };
 }

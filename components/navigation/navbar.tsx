@@ -30,9 +30,7 @@ export default function Navbar({
 						{children}
 						{user && (
 							<div className="flex items-center space-x-2">
-								<span className="text-sm text-gray-700">
-									{user.name || user.email}
-								</span>
+								<span className="text-sm text-gray-700">{user.name || user.email}</span>
 								{onUserMenuClick && (
 									<button
 										onClick={onUserMenuClick}
@@ -42,10 +40,7 @@ export default function Navbar({
 									</button>
 								)}
 								{onLogout && (
-									<button
-										onClick={onLogout}
-										className="text-sm text-red-600 hover:text-red-800"
-									>
+									<button onClick={onLogout} className="text-sm text-red-600 hover:text-red-800">
 										Logout
 									</button>
 								)}

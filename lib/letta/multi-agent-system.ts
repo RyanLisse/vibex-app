@@ -60,14 +60,8 @@ export class MultiAgentSystem {
 	constructor(config: Partial<MultiAgentConfig> = {}) {
 		this.config = MultiAgentConfigSchema.parse(config);
 		this.client = this.createLettaClient();
-		this.orchestrator = new OrchestratorAgent(
-			this.client,
-			this.config.orchestrator,
-		);
-		this.brainstormAgent = new BrainstormAgent(
-			this.client,
-			this.config.brainstorm,
-		);
+		this.orchestrator = new OrchestratorAgent(this.client, this.config.orchestrator);
+		this.brainstormAgent = new BrainstormAgent(this.client, this.config.brainstorm);
 	}
 
 	private createLettaClient(): LettaClient {
@@ -85,10 +79,7 @@ export class MultiAgentSystem {
 
 		try {
 			// Initialize all agents
-			await Promise.all([
-				this.orchestrator.initialize(),
-				this.brainstormAgent.initialize(),
-			]);
+			await Promise.all([this.orchestrator.initialize(), this.brainstormAgent.initialize()]);
 
 			this.isInitialized = true;
 			console.log("Multi-Agent System initialized successfully");
@@ -99,10 +90,7 @@ export class MultiAgentSystem {
 	}
 
 	// Session Management
-	async createSession(
-		userId: string,
-		type: Session["type"] = "chat",
-	): Promise<Session> {
+	async createSession(userId: string, type: Session["type"] = "chat"): Promise<Session> {
 		const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 		const session: Session = {
@@ -145,8 +133,7 @@ export class MultiAgentSystem {
 
 		// Clean up any active brainstorm sessions
 		if (session.type === "brainstorm") {
-			const brainstormSession =
-				this.brainstormAgent.getActiveSession(sessionId);
+			const brainstormSession = this.brainstormAgent.getActiveSession(sessionId);
 			if (brainstormSession) {
 				await this.brainstormAgent.endSession(sessionId);
 			}
@@ -187,7 +174,7 @@ export class MultiAgentSystem {
 	private async routeMessageToAgent(
 		session: Session,
 		message: string,
-		streaming: boolean,
+		streaming: boolean
 	): Promise<Message | ReadableStream> {
 		switch (session.type) {
 			case "brainstorm":
@@ -207,7 +194,7 @@ export class MultiAgentSystem {
 	async processMessage(
 		sessionId: string,
 		message: string,
-		streaming = false,
+		streaming = false
 	): Promise<Message | ReadableStream> {
 		// Ensure system is initialized
 		await this.ensureInitialized();
@@ -224,21 +211,20 @@ export class MultiAgentSystem {
 	 */
 	private async ensureBrainstormSession(
 		sessionId: string,
-		message: string,
+		message: string
 	): Promise<BrainstormSession> {
 		// Check if there's an active brainstorm session
 		let brainstormSession = this.brainstormAgent.getActiveSession(sessionId);
 
 		if (!brainstormSession) {
 			// Extract topic from message or use default
-			const topic =
-				this.extractTopicFromMessage(message) || "General Brainstorming";
+			const topic = this.extractTopicFromMessage(message) || "General Brainstorming";
 			const session = this.sessions.get(sessionId)!;
 
 			brainstormSession = await this.brainstormAgent.startBrainstormSession(
 				session.userId,
 				topic,
-				sessionId,
+				sessionId
 			);
 		}
 
@@ -251,7 +237,7 @@ export class MultiAgentSystem {
 	private async processBrainstormMessage(
 		sessionId: string,
 		message: string,
-		streaming: boolean,
+		streaming: boolean
 	): Promise<Message | ReadableStream> {
 		// Ensure brainstorm session exists
 		await this.ensureBrainstormSession(sessionId, message);
@@ -282,7 +268,7 @@ export class MultiAgentSystem {
 	// Voice Processing
 	async processVoiceMessage(
 		sessionId: string,
-		audioData: ArrayBuffer,
+		audioData: ArrayBuffer
 	): Promise<{
 		audioResponse: ArrayBuffer;
 		textResponse: string;
@@ -312,7 +298,7 @@ export class MultiAgentSystem {
 		fromSessionId: string,
 		toAgent: "brainstorm" | "orchestrator",
 		task: string,
-		context: Record<string, any>,
+		context: Record<string, any>
 	): AgentEvent {
 		return {
 			id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
@@ -328,24 +314,18 @@ export class MultiAgentSystem {
 	/**
 	 * Delegates task to brainstorm agent
 	 */
-	private async delegateToBrainstormAgent(
-		session: Session,
-		task: string,
-	): Promise<Message> {
+	private async delegateToBrainstormAgent(session: Session, task: string): Promise<Message> {
 		// Ensure brainstorm session exists
 		let brainstormSession = this.brainstormAgent.getActiveSession(session.id);
 		if (!brainstormSession) {
 			brainstormSession = await this.brainstormAgent.startBrainstormSession(
 				session.userId,
 				task,
-				session.id,
+				session.id
 			);
 		}
 
-		return this.brainstormAgent.processMessage(
-			session.id,
-			task,
-		) as Promise<Message>;
+		return this.brainstormAgent.processMessage(session.id, task) as Promise<Message>;
 	}
 
 	/**
@@ -361,7 +341,7 @@ export class MultiAgentSystem {
 	private async executeDelegation(
 		session: Session,
 		toAgent: "brainstorm" | "orchestrator",
-		task: string,
+		task: string
 	): Promise<Message> {
 		switch (toAgent) {
 			case "brainstorm":
@@ -380,7 +360,7 @@ export class MultiAgentSystem {
 		fromSessionId: string,
 		toAgent: "brainstorm" | "orchestrator",
 		task: string,
-		context: Record<string, any> = {},
+		context: Record<string, any> = {}
 	): Promise<Message> {
 		// Validate session exists
 		const session = this.sessions.get(fromSessionId);
@@ -389,12 +369,7 @@ export class MultiAgentSystem {
 		}
 
 		// Create and queue delegation event
-		const event = this.createDelegationEvent(
-			fromSessionId,
-			toAgent,
-			task,
-			context,
-		);
+		const event = this.createDelegationEvent(fromSessionId, toAgent, task, context);
 		this.eventQueue.push(event);
 
 		// Execute delegation to target agent
@@ -402,10 +377,7 @@ export class MultiAgentSystem {
 	}
 
 	// Brainstorm-specific methods
-	async startBrainstormSession(
-		sessionId: string,
-		topic: string,
-	): Promise<BrainstormSession> {
+	async startBrainstormSession(sessionId: string, topic: string): Promise<BrainstormSession> {
 		const session = this.sessions.get(sessionId);
 		if (!session) {
 			throw new Error("Session not found");
@@ -417,11 +389,7 @@ export class MultiAgentSystem {
 		session.updatedAt = new Date();
 		this.sessions.set(sessionId, session);
 
-		return this.brainstormAgent.startBrainstormSession(
-			session.userId,
-			topic,
-			sessionId,
-		);
+		return this.brainstormAgent.startBrainstormSession(session.userId, topic, sessionId);
 	}
 
 	async getBrainstormSummary(sessionId: string) {
@@ -472,9 +440,7 @@ export class MultiAgentSystem {
 // Singleton instance for the application
 let multiAgentSystem: MultiAgentSystem | null = null;
 
-export function getMultiAgentSystem(
-	config?: Partial<MultiAgentConfig>,
-): MultiAgentSystem {
+export function getMultiAgentSystem(config?: Partial<MultiAgentConfig>): MultiAgentSystem {
 	if (!multiAgentSystem) {
 		multiAgentSystem = new MultiAgentSystem(config);
 	}
@@ -482,7 +448,7 @@ export function getMultiAgentSystem(
 }
 
 export async function initializeMultiAgentSystem(
-	config?: Partial<MultiAgentConfig>,
+	config?: Partial<MultiAgentConfig>
 ): Promise<MultiAgentSystem> {
 	const system = getMultiAgentSystem(config);
 	await system.initialize();

@@ -9,11 +9,7 @@ interface PRActionButtonsProps {
 	onUnlink?: () => void;
 }
 
-export function PRActionButtons({
-	prLink,
-	onRefresh,
-	onUnlink,
-}: PRActionButtonsProps) {
+export function PRActionButtons({ prLink, onRefresh, onUnlink }: PRActionButtonsProps) {
 	const handleOpenPR = () => {
 		window.open(prLink.prUrl, "_blank");
 	};

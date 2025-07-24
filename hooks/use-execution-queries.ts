@@ -1,10 +1,7 @@
 "use client";
 
 import { useElectricTaskExecutions } from "./use-electric-tasks";
-import {
-	useEnhancedInfiniteQuery,
-	useEnhancedQuery,
-} from "./use-enhanced-query";
+import { useEnhancedInfiniteQuery, useEnhancedQuery } from "./use-enhanced-query";
 
 /**
  * Enhanced agent execution queries with WASM optimization
@@ -59,14 +56,12 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
 
 			if (agentType?.length) {
 				filteredExecutions = filteredExecutions.filter((exec) =>
-					agentType.includes(exec.agentType),
+					agentType.includes(exec.agentType)
 				);
 			}
 
 			if (status?.length) {
-				filteredExecutions = filteredExecutions.filter((exec) =>
-					status.includes(exec.status),
-				);
+				filteredExecutions = filteredExecutions.filter((exec) => status.includes(exec.status));
 			}
 
 			if (dateRange) {
@@ -81,8 +76,7 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
 					const execTime = exec.executionTimeMs || 0;
 					return (
 						execTime >= executionTimeRange.min &&
-						(executionTimeRange.max === undefined ||
-							execTime <= executionTimeRange.max)
+						(executionTimeRange.max === undefined || execTime <= executionTimeRange.max)
 					);
 				});
 			}
@@ -96,18 +90,16 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
 			wasmFallback: async () => {
 				// Fallback to simple filtering without WASM optimization
 				return electricExecutions.filter((exec) => {
-					if (agentType?.length && !agentType.includes(exec.agentType))
-						return false;
+					if (agentType?.length && !agentType.includes(exec.agentType)) return false;
 					if (status?.length && !status.includes(exec.status)) return false;
 					if (dateRange) {
 						const execDate = new Date(exec.startedAt);
-						if (execDate < dateRange.start || execDate > dateRange.end)
-							return false;
+						if (execDate < dateRange.start || execDate > dateRange.end) return false;
 					}
 					return true;
 				});
 			},
-		},
+		}
 	);
 
 	const executions = enhancedQuery.data || electricExecutions;
@@ -127,10 +119,7 @@ export function useExecutionsQuery(filters: ExecutionFilters = {}) {
 /**
  * Hook for infinite execution queries with performance optimization
  */
-export function useInfiniteExecutionsQuery(
-	filters: ExecutionFilters = {},
-	pageSize = 100,
-) {
+export function useInfiniteExecutionsQuery(filters: ExecutionFilters = {}, pageSize = 100) {
 	const queryClient = useQueryClient();
 
 	return useEnhancedInfiniteQuery(
@@ -138,9 +127,7 @@ export function useInfiniteExecutionsQuery(
 		async ({ pageParam = 0 }) => {
 			// Get all executions from cache and paginate
 			const allExecutions =
-				(queryClient.getQueryData(
-					queryKeys.executions.list(filters),
-				) as any[]) || [];
+				(queryClient.getQueryData(queryKeys.executions.list(filters)) as any[]) || [];
 
 			const start = (pageParam as number) * pageSize;
 			const end = start + pageSize;
@@ -148,8 +135,7 @@ export function useInfiniteExecutionsQuery(
 
 			return {
 				executions: paginatedExecutions,
-				nextCursor:
-					end < allExecutions.length ? (pageParam as number) + 1 : undefined,
+				nextCursor: end < allExecutions.length ? (pageParam as number) + 1 : undefined,
 				hasMore: end < allExecutions.length,
 				total: allExecutions.length,
 			};
@@ -160,7 +146,7 @@ export function useInfiniteExecutionsQuery(
 			enableVirtualization: true,
 			enableWASMOptimization: true,
 			staleTime: 1 * 60 * 1000, // 1 minute for execution data
-		},
+		}
 	);
 }
 
@@ -186,9 +172,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 
 			// Calculate analytics with potential WASM optimization
 			const totalExecutions = executions.length;
-			const successfulExecutions = executions.filter(
-				(exec) => exec.status === "completed",
-			).length;
+			const successfulExecutions = executions.filter((exec) => exec.status === "completed").length;
 			const successRate = (successfulExecutions / totalExecutions) * 100;
 
 			// Calculate average execution time
@@ -198,8 +182,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 
 			const averageExecutionTime =
 				executionTimes.length > 0
-					? executionTimes.reduce((sum, time) => sum + time, 0) /
-						executionTimes.length
+					? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
 					: 0;
 
 			// Group by agent type
@@ -208,7 +191,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 					acc[exec.agentType] = (acc[exec.agentType] || 0) + 1;
 					return acc;
 				},
-				{} as Record<string, number>,
+				{} as Record<string, number>
 			);
 
 			// Group by status
@@ -217,7 +200,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 					acc[exec.status] = (acc[exec.status] || 0) + 1;
 					return acc;
 				},
-				{} as Record<string, number>,
+				{} as Record<string, number>
 			);
 
 			// Calculate execution trends (last 30 days)
@@ -225,7 +208,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 			thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
 			const recentExecutions = executions.filter(
-				(exec) => new Date(exec.startedAt) >= thirtyDaysAgo,
+				(exec) => new Date(exec.startedAt) >= thirtyDaysAgo
 			);
 
 			const executionTrends = Array.from({ length: 30 }, (_, i) => {
@@ -244,8 +227,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 
 				const averageTime =
 					dayExecutionTimes.length > 0
-						? dayExecutionTimes.reduce((sum, time) => sum + time, 0) /
-							dayExecutionTimes.length
+						? dayExecutionTimes.reduce((sum, time) => sum + time, 0) / dayExecutionTimes.length
 						: 0;
 
 				return {
@@ -272,12 +254,10 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 				// Simplified analytics calculation without WASM
 				const totalExecutions = executions.length;
 				const successfulExecutions = executions.filter(
-					(exec) => exec.status === "completed",
+					(exec) => exec.status === "completed"
 				).length;
 				const successRate =
-					totalExecutions > 0
-						? (successfulExecutions / totalExecutions) * 100
-						: 0;
+					totalExecutions > 0 ? (successfulExecutions / totalExecutions) * 100 : 0;
 
 				return {
 					totalExecutions,
@@ -288,7 +268,7 @@ export function useExecutionAnalyticsQuery(filters: ExecutionFilters = {}) {
 					executionTrends: [],
 				};
 			},
-		},
+		}
 	);
 
 	return {
@@ -309,8 +289,7 @@ export function useExecutionQuery(executionId: string) {
 		queryKeys.executions.detail(executionId),
 		async () => {
 			// Get execution from cache or fetch
-			const allExecutions =
-				(queryClient.getQueryData(queryKeys.executions.lists()) as any[]) || [];
+			const allExecutions = (queryClient.getQueryData(queryKeys.executions.lists()) as any[]) || [];
 			const execution = allExecutions.find((exec) => exec.id === executionId);
 
 			if (!execution) {
@@ -323,7 +302,7 @@ export function useExecutionQuery(executionId: string) {
 			enabled: !!executionId,
 			enableWASMOptimization: false,
 			staleTime: 2 * 60 * 1000, // 2 minutes
-		},
+		}
 	);
 }
 
@@ -343,7 +322,7 @@ export function useExecutionEventsQuery(executionId: string) {
 			enabled: !!executionId,
 			enableWASMOptimization: false,
 			staleTime: 30 * 1000, // 30 seconds for events
-		},
+		}
 	);
 }
 
@@ -360,22 +339,18 @@ export function useExecutionPerformanceQuery(filters: ExecutionFilters = {}) {
 
 			// Calculate performance metrics with WASM optimization
 			const completedExecutions = executions.filter(
-				(exec) => exec.status === "completed" && exec.executionTimeMs,
+				(exec) => exec.status === "completed" && exec.executionTimeMs
 			);
 
 			if (!completedExecutions.length) return null;
 
-			const executionTimes = completedExecutions.map(
-				(exec) => exec.executionTimeMs!,
-			);
+			const executionTimes = completedExecutions.map((exec) => exec.executionTimeMs!);
 			executionTimes.sort((a, b) => a - b);
 
 			const min = executionTimes[0];
 			const max = executionTimes[executionTimes.length - 1];
 			const median = executionTimes[Math.floor(executionTimes.length / 2)];
-			const average =
-				executionTimes.reduce((sum, time) => sum + time, 0) /
-				executionTimes.length;
+			const average = executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length;
 
 			// Calculate percentiles
 			const p95Index = Math.floor(executionTimes.length * 0.95);
@@ -397,6 +372,6 @@ export function useExecutionPerformanceQuery(filters: ExecutionFilters = {}) {
 			enabled: !(loading || error) && executions.length > 0,
 			enableWASMOptimization: true,
 			staleTime: 2 * 60 * 1000, // 2 minutes
-		},
+		}
 	);
 }

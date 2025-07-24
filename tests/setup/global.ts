@@ -122,9 +122,7 @@ Object.defineProperty(global, "crypto", {
 			}
 			return arr;
 		}),
-		randomUUID: vi.fn(
-			() => "test-uuid-" + Math.random().toString(36).substr(2, 9),
-		),
+		randomUUID: vi.fn(() => "test-uuid-" + Math.random().toString(36).substr(2, 9)),
 	},
 });
 

@@ -164,10 +164,7 @@ describe("CriticalErrorDetector", () => {
 	describe("addCustomPattern", () => {
 		it("should allow adding custom error patterns", () => {
 			const customPattern = /custom.*critical.*error/i;
-			detector.addCustomPattern(
-				CriticalErrorType.SYSTEM_HEALTH_FAILURE,
-				customPattern,
-			);
+			detector.addCustomPattern(CriticalErrorType.SYSTEM_HEALTH_FAILURE, customPattern);
 
 			const logEntry: LogEntry = {
 				level: "error",
@@ -185,22 +182,16 @@ describe("CriticalErrorDetector", () => {
 
 	describe("getTemplate", () => {
 		it("should return the correct template for each error type", () => {
-			const template = detector.getTemplate(
-				CriticalErrorType.DATABASE_CONNECTION_FAILURE,
-			);
+			const template = detector.getTemplate(CriticalErrorType.DATABASE_CONNECTION_FAILURE);
 
 			expect(template).toBeTruthy();
-			expect(template?.type).toBe(
-				CriticalErrorType.DATABASE_CONNECTION_FAILURE,
-			);
+			expect(template?.type).toBe(CriticalErrorType.DATABASE_CONNECTION_FAILURE);
 			expect(template?.subject).toContain("Database Connection Failure");
 			expect(template?.severity).toBe("critical");
 		});
 
 		it("should return undefined for non-existent error types", () => {
-			const template = detector.getTemplate(
-				"non-existent-type" as CriticalErrorType,
-			);
+			const template = detector.getTemplate("non-existent-type" as CriticalErrorType);
 
 			expect(template).toBeUndefined();
 		});

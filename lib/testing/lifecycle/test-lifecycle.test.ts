@@ -112,7 +112,7 @@ describe("TestLifecycleManager", () => {
 				async () => {
 					execution.push("server");
 				},
-				{ dependencies: ["database"] },
+				{ dependencies: ["database"] }
 			);
 
 			await manager.executeBeforeEach();
@@ -125,7 +125,7 @@ describe("TestLifecycleManager", () => {
 			manager.registerBeforeEach("B", async () => {}, { dependencies: ["A"] });
 
 			expect(() => manager.resolveDependencies("beforeEach")).toThrow(
-				"Circular dependency detected",
+				"Circular dependency detected"
 			);
 		});
 	});
@@ -381,9 +381,7 @@ describe("SetupTeardownOrchestrator", () => {
 
 		it("should continue cleanup even if some cleanups fail", async () => {
 			const successfulCleanup = vi.fn();
-			const failingCleanup = vi
-				.fn()
-				.mockRejectedValue(new Error("Cleanup failed"));
+			const failingCleanup = vi.fn().mockRejectedValue(new Error("Cleanup failed"));
 
 			orchestrator.registerCleanup("successful", successfulCleanup);
 			orchestrator.registerCleanup("failing", failingCleanup);

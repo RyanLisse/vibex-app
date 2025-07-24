@@ -95,9 +95,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 		});
 
 		it("should show recording state with visual feedback", async () => {
-			render(
-				<VoiceInputButton onStartRecording={vi.fn()} isRecording={true} />,
-			);
+			render(<VoiceInputButton onStartRecording={vi.fn()} isRecording={true} />);
 
 			expect(screen.getByTestId("recording-indicator")).toBeInTheDocument();
 			expect(screen.getByText(/recording/i)).toBeInTheDocument();
@@ -107,17 +105,13 @@ describe("Voice-Dictated Task Creation Feature", () => {
 			const mockOnError = vi.fn();
 			mockGetUserMedia.mockRejectedValue(new Error("Permission denied"));
 
-			render(
-				<VoiceInputButton onStartRecording={vi.fn()} onError={mockOnError} />,
-			);
+			render(<VoiceInputButton onStartRecording={vi.fn()} onError={mockOnError} />);
 
 			const button = screen.getByRole("button");
 			await userEvent.click(button);
 
 			await waitFor(() => {
-				expect(mockOnError).toHaveBeenCalledWith(
-					expect.stringContaining("Permission denied"),
-				);
+				expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining("Permission denied"));
 			});
 		});
 	});
@@ -129,12 +123,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 
 			const mockOnRecordingComplete = vi.fn();
 
-			render(
-				<VoiceRecorder
-					onRecordingComplete={mockOnRecordingComplete}
-					isRecording={true}
-				/>,
-			);
+			render(<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={true} />);
 
 			expect(mockGetUserMedia).toHaveBeenCalledWith({ audio: true });
 			expect(global.MediaRecorder).toHaveBeenCalledWith(mockStream);
@@ -147,19 +136,11 @@ describe("Voice-Dictated Task Creation Feature", () => {
 			const mockOnRecordingComplete = vi.fn();
 
 			const { rerender } = render(
-				<VoiceRecorder
-					onRecordingComplete={mockOnRecordingComplete}
-					isRecording={true}
-				/>,
+				<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={true} />
 			);
 
 			// Simulate stop recording
-			rerender(
-				<VoiceRecorder
-					onRecordingComplete={mockOnRecordingComplete}
-					isRecording={false}
-				/>,
-			);
+			rerender(<VoiceRecorder onRecordingComplete={mockOnRecordingComplete} isRecording={false} />);
 
 			// Simulate MediaRecorder ondataavailable event
 			const audioBlob = new Blob(["audio-data"], { type: "audio/webm" });
@@ -173,7 +154,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 						audioBlob,
 						duration: expect.any(Number),
 						timestamp: expect.any(Date),
-					}),
+					})
 				);
 			});
 		});
@@ -181,9 +162,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 		it("should show recording duration", async () => {
 			vi.useFakeTimers();
 
-			render(
-				<VoiceRecorder onRecordingComplete={vi.fn()} isRecording={true} />,
-			);
+			render(<VoiceRecorder onRecordingComplete={vi.fn()} isRecording={true} />);
 
 			// Advance timer
 			vi.advanceTimersByTime(5000);
@@ -198,16 +177,12 @@ describe("Voice-Dictated Task Creation Feature", () => {
 			mockGetUserMedia.mockRejectedValue(new Error("Microphone not available"));
 
 			render(
-				<VoiceRecorder
-					onRecordingComplete={vi.fn()}
-					onError={mockOnError}
-					isRecording={true}
-				/>,
+				<VoiceRecorder onRecordingComplete={vi.fn()} onError={mockOnError} isRecording={true} />
 			);
 
 			await waitFor(() => {
 				expect(mockOnError).toHaveBeenCalledWith(
-					expect.stringContaining("Microphone not available"),
+					expect.stringContaining("Microphone not available")
 				);
 			});
 		});
@@ -228,7 +203,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 				<TranscriptionProcessor
 					recording={mockVoiceRecording}
 					onTranscriptionComplete={mockOnTranscriptionComplete}
-				/>,
+				/>
 			);
 
 			expect(global.SpeechRecognition).toHaveBeenCalled();
@@ -239,8 +214,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 				results: [
 					{
 						0: {
-							transcript:
-								"Create a new task to fix the login bug with high priority",
+							transcript: "Create a new task to fix the login bug with high priority",
 							confidence: 0.95,
 						},
 						isFinal: true,
@@ -257,7 +231,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 						confidence: 0.95,
 						language: "en-US",
 						segments: expect.any(Array),
-					}),
+					})
 				);
 			});
 		});
@@ -270,7 +244,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 					recording={mockVoiceRecording}
 					onTranscriptionComplete={vi.fn()}
 					onError={mockOnError}
-				/>,
+				/>
 			);
 
 			// Simulate error
@@ -278,18 +252,13 @@ describe("Voice-Dictated Task Creation Feature", () => {
 			mockSpeechRecognition.onerror(mockError);
 
 			await waitFor(() => {
-				expect(mockOnError).toHaveBeenCalledWith(
-					expect.stringContaining("transcription failed"),
-				);
+				expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining("transcription failed"));
 			});
 		});
 
 		it("should show transcription progress", () => {
 			render(
-				<TranscriptionProcessor
-					recording={mockVoiceRecording}
-					onTranscriptionComplete={vi.fn()}
-				/>,
+				<TranscriptionProcessor recording={mockVoiceRecording} onTranscriptionComplete={vi.fn()} />
 			);
 
 			expect(screen.getByText(/transcribing/i)).toBeInTheDocument();
@@ -302,7 +271,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 					recording={mockVoiceRecording}
 					onTranscriptionComplete={vi.fn()}
 					language="es-ES"
-				/>,
+				/>
 			);
 
 			expect(mockSpeechRecognition.lang).toBe("es-ES");
@@ -331,45 +300,26 @@ describe("Voice-Dictated Task Creation Feature", () => {
 		};
 
 		it("should extract task data from transcription", () => {
-			render(
-				<VoiceTaskForm
-					transcription={mockTranscriptionResult}
-					onSubmit={vi.fn()}
-				/>,
-			);
+			render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />);
 
 			// Should auto-populate fields based on transcription
-			expect(
-				screen.getByDisplayValue(/fix the login bug/i),
-			).toBeInTheDocument();
+			expect(screen.getByDisplayValue(/fix the login bug/i)).toBeInTheDocument();
 			expect(screen.getByDisplayValue(/high/i)).toBeInTheDocument();
 			expect(screen.getByDisplayValue(/john/i)).toBeInTheDocument();
 		});
 
 		it("should allow manual editing of extracted data", async () => {
-			render(
-				<VoiceTaskForm
-					transcription={mockTranscriptionResult}
-					onSubmit={vi.fn()}
-				/>,
-			);
+			render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />);
 
 			const titleField = screen.getByLabelText(/title/i);
 			await userEvent.clear(titleField);
 			await userEvent.type(titleField, "Updated task title");
 
-			expect(
-				screen.getByDisplayValue("Updated task title"),
-			).toBeInTheDocument();
+			expect(screen.getByDisplayValue("Updated task title")).toBeInTheDocument();
 		});
 
 		it("should show confidence indicators for extracted data", () => {
-			render(
-				<VoiceTaskForm
-					transcription={mockTranscriptionResult}
-					onSubmit={vi.fn()}
-				/>,
-			);
+			render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={vi.fn()} />);
 
 			expect(screen.getByText(/confidence: 95%/i)).toBeInTheDocument();
 		});
@@ -382,9 +332,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 				segments: [],
 			};
 
-			render(
-				<VoiceTaskForm transcription={poorTranscription} onSubmit={vi.fn()} />,
-			);
+			render(<VoiceTaskForm transcription={poorTranscription} onSubmit={vi.fn()} />);
 
 			expect(screen.getByText(/low confidence/i)).toBeInTheDocument();
 			expect(screen.getByText(/please review/i)).toBeInTheDocument();
@@ -393,12 +341,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 		it("should submit voice task with correct metadata", async () => {
 			const mockOnSubmit = vi.fn();
 
-			render(
-				<VoiceTaskForm
-					transcription={mockTranscriptionResult}
-					onSubmit={mockOnSubmit}
-				/>,
-			);
+			render(<VoiceTaskForm transcription={mockTranscriptionResult} onSubmit={mockOnSubmit} />);
 
 			const submitButton = screen.getByText(/create task/i);
 			await userEvent.click(submitButton);
@@ -414,15 +357,14 @@ describe("Voice-Dictated Task Creation Feature", () => {
 						voiceCreated: true,
 					}),
 					tags: expect.arrayContaining(["voice-created"]),
-				}),
+				})
 			);
 		});
 	});
 
 	describe("AI-Powered Text Extraction", () => {
 		it("should extract title from natural language", () => {
-			const transcription =
-				"I need to create a task for fixing the broken navigation menu";
+			const transcription = "I need to create a task for fixing the broken navigation menu";
 
 			// This would use AI/NLP to extract task components
 			const extracted = extractTaskFromTranscription(transcription);
@@ -432,8 +374,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 		});
 
 		it("should detect priority keywords", () => {
-			const transcription =
-				"urgent task to fix critical security vulnerability";
+			const transcription = "urgent task to fix critical security vulnerability";
 
 			const extracted = extractTaskFromTranscription(transcription);
 
@@ -485,7 +426,7 @@ describe("Voice-Dictated Task Creation Feature", () => {
 					expect.objectContaining({
 						creationMethod: "voice",
 						tags: expect.arrayContaining(["voice-created"]),
-					}),
+					})
 				);
 			});
 		});

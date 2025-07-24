@@ -36,12 +36,10 @@ export class StorageModeFeatureFlag {
 	 * Load configuration from environment variables or defaults
 	 */
 	private loadConfig(): StorageModeConfig {
-		const mode =
-			(process.env.NEXT_PUBLIC_STORAGE_MODE as StorageMode) || "database";
+		const mode = (process.env.NEXT_PUBLIC_STORAGE_MODE as StorageMode) || "database";
 		const fallbackEnabled = process.env.NEXT_PUBLIC_STORAGE_FALLBACK === "true";
 		const syncEnabled = process.env.NEXT_PUBLIC_STORAGE_SYNC === "true";
-		const migrationAutoTrigger =
-			process.env.NEXT_PUBLIC_AUTO_MIGRATE === "true";
+		const migrationAutoTrigger = process.env.NEXT_PUBLIC_AUTO_MIGRATE === "true";
 
 		return {
 			mode,
@@ -135,7 +133,7 @@ export class DualModeStorage<T> {
 	constructor(
 		private localStorageAdapter: StorageAdapter<T>,
 		private databaseAdapter: StorageAdapter<T>,
-		private featureFlag: StorageModeFeatureFlag = storageModeFlag,
+		private featureFlag: StorageModeFeatureFlag = storageModeFlag
 	) {}
 
 	async get(key: string): Promise<T | null> {
@@ -150,10 +148,7 @@ export class DualModeStorage<T> {
 				return await this.databaseAdapter.get(key);
 			} catch (error) {
 				if (this.featureFlag.isFallbackEnabled()) {
-					console.warn(
-						"Database read failed, falling back to localStorage:",
-						error,
-					);
+					console.warn("Database read failed, falling back to localStorage:", error);
 					return this.localStorageAdapter.get(key);
 				}
 				throw error;
@@ -187,10 +182,7 @@ export class DualModeStorage<T> {
 				await this.databaseAdapter.set(key, value);
 			} catch (error) {
 				if (this.featureFlag.isFallbackEnabled()) {
-					console.warn(
-						"Database write failed, falling back to localStorage:",
-						error,
-					);
+					console.warn("Database write failed, falling back to localStorage:", error);
 					return this.localStorageAdapter.set(key, value);
 				}
 				throw error;
@@ -206,7 +198,7 @@ export class DualModeStorage<T> {
 			promises.push(
 				this.databaseAdapter.set(key, value).catch((error) => {
 					console.warn("Database write failed in dual mode:", error);
-				}),
+				})
 			);
 
 			// Always write to localStorage
@@ -231,10 +223,7 @@ export class DualModeStorage<T> {
 				await this.databaseAdapter.delete(key);
 			} catch (error) {
 				if (this.featureFlag.isFallbackEnabled()) {
-					console.warn(
-						"Database delete failed, falling back to localStorage:",
-						error,
-					);
+					console.warn("Database delete failed, falling back to localStorage:", error);
 					return this.localStorageAdapter.delete(key);
 				}
 				throw error;
@@ -249,7 +238,7 @@ export class DualModeStorage<T> {
 			promises.push(
 				this.databaseAdapter.delete(key).catch((error) => {
 					console.warn("Database delete failed in dual mode:", error);
-				}),
+				})
 			);
 
 			promises.push(this.localStorageAdapter.delete(key));

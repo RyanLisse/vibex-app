@@ -27,7 +27,7 @@ describe("Textarea", () => {
 			"px-3",
 			"py-2",
 			"text-base",
-			"shadow-xs",
+			"shadow-xs"
 		);
 		expect(textarea).toHaveAttribute("data-slot", "textarea");
 	});
@@ -41,13 +41,7 @@ describe("Textarea", () => {
 	});
 
 	it("should pass through value prop", () => {
-		render(
-			<Textarea
-				data-testid="textarea"
-				onChange={() => {}}
-				value="Initial text"
-			/>,
-		);
+		render(<Textarea data-testid="textarea" onChange={() => {}} value="Initial text" />);
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toHaveValue("Initial text");
@@ -72,10 +66,7 @@ describe("Textarea", () => {
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toBeDisabled();
-		expect(textarea).toHaveClass(
-			"disabled:cursor-not-allowed",
-			"disabled:opacity-50",
-		);
+		expect(textarea).toHaveClass("disabled:cursor-not-allowed", "disabled:opacity-50");
 	});
 
 	it("should handle readOnly state", () => {
@@ -122,7 +113,7 @@ describe("Textarea", () => {
 				target: expect.objectContaining({
 					value: "New text content",
 				}),
-			}),
+			})
 		);
 	});
 
@@ -158,7 +149,7 @@ describe("Textarea", () => {
 			expect.objectContaining({
 				key: "Enter",
 				shiftKey: true,
-			}),
+			})
 		);
 	});
 
@@ -177,9 +168,7 @@ describe("Textarea", () => {
 	});
 
 	it("should handle aria-describedby attribute", () => {
-		render(
-			<Textarea aria-describedby="error-message" data-testid="textarea" />,
-		);
+		render(<Textarea aria-describedby="error-message" data-testid="textarea" />);
 
 		const textarea = screen.getByTestId("textarea");
 		expect(textarea).toHaveAttribute("aria-describedby", "error-message");
@@ -224,11 +213,7 @@ describe("Textarea", () => {
 		const Component = () => {
 			const [value, setValue] = React.useState("Initial text");
 			return (
-				<Textarea
-					data-testid="textarea"
-					onChange={(e) => setValue(e.target.value)}
-					value={value}
-				/>
+				<Textarea data-testid="textarea" onChange={(e) => setValue(e.target.value)} value={value} />
 			);
 		};
 

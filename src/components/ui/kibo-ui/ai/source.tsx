@@ -54,14 +54,10 @@ interface AISourcesContentProps {
 	sources?: Source[];
 }
 
-export function AISourcesContent({
-	children,
-	sources = [],
-}: AISourcesContentProps) {
+export function AISourcesContent({ children, sources = [] }: AISourcesContentProps) {
 	return (
 		<div className="ai-sources-content space-y-3">
-			{children ||
-				sources.map((source) => <AISource key={source.id} source={source} />)}
+			{children || sources.map((source) => <AISource key={source.id} source={source} />)}
 		</div>
 	);
 }
@@ -72,11 +68,7 @@ interface AISourceProps {
 	className?: string;
 }
 
-export function AISource({
-	source,
-	showExcerpt = true,
-	className,
-}: AISourceProps) {
+export function AISource({ source, showExcerpt = true, className }: AISourceProps) {
 	const getSourceIcon = (type?: string) => {
 		switch (type) {
 			case "web":
@@ -109,9 +101,7 @@ export function AISource({
 							</Button>
 						)}
 						{showExcerpt && source.excerpt && (
-							<p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-								{source.excerpt}
-							</p>
+							<p className="text-xs text-muted-foreground mt-1 line-clamp-2">{source.excerpt}</p>
 						)}
 					</div>
 				</div>
@@ -122,10 +112,7 @@ export function AISource({
 						</Badge>
 					)}
 					{source.confidence && (
-						<Badge
-							variant={source.confidence > 0.8 ? "default" : "outline"}
-							className="text-xs"
-						>
+						<Badge variant={source.confidence > 0.8 ? "default" : "outline"} className="text-xs">
 							{Math.round(source.confidence * 100)}%
 						</Badge>
 					)}
@@ -141,17 +128,9 @@ interface AISourcesTriggerProps {
 	className?: string;
 }
 
-export function AISourcesTrigger({
-	children,
-	onClick,
-	className,
-}: AISourcesTriggerProps) {
+export function AISourcesTrigger({ children, onClick, className }: AISourcesTriggerProps) {
 	return (
-		<Button
-			variant="ghost"
-			onClick={onClick}
-			className={`ai-sources-trigger ${className || ""}`}
-		>
+		<Button variant="ghost" onClick={onClick} className={`ai-sources-trigger ${className || ""}`}>
 			{children || (
 				<>
 					<FileText className="h-4 w-4 mr-2" />

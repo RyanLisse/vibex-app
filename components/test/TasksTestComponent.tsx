@@ -7,18 +7,11 @@
 import type React from "react";
 import { useState } from "react";
 import type { NewTask } from "@/db/schema";
-import {
-	useCreateTask,
-	useDeleteTask,
-	useTasks,
-	useUpdateTask,
-} from "@/lib/queries/hooks";
+import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from "@/lib/queries/hooks";
 
 export function TasksTestComponent() {
 	const [newTaskTitle, setNewTaskTitle] = useState("");
-	const [filter, setFilter] = useState<{ status?: string; priority?: string }>(
-		{},
-	);
+	const [filter, setFilter] = useState<{ status?: string; priority?: string }>({});
 
 	// Query hooks
 	const { data: tasksData, isLoading, error, refetch } = useTasks(filter);
@@ -106,12 +99,9 @@ export function TasksTestComponent() {
 	return (
 		<div className="p-6 max-w-4xl mx-auto">
 			<div className="mb-6">
-				<h1 className="text-2xl font-bold text-gray-900 mb-4">
-					Tasks Test Component
-				</h1>
+				<h1 className="text-2xl font-bold text-gray-900 mb-4">Tasks Test Component</h1>
 				<p className="text-gray-600 text-sm">
-					Testing TanStack Query + ElectricSQL integration with optimistic
-					updates
+					Testing TanStack Query + ElectricSQL integration with optimistic updates
 				</p>
 			</div>
 
@@ -195,9 +185,7 @@ export function TasksTestComponent() {
 									<div className="flex-1">
 										<h3 className="font-medium text-gray-900">{task.title}</h3>
 										{task.description && (
-											<p className="text-gray-600 text-sm mt-1">
-												{task.description}
-											</p>
+											<p className="text-gray-600 text-sm mt-1">{task.description}</p>
 										)}
 										<div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
 											<span
@@ -226,9 +214,7 @@ export function TasksTestComponent() {
 											>
 												{task.priority}
 											</span>
-											<span>
-												Created: {new Date(task.createdAt).toLocaleDateString()}
-											</span>
+											<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
 										</div>
 									</div>
 									<div className="flex items-center gap-2 ml-4">

@@ -2,12 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import {
-	AISource,
-	AISources,
-	AISourcesContent,
-	AISourcesTrigger,
-} from "./source";
+import { AISource, AISources, AISourcesContent, AISourcesTrigger } from "./source";
 
 // Mock dependencies
 vi.mock("lucide-react", () => ({
@@ -50,7 +45,7 @@ describe("AISources", () => {
 		render(
 			<AISources>
 				<div>Sources content</div>
-			</AISources>,
+			</AISources>
 		);
 
 		expect(screen.getByTestId("collapsible")).toBeInTheDocument();
@@ -61,12 +56,7 @@ describe("AISources", () => {
 		render(<AISources />);
 
 		const collapsible = screen.getByTestId("collapsible");
-		expect(collapsible).toHaveClass(
-			"not-prose",
-			"mb-4",
-			"text-primary",
-			"text-xs",
-		);
+		expect(collapsible).toHaveClass("not-prose", "mb-4", "text-primary", "text-xs");
 	});
 
 	it("should apply custom className", () => {
@@ -97,7 +87,7 @@ describe("AISourcesTrigger", () => {
 		render(
 			<AISourcesTrigger count={3}>
 				<span>Custom trigger content</span>
-			</AISourcesTrigger>,
+			</AISourcesTrigger>
 		);
 
 		expect(screen.getByText("Custom trigger content")).toBeInTheDocument();
@@ -136,7 +126,7 @@ describe("AISourcesContent", () => {
 			<AISourcesContent>
 				<div>Source 1</div>
 				<div>Source 2</div>
-			</AISourcesContent>,
+			</AISourcesContent>
 		);
 
 		expect(screen.getByText("Source 1")).toBeInTheDocument();
@@ -178,7 +168,7 @@ describe("AISource", () => {
 		render(
 			<AISource href="https://example.com" title="Default">
 				<span>Custom source content</span>
-			</AISource>,
+			</AISource>
 		);
 
 		expect(screen.getByText("Custom source content")).toBeInTheDocument();
@@ -206,13 +196,7 @@ describe("AISource", () => {
 		const user = userEvent.setup();
 		const handleClick = vi.fn();
 
-		render(
-			<AISource
-				href="https://example.com"
-				onClick={handleClick}
-				title="Test"
-			/>,
-		);
+		render(<AISource href="https://example.com" onClick={handleClick} title="Test" />);
 
 		await user.click(screen.getByRole("link"));
 		expect(handleClick).toHaveBeenCalledTimes(1);
@@ -220,12 +204,7 @@ describe("AISource", () => {
 
 	it("should pass through additional props", () => {
 		render(
-			<AISource
-				aria-label="Custom source"
-				data-testid="custom-source"
-				href="#"
-				title="Test"
-			/>,
+			<AISource aria-label="Custom source" data-testid="custom-source" href="#" title="Test" />
 		);
 
 		const link = screen.getByTestId("custom-source");

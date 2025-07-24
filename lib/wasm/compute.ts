@@ -142,14 +142,8 @@ export class ComputeWASM {
 						config: this.config,
 					});
 				} catch (wasmError) {
-					observability.recordError(
-						"wasm.compute.wasm-load-failed",
-						wasmError as Error,
-					);
-					console.warn(
-						"Failed to load compute WASM, using JavaScript fallback:",
-						wasmError,
-					);
+					observability.recordError("wasm.compute.wasm-load-failed", wasmError as Error);
+					console.warn("Failed to load compute WASM, using JavaScript fallback:", wasmError);
 					await this.initializeJavaScriptFallback();
 					this.isWASMEnabled = false;
 				}
@@ -173,10 +167,7 @@ export class ComputeWASM {
 
 				console.log("✅ Compute WASM engine initialized");
 			} catch (error) {
-				observability.recordError(
-					"wasm.compute.initialization-failed",
-					error as Error,
-				);
+				observability.recordError("wasm.compute.initialization-failed", error as Error);
 				console.warn("Failed to initialize compute WASM engine:", error);
 				await this.initializeJavaScriptFallback();
 				this.isInitialized = true;
@@ -237,17 +228,11 @@ export class ComputeWASM {
 			},
 			calculate_std: (data: Float64Array) => {
 				const mean = this.wasmModule.calculate_mean(data);
-				const variance =
-					data.reduce((sum, val) => sum + (val - mean) ** 2, 0) / data.length;
+				const variance = data.reduce((sum, val) => sum + (val - mean) ** 2, 0) / data.length;
 				return Math.sqrt(variance);
 			},
 			// Matrix operations
-			matrix_multiply: (
-				a: Float64Array,
-				b: Float64Array,
-				rows: number,
-				cols: number,
-			) => {
+			matrix_multiply: (a: Float64Array, b: Float64Array, rows: number, cols: number) => {
 				const result = new Float64Array(rows * cols);
 				// Simple matrix multiplication
 				for (let i = 0; i < rows; i++) {
@@ -290,17 +275,13 @@ export class ComputeWASM {
 	 * Initialize worker pool for parallel processing
 	 */
 	private async initializeWorkerPool(): Promise<void> {
-		const workerCount = Math.min(
-			this.config.maxWorkers,
-			navigator.hardwareConcurrency || 4,
-		);
+		const workerCount = Math.min(this.config.maxWorkers, navigator.hardwareConcurrency || 4);
 
 		for (let i = 0; i < workerCount; i++) {
 			try {
-				const worker = new Worker(
-					new URL("../workers/compute-worker.ts", import.meta.url),
-					{ type: "module" },
-				);
+				const worker = new Worker(new URL("../workers/compute-worker.ts", import.meta.url), {
+					type: "module",
+				});
 
 				worker.onmessage = (event) => {
 					this.handleWorkerMessage(event.data);
@@ -369,10 +350,7 @@ export class ComputeWASM {
 	 * Process task queue
 	 */
 	private processQueue(): void {
-		while (
-			this.taskQueue.length > 0 &&
-			this.stats.activeJobs < this.config.maxWorkers
-		) {
+		while (this.taskQueue.length > 0 && this.stats.activeJobs < this.config.maxWorkers) {
 			const task = this.taskQueue.shift()!;
 			this.executeTask(task);
 		}
@@ -420,27 +398,24 @@ export class ComputeWASM {
 	 * Execute task in main thread
 	 */
 	private async executeInMainThread(task: ComputeTask): Promise<any> {
-		return observability.trackOperation(
-			`wasm.compute.${task.operation}`,
-			async () => {
-				switch (task.type) {
-					case "statistics":
-						return this.executeStatisticalTask(task);
-					case "analytics":
-						return this.executeAnalyticsTask(task);
-					case "matrix":
-						return this.executeMatrixTask(task);
-					case "signal":
-						return this.executeSignalTask(task);
-					case "ml":
-						return this.executeMLTask(task);
-					case "crypto":
-						return this.executeCryptoTask(task);
-					default:
-						throw new Error(`Unknown task type: ${task.type}`);
-				}
-			},
-		);
+		return observability.trackOperation(`wasm.compute.${task.operation}`, async () => {
+			switch (task.type) {
+				case "statistics":
+					return this.executeStatisticalTask(task);
+				case "analytics":
+					return this.executeAnalyticsTask(task);
+				case "matrix":
+					return this.executeMatrixTask(task);
+				case "signal":
+					return this.executeSignalTask(task);
+				case "ml":
+					return this.executeMLTask(task);
+				case "crypto":
+					return this.executeCryptoTask(task);
+				default:
+					throw new Error(`Unknown task type: ${task.type}`);
+			}
+		});
 	}
 
 	/**
@@ -454,15 +429,9 @@ export class ComputeWASM {
 			case "summary":
 				return this.calculateStatisticalSummary(values);
 			case "correlation":
-				return this.calculateCorrelation(
-					values,
-					new Float64Array(data.values2),
-				);
+				return this.calculateCorrelation(values, new Float64Array(data.values2));
 			case "regression":
-				return this.calculateLinearRegression(
-					values,
-					new Float64Array(data.values2),
-				);
+				return this.calculateLinearRegression(values, new Float64Array(data.values2));
 			default:
 				throw new Error(`Unknown statistical operation: ${operation}`);
 		}
@@ -471,9 +440,7 @@ export class ComputeWASM {
 	/**
 	 * Calculate comprehensive statistical summary
 	 */
-	private calculateStatisticalSummary(
-		values: Float64Array,
-	): StatisticalSummary {
+	private calculateStatisticalSummary(values: Float64Array): StatisticalSummary {
 		const sorted = Array.from(values).sort((a, b) => a - b);
 		const n = values.length;
 
@@ -484,9 +451,7 @@ export class ComputeWASM {
 
 		// Median
 		const median =
-			n % 2 === 0
-				? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
-				: sorted[Math.floor(n / 2)];
+			n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)];
 
 		// Mode (most frequent values)
 		const frequency = new Map<number, number>();
@@ -532,11 +497,7 @@ export class ComputeWASM {
 	/**
 	 * Calculate skewness
 	 */
-	private calculateSkewness(
-		values: Float64Array,
-		mean: number,
-		std: number,
-	): number {
+	private calculateSkewness(values: Float64Array, mean: number, std: number): number {
 		const n = values.length;
 		let sum = 0;
 
@@ -550,11 +511,7 @@ export class ComputeWASM {
 	/**
 	 * Calculate kurtosis
 	 */
-	private calculateKurtosis(
-		values: Float64Array,
-		mean: number,
-		std: number,
-	): number {
+	private calculateKurtosis(values: Float64Array, mean: number, std: number): number {
 		const n = values.length;
 		let sum = 0;
 
@@ -602,7 +559,7 @@ export class ComputeWASM {
 	 */
 	private calculateLinearRegression(
 		x: Float64Array,
-		y: Float64Array,
+		y: Float64Array
 	): {
 		slope: number;
 		intercept: number;
@@ -638,8 +595,7 @@ export class ComputeWASM {
 			residualSumSquares += (y[i] - predicted) ** 2;
 		}
 
-		const rSquared =
-			totalSumSquares === 0 ? 1 : 1 - residualSumSquares / totalSumSquares;
+		const rSquared = totalSumSquares === 0 ? 1 : 1 - residualSumSquares / totalSumSquares;
 
 		return { slope, intercept, rSquared };
 	}
@@ -664,7 +620,7 @@ export class ComputeWASM {
 					new Float64Array(data.matrixA),
 					new Float64Array(data.matrixB),
 					data.rows,
-					data.cols,
+					data.cols
 				);
 			default:
 				throw new Error(`Unknown matrix operation: ${operation}`);
@@ -741,14 +697,12 @@ export class ComputeWASM {
 		this.stats.queueSize = this.taskQueue.length;
 		this.stats.averageExecutionTime =
 			this.executionTimes.length > 0
-				? this.executionTimes.reduce((a, b) => a + b, 0) /
-					this.executionTimes.length
+				? this.executionTimes.reduce((a, b) => a + b, 0) / this.executionTimes.length
 				: 0;
 
 		// Estimate memory and CPU usage
 		this.stats.memoryUsage = this.activeTasks.size * 1024 * 1024; // Rough estimate
-		this.stats.cpuUsage =
-			(this.stats.activeJobs / this.config.maxWorkers) * 100;
+		this.stats.cpuUsage = (this.stats.activeJobs / this.config.maxWorkers) * 100;
 	}
 
 	/**
@@ -794,18 +748,14 @@ export class ComputeWASM {
 }
 
 // Export utility functions
-export function createComputeEngine(
-	config?: Partial<ComputeWASMConfig>,
-): ComputeWASM {
+export function createComputeEngine(config?: Partial<ComputeWASMConfig>): ComputeWASM {
 	return new ComputeWASM(config);
 }
 
 // Global compute engine instance
 let globalComputeEngine: ComputeWASM | null = null;
 
-export function getComputeEngine(
-	config?: Partial<ComputeWASMConfig>,
-): ComputeWASM {
+export function getComputeEngine(config?: Partial<ComputeWASMConfig>): ComputeWASM {
 	if (!globalComputeEngine) {
 		globalComputeEngine = new ComputeWASM(config);
 	}
@@ -816,10 +766,7 @@ export function getComputeEngine(
 export class ComputeManager {
 	private engines: Map<string, ComputeWASM> = new Map();
 
-	getComputeEngine(
-		name: string = "default",
-		config?: Partial<ComputeWASMConfig>,
-	): ComputeWASM {
+	getComputeEngine(name: string = "default", config?: Partial<ComputeWASMConfig>): ComputeWASM {
 		if (!this.engines.has(name)) {
 			this.engines.set(name, new ComputeWASM(config));
 		}
@@ -827,9 +774,7 @@ export class ComputeManager {
 	}
 
 	async initializeAll(): Promise<void> {
-		const initPromises = Array.from(this.engines.values()).map((engine) =>
-			engine.initialize(),
-		);
+		const initPromises = Array.from(this.engines.values()).map((engine) => engine.initialize());
 		await Promise.all(initPromises);
 	}
 

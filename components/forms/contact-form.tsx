@@ -27,7 +27,7 @@ const getInitialFormData = (): Partial<ContactForm> => ({
 
 const clearFieldError = (
 	errors: ReturnType<typeof validateSchema>["error"],
-	field: keyof ContactForm,
+	field: keyof ContactForm
 ) => {
 	if (!errors?.fieldErrors) {
 		return null;
@@ -42,7 +42,7 @@ const clearFieldError = (
 
 const getInputClassName = (
 	errors: ReturnType<typeof validateSchema>["error"],
-	field: keyof ContactForm,
+	field: keyof ContactForm
 ) => {
 	const baseClasses =
 		"w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
@@ -57,7 +57,7 @@ const createFieldProps = (
 	formData: Partial<ContactForm>,
 	errors: ReturnType<typeof validateSchema>["error"],
 	onInputChange: (field: keyof ContactForm, value: string) => void,
-	onBlur: (field: keyof ContactForm) => void,
+	onBlur: (field: keyof ContactForm) => void
 ) => ({
 	id: field,
 	value: (formData[field] as string) || "",
@@ -68,16 +68,9 @@ const createFieldProps = (
 	onBlur: () => onBlur(field),
 });
 
-export function ContactForm({
-	onSubmit,
-	isLoading = false,
-	className = "",
-}: ContactFormProps) {
-	const [formData, setFormData] = useState<Partial<ContactForm>>(
-		getInitialFormData(),
-	);
-	const [errors, setErrors] =
-		useState<ReturnType<typeof validateSchema>["error"]>(null);
+export function ContactForm({ onSubmit, isLoading = false, className = "" }: ContactFormProps) {
+	const [formData, setFormData] = useState<Partial<ContactForm>>(getInitialFormData());
+	const [errors, setErrors] = useState<ReturnType<typeof validateSchema>["error"]>(null);
 	const [, setTouched] = useState<Record<string, boolean>>({});
 
 	const handleInputChange = (field: keyof ContactForm, value: string) => {
@@ -112,54 +105,21 @@ export function ContactForm({
 		setTouched({});
 	};
 
-	const nameProps = createFieldProps(
-		"name",
-		formData,
-		errors,
-		handleInputChange,
-		handleBlur,
-	);
-	const emailProps = createFieldProps(
-		"email",
-		formData,
-		errors,
-		handleInputChange,
-		handleBlur,
-	);
-	const subjectProps = createFieldProps(
-		"subject",
-		formData,
-		errors,
-		handleInputChange,
-		handleBlur,
-	);
+	const nameProps = createFieldProps("name", formData, errors, handleInputChange, handleBlur);
+	const emailProps = createFieldProps("email", formData, errors, handleInputChange, handleBlur);
+	const subjectProps = createFieldProps("subject", formData, errors, handleInputChange, handleBlur);
 	const priorityProps = createFieldProps(
 		"priority",
 		formData,
 		errors,
 		handleInputChange,
-		handleBlur,
+		handleBlur
 	);
-	const messageProps = createFieldProps(
-		"message",
-		formData,
-		errors,
-		handleInputChange,
-		handleBlur,
-	);
+	const messageProps = createFieldProps("message", formData, errors, handleInputChange, handleBlur);
 
 	return (
-		<form
-			className={`space-y-4 ${className}`}
-			noValidate
-			onSubmit={handleSubmit}
-		>
-			<FormField
-				{...nameProps}
-				label="Name"
-				placeholder="Enter your full name"
-				type="text"
-			/>
+		<form className={`space-y-4 ${className}`} noValidate onSubmit={handleSubmit}>
+			<FormField {...nameProps} label="Name" placeholder="Enter your full name" type="text" />
 
 			<FormField
 				{...emailProps}
@@ -168,12 +128,7 @@ export function ContactForm({
 				type="email"
 			/>
 
-			<FormField
-				{...subjectProps}
-				label="Subject"
-				placeholder="Enter the subject"
-				type="text"
-			/>
+			<FormField {...subjectProps} label="Subject" placeholder="Enter the subject" type="text" />
 
 			<FormField
 				{...priorityProps}
@@ -203,12 +158,7 @@ export function ContactForm({
 			)}
 
 			<div className="flex justify-end gap-2">
-				<Button
-					disabled={isLoading}
-					onClick={handleClear}
-					type="button"
-					variant="outline"
-				>
+				<Button disabled={isLoading} onClick={handleClear} type="button" variant="outline">
 					Clear
 				</Button>
 				<Button className="min-w-24" disabled={isLoading} type="submit">

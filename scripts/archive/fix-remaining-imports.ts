@@ -7,16 +7,13 @@ import { dirname, join } from "path";
 const fixes = [];
 
 // Fix 1: ReactFlow import - seems the script didn't run properly
-const visualizationPath = join(
-	process.cwd(),
-	"components/ambient-agents/visualization-engine.tsx",
-);
+const visualizationPath = join(process.cwd(), "components/ambient-agents/visualization-engine.tsx");
 if (existsSync(visualizationPath)) {
 	let content = readFileSync(visualizationPath, "utf-8");
 	if (content.includes("import ReactFlow from")) {
 		content = content.replace(
 			/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-			"ReactFlow } from '@xyflow/react'",
+			"ReactFlow } from '@xyflow/react'"
 		);
 		writeFileSync(visualizationPath, content);
 		fixes.push("ReactFlow import in visualization-engine.tsx");
@@ -27,19 +24,13 @@ if (existsSync(visualizationPath)) {
 const redisClientPath = join(process.cwd(), "lib/redis/redis-client.ts");
 if (existsSync(redisClientPath)) {
 	let content = readFileSync(redisClientPath, "utf-8");
-	if (
-		!(
-			content.includes("export { redis }") ||
-			content.includes("export const redis")
-		)
-	) {
+	if (!(content.includes("export { redis }") || content.includes("export const redis"))) {
 		// Find the redis instance and export it
 		if (content.includes("const redis =")) {
 			content = content.replace(/const redis =/, "export const redis =");
 		} else {
 			// Add a default export
-			content +=
-				"\n\n// Export redis client instance\nexport const redis = redisClient\n";
+			content += "\n\n// Export redis client instance\nexport const redis = redisClient\n";
 		}
 		writeFileSync(redisClientPath, content);
 		fixes.push("redis export in redis-client.ts");
@@ -122,10 +113,7 @@ export type TaskProgressUpdate = z.infer<typeof TaskProgressUpdateSchema>
 }
 
 // Fix 5: Check for other ReactFlow imports
-const files = [
-	"components/ambient-agents/visualization-engine.tsx",
-	"app/ambient-agents/page.tsx",
-];
+const files = ["components/ambient-agents/visualization-engine.tsx", "app/ambient-agents/page.tsx"];
 
 for (const file of files) {
 	const filePath = join(process.cwd(), file);
@@ -137,7 +125,7 @@ for (const file of files) {
 		if (content.includes("import ReactFlow")) {
 			content = content.replace(
 				/import\s+ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-				"ReactFlow } from '@xyflow/react'",
+				"ReactFlow } from '@xyflow/react'"
 			);
 			modified = true;
 		}
@@ -147,7 +135,7 @@ for (const file of files) {
 			// Make sure ReactFlow is imported as named export
 			content = content.replace(
 				/import\s+{\s*([^}]+)\s*},\s*ReactFlow\s+from\s+['"]@xyflow\/react['"]/g,
-				"$1, ReactFlow } from '@xyflow/react'",
+				"$1, ReactFlow } from '@xyflow/react'"
 			);
 			modified = true;
 		}

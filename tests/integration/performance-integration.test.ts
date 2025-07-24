@@ -123,7 +123,7 @@ describe("Performance Integration Tests", () => {
 							hasMore: false,
 						},
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -136,7 +136,7 @@ describe("Performance Integration Tests", () => {
 				() => {
 					expect(result.current.isSuccess).toBe(true);
 				},
-				{ timeout: 5000 },
+				{ timeout: 5000 }
 			);
 
 			const loadTime = endTiming();
@@ -164,10 +164,7 @@ describe("Performance Integration Tests", () => {
 
 					const startIndex = (page - 1) * limit;
 					const endIndex = startIndex + limit;
-					const tasks = createBatchTasks(totalTasks).slice(
-						startIndex,
-						endIndex,
-					);
+					const tasks = createBatchTasks(totalTasks).slice(startIndex, endIndex);
 
 					return HttpResponse.json({
 						success: true,
@@ -177,17 +174,14 @@ describe("Performance Integration Tests", () => {
 							hasMore: endIndex < totalTasks,
 						},
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
 
 			// Test multiple page loads
 			for (let page = 1; page <= 5; page++) {
-				const { result } = renderHook(
-					() => useTasks({ page, limit: pageSize }),
-					{ wrapper },
-				);
+				const { result } = renderHook(() => useTasks({ page, limit: pageSize }), { wrapper });
 
 				const endTiming = monitor.startTiming(`page-${page}-load`);
 
@@ -228,9 +222,9 @@ describe("Performance Integration Tests", () => {
 							success: true,
 							data: { ...body, id: "server-generated-id" },
 						},
-						{ status: 201 },
+						{ status: 201 }
 					);
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -240,7 +234,7 @@ describe("Performance Integration Tests", () => {
 					const createTask = useCreateTask();
 					return { tasks, createTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Wait for initial load
@@ -293,7 +287,7 @@ describe("Performance Integration Tests", () => {
 						success: true,
 						data: { id: params.id, ...body },
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -303,7 +297,7 @@ describe("Performance Integration Tests", () => {
 					const updateTask = useUpdateTask();
 					return { tasks, updateTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			await waitFor(() => {
@@ -325,7 +319,7 @@ describe("Performance Integration Tests", () => {
 			// Wait for all optimistic updates
 			await waitFor(() => {
 				const completedTasks = result.current.tasks.data?.tasks.filter(
-					(t) => t.status === "completed",
+					(t) => t.status === "completed"
 				);
 				expect(completedTasks).toHaveLength(10);
 			});
@@ -340,7 +334,7 @@ describe("Performance Integration Tests", () => {
 				() => {
 					expect(operationCount).toBe(10);
 				},
-				{ timeout: 2000 },
+				{ timeout: 2000 }
 			);
 		});
 	});
@@ -370,9 +364,9 @@ describe("Performance Integration Tests", () => {
 							success: true,
 							data: { ...body, id: "new-task-id" },
 						},
-						{ status: 201 },
+						{ status: 201 }
 					);
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -382,7 +376,7 @@ describe("Performance Integration Tests", () => {
 					const createTask = useCreateTask();
 					return { tasks, createTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Initial load
@@ -442,25 +436,19 @@ describe("Performance Integration Tests", () => {
 							hasMore: false,
 						},
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
 
 			// Create multiple concurrent queries
 			const { result: allTasks } = renderHook(() => useTasks(), { wrapper });
-			const { result: pendingTasks } = renderHook(
-				() => useTasks({ status: "pending" }),
-				{
-					wrapper,
-				},
-			);
-			const { result: completedTasks } = renderHook(
-				() => useTasks({ status: "completed" }),
-				{
-					wrapper,
-				},
-			);
+			const { result: pendingTasks } = renderHook(() => useTasks({ status: "pending" }), {
+				wrapper,
+			});
+			const { result: completedTasks } = renderHook(() => useTasks({ status: "completed" }), {
+				wrapper,
+			});
 
 			const endTiming = monitor.startTiming("concurrent-queries");
 
@@ -478,14 +466,8 @@ describe("Performance Integration Tests", () => {
 
 			// Each query should have correct filtered data
 			expect(allTasks.current.data?.tasks).toHaveLength(100);
-			expect(
-				pendingTasks.current.data?.tasks.every((t) => t.status === "pending"),
-			).toBe(true);
-			expect(
-				completedTasks.current.data?.tasks.every(
-					(t) => t.status === "completed",
-				),
-			).toBe(true);
+			expect(pendingTasks.current.data?.tasks.every((t) => t.status === "pending")).toBe(true);
+			expect(completedTasks.current.data?.tasks.every((t) => t.status === "completed")).toBe(true);
 		});
 	});
 
@@ -506,7 +488,7 @@ describe("Performance Integration Tests", () => {
 						success: true,
 						data: { id: params.id, ...body },
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -519,7 +501,7 @@ describe("Performance Integration Tests", () => {
 						const updateTask = useUpdateTask();
 						return { tasks, updateTask };
 					},
-					{ wrapper },
+					{ wrapper }
 				);
 
 				await waitFor(() => {
@@ -574,7 +556,7 @@ describe("Performance Integration Tests", () => {
 							})),
 						},
 					});
-				}),
+				})
 			);
 
 			// This would test a batch operation hook (to be implemented)

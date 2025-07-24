@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { ClaudeAuthClient } from "@/lib/auth/claude-auth";
 import { useClaudeAuth } from "./useClaudeAuth";
 
@@ -47,9 +38,7 @@ describe("useClaudeAuth", () => {
 	};
 
 	let mockAuthClient: any;
-	const MockedClaudeAuthClient = ClaudeAuthClient as unknown as ReturnType<
-		typeof mock
-	>;
+	const MockedClaudeAuthClient = ClaudeAuthClient as unknown as ReturnType<typeof mock>;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -92,8 +81,7 @@ describe("useClaudeAuth", () => {
 	describe("OAuth callback handling", () => {
 		it("should handle successful callback", async () => {
 			const onSuccess = vi.fn();
-			mockLocation.href =
-				"https://app.example.com/callback?code=auth-code&state=test-state";
+			mockLocation.href = "https://app.example.com/callback?code=auth-code&state=test-state";
 			mockLocation.search = "?code=auth-code&state=test-state";
 
 			mockSessionStorage.getItem.mockImplementation((key) => {
@@ -117,7 +105,7 @@ describe("useClaudeAuth", () => {
 				useClaudeAuth({
 					...defaultProps,
 					onSuccess,
-				}),
+				})
 			);
 
 			// Wait for effect to run
@@ -127,15 +115,11 @@ describe("useClaudeAuth", () => {
 
 			expect(mockAuthClient.exchangeCodeForToken).toHaveBeenCalledWith(
 				"auth-code",
-				"test-verifier",
+				"test-verifier"
 			);
 			expect(onSuccess).toHaveBeenCalledWith(mockTokenResponse);
-			expect(mockSessionStorage.removeItem).toHaveBeenCalledWith(
-				"claude_auth_state",
-			);
-			expect(mockSessionStorage.removeItem).toHaveBeenCalledWith(
-				"claude_auth_verifier",
-			);
+			expect(mockSessionStorage.removeItem).toHaveBeenCalledWith("claude_auth_state");
+			expect(mockSessionStorage.removeItem).toHaveBeenCalledWith("claude_auth_verifier");
 			expect(result.current.error).toBeNull();
 		});
 
@@ -143,14 +127,13 @@ describe("useClaudeAuth", () => {
 			const onError = vi.fn();
 			mockLocation.href =
 				"https://app.example.com/callback?error=access_denied&error_description=User+denied+access";
-			mockLocation.search =
-				"?error=access_denied&error_description=User+denied+access";
+			mockLocation.search = "?error=access_denied&error_description=User+denied+access";
 
 			const { result } = renderHook(() =>
 				useClaudeAuth({
 					...defaultProps,
 					onError,
-				}),
+				})
 			);
 
 			await act(async () => {
@@ -161,13 +144,12 @@ describe("useClaudeAuth", () => {
 			expect(onError).toHaveBeenCalledWith(
 				expect.objectContaining({
 					message: "User denied access",
-				}),
+				})
 			);
 		});
 
 		it("should handle missing error description", async () => {
-			mockLocation.href =
-				"https://app.example.com/callback?error=unknown_error";
+			mockLocation.href = "https://app.example.com/callback?error=unknown_error";
 			mockLocation.search = "?error=unknown_error";
 
 			const { result } = renderHook(() => useClaudeAuth(defaultProps));
@@ -181,8 +163,7 @@ describe("useClaudeAuth", () => {
 
 		it("should handle invalid state", async () => {
 			const onError = vi.fn();
-			mockLocation.href =
-				"https://app.example.com/callback?code=auth-code&state=wrong-state";
+			mockLocation.href = "https://app.example.com/callback?code=auth-code&state=wrong-state";
 			mockLocation.search = "?code=auth-code&state=wrong-state";
 
 			mockSessionStorage.getItem.mockImplementation((key) => {
@@ -199,23 +180,20 @@ describe("useClaudeAuth", () => {
 				useClaudeAuth({
 					...defaultProps,
 					onError,
-				}),
+				})
 			);
 
 			await act(async () => {
 				await new Promise((resolve) => setTimeout(resolve, 0));
 			});
 
-			expect(result.current.error?.message).toBe(
-				"Invalid state or missing verifier",
-			);
+			expect(result.current.error?.message).toBe("Invalid state or missing verifier");
 			expect(onError).toHaveBeenCalled();
 			expect(mockAuthClient.exchangeCodeForToken).not.toHaveBeenCalled();
 		});
 
 		it("should handle missing verifier", async () => {
-			mockLocation.href =
-				"https://app.example.com/callback?code=auth-code&state=test-state";
+			mockLocation.href = "https://app.example.com/callback?code=auth-code&state=test-state";
 			mockLocation.search = "?code=auth-code&state=test-state";
 
 			mockSessionStorage.getItem.mockImplementation((key) => {
@@ -231,14 +209,11 @@ describe("useClaudeAuth", () => {
 				await new Promise((resolve) => setTimeout(resolve, 0));
 			});
 
-			expect(result.current.error?.message).toBe(
-				"Invalid state or missing verifier",
-			);
+			expect(result.current.error?.message).toBe("Invalid state or missing verifier");
 		});
 
 		it("should handle token exchange failure", async () => {
-			mockLocation.href =
-				"https://app.example.com/callback?code=auth-code&state=test-state";
+			mockLocation.href = "https://app.example.com/callback?code=auth-code&state=test-state";
 			mockLocation.search = "?code=auth-code&state=test-state";
 
 			mockSessionStorage.getItem.mockImplementation((key) => {
@@ -251,9 +226,7 @@ describe("useClaudeAuth", () => {
 				return null;
 			});
 
-			mockAuthClient.exchangeCodeForToken.mockRejectedValue(
-				new Error("Exchange failed"),
-			);
+			mockAuthClient.exchangeCodeForToken.mockRejectedValue(new Error("Exchange failed"));
 
 			const { result } = renderHook(() => useClaudeAuth(defaultProps));
 
@@ -282,15 +255,13 @@ describe("useClaudeAuth", () => {
 			expect(mockAuthClient.getAuthorizationUrl).toHaveBeenCalled();
 			expect(mockSessionStorage.setItem).toHaveBeenCalledWith(
 				"claude_auth_verifier",
-				"generated-verifier",
+				"generated-verifier"
 			);
 			expect(mockSessionStorage.setItem).toHaveBeenCalledWith(
 				"claude_auth_state",
-				"generated-state",
+				"generated-state"
 			);
-			expect(window.location.href).toBe(
-				"https://claude.ai/oauth/authorize?params",
-			);
+			expect(window.location.href).toBe("https://claude.ai/oauth/authorize?params");
 		});
 
 		it("should handle errors during login start", () => {
@@ -303,7 +274,7 @@ describe("useClaudeAuth", () => {
 				useClaudeAuth({
 					...defaultProps,
 					onError,
-				}),
+				})
 			);
 
 			act(() => {
@@ -314,7 +285,7 @@ describe("useClaudeAuth", () => {
 			expect(onError).toHaveBeenCalledWith(
 				expect.objectContaining({
 					message: "Failed to generate URL",
-				}),
+				})
 			);
 			expect(mockSessionStorage.setItem).not.toHaveBeenCalled();
 		});
@@ -370,24 +341,20 @@ describe("useClaudeAuth", () => {
 				tokenResult = await result.current.refreshToken("old-refresh-token");
 			});
 
-			expect(mockAuthClient.refreshToken).toHaveBeenCalledWith(
-				"old-refresh-token",
-			);
+			expect(mockAuthClient.refreshToken).toHaveBeenCalledWith("old-refresh-token");
 			expect(tokenResult).toEqual(mockNewToken);
 			expect(result.current.error).toBeNull();
 		});
 
 		it("should handle refresh token errors", async () => {
 			const onError = vi.fn();
-			mockAuthClient.refreshToken.mockRejectedValue(
-				new Error("Refresh failed"),
-			);
+			mockAuthClient.refreshToken.mockRejectedValue(new Error("Refresh failed"));
 
 			const { result } = renderHook(() =>
 				useClaudeAuth({
 					...defaultProps,
 					onError,
-				}),
+				})
 			);
 
 			await act(async () => {
@@ -402,7 +369,7 @@ describe("useClaudeAuth", () => {
 			expect(onError).toHaveBeenCalledWith(
 				expect.objectContaining({
 					message: "Refresh failed",
-				}),
+				})
 			);
 		});
 
@@ -481,8 +448,7 @@ describe("useClaudeAuth", () => {
 	describe("cleanup", () => {
 		it("should not process callback after unmount", async () => {
 			const onSuccess = vi.fn();
-			mockLocation.href =
-				"https://app.example.com/callback?code=auth-code&state=test-state";
+			mockLocation.href = "https://app.example.com/callback?code=auth-code&state=test-state";
 			mockLocation.search = "?code=auth-code&state=test-state";
 
 			mockSessionStorage.getItem.mockImplementation((key) => {
@@ -499,7 +465,7 @@ describe("useClaudeAuth", () => {
 				useClaudeAuth({
 					...defaultProps,
 					onSuccess,
-				}),
+				})
 			);
 
 			// Unmount immediately

@@ -8,14 +8,9 @@ interface VoiceRecorderProps {
 	onError?: (error: Error) => void;
 }
 
-export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
-	onRecordingComplete,
-	onError,
-}) => {
+export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onRecordingComplete, onError }) => {
 	const [isRecording, setIsRecording] = useState(false);
-	const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
-		null,
-	);
+	const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
 	const startRecording = useCallback(async () => {
 		try {
@@ -74,9 +69,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 			>
 				{isRecording ? "🛑 Stop Recording" : "🎤 Start Recording"}
 			</button>
-			{isRecording && (
-				<div className="text-sm text-gray-600">Recording in progress...</div>
-			)}
+			{isRecording && <div className="text-sm text-gray-600">Recording in progress...</div>}
 		</div>
 	);
 };

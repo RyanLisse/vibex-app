@@ -52,7 +52,7 @@ export class WASMPerformanceTracker {
 		executionTime: number,
 		memoryUsage: number,
 		wasmEnabled: boolean,
-		metadata?: Record<string, any>,
+		metadata?: Record<string, any>
 	): void {
 		const metric: WASMPerformanceMetrics = {
 			operationName,
@@ -67,9 +67,7 @@ export class WASMPerformanceTracker {
 
 		// Maintain metrics history limit
 		if (this.metrics.length > this.maxMetricsHistory) {
-			this.metrics = this.metrics.slice(
-				-Math.floor(this.maxMetricsHistory * 0.8),
-			);
+			this.metrics = this.metrics.slice(-Math.floor(this.maxMetricsHistory * 0.8));
 		}
 
 		// Update operation statistics
@@ -89,9 +87,7 @@ export class WASMPerformanceTracker {
 	 * Update operation statistics
 	 */
 	private updateOperationStats(operationName: string): void {
-		const operationMetrics = this.metrics.filter(
-			(m) => m.operationName === operationName,
-		);
+		const operationMetrics = this.metrics.filter((m) => m.operationName === operationName);
 		const wasmMetrics = operationMetrics.filter((m) => m.wasmEnabled);
 
 		const totalOperations = operationMetrics.length;
@@ -100,20 +96,16 @@ export class WASMPerformanceTracker {
 
 		// Calculate time-based throughput (last minute)
 		const oneMinuteAgo = new Date(Date.now() - 60000);
-		const recentMetrics = operationMetrics.filter(
-			(m) => m.timestamp > oneMinuteAgo,
-		);
+		const recentMetrics = operationMetrics.filter((m) => m.timestamp > oneMinuteAgo);
 		const throughput = recentMetrics.length / 60; // operations per second
 
 		const stats: WASMOperationMetrics = {
 			totalOperations,
-			averageExecutionTime:
-				executionTimes.reduce((a, b) => a + b, 0) / totalOperations,
+			averageExecutionTime: executionTimes.reduce((a, b) => a + b, 0) / totalOperations,
 			minExecutionTime: Math.min(...executionTimes),
 			maxExecutionTime: Math.max(...executionTimes),
 			totalMemoryUsage: memoryUsages.reduce((a, b) => a + b, 0),
-			averageMemoryUsage:
-				memoryUsages.reduce((a, b) => a + b, 0) / totalOperations,
+			averageMemoryUsage: memoryUsages.reduce((a, b) => a + b, 0) / totalOperations,
 			wasmSuccessRate: (wasmMetrics.length / totalOperations) * 100,
 			errorRate: 0, // Would need error tracking
 			throughput,
@@ -147,9 +139,7 @@ export class WASMPerformanceTracker {
 	 * Get metrics for a time range
 	 */
 	getMetricsInRange(startTime: Date, endTime: Date): WASMPerformanceMetrics[] {
-		return this.metrics.filter(
-			(m) => m.timestamp >= startTime && m.timestamp <= endTime,
-		);
+		return this.metrics.filter((m) => m.timestamp >= startTime && m.timestamp <= endTime);
 	}
 
 	/**
@@ -168,27 +158,20 @@ export class WASMPerformanceTracker {
 		}>;
 	} {
 		const totalOperations = this.metrics.length;
-		const wasmEnabledOperations = this.metrics.filter(
-			(m) => m.wasmEnabled,
-		).length;
+		const wasmEnabledOperations = this.metrics.filter((m) => m.wasmEnabled).length;
 
 		const avgExecutionTime =
 			totalOperations > 0
-				? this.metrics.reduce((sum, m) => sum + m.executionTime, 0) /
-					totalOperations
+				? this.metrics.reduce((sum, m) => sum + m.executionTime, 0) / totalOperations
 				: 0;
 
 		const avgMemoryUsage =
 			totalOperations > 0
-				? this.metrics.reduce((sum, m) => sum + m.memoryUsage, 0) /
-					totalOperations
+				? this.metrics.reduce((sum, m) => sum + m.memoryUsage, 0) / totalOperations
 				: 0;
 
 		// Top operations by frequency
-		const operationCounts = new Map<
-			string,
-			{ count: number; totalTime: number }
-		>();
+		const operationCounts = new Map<string, { count: number; totalTime: number }>();
 		for (const metric of this.metrics) {
 			const current = operationCounts.get(metric.operationName) || {
 				count: 0,
@@ -223,13 +206,12 @@ export class WASMPerformanceTracker {
 			const hourStart = new Date(oneDayAgo.getTime() + i * 60 * 60 * 1000);
 			const hourEnd = new Date(hourStart.getTime() + 60 * 60 * 1000);
 			const hourMetrics = recentMetrics.filter(
-				(m) => m.timestamp >= hourStart && m.timestamp < hourEnd,
+				(m) => m.timestamp >= hourStart && m.timestamp < hourEnd
 			);
 
 			const avgTime =
 				hourMetrics.length > 0
-					? hourMetrics.reduce((sum, m) => sum + m.executionTime, 0) /
-						hourMetrics.length
+					? hourMetrics.reduce((sum, m) => sum + m.executionTime, 0) / hourMetrics.length
 					: 0;
 
 			const throughput = hourMetrics.length / 3600; // operations per second

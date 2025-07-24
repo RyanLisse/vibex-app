@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 import { useAuthBase } from "./use-auth-base";
 import { useOpenAIAuth } from "./use-openai-auth";
 
@@ -22,7 +23,7 @@ describe("useOpenAIAuth", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mock.useFakeTimers();
+		vi.useFakeTimers();
 		(useAuthBase as any).mockReturnValue(mockBaseAuth);
 		(global.fetch as any).mockResolvedValue({
 			ok: true,
@@ -31,7 +32,7 @@ describe("useOpenAIAuth", () => {
 	});
 
 	afterEach(() => {
-		mock.useRealTimers();
+		vi.useRealTimers();
 	});
 
 	it("should initialize with correct endpoints", () => {
@@ -42,11 +43,12 @@ describe("useOpenAIAuth", () => {
 				statusEndpoint: "/api/auth/openai/status",
 				loginEndpoint: "/api/auth/openai/login",
 				logoutEndpoint: "/api/auth/openai/logout",
+				provider: "openai",
 			},
 			{
 				authenticated: false,
 				loading: true,
-			},
+			}
 		);
 	});
 
@@ -78,10 +80,8 @@ describe("useOpenAIAuth", () => {
 		});
 
 		it("should handle refresh errors", async () => {
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
-			const fetchMock = mock(global.fetch);
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			const fetchMock = vi.mocked(global.fetch);
 			fetchMock.mockResolvedValueOnce({
 				ok: false,
 				status: 401,
@@ -93,21 +93,16 @@ describe("useOpenAIAuth", () => {
 				await result.current.refreshToken();
 			});
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Token refresh failed:",
-				expect.any(Error),
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Token refresh failed:", expect.any(Error));
 			expect(mockBaseAuth.refresh).not.toHaveBeenCalled();
 
 			consoleSpy.mockRestore();
 		});
 
 		it("should handle network errors", async () => {
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 			const networkError = new Error("Network error");
-			const fetchMock = mock(global.fetch);
+			const fetchMock = vi.mocked(global.fetch);
 			fetchMock.mockRejectedValueOnce(networkError);
 
 			const { result } = renderHook(() => useOpenAIAuth());
@@ -116,10 +111,7 @@ describe("useOpenAIAuth", () => {
 				await result.current.refreshToken();
 			});
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Token refresh failed:",
-				networkError,
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Token refresh failed:", networkError);
 			expect(mockBaseAuth.refresh).not.toHaveBeenCalled();
 
 			consoleSpy.mockRestore();
@@ -132,7 +124,7 @@ describe("useOpenAIAuth", () => {
 
 			// Advance time
 			act(() => {
-				mock.advanceTimersByTime(60_000);
+				vi.advanceTimersByTime(60_000);
 			});
 
 			expect(global.fetch).not.toHaveBeenCalled();
@@ -150,7 +142,7 @@ describe("useOpenAIAuth", () => {
 
 			// Advance time
 			act(() => {
-				mock.advanceTimersByTime(60_000);
+				vi.advanceTimersByTime(60_000);
 			});
 
 			expect(global.fetch).not.toHaveBeenCalled();
@@ -168,7 +160,7 @@ describe("useOpenAIAuth", () => {
 
 			// Advance time
 			act(() => {
-				mock.advanceTimersByTime(60_000);
+				vi.advanceTimersByTime(60_000);
 			});
 
 			expect(global.fetch).not.toHaveBeenCalled();
@@ -191,13 +183,13 @@ describe("useOpenAIAuth", () => {
 
 			// Advance to 59 seconds before expiry
 			act(() => {
-				mock.advanceTimersByTime(59_000);
+				vi.advanceTimersByTime(59_000);
 			});
 			expect(global.fetch).not.toHaveBeenCalled();
 
 			// Advance to 60 seconds before expiry
 			act(() => {
-				mock.advanceTimersByTime(1000);
+				vi.advanceTimersByTime(1000);
 			});
 
 			await waitFor(() => {
@@ -221,7 +213,7 @@ describe("useOpenAIAuth", () => {
 
 			// Should not attempt refresh for already expired tokens
 			act(() => {
-				mock.advanceTimersByTime(1000);
+				vi.advanceTimersByTime(1000);
 			});
 
 			expect(global.fetch).not.toHaveBeenCalled();
@@ -243,7 +235,7 @@ describe("useOpenAIAuth", () => {
 
 			// Advance time past when refresh would occur
 			act(() => {
-				mock.advanceTimersByTime(120_000);
+				vi.advanceTimersByTime(120_000);
 			});
 
 			// Should not have called refresh after unmount
@@ -271,7 +263,7 @@ describe("useOpenAIAuth", () => {
 
 			// Advance to when first refresh would have occurred
 			act(() => {
-				mock.advanceTimersByTime(60_000);
+				vi.advanceTimersByTime(60_000);
 			});
 
 			// Should not have refreshed yet
@@ -279,7 +271,7 @@ describe("useOpenAIAuth", () => {
 
 			// Advance to new refresh time (180 seconds from start)
 			act(() => {
-				mock.advanceTimersByTime(120_000);
+				vi.advanceTimersByTime(120_000);
 			});
 
 			await waitFor(() => {

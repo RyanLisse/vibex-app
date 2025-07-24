@@ -56,10 +56,7 @@ export const RequestSchemas = {
 /**
  * Extract and validate query parameters from request
  */
-export function validateQueryParams<T>(
-	request: NextRequest,
-	schema: z.ZodSchema<T>,
-): T {
+export function validateQueryParams<T>(request: NextRequest, schema: z.ZodSchema<T>): T {
 	const { searchParams } = new URL(request.url);
 	const queryParams = Object.fromEntries(searchParams.entries());
 	return schema.parse(queryParams);
@@ -70,7 +67,7 @@ export function validateQueryParams<T>(
  */
 export async function validateRequestBody<T>(
 	request: NextRequest,
-	schema: z.ZodSchema<T>,
+	schema: z.ZodSchema<T>
 ): Promise<T> {
 	const body = await request.json();
 	return schema.parse(body);
@@ -132,15 +129,9 @@ export const TaskSchemas = {
 
 	// Task update body
 	taskUpdateBody: z.object({
-		title: z
-			.string()
-			.min(1, "Title is required")
-			.max(255, "Title too long")
-			.optional(),
+		title: z.string().min(1, "Title is required").max(255, "Title too long").optional(),
 		description: z.string().max(1000, "Description too long").optional(),
-		status: z
-			.enum(["todo", "in_progress", "review", "completed", "blocked"])
-			.optional(),
+		status: z.enum(["todo", "in_progress", "review", "completed", "blocked"]).optional(),
 		priority: z.enum(["high", "medium", "low"]).optional(),
 		assigneeId: z.string().uuid("Invalid assignee ID").optional(),
 		dueDate: z.string().datetime().optional(),
@@ -265,7 +256,7 @@ export class ValidationErrorFormatter {
  */
 export function validateRouteParams<T>(
 	params: Record<string, string | string[]>,
-	schema: z.ZodSchema<T>,
+	schema: z.ZodSchema<T>
 ): T {
 	return schema.parse(params);
 }
@@ -273,18 +264,14 @@ export function validateRouteParams<T>(
 /**
  * Comprehensive request validation utility
  */
-export async function validateCompleteRequest<
-	TParams = any,
-	TQuery = any,
-	TBody = any,
->(
+export async function validateCompleteRequest<TParams = any, TQuery = any, TBody = any>(
 	request: NextRequest,
 	params: Record<string, string | string[]>,
 	schemas: {
 		params?: z.ZodSchema<TParams>;
 		query?: z.ZodSchema<TQuery>;
 		body?: z.ZodSchema<TBody>;
-	},
+	}
 ): Promise<{
 	params?: TParams;
 	query?: TQuery;

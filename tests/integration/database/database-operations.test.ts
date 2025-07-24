@@ -5,37 +5,41 @@
  * Tests CRUD operations, transactions, constraints, and performance
  */
 
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
 import {
 	agentExecutions,
 	agentMemory,
 	environments,
 	executionSnapshots,
-	type NewAgentExecution,
-	type NewAgentMemory,
-	type NewEnvironment,
-	type NewExecutionSnapshot,
-	type NewObservabilityEvent,
-	type NewTask,
-	type NewWorkflow,
-	type NewWorkflowExecution,
 	observabilityEvents,
 	tasks,
 	workflowExecutions,
 	workflows,
+	NewAgentExecution,
+	NewAgentMemory,
+	NewEnvironment,
+	NewExecutionSnapshot,
+	NewObservabilityEvent,
+	NewTask,
+	NewWorkflow,
+	NewWorkflowExecution,
 } from "../../../db/schema";
 
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import {
 	checkDatabaseHealth,
-	db,
+	integrationDb as db,
 	initializeExtensions,
-} from "../../../db/test-config";
+	initializeTestDatabase,
+	resetDatabaseForTests,
+} from "../../../db/test-integration-config";
 
-// Skip tests if no database URL is provided
-const skipTests = !process.env.DATABASE_URL;
+// Skip tests only if database initialization fails
+const skipTests = false; // Now handled by database configuration
 
 // Test data factories
-const createTestTask = (overrides: Partial<NewTask> = {}): NewTask => ({
+const createTestTask = (overrides = {}) => ({
 	title: "Test Task",
 	description: "Test task description",
 	status: "pending",
@@ -45,9 +49,7 @@ const createTestTask = (overrides: Partial<NewTask> = {}): NewTask => ({
 	...overrides,
 });
 
-const createTestEnvironment = (
-	overrides: Partial<NewEnvironment> = {},
-): NewEnvironment => ({
+const createTestEnvironment = (overrides = {}) => ({
 	name: "Test Environment",
 	config: { apiKey: "test-key", endpoint: "https://api.test.com" },
 	isActive: true,
@@ -56,10 +58,7 @@ const createTestEnvironment = (
 	...overrides,
 });
 
-const createTestExecution = (
-	taskId: string,
-	overrides: Partial<NewAgentExecution> = {},
-): NewAgentExecution => ({
+const createTestExecution = (taskId, overrides = {}) => ({
 	taskId,
 	agentType: "test-agent",
 	status: "running",
@@ -69,10 +68,10 @@ const createTestExecution = (
 });
 
 describe("Database Operations Integration Tests", () => {
-	let testTaskId: string;
-	let testEnvironmentId: string;
-	let testExecutionId: string;
-	let testWorkflowId: string;
+	let testTaskId;
+	let testEnvironmentId;
+	let testExecutionId;
+	let testWorkflowId;
 
 	beforeAll(async () => {
 		// Ensure database is healthy and migrations are run
@@ -136,10 +135,7 @@ describe("Database Operations Integration Tests", () => {
 				const taskData = createTestTask();
 				const [created] = await db.insert(tasks).values(taskData).returning();
 
-				const retrieved = await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.id, created.id));
+				const retrieved = await db.select().from(tasks).where(eq(tasks.id, created.id));
 
 				expect(retrieved).toHaveLength(1);
 				expect(retrieved[0].id).toBe(created.id);
@@ -167,9 +163,7 @@ describe("Database Operations Integration Tests", () => {
 
 				expect(updated.status).toBe("in_progress");
 				expect(updated.metadata).toEqual(updatedMetadata);
-				expect(updated.updatedAt.getTime()).toBeGreaterThan(
-					updated.createdAt.getTime(),
-				);
+				expect(updated.updatedAt.getTime()).toBeGreaterThan(updated.createdAt.getTime());
 			});
 
 			it("should delete task and cascade to related records", async () => {
@@ -178,13 +172,10 @@ describe("Database Operations Integration Tests", () => {
 
 				// Create related execution
 				const executionData = createTestExecution(task.id);
-				const [execution] = await db
-					.insert(agentExecutions)
-					.values(executionData)
-					.returning();
+				const [execution] = await db.insert(agentExecutions).values(executionData).returning();
 
 				// Create related event
-				const eventData: NewObservabilityEvent = {
+				const eventData = {
 					executionId: execution.id,
 					eventType: "test.event",
 					data: { test: true },
@@ -221,7 +212,7 @@ describe("Database Operations Integration Tests", () => {
 
 				// Second insert with same name and user should fail
 				await expect(
-					db.insert(environments).values({ ...envData, id: undefined }),
+					db.insert(environments).values({ ...envData, id: undefined })
 				).rejects.toThrow();
 			});
 
@@ -253,10 +244,7 @@ describe("Database Operations Integration Tests", () => {
 				await db.insert(tasks).values(taskData);
 
 				// Query pending tasks
-				const pendingTasks = await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.status, "pending"));
+				const pendingTasks = await db.select().from(tasks).where(eq(tasks.status, "pending"));
 
 				expect(pendingTasks).toHaveLength(1);
 				expect(pendingTasks[0].title).toBe("High Priority Task");
@@ -274,9 +262,7 @@ describe("Database Operations Integration Tests", () => {
 				const inProgressHighPriority = await db
 					.select()
 					.from(tasks)
-					.where(
-						and(eq(tasks.status, "in_progress"), eq(tasks.priority, "high")),
-					);
+					.where(and(eq(tasks.status, "in_progress"), eq(tasks.priority, "high")));
 
 				expect(inProgressHighPriority).toHaveLength(1);
 				expect(inProgressHighPriority[0].title).toBe("Another High Priority");
@@ -295,10 +281,7 @@ describe("Database Operations Integration Tests", () => {
 					},
 				});
 
-				const [created] = await db
-					.insert(environments)
-					.values(envData)
-					.returning();
+				const [created] = await db.insert(environments).values(envData).returning();
 
 				expect(created.config).toEqual(envData.config);
 				expect(created.config.features).toHaveLength(2);
@@ -309,10 +292,7 @@ describe("Database Operations Integration Tests", () => {
 
 			it("should update environment configuration", async () => {
 				const envData = createTestEnvironment();
-				const [created] = await db
-					.insert(environments)
-					.values(envData)
-					.returning();
+				const [created] = await db.insert(environments).values(envData).returning();
 
 				const newConfig = {
 					...envData.config,
@@ -333,10 +313,7 @@ describe("Database Operations Integration Tests", () => {
 
 			it("should toggle environment active status", async () => {
 				const envData = createTestEnvironment({ isActive: false });
-				const [created] = await db
-					.insert(environments)
-					.values(envData)
-					.returning();
+				const [created] = await db.insert(environments).values(envData).returning();
 
 				// Activate environment
 				const [activated] = await db
@@ -362,10 +339,7 @@ describe("Database Operations Integration Tests", () => {
 	describe("Complex Relationships and Joins", () => {
 		beforeEach(async () => {
 			// Set up test data for relationship tests
-			const [task] = await db
-				.insert(tasks)
-				.values(createTestTask())
-				.returning();
+			const [task] = await db.insert(tasks).values(createTestTask()).returning();
 			testTaskId = task.id;
 
 			const [execution] = await db
@@ -411,21 +385,21 @@ describe("Database Operations Integration Tests", () => {
 					executionId: testExecutionId,
 					eventType: "execution.started",
 					data: { timestamp: new Date().toISOString() },
-					severity: "info" as const,
+					severity: "info",
 					category: "lifecycle",
 				},
 				{
 					executionId: testExecutionId,
 					eventType: "execution.progress",
 					data: { progress: 50 },
-					severity: "info" as const,
+					severity: "info",
 					category: "progress",
 				},
 				{
 					executionId: testExecutionId,
 					eventType: "execution.error",
 					data: { error: "Test error" },
-					severity: "error" as const,
+					severity: "error",
 					category: "error",
 				},
 			];
@@ -442,10 +416,7 @@ describe("Database Operations Integration Tests", () => {
 					eventData: observabilityEvents.data,
 				})
 				.from(agentExecutions)
-				.leftJoin(
-					observabilityEvents,
-					eq(agentExecutions.id, observabilityEvents.executionId),
-				)
+				.leftJoin(observabilityEvents, eq(agentExecutions.id, observabilityEvents.executionId))
 				.where(eq(agentExecutions.id, testExecutionId))
 				.orderBy(observabilityEvents.timestamp);
 
@@ -456,7 +427,7 @@ describe("Database Operations Integration Tests", () => {
 		});
 
 		it("should create execution snapshots for debugging", async () => {
-			const snapshotData: NewExecutionSnapshot[] = [
+			const snapshotData = [
 				{
 					executionId: testExecutionId,
 					stepNumber: 1,
@@ -509,8 +480,8 @@ describe("Database Operations Integration Tests", () => {
 				.where(
 					and(
 						eq(executionSnapshots.executionId, testExecutionId),
-						eq(executionSnapshots.checkpoint, true),
-					),
+						eq(executionSnapshots.checkpoint, true)
+					)
 				);
 
 			expect(checkpoints).toHaveLength(2);
@@ -521,16 +492,10 @@ describe("Database Operations Integration Tests", () => {
 		it("should handle successful transaction with multiple operations", async () => {
 			const result = await db.transaction(async (tx) => {
 				// Create task
-				const [task] = await tx
-					.insert(tasks)
-					.values(createTestTask())
-					.returning();
+				const [task] = await tx.insert(tasks).values(createTestTask()).returning();
 
 				// Create environment
-				const [env] = await tx
-					.insert(environments)
-					.values(createTestEnvironment())
-					.returning();
+				const [env] = await tx.insert(environments).values(createTestEnvironment()).returning();
 
 				// Create execution
 				const [execution] = await tx
@@ -548,9 +513,7 @@ describe("Database Operations Integration Tests", () => {
 			// Verify all records were created
 			const taskCount = await db.select({ count: count() }).from(tasks);
 			const envCount = await db.select({ count: count() }).from(environments);
-			const execCount = await db
-				.select({ count: count() })
-				.from(agentExecutions);
+			const execCount = await db.select({ count: count() }).from(agentExecutions);
 
 			expect(taskCount[0].count).toBe(1);
 			expect(envCount[0].count).toBe(1);
@@ -566,11 +529,11 @@ describe("Database Operations Integration Tests", () => {
 					// Create invalid environment (this should fail)
 					await tx.insert(environments).values({
 						name: "Test",
-						config: null as any, // This should cause an error
+						config: null, // This should cause an error
 						isActive: true,
 						userId: "test",
 					});
-				}),
+				})
 			).rejects.toThrow();
 
 			// Verify no records were created due to rollback
@@ -583,10 +546,7 @@ describe("Database Operations Integration Tests", () => {
 
 		it("should handle nested transactions correctly", async () => {
 			const result = await db.transaction(async (tx) => {
-				const [task] = await tx
-					.insert(tasks)
-					.values(createTestTask())
-					.returning();
+				const [task] = await tx.insert(tasks).values(createTestTask()).returning();
 
 				// Nested transaction-like operation
 				const executions = [];
@@ -620,21 +580,18 @@ describe("Database Operations Integration Tests", () => {
 				createTestTask({
 					title: `Task ${i}`,
 					priority: i % 2 === 0 ? "high" : "low",
-					status:
-						i % 3 === 0 ? "completed" : i % 3 === 1 ? "in_progress" : "pending",
-				}),
+					status: i % 3 === 0 ? "completed" : i % 3 === 1 ? "in_progress" : "pending",
+				})
 			);
 
-			const [createdTasks] = await Promise.all([
-				db.insert(tasks).values(taskData).returning(),
-			]);
+			const [createdTasks] = await Promise.all([db.insert(tasks).values(taskData).returning()]);
 
 			// Create executions for some tasks
 			const executionData = createdTasks.slice(0, 5).map((task) =>
 				createTestExecution(task.id, {
 					status: Math.random() > 0.5 ? "completed" : "running",
 					executionTimeMs: Math.floor(Math.random() * 5000) + 1000,
-				}),
+				})
 			);
 
 			await db.insert(agentExecutions).values(executionData);
@@ -694,9 +651,7 @@ describe("Database Operations Integration Tests", () => {
 			// Verify no overlap between pages
 			const firstPageIds = new Set(firstPage.map((t) => t.id));
 			const secondPageIds = new Set(secondPage.map((t) => t.id));
-			const intersection = new Set(
-				[...firstPageIds].filter((id) => secondPageIds.has(id)),
-			);
+			const intersection = new Set([...firstPageIds].filter((id) => secondPageIds.has(id)));
 
 			expect(intersection.size).toBe(0);
 		});
@@ -718,10 +673,7 @@ describe("Database Operations Integration Tests", () => {
 				},
 			});
 
-			const [created] = await db
-				.insert(tasks)
-				.values(taskWithMetadata)
-				.returning();
+			const [created] = await db.insert(tasks).values(taskWithMetadata).returning();
 
 			// Query using JSON operations
 			const tasksWithTag = await db
@@ -745,9 +697,7 @@ describe("Database Operations Integration Tests", () => {
 	describe("Vector Operations", () => {
 		it("should handle vector embeddings for tasks", async () => {
 			// Create task with mock embedding
-			const embedding = new Array(1536)
-				.fill(0)
-				.map(() => Math.random() * 2 - 1);
+			const embedding = new Array(1536).fill(0).map(() => Math.random() * 2 - 1);
 			const taskData = createTestTask({
 				title: "Vector Test Task",
 				embedding,
@@ -759,9 +709,7 @@ describe("Database Operations Integration Tests", () => {
 			expect(created.embedding).toHaveLength(1536);
 
 			// Test vector similarity search (cosine similarity)
-			const queryEmbedding = new Array(1536)
-				.fill(0)
-				.map(() => Math.random() * 2 - 1);
+			const queryEmbedding = new Array(1536).fill(0).map(() => Math.random() * 2 - 1);
 
 			const similarTasks = await db
 				.select({
@@ -780,7 +728,7 @@ describe("Database Operations Integration Tests", () => {
 		});
 
 		it("should handle agent memory with vector embeddings", async () => {
-			const memoryData: NewAgentMemory[] = [
+			const memoryData = [
 				{
 					agentType: "test-agent",
 					contextKey: "user-preferences",
@@ -831,7 +779,7 @@ describe("Database Operations Integration Tests", () => {
 
 	describe("Workflow Management", () => {
 		beforeEach(async () => {
-			const workflowData: NewWorkflow = {
+			const workflowData = {
 				name: "Test Workflow",
 				definition: {
 					steps: [
@@ -854,15 +802,12 @@ describe("Database Operations Integration Tests", () => {
 				description: "Test workflow for validation",
 			};
 
-			const [workflow] = await db
-				.insert(workflows)
-				.values(workflowData)
-				.returning();
+			const [workflow] = await db.insert(workflows).values(workflowData).returning();
 			testWorkflowId = workflow.id;
 		});
 
 		it("should create and manage workflow executions", async () => {
-			const executionData: NewWorkflowExecution = {
+			const executionData = {
 				workflowId: testWorkflowId,
 				status: "running",
 				currentStep: 1,
@@ -875,10 +820,7 @@ describe("Database Operations Integration Tests", () => {
 				triggeredBy: "test-user",
 			};
 
-			const [execution] = await db
-				.insert(workflowExecutions)
-				.values(executionData)
-				.returning();
+			const [execution] = await db.insert(workflowExecutions).values(executionData).returning();
 
 			expect(execution.workflowId).toBe(testWorkflowId);
 			expect(execution.status).toBe("running");
@@ -941,10 +883,7 @@ describe("Database Operations Integration Tests", () => {
 					childStatus: sql<string>`child.status`,
 				})
 				.from(workflowExecutions.as("parent"))
-				.leftJoin(
-					workflowExecutions.as("child"),
-					sql`parent.id = child.parent_execution_id`,
-				)
+				.leftJoin(workflowExecutions.as("child"), sql`parent.id = child.parent_execution_id`)
 				.where(eq(sql`parent.id`, parentExecution[0].id));
 
 			expect(parentWithChildren).toHaveLength(1);
@@ -962,7 +901,7 @@ describe("Database Operations Integration Tests", () => {
 				createTestTask({
 					title: `Bulk Task ${i}`,
 					metadata: { bulkIndex: i, batchId: "test-batch-001" },
-				}),
+				})
 			);
 
 			// Bulk insert
@@ -1010,7 +949,7 @@ describe("Database Operations Integration Tests", () => {
 					.values(
 						createTestExecution(task.id, {
 							agentType: `concurrent-agent-${i}`,
-						}),
+						})
 					)
 					.returning();
 
@@ -1033,12 +972,8 @@ describe("Database Operations Integration Tests", () => {
 
 			// Verify all operations completed successfully
 			const taskCount = await db.select({ count: count() }).from(tasks);
-			const executionCount = await db
-				.select({ count: count() })
-				.from(agentExecutions);
-			const eventCount = await db
-				.select({ count: count() })
-				.from(observabilityEvents);
+			const executionCount = await db.select({ count: count() }).from(agentExecutions);
+			const eventCount = await db.select({ count: count() }).from(observabilityEvents);
 
 			expect(taskCount[0].count).toBe(concurrentOps);
 			expect(executionCount[0].count).toBe(concurrentOps);

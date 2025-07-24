@@ -1,6 +1,6 @@
 /**
  * CoverageVisualizer - Test Coverage Analysis and Visualization
- * 
+ *
  * Provides comprehensive test coverage analysis with visual reporting
  */
 
@@ -165,12 +165,12 @@ export class CoverageVisualizer {
     <div class="recommendations">
         <h2>Recommendations</h2>
         <ul>
-            ${report.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            ${report.recommendations.map((rec) => `<li>${rec}</li>`).join("")}
         </ul>
     </div>
 
     <h2>File Details</h2>
-    ${report.details.map(detail => this.generateFileDetailHtml(detail)).join('')}
+    ${report.details.map((detail) => this.generateFileDetailHtml(detail)).join("")}
 </body>
 </html>`;
 	}
@@ -181,7 +181,7 @@ export class CoverageVisualizer {
 	generateCoverageBadge(percentage: number): string {
 		const color = this.getCoverageColor(percentage);
 		const text = `${percentage.toFixed(1)}%`;
-		
+
 		return `
 <svg xmlns="http://www.w3.org/2000/svg" width="104" height="20">
     <linearGradient id="b" x2="0" y2="100%">
@@ -232,10 +232,11 @@ export class CoverageVisualizer {
 		);
 
 		const fileCount = files.length;
-		const testFiles = files.filter(f => f.path.includes('.test.')).length;
+		const testFiles = files.filter((f) => f.path.includes(".test.")).length;
 
 		return {
-			overall: (totals.functions + totals.statements + totals.branches + totals.lines) / (4 * fileCount),
+			overall:
+				(totals.functions + totals.statements + totals.branches + totals.lines) / (4 * fileCount),
 			functions: totals.functions / fileCount,
 			statements: totals.statements / fileCount,
 			branches: totals.branches / fileCount,
@@ -246,7 +247,7 @@ export class CoverageVisualizer {
 	}
 
 	private analyzeFileDetails(data: CoverageData): CoverageDetails[] {
-		return Object.values(data.files).map(file => ({
+		return Object.values(data.files).map((file) => ({
 			file: file.path,
 			coverage: file,
 			priority: this.calculatePriority(file),
@@ -255,12 +256,12 @@ export class CoverageVisualizer {
 	}
 
 	private calculatePriority(file: FileCoverage): "high" | "medium" | "low" {
-		const avgCoverage = (
-			file.functions.percentage +
-			file.statements.percentage +
-			file.branches.percentage +
-			file.lines.percentage
-		) / 4;
+		const avgCoverage =
+			(file.functions.percentage +
+				file.statements.percentage +
+				file.branches.percentage +
+				file.lines.percentage) /
+			4;
 
 		if (avgCoverage < 50) return "high";
 		if (avgCoverage < 75) return "medium";
@@ -279,7 +280,9 @@ export class CoverageVisualizer {
 		}
 
 		if (file.statements.percentage < this.thresholds.statements) {
-			suggestions.push(`Improve statement coverage by ${this.thresholds.statements - file.statements.percentage}%`);
+			suggestions.push(
+				`Improve statement coverage by ${this.thresholds.statements - file.statements.percentage}%`
+			);
 		}
 
 		return suggestions;
@@ -290,20 +293,24 @@ export class CoverageVisualizer {
 		const summary = this.calculateSummary(data);
 
 		if (summary.overall < 80) {
-			recommendations.push("Overall coverage is below 80%. Focus on adding more comprehensive tests.");
+			recommendations.push(
+				"Overall coverage is below 80%. Focus on adding more comprehensive tests."
+			);
 		}
 
 		if (summary.branches < 70) {
-			recommendations.push("Branch coverage is low. Add tests for conditional logic and error paths.");
+			recommendations.push(
+				"Branch coverage is low. Add tests for conditional logic and error paths."
+			);
 		}
 
 		const lowCoverageFiles = Object.values(data.files)
-			.filter(f => (f.functions.percentage + f.statements.percentage) / 2 < 60)
+			.filter((f) => (f.functions.percentage + f.statements.percentage) / 2 < 60)
 			.slice(0, 5);
 
 		if (lowCoverageFiles.length > 0) {
 			recommendations.push(
-				`Priority files needing tests: ${lowCoverageFiles.map(f => f.path).join(', ')}`
+				`Priority files needing tests: ${lowCoverageFiles.map((f) => f.path).join(", ")}`
 			);
 		}
 
@@ -311,7 +318,7 @@ export class CoverageVisualizer {
 	}
 
 	private calculateTrends(): CoverageTrend[] {
-		return this.coverageHistory.slice(-10).map(data => ({
+		return this.coverageHistory.slice(-10).map((data) => ({
 			date: data.timestamp,
 			coverage: data.totals,
 			testCount: Object.keys(data.files).length,
@@ -339,12 +346,16 @@ export class CoverageVisualizer {
     <p>Branches: ${detail.coverage.branches.percentage.toFixed(1)}%</p>
     <p>Lines: ${detail.coverage.lines.percentage.toFixed(1)}%</p>
     
-    ${detail.suggestions.length > 0 ? `
+    ${
+			detail.suggestions.length > 0
+				? `
     <h4>Suggestions:</h4>
     <ul>
-        ${detail.suggestions.map(s => `<li>${s}</li>`).join('')}
+        ${detail.suggestions.map((s) => `<li>${s}</li>`).join("")}
     </ul>
-    ` : ''}
+    `
+				: ""
+		}
 </div>`;
 	}
 }

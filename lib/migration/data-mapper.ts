@@ -17,8 +17,7 @@ interface DataMapping {
 
 export class DataMapper {
 	private static instance: DataMapper;
-	private readonly transformationRules: Map<string, TransformationRule[]> =
-		new Map();
+	private readonly transformationRules: Map<string, TransformationRule[]> = new Map();
 	private readonly dataMappings: DataMapping[] = [];
 
 	static getInstance(): DataMapper {

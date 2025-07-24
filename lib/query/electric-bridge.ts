@@ -31,10 +31,7 @@ class ElectricQueryBridge {
 	};
 	private isInitialized = false;
 	private eventListeners = new Map<string, (event: CustomEvent) => void>();
-	private invalidationQueue = new Map<
-		string,
-		{ data: any[]; timestamp: number }
-	>();
+	private invalidationQueue = new Map<string, { data: any[]; timestamp: number }>();
 	private batchTimer: NodeJS.Timeout | null = null;
 	private stats = {
 		isActive: false,
@@ -48,45 +45,39 @@ class ElectricQueryBridge {
 	 */
 	async initialize(
 		queryClient: QueryClient,
-		config?: Partial<ElectricBridgeConfig>,
+		config?: Partial<ElectricBridgeConfig>
 	): Promise<void> {
 		if (this.isInitialized) {
 			return;
 		}
 
-		return observability.trackOperation(
-			"electric-bridge.initialize",
-			async () => {
-				try {
-					this.queryClient = queryClient;
-					this.config = { ...this.config, ...config };
+		return observability.trackOperation("electric-bridge.initialize", async () => {
+			try {
+				this.queryClient = queryClient;
+				this.config = { ...this.config, ...config };
 
-					// Initialize ElectricSQL sync service
-					await electricSyncService.initialize();
+				// Initialize ElectricSQL sync service
+				await electricSyncService.initialize();
 
-					// Set up real-time event listeners
-					this.setupEventListeners();
+				// Set up real-time event listeners
+				this.setupEventListeners();
 
-					// Start health monitoring
-					electricSyncService.startHealthMonitoring();
+				// Start health monitoring
+				electricSyncService.startHealthMonitoring();
 
-					this.isInitialized = true;
-					this.stats.isActive = true;
-					this.updateStats();
+				this.isInitialized = true;
+				this.stats.isActive = true;
+				this.updateStats();
 
-					if (this.config.debugMode) {
-						console.log("🔄 ElectricSQL-TanStack Query bridge initialized");
-					}
-				} catch (error) {
-					console.error("Failed to initialize ElectricSQL bridge:", error);
-					observability.recordError(
-						"electric-bridge.initialize",
-						error as Error,
-					);
-					throw error;
+				if (this.config.debugMode) {
+					console.log("🔄 ElectricSQL-TanStack Query bridge initialized");
 				}
-			},
-		);
+			} catch (error) {
+				console.error("Failed to initialize ElectricSQL bridge:", error);
+				observability.recordError("electric-bridge.initialize", error as Error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -104,10 +95,7 @@ class ElectricQueryBridge {
 		};
 
 		// Add event listener
-		window.addEventListener(
-			"electric-table-update",
-			handleTableUpdate as EventListener,
-		);
+		window.addEventListener("electric-table-update", handleTableUpdate as EventListener);
 		this.eventListeners.set("electric-table-update", handleTableUpdate);
 
 		// Listen for connection status changes
@@ -116,14 +104,8 @@ class ElectricQueryBridge {
 			this.updateStats();
 		};
 
-		window.addEventListener(
-			"electric-connection-change",
-			handleConnectionChange as EventListener,
-		);
-		this.eventListeners.set(
-			"electric-connection-change",
-			handleConnectionChange,
-		);
+		window.addEventListener("electric-connection-change", handleConnectionChange as EventListener);
+		this.eventListeners.set("electric-connection-change", handleConnectionChange);
 
 		if (this.config.debugMode) {
 			console.log("🎧 ElectricSQL event listeners set up");
@@ -191,17 +173,10 @@ class ElectricQueryBridge {
 						console.log(`✅ Invalidated cache for table: ${tableName}`);
 					}
 				} catch (error) {
-					console.error(
-						`Failed to invalidate cache for table ${tableName}:`,
-						error,
-					);
-					observability.recordError(
-						"electric-bridge.invalidate",
-						error as Error,
-						{
-							table: tableName,
-						},
-					);
+					console.error(`Failed to invalidate cache for table ${tableName}:`, error);
+					observability.recordError("electric-bridge.invalidate", error as Error, {
+						table: tableName,
+					});
 				}
 			}
 
@@ -233,17 +208,10 @@ class ElectricQueryBridge {
 					console.log(`🔄 Manually invalidated cache for table: ${tableName}`);
 				}
 			} catch (error) {
-				console.error(
-					`Failed to manually invalidate table ${tableName}:`,
-					error,
-				);
-				observability.recordError(
-					"electric-bridge.manual-invalidate",
-					error as Error,
-					{
-						table: tableName,
-					},
-				);
+				console.error(`Failed to manually invalidate table ${tableName}:`, error);
+				observability.recordError("electric-bridge.manual-invalidate", error as Error, {
+					table: tableName,
+				});
 			}
 		});
 	}
@@ -251,10 +219,7 @@ class ElectricQueryBridge {
 	/**
 	 * Subscribe to specific table updates
 	 */
-	subscribeToTable(
-		tableName: string,
-		callback: (data: any[]) => void,
-	): () => void {
+	subscribeToTable(tableName: string, callback: (data: any[]) => void): () => void {
 		if (!this.isInitialized) {
 			throw new Error("ElectricSQL bridge not initialized");
 		}
@@ -295,10 +260,7 @@ class ElectricQueryBridge {
 	/**
 	 * Add custom invalidation rule for a table
 	 */
-	addCustomInvalidationRule(
-		tableName: string,
-		rule: (data: any[]) => void,
-	): void {
+	addCustomInvalidationRule(tableName: string, rule: (data: any[]) => void): void {
 		if (!this.config.customInvalidationRules) {
 			this.config.customInvalidationRules = {};
 		}
@@ -325,9 +287,7 @@ class ElectricQueryBridge {
 		this.config.enableRealTimeInvalidation = enabled;
 
 		if (this.config.debugMode) {
-			console.log(
-				`🔄 Real-time invalidation ${enabled ? "enabled" : "disabled"}`,
-			);
+			console.log(`🔄 Real-time invalidation ${enabled ? "enabled" : "disabled"}`);
 		}
 	}
 

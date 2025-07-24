@@ -121,13 +121,7 @@ export interface WorkflowStep {
 
 export interface WorkflowExecution extends BaseEntity {
 	workflowId: string;
-	status:
-		| "pending"
-		| "running"
-		| "paused"
-		| "completed"
-		| "failed"
-		| "cancelled";
+	status: "pending" | "running" | "paused" | "completed" | "failed" | "cancelled";
 	currentStep: number;
 	totalSteps: number | null;
 	state: any | null;

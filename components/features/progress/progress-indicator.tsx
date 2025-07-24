@@ -50,8 +50,7 @@ export function ProgressIndicator({
 	const radius = (config.size - config.strokeWidth) / 2;
 	const circumference = 2 * Math.PI * radius;
 	const strokeDasharray = circumference;
-	const strokeDashoffset =
-		circumference - (clampedPercentage / 100) * circumference;
+	const strokeDashoffset = circumference - (clampedPercentage / 100) * circumference;
 
 	// Color classes
 	const colorClasses = {

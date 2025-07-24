@@ -1,9 +1,6 @@
 import type { ExampleItem } from "@/src/features/example-feature/types";
 
-export function filterItems(
-	items: ExampleItem[],
-	filter: ExampleFilter,
-): ExampleItem[] {
+export function filterItems(items: ExampleItem[], filter: ExampleFilter): ExampleItem[] {
 	return items.filter((item) => {
 		if (filter.status && item.status !== filter.status) {
 			return false;
@@ -16,9 +13,7 @@ export function filterItems(
 		if (filter.searchTerm) {
 			const searchLower = filter.searchTerm.toLowerCase();
 			const titleMatch = item.title.toLowerCase().includes(searchLower);
-			const descriptionMatch = item.description
-				?.toLowerCase()
-				.includes(searchLower);
+			const descriptionMatch = item.description?.toLowerCase().includes(searchLower);
 
 			if (!(titleMatch || descriptionMatch)) {
 				return false;
@@ -31,7 +26,7 @@ export function filterItems(
 
 export function sortItems(
 	items: ExampleItem[],
-	sortBy: "priority" | "date" | "status",
+	sortBy: "priority" | "date" | "status"
 ): ExampleItem[] {
 	return [...items].sort((a, b) => {
 		switch (sortBy) {

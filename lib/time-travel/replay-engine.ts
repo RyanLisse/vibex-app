@@ -73,21 +73,18 @@ export class TimeTravelReplayEngine extends EventEmitter {
 			fromStep?: number;
 			toStep?: number;
 			includeCheckpointsOnly?: boolean;
-		} = {},
+		} = {}
 	): Promise<string> {
 		try {
 			const sessionId = `replay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 			// Load snapshots
-			const snapshots = await snapshotManager.getExecutionSnapshots(
-				executionId,
-				{
-					fromStep: options.fromStep,
-					toStep: options.toStep,
-					checkpointsOnly: options.includeCheckpointsOnly,
-					limit: 1000, // Reasonable limit for replay
-				},
-			);
+			const snapshots = await snapshotManager.getExecutionSnapshots(executionId, {
+				fromStep: options.fromStep,
+				toStep: options.toStep,
+				checkpointsOnly: options.includeCheckpointsOnly,
+				limit: 1000, // Reasonable limit for replay
+			});
 
 			if (snapshots.length === 0) {
 				throw new Error("No snapshots found for execution");
@@ -129,7 +126,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 					options,
 				},
 				"time-travel",
-				["replay", "session", "create"],
+				["replay", "session", "create"]
 			);
 
 			return sessionId;
@@ -143,7 +140,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 					error: error instanceof Error ? error.message : "Unknown error",
 				},
 				"time-travel",
-				["replay", "session", "error"],
+				["replay", "session", "error"]
 			);
 			throw error;
 		}
@@ -181,7 +178,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 				speed: session.speed,
 			},
 			"time-travel",
-			["replay", "start"],
+			["replay", "start"]
 		);
 	}
 
@@ -209,7 +206,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 				currentIndex: session.currentIndex,
 			},
 			"time-travel",
-			["replay", "pause"],
+			["replay", "pause"]
 		);
 	}
 
@@ -247,7 +244,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 				duration: session.endTime.getTime() - session.startTime.getTime(),
 			},
 			"time-travel",
-			["replay", "stop"],
+			["replay", "stop"]
 		);
 	}
 
@@ -273,10 +270,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 		const snapshot = session.snapshots[index];
 
 		this.emit("snapshotChanged", snapshot, index);
-		this.emit(
-			"progressChanged",
-			(index / (session.snapshots.length - 1)) * 100,
-		);
+		this.emit("progressChanged", (index / (session.snapshots.length - 1)) * 100);
 
 		if (wasPlaying) {
 			this.scheduleNextStep(session);
@@ -295,7 +289,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 				snapshotType: snapshot.type,
 			},
 			"time-travel",
-			["replay", "step"],
+			["replay", "step"]
 		);
 	}
 
@@ -308,10 +302,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 			throw new Error(`Replay session ${sessionId} not found`);
 		}
 
-		const nextIndex = Math.min(
-			session.currentIndex + 1,
-			session.snapshots.length - 1,
-		);
+		const nextIndex = Math.min(session.currentIndex + 1, session.snapshots.length - 1);
 		await this.stepTo(sessionId, nextIndex);
 	}
 
@@ -338,7 +329,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 		}
 
 		const nextCheckpoint = session.metadata.checkpoints.find(
-			(index) => index > session.currentIndex,
+			(index) => index > session.currentIndex
 		);
 
 		if (nextCheckpoint !== undefined) {
@@ -443,7 +434,7 @@ export class TimeTravelReplayEngine extends EventEmitter {
 					: Date.now() - session.startTime.getTime(),
 			},
 			"time-travel",
-			["replay", "session", "delete"],
+			["replay", "session", "delete"]
 		);
 	}
 

@@ -11,13 +11,7 @@ import {
 	useSensors,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import {
-	createContext,
-	type HTMLAttributes,
-	type ReactNode,
-	useContext,
-	useState,
-} from "react";
+import { createContext, type HTMLAttributes, type ReactNode, useContext, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const t = tunnel();
@@ -47,9 +41,7 @@ export function KanbanBoard<T extends KanbanItemProps = KanbanItemProps>({
 }: KanbanContextProps<T>) {
 	return (
 		<div className="kanban-board">
-			<div className="text-sm text-muted-foreground">
-				Kanban Board - {items.length} items
-			</div>
+			<div className="text-sm text-muted-foreground">Kanban Board - {items.length} items</div>
 		</div>
 	);
 }

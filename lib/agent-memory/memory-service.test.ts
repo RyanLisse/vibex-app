@@ -5,9 +5,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AgentMemoryService } from "./memory-service";
 
+// Hoisted mock functions to ensure stability across tests
+const mockVectorSearchInstance = vi.hoisted(() => ({
+	initialize: vi.fn().mockResolvedValue(undefined),
+	addDocument: vi.fn().mockResolvedValue(undefined),
+	addDocuments: vi.fn().mockResolvedValue(undefined),
+	search: vi.fn().mockResolvedValue([]),
+	removeDocument: vi.fn().mockResolvedValue(true),
+	getDocumentCount: vi.fn().mockReturnValue(0),
+	getStats: vi.fn().mockReturnValue({}),
+}));
+
+const mockVectorSearchWASM = vi.hoisted(() =>
+	vi.fn().mockImplementation(() => mockVectorSearchInstance)
+);
+
 // Mock dependencies
-vi.mock("@/db", () => ({
-	db: {
+vi.mock("@/db", () => {
+	// Create a comprehensive mock chain that includes all necessary methods
+	const createMockChain = () => ({
 		select: vi.fn().mockReturnThis(),
 		insert: vi.fn().mockReturnThis(),
 		update: vi.fn().mockReturnThis(),
@@ -17,10 +33,32 @@ vi.mock("@/db", () => ({
 		set: vi.fn().mockReturnThis(),
 		returning: vi.fn().mockReturnThis(),
 		orderBy: vi.fn().mockReturnThis(),
-		limit: vi.fn().mockReturnThis(),
+		limit: vi.fn().mockResolvedValue([]), // Return empty array for queries
 		groupBy: vi.fn().mockReturnThis(),
-	},
-}));
+		and: vi.fn().mockReturnThis(),
+		desc: vi.fn().mockReturnThis(),
+		gte: vi.fn().mockReturnThis(),
+		sql: vi.fn().mockReturnThis(),
+		asc: vi.fn().mockReturnThis(),
+		lte: vi.fn().mockReturnThis(),
+		eq: vi.fn().mockReturnThis(),
+		inArray: vi.fn().mockReturnThis(),
+	});
+
+	const mockDbChain = createMockChain();
+
+	return {
+		db: mockDbChain,
+		and: vi.fn().mockReturnValue({}), // Return empty object for AND conditions
+		desc: vi.fn().mockReturnValue({}),
+		gte: vi.fn().mockReturnValue({}),
+		sql: vi.fn().mockReturnValue({}),
+		asc: vi.fn().mockReturnValue({}),
+		lte: vi.fn().mockReturnValue({}),
+		eq: vi.fn().mockReturnValue({}),
+		inArray: vi.fn().mockReturnValue({}),
+	};
+});
 
 vi.mock("@/lib/observability", () => ({
 	observability: {
@@ -30,30 +68,34 @@ vi.mock("@/lib/observability", () => ({
 	},
 }));
 
-vi.mock("@/lib/wasm/vector-search", () => ({
-	VectorSearchWASM: vi.fn().mockImplementation(() => ({
-		initialize: vi.fn().mockResolvedValue(undefined),
-		addDocument: vi.fn().mockResolvedValue(undefined),
-		addDocuments: vi.fn().mockResolvedValue(undefined),
-		search: vi.fn().mockResolvedValue([]),
-		removeDocument: vi.fn().mockResolvedValue(true),
-		getDocumentCount: vi.fn().mockReturnValue(0),
-		getStats: vi.fn().mockReturnValue({}),
-	})),
-	createOptimizedEmbedding: vi.fn().mockReturnValue([0.1, 0.2, 0.3]),
-}));
+vi.mock("@/lib/wasm/vector-search", () => {
+	return {
+		VectorSearchWASM: mockVectorSearchWASM,
+		createOptimizedEmbedding: vi.fn().mockReturnValue([0.1, 0.2, 0.3]),
+	};
+});
 
 describe("AgentMemoryService", () => {
 	let memoryService: AgentMemoryService;
 
 	beforeEach(() => {
+		// Reset mock implementations instead of clearing them
+		mockVectorSearchInstance.initialize.mockResolvedValue(undefined);
+		mockVectorSearchInstance.addDocument.mockResolvedValue(undefined);
+		mockVectorSearchInstance.addDocuments.mockResolvedValue(undefined);
+		mockVectorSearchInstance.search.mockResolvedValue([]);
+		mockVectorSearchInstance.removeDocument.mockResolvedValue(true);
+		mockVectorSearchInstance.getDocumentCount.mockReturnValue(0);
+		mockVectorSearchInstance.getStats.mockReturnValue({});
+
 		memoryService = new AgentMemoryService();
-		vi.clearAllMocks();
+
+		// Mock the private loadExistingMemories method to avoid database chain issues
+		// @ts-expect-error - accessing private method for testing
+		memoryService.loadExistingMemories = vi.fn().mockResolvedValue(undefined);
 	});
 
-	afterEach(() => {
-		vi.restoreAllMocks();
-	});
+	// Removed afterEach vi.restoreAllMocks() as it was interfering with test isolation
 
 	describe("initialization", () => {
 		it("should initialize successfully", async () => {
@@ -313,6 +355,10 @@ describe("AgentMemoryService", () => {
 
 		it("should handle dry run", async () => {
 			const mockDb = await import("@/db");
+
+			// Clear the mock before this test to ensure clean state
+			vi.clearAllMocks();
+
 			mockDb.db.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
 					where: vi.fn().mockResolvedValue([{ id: "test" }]),

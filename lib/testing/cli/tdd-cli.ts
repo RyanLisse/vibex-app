@@ -71,16 +71,8 @@ export class TDDCli {
 		// Register default commands
 		this.registerCommand("generate", "test", this.generateTest.bind(this));
 		this.registerCommand("run", "tdd", this.runTDD.bind(this));
-		this.registerCommand(
-			"scaffold",
-			"component",
-			this.scaffoldComponent.bind(this),
-		);
-		this.registerCommand(
-			"scaffold",
-			"service",
-			this.scaffoldService.bind(this),
-		);
+		this.registerCommand("scaffold", "component", this.scaffoldComponent.bind(this));
+		this.registerCommand("scaffold", "service", this.scaffoldService.bind(this));
 
 		// Register help texts
 		this.helpTexts.set(
@@ -91,7 +83,7 @@ Options:
         --type <type>         Type of test (unit|component|integration)
         --output <path>       Output directory for test files
         --template <name>     Template to use for generation
-    `,
+    `
 		);
 
 		this.helpTexts.set(
@@ -109,7 +101,7 @@ describe('{{functionName}}', () => {
   })
   {{/each}}
 })
-    `,
+    `
 		);
 
 		this.templates.set(
@@ -134,7 +126,7 @@ describe('{{className}}', () => {
   })
   {{/each}}
 })
-    `,
+    `
 		);
 
 		this.templates.set(
@@ -165,7 +157,7 @@ describe('{{componentName}}', () => {
   })
   {{/each}}
 })
-    `,
+    `
 		);
 
 		this.templates.set(
@@ -188,10 +180,10 @@ describe('${options.table} table', () => {
   it('should ${op} ${options.table}', async () => {
     // TODO: Implement ${op} test
   })
-  `,
+  `
 		)
 		.join("\n")}
-});`,
+});`
 		);
 	}
 
@@ -240,33 +232,27 @@ describe('${options.table} table', () => {
 										? Object.keys(item.input).join(" and ")
 										: item.input;
 								const description = `should handle ${inputDesc || item.expected || "input"}`;
-								itemContent = itemContent.replace(
-									/\{\{this\.description\}\}/g,
-									description,
-								);
+								itemContent = itemContent.replace(/\{\{this\.description\}\}/g, description);
 							}
 						} else {
 							// Replace {{this}} with item value
-							itemContent = itemContent.replace(
-								/\{\{this\}\}/g,
-								this.formatIdentifier(item),
-							);
+							itemContent = itemContent.replace(/\{\{this\}\}/g, this.formatIdentifier(item));
 							// Handle capitalize helper with this context for interactions
 							const capitalizedItem = this.capitalize(item.replace(/\s+/g, ""));
 							itemContent = itemContent.replace(
 								/on\{\{capitalize this\}\}/g,
-								`on${capitalizedItem}`,
+								`on${capitalizedItem}`
 							);
 						}
 						// Replace parent context variables
 						itemContent = itemContent.replace(
 							/\{\{\.\.\/(\w+)\}\}/g,
-							(m: string, parentKey: string) => data[parentKey] || m,
+							(m: string, parentKey: string) => data[parentKey] || m
 						);
 						return itemContent;
 					})
 					.join("\n");
-			},
+			}
 		);
 
 		// Handle conditionals (simplified)
@@ -274,7 +260,7 @@ describe('${options.table} table', () => {
 			/\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
 			(match, condKey, content) => {
 				return data[condKey] ? content : "";
-			},
+			}
 		);
 
 		// Handle parent context conditionals like {{#if ../authentication}}
@@ -282,7 +268,7 @@ describe('${options.table} table', () => {
 			/\{\{#if \.\.\/(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
 			(match, parentKey, content) => {
 				return data[parentKey] ? content : "";
-			},
+			}
 		);
 
 		// Handle template helpers
@@ -301,14 +287,13 @@ describe('${options.table} table', () => {
 		if (input === null) return "null";
 		if (input === undefined) return "undefined";
 		if (typeof input === "string") return `'${input}'`;
-		if (typeof input === "number" || typeof input === "boolean")
-			return String(input);
+		if (typeof input === "number" || typeof input === "boolean") return String(input);
 		if (Array.isArray(input)) {
 			return `[${input.map((item) => this.serializeTestCaseInput(item)).join(", ")}]`;
 		}
 		if (typeof input === "object") {
 			const pairs = Object.entries(input).map(
-				([key, value]) => `${key}: ${this.serializeTestCaseInput(value)}`,
+				([key, value]) => `${key}: ${this.serializeTestCaseInput(value)}`
 			);
 			return `{ ${pairs.join(", ")} }`;
 		}
@@ -492,8 +477,7 @@ export class WorkflowAutomation {
 			if (options.includeIntegrationTests) {
 				const integrationFile = `${baseName}.integration.test.ts`;
 				files.push(integrationFile);
-				structure[integrationFile] =
-					this.generateIntegrationTestContent(className);
+				structure[integrationFile] = this.generateIntegrationTestContent(className);
 			}
 		}
 
@@ -511,21 +495,13 @@ export class WorkflowAutomation {
 		this.warningListeners.forEach((listener) => listener(warning));
 	}
 
-	private checkCoverageRegression(
-		previous: CoverageReport,
-		current: CoverageReport,
-	): void {
-		const metrics: (keyof CoverageReport)[] = [
-			"statements",
-			"branches",
-			"functions",
-			"lines",
-		];
+	private checkCoverageRegression(previous: CoverageReport, current: CoverageReport): void {
+		const metrics: (keyof CoverageReport)[] = ["statements", "branches", "functions", "lines"];
 
 		for (const metric of metrics) {
 			if (current[metric] < previous[metric]) {
 				this.emitWarning(
-					`Coverage decreased: ${metric} ${previous[metric]}% → ${current[metric]}%`,
+					`Coverage decreased: ${metric} ${previous[metric]}% → ${current[metric]}%`
 				);
 			}
 		}

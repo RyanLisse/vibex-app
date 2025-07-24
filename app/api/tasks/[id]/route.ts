@@ -14,9 +14,7 @@ import { observability } from "@/lib/observability";
 const UpdateTaskSchema = z.object({
 	title: z.string().min(1).max(255).optional(),
 	description: z.string().optional(),
-	status: z
-		.enum(["pending", "in_progress", "completed", "cancelled"])
-		.optional(),
+	status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
 	priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
 	userId: z.string().optional(),
 	metadata: z.record(z.string(), z.any()).optional(),
@@ -25,26 +23,16 @@ const UpdateTaskSchema = z.object({
 /**
  * GET /api/tasks/[id] - Fetch a specific task
  */
-export async function GET(
-	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.tasks.get-by-id", async () => {
 		try {
 			const { id } = await params;
 
 			if (!id) {
-				return NextResponse.json(
-					{ error: "Task ID is required" },
-					{ status: 400 },
-				);
+				return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
 			}
 
-			const result = await db
-				.select()
-				.from(tasks)
-				.where(eq(tasks.id, id))
-				.limit(1);
+			const result = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
 
 			if (result.length === 0) {
 				return NextResponse.json({ error: "Task not found" }, { status: 404 });
@@ -55,10 +43,7 @@ export async function GET(
 			console.error("Failed to fetch task:", error);
 			observability.recordError("api.tasks.get-by-id", error as Error);
 
-			return NextResponse.json(
-				{ error: "Failed to fetch task" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Failed to fetch task" }, { status: 500 });
 		}
 	});
 }
@@ -66,30 +51,20 @@ export async function GET(
 /**
  * PATCH /api/tasks/[id] - Update a specific task
  */
-export async function PATCH(
-	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	return observability.trackOperation("api.tasks.update", async () => {
 		try {
 			const { id } = await params;
 
 			if (!id) {
-				return NextResponse.json(
-					{ error: "Task ID is required" },
-					{ status: 400 },
-				);
+				return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
 			}
 
 			const body = await request.json();
 			const validatedData = UpdateTaskSchema.parse(body);
 
 			// Check if task exists
-			const existingTask = await db
-				.select()
-				.from(tasks)
-				.where(eq(tasks.id, id))
-				.limit(1);
+			const existingTask = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
 
 			if (existingTask.length === 0) {
 				return NextResponse.json({ error: "Task not found" }, { status: 404 });
@@ -113,14 +88,11 @@ export async function PATCH(
 			if (error instanceof z.ZodError) {
 				return NextResponse.json(
 					{ error: "Invalid task data", details: error.issues },
-					{ status: 400 },
+					{ status: 400 }
 				);
 			}
 
-			return NextResponse.json(
-				{ error: "Failed to update task" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
 		}
 	});
 }
@@ -130,25 +102,18 @@ export async function PATCH(
  */
 export async function DELETE(
 	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	return observability.trackOperation("api.tasks.delete", async () => {
 		try {
 			const { id } = await params;
 
 			if (!id) {
-				return NextResponse.json(
-					{ error: "Task ID is required" },
-					{ status: 400 },
-				);
+				return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
 			}
 
 			// Check if task exists
-			const existingTask = await db
-				.select()
-				.from(tasks)
-				.where(eq(tasks.id, id))
-				.limit(1);
+			const existingTask = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
 
 			if (existingTask.length === 0) {
 				return NextResponse.json({ error: "Task not found" }, { status: 404 });
@@ -162,10 +127,7 @@ export async function DELETE(
 			console.error("Failed to delete task:", error);
 			observability.recordError("api.tasks.delete", error as Error);
 
-			return NextResponse.json(
-				{ error: "Failed to delete task" },
-				{ status: 500 },
-			);
+			return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
 		}
 	});
 }

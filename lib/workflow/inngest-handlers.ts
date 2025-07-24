@@ -15,15 +15,11 @@ export const workflowTriggerHandler = inngest.createFunction(
 
 		// Execute workflow
 		const execution = await step.run("execute-workflow", async () => {
-			return await workflowEngine.startWorkflow(
-				workflowId,
-				`trigger:${triggerId}`,
-				input,
-			);
+			return await workflowEngine.startWorkflow(workflowId, `trigger:${triggerId}`, input);
 		});
 
 		return { executionId: execution.id, status: "started" };
-	},
+	}
 );
 
 // Scheduled workflow execution
@@ -42,17 +38,13 @@ export const scheduledWorkflowHandler = inngest.createFunction(
 			await step.run(`execute-${workflow.id}`, async () => {
 				const shouldRun = await evaluateScheduleTrigger(workflow.trigger);
 				if (shouldRun) {
-					await workflowEngine.startWorkflow(
-						workflow.id,
-						"scheduler",
-						workflow.defaultInput,
-					);
+					await workflowEngine.startWorkflow(workflow.id, "scheduler", workflow.defaultInput);
 				}
 			});
 		}
 
 		return { processed: workflows.length };
-	},
+	}
 );
 
 // Workflow state change handler
@@ -86,7 +78,7 @@ export const workflowStateChangeHandler = inngest.createFunction(
 		});
 
 		return { handled: true };
-	},
+	}
 );
 
 // Workflow retry handler
@@ -112,7 +104,7 @@ export const workflowRetryHandler = inngest.createFunction(
 				execution.workflowId,
 				`retry:${execution.triggeredBy}`,
 				execution.variables.input,
-				execution.executionId, // Parent execution
+				execution.executionId // Parent execution
 			);
 
 			return {
@@ -123,7 +115,7 @@ export const workflowRetryHandler = inngest.createFunction(
 		});
 
 		return result;
-	},
+	}
 );
 
 // Human approval handler
@@ -164,7 +156,7 @@ export const humanApprovalHandler = inngest.createFunction(
 			} else {
 				await workflowEngine.failExecution(
 					executionId,
-					new Error(`Approval rejected: ${result.data.reason}`),
+					new Error(`Approval rejected: ${result.data.reason}`)
 				);
 			}
 		});
@@ -174,7 +166,7 @@ export const humanApprovalHandler = inngest.createFunction(
 			approver: result.data.approver,
 			timestamp: result.data.timestamp,
 		};
-	},
+	}
 );
 
 // Webhook trigger handler
@@ -196,10 +188,7 @@ export const webhookTriggerHandler = inngest.createFunction(
 			for (const workflow of workflows) {
 				// Validate webhook payload if needed
 				if (workflow.webhookConfig?.validation) {
-					const isValid = await validateWebhookPayload(
-						payload,
-						workflow.webhookConfig.validation,
-					);
+					const isValid = await validateWebhookPayload(payload, workflow.webhookConfig.validation);
 					if (!isValid) {
 						continue;
 					}
@@ -207,16 +196,13 @@ export const webhookTriggerHandler = inngest.createFunction(
 
 				// Transform payload if needed
 				const input = workflow.webhookConfig?.transform
-					? await transformWebhookPayload(
-							payload,
-							workflow.webhookConfig.transform,
-						)
+					? await transformWebhookPayload(payload, workflow.webhookConfig.transform)
 					: payload;
 
 				const execution = await workflowEngine.startWorkflow(
 					workflow.id,
 					`webhook:${webhookId}`,
-					input,
+					input
 				);
 
 				results.push({
@@ -232,7 +218,7 @@ export const webhookTriggerHandler = inngest.createFunction(
 			triggered: executions.length,
 			executions,
 		};
-	},
+	}
 );
 
 // Workflow monitoring handler
@@ -258,10 +244,7 @@ export const workflowMonitoringHandler = inngest.createFunction(
 
 				// Could auto-cancel, notify, or take other actions
 				if (workflow.autoRecover) {
-					await workflowEngine.cancelExecution(
-						workflow.id,
-						"Cancelled due to timeout",
-					);
+					await workflowEngine.cancelExecution(workflow.id, "Cancelled due to timeout");
 				}
 			});
 		}
@@ -274,9 +257,7 @@ export const workflowMonitoringHandler = inngest.createFunction(
 				activeCount: activeExecutions.length,
 				byStatus: groupBy(activeExecutions, "status"),
 				avgRunningTime: calculateAverage(
-					activeExecutions
-						.filter((e) => e.startedAt)
-						.map((e) => Date.now() - e.startedAt.getTime()),
+					activeExecutions.filter((e) => e.startedAt).map((e) => Date.now() - e.startedAt.getTime())
 				),
 			};
 		});
@@ -284,17 +265,14 @@ export const workflowMonitoringHandler = inngest.createFunction(
 		// Store metrics
 		await step.run("store-metrics", async () => {
 			observability.recordMetric("workflow.active_count", metrics.activeCount);
-			observability.recordMetric(
-				"workflow.avg_running_time",
-				metrics.avgRunningTime,
-			);
+			observability.recordMetric("workflow.avg_running_time", metrics.avgRunningTime);
 		});
 
 		return {
 			stuckWorkflows: stuckWorkflows.length,
 			metrics,
 		};
-	},
+	}
 );
 
 // Workflow cleanup handler
@@ -318,7 +296,7 @@ export const workflowCleanupHandler = inngest.createFunction(
 			cleaned: cleaned.count,
 			freedSpace: cleaned.freedSpace,
 		};
-	},
+	}
 );
 
 // Helper functions
@@ -343,10 +321,7 @@ async function handleWorkflowPause(executionId: string): Promise<void> {
 	observability.trackEvent("workflow.pause_handled", { executionId });
 }
 
-function canRetryWorkflow(
-	execution: WorkflowExecutionState,
-	retryConfig: any,
-): boolean {
+function canRetryWorkflow(execution: WorkflowExecutionState, retryConfig: any): boolean {
 	// Check retry conditions
 	if (execution.status !== "failed") return false;
 	// Add more retry logic
@@ -362,10 +337,7 @@ async function createApprovalRequest(config: any): Promise<any> {
 	};
 }
 
-async function handleApprovalTimeout(
-	approvalId: string,
-	action: string,
-): Promise<void> {
+async function handleApprovalTimeout(approvalId: string, action: string): Promise<void> {
 	// Handle approval timeout based on configured action
 	switch (action) {
 		case "approve":
@@ -385,18 +357,12 @@ async function findWorkflowsByWebhookId(webhookId: string): Promise<any[]> {
 	return [];
 }
 
-async function validateWebhookPayload(
-	payload: any,
-	validation: any,
-): Promise<boolean> {
+async function validateWebhookPayload(payload: any, validation: any): Promise<boolean> {
 	// Validate webhook payload against schema
 	return true;
 }
 
-async function transformWebhookPayload(
-	payload: any,
-	transform: any,
-): Promise<any> {
+async function transformWebhookPayload(payload: any, transform: any): Promise<any> {
 	// Transform webhook payload
 	return payload;
 }
@@ -419,7 +385,7 @@ function groupBy<T>(items: T[], key: keyof T): Record<string, T[]> {
 			acc[group].push(item);
 			return acc;
 		},
-		{} as Record<string, T[]>,
+		{} as Record<string, T[]>
 	);
 }
 

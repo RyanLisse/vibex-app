@@ -23,9 +23,7 @@ const results = {
 		"lib/github-api.ts": {
 			functions: 57.89,
 			lines: 51.49,
-			uncoveredLines: [
-				67, 68, 72, 74, 78, 85, 89, 103, 107, 108, 112, 113, 117, 126, 130, 136,
-			],
+			uncoveredLines: [67, 68, 72, 74, 78, 85, 89, 103, 107, 108, 112, 113, 117, 126, 130, 136],
 		},
 		"lib/telemetry.ts": { functions: 100.0, lines: 100.0 },
 		"lib/utils.ts": { functions: 100.0, lines: 100.0 },
@@ -47,7 +45,7 @@ const averageCoverage = Math.round(
 		results.overallCoverage.lines +
 		results.overallCoverage.statements +
 		results.overallCoverage.branches) /
-		4,
+		4
 );
 
 console.log(`\n📈 OVERALL COVERAGE: ${averageCoverage}%`);
@@ -62,9 +60,7 @@ Object.entries(results.fileDetails).forEach(([file, coverage]) => {
 console.log("\n⚠️  FILES NEEDING IMPROVEMENT:");
 Object.entries(results.fileDetails).forEach(([file, coverage]) => {
 	if (coverage.functions < 100 || coverage.lines < 100) {
-		console.log(
-			`  • ${file}: ${coverage.functions}% functions, ${coverage.lines}% lines`,
-		);
+		console.log(`  • ${file}: ${coverage.functions}% functions, ${coverage.lines}% lines`);
 		if (coverage.uncoveredLines) {
 			console.log(`    Uncovered lines: ${coverage.uncoveredLines.join(", ")}`);
 		}
@@ -96,9 +92,7 @@ console.log("  5. Set up automated coverage monitoring");
 
 if (averageCoverage >= 90) {
 	console.log("\n🏆 EXCELLENT COVERAGE ACHIEVED!");
-	console.log(
-		"Test coverage optimization successful - 90%+ coverage target met!",
-	);
+	console.log("Test coverage optimization successful - 90%+ coverage target met!");
 } else {
 	console.log("\n⚠️  COVERAGE NEEDS IMPROVEMENT");
 	console.log("Continue working on uncovered code paths to reach 90%+ target");

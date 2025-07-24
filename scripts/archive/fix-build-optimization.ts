@@ -54,9 +54,7 @@ if (existsSync(schemasPath)) {
 	const content = readFileSync(schemasPath, "utf-8");
 	console.log(
 		"📋 Current schemas exported:",
-		content
-			.match(/export\s+const\s+\w+Schema/g)
-			?.map((m) => m.replace("export const ", "")),
+		content.match(/export\s+const\s+\w+Schema/g)?.map((m) => m.replace("export const ", ""))
 	);
 }
 

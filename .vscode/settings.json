@@ -54,5 +54,6 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnPaste": true,
-  "emmet.showExpandedAbbreviation": "never"
+  "emmet.showExpandedAbbreviation": "never",
+  "typescript.autoClosingTags": false
 }

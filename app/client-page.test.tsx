@@ -41,14 +41,7 @@ describe("ClientPage", () => {
 		const { container } = render(<ClientPage />);
 
 		const mainContainer = container.firstChild;
-		expect(mainContainer).toHaveClass(
-			"flex",
-			"flex-col",
-			"px-4",
-			"py-2",
-			"h-screen",
-			"gap-y-4",
-		);
+		expect(mainContainer).toHaveClass("flex", "flex-col", "px-4", "py-2", "h-screen", "gap-y-4");
 	});
 
 	it("should render navbar component", () => {

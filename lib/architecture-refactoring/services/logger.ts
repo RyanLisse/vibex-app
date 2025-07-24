@@ -3,54 +3,56 @@
  * Provides logging functionality for the analysis system
  */
 
-import { LoggerInterface } from '../types';
+import { LoggerInterface } from "../types";
 
 export class Logger implements LoggerInterface {
-  private context: string;
-  private enabled: boolean = true;
+	private context: string;
+	private enabled: boolean = true;
 
-  constructor(context: string) {
-    this.context = context;
-  }
+	constructor(context: string) {
+		this.context = context;
+	}
 
-  debug(message: string, metadata?: Record<string, unknown>): void {
-    if (!this.enabled) return;
-    
-    if (process.env.NODE_ENV === 'development' || process.env.DEBUG) {
-      console.debug(`[${this.context}] ${message}`, metadata || '');
-    }
-  }
+	debug(message: string, metadata?: Record<string, unknown>): void {
+		if (!this.enabled) return;
 
-  info(message: string, metadata?: Record<string, unknown>): void {
-    if (!this.enabled) return;
-    
-    console.info(`[${this.context}] ${message}`, metadata || '');
-  }
+		if (process.env.NODE_ENV === "development" || process.env.DEBUG) {
+			console.debug(`[${this.context}] ${message}`, metadata || "");
+		}
+	}
 
-  warn(message: string, metadata?: Record<string, unknown>): void {
-    if (!this.enabled) return;
-    
-    console.warn(`[${this.context}] ${message}`, metadata || '');
-  }
+	info(message: string, metadata?: Record<string, unknown>): void {
+		if (!this.enabled) return;
 
-  error(message: string, error?: Error, metadata?: Record<string, unknown>): void {
-    if (!this.enabled) return;
-    
-    console.error(`[${this.context}] ${message}`, {
-      error: error ? {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      } : undefined,
-      ...metadata,
-    });
-  }
+		console.info(`[${this.context}] ${message}`, metadata || "");
+	}
 
-  setEnabled(enabled: boolean): void {
-    this.enabled = enabled;
-  }
+	warn(message: string, metadata?: Record<string, unknown>): void {
+		if (!this.enabled) return;
 
-  child(context: string): Logger {
-    return new Logger(`${this.context}:${context}`);
-  }
+		console.warn(`[${this.context}] ${message}`, metadata || "");
+	}
+
+	error(message: string, error?: Error, metadata?: Record<string, unknown>): void {
+		if (!this.enabled) return;
+
+		console.error(`[${this.context}] ${message}`, {
+			error: error
+				? {
+						message: error.message,
+						stack: error.stack,
+						name: error.name,
+					}
+				: undefined,
+			...metadata,
+		});
+	}
+
+	setEnabled(enabled: boolean): void {
+		this.enabled = enabled;
+	}
+
+	child(context: string): Logger {
+		return new Logger(`${this.context}:${context}`);
+	}
 }

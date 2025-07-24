@@ -11,12 +11,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Task } from "../../db/schema";
 import { useElectricTasks } from "../../hooks/use-electric-tasks";
-import {
-	useCreateTask,
-	useDeleteTask,
-	useTasks,
-	useUpdateTask,
-} from "../../lib/query/hooks";
+import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from "../../lib/query/hooks";
 
 // Mock fetch
 global.fetch = vi.fn();
@@ -74,9 +69,7 @@ describe("Optimistic Updates", () => {
 			const wrapper = createWrapper();
 
 			// Setup initial tasks data
-			const initialTasks = [
-				{ id: "1", title: "Existing Task", status: "pending" },
-			] as Task[];
+			const initialTasks = [{ id: "1", title: "Existing Task", status: "pending" }] as Task[];
 
 			queryClient.setQueryData(["tasks", "list", {}], {
 				tasks: initialTasks,
@@ -90,7 +83,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { createMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Verify initial state
@@ -114,7 +107,7 @@ describe("Optimistic Updates", () => {
 			});
 
 			const optimisticTask = result.current.tasksQuery.data?.tasks.find(
-				(task) => task.title === "New Optimistic Task",
+				(task) => task.title === "New Optimistic Task"
 			);
 			expect(optimisticTask).toBeDefined();
 			expect(optimisticTask?.id).toMatch(/^temp-/); // Temporary ID
@@ -124,9 +117,7 @@ describe("Optimistic Updates", () => {
 			const wrapper = createWrapper();
 
 			// Setup initial tasks data
-			const initialTasks = [
-				{ id: "1", title: "Existing Task", status: "pending" },
-			] as Task[];
+			const initialTasks = [{ id: "1", title: "Existing Task", status: "pending" }] as Task[];
 
 			queryClient.setQueryData(["tasks", "list", {}], {
 				tasks: initialTasks,
@@ -143,7 +134,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { createMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			const newTask = {
@@ -197,7 +188,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { updateMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			const updates = {
@@ -212,9 +203,7 @@ describe("Optimistic Updates", () => {
 
 			// Should immediately show optimistic update
 			await waitFor(() => {
-				const updatedTask = result.current.tasksQuery.data?.tasks.find(
-					(t) => t.id === "1",
-				);
+				const updatedTask = result.current.tasksQuery.data?.tasks.find((t) => t.id === "1");
 				expect(updatedTask?.title).toBe("Updated Task Title");
 				expect(updatedTask?.priority).toBe("high");
 			});
@@ -247,7 +236,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { updateMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			const updates = {
@@ -261,17 +250,13 @@ describe("Optimistic Updates", () => {
 
 			// Should show optimistic update initially
 			await waitFor(() => {
-				const task = result.current.tasksQuery.data?.tasks.find(
-					(t) => t.id === "1",
-				);
+				const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === "1");
 				expect(task?.title).toBe("Failed Update");
 			});
 
 			// Should rollback to original after error
 			await waitFor(() => {
-				const task = result.current.tasksQuery.data?.tasks.find(
-					(t) => t.id === "1",
-				);
+				const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === "1");
 				expect(task?.title).toBe("Original Title");
 			});
 
@@ -300,7 +285,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { deleteMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			act(() => {
@@ -337,7 +322,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { deleteMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			act(() => {
@@ -352,9 +337,7 @@ describe("Optimistic Updates", () => {
 			// Should restore task after error
 			await waitFor(() => {
 				expect(result.current.tasksQuery.data?.tasks).toHaveLength(2);
-				const restoredTask = result.current.tasksQuery.data?.tasks.find(
-					(t) => t.id === "1",
-				);
+				const restoredTask = result.current.tasksQuery.data?.tasks.find((t) => t.id === "1");
 				expect(restoredTask?.title).toBe("Task to Delete");
 			});
 
@@ -372,7 +355,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { createMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Mock successful server response
@@ -426,7 +409,7 @@ describe("Optimistic Updates", () => {
 					const tasksQuery = useTasks();
 					return { updateMutation, tasksQuery };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Perform multiple concurrent updates
@@ -437,9 +420,7 @@ describe("Optimistic Updates", () => {
 
 			// Should handle concurrent updates gracefully
 			await waitFor(() => {
-				const task = result.current.tasksQuery.data?.tasks.find(
-					(t) => t.id === "1",
-				);
+				const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === "1");
 				expect(task).toBeDefined();
 				// Should have the latest optimistic update
 				expect(task?.priority).toBe("high");

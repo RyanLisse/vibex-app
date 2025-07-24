@@ -1,29 +1,15 @@
-import {
-	act,
-	fireEvent,
-	render,
-	renderHook,
-	screen,
-} from "@testing-library/react";
+import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { ErrorBoundary, useErrorBoundary } from "./error-boundary";
 
 // Mock console methods
-const mockConsoleError = mock
-	.spyOn(console, "error")
-	.mockImplementation(() => {});
-const mockConsoleWarn = mock
-	.spyOn(console, "warn")
-	.mockImplementation(() => {});
+const mockConsoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+const mockConsoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
 // Component that throws an error
-const ThrowError = ({
-	shouldThrow = false,
-	error,
-}: {
-	shouldThrow?: boolean;
-	error?: Error;
-}) => {
+const ThrowError = ({ shouldThrow = false, error }: { shouldThrow?: boolean; error?: Error }) => {
 	if (shouldThrow) {
 		throw error || new Error("Test error");
 	}
@@ -31,11 +17,7 @@ const ThrowError = ({
 };
 
 // Component that throws stream error
-const ThrowStreamError = ({
-	shouldThrow = false,
-}: {
-	shouldThrow?: boolean;
-}) => {
+const ThrowStreamError = ({ shouldThrow = false }: { shouldThrow?: boolean }) => {
 	if (shouldThrow) {
 		throw new Error("ReadableStream error occurred");
 	}
@@ -55,7 +37,7 @@ describe("ErrorBoundary", () => {
 		render(
 			<ErrorBoundary>
 				<div>Normal content</div>
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Normal content")).toBeInTheDocument();
@@ -64,11 +46,8 @@ describe("ErrorBoundary", () => {
 	it("should render default fallback UI when error occurs", () => {
 		render(
 			<ErrorBoundary>
-				<ThrowError
-					error={new Error("Test error message")}
-					shouldThrow={true}
-				/>
-			</ErrorBoundary>,
+				<ThrowError error={new Error("Test error message")} shouldThrow={true} />
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
@@ -77,13 +56,7 @@ describe("ErrorBoundary", () => {
 	});
 
 	it("should render custom fallback component when provided", () => {
-		const CustomFallback = ({
-			error,
-			resetError,
-		}: {
-			error: Error;
-			resetError: () => void;
-		}) => (
+		const CustomFallback = ({ error, resetError }: { error: Error; resetError: () => void }) => (
 			<div>
 				<h2>Custom Error</h2>
 				<p>{error.message}</p>
@@ -94,7 +67,7 @@ describe("ErrorBoundary", () => {
 		render(
 			<ErrorBoundary fallback={CustomFallback}>
 				<ThrowError error={new Error("Custom error")} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Custom Error")).toBeInTheDocument();
@@ -106,7 +79,7 @@ describe("ErrorBoundary", () => {
 		const { rerender } = render(
 			<ErrorBoundary>
 				<ThrowError error={new Error("Test error")} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
@@ -118,7 +91,7 @@ describe("ErrorBoundary", () => {
 		rerender(
 			<ErrorBoundary>
 				<ThrowError shouldThrow={false} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("No error")).toBeInTheDocument();
@@ -128,12 +101,12 @@ describe("ErrorBoundary", () => {
 		render(
 			<ErrorBoundary>
 				<ThrowStreamError shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(mockConsoleWarn).toHaveBeenCalledWith(
 			"Stream error caught by ErrorBoundary:",
-			"ReadableStream error occurred",
+			"ReadableStream error occurred"
 		);
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
 	});
@@ -141,16 +114,13 @@ describe("ErrorBoundary", () => {
 	it("should handle cancel errors specially", () => {
 		render(
 			<ErrorBoundary>
-				<ThrowError
-					error={new Error("cancel operation failed")}
-					shouldThrow={true}
-				/>
-			</ErrorBoundary>,
+				<ThrowError error={new Error("cancel operation failed")} shouldThrow={true} />
+			</ErrorBoundary>
 		);
 
 		expect(mockConsoleWarn).toHaveBeenCalledWith(
 			"Stream error caught by ErrorBoundary:",
-			"cancel operation failed",
+			"cancel operation failed"
 		);
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
 	});
@@ -159,13 +129,13 @@ describe("ErrorBoundary", () => {
 		render(
 			<ErrorBoundary>
 				<ThrowError error={new Error("Normal error")} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(mockConsoleError).toHaveBeenCalledWith(
 			"ErrorBoundary caught an error:",
 			expect.any(Error),
-			expect.any(Object),
+			expect.any(Object)
 		);
 	});
 
@@ -173,23 +143,15 @@ describe("ErrorBoundary", () => {
 		render(
 			<ErrorBoundary>
 				<ThrowError error={new Error()} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
-		expect(
-			screen.getByText("An unexpected error occurred"),
-		).toBeInTheDocument();
+		expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument();
 	});
 
 	it("should handle custom fallback reset functionality", () => {
-		const CustomFallback = ({
-			error,
-			resetError,
-		}: {
-			error: Error;
-			resetError: () => void;
-		}) => (
+		const CustomFallback = ({ error, resetError }: { error: Error; resetError: () => void }) => (
 			<div>
 				<h2>Custom Error Handler</h2>
 				<button onClick={resetError}>Custom Reset</button>
@@ -199,7 +161,7 @@ describe("ErrorBoundary", () => {
 		const { rerender } = render(
 			<ErrorBoundary fallback={CustomFallback}>
 				<ThrowError error={new Error("Custom error")} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Custom Error Handler")).toBeInTheDocument();
@@ -211,7 +173,7 @@ describe("ErrorBoundary", () => {
 		rerender(
 			<ErrorBoundary fallback={CustomFallback}>
 				<ThrowError shouldThrow={false} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("No error")).toBeInTheDocument();
@@ -221,7 +183,7 @@ describe("ErrorBoundary", () => {
 		const { rerender } = render(
 			<ErrorBoundary>
 				<ThrowError error={new Error("First error")} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("First error")).toBeInTheDocument();
@@ -233,7 +195,7 @@ describe("ErrorBoundary", () => {
 		rerender(
 			<ErrorBoundary>
 				<ThrowError error={new Error("Second error")} shouldThrow={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Second error")).toBeInTheDocument();
@@ -250,7 +212,7 @@ describe("ErrorBoundary", () => {
 		const { rerender } = render(
 			<ErrorBoundary>
 				<TestComponent shouldError={false} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Working")).toBeInTheDocument();
@@ -258,7 +220,7 @@ describe("ErrorBoundary", () => {
 		rerender(
 			<ErrorBoundary>
 				<TestComponent shouldError={true} />
-			</ErrorBoundary>,
+			</ErrorBoundary>
 		);
 
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
@@ -293,7 +255,7 @@ describe("useErrorBoundary", () => {
 
 		expect(mockConsoleWarn).toHaveBeenCalledWith(
 			"Stream error captured but not thrown:",
-			"ReadableStream error",
+			"ReadableStream error"
 		);
 	});
 
@@ -306,7 +268,7 @@ describe("useErrorBoundary", () => {
 
 		expect(mockConsoleWarn).toHaveBeenCalledWith(
 			"Stream error captured but not thrown:",
-			"cancel operation",
+			"cancel operation"
 		);
 	});
 

@@ -1,20 +1,7 @@
 import type { UseFormReturn } from "react-hook-form";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { z } from "zod";
-import {
-	createSchemaValidator,
-	validateAllFormFields,
-	validateSingleField,
-} from "./validation";
+import { createSchemaValidator, validateAllFormFields, validateSingleField } from "./validation";
 
 // Mock react-hook-form
 vi.mock("react-hook-form", () => ({
@@ -205,9 +192,7 @@ describe("useZodForm validation utilities", () => {
 			mockForm.getValues.mockReturnValue("value");
 
 			// This should throw as 'nonexistent' is not in the schema
-			await expect(
-				validateSingleField(schema, mockForm, "nonexistent" as any),
-			).rejects.toThrow();
+			await expect(validateSingleField(schema, mockForm, "nonexistent" as any)).rejects.toThrow();
 		});
 
 		it("should handle undefined field values", async () => {
@@ -310,10 +295,7 @@ describe("useZodForm validation utilities", () => {
 			const customValidator = () => ({ success: true });
 			mockForm.getValues.mockReturnValue({});
 
-			const result = await validateAllFormFields(
-				mockForm,
-				customValidator as any,
-			);
+			const result = await validateAllFormFields(mockForm, customValidator as any);
 
 			expect(result).toBe(true);
 			expect(mockForm.setError).not.toHaveBeenCalled();
@@ -329,10 +311,7 @@ describe("useZodForm validation utilities", () => {
 			});
 			mockForm.getValues.mockReturnValue({});
 
-			const result = await validateAllFormFields(
-				mockForm,
-				partialValidator as any,
-			);
+			const result = await validateAllFormFields(mockForm, partialValidator as any);
 
 			expect(result).toBe(false);
 			expect(mockForm.setError).toHaveBeenCalledTimes(1);
@@ -351,10 +330,7 @@ describe("useZodForm validation utilities", () => {
 			});
 			mockForm.getValues.mockReturnValue({});
 
-			const result = await validateAllFormFields(
-				mockForm,
-				nestedValidator as any,
-			);
+			const result = await validateAllFormFields(mockForm, nestedValidator as any);
 
 			expect(result).toBe(false);
 			expect(mockForm.setError).toHaveBeenCalledWith("user.profile.name", {

@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useGitHubBranches } from "./use-github-branches";
 
 // Mock fetch
@@ -83,7 +74,7 @@ describe("useGitHubBranches", () => {
 
 	it("should handle fetch errors", async () => {
 		(fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-			new Error("Network error"),
+			new Error("Network error")
 		);
 
 		const { result } = renderHook(() => useGitHubBranches());
@@ -136,7 +127,7 @@ describe("useGitHubBranches", () => {
 		expect(details).toEqual(mockBranchDetails);
 		expect(fetch).toHaveBeenCalledWith(
 			expect.stringContaining("/repos/testuser/repo1/branches/main"),
-			expect.any(Object),
+			expect.any(Object)
 		);
 	});
 
@@ -156,11 +147,7 @@ describe("useGitHubBranches", () => {
 		const { result } = renderHook(() => useGitHubBranches());
 
 		const newBranch = await act(async () => {
-			return await result.current.createBranch(
-				"testuser/repo1",
-				"feature/new-feature",
-				"abc123",
-			);
+			return await result.current.createBranch("testuser/repo1", "feature/new-feature", "abc123");
 		});
 
 		expect(newBranch).toEqual(mockNewBranch);
@@ -172,7 +159,7 @@ describe("useGitHubBranches", () => {
 					ref: "refs/heads/feature/new-feature",
 					sha: "abc123",
 				}),
-			}),
+			})
 		);
 	});
 
@@ -185,19 +172,14 @@ describe("useGitHubBranches", () => {
 		const { result } = renderHook(() => useGitHubBranches());
 
 		await act(async () => {
-			await result.current.deleteBranch(
-				"testuser/repo1",
-				"feature/old-feature",
-			);
+			await result.current.deleteBranch("testuser/repo1", "feature/old-feature");
 		});
 
 		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining(
-				"/repos/testuser/repo1/git/refs/heads/feature/old-feature",
-			),
+			expect.stringContaining("/repos/testuser/repo1/git/refs/heads/feature/old-feature"),
 			expect.objectContaining({
 				method: "DELETE",
-			}),
+			})
 		);
 	});
 
@@ -215,7 +197,7 @@ describe("useGitHubBranches", () => {
 		await expect(
 			act(async () => {
 				await result.current.deleteBranch("testuser/repo1", "main");
-			}),
+			})
 		).rejects.toThrow("Branch is protected");
 	});
 
@@ -255,19 +237,13 @@ describe("useGitHubBranches", () => {
 		const { result } = renderHook(() => useGitHubBranches());
 
 		const comparison = await act(async () => {
-			return await result.current.compareBranches(
-				"testuser/repo1",
-				"main",
-				"feature/new-feature",
-			);
+			return await result.current.compareBranches("testuser/repo1", "main", "feature/new-feature");
 		});
 
 		expect(comparison).toEqual(mockComparison);
 		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining(
-				"/repos/testuser/repo1/compare/main...feature/new-feature",
-			),
-			expect.any(Object),
+			expect.stringContaining("/repos/testuser/repo1/compare/main...feature/new-feature"),
+			expect.any(Object)
 		);
 	});
 
@@ -297,9 +273,7 @@ describe("useGitHubBranches", () => {
 
 		expect(result.current.filteredBranches).toHaveLength(2);
 		expect(result.current.filteredBranches[0].name).toBe("feature/user-auth");
-		expect(result.current.filteredBranches[1].name).toBe(
-			"feature/user-profile",
-		);
+		expect(result.current.filteredBranches[1].name).toBe("feature/user-profile");
 	});
 
 	it("should get default branch", async () => {
@@ -343,21 +317,17 @@ describe("useGitHubBranches", () => {
 		const { result } = renderHook(() => useGitHubBranches());
 
 		const protection = await act(async () => {
-			return await result.current.updateBranchProtection(
-				"testuser/repo1",
-				"main",
-				{
-					required_status_checks: {
-						strict: true,
-						contexts: ["continuous-integration/travis-ci"],
-					},
-					enforce_admins: true,
-					required_pull_request_reviews: {
-						required_approving_review_count: 2,
-						dismiss_stale_reviews: true,
-					},
+			return await result.current.updateBranchProtection("testuser/repo1", "main", {
+				required_status_checks: {
+					strict: true,
+					contexts: ["continuous-integration/travis-ci"],
 				},
-			);
+				enforce_admins: true,
+				required_pull_request_reviews: {
+					required_approving_review_count: 2,
+					dismiss_stale_reviews: true,
+				},
+			});
 		});
 
 		expect(protection).toEqual(mockProtection);
@@ -365,7 +335,7 @@ describe("useGitHubBranches", () => {
 			expect.stringContaining("/repos/testuser/repo1/branches/main/protection"),
 			expect.objectContaining({
 				method: "PUT",
-			}),
+			})
 		);
 	});
 

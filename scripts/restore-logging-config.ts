@@ -19,12 +19,7 @@ for (const file of files) {
 		let fixCount = 0;
 
 		// First, restore the import if it was removed
-		if (
-			!(
-				content.includes("createDefaultLoggingConfig") ||
-				content.includes("ComponentLogger")
-			)
-		) {
+		if (!(content.includes("createDefaultLoggingConfig") || content.includes("ComponentLogger"))) {
 			// Find the import from './config' and add createDefaultLoggingConfig
 			content = content.replace(
 				/import\s*{\s*([^}]+)\s*}\s*from\s*['"]\.\/config['"]/g,
@@ -37,7 +32,7 @@ for (const file of files) {
 						importList.unshift("createDefaultLoggingConfig");
 					}
 					return `${importList.join(", ")} } from './config'`;
-				},
+				}
 			);
 
 			// If no import from config exists, add it
@@ -54,13 +49,10 @@ for (const file of files) {
 		}
 
 		// Replace the inline object with function call
-		content = content.replace(
-			/{\s*level:\s*"info",\s*format:\s*"json"\s*}/g,
-			() => {
-				fixCount++;
-				return "createDefaultLoggingConfig()";
-			},
-		);
+		content = content.replace(/{\s*level:\s*"info",\s*format:\s*"json"\s*}/g, () => {
+			fixCount++;
+			return "createDefaultLoggingConfig()";
+		});
 
 		if (fixCount > 0) {
 			writeFileSync(filePath, content);

@@ -3,9 +3,7 @@ import { z } from "zod";
 // Comprehensive Zod schema for all environment variables
 export const EnvSchema = z.object({
 	// Node Environment
-	NODE_ENV: z
-		.enum(["development", "production", "test"])
-		.default("development"),
+	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
 	// Letta API Configuration
 	LETTA_API_KEY: z.string().min(1, "Letta API key is required"),
@@ -96,9 +94,7 @@ export const EnvSchema = z.object({
 	SERVICE_VERSION: z.string().default("1.0.0"),
 
 	// Logging Configuration
-	LOGGING_LEVEL: z
-		.enum(["error", "warn", "info", "debug", "trace"])
-		.default("info"),
+	LOGGING_LEVEL: z.enum(["error", "warn", "info", "debug", "trace"]).default("info"),
 
 	// Console Logging
 	LOGGING_CONSOLE_ENABLED: z
@@ -106,9 +102,7 @@ export const EnvSchema = z.object({
 		.transform((val) => val === "true")
 		.pipe(z.boolean())
 		.default("true"),
-	LOGGING_CONSOLE_LEVEL: z
-		.enum(["error", "warn", "info", "debug", "trace"])
-		.default("debug"),
+	LOGGING_CONSOLE_LEVEL: z.enum(["error", "warn", "info", "debug", "trace"]).default("debug"),
 
 	// File Logging
 	LOGGING_FILE_ENABLED: z
@@ -128,9 +122,7 @@ export const EnvSchema = z.object({
 		.transform((val) => parseInt(val, 10))
 		.pipe(z.number().min(1))
 		.default("5"),
-	LOGGING_FILE_LEVEL: z
-		.enum(["error", "warn", "info", "debug", "trace"])
-		.default("info"),
+	LOGGING_FILE_LEVEL: z.enum(["error", "warn", "info", "debug", "trace"]).default("info"),
 
 	// HTTP Logging
 	LOGGING_HTTP_ENABLED: z
@@ -150,9 +142,7 @@ export const EnvSchema = z.object({
 		.transform((val) => val === "true")
 		.pipe(z.boolean())
 		.default("false"),
-	LOGGING_HTTP_LEVEL: z
-		.enum(["error", "warn", "info", "debug", "trace"])
-		.default("warn"),
+	LOGGING_HTTP_LEVEL: z.enum(["error", "warn", "info", "debug", "trace"]).default("warn"),
 
 	// Performance and Sampling
 	LOGGING_SAMPLING_ENABLED: z
@@ -210,14 +200,8 @@ export const EnvSchema = z.object({
 		.transform((val) => parseFloat(val))
 		.pipe(z.number().min(0).max(1))
 		.default("0.1"),
-	TELEMETRY_JAEGER_ENDPOINT: z
-		.string()
-		.url()
-		.default("http://localhost:14268/api/traces"),
-	TELEMETRY_ZIPKIN_ENDPOINT: z
-		.string()
-		.url()
-		.default("http://localhost:9411/api/v2/spans"),
+	TELEMETRY_JAEGER_ENDPOINT: z.string().url().default("http://localhost:14268/api/traces"),
+	TELEMETRY_ZIPKIN_ENDPOINT: z.string().url().default("http://localhost:9411/api/v2/spans"),
 	TELEMETRY_DATADOG_API_KEY: z.string().optional(),
 	TELEMETRY_NEWRELIC_API_KEY: z.string().optional(),
 	TELEMETRY_HONEYCOMB_API_KEY: z.string().optional(),
@@ -353,9 +337,7 @@ function validateCriticalServices(env: Env): void {
 	}
 
 	if (errors.length > 0) {
-		throw new Error(
-			`Critical service validation failed:\n${errors.join("\n")}`,
-		);
+		throw new Error(`Critical service validation failed:\n${errors.join("\n")}`);
 	}
 }
 
@@ -374,9 +356,7 @@ function validateSecurityRequirements(env: Env): void {
 
 		// Ensure proper telemetry sampling
 		if (env.TELEMETRY_SAMPLING_RATIO > 0.5) {
-			errors.push(
-				"Telemetry sampling ratio should be d 0.5 in production for performance",
-			);
+			errors.push("Telemetry sampling ratio should be d 0.5 in production for performance");
 		}
 
 		// Validate alert configuration
@@ -387,7 +367,7 @@ function validateSecurityRequirements(env: Env): void {
 			!env.ALERTS_EMAIL_FROM
 		) {
 			errors.push(
-				"At least one alert channel (webhook, Slack, or email) must be configured in production",
+				"At least one alert channel (webhook, Slack, or email) must be configured in production"
 			);
 		}
 	}
@@ -404,9 +384,7 @@ export function validateDevelopmentEnv(): Env {
 	const env = validateEnv();
 
 	if (env.NODE_ENV !== "development") {
-		throw new Error(
-			"Development environment validation called but NODE_ENV is not 'development'",
-		);
+		throw new Error("Development environment validation called but NODE_ENV is not 'development'");
 	}
 
 	return env;
@@ -416,30 +394,22 @@ export function validateProductionEnv(): Env {
 	const env = validateEnv();
 
 	if (env.NODE_ENV !== "production") {
-		throw new Error(
-			"Production environment validation called but NODE_ENV is not 'production'",
-		);
+		throw new Error("Production environment validation called but NODE_ENV is not 'production'");
 	}
 
 	// Additional production-specific validations
 	const productionErrors: string[] = [];
 
 	if (!env.SENTRY_DSN) {
-		productionErrors.push(
-			"Sentry DSN is highly recommended for production error tracking",
-		);
+		productionErrors.push("Sentry DSN is highly recommended for production error tracking");
 	}
 
 	if (env.LOGGING_LEVEL === "debug" || env.LOGGING_LEVEL === "trace") {
-		productionErrors.push(
-			"Logging level should not be debug/trace in production for performance",
-		);
+		productionErrors.push("Logging level should not be debug/trace in production for performance");
 	}
 
 	if (productionErrors.length > 0) {
-		console.warn(
-			`Production environment warnings:\n${productionErrors.join("\n")}`,
-		);
+		console.warn(`Production environment warnings:\n${productionErrors.join("\n")}`);
 	}
 
 	return env;
@@ -449,9 +419,7 @@ export function validateTestEnv(): Env {
 	const env = validateEnv();
 
 	if (env.NODE_ENV !== "test") {
-		throw new Error(
-			"Test environment validation called but NODE_ENV is not 'test'",
-		);
+		throw new Error("Test environment validation called but NODE_ENV is not 'test'");
 	}
 
 	return env;

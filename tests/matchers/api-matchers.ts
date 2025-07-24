@@ -6,8 +6,7 @@ export const apiMatchers = {
 
 		return {
 			pass,
-			message: () =>
-				`Expected API response to have status ${expected}, got ${received.status}`,
+			message: () => `Expected API response to have status ${expected}, got ${received.status}`,
 		};
 	},
 

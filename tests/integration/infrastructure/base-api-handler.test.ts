@@ -42,7 +42,7 @@ function createRequest(
 		headers?: Record<string, string>;
 		body?: any;
 		searchParams?: Record<string, string>;
-	} = {},
+	} = {}
 ) {
 	const fullUrl = new URL(url, "http://localhost:3000");
 
@@ -116,7 +116,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 				expect.any(Number),
 				"GET",
 				"/api/test",
-				200,
+				200
 			);
 		});
 
@@ -154,7 +154,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 				"user-agent": "test-agent",
 			});
 			expect(capturedContext!.requestId).toMatch(
-				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 			);
 		});
 
@@ -188,7 +188,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 				expect.any(Number),
 				"GET",
 				"/api/test",
-				400,
+				400
 			);
 		});
 
@@ -277,7 +277,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 				headers: { authorization: "Bearer test-token" },
 			})(
 				// Mock the cookies.get to return undefined
-				request as any,
+				request as any
 			).cookies.get = vi.fn().mockReturnValue(undefined));
 
 			const handler = async (context: RequestContext) => {
@@ -331,9 +331,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 				body: invalidBody,
 			});
 
-			await expect(
-				BaseAPIHandler.validateBody(request, schema),
-			).rejects.toThrow(ValidationError);
+			await expect(BaseAPIHandler.validateBody(request, schema)).rejects.toThrow(ValidationError);
 
 			try {
 				await BaseAPIHandler.validateBody(request, schema);
@@ -345,19 +343,19 @@ describe("BaseAPIHandler Integration Tests", () => {
 						field: "name",
 						message: expect.any(String),
 						code: expect.any(String),
-					}),
+					})
 				);
 				expect(validationError.details).toContainEqual(
 					expect.objectContaining({
 						field: "age",
 						message: expect.any(String),
-					}),
+					})
 				);
 				expect(validationError.details).toContainEqual(
 					expect.objectContaining({
 						field: "email",
 						message: expect.any(String),
-					}),
+					})
 				);
 			}
 		});
@@ -367,12 +365,10 @@ describe("BaseAPIHandler Integration Tests", () => {
 				method: "POST",
 			})(
 				// Mock json() to throw
-				request as any,
+				request as any
 			).json = vi.fn().mockRejectedValue(new Error("Invalid JSON")));
 
-			await expect(
-				BaseAPIHandler.validateBody(request, schema),
-			).rejects.toThrow(ValidationError);
+			await expect(BaseAPIHandler.validateBody(request, schema)).rejects.toThrow(ValidationError);
 
 			try {
 				await BaseAPIHandler.validateBody(request, schema);
@@ -424,9 +420,9 @@ describe("BaseAPIHandler Integration Tests", () => {
 				sort: "invalid", // Not in enum
 			});
 
-			expect(() =>
-				BaseAPIHandler.validateQuery(searchParams, querySchema),
-			).toThrow(ValidationError);
+			expect(() => BaseAPIHandler.validateQuery(searchParams, querySchema)).toThrow(
+				ValidationError
+			);
 
 			try {
 				BaseAPIHandler.validateQuery(searchParams, querySchema);
@@ -560,10 +556,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 
 			const handler = async (context: RequestContext) => {
 				const body = await BaseAPIHandler.validateBody(request, bodySchema);
-				const query = BaseAPIHandler.validateQuery(
-					request.nextUrl.searchParams,
-					querySchema,
-				);
+				const query = BaseAPIHandler.validateQuery(request.nextUrl.searchParams, querySchema);
 
 				return {
 					post: {
@@ -622,8 +615,7 @@ describe("BaseAPIHandler Integration Tests", () => {
 
 			await BaseAPIHandler.handle(request, handler);
 
-			const durationCall = (observability.metrics.httpRequestDuration as any)
-				.mock.calls[0];
+			const durationCall = (observability.metrics.httpRequestDuration as any).mock.calls[0];
 			const duration = durationCall[0];
 
 			expect(duration).toBeGreaterThanOrEqual(delay);

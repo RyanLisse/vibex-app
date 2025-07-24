@@ -3,8 +3,19 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { observability } from "@/lib/observability";
 import { type WorkflowDefinition, WorkflowEngine } from "./workflow-engine";
+
+// Mock the observability module
+vi.mock("@/lib/observability", () => ({
+	observability: {
+		trackOperation: vi.fn((name, fn) => fn()),
+		recordEvent: vi.fn(),
+		recordError: vi.fn(),
+		clear: vi.fn(),
+		getEvents: vi.fn(() => []),
+		getErrors: vi.fn(() => []),
+	},
+}));
 
 // Mock the database
 vi.mock("@/db", () => ({
@@ -76,7 +87,7 @@ describe("WorkflowEngine", () => {
 
 	beforeEach(() => {
 		workflowEngine = new WorkflowEngine();
-		observability.clear();
+		vi.clearAllMocks();
 	});
 
 	afterEach(() => {

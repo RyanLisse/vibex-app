@@ -34,7 +34,7 @@ vi.mock("next/server", () => ({
 	NextRequest: class {
 		constructor(
 			public url: string,
-			public init?: any,
+			public init?: any
 		) {}
 	},
 	NextResponse: {
@@ -50,10 +50,10 @@ vi.mock("next/server", () => ({
 process.env.INNGEST_SIGNING_KEY = "test-signing-key";
 process.env.INNGEST_EVENT_KEY = "test-event-key";
 // NODE_ENV is read-only in some environments, so we use Object.defineProperty
-Object.defineProperty(process.env, 'NODE_ENV', {
-	value: 'test',
+Object.defineProperty(process.env, "NODE_ENV", {
+	value: "test",
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 const { NextResponse } = await import("next/server");
@@ -73,9 +73,7 @@ describe("Inngest API Routes", () => {
 	describe("GET /api/inngest", () => {
 		it("should return Inngest serve response", async () => {
 			const mockServeResponse = new Response("Inngest endpoint ready");
-			mockHandler.GET.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.GET.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
 
@@ -85,9 +83,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle Inngest serve errors", async () => {
-			mockHandler.GET.mockImplementation(() =>
-				Promise.reject(new Error("Inngest serve failed")),
-			);
+			mockHandler.GET.mockImplementation(() => Promise.reject(new Error("Inngest serve failed")));
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
 
@@ -120,9 +116,7 @@ describe("Inngest API Routes", () => {
 	describe("POST /api/inngest", () => {
 		it("should return Inngest serve response for POST", async () => {
 			const mockServeResponse = new Response("Inngest webhook handled");
-			mockHandler.POST.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.POST.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "POST",
@@ -141,9 +135,7 @@ describe("Inngest API Routes", () => {
 			const mockServeResponse = new Response("Invalid signature", {
 				status: 401,
 			});
-			mockHandler.POST.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.POST.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "POST",
@@ -162,13 +154,8 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle malformed request body", async () => {
-			const mockServeResponse = new Response(
-				JSON.stringify({ success: true }),
-				{ status: 200 },
-			);
-			mockHandler.POST.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			const mockServeResponse = new Response(JSON.stringify({ success: true }), { status: 200 });
+			mockHandler.POST.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "POST",
@@ -182,7 +169,7 @@ describe("Inngest API Routes", () => {
 
 		it("should handle function execution errors", async () => {
 			mockHandler.POST.mockImplementation(() =>
-				Promise.reject(new Error("Function execution failed")),
+				Promise.reject(new Error("Function execution failed"))
 			);
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
@@ -206,9 +193,7 @@ describe("Inngest API Routes", () => {
 	describe("PUT /api/inngest", () => {
 		it("should return Inngest serve response for PUT", async () => {
 			const mockServeResponse = new Response("Inngest function updated");
-			mockHandler.PUT.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.PUT.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "PUT",
@@ -222,9 +207,7 @@ describe("Inngest API Routes", () => {
 
 		it("should handle function configuration updates", async () => {
 			const mockServeResponse = new Response("Function configuration updated");
-			mockHandler.PUT.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.PUT.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "PUT",
@@ -240,9 +223,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle invalid function updates", async () => {
-			mockHandler.PUT.mockImplementation(() =>
-				Promise.reject(new Error("Function not found")),
-			);
+			mockHandler.PUT.mockImplementation(() => Promise.reject(new Error("Function not found")));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "PUT",
@@ -259,9 +240,7 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle authorization errors", async () => {
-			mockHandler.PUT.mockImplementation(() =>
-				Promise.reject(new Error("Unauthorized")),
-			);
+			mockHandler.PUT.mockImplementation(() => Promise.reject(new Error("Unauthorized")));
 
 			const request = new NextRequest("https://app.example.com/api/inngest", {
 				method: "PUT",
@@ -283,9 +262,7 @@ describe("Inngest API Routes", () => {
 
 	describe("Error Handling", () => {
 		it("should handle network errors gracefully", async () => {
-			mockHandler.GET.mockImplementation(() =>
-				Promise.reject(new Error("Network error")),
-			);
+			mockHandler.GET.mockImplementation(() => Promise.reject(new Error("Network error")));
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
 
@@ -337,9 +314,7 @@ describe("Inngest API Routes", () => {
 	describe("Function Registration", () => {
 		it("should register all functions correctly", async () => {
 			const mockServeResponse = new Response("Functions registered");
-			mockHandler.GET.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.GET.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
 
@@ -350,7 +325,7 @@ describe("Inngest API Routes", () => {
 
 		it("should handle function registration errors", async () => {
 			mockHandler.GET.mockImplementation(() =>
-				Promise.reject(new Error("Function registration failed")),
+				Promise.reject(new Error("Function registration failed"))
 			);
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
@@ -367,18 +342,16 @@ describe("Inngest API Routes", () => {
 
 	describe("Environment Configuration", () => {
 		it("should handle development environment", async () => {
-			Object.defineProperty(process.env, 'NODE_ENV', {
-				value: 'development',
+			Object.defineProperty(process.env, "NODE_ENV", {
+				value: "development",
 				writable: true,
-				configurable: true
+				configurable: true,
 			});
 			process.env.INNGEST_SIGNING_KEY = "dev-signing-key";
 			process.env.INNGEST_EVENT_KEY = "dev-event-key";
 
 			const mockServeResponse = new Response("Development mode");
-			mockHandler.GET.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.GET.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
 
@@ -388,18 +361,16 @@ describe("Inngest API Routes", () => {
 		});
 
 		it("should handle production environment", async () => {
-			Object.defineProperty(process.env, 'NODE_ENV', {
-				value: 'production',
+			Object.defineProperty(process.env, "NODE_ENV", {
+				value: "production",
 				writable: true,
-				configurable: true
+				configurable: true,
 			});
 			process.env.INNGEST_SIGNING_KEY = "prod-signing-key";
 			process.env.INNGEST_EVENT_KEY = "prod-event-key";
 
 			const mockServeResponse = new Response("Production mode");
-			mockHandler.GET.mockImplementation(() =>
-				Promise.resolve(mockServeResponse),
-			);
+			mockHandler.GET.mockImplementation(() => Promise.resolve(mockServeResponse));
 
 			const request = new NextRequest("https://app.example.com/api/inngest");
 

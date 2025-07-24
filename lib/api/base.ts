@@ -31,10 +31,7 @@ export class BaseAPIService {
 		console[level](`[${this.constructor.name}] ${message}`, logData);
 	}
 
-	protected async handleError(
-		error: unknown,
-		operation: string,
-	): Promise<never> {
+	protected async handleError(error: unknown, operation: string): Promise<never> {
 		this.log("error", `Error in ${operation}`, { error });
 
 		if (error instanceof Error) {
@@ -47,7 +44,7 @@ export class BaseAPIService {
 	protected async executeWithTracing<T>(
 		operation: string,
 		context: ServiceContext,
-		fn: (span?: any) => Promise<T>,
+		fn: (span?: any) => Promise<T>
 	): Promise<T> {
 		this.log("info", `Starting ${operation}`, { context });
 
@@ -61,18 +58,11 @@ export class BaseAPIService {
 		}
 	}
 
-	protected async recordEvent(
-		eventType: string,
-		message: string,
-		data?: any,
-	): Promise<void> {
+	protected async recordEvent(eventType: string, message: string, data?: any): Promise<void> {
 		this.log("info", `Event: ${eventType} - ${message}`, data);
 	}
 
-	protected async executeDatabase<T>(
-		operation: string,
-		fn: () => Promise<T>,
-	): Promise<T> {
+	protected async executeDatabase<T>(operation: string, fn: () => Promise<T>): Promise<T> {
 		this.log("info", `Database operation: ${operation}`);
 
 		try {
@@ -88,9 +78,7 @@ export class BaseAPIService {
 
 export class NotFoundError extends Error {
 	constructor(resource: string, identifier?: string) {
-		super(
-			`${resource}${identifier ? ` with identifier '${identifier}'` : ""} not found`,
-		);
+		super(`${resource}${identifier ? ` with identifier '${identifier}'` : ""} not found`);
 		this.name = "NotFoundError";
 	}
 }
@@ -98,7 +86,7 @@ export class NotFoundError extends Error {
 export class ValidationError extends Error {
 	constructor(
 		message: string,
-		public field?: string,
+		public field?: string
 	) {
 		super(message);
 		this.name = "ValidationError";
@@ -123,7 +111,7 @@ export class ExternalServiceError extends Error {
 	constructor(
 		service: string,
 		message: string,
-		public statusCode?: number,
+		public statusCode?: number
 	) {
 		super(`External service error from ${service}: ${message}`);
 		this.name = "ExternalServiceError";
@@ -133,7 +121,7 @@ export class ExternalServiceError extends Error {
 export class RateLimitError extends Error {
 	constructor(service: string, retryAfter?: number) {
 		super(
-			`Rate limit exceeded for ${service}${retryAfter ? `. Retry after ${retryAfter} seconds` : ""}`,
+			`Rate limit exceeded for ${service}${retryAfter ? `. Retry after ${retryAfter} seconds` : ""}`
 		);
 		this.name = "RateLimitError";
 	}
@@ -149,7 +137,7 @@ export class ConflictError extends Error {
 export class DatabaseError extends Error {
 	constructor(
 		message: string,
-		public originalError?: Error,
+		public originalError?: Error
 	) {
 		super(message);
 		this.name = "DatabaseError";
@@ -165,7 +153,7 @@ export class BaseCRUDService<
 
 	constructor(
 		options: { tableName?: string; serviceName?: string } = {},
-		context: ServiceContext = {},
+		context: ServiceContext = {}
 	) {
 		super(context);
 		this.tableName = options.tableName || options.serviceName || "unknown";

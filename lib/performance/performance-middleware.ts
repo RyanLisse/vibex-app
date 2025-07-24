@@ -5,9 +5,7 @@
  * for API routes with OpenTelemetry integration.
  */
 
-export function withPerformanceMonitoring<T extends (...args: any[]) => any>(
-	fn: T,
-): T {
+export function withPerformanceMonitoring<T extends (...args: any[]) => any>(fn: T): T {
 	return ((...args: any[]) => {
 		const start = Date.now();
 		const result = fn(...args);

@@ -36,12 +36,7 @@ function parseTypeScriptErrors(output: string): TypeScriptError[] {
 
 const errorFixers: Record<
 	string,
-	(
-		file: string,
-		line: number,
-		content: string[],
-		error: TypeScriptError,
-	) => void
+	(file: string, line: number, content: string[], error: TypeScriptError) => void
 > = {
 	// Property does not exist on type
 	TS2339: (file, line, content, error) => {
@@ -54,10 +49,7 @@ const errorFixers: Record<
 
 		// Fix missing properties on request/response objects
 		if (error.message.includes("Property 'json' does not exist")) {
-			content[line - 1] = lineContent.replace(
-				/(\w+)\.json\(/g,
-				"($1 as any).json(",
-			);
+			content[line - 1] = lineContent.replace(/(\w+)\.json\(/g, "($1 as any).json(");
 		}
 	},
 
@@ -66,25 +58,16 @@ const errorFixers: Record<
 		const lineContent = content[line - 1];
 
 		// Fix createApiErrorResponse calls
-		if (
-			lineContent.includes("createApiErrorResponse") &&
-			error.message.includes("Expected 2")
-		) {
+		if (lineContent.includes("createApiErrorResponse") && error.message.includes("Expected 2")) {
 			content[line - 1] = lineContent.replace(
 				/createApiErrorResponse\(([^,]+),\s*(\d+),\s*([^)]+)\)/g,
-				"createApiErrorResponse($1, $2)",
+				"createApiErrorResponse($1, $2)"
 			);
 		}
 
 		// Fix db.execute calls
-		if (
-			lineContent.includes("db.execute") &&
-			error.message.includes("Expected 1")
-		) {
-			content[line - 1] = lineContent.replace(
-				/db\.execute\(([^,]+),\s*[^)]+\)/g,
-				"db.execute($1)",
-			);
+		if (lineContent.includes("db.execute") && error.message.includes("Expected 1")) {
+			content[line - 1] = lineContent.replace(/db\.execute\(([^,]+),\s*[^)]+\)/g, "db.execute($1)");
 		}
 	},
 
@@ -99,7 +82,7 @@ const errorFixers: Record<
 		) {
 			content[line - 1] = lineContent.replace(
 				/\[(['"`])([^'"`]+)\1\]/g,
-				'[{ field: "error", message: $1$2$1 }]',
+				'[{ field: "error", message: $1$2$1 }]'
 			);
 		}
 	},
@@ -137,7 +120,7 @@ async function fixErrors() {
 			acc[error.file].push(error);
 			return acc;
 		},
-		{} as Record<string, TypeScriptError[]>,
+		{} as Record<string, TypeScriptError[]>
 	);
 
 	// Fix errors file by file

@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-	fetchRealtimeSubscriptionToken,
-	type TaskChannelToken,
-} from "@/app/actions/inngest";
+import { fetchRealtimeSubscriptionToken, type TaskChannelToken } from "@/app/actions/inngest";
 
 interface UseTaskSubscriptionProps {
 	taskId: string;
@@ -31,7 +28,7 @@ function setupWebSocketHandlers(
 	callbacks: {
 		onMessage?: (message: unknown) => void;
 		onStatusUpdate?: (status: unknown) => void;
-	},
+	}
 ) {
 	ws.onopen = () => {
 		setters.setIsConnected(true);
@@ -57,7 +54,7 @@ function handleWebSocketMessage(
 	callbacks: {
 		onMessage?: (message: unknown) => void;
 		onStatusUpdate?: (status: unknown) => void;
-	},
+	}
 ) {
 	try {
 		const data = JSON.parse(event.data);
@@ -81,7 +78,7 @@ async function establishConnection(
 	callbacks: {
 		onMessage?: (message: unknown) => void;
 		onStatusUpdate?: (status: unknown) => void;
-	},
+	}
 ): Promise<void> {
 	try {
 		const token = await fetchRealtimeSubscriptionToken(taskId);
@@ -94,9 +91,7 @@ async function establishConnection(
 		setupWebSocketHandlers(ws, setters, callbacks);
 		setters.setConnection(ws);
 	} catch (err) {
-		setters.setError(
-			err instanceof Error ? err : new Error("Connection failed"),
-		);
+		setters.setError(err instanceof Error ? err : new Error("Connection failed"));
 	}
 }
 

@@ -90,10 +90,7 @@ export async function POST(request: NextRequest) {
 		switch (action) {
 			case "unsubscribe": {
 				if (!subscriptionId) {
-					return NextResponse.json(
-						{ error: "Subscription ID required" },
-						{ status: 400 },
-					);
+					return NextResponse.json({ error: "Subscription ID required" }, { status: 400 });
 				}
 
 				const success = eventStream.manager.unsubscribe(subscriptionId);
@@ -111,9 +108,6 @@ export async function POST(request: NextRequest) {
 		}
 	} catch (error) {
 		console.error("Error processing stream action:", error);
-		return NextResponse.json(
-			{ error: "Failed to process action" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Failed to process action" }, { status: 500 });
 	}
 }

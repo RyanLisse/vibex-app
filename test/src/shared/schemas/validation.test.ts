@@ -90,14 +90,8 @@ describe("Zod Environment Schema Validation", () => {
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				expect(result.error.issues.length).toBeGreaterThan(0);
-				expect(
-					result.error.issues.some((err) => err.path.includes("LETTA_API_KEY")),
-				).toBe(true);
-				expect(
-					result.error.issues.some((err) =>
-						err.path.includes("OPENAI_API_KEY"),
-					),
-				).toBe(true);
+				expect(result.error.issues.some((err) => err.path.includes("LETTA_API_KEY"))).toBe(true);
+				expect(result.error.issues.some((err) => err.path.includes("OPENAI_API_KEY"))).toBe(true);
 			}
 		});
 
@@ -136,15 +130,13 @@ describe("Zod Environment Schema Validation", () => {
 			if (!result.success) {
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("LETTA_BASE_URL") && err.code === "invalid_url",
-					),
+						(err) => err.path.includes("LETTA_BASE_URL") && err.code === "invalid_url"
+					)
 				).toBe(true);
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("DATABASE_URL") && err.code === "invalid_url",
-					),
+						(err) => err.path.includes("DATABASE_URL") && err.code === "invalid_url"
+					)
 				).toBe(true);
 			}
 		});
@@ -218,10 +210,8 @@ describe("Zod Environment Schema Validation", () => {
 			if (!result.success) {
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("NODE_ENV") &&
-							err.code === "invalid_enum_value",
-					),
+						(err) => err.path.includes("NODE_ENV") && err.code === "invalid_enum_value"
+					)
 				).toBe(true);
 			}
 		});
@@ -237,15 +227,13 @@ describe("Zod Environment Schema Validation", () => {
 			if (!result.success) {
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("LETTA_API_KEY") && err.code === "too_small",
-					),
+						(err) => err.path.includes("LETTA_API_KEY") && err.code === "too_small"
+					)
 				).toBe(true);
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("AUTH_SECRET") && err.code === "too_small",
-					),
+						(err) => err.path.includes("AUTH_SECRET") && err.code === "too_small"
+					)
 				).toBe(true);
 			}
 		});
@@ -261,23 +249,18 @@ describe("Zod Environment Schema Validation", () => {
 			if (!result.success) {
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("ELECTRIC_SYNC_INTERVAL") &&
-							err.code === "too_small",
-					),
+						(err) => err.path.includes("ELECTRIC_SYNC_INTERVAL") && err.code === "too_small"
+					)
 				).toBe(true);
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("TELEMETRY_SAMPLING_RATIO") &&
-							err.code === "too_big",
-					),
+						(err) => err.path.includes("TELEMETRY_SAMPLING_RATIO") && err.code === "too_big"
+					)
 				).toBe(true);
 				expect(
 					result.error.issues.some(
-						(err) =>
-							err.path.includes("REDIS_PORT") && err.code === "too_small",
-					),
+						(err) => err.path.includes("REDIS_PORT") && err.code === "too_small"
+					)
 				).toBe(true);
 			}
 		});
@@ -324,9 +307,7 @@ describe("Zod Environment Schema Validation", () => {
 			process.env.AUTH_SECRET = "test-secret-32-characters-long!!";
 			// Missing LETTA_API_KEY and OPENAI_API_KEY
 
-			expect(() => validateEnv()).toThrow(
-				"Critical service validation failed:",
-			);
+			expect(() => validateEnv()).toThrow("Critical service validation failed:");
 		});
 
 		it("should validate security requirements in production", () => {
@@ -432,7 +413,7 @@ describe("Zod Environment Schema Validation", () => {
 				process.env.AUTH_SECRET = "test-secret-32-characters-long!!";
 
 				expect(() => validateDevelopmentEnv()).toThrow(
-					"Development environment validation called but NODE_ENV is not 'development'",
+					"Development environment validation called but NODE_ENV is not 'development'"
 				);
 			});
 		});
@@ -476,7 +457,7 @@ describe("Zod Environment Schema Validation", () => {
 				validateProductionEnv();
 
 				expect(consoleSpy).toHaveBeenCalledWith(
-					expect.stringContaining("Production environment warnings:"),
+					expect.stringContaining("Production environment warnings:")
 				);
 			});
 
@@ -494,7 +475,7 @@ describe("Zod Environment Schema Validation", () => {
 				process.env.AUTH_SECRET = "test-secret-32-characters-long!!";
 
 				expect(() => validateProductionEnv()).toThrow(
-					"Production environment validation called but NODE_ENV is not 'production'",
+					"Production environment validation called but NODE_ENV is not 'production'"
 				);
 			});
 		});
@@ -532,7 +513,7 @@ describe("Zod Environment Schema Validation", () => {
 				process.env.AUTH_SECRET = "test-secret-32-characters-long!!";
 
 				expect(() => validateTestEnv()).toThrow(
-					"Test environment validation called but NODE_ENV is not 'test'",
+					"Test environment validation called but NODE_ENV is not 'test'"
 				);
 			});
 		});
@@ -603,9 +584,7 @@ describe("Zod Environment Schema Validation", () => {
 
 			expect(summary.environment).toBe("unknown");
 			expect(summary.configuredServices).toEqual([]);
-			expect(summary.missingOptionalServices).toEqual([
-				"All services (validation failed)",
-			]);
+			expect(summary.missingOptionalServices).toEqual(["All services (validation failed)"]);
 			expect(summary.securityStatus).toContain("Validation failed:");
 		});
 
@@ -640,14 +619,10 @@ describe("Zod Environment Schema Validation", () => {
 
 			expect(result.success).toBe(false);
 			if (!result.success) {
-				expect(
-					result.error.issues.some((err) =>
-						err.path.includes("ELECTRIC_SYNC_INTERVAL"),
-					),
-				).toBe(true);
-				expect(
-					result.error.issues.some((err) => err.path.includes("REDIS_PORT")),
-				).toBe(true);
+				expect(result.error.issues.some((err) => err.path.includes("ELECTRIC_SYNC_INTERVAL"))).toBe(
+					true
+				);
+				expect(result.error.issues.some((err) => err.path.includes("REDIS_PORT"))).toBe(true);
 			}
 		});
 

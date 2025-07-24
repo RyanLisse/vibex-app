@@ -8,7 +8,15 @@ export const runtime = "nodejs";
  * Enhanced user management using base utilities for consistency and reduced duplication
  */
 
-import type { UpdateUserSchema } from "@/src/schemas/api-routes";
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import { and, eq, like, desc } from "drizzle-orm";
+import { db } from "@/db";
+import { users, authSessions } from "@/db/schema";
+import { ulid } from "ulid";
+import { BaseService } from "@/lib/api/base-service";
+import { NotFoundError } from "@/lib/error-handling/error-classes";
+import { UpdateTaskSchema, CreateTaskSchema } from "@/src/schemas/api-routes";
 
 // Request validation schemas
 const GetUsersQuerySchema = z.object({
@@ -17,9 +25,7 @@ const GetUsersQuerySchema = z.object({
 	provider: z.enum(["github", "openai", "anthropic"]).optional(),
 	isActive: z.coerce.boolean().optional(),
 	search: z.string().optional(),
-	sortBy: z
-		.enum(["created_at", "updated_at", "name", "last_login_at"])
-		.default("created_at"),
+	sortBy: z.enum(["created_at", "updated_at", "name", "last_login_at"]).default("created_at"),
 	sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
@@ -31,7 +37,7 @@ class UsersService extends BaseAPIService {
 	 * Get users with filtering and pagination
 	 */
 	static async getUsers(params: z.infer<typeof GetUsersQuerySchema>) {
-		return UsersService.withTracing("getUsers", async () => {
+		try {
 			// Build query conditions
 			const conditions = [];
 
@@ -46,14 +52,13 @@ class UsersService extends BaseAPIService {
 			if (params.search) {
 				conditions.push(
 					like(users.name, `%${params.search}%`),
-					like(users.email, `%${params.search}%`),
+					like(users.email, `%${params.search}%`)
 				);
 			}
 
 			// Build sort order
 			const sortColumn = users[params.sortBy as keyof typeof users];
-			const orderBy =
-				params.sortOrder === "asc" ? sortColumn : desc(sortColumn);
+			const orderBy = params.sortOrder === "asc" ? sortColumn : desc(sortColumn);
 
 			// Execute query with pagination
 			const offset = (params.page - 1) * params.limit;
@@ -93,75 +98,74 @@ class UsersService extends BaseAPIService {
 				total: countResult.length,
 			};
 
-			// Log operation
-			await UsersService.logOperation("get_users", "users", null, null, {
+			// Log operation (simplified)
+			console.log("get_users operation completed", {
 				resultCount: result.data.length,
 				totalCount: result.total,
 				filters: params,
 			});
 
 			return result;
-		});
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	/**
 	 * Get user by ID with auth sessions
 	 */
 	static async getUserById(id: string) {
-		return UsersService.withTracing(
-			"getUserById",
-			async () => {
-				const [user] = await db
-					.select({
-						id: users.id,
-						email: users.email,
-						name: users.name,
-						avatar: users.avatar,
-						provider: users.provider,
-						providerId: users.providerId,
-						profile: users.profile,
-						preferences: users.preferences,
-						isActive: users.isActive,
-						lastLoginAt: users.lastLoginAt,
-						createdAt: users.createdAt,
-						updatedAt: users.updatedAt,
-					})
-					.from(users)
-					.where(eq(users.id, id))
-					.limit(1);
+		try {
+			const [user] = await db
+				.select({
+					id: users.id,
+					email: users.email,
+					name: users.name,
+					avatar: users.avatar,
+					provider: users.provider,
+					providerId: users.providerId,
+					profile: users.profile,
+					preferences: users.preferences,
+					isActive: users.isActive,
+					lastLoginAt: users.lastLoginAt,
+					createdAt: users.createdAt,
+					updatedAt: users.updatedAt,
+				})
+				.from(users)
+				.where(eq(users.id, id))
+				.limit(1);
 
-				if (!user) {
-					throw new NotFoundError("User", id);
-				}
+			if (!user) {
+				throw new NotFoundError("User", id);
+			}
 
-				// Get active auth sessions
-				const activeSessions = await db
-					.select({
-						id: authSessions.id,
-						provider: authSessions.provider,
-						expiresAt: authSessions.expiresAt,
-						lastUsedAt: authSessions.lastUsedAt,
-						organizationId: authSessions.organizationId,
-						creditsGranted: authSessions.creditsGranted,
-					})
-					.from(authSessions)
-					.where(
-						and(eq(authSessions.userId, id), eq(authSessions.isActive, true)),
-					)
-					.orderBy(authSessions.lastUsedAt);
+			// Get active auth sessions
+			const activeSessions = await db
+				.select({
+					id: authSessions.id,
+					provider: authSessions.provider,
+					expiresAt: authSessions.expiresAt,
+					lastUsedAt: authSessions.lastUsedAt,
+					organizationId: authSessions.organizationId,
+					creditsGranted: authSessions.creditsGranted,
+				})
+				.from(authSessions)
+				.where(and(eq(authSessions.userId, id), eq(authSessions.isActive, true)))
+				.orderBy(authSessions.lastUsedAt);
 
-				// Log operation
-				await UsersService.logOperation("get_user", "user", user.id, user.id, {
-					activeSessions: activeSessions.length,
-				});
+			// Log operation (simplified)
+			console.log("get_user operation completed", {
+				userId: user.id,
+				activeSessions: activeSessions.length,
+			});
 
-				return {
-					...user,
-					activeSessions,
-				};
-			},
-			{ "user.id": id },
-		);
+			return {
+				...user,
+				activeSessions,
+			};
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	/**
@@ -175,10 +179,7 @@ class UsersService extends BaseAPIService {
 					.select()
 					.from(users)
 					.where(
-						and(
-							eq(users.provider, userData.provider),
-							eq(users.providerId, userData.providerId),
-						),
+						and(eq(users.provider, userData.provider), eq(users.providerId, userData.providerId))
 					)
 					.limit(1);
 
@@ -215,7 +216,7 @@ class UsersService extends BaseAPIService {
 					{
 						provider: user.provider,
 						isNew: !existingUser,
-					},
+					}
 				);
 
 				return user;
@@ -226,10 +227,7 @@ class UsersService extends BaseAPIService {
 	/**
 	 * Update user preferences and profile
 	 */
-	static async updateUser(
-		id: string,
-		updates: z.infer<typeof UpdateUserSchema>,
-	) {
+	static async updateUser(id: string, updates: z.infer<typeof UpdateUserSchema>) {
 		return UsersService.withTracing(
 			"updateUser",
 			async () => {
@@ -248,20 +246,58 @@ class UsersService extends BaseAPIService {
 					}
 
 					// Log operation
-					await UsersService.logOperation(
-						"update_user",
-						"user",
-						updatedUser.id,
-						updatedUser.id,
-						{
-							updates,
-						},
-					);
+					await UsersService.logOperation("update_user", "user", updatedUser.id, updatedUser.id, {
+						updates,
+					});
 
 					return updatedUser;
 				});
 			},
-			{ "user.id": id },
+			{ "user.id": id }
 		);
+	}
+}
+
+/**
+ * GET /api/users - List users with filtering and pagination
+ */
+export async function GET(request: NextRequest) {
+	try {
+		const url = new URL(request.url);
+		const queryParams = Object.fromEntries(url.searchParams.entries());
+
+		const params = GetUsersQuerySchema.parse(queryParams);
+		const result = await UsersService.getUsers(params);
+
+		return Response.json(result);
+	} catch (error) {
+		console.error("Error fetching users:", error);
+		if (error instanceof z.ZodError) {
+			return Response.json(
+				{ error: "Invalid query parameters", details: error.issues },
+				{ status: 400 }
+			);
+		}
+		return Response.json({ error: "Failed to fetch users" }, { status: 500 });
+	}
+}
+
+/**
+ * POST /api/users - Create or update user
+ */
+export async function POST(request: NextRequest) {
+	try {
+		const body = await request.json();
+		const userData = CreateUserSchema.parse(body);
+
+		const user = await UsersService.upsertUser(userData);
+
+		return Response.json({ user });
+	} catch (error) {
+		console.error("Error creating/updating user:", error);
+		if (error instanceof z.ZodError) {
+			return Response.json({ error: "Invalid user data", details: error.issues }, { status: 400 });
+		}
+		return Response.json({ error: "Failed to create/update user" }, { status: 500 });
 	}
 }

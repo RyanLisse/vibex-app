@@ -78,7 +78,7 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 				"Test execution started",
 				{ executionId: "exec-123" },
 				"test-source",
-				["test", "integration"],
+				["test", "integration"]
 			);
 
 			await collector.collectEvent(
@@ -87,7 +87,7 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 				"Test execution completed",
 				{ executionId: "exec-123", duration: 1500 },
 				"test-source",
-				["test", "integration"],
+				["test", "integration"]
 			);
 
 			// Force flush to database
@@ -123,8 +123,8 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 						`Metric ${i}`,
 						{ value: i, metric: "test_metric" },
 						"batch-test",
-						["batch"],
-					),
+						["batch"]
+					)
 				);
 			}
 
@@ -164,7 +164,7 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 				"WASM operation completed",
 				metadata,
 				"wasm",
-				["performance", "wasm"],
+				["performance", "wasm"]
 			);
 
 			await collector.forceFlush();
@@ -181,19 +181,11 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 		it("should handle errors during flush gracefully", async () => {
 			// Mock database error
 			const originalInsert = db.insert;
-			const mockInsert = vi
-				.fn()
-				.mockRejectedValueOnce(new Error("Database error"));
+			const mockInsert = vi.fn().mockRejectedValueOnce(new Error("Database error"));
 			db.insert = mockInsert as any;
 
 			// Collect event
-			await collector.collectEvent(
-				"system_event",
-				"warn",
-				"Test warning",
-				{},
-				"error-test",
-			);
+			await collector.collectEvent("system_event", "warn", "Test warning", {}, "error-test");
 
 			// Try to flush - should handle error
 			await collector.forceFlush();
@@ -313,7 +305,7 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 				"Processing step",
 				{ stepName: "data-transform", stepIndex: 3 },
 				"workflow",
-				["step", "transform"],
+				["step", "transform"]
 			);
 
 			expect(mockTracer.startSpan).toHaveBeenCalledWith(
@@ -329,7 +321,7 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 						"event.metadata.stepName": "data-transform",
 						"event.metadata.stepIndex": 3,
 					}),
-				}),
+				})
 			);
 		});
 
@@ -342,7 +334,7 @@ describe("ObservabilityEventCollector Integration Tests", () => {
 				"critical",
 				"Critical system failure",
 				{},
-				"system",
+				"system"
 			);
 
 			expect(mockSpan.setStatus).toHaveBeenCalledWith({
@@ -411,16 +403,11 @@ describe("ObservabilityEventQuery Integration Tests", () => {
 
 	describe("Event Querying", () => {
 		it("should query events by execution ID", async () => {
-			const events =
-				await ObservabilityEventQuery.getEventsByExecution("exec-1");
+			const events = await ObservabilityEventQuery.getEventsByExecution("exec-1");
 
 			expect(events).toHaveLength(2);
-			expect(events.every((e) => e.metadata.executionId === "exec-1")).toBe(
-				true,
-			);
-			expect(events[0].timestamp.getTime()).toBeGreaterThan(
-				events[1].timestamp.getTime(),
-			);
+			expect(events.every((e) => e.metadata.executionId === "exec-1")).toBe(true);
+			expect(events[0].timestamp.getTime()).toBeGreaterThan(events[1].timestamp.getTime());
 		});
 
 		it("should query events by type and time range", async () => {
@@ -428,29 +415,21 @@ describe("ObservabilityEventQuery Integration Tests", () => {
 				["execution_start", "execution_error"],
 				new Date("2024-01-01T09:00:00Z"),
 				new Date("2024-01-01T11:00:00Z"),
-				10,
+				10
 			);
 
 			expect(events).toHaveLength(2);
 			expect(
-				events.every(
-					(e) => e.type === "execution_start" || e.type === "execution_error",
-				),
+				events.every((e) => e.type === "execution_start" || e.type === "execution_error")
 			).toBe(true);
 		});
 
 		it("should query events by severity levels", async () => {
-			const errorEvents = await ObservabilityEventQuery.getEventsBySeverity([
-				"error",
-				"critical",
-			]);
+			const errorEvents = await ObservabilityEventQuery.getEventsBySeverity(["error", "critical"]);
 			expect(errorEvents).toHaveLength(1);
 			expect(errorEvents[0].severity).toBe("error");
 
-			const infoEvents = await ObservabilityEventQuery.getEventsBySeverity([
-				"info",
-				"debug",
-			]);
+			const infoEvents = await ObservabilityEventQuery.getEventsBySeverity(["info", "debug"]);
 			expect(infoEvents).toHaveLength(2);
 		});
 
@@ -465,8 +444,7 @@ describe("ObservabilityEventQuery Integration Tests", () => {
 
 	describe("Complex Query Scenarios", () => {
 		it("should handle empty result sets gracefully", async () => {
-			const events =
-				await ObservabilityEventQuery.getEventsByExecution("non-existent");
+			const events = await ObservabilityEventQuery.getEventsByExecution("non-existent");
 			expect(events).toHaveLength(0);
 		});
 
@@ -510,8 +488,8 @@ describe("Concurrent Event Collection", () => {
 					"info",
 					`Concurrent event ${i}`,
 					{ index: i },
-					"concurrent-test",
-				),
+					"concurrent-test"
+				)
 			);
 		}
 
@@ -519,19 +497,13 @@ describe("Concurrent Event Collection", () => {
 		await collector.forceFlush();
 
 		const storedEvents = await db.select().from(observabilityEventsTable);
-		const concurrentEvents = storedEvents.filter(
-			(e) => e.source === "concurrent-test",
-		);
+		const concurrentEvents = storedEvents.filter((e) => e.source === "concurrent-test");
 
 		expect(concurrentEvents).toHaveLength(concurrentCount);
 
 		// Verify all indices are present
-		const indices = concurrentEvents
-			.map((e) => e.metadata?.index)
-			.sort((a, b) => a - b);
-		expect(indices).toEqual(
-			Array.from({ length: concurrentCount }, (_, i) => i),
-		);
+		const indices = concurrentEvents.map((e) => e.metadata?.index).sort((a, b) => a - b);
+		expect(indices).toEqual(Array.from({ length: concurrentCount }, (_, i) => i));
 	});
 });
 
@@ -550,26 +522,14 @@ describe("Error Handling and Recovery", () => {
 		});
 
 		// Collect events during errors
-		await collector.collectEvent(
-			"system_event",
-			"error",
-			"Event during error 1",
-		);
-		await collector.collectEvent(
-			"system_event",
-			"error",
-			"Event during error 2",
-		);
+		await collector.collectEvent("system_event", "error", "Event during error 1");
+		await collector.collectEvent("system_event", "error", "Event during error 2");
 
 		// Restore database
 		db.insert = originalInsert;
 
 		// Collect more events
-		await collector.collectEvent(
-			"system_event",
-			"info",
-			"Event after recovery",
-		);
+		await collector.collectEvent("system_event", "info", "Event after recovery");
 
 		await collector.forceFlush();
 

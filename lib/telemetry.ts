@@ -1,4 +1,5 @@
 import type { TelemetryBackend, TelemetryConfig } from "../src/types/telemetry";
+import { logger } from "./logging";
 
 export function getDefaultEndpoint(backend: TelemetryBackend): string {
 	const endpoints = {
@@ -32,14 +33,12 @@ export function getTelemetryConfig(): TelemetryConfig {
 
 	return {
 		isEnabled: true,
-		endpoint:
-			process.env.OTEL_EXPORTER_OTLP_ENDPOINT || getDefaultEndpoint("otlp"),
+		endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || getDefaultEndpoint("otlp"),
 		metricsEndpoint:
-			process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT ||
-			getDefaultMetricsEndpoint("otlp"),
+			process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT || getDefaultMetricsEndpoint("otlp"),
 		serviceName: process.env.OTEL_SERVICE_NAME || "vibex",
 		serviceVersion: process.env.OTEL_SERVICE_VERSION || "1.0.0",
-		samplingRatio: parseFloat(process.env.OTEL_SAMPLING_RATIO || "1.0"),
+		samplingRatio: Number.parseFloat(process.env.OTEL_SAMPLING_RATIO || "1.0"),
 		headers: process.env.OTEL_AUTH_HEADER
 			? { Authorization: process.env.OTEL_AUTH_HEADER }
 			: undefined,
@@ -47,35 +46,23 @@ export function getTelemetryConfig(): TelemetryConfig {
 		agentTracking: {
 			enabled: process.env.OTEL_AGENT_TRACKING_ENABLED !== "false",
 			includeInputOutput: process.env.OTEL_AGENT_INCLUDE_IO === "true",
-			maxPayloadSize: parseInt(
-				process.env.OTEL_AGENT_MAX_PAYLOAD_SIZE || "10240",
-			),
+			maxPayloadSize: Number.parseInt(process.env.OTEL_AGENT_MAX_PAYLOAD_SIZE || "10240"),
 			trackMemoryUsage: process.env.OTEL_AGENT_TRACK_MEMORY === "true",
-			trackPerformanceMetrics:
-				process.env.OTEL_AGENT_TRACK_PERFORMANCE !== "false",
+			trackPerformanceMetrics: process.env.OTEL_AGENT_TRACK_PERFORMANCE !== "false",
 		},
 		// Real-time streaming configuration
 		streaming: {
 			enabled: process.env.OTEL_STREAMING_ENABLED !== "false",
-			bufferSize: parseInt(process.env.OTEL_STREAMING_BUFFER_SIZE || "1000"),
-			flushInterval: parseInt(
-				process.env.OTEL_STREAMING_FLUSH_INTERVAL || "5000",
-			),
-			maxSubscriptions: parseInt(
-				process.env.OTEL_STREAMING_MAX_SUBSCRIPTIONS || "100",
-			),
+			bufferSize: Number.parseInt(process.env.OTEL_STREAMING_BUFFER_SIZE || "1000"),
+			flushInterval: Number.parseInt(process.env.OTEL_STREAMING_FLUSH_INTERVAL || "5000"),
+			maxSubscriptions: Number.parseInt(process.env.OTEL_STREAMING_MAX_SUBSCRIPTIONS || "100"),
 		},
 		// Performance metrics configuration
 		metrics: {
 			enabled: process.env.OTEL_METRICS_ENABLED !== "false",
-			collectInterval: parseInt(
-				process.env.OTEL_METRICS_COLLECT_INTERVAL || "10000",
-			),
-			retentionPeriod:
-				parseInt(process.env.OTEL_METRICS_RETENTION_HOURS || "24") * 3600000,
-			aggregationWindow: parseInt(
-				process.env.OTEL_METRICS_AGGREGATION_WINDOW || "60000",
-			),
+			collectInterval: Number.parseInt(process.env.OTEL_METRICS_COLLECT_INTERVAL || "10000"),
+			retentionPeriod: Number.parseInt(process.env.OTEL_METRICS_RETENTION_HOURS || "24") * 3600000,
+			aggregationWindow: Number.parseInt(process.env.OTEL_METRICS_AGGREGATION_WINDOW || "60000"),
 		},
 	};
 }
@@ -84,12 +71,8 @@ export function validateTelemetryConfig(config: TelemetryConfig) {
 	const errors: string[] = [];
 	if (!config.isEnabled) return { valid: true, errors, warnings: [] };
 
-	if (!config.endpoint)
-		errors.push("endpoint is required when telemetry is enabled");
-	if (
-		config.samplingRatio &&
-		(config.samplingRatio < 0 || config.samplingRatio > 1)
-	) {
+	if (!config.endpoint) errors.push("endpoint is required when telemetry is enabled");
+	if (config.samplingRatio && (config.samplingRatio < 0 || config.samplingRatio > 1)) {
 		errors.push("samplingRatio must be between 0.0 and 1.0");
 	}
 
@@ -98,6 +81,10 @@ export function validateTelemetryConfig(config: TelemetryConfig) {
 
 export function logTelemetryConfig(config: TelemetryConfig): void {
 	if (process.env.NODE_ENV === "development") {
-		console.log("Telemetry:", config.isEnabled ? "enabled" : "disabled");
+		logger.info("Telemetry configuration", {
+			enabled: config.isEnabled,
+			endpoint: config.endpoint,
+			serviceName: config.serviceName,
+		});
 	}
 }

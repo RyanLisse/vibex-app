@@ -4,11 +4,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { recoveryExecutor, WorkflowErrorClassifier } from "./error-recovery";
-import {
-	stepExecutorRegistry,
-	templateRegistry,
-	workflowEngine,
-} from "./index";
+import { stepExecutorRegistry, templateRegistry, workflowEngine } from "./index";
 import { WorkflowExecutionState } from "./types";
 
 describe("Workflow Engine", () => {

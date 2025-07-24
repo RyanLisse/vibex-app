@@ -50,7 +50,7 @@ export class WorkflowExecutionEngine {
 	async createWorkflowFromTemplate(
 		templateId: string,
 		params: Record<string, any>,
-		metadata?: Record<string, any>,
+		metadata?: Record<string, any>
 	): Promise<Workflow> {
 		const definition = templateRegistry.createFromTemplate(templateId, params);
 
@@ -73,9 +73,7 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Load workflow definition
 	 */
-	private async loadWorkflowDefinition(
-		workflowId: string,
-	): Promise<WorkflowDefinition> {
+	private async loadWorkflowDefinition(workflowId: string): Promise<WorkflowDefinition> {
 		const [workflow] = await db
 			.select()
 			.from(workflows)
@@ -96,103 +94,99 @@ export class WorkflowExecutionEngine {
 		workflowId: string,
 		triggeredBy: string,
 		initialInput: unknown = {},
-		parentExecutionId?: string,
+		parentExecutionId?: string
 	): Promise<WorkflowExecution> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.start",
-			async () => {
-				// Load workflow definition
-				const definition = await this.loadWorkflowDefinition(workflowId);
+		return observability.trackAgentExecution("system", "workflow.start", async () => {
+			// Load workflow definition
+			const definition = await this.loadWorkflowDefinition(workflowId);
 
-				// Initialize execution state
-				const executionId = ulid();
-				const executionState: WorkflowExecutionState = {
-					executionId,
+			// Initialize execution state
+			const executionId = ulid();
+			const executionState: WorkflowExecutionState = {
+				executionId,
+				workflowId,
+				status: "pending",
+				startedAt: new Date(),
+				variables: {
+					...definition.variables,
+					input: initialInput,
+				},
+				stepStates: {},
+				triggeredBy,
+				parentExecutionId,
+			};
+
+			// Create state machine
+			const stateMachine = createWorkflowStateMachine({
+				onStateChange: async (from, to, state) => {
+					await this.emitWorkflowEvent({
+						id: ulid(),
+						executionId,
+						type: `workflow.${to}` as any,
+						timestamp: new Date(),
+						data: { from, to, state },
+					});
+				},
+			});
+
+			stateMachine.initialize(executionState);
+
+			// Store in database
+			const [execution] = await db
+				.insert(workflowExecutions)
+				.values({
+					id: executionId,
 					workflowId,
 					status: "pending",
+					currentStep: 0,
+					totalSteps: definition.steps.length,
+					state: executionState.variables as any,
 					startedAt: new Date(),
-					variables: {
-						...definition.variables,
-						input: initialInput,
-					},
-					stepStates: {},
 					triggeredBy,
 					parentExecutionId,
-				};
+				})
+				.returning();
 
-				// Create state machine
-				const stateMachine = createWorkflowStateMachine({
-					onStateChange: async (from, to, state) => {
-						await this.emitWorkflowEvent({
-							id: ulid(),
-							executionId,
-							type: `workflow.${to}` as any,
-							timestamp: new Date(),
-							data: { from, to, state },
-						});
-					},
-				});
+			// Store in memory
+			this.activeExecutions.set(executionId, executionState);
 
-				stateMachine.initialize(executionState);
+			// Initialize metrics
+			this.executionMetrics.set(executionId, {
+				executionId,
+				workflowId,
+				startTime: new Date(),
+				stepMetrics: {},
+				resourceUsage: {},
+				performance: {
+					throughput: 0,
+					latency: 0,
+					errorRate: 0,
+					successRate: 0,
+				},
+			});
 
-				// Store in database
-				const [execution] = await db
-					.insert(workflowExecutions)
-					.values({
-						id: executionId,
-						workflowId,
-						status: "pending",
-						currentStep: 0,
-						totalSteps: definition.steps.length,
-						state: executionState.variables as any,
-						startedAt: new Date(),
-						triggeredBy,
-						parentExecutionId,
-					})
-					.returning();
+			// Transition to running
+			await stateMachine.transition("running");
+			await this.updateExecutionStatus(executionId, "running");
 
-				// Store in memory
-				this.activeExecutions.set(executionId, executionState);
+			// Start execution in background
+			this.executeWorkflow(executionId, definition).catch((error) => {
+				this.handleWorkflowError(executionId, error);
+			});
 
-				// Initialize metrics
-				this.executionMetrics.set(executionId, {
-					executionId,
-					workflowId,
-					startTime: new Date(),
-					stepMetrics: {},
-					resourceUsage: {},
-					performance: {
-						throughput: 0,
-						latency: 0,
-						errorRate: 0,
-						successRate: 0,
-					},
-				});
+			// Initial snapshot
+			await snapshotManager.captureSnapshot(
+				executionId,
+				"execution_start",
+				0,
+				executionState as any,
+				"Workflow execution started",
+				["workflow", "start"],
+				true
+			);
 
-				// Transition to running
-				await stateMachine.transition("running");
-				await this.updateExecutionStatus(executionId, "running");
-
-				// Start execution in background
-				this.executeWorkflow(executionId, definition).catch((error) => {
-					this.handleWorkflowError(executionId, error);
-				});
-
-				// Initial snapshot
-				await snapshotManager.captureSnapshot(
-					executionId,
-					"execution_start",
-					0,
-					executionState as any,
-					"Workflow execution started",
-					["workflow", "start"],
-					true,
-				);
-
-				return execution;
-			},
-		);
+			return execution;
+		});
 	}
 
 	/**
@@ -209,9 +203,7 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Checks workflow status and handles paused/terminal states
 	 */
-	private async handleWorkflowStatusCheck(
-		executionId: string,
-	): Promise<boolean> {
+	private async handleWorkflowStatusCheck(executionId: string): Promise<boolean> {
 		const currentStatus = await this.getExecutionStatus(executionId);
 		if (currentStatus === "paused") {
 			await this.waitForResume(executionId);
@@ -226,10 +218,7 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Finds and validates step definition in workflow
 	 */
-	private findStepDefinition(
-		definition: WorkflowDefinition,
-		stepId: string,
-	): StepConfig {
+	private findStepDefinition(definition: WorkflowDefinition, stepId: string): StepConfig {
 		const stepDef = definition.steps.find((s) => s.id === stepId);
 		if (!stepDef) {
 			throw new Error(`Step ${stepId} not found in workflow definition`);
@@ -245,13 +234,10 @@ export class WorkflowExecutionEngine {
 		stepId: string,
 		stepDef: StepConfig,
 		stepCount: number,
-		definition: WorkflowDefinition,
+		definition: WorkflowDefinition
 	): Promise<{ result: StepExecutionResult; nextStepId?: string }> {
 		// Execute step
-		const result = await this.executeStep(
-			stepId,
-			this.createContext(executionId, stepDef.id),
-		);
+		const result = await this.executeStep(stepId, this.createContext(executionId, stepDef.id));
 
 		// Update progress
 		await this.updateProgress(executionId, stepCount + 1, {
@@ -260,8 +246,7 @@ export class WorkflowExecutionEngine {
 		});
 
 		// Determine next step
-		const nextStepId =
-			result.nextStepId || this.getNextStep(definition, stepId);
+		const nextStepId = result.nextStepId || this.getNextStep(definition, stepId);
 
 		return { result, nextStepId };
 	}
@@ -271,7 +256,7 @@ export class WorkflowExecutionEngine {
 	 */
 	private async executeWorkflow(
 		executionId: string,
-		definition: WorkflowDefinition,
+		definition: WorkflowDefinition
 	): Promise<void> {
 		const state = this.validateExecutionState(executionId);
 
@@ -282,8 +267,7 @@ export class WorkflowExecutionEngine {
 
 			while (currentStepId && stepCount < maxSteps) {
 				// Check workflow status (paused/cancelled)
-				const shouldContinue =
-					await this.handleWorkflowStatusCheck(executionId);
+				const shouldContinue = await this.handleWorkflowStatusCheck(executionId);
 				if (!shouldContinue) {
 					break;
 				}
@@ -297,7 +281,7 @@ export class WorkflowExecutionEngine {
 					currentStepId,
 					stepDef,
 					stepCount,
-					definition,
+					definition
 				);
 
 				currentStepId = nextStepId;
@@ -316,7 +300,7 @@ export class WorkflowExecutionEngine {
 	 */
 	private async prepareStepExecution(
 		stepId: string,
-		context: WorkflowContext,
+		context: WorkflowContext
 	): Promise<{ stepConfig: StepConfig; executor: any }> {
 		// Load workflow definition to get step config
 		const definition = await this.loadWorkflowDefinition(context.workflowId);
@@ -341,7 +325,7 @@ export class WorkflowExecutionEngine {
 		stepId: string,
 		context: WorkflowContext,
 		stepConfig: StepConfig,
-		executionState: WorkflowExecutionState,
+		executionState: WorkflowExecutionState
 	): Promise<StepExecutionState> {
 		const stepState: StepExecutionState = {
 			stepId,
@@ -368,7 +352,7 @@ export class WorkflowExecutionEngine {
 		stepId: string,
 		context: WorkflowContext,
 		stepState: StepExecutionState,
-		result: StepExecutionResult,
+		result: StepExecutionResult
 	): Promise<void> {
 		// Update step state
 		stepState.status = result.status === "completed" ? "completed" : "failed";
@@ -377,8 +361,7 @@ export class WorkflowExecutionEngine {
 		stepState.error = result.error;
 
 		// Record metrics
-		const duration =
-			stepState.completedAt.getTime() - stepState.startedAt!.getTime();
+		const duration = stepState.completedAt.getTime() - stepState.startedAt!.getTime();
 		this.recordStepMetrics(context.executionId, stepId, {
 			executionTime: duration,
 			success: result.status === "completed",
@@ -402,14 +385,11 @@ export class WorkflowExecutionEngine {
 		context: WorkflowContext,
 		stepConfig: StepConfig,
 		executor: any,
-		stepState: StepExecutionState,
+		stepState: StepExecutionState
 	): Promise<StepExecutionResult> {
 		// Execute step with timeout
 		const timeout = stepConfig.timeout || 300_000; // 5 minutes default
-		const result = await this.withTimeout(
-			executor.execute(stepConfig, context),
-			timeout,
-		);
+		const result = await this.withTimeout(executor.execute(stepConfig, context), timeout);
 
 		// Finalize step execution state
 		await this.finalizeStepExecution(stepId, context, stepState, result);
@@ -430,7 +410,7 @@ export class WorkflowExecutionEngine {
 	 */
 	private async executeStep(
 		stepId: string,
-		context: WorkflowContext,
+		context: WorkflowContext
 	): Promise<StepExecutionResult> {
 		const executionState = this.activeExecutions.get(context.executionId);
 		if (!executionState) {
@@ -438,27 +418,18 @@ export class WorkflowExecutionEngine {
 		}
 
 		// Prepare step configuration and executor
-		const { stepConfig, executor } = await this.prepareStepExecution(
-			stepId,
-			context,
-		);
+		const { stepConfig, executor } = await this.prepareStepExecution(stepId, context);
 
 		// Initialize step execution state
 		const stepState = await this.initializeStepExecution(
 			stepId,
 			context,
 			stepConfig,
-			executionState,
+			executionState
 		);
 
 		try {
-			return await this.executeStepWithRetry(
-				stepId,
-				context,
-				stepConfig,
-				executor,
-				stepState,
-			);
+			return await this.executeStepWithRetry(stepId, context, stepConfig, executor, stepState);
 		} catch (error) {
 			// Handle execution error
 			stepState.status = "failed";
@@ -488,9 +459,7 @@ export class WorkflowExecutionEngine {
 			stepId,
 			variables: state.variables,
 			getVariable: (path: string) => {
-				return path
-					.split(".")
-					.reduce((acc, part) => acc?.[part], state.variables);
+				return path.split(".").reduce((acc, part) => acc?.[part], state.variables);
 			},
 			setVariable: (path: string, value: any) => {
 				const parts = path.split(".");
@@ -524,13 +493,8 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Get next step in workflow
 	 */
-	private getNextStep(
-		definition: WorkflowDefinition,
-		currentStepId: string,
-	): string | undefined {
-		const currentIndex = definition.steps.findIndex(
-			(s) => s.id === currentStepId,
-		);
+	private getNextStep(definition: WorkflowDefinition, currentStepId: string): string | undefined {
+		const currentIndex = definition.steps.findIndex((s) => s.id === currentStepId);
 		if (currentIndex === -1 || currentIndex === definition.steps.length - 1) {
 			return;
 		}
@@ -542,7 +506,7 @@ export class WorkflowExecutionEngine {
 	 */
 	private async handleRetry(
 		stepConfig: StepConfig,
-		stepState: StepExecutionState,
+		stepState: StepExecutionState
 	): Promise<boolean> {
 		if (!stepConfig.retryPolicy) {
 			return false;
@@ -575,14 +539,11 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Execute with timeout
 	 */
-	private async withTimeout<T>(
-		promise: Promise<T>,
-		timeoutMs: number,
-	): Promise<T> {
+	private async withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 		return Promise.race([
 			promise,
 			new Promise<T>((_, reject) =>
-				setTimeout(() => reject(new Error("Operation timed out")), timeoutMs),
+				setTimeout(() => reject(new Error("Operation timed out")), timeoutMs)
 			),
 		]);
 	}
@@ -623,10 +584,7 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Update execution status
 	 */
-	private async updateExecutionStatus(
-		executionId: string,
-		status: string,
-	): Promise<void> {
+	private async updateExecutionStatus(executionId: string, status: string): Promise<void> {
 		const state = this.activeExecutions.get(executionId);
 		if (state) {
 			state.status = status as any;
@@ -641,364 +599,325 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Update execution progress.
 	 */
-	async updateProgress(
-		executionId: string,
-		stepNumber: number,
-		stateUpdate: any,
-	): Promise<void> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.progress",
-			async () => {
-				const state = this.activeExecutions.get(executionId);
-				if (state) {
-					// Update in-memory state
-					state.currentStepId = stateUpdate.currentStepId;
-					Object.assign(state.variables, stateUpdate);
-				}
+	async updateProgress(executionId: string, stepNumber: number, stateUpdate: any): Promise<void> {
+		return observability.trackAgentExecution("system", "workflow.progress", async () => {
+			const state = this.activeExecutions.get(executionId);
+			if (state) {
+				// Update in-memory state
+				state.currentStepId = stateUpdate.currentStepId;
+				Object.assign(state.variables, stateUpdate);
+			}
 
-				// Record snapshot for step
-				await snapshotManager.captureSnapshot(
-					executionId,
-					"step_end",
-					stepNumber,
-					stateUpdate,
-					`Step ${stepNumber} completed`,
-					["workflow", "step"],
-				);
+			// Record snapshot for step
+			await snapshotManager.captureSnapshot(
+				executionId,
+				"step_end",
+				stepNumber,
+				stateUpdate,
+				`Step ${stepNumber} completed`,
+				["workflow", "step"]
+			);
 
-				// Update execution in database
-				await db
-					.update(workflowExecutions)
-					.set({
-						currentStep: stepNumber,
-						state: state?.variables as any,
-						updatedAt: new Date(),
-					})
-					.where(eq(workflowExecutions.id, executionId));
-			},
-		);
+			// Update execution in database
+			await db
+				.update(workflowExecutions)
+				.set({
+					currentStep: stepNumber,
+					state: state?.variables as any,
+					updatedAt: new Date(),
+				})
+				.where(eq(workflowExecutions.id, executionId));
+		});
 	}
 
 	/** Pause execution – sets status and creates checkpoint snapshot */
-	async pauseExecution(
-		executionId: string,
-		description = "Paused by user",
-	): Promise<void> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.pause",
-			async () => {
-				const state = this.activeExecutions.get(executionId);
-				if (!state) {
-					throw new Error(`Execution ${executionId} not found`);
-				}
+	async pauseExecution(executionId: string, description = "Paused by user"): Promise<void> {
+		return observability.trackAgentExecution("system", "workflow.pause", async () => {
+			const state = this.activeExecutions.get(executionId);
+			if (!state) {
+				throw new Error(`Execution ${executionId} not found`);
+			}
 
-				// Create state machine and transition
-				const stateMachine = createWorkflowStateMachine();
-				stateMachine.initialize(state);
-				await stateMachine.transition("paused");
+			// Create state machine and transition
+			const stateMachine = createWorkflowStateMachine();
+			stateMachine.initialize(state);
+			await stateMachine.transition("paused");
 
-				// Update database
-				const [exe] = await db
-					.update(workflowExecutions)
-					.set({
-						status: "paused",
-						pausedAt: new Date(),
-						updatedAt: new Date(),
-					})
-					.where(eq(workflowExecutions.id, executionId))
-					.returning();
+			// Update database
+			const [exe] = await db
+				.update(workflowExecutions)
+				.set({
+					status: "paused",
+					pausedAt: new Date(),
+					updatedAt: new Date(),
+				})
+				.where(eq(workflowExecutions.id, executionId))
+				.returning();
 
-				if (!exe) throw new Error("Execution not found");
+			if (!exe) throw new Error("Execution not found");
 
-				// Create checkpoint
-				await snapshotManager.createCheckpoint(
-					executionId,
-					exe.currentStep ?? 0,
-					state.variables as any,
-					description,
-				);
+			// Create checkpoint
+			await snapshotManager.createCheckpoint(
+				executionId,
+				exe.currentStep ?? 0,
+				state.variables as any,
+				description
+			);
 
-				// Emit event
-				await this.emitWorkflowEvent({
-					id: ulid(),
-					executionId,
-					type: "workflow.paused",
-					timestamp: new Date(),
-					data: { description },
-				});
+			// Emit event
+			await this.emitWorkflowEvent({
+				id: ulid(),
+				executionId,
+				type: "workflow.paused",
+				timestamp: new Date(),
+				data: { description },
+			});
 
-				// Trigger Inngest event
-				await inngest.send({
-					name: "workflow.paused",
-					data: { executionId, workflowId: state.workflowId },
-				});
-			},
-		);
+			// Trigger Inngest event
+			await inngest.send({
+				name: "workflow.paused",
+				data: { executionId, workflowId: state.workflowId },
+			});
+		});
 	}
 
 	/** Resume a paused workflow execution */
 	async resumeExecution(executionId: string): Promise<void> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.resume",
-			async () => {
-				const state = this.activeExecutions.get(executionId);
-				if (!state) {
-					// Load from database
-					const [exe] = await db
-						.select()
-						.from(workflowExecutions)
-						.where(eq(workflowExecutions.id, executionId))
-						.limit(1);
+		return observability.trackAgentExecution("system", "workflow.resume", async () => {
+			const state = this.activeExecutions.get(executionId);
+			if (!state) {
+				// Load from database
+				const [exe] = await db
+					.select()
+					.from(workflowExecutions)
+					.where(eq(workflowExecutions.id, executionId))
+					.limit(1);
 
-					if (!exe) {
-						throw new Error(`Execution ${executionId} not found`);
-					}
-
-					// Reconstruct state
-					const reconstructedState: WorkflowExecutionState = {
-						executionId,
-						workflowId: exe.workflowId,
-						status: exe.status as any,
-						currentStepId: `step-${exe.currentStep}`,
-						startedAt: exe.startedAt,
-						completedAt: exe.completedAt || undefined,
-						pausedAt: exe.pausedAt || undefined,
-						resumedAt: exe.resumedAt || undefined,
-						variables: (exe.state as any) || {},
-						stepStates: {},
-						triggeredBy: exe.triggeredBy || "system",
-						parentExecutionId: exe.parentExecutionId || undefined,
-					};
-
-					this.activeExecutions.set(executionId, reconstructedState);
+				if (!exe) {
+					throw new Error(`Execution ${executionId} not found`);
 				}
 
-				// Update status
-				await db
-					.update(workflowExecutions)
-					.set({
-						status: "running",
-						resumedAt: new Date(),
-						updatedAt: new Date(),
-					})
-					.where(eq(workflowExecutions.id, executionId));
-
-				// Emit event
-				await this.emitWorkflowEvent({
-					id: ulid(),
+				// Reconstruct state
+				const reconstructedState: WorkflowExecutionState = {
 					executionId,
-					type: "workflow.resumed",
-					timestamp: new Date(),
-					data: {},
-				});
+					workflowId: exe.workflowId,
+					status: exe.status as any,
+					currentStepId: `step-${exe.currentStep}`,
+					startedAt: exe.startedAt,
+					completedAt: exe.completedAt || undefined,
+					pausedAt: exe.pausedAt || undefined,
+					resumedAt: exe.resumedAt || undefined,
+					variables: (exe.state as any) || {},
+					stepStates: {},
+					triggeredBy: exe.triggeredBy || "system",
+					parentExecutionId: exe.parentExecutionId || undefined,
+				};
 
-				// Trigger Inngest event
-				await inngest.send({
-					name: "workflow.resumed",
-					data: { executionId },
-				});
-			},
-		);
+				this.activeExecutions.set(executionId, reconstructedState);
+			}
+
+			// Update status
+			await db
+				.update(workflowExecutions)
+				.set({
+					status: "running",
+					resumedAt: new Date(),
+					updatedAt: new Date(),
+				})
+				.where(eq(workflowExecutions.id, executionId));
+
+			// Emit event
+			await this.emitWorkflowEvent({
+				id: ulid(),
+				executionId,
+				type: "workflow.resumed",
+				timestamp: new Date(),
+				data: {},
+			});
+
+			// Trigger Inngest event
+			await inngest.send({
+				name: "workflow.resumed",
+				data: { executionId },
+			});
+		});
 	}
 
 	/** Complete execution */
 	async completeExecution(executionId: string, finalState: any): Promise<void> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.complete",
-			async () => {
-				const state = this.activeExecutions.get(executionId);
-				if (state) {
-					state.status = "completed";
-					state.completedAt = new Date();
-				}
+		return observability.trackAgentExecution("system", "workflow.complete", async () => {
+			const state = this.activeExecutions.get(executionId);
+			if (state) {
+				state.status = "completed";
+				state.completedAt = new Date();
+			}
 
-				const [exe] = await db
-					.update(workflowExecutions)
-					.set({
-						status: "completed",
-						completedAt: new Date(),
-						state: finalState,
-						updatedAt: new Date(),
-					})
-					.where(eq(workflowExecutions.id, executionId))
-					.returning();
+			const [exe] = await db
+				.update(workflowExecutions)
+				.set({
+					status: "completed",
+					completedAt: new Date(),
+					state: finalState,
+					updatedAt: new Date(),
+				})
+				.where(eq(workflowExecutions.id, executionId))
+				.returning();
 
-				// Calculate final metrics
-				const metrics = this.executionMetrics.get(executionId);
-				if (metrics) {
-					metrics.endTime = new Date();
-					metrics.duration =
-						metrics.endTime.getTime() - metrics.startTime.getTime();
+			// Calculate final metrics
+			const metrics = this.executionMetrics.get(executionId);
+			if (metrics) {
+				metrics.endTime = new Date();
+				metrics.duration = metrics.endTime.getTime() - metrics.startTime.getTime();
 
-					// Calculate performance metrics
-					const stepMetrics = Object.values(metrics.stepMetrics);
-					metrics.performance.successRate =
-						stepMetrics.filter((m) => m.success).length / stepMetrics.length;
-					metrics.performance.errorRate = 1 - metrics.performance.successRate;
-					metrics.performance.throughput =
-						stepMetrics.length / (metrics.duration / 1000);
-					metrics.performance.latency = metrics.duration / stepMetrics.length;
+				// Calculate performance metrics
+				const stepMetrics = Object.values(metrics.stepMetrics);
+				metrics.performance.successRate =
+					stepMetrics.filter((m) => m.success).length / stepMetrics.length;
+				metrics.performance.errorRate = 1 - metrics.performance.successRate;
+				metrics.performance.throughput = stepMetrics.length / (metrics.duration / 1000);
+				metrics.performance.latency = metrics.duration / stepMetrics.length;
 
-					// Store metrics
-					await this.storeWorkflowMetrics(metrics);
-				}
+				// Store metrics
+				await this.storeWorkflowMetrics(metrics);
+			}
 
-				// Final snapshot
-				await snapshotManager.captureSnapshot(
-					executionId,
-					"execution_end",
-					exe.currentStep ?? 0,
-					finalState,
-					"Workflow execution completed",
-					["workflow", "complete"],
-					true,
-				);
+			// Final snapshot
+			await snapshotManager.captureSnapshot(
+				executionId,
+				"execution_end",
+				exe.currentStep ?? 0,
+				finalState,
+				"Workflow execution completed",
+				["workflow", "complete"],
+				true
+			);
 
-				// Emit event
-				await this.emitWorkflowEvent({
-					id: ulid(),
-					executionId,
-					type: "workflow.completed",
-					timestamp: new Date(),
-					data: { finalState, metrics },
-				});
+			// Emit event
+			await this.emitWorkflowEvent({
+				id: ulid(),
+				executionId,
+				type: "workflow.completed",
+				timestamp: new Date(),
+				data: { finalState, metrics },
+			});
 
-				// Cleanup
-				this.activeExecutions.delete(executionId);
-				this.executionMetrics.delete(executionId);
+			// Cleanup
+			this.activeExecutions.delete(executionId);
+			this.executionMetrics.delete(executionId);
 
-				// Trigger Inngest event
-				await inngest.send({
-					name: "workflow.completed",
-					data: { executionId, workflowId: state?.workflowId },
-				});
-			},
-		);
+			// Trigger Inngest event
+			await inngest.send({
+				name: "workflow.completed",
+				data: { executionId, workflowId: state?.workflowId },
+			});
+		});
 	}
 
 	/** Mark execution failed */
-	async failExecution(
-		executionId: string,
-		error: any,
-		currentState?: any,
-	): Promise<void> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.fail",
-			async () => {
-				const state = this.activeExecutions.get(executionId);
-				if (state) {
-					state.status = "failed";
-					state.completedAt = new Date();
-					state.error = {
-						code: error.code || "WORKFLOW_ERROR",
-						message: error.message || "Workflow execution failed",
-						details: error,
-						stepId: state.currentStepId,
-						timestamp: new Date(),
-						recoverable: false,
-					};
-				}
-
-				await db
-					.update(workflowExecutions)
-					.set({
-						status: "failed",
-						error: error.message || "Unknown error",
-						completedAt: new Date(),
-						state: currentState || state?.variables,
-						updatedAt: new Date(),
-					})
-					.where(eq(workflowExecutions.id, executionId));
-
-				// Store error snapshot
-				await snapshotManager.captureSnapshot(
-					executionId,
-					"error_state",
-					0,
-					currentState || state?.variables || {},
-					error.message,
-					["workflow", "error"],
-				);
-
-				// Emit event
-				await this.emitWorkflowEvent({
-					id: ulid(),
-					executionId,
-					type: "workflow.failed",
+	async failExecution(executionId: string, error: any, currentState?: any): Promise<void> {
+		return observability.trackAgentExecution("system", "workflow.fail", async () => {
+			const state = this.activeExecutions.get(executionId);
+			if (state) {
+				state.status = "failed";
+				state.completedAt = new Date();
+				state.error = {
+					code: error.code || "WORKFLOW_ERROR",
+					message: error.message || "Workflow execution failed",
+					details: error,
+					stepId: state.currentStepId,
 					timestamp: new Date(),
-					data: { error, state: currentState },
-				});
+					recoverable: false,
+				};
+			}
 
-				// Cleanup
-				this.activeExecutions.delete(executionId);
-				this.executionMetrics.delete(executionId);
+			await db
+				.update(workflowExecutions)
+				.set({
+					status: "failed",
+					error: error.message || "Unknown error",
+					completedAt: new Date(),
+					state: currentState || state?.variables,
+					updatedAt: new Date(),
+				})
+				.where(eq(workflowExecutions.id, executionId));
 
-				// Trigger Inngest event
-				await inngest.send({
-					name: "workflow.failed",
-					data: { executionId, error: error.message },
-				});
-			},
-		);
+			// Store error snapshot
+			await snapshotManager.captureSnapshot(
+				executionId,
+				"error_state",
+				0,
+				currentState || state?.variables || {},
+				error.message,
+				["workflow", "error"]
+			);
+
+			// Emit event
+			await this.emitWorkflowEvent({
+				id: ulid(),
+				executionId,
+				type: "workflow.failed",
+				timestamp: new Date(),
+				data: { error, state: currentState },
+			});
+
+			// Cleanup
+			this.activeExecutions.delete(executionId);
+			this.executionMetrics.delete(executionId);
+
+			// Trigger Inngest event
+			await inngest.send({
+				name: "workflow.failed",
+				data: { executionId, error: error.message },
+			});
+		});
 	}
 
 	/**
 	 * Cancel workflow execution
 	 */
 	async cancelExecution(executionId: string, reason?: string): Promise<void> {
-		return observability.trackAgentExecution(
-			"system",
-			"workflow.cancel",
-			async () => {
-				const state = this.activeExecutions.get(executionId);
-				if (state) {
-					state.status = "cancelled";
-					state.completedAt = new Date();
-				}
+		return observability.trackAgentExecution("system", "workflow.cancel", async () => {
+			const state = this.activeExecutions.get(executionId);
+			if (state) {
+				state.status = "cancelled";
+				state.completedAt = new Date();
+			}
 
-				await db
-					.update(workflowExecutions)
-					.set({
-						status: "cancelled",
-						completedAt: new Date(),
-						error: reason,
-						updatedAt: new Date(),
-					})
-					.where(eq(workflowExecutions.id, executionId));
+			await db
+				.update(workflowExecutions)
+				.set({
+					status: "cancelled",
+					completedAt: new Date(),
+					error: reason,
+					updatedAt: new Date(),
+				})
+				.where(eq(workflowExecutions.id, executionId));
 
-				// Emit event
-				await this.emitWorkflowEvent({
-					id: ulid(),
-					executionId,
-					type: "workflow.cancelled",
-					timestamp: new Date(),
-					data: { reason },
-				});
+			// Emit event
+			await this.emitWorkflowEvent({
+				id: ulid(),
+				executionId,
+				type: "workflow.cancelled",
+				timestamp: new Date(),
+				data: { reason },
+			});
 
-				// Cleanup
-				this.activeExecutions.delete(executionId);
-				this.executionMetrics.delete(executionId);
+			// Cleanup
+			this.activeExecutions.delete(executionId);
+			this.executionMetrics.delete(executionId);
 
-				// Trigger Inngest event
-				await inngest.send({
-					name: "workflow.cancelled",
-					data: { executionId, reason },
-				});
-			},
-		);
+			// Trigger Inngest event
+			await inngest.send({
+				name: "workflow.cancelled",
+				data: { executionId, reason },
+			});
+		});
 	}
 
 	/**
 	 * Get workflow execution details
 	 */
-	async getExecution(
-		executionId: string,
-	): Promise<WorkflowExecutionState | null> {
+	async getExecution(executionId: string): Promise<WorkflowExecutionState | null> {
 		// Check in-memory first
 		const state = this.activeExecutions.get(executionId);
 		if (state) {
@@ -1051,10 +970,7 @@ export class WorkflowExecutionEngine {
 	/**
 	 * Handle workflow error
 	 */
-	private async handleWorkflowError(
-		executionId: string,
-		error: any,
-	): Promise<void> {
+	private async handleWorkflowError(executionId: string, error: any): Promise<void> {
 		await this.failExecution(executionId, error);
 	}
 
@@ -1082,7 +998,7 @@ export class WorkflowExecutionEngine {
 	private recordStepMetrics(
 		executionId: string,
 		stepId: string,
-		metrics: Partial<StepMetrics>,
+		metrics: Partial<StepMetrics>
 	): void {
 		const executionMetrics = this.executionMetrics.get(executionId);
 		if (!executionMetrics) {

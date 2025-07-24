@@ -5,9 +5,7 @@
 /**
  * Safely cancels a ReadableStream without throwing errors
  */
-export async function safeStreamCancel(
-	stream: ReadableStream | null | undefined,
-): Promise<void> {
+export async function safeStreamCancel(stream: ReadableStream | null | undefined): Promise<void> {
 	if (!stream) {
 		return;
 	}
@@ -49,10 +47,7 @@ export function safeWebSocketClose(ws: WebSocket | null | undefined): void {
 	}
 
 	try {
-		if (
-			ws.readyState === WebSocket.OPEN ||
-			ws.readyState === WebSocket.CONNECTING
-		) {
+		if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
 			ws.close(1000, "Normal closure");
 		}
 	} catch (error) {
@@ -63,10 +58,7 @@ export function safeWebSocketClose(ws: WebSocket | null | undefined): void {
 /**
  * Creates a timeout promise that rejects after specified milliseconds
  */
-export function createTimeoutPromise(
-	ms: number,
-	message = "Operation timed out",
-): Promise<never> {
+export function createTimeoutPromise(ms: number, message = "Operation timed out"): Promise<never> {
 	return new Promise((_, reject) => {
 		setTimeout(() => reject(new Error(message)), ms);
 	});
@@ -78,12 +70,9 @@ export function createTimeoutPromise(
 export async function withTimeout<T>(
 	promise: Promise<T>,
 	timeoutMs: number,
-	timeoutMessage?: string,
+	timeoutMessage?: string
 ): Promise<T> {
-	return Promise.race([
-		promise,
-		createTimeoutPromise(timeoutMs, timeoutMessage),
-	]);
+	return Promise.race([promise, createTimeoutPromise(timeoutMs, timeoutMessage)]);
 }
 
 /**
@@ -92,7 +81,7 @@ export async function withTimeout<T>(
 export async function safeAsync<T>(
 	fn: () => Promise<T>,
 	fallback?: T,
-	errorMessage?: string,
+	errorMessage?: string
 ): Promise<T | undefined> {
 	try {
 		return await fn();
@@ -109,7 +98,7 @@ export async function safeAsync<T>(
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
 	func: T,
-	wait: number,
+	wait: number
 ): (...args: Parameters<T>) => void {
 	let timeout: NodeJS.Timeout | null = null;
 

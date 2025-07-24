@@ -4,14 +4,12 @@ export const mockMatchers = {
 	toHaveBeenCalledWith: (received: any, ...expected: any[]) => {
 		const pass = received.mock.calls.some(
 			(call: any[]) =>
-				call.length === expected.length &&
-				call.every((arg, index) => arg === expected[index]),
+				call.length === expected.length && call.every((arg, index) => arg === expected[index])
 		);
 
 		return {
 			pass,
-			message: () =>
-				`Expected mock function to have been called with ${JSON.stringify(expected)}`,
+			message: () => `Expected mock function to have been called with ${JSON.stringify(expected)}`,
 		};
 	},
 

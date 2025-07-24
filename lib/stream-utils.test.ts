@@ -57,9 +57,7 @@ describe("stream-utils", () => {
 
 			await safeStreamCancel(mockStream);
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Stream is locked, cannot cancel safely",
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Stream is locked, cannot cancel safely");
 		});
 
 		it("should handle cancel error", async () => {
@@ -77,10 +75,7 @@ describe("stream-utils", () => {
 
 			expect(mockReader.cancel).toHaveBeenCalled();
 			expect(mockReader.releaseLock).toHaveBeenCalled();
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Error cancelling stream reader:",
-				mockError,
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Error cancelling stream reader:", mockError);
 		});
 
 		it("should handle releaseLock error", async () => {
@@ -99,10 +94,7 @@ describe("stream-utils", () => {
 			await safeStreamCancel(mockStream);
 
 			expect(mockReader.releaseLock).toHaveBeenCalled();
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Error releasing stream reader lock:",
-				mockError,
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Error releasing stream reader lock:", mockError);
 		});
 
 		it("should handle getReader error", async () => {
@@ -116,10 +108,7 @@ describe("stream-utils", () => {
 
 			await safeStreamCancel(mockStream);
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Error in safe stream cancel:",
-				mockError,
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Error in safe stream cancel:", mockError);
 		});
 	});
 
@@ -190,10 +179,7 @@ describe("stream-utils", () => {
 
 			safeWebSocketClose(mockWs);
 
-			expect(consoleSpy).toHaveBeenCalledWith(
-				"Error closing WebSocket:",
-				mockError,
-			);
+			expect(consoleSpy).toHaveBeenCalledWith("Error closing WebSocket:", mockError);
 		});
 	});
 
@@ -247,9 +233,7 @@ describe("stream-utils", () => {
 
 		it("should handle rejected promises", async () => {
 			const errorPromise = Promise.reject(new Error("Original error"));
-			await expect(withTimeout(errorPromise, 100)).rejects.toThrow(
-				"Original error",
-			);
+			await expect(withTimeout(errorPromise, 100)).rejects.toThrow("Original error");
 		});
 
 		it("should resolve fast promise before timeout", async () => {

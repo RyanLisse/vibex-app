@@ -13,9 +13,7 @@ export function PRStatusCard({ prLink, className }: PRStatusCardProps) {
 	return (
 		<Card className={className}>
 			<CardHeader className="pb-3">
-				<CardTitle className="text-sm font-medium">
-					Pull Request #{prLink.prNumber}
-				</CardTitle>
+				<CardTitle className="text-sm font-medium">Pull Request #{prLink.prNumber}</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-3">
 				<div>

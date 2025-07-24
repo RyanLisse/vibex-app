@@ -7,10 +7,7 @@ import {
 	QueryPerformanceMonitor,
 	WASMOptimizationStatus,
 } from "@/components/providers/query-provider";
-import {
-	useExecutionAnalyticsQuery,
-	useExecutionsQuery,
-} from "@/hooks/use-execution-queries";
+import { useExecutionAnalyticsQuery, useExecutionsQuery } from "@/hooks/use-execution-queries";
 import {
 	useBulkTaskMutation,
 	useCreateTaskMutation,
@@ -81,8 +78,7 @@ export function EnhancedQueryDemo() {
 
 	// Task statistics
 	const taskStats = useMemo(() => {
-		if (!displayTasks)
-			return { total: 0, pending: 0, inProgress: 0, completed: 0 };
+		if (!displayTasks) return { total: 0, pending: 0, inProgress: 0, completed: 0 };
 
 		return {
 			total: displayTasks.length,
@@ -129,9 +125,7 @@ export function EnhancedQueryDemo() {
 
 	// Handle task selection
 	const handleTaskSelection = (taskId: string, selected: boolean) => {
-		setSelectedTasks((prev) =>
-			selected ? [...prev, taskId] : prev.filter((id) => id !== taskId),
-		);
+		setSelectedTasks((prev) => (selected ? [...prev, taskId] : prev.filter((id) => id !== taskId)));
 	};
 
 	return (
@@ -192,28 +186,24 @@ export function EnhancedQueryDemo() {
 					<div>
 						<label className="mb-2 block font-medium text-sm">Status</label>
 						<div className="space-y-2">
-							{["pending", "in_progress", "completed", "cancelled"].map(
-								(status) => (
-									<label className="flex items-center space-x-2" key={status}>
-										<input
-											checked={taskFilters.status.includes(status)}
-											className="rounded"
-											onChange={(e) => {
-												setTaskFilters((prev) => ({
-													...prev,
-													status: e.target.checked
-														? [...prev.status, status]
-														: prev.status.filter((s) => s !== status),
-												}));
-											}}
-											type="checkbox"
-										/>
-										<span className="text-sm capitalize">
-											{status.replace("_", " ")}
-										</span>
-									</label>
-								),
-							)}
+							{["pending", "in_progress", "completed", "cancelled"].map((status) => (
+								<label className="flex items-center space-x-2" key={status}>
+									<input
+										checked={taskFilters.status.includes(status)}
+										className="rounded"
+										onChange={(e) => {
+											setTaskFilters((prev) => ({
+												...prev,
+												status: e.target.checked
+													? [...prev.status, status]
+													: prev.status.filter((s) => s !== status),
+											}));
+										}}
+										type="checkbox"
+									/>
+									<span className="text-sm capitalize">{status.replace("_", " ")}</span>
+								</label>
+							))}
 						</div>
 					</div>
 
@@ -246,36 +236,26 @@ export function EnhancedQueryDemo() {
 			{/* Task Statistics */}
 			<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 				<div className="rounded-lg border bg-white p-4 text-center">
-					<div className="font-bold text-2xl text-blue-600">
-						{taskStats.total}
-					</div>
+					<div className="font-bold text-2xl text-blue-600">{taskStats.total}</div>
 					<div className="text-gray-600 text-sm">Total Tasks</div>
 				</div>
 				<div className="rounded-lg border bg-white p-4 text-center">
-					<div className="font-bold text-2xl text-yellow-600">
-						{taskStats.pending}
-					</div>
+					<div className="font-bold text-2xl text-yellow-600">{taskStats.pending}</div>
 					<div className="text-gray-600 text-sm">Pending</div>
 				</div>
 				<div className="rounded-lg border bg-white p-4 text-center">
-					<div className="font-bold text-2xl text-blue-600">
-						{taskStats.inProgress}
-					</div>
+					<div className="font-bold text-2xl text-blue-600">{taskStats.inProgress}</div>
 					<div className="text-gray-600 text-sm">In Progress</div>
 				</div>
 				<div className="rounded-lg border bg-white p-4 text-center">
-					<div className="font-bold text-2xl text-green-600">
-						{taskStats.completed}
-					</div>
+					<div className="font-bold text-2xl text-green-600">{taskStats.completed}</div>
 					<div className="text-gray-600 text-sm">Completed</div>
 				</div>
 			</div>
 
 			{/* Create Task Form */}
 			<div className="rounded-lg border bg-white p-6">
-				<h2 className="mb-4 font-semibold text-xl">
-					Create New Task (with Optimistic Updates)
-				</h2>
+				<h2 className="mb-4 font-semibold text-xl">Create New Task (with Optimistic Updates)</h2>
 				<form className="space-y-4" onSubmit={handleCreateTask}>
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<input
@@ -308,8 +288,7 @@ export function EnhancedQueryDemo() {
 				<div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 					<div className="flex items-center justify-between">
 						<span className="font-medium text-sm">
-							{selectedTasks.length} task{selectedTasks.length !== 1 ? "s" : ""}{" "}
-							selected
+							{selectedTasks.length} task{selectedTasks.length !== 1 ? "s" : ""} selected
 						</span>
 						<div className="space-x-2">
 							<button
@@ -341,15 +320,10 @@ export function EnhancedQueryDemo() {
 			<div className="rounded-lg border bg-white p-6">
 				<div className="mb-4 flex items-center justify-between">
 					<h2 className="font-semibold text-xl">
-						Tasks{" "}
-						{tasksStale && (
-							<span className="text-orange-600 text-sm">(stale)</span>
-						)}
+						Tasks {tasksStale && <span className="text-orange-600 text-sm">(stale)</span>}
 					</h2>
 					<div className="flex items-center space-x-2">
-						{tasksFetching && (
-							<div className="text-blue-600 text-sm">Fetching...</div>
-						)}
+						{tasksFetching && <div className="text-blue-600 text-sm">Fetching...</div>}
 						<button
 							className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
 							onClick={() => refetchTasks()}
@@ -376,17 +350,13 @@ export function EnhancedQueryDemo() {
 									<input
 										checked={selectedTasks.includes(task.id)}
 										className="mt-1 rounded"
-										onChange={(e) =>
-											handleTaskSelection(task.id, e.target.checked)
-										}
+										onChange={(e) => handleTaskSelection(task.id, e.target.checked)}
 										type="checkbox"
 									/>
 									<div className="flex-1">
 										<h4 className="font-medium">{task.title}</h4>
 										{task.description && (
-											<p className="mt-1 text-gray-600 text-sm">
-												{task.description}
-											</p>
+											<p className="mt-1 text-gray-600 text-sm">{task.description}</p>
 										)}
 										<div className="mt-2 flex items-center space-x-4 text-gray-500 text-xs">
 											<span
@@ -413,9 +383,7 @@ export function EnhancedQueryDemo() {
 											>
 												{task.priority}
 											</span>
-											<span>
-												Created: {new Date(task.createdAt).toLocaleDateString()}
-											</span>
+											<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
 										</div>
 									</div>
 								</div>
@@ -432,20 +400,14 @@ export function EnhancedQueryDemo() {
 			{/* Analytics Section */}
 			{analytics && (
 				<div className="rounded-lg border bg-white p-6">
-					<h2 className="mb-4 font-semibold text-xl">
-						Execution Analytics (WASM Optimized)
-					</h2>
+					<h2 className="mb-4 font-semibold text-xl">Execution Analytics (WASM Optimized)</h2>
 					<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 						<div className="text-center">
-							<div className="font-bold text-2xl text-blue-600">
-								{analytics.totalExecutions}
-							</div>
+							<div className="font-bold text-2xl text-blue-600">{analytics.totalExecutions}</div>
 							<div className="text-gray-600 text-sm">Total Executions</div>
 						</div>
 						<div className="text-center">
-							<div className="font-bold text-2xl text-green-600">
-								{analytics.successRate}%
-							</div>
+							<div className="font-bold text-2xl text-green-600">{analytics.successRate}%</div>
 							<div className="text-gray-600 text-sm">Success Rate</div>
 						</div>
 						<div className="text-center">

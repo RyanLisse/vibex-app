@@ -1,26 +1,21 @@
-import * as cryptoModule from "node:crypto";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { generateCodeChallenge, generateCodeVerifier } from "./pkce";
 
-// Mock crypto module
-vi.mock("crypto");
+// Mock Node.js crypto module
+vi.mock("node:crypto", () => ({
+	randomBytes: vi.fn(),
+	createHash: vi.fn(),
+}));
 
 describe("PKCE utilities", () => {
-	const mockRandomBytes = cryptoModule.randomBytes as MockedFunction<
-		typeof cryptoModule.randomBytes
-	>;
-	const mockCreateHash = cryptoModule.createHash as MockedFunction<
-		typeof cryptoModule.createHash
-	>;
+	let mockRandomBytes: ReturnType<typeof vi.fn>;
+	let mockCreateHash: ReturnType<typeof vi.fn>;
+
+	beforeEach(() => {
+		const crypto = require("node:crypto");
+		mockRandomBytes = crypto.randomBytes;
+		mockCreateHash = crypto.createHash;
+	});
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -139,9 +134,7 @@ describe("PKCE utilities", () => {
 				digest: vi.fn().mockReturnValue(Buffer.from("hash2")),
 			};
 
-			mockCreateHash
-				.mockReturnValueOnce(mockHash1 as any)
-				.mockReturnValueOnce(mockHash2 as any);
+			mockCreateHash.mockReturnValueOnce(mockHash1 as any).mockReturnValueOnce(mockHash2 as any);
 
 			const challenge1 = generateCodeChallenge("verifier1");
 			const challenge2 = generateCodeChallenge("verifier2");

@@ -1,18 +1,18 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import type { Task } from "../../../../stores/tasks";
-import { useTaskStore } from "../../../../stores/tasks";
+import type { Task } from "@/types/task";
+import { useUpdateTaskMutation } from "@/hooks/use-task-queries-enhanced";
 import { createTaskAction } from "../../../actions/inngest";
 import MessageInput from "./message-input";
 
-// Mock the actions and store
+// Mock the actions and hooks
 vi.mock("@/app/actions/inngest", () => ({
 	createTaskAction: vi.fn(),
 }));
 
-vi.mock("@/stores/tasks", () => ({
-	useTaskStore: vi.fn(),
+vi.mock("@/hooks/use-task-queries-enhanced", () => ({
+	useUpdateTaskMutation: vi.fn(),
 }));
 
 // Mock crypto.randomUUID
@@ -219,9 +219,7 @@ describe("MessageInput", () => {
 	it("should show keyboard shortcut hint", () => {
 		render(<MessageInput task={mockTask} />);
 
-		expect(
-			screen.getByText("Press Enter to send, Shift+Enter for new line"),
-		).toBeTruthy();
+		expect(screen.getByText("Press Enter to send, Shift+Enter for new line")).toBeTruthy();
 	});
 
 	it("should handle textarea height adjustment", async () => {
@@ -235,7 +233,7 @@ describe("MessageInput", () => {
 		// Type a long message to trigger height adjustment
 		await user.type(
 			textarea,
-			"This is a very long message that should cause the textarea to expand in height when it wraps to multiple lines",
+			"This is a very long message that should cause the textarea to expand in height when it wraps to multiple lines"
 		);
 
 		// Height should be adjusted (we can't easily test the exact height in jsdom)

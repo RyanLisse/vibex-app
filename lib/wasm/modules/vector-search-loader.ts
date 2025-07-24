@@ -9,10 +9,7 @@ import { observability } from "../../observability";
 
 export interface VectorSearch {
 	add(id: string, embedding: number[]): Promise<void>;
-	search(
-		embedding: number[],
-		k: number,
-	): Promise<Array<{ id: string; score: number }>>;
+	search(embedding: number[], k: number): Promise<Array<{ id: string; score: number }>>;
 	clear(): Promise<void>;
 	buildIndex(): Promise<void>;
 	getStats(): { documentsCount: number; indexSize: number };
@@ -36,56 +33,48 @@ let isLoaded = false;
 export async function loadVectorSearchWASM(): Promise<void> {
 	if (isLoaded && wasmModule) return;
 
-	return observability.trackOperation(
-		"wasm.vector-search.load-module",
-		async () => {
-			try {
-				// Try to load from wasm-modules directory
-				const wasmPath = "/wasm-modules/vector-search/vector_search.wasm";
-				const wasmResponse = await fetch(wasmPath);
+	return observability.trackOperation("wasm.vector-search.load-module", async () => {
+		try {
+			// Try to load from wasm-modules directory
+			const wasmPath = "/wasm-modules/vector-search/vector_search.wasm";
+			const wasmResponse = await fetch(wasmPath);
 
-				if (!wasmResponse.ok) {
-					throw new Error(
-						`Failed to fetch WASM module: ${wasmResponse.status}`,
-					);
-				}
-
-				const wasmBytes = await wasmResponse.arrayBuffer();
-				const wasmModule = await WebAssembly.instantiate(wasmBytes, {
-					env: {
-						memory: new WebAssembly.Memory({ initial: 256, maximum: 1024 }),
-						Math_sqrt: Math.sqrt,
-						Math_pow: Math.pow,
-						console_log: (ptr: number, len: number) => {
-							// WASM console.log implementation
-							console.log(`WASM: ${ptr}-${len}`);
-						},
-					},
-				});
-
-				wasmModule = wasmModule.instance;
-				isLoaded = true;
-
-				observability.recordEvent("wasm.vector-search.module-loaded", {
-					wasmPath,
-					memoryPages: 256,
-				});
-
-				console.log("✅ Vector search WASM module loaded successfully");
-			} catch (error) {
-				observability.recordError(
-					"wasm.vector-search.module-load-failed",
-					error as Error,
-				);
-
-				// Fallback to inline WASM module
-				wasmModule = await createInlineWASMModule();
-				isLoaded = true;
-
-				console.warn("Using inline WASM fallback for vector search");
+			if (!wasmResponse.ok) {
+				throw new Error(`Failed to fetch WASM module: ${wasmResponse.status}`);
 			}
-		},
-	);
+
+			const wasmBytes = await wasmResponse.arrayBuffer();
+			const wasmModule = await WebAssembly.instantiate(wasmBytes, {
+				env: {
+					memory: new WebAssembly.Memory({ initial: 256, maximum: 1024 }),
+					Math_sqrt: Math.sqrt,
+					Math_pow: Math.pow,
+					console_log: (ptr: number, len: number) => {
+						// WASM console.log implementation
+						console.log(`WASM: ${ptr}-${len}`);
+					},
+				},
+			});
+
+			wasmModule = wasmModule.instance;
+			isLoaded = true;
+
+			observability.recordEvent("wasm.vector-search.module-loaded", {
+				wasmPath,
+				memoryPages: 256,
+			});
+
+			console.log("✅ Vector search WASM module loaded successfully");
+		} catch (error) {
+			observability.recordError("wasm.vector-search.module-load-failed", error as Error);
+
+			// Fallback to inline WASM module
+			wasmModule = await createInlineWASMModule();
+			isLoaded = true;
+
+			console.warn("Using inline WASM fallback for vector search");
+		}
+	});
 }
 
 /**
@@ -201,93 +190,84 @@ async function createInlineWASMModule(): Promise<any> {
  */
 export async function createVectorSearchInstance(
 	dimensions: number,
-	config: VectorSearchInstanceConfig = { indexType: "flat" },
+	config: VectorSearchInstanceConfig = { indexType: "flat" }
 ): Promise<VectorSearch> {
 	if (!isLoaded) {
 		await loadVectorSearchWASM();
 	}
 
-	return observability.trackOperation(
-		"wasm.vector-search.create-instance",
-		async () => {
-			// In-memory storage for the JavaScript fallback
-			const documents = new Map<string, number[]>();
-			let indexBuilt = false;
+	return observability.trackOperation("wasm.vector-search.create-instance", async () => {
+		// In-memory storage for the JavaScript fallback
+		const documents = new Map<string, number[]>();
+		let indexBuilt = false;
 
-			const instance: VectorSearch = {
-				async add(id: string, embedding: number[]): Promise<void> {
-					if (embedding.length !== dimensions) {
-						throw new Error(
-							`Embedding dimension mismatch: expected ${dimensions}, got ${embedding.length}`,
-						);
-					}
-					documents.set(id, embedding);
-					indexBuilt = false; // Mark index as needing rebuild
-				},
+		const instance: VectorSearch = {
+			async add(id: string, embedding: number[]): Promise<void> {
+				if (embedding.length !== dimensions) {
+					throw new Error(
+						`Embedding dimension mismatch: expected ${dimensions}, got ${embedding.length}`
+					);
+				}
+				documents.set(id, embedding);
+				indexBuilt = false; // Mark index as needing rebuild
+			},
 
-				async search(
-					embedding: number[],
-					k: number,
-				): Promise<Array<{ id: string; score: number }>> {
-					if (embedding.length !== dimensions) {
-						throw new Error(
-							`Query embedding dimension mismatch: expected ${dimensions}, got ${embedding.length}`,
-						);
-					}
+			async search(embedding: number[], k: number): Promise<Array<{ id: string; score: number }>> {
+				if (embedding.length !== dimensions) {
+					throw new Error(
+						`Query embedding dimension mismatch: expected ${dimensions}, got ${embedding.length}`
+					);
+				}
 
-					const results: Array<{ id: string; score: number }> = [];
+				const results: Array<{ id: string; score: number }> = [];
 
-					// Calculate cosine similarity with all documents
-					for (const [id, docEmbedding] of documents) {
-						const similarity = calculateCosineSimilarity(
-							embedding,
-							docEmbedding,
-						);
-						results.push({ id, score: similarity });
-					}
+				// Calculate cosine similarity with all documents
+				for (const [id, docEmbedding] of documents) {
+					const similarity = calculateCosineSimilarity(embedding, docEmbedding);
+					results.push({ id, score: similarity });
+				}
 
-					// Sort by similarity and return top k
-					return results.sort((a, b) => b.score - a.score).slice(0, k);
-				},
+				// Sort by similarity and return top k
+				return results.sort((a, b) => b.score - a.score).slice(0, k);
+			},
 
-				async clear(): Promise<void> {
-					documents.clear();
-					indexBuilt = false;
-				},
+			async clear(): Promise<void> {
+				documents.clear();
+				indexBuilt = false;
+			},
 
-				async buildIndex(): Promise<void> {
-					// For flat index, no building needed
-					if (config.indexType === "flat") {
-						indexBuilt = true;
-						return;
-					}
-
-					// For HNSW or IVF, we would build the index here
-					// This is a placeholder for the actual WASM implementation
+			async buildIndex(): Promise<void> {
+				// For flat index, no building needed
+				if (config.indexType === "flat") {
 					indexBuilt = true;
+					return;
+				}
 
-					observability.recordEvent("wasm.vector-search.index-built", {
-						indexType: config.indexType,
-						documentsCount: documents.size,
-					});
-				},
+				// For HNSW or IVF, we would build the index here
+				// This is a placeholder for the actual WASM implementation
+				indexBuilt = true;
 
-				getStats(): { documentsCount: number; indexSize: number } {
-					return {
-						documentsCount: documents.size,
-						indexSize: documents.size * dimensions * 4, // 4 bytes per float
-					};
-				},
-			};
+				observability.recordEvent("wasm.vector-search.index-built", {
+					indexType: config.indexType,
+					documentsCount: documents.size,
+				});
+			},
 
-			observability.recordEvent("wasm.vector-search.instance-created", {
-				dimensions,
-				indexType: config.indexType,
-			});
+			getStats(): { documentsCount: number; indexSize: number } {
+				return {
+					documentsCount: documents.size,
+					indexSize: documents.size * dimensions * 4, // 4 bytes per float
+				};
+			},
+		};
 
-			return instance;
-		},
-	);
+		observability.recordEvent("wasm.vector-search.instance-created", {
+			dimensions,
+			indexType: config.indexType,
+		});
+
+		return instance;
+	});
 }
 
 /**
@@ -316,33 +296,28 @@ function calculateCosineSimilarity(a: number[], b: number[]): number {
 export async function batchSimilaritySearch(
 	queries: number[][],
 	documents: Map<string, number[]>,
-	k: number = 10,
+	k: number = 10
 ): Promise<Array<Array<{ id: string; score: number }>>> {
-	return observability.trackOperation(
-		"wasm.vector-search.batch-search",
-		async () => {
-			const results: Array<Array<{ id: string; score: number }>> = [];
+	return observability.trackOperation("wasm.vector-search.batch-search", async () => {
+		const results: Array<Array<{ id: string; score: number }>> = [];
 
-			for (const query of queries) {
-				const queryResults: Array<{ id: string; score: number }> = [];
+		for (const query of queries) {
+			const queryResults: Array<{ id: string; score: number }> = [];
 
-				for (const [id, embedding] of documents) {
-					const similarity = calculateCosineSimilarity(query, embedding);
-					queryResults.push({ id, score: similarity });
-				}
-
-				results.push(
-					queryResults.sort((a, b) => b.score - a.score).slice(0, k),
-				);
+			for (const [id, embedding] of documents) {
+				const similarity = calculateCosineSimilarity(query, embedding);
+				queryResults.push({ id, score: similarity });
 			}
 
-			observability.recordEvent("wasm.vector-search.batch-search-completed", {
-				queryCount: queries.length,
-				documentsCount: documents.size,
-				k,
-			});
+			results.push(queryResults.sort((a, b) => b.score - a.score).slice(0, k));
+		}
 
-			return results;
-		},
-	);
+		observability.recordEvent("wasm.vector-search.batch-search-completed", {
+			queryCount: queries.length,
+			documentsCount: documents.size,
+			k,
+		});
+
+		return results;
+	});
 }

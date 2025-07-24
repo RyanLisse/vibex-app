@@ -29,14 +29,9 @@ export class ClaudeAuthClient {
 		this.config = {
 			clientId: config.clientId,
 			redirectUri: config.redirectUri,
-			scopes: config.scopes || [
-				"org:create_api_key",
-				"user:profile",
-				"user:inference",
-			],
+			scopes: config.scopes || ["org:create_api_key", "user:profile", "user:inference"],
 			authorizeUrl: config.authorizeUrl || "https://claude.ai/oauth/authorize",
-			tokenUrl:
-				config.tokenUrl || "https://console.anthropic.com/v1/oauth/token",
+			tokenUrl: config.tokenUrl || "https://console.anthropic.com/v1/oauth/token",
 		};
 	}
 
@@ -75,10 +70,7 @@ export class ClaudeAuthClient {
 	 * @param codeVerifier The PKCE code verifier generated in getAuthorizationUrl
 	 * @returns Promise resolving to the token response
 	 */
-	public async exchangeCodeForToken(
-		code: string,
-		codeVerifier: string,
-	): Promise<TokenResponse> {
+	public async exchangeCodeForToken(code: string, codeVerifier: string): Promise<TokenResponse> {
 		const response = await fetch(this.config.tokenUrl, {
 			method: "POST",
 			headers: {
@@ -96,7 +88,7 @@ export class ClaudeAuthClient {
 		if (!response.ok) {
 			const error = await response.json().catch(() => ({}));
 			throw new Error(
-				`Failed to exchange code for token: ${response.status} ${response.statusText} - ${JSON.stringify(error)}`,
+				`Failed to exchange code for token: ${response.status} ${response.statusText} - ${JSON.stringify(error)}`
 			);
 		}
 
@@ -124,7 +116,7 @@ export class ClaudeAuthClient {
 		if (!response.ok) {
 			const error = await response.json().catch(() => ({}));
 			throw new Error(
-				`Failed to refresh token: ${response.status} ${response.statusText} - ${JSON.stringify(error)}`,
+				`Failed to refresh token: ${response.status} ${response.statusText} - ${JSON.stringify(error)}`
 			);
 		}
 
@@ -137,11 +129,9 @@ export class ClaudeAuthClient {
 	 * @returns Random string
 	 */
 	private generateRandomString(length: number): string {
-		const possible =
-			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-		return Array.from(
-			{ length },
-			() => possible[Math.floor(Math.random() * possible.length)],
-		).join("");
+		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+		return Array.from({ length }, () => possible[Math.floor(Math.random() * possible.length)]).join(
+			""
+		);
 	}
 }

@@ -7,8 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useMonitoringDashboard } from "@/hooks/use-monitoring-dashboard";
 
 export default function MonitoringDashboard() {
-	const { metrics, performanceSummary, loading, error } =
-		useMonitoringDashboard();
+	const { metrics, performanceSummary, loading, error } = useMonitoringDashboard();
 
 	if (loading) {
 		return (
@@ -23,9 +22,7 @@ export default function MonitoringDashboard() {
 	if (error) {
 		return (
 			<div className="container mx-auto p-6">
-				<div className="text-center text-red-600">
-					Error loading dashboard: {error}
-				</div>
+				<div className="text-center text-red-600">Error loading dashboard: {error}</div>
 			</div>
 		);
 	}
@@ -35,9 +32,7 @@ export default function MonitoringDashboard() {
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl font-bold">Error Prevention Dashboard</h1>
-					<p className="text-gray-600">
-						Monitor your application's health and performance
-					</p>
+					<p className="text-gray-600">Monitor your application's health and performance</p>
 				</div>
 				<Badge variant="outline" className="text-sm">
 					Last updated: {new Date().toLocaleTimeString()}
@@ -48,9 +43,7 @@ export default function MonitoringDashboard() {
 			<DashboardMetricsGrid metrics={metrics} />
 
 			{/* Performance Summary */}
-			{performanceSummary && (
-				<PerformanceSummary performanceSummary={performanceSummary} />
-			)}
+			{performanceSummary && <PerformanceSummary performanceSummary={performanceSummary} />}
 
 			{/* Error Prevention Checklist */}
 			<ErrorPreventionChecklist />

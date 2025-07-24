@@ -3,12 +3,7 @@ import { HeaderContent } from "@/src/stories/HeaderContent";
 
 export type HeaderProps = HeaderContentProps;
 
-export const Header = ({
-	user,
-	onLogin,
-	onLogout,
-	onCreateAccount,
-}: HeaderProps) => (
+export const Header = ({ user, onLogin, onLogout, onCreateAccount }: HeaderProps) => (
 	<header>
 		<HeaderContent
 			onCreateAccount={onCreateAccount}

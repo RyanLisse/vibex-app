@@ -1,12 +1,7 @@
 "use client";
 
 import type { GitHubUser } from "@/lib/github";
-import {
-	checkAuthStatus,
-	clearAuthCookies,
-	getAuthUrl,
-	parseCookieValue,
-} from "@/lib/github-api";
+import { checkAuthStatus, clearAuthCookies, getAuthUrl, parseCookieValue } from "@/lib/github-api";
 
 interface UseGitHubUserReturn {
 	isAuthenticated: boolean;
@@ -67,7 +62,7 @@ export function useGitHubUser(): UseGitHubUserReturn {
 		(userData: GitHubUser) => {
 			updateAuthState({ isAuthenticated: true, user: userData });
 		},
-		[updateAuthState],
+		[updateAuthState]
 	);
 
 	const validateAuth = useCallback(
@@ -95,7 +90,7 @@ export function useGitHubUser(): UseGitHubUserReturn {
 				throw error;
 			}
 		},
-		[parseUserCookie, setUnauthenticatedState, setAuthenticatedState],
+		[parseUserCookie, setUnauthenticatedState, setAuthenticatedState]
 	);
 
 	const checkInitialAuth = useCallback(
@@ -111,7 +106,7 @@ export function useGitHubUser(): UseGitHubUserReturn {
 				}
 			}
 		},
-		[validateAuth, updateAuthState, setUnauthenticatedState],
+		[validateAuth, updateAuthState, setUnauthenticatedState]
 	);
 
 	const handleAuthSuccess = useCallback(() => {
@@ -125,32 +120,24 @@ export function useGitHubUser(): UseGitHubUserReturn {
 				updateAuthState({ isLoading: false });
 			}
 		}, AUTH_SUCCESS_DELAY);
-	}, [
-		parseUserCookie,
-		setAuthenticatedState,
-		setUnauthenticatedState,
-		updateAuthState,
-	]);
+	}, [parseUserCookie, setAuthenticatedState, setUnauthenticatedState, updateAuthState]);
 
-	const createPopupWindow = useCallback(
-		async (url: string): Promise<Window> => {
-			const left = (window.screen.width - POPUP_CONFIG.width) / 2;
-			const top = (window.screen.height - POPUP_CONFIG.height) / 2;
+	const createPopupWindow = useCallback(async (url: string): Promise<Window> => {
+		const left = (window.screen.width - POPUP_CONFIG.width) / 2;
+		const top = (window.screen.height - POPUP_CONFIG.height) / 2;
 
-			const popup = window.open(
-				url,
-				"github-oauth",
-				`width=${POPUP_CONFIG.width},height=${POPUP_CONFIG.height},left=${left},top=${top},${POPUP_CONFIG.features}`,
-			);
+		const popup = window.open(
+			url,
+			"github-oauth",
+			`width=${POPUP_CONFIG.width},height=${POPUP_CONFIG.height},left=${left},top=${top},${POPUP_CONFIG.features}`
+		);
 
-			if (!popup) {
-				throw new Error("Popup blocked. Please allow popups for this site.");
-			}
+		if (!popup) {
+			throw new Error("Popup blocked. Please allow popups for this site.");
+		}
 
-			return popup;
-		},
-		[],
-	);
+		return popup;
+	}, []);
 
 	const openAuthPopup = useCallback(async (): Promise<Window | null> => {
 		const url = await getAuthUrl();
@@ -169,7 +156,7 @@ export function useGitHubUser(): UseGitHubUserReturn {
 				}
 			}, POPUP_CHECK_INTERVAL);
 		},
-		[updateAuthState],
+		[updateAuthState]
 	);
 
 	const login = useCallback(async (): Promise<void> => {

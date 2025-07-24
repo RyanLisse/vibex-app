@@ -98,16 +98,11 @@ describe("TanStack Query Hooks Integration", () => {
 				expect(result.current.isSuccess).toBe(true);
 
 				// Verify API call
-				expect(mockFetch).toHaveBeenCalledWith(
-					"/api/tasks",
-					expect.any(Object),
-				);
+				expect(mockFetch).toHaveBeenCalledWith("/api/tasks", expect.any(Object));
 			});
 
 			it("should handle query filters", async () => {
-				const mockTasks = [
-					{ id: "1", title: "Pending Task", status: "pending" },
-				] as Task[];
+				const mockTasks = [{ id: "1", title: "Pending Task", status: "pending" }] as Task[];
 
 				mockFetch.mockResolvedValueOnce({
 					ok: true,
@@ -138,7 +133,7 @@ describe("TanStack Query Hooks Integration", () => {
 						headers: expect.objectContaining({
 							"Content-Type": "application/json",
 						}),
-					}),
+					})
 				);
 			});
 
@@ -186,10 +181,7 @@ describe("TanStack Query Hooks Integration", () => {
 				expect(result.current.data?.title).toBe("Individual Task");
 
 				// Verify API call
-				expect(mockFetch).toHaveBeenCalledWith(
-					"/api/tasks/task-1",
-					expect.any(Object),
-				);
+				expect(mockFetch).toHaveBeenCalledWith("/api/tasks/task-1", expect.any(Object));
 			});
 
 			it("should handle 404 errors", async () => {
@@ -255,7 +247,7 @@ describe("TanStack Query Hooks Integration", () => {
 						const tasksQuery = useTasks();
 						return { createMutation, tasksQuery };
 					},
-					{ wrapper },
+					{ wrapper }
 				);
 
 				// Create task
@@ -304,7 +296,7 @@ describe("TanStack Query Hooks Integration", () => {
 						const tasksQuery = useTasks();
 						return { createMutation, tasksQuery };
 					},
-					{ wrapper },
+					{ wrapper }
 				);
 
 				act(() => {
@@ -365,7 +357,7 @@ describe("TanStack Query Hooks Integration", () => {
 						const tasksQuery = useTasks();
 						return { updateMutation, tasksQuery };
 					},
-					{ wrapper },
+					{ wrapper }
 				);
 
 				act(() => {
@@ -378,9 +370,7 @@ describe("TanStack Query Hooks Integration", () => {
 
 				// Should show optimistic update immediately
 				await waitFor(() => {
-					const task = result.current.tasksQuery.data?.tasks.find(
-						(t) => t.id === "task-1",
-					);
+					const task = result.current.tasksQuery.data?.tasks.find((t) => t.id === "task-1");
 					expect(task?.title).toBe("Updated Title");
 					expect(task?.status).toBe("completed");
 				});
@@ -421,7 +411,7 @@ describe("TanStack Query Hooks Integration", () => {
 						const tasksQuery = useTasks();
 						return { deleteMutation, tasksQuery };
 					},
-					{ wrapper },
+					{ wrapper }
 				);
 
 				act(() => {

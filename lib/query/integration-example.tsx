@@ -23,11 +23,7 @@ import {
 	useObservabilityEvents,
 	useRealtimeObservabilityEvents,
 } from "./hooks/use-observability-events";
-import {
-	useActiveWorkflows,
-	useExecuteWorkflow,
-	useWorkflows,
-} from "./hooks/use-workflows";
+import { useActiveWorkflows, useExecuteWorkflow, useWorkflows } from "./hooks/use-workflows";
 import {
 	createQueryProviderConfig,
 	QueryDevStatus,
@@ -62,10 +58,7 @@ function RealtimeDashboard() {
 					<h2 className="mb-3 font-semibold text-lg">Active Executions</h2>
 					<div className="space-y-2">
 						{activeExecutions?.executions?.slice(0, 5).map((execution) => (
-							<div
-								className="flex items-center justify-between"
-								key={execution.id}
-							>
+							<div className="flex items-center justify-between" key={execution.id}>
 								<span className="text-sm">{execution.agentType}</span>
 								<span
 									className={`rounded px-2 py-1 text-xs ${
@@ -79,9 +72,7 @@ function RealtimeDashboard() {
 									{execution.status}
 								</span>
 							</div>
-						)) || (
-							<div className="text-gray-500 text-sm">No active executions</div>
-						)}
+						)) || <div className="text-gray-500 text-sm">No active executions</div>}
 					</div>
 				</div>
 
@@ -105,9 +96,7 @@ function RealtimeDashboard() {
 										{event.severity}
 									</span>
 								</div>
-								{event.message && (
-									<div className="truncate text-gray-500">{event.message}</div>
-								)}
+								{event.message && <div className="truncate text-gray-500">{event.message}</div>}
 							</div>
 						)) || <div className="text-gray-500 text-sm">No recent events</div>}
 					</div>
@@ -118,18 +107,13 @@ function RealtimeDashboard() {
 					<h2 className="mb-3 font-semibold text-lg">Active Workflows</h2>
 					<div className="space-y-2">
 						{activeWorkflows?.workflows?.slice(0, 5).map((workflow) => (
-							<div
-								className="flex items-center justify-between"
-								key={workflow.id}
-							>
+							<div className="flex items-center justify-between" key={workflow.id}>
 								<span className="text-sm">{workflow.name}</span>
 								<span className="rounded bg-green-100 px-2 py-1 text-green-800 text-xs">
 									Active
 								</span>
 							</div>
-						)) || (
-							<div className="text-gray-500 text-sm">No active workflows</div>
-						)}
+						)) || <div className="text-gray-500 text-sm">No active workflows</div>}
 					</div>
 				</div>
 			</div>
@@ -141,9 +125,7 @@ function RealtimeDashboard() {
 					<div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
 						<div>
 							<span className="text-gray-600">Status:</span>
-							<span
-								className={`ml-2 ${stats.isActive ? "text-green-600" : "text-red-600"}`}
-							>
+							<span className={`ml-2 ${stats.isActive ? "text-green-600" : "text-red-600"}`}>
 								{stats.isActive ? "Active" : "Inactive"}
 							</span>
 						</div>
@@ -250,9 +232,7 @@ function InteractiveDemo() {
 
 			{/* Semantic Search */}
 			<div className="space-y-2">
-				<label className="block font-medium text-sm">
-					Semantic Search (WASM-optimized):
-				</label>
+				<label className="block font-medium text-sm">Semantic Search (WASM-optimized):</label>
 				<input
 					className="w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					onChange={(e) => setSearchQuery(e.target.value)}
@@ -265,10 +245,7 @@ function InteractiveDemo() {
 					<div className="rounded bg-gray-50 p-3">
 						<h4 className="mb-2 font-medium">Search Results:</h4>
 						{searchResults.slice(0, 3).map((result) => (
-							<div
-								className="mb-2 border-b pb-2 text-sm last:border-b-0"
-								key={result.memory.id}
-							>
+							<div className="mb-2 border-b pb-2 text-sm last:border-b-0" key={result.memory.id}>
 								<div className="font-medium">{result.memory.contextKey}</div>
 								<div className="text-gray-600">{result.memory.content}</div>
 								<div className="text-gray-500 text-xs">
@@ -339,12 +316,8 @@ function ConnectionStatus({
 
 	return (
 		<div className="flex items-center gap-2">
-			<div
-				className={`h-3 w-3 rounded-full ${getStatusColor(connection.health)}`}
-			/>
-			<span className="font-medium text-sm capitalize">
-				{connection.health}
-			</span>
+			<div className={`h-3 w-3 rounded-full ${getStatusColor(connection.health)}`} />
+			<span className="font-medium text-sm capitalize">{connection.health}</span>
 			{connection.offlineQueueSize > 0 && (
 				<span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">
 					{connection.offlineQueueSize} queued
@@ -377,9 +350,7 @@ export function IntegrationExampleApp() {
 					<div className="mx-auto max-w-7xl px-4">
 						<div className="flex h-16 items-center justify-between">
 							<div className="flex items-center">
-								<h1 className="font-bold text-xl">
-									ElectricSQL + TanStack Query
-								</h1>
+								<h1 className="font-bold text-xl">ElectricSQL + TanStack Query</h1>
 							</div>
 							<div className="flex space-x-4">
 								<button
@@ -408,13 +379,7 @@ export function IntegrationExampleApp() {
 				</nav>
 
 				{/* Content */}
-				<main>
-					{activeTab === "dashboard" ? (
-						<RealtimeDashboard />
-					) : (
-						<InteractiveDemo />
-					)}
-				</main>
+				<main>{activeTab === "dashboard" ? <RealtimeDashboard /> : <InteractiveDemo />}</main>
 
 				{/* Development Status - Only in development */}
 				<QueryDevStatus />
@@ -432,9 +397,7 @@ export function ExampleUsage() {
 			<h2 className="mb-4 font-bold text-2xl">Integration Usage Example</h2>
 
 			<div className="mb-4 rounded-lg bg-gray-50 p-4">
-				<h3 className="mb-2 font-semibold">
-					1. Wrap your app with QueryProvider:
-				</h3>
+				<h3 className="mb-2 font-semibold">1. Wrap your app with QueryProvider:</h3>
 				<pre className="overflow-x-auto text-sm">
 					{`import { QueryProvider, createQueryProviderConfig } from '@/lib/query/provider'
 

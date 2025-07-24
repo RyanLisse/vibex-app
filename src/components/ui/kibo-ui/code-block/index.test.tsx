@@ -22,9 +22,7 @@ vi.mock("@radix-ui/react-use-controllable-state", () => ({
 }));
 
 vi.mock("shiki", () => ({
-	codeToHtml: vi.fn((code: string) =>
-		Promise.resolve(`<pre><code>${code}</code></pre>`),
-	),
+	codeToHtml: vi.fn((code: string) => Promise.resolve(`<pre><code>${code}</code></pre>`)),
 }));
 
 vi.mock("@shikijs/transformers", () => ({
@@ -45,11 +43,7 @@ vi.mock("@/components/ui/button", () => ({
 
 vi.mock("@/components/ui/select", () => ({
 	Select: ({ children, value, onValueChange }: any) => (
-		<div
-			data-testid="select"
-			data-value={value}
-			onClick={() => onValueChange?.("javascript")}
-		>
+		<div data-testid="select" data-value={value} onClick={() => onValueChange?.("javascript")}>
 			{children}
 		</div>
 	),
@@ -59,12 +53,7 @@ vi.mock("@/components/ui/select", () => ({
 		</div>
 	),
 	SelectItem: ({ children, className, value, ...props }: any) => (
-		<div
-			className={className}
-			data-testid="select-item"
-			data-value={value}
-			{...props}
-		>
+		<div className={className} data-testid="select-item" data-value={value} {...props}>
 			{children}
 		</div>
 	),

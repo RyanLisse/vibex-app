@@ -54,45 +54,36 @@ export class ElectricAuthService {
 			return;
 		}
 
-		return this.observability.trackOperation(
-			"electric.auth.initialize",
-			async () => {
-				try {
-					// Load existing token from storage
-					await this.loadStoredAuth();
+		return this.observability.trackOperation("electric.auth.initialize", async () => {
+			try {
+				// Load existing token from storage
+				await this.loadStoredAuth();
 
-					// Use provided config if no stored auth
-					if (!this.authToken && (config.apiKey || config.customToken)) {
-						await this.setAuthToken(
-							config.apiKey || config.customToken!,
-							config.expiresAt ? new Date(config.expiresAt) : null,
-							config.refreshToken,
-						);
-					}
-
-					// Set user ID
-					if (config.userId) {
-						this.userId = config.userId;
-					}
-
-					// Set default permissions
-					this.setDefaultPermissions();
-
-					this.isInitialized = true;
-					console.log("ElectricSQL auth service initialized");
-				} catch (error) {
-					console.error(
-						"Failed to initialize ElectricSQL auth service:",
-						error,
+				// Use provided config if no stored auth
+				if (!this.authToken && (config.apiKey || config.customToken)) {
+					await this.setAuthToken(
+						config.apiKey || config.customToken!,
+						config.expiresAt ? new Date(config.expiresAt) : null,
+						config.refreshToken
 					);
-					this.observability.recordError(
-						"electric.auth.initialize",
-						error as Error,
-					);
-					throw error;
 				}
-			},
-		);
+
+				// Set user ID
+				if (config.userId) {
+					this.userId = config.userId;
+				}
+
+				// Set default permissions
+				this.setDefaultPermissions();
+
+				this.isInitialized = true;
+				console.log("ElectricSQL auth service initialized");
+			} catch (error) {
+				console.error("Failed to initialize ElectricSQL auth service:", error);
+				this.observability.recordError("electric.auth.initialize", error as Error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -101,21 +92,18 @@ export class ElectricAuthService {
 	async setAuthToken(
 		token: string,
 		expiresAt: Date | null = null,
-		refreshToken?: string,
+		refreshToken?: string
 	): Promise<void> {
-		return this.observability.trackOperation(
-			"electric.auth.set-token",
-			async () => {
-				this.authToken = token;
-				this.expiresAt = expiresAt;
-				this.refreshToken = refreshToken || null;
+		return this.observability.trackOperation("electric.auth.set-token", async () => {
+			this.authToken = token;
+			this.expiresAt = expiresAt;
+			this.refreshToken = refreshToken || null;
 
-				// Store in secure storage
-				await this.storeAuth();
+			// Store in secure storage
+			await this.storeAuth();
 
-				console.log("ElectricSQL auth token set");
-			},
-		);
+			console.log("ElectricSQL auth token set");
+		});
 	}
 
 	/**
@@ -164,31 +152,25 @@ export class ElectricAuthService {
 			throw new Error("No refresh token available");
 		}
 
-		return this.observability.trackOperation(
-			"electric.auth.refresh",
-			async () => {
-				try {
-					// This would integrate with your actual auth service
-					// For now, we'll simulate token refresh
-					const newToken = await this.performTokenRefresh(this.refreshToken!);
+		return this.observability.trackOperation("electric.auth.refresh", async () => {
+			try {
+				// This would integrate with your actual auth service
+				// For now, we'll simulate token refresh
+				const newToken = await this.performTokenRefresh(this.refreshToken!);
 
-					await this.setAuthToken(
-						newToken.accessToken,
-						new Date(Date.now() + newToken.expiresIn * 1000),
-						newToken.refreshToken,
-					);
+				await this.setAuthToken(
+					newToken.accessToken,
+					new Date(Date.now() + newToken.expiresIn * 1000),
+					newToken.refreshToken
+				);
 
-					console.log("ElectricSQL auth token refreshed");
-				} catch (error) {
-					console.error("Failed to refresh auth token:", error);
-					this.observability.recordError(
-						"electric.auth.refresh",
-						error as Error,
-					);
-					throw error;
-				}
-			},
-		);
+				console.log("ElectricSQL auth token refreshed");
+			} catch (error) {
+				console.error("Failed to refresh auth token:", error);
+				this.observability.recordError("electric.auth.refresh", error as Error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -294,21 +276,18 @@ export class ElectricAuthService {
 	 * Logout and clear authentication
 	 */
 	async logout(): Promise<void> {
-		return this.observability.trackOperation(
-			"electric.auth.logout",
-			async () => {
-				this.authToken = null;
-				this.refreshToken = null;
-				this.expiresAt = null;
-				this.userId = null;
-				this.permissions.clear();
+		return this.observability.trackOperation("electric.auth.logout", async () => {
+			this.authToken = null;
+			this.refreshToken = null;
+			this.expiresAt = null;
+			this.userId = null;
+			this.permissions.clear();
 
-				// Clear stored auth
-				await this.clearStoredAuth();
+			// Clear stored auth
+			await this.clearStoredAuth();
 
-				console.log("ElectricSQL auth cleared");
-			},
-		);
+			console.log("ElectricSQL auth cleared");
+		});
 	}
 
 	/**

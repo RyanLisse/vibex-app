@@ -15,7 +15,7 @@ export interface NeonBranch {
 	id: string;
 	name: string;
 	parentId?: string;
-	status: 'creating' | 'ready' | 'deleting';
+	status: "creating" | "ready" | "deleting";
 	endpoints: Array<{
 		id: string;
 		host: string;
@@ -32,12 +32,14 @@ export class NeonBranchingManager {
 			id: `branch-${Date.now()}`,
 			name,
 			parentId,
-			status: 'ready',
-			endpoints: [{
-				id: `endpoint-${Date.now()}`,
-				host: 'test-host.neon.tech',
-				port: 5432
-			}]
+			status: "ready",
+			endpoints: [
+				{
+					id: `endpoint-${Date.now()}`,
+					host: "test-host.neon.tech",
+					port: 5432,
+				},
+			],
 		};
 	}
 

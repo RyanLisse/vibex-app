@@ -5,6 +5,8 @@
  * error handling, and observability integration.
  */
 
+import { logger } from "@/lib/logging";
+
 export interface ServiceContext {
 	userId?: string;
 	sessionId?: string;
@@ -14,7 +16,7 @@ export interface ServiceContext {
 
 export class BaseAPIService {
 	protected context: ServiceContext;
-	protected static serviceName: string = "base-service";
+	protected static serviceName = "base-service";
 
 	constructor(context: ServiceContext = {}) {
 		this.context = {
@@ -29,13 +31,13 @@ export class BaseAPIService {
 		fn: () => Promise<T>,
 		metadata?: Record<string, any>
 	): Promise<T> {
-		console.log(`[${this.serviceName}] Starting ${operation}`, metadata);
+		logger.info(`Starting ${operation}`, { service: BaseAPIService.serviceName, metadata });
 		try {
 			const result = await fn();
-			console.log(`[${this.serviceName}] Completed ${operation}`);
+			logger.info(`Completed ${operation}`, { service: BaseAPIService.serviceName });
 			return result;
 		} catch (error) {
-			console.error(`[${this.serviceName}] Failed ${operation}`, error);
+			logger.error(`Failed ${operation}`, { service: BaseAPIService.serviceName, error });
 			throw error;
 		}
 	}
@@ -54,12 +56,13 @@ export class BaseAPIService {
 		userId?: string,
 		metadata?: Record<string, any>
 	): Promise<void> {
-		console.log(`[${this.serviceName}] Operation: ${operation}`, {
+		logger.info(`Operation: ${operation}`, {
+			service: BaseAPIService.serviceName,
 			resourceType,
 			resourceId,
 			userId,
 			metadata,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
 	}
 
@@ -70,13 +73,10 @@ export class BaseAPIService {
 			timestamp: new Date().toISOString(),
 		};
 
-		console[level](`[${this.constructor.name}] ${message}`, logData);
+		logger[level](`[${this.constructor.name}] ${message}`, logData);
 	}
 
-	protected async handleError(
-		error: unknown,
-		operation: string,
-	): Promise<never> {
+	protected async handleError(error: unknown, operation: string): Promise<never> {
 		this.log("error", `Error in ${operation}`, { error });
 
 		if (error instanceof Error) {
@@ -89,7 +89,7 @@ export class BaseAPIService {
 	protected async executeWithTracing<T>(
 		operation: string,
 		context: ServiceContext,
-		fn: (span?: any) => Promise<T>,
+		fn: (span?: any) => Promise<T>
 	): Promise<T> {
 		this.log("info", `Starting ${operation}`, { context });
 
@@ -103,18 +103,11 @@ export class BaseAPIService {
 		}
 	}
 
-	protected async recordEvent(
-		eventType: string,
-		message: string,
-		data?: any,
-	): Promise<void> {
+	protected async recordEvent(eventType: string, message: string, data?: any): Promise<void> {
 		this.log("info", `Event: ${eventType} - ${message}`, data);
 	}
 
-	protected async executeDatabase<T>(
-		operation: string,
-		fn: () => Promise<T>,
-	): Promise<T> {
+	protected async executeDatabase<T>(operation: string, fn: () => Promise<T>): Promise<T> {
 		this.log("info", `Database operation: ${operation}`);
 
 		try {

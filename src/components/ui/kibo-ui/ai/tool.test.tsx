@@ -6,12 +6,7 @@ import type { AIToolStatus } from "./tool";
 // Mock dependencies - using @/ prefix for consistency
 vi.mock("@/components/ui/badge", () => ({
 	Badge: ({ children, className, variant, ...props }: any) => (
-		<span
-			className={className}
-			data-variant={variant}
-			data-testid="badge"
-			{...props}
-		>
+		<span className={className} data-variant={variant} data-testid="badge" {...props}>
 			{children}
 		</span>
 	),

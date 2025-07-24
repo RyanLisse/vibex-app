@@ -69,9 +69,7 @@ function createMockTask(overrides: Partial<Task> = {}): Task {
 describe("Optimistic Updates Workflow", () => {
 	describe("Task Creation Workflow", () => {
 		it("should handle complete task creation workflow with instant UI feedback", async () => {
-			const existingTasks = [
-				createMockTask({ id: "1", title: "Existing Task" }),
-			];
+			const existingTasks = [createMockTask({ id: "1", title: "Existing Task" })];
 
 			const newTaskInput = {
 				title: "New Optimistic Task",
@@ -90,10 +88,7 @@ describe("Optimistic Updates Workflow", () => {
 							tasks:
 								requestCount === 1
 									? existingTasks
-									: [
-											...existingTasks,
-											createMockTask({ ...newTaskInput, id: "server-id" }),
-										],
+									: [...existingTasks, createMockTask({ ...newTaskInput, id: "server-id" })],
 							total: requestCount === 1 ? 1 : 2,
 							hasMore: false,
 						},
@@ -107,9 +102,9 @@ describe("Optimistic Updates Workflow", () => {
 							success: true,
 							data: createMockTask({ ...newTaskInput, id: "server-id" }),
 						},
-						{ status: 201 },
+						{ status: 201 }
 					);
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -119,7 +114,7 @@ describe("Optimistic Updates Workflow", () => {
 					const createTask = useCreateTask();
 					return { tasks, createTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Wait for initial load
@@ -143,9 +138,7 @@ describe("Optimistic Updates Workflow", () => {
 				const tasks = result.current.tasks.data?.tasks || [];
 				expect(tasks).toHaveLength(2);
 
-				const optimisticTask = tasks.find(
-					(t) => t.title === "New Optimistic Task",
-				);
+				const optimisticTask = tasks.find((t) => t.title === "New Optimistic Task");
 				expect(optimisticTask).toBeDefined();
 				expect(optimisticTask?.id).toMatch(/^temp-/); // Temporary ID
 			});
@@ -164,9 +157,7 @@ describe("Optimistic Updates Workflow", () => {
 		});
 
 		it("should handle task creation failure with proper rollback", async () => {
-			const existingTasks = [
-				createMockTask({ id: "1", title: "Existing Task" }),
-			];
+			const existingTasks = [createMockTask({ id: "1", title: "Existing Task" })];
 
 			server.use(
 				http.get("/api/tasks", () => {
@@ -187,9 +178,9 @@ describe("Optimistic Updates Workflow", () => {
 							error: "Validation failed",
 							code: "VALIDATION_ERROR",
 						},
-						{ status: 400 },
+						{ status: 400 }
 					);
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -199,7 +190,7 @@ describe("Optimistic Updates Workflow", () => {
 					const createTask = useCreateTask();
 					return { tasks, createTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			await waitFor(() => {
@@ -265,7 +256,7 @@ describe("Optimistic Updates Workflow", () => {
 							})),
 						},
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -275,7 +266,7 @@ describe("Optimistic Updates Workflow", () => {
 					const batchUpdate = useBatchUpdateTasks();
 					return { tasks, batchUpdate };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			await waitFor(() => {
@@ -296,7 +287,7 @@ describe("Optimistic Updates Workflow", () => {
 			// Should show optimistic updates immediately
 			await waitFor(() => {
 				const completedTasks = result.current.tasks.data?.tasks.filter(
-					(t) => t.status === "completed",
+					(t) => t.status === "completed"
 				);
 				expect(completedTasks).toHaveLength(3);
 			});
@@ -340,9 +331,9 @@ describe("Optimistic Updates Workflow", () => {
 								},
 							},
 						},
-						{ status: 207 },
+						{ status: 207 }
 					); // Multi-status
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -352,7 +343,7 @@ describe("Optimistic Updates Workflow", () => {
 					const batchUpdate = useBatchUpdateTasks();
 					return { tasks, batchUpdate };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			await waitFor(() => {
@@ -377,15 +368,9 @@ describe("Optimistic Updates Workflow", () => {
 
 			// Only task 1 should be completed
 			const updatedTasksList = result.current.tasks.data?.tasks || [];
-			expect(updatedTasksList.find((t) => t.id === "1")?.status).toBe(
-				"completed",
-			);
-			expect(updatedTasksList.find((t) => t.id === "2")?.status).toBe(
-				"pending",
-			);
-			expect(updatedTasksList.find((t) => t.id === "3")?.status).toBe(
-				"pending",
-			);
+			expect(updatedTasksList.find((t) => t.id === "1")?.status).toBe("completed");
+			expect(updatedTasksList.find((t) => t.id === "2")?.status).toBe("pending");
+			expect(updatedTasksList.find((t) => t.id === "3")?.status).toBe("pending");
 		});
 	});
 
@@ -420,7 +405,7 @@ describe("Optimistic Updates Workflow", () => {
 						success: true,
 						data: currentTask,
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -430,7 +415,7 @@ describe("Optimistic Updates Workflow", () => {
 					const updateTask = useUpdateTask();
 					return { tasks, updateTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			await waitFor(() => {
@@ -498,7 +483,7 @@ describe("Optimistic Updates Workflow", () => {
 							success: true,
 							data: createMockTask({ ...body, id: "workflow-task" }),
 						},
-						{ status: 201 },
+						{ status: 201 }
 					);
 				}),
 				http.patch("/api/tasks/:id", async ({ request }) => {
@@ -515,7 +500,7 @@ describe("Optimistic Updates Workflow", () => {
 						success: true,
 						data: { id: "workflow-task" },
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -527,7 +512,7 @@ describe("Optimistic Updates Workflow", () => {
 					const deleteTask = useDeleteTask();
 					return { tasks, createTask, updateTask, deleteTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			// Start with empty list
@@ -607,7 +592,7 @@ describe("Optimistic Updates Workflow", () => {
 						success: true,
 						data: { ...task, ...body, version: updateCount },
 					});
-				}),
+				})
 			);
 
 			const wrapper = createWrapper();
@@ -617,7 +602,7 @@ describe("Optimistic Updates Workflow", () => {
 					const updateTask = useUpdateTask();
 					return { tasks, updateTask };
 				},
-				{ wrapper },
+				{ wrapper }
 			);
 
 			await waitFor(() => {
@@ -647,7 +632,7 @@ describe("Optimistic Updates Workflow", () => {
 				() => {
 					expect(updateCount).toBe(2);
 				},
-				{ timeout: 200 },
+				{ timeout: 200 }
 			);
 
 			// Final state should reflect both updates

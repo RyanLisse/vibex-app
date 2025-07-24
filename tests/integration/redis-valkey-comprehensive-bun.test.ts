@@ -213,16 +213,14 @@ describe("Redis/Valkey Integration Tests (Bun Compatible)", () => {
 		test("should handle connection errors gracefully", async () => {
 			// Test that our mock handles various scenarios without throwing
 			await expect(mockRedis.get("any-key")).resolves.toBeDefined();
-			await expect(
-				mockRedis.set("any-key", "any-value"),
-			).resolves.toBeDefined();
+			await expect(mockRedis.set("any-key", "any-value")).resolves.toBeDefined();
 		});
 	});
 
 	describe("Performance and Load Testing", () => {
 		test("should handle multiple concurrent operations", async () => {
 			const operations = Array.from({ length: 10 }, (_, i) =>
-				mockRedis.set(`key-${i}`, `value-${i}`),
+				mockRedis.set(`key-${i}`, `value-${i}`)
 			);
 
 			const results = await Promise.all(operations);

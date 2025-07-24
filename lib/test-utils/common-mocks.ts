@@ -19,7 +19,7 @@ export const createNextServerMocks = () => {
 		NextRequest: class {
 			constructor(
 				public url: string,
-				public init?: any,
+				public init?: any
 			) {}
 		},
 		NextResponse: {
@@ -98,8 +98,8 @@ export const createPrometheusClientMocks = () => {
 			clear: vi.fn(() => {}),
 			metrics: vi.fn(() =>
 				Promise.resolve(
-					'# Mock metrics\nagent_operations_total{agent_id="agent-1",agent_type="code-gen",operation="execute",provider="openai",status="success"} 1',
-				),
+					'# Mock metrics\nagent_operations_total{agent_id="agent-1",agent_type="code-gen",operation="execute",provider="openai",status="success"} 1'
+				)
 			),
 		},
 	};
@@ -117,9 +117,9 @@ export const setupTestEnvironment = (config: {
 
 	// Set NODE_ENV using Object.defineProperty to avoid read-only error
 	if (config.nodeEnv) {
-		Object.defineProperty(process.env, 'NODE_ENV', {
+		Object.defineProperty(process.env, "NODE_ENV", {
 			value: config.nodeEnv,
-			configurable: true
+			configurable: true,
 		});
 	}
 
@@ -160,16 +160,19 @@ export const setupConsoleSpy = () => {
 /**
  * Mock request factory
  */
-export const createMockRequest = (url: string, options?: {
-	method?: string;
-	body?: any;
-	headers?: Record<string, string>;
-}) => {
+export const createMockRequest = (
+	url: string,
+	options?: {
+		method?: string;
+		body?: any;
+		headers?: Record<string, string>;
+	}
+) => {
 	const { method = "GET", body, headers = {} } = options || {};
-	
+
 	return new (createNextServerMocks().nextMocks.NextRequest as any)(url, {
 		method,
-		body: body ? (typeof body === 'string' ? body : JSON.stringify(body)) : undefined,
+		body: body ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
 		headers,
 	});
 };
@@ -177,10 +180,7 @@ export const createMockRequest = (url: string, options?: {
 /**
  * Generic test setup utility
  */
-export const createTestSetup = <T>(
-	setupFn: () => T,
-	cleanupFn?: (instance: T) => void
-) => {
+export const createTestSetup = <T>(setupFn: () => T, cleanupFn?: (instance: T) => void) => {
 	let instance: T;
 
 	const beforeEach = () => {

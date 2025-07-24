@@ -64,37 +64,28 @@ export class ElectricSyncService {
 			return;
 		}
 
-		return this.observability.trackOperation(
-			"electric.sync.initialize",
-			async () => {
-				try {
-					// Get ElectricSQL client instance
-					this.electricClient = ElectricClient.getInstance();
-					await this.electricClient.initialize();
+		return this.observability.trackOperation("electric.sync.initialize", async () => {
+			try {
+				// Get ElectricSQL client instance
+				this.electricClient = ElectricClient.getInstance();
+				await this.electricClient.initialize();
 
-					// Set up real-time subscriptions for all tables
-					await this.setupTableSubscriptions();
+				// Set up real-time subscriptions for all tables
+				await this.setupTableSubscriptions();
 
-					// Process any existing offline queue
-					await this.processOfflineQueue();
+				// Process any existing offline queue
+				await this.processOfflineQueue();
 
-					this.isInitialized = true;
-					this.updateSyncStatus();
+				this.isInitialized = true;
+				this.updateSyncStatus();
 
-					console.log("ElectricSQL sync service initialized successfully");
-				} catch (error) {
-					console.error(
-						"Failed to initialize ElectricSQL sync service:",
-						error,
-					);
-					this.observability.recordError(
-						"electric.sync.initialize",
-						error as Error,
-					);
-					throw error;
-				}
-			},
-		);
+				console.log("ElectricSQL sync service initialized successfully");
+			} catch (error) {
+				console.error("Failed to initialize ElectricSQL sync service:", error);
+				this.observability.recordError("electric.sync.initialize", error as Error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -122,13 +113,9 @@ export class ElectricSyncService {
 				this.syncStatus.activeSubscriptions++;
 			} catch (error) {
 				console.error(`Failed to subscribe to table ${table}:`, error);
-				this.observability.recordError(
-					"electric.sync.subscribe",
-					error as Error,
-					{
-						table,
-					},
-				);
+				this.observability.recordError("electric.sync.subscribe", error as Error, {
+					table,
+				});
 			}
 		}
 	}
@@ -143,7 +130,7 @@ export class ElectricSyncService {
 			where?: any;
 			orderBy?: any;
 			limit?: number;
-		},
+		}
 	): () => void {
 		return this.observability.trackOperation("electric.sync.subscribe", () => {
 			if (!this.electricClient) {
@@ -168,33 +155,23 @@ export class ElectricSyncService {
 	 * Handle table updates from real-time subscriptions
 	 */
 	private handleTableUpdate(tableName: string, data: any[]): void {
-		this.observability.trackOperation(
-			"electric.sync.table-update",
-			async () => {
-				try {
-					// Update sync status
-					this.syncStatus.lastSyncTime = new Date();
-					this.syncStatus.syncStatus = "connected";
+		this.observability.trackOperation("electric.sync.table-update", async () => {
+			try {
+				// Update sync status
+				this.syncStatus.lastSyncTime = new Date();
+				this.syncStatus.syncStatus = "connected";
 
-					// Emit table update event for TanStack Query integration
-					this.emitTableUpdateEvent(tableName, data);
+				// Emit table update event for TanStack Query integration
+				this.emitTableUpdateEvent(tableName, data);
 
-					console.log(`Table ${tableName} updated with ${data.length} records`);
-				} catch (error) {
-					console.error(
-						`Failed to handle table update for ${tableName}:`,
-						error,
-					);
-					this.observability.recordError(
-						"electric.sync.table-update",
-						error as Error,
-						{
-							table: tableName,
-						},
-					);
-				}
-			},
-		);
+				console.log(`Table ${tableName} updated with ${data.length} records`);
+			} catch (error) {
+				console.error(`Failed to handle table update for ${tableName}:`, error);
+				this.observability.recordError("electric.sync.table-update", error as Error, {
+					table: tableName,
+				});
+			}
+		});
 	}
 
 	/**
@@ -206,7 +183,7 @@ export class ElectricSyncService {
 			window.dispatchEvent(
 				new CustomEvent("electric-table-update", {
 					detail: { tableName, data },
-				}),
+				})
 			);
 		}
 	}
@@ -217,7 +194,7 @@ export class ElectricSyncService {
 	async queueOfflineOperation(
 		table: string,
 		operation: "insert" | "update" | "delete",
-		data: any,
+		data: any
 	): Promise<void> {
 		const queueItem = {
 			id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -233,10 +210,7 @@ export class ElectricSyncService {
 
 		// Persist queue to localStorage for browser refresh persistence
 		if (typeof window !== "undefined") {
-			localStorage.setItem(
-				"electric-offline-queue",
-				JSON.stringify(this.offlineQueue),
-			);
+			localStorage.setItem("electric-offline-queue", JSON.stringify(this.offlineQueue));
 		}
 
 		console.log(`Queued offline operation: ${operation} on ${table}`);
@@ -263,75 +237,57 @@ export class ElectricSyncService {
 
 		if (this.offlineQueue.length === 0) return;
 
-		return this.observability.trackOperation(
-			"electric.sync.process-queue",
-			async () => {
-				console.log(
-					`Processing ${this.offlineQueue.length} offline operations...`,
-				);
+		return this.observability.trackOperation("electric.sync.process-queue", async () => {
+			console.log(`Processing ${this.offlineQueue.length} offline operations...`);
 
-				const config = getFinalConfig();
-				const processedItems: string[] = [];
+			const config = getFinalConfig();
+			const processedItems: string[] = [];
 
-				for (const item of this.offlineQueue) {
-					try {
-						// Attempt to execute the queued operation
-						await this.executeQueuedOperation(item);
-						processedItems.push(item.id);
+			for (const item of this.offlineQueue) {
+				try {
+					// Attempt to execute the queued operation
+					await this.executeQueuedOperation(item);
+					processedItems.push(item.id);
 
-						console.log(
-							`Processed offline operation: ${item.operation} on ${item.table}`,
+					console.log(`Processed offline operation: ${item.operation} on ${item.table}`);
+				} catch (error) {
+					item.retryCount++;
+
+					if (item.retryCount >= (config.sync?.maxRetries || 3)) {
+						console.error(
+							`Failed to process offline operation after ${item.retryCount} retries:`,
+							error
 						);
-					} catch (error) {
-						item.retryCount++;
+						processedItems.push(item.id); // Remove failed items after max retries
 
-						if (item.retryCount >= (config.sync?.maxRetries || 3)) {
-							console.error(
-								`Failed to process offline operation after ${item.retryCount} retries:`,
-								error,
-							);
-							processedItems.push(item.id); // Remove failed items after max retries
-
-							this.observability.recordError(
-								"electric.sync.queue-item",
-								error as Error,
-								{
-									table: item.table,
-									operation: item.operation,
-									retryCount: item.retryCount,
-								},
-							);
-						} else {
-							console.warn(
-								`Retry ${item.retryCount} for offline operation on ${item.table}`,
-							);
-						}
-					}
-				}
-
-				// Remove processed items from queue
-				this.offlineQueue = this.offlineQueue.filter(
-					(item) => !processedItems.includes(item.id),
-				);
-				this.syncStatus.offlineQueueSize = this.offlineQueue.length;
-
-				// Update localStorage
-				if (typeof window !== "undefined") {
-					if (this.offlineQueue.length === 0) {
-						localStorage.removeItem("electric-offline-queue");
+						this.observability.recordError("electric.sync.queue-item", error as Error, {
+							table: item.table,
+							operation: item.operation,
+							retryCount: item.retryCount,
+						});
 					} else {
-						localStorage.setItem(
-							"electric-offline-queue",
-							JSON.stringify(this.offlineQueue),
-						);
+						console.warn(`Retry ${item.retryCount} for offline operation on ${item.table}`);
 					}
 				}
+			}
 
-				console.log(
-					`Offline queue processing complete. ${this.offlineQueue.length} items remaining.`,
-				);
-			},
-		);
+			// Remove processed items from queue
+			this.offlineQueue = this.offlineQueue.filter((item) => !processedItems.includes(item.id));
+			this.syncStatus.offlineQueueSize = this.offlineQueue.length;
+
+			// Update localStorage
+			if (typeof window !== "undefined") {
+				if (this.offlineQueue.length === 0) {
+					localStorage.removeItem("electric-offline-queue");
+				} else {
+					localStorage.setItem("electric-offline-queue", JSON.stringify(this.offlineQueue));
+				}
+			}
+
+			console.log(
+				`Offline queue processing complete. ${this.offlineQueue.length} items remaining.`
+			);
+		});
 	}
 
 	/**
@@ -355,35 +311,32 @@ export class ElectricSyncService {
 	 * Force sync all tables
 	 */
 	async forceSyncAll(): Promise<void> {
-		return this.observability.trackOperation(
-			"electric.sync.force-all",
-			async () => {
-				if (!this.electricClient) {
-					throw new Error("ElectricSQL client not initialized");
+		return this.observability.trackOperation("electric.sync.force-all", async () => {
+			if (!this.electricClient) {
+				throw new Error("ElectricSQL client not initialized");
+			}
+
+			this.syncStatus.syncStatus = "syncing";
+
+			try {
+				// Process offline queue first
+				await this.processOfflineQueue();
+
+				// Trigger sync for all subscribed tables
+				for (const tableName of this.subscriptions.keys()) {
+					await this.forceSyncTable(tableName);
 				}
 
-				this.syncStatus.syncStatus = "syncing";
+				this.syncStatus.syncStatus = "connected";
+				this.syncStatus.lastSyncTime = new Date();
 
-				try {
-					// Process offline queue first
-					await this.processOfflineQueue();
-
-					// Trigger sync for all subscribed tables
-					for (const tableName of this.subscriptions.keys()) {
-						await this.forceSyncTable(tableName);
-					}
-
-					this.syncStatus.syncStatus = "connected";
-					this.syncStatus.lastSyncTime = new Date();
-
-					console.log("Force sync completed for all tables");
-				} catch (error) {
-					this.syncStatus.syncStatus = "error";
-					console.error("Force sync failed:", error);
-					throw error;
-				}
-			},
-		);
+				console.log("Force sync completed for all tables");
+			} catch (error) {
+				this.syncStatus.syncStatus = "error";
+				console.error("Force sync failed:", error);
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -464,10 +417,7 @@ export class ElectricSyncService {
 		} catch (error) {
 			console.error("Health check failed:", error);
 			this.syncStatus.syncStatus = "error";
-			this.observability.recordError(
-				"electric.sync.health-check",
-				error as Error,
-			);
+			this.observability.recordError("electric.sync.health-check", error as Error);
 		}
 	}
 

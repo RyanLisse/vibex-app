@@ -17,17 +17,12 @@ interface VoiceTaskFormProps {
 	};
 }
 
-export const VoiceTaskForm: React.FC<VoiceTaskFormProps> = ({
-	onSubmit,
-	initialData,
-}) => {
+export const VoiceTaskForm: React.FC<VoiceTaskFormProps> = ({ onSubmit, initialData }) => {
 	const [title, setTitle] = useState(initialData?.title || "");
-	const [description, setDescription] = useState(
-		initialData?.description || "",
+	const [description, setDescription] = useState(initialData?.description || "");
+	const [priority, setPriority] = useState<"low" | "medium" | "high" | "urgent">(
+		initialData?.priority || "medium"
 	);
-	const [priority, setPriority] = useState<
-		"low" | "medium" | "high" | "urgent"
-	>(initialData?.priority || "medium");
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();

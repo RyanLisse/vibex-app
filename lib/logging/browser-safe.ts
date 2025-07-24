@@ -17,8 +17,7 @@ export function createBrowserLogger(component: string): Logger {
 		info: (...args: any[]) => console.info(prefix, ...args),
 		warn: (...args: any[]) => console.warn(prefix, ...args),
 		error: (...args: any[]) => console.error(prefix, ...args),
-		child: (meta?: any) =>
-			createBrowserLogger(`${component}:${meta?.name || "child"}`),
+		child: (meta?: any) => createBrowserLogger(`${component}:${meta?.name || "child"}`),
 		startTimer: () => ({ done: () => {} }),
 		profile: (id: string) => console.debug(`${prefix} Profile:`, id),
 	};

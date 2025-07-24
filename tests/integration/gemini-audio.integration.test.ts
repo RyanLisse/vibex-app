@@ -149,12 +149,7 @@ describe("Gemini Audio Integration Tests", () => {
 			const audioData = new Float32Array(1024);
 			audioData.fill(0.5);
 
-			const wavBuffer = session.convertToWav(
-				audioData,
-				sampleRate,
-				channels,
-				bitsPerSample,
-			);
+			const wavBuffer = session.convertToWav(audioData, sampleRate, channels, bitsPerSample);
 
 			expect(wavBuffer).toBeDefined();
 			expect(wavBuffer.byteLength).toBeGreaterThan(44); // WAV header is 44 bytes
@@ -210,9 +205,7 @@ describe("Gemini Audio Integration Tests", () => {
 				},
 			};
 
-			(
-				session as unknown as { handleMessage: (msg: unknown) => void }
-			).handleMessage(mockMessage);
+			(session as unknown as { handleMessage: (msg: unknown) => void }).handleMessage(mockMessage);
 
 			expect(messageHandler).toHaveBeenCalledWith(mockMessage);
 		});
@@ -248,9 +241,7 @@ describe("Gemini Audio Integration Tests", () => {
 				},
 			};
 
-			(
-				session as unknown as { handleMessage: (msg: unknown) => void }
-			).handleMessage(mockToolCall);
+			(session as unknown as { handleMessage: (msg: unknown) => void }).handleMessage(mockToolCall);
 
 			expect(toolCallHandler).toHaveBeenCalledWith(mockToolCall.data);
 		});
@@ -273,9 +264,7 @@ describe("Gemini Audio Integration Tests", () => {
 				},
 			};
 
-			(
-				session as unknown as { handleMessage: (msg: unknown) => void }
-			).handleMessage(mockError);
+			(session as unknown as { handleMessage: (msg: unknown) => void }).handleMessage(mockError);
 
 			expect(errorHandler).toHaveBeenCalledWith(mockError.data);
 		});
@@ -297,16 +286,13 @@ describe("Gemini Audio Integration Tests", () => {
 			session.onAudioResponse(audioHandler);
 
 			expect(
-				(session as unknown as { listeners: Record<string, unknown[]> })
-					.listeners.message,
+				(session as unknown as { listeners: Record<string, unknown[]> }).listeners.message
 			).toContain(messageHandler);
 			expect(
-				(session as unknown as { listeners: Record<string, unknown[]> })
-					.listeners.error,
+				(session as unknown as { listeners: Record<string, unknown[]> }).listeners.error
 			).toContain(errorHandler);
 			expect(
-				(session as unknown as { listeners: Record<string, unknown[]> })
-					.listeners.audioResponse,
+				(session as unknown as { listeners: Record<string, unknown[]> }).listeners.audioResponse
 			).toContain(audioHandler);
 
 			session.offMessage(messageHandler);
@@ -314,16 +300,13 @@ describe("Gemini Audio Integration Tests", () => {
 			session.offAudioResponse(audioHandler);
 
 			expect(
-				(session as unknown as { listeners: Record<string, unknown[]> })
-					.listeners.message,
+				(session as unknown as { listeners: Record<string, unknown[]> }).listeners.message
 			).not.toContain(messageHandler);
 			expect(
-				(session as unknown as { listeners: Record<string, unknown[]> })
-					.listeners.error,
+				(session as unknown as { listeners: Record<string, unknown[]> }).listeners.error
 			).not.toContain(errorHandler);
 			expect(
-				(session as unknown as { listeners: Record<string, unknown[]> })
-					.listeners.audioResponse,
+				(session as unknown as { listeners: Record<string, unknown[]> }).listeners.audioResponse
 			).not.toContain(audioHandler);
 		});
 	});

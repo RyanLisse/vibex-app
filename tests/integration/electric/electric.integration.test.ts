@@ -1,13 +1,4 @@
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock ElectricSQL client and types
 interface ElectricConfig {
@@ -106,10 +97,7 @@ class MockElectricClient implements ElectricClient {
 		return [];
 	}
 
-	async execute(
-		sql: string,
-		params?: any[],
-	): Promise<{ rowsAffected: number }> {
+	async execute(sql: string, params?: any[]): Promise<{ rowsAffected: number }> {
 		if (!this.connected) {
 			throw new Error("Not connected");
 		}
@@ -193,25 +181,19 @@ class ElectricIntegrationHelper {
 		return this.client;
 	}
 
-	async createTestUser(userData: {
-		name: string;
-		email: string;
-	}): Promise<number> {
-		const result = await this.client.execute(
-			"INSERT INTO users (name, email) VALUES (?, ?)",
-			[userData.name, userData.email],
-		);
+	async createTestUser(userData: { name: string; email: string }): Promise<number> {
+		const result = await this.client.execute("INSERT INTO users (name, email) VALUES (?, ?)", [
+			userData.name,
+			userData.email,
+		]);
 
 		return result.rowsAffected;
 	}
 
-	async createTestTask(taskData: {
-		title: string;
-		userId: number;
-	}): Promise<number> {
+	async createTestTask(taskData: { title: string; userId: number }): Promise<number> {
 		const result = await this.client.execute(
 			"INSERT INTO tasks (title, user_id, completed) VALUES (?, ?, false)",
-			[taskData.title, taskData.userId],
+			[taskData.title, taskData.userId]
 		);
 
 		return result.rowsAffected;
@@ -256,9 +238,7 @@ describe("Electric Integration Tests", () => {
 			const failingConfig = { ...testConfig, url: "http://invalid-url:5133" };
 			const failingClient = createElectricClient(failingConfig);
 
-			await expect(failingClient.connect()).rejects.toThrow(
-				"Connection failed: Invalid URL",
-			);
+			await expect(failingClient.connect()).rejects.toThrow("Connection failed: Invalid URL");
 		});
 
 		it("should disconnect properly", async () => {
@@ -284,19 +264,19 @@ describe("Electric Integration Tests", () => {
 		});
 
 		it("should execute INSERT operations", async () => {
-			const result = await client.execute(
-				"INSERT INTO users (name, email) VALUES (?, ?)",
-				["Test User", "test@example.com"],
-			);
+			const result = await client.execute("INSERT INTO users (name, email) VALUES (?, ?)", [
+				"Test User",
+				"test@example.com",
+			]);
 
 			expect(result.rowsAffected).toBe(1);
 		});
 
 		it("should execute UPDATE operations", async () => {
-			const result = await client.execute(
-				"UPDATE users SET name = ? WHERE id = ?",
-				["Updated Name", 1],
-			);
+			const result = await client.execute("UPDATE users SET name = ? WHERE id = ?", [
+				"Updated Name",
+				1,
+			]);
 
 			expect(result.rowsAffected).toBeGreaterThanOrEqual(1);
 		});
@@ -330,15 +310,9 @@ describe("Electric Integration Tests", () => {
 		it("should track pending operations during sync", async () => {
 			// Start multiple operations
 			const operations = [
-				client.execute(
-					"INSERT INTO users (name, email) VALUES ('User1', 'user1@test.com')",
-				),
-				client.execute(
-					"INSERT INTO users (name, email) VALUES ('User2', 'user2@test.com')",
-				),
-				client.execute(
-					"INSERT INTO users (name, email) VALUES ('User3', 'user3@test.com')",
-				),
+				client.execute("INSERT INTO users (name, email) VALUES ('User1', 'user1@test.com')"),
+				client.execute("INSERT INTO users (name, email) VALUES ('User2', 'user2@test.com')"),
+				client.execute("INSERT INTO users (name, email) VALUES ('User3', 'user3@test.com')"),
 			];
 
 			// Check status during operations
@@ -474,7 +448,7 @@ describe("Electric Integration Tests", () => {
 			// Update task
 			const updateResult = await client.execute(
 				"UPDATE tasks SET completed = true WHERE title = ?",
-				["Test Task 1"],
+				["Test Task 1"]
 			);
 			expect(updateResult.rowsAffected).toBe(1);
 		});
@@ -484,7 +458,7 @@ describe("Electric Integration Tests", () => {
 				helper.createTestUser({
 					name: `Concurrent User ${i}`,
 					email: `concurrent${i}@test.com`,
-				}),
+				})
 			);
 
 			const results = await Promise.all(operations);
@@ -499,9 +473,7 @@ describe("Electric Integration Tests", () => {
 			await client.disconnect();
 
 			// Operations should fail
-			await expect(client.query("SELECT * FROM users")).rejects.toThrow(
-				"Not connected",
-			);
+			await expect(client.query("SELECT * FROM users")).rejects.toThrow("Not connected");
 
 			// Reconnect
 			await client.connect();
@@ -514,9 +486,7 @@ describe("Electric Integration Tests", () => {
 		it("should handle transaction rollbacks", async () => {
 			// This would typically test transaction rollback scenarios
 			// For now, we'll test basic error handling
-			await expect(
-				client.execute("INVALID SQL THAT CAUSES ERROR"),
-			).rejects.toThrow();
+			await expect(client.execute("INVALID SQL THAT CAUSES ERROR")).rejects.toThrow();
 
 			// Client should still be functional
 			const status = await client.getStatus();
@@ -533,7 +503,7 @@ describe("Electric Integration Tests", () => {
 				client.execute("INSERT INTO users (name, email) VALUES (?, ?)", [
 					`Bulk User ${i}`,
 					`bulk${i}@test.com`,
-				]),
+				])
 			);
 
 			await Promise.all(operations);
@@ -552,10 +522,10 @@ describe("Electric Integration Tests", () => {
 			for (let i = 0; i < 20; i++) {
 				operations.push(client.query("SELECT * FROM users"));
 				operations.push(
-					client.execute(
-						"INSERT INTO tasks (title, user_id, completed) VALUES (?, ?, false)",
-						[`Load Test Task ${i}`, 1],
-					),
+					client.execute("INSERT INTO tasks (title, user_id, completed) VALUES (?, ?, false)", [
+						`Load Test Task ${i}`,
+						1,
+					])
 				);
 			}
 

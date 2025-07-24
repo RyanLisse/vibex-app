@@ -18,7 +18,7 @@ export const GET = withErrorHandling(
 	},
 	{
 		route: "GET /api/inngest",
-		metricName: "inngest_api"
+		metricName: "inngest_api",
 	}
 );
 
@@ -40,7 +40,7 @@ export const POST = withErrorHandling(
 	},
 	{
 		route: "POST /api/inngest",
-		metricName: "inngest_api"
+		metricName: "inngest_api",
 	}
 );
 
@@ -62,6 +62,6 @@ export const PUT = withErrorHandling(
 	},
 	{
 		route: "PUT /api/inngest",
-		metricName: "inngest_api"
+		metricName: "inngest_api",
 	}
 );

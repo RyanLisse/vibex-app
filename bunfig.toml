@@ -50,7 +50,7 @@ include = [
   "lib/inngest.unit.test.ts"
 ]
 
-# Explicitly exclude ALL React component tests and integration tests
+# Explicitly exclude ALL files that use vi.mock or are React/integration tests
 exclude = [
   # ALL React component tests (handled by Vitest)
   "**/*.test.{jsx,tsx}",
@@ -64,7 +64,7 @@ exclude = [
   "**/*.integration.test.{js,jsx,ts,tsx}",
   "**/*.e2e.test.{js,jsx,ts,tsx}",
 
-  # Specific problematic files that contain React/JSX or complex mocking
+  # Files that use vi.mock (must be run with Vitest)
   "lib/auth/openai-codex.test.ts",
   "lib/auth/anthropic.test.ts",
   "lib/github.test.ts",
@@ -73,6 +73,9 @@ exclude = [
   "src/lib/auth/claude-auth.test.ts",
   "app/actions/**/*.test.ts",
   "stores/**/*.test.ts",
+  "lib/redis/**/*.test.ts",
+  "lib/cache/**/*.test.ts",
+  "lib/ai/**/*.test.ts",
 
   # Build and config files
   "node_modules/**",
@@ -98,14 +101,6 @@ include = [
   "lib/inngest-isolated.test.ts",
   "lib/inngest-standalone.test.ts",
   "lib/inngest.unit.test.ts"
-]
-exclude = [
-  "**/*.test.{jsx,tsx}",
-  "components/**",
-  "app/**",
-  "hooks/**",
-  "src/components/**",
-  "tests/**"
 ]
 
 # Mock configuration

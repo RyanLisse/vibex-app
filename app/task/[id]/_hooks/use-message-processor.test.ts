@@ -1,18 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
-import type {
-	IncomingMessage,
-	StreamingMessage,
-} from "../_types/message-types";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
+import type { IncomingMessage, StreamingMessage } from "../_types/message-types";
 import { useMessageProcessor } from "./use-message-processor";
 
 // Mock the message guards
@@ -34,9 +22,7 @@ vi.mock("@/stores/tasks", () => ({
 // Mock React hooks
 const mockSetStreamingMessages = vi.fn();
 
-const mockMessageGuards = (await import(
-	"@/app/task/[id]/_utils/message-guards"
-)) as any;
+const mockMessageGuards = (await import("@/app/task/[id]/_utils/message-guards")) as any;
 
 describe("useMessageProcessor", () => {
 	beforeEach(() => {
@@ -61,7 +47,7 @@ describe("useMessageProcessor", () => {
 				taskMessages: mockTaskMessages,
 				streamingMessages: mockStreamingMessages,
 				setStreamingMessages: mockSetStreamingMessages,
-			}),
+			})
 		);
 
 		expect(typeof result.current.processMessage).toBe("function");
@@ -85,7 +71,7 @@ describe("useMessageProcessor", () => {
 				taskMessages: mockTaskMessages,
 				streamingMessages: mockStreamingMessages,
 				setStreamingMessages: mockSetStreamingMessages,
-			}),
+			})
 		);
 
 		const message: IncomingMessage = {
@@ -121,7 +107,7 @@ describe("useMessageProcessor", () => {
 				taskMessages: mockTaskMessages,
 				streamingMessages: mockStreamingMessages,
 				setStreamingMessages: mockSetStreamingMessages,
-			}),
+			})
 		);
 
 		const message: IncomingMessage & {
@@ -165,7 +151,7 @@ describe("useMessageProcessor", () => {
 				taskMessages: mockTaskMessages,
 				streamingMessages: mockStreamingMessages,
 				setStreamingMessages: mockSetStreamingMessages,
-			}),
+			})
 		);
 
 		const message: IncomingMessage & {
@@ -204,7 +190,7 @@ describe("useMessageProcessor", () => {
 				taskMessages: mockTaskMessages,
 				streamingMessages: mockStreamingMessages,
 				setStreamingMessages: mockSetStreamingMessages,
-			}),
+			})
 		);
 
 		const invalidMessage = { invalid: "message" };

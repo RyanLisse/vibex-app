@@ -27,7 +27,7 @@ export function createMockTasks(count = 3): Task[] {
 			title: `Mock Task ${index + 1}`,
 			description: `This is mock task number ${index + 1}`,
 			status: index === 0 ? "IN_PROGRESS" : index === 1 ? "PAUSED" : "DONE",
-		}),
+		})
 	);
 }
 

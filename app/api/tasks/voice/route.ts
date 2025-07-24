@@ -17,15 +17,12 @@ import { tasks } from "@/db/schema";
 import { handleRouteError } from "@/lib/api/error-handlers";
 import { observability } from "@/lib/observability";
 import { parseTaskFromTranscription } from "@/lib/voice/task-parser-utils";
-import {
-	createApiErrorResponse,
-	createApiSuccessResponse,
-} from "@/src/schemas/api-routes";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import { VoiceTaskCreationSchema } from "@/src/schemas/enhanced-task-schemas";
 
 // Mock transcription service (would integrate with OpenAI Whisper, Google Speech-to-Text, etc.)
 const transcribeAudio = async (
-	audioFile: File,
+	audioFile: File
 ): Promise<{
 	text: string;
 	confidence: number;
@@ -62,14 +59,9 @@ export async function POST(request: NextRequest) {
 		const validatedData = VoiceTaskCreationSchema.parse(requestData);
 
 		if (!audioFile) {
-			return NextResponse.json(
-				createApiErrorResponse(
-					"Audio file is required",
-					400,
-					"MISSING_AUDIO_FILE",
-				),
-				{ status: 400 },
-			);
+			return NextResponse.json(createApiErrorResponse("Audio file is required", 400), {
+				status: 400,
+			});
 		}
 
 		// Transcribe audio
@@ -125,7 +117,7 @@ export async function POST(request: NextRequest) {
 				requiresReview: transcription.confidence < 0.8,
 			},
 			"api",
-			["tasks", "voice", "creation"],
+			["tasks", "voice", "creation"]
 		);
 
 		span.setAttributes({
@@ -147,37 +139,29 @@ export async function POST(request: NextRequest) {
 					},
 					parsedData: parsedTask,
 				},
-				"Voice task created successfully",
+				"Voice task created successfully"
 			),
-			{ status: 201 },
+			{ status: 201 }
 		);
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
 		if (error instanceof z.ZodError) {
-			const mappedIssues = error.issues.map(issue => ({
-				field: issue.path.join('.') || 'unknown',
-				message: issue.message
+			const mappedIssues = error.issues.map((issue) => ({
+				field: issue.path.join(".") || "unknown",
+				message: issue.message,
 			}));
-			return NextResponse.json(
-				createApiErrorResponse("Validation failed", 400, mappedIssues),
-				{
-					status: 400,
-				},
-			);
+			return NextResponse.json(createApiErrorResponse("Validation failed", 400, mappedIssues), {
+				status: 400,
+			});
 		}
 
-		observability.metrics.errorRate(1, "voice_api");
+		observability.metrics.errorRate.record(1);
 
-		return NextResponse.json(
-			createApiErrorResponse(
-				"Failed to create voice task",
-				500,
-				"CREATE_VOICE_TASK_ERROR",
-			),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to create voice task", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}
@@ -195,14 +179,9 @@ export async function PUT(request: NextRequest) {
 		const audioFile = formData.get("audio") as File;
 
 		if (!audioFile) {
-			return NextResponse.json(
-				createApiErrorResponse(
-					"Audio file is required",
-					400,
-					"MISSING_AUDIO_FILE",
-				),
-				{ status: 400 },
-			);
+			return NextResponse.json(createApiErrorResponse("Audio file is required", 400), {
+				status: 400,
+			});
 		}
 
 		// Transcribe audio
@@ -223,21 +202,16 @@ export async function PUT(request: NextRequest) {
 					transcription,
 					suggestions,
 				},
-				"Audio transcribed successfully",
-			),
+				"Audio transcribed successfully"
+			)
 		);
 	} catch (error) {
 		span.recordException(error as Error);
 		span.setStatus({ code: SpanStatusCode.ERROR });
 
-		return NextResponse.json(
-			createApiErrorResponse(
-				"Failed to transcribe audio",
-				500,
-				"TRANSCRIPTION_ERROR",
-			),
-			{ status: 500 },
-		);
+		return NextResponse.json(createApiErrorResponse("Failed to transcribe audio", 500), {
+			status: 500,
+		});
 	} finally {
 		span.end();
 	}

@@ -1,25 +1,12 @@
 "use client";
 
 import { format, formatDistanceToNow } from "date-fns";
-import {
-	Activity,
-	AlertTriangle,
-	Bell,
-	CheckCircle,
-	Clock,
-	TrendingUp,
-} from "lucide-react";
+import { Activity, AlertTriangle, Bell, CheckCircle, Clock, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { CriticalErrorType } from "@/lib/alerts/types";
 
@@ -73,12 +60,11 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 		try {
 			setLoading(true);
 
-			const [activeResponse, historyResponse, metricsResponse] =
-				await Promise.all([
-					fetch("/api/alerts/active"),
-					fetch("/api/alerts/history"),
-					fetch("/api/alerts/metrics"),
-				]);
+			const [activeResponse, historyResponse, metricsResponse] = await Promise.all([
+				fetch("/api/alerts/active"),
+				fetch("/api/alerts/history"),
+				fetch("/api/alerts/metrics"),
+			]);
 
 			if (!(activeResponse.ok && historyResponse.ok && metricsResponse.ok)) {
 				throw new Error("Failed to fetch alert data");
@@ -95,9 +81,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 			setMetrics(metricsData);
 			setError(null);
 		} catch (err) {
-			setError(
-				err instanceof Error ? err.message : "Failed to load alert data",
-			);
+			setError(err instanceof Error ? err.message : "Failed to load alert data");
 		} finally {
 			setLoading(false);
 		}
@@ -178,26 +162,18 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 				<div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="font-medium text-sm">
-								Active Alerts
-							</CardTitle>
+							<CardTitle className="font-medium text-sm">Active Alerts</CardTitle>
 							<AlertTriangle className="h-4 w-4 text-red-500" />
 						</CardHeader>
 						<CardContent>
-							<div className="font-bold text-2xl text-red-600">
-								{metrics.unresolvedAlerts}
-							</div>
-							<p className="text-muted-foreground text-xs">
-								Requiring attention
-							</p>
+							<div className="font-bold text-2xl text-red-600">{metrics.unresolvedAlerts}</div>
+							<p className="text-muted-foreground text-xs">Requiring attention</p>
 						</CardContent>
 					</Card>
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="font-medium text-sm">
-								Total Alerts
-							</CardTitle>
+							<CardTitle className="font-medium text-sm">Total Alerts</CardTitle>
 							<Bell className="h-4 w-4 text-blue-500" />
 						</CardHeader>
 						<CardContent>
@@ -208,9 +184,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="font-medium text-sm">
-								Avg Resolution
-							</CardTitle>
+							<CardTitle className="font-medium text-sm">Avg Resolution</CardTitle>
 							<Clock className="h-4 w-4 text-green-500" />
 						</CardHeader>
 						<CardContent>
@@ -229,9 +203,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 							<TrendingUp className="h-4 w-4 text-orange-500" />
 						</CardHeader>
 						<CardContent>
-							<div className="font-bold text-2xl">
-								{metrics.alertsLast24Hours}
-							</div>
+							<div className="font-bold text-2xl">{metrics.alertsLast24Hours}</div>
 							<p className="text-muted-foreground text-xs">Recent activity</p>
 						</CardContent>
 					</Card>
@@ -240,9 +212,7 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 			<Tabs className="space-y-4" defaultValue="active">
 				<TabsList>
-					<TabsTrigger value="active">
-						Active Alerts ({activeAlerts.length})
-					</TabsTrigger>
+					<TabsTrigger value="active">Active Alerts ({activeAlerts.length})</TabsTrigger>
 					<TabsTrigger value="history">Alert History</TabsTrigger>
 					<TabsTrigger value="metrics">Metrics & Analytics</TabsTrigger>
 				</TabsList>
@@ -253,12 +223,8 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 							<CardContent className="flex items-center justify-center py-12">
 								<div className="text-center">
 									<CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
-									<h3 className="mb-2 font-medium text-gray-900 text-lg">
-										No Active Alerts
-									</h3>
-									<p className="text-gray-500">
-										All systems are operating normally.
-									</p>
+									<h3 className="mb-2 font-medium text-gray-900 text-lg">No Active Alerts</h3>
+									<p className="text-gray-500">All systems are operating normally.</p>
 								</div>
 							</CardContent>
 						</Card>
@@ -270,19 +236,14 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 										<div className="flex items-start justify-between">
 											<div className="space-y-1">
 												<div className="flex items-center gap-2">
-													<span className="text-lg">
-														{getSeverityIcon(alert.severity)}
-													</span>
-													<CardTitle className="text-lg">
-														{formatErrorType(alert.type)}
-													</CardTitle>
+													<span className="text-lg">{getSeverityIcon(alert.severity)}</span>
+													<CardTitle className="text-lg">{formatErrorType(alert.type)}</CardTitle>
 													<Badge className={getSeverityColor(alert.severity)}>
 														{alert.severity}
 													</Badge>
 												</div>
 												<CardDescription>
-													{alert.source} •{" "}
-													{formatDistanceToNow(new Date(alert.timestamp))} ago
+													{alert.source} • {formatDistanceToNow(new Date(alert.timestamp))} ago
 												</CardDescription>
 											</div>
 											<Button
@@ -300,49 +261,27 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 
 										<div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
 											<div>
-												<div className="font-medium text-gray-500">
-													Environment
-												</div>
+												<div className="font-medium text-gray-500">Environment</div>
 												<div>{alert.environment}</div>
 											</div>
 											<div>
-												<div className="font-medium text-gray-500">
-													Occurrences
-												</div>
+												<div className="font-medium text-gray-500">Occurrences</div>
 												<div>{alert.occurrenceCount}</div>
 											</div>
 											<div>
-												<div className="font-medium text-gray-500">
-													First Seen
-												</div>
-												<div>
-													{format(
-														new Date(alert.firstOccurrence),
-														"MMM d, HH:mm",
-													)}
-												</div>
+												<div className="font-medium text-gray-500">First Seen</div>
+												<div>{format(new Date(alert.firstOccurrence), "MMM d, HH:mm")}</div>
 											</div>
 											<div>
-												<div className="font-medium text-gray-500">
-													Last Seen
-												</div>
-												<div>
-													{format(
-														new Date(alert.lastOccurrence),
-														"MMM d, HH:mm",
-													)}
-												</div>
+												<div className="font-medium text-gray-500">Last Seen</div>
+												<div>{format(new Date(alert.lastOccurrence), "MMM d, HH:mm")}</div>
 											</div>
 										</div>
 
 										{alert.correlationId && (
 											<div className="mt-4 rounded bg-gray-50 p-3">
-												<div className="font-medium text-gray-500 text-sm">
-													Correlation ID
-												</div>
-												<code className="font-mono text-sm">
-													{alert.correlationId}
-												</code>
+												<div className="font-medium text-gray-500 text-sm">Correlation ID</div>
+												<code className="font-mono text-sm">{alert.correlationId}</code>
 											</div>
 										)}
 
@@ -366,47 +305,28 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 				<TabsContent className="space-y-4" value="history">
 					<div className="space-y-4">
 						{alertHistory.slice(0, 20).map((alert) => (
-							<Card
-								className={`${alert.resolved ? "bg-gray-50" : ""}`}
-								key={alert.id}
-							>
+							<Card className={`${alert.resolved ? "bg-gray-50" : ""}`} key={alert.id}>
 								<CardHeader className="pb-3">
 									<div className="flex items-start justify-between">
 										<div className="space-y-1">
 											<div className="flex items-center gap-2">
-												<span className="text-sm">
-													{getSeverityIcon(alert.severity)}
-												</span>
-												<CardTitle className="text-base">
-													{formatErrorType(alert.type)}
-												</CardTitle>
+												<span className="text-sm">{getSeverityIcon(alert.severity)}</span>
+												<CardTitle className="text-base">{formatErrorType(alert.type)}</CardTitle>
 												<Badge
-													className={
-														alert.resolved
-															? ""
-															: getSeverityColor(alert.severity)
-													}
+													className={alert.resolved ? "" : getSeverityColor(alert.severity)}
 													variant={alert.resolved ? "secondary" : "default"}
 												>
 													{alert.resolved ? "Resolved" : alert.severity}
 												</Badge>
 											</div>
 											<CardDescription>
-												{alert.source} •{" "}
-												{format(new Date(alert.timestamp), "MMM d, yyyy HH:mm")}
+												{alert.source} • {format(new Date(alert.timestamp), "MMM d, yyyy HH:mm")}
 												{alert.resolved && alert.resolvedAt && (
-													<>
-														{" "}
-														• Resolved{" "}
-														{formatDistanceToNow(new Date(alert.resolvedAt))}{" "}
-														ago
-													</>
+													<> • Resolved {formatDistanceToNow(new Date(alert.resolvedAt))} ago</>
 												)}
 											</CardDescription>
 										</div>
-										{alert.resolved && (
-											<CheckCircle className="h-5 w-5 text-green-500" />
-										)}
+										{alert.resolved && <CheckCircle className="h-5 w-5 text-green-500" />}
 									</div>
 								</CardHeader>
 								<CardContent className="pt-0">
@@ -429,19 +349,14 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 								</CardHeader>
 								<CardContent>
 									<div className="space-y-3">
-										{Object.entries(metrics.alertsByType || {}).map(
-											([type, count]) => (
-												<div
-													className="flex items-center justify-between"
-													key={type}
-												>
-													<span className="text-sm">
-														{formatErrorType(type as CriticalErrorType)}
-													</span>
-													<Badge variant="secondary">{count}</Badge>
-												</div>
-											),
-										)}
+										{Object.entries(metrics.alertsByType || {}).map(([type, count]) => (
+											<div className="flex items-center justify-between" key={type}>
+												<span className="text-sm">
+													{formatErrorType(type as CriticalErrorType)}
+												</span>
+												<Badge variant="secondary">{count}</Badge>
+											</div>
+										))}
 									</div>
 								</CardContent>
 							</Card>
@@ -457,25 +372,15 @@ export function AlertDashboard({ className }: AlertDashboardProps) {
 									<div className="space-y-3">
 										<div className="flex justify-between">
 											<span className="text-sm">Last 24 hours</span>
-											<Badge variant="secondary">
-												{metrics.alertsLast24Hours}
-											</Badge>
+											<Badge variant="secondary">{metrics.alertsLast24Hours}</Badge>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-sm">Last 7 days</span>
-											<Badge variant="secondary">
-												{metrics.alertsLast7Days}
-											</Badge>
+											<Badge variant="secondary">{metrics.alertsLast7Days}</Badge>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-sm">Unresolved</span>
-											<Badge
-												variant={
-													metrics.unresolvedAlerts > 0
-														? "destructive"
-														: "secondary"
-												}
-											>
+											<Badge variant={metrics.unresolvedAlerts > 0 ? "destructive" : "secondary"}>
 												{metrics.unresolvedAlerts}
 											</Badge>
 										</div>

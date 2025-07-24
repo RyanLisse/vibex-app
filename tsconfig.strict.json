@@ -14,45 +14,39 @@
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    
+
     // Additional safety checks
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "noImplicitUseStrict": false,
     "useDefineForClassFields": true,
-    
+
     // Enhanced module resolution
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
-    
+
     // Better error reporting
     "pretty": true,
     "skipDefaultLibCheck": false,
     "skipLibCheck": false,
-    
+
     // Emit options for better debugging
     "sourceMap": true,
     "declarationMap": true,
     "removeComments": false,
     "preserveConstEnums": true,
-    
+
     // Interop constraints
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    
+
     // Additional type checking
     "checkJs": false,
     "allowJs": false
   },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "types/**/*.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", "types/**/*.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": [
     "node_modules",
     ".next",

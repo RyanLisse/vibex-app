@@ -13,10 +13,7 @@ import { QuickBugReportButton } from "../../../components/features/bug-reporting
 import { ScreenshotCapture } from "../../../components/features/bug-reporting/screenshot-capture";
 
 // Types
-import type {
-	BugReport,
-	ScreenshotData,
-} from "../../../src/schemas/enhanced-task-schemas";
+import type { BugReport, ScreenshotData } from "../../../src/schemas/enhanced-task-schemas";
 
 // Mock the screen capture API
 const mockGetDisplayMedia = vi.fn();
@@ -85,9 +82,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 		});
 
 		it("should show loading state during capture", async () => {
-			const mockOnCapture = vi.fn(
-				() => new Promise((resolve) => setTimeout(resolve, 100)),
-			);
+			const mockOnCapture = vi.fn(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
 			render(<QuickBugReportButton onCapture={mockOnCapture} />);
 
@@ -125,7 +120,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 						imageBlob: expect.any(Blob),
 						timestamp: expect.any(Date),
 						annotations: [],
-					}),
+					})
 				);
 			});
 		});
@@ -141,9 +136,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 			await userEvent.click(captureButton);
 
 			await waitFor(() => {
-				expect(mockOnError).toHaveBeenCalledWith(
-					expect.stringContaining("Permission denied"),
-				);
+				expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining("Permission denied"));
 			});
 		});
 
@@ -162,9 +155,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 			await userEvent.click(captureButton);
 
 			await waitFor(() => {
-				expect(mockOnError).toHaveBeenCalledWith(
-					expect.stringContaining("not supported"),
-				);
+				expect(mockOnError).toHaveBeenCalledWith(expect.stringContaining("not supported"));
 			});
 		});
 	});
@@ -179,10 +170,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 
 		it("should render annotation tools", () => {
 			render(
-				<ImageAnnotationTools
-					screenshot={mockScreenshotData}
-					onAnnotationsChange={vi.fn()}
-				/>,
+				<ImageAnnotationTools screenshot={mockScreenshotData} onAnnotationsChange={vi.fn()} />
 			);
 
 			expect(screen.getByText(/arrow/i)).toBeInTheDocument();
@@ -198,7 +186,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 				<ImageAnnotationTools
 					screenshot={mockScreenshotData}
 					onAnnotationsChange={mockOnAnnotationsChange}
-				/>,
+				/>
 			);
 
 			// Select arrow tool
@@ -225,7 +213,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 				<ImageAnnotationTools
 					screenshot={mockScreenshotData}
 					onAnnotationsChange={mockOnAnnotationsChange}
-				/>,
+				/>
 			);
 
 			// Select text tool
@@ -257,7 +245,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 				<ImageAnnotationTools
 					screenshot={mockScreenshotData}
 					onAnnotationsChange={mockOnAnnotationsChange}
-				/>,
+				/>
 			);
 
 			const clearButton = screen.getByText(/clear/i);
@@ -282,9 +270,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 		};
 
 		it("should render bug report form with screenshot preview", () => {
-			render(
-				<BugReportForm screenshot={mockScreenshotData} onSubmit={vi.fn()} />,
-			);
+			render(<BugReportForm screenshot={mockScreenshotData} onSubmit={vi.fn()} />);
 
 			expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
@@ -295,12 +281,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 		it("should validate required fields", async () => {
 			const mockOnSubmit = vi.fn();
 
-			render(
-				<BugReportForm
-					screenshot={mockScreenshotData}
-					onSubmit={mockOnSubmit}
-				/>,
-			);
+			render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />);
 
 			const submitButton = screen.getByText(/create bug report/i);
 			await userEvent.click(submitButton);
@@ -312,21 +293,13 @@ describe("Screenshot Bug Reporting Feature", () => {
 		it("should submit bug report with correct data", async () => {
 			const mockOnSubmit = vi.fn();
 
-			render(
-				<BugReportForm
-					screenshot={mockScreenshotData}
-					onSubmit={mockOnSubmit}
-				/>,
-			);
+			render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />);
 
 			// Fill form
-			await userEvent.type(
-				screen.getByLabelText(/title/i),
-				"Button not working",
-			);
+			await userEvent.type(screen.getByLabelText(/title/i), "Button not working");
 			await userEvent.type(
 				screen.getByLabelText(/description/i),
-				"The submit button does not respond to clicks",
+				"The submit button does not respond to clicks"
 			);
 			await userEvent.selectOptions(screen.getByLabelText(/priority/i), "high");
 
@@ -341,26 +314,18 @@ describe("Screenshot Bug Reporting Feature", () => {
 					priority: "high",
 					screenshot: mockScreenshotData,
 					tags: ["bug"],
-				}),
+				})
 			);
 		});
 
 		it("should auto-tag as bug and set appropriate priority", async () => {
 			const mockOnSubmit = vi.fn();
 
-			render(
-				<BugReportForm
-					screenshot={mockScreenshotData}
-					onSubmit={mockOnSubmit}
-				/>,
-			);
+			render(<BugReportForm screenshot={mockScreenshotData} onSubmit={mockOnSubmit} />);
 
 			// Fill minimal form
 			await userEvent.type(screen.getByLabelText(/title/i), "Test bug");
-			await userEvent.type(
-				screen.getByLabelText(/description/i),
-				"Test description",
-			);
+			await userEvent.type(screen.getByLabelText(/description/i), "Test description");
 
 			// Submit
 			const submitButton = screen.getByText(/create bug report/i);
@@ -369,7 +334,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 			expect(mockOnSubmit).toHaveBeenCalledWith(
 				expect.objectContaining({
 					tags: expect.arrayContaining(["bug"]),
-				}),
+				})
 			);
 		});
 	});
@@ -411,7 +376,7 @@ describe("Screenshot Bug Reporting Feature", () => {
 					expect.objectContaining({
 						creationMethod: "bug_report",
 						screenshot: expect.any(Object),
-					}),
+					})
 				);
 			});
 		});

@@ -22,16 +22,16 @@ export const databaseIndexOptimizer: DatabaseIndexOptimizer = {
 	},
 
 	async analyzeCurrentIndexes() {
-		return { 
-			indexes: [], 
-			utilization: { totalIndexes: 0, unusedIndexes: 0 } 
+		return {
+			indexes: [],
+			utilization: { totalIndexes: 0, unusedIndexes: 0 },
 		};
 	},
 
 	async generateOptimizationPlan() {
-		return { 
-			plan: [], 
-			estimatedImpact: { performanceGain: 0, diskSavings: 0 } 
+		return {
+			plan: [],
+			estimatedImpact: { performanceGain: 0, diskSavings: 0 },
 		};
 	},
 };

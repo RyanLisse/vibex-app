@@ -11,14 +11,7 @@
  * - Metrics export to Prometheus/Grafana
  */
 
-import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import type { Database } from "../../db";
 import { AlertRuleBuilder } from "../../lib/metrics/alert-rules";
 import { GrafanaDashboardBuilder } from "../../lib/metrics/grafana-dashboards";
@@ -29,8 +22,7 @@ import { observability } from "../../lib/observability";
 class MockDatabase {
 	private connectionCount = 0;
 	private maxConnections = 100;
-	private queryLog: Array<{ query: string; duration: number; error?: string }> =
-		[];
+	private queryLog: Array<{ query: string; duration: number; error?: string }> = [];
 
 	async connect() {
 		if (this.connectionCount >= this.maxConnections) {
@@ -83,8 +75,7 @@ class MockDatabase {
 			maxConnections: this.maxConnections,
 			totalQueries: this.queryLog.length,
 			avgQueryTime:
-				this.queryLog.reduce((sum, q) => sum + q.duration, 0) /
-					this.queryLog.length || 0,
+				this.queryLog.reduce((sum, q) => sum + q.duration, 0) / this.queryLog.length || 0,
 			errorCount: this.queryLog.filter((q) => q.error).length,
 		};
 	}
@@ -189,7 +180,7 @@ describe("Database Observability Comprehensive Integration", () => {
 					metricsCollector.recordDatabaseQuery(
 						query.type.split("_")[0].toUpperCase(),
 						"users",
-						duration / 1000,
+						duration / 1000
 					);
 
 					monitor.recordQuery(query.type, duration);
@@ -242,11 +233,7 @@ describe("Database Observability Comprehensive Integration", () => {
 				observability.database.recordQuery("select", query.sql, duration);
 
 				if (duration > 1000) {
-					metricsCollector.recordDatabaseQuery(
-						"SLOW_QUERY",
-						"various",
-						duration / 1000,
-					);
+					metricsCollector.recordDatabaseQuery("SLOW_QUERY", "various", duration / 1000);
 				}
 			}
 
@@ -259,9 +246,7 @@ describe("Database Observability Comprehensive Integration", () => {
 
 			// Check Grafana dashboard would show slow queries
 			const dashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
-			const slowQueryPanel = dashboard.panels.find((p) =>
-				p.title.includes("Database"),
-			);
+			const slowQueryPanel = dashboard.panels.find((p) => p.title.includes("Database"));
 			expect(slowQueryPanel).toBeDefined();
 		});
 
@@ -276,11 +261,7 @@ describe("Database Observability Comprehensive Integration", () => {
 				await mockDb.query(query).catch(() => {});
 				const duration = Date.now() - start;
 
-				observability.database.recordQuery(
-					queryType.toLowerCase(),
-					query,
-					duration,
-				);
+				observability.database.recordQuery(queryType.toLowerCase(), query, duration);
 				metricsCollector.recordDatabaseQuery(queryType, table, duration / 1000);
 			}
 
@@ -306,11 +287,7 @@ describe("Database Observability Comprehensive Integration", () => {
 				connections.push(conn);
 
 				const stats = mockDb.getStats();
-				metricsCollector.setDatabaseConnections(
-					"postgres",
-					"main",
-					stats.activeConnections,
-				);
+				metricsCollector.setDatabaseConnections("postgres", "main", stats.activeConnections);
 				observability.database.updateConnectionPool({
 					active: stats.activeConnections,
 					idle: stats.maxConnections - stats.activeConnections,
@@ -329,11 +306,7 @@ describe("Database Observability Comprehensive Integration", () => {
 			}
 
 			const finalStats = mockDb.getStats();
-			metricsCollector.setDatabaseConnections(
-				"postgres",
-				"main",
-				finalStats.activeConnections,
-			);
+			metricsCollector.setDatabaseConnections("postgres", "main", finalStats.activeConnections);
 
 			const updatedMetrics = await metricsCollector.getMetrics();
 			expect(updatedMetrics).toContain("10"); // Reduced connections
@@ -345,9 +318,7 @@ describe("Database Observability Comprehensive Integration", () => {
 
 			// Set up alert monitoring
 			const alertRules = AlertRuleBuilder.createSystemAlerts();
-			const connectionAlert = alertRules.find(
-				(a) => a.alert === "DatabaseConnectionsHigh",
-			);
+			const connectionAlert = alertRules.find((a) => a.alert === "DatabaseConnectionsHigh");
 			expect(connectionAlert).toBeDefined();
 
 			// Fill connection pool
@@ -359,11 +330,7 @@ describe("Database Observability Comprehensive Integration", () => {
 					const stats = mockDb.getStats();
 					const usage = (stats.activeConnections / stats.maxConnections) * 100;
 
-					metricsCollector.setDatabaseConnections(
-						"postgres",
-						"main",
-						stats.activeConnections,
-					);
+					metricsCollector.setDatabaseConnections("postgres", "main", stats.activeConnections);
 
 					if (usage > 80) {
 						alerts.push({
@@ -414,12 +381,7 @@ describe("Database Observability Comprehensive Integration", () => {
 				await mockDb.query(query).catch(() => {});
 				const duration = Date.now() - start;
 
-				observability.database.recordQuery(
-					"transaction",
-					query,
-					duration,
-					transactionId,
-				);
+				observability.database.recordQuery("transaction", query, duration, transactionId);
 			}
 
 			const transactionDuration = Date.now() - transactionStart;
@@ -428,7 +390,7 @@ describe("Database Observability Comprehensive Integration", () => {
 			metricsCollector.recordDatabaseQuery(
 				"TRANSACTION",
 				"multi_table",
-				transactionDuration / 1000,
+				transactionDuration / 1000
 			);
 
 			// Verify transaction metrics
@@ -446,18 +408,12 @@ describe("Database Observability Comprehensive Integration", () => {
 			// Simulate failed transaction
 			try {
 				await mockDb.query("BEGIN");
-				await mockDb.query(
-					"UPDATE accounts SET balance = balance - 100 WHERE id = 1",
-				);
+				await mockDb.query("UPDATE accounts SET balance = balance - 100 WHERE id = 1");
 				await mockDb.query("SELECT * FROM error_table"); // This will fail
 				await mockDb.query("COMMIT");
 			} catch (error) {
 				await mockDb.query("ROLLBACK").catch(() => {});
-				observability.database.endTransaction(
-					transactionId,
-					false,
-					error as Error,
-				);
+				observability.database.endTransaction(transactionId, false, error as Error);
 				metricsCollector.recordDatabaseQuery("ROLLBACK", "accounts", 0.001);
 			}
 
@@ -567,14 +523,12 @@ describe("Database Observability Comprehensive Integration", () => {
 				// Record health metrics
 				metricsCollector.gauge(
 					`database_health_${check}`,
-					results[check].status === "healthy" ? 1 : 0,
+					results[check].status === "healthy" ? 1 : 0
 				);
 			}
 
 			// Overall health status
-			const overallHealth = Object.values(results).every(
-				(r: any) => r.status === "healthy",
-			)
+			const overallHealth = Object.values(results).every((r: any) => r.status === "healthy")
 				? "healthy"
 				: "degraded";
 
@@ -601,19 +555,11 @@ describe("Database Observability Comprehensive Integration", () => {
 			for (const op of operations) {
 				for (let i = 0; i < op.count; i++) {
 					if (op.type === "query") {
-						metricsCollector.recordDatabaseQuery(
-							"SELECT",
-							"various",
-							Math.random() * 0.1,
-						);
+						metricsCollector.recordDatabaseQuery("SELECT", "various", Math.random() * 0.1);
 					} else if (op.type === "connection") {
 						metricsCollector.setDatabaseConnections("postgres", "main", i);
 					} else if (op.type === "transaction") {
-						metricsCollector.recordDatabaseQuery(
-							"TRANSACTION",
-							"various",
-							Math.random() * 0.5,
-						);
+						metricsCollector.recordDatabaseQuery("TRANSACTION", "various", Math.random() * 0.5);
 					} else if (op.type === "error") {
 						metricsCollector.recordDatabaseQuery("ERROR", "various", 0.001);
 					}
@@ -621,12 +567,11 @@ describe("Database Observability Comprehensive Integration", () => {
 			}
 
 			// Verify dashboard compatibility
-			const systemDashboard =
-				GrafanaDashboardBuilder.createSystemHealthDashboard();
+			const systemDashboard = GrafanaDashboardBuilder.createSystemHealthDashboard();
 			const dbPanels = systemDashboard.panels.filter(
 				(p) =>
 					p.title.toLowerCase().includes("database") ||
-					p.targets.some((t) => t.expr.includes("database")),
+					p.targets.some((t) => t.expr.includes("database"))
 			);
 
 			expect(dbPanels.length).toBeGreaterThan(0);
@@ -654,8 +599,7 @@ describe("Database Observability Comprehensive Integration", () => {
 					optimizedTime: 10,
 				},
 				{
-					query:
-						"SELECT * FROM orders o JOIN users u ON o.user_id = u.id WHERE o.status = ?",
+					query: "SELECT * FROM orders o JOIN users u ON o.user_id = u.id WHERE o.status = ?",
 					optimization: "Add composite index on (status, user_id)",
 					currentTime: 500,
 					optimizedTime: 50,
@@ -723,11 +667,7 @@ describe("Database Observability Comprehensive Integration", () => {
 						metricsStream.push(metric);
 
 						// Update Prometheus metrics
-						metricsCollector.recordDatabaseQuery(
-							"REALTIME",
-							"various",
-							duration / 1000,
-						);
+						metricsCollector.recordDatabaseQuery("REALTIME", "various", duration / 1000);
 					} catch (error) {
 						metricsStream.push({
 							timestamp: Date.now(),
@@ -746,9 +686,7 @@ describe("Database Observability Comprehensive Integration", () => {
 
 			// Verify real-time metrics
 			expect(metricsStream.length).toBeGreaterThan(0);
-			expect(metricsStream.some((m) => m.type === "database_operation")).toBe(
-				true,
-			);
+			expect(metricsStream.some((m) => m.type === "database_operation")).toBe(true);
 
 			// Check Prometheus format
 			const prometheusMetrics = await metricsCollector.getMetrics();

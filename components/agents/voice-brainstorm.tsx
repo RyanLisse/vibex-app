@@ -40,7 +40,7 @@ export const VoiceBrainstorm = React.memo(function VoiceBrainstorm({
 					{idea}
 				</div>
 			)),
-		[ideas],
+		[ideas]
 	);
 
 	const emptyState = useMemo(
@@ -50,7 +50,7 @@ export const VoiceBrainstorm = React.memo(function VoiceBrainstorm({
 				<p>Start recording to generate ideas</p>
 			</div>
 		),
-		[],
+		[]
 	);
 
 	return (

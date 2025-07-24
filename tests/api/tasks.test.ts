@@ -43,7 +43,7 @@ vi.mock("@/lib/observability", () => ({
 					recordException: vi.fn(),
 					setStatus: vi.fn(),
 					end: vi.fn(),
-				}),
+				})
 			),
 		})),
 		recordError: vi.fn(),
@@ -129,9 +129,7 @@ describe("Tasks API Routes", () => {
 		});
 
 		it("should handle database errors", async () => {
-			mockDb.query.tasks.findMany.mockRejectedValue(
-				new Error("Database connection failed"),
-			);
+			mockDb.query.tasks.findMany.mockRejectedValue(new Error("Database connection failed"));
 
 			const { req } = createMocks({
 				method: "GET",

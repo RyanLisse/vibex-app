@@ -31,7 +31,7 @@ export class TestLifecycleManager {
 	registerBeforeAll(
 		name: string,
 		fn: () => Promise<void> | void,
-		options?: Partial<TestHook>,
+		options?: Partial<TestHook>
 	): void {
 		this.registerHook("beforeAll", name, fn, options);
 	}
@@ -39,7 +39,7 @@ export class TestLifecycleManager {
 	registerBeforeEach(
 		name: string,
 		fn: () => Promise<void> | void,
-		options?: Partial<TestHook>,
+		options?: Partial<TestHook>
 	): void {
 		this.registerHook("beforeEach", name, fn, options);
 	}
@@ -47,7 +47,7 @@ export class TestLifecycleManager {
 	registerAfterEach(
 		name: string,
 		fn: () => Promise<void> | void,
-		options?: Partial<TestHook>,
+		options?: Partial<TestHook>
 	): void {
 		this.registerHook("afterEach", name, fn, options);
 	}
@@ -55,7 +55,7 @@ export class TestLifecycleManager {
 	registerAfterAll(
 		name: string,
 		fn: () => Promise<void> | void,
-		options?: Partial<TestHook>,
+		options?: Partial<TestHook>
 	): void {
 		this.registerHook("afterAll", name, fn, options);
 	}
@@ -64,7 +64,7 @@ export class TestLifecycleManager {
 		type: string,
 		name: string,
 		fn: () => Promise<void> | void,
-		options?: Partial<TestHook>,
+		options?: Partial<TestHook>
 	): void {
 		const hook: TestHook = {
 			name,
@@ -352,8 +352,8 @@ export class SetupTeardownOrchestrator {
 	}
 
 	async cleanupAllContexts(): Promise<void> {
-		const cleanupPromises = Array.from(this.contexts.entries()).map(
-			([testId]) => this.cleanupTestContext(testId),
+		const cleanupPromises = Array.from(this.contexts.entries()).map(([testId]) =>
+			this.cleanupTestContext(testId)
 		);
 		await Promise.all(cleanupPromises);
 	}

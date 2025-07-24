@@ -44,7 +44,7 @@ export class WASMModuleLoader {
 		name: string,
 		url: string,
 		config: WASMModuleConfig,
-		onProgress?: (progress: ModuleLoadProgress) => void,
+		onProgress?: (progress: ModuleLoadProgress) => void
 	): Promise<LoadedModule> {
 		// Check if already loading
 		if (this.loadingPromises.has(name)) {
@@ -69,131 +69,113 @@ export class WASMModuleLoader {
 		name: string,
 		url: string,
 		config: WASMModuleConfig,
-		onProgress?: (progress: ModuleLoadProgress) => void,
+		onProgress?: (progress: ModuleLoadProgress) => void
 	): Promise<LoadedModule> {
-		return observability.trackOperation(
-			`wasm.module-loader.load.${name}`,
-			async () => {
-				try {
-					// Check cache first
-					const cached = this.moduleCache.get(name);
-					if (cached) {
-						cached.hits++;
-						onProgress?.({
-							module: name,
-							stage: "complete",
-							progress: 100,
-						});
-
-						const instance = await WebAssembly.instantiate(
-							cached.module,
-							this.createImports(config),
-						);
-						return wasmObservability.trackModuleLoad(
-							name,
-							Promise.resolve(instance),
-							config,
-						);
-					}
-
-					// Download stage
-					onProgress?.({
-						module: name,
-						stage: "downloading",
-						progress: 0,
-					});
-
-					const response = await fetch(url);
-					if (!response.ok) {
-						throw new Error(
-							`Failed to fetch WASM module: ${response.status} ${response.statusText}`,
-						);
-					}
-
-					const contentLength = parseInt(
-						response.headers.get("content-length") || "0",
-					);
-					const reader = response.body?.getReader();
-					const chunks: Uint8Array[] = [];
-					let receivedLength = 0;
-
-					if (reader) {
-						while (true) {
-							const { done, value } = await reader.read();
-							if (done) break;
-
-							chunks.push(value);
-							receivedLength += value.length;
-
-							if (contentLength > 0) {
-								const progress = (receivedLength / contentLength) * 30; // 30% for download
-								onProgress?.({
-									module: name,
-									stage: "downloading",
-									progress,
-								});
-							}
-						}
-					}
-
-					const wasmBytes = new Uint8Array(receivedLength);
-					let position = 0;
-					for (const chunk of chunks) {
-						wasmBytes.set(chunk, position);
-						position += chunk.length;
-					}
-
-					// Compilation stage
-					onProgress?.({
-						module: name,
-						stage: "compiling",
-						progress: 40,
-					});
-
-					const wasmModule = await WebAssembly.compile(wasmBytes);
-
-					// Cache the compiled module
-					this.cacheModule(name, wasmModule, wasmBytes.length);
-
-					onProgress?.({
-						module: name,
-						stage: "compiling",
-						progress: 70,
-					});
-
-					// Instantiation stage
-					onProgress?.({
-						module: name,
-						stage: "instantiating",
-						progress: 80,
-					});
-
-					const imports = this.createImports(config);
-					const instance = await WebAssembly.instantiate(wasmModule, imports);
-
+		return observability.trackOperation(`wasm.module-loader.load.${name}`, async () => {
+			try {
+				// Check cache first
+				const cached = this.moduleCache.get(name);
+				if (cached) {
+					cached.hits++;
 					onProgress?.({
 						module: name,
 						stage: "complete",
 						progress: 100,
 					});
 
-					// Track with observability
-					return wasmObservability.trackModuleLoad(
-						name,
-						Promise.resolve(instance),
-						config,
-					);
-				} catch (error) {
-					onProgress?.({
-						module: name,
-						stage: "error",
-						progress: 0,
-						error: (error as Error).message,
-					});
-					throw error;
+					const instance = await WebAssembly.instantiate(cached.module, this.createImports(config));
+					return wasmObservability.trackModuleLoad(name, Promise.resolve(instance), config);
 				}
-			},
-		);
+
+				// Download stage
+				onProgress?.({
+					module: name,
+					stage: "downloading",
+					progress: 0,
+				});
+
+				const response = await fetch(url);
+				if (!response.ok) {
+					throw new Error(`Failed to fetch WASM module: ${response.status} ${response.statusText}`);
+				}
+
+				const contentLength = parseInt(response.headers.get("content-length") || "0");
+				const reader = response.body?.getReader();
+				const chunks: Uint8Array[] = [];
+				let receivedLength = 0;
+
+				if (reader) {
+					while (true) {
+						const { done, value } = await reader.read();
+						if (done) break;
+
+						chunks.push(value);
+						receivedLength += value.length;
+
+						if (contentLength > 0) {
+							const progress = (receivedLength / contentLength) * 30; // 30% for download
+							onProgress?.({
+								module: name,
+								stage: "downloading",
+								progress,
+							});
+						}
+					}
+				}
+
+				const wasmBytes = new Uint8Array(receivedLength);
+				let position = 0;
+				for (const chunk of chunks) {
+					wasmBytes.set(chunk, position);
+					position += chunk.length;
+				}
+
+				// Compilation stage
+				onProgress?.({
+					module: name,
+					stage: "compiling",
+					progress: 40,
+				});
+
+				const wasmModule = await WebAssembly.compile(wasmBytes);
+
+				// Cache the compiled module
+				this.cacheModule(name, wasmModule, wasmBytes.length);
+
+				onProgress?.({
+					module: name,
+					stage: "compiling",
+					progress: 70,
+				});
+
+				// Instantiation stage
+				onProgress?.({
+					module: name,
+					stage: "instantiating",
+					progress: 80,
+				});
+
+				const imports = this.createImports(config);
+				const instance = await WebAssembly.instantiate(wasmModule, imports);
+
+				onProgress?.({
+					module: name,
+					stage: "complete",
+					progress: 100,
+				});
+
+				// Track with observability
+				return wasmObservability.trackModuleLoad(name, Promise.resolve(instance), config);
+			} catch (error) {
+				onProgress?.({
+					module: name,
+					stage: "error",
+					progress: 0,
+					error: (error as Error).message,
+				});
+				throw error;
+			}
+		});
 	}
 
 	/**
@@ -261,16 +243,9 @@ export class WASMModuleLoader {
 	/**
 	 * Cache a compiled WASM module
 	 */
-	private cacheModule(
-		name: string,
-		module: WebAssembly.Module,
-		size: number,
-	): void {
+	private cacheModule(name: string, module: WebAssembly.Module, size: number): void {
 		// Check if we need to evict modules to make space
-		while (
-			this.currentCacheSize + size > this.maxCacheSize &&
-			this.moduleCache.size > 0
-		) {
+		while (this.currentCacheSize + size > this.maxCacheSize && this.moduleCache.size > 0) {
 			this.evictLeastUsedModule();
 		}
 
@@ -301,10 +276,7 @@ export class WASMModuleLoader {
 		let oldestTime = new Date();
 
 		for (const [name, cache] of this.moduleCache) {
-			if (
-				cache.hits < minHits ||
-				(cache.hits === minHits && cache.timestamp < oldestTime)
-			) {
+			if (cache.hits < minHits || (cache.hits === minHits && cache.timestamp < oldestTime)) {
 				leastUsed = name;
 				minHits = cache.hits;
 				oldestTime = cache.timestamp;
@@ -329,28 +301,25 @@ export class WASMModuleLoader {
 	 * Preload modules for better performance
 	 */
 	async preloadModules(
-		modules: Array<{ name: string; url: string; config: WASMModuleConfig }>,
+		modules: Array<{ name: string; url: string; config: WASMModuleConfig }>
 	): Promise<void> {
-		return observability.trackOperation(
-			"wasm.module-loader.preload",
-			async () => {
-				const loadPromises = modules.map(({ name, url, config }) =>
-					this.loadModule(name, url, config).catch((error) => {
-						console.warn(`Failed to preload module ${name}:`, error);
-						return null;
-					}),
-				);
+		return observability.trackOperation("wasm.module-loader.preload", async () => {
+			const loadPromises = modules.map(({ name, url, config }) =>
+				this.loadModule(name, url, config).catch((error) => {
+					console.warn(`Failed to preload module ${name}:`, error);
+					return null;
+				})
+			);
 
-				const results = await Promise.all(loadPromises);
-				const successful = results.filter((r) => r !== null).length;
+			const results = await Promise.all(loadPromises);
+			const successful = results.filter((r) => r !== null).length;
 
-				observability.recordEvent("wasm.module-loader.preload-complete", {
-					totalModules: modules.length,
-					successfulLoads: successful,
-					failedLoads: modules.length - successful,
-				});
-			},
-		);
+			observability.recordEvent("wasm.module-loader.preload-complete", {
+				totalModules: modules.length,
+				successfulLoads: successful,
+				failedLoads: modules.length - successful,
+			});
+		});
 	}
 
 	/**
@@ -383,14 +352,12 @@ export class WASMModuleLoader {
 		hitRate: number;
 		modules: Array<{ name: string; size: number; hits: number; age: number }>;
 	} {
-		const modules = Array.from(this.moduleCache.entries()).map(
-			([name, cache]) => ({
-				name,
-				size: cache.size,
-				hits: cache.hits,
-				age: Date.now() - cache.timestamp.getTime(),
-			}),
-		);
+		const modules = Array.from(this.moduleCache.entries()).map(([name, cache]) => ({
+			name,
+			size: cache.size,
+			hits: cache.hits,
+			age: Date.now() - cache.timestamp.getTime(),
+		}));
 
 		const totalHits = modules.reduce((sum, m) => sum + m.hits, 0);
 		const totalRequests = totalHits + this.loadingPromises.size;
@@ -414,12 +381,11 @@ export const loadWASMModule = (
 	name: string,
 	url: string,
 	config: WASMModuleConfig,
-	onProgress?: (progress: ModuleLoadProgress) => void,
+	onProgress?: (progress: ModuleLoadProgress) => void
 ) => moduleLoader.loadModule(name, url, config, onProgress);
 
 export const preloadWASMModules = (
-	modules: Array<{ name: string; url: string; config: WASMModuleConfig }>,
+	modules: Array<{ name: string; url: string; config: WASMModuleConfig }>
 ) => moduleLoader.preloadModules(modules);
 
-export const getWASMExports = (moduleName: string) =>
-	moduleLoader.getWASMExports(moduleName);
+export const getWASMExports = (moduleName: string) => moduleLoader.getWASMExports(moduleName);

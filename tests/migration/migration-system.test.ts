@@ -5,21 +5,8 @@
  * transformation, validation, conflict resolution, backup/restore, and CLI operations.
  */
 
-import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
-import {
-	backupService,
-	DataExtractor,
-	DataMapper,
-	migrationService,
-} from "../../lib/migration";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { backupService, DataExtractor, DataMapper, migrationService } from "../../lib/migration";
 import { MigrationResult } from "../../lib/migration/types";
 
 // Mock localStorage
@@ -147,7 +134,7 @@ const setupMockLocalStorage = () => {
 		JSON.stringify({
 			state: { tasks },
 			version: 0,
-		}),
+		})
 	);
 
 	mockLocalStorage.setItem(
@@ -155,25 +142,19 @@ const setupMockLocalStorage = () => {
 		JSON.stringify({
 			state: { environments },
 			version: 0,
-		}),
+		})
 	);
 
 	// Add some form data
-	mockLocalStorage.setItem(
-		"react-hook-form-task-form",
-		JSON.stringify({ title: "Draft Task" }),
-	);
+	mockLocalStorage.setItem("react-hook-form-task-form", JSON.stringify({ title: "Draft Task" }));
 	mockLocalStorage.setItem(
 		"react-hook-form-env-form",
-		JSON.stringify({ name: "Draft Environment" }),
+		JSON.stringify({ name: "Draft Environment" })
 	);
 
 	// Add some random keys
 	mockLocalStorage.setItem("random-key-1", "random-value-1");
-	mockLocalStorage.setItem(
-		"user-preferences",
-		JSON.stringify({ theme: "dark" }),
-	);
+	mockLocalStorage.setItem("user-preferences", JSON.stringify({ theme: "dark" }));
 };
 
 describe("Migration System Comprehensive Tests", () => {
@@ -251,14 +232,10 @@ describe("Migration System Comprehensive Tests", () => {
 			const envsResult = await dataExtractor.extractEnvironments();
 
 			expect(tasksResult.data).toBeUndefined();
-			expect(tasksResult.warnings).toContain(
-				"No task store found in localStorage",
-			);
+			expect(tasksResult.warnings).toContain("No task store found in localStorage");
 
 			expect(envsResult.data).toBeUndefined();
-			expect(envsResult.warnings).toContain(
-				"No environments store found in localStorage",
-			);
+			expect(envsResult.warnings).toContain("No environments store found in localStorage");
 		});
 
 		it("should handle corrupted localStorage data", async () => {
@@ -275,12 +252,8 @@ describe("Migration System Comprehensive Tests", () => {
 			const result = await dataExtractor.extractAll();
 
 			expect(result.data.formData).toBeDefined();
-			expect(Object.keys(result.data.formData!)).toContain(
-				"react-hook-form-task-form",
-			);
-			expect(Object.keys(result.data.formData!)).toContain(
-				"react-hook-form-env-form",
-			);
+			expect(Object.keys(result.data.formData!)).toContain("react-hook-form-task-form");
+			expect(Object.keys(result.data.formData!)).toContain("react-hook-form-env-form");
 		});
 
 		it("should provide accurate storage statistics", () => {
@@ -297,9 +270,7 @@ describe("Migration System Comprehensive Tests", () => {
 			const initialLength = mockLocalStorage.length;
 			expect(initialLength).toBeGreaterThan(0);
 
-			const success = await dataExtractor.clearExtractedData(
-				"CONFIRM_CLEAR_LOCALSTORAGE",
-			);
+			const success = await dataExtractor.clearExtractedData("CONFIRM_CLEAR_LOCALSTORAGE");
 
 			expect(success).toBe(true);
 			expect(mockLocalStorage.length).toBe(0);
@@ -308,8 +279,7 @@ describe("Migration System Comprehensive Tests", () => {
 		it("should refuse to clear localStorage without confirmation", async () => {
 			const initialLength = mockLocalStorage.length;
 
-			const success =
-				await dataExtractor.clearExtractedData("wrong-confirmation");
+			const success = await dataExtractor.clearExtractedData("wrong-confirmation");
 
 			expect(success).toBe(false);
 			expect(mockLocalStorage.length).toBe(initialLength);
@@ -405,11 +375,7 @@ describe("Migration System Comprehensive Tests", () => {
 				updatedAt: "2024-01-03T00:00:00.000Z", // Newer
 			};
 
-			const resolved = dataMapper.resolveConflict(
-				localTask,
-				remoteTask,
-				"MERGE_FAVOR_RECENT",
-			);
+			const resolved = dataMapper.resolveConflict(localTask, remoteTask, "MERGE_FAVOR_RECENT");
 
 			expect(resolved.title).toBe("Remote Title"); // Should use newer remote
 			expect(resolved.id).toBe(localTask.id);
@@ -456,9 +422,7 @@ describe("Migration System Comprehensive Tests", () => {
 			});
 
 			expect(compressedResult.success).toBe(true);
-			expect(compressedResult.manifest!.size).toBeLessThan(
-				uncompressedResult.manifest!.size,
-			);
+			expect(compressedResult.manifest!.size).toBeLessThan(uncompressedResult.manifest!.size);
 			expect(compressedResult.manifest!.compressed).toBe(true);
 		});
 
@@ -487,10 +451,7 @@ describe("Migration System Comprehensive Tests", () => {
 			};
 
 			// Mock the backup storage
-			vi.spyOn(backupService, "listBackups").mockReturnValue([
-				backup1,
-				backup2,
-			]);
+			vi.spyOn(backupService, "listBackups").mockReturnValue([backup1, backup2]);
 
 			const backups = backupService.listBackups();
 
@@ -547,12 +508,9 @@ describe("Migration System Comprehensive Tests", () => {
 			expect(exportResult.data).toBeDefined();
 
 			// Import the backup
-			const importResult = await backupService.importBackup(
-				exportResult.data!,
-				{
-					overwriteExisting: true,
-				},
-			);
+			const importResult = await backupService.importBackup(exportResult.data!, {
+				overwriteExisting: true,
+			});
 
 			expect(importResult.success).toBe(true);
 			expect(importResult.backupId).toBeDefined();
@@ -612,9 +570,7 @@ describe("Migration System Comprehensive Tests", () => {
 
 			expect(result.success).toBe(true);
 			expect(result.itemsProcessed).toBeGreaterThan(0);
-			expect(result.warnings).toContain(
-				"Dry run completed - no data was modified",
-			);
+			expect(result.warnings).toContain("Dry run completed - no data was modified");
 
 			// Verify no actual database operations were performed
 			expect(mockDb.tasks.create).not.toHaveBeenCalled();
@@ -635,7 +591,7 @@ describe("Migration System Comprehensive Tests", () => {
 
 			expect(result.success).toBe(true);
 			expect(result.warnings).toEqual(
-				expect.arrayContaining([expect.stringContaining("conflict")]),
+				expect.arrayContaining([expect.stringContaining("conflict")])
 			);
 		});
 
@@ -714,9 +670,7 @@ describe("Migration System Comprehensive Tests", () => {
 				progressEvents.push({ stage, progress });
 			});
 
-			vi.spyOn(migrationService as any, "notifyProgress").mockImplementation(
-				mockProgressCallback,
-			);
+			vi.spyOn(migrationService as any, "notifyProgress").mockImplementation(mockProgressCallback);
 
 			await migrationService.startMigration(defaultConfig);
 
@@ -726,10 +680,7 @@ describe("Migration System Comprehensive Tests", () => {
 
 		it("should handle user-specific migration", async () => {
 			const userId = "user-123";
-			const result = await migrationService.startMigration(
-				defaultConfig,
-				userId,
-			);
+			const result = await migrationService.startMigration(defaultConfig, userId);
 
 			expect(result.success).toBe(true);
 			// Verify user ID is passed to database operations
@@ -738,7 +689,7 @@ describe("Migration System Comprehensive Tests", () => {
 					data: expect.objectContaining({
 						userId,
 					}),
-				}),
+				})
 			);
 		});
 	});
@@ -780,9 +731,7 @@ describe("Migration System Comprehensive Tests", () => {
 		});
 
 		it("should handle database connection errors", async () => {
-			mockDb.$transaction.mockRejectedValue(
-				new Error("Database connection failed"),
-			);
+			mockDb.$transaction.mockRejectedValue(new Error("Database connection failed"));
 
 			const result = await migrationService.startMigration(defaultConfig);
 
@@ -807,9 +756,7 @@ describe("Migration System Comprehensive Tests", () => {
 
 			// At least one should fail due to concurrent access protection
 			const failures = results.filter(
-				(r) =>
-					r.status === "rejected" ||
-					(r.status === "fulfilled" && !r.value.success),
+				(r) => r.status === "rejected" || (r.status === "fulfilled" && !r.value.success)
 			);
 
 			expect(failures.length).toBeGreaterThan(0);
@@ -828,7 +775,7 @@ describe("Migration System Comprehensive Tests", () => {
 				JSON.stringify({
 					state: { tasks: largeTasks },
 					version: 0,
-				}),
+				})
 			);
 
 			const startTime = Date.now();
@@ -915,13 +862,10 @@ describe("Migration System Comprehensive Tests", () => {
 				compress: true,
 			});
 
-			expect(compressedResult.manifest!.size).toBeLessThan(
-				uncompressedResult.manifest!.size,
-			);
+			expect(compressedResult.manifest!.size).toBeLessThan(uncompressedResult.manifest!.size);
 
 			// Compression should reduce size by at least 10%
-			const compressionRatio =
-				compressedResult.manifest!.size / uncompressedResult.manifest!.size;
+			const compressionRatio = compressedResult.manifest!.size / uncompressedResult.manifest!.size;
 			expect(compressionRatio).toBeLessThan(0.9);
 		});
 	});

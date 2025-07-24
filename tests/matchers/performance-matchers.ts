@@ -1,10 +1,7 @@
 // Performance matchers for testing
 
 export const performanceMatchers = {
-	toCompleteWithinTime: async (
-		received: () => Promise<any>,
-		maxTime: number,
-	) => {
+	toCompleteWithinTime: async (received: () => Promise<any>, maxTime: number) => {
 		const start = performance.now();
 		try {
 			await received();
@@ -13,8 +10,7 @@ export const performanceMatchers = {
 
 			return {
 				pass,
-				message: () =>
-					`Expected function to complete within ${maxTime}ms, but took ${duration}ms`,
+				message: () => `Expected function to complete within ${maxTime}ms, but took ${duration}ms`,
 			};
 		} catch (error) {
 			return {
@@ -31,8 +27,7 @@ export const performanceMatchers = {
 
 		return {
 			pass,
-			message: () =>
-				`Expected memory usage to be under ${maxMemory}MB, but was ${memoryUsage}MB`,
+			message: () => `Expected memory usage to be under ${maxMemory}MB, but was ${memoryUsage}MB`,
 		};
 	},
 };

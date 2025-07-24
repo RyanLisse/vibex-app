@@ -22,7 +22,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
 			const table = screen.getByRole("table");
@@ -43,7 +43,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
 			const table = screen.getByRole("table");
@@ -59,7 +59,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
 			const table = screen.getByRole("table");
@@ -77,7 +77,7 @@ describe("Table Components", () => {
 							<TableHead>Header</TableHead>
 						</TableRow>
 					</TableHeader>
-				</table>,
+				</table>
 			);
 
 			const thead = screen.getByRole("rowgroup");
@@ -94,7 +94,7 @@ describe("Table Components", () => {
 							<TableHead>Header</TableHead>
 						</TableRow>
 					</TableHeader>
-				</table>,
+				</table>
 			);
 
 			const thead = screen.getByRole("rowgroup");
@@ -111,7 +111,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</table>,
+				</table>
 			);
 
 			const tbody = screen.getByRole("rowgroup");
@@ -128,7 +128,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</table>,
+				</table>
 			);
 
 			const tbody = screen.getByRole("rowgroup");
@@ -145,7 +145,7 @@ describe("Table Components", () => {
 							<TableCell>Footer</TableCell>
 						</TableRow>
 					</TableFooter>
-				</table>,
+				</table>
 			);
 
 			const tfoot = screen.getByRole("rowgroup");
@@ -162,7 +162,7 @@ describe("Table Components", () => {
 							<TableCell>Footer</TableCell>
 						</TableRow>
 					</TableFooter>
-				</table>,
+				</table>
 			);
 
 			const tfoot = screen.getByRole("rowgroup");
@@ -179,17 +179,13 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const row = screen.getByRole("row");
 			expect(row.tagName).toBe("TR");
 			expect(row).toHaveAttribute("data-slot", "table-row");
-			expect(row).toHaveClass(
-				"hover:bg-muted/50",
-				"border-b",
-				"transition-colors",
-			);
+			expect(row).toHaveClass("hover:bg-muted/50", "border-b", "transition-colors");
 		});
 
 		it("should handle selected state", () => {
@@ -200,7 +196,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const row = screen.getByRole("row");
@@ -216,7 +212,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const row = screen.getByRole("row");
@@ -232,7 +228,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const row = screen.getByRole("row");
@@ -251,7 +247,7 @@ describe("Table Components", () => {
 							<TableHead>Column Header</TableHead>
 						</tr>
 					</thead>
-				</table>,
+				</table>
 			);
 
 			const th = screen.getByRole("columnheader");
@@ -263,7 +259,7 @@ describe("Table Components", () => {
 				"px-2",
 				"text-left",
 				"align-middle",
-				"font-medium",
+				"font-medium"
 			);
 			expect(th).toHaveTextContent("Column Header");
 		});
@@ -276,7 +272,7 @@ describe("Table Components", () => {
 							<TableHead className="text-right">Header</TableHead>
 						</tr>
 					</thead>
-				</table>,
+				</table>
 			);
 
 			const th = screen.getByRole("columnheader");
@@ -291,7 +287,7 @@ describe("Table Components", () => {
 							<TableHead scope="col">Header</TableHead>
 						</tr>
 					</thead>
-				</table>,
+				</table>
 			);
 
 			const th = screen.getByRole("columnheader");
@@ -308,7 +304,7 @@ describe("Table Components", () => {
 							<TableCell>Cell Content</TableCell>
 						</tr>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const td = screen.getByRole("cell");
@@ -326,7 +322,7 @@ describe("Table Components", () => {
 							<TableCell className="text-center font-bold">Cell</TableCell>
 						</tr>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const td = screen.getByRole("cell");
@@ -343,7 +339,7 @@ describe("Table Components", () => {
 							</TableCell>
 						</tr>
 					</tbody>
-				</table>,
+				</table>
 			);
 
 			const td = screen.getByRole("cell");
@@ -362,7 +358,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
 			const caption = screen.getByText("Table caption text");
@@ -380,7 +376,7 @@ describe("Table Components", () => {
 							<TableCell>Cell</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
 			const caption = screen.getByText("Caption");
@@ -418,7 +414,7 @@ describe("Table Components", () => {
 							<TableCell className="text-right">$300.00</TableCell>
 						</TableRow>
 					</TableFooter>
-				</Table>,
+				</Table>
 			);
 
 			expect(screen.getByRole("table")).toBeInTheDocument();
@@ -433,17 +429,13 @@ describe("Table Components", () => {
 				<Table>
 					<TableBody>
 						<TableRow>
-							<TableCell>
-								Very long content that might overflow on small screens
-							</TableCell>
+							<TableCell>Very long content that might overflow on small screens</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
-			const container = screen
-				.getByRole("generic")
-				.querySelector('[data-slot="table-container"]');
+			const container = screen.getByRole("generic").querySelector('[data-slot="table-container"]');
 			expect(container).toHaveClass("overflow-x-auto");
 		});
 
@@ -466,7 +458,7 @@ describe("Table Components", () => {
 							<TableCell>John Doe</TableCell>
 						</TableRow>
 					</TableBody>
-				</Table>,
+				</Table>
 			);
 
 			const checkboxes = screen.getAllByRole("checkbox");

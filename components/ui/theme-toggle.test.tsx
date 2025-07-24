@@ -232,7 +232,7 @@ describe("ThemeToggle", () => {
 			"scale-100",
 			"transition-all",
 			"dark:-rotate-90",
-			"dark:scale-0",
+			"dark:scale-0"
 		);
 	});
 
@@ -262,7 +262,7 @@ describe("ThemeToggle", () => {
 			"scale-0",
 			"transition-all",
 			"dark:rotate-0",
-			"dark:scale-100",
+			"dark:scale-100"
 		);
 	});
 
@@ -297,11 +297,7 @@ describe("ThemeToggle", () => {
 			const [_mounted, _setMounted] = React.useState(true);
 
 			return (
-				<button
-					data-size="icon"
-					data-testid="theme-toggle-button"
-					data-variant="ghost"
-				>
+				<button data-size="icon" data-testid="theme-toggle-button" data-variant="ghost">
 					<span>Toggle theme</span>
 				</button>
 			);

@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
-import type {
-	ExampleFilter,
-	ExampleFormData,
-	ExampleItem,
-	ExampleStore,
-} from "./types";
+import type { ExampleFilter, ExampleFormData, ExampleItem, ExampleStore } from "./types";
 
 describe("ExampleItem type", () => {
 	it("should create valid ExampleItem with all required properties", () => {
@@ -55,11 +50,7 @@ describe("ExampleItem type", () => {
 	});
 
 	it("should accept all valid status values", () => {
-		const statuses: ExampleItem["status"][] = [
-			"pending",
-			"in_progress",
-			"completed",
-		];
+		const statuses: ExampleItem["status"][] = ["pending", "in_progress", "completed"];
 
 		for (const status of statuses) {
 			const item: ExampleItem = {
@@ -191,11 +182,7 @@ describe("ExampleFilter type", () => {
 	});
 
 	it("should accept all valid status values", () => {
-		const statuses: ExampleFilter["status"][] = [
-			"pending",
-			"in_progress",
-			"completed",
-		];
+		const statuses: ExampleFilter["status"][] = ["pending", "in_progress", "completed"];
 
 		for (const status of statuses) {
 			const filter: ExampleFilter = { status };
@@ -713,10 +700,7 @@ describe("Type compatibility and relationships", () => {
 			priority: item.priority,
 		});
 
-		const fromFormData = (
-			formData: ExampleFormData,
-			id: string,
-		): ExampleItem => ({
+		const fromFormData = (formData: ExampleFormData, id: string): ExampleItem => ({
 			id,
 			title: formData.title,
 			description: formData.description,
@@ -805,8 +789,7 @@ describe("Type guards and utility functions", () => {
 				obj !== null &&
 				(obj.status === undefined ||
 					["pending", "in_progress", "completed"].includes(obj.status)) &&
-				(obj.priority === undefined ||
-					["low", "medium", "high"].includes(obj.priority)) &&
+				(obj.priority === undefined || ["low", "medium", "high"].includes(obj.priority)) &&
 				(obj.searchTerm === undefined || typeof obj.searchTerm === "string")
 			);
 		};
@@ -1055,17 +1038,14 @@ describe("Edge cases and validation", () => {
 	});
 
 	it("should handle ExampleStore with large number of items", () => {
-		const largeItemsArray: ExampleItem[] = Array.from(
-			{ length: 1000 },
-			(_, i) => ({
-				id: `item-${i}`,
-				title: `Item ${i}`,
-				status: "pending" as const,
-				priority: "medium" as const,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			}),
-		);
+		const largeItemsArray: ExampleItem[] = Array.from({ length: 1000 }, (_, i) => ({
+			id: `item-${i}`,
+			title: `Item ${i}`,
+			status: "pending" as const,
+			priority: "medium" as const,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		}));
 
 		const store: ExampleStore = {
 			items: largeItemsArray,

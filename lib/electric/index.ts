@@ -31,6 +31,8 @@ export {
 export { getPGliteInstance, pgliteConfig } from "./simple-config";
 export { ElectricSyncService, electricSyncService } from "./sync-service";
 
+import { logger } from "../logging";
+
 // Main initialization function
 export async function initializeElectricSQL(options?: {
 	userId?: string;
@@ -41,7 +43,7 @@ export async function initializeElectricSQL(options?: {
 	const { electricAuthService, electricSyncService } = await import("./index");
 
 	try {
-		console.log("Initializing ElectricSQL integration...");
+		logger.info("Initializing ElectricSQL integration...");
 
 		// Initialize authentication
 		await electricAuthService.initialize({
@@ -58,9 +60,9 @@ export async function initializeElectricSQL(options?: {
 			electricSyncService.startHealthMonitoring();
 		}
 
-		console.log("ElectricSQL integration initialized successfully");
+		logger.info("ElectricSQL integration initialized successfully");
 	} catch (error) {
-		console.error("Failed to initialize ElectricSQL integration:", error);
+		logger.error("Failed to initialize ElectricSQL integration", { error });
 		throw error;
 	}
 }
@@ -72,9 +74,9 @@ export async function cleanupElectricSQL(): Promise<void> {
 	try {
 		await electricSyncService.cleanup();
 		await electricAuthService.logout();
-		console.log("ElectricSQL integration cleaned up");
+		logger.info("ElectricSQL integration cleaned up");
 	} catch (error) {
-		console.error("Failed to cleanup ElectricSQL integration:", error);
+		logger.error("Failed to cleanup ElectricSQL integration", { error });
 		throw error;
 	}
 }
@@ -114,7 +116,7 @@ export class ElectricSQLUtils {
 			where?: any;
 			orderBy?: any;
 			limit?: number;
-		},
+		}
 	): () => void {
 		return electricSyncService.subscribeToTable(tableName, callback, options);
 	}
@@ -142,9 +144,7 @@ export class ElectricSQLUtils {
 	/**
 	 * Check if user has specific permission
 	 */
-	static hasPermission(
-		operation: "read" | "write" | "delete" | "admin",
-	): boolean {
+	static hasPermission(operation: "read" | "write" | "delete" | "admin"): boolean {
 		return electricAuthService.hasPermission(operation);
 	}
 
@@ -190,7 +190,7 @@ export class ElectricSQLError extends Error {
 	constructor(
 		message: string,
 		public code?: string,
-		public details?: any,
+		public details?: any
 	) {
 		super(message);
 		this.name = "ElectricSQLError";
@@ -214,7 +214,7 @@ export class ElectricSQLSyncError extends ElectricSQLError {
 export class ElectricSQLConflictError extends ElectricSQLError {
 	constructor(
 		message: string,
-		public conflictData: any,
+		public conflictData: any
 	) {
 		super(message, "CONFLICT_ERROR", conflictData);
 		this.name = "ElectricSQLConflictError";

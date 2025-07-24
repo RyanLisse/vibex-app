@@ -17,12 +17,7 @@ import {
 	type SnapshotType,
 	snapshotManager,
 } from "./execution-snapshots";
-import {
-	type ReplaySession,
-	type ReplaySpeed,
-	ReplayState,
-	replayEngine,
-} from "./replay-engine";
+import { type ReplaySession, type ReplaySpeed, ReplayState, replayEngine } from "./replay-engine";
 
 // Time-travel system manager
 export class TimeTravelSystem {
@@ -67,16 +62,13 @@ export class TimeTravelSystem {
 					components: ["snapshots", "replay", "monitoring"],
 				},
 				"time-travel",
-				["system", "initialization"],
+				["system", "initialization"]
 			);
 
 			this.initialized = true;
 			console.log("🎉 Time-Travel Debugging System fully initialized");
 		} catch (error) {
-			console.error(
-				"❌ Failed to initialize Time-Travel Debugging System:",
-				error,
-			);
+			console.error("❌ Failed to initialize Time-Travel Debugging System:", error);
 			throw error;
 		}
 	}
@@ -106,7 +98,7 @@ export class TimeTravelSystem {
 		state: ExecutionState,
 		description?: string,
 		tags?: string[],
-		isCheckpoint?: boolean,
+		isCheckpoint?: boolean
 	): Promise<ExecutionSnapshot> {
 		if (!this.initialized) {
 			await this.initialize();
@@ -119,7 +111,7 @@ export class TimeTravelSystem {
 			state,
 			description,
 			tags,
-			isCheckpoint,
+			isCheckpoint
 		);
 	}
 
@@ -130,18 +122,13 @@ export class TimeTravelSystem {
 		executionId: string,
 		stepNumber: number,
 		state: ExecutionState,
-		description?: string,
+		description?: string
 	): Promise<ExecutionSnapshot> {
 		if (!this.initialized) {
 			await this.initialize();
 		}
 
-		return snapshotManager.createCheckpoint(
-			executionId,
-			stepNumber,
-			state,
-			description,
-		);
+		return snapshotManager.createCheckpoint(executionId, stepNumber, state, description);
 	}
 
 	/**
@@ -153,7 +140,7 @@ export class TimeTravelSystem {
 			fromStep?: number;
 			toStep?: number;
 			includeCheckpointsOnly?: boolean;
-		},
+		}
 	): Promise<string> {
 		if (!this.initialized) {
 			await this.initialize();
@@ -174,7 +161,7 @@ export class TimeTravelSystem {
 			fromStep?: number;
 			toStep?: number;
 			checkpointsOnly?: boolean;
-		},
+		}
 	): Promise<ExecutionSnapshot[]> {
 		if (!this.initialized) {
 			await this.initialize();
@@ -196,7 +183,7 @@ export class TimeTravelSystem {
 	async controlReplay(
 		sessionId: string,
 		action: "start" | "pause" | "stop" | "step-forward" | "step-backward",
-		options?: { speed?: ReplaySpeed; index?: number },
+		options?: { speed?: ReplaySpeed; index?: number }
 	): Promise<void> {
 		switch (action) {
 			case "start":
@@ -237,7 +224,7 @@ export class TimeTravelSystem {
 	 */
 	async rollbackToCheckpoint(
 		executionId: string,
-		checkpointStepNumber: number,
+		checkpointStepNumber: number
 	): Promise<ExecutionSnapshot | null> {
 		if (!this.initialized) {
 			await this.initialize();
@@ -248,9 +235,7 @@ export class TimeTravelSystem {
 			checkpointsOnly: true,
 		});
 
-		const checkpoint = snapshots.find(
-			(s) => s.stepNumber === checkpointStepNumber,
-		);
+		const checkpoint = snapshots.find((s) => s.stepNumber === checkpointStepNumber);
 		if (!checkpoint) {
 			throw new Error(`Checkpoint at step ${checkpointStepNumber} not found`);
 		}
@@ -266,7 +251,7 @@ export class TimeTravelSystem {
 				checkpointId: checkpoint.id,
 			},
 			"time-travel",
-			["rollback", "checkpoint"],
+			["rollback", "checkpoint"]
 		);
 
 		return checkpoint;
@@ -313,7 +298,7 @@ export class TimeTravelSystem {
 				"Time-travel debugging system shutting down",
 				{ shutdownTime: Date.now() },
 				"time-travel",
-				["system", "shutdown"],
+				["system", "shutdown"]
 			);
 
 			// Flush all pending snapshots
@@ -325,10 +310,7 @@ export class TimeTravelSystem {
 			this.initialized = false;
 			console.log("✅ Time-Travel Debugging System shutdown complete");
 		} catch (error) {
-			console.error(
-				"❌ Error during Time-Travel Debugging System shutdown:",
-				error,
-			);
+			console.error("❌ Error during Time-Travel Debugging System shutdown:", error);
 			throw error;
 		}
 	}
@@ -353,7 +335,7 @@ export const timeTravel = {
 		state: ExecutionState,
 		description?: string,
 		tags?: string[],
-		isCheckpoint?: boolean,
+		isCheckpoint?: boolean
 	) =>
 		TimeTravelSystem.getInstance().captureSnapshot(
 			executionId,
@@ -362,19 +344,13 @@ export const timeTravel = {
 			state,
 			description,
 			tags,
-			isCheckpoint,
+			isCheckpoint
 		),
 
 	createCheckpoint: (
 		executionId: string,
 		stepNumber: number,
 		state: ExecutionState,
-		description?: string,
-	) =>
-		TimeTravelSystem.getInstance().createCheckpoint(
-			executionId,
-			stepNumber,
-			state,
-			description,
-		),
+		description?: string
+	) => TimeTravelSystem.getInstance().createCheckpoint(executionId, stepNumber, state, description),
 };

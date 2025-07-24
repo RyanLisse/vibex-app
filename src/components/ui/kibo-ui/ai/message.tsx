@@ -10,20 +10,10 @@ interface AIMessageProps extends React.HTMLAttributes<HTMLDivElement> {
 	timestamp?: Date;
 }
 
-export function AIMessage({
-	children,
-	from,
-	timestamp,
-	className,
-	...props
-}: AIMessageProps) {
+export function AIMessage({ children, from, timestamp, className, ...props }: AIMessageProps) {
 	return (
 		<div
-			className={cn(
-				"flex gap-3 p-4",
-				from === "user" ? "flex-row-reverse" : "flex-row",
-				className,
-			)}
+			className={cn("flex gap-3 p-4", from === "user" ? "flex-row-reverse" : "flex-row", className)}
 			role="article"
 			aria-label={`Message from ${from}`}
 			{...props}
@@ -39,11 +29,7 @@ interface AIMessageAvatarProps {
 	className?: string;
 }
 
-export function AIMessageAvatar({
-	name,
-	src,
-	className,
-}: AIMessageAvatarProps) {
+export function AIMessageAvatar({ name, src, className }: AIMessageAvatarProps) {
 	const initials = name
 		.split(" ")
 		.map((n) => n[0])
@@ -63,11 +49,7 @@ interface AIMessageContentProps extends React.HTMLAttributes<HTMLDivElement> {
 	children: React.ReactNode;
 }
 
-export function AIMessageContent({
-	children,
-	className,
-	...props
-}: AIMessageContentProps) {
+export function AIMessageContent({ children, className, ...props }: AIMessageContentProps) {
 	return (
 		<div className={cn("flex-1 space-y-2", className)} {...props}>
 			{children}

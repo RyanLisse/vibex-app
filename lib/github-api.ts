@@ -127,10 +127,10 @@ export function parseCookieValue(cookieString: string, cookieName: string): stri
 		return null;
 	}
 
-	const cookies = cookieString.split(';').map(cookie => cookie.trim());
+	const cookies = cookieString.split(";").map((cookie) => cookie.trim());
 
 	for (const cookie of cookies) {
-		const [name, value] = cookie.split('=');
+		const [name, value] = cookie.split("=");
 		if (name?.trim() === cookieName) {
 			return value?.trim() || null;
 		}

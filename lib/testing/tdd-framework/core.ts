@@ -15,7 +15,7 @@ export class TestCase {
 
 	constructor(
 		public name: string,
-		public testFunction: Function,
+		public testFunction: Function
 	) {}
 
 	setImplementation(impl: Function): void {

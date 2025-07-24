@@ -1,2 +1,2 @@
 // Middleware placeholder - implement as needed
-export { default } from 'next-auth/middleware';
+export { default } from "next-auth/middleware";

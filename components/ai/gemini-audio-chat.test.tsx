@@ -38,9 +38,7 @@ describe("GeminiAudioChat", () => {
 
 		expect(screen.getByText("Gemini Audio Chat")).toBeInTheDocument();
 		expect(screen.getByText("Disconnected")).toBeInTheDocument();
-		expect(
-			screen.getByText("No messages yet. Start a conversation!"),
-		).toBeInTheDocument();
+		expect(screen.getByText("No messages yet. Start a conversation!")).toBeInTheDocument();
 	});
 
 	it("shows loading state", () => {
@@ -70,7 +68,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(<GeminiAudioChat />);
@@ -105,7 +103,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(<GeminiAudioChat />);
@@ -141,7 +139,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(<GeminiAudioChat />);
@@ -177,7 +175,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(<GeminiAudioChat />);
@@ -229,7 +227,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(<GeminiAudioChat />);
@@ -271,7 +269,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(<GeminiAudioChat />);
@@ -314,7 +312,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		render(
@@ -324,7 +322,7 @@ describe("GeminiAudioChat", () => {
 				onError={mockOnError}
 				onStateChange={mockOnStateChange}
 				voiceName="custom-voice"
-			/>,
+			/>
 		);
 
 		expect(mockHook).toHaveBeenCalledWith({
@@ -363,7 +361,7 @@ describe("GeminiAudioChat", () => {
 		}));
 
 		mocked(
-			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration,
+			require("@/hooks/use-audio-chat-integration").useAudioChatIntegration
 		).mockImplementation(mockHook);
 
 		const { rerender } = render(<GeminiAudioChat />);

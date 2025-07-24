@@ -84,9 +84,7 @@ export class MigrationService {
 
 				// Migrate environments
 				if (localData.environments?.length) {
-					const envResult = await this.migrateEnvironments(
-						localData.environments,
-					);
+					const envResult = await this.migrateEnvironments(localData.environments);
 					result.itemsProcessed += envResult.itemsProcessed;
 					result.itemsSuccess += envResult.itemsSuccess;
 					result.itemsFailed += envResult.itemsFailed;
@@ -100,17 +98,14 @@ export class MigrationService {
 				// Clear localStorage after successful migration
 				if (result.success) {
 					this.clearLocalStorage();
-					result.warnings.push(
-						"LocalStorage data cleared after successful migration",
-					);
+					result.warnings.push("LocalStorage data cleared after successful migration");
 				}
 
 				return result;
 			} catch (error) {
 				result.errors.push({
 					type: "MIGRATION_ERROR",
-					message:
-						error instanceof Error ? error.message : "Unknown migration error",
+					message: error instanceof Error ? error.message : "Unknown migration error",
 					details: { error },
 				});
 				result.duration = Date.now() - startTime;
@@ -122,9 +117,7 @@ export class MigrationService {
 	/**
 	 * Migrate tasks from localStorage to database
 	 */
-	private async migrateTasks(
-		localTasks: LocalStorageTask[],
-	): Promise<MigrationResult> {
+	private async migrateTasks(localTasks: LocalStorageTask[]): Promise<MigrationResult> {
 		const result: MigrationResult = {
 			success: false,
 			itemsProcessed: localTasks.length,
@@ -138,11 +131,7 @@ export class MigrationService {
 		for (const localTask of localTasks) {
 			try {
 				// Check if task already exists
-				const existing = await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.id, localTask.id))
-					.limit(1);
+				const existing = await db.select().from(tasks).where(eq(tasks.id, localTask.id)).limit(1);
 
 				if (existing.length > 0) {
 					result.warnings.push(`Task ${localTask.id} already exists, skipping`);
@@ -197,7 +186,7 @@ export class MigrationService {
 	 * Migrate environments from localStorage to database
 	 */
 	private async migrateEnvironments(
-		localEnvs: LocalStorageEnvironment[],
+		localEnvs: LocalStorageEnvironment[]
 	): Promise<MigrationResult> {
 		const result: MigrationResult = {
 			success: false,
@@ -219,9 +208,7 @@ export class MigrationService {
 					.limit(1);
 
 				if (existing.length > 0) {
-					result.warnings.push(
-						`Environment ${localEnv.id} already exists, skipping`,
-					);
+					result.warnings.push(`Environment ${localEnv.id} already exists, skipping`);
 					result.itemsSuccess++;
 					continue;
 				}
@@ -235,13 +222,9 @@ export class MigrationService {
 					githubToken: localEnv.githubToken,
 					githubRepository: localEnv.githubRepository,
 					createdAt:
-						localEnv.createdAt instanceof Date
-							? localEnv.createdAt
-							: new Date(localEnv.createdAt),
+						localEnv.createdAt instanceof Date ? localEnv.createdAt : new Date(localEnv.createdAt),
 					updatedAt:
-						localEnv.updatedAt instanceof Date
-							? localEnv.updatedAt
-							: new Date(localEnv.updatedAt),
+						localEnv.updatedAt instanceof Date ? localEnv.updatedAt : new Date(localEnv.updatedAt),
 				};
 
 				// Insert into database
@@ -291,7 +274,7 @@ export class MigrationService {
 
 			// Extract any other form data
 			const formKeys = Object.keys(localStorage).filter(
-				(key) => key.startsWith("form-") || key.includes("form"),
+				(key) => key.startsWith("form-") || key.includes("form")
 			);
 
 			if (formKeys.length > 0) {
@@ -299,9 +282,7 @@ export class MigrationService {
 				formKeys.forEach((key) => {
 					try {
 						if (data.formData) {
-							data.formData[key] = JSON.parse(
-								localStorage.getItem(key) || "{}",
-							);
+							data.formData[key] = JSON.parse(localStorage.getItem(key) || "{}");
 						}
 					} catch {
 						if (data.formData) {
@@ -351,7 +332,7 @@ export class MigrationService {
 
 			// Clear form data
 			const formKeys = Object.keys(localStorage).filter(
-				(key) => key.startsWith("form-") || key.includes("form"),
+				(key) => key.startsWith("form-") || key.includes("form")
 			);
 			formKeys.forEach((key) => localStorage.removeItem(key));
 		} catch (error) {
@@ -369,9 +350,7 @@ export class MigrationService {
 				throw new Error("Redis not available for backup restoration");
 			}
 
-			const backup = await redis.get<LocalStorageData>(
-				`migration:backup:${backupId}`,
-			);
+			const backup = await redis.get<LocalStorageData>(`migration:backup:${backupId}`);
 
 			if (!backup) {
 				throw new Error("Backup not found");
@@ -379,25 +358,19 @@ export class MigrationService {
 
 			// Restore to localStorage
 			if (backup.tasks) {
-				localStorage.setItem(
-					"task-store",
-					JSON.stringify({ state: { tasks: backup.tasks } }),
-				);
+				localStorage.setItem("task-store", JSON.stringify({ state: { tasks: backup.tasks } }));
 			}
 
 			if (backup.environments) {
 				localStorage.setItem(
 					"environments",
-					JSON.stringify({ state: { environments: backup.environments } }),
+					JSON.stringify({ state: { environments: backup.environments } })
 				);
 			}
 
 			if (backup.formData) {
 				Object.entries(backup.formData).forEach(([key, value]) => {
-					localStorage.setItem(
-						key,
-						typeof value === "string" ? value : JSON.stringify(value),
-					);
+					localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
 				});
 			}
 

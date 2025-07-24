@@ -27,8 +27,7 @@ function useTaskTracking(task: Task | undefined) {
 	const isFirstRender = useRef(true);
 
 	useEffect(() => {
-		const shouldUpdateTask = task && 
-			(task.id !== previousTaskId.current || isFirstRender.current);
+		const shouldUpdateTask = task && (task.id !== previousTaskId.current || isFirstRender.current);
 
 		if (shouldUpdateTask) {
 			updateTaskMutation.mutate({
@@ -54,10 +53,13 @@ function useProcessedMessages(task: Task | undefined) {
 
 // Extract state computations to reduce complexity
 function useTaskState(task: Task | undefined, streamingMessages: Map<string, StreamingMessage>) {
-	return useMemo(() => ({
-		hasStreaming: hasStreamingMessages(streamingMessages),
-		inProgress: task ? isTaskInProgress(task) : false,
-	}), [task, streamingMessages]);
+	return useMemo(
+		() => ({
+			hasStreaming: hasStreamingMessages(streamingMessages),
+			inProgress: task ? isTaskInProgress(task) : false,
+		}),
+		[task, streamingMessages]
+	);
 }
 
 /**

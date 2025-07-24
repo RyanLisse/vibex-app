@@ -38,9 +38,7 @@ async function fixRemainingTestIssues() {
 				!content.includes("{ vi,")
 			) {
 				// Check if there's already a vitest import
-				const vitestImportMatch = content.match(
-					/import\s*{\s*([^}]+)\s*}\s*from\s*['"]vitest['"]/,
-				);
+				const vitestImportMatch = content.match(/import\s*{\s*([^}]+)\s*}\s*from\s*['"]vitest['"]/);
 
 				if (vitestImportMatch) {
 					// Add vi to existing import
@@ -67,10 +65,7 @@ async function fixRemainingTestIssues() {
 
 			// Fix ReturnType<typeof spyOn> to ReturnType<typeof vi.spyOn>
 			if (content.includes("ReturnType<typeof spyOn>")) {
-				content = content.replace(
-					/ReturnType<typeof spyOn>/g,
-					"ReturnType<typeof vi.spyOn>",
-				);
+				content = content.replace(/ReturnType<typeof spyOn>/g, "ReturnType<typeof vi.spyOn>");
 				updated = true;
 			}
 
@@ -122,16 +117,13 @@ async function fixSpecificIssues() {
 
 	// Fix migration file format check
 	try {
-		const migrationRunnerPath = path.join(
-			process.cwd(),
-			"db/migrations/migration-runner.ts",
-		);
+		const migrationRunnerPath = path.join(process.cwd(), "db/migrations/migration-runner.ts");
 		let content = await readFile(migrationRunnerPath, "utf-8");
 
 		// Update the regex to be more flexible with migration file names
 		content = content.replace(
 			/const\s+migrationRegex\s*=\s*\/\^\\d\{3\}_\[a-z0-9_-\]\+\\.\(up\|down\)\\\.\(sql\|ts\)\$\/i/,
-			"const migrationRegex = /^\\d{3}_[a-z0-9_-]+\\.(sql|ts)$/i",
+			"const migrationRegex = /^\\d{3}_[a-z0-9_-]+\\.(sql|ts)$/i"
 		);
 
 		await writeFile(migrationRunnerPath, content, "utf-8");
@@ -142,17 +134,14 @@ async function fixSpecificIssues() {
 
 	// Fix database mock in integration tests setup
 	try {
-		const integrationSetupPath = path.join(
-			process.cwd(),
-			"tests/setup/integration.ts",
-		);
+		const integrationSetupPath = path.join(process.cwd(), "tests/setup/integration.ts");
 		let content = await readFile(integrationSetupPath, "utf-8");
 
 		// Ensure proper mock response for database queries
 		if (content.includes("mockSql = vi.fn()")) {
 			content = content.replace(
 				/mockSql = vi\.fn\(\)\.mockImplementation\(async \(query: any\) => {/,
-				`mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {`,
+				`mockSql = vi.fn().mockImplementation(async (query: any, ...params: any[]) => {`
 			);
 		}
 

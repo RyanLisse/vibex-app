@@ -47,24 +47,16 @@ export class AlertService {
 			enabled: process.env.ALERTS_ENABLED !== "false",
 			channels: this.getDefaultChannels(),
 			rateLimiting: {
-				maxAlertsPerHour: Number.parseInt(
-					process.env.ALERTS_MAX_PER_HOUR || "10",
-				),
-				cooldownMinutes: Number.parseInt(
-					process.env.ALERTS_COOLDOWN_MINUTES || "15",
-				),
+				maxAlertsPerHour: Number.parseInt(process.env.ALERTS_MAX_PER_HOUR || "10"),
+				cooldownMinutes: Number.parseInt(process.env.ALERTS_COOLDOWN_MINUTES || "15"),
 			},
 			deduplication: {
 				enabled: process.env.ALERTS_DEDUPLICATION_ENABLED !== "false",
-				windowMinutes: Number.parseInt(
-					process.env.ALERTS_DEDUPLICATION_WINDOW || "60",
-				),
+				windowMinutes: Number.parseInt(process.env.ALERTS_DEDUPLICATION_WINDOW || "60"),
 			},
 			escalation: {
 				enabled: process.env.ALERTS_ESCALATION_ENABLED === "true",
-				escalateAfterMinutes: Number.parseInt(
-					process.env.ALERTS_ESCALATION_AFTER_MINUTES || "30",
-				),
+				escalateAfterMinutes: Number.parseInt(process.env.ALERTS_ESCALATION_AFTER_MINUTES || "30"),
 				escalationChannels: [],
 			},
 		};
@@ -112,10 +104,7 @@ export class AlertService {
 		}
 
 		// Add Slack if configured
-		if (
-			process.env.ALERTS_SLACK_WEBHOOK_URL ||
-			process.env.ALERTS_SLACK_BOT_TOKEN
-		) {
+		if (process.env.ALERTS_SLACK_WEBHOOK_URL || process.env.ALERTS_SLACK_BOT_TOKEN) {
 			channels.push({
 				type: AlertChannelType.SLACK,
 				name: "default-slack",
@@ -166,10 +155,7 @@ export class AlertService {
 		// Initialize all configured channels
 		for (const config of channelConfigs) {
 			if (config.enabled) {
-				const channel = await this.transportService.createChannel(
-					config.type,
-					config.config,
-				);
+				const channel = await this.transportService.createChannel(config.type, config.config);
 				if (channel) {
 					this.channels.push({
 						channel,
@@ -206,15 +192,15 @@ export class AlertService {
 		}
 
 		const relevantChannels = this.channels.filter(
-			(ch) => ch.errorTypes.length === 0 || ch.errorTypes.includes(alert.type),
+			(ch) => ch.errorTypes.length === 0 || ch.errorTypes.includes(alert.type)
 		);
 
 		await Promise.all(
 			relevantChannels.map((ch) =>
 				ch.channel.send(alert).catch((error) => {
 					this.logger.error("Failed to send alert", error);
-				}),
-			),
+				})
+			)
 		);
 
 		// Store in history

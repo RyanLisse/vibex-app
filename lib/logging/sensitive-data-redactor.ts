@@ -62,9 +62,7 @@ export class SensitiveDataRedactor {
 
 	private isSensitiveField(fieldName: string): boolean {
 		const lowerFieldName = fieldName.toLowerCase();
-		return this.sensitiveFields.some((sensitive) =>
-			lowerFieldName.includes(sensitive),
-		);
+		return this.sensitiveFields.some((sensitive) => lowerFieldName.includes(sensitive));
 	}
 
 	private redactString(str: any): any {

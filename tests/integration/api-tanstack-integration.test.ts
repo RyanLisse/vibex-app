@@ -7,15 +7,7 @@
 
 import { setupServer } from "msw/node";
 import React from "react";
-import {
-	afterAll,
-	afterEach,
-	beforeAll,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 // Mock Task type for testing
 interface Task {
@@ -125,7 +117,7 @@ describe("API Integration Tests", () => {
 							hasMore: false,
 						},
 					});
-				}),
+				})
 			);
 
 			const result = await fetchTasks();
@@ -159,9 +151,9 @@ describe("API Integration Tests", () => {
 							success: true,
 							data: createdTask,
 						},
-						{ status: 201 },
+						{ status: 201 }
 					);
-				}),
+				})
 			);
 
 			const result = await createTask(newTaskData);
@@ -194,7 +186,7 @@ describe("API Integration Tests", () => {
 						success: true,
 						data: updatedTask,
 					});
-				}),
+				})
 			);
 
 			const result = await updateTask(taskId, updates);
@@ -215,7 +207,7 @@ describe("API Integration Tests", () => {
 						success: true,
 						data: { id: taskId },
 					});
-				}),
+				})
 			);
 
 			await expect(deleteTask(taskId)).resolves.not.toThrow();
@@ -230,9 +222,9 @@ describe("API Integration Tests", () => {
 							error: "Database connection failed",
 							code: "DB_ERROR",
 						},
-						{ status: 500 },
+						{ status: 500 }
 					);
-				}),
+				})
 			);
 
 			await expect(fetchTasks()).rejects.toThrow("Failed to fetch tasks");
@@ -242,7 +234,7 @@ describe("API Integration Tests", () => {
 			server.use(
 				http.get("/api/tasks", () => {
 					return HttpResponse.error();
-				}),
+				})
 			);
 
 			await expect(fetchTasks()).rejects.toThrow("Failed to fetch tasks");
@@ -270,7 +262,7 @@ describe("API Integration Tests", () => {
 							hasMore: false,
 						},
 					});
-				}),
+				})
 			);
 
 			// Test direct query client usage
@@ -324,9 +316,9 @@ describe("API Integration Tests", () => {
 								title: "Title is required",
 							},
 						},
-						{ status: 400 },
+						{ status: 400 }
 					);
-				}),
+				})
 			);
 
 			await expect(createTask({})).rejects.toThrow("Failed to create task");
@@ -341,9 +333,9 @@ describe("API Integration Tests", () => {
 							error: "Authentication required",
 							code: "AUTH_ERROR",
 						},
-						{ status: 401 },
+						{ status: 401 }
 					);
-				}),
+				})
 			);
 
 			await expect(fetchTasks()).rejects.toThrow("Failed to fetch tasks");
@@ -358,14 +350,12 @@ describe("API Integration Tests", () => {
 							error: "Rate limit exceeded",
 							code: "RATE_LIMIT",
 						},
-						{ status: 429 },
+						{ status: 429 }
 					);
-				}),
+				})
 			);
 
-			await expect(createTask({ title: "Test" })).rejects.toThrow(
-				"Failed to create task",
-			);
+			await expect(createTask({ title: "Test" })).rejects.toThrow("Failed to create task");
 		});
 	});
 });

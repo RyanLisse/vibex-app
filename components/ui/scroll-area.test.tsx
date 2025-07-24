@@ -6,29 +6,16 @@ import { ScrollArea, ScrollBar } from "./scroll-area";
 // Mock Radix UI ScrollArea components
 vi.mock("@radix-ui/react-scroll-area", () => ({
 	Root: ({ children, className, ...props }: any) => (
-		<div
-			className={className}
-			data-testid="scroll-area-root-primitive"
-			{...props}
-		>
+		<div className={className} data-testid="scroll-area-root-primitive" {...props}>
 			{children}
 		</div>
 	),
 	Viewport: ({ children, className, ...props }: any) => (
-		<div
-			className={className}
-			data-testid="scroll-area-viewport-primitive"
-			{...props}
-		>
+		<div className={className} data-testid="scroll-area-viewport-primitive" {...props}>
 			{children}
 		</div>
 	),
-	ScrollAreaScrollbar: ({
-		children,
-		className,
-		orientation,
-		...props
-	}: any) => (
+	ScrollAreaScrollbar: ({ children, className, orientation, ...props }: any) => (
 		<div
 			className={className}
 			data-orientation={orientation}
@@ -39,15 +26,9 @@ vi.mock("@radix-ui/react-scroll-area", () => ({
 		</div>
 	),
 	ScrollAreaThumb: ({ className, ...props }: any) => (
-		<div
-			className={className}
-			data-testid="scroll-area-thumb-primitive"
-			{...props}
-		/>
+		<div className={className} data-testid="scroll-area-thumb-primitive" {...props} />
 	),
-	Corner: ({ ...props }: any) => (
-		<div data-testid="scroll-area-corner-primitive" {...props} />
-	),
+	Corner: ({ ...props }: any) => <div data-testid="scroll-area-corner-primitive" {...props} />,
 }));
 
 describe("ScrollArea Components", () => {
@@ -56,7 +37,7 @@ describe("ScrollArea Components", () => {
 			render(
 				<ScrollArea>
 					<div>Scrollable content</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const root = screen.getByTestId("scroll-area-root-primitive");
@@ -80,7 +61,7 @@ describe("ScrollArea Components", () => {
 			render(
 				<ScrollArea>
 					<div data-testid="content">Scrollable content</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const viewport = screen.getByTestId("scroll-area-viewport-primitive");
@@ -94,7 +75,7 @@ describe("ScrollArea Components", () => {
 			render(
 				<ScrollArea className="h-64 w-full border">
 					<div>Content</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const root = screen.getByTestId("scroll-area-root-primitive");
@@ -106,7 +87,7 @@ describe("ScrollArea Components", () => {
 			render(
 				<ScrollArea data-custom="value" id="custom-scroll">
 					<div>Content</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const root = screen.getByTestId("scroll-area-root-primitive");
@@ -118,14 +99,11 @@ describe("ScrollArea Components", () => {
 			render(
 				<ScrollArea>
 					<div>Content</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const viewport = screen.getByTestId("scroll-area-viewport-primitive");
-			expect(viewport).toHaveClass(
-				"focus-visible:ring-ring/50",
-				"focus-visible:ring-[3px]",
-			);
+			expect(viewport).toHaveClass("focus-visible:ring-ring/50", "focus-visible:ring-[3px]");
 		});
 
 		it("should render with long content", () => {
@@ -136,7 +114,7 @@ describe("ScrollArea Components", () => {
 							<p key={i}>Line {i + 1}</p>
 						))}
 					</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const lines = screen.getAllByText(/Line \d+/);
@@ -158,12 +136,7 @@ describe("ScrollArea Components", () => {
 
 			expect(thumb).toBeInTheDocument();
 			expect(thumb).toHaveAttribute("data-slot", "scroll-area-thumb");
-			expect(thumb).toHaveClass(
-				"bg-border",
-				"relative",
-				"flex-1",
-				"rounded-full",
-			);
+			expect(thumb).toHaveClass("bg-border", "relative", "flex-1", "rounded-full");
 		});
 
 		it("should render horizontal scrollbar", () => {
@@ -183,9 +156,7 @@ describe("ScrollArea Components", () => {
 		});
 
 		it("should pass through props", () => {
-			render(
-				<ScrollBar aria-label="Custom scrollbar" data-custom="scrollbar" />,
-			);
+			render(<ScrollBar aria-label="Custom scrollbar" data-custom="scrollbar" />);
 
 			const scrollbar = screen.getByTestId("scroll-area-scrollbar-primitive");
 			expect(scrollbar).toHaveAttribute("data-custom", "scrollbar");
@@ -201,7 +172,7 @@ describe("ScrollArea Components", () => {
 				"touch-none",
 				"p-px",
 				"transition-colors",
-				"select-none",
+				"select-none"
 			);
 		});
 	});
@@ -218,7 +189,7 @@ describe("ScrollArea Components", () => {
 							</div>
 						))}
 					</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			expect(screen.getByText("Tags")).toBeInTheDocument();
@@ -231,7 +202,7 @@ describe("ScrollArea Components", () => {
 			render(
 				<ScrollArea ref={ref}>
 					<div>Content</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			expect(ref.current).toBeInstanceOf(HTMLDivElement);
@@ -243,7 +214,7 @@ describe("ScrollArea Components", () => {
 					<div className="p-4">
 						<p>Fixed size scroll area</p>
 					</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const root = screen.getByTestId("scroll-area-root-primitive");
@@ -258,7 +229,7 @@ describe("ScrollArea Components", () => {
 							<div>Nested scrollable content</div>
 						</ScrollArea>
 					</div>
-				</ScrollArea>,
+				</ScrollArea>
 			);
 
 			const scrollAreas = screen.getAllByTestId("scroll-area-root-primitive");
@@ -275,9 +246,7 @@ describe("ScrollArea Components", () => {
 							{items.map((item, i) => (
 								<div key={i}>{item}</div>
 							))}
-							<button
-								onClick={() => setItems([...items, `Item ${items.length + 1}`])}
-							>
+							<button onClick={() => setItems([...items, `Item ${items.length + 1}`])}>
 								Add Item
 							</button>
 						</div>

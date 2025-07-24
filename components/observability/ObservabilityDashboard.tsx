@@ -96,8 +96,7 @@ interface ObservabilityEvent {
 }
 
 export function ObservabilityDashboard() {
-	const [healthMetrics, setHealthMetrics] =
-		useState<SystemHealthMetrics | null>(null);
+	const [healthMetrics, setHealthMetrics] = useState<SystemHealthMetrics | null>(null);
 	const [realtimeData, setRealtimeData] = useState<RealtimeData | null>(null);
 	const [events, setEvents] = useState<ObservabilityEvent[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
@@ -196,9 +195,7 @@ export function ObservabilityDashboard() {
 		return (
 			<Alert variant="destructive">
 				<AlertTriangle className="h-4 w-4" />
-				<AlertDescription>
-					Error loading observability data: {error}
-				</AlertDescription>
+				<AlertDescription>Error loading observability data: {error}</AlertDescription>
 			</Alert>
 		);
 	}
@@ -239,9 +236,7 @@ export function ObservabilityDashboard() {
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl font-bold">Observability Dashboard</h1>
-					<p className="text-gray-600">
-						Real-time system monitoring and agent execution tracking
-					</p>
+					<p className="text-gray-600">Real-time system monitoring and agent execution tracking</p>
 				</div>
 				<div className="flex items-center space-x-2">
 					<Badge variant={isConnected ? "default" : "destructive"}>
@@ -261,9 +256,7 @@ export function ObservabilityDashboard() {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								System Health
-							</CardTitle>
+							<CardTitle className="text-sm font-medium">System Health</CardTitle>
 							<CheckCircle className="h-4 w-4 text-muted-foreground" />
 						</CardHeader>
 						<CardContent>
@@ -271,9 +264,7 @@ export function ObservabilityDashboard() {
 								<Badge className={getStatusColor(healthMetrics.overall.status)}>
 									{healthMetrics.overall.status}
 								</Badge>
-								<span className="text-2xl font-bold">
-									{healthMetrics.overall.score}%
-								</span>
+								<span className="text-2xl font-bold">{healthMetrics.overall.score}%</span>
 							</div>
 							<Progress value={healthMetrics.overall.score} className="mt-2" />
 						</CardContent>
@@ -281,9 +272,7 @@ export function ObservabilityDashboard() {
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								Success Rate
-							</CardTitle>
+							<CardTitle className="text-sm font-medium">Success Rate</CardTitle>
 							<TrendingUp className="h-4 w-4 text-muted-foreground" />
 						</CardHeader>
 						<CardContent>
@@ -291,23 +280,18 @@ export function ObservabilityDashboard() {
 								{healthMetrics.executions.successRate.toFixed(1)}%
 							</div>
 							<p className="text-xs text-muted-foreground">
-								{healthMetrics.executions.successful} /{" "}
-								{healthMetrics.executions.total} executions
+								{healthMetrics.executions.successful} / {healthMetrics.executions.total} executions
 							</p>
 						</CardContent>
 					</Card>
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								Avg Response Time
-							</CardTitle>
+							<CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
 							<Clock className="h-4 w-4 text-muted-foreground" />
 						</CardHeader>
 						<CardContent>
-							<div className="text-2xl font-bold">
-								{healthMetrics.executions.averageDuration}ms
-							</div>
+							<div className="text-2xl font-bold">{healthMetrics.executions.averageDuration}ms</div>
 							<p className="text-xs text-muted-foreground">
 								P95: {healthMetrics.executions.p95Duration}ms
 							</p>
@@ -316,15 +300,11 @@ export function ObservabilityDashboard() {
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								Active Agents
-							</CardTitle>
+							<CardTitle className="text-sm font-medium">Active Agents</CardTitle>
 							<Users className="h-4 w-4 text-muted-foreground" />
 						</CardHeader>
 						<CardContent>
-							<div className="text-2xl font-bold">
-								{healthMetrics.agents.active}
-							</div>
+							<div className="text-2xl font-bold">{healthMetrics.agents.active}</div>
 							<p className="text-xs text-muted-foreground">
 								{realtimeData?.activeExecutions || 0} executing
 							</p>
@@ -352,26 +332,18 @@ export function ObservabilityDashboard() {
 							<CardContent>
 								<div className="space-y-2">
 									{healthMetrics &&
-										Object.entries(healthMetrics.agents.byType).map(
-											([type, count]) => (
-												<div
-													key={type}
-													className="flex items-center justify-between"
-												>
-													<span className="text-sm">{type}</span>
-													<div className="flex items-center space-x-2">
-														<span className="text-sm font-medium">{count}</span>
-														<span className="text-xs text-muted-foreground">
-															(
-															{healthMetrics.agents.averageExecutionTime[
-																type
-															] || 0}
-															ms avg)
-														</span>
-													</div>
+										Object.entries(healthMetrics.agents.byType).map(([type, count]) => (
+											<div key={type} className="flex items-center justify-between">
+												<span className="text-sm">{type}</span>
+												<div className="flex items-center space-x-2">
+													<span className="text-sm font-medium">{count}</span>
+													<span className="text-xs text-muted-foreground">
+														({healthMetrics.agents.averageExecutionTime[type] || 0}
+														ms avg)
+													</span>
 												</div>
-											),
-										)}
+											</div>
+										))}
 								</div>
 							</CardContent>
 						</Card>
@@ -385,22 +357,15 @@ export function ObservabilityDashboard() {
 								<div className="space-y-4">
 									<div className="flex items-center justify-between">
 										<span className="text-sm">Active Executions</span>
-										<Badge variant="outline">
-											{realtimeData?.activeExecutions || 0}
-										</Badge>
+										<Badge variant="outline">{realtimeData?.activeExecutions || 0}</Badge>
 									</div>
 									{realtimeData &&
-										Object.entries(realtimeData.executionsByType).map(
-											([type, count]) => (
-												<div
-													key={type}
-													className="flex items-center justify-between"
-												>
-													<span className="text-sm">{type}</span>
-													<Badge variant="secondary">{count}</Badge>
-												</div>
-											),
-										)}
+										Object.entries(realtimeData.executionsByType).map(([type, count]) => (
+											<div key={type} className="flex items-center justify-between">
+												<span className="text-sm">{type}</span>
+												<Badge variant="secondary">{count}</Badge>
+											</div>
+										))}
 								</div>
 							</CardContent>
 						</Card>
@@ -418,9 +383,7 @@ export function ObservabilityDashboard() {
 								<div className="space-y-4">
 									<div className="flex items-center justify-between">
 										<span className="text-sm">Total Errors</span>
-										<Badge variant="destructive">
-											{healthMetrics?.errors.total || 0}
-										</Badge>
+										<Badge variant="destructive">{healthMetrics?.errors.total || 0}</Badge>
 									</div>
 									<div className="flex items-center justify-between">
 										<span className="text-sm">Error Rate</span>
@@ -429,17 +392,12 @@ export function ObservabilityDashboard() {
 										</span>
 									</div>
 									{healthMetrics &&
-										Object.entries(healthMetrics.errors.byType).map(
-											([type, count]) => (
-												<div
-													key={type}
-													className="flex items-center justify-between"
-												>
-													<span className="text-sm">{type}</span>
-													<Badge variant="outline">{count}</Badge>
-												</div>
-											),
-										)}
+										Object.entries(healthMetrics.errors.byType).map(([type, count]) => (
+											<div key={type} className="flex items-center justify-between">
+												<span className="text-sm">{type}</span>
+												<Badge variant="outline">{count}</Badge>
+											</div>
+										))}
 								</div>
 							</CardContent>
 						</Card>
@@ -474,16 +432,12 @@ export function ObservabilityDashboard() {
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Memory Usage
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
 								<Memory className="h-4 w-4 text-muted-foreground" />
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">
-									{Math.round(
-										(healthMetrics?.performance.memoryUsage || 0) / 1024 / 1024,
-									)}
+									{Math.round((healthMetrics?.performance.memoryUsage || 0) / 1024 / 1024)}
 									MB
 								</div>
 							</CardContent>
@@ -491,9 +445,7 @@ export function ObservabilityDashboard() {
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Throughput
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Throughput</CardTitle>
 								<Activity className="h-4 w-4 text-muted-foreground" />
 							</CardHeader>
 							<CardContent>
@@ -505,9 +457,7 @@ export function ObservabilityDashboard() {
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Events/sec
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Events/sec</CardTitle>
 								<Zap className="h-4 w-4 text-muted-foreground" />
 							</CardHeader>
 							<CardContent>
@@ -519,15 +469,11 @@ export function ObservabilityDashboard() {
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Subscriptions
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
 								<Database className="h-4 w-4 text-muted-foreground" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									{realtimeData?.subscriptions.active || 0}
-								</div>
+								<div className="text-2xl font-bold">{realtimeData?.subscriptions.active || 0}</div>
 							</CardContent>
 						</Card>
 					</div>
@@ -541,9 +487,7 @@ export function ObservabilityDashboard() {
 								<Badge variant={isConnected ? "default" : "destructive"}>
 									{isConnected ? "Connected" : "Disconnected"}
 								</Badge>
-								<span className="text-sm text-muted-foreground">
-									{events.length} events
-								</span>
+								<span className="text-sm text-muted-foreground">{events.length} events</span>
 							</div>
 						</CardHeader>
 						<CardContent>
@@ -552,13 +496,9 @@ export function ObservabilityDashboard() {
 									<div key={event.id} className="p-3 border rounded-sm">
 										<div className="flex items-center justify-between mb-2">
 											<div className="flex items-center space-x-2">
-												<Badge className={getSeverityColor(event.severity)}>
-													{event.severity}
-												</Badge>
+												<Badge className={getSeverityColor(event.severity)}>{event.severity}</Badge>
 												<Badge variant="outline">{event.type}</Badge>
-												<span className="text-sm text-muted-foreground">
-													{event.source}
-												</span>
+												<span className="text-sm text-muted-foreground">{event.source}</span>
 											</div>
 											<span className="text-xs text-muted-foreground">
 												{new Date(event.timestamp).toLocaleTimeString()}
@@ -568,11 +508,7 @@ export function ObservabilityDashboard() {
 										{event.tags.length > 0 && (
 											<div className="flex flex-wrap gap-1 mt-2">
 												{event.tags.map((tag, index) => (
-													<Badge
-														key={index}
-														variant="secondary"
-														className="text-xs"
-													>
+													<Badge key={index} variant="secondary" className="text-xs">
 														{tag}
 													</Badge>
 												))}

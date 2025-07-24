@@ -58,9 +58,7 @@ describe("VisualizationEngine", () => {
 
 	it("calls onNodeSelect when provided", () => {
 		const onNodeSelect = vi.fn();
-		render(
-			<VisualizationEngine {...defaultProps} onNodeSelect={onNodeSelect} />,
-		);
+		render(<VisualizationEngine {...defaultProps} onNodeSelect={onNodeSelect} />);
 
 		// Test would require interaction simulation once component is fully implemented
 		expect(onNodeSelect).not.toHaveBeenCalled(); // Initially not called
@@ -68,9 +66,7 @@ describe("VisualizationEngine", () => {
 
 	it("handles node selection state correctly", () => {
 		const selectedNode = { id: "test-node", type: "agent" };
-		render(
-			<VisualizationEngine {...defaultProps} selectedNode={selectedNode} />,
-		);
+		render(<VisualizationEngine {...defaultProps} selectedNode={selectedNode} />);
 
 		expect(screen.getByTestId("react-flow")).toBeInTheDocument();
 	});

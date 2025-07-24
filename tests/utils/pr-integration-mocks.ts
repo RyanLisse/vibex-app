@@ -117,9 +117,7 @@ export class PRMockFactory {
 	/**
 	 * Create a PR ready to merge (approved and all checks pass)
 	 */
-	static createReadyToMergePR(
-		overrides: Partial<MockPRStatus> = {},
-	): MockPRStatus {
+	static createReadyToMergePR(overrides: Partial<MockPRStatus> = {}): MockPRStatus {
 		return PRMockFactory.createPRStatus({
 			status: "open",
 			reviewStatus: "approved",
@@ -151,9 +149,7 @@ export class PRMockFactory {
 	/**
 	 * Create a PR with failing checks
 	 */
-	static createFailingChecksPR(
-		overrides: Partial<MockPRStatus> = {},
-	): MockPRStatus {
+	static createFailingChecksPR(overrides: Partial<MockPRStatus> = {}): MockPRStatus {
 		return PRMockFactory.createPRStatus({
 			status: "open",
 			reviewStatus: "approved",
@@ -185,9 +181,7 @@ export class PRMockFactory {
 	/**
 	 * Create a PR with merge conflicts
 	 */
-	static createConflictedPR(
-		overrides: Partial<MockPRStatus> = {},
-	): MockPRStatus {
+	static createConflictedPR(overrides: Partial<MockPRStatus> = {}): MockPRStatus {
 		return PRMockFactory.createPRStatus({
 			status: "open",
 			reviewStatus: "approved",
@@ -223,9 +217,7 @@ export class PRMockFactory {
 	/**
 	 * Create PR merge result
 	 */
-	static createMergeResult(
-		overrides: Partial<MockPRMergeResult> = {},
-	): MockPRMergeResult {
+	static createMergeResult(overrides: Partial<MockPRMergeResult> = {}): MockPRMergeResult {
 		return {
 			merged: true,
 			mergeCommitSha: "abc123def456789",
@@ -239,9 +231,7 @@ export class PRMockFactory {
 	/**
 	 * Create failed merge result
 	 */
-	static createFailedMergeResult(
-		overrides: Partial<MockPRMergeResult> = {},
-	): MockPRMergeResult {
+	static createFailedMergeResult(overrides: Partial<MockPRMergeResult> = {}): MockPRMergeResult {
 		return {
 			merged: false,
 			mergeCommitSha: "",
@@ -264,11 +254,7 @@ export class MockGitHubAPIClient {
 	/**
 	 * Set mock response for a specific PR
 	 */
-	static mockPRStatus(
-		prNumber: string,
-		repository: string,
-		prStatus: MockPRStatus,
-	) {
+	static mockPRStatus(prNumber: string, repository: string, prStatus: MockPRStatus) {
 		const key = `${repository}:${prNumber}`;
 		MockGitHubAPIClient.responses.set(key, prStatus);
 	}
@@ -292,10 +278,7 @@ export class MockGitHubAPIClient {
 	/**
 	 * Mock getPRStatus method
 	 */
-	static async getPRStatus(
-		repository: string,
-		prNumber: string,
-	): Promise<MockPRStatus> {
+	static async getPRStatus(repository: string, prNumber: string): Promise<MockPRStatus> {
 		const key = `${repository}:${prNumber}`;
 
 		// Simulate delay if configured
@@ -327,7 +310,7 @@ export class MockGitHubAPIClient {
 		options: {
 			mergeMethod: string;
 			deleteSourceBranch: boolean;
-		},
+		}
 	): Promise<MockPRMergeResult> {
 		const key = `${repository}:${prNumber}:merge`;
 
@@ -371,7 +354,7 @@ export class PRIntegrationTestScenarios {
 			prId: string;
 			repository: string;
 			autoUpdateStatus?: boolean;
-		}> = [],
+		}> = []
 	) {
 		return {
 			id: taskId,
@@ -393,7 +376,7 @@ export class PRIntegrationTestScenarios {
 							prId: link.prId,
 							repository: link.repository,
 						}),
-					]),
+					])
 				),
 			},
 		};
@@ -409,7 +392,7 @@ export class PRIntegrationTestScenarios {
 			mergedPRs: number;
 			pendingReview: number;
 			readyToMerge: number;
-		}> = {},
+		}> = {}
 	) {
 		return {
 			totalLinkedPRs: 5,
@@ -568,7 +551,7 @@ export class GitHubWebhookMockFactory {
 	 */
 	static createReviewSubmittedPayload(
 		prData: Partial<MockPRStatus> = {},
-		reviewState: "approved" | "changes_requested" | "commented" = "approved",
+		reviewState: "approved" | "changes_requested" | "commented" = "approved"
 	) {
 		const pr = PRMockFactory.createOpenPR(prData);
 		return {

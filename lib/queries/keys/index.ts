@@ -25,28 +25,21 @@ export const queryKeys = {
 			[...queryKeys.tasks.all, "vector", embedding, limit] as const,
 		infinite: (filters?: Record<string, any>) =>
 			[...queryKeys.tasks.all, "infinite", filters] as const,
-		byUser: (userId: string) =>
-			[...queryKeys.tasks.all, "user", userId] as const,
-		stats: (userId?: string) =>
-			[...queryKeys.tasks.all, "stats", userId] as const,
+		byUser: (userId: string) => [...queryKeys.tasks.all, "user", userId] as const,
+		stats: (userId?: string) => [...queryKeys.tasks.all, "stats", userId] as const,
 	},
 
 	// Environment-related queries
 	environments: {
 		all: ["environments"] as const,
 		lists: () => [...queryKeys.environments.all, "list"] as const,
-		list: (filters?: {
-			isActive?: boolean;
-			userId?: string;
-			search?: string;
-		}) => [...queryKeys.environments.lists(), { filters }] as const,
+		list: (filters?: { isActive?: boolean; userId?: string; search?: string }) =>
+			[...queryKeys.environments.lists(), { filters }] as const,
 		details: () => [...queryKeys.environments.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.environments.details(), id] as const,
 		active: () => [...queryKeys.environments.all, "active"] as const,
-		byUser: (userId: string) =>
-			[...queryKeys.environments.all, "user", userId] as const,
-		validate: (config: any) =>
-			[...queryKeys.environments.all, "validate", config] as const,
+		byUser: (userId: string) => [...queryKeys.environments.all, "user", userId] as const,
+		validate: (config: any) => [...queryKeys.environments.all, "validate", config] as const,
 	},
 
 	// Agent execution queries
@@ -63,12 +56,9 @@ export const queryKeys = {
 		}) => [...queryKeys.executions.lists(), { filters }] as const,
 		details: () => [...queryKeys.executions.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.executions.details(), id] as const,
-		byTask: (taskId: string) =>
-			[...queryKeys.executions.all, "task", taskId] as const,
-		byAgent: (agentType: string) =>
-			[...queryKeys.executions.all, "agent", agentType] as const,
-		byTrace: (traceId: string) =>
-			[...queryKeys.executions.all, "trace", traceId] as const,
+		byTask: (taskId: string) => [...queryKeys.executions.all, "task", taskId] as const,
+		byAgent: (agentType: string) => [...queryKeys.executions.all, "agent", agentType] as const,
+		byTrace: (traceId: string) => [...queryKeys.executions.all, "trace", traceId] as const,
 		infinite: (filters?: Record<string, any>) =>
 			[...queryKeys.executions.all, "infinite", filters] as const,
 		stats: (filters?: Record<string, any>) =>
@@ -94,14 +84,11 @@ export const queryKeys = {
 		detail: (id: string) => [...queryKeys.events.details(), id] as const,
 		byExecution: (executionId: string) =>
 			[...queryKeys.events.all, "execution", executionId] as const,
-		byTrace: (traceId: string) =>
-			[...queryKeys.events.all, "trace", traceId] as const,
-		bySeverity: (severity: string) =>
-			[...queryKeys.events.all, "severity", severity] as const,
+		byTrace: (traceId: string) => [...queryKeys.events.all, "trace", traceId] as const,
+		bySeverity: (severity: string) => [...queryKeys.events.all, "severity", severity] as const,
 		infinite: (filters?: Record<string, any>) =>
 			[...queryKeys.events.all, "infinite", filters] as const,
-		timeline: (executionId: string) =>
-			[...queryKeys.events.all, "timeline", executionId] as const,
+		timeline: (executionId: string) => [...queryKeys.events.all, "timeline", executionId] as const,
 		aggregate: (groupBy: string, filters?: Record<string, any>) =>
 			[...queryKeys.events.all, "aggregate", groupBy, filters] as const,
 	},
@@ -122,12 +109,10 @@ export const queryKeys = {
 			[...queryKeys.memory.all, "search", query, agentType, limit] as const,
 		vector: (embedding: number[], agentType?: string, limit?: number) =>
 			[...queryKeys.memory.all, "vector", embedding, agentType, limit] as const,
-		byAgent: (agentType: string) =>
-			[...queryKeys.memory.all, "agent", agentType] as const,
+		byAgent: (agentType: string) => [...queryKeys.memory.all, "agent", agentType] as const,
 		byContext: (agentType: string, contextKey: string) =>
 			[...queryKeys.memory.all, "context", agentType, contextKey] as const,
-		stats: (agentType?: string) =>
-			[...queryKeys.memory.all, "stats", agentType] as const,
+		stats: (agentType?: string) => [...queryKeys.memory.all, "stats", agentType] as const,
 		cleanup: () => [...queryKeys.memory.all, "cleanup"] as const,
 	},
 
@@ -143,12 +128,9 @@ export const queryKeys = {
 		}) => [...queryKeys.workflows.lists(), { filters }] as const,
 		details: () => [...queryKeys.workflows.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.workflows.details(), id] as const,
-		versions: (name: string) =>
-			[...queryKeys.workflows.all, "versions", name] as const,
-		byTags: (tags: string[]) =>
-			[...queryKeys.workflows.all, "tags", tags] as const,
-		validate: (definition: any) =>
-			[...queryKeys.workflows.all, "validate", definition] as const,
+		versions: (name: string) => [...queryKeys.workflows.all, "versions", name] as const,
+		byTags: (tags: string[]) => [...queryKeys.workflows.all, "tags", tags] as const,
+		validate: (definition: any) => [...queryKeys.workflows.all, "validate", definition] as const,
 	},
 
 	// Workflow execution queries
@@ -164,16 +146,11 @@ export const queryKeys = {
 			endDate?: Date;
 		}) => [...queryKeys.workflowExecutions.lists(), { filters }] as const,
 		details: () => [...queryKeys.workflowExecutions.all, "detail"] as const,
-		detail: (id: string) =>
-			[...queryKeys.workflowExecutions.details(), id] as const,
+		detail: (id: string) => [...queryKeys.workflowExecutions.details(), id] as const,
 		byWorkflow: (workflowId: string) =>
 			[...queryKeys.workflowExecutions.all, "workflow", workflowId] as const,
 		children: (parentExecutionId: string) =>
-			[
-				...queryKeys.workflowExecutions.all,
-				"children",
-				parentExecutionId,
-			] as const,
+			[...queryKeys.workflowExecutions.all, "children", parentExecutionId] as const,
 		infinite: (filters?: Record<string, any>) =>
 			[...queryKeys.workflowExecutions.all, "infinite", filters] as const,
 		stats: (workflowId?: string) =>
@@ -199,11 +176,8 @@ export const queryKeys = {
 	users: {
 		all: ["users"] as const,
 		lists: () => [...queryKeys.users.all, "list"] as const,
-		list: (filters?: {
-			provider?: string;
-			isActive?: boolean;
-			search?: string;
-		}) => [...queryKeys.users.lists(), { filters }] as const,
+		list: (filters?: { provider?: string; isActive?: boolean; search?: string }) =>
+			[...queryKeys.users.lists(), { filters }] as const,
 		details: () => [...queryKeys.users.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.users.details(), id] as const,
 		current: () => [...queryKeys.users.all, "current"] as const,
@@ -218,8 +192,7 @@ export const queryKeys = {
 		lists: () => [...queryKeys.authSessions.all, "list"] as const,
 		list: (userId: string, provider?: string) =>
 			[...queryKeys.authSessions.lists(), userId, { provider }] as const,
-		active: (userId: string) =>
-			[...queryKeys.authSessions.all, "active", userId] as const,
+		active: (userId: string) => [...queryKeys.authSessions.all, "active", userId] as const,
 		byProvider: (provider: string) =>
 			[...queryKeys.authSessions.all, "provider", provider] as const,
 	},
@@ -237,29 +210,21 @@ export const queryKeys = {
 		}) => [...queryKeys.fileUploads.lists(), { filters }] as const,
 		details: () => [...queryKeys.fileUploads.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.fileUploads.details(), id] as const,
-		byUser: (userId: string) =>
-			[...queryKeys.fileUploads.all, "user", userId] as const,
-		byCategory: (category: string) =>
-			[...queryKeys.fileUploads.all, "category", category] as const,
-		stats: (userId?: string) =>
-			[...queryKeys.fileUploads.all, "stats", userId] as const,
+		byUser: (userId: string) => [...queryKeys.fileUploads.all, "user", userId] as const,
+		byCategory: (category: string) => [...queryKeys.fileUploads.all, "category", category] as const,
+		stats: (userId?: string) => [...queryKeys.fileUploads.all, "stats", userId] as const,
 	},
 
 	// Agent session queries
 	agentSessions: {
 		all: ["agentSessions"] as const,
 		lists: () => [...queryKeys.agentSessions.all, "list"] as const,
-		list: (filters?: {
-			userId?: string;
-			sessionType?: string;
-			isActive?: boolean;
-		}) => [...queryKeys.agentSessions.lists(), { filters }] as const,
+		list: (filters?: { userId?: string; sessionType?: string; isActive?: boolean }) =>
+			[...queryKeys.agentSessions.lists(), { filters }] as const,
 		details: () => [...queryKeys.agentSessions.all, "detail"] as const,
 		detail: (id: string) => [...queryKeys.agentSessions.details(), id] as const,
-		active: (userId?: string) =>
-			[...queryKeys.agentSessions.all, "active", userId] as const,
-		byType: (sessionType: string) =>
-			[...queryKeys.agentSessions.all, "type", sessionType] as const,
+		active: (userId?: string) => [...queryKeys.agentSessions.all, "active", userId] as const,
+		byType: (sessionType: string) => [...queryKeys.agentSessions.all, "type", sessionType] as const,
 	},
 
 	// GitHub repository queries
@@ -274,12 +239,9 @@ export const queryKeys = {
 			search?: string;
 		}) => [...queryKeys.githubRepositories.lists(), { filters }] as const,
 		details: () => [...queryKeys.githubRepositories.all, "detail"] as const,
-		detail: (id: string) =>
-			[...queryKeys.githubRepositories.details(), id] as const,
-		byUser: (userId: string) =>
-			[...queryKeys.githubRepositories.all, "user", userId] as const,
-		sync: (userId: string) =>
-			[...queryKeys.githubRepositories.all, "sync", userId] as const,
+		detail: (id: string) => [...queryKeys.githubRepositories.details(), id] as const,
+		byUser: (userId: string) => [...queryKeys.githubRepositories.all, "user", userId] as const,
+		sync: (userId: string) => [...queryKeys.githubRepositories.all, "sync", userId] as const,
 	},
 
 	// GitHub branch queries
@@ -287,13 +249,8 @@ export const queryKeys = {
 		all: ["githubBranches"] as const,
 		lists: () => [...queryKeys.githubBranches.all, "list"] as const,
 		list: (repositoryId: string, isProtected?: boolean) =>
-			[
-				...queryKeys.githubBranches.lists(),
-				repositoryId,
-				{ isProtected },
-			] as const,
-		detail: (id: string) =>
-			[...queryKeys.githubBranches.all, "detail", id] as const,
+			[...queryKeys.githubBranches.lists(), repositoryId, { isProtected }] as const,
+		detail: (id: string) => [...queryKeys.githubBranches.all, "detail", id] as const,
 		byRepository: (repositoryId: string) =>
 			[...queryKeys.githubBranches.all, "repository", repositoryId] as const,
 		sync: (repositoryId: string) =>
@@ -310,14 +267,10 @@ export const queryKeys = {
 
 	// Real-time subscription queries
 	realtime: {
-		tasks: (filters?: Record<string, any>) =>
-			["realtime", "tasks", filters] as const,
-		executions: (filters?: Record<string, any>) =>
-			["realtime", "executions", filters] as const,
-		events: (filters?: Record<string, any>) =>
-			["realtime", "events", filters] as const,
-		workflows: (filters?: Record<string, any>) =>
-			["realtime", "workflows", filters] as const,
+		tasks: (filters?: Record<string, any>) => ["realtime", "tasks", filters] as const,
+		executions: (filters?: Record<string, any>) => ["realtime", "executions", filters] as const,
+		events: (filters?: Record<string, any>) => ["realtime", "events", filters] as const,
+		workflows: (filters?: Record<string, any>) => ["realtime", "workflows", filters] as const,
 		memory: (agentType?: string) => ["realtime", "memory", agentType] as const,
 	},
 
@@ -327,8 +280,7 @@ export const queryKeys = {
 			["analytics", "execution", timeRange] as const,
 		performance: (timeRange?: { start: Date; end: Date }) =>
 			["analytics", "performance", timeRange] as const,
-		errors: (timeRange?: { start: Date; end: Date }) =>
-			["analytics", "errors", timeRange] as const,
+		errors: (timeRange?: { start: Date; end: Date }) => ["analytics", "errors", timeRange] as const,
 		memory: (agentType?: string, timeRange?: { start: Date; end: Date }) =>
 			["analytics", "memory", agentType, timeRange] as const,
 		usage: (userId?: string, timeRange?: { start: Date; end: Date }) =>
@@ -337,15 +289,10 @@ export const queryKeys = {
 
 	// WASM-optimized queries
 	wasm: {
-		vectorSearch: (
-			table: string,
-			embedding: number[],
-			filters?: Record<string, any>,
-		) => ["wasm", "vector-search", table, embedding, filters] as const,
-		sqliteQuery: (sql: string, params?: any[]) =>
-			["wasm", "sqlite", sql, params] as const,
-		compute: (operation: string, data: any) =>
-			["wasm", "compute", operation, data] as const,
+		vectorSearch: (table: string, embedding: number[], filters?: Record<string, any>) =>
+			["wasm", "vector-search", table, embedding, filters] as const,
+		sqliteQuery: (sql: string, params?: any[]) => ["wasm", "sqlite", sql, params] as const,
+		compute: (operation: string, data: any) => ["wasm", "compute", operation, data] as const,
 	},
 } as const;
 
@@ -399,8 +346,7 @@ export const mutationKeys = {
 	},
 	snapshots: {
 		create: ["snapshots", "create"] as const,
-		createCheckpoint: (executionId: string) =>
-			["snapshots", "checkpoint", executionId] as const,
+		createCheckpoint: (executionId: string) => ["snapshots", "checkpoint", executionId] as const,
 	},
 	users: {
 		update: (id: string) => ["users", "update", id] as const,
@@ -418,8 +364,7 @@ export const mutationKeys = {
 		update: (id: string) => ["githubRepositories", "update", id] as const,
 	},
 	githubBranches: {
-		sync: (repositoryId: string) =>
-			["githubBranches", "sync", repositoryId] as const,
+		sync: (repositoryId: string) => ["githubBranches", "sync", repositoryId] as const,
 	},
 } as const;
 

@@ -33,11 +33,7 @@ export interface TaskCreatedEvent extends InngestEvent {
 /**
  * Send task update event to Inngest
  */
-export async function sendTaskUpdate(
-	taskId: string,
-	updates: any,
-	userId: string,
-): Promise<void> {
+export async function sendTaskUpdate(taskId: string, updates: any, userId: string): Promise<void> {
 	try {
 		// Mock implementation for build purposes
 		console.log("Sending task update event:", { taskId, updates, userId });
@@ -50,10 +46,7 @@ export async function sendTaskUpdate(
 /**
  * Send task created event to Inngest
  */
-export async function sendTaskCreated(
-	task: any,
-	userId: string,
-): Promise<void> {
+export async function sendTaskCreated(task: any, userId: string): Promise<void> {
 	try {
 		// Mock implementation for build purposes
 		console.log("Sending task created event:", { task, userId });
@@ -79,10 +72,7 @@ export async function sendEvent(event: InngestEvent): Promise<void> {
 /**
  * Process task workflow
  */
-export async function processTaskWorkflow(
-	taskId: string,
-	workflowType: string,
-): Promise<void> {
+export async function processTaskWorkflow(taskId: string, workflowType: string): Promise<void> {
 	try {
 		// Mock implementation for build purposes
 		console.log("Processing task workflow:", { taskId, workflowType });
@@ -96,39 +86,39 @@ export async function processTaskWorkflow(
  * Cancel a task
  */
 export async function cancelTaskAction(taskId: string): Promise<void> {
-  try {
-    // Mock implementation for build purposes
-    console.log('Cancelling task:', { taskId });
-  } catch (error) {
-    console.error('Failed to cancel task:', error);
-    throw error;
-  }
+	try {
+		// Mock implementation for build purposes
+		console.log("Cancelling task:", { taskId });
+	} catch (error) {
+		console.error("Failed to cancel task:", error);
+		throw error;
+	}
 }
 
 /**
  * Pause a task
  */
 export async function pauseTaskAction(taskId: string): Promise<void> {
-  try {
-    // Mock implementation for build purposes
-    console.log('Pausing task:', { taskId });
-  } catch (error) {
-    console.error('Failed to pause task:', error);
-    throw error;
-  }
+	try {
+		// Mock implementation for build purposes
+		console.log("Pausing task:", { taskId });
+	} catch (error) {
+		console.error("Failed to pause task:", error);
+		throw error;
+	}
 }
 
 /**
  * Resume a task
  */
 export async function resumeTaskAction(taskId: string): Promise<void> {
-  try {
-    // Mock implementation for build purposes
-    console.log('Resuming task:', { taskId });
-  } catch (error) {
-    console.error('Failed to resume task:', error);
-    throw error;
-  }
+	try {
+		// Mock implementation for build purposes
+		console.log("Resuming task:", { taskId });
+	} catch (error) {
+		console.error("Failed to resume task:", error);
+		throw error;
+	}
 }
 
 /**
@@ -137,7 +127,7 @@ export async function resumeTaskAction(taskId: string): Promise<void> {
  */
 export async function fetchRealtimeSubscriptionToken(
 	taskId: string,
-	userId: string,
+	userId: string
 ): Promise<{ token: string; endpoint: string }> {
 	try {
 		// Mock implementation for build purposes

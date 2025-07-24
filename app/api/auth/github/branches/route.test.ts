@@ -41,16 +41,13 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue(mockBranches as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockGetGitHubAccessToken).toHaveBeenCalledWith(request);
-		expect(mockFetchGitHubBranches).toHaveBeenCalledWith(
-			"github-token",
-			"owner/repo",
-		);
+		expect(mockFetchGitHubBranches).toHaveBeenCalledWith("github-token", "owner/repo");
 		expect(mockNextResponse.json).toHaveBeenCalledWith(mockBranches);
 	});
 
@@ -59,15 +56,13 @@ describe("GET /api/auth/github/branches", () => {
 			error: "Repository parameter is required",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches",
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/github/branches");
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Repository parameter is required" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -76,40 +71,32 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue({ error: "Unauthorized" } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockGetGitHubAccessToken).toHaveBeenCalledWith(request);
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Unauthorized" },
-			{ status: 401 },
-		);
+		expect(mockNextResponse.json).toHaveBeenCalledWith({ error: "Unauthorized" }, { status: 401 });
 	});
 
 	it("should handle GitHub API errors", async () => {
 		mockGetGitHubAccessToken.mockResolvedValue("github-token");
-		mockFetchGitHubBranches.mockRejectedValue(
-			new Error("Repository not found"),
-		);
+		mockFetchGitHubBranches.mockRejectedValue(new Error("Repository not found"));
 		mockNextResponse.json.mockReturnValue({
 			error: "Repository not found",
 		} as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/nonexistent",
+			"https://app.example.com/api/auth/github/branches?repo=owner/nonexistent"
 		);
 
 		const _response = await GET(request);
 
-		expect(mockFetchGitHubBranches).toHaveBeenCalledWith(
-			"github-token",
-			"owner/nonexistent",
-		);
+		expect(mockFetchGitHubBranches).toHaveBeenCalledWith("github-token", "owner/nonexistent");
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Repository not found" },
-			{ status: 404 },
+			{ status: 404 }
 		);
 	});
 
@@ -120,14 +107,14 @@ describe("GET /api/auth/github/branches", () => {
 		} as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=invalid-repo",
+			"https://app.example.com/api/auth/github/branches?repo=invalid-repo"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Invalid repository format" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -137,15 +124,12 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue({ error: "Network error" } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo"
 		);
 
 		const _response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Network error" },
-			{ status: 500 },
-		);
+		expect(mockNextResponse.json).toHaveBeenCalledWith({ error: "Network error" }, { status: 500 });
 	});
 
 	it("should handle rate limiting", async () => {
@@ -158,14 +142,14 @@ describe("GET /api/auth/github/branches", () => {
 		} as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Rate limit exceeded" },
-			{ status: 429 },
+			{ status: 429 }
 		);
 	});
 
@@ -174,15 +158,13 @@ describe("GET /api/auth/github/branches", () => {
 			error: "Repository parameter is required",
 		} as any);
 
-		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=",
-		);
+		const request = new NextRequest("https://app.example.com/api/auth/github/branches?repo=");
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Repository parameter is required" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -192,7 +174,7 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue([] as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/empty-repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/empty-repo"
 		);
 
 		const _response = await GET(request);
@@ -212,7 +194,7 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue(mockBranches as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo"
 		);
 
 		const _response = await GET(request);
@@ -225,15 +207,12 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue({ error: "Unauthorized" } as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo"
 		);
 
 		const _response = await GET(request);
 
-		expect(mockNextResponse.json).toHaveBeenCalledWith(
-			{ error: "Unauthorized" },
-			{ status: 401 },
-		);
+		expect(mockNextResponse.json).toHaveBeenCalledWith({ error: "Unauthorized" }, { status: 401 });
 	});
 
 	it("should handle malformed repository URLs", async () => {
@@ -243,14 +222,14 @@ describe("GET /api/auth/github/branches", () => {
 		} as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo/extra/path",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo/extra/path"
 		);
 
 		const _response = await GET(request);
 
 		expect(mockNextResponse.json).toHaveBeenCalledWith(
 			{ error: "Invalid repository format" },
-			{ status: 400 },
+			{ status: 400 }
 		);
 	});
 
@@ -262,15 +241,12 @@ describe("GET /api/auth/github/branches", () => {
 		mockNextResponse.json.mockReturnValue(mockBranches as any);
 
 		const request = new NextRequest(
-			"https://app.example.com/api/auth/github/branches?repo=owner/repo-with-dashes",
+			"https://app.example.com/api/auth/github/branches?repo=owner/repo-with-dashes"
 		);
 
 		const _response = await GET(request);
 
-		expect(mockFetchGitHubBranches).toHaveBeenCalledWith(
-			"github-token",
-			"owner/repo-with-dashes",
-		);
+		expect(mockFetchGitHubBranches).toHaveBeenCalledWith("github-token", "owner/repo-with-dashes");
 		expect(mockNextResponse.json).toHaveBeenCalledWith(mockBranches);
 	});
 });

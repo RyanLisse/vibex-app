@@ -23,8 +23,7 @@ const LABEL_PATTERNS = {
 
 // Regex patterns
 const ASSIGNEE_PATTERN = /assign(?:ed)?\s+to\s+(\w+(?:\s+\w+)?)/i;
-const DUE_DATE_PATTERN =
-	/(?:due|deadline|by)\s+([a-zA-Z]+\s+\d{1,2}(?:,?\s+\d{4})?)/i;
+const DUE_DATE_PATTERN = /(?:due|deadline|by)\s+([a-zA-Z]+\s+\d{1,2}(?:,?\s+\d{4})?)/i;
 
 export interface ParsedTaskData {
 	title: string;

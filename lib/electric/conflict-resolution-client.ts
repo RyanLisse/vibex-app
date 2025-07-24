@@ -20,12 +20,7 @@ export interface ConflictData {
 }
 
 export interface ConflictResolution {
-	strategy:
-		| "last-write-wins"
-		| "user-priority"
-		| "field-merge"
-		| "server-wins"
-		| "manual";
+	strategy: "last-write-wins" | "user-priority" | "field-merge" | "server-wins" | "manual";
 	resolvedData: any;
 	metadata: {
 		resolvedBy: string;
@@ -57,10 +52,8 @@ export class ClientConflictResolutionService {
 	private static instance: ClientConflictResolutionService;
 	private observability = ObservabilityService.getInstance();
 	private offlineQueue: Map<string, OfflineOperation> = new Map();
-	private conflictResolvers: Map<
-		string,
-		(conflict: ConflictData) => Promise<ConflictResolution>
-	> = new Map();
+	private conflictResolvers: Map<string, (conflict: ConflictData) => Promise<ConflictResolution>> =
+		new Map();
 	private isOnline = true;
 	private syncInProgress = false;
 
@@ -71,8 +64,7 @@ export class ClientConflictResolutionService {
 
 	static getInstance(): ClientConflictResolutionService {
 		if (!ClientConflictResolutionService.instance) {
-			ClientConflictResolutionService.instance =
-				new ClientConflictResolutionService();
+			ClientConflictResolutionService.instance = new ClientConflictResolutionService();
 		}
 		return ClientConflictResolutionService.instance;
 	}
@@ -84,67 +76,53 @@ export class ClientConflictResolutionService {
 	async executeOperationWithConflictResolution(
 		operation: DatabaseOperation,
 		options: {
-			conflictStrategy?:
-				| "last-write-wins"
-				| "user-priority"
-				| "field-merge"
-				| "server-wins";
+			conflictStrategy?: "last-write-wins" | "user-priority" | "field-merge" | "server-wins";
 			offlineSupport?: boolean;
 			maxRetries?: number;
-		} = {},
+		} = {}
 	): Promise<any> {
-		const {
-			conflictStrategy = "last-write-wins",
-			offlineSupport = true,
-			maxRetries = 3,
-		} = options;
+		const { conflictStrategy = "last-write-wins", offlineSupport = true, maxRetries = 3 } = options;
 
-		return this.observability.trackOperation(
-			"client-conflict-resolution.execute",
-			async () => {
-				// If offline and offline support is enabled, queue the operation
-				if (!this.isOnline && offlineSupport) {
+		return this.observability.trackOperation("client-conflict-resolution.execute", async () => {
+			// If offline and offline support is enabled, queue the operation
+			if (!this.isOnline && offlineSupport) {
+				return this.queueOfflineOperation(operation, maxRetries);
+			}
+
+			try {
+				// For client-side, we'll make a simple API call instead of direct database access
+				const response = await fetch("/api/database/execute", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						operation,
+						conflictStrategy,
+					}),
+				});
+
+				if (!response.ok) {
+					throw new Error(`API call failed: ${response.statusText}`);
+				}
+
+				const result = await response.json();
+				return result.data;
+			} catch (error) {
+				// If operation fails and offline support is enabled, queue it
+				if (offlineSupport) {
+					console.warn("Operation failed, queuing for offline sync:", error);
 					return this.queueOfflineOperation(operation, maxRetries);
 				}
-
-				try {
-					// For client-side, we'll make a simple API call instead of direct database access
-					const response = await fetch("/api/database/execute", {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							operation,
-							conflictStrategy,
-						}),
-					});
-
-					if (!response.ok) {
-						throw new Error(`API call failed: ${response.statusText}`);
-					}
-
-					const result = await response.json();
-					return result.data;
-				} catch (error) {
-					// If operation fails and offline support is enabled, queue it
-					if (offlineSupport) {
-						console.warn("Operation failed, queuing for offline sync:", error);
-						return this.queueOfflineOperation(operation, maxRetries);
-					}
-					throw error;
-				}
-			},
-		);
+				throw error;
+			}
+		});
 	}
 
 	/**
 	 * Queue operation for offline sync using localStorage instead of Redis
 	 */
-	async queueOfflineOperation(
-		operation: DatabaseOperation,
-		maxRetries = 3,
-	): Promise<string> {
+	async queueOfflineOperation(operation: DatabaseOperation, maxRetries = 3): Promise<string> {
 		const operationId = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 		const offlineOp: OfflineOperation = {
@@ -175,82 +153,76 @@ export class ClientConflictResolutionService {
 
 		this.syncInProgress = true;
 
-		return this.observability.trackOperation(
-			"client-conflict-resolution.sync",
-			async () => {
-				const result: SyncResult = {
-					success: true,
-					operationsProcessed: 0,
-					operationsFailed: 0,
-					conflictsResolved: 0,
-					errors: [],
-				};
+		return this.observability.trackOperation("client-conflict-resolution.sync", async () => {
+			const result: SyncResult = {
+				success: true,
+				operationsProcessed: 0,
+				operationsFailed: 0,
+				conflictsResolved: 0,
+				errors: [],
+			};
 
-				try {
-					// Load offline queue from localStorage
-					await this.loadOfflineQueueFromLocalStorage();
+			try {
+				// Load offline queue from localStorage
+				await this.loadOfflineQueueFromLocalStorage();
 
-					const pendingOperations = Array.from(this.offlineQueue.values())
-						.filter((op) => op.status === "pending" || op.status === "failed")
-						.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+				const pendingOperations = Array.from(this.offlineQueue.values())
+					.filter((op) => op.status === "pending" || op.status === "failed")
+					.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-					for (const offlineOp of pendingOperations) {
-						try {
-							offlineOp.status = "syncing";
+				for (const offlineOp of pendingOperations) {
+					try {
+						offlineOp.status = "syncing";
 
-							// Execute the operation via API
-							const response = await fetch("/api/database/execute", {
-								method: "POST",
-								headers: {
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									operation: offlineOp.operation,
-									conflictStrategy: "last-write-wins",
-								}),
-							});
+						// Execute the operation via API
+						const response = await fetch("/api/database/execute", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								operation: offlineOp.operation,
+								conflictStrategy: "last-write-wins",
+							}),
+						});
 
-							if (response.ok) {
-								offlineOp.status = "completed";
-								result.operationsProcessed++;
-							} else {
-								throw new Error(`API call failed: ${response.statusText}`);
-							}
-						} catch (error) {
-							offlineOp.retryCount++;
-							offlineOp.error =
-								error instanceof Error ? error.message : "Unknown error";
+						if (response.ok) {
+							offlineOp.status = "completed";
+							result.operationsProcessed++;
+						} else {
+							throw new Error(`API call failed: ${response.statusText}`);
+						}
+					} catch (error) {
+						offlineOp.retryCount++;
+						offlineOp.error = error instanceof Error ? error.message : "Unknown error";
 
-							if (offlineOp.retryCount >= offlineOp.maxRetries) {
-								offlineOp.status = "failed";
-								result.operationsFailed++;
-								result.errors.push(
-									`Operation ${offlineOp.id} failed: ${offlineOp.error}`,
-								);
-							} else {
-								offlineOp.status = "pending";
-							}
+						if (offlineOp.retryCount >= offlineOp.maxRetries) {
+							offlineOp.status = "failed";
+							result.operationsFailed++;
+							result.errors.push(`Operation ${offlineOp.id} failed: ${offlineOp.error}`);
+						} else {
+							offlineOp.status = "pending";
 						}
 					}
-
-					// Clean up completed operations
-					this.cleanupCompletedOperations();
-
-					// Persist updated queue
-					await this.persistOfflineQueueToLocalStorage();
-
-					result.success = result.operationsFailed === 0;
-
-					console.log(
-						`Offline sync completed: ${result.operationsProcessed} processed, ${result.operationsFailed} failed`,
-					);
-
-					return result;
-				} finally {
-					this.syncInProgress = false;
 				}
-			},
-		);
+
+				// Clean up completed operations
+				this.cleanupCompletedOperations();
+
+				// Persist updated queue
+				await this.persistOfflineQueueToLocalStorage();
+
+				result.success = result.operationsFailed === 0;
+
+				console.log(
+					`Offline sync completed: ${result.operationsProcessed} processed, ${result.operationsFailed} failed`
+				);
+
+				return result;
+			} finally {
+				this.syncInProgress = false;
+			}
+		});
 	}
 
 	/**
@@ -266,12 +238,9 @@ export class ClientConflictResolutionService {
 
 		return {
 			totalOperations: operations.length,
-			pendingOperations: operations.filter((op) => op.status === "pending")
-				.length,
-			failedOperations: operations.filter((op) => op.status === "failed")
-				.length,
-			completedOperations: operations.filter((op) => op.status === "completed")
-				.length,
+			pendingOperations: operations.filter((op) => op.status === "pending").length,
+			failedOperations: operations.filter((op) => op.status === "failed").length,
+			completedOperations: operations.filter((op) => op.status === "completed").length,
 		};
 	}
 
@@ -304,9 +273,7 @@ export class ClientConflictResolutionService {
 				const remoteTime = new Date(conflict.remoteVersion.updatedAt);
 
 				const useLocal = localTime >= remoteTime;
-				const resolvedData = useLocal
-					? conflict.localVersion
-					: conflict.remoteVersion;
+				const resolvedData = useLocal ? conflict.localVersion : conflict.remoteVersion;
 
 				return {
 					strategy: "last-write-wins",
@@ -318,7 +285,7 @@ export class ClientConflictResolutionService {
 						conflictId: `conflict_${Date.now()}`,
 					},
 				};
-			},
+			}
 		);
 
 		// Server-wins resolver
@@ -335,7 +302,7 @@ export class ClientConflictResolutionService {
 						conflictId: `conflict_${Date.now()}`,
 					},
 				};
-			},
+			}
 		);
 	}
 
@@ -372,10 +339,7 @@ export class ClientConflictResolutionService {
 		try {
 			if (typeof window !== "undefined") {
 				const queueData = Array.from(this.offlineQueue.entries());
-				localStorage.setItem(
-					"electric:offline-queue",
-					JSON.stringify(queueData),
-				);
+				localStorage.setItem("electric:offline-queue", JSON.stringify(queueData));
 			}
 		} catch (error) {
 			console.warn("Failed to persist offline queue to localStorage:", error);
@@ -406,10 +370,7 @@ export class ClientConflictResolutionService {
 		const cutoffTime = new Date(Date.now() - 86_400 * 1000); // 1 day ago
 
 		for (const [id, operation] of this.offlineQueue.entries()) {
-			if (
-				operation.status === "completed" &&
-				operation.timestamp < cutoffTime
-			) {
+			if (operation.status === "completed" && operation.timestamp < cutoffTime) {
 				this.offlineQueue.delete(id);
 			}
 		}
@@ -417,5 +378,4 @@ export class ClientConflictResolutionService {
 }
 
 // Export singleton instance
-export const clientConflictResolutionService =
-	ClientConflictResolutionService.getInstance();
+export const clientConflictResolutionService = ClientConflictResolutionService.getInstance();

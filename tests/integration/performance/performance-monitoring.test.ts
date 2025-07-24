@@ -5,22 +5,17 @@
  * memory usage monitoring, response time validation, and system health checks
  */
 
-import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	vi,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { count, eq, sql } from "drizzle-orm";
 import { migrationRunner } from "../../../db/migrations/migration-runner";
+import { agentExecutions, environments, observabilityEvents, tasks } from "../../../db/schema";
 import {
-	agentExecutions,
-	environments,
-	observabilityEvents,
-	tasks,
-} from "../../../db/schema";
+	checkDatabaseHealth,
+	integrationDb as db,
+	initializeExtensions,
+	initializeTestDatabase,
+	resetDatabaseForTests,
+} from "../../../db/test-integration-config";
 
 // Performance monitoring types
 interface PerformanceMetrics {
@@ -88,8 +83,7 @@ class PerformanceMonitor {
 		const totalTime = endTime - this.startTime;
 
 		const avgResponseTime =
-			this.requestTimes.reduce((sum, time) => sum + time, 0) /
-			this.requestTimes.length;
+			this.requestTimes.reduce((sum, time) => sum + time, 0) / this.requestTimes.length;
 		const throughput = this.requestTimes.length / (totalTime / 1000);
 
 		return {
@@ -119,7 +113,7 @@ class PerformanceMonitor {
 			duration: number;
 			concurrency: number;
 			rampUp?: number;
-		},
+		}
 	): Promise<LoadTestResult> {
 		const { duration, concurrency, rampUp = 0 } = options;
 		const results: number[] = [];
@@ -130,9 +124,7 @@ class PerformanceMonitor {
 		const workers = Array.from({ length: concurrency }, async (_, index) => {
 			// Ramp up delay
 			if (rampUp > 0) {
-				await new Promise((resolve) =>
-					setTimeout(resolve, (index / concurrency) * rampUp),
-				);
+				await new Promise((resolve) => setTimeout(resolve, (index / concurrency) * rampUp));
 			}
 
 			const workerStartTime = performance.now();
@@ -165,8 +157,7 @@ class PerformanceMonitor {
 			totalRequests: results.length + errors.length,
 			successfulRequests: results.length,
 			failedRequests: errors.length,
-			averageResponseTime:
-				results.reduce((sum, time) => sum + time, 0) / results.length || 0,
+			averageResponseTime: results.reduce((sum, time) => sum + time, 0) / results.length || 0,
 			maxResponseTime: Math.max(...results) || 0,
 			minResponseTime: Math.min(...results) || 0,
 			percentiles: {
@@ -203,7 +194,8 @@ class PerformanceMonitor {
 }
 
 // Skip tests if no database URL is provided
-const skipTests = !process.env.DATABASE_URL;
+// Skip tests only if database initialization fails
+const skipTests = false; // Now handled by database configuration
 
 describe("Performance Monitoring Integration Tests", () => {
 	let performanceMonitor: PerformanceMonitor;
@@ -276,10 +268,7 @@ describe("Performance Monitoring Integration Tests", () => {
 			schemaVersion: 1,
 		}));
 
-		const createdEnvs = await db
-			.insert(environments)
-			.values(envData)
-			.returning();
+		const createdEnvs = await db.insert(environments).values(envData).returning();
 
 		// Create test executions
 		const executionData = createdTasks.slice(0, 5).map((task, i) => ({
@@ -291,10 +280,7 @@ describe("Performance Monitoring Integration Tests", () => {
 			executionTimeMs: 1000 + i * 200,
 		}));
 
-		const createdExecutions = await db
-			.insert(agentExecutions)
-			.values(executionData)
-			.returning();
+		const createdExecutions = await db.insert(agentExecutions).values(executionData).returning();
 
 		return {
 			taskIds: createdTasks.map((t) => t.id),
@@ -307,8 +293,7 @@ describe("Performance Monitoring Integration Tests", () => {
 		it("should measure query performance for simple selects", async () => {
 			const queryTests = [
 				() => db.select().from(tasks).limit(10),
-				() =>
-					db.select().from(environments).where(eq(environments.isActive, true)),
+				() => db.select().from(environments).where(eq(environments.isActive, true)),
 				() => db.select().from(agentExecutions).limit(5),
 			];
 
@@ -326,8 +311,7 @@ describe("Performance Monitoring Integration Tests", () => {
 				expect(time).toBeLessThan(100); // Less than 100ms
 			});
 
-			const averageQueryTime =
-				results.reduce((sum, time) => sum + time, 0) / results.length;
+			const averageQueryTime = results.reduce((sum, time) => sum + time, 0) / results.length;
 			expect(averageQueryTime).toBeLessThan(50); // Average less than 50ms
 		});
 
@@ -442,13 +426,10 @@ describe("Performance Monitoring Integration Tests", () => {
 				await db.select().from(tasks).limit(10);
 			};
 
-			const loadTestResult = await performanceMonitor.runLoadTest(
-				testFunction,
-				{
-					duration: 5000, // 5 seconds
-					concurrency: 10, // 10 concurrent users
-				},
-			);
+			const loadTestResult = await performanceMonitor.runLoadTest(testFunction, {
+				duration: 5000, // 5 seconds
+				concurrency: 10, // 10 concurrent users
+			});
 
 			expect(loadTestResult.successfulRequests).toBeGreaterThan(0);
 			expect(loadTestResult.failedRequests).toBe(0);
@@ -470,13 +451,10 @@ describe("Performance Monitoring Integration Tests", () => {
 				});
 			};
 
-			const loadTestResult = await performanceMonitor.runLoadTest(
-				testFunction,
-				{
-					duration: 3000, // 3 seconds
-					concurrency: 5, // 5 concurrent writers
-				},
-			);
+			const loadTestResult = await performanceMonitor.runLoadTest(testFunction, {
+				duration: 3000, // 3 seconds
+				concurrency: 5, // 5 concurrent writers
+			});
 
 			expect(loadTestResult.successfulRequests).toBeGreaterThan(0);
 			expect(loadTestResult.averageResponseTime).toBeLessThan(200);
@@ -506,14 +484,11 @@ describe("Performance Monitoring Integration Tests", () => {
 				}
 			};
 
-			const loadTestResult = await performanceMonitor.runLoadTest(
-				testFunction,
-				{
-					duration: 4000, // 4 seconds
-					concurrency: 8, // 8 concurrent users
-					rampUp: 1000, // 1 second ramp up
-				},
-			);
+			const loadTestResult = await performanceMonitor.runLoadTest(testFunction, {
+				duration: 4000, // 4 seconds
+				concurrency: 8, // 8 concurrent users
+				rampUp: 1000, // 1 second ramp up
+			});
 
 			expect(loadTestResult.successfulRequests).toBeGreaterThan(0);
 			expect(loadTestResult.averageResponseTime).toBeLessThan(150);
@@ -543,19 +518,14 @@ describe("Performance Monitoring Integration Tests", () => {
 				return results;
 			};
 
-			const loadTestResult = await performanceMonitor.runLoadTest(
-				stressTestFunction,
-				{
-					duration: 6000, // 6 seconds
-					concurrency: 15, // 15 concurrent users
-					rampUp: 2000, // 2 second ramp up
-				},
-			);
+			const loadTestResult = await performanceMonitor.runLoadTest(stressTestFunction, {
+				duration: 6000, // 6 seconds
+				concurrency: 15, // 15 concurrent users
+				rampUp: 2000, // 2 second ramp up
+			});
 
 			expect(loadTestResult.successfulRequests).toBeGreaterThan(0);
-			expect(
-				loadTestResult.failedRequests / loadTestResult.totalRequests,
-			).toBeLessThan(0.05); // Less than 5% error rate
+			expect(loadTestResult.failedRequests / loadTestResult.totalRequests).toBeLessThan(0.05); // Less than 5% error rate
 			expect(loadTestResult.percentiles.p99).toBeLessThan(1000); // 99th percentile under 1 second
 		});
 	});
@@ -583,10 +553,7 @@ describe("Performance Monitoring Integration Tests", () => {
 
 			// Query large dataset multiple times
 			for (let i = 0; i < 10; i++) {
-				await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.userId, "memory-test-user"));
+				await db.select().from(tasks).where(eq(tasks.userId, "memory-test-user"));
 			}
 
 			// Check memory usage after operations
@@ -601,9 +568,7 @@ describe("Performance Monitoring Integration Tests", () => {
 
 			// Check memory after cleanup
 			const cleanupHealth = await performanceMonitor.getSystemHealth();
-			expect(cleanupHealth.memoryUsage.percentage).toBeLessThanOrEqual(
-				finalMemory,
-			);
+			expect(cleanupHealth.memoryUsage.percentage).toBeLessThanOrEqual(finalMemory);
 		});
 
 		it("should detect memory leaks in repeated operations", async () => {
@@ -624,9 +589,7 @@ describe("Performance Monitoring Integration Tests", () => {
 					.select()
 					.from(tasks)
 					.where(eq(tasks.userId, `leak-test-user-${iteration}`));
-				await db
-					.delete(tasks)
-					.where(eq(tasks.userId, `leak-test-user-${iteration}`));
+				await db.delete(tasks).where(eq(tasks.userId, `leak-test-user-${iteration}`));
 
 				// Record memory usage
 				const health = await performanceMonitor.getSystemHealth();
@@ -641,8 +604,7 @@ describe("Performance Monitoring Integration Tests", () => {
 				.slice(1)
 				.map((current, index) => current - memorySnapshots[index]);
 
-			const averageTrend =
-				memoryTrend.reduce((sum, diff) => sum + diff, 0) / memoryTrend.length;
+			const averageTrend = memoryTrend.reduce((sum, diff) => sum + diff, 0) / memoryTrend.length;
 			expect(averageTrend).toBeLessThan(5); // Average memory increase should be less than 5%
 		});
 	});
@@ -655,11 +617,7 @@ describe("Performance Monitoring Integration Tests", () => {
 			for (let i = 0; i < 50; i++) {
 				const startTime = performance.now();
 
-				await db
-					.select()
-					.from(tasks)
-					.where(eq(tasks.userId, "perf-test-user"))
-					.limit(10);
+				await db.select().from(tasks).where(eq(tasks.userId, "perf-test-user")).limit(10);
 
 				const responseTime = performance.now() - startTime;
 				responseTimes.push(responseTime);
@@ -670,9 +628,7 @@ describe("Performance Monitoring Integration Tests", () => {
 
 			// Calculate statistics
 			const sortedTimes = responseTimes.sort((a, b) => a - b);
-			const average =
-				responseTimes.reduce((sum, time) => sum + time, 0) /
-				responseTimes.length;
+			const average = responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length;
 			const median = sortedTimes[Math.floor(sortedTimes.length / 2)];
 			const p95 = sortedTimes[Math.floor(sortedTimes.length * 0.95)];
 			const p99 = sortedTimes[Math.floor(sortedTimes.length * 0.99)];
@@ -684,12 +640,9 @@ describe("Performance Monitoring Integration Tests", () => {
 
 			// Check for outliers (response times > 3 standard deviations)
 			const standardDev = Math.sqrt(
-				responseTimes.reduce((sum, time) => sum + (time - average) ** 2, 0) /
-					responseTimes.length,
+				responseTimes.reduce((sum, time) => sum + (time - average) ** 2, 0) / responseTimes.length
 			);
-			const outliers = responseTimes.filter(
-				(time) => Math.abs(time - average) > 3 * standardDev,
-			);
+			const outliers = responseTimes.filter((time) => Math.abs(time - average) > 3 * standardDev);
 
 			expect(outliers.length / responseTimes.length).toBeLessThan(0.01); // Less than 1% outliers
 		});
@@ -707,15 +660,13 @@ describe("Performance Monitoring Integration Tests", () => {
 
 			const results = await Promise.all(connectionTests);
 			const connectionTimes = results.map((r) => r.connectionTime);
-			const successRate =
-				results.filter((r) => r.success).length / results.length;
+			const successRate = results.filter((r) => r.success).length / results.length;
 
 			expect(successRate).toBe(1); // 100% success rate
 			expect(Math.max(...connectionTimes)).toBeLessThan(100); // Max connection time under 100ms
 
 			const averageConnectionTime =
-				connectionTimes.reduce((sum, time) => sum + time, 0) /
-				connectionTimes.length;
+				connectionTimes.reduce((sum, time) => sum + time, 0) / connectionTimes.length;
 			expect(averageConnectionTime).toBeLessThan(30); // Average connection time under 30ms
 		});
 	});
@@ -761,8 +712,7 @@ describe("Performance Monitoring Integration Tests", () => {
 			// Check for performance degradation
 			const responseTimeTrend = metricsHistory.map((m) => m.responseTime);
 			const isPerformanceDegrading = responseTimeTrend.every(
-				(time, index) =>
-					index === 0 || time <= responseTimeTrend[index - 1] * 1.5, // Allow 50% variance
+				(time, index) => index === 0 || time <= responseTimeTrend[index - 1] * 1.5 // Allow 50% variance
 			);
 
 			expect(isPerformanceDegrading).toBe(true);
@@ -805,13 +755,12 @@ describe("Performance Monitoring Integration Tests", () => {
 				for (let i = 0; i < 10; i++) {
 					times.push(await testFn());
 				}
-				bottleneckResults[testName] =
-					times.reduce((sum, time) => sum + time, 0) / times.length;
+				bottleneckResults[testName] = times.reduce((sum, time) => sum + time, 0) / times.length;
 			}
 
 			// Identify bottlenecks
 			const slowestOperation = Object.entries(bottleneckResults).sort(
-				([, timeA], [, timeB]) => timeB - timeA,
+				([, timeA], [, timeB]) => timeB - timeA
 			)[0];
 
 			console.log("Bottleneck analysis:", bottleneckResults);
@@ -837,16 +786,12 @@ describe("Performance Monitoring Integration Tests", () => {
 				(regressionMetrics.responseTime - baselineMetrics.responseTime) /
 				baselineMetrics.responseTime;
 			const throughputRegression =
-				(baselineMetrics.throughput - regressionMetrics.throughput) /
-				baselineMetrics.throughput;
+				(baselineMetrics.throughput - regressionMetrics.throughput) / baselineMetrics.throughput;
 
 			// Flag significant regressions
 			if (responseTimeRegression > 0.5) {
 				// 50% slower
-				console.warn(
-					"Response time regression detected:",
-					responseTimeRegression,
-				);
+				console.warn("Response time regression detected:", responseTimeRegression);
 			}
 
 			if (throughputRegression > 0.3) {

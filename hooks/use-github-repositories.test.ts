@@ -1,14 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	spyOn,
-	test,
-	vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vitest";
 import { useGitHubRepositories } from "./use-github-repositories";
 
 // Mock fetch
@@ -90,9 +81,7 @@ describe("useGitHubRepositories", () => {
 	});
 
 	it("should handle fetch errors", async () => {
-		(fetch as unknown as jest.Mock).mockRejectedValueOnce(
-			new Error("Network error"),
-		);
+		(fetch as unknown as jest.Mock).mockRejectedValueOnce(new Error("Network error"));
 
 		const { result } = renderHook(() => useGitHubRepositories());
 
@@ -145,9 +134,7 @@ describe("useGitHubRepositories", () => {
 				ok: true,
 				headers: {
 					get: (name: string) =>
-						name === "Link"
-							? '<https://api.github.com/user/repos?page=2>; rel="next"'
-							: null,
+						name === "Link" ? '<https://api.github.com/user/repos?page=2>; rel="next"' : null,
 				},
 				json: async () => mockPage1,
 			} as unknown)
@@ -289,9 +276,7 @@ describe("useGitHubRepositories", () => {
 			result.current.sortRepositories("updated");
 		});
 
-		expect(result.current.repositories[0].updated_at).toBe(
-			"2023-01-03T00:00:00Z",
-		);
+		expect(result.current.repositories[0].updated_at).toBe("2023-01-03T00:00:00Z");
 	});
 
 	it("should refresh repositories", async () => {
@@ -392,7 +377,7 @@ describe("useGitHubRepositories", () => {
 		expect(details).toEqual(mockRepoDetails);
 		expect(fetch).toHaveBeenCalledWith(
 			expect.stringContaining("/repos/testuser/repo1"),
-			expect.any(Object),
+			expect.any(Object)
 		);
 	});
 
@@ -414,10 +399,7 @@ describe("useGitHubRepositories", () => {
 			await result.current.fetchRepositories({ visibility: "public" });
 		});
 
-		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining("type=public"),
-			expect.any(Object),
-		);
+		expect(fetch).toHaveBeenCalledWith(expect.stringContaining("type=public"), expect.any(Object));
 	});
 
 	it("should handle repository type filters", async () => {
@@ -433,7 +415,7 @@ describe("useGitHubRepositories", () => {
 
 		expect(fetch).toHaveBeenCalledWith(
 			expect.stringContaining("type=owner&sort=updated&direction=desc"),
-			expect.any(Object),
+			expect.any(Object)
 		);
 	});
 
@@ -449,7 +431,7 @@ describe("useGitHubRepositories", () => {
 			useGitHubRepositories({
 				cacheEnabled: true,
 				cacheDuration: 5 * 60 * 1000, // 5 minutes
-			}),
+			})
 		);
 
 		await act(async () => {

@@ -62,7 +62,7 @@ describe("Dialog Components", () => {
 			render(
 				<Dialog>
 					<div>Dialog content</div>
-				</Dialog>,
+				</Dialog>
 			);
 
 			expect(screen.getByTestId("dialog-root")).toBeInTheDocument();
@@ -72,13 +72,10 @@ describe("Dialog Components", () => {
 			render(
 				<Dialog data-custom="test">
 					<div>Content</div>
-				</Dialog>,
+				</Dialog>
 			);
 
-			expect(screen.getByTestId("dialog-root")).toHaveAttribute(
-				"data-custom",
-				"test",
-			);
+			expect(screen.getByTestId("dialog-root")).toHaveAttribute("data-custom", "test");
 		});
 	});
 
@@ -103,7 +100,7 @@ describe("Dialog Components", () => {
 			render(
 				<DialogPortal>
 					<div>Portal content</div>
-				</DialogPortal>,
+				</DialogPortal>
 			);
 
 			expect(screen.getByTestId("dialog-portal")).toBeInTheDocument();
@@ -143,7 +140,7 @@ describe("Dialog Components", () => {
 			render(
 				<DialogContent>
 					<div>Dialog body</div>
-				</DialogContent>,
+				</DialogContent>
 			);
 
 			expect(screen.getByTestId("dialog-overlay")).toBeInTheDocument();
@@ -156,7 +153,7 @@ describe("Dialog Components", () => {
 			render(
 				<DialogContent showCloseButton={false}>
 					<div>Dialog body</div>
-				</DialogContent>,
+				</DialogContent>
 			);
 
 			expect(screen.queryByText("Close")).not.toBeInTheDocument();
@@ -166,24 +163,18 @@ describe("Dialog Components", () => {
 			render(
 				<DialogContent>
 					<div>Content</div>
-				</DialogContent>,
+				</DialogContent>
 			);
 
 			const content = screen.getByTestId("dialog-content");
-			expect(content).toHaveClass(
-				"fixed",
-				"top-[50%]",
-				"left-[50%]",
-				"z-50",
-				"grid",
-			);
+			expect(content).toHaveClass("fixed", "top-[50%]", "left-[50%]", "z-50", "grid");
 		});
 
 		it("should merge custom className", () => {
 			render(
 				<DialogContent className="custom-content">
 					<div>Content</div>
-				</DialogContent>,
+				</DialogContent>
 			);
 
 			const content = screen.getByTestId("dialog-content");
@@ -197,7 +188,7 @@ describe("Dialog Components", () => {
 			render(
 				<DialogHeader data-testid="header">
 					<div>Header content</div>
-				</DialogHeader>,
+				</DialogHeader>
 			);
 
 			const header = screen.getByTestId("header");
@@ -209,7 +200,7 @@ describe("Dialog Components", () => {
 			render(
 				<DialogHeader className="custom-header" data-testid="header">
 					Header
-				</DialogHeader>,
+				</DialogHeader>
 			);
 
 			const header = screen.getByTestId("header");
@@ -223,7 +214,7 @@ describe("Dialog Components", () => {
 				<DialogFooter data-testid="footer">
 					<button>Cancel</button>
 					<button>Save</button>
-				</DialogFooter>,
+				</DialogFooter>
 			);
 
 			const footer = screen.getByTestId("footer");
@@ -233,7 +224,7 @@ describe("Dialog Components", () => {
 				"flex-col-reverse",
 				"gap-2",
 				"sm:flex-row",
-				"sm:justify-end",
+				"sm:justify-end"
 			);
 		});
 
@@ -241,7 +232,7 @@ describe("Dialog Components", () => {
 			render(
 				<DialogFooter className="justify-center" data-testid="footer">
 					Footer
-				</DialogFooter>,
+				</DialogFooter>
 			);
 
 			const footer = screen.getByTestId("footer");
@@ -278,9 +269,7 @@ describe("Dialog Components", () => {
 		});
 
 		it("should merge custom className", () => {
-			render(
-				<DialogDescription className="italic">Description</DialogDescription>,
-			);
+			render(<DialogDescription className="italic">Description</DialogDescription>);
 
 			const description = screen.getByTestId("dialog-description");
 			expect(description).toHaveClass("italic");
@@ -295,9 +284,7 @@ describe("Dialog Components", () => {
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Confirm Action</DialogTitle>
-							<DialogDescription>
-								Are you sure you want to perform this action?
-							</DialogDescription>
+							<DialogDescription>Are you sure you want to perform this action?</DialogDescription>
 						</DialogHeader>
 						<div>
 							<p>This action cannot be undone.</p>
@@ -307,17 +294,13 @@ describe("Dialog Components", () => {
 							<button>Confirm</button>
 						</DialogFooter>
 					</DialogContent>
-				</Dialog>,
+				</Dialog>
 			);
 
 			expect(screen.getByText("Open Dialog")).toBeInTheDocument();
 			expect(screen.getByText("Confirm Action")).toBeInTheDocument();
-			expect(
-				screen.getByText("Are you sure you want to perform this action?"),
-			).toBeInTheDocument();
-			expect(
-				screen.getByText("This action cannot be undone."),
-			).toBeInTheDocument();
+			expect(screen.getByText("Are you sure you want to perform this action?")).toBeInTheDocument();
+			expect(screen.getByText("This action cannot be undone.")).toBeInTheDocument();
 			expect(screen.getByText("Cancel")).toBeInTheDocument();
 			expect(screen.getByText("Confirm")).toBeInTheDocument();
 		});
@@ -329,7 +312,7 @@ describe("Dialog Components", () => {
 						<DialogTitle>Simple Dialog</DialogTitle>
 						<div>Content only</div>
 					</DialogContent>
-				</Dialog>,
+				</Dialog>
 			);
 
 			expect(screen.getByText("Simple Dialog")).toBeInTheDocument();

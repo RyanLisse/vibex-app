@@ -39,11 +39,7 @@ export interface TaskMovementResult {
  * Fetch task by ID with error handling
  */
 export async function fetchTaskById(taskId: string): Promise<any> {
-	const result = await db
-		.select()
-		.from(tasks)
-		.where(eq(tasks.id, taskId))
-		.limit(1);
+	const result = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1);
 
 	const task = result[0];
 	if (!task) {
@@ -57,8 +53,7 @@ export async function fetchTaskById(taskId: string): Promise<any> {
  * Validate target column and return new status
  */
 export function validateTargetColumn(toColumn: string): string {
-	const newStatus =
-		COLUMN_STATUS_MAP[toColumn as keyof typeof COLUMN_STATUS_MAP];
+	const newStatus = COLUMN_STATUS_MAP[toColumn as keyof typeof COLUMN_STATUS_MAP];
 	if (!newStatus) {
 		throw new ValidationError("Invalid target column");
 	}
@@ -68,10 +63,7 @@ export function validateTargetColumn(toColumn: string): string {
 /**
  * Check WIP limits for target column
  */
-export async function checkWipLimits(
-	toColumn: string,
-	newStatus: string,
-): Promise<void> {
+export async function checkWipLimits(toColumn: string, newStatus: string): Promise<void> {
 	// Skip WIP check for todo and completed columns
 	if (toColumn === "todo" || toColumn === "completed") {
 		return;
@@ -89,7 +81,7 @@ export async function checkWipLimits(
 
 	if (currentColumnTasks.length >= columnConfig.limit) {
 		throw new ConflictError(
-			`Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`,
+			`Column "${columnConfig.title}" has reached its WIP limit of ${columnConfig.limit}`
 		);
 	}
 }
@@ -101,7 +93,7 @@ export function buildKanbanMetadata(
 	currentMetadata: any,
 	fromColumn: string,
 	toColumn: string,
-	newOrder?: number,
+	newOrder?: number
 ): any {
 	return {
 		...currentMetadata,
@@ -135,15 +127,8 @@ export function buildTaskUpdates(newStatus: string, metadata: any): any {
 /**
  * Update task in database
  */
-export async function updateTaskInDatabase(
-	taskId: string,
-	updates: any,
-): Promise<any> {
-	const result = await db
-		.update(tasks)
-		.set(updates)
-		.where(eq(tasks.id, taskId))
-		.returning();
+export async function updateTaskInDatabase(taskId: string, updates: any): Promise<any> {
+	const result = await db.update(tasks).set(updates).where(eq(tasks.id, taskId)).returning();
 
 	return result[0];
 }
@@ -164,7 +149,7 @@ export function createMovementRecord(fromColumn: string, toColumn: string) {
  */
 export async function executeTaskMove(
 	moveData: TaskMoveData,
-	task: any,
+	task: any
 ): Promise<TaskMovementResult> {
 	// Validate and get new status
 	const newStatus = validateTargetColumn(moveData.toColumn);
@@ -173,14 +158,13 @@ export async function executeTaskMove(
 	await checkWipLimits(moveData.toColumn, newStatus);
 
 	// Build metadata and updates
-	const fromColumn =
-		STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP];
+	const fromColumn = STATUS_COLUMN_MAP[task.status as keyof typeof STATUS_COLUMN_MAP];
 	const currentMetadata = (task.metadata as any) || {};
 	const metadata = buildKanbanMetadata(
 		currentMetadata,
 		fromColumn,
 		moveData.toColumn,
-		moveData.newOrder,
+		moveData.newOrder
 	);
 	const updates = buildTaskUpdates(newStatus, metadata);
 

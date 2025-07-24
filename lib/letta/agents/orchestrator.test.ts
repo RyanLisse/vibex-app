@@ -76,21 +76,15 @@ class AgentOrchestrator {
 	}
 
 	getPendingTasks(): Task[] {
-		return Array.from(this.tasks.values()).filter(
-			(task) => task.status === "pending",
-		);
+		return Array.from(this.tasks.values()).filter((task) => task.status === "pending");
 	}
 
 	getRunningTasks(): Task[] {
-		return Array.from(this.tasks.values()).filter(
-			(task) => task.status === "running",
-		);
+		return Array.from(this.tasks.values()).filter((task) => task.status === "running");
 	}
 
 	getAvailableAgents(): Agent[] {
-		return Array.from(this.agents.values()).filter(
-			(agent) => agent.status === "idle",
-		);
+		return Array.from(this.agents.values()).filter((agent) => agent.status === "idle");
 	}
 
 	orchestrate(): void {
@@ -107,8 +101,7 @@ class AgentOrchestrator {
 
 	private findSuitableAgent(task: Task, agents: Agent[]): Agent | undefined {
 		return agents.find(
-			(agent) =>
-				agent.capabilities.includes(task.type) && agent.status === "idle",
+			(agent) => agent.capabilities.includes(task.type) && agent.status === "idle"
 		);
 	}
 }

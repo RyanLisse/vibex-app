@@ -7,15 +7,10 @@
 import type { WorkflowContext } from "./types";
 
 // Base executor class
-abstract class BaseStepExecutor<T extends StepConfig>
-	implements StepExecutor<T>
-{
+abstract class BaseStepExecutor<T extends StepConfig> implements StepExecutor<T> {
 	abstract type: T["type"];
 
-	abstract execute(
-		step: T,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult>;
+	abstract execute(step: T, context: WorkflowContext): Promise<StepExecutionResult>;
 
 	validate(step: T): string[] {
 		const errors: string[] = [];
@@ -40,10 +35,7 @@ abstract class BaseStepExecutor<T extends StepConfig>
 		};
 	}
 
-	protected evaluateExpression(
-		expression: string,
-		context: WorkflowContext,
-	): any {
+	protected evaluateExpression(expression: string, context: WorkflowContext): any {
 		try {
 			// Create a scope with workflow variables
 			const scope = {
@@ -134,15 +126,12 @@ export class ActionStepExecutor extends BaseStepExecutor<ActionStepConfig> {
 
 	registerActionHandler(
 		type: string,
-		handler: (params: any, context: WorkflowContext) => Promise<any>,
+		handler: (params: any, context: WorkflowContext) => Promise<any>
 	) {
 		this.actionHandlers.set(type, handler);
 	}
 
-	async execute(
-		step: ActionStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: ActionStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
 			context.log("debug", `Executing action step: ${step.name}`, {
 				type: step.action.type,
@@ -180,11 +169,7 @@ export class ActionStepExecutor extends BaseStepExecutor<ActionStepConfig> {
 	}
 
 	private resolveParams(params: any, context: WorkflowContext): any {
-		if (
-			typeof params === "string" &&
-			params.startsWith("${") &&
-			params.endsWith("}")
-		) {
+		if (typeof params === "string" && params.startsWith("${") && params.endsWith("}")) {
 			const expression = params.slice(2, -1);
 			return this.evaluateExpression(expression, context);
 		}
@@ -213,23 +198,12 @@ export class ActionStepExecutor extends BaseStepExecutor<ActionStepConfig> {
 export class ConditionStepExecutor extends BaseStepExecutor<ConditionStepConfig> {
 	type = "condition" as const;
 
-	async execute(
-		step: ConditionStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: ConditionStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
-			context.log(
-				"debug",
-				`Evaluating condition: ${step.condition.expression}`,
-			);
+			context.log("debug", `Evaluating condition: ${step.condition.expression}`);
 
-			const result = this.evaluateExpression(
-				step.condition.expression,
-				context,
-			);
-			const nextStepId = result
-				? step.condition.trueStepId
-				: step.condition.falseStepId;
+			const result = this.evaluateExpression(step.condition.expression, context);
+			const nextStepId = result ? step.condition.trueStepId : step.condition.falseStepId;
 
 			context.log("info", `Condition evaluated to: ${result}`, { nextStepId });
 
@@ -252,40 +226,27 @@ export class ParallelStepExecutor extends BaseStepExecutor<ParallelStepConfig> {
 	type = "parallel" as const;
 
 	constructor(
-		private executeStep: (
-			stepId: string,
-			context: WorkflowContext,
-		) => Promise<StepExecutionResult>,
+		private executeStep: (stepId: string, context: WorkflowContext) => Promise<StepExecutionResult>
 	) {
 		super();
 	}
 
-	async execute(
-		step: ParallelStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: ParallelStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
-			context.log(
-				"info",
-				`Executing ${step.parallel.steps.length} steps in parallel`,
-			);
+			context.log("info", `Executing ${step.parallel.steps.length} steps in parallel`);
 
 			const promises = step.parallel.steps.map((stepId) =>
 				this.executeStep(stepId, context).catch((error) => ({
 					status: "failed" as const,
 					error,
-				})),
+				}))
 			);
 
 			const results = await Promise.all(promises);
 
 			const failures = results.filter((r) => r.status === "failed");
 
-			if (
-				failures.length > 0 &&
-				step.parallel.waitForAll &&
-				!step.parallel.continueOnError
-			) {
+			if (failures.length > 0 && step.parallel.waitForAll && !step.parallel.continueOnError) {
 				return {
 					status: "failed",
 					error: {
@@ -319,23 +280,17 @@ export class SequentialStepExecutor extends BaseStepExecutor<SequentialStepConfi
 	type = "sequential" as const;
 
 	constructor(
-		private executeStep: (
-			stepId: string,
-			context: WorkflowContext,
-		) => Promise<StepExecutionResult>,
+		private executeStep: (stepId: string, context: WorkflowContext) => Promise<StepExecutionResult>
 	) {
 		super();
 	}
 
 	async execute(
 		step: SequentialStepConfig,
-		context: WorkflowContext,
+		context: WorkflowContext
 	): Promise<StepExecutionResult> {
 		try {
-			context.log(
-				"info",
-				`Executing ${step.sequential.steps.length} steps sequentially`,
-			);
+			context.log("info", `Executing ${step.sequential.steps.length} steps sequentially`);
 
 			const results: StepExecutionResult[] = [];
 
@@ -373,18 +328,12 @@ export class LoopStepExecutor extends BaseStepExecutor<LoopStepConfig> {
 	type = "loop" as const;
 
 	constructor(
-		private executeStep: (
-			stepId: string,
-			context: WorkflowContext,
-		) => Promise<StepExecutionResult>,
+		private executeStep: (stepId: string, context: WorkflowContext) => Promise<StepExecutionResult>
 	) {
 		super();
 	}
 
-	async execute(
-		step: LoopStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: LoopStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
 			const items = context.getVariable(step.loop.items);
 
@@ -436,10 +385,7 @@ export class LoopStepExecutor extends BaseStepExecutor<LoopStepConfig> {
 export class WaitStepExecutor extends BaseStepExecutor<WaitStepConfig> {
 	type = "wait" as const;
 
-	async execute(
-		step: WaitStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: WaitStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
 			let waitTime: number;
 
@@ -481,7 +427,7 @@ export class HumanApprovalStepExecutor extends BaseStepExecutor<HumanApprovalSte
 
 	async execute(
 		step: HumanApprovalStepConfig,
-		context: WorkflowContext,
+		context: WorkflowContext
 	): Promise<StepExecutionResult> {
 		try {
 			context.log("info", "Requesting human approval", {
@@ -518,10 +464,7 @@ export class HumanApprovalStepExecutor extends BaseStepExecutor<HumanApprovalSte
 export class WebhookStepExecutor extends BaseStepExecutor<WebhookStepConfig> {
 	type = "webhook" as const;
 
-	async execute(
-		step: WebhookStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: WebhookStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
 			context.log("info", `Calling webhook: ${step.webhook.url}`);
 
@@ -534,12 +477,10 @@ export class WebhookStepExecutor extends BaseStepExecutor<WebhookStepConfig> {
 			if (step.webhook.authentication) {
 				switch (step.webhook.authentication.type) {
 					case "bearer":
-						headers["Authorization"] =
-							`Bearer ${step.webhook.authentication.credentials}`;
+						headers["Authorization"] = `Bearer ${step.webhook.authentication.credentials}`;
 						break;
 					case "basic":
-						headers["Authorization"] =
-							`Basic ${step.webhook.authentication.credentials}`;
+						headers["Authorization"] = `Basic ${step.webhook.authentication.credentials}`;
 						break;
 					case "api_key":
 						headers["X-API-Key"] = step.webhook.authentication.credentials;
@@ -554,9 +495,7 @@ export class WebhookStepExecutor extends BaseStepExecutor<WebhookStepConfig> {
 			});
 
 			if (!response.ok) {
-				throw new Error(
-					`Webhook failed: ${response.status} ${response.statusText}`,
-				);
+				throw new Error(`Webhook failed: ${response.status} ${response.statusText}`);
 			}
 
 			const data = await response.json();
@@ -590,17 +529,11 @@ export class WebhookStepExecutor extends BaseStepExecutor<WebhookStepConfig> {
 export class TransformStepExecutor extends BaseStepExecutor<TransformStepConfig> {
 	type = "transform" as const;
 
-	async execute(
-		step: TransformStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: TransformStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
 			context.log("debug", `Executing transform: ${step.transform.expression}`);
 
-			const result = this.evaluateExpression(
-				step.transform.expression,
-				context,
-			);
+			const result = this.evaluateExpression(step.transform.expression, context);
 			context.setVariable(step.transform.outputVariable, result);
 
 			return {
@@ -620,19 +553,11 @@ export class TransformStepExecutor extends BaseStepExecutor<TransformStepConfig>
 export class AggregateStepExecutor extends BaseStepExecutor<AggregateStepConfig> {
 	type = "aggregate" as const;
 
-	async execute(
-		step: AggregateStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: AggregateStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
-			context.log(
-				"info",
-				`Aggregating data from ${step.aggregate.sources.length} sources`,
-			);
+			context.log("info", `Aggregating data from ${step.aggregate.sources.length} sources`);
 
-			const data = step.aggregate.sources.map((source) =>
-				context.getVariable(source),
-			);
+			const data = step.aggregate.sources.map((source) => context.getVariable(source));
 
 			let result: any;
 
@@ -656,9 +581,7 @@ export class AggregateStepExecutor extends BaseStepExecutor<AggregateStepConfig>
 					break;
 
 				default:
-					throw new Error(
-						`Unknown aggregation operation: ${step.aggregate.operation}`,
-					);
+					throw new Error(`Unknown aggregation operation: ${step.aggregate.operation}`);
 			}
 
 			context.setVariable(step.aggregate.outputVariable, result);
@@ -680,24 +603,15 @@ export class AggregateStepExecutor extends BaseStepExecutor<AggregateStepConfig>
 export class BranchStepExecutor extends BaseStepExecutor<BranchStepConfig> {
 	type = "branch" as const;
 
-	async execute(
-		step: BranchStepConfig,
-		context: WorkflowContext,
-	): Promise<StepExecutionResult> {
+	async execute(step: BranchStepConfig, context: WorkflowContext): Promise<StepExecutionResult> {
 		try {
-			context.log(
-				"debug",
-				`Evaluating ${step.branch.conditions.length} branch conditions`,
-			);
+			context.log("debug", `Evaluating ${step.branch.conditions.length} branch conditions`);
 
 			for (const condition of step.branch.conditions) {
 				const result = this.evaluateExpression(condition.expression, context);
 
 				if (result) {
-					context.log(
-						"info",
-						`Branch condition matched: ${condition.expression}`,
-					);
+					context.log("info", `Branch condition matched: ${condition.expression}`);
 					return {
 						status: "completed",
 						output: result,
@@ -755,10 +669,7 @@ export class StepExecutorRegistry {
 
 	// Register executors that need step execution capability
 	registerWithStepExecution(
-		executeStep: (
-			stepId: string,
-			context: WorkflowContext,
-		) => Promise<StepExecutionResult>,
+		executeStep: (stepId: string, context: WorkflowContext) => Promise<StepExecutionResult>
 	): void {
 		this.register(new ParallelStepExecutor(executeStep));
 		this.register(new SequentialStepExecutor(executeStep));

@@ -75,9 +75,7 @@ describe("useGitHubAuth", () => {
 				await result.current.login();
 			});
 
-			expect(result.current.error).toBe(
-				"Failed to get GitHub auth URL: Internal Server Error",
-			);
+			expect(result.current.error).toBe("Failed to get GitHub auth URL: Internal Server Error");
 		});
 
 		it("should set isLoading during login", async () => {

@@ -45,13 +45,7 @@ describe("LettaClient", () => {
 
 		describe("AgentTypeSchema", () => {
 			it("should validate agent types", () => {
-				const validTypes = [
-					"orchestrator",
-					"brainstorm",
-					"low-latency",
-					"memgpt",
-					"react",
-				];
+				const validTypes = ["orchestrator", "brainstorm", "low-latency", "memgpt", "react"];
 				validTypes.forEach((type) => {
 					expect(() => AgentTypeSchema.parse(type)).not.toThrow();
 				});
@@ -157,7 +151,7 @@ describe("LettaClient", () => {
 						Authorization: "Bearer test-api-key",
 						"Content-Type": "application/json",
 					}),
-				}),
+				})
 			);
 			expect(result).toEqual(mockResponse);
 		});
@@ -169,9 +163,9 @@ describe("LettaClient", () => {
 				statusText: "Not Found",
 			});
 
-			await expect(
-				(client as any).request("/invalid-endpoint"),
-			).rejects.toThrow("Letta API error: 404 Not Found");
+			await expect((client as any).request("/invalid-endpoint")).rejects.toThrow(
+				"Letta API error: 404 Not Found"
+			);
 		});
 
 		it("should merge custom headers", async () => {
@@ -192,7 +186,7 @@ describe("LettaClient", () => {
 						"Content-Type": "application/json",
 						"Custom-Header": "value",
 					}),
-				}),
+				})
 			);
 		});
 	});
@@ -239,7 +233,7 @@ describe("LettaClient", () => {
 							low_latency: false,
 						},
 					}),
-				}),
+				})
 			);
 		});
 	});
@@ -271,7 +265,7 @@ describe("LettaClient", () => {
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-api-key",
 					}),
-				}),
+				})
 			);
 		});
 	});
@@ -310,10 +304,7 @@ describe("LettaClient", () => {
 			const result = await client.listAgents();
 
 			expect(result).toEqual(mockAgents);
-			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents",
-				expect.any(Object),
-			);
+			expect(mockFetch).toHaveBeenCalledWith("https://api.test.com/agents", expect.any(Object));
 		});
 	});
 
@@ -330,7 +321,7 @@ describe("LettaClient", () => {
 				"https://api.test.com/agents/agent-123",
 				expect.objectContaining({
 					method: "DELETE",
-				}),
+				})
 			);
 		});
 	});
@@ -357,7 +348,7 @@ describe("LettaClient", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify({ message: "Hello!" }),
-				}),
+				})
 			);
 		});
 
@@ -376,7 +367,7 @@ describe("LettaClient", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify({ message: "Hello!", stream: true }),
-				}),
+				})
 			);
 		});
 
@@ -386,9 +377,9 @@ describe("LettaClient", () => {
 				status: 500,
 			});
 
-			await expect(
-				client.sendMessage("agent-123", "Hello!", true),
-			).rejects.toThrow("Letta API error: 500");
+			await expect(client.sendMessage("agent-123", "Hello!", true)).rejects.toThrow(
+				"Letta API error: 500"
+			);
 		});
 	});
 
@@ -420,7 +411,7 @@ describe("LettaClient", () => {
 			expect(result).toEqual(mockMessages);
 			expect(mockFetch).toHaveBeenCalledWith(
 				"https://api.test.com/agents/agent-123/messages?limit=50",
-				expect.any(Object),
+				expect.any(Object)
 			);
 		});
 
@@ -434,7 +425,7 @@ describe("LettaClient", () => {
 
 			expect(mockFetch).toHaveBeenCalledWith(
 				"https://api.test.com/agents/agent-123/messages?limit=10",
-				expect.any(Object),
+				expect.any(Object)
 			);
 		});
 	});
@@ -460,7 +451,7 @@ describe("LettaClient", () => {
 							voice_id: "en-US-Neural2-F",
 						},
 					}),
-				}),
+				})
 			);
 		});
 	});
@@ -477,11 +468,7 @@ describe("LettaClient", () => {
 			});
 
 			const audioData = new ArrayBuffer(10);
-			const result = await client.sendVoiceMessage(
-				"agent-123",
-				"session-123",
-				audioData,
-			);
+			const result = await client.sendVoiceMessage("agent-123", "session-123", audioData);
 
 			expect(result.textResponse).toBe("Voice response text");
 			expect(result.audioResponse).toBeInstanceOf(ArrayBuffer);
@@ -493,7 +480,7 @@ describe("LettaClient", () => {
 						Authorization: "Bearer test-api-key",
 					},
 					body: expect.any(FormData),
-				}),
+				})
 			);
 		});
 
@@ -504,9 +491,9 @@ describe("LettaClient", () => {
 			});
 
 			const audioData = new ArrayBuffer(10);
-			await expect(
-				client.sendVoiceMessage("agent-123", "session-123", audioData),
-			).rejects.toThrow("Voice API error: 400");
+			await expect(client.sendVoiceMessage("agent-123", "session-123", audioData)).rejects.toThrow(
+				"Voice API error: 400"
+			);
 		});
 	});
 
@@ -527,7 +514,7 @@ describe("LettaClient", () => {
 			const result = await client.sendAgentMessage(
 				"agent-from-123",
 				"agent-to-123",
-				"Hello agent!",
+				"Hello agent!"
 			);
 
 			expect(result).toEqual(mockMessage);
@@ -536,7 +523,7 @@ describe("LettaClient", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify({ message: "Hello agent!" }),
-				}),
+				})
 			);
 		});
 	});
@@ -548,18 +535,14 @@ describe("LettaClient", () => {
 				json: () => Promise.resolve({}),
 			});
 
-			await client.updateMemory(
-				"agent-123",
-				"context",
-				"Updated context content",
-			);
+			await client.updateMemory("agent-123", "context", "Updated context content");
 
 			expect(mockFetch).toHaveBeenCalledWith(
 				"https://api.test.com/agents/agent-123/memory/context",
 				expect.objectContaining({
 					method: "PUT",
 					body: JSON.stringify({ content: "Updated context content" }),
-				}),
+				})
 			);
 		});
 	});
@@ -580,7 +563,7 @@ describe("LettaClient", () => {
 			expect(result).toEqual(mockMemory);
 			expect(mockFetch).toHaveBeenCalledWith(
 				"https://api.test.com/agents/agent-123/memory",
-				expect.any(Object),
+				expect.any(Object)
 			);
 		});
 	});

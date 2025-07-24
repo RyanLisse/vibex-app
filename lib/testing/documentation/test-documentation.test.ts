@@ -34,12 +34,8 @@ describe("TestSpecificationGenerator", () => {
 			expect(spec.title).toBe("UserService Test Specification");
 			expect(spec.methods).toHaveLength(2); // UserService has 2 methods: createUser and getUserById
 			expect(spec.methods[0].name).toBe("createUser");
-			expect(spec.methods[0].testCases).toContain(
-				"should create user with valid data",
-			);
-			expect(spec.methods[0].testCases).toContain(
-				"should throw error when email is missing",
-			);
+			expect(spec.methods[0].testCases).toContain("should create user with valid data");
+			expect(spec.methods[0].testCases).toContain("should throw error when email is missing");
 			expect(spec.methods[1].name).toBe("getUserById");
 		});
 
@@ -74,9 +70,7 @@ describe("TestSpecificationGenerator", () => {
 			expect(spec.props).toHaveLength(4);
 			expect(spec.testCases).toContain("should render correctly");
 			expect(spec.testCases).toContain("should handle onClick events");
-			expect(spec.testCases).toContain(
-				"should disable when disabled prop is true",
-			);
+			expect(spec.testCases).toContain("should disable when disabled prop is true");
 			expect(spec.testCases).toContain("should apply variant styling");
 		});
 
@@ -97,9 +91,7 @@ describe("TestSpecificationGenerator", () => {
 			expect(spec.endpoints).toHaveLength(4);
 			expect(spec.endpoints[0].method).toBe("GET");
 			expect(spec.endpoints[0].testCases).toContain("should return users list");
-			expect(spec.endpoints[0].testCases).toContain(
-				"should require authentication",
-			);
+			expect(spec.endpoints[0].testCases).toContain("should require authentication");
 		});
 	});
 
@@ -119,17 +111,10 @@ describe("TestSpecificationGenerator", () => {
         }
       `;
 
-			const testCases = await generator.inferTestCases(
-				functionCode,
-				"calculateDiscount",
-			);
+			const testCases = await generator.inferTestCases(functionCode, "calculateDiscount");
 
-			expect(testCases).toContain(
-				"should calculate 20% discount for premium customers",
-			);
-			expect(testCases).toContain(
-				"should calculate 10% discount for regular customers",
-			);
+			expect(testCases).toContain("should calculate 20% discount for premium customers");
+			expect(testCases).toContain("should calculate 10% discount for regular customers");
 			expect(testCases).toContain("should throw error for negative prices");
 			expect(testCases).toContain("should work correctly with valid input");
 		});
@@ -306,9 +291,7 @@ describe("CoverageVisualizer", () => {
 
 			expect(analysis.overall.grade).toBe("A");
 			expect(analysis.overall.score).toBeGreaterThan(90);
-			expect(analysis.recommendations).toContain(
-				"Excellent coverage - maintain current standards",
-			);
+			expect(analysis.recommendations).toContain("Excellent coverage - maintain current standards");
 		});
 
 		it("should identify coverage gaps", async () => {
@@ -323,9 +306,7 @@ describe("CoverageVisualizer", () => {
 
 			expect(analysis.overall.grade).toBe("D"); // (60+50+60+70)/4 = 60% = D
 			expect(analysis.gaps).toContain("Low branch coverage");
-			expect(analysis.recommendations).toContain(
-				"Increase test coverage significantly",
-			);
+			expect(analysis.recommendations).toContain("Increase test coverage significantly");
 		});
 	});
 
@@ -334,10 +315,7 @@ describe("CoverageVisualizer", () => {
 			const baseCoverage = 85;
 			const currentCoverage = 82;
 
-			const check = await visualizer.generatePRCoverageCheck(
-				baseCoverage,
-				currentCoverage,
-			);
+			const check = await visualizer.generatePRCoverageCheck(baseCoverage, currentCoverage);
 
 			expect(check.status).toBe("failure");
 			expect(check.message).toContain("Coverage decreased");
@@ -348,10 +326,7 @@ describe("CoverageVisualizer", () => {
 			const baseCoverage = 80;
 			const currentCoverage = 85;
 
-			const check = await visualizer.generatePRCoverageCheck(
-				baseCoverage,
-				currentCoverage,
-			);
+			const check = await visualizer.generatePRCoverageCheck(baseCoverage, currentCoverage);
 
 			expect(check.status).toBe("success");
 			expect(check.message).toContain("Coverage improved");
@@ -392,9 +367,7 @@ describe("DocumentationGenerator", () => {
 			expect(docs.suites).toHaveLength(1);
 			expect(docs.suites[0].name).toBe("User");
 			expect(docs.suites[0].tests).toHaveLength(2);
-			expect(docs.suites[0].tests[0].name).toBe(
-				"should create user with valid data",
-			);
+			expect(docs.suites[0].tests[0].name).toBe("should create user with valid data");
 		});
 
 		it("should extract test metadata", async () => {
@@ -430,10 +403,7 @@ describe("DocumentationGenerator", () => {
 				{
 					endpoint: "/api/users",
 					method: "POST",
-					tests: [
-						"should create user with valid data",
-						"should return 400 for invalid email",
-					],
+					tests: ["should create user with valid data", "should return 400 for invalid email"],
 				},
 			];
 
@@ -480,10 +450,7 @@ describe("DocumentationGenerator", () => {
 				files: [{ path: "src/user-service.ts", coverage: 85 }],
 			};
 
-			const integrated = await generator.integrateWithCoverage(
-				testDocs,
-				coverageData,
-			);
+			const integrated = await generator.integrateWithCoverage(testDocs, coverageData);
 
 			expect(integrated.suites[0].coverage).toBe(85);
 			expect(integrated.overall.coverage).toBeDefined();
