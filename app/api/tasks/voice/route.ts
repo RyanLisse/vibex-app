@@ -20,6 +20,7 @@ import { parseTaskFromTranscription } from "@/lib/voice/task-parser-utils";
 import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import { VoiceTaskCreationSchema } from "@/src/schemas/enhanced-task-schemas";
 import { transcriptionService } from "@/lib/services/transcription";
+import { storageService } from "@/lib/services/storage";
 
 // Note: parseTaskFromTranscription is now imported from @/lib/voice/task-parser-utils
 
@@ -62,9 +63,15 @@ export async function POST(request: NextRequest) {
 		// Add confidence score (estimate based on whether we got segments)
 		const confidence = transcriptionResult.segments ? 0.95 : 0.85;
 
+		// Generate task ID first so we can use it for storage
+		const taskId = ulid();
+
+		// Upload audio file to Vercel Blob storage
+		const audioUrl = await storageService.uploadAudio(audioFile, taskId);
+
 		// Create task with voice metadata
 		const newTask = {
-			id: ulid(),
+			id: taskId,
 			title: parsedTask.title,
 			description: parsedTask.description,
 			status: "todo" as const,
@@ -80,7 +87,7 @@ export async function POST(request: NextRequest) {
 					confidence: confidence,
 					language: transcriptionResult.language || validatedData.language || "en",
 					duration: transcriptionResult.duration || audioFile.size / 16000, // Estimate if not provided
-					audioUrl: `https://storage.app.com/voice/${ulid()}.${audioFile.name.split(".").pop()}`,
+					audioUrl: audioUrl,
 					timestamp: new Date().toISOString(),
 					segments: transcriptionResult.segments,
 				},
