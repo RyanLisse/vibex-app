@@ -10,22 +10,21 @@
  * - Real-time progress monitoring
  */
 
-import { useState, useCallback } from "react";
-import { Plus, Mic, Camera, Columns, BarChart3, Settings, List, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
+import { BarChart3, Camera, Columns, List, Mic, Plus, RefreshCw, Settings } from "lucide-react";
+import { useCallback, useState } from "react";
 // Import enhanced components
 import { EnhancedTaskList } from "@/components/enhanced-task-list";
-import { KanbanBoard } from "@/components/features/kanban/kanban-board";
-import { VoiceRecorder } from "@/components/features/voice-tasks/voice-recorder";
 import { ScreenshotCapture } from "@/components/features/bug-reporting/screenshot-capture";
+import { KanbanBoard } from "@/components/features/kanban/kanban-board";
 import { ProgressDashboard } from "@/components/features/progress/progress-dashboard";
 import { TaskCreateModal } from "@/components/features/task-creation/task-create-modal";
+import { VoiceRecorder } from "@/components/features/voice-tasks/voice-recorder";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TaskManagementHubProps {
 	className?: string;

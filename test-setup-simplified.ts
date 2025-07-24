@@ -6,7 +6,6 @@
 // CRITICAL: Import crypto polyfill FIRST to fix Bun crypto.randomUUID() issues
 import "./tests/setup/crypto-polyfill";
 
-import "@testing-library/jest-dom";
 import { testPresets } from "./lib/test-utils/consolidated-setup";
 
 // Setup comprehensive test environment using consolidated utilities

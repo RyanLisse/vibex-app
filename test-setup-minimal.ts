@@ -5,7 +5,6 @@
  * and focuses on essential test environment setup only.
  */
 
-import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
 // Mock fetch globally

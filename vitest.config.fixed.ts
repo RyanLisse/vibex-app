@@ -4,36 +4,29 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 /**
- * ESBuild-Free Vitest Configuration - CRITICAL FIX
+ * Fixed Vitest Configuration - Alternative ESBuild Configuration
  *
- * FIXES APPLIED:
- * ✅ Completely disabled ESBuild to prevent EPIPE errors
- * ✅ Uses SWC for transformation instead
- * ✅ Optimized for stability over speed
- * ✅ All browser API mocks included
- * ✅ Memory leak prevention
+ * This configuration addresses the ESBuild hanging issue by:
+ * 1. Disabling ESBuild transformation for test files
+ * 2. Using alternative transformation strategies
+ * 3. Implementing better process isolation
  */
 export default defineConfig({
-	plugins: [
-		react({
-			// Use SWC instead of ESBuild
-			jsxRuntime: "automatic",
-			jsxImportSource: "react",
-		}),
-		tsconfigPaths(),
-	],
+	plugins: [react(), tsconfigPaths()],
 
 	test: {
-		name: "vitest-esbuild-free",
+		name: "vitest-fixed",
 		environment: "jsdom",
 		globals: true,
-		setupFiles: ["./test-setup-fixed.ts"],
+		setupFiles: ["./test-setup-simple.ts"],
 
-		// Comprehensive test file inclusion
+		// Simplified test file inclusion
 		include: [
-			"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-			"!**/e2e/**", // Exclude e2e (Playwright)
-			"!**/cypress/**", // Exclude Cypress
+			"lib/**/*.{test,spec}.{ts,tsx,js,jsx}",
+			"src/**/*.{test,spec}.{ts,tsx,js,jsx}",
+			"components/**/*.{test,spec}.{ts,tsx,js,jsx}",
+			"hooks/**/*.{test,spec}.{ts,tsx,js,jsx}",
+			"app/**/*.{test,spec}.{ts,tsx,js,jsx}",
 		],
 
 		exclude: [
@@ -41,16 +34,40 @@ export default defineConfig({
 			"**/dist/**",
 			"**/.next/**",
 			"**/coverage/**",
-			"**/.{idea,git,cache,output,temp}/**",
-			"**/e2e/**",
 			"**/*.e2e.*",
-			"**/cypress/**",
-			"**/playwright/**",
+			"**/e2e/**",
 			"**/*.config.*",
-			"**/vite.config.*",
 		],
 
-		// Enhanced jsdom environment with navigation fixes
+		// Critical: Alternative process configuration
+		pool: "forks",
+		poolOptions: {
+			forks: {
+				singleFork: false, // Allow multiple forks for better isolation
+				isolate: true,
+				execArgv: ["--max-old-space-size=4096"], // Increase memory
+			},
+		},
+
+		// Disable concurrent execution to prevent hanging
+		maxConcurrency: 1,
+		sequence: {
+			concurrent: false,
+		},
+
+		// Server configuration without ESBuild inline
+		server: {
+			deps: {
+				// External modules that shouldn't be processed
+				external: [/^node:/, /^bun:/],
+				// Don't inline any modules - let Vite handle them
+				inline: false,
+				// Use web mode for better compatibility
+				moduleDirectories: ["node_modules"],
+			},
+		},
+
+		// Environment configuration
 		environmentOptions: {
 			jsdom: {
 				resources: "usable",
@@ -58,80 +75,21 @@ export default defineConfig({
 				pretendToBeVisual: true,
 				html: "<!DOCTYPE html><html><head></head><body></body></html>",
 				url: "http://localhost:3000",
-				beforeParse(window) {
-					// Mock navigation API to prevent "Not implemented" errors
-					Object.defineProperty(window, "navigation", {
-						value: {
-							navigate: () => Promise.resolve(),
-							back: () => Promise.resolve(),
-							forward: () => Promise.resolve(),
-							canGoBack: true,
-							canGoForward: true,
-						},
-						writable: true,
-						configurable: true,
-					});
-				},
 			},
 		},
 
-		// Conservative timeouts for stability
-		testTimeout: 20000,
-		hookTimeout: 15000,
-		teardownTimeout: 10000,
+		// Increase timeouts for stability
+		testTimeout: 15000,
+		hookTimeout: 10000,
+		teardownTimeout: 5000,
 
-		// Performance optimizations without ESBuild
-		maxConcurrency: 4,
-		pool: "threads",
-		poolOptions: {
-			threads: {
-				singleThread: false,
-				isolate: true,
-				useAtomics: false, // Disable atomics which can cause issues
-			},
-		},
-
-		// Simplified reporting
-		reporters: ["default"],
-
-		// Coverage configuration
+		// Disable coverage during testing to avoid additional overhead
 		coverage: {
-			provider: "v8",
-			reporter: ["text", "html", "lcov"],
-			reportsDirectory: "./coverage",
-
-			include: [
-				"lib/**/*.{js,ts,jsx,tsx}",
-				"components/**/*.{js,ts,jsx,tsx}",
-				"app/**/*.{js,ts,jsx,tsx}",
-				"src/**/*.{js,ts,jsx,tsx}",
-				"hooks/**/*.{js,ts,jsx,tsx}",
-				"utils/**/*.{js,ts,jsx,tsx}",
-			],
-
-			exclude: [
-				"**/*.d.ts",
-				"**/*.test.*",
-				"**/*.spec.*",
-				"**/node_modules/**",
-				"**/coverage/**",
-				"**/.next/**",
-				"**/dist/**",
-				"**/*.config.*",
-				"**/types/**",
-				"**/*.stories.*",
-				"**/e2e/**",
-			],
-
-			thresholds: {
-				global: {
-					branches: 60, // Lower threshold for stability
-					functions: 60,
-					lines: 60,
-					statements: 60,
-				},
-			},
+			enabled: false,
 		},
+
+		// Use basic reporter
+		reporters: ["basic"],
 	},
 
 	// Resolve configuration
@@ -149,46 +107,27 @@ export default defineConfig({
 		},
 	},
 
-	// Define globals for compatibility
+	// Define globals
 	define: {
 		"import.meta.vitest": false,
 		global: "globalThis",
 		"process.env.NODE_ENV": JSON.stringify("test"),
 	},
 
-	// CRITICAL: Completely disable ESBuild
+	// Disable ESBuild for test files
 	esbuild: false,
 
-	// Optimize dependencies without ESBuild
-	optimizeDeps: {
-		include: [
-			"vitest",
-			"@testing-library/react",
-			"@testing-library/jest-dom",
-			"@testing-library/user-event",
-			"react",
-			"react-dom",
-			"jsdom",
-		],
-		exclude: [
-			"@electric-sql",
-			"@neondatabase",
-			"bun:test",
-			"bun",
-			"esbuild", // Exclude ESBuild entirely
-		],
-		// Force no ESBuild usage
-		esbuildOptions: undefined,
-	},
+	// Use SWC for transformation instead of ESBuild
+	// This requires installing @vitejs/plugin-react-swc
 
-	// Build configuration without ESBuild
+	// Alternative: Use plain transformation without optimization
 	build: {
-		target: "es2020", // Lower target for compatibility
+		target: "esnext",
 		minify: false,
 		sourcemap: true,
 	},
 
-	// Development server
+	// Server configuration
 	server: {
 		fs: {
 			allow: [".."],

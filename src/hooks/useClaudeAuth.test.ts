@@ -3,9 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, spyOn, test, vi } from "vi
 import { ClaudeAuthClient } from "@/lib/auth/claude-auth";
 import { useClaudeAuth } from "./useClaudeAuth";
 
-// Mock ClaudeAuthClient
-vi.mock("@/lib/auth/claude-auth");
+vi.mock("@/lib/auth/claude-auth", () => ({
+	default: vi.fn(),
+	...vi.importActual("@/lib/auth/claude-auth"),
+}));
 
+// Mock ClaudeAuthClient
 // Mock window.location
 const mockLocation = {
 	href: "https://app.example.com",

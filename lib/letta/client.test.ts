@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { MessageSchema } from "./client";
 
 // Mock fetch globally

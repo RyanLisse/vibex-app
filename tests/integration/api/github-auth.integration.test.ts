@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "../../../app/api/auth/github/url/route";
 
 describe("GitHub Auth API Integration Tests", () => {
