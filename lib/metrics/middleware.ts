@@ -3,7 +3,7 @@
  * Automatically instruments HTTP requests and other operations
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { PrometheusMetricsCollector } from "./prometheus-client";
 
 export interface MetricsMiddlewareConfig {

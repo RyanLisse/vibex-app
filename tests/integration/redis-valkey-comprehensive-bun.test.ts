@@ -3,7 +3,7 @@ import { mockFactories } from "../setup/integration-bun";
 
 /**
  * Comprehensive Redis/Valkey Integration Tests - Bun Compatible
- * Tests Redis functionality without vi.mock for Bun runtime compatibility
+ * Tests Redis functionality without jest.mock for Bun runtime compatibility
  */
 
 describe("Redis/Valkey Integration Tests (Bun Compatible)", () => {

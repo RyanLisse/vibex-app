@@ -5,6 +5,7 @@
  * for the migration system to ensure robustness and reliability.
  */
 
+import { vi } from "vitest";
 import { MigrationError } from "../../lib/migration/types";
 
 // Mock localStorage with edge case scenarios

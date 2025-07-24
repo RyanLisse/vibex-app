@@ -5,23 +5,23 @@
  * Enhanced screenshot capture with drawing tools for bug reporting
  */
 
-import { useCallback, useRef, useState } from "react";
 import {
+	ArrowRight,
 	Camera,
+	Download,
+	Highlighter,
+	Redo,
 	Square,
 	Type,
-	ArrowRight,
-	Highlighter,
 	Undo,
-	Redo,
-	Download,
 	X,
 } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import { FileUpload } from "@/components/comp-547";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { FileUpload } from "@/components/comp-547";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 interface Annotation {
@@ -351,23 +351,7 @@ export function ScreenshotCapture({
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				{!screenshot ? (
-					<div className="space-y-4">
-						<div className="flex space-x-2">
-							<Button onClick={captureScreen} className="flex-1">
-								<Camera className="h-4 w-4 mr-2" />
-								Capture Screen
-							</Button>
-						</div>
-						<div className="text-center text-gray-500">or</div>
-						<FileUpload
-							onFileSelect={handleFileUpload}
-							accept="image/*"
-							maxSize={10}
-							className="w-full"
-						/>
-					</div>
-				) : (
+				{screenshot ? (
 					<div className="space-y-4">
 						{/* Toolbar */}
 						<div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
@@ -447,7 +431,7 @@ export function ScreenshotCapture({
 											value={textInput}
 											onChange={(e) => setTextInput(e.target.value)}
 											placeholder="Enter annotation text..."
-											autoFocus
+											autoFocus={true}
 											onKeyDown={(e) => e.key === "Enter" && handleTextSubmit()}
 										/>
 										<div className="flex space-x-2">
@@ -466,6 +450,22 @@ export function ScreenshotCapture({
 								</Card>
 							</div>
 						)}
+					</div>
+				) : (
+					<div className="space-y-4">
+						<div className="flex space-x-2">
+							<Button onClick={captureScreen} className="flex-1">
+								<Camera className="h-4 w-4 mr-2" />
+								Capture Screen
+							</Button>
+						</div>
+						<div className="text-center text-gray-500">or</div>
+						<FileUpload
+							onFileSelect={handleFileUpload}
+							accept="image/*"
+							maxSize={10}
+							className="w-full"
+						/>
 					</div>
 				)}
 			</CardContent>

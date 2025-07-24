@@ -330,7 +330,7 @@ describe("Gemini Audio Integration Tests", () => {
 		});
 
 		it("should handle API errors", async () => {
-			(fetch as unknown as jest.Mock).mockResolvedValueOnce({
+			(fetch as unknown as vi.Mock).mockResolvedValueOnce({
 				ok: false,
 				status: 500,
 				json: () => Promise.resolve({ error: "Internal server error" }),

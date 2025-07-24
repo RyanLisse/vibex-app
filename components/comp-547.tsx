@@ -5,8 +5,8 @@
  * Enhanced file upload component from originui.com for screenshot handling
  */
 
+import { AlertCircle, Image, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
-import { Upload, X, Image, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -114,7 +114,39 @@ export function FileUpload({
 	return (
 		<Card className={cn("w-full", className)}>
 			<CardContent className="p-6">
-				{!file ? (
+				{file ? (
+					<div className="space-y-4">
+						{previewUrl && (
+							<div className="relative">
+								<img
+									src={previewUrl}
+									alt="Preview"
+									className="max-w-full h-48 object-contain rounded-lg border"
+								/>
+								<Button
+									variant="destructive"
+									size="sm"
+									className="absolute top-2 right-2"
+									onClick={removeFile}
+								>
+									<X className="h-4 w-4" />
+								</Button>
+							</div>
+						)}
+						<div className="flex items-center justify-between">
+							<div className="flex items-center space-x-2">
+								<Image className="h-5 w-5 text-gray-400" />
+								<div>
+									<p className="text-sm font-medium text-gray-900">{file.name}</p>
+									<p className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+								</div>
+							</div>
+							<Button variant="outline" size="sm" onClick={removeFile}>
+								Remove
+							</Button>
+						</div>
+					</div>
+				) : (
 					<div
 						className={cn(
 							"relative border-2 border-dashed rounded-lg p-6 transition-colors",
@@ -154,38 +186,6 @@ export function FileUpload({
 								<span className="text-sm">{error}</span>
 							</div>
 						)}
-					</div>
-				) : (
-					<div className="space-y-4">
-						{previewUrl && (
-							<div className="relative">
-								<img
-									src={previewUrl}
-									alt="Preview"
-									className="max-w-full h-48 object-contain rounded-lg border"
-								/>
-								<Button
-									variant="destructive"
-									size="sm"
-									className="absolute top-2 right-2"
-									onClick={removeFile}
-								>
-									<X className="h-4 w-4" />
-								</Button>
-							</div>
-						)}
-						<div className="flex items-center justify-between">
-							<div className="flex items-center space-x-2">
-								<Image className="h-5 w-5 text-gray-400" />
-								<div>
-									<p className="text-sm font-medium text-gray-900">{file.name}</p>
-									<p className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-								</div>
-							</div>
-							<Button variant="outline" size="sm" onClick={removeFile}>
-								Remove
-							</Button>
-						</div>
 					</div>
 				)}
 			</CardContent>

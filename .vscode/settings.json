@@ -20,7 +20,6 @@
   "testing.automaticallyOpenPeekView": "never",
   "vitest.enable": true,
   "vitest.commandLine": "bun run test",
-  "jest.disabledWorkspaceFolders": ["*"],
   "eslint.enable": false,
   "prettier.enable": false,
   "typescript.suggest.autoImports": true,

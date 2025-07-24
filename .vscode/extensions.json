@@ -14,9 +14,5 @@
     "github.copilot-chat",
     "ms-vscode.vscode-markdown"
   ],
-  "unwantedRecommendations": [
-    "ms-vscode.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "ms-vscode.vscode-jest"
-  ]
+  "unwantedRecommendations": ["ms-vscode.vscode-eslint", "esbenp.prettier-vscode"]
 }

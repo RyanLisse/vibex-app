@@ -3,11 +3,11 @@
  * Bridges OpenTelemetry metrics with Prometheus collection
  */
 
+import { metrics } from "@opentelemetry/api";
 import { PrometheusExporter } from "@opentelemetry/exporter-prometheus";
 import { Resource } from "@opentelemetry/resources";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { MeterProvider } from "@opentelemetry/sdk-metrics";
-import { metrics } from "@opentelemetry/api";
+import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { PrometheusMetricsCollector } from "./prometheus-client";
 
 export interface OpenTelemetryConfig {
@@ -194,12 +194,15 @@ export function createDefaultOpenTelemetryConfig(): OpenTelemetryConfig {
 		serviceName: process.env.OTEL_SERVICE_NAME || "terragon-web",
 		serviceVersion: process.env.OTEL_SERVICE_VERSION || "1.0.0",
 		environment: process.env.NODE_ENV || "development",
-		prometheusPort: parseInt(process.env.PROMETHEUS_PORT || "9090", 10),
+		prometheusPort: Number.parseInt(process.env.PROMETHEUS_PORT || "9090", 10),
 		prometheusEndpoint: process.env.PROMETHEUS_ENDPOINT || "/metrics",
 		jaegerEndpoint: process.env.JAEGER_ENDPOINT,
 		enableAutoInstrumentation: process.env.OTEL_AUTO_INSTRUMENTATION === "true",
 		enableConsoleExporter: process.env.NODE_ENV === "development",
-		metricExportIntervalMillis: parseInt(process.env.OTEL_METRIC_EXPORT_INTERVAL || "30000", 10),
-		traceExportTimeoutMillis: parseInt(process.env.OTEL_TRACE_EXPORT_TIMEOUT || "30000", 10),
+		metricExportIntervalMillis: Number.parseInt(
+			process.env.OTEL_METRIC_EXPORT_INTERVAL || "30000",
+			10
+		),
+		traceExportTimeoutMillis: Number.parseInt(process.env.OTEL_TRACE_EXPORT_TIMEOUT || "30000", 10),
 	};
 }

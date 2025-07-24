@@ -1,7 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import NewTaskForm from "../../../components/forms/new-task-form";
+
+vi.mock("next/link", () => {
+	const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) =>
+		React.createElement("a", { href }, children);
+	return { __esModule: true, default: MockLink };
+});
 
 // Mock the hooks
 vi.mock("@/hooks/use-github-auth", () => ({
@@ -38,13 +45,6 @@ vi.mock("@/stores/environments", () => ({
 vi.mock("@/app/actions/inngest", () => ({
 	createTaskAction: vi.fn(),
 }));
-
-vi.mock("next/link", () => {
-	const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
-		return <a href={href}>{children}</a>;
-	};
-	return { default: MockLink };
-});
 
 describe("NewTaskForm", () => {
 	it("renders form elements correctly", () => {

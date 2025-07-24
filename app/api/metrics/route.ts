@@ -3,7 +3,7 @@
  * Exposes metrics in Prometheus format for scraping
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { PrometheusMetricsCollector } from "@/lib/metrics/prometheus-client";
 
 export async function GET(request: NextRequest) {

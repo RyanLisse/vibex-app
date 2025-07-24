@@ -5,7 +5,7 @@
  * particularly for React component testing with Testing Library.
  */
 
-import "@testing-library/jest-dom/vitest";
+// Vitest setup - no longer using jest-dom
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 

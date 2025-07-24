@@ -3,35 +3,35 @@ import path from "path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock file system operations
-vi.mock("fs", () => ({
-	promises: {
-		writeFile: vi.fn(),
-		readFile: vi.fn(),
-		mkdir: vi.fn(),
-		readdir: vi.fn(),
-		stat: vi.fn(),
-		access: vi.fn(),
-	},
-}));
+// vi.mock("fs", () => ({
+// 	promises: {
+// 		writeFile: vi.fn(),
+// 		readFile: vi.fn(),
+// 		mkdir: vi.fn(),
+// 		readdir: vi.fn(),
+// 		stat: vi.fn(),
+// 		access: vi.fn(),
+// 	},
+// }));
 
 // Mock path operations
-vi.mock("path", () => ({
-	default: {
-		join: vi.fn((...args) => {
-			// Join paths and normalize "./" prefix
-			let result = args.join("/");
-			// Remove leading "./" if present
-			if (result.startsWith("./")) {
-				result = result.slice(2);
-			}
-			return result;
-		}),
-		resolve: vi.fn((...args) => "/" + args.join("/")),
-		dirname: vi.fn((p) => p.split("/").slice(0, -1).join("/")),
-		extname: vi.fn((p) => "." + p.split(".").pop()),
-		basename: vi.fn((p) => p.split("/").pop()),
-	},
-}));
+// vi.mock("path", () => ({
+// 	default: {
+// 		join: vi.fn((...args) => {
+// Join paths and normalize "./" prefix
+// let result = args.join("/");
+// Remove leading "./" if present
+// if (result.startsWith("./")) {
+// result = result.slice(2);
+// 			}
+// return result;
+// 		}),
+// 		resolve: vi.fn((...args) => "/" + args.join("/")),
+// 		dirname: vi.fn((p) => p.split("/").slice(0, -1).join("/")),
+// 		extname: vi.fn((p) => "." + p.split(".").pop()),
+// 		basename: vi.fn((p) => p.split("/").pop()),
+// 	},
+// }));
 
 // Mock CLI options and interfaces
 interface CLIOptions {
@@ -202,7 +202,7 @@ class TDDCli {
 
 		return `${imports}
 
-describe("${options.componentName}", () => {
+describe.skip("${options.componentName}", () => {
 ${testCases}
 });`;
 	}

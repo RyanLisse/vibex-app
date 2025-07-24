@@ -109,15 +109,28 @@ describe("inngest module (standalone tests)", () => {
 			id: typeof window !== "undefined" ? "client" : "server",
 		});
 
-		// In jsdom environment, window is defined, so this should be "client"
-		expect(mockGetApp().id).toBe("client");
+		// Check current environment - if window is not available, skip client test
+		if (typeof window !== "undefined") {
+			// In jsdom environment, window is defined, so this should be "client"
+			expect(mockGetApp().id).toBe("client");
 
-		// Server environment (simulate Node.js)
-		const originalWindow = global.window;
-		// @ts-expect-error - Temporarily removing window
-		delete (global as any).window;
-		expect(mockGetApp().id).toBe("server");
-		global.window = originalWindow;
+			// Server environment (simulate Node.js)
+			const originalWindow = global.window;
+			// @ts-expect-error - Temporarily removing window
+			delete (global as any).window;
+			expect(mockGetApp().id).toBe("server");
+			global.window = originalWindow;
+		} else {
+			// In server environment, window is not defined
+			expect(mockGetApp().id).toBe("server");
+
+			// Simulate client environment
+			// @ts-expect-error - Adding window temporarily
+			global.window = {} as any;
+			expect(mockGetApp().id).toBe("client");
+			// @ts-expect-error - Cleanup
+			delete global.window;
+		}
 	});
 
 	it("should verify no timer conflicts", async () => {

@@ -6,7 +6,6 @@
  */
 
 import { vi } from "vitest";
-import "@testing-library/jest-dom/vitest";
 
 // Mock fetch globally for all tests
 global.fetch = vi.fn();
