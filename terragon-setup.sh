@@ -31,27 +31,27 @@ log_error() {
 
 main() {
     log_info "Starting Vibex setup for Terragon cloud sandbox..."
-    
+
     # Install Node.js dependencies with Bun (pre-installed in Terragon)
     if [ -f "package.json" ]; then
         log_info "Installing Node.js dependencies with Bun..."
         bun install
         log_success "Dependencies installed"
     fi
-    
+
     # Install Python dependencies if requirements.txt exists
     if [ -f "requirements.txt" ]; then
         log_info "Installing Python dependencies..."
         pip install -r requirements.txt
         log_success "Python dependencies installed"
     fi
-    
+
     # Install qlty CLI for code quality (if not pre-installed)
     if ! command -v qlty >/dev/null 2>&1; then
         log_info "Installing qlty CLI for code quality..."
         curl -fsSL https://qlty.sh | bash
         export PATH="$HOME/.qlty/bin:$PATH"
-        
+
         # Initialize qlty if this is a git repository
         if [ -d ".git" ] && [ ! -f ".qlty/qlty.toml" ]; then
             qlty init || log_warning "qlty initialization failed - can be done manually"
@@ -60,6 +60,42 @@ main() {
     else
         log_success "qlty CLI already available"
     fi
+
+    # Setup Claude Code enhancement tools
+    setup_claude_tools
+}
+
+# Setup Claude Code enhancement tools
+setup_claude_tools() {
+    log_info "Setting up Claude Code enhancement tools..."
+
+    # Check if daddy-claude configuration is already installed
+    if [ ! -d "$HOME/.claude" ]; then
+        log_info "Installing daddy-claude configuration (16 AI commands + security hooks)..."
+        if command -v npx >/dev/null 2>&1; then
+            npx daddy-claude || log_warning "daddy-claude installation failed - enhanced Claude features will be limited"
+            log_success "daddy-claude configuration installed"
+        else
+            log_warning "npx not available - daddy-claude installation skipped"
+        fi
+    else
+        log_success "daddy-claude configuration already exists"
+    fi
+
+    # Install ken-you-reflect MCP server globally
+    if command -v npm >/dev/null 2>&1; then
+        if ! npm list -g ken-you-reflect >/dev/null 2>&1; then
+            log_info "Installing ken-you-reflect MCP server (brutal honesty tool)..."
+            npm install -g ken-you-reflect || log_warning "ken-you-reflect installation failed - reflection features will be limited"
+            log_success "ken-you-reflect MCP server installed"
+        else
+            log_success "ken-you-reflect already installed"
+        fi
+    else
+        log_warning "npm not available - ken-you-reflect installation skipped"
+    fi
+
+    log_success "Claude Code enhancement tools setup complete"
     
     # Install Claude Flow for enhanced development workflow
     log_info "Setting up Claude Flow..."
@@ -130,6 +166,12 @@ ENVEOF
     echo "  • Use Claude Flow: npx claude-flow@alpha --help"
     echo "  • Start MCP server: npx claude-flow@alpha mcp start"
     echo "  • View app: http://localhost:3000"
+    echo ""
+    log_info "Claude Code Enhancement Tools:"
+    echo "  • 16 AI slash commands available (if daddy-claude installed)"
+    echo "  • Security hooks active for code validation"
+    echo "  • ken-you-reflect MCP for brutal honesty feedback"
+    echo "  • Enhanced development workflow with cognitive safeguards"
 }
 
 main "$@"
