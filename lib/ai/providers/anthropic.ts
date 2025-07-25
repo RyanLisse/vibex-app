@@ -10,13 +10,13 @@ import { z } from "zod";
 import {
 	BaseAIProvider,
 	BaseProviderConfig,
-	CompletionOptions,
-	CompletionResponse,
-	EmbeddingOptions,
-	EmbeddingResponse,
-	ModelInfo,
-	StreamChunk,
-	Message,
+	type CompletionOptions,
+	type CompletionResponse,
+	type EmbeddingOptions,
+	type EmbeddingResponse,
+	type Message,
+	type ModelInfo,
+	type StreamChunk,
 } from "./base";
 
 // Anthropic-specific configuration

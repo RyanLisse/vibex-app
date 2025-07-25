@@ -16,8 +16,8 @@ import { db } from "@/db/config";
 import { taskAttachments } from "@/db/schema";
 import { handleRouteError } from "@/lib/api/error-handlers";
 import { observability } from "@/lib/observability";
-import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 import { storageService } from "@/lib/services/storage";
+import { createApiErrorResponse, createApiSuccessResponse } from "@/src/schemas/api-routes";
 
 // Request validation schema
 const AttachmentUploadSchema = z.object({
@@ -293,4 +293,4 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
 }
 
 // Import missing dependencies
-import { eq, and, desc } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";

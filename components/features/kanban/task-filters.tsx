@@ -164,7 +164,7 @@ export function TaskFilters({
 								<SelectValue placeholder="Add label filter" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="none" disabled>
+								<SelectItem value="none" disabled={true}>
 									Select a label
 								</SelectItem>
 								{availableLabels

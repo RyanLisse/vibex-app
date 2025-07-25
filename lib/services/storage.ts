@@ -5,8 +5,8 @@
  * Handles uploads for voice recordings, screenshots, and task attachments.
  */
 
-import { put, del, list, head } from "@vercel/blob";
 import { SpanStatusCode, trace } from "@opentelemetry/api";
+import { del, head, list, put } from "@vercel/blob";
 import { observability } from "@/lib/observability";
 
 export interface StorageUploadOptions {

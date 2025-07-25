@@ -33,9 +33,8 @@ export function VoiceRecorder({
 			const url = URL.createObjectURL(audioBlob);
 			setAudioUrl(url);
 			return () => URL.revokeObjectURL(url);
-		} else {
-			setAudioUrl(null);
 		}
+		setAudioUrl(null);
 	}, [audioBlob]);
 
 	// Set up audio element when URL changes

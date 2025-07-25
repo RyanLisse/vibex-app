@@ -4,6 +4,7 @@
  * GitHub issues, PR comments, voice commands, and screenshot analysis.
  */
 
+import { MultiSourceTaskCreator } from "./task-creator";
 import { ContainerUseError } from "./types";
 
 describe("MultiSourceTaskCreator", () => {

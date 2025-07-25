@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PRStatusCard } from "./pr-status-card";
 import type { PRData } from "./pr-status-card";
+import { PRStatusCard } from "./pr-status-card";
 
 interface PRLinkingModalProps {
 	isOpen: boolean;
@@ -125,7 +125,7 @@ export function PRLinkingModal({
 									<PRStatusCard
 										key={pr.id}
 										pr={pr}
-										compact
+										compact={true}
 										onUnlink={(prId) => {
 											// Handle unlinking if needed
 											console.log("Unlink PR:", prId);
@@ -177,7 +177,7 @@ export function PRLinkingModal({
 										}`}
 										onClick={() => handlePRSelect(pr.id)}
 									>
-										<PRStatusCard pr={pr} compact className="border-0 shadow-none" />
+										<PRStatusCard pr={pr} compact={true} className="border-0 shadow-none" />
 									</div>
 								))
 							)}

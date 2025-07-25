@@ -5,18 +5,18 @@
  * Gemini Pro, Gemini Pro Vision, and other Google AI models.
  */
 
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { z } from "zod";
 import {
 	BaseAIProvider,
 	BaseProviderConfig,
-	CompletionOptions,
-	CompletionResponse,
-	EmbeddingOptions,
-	EmbeddingResponse,
-	ModelInfo,
-	StreamChunk,
-	Message,
+	type CompletionOptions,
+	type CompletionResponse,
+	type EmbeddingOptions,
+	type EmbeddingResponse,
+	type Message,
+	type ModelInfo,
+	type StreamChunk,
 } from "./base";
 
 // Google AI-specific configuration

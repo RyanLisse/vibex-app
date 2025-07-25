@@ -1,7 +1,134 @@
 import { z } from "zod";
 
-// Comprehensive Zod schema for all environment variables
+// Common validation schemas
+export const EmailSchema = z
+	.string()
+	.email("Invalid email address")
+	.min(1, "Email is required")
+	.max(100, "Email is too long");
+
+export const PasswordSchema = z
+	.string()
+	.min(8, "Password must be at least 8 characters")
+	.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+	.regex(/[a-z]/, "Password must contain at least one lowercase letter")
+	.regex(/[0-9]/, "Password must contain at least one number");
+
+export const UsernameSchema = z
+	.string()
+	.min(3, "Username must be at least 3 characters")
+	.max(30, "Username must be at most 30 characters")
+	.regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores and hyphens");
+
+export const UrlSchema = z
+	.string()
+	.url("Invalid URL")
+	.regex(/^https?:\/\//, "URL must start with http:// or https://");
+
+export const SlugSchema = z
+	.string()
+	.min(1, "Slug is required")
+	.max(100, "Slug is too long")
+	.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format");
+
+export const PhoneSchema = z.string().regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number");
+
+export const DateSchema = z
+	.string()
+	.regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+	.refine((date) => {
+		const d = new Date(date);
+		return d instanceof Date && !isNaN(d.getTime()) && date === d.toISOString().split("T")[0];
+	}, "Invalid date");
+
+export const TimeSchema = z
+	.string()
+	.regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, "Time must be in HH:MM format");
+
+export const ColorSchema = z
+	.string()
+	.regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color");
+
+export const IdSchema = z.string().uuid("Invalid UUID");
+
+export const NonEmptyStringSchema = z
+	.string()
+	.transform((str) => str.trim())
+	.pipe(z.string().min(1, "Cannot be empty"));
+
+export const OptionalStringSchema = z
+	.string()
+	.transform((str) => (str === "" ? undefined : str))
+	.optional();
+
+export const PaginationSchema = z.object({
+	page: z.number().int().min(1).default(1),
+	limit: z.number().int().min(1).max(100).default(20),
+	sortBy: z.string().optional(),
+	sortOrder: z.enum(["asc", "desc"]).default("asc"),
+});
+
+export const SearchSchema = z.object({
+	q: z.string().min(1, "Search query is required").max(200, "Search query is too long"),
+});
+
+export const FileUploadSchema = z.object({
+	file: z
+		.instanceof(File)
+		.refine((file) => file.size <= 5 * 1024 * 1024, "File size must be less than 5MB")
+		.refine(
+			(file) => ["image/jpeg", "image/jpg", "image/png", "image/gif"].includes(file.type),
+			"Only image files are allowed"
+		),
+});
+
+export const ApiResponseSchema = z.discriminatedUnion("success", [
+	z.object({
+		success: z.literal(true),
+		data: z.any(),
+	}),
+	z.object({
+		success: z.literal(false),
+		error: z.string(),
+	}),
+]);
+
+// Utility functions
+export function createFormSchema<T extends z.ZodRawShape>(shape: T) {
+	return z.object(shape);
+}
+
+export function createOptionalFormSchema<T extends z.ZodRawShape>(shape: T) {
+	const optionalShape = {} as { [K in keyof T]: z.ZodOptional<T[K]> };
+	for (const key in shape) {
+		optionalShape[key] = shape[key].optional();
+	}
+	return z.object(optionalShape);
+}
+
+export function formatZodError(error: z.ZodError): Record<string, string> {
+	const formatted: Record<string, string> = {};
+	error.issues.forEach((issue) => {
+		const path = issue.path.join(".");
+		formatted[path] = issue.message;
+	});
+	return formatted;
+}
+
+export function safeParse<T>(schema: z.ZodSchema<T>, data: unknown) {
+	return schema.safeParse(data);
+}
+
+// Simple EnvSchema for testing
 export const EnvSchema = z.object({
+	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+	DATABASE_URL: z.string().optional(),
+	API_KEY: z.string().optional(),
+	JWT_SECRET: z.string().optional(),
+});
+
+// Comprehensive Zod schema for all environment variables
+export const FullEnvSchema = z.object({
 	// Node Environment
 	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
@@ -283,7 +410,7 @@ export const EnvSchema = z.object({
 	ALERTS_SMTP_PASSWORD: z.string().optional(),
 });
 
-export type Env = z.infer<typeof EnvSchema>;
+export type Env = z.infer<typeof FullEnvSchema>;
 
 /**
  * Validates environment variables using the comprehensive schema
@@ -292,7 +419,7 @@ export type Env = z.infer<typeof EnvSchema>;
  */
 export function validateEnv(): Env {
 	try {
-		const parsed = EnvSchema.parse(process.env);
+		const parsed = FullEnvSchema.parse(process.env);
 
 		// Additional runtime validations
 		validateCriticalServices(parsed);

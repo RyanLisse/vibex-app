@@ -145,7 +145,7 @@ export function VoiceInputButton({
 
 	if (!isSupported) {
 		return (
-			<Button disabled className={`flex items-center gap-2 ${className}`} variant="outline">
+			<Button disabled={true} className={`flex items-center gap-2 ${className}`} variant="outline">
 				<MicOff className="h-4 w-4" />
 				Voice Not Supported
 			</Button>

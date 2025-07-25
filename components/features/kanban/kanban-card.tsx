@@ -126,7 +126,7 @@ export function KanbanCard({ task, onUpdate, onDelete }: KanbanCardProps) {
 						<h4 className="font-medium text-sm leading-tight pr-2">{task.title}</h4>
 
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
+							<DropdownMenuTrigger asChild={true}>
 								<Button
 									variant="ghost"
 									size="sm"

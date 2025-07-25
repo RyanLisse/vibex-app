@@ -1,8 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { MoreVertical, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,8 +12,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { KanbanCard } from "./kanban-card";
 import type { KanbanColumn as KanbanColumnType, KanbanTask } from "./kanban-board";
+import { KanbanCard } from "./kanban-card";
 
 interface KanbanColumnProps {
 	column: KanbanColumnType;
@@ -101,7 +100,7 @@ export function KanbanColumn({
 							</Button>
 
 							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
+								<DropdownMenuTrigger asChild={true}>
 									<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
 										<MoreVertical className="h-4 w-4" />
 									</Button>

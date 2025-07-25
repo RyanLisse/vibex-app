@@ -267,7 +267,7 @@ export abstract class BaseAIProvider {
 
 				// Exponential backoff
 				if (i < retries - 1) {
-					await new Promise((resolve) => setTimeout(resolve, Math.pow(2, i) * 1000));
+					await new Promise((resolve) => setTimeout(resolve, 2 ** i * 1000));
 				}
 			}
 		}
@@ -287,19 +287,19 @@ export class ProviderRegistry {
 	private static providers = new Map<string, BaseAIProvider>();
 
 	static register(name: string, provider: BaseAIProvider): void {
-		this.providers.set(name, provider);
+		ProviderRegistry.providers.set(name, provider);
 	}
 
 	static get(name: string): BaseAIProvider | undefined {
-		return this.providers.get(name);
+		return ProviderRegistry.providers.get(name);
 	}
 
 	static list(): string[] {
-		return Array.from(this.providers.keys());
+		return Array.from(ProviderRegistry.providers.keys());
 	}
 
 	static clear(): void {
-		this.providers.clear();
+		ProviderRegistry.providers.clear();
 	}
 }
 

@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { QuickBugReportButton } from "./quick-bug-report-button";
 
 // Mock the toast hook
@@ -273,7 +273,7 @@ describe("QuickBugReportButton", () => {
 		});
 
 		it("should handle disabled state", () => {
-			render(<QuickBugReportButton disabled />);
+			render(<QuickBugReportButton disabled={true} />);
 
 			const button = screen.getByRole("button");
 			expect(button).toBeDisabled();

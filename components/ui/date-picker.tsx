@@ -28,7 +28,7 @@ export function DatePicker({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
+			<PopoverTrigger asChild={true}>
 				<Button
 					variant="outline"
 					className={cn(
@@ -50,7 +50,7 @@ export function DatePicker({
 						onDateChange?.(selectedDate);
 						setOpen(false);
 					}}
-					initialFocus
+					initialFocus={true}
 				/>
 			</PopoverContent>
 		</Popover>
@@ -79,7 +79,7 @@ export function DateRangePicker({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
+			<PopoverTrigger asChild={true}>
 				<Button
 					variant="outline"
 					className={cn(
@@ -105,7 +105,7 @@ export function DateRangePicker({
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0" align="start">
 				<Calendar
-					initialFocus
+					initialFocus={true}
 					mode="range"
 					defaultMonth={dateRange?.from}
 					selected={dateRange}

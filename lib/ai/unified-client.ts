@@ -6,20 +6,20 @@
  */
 
 import { z } from "zod";
+import { logger } from "@/lib/logging";
 import {
-	BaseAIProvider,
-	ProviderRegistry,
-	CompletionOptions,
-	CompletionResponse,
-	EmbeddingOptions,
-	EmbeddingResponse,
-	ModelInfo,
-	StreamChunk,
+	type BaseAIProvider,
+	type CompletionOptions,
+	type CompletionResponse,
+	type EmbeddingOptions,
+	type EmbeddingResponse,
 	findBestModel,
 	hasCapability,
-	ModelCapabilityType,
+	type ModelCapabilityType,
+	type ModelInfo,
+	ProviderRegistry,
+	type StreamChunk,
 } from "./providers";
-import { logger } from "@/lib/logging";
 
 // Unified client configuration
 export const UnifiedAIConfigSchema = z.object({
@@ -395,14 +395,15 @@ export class UnifiedAIClient {
 		if (providers.length === 0) return null;
 
 		switch (this.config.loadBalancing) {
-			case "round-robin":
+			case "round-robin": {
 				const provider = providers[this.currentProviderIndex % providers.length];
 				this.currentProviderIndex++;
 				return provider;
+			}
 
-			case "least-latency":
+			case "least-latency": {
 				let bestProvider = providers[0];
-				let bestLatency = Infinity;
+				let bestLatency = Number.POSITIVE_INFINITY;
 
 				for (const provider of providers) {
 					const latencies = this.providerLatencies.get(provider) || [];
@@ -416,6 +417,7 @@ export class UnifiedAIClient {
 				}
 
 				return bestProvider;
+			}
 
 			case "random":
 				return providers[Math.floor(Math.random() * providers.length)];

@@ -4,9 +4,9 @@
  * Provides endpoints for listing and discovering AI models
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { unifiedAI, ModelCapability } from "@/lib/ai";
+import { ModelCapability, unifiedAI } from "@/lib/ai";
 import { logger } from "@/lib/logging";
 
 // Query parameter schema
@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
 
 			const bestModel = await unifiedAI.findBestModel({
 				capabilities: capabilities as any[],
-				maxCostPer1kTokens: params.maxCost ? parseFloat(params.maxCost) : undefined,
-				minContextWindow: params.minContext ? parseInt(params.minContext) : undefined,
+				maxCostPer1kTokens: params.maxCost ? Number.parseFloat(params.maxCost) : undefined,
+				minContextWindow: params.minContext ? Number.parseInt(params.minContext) : undefined,
 				preferredProvider: params.preferredProvider,
 			});
 

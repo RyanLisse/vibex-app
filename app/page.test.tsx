@@ -13,8 +13,8 @@ describe.skip("Home", () => {
 		render(<Home />);
 
 		const clientPage = screen.getByTestId("client-page");
-		expect(clientPage).toBeInTheDocument();
-		expect(clientPage).toHaveTextContent("Mock Client Page");
+		expect(clientPage).toBeTruthy();
+		expect(clientPage.textContent).toContain("Mock Client Page");
 	});
 
 	it("should be the default export", () => {
@@ -25,7 +25,7 @@ describe.skip("Home", () => {
 	it("should not render any other content", () => {
 		const { container } = render(<Home />);
 
-		expect(container.firstChild).toHaveAttribute("data-testid", "client-page");
+		expect((container.firstChild as HTMLElement)?.getAttribute("data-testid")).toBe("client-page");
 		expect(container.children).toHaveLength(1);
 	});
 
@@ -33,10 +33,10 @@ describe.skip("Home", () => {
 		// Since this is a simple wrapper, we just verify it renders
 		const { rerender } = render(<Home />);
 
-		expect(screen.getByTestId("client-page")).toBeInTheDocument();
+		expect(screen.getByTestId("client-page")).toBeTruthy();
 
 		// Re-render to ensure consistency
 		rerender(<Home />);
-		expect(screen.getByTestId("client-page")).toBeInTheDocument();
+		expect(screen.getByTestId("client-page")).toBeTruthy();
 	});
 });

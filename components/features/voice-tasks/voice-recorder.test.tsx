@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VoiceRecorder } from "./voice-recorder";
 
 // Mock the toast hook
@@ -402,7 +402,7 @@ describe("VoiceRecorder", () => {
 		});
 
 		it("should handle disabled state", () => {
-			render(<VoiceRecorder disabled />);
+			render(<VoiceRecorder disabled={true} />);
 
 			const button = screen.getByRole("button");
 			expect(button).toBeDisabled();

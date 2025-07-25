@@ -25,7 +25,7 @@ export default defineConfig({
 	test: {
 		name: "unit",
 		environment: "jsdom",
-		// setupFiles: ["./vitest-setup.js"], // Temporarily disabled for debugging
+		setupFiles: ["./vitest-setup.js"],
 
 		// Optimized settings to prevent hanging
 		testTimeout: 10000,

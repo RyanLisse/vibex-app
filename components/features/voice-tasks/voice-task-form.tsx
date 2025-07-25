@@ -2,7 +2,7 @@
 
 import { Send, Volume2 } from "lucide-react";
 import { useState } from "react";
-import { z } from "zod";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { VoiceTaskCreationSchema } from "@/src/schemas/enhanced-task-schemas";
+import type { VoiceTaskCreationSchema } from "@/src/schemas/enhanced-task-schemas";
 
 type VoiceTaskFormData = z.infer<typeof VoiceTaskCreationSchema>;
 
@@ -161,7 +161,7 @@ export function VoiceTaskForm({
 			<CardContent>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					{/* Title */}
-					<FormField label="Title" required error={errors.title}>
+					<FormField label="Title" required={true} error={errors.title}>
 						<Input
 							placeholder="Task title (auto-generated from voice)"
 							value={formData.title}
@@ -170,7 +170,7 @@ export function VoiceTaskForm({
 					</FormField>
 
 					{/* Description */}
-					<FormField label="Description" required error={errors.description}>
+					<FormField label="Description" required={true} error={errors.description}>
 						<Textarea
 							placeholder="Task description from voice transcription"
 							rows={4}

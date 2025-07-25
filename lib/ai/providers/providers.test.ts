@@ -4,18 +4,18 @@
  * Tests for the unified AI provider system
  */
 
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
-	ProviderRegistry,
-	OpenAIProvider,
+	ANTHROPIC_MODELS,
 	AnthropicProvider,
-	GoogleAIProvider,
-	UnifiedAIClient,
 	findBestModel,
+	GOOGLE_AI_MODELS,
+	GoogleAIProvider,
 	hasCapability,
 	OPENAI_MODELS,
-	ANTHROPIC_MODELS,
-	GOOGLE_AI_MODELS,
+	OpenAIProvider,
+	ProviderRegistry,
+	UnifiedAIClient,
 } from "./index";
 
 // Mock environment variables

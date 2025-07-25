@@ -54,15 +54,23 @@ vi.mock("next/navigation", () => ({
 // Mock next/link
 vi.mock("next/link", () => ({
 	__esModule: true,
-	default: vi.fn(({ children, href, ...props }: any) =>
-		React.createElement("a", { href, ...props }, children)
+	default: vi.fn(
+		({
+			children,
+			href,
+			...props
+		}: {
+			children: React.ReactNode;
+			href: string;
+			[key: string]: unknown;
+		}) => React.createElement("a", { href, ...props }, children)
 	),
 }));
 
 // Mock lucide-react
 vi.mock("lucide-react", () => {
 	const createIcon = (name: string) => {
-		const component = ({ className, ...props }: any) =>
+		const component = ({ className, ...props }: { className?: string; [key: string]: unknown }) =>
 			React.createElement("svg", {
 				className,
 				"data-testid": `${name.toLowerCase()}-icon`,
@@ -75,7 +83,7 @@ vi.mock("lucide-react", () => {
 	return new Proxy(
 		{},
 		{
-			get(target, prop: string) {
+			get(_target, prop: string) {
 				if (typeof prop === "string" && prop[0] === prop[0].toUpperCase()) {
 					return createIcon(prop);
 				}
@@ -98,8 +106,8 @@ vi.mock("next-themes", () => ({
 }));
 
 // Mock all Radix UI components
-const mockRadixComponent = (name: string, props: any = {}) =>
-	vi.fn(({ children, ...otherProps }: any) =>
+const mockRadixComponent = (name: string, props: Record<string, unknown> = {}) =>
+	vi.fn(({ children, ...otherProps }: { children?: React.ReactNode; [key: string]: unknown }) =>
 		React.createElement("div", { "data-testid": name, ...props, ...otherProps }, children)
 	);
 
@@ -115,8 +123,17 @@ vi.mock("@radix-ui/react-dialog", () => ({
 }));
 
 vi.mock("@radix-ui/react-label", () => ({
-	Root: vi.fn(({ children, className, ...props }: any) =>
-		React.createElement("label", { className, "data-testid": "label-root", ...props }, children)
+	Root: vi.fn(
+		({
+			children,
+			className,
+			...props
+		}: {
+			children?: React.ReactNode;
+			className?: string;
+			[key: string]: unknown;
+		}) =>
+			React.createElement("label", { className, "data-testid": "label-root", ...props }, children)
 	),
 }));
 

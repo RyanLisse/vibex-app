@@ -244,7 +244,7 @@ export function PRStatusCard({
 				)}
 
 				{/* Review Summary */}
-				<PRReviewSummary reviews={pr.reviews} reviewers={pr.reviewers} compact />
+				<PRReviewSummary reviews={pr.reviews} reviewers={pr.reviewers} compact={true} />
 
 				{/* Stats */}
 				<div className="grid grid-cols-3 gap-4 text-sm">

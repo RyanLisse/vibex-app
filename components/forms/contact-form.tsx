@@ -33,7 +33,7 @@ const clearFieldError = (
 		return null;
 	}
 
-	const newErrors = { ...issues };
+	const newErrors = { ...errors };
 	if (newErrors.fieldErrors) {
 		delete newErrors.fieldErrors[field];
 	}

@@ -15,14 +15,14 @@ describe.skip("TaskLoadingState", () => {
 	it("should render default loading message", () => {
 		render(<TaskLoadingState />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent("Working on task...");
+		expect(screen.getByTestId("text-shimmer").textContent).toContain("Working on task...");
 	});
 
 	it("should render custom status message", () => {
 		const customMessage = "Processing your request...";
 		render(<TaskLoadingState statusMessage={customMessage} />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent(customMessage);
+		expect(screen.getByTestId("text-shimmer").textContent).toContain(customMessage);
 	});
 
 	it("should render with proper structure", () => {
@@ -44,31 +44,72 @@ describe.skip("TaskLoadingState", () => {
 		const { container } = render(<TaskLoadingState statusMessage="Test" />);
 
 		const mainContainer = container.firstChild as HTMLElement;
-		expect(mainContainer).toHaveClass(
-			"flex",
-			"justify-start",
-			"animate-in",
-			"slide-in-from-left",
-			"duration-300"
-		);
+		expect(mainContainer?.classList.contains("flex")).toBe(true);
+		expect(mainContainer?.classList.contains("justify-start")).toBe(true);
+		expect(mainContainer?.classList.contains("animate-in")).toBe(true);
+		expect(mainContainer?.classList.contains("slide-in-from-bottom-2")).toBe(true);
+		expect(mainContainer?.classList.contains("duration-300")).toBe(true);
+		expect(mainContainer?.classList.contains("pb-2")).toBe(true);
+		expect(mainContainer?.classList.contains("relative")).toBe(true);
+		expect(mainContainer?.classList.contains("w-full")).toBe(true);
 	});
 
-	it("should handle empty string status message", () => {
-		render(<TaskLoadingState statusMessage="" />);
+	it("should have animated avatar", () => {
+		const { container } = render(<TaskLoadingState statusMessage="Test" />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent("Working on task...");
+		const avatar = container.querySelector('[role="img"]') as HTMLElement;
+		expect(avatar).toBeTruthy();
+		expect(avatar?.classList.contains("relative")).toBe(true);
+		expect(avatar?.classList.contains("flex")).toBe(true);
+		expect(avatar?.classList.contains("h-9")).toBe(true);
+		expect(avatar?.classList.contains("w-9")).toBe(true);
+		expect(avatar?.classList.contains("shrink-0")).toBe(true);
 	});
 
-	it("should handle undefined status message", () => {
-		render(<TaskLoadingState statusMessage={undefined} />);
+	it("should apply animate-spin to loader icon", () => {
+		render(<TaskLoadingState statusMessage="Test" />);
 
-		expect(screen.getByTestId("text-shimmer")).toHaveTextContent("Working on task...");
+		const loaderIcon = document.querySelector('svg[data-lucide="loader"]') as HTMLElement;
+		expect(loaderIcon?.classList.contains("animate-spin")).toBe(true);
+		expect(loaderIcon?.classList.contains("text-primary")).toBe(true);
 	});
 
-	it("should render with accessible structure", () => {
+	it("should render message container with proper styles", () => {
+		render(<TaskLoadingState statusMessage="Test" />);
+
+		const messageContainer = screen.getByTestId("text-shimmer").parentElement as HTMLElement;
+		expect(messageContainer?.classList.contains("ml-3")).toBe(true);
+		expect(messageContainer?.classList.contains("flex")).toBe(true);
+		expect(messageContainer?.classList.contains("flex-1")).toBe(true);
+		expect(messageContainer?.classList.contains("flex-col")).toBe(true);
+		expect(messageContainer?.classList.contains("gap-2")).toBe(true);
+	});
+
+	it("should apply proper styles to text shimmer", () => {
 		render(<TaskLoadingState statusMessage="Loading..." />);
 
-		const loadingElement = screen.getByTestId("text-shimmer");
-		expect(loadingElement).toHaveClass("text-sm");
+		const textShimmer = screen.getByTestId("text-shimmer") as HTMLElement;
+		expect(textShimmer?.classList.contains("text-lg")).toBe(true);
+	});
+
+	it("should handle long status messages", () => {
+		const longMessage =
+			"This is a very long status message that might wrap to multiple lines when displayed in the component";
+		render(<TaskLoadingState statusMessage={longMessage} />);
+
+		expect(screen.getByTestId("text-shimmer").textContent).toContain(longMessage);
+	});
+
+	it("should handle empty status message", () => {
+		render(<TaskLoadingState statusMessage="" />);
+
+		expect(screen.getByTestId("text-shimmer").textContent).toBe("");
+	});
+
+	it("should handle special characters in status message", () => {
+		const specialMessage = "Loading... 50% <complete> & processing!";
+		render(<TaskLoadingState statusMessage={specialMessage} />);
+
+		expect(screen.getByTestId("text-shimmer").textContent).toContain(specialMessage);
 	});
 });

@@ -126,7 +126,7 @@ export class NetworkError extends AppError {
 }
 
 export class AuthenticationError extends AppError {
-	constructor(message: string = "Authentication required") {
+	constructor(message = "Authentication required") {
 		super({
 			message,
 			type: ErrorType.AUTHENTICATION,
@@ -140,7 +140,7 @@ export class AuthenticationError extends AppError {
 }
 
 export class AuthorizationError extends AppError {
-	constructor(message: string = "Insufficient permissions") {
+	constructor(message = "Insufficient permissions") {
 		super({
 			message,
 			type: ErrorType.AUTHORIZATION,
@@ -258,7 +258,7 @@ export class ErrorHandler {
 		});
 	}
 
-	static shouldRetry(error: AppError, attempt: number = 1, maxAttempts: number = 3): boolean {
+	static shouldRetry(error: AppError, attempt = 1, maxAttempts = 3): boolean {
 		if (!error.retryable || attempt >= maxAttempts) {
 			return false;
 		}
@@ -284,16 +284,16 @@ export class ErrorHandler {
 		}
 
 		// Exponential backoff with jitter
-		const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
+		const exponentialDelay = baseDelay * 2 ** (attempt - 1);
 		const jitter = Math.random() * 1000;
 		return exponentialDelay + jitter;
 	}
 
 	static trackError(error: AppError): void {
 		const key = `${error.type}:${error.code}`;
-		const count = this.errorCounts.get(key) || 0;
-		this.errorCounts.set(key, count + 1);
-		this.lastErrorTime.set(key, Date.now());
+		const count = ErrorHandler.errorCounts.get(key) || 0;
+		ErrorHandler.errorCounts.set(key, count + 1);
+		ErrorHandler.lastErrorTime.set(key, Date.now());
 
 		// Log critical errors immediately
 		if (error.severity === ErrorSeverity.CRITICAL) {
@@ -304,8 +304,8 @@ export class ErrorHandler {
 	static getErrorStats(): Record<string, { count: number; lastOccurred: Date }> {
 		const stats: Record<string, { count: number; lastOccurred: Date }> = {};
 
-		for (const [key, count] of this.errorCounts.entries()) {
-			const lastTime = this.lastErrorTime.get(key);
+		for (const [key, count] of ErrorHandler.errorCounts.entries()) {
+			const lastTime = ErrorHandler.lastErrorTime.get(key);
 			if (lastTime) {
 				stats[key] = {
 					count,
@@ -318,8 +318,8 @@ export class ErrorHandler {
 	}
 
 	static clearStats(): void {
-		this.errorCounts.clear();
-		this.lastErrorTime.clear();
+		ErrorHandler.errorCounts.clear();
+		ErrorHandler.lastErrorTime.clear();
 	}
 }
 

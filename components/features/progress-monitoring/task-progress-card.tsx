@@ -12,8 +12,8 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
-import { ProgressIndicator } from "./progress-indicator";
 import type { TaskProgress } from "./progress-dashboard";
+import { ProgressIndicator } from "./progress-indicator";
 
 interface TaskProgressCardProps {
 	task: TaskProgress;
@@ -162,7 +162,7 @@ export function TaskProgressCard({
 					</div>
 
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
+						<DropdownMenuTrigger asChild={true}>
 							<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
 								<MoreHorizontal className="h-4 w-4" />
 							</Button>
@@ -196,7 +196,7 @@ export function TaskProgressCard({
 						progress={task.progress}
 						size="md"
 						showPercentage={false}
-						interactive
+						interactive={true}
 						onProgressChange={handleProgressUpdate}
 					/>
 				</div>

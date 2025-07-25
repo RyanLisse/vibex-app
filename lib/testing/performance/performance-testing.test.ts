@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryProfiler, PerformanceBenchmark } from "./performance-benchmarker";
 
 describe("PerformanceBenchmark", () => {

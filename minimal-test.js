@@ -6,7 +6,7 @@
  * the core Vitest configuration.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("Minimal Test Suite", () => {
 	it("should perform basic arithmetic", () => {

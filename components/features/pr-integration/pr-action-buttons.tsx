@@ -73,7 +73,7 @@ export function PRActionButtons({ pr, onAction, taskId, className = "" }: PRActi
 
 			{/* More Actions Dropdown */}
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
+				<DropdownMenuTrigger asChild={true}>
 					<Button variant="outline" size="sm">
 						More
 					</Button>
