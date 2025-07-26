@@ -9,7 +9,7 @@ export const MultiAgentConfigSchema = z.object({
 	brainstorm: z.object({}).optional(),
 	enableVoice: z.boolean().default(true),
 	enableLowLatency: z.boolean().default(true),
-	maxConcurrentSessions: z.number().default(10),
+	maxConcurrentSessions: z.number().min(0).default(10),
 });
 
 export type MultiAgentConfig = z.infer<typeof MultiAgentConfigSchema>;
