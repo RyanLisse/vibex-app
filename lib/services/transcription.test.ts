@@ -256,7 +256,7 @@ describe("TranscriptionService", () => {
 
 			expect(result).toEqual({
 				title: transcription.slice(0, 100),
-				description: transcription,
+				description: undefined, // Simple extraction doesn't set description for short titles
 				priority: "medium",
 			});
 		});

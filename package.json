@@ -46,7 +46,7 @@
     "test:e2e:visual": "bunx playwright test --project=stagehand-ai tests/e2e/visual-regression-ai.spec.ts",
     "test:e2e:stagehand": "STAGEHAND_DEBUG=true bunx playwright test --project=stagehand-ai tests/e2e/ai-powered-advanced.spec.ts tests/e2e/visual-regression-ai.spec.ts",
     "test:e2e:stagehand:debug": "STAGEHAND_DEBUG=true bunx playwright test --project=stagehand-ai --headed --debug",
-    "test:all": "vitest run --config=vitest.unit.config.ts && vitest run --config=vitest.integration.config.ts && bunx playwright test",
+    "test:all": "vitest run --reporter=verbose --bail=1 && bunx playwright test",
     "test:safe": "vitest run --config=vitest.unit.config.ts",
     "test:all:watch": "echo 'Use test:watch or test:integration:watch'",
     "storybook": "storybook dev -p 6006",
