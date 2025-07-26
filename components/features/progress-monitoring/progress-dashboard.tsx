@@ -230,7 +230,7 @@ export function ProgressDashboard({
 					<ProgressIndicator
 						progress={projectStats.totalProgress}
 						label="Overall Completion"
-						showPercentage
+						showPercentage={true}
 						size="lg"
 					/>
 				</CardContent>
@@ -248,7 +248,12 @@ export function ProgressDashboard({
 					<CardContent>
 						<div className="space-y-3">
 							{criticalTasks.slice(0, 5).map((task) => (
-								<TaskProgressCard key={task.id} task={task} onUpdate={onTaskUpdate} compact />
+								<TaskProgressCard
+									key={task.id}
+									task={task}
+									onUpdate={onTaskUpdate}
+									compact={true}
+								/>
 							))}
 						</div>
 					</CardContent>
@@ -267,7 +272,12 @@ export function ProgressDashboard({
 					<CardContent>
 						<div className="space-y-3">
 							{highProgressTasks.slice(0, 5).map((task) => (
-								<TaskProgressCard key={task.id} task={task} onUpdate={onTaskUpdate} compact />
+								<TaskProgressCard
+									key={task.id}
+									task={task}
+									onUpdate={onTaskUpdate}
+									compact={true}
+								/>
 							))}
 						</div>
 					</CardContent>

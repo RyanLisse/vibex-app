@@ -10,13 +10,13 @@ import { z } from "zod";
 import {
 	BaseAIProvider,
 	BaseProviderConfig,
-	CompletionOptions,
-	CompletionResponse,
-	EmbeddingOptions,
-	EmbeddingResponse,
-	ModelInfo,
-	StreamChunk,
-	Message,
+	type CompletionOptions,
+	type CompletionResponse,
+	type EmbeddingOptions,
+	type EmbeddingResponse,
+	type Message,
+	type ModelInfo,
+	type StreamChunk,
 } from "./base";
 
 // OpenAI-specific configuration
@@ -360,9 +360,11 @@ export class OpenAIProvider extends BaseAIProvider {
 	private convertMessage(message: Message): OpenAI.Chat.ChatCompletionMessageParam {
 		if (message.role === "system") {
 			return { role: "system", content: message.content };
-		} else if (message.role === "user") {
+		}
+		if (message.role === "user") {
 			return { role: "user", content: message.content, name: message.name };
-		} else if (message.role === "assistant") {
+		}
+		if (message.role === "assistant") {
 			return {
 				role: "assistant",
 				content: message.content,
@@ -370,13 +372,15 @@ export class OpenAIProvider extends BaseAIProvider {
 				function_call: message.function_call,
 				tool_calls: message.tool_calls as any,
 			};
-		} else if (message.role === "function") {
+		}
+		if (message.role === "function") {
 			return {
 				role: "function",
 				content: message.content,
 				name: message.name || "",
 			};
-		} else if (message.role === "tool") {
+		}
+		if (message.role === "tool") {
 			return {
 				role: "tool",
 				content: message.content,

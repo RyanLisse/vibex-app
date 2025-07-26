@@ -2,7 +2,7 @@
  * Test for TanStack Query task hooks
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 // Mock the observability module
 const mockObservability = {

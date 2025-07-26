@@ -151,7 +151,7 @@ export function ProgressIndicator({
 
 			<div
 				className={`relative ${interactive ? "cursor-pointer" : ""}`}
-				data-progress-bar
+				data-progress-bar={true}
 				onMouseDown={handleMouseDown}
 			>
 				<Progress

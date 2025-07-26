@@ -10,6 +10,9 @@
 
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
 
+// Import browser mocks from vitest-setup.js
+import "../../vitest-setup.js";
+
 // Environment setup
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";

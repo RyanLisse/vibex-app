@@ -1,5 +1,5 @@
-import type { AlertChannel, AlertNotification, BaseTransport, SlackConfig } from "./types";
 import type { CriticalError } from "../types";
+import type { AlertChannel, AlertNotification, BaseTransport, SlackConfig } from "./types";
 import { AlertChannelType } from "./types";
 
 export class SlackTransport implements BaseTransport {

@@ -494,10 +494,9 @@ export function useTaskMutationWithSync<T = any>(
 				if (electricDb.isReady()) {
 					// Use ElectricSQL for real-time sync
 					return await mutationFn(variables);
-				} else {
-					// Fallback to regular API call
-					return await mutationFn(variables);
 				}
+				// Fallback to regular API call
+				return await mutationFn(variables);
 			} catch (error) {
 				console.warn("ElectricSQL not available, using fallback:", error);
 				return await mutationFn(variables);

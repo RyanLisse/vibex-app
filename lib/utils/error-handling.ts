@@ -35,9 +35,9 @@ export class AppError extends Error {
 
 	constructor(
 		message: string,
-		code: string = "UNKNOWN_ERROR",
-		statusCode: number = 500,
-		isOperational: boolean = true,
+		code = "UNKNOWN_ERROR",
+		statusCode = 500,
+		isOperational = true,
 		details?: any
 	) {
 		super(message);
@@ -76,7 +76,7 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
 			}
 
 			// Calculate delay with exponential backoff
-			const delay = Math.min(initialDelay * Math.pow(backoffFactor, attempt - 1), maxDelay);
+			const delay = Math.min(initialDelay * backoffFactor ** (attempt - 1), maxDelay);
 
 			// Call retry callback
 			onRetry(error, attempt);
@@ -186,7 +186,7 @@ export const ErrorRecovery = {
 	async withCache<T>(
 		key: string,
 		fn: () => Promise<T>,
-		ttl: number = 300000 // 5 minutes
+		ttl = 300000 // 5 minutes
 	): Promise<T> {
 		try {
 			const result = await fn();

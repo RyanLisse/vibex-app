@@ -65,7 +65,7 @@ export function MultiSelect({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
+			<PopoverTrigger asChild={true}>
 				<Button
 					variant="outline"
 					role="combobox"

@@ -79,7 +79,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 // PR Integration API service
 export const prAPI = {
 	// Get all PRs with filtering and pagination
-	async getPRs(filters?: PRFilters, page: number = 1, limit: number = 20): Promise<PRListResponse> {
+	async getPRs(filters?: PRFilters, page = 1, limit = 20): Promise<PRListResponse> {
 		const params = new URLSearchParams();
 
 		if (filters) {

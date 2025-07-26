@@ -2,14 +2,14 @@
 
 import {
 	DndContext,
-	DragEndEvent,
-	DragOverEvent,
-	DragStartEvent,
+	type DragEndEvent,
+	type DragOverEvent,
+	type DragStartEvent,
 	PointerSensor,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";

@@ -5,7 +5,7 @@
  * to see if the issue is with file naming or project environment.
  */
 
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
 
 test("basic arithmetic", () => {
 	expect(1 + 1).toBe(2);

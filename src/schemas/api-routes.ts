@@ -80,18 +80,37 @@ export const GitHubUserSchema = z.object({
 	html_url: z.string().url(),
 	company: z.string().nullable(),
 	location: z.string().nullable(),
+	bio: z.string().nullable(),
+	followers: z.number(),
+	following: z.number(),
+	public_repos: z.number(),
+	created_at: z.string(),
+	updated_at: z.string(),
 });
 
 export const GitHubRepositorySchema = z.object({
 	id: z.number(),
 	name: z.string(),
 	full_name: z.string(),
-	owner: GitHubUserSchema.pick({ login: true, avatar_url: true }),
+	owner: GitHubUserSchema,
 	private: z.boolean(),
 	html_url: z.string().url(),
 	description: z.string().nullable(),
 	language: z.string().nullable(),
 	stargazers_count: z.number(),
+	clone_url: z.string().url(),
+	ssh_url: z.string(),
+	default_branch: z.string(),
+	fork: z.boolean(),
+	archived: z.boolean(),
+	disabled: z.boolean(),
+	watchers_count: z.number(),
+	forks_count: z.number(),
+	open_issues_count: z.number(),
+	size: z.number(),
+	created_at: z.string(),
+	updated_at: z.string(),
+	pushed_at: z.string(),
 	permissions: z
 		.object({
 			admin: z.boolean(),
@@ -136,15 +155,19 @@ export const TaskSchema = z.object({
 	priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
 	assignee: z.string().optional(),
 	tags: z.array(z.string()).default([]),
-	created_at: z.date().default(() => new Date()),
-	updated_at: z.date().default(() => new Date()),
+	created_at: z.date(),
+	updated_at: z.date(),
 	due_date: z.date().optional(),
 });
 
-export const CreateTaskSchema = TaskSchema.omit({
-	id: true,
-	created_at: true,
-	updated_at: true,
+export const CreateTaskSchema = z.object({
+	title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+	description: z.string().optional(),
+	status: z.enum(["todo", "in_progress", "done"]).default("todo"),
+	priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
+	assignee: z.string().optional(),
+	tags: z.array(z.string()).default([]),
+	due_date: z.date().optional(),
 });
 
 export const UpdateTaskSchema = CreateTaskSchema.partial();
@@ -167,14 +190,17 @@ export const EnvironmentSchema = z.object({
 	url: z.string().url().optional(),
 	status: z.enum(["active", "inactive", "maintenance"]).default("active"),
 	variables: z.record(z.string(), z.string()).default({}),
-	created_at: z.date().default(() => new Date()),
-	updated_at: z.date().default(() => new Date()),
+	created_at: z.date(),
+	updated_at: z.date(),
 });
 
-export const CreateEnvironmentSchema = EnvironmentSchema.omit({
-	id: true,
-	created_at: true,
-	updated_at: true,
+export const CreateEnvironmentSchema = z.object({
+	name: z.string().min(1, "Environment name is required"),
+	description: z.string().optional(),
+	type: z.enum(["development", "staging", "production", "testing"]).default("development"),
+	url: z.string().url().optional(),
+	status: z.enum(["active", "inactive", "maintenance"]).default("active"),
+	variables: z.record(z.string(), z.string()).default({}),
 });
 
 // File Upload Schemas
@@ -209,9 +235,10 @@ export const WebhookPayloadSchema = z.object({
 });
 
 export const WebhookResponseSchema = z.object({
-	received: z.boolean().default(true),
-	processed: z.boolean().default(false),
-	timestamp: z.date().default(() => new Date()),
+	received: z.boolean(),
+	processed: z.boolean(),
+	message: z.string().optional(),
+	error: z.string().optional(),
 });
 
 // Inngest Schemas
@@ -225,12 +252,12 @@ export const InngestEventSchema = z.object({
 		})
 		.optional(),
 	ts: z.number().optional(),
+	v: z.string().optional(),
 });
 
 export const InngestFunctionSchema = z.object({
 	id: z.string(),
 	name: z.string(),
-	status: z.enum(["active", "paused", "disabled"]).default("active"),
 	trigger: z.object({
 		event: z.string(),
 		expression: z.string().optional(),

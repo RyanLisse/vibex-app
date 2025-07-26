@@ -4,7 +4,7 @@
  * Provides endpoints for creating embeddings with various AI providers
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { unifiedAI } from "@/lib/ai";
 import { logger } from "@/lib/logging";

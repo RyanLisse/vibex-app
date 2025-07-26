@@ -2,7 +2,7 @@
 
 import { AlertCircle, Bug, Send } from "lucide-react";
 import { useState } from "react";
-import { z } from "zod";
+import type { z } from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ScreenshotBugReportSchema } from "@/src/schemas/enhanced-task-schemas";
+import type { ScreenshotBugReportSchema } from "@/src/schemas/enhanced-task-schemas";
 
 type BugReportFormData = z.infer<typeof ScreenshotBugReportSchema>;
 
@@ -150,7 +150,7 @@ export function BugReportForm({
 			<CardContent>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					{/* Title */}
-					<FormField label="Title" required error={errors.title}>
+					<FormField label="Title" required={true} error={errors.title}>
 						<Input
 							placeholder="Brief description of the bug"
 							value={formData.title}
@@ -159,7 +159,7 @@ export function BugReportForm({
 					</FormField>
 
 					{/* Description */}
-					<FormField label="Description" required error={errors.description}>
+					<FormField label="Description" required={true} error={errors.description}>
 						<Textarea
 							placeholder="Detailed description of the bug"
 							rows={4}

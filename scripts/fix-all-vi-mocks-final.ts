@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 
 /**
- * Final Comprehensive Vi.Mock to Jest.Mock Fix
+ * Final Comprehensive Mock Implementation Fix
  *
- * This script provides the ultimate solution for fixing all vi.mock issues
- * and making tests compatible with Bun.
+ * This script provides the ultimate solution for fixing all mock issues
+ * and making tests compatible with Vitest and Bun.
  */
 
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
@@ -15,48 +15,48 @@ const TEST_FILE_PATTERN = /\.(test|spec)\.(ts|tsx|js|jsx)$/;
 // Enhanced mock implementations with proper types
 const MOCK_IMPLEMENTATIONS = {
 	"next/navigation": `(() => ({
-    useRouter: jest.fn(() => ({
-      push: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
+    useRouter: vi.fn(() => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
       pathname: '/',
       query: {},
       asPath: '/',
     })),
-    usePathname: jest.fn(() => '/'),
-    useSearchParams: jest.fn(() => new URLSearchParams()),
-    useParams: jest.fn(() => ({})),
-    redirect: jest.fn(),
-    notFound: jest.fn(),
-    useSelectedLayoutSegment: jest.fn(),
-    useSelectedLayoutSegments: jest.fn(() => []),
+    usePathname: vi.fn(() => '/'),
+    useSearchParams: vi.fn(() => new URLSearchParams()),
+    useParams: vi.fn(() => ({})),
+    redirect: vi.fn(),
+    notFound: vi.fn(),
+    useSelectedLayoutSegment: vi.fn(),
+    useSelectedLayoutSegments: vi.fn(() => []),
   }))`,
 
 	"next/link": `(() => {
     const React = require('react');
     return {
       __esModule: true,
-      default: jest.fn(({ children, href, ...props }) => 
+      default: vi.fn(({ children, href, ...props }) => 
         React.createElement('a', { href, ...props }, children)
       )
     };
   })`,
 
 	"next/font/google": `(() => ({
-    Inter: jest.fn(() => ({ 
+    Inter: vi.fn(() => ({ 
       className: 'font-inter', 
       style: { fontFamily: 'Inter' },
       variable: '--font-inter' 
     })),
-    Roboto: jest.fn(() => ({ 
+    Roboto: vi.fn(() => ({ 
       className: 'font-roboto', 
       style: { fontFamily: 'Roboto' },
       variable: '--font-roboto'
     })),
-    Roboto_Mono: jest.fn(() => ({ 
+    Roboto_Mono: vi.fn(() => ({ 
       className: 'font-roboto-mono', 
       style: { fontFamily: 'Roboto Mono' },
       variable: '--font-roboto-mono'
@@ -73,7 +73,7 @@ const MOCK_IMPLEMENTATIONS = {
           ...props 
         });
       component.displayName = name;
-      return jest.fn(component);
+      return vi.fn(component);
     };
     
     return new Proxy({}, {
@@ -87,89 +87,89 @@ const MOCK_IMPLEMENTATIONS = {
   })`,
 
 	"@radix-ui/react-dialog": `(() => ({
-    Root: jest.fn(({ children, ...props }) => 
+    Root: vi.fn(({ children, ...props }) => 
       React.createElement('div', { 'data-testid': 'dialog-root', ...props }, children)
     ),
-    Trigger: jest.fn(({ children, ...props }) => 
+    Trigger: vi.fn(({ children, ...props }) => 
       React.createElement('button', { 'data-testid': 'dialog-trigger', ...props }, children)
     ),
-    Portal: jest.fn(({ children }) => children),
-    Overlay: jest.fn(({ children, className, ...props }) => 
+    Portal: vi.fn(({ children }) => children),
+    Overlay: vi.fn(({ children, className, ...props }) => 
       React.createElement('div', { className, 'data-testid': 'dialog-overlay', ...props }, children)
     ),
-    Content: jest.fn(({ children, className, ...props }) => 
+    Content: vi.fn(({ children, className, ...props }) => 
       React.createElement('div', { className, 'data-testid': 'dialog-content', ...props }, children)
     ),
-    Title: jest.fn(({ children, className, ...props }) => 
+    Title: vi.fn(({ children, className, ...props }) => 
       React.createElement('h2', { className, 'data-testid': 'dialog-title', ...props }, children)
     ),
-    Description: jest.fn(({ children, className, ...props }) => 
+    Description: vi.fn(({ children, className, ...props }) => 
       React.createElement('p', { className, 'data-testid': 'dialog-description', ...props }, children)
     ),
-    Close: jest.fn(({ children, ...props }) => 
+    Close: vi.fn(({ children, ...props }) => 
       React.createElement('button', { 'data-testid': 'dialog-close', ...props }, children)
     ),
   }))`,
 
 	"@radix-ui/react-label": `(() => ({
-    Root: jest.fn(({ children, className, ...props }) => 
+    Root: vi.fn(({ children, className, ...props }) => 
       React.createElement('label', { className, 'data-testid': 'label-root', ...props }, children)
     ),
   }))`,
 
 	"@radix-ui/react-select": `(() => ({
-    Root: jest.fn(({ children, ...props }) => 
+    Root: vi.fn(({ children, ...props }) => 
       React.createElement('div', { 'data-testid': 'select-root', ...props }, children)
     ),
-    Trigger: jest.fn(({ children, className, ...props }) => 
+    Trigger: vi.fn(({ children, className, ...props }) => 
       React.createElement('button', { className, 'data-testid': 'select-trigger', ...props }, children)
     ),
-    Value: jest.fn(({ children, placeholder, ...props }) => 
+    Value: vi.fn(({ children, placeholder, ...props }) => 
       React.createElement('span', { 'data-testid': 'select-value', ...props }, children || placeholder)
     ),
-    Icon: jest.fn(({ children, ...props }) => 
+    Icon: vi.fn(({ children, ...props }) => 
       React.createElement('span', { 'data-testid': 'select-icon', ...props }, children)
     ),
-    Portal: jest.fn(({ children }) => children),
-    Content: jest.fn(({ children, className, ...props }) => 
+    Portal: vi.fn(({ children }) => children),
+    Content: vi.fn(({ children, className, ...props }) => 
       React.createElement('div', { className, 'data-testid': 'select-content', ...props }, children)
     ),
-    Item: jest.fn(({ children, value, ...props }) => 
+    Item: vi.fn(({ children, value, ...props }) => 
       React.createElement('div', { 'data-testid': 'select-item', 'data-value': value, ...props }, children)
     ),
-    ItemText: jest.fn(({ children }) => children),
-    ItemIndicator: jest.fn(({ children, ...props }) => 
+    ItemText: vi.fn(({ children }) => children),
+    ItemIndicator: vi.fn(({ children, ...props }) => 
       React.createElement('span', { 'data-testid': 'select-item-indicator', ...props }, children)
     ),
-    Group: jest.fn(({ children, ...props }) => 
+    Group: vi.fn(({ children, ...props }) => 
       React.createElement('div', { 'data-testid': 'select-group', ...props }, children)
     ),
-    Label: jest.fn(({ children, ...props }) => 
+    Label: vi.fn(({ children, ...props }) => 
       React.createElement('div', { 'data-testid': 'select-label', ...props }, children)
     ),
-    Separator: jest.fn(() => 
+    Separator: vi.fn(() => 
       React.createElement('hr', { 'data-testid': 'select-separator' })
     ),
-    ScrollUpButton: jest.fn(({ children, ...props }) => 
+    ScrollUpButton: vi.fn(({ children, ...props }) => 
       React.createElement('button', { 'data-testid': 'select-scroll-up', ...props }, children)
     ),
-    ScrollDownButton: jest.fn(({ children, ...props }) => 
+    ScrollDownButton: vi.fn(({ children, ...props }) => 
       React.createElement('button', { 'data-testid': 'select-scroll-down', ...props }, children)
     ),
-    Viewport: jest.fn(({ children, ...props }) => 
+    Viewport: vi.fn(({ children, ...props }) => 
       React.createElement('div', { 'data-testid': 'select-viewport', ...props }, children)
     ),
   }))`,
 
 	"next-themes": `(() => ({
-    useTheme: jest.fn(() => ({
+    useTheme: vi.fn(() => ({
       theme: 'light',
-      setTheme: jest.fn(),
+      setTheme: vi.fn(),
       resolvedTheme: 'light',
       themes: ['light', 'dark'],
       systemTheme: 'light',
     })),
-    ThemeProvider: jest.fn(({ children }) => children),
+    ThemeProvider: vi.fn(({ children }) => children),
   }))`,
 };
 
@@ -226,15 +226,15 @@ function getImplementation(moduleName: string, existingImpl?: string): string {
 		return `(() => {
       const React = require('react');
       return {
-        default: jest.fn(() => React.createElement('div', { 'data-testid': '${basename(moduleName)}' }, 'Mock ${basename(moduleName)}')),
-        ${basename(moduleName).replace(/[^a-zA-Z0-9]/g, "")}: jest.fn(() => React.createElement('div', { 'data-testid': '${basename(moduleName)}' }, 'Mock ${basename(moduleName)}')),
+        default: vi.fn(() => React.createElement('div', { 'data-testid': '${basename(moduleName)}' }, 'Mock ${basename(moduleName)}')),
+        ${basename(moduleName).replace(/[^a-zA-Z0-9]/g, "")}: vi.fn(() => React.createElement('div', { 'data-testid': '${basename(moduleName)}' }, 'Mock ${basename(moduleName)}')),
       };
     })`;
 	}
 
 	// Default mock
 	return `(() => ({
-    default: jest.fn(),
+    default: vi.fn(),
     ...jest.requireActual('${moduleName}'),
   }))`;
 }

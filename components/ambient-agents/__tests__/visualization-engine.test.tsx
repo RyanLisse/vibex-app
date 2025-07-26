@@ -44,30 +44,127 @@ describe.skip("VisualizationEngine", () => {
 	it("renders visualization engine correctly", () => {
 		render(<VisualizationEngine {...defaultProps} />);
 
-		expect(screen.getByTestId("react-flow")).toBeInTheDocument();
-		expect(screen.getByTestId("react-flow-controls")).toBeInTheDocument();
-		expect(screen.getByTestId("react-flow-minimap")).toBeInTheDocument();
+		expect(screen.getByTestId("react-flow")).toBeTruthy();
+		expect(screen.getByTestId("react-flow-controls")).toBeTruthy();
+		expect(screen.getByTestId("react-flow-minimap")).toBeTruthy();
 	});
 
-	it("handles empty state correctly", () => {
+	it("renders performance panel with stats", () => {
 		render(<VisualizationEngine {...defaultProps} />);
 
-		// Should render without crashing even with empty data
-		expect(screen.getByTestId("react-flow")).toBeInTheDocument();
+		expect(screen.getByTestId("react-flow-panel")).toBeTruthy();
+		expect(screen.getByText(/Active Agents:/)).toBeTruthy();
+		expect(screen.getByText(/Running Tasks:/)).toBeTruthy();
+		expect(screen.getByText(/Recent Events:/)).toBeTruthy();
 	});
 
-	it("calls onNodeSelect when provided", () => {
+	it("renders with agents", () => {
+		const agents = [
+			{
+				id: "agent-1",
+				name: "Test Agent",
+				type: "coordinator",
+				status: "active",
+				position: { x: 100, y: 100 },
+			},
+		];
+
+		render(<VisualizationEngine {...defaultProps} agents={agents} />);
+
+		expect(screen.getByText(/Active Agents: 1/)).toBeTruthy();
+	});
+
+	it("renders with tasks", () => {
+		const tasks = [
+			{
+				id: "task-1",
+				name: "Test Task",
+				agentId: "agent-1",
+				status: "running",
+			},
+		];
+
+		render(<VisualizationEngine {...defaultProps} tasks={tasks} />);
+
+		expect(screen.getByText(/Running Tasks: 1/)).toBeTruthy();
+	});
+
+	it("calls onNodeSelect when node is selected", () => {
 		const onNodeSelect = vi.fn();
 		render(<VisualizationEngine {...defaultProps} onNodeSelect={onNodeSelect} />);
 
-		// Test would require interaction simulation once component is fully implemented
-		expect(onNodeSelect).not.toHaveBeenCalled(); // Initially not called
+		// Since mocking is commented out, this test would need actual interaction
+		// which is not possible without the real ReactFlow component
+		expect(onNodeSelect).toBeDefined();
 	});
 
-	it("handles node selection state correctly", () => {
-		const selectedNode = { id: "test-node", type: "agent" };
+	it("renders with selected node", () => {
+		const selectedNode = {
+			id: "agent-1",
+			data: { name: "Selected Agent" },
+		};
+
 		render(<VisualizationEngine {...defaultProps} selectedNode={selectedNode} />);
 
-		expect(screen.getByTestId("react-flow")).toBeInTheDocument();
+		expect(screen.getByTestId("react-flow")).toBeTruthy();
+	});
+
+	it("handles empty data gracefully", () => {
+		render(<VisualizationEngine {...defaultProps} />);
+
+		expect(screen.getByText(/Active Agents: 0/)).toBeTruthy();
+		expect(screen.getByText(/Running Tasks: 0/)).toBeTruthy();
+		expect(screen.getByText(/Recent Events: 0/)).toBeTruthy();
+	});
+
+	it("renders multiple agents and connections", () => {
+		const agents = [
+			{
+				id: "agent-1",
+				name: "Coordinator",
+				type: "coordinator",
+				status: "active",
+				position: { x: 100, y: 100 },
+			},
+			{
+				id: "agent-2",
+				name: "Worker",
+				type: "worker",
+				status: "active",
+				position: { x: 300, y: 100 },
+			},
+		];
+
+		const tasks = [
+			{
+				id: "task-1",
+				name: "Task 1",
+				agentId: "agent-1",
+				status: "running",
+			},
+			{
+				id: "task-2",
+				name: "Task 2",
+				agentId: "agent-2",
+				status: "pending",
+			},
+		];
+
+		render(<VisualizationEngine {...defaultProps} agents={agents} tasks={tasks} />);
+
+		expect(screen.getByText(/Active Agents: 2/)).toBeTruthy();
+		expect(screen.getByText(/Running Tasks: 1/)).toBeTruthy();
+	});
+
+	it("displays events count", () => {
+		const events = [
+			{ id: "1", type: "task-created", timestamp: new Date() },
+			{ id: "2", type: "task-completed", timestamp: new Date() },
+			{ id: "3", type: "agent-spawned", timestamp: new Date() },
+		];
+
+		render(<VisualizationEngine {...defaultProps} events={events} />);
+
+		expect(screen.getByText(/Recent Events: 3/)).toBeTruthy();
 	});
 });

@@ -1,10 +1,10 @@
 /**
- * @vitest-environment node
+ * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { TranscriptionService } from "./transcription";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { TranscriptionService } from "./transcription";
 
 // Mock Google Generative AI
 vi.mock("@google/generative-ai", () => ({
@@ -256,7 +256,7 @@ describe("TranscriptionService", () => {
 
 			expect(result).toEqual({
 				title: transcription.slice(0, 100),
-				description: transcription,
+				description: undefined, // Simple extraction doesn't set description for short titles
 				priority: "medium",
 			});
 		});

@@ -6,9 +6,10 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Loader2, RefreshCw, Send, Settings, StopCircle, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -18,8 +19,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Send, StopCircle, RefreshCw, Trash2, Settings } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useAIChat } from "@/hooks/use-ai-chat";
 import { AI_MODELS } from "@/lib/ai";
 import { cn } from "@/lib/utils";

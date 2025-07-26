@@ -67,8 +67,8 @@ describe.skip("Container", () => {
 			</Container>
 		);
 
-		expect(screen.getByTestId("child-content")).toBeInTheDocument();
-		expect(screen.getByText("Test Content")).toBeInTheDocument();
+		expect(screen.getByTestId("child-content")).toBeTruthy();
+		expect(screen.getByText("Test Content")).toBeTruthy();
 	});
 
 	it("should handle multiple children", () => {
@@ -80,15 +80,15 @@ describe.skip("Container", () => {
 			</Container>
 		);
 
-		expect(screen.getByTestId("child-1")).toBeInTheDocument();
-		expect(screen.getByTestId("child-2")).toBeInTheDocument();
-		expect(screen.getByTestId("child-3")).toBeInTheDocument();
+		expect(screen.getByTestId("child-1")).toBeTruthy();
+		expect(screen.getByTestId("child-2")).toBeTruthy();
+		expect(screen.getByTestId("child-3")).toBeTruthy();
 	});
 
 	it("should handle empty children", () => {
 		render(<Container>{null}</Container>);
 
-		expect(screen.queryByText("Test")).not.toBeInTheDocument();
+		expect(screen.queryByText("Test")).toBeFalsy();
 	});
 
 	it("should initialize subscription management", () => {
@@ -99,6 +99,6 @@ describe.skip("Container", () => {
 		);
 
 		// The container should render without errors and the hooks should be called
-		expect(screen.getByText("Test")).toBeInTheDocument();
+		expect(screen.getByText("Test")).toBeTruthy();
 	});
 });

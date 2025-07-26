@@ -202,9 +202,7 @@ export function ImageAnnotationTools({
 				height: y - currentAnnotation.y!,
 			});
 		} else if (selectedTool === "circle") {
-			const radius = Math.sqrt(
-				Math.pow(x - currentAnnotation.x!, 2) + Math.pow(y - currentAnnotation.y!, 2)
-			);
+			const radius = Math.sqrt((x - currentAnnotation.x!) ** 2 + (y - currentAnnotation.y!) ** 2);
 			setCurrentAnnotation({
 				...currentAnnotation,
 				width: radius * 2,
@@ -388,7 +386,7 @@ export function ImageAnnotationTools({
 										setCurrentAnnotation(null);
 									}
 								}}
-								autoFocus
+								autoFocus={true}
 							/>
 							<Button onClick={handleTextSubmit} size="sm">
 								Add

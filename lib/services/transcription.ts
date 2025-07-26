@@ -104,24 +104,23 @@ export class TranscriptionService {
 					text: transcriptionText.trim(),
 					language: options.language,
 				};
-			} else {
-				// Try to parse JSON response
-				try {
-					const jsonResponse = JSON.parse(transcriptionText);
-					return {
-						text: jsonResponse.text || transcriptionText,
-						duration: jsonResponse.duration,
-						language: jsonResponse.language || options.language,
-						segments: jsonResponse.segments,
-						metadata: jsonResponse.metadata,
-					};
-				} catch {
-					// Fallback if JSON parsing fails
-					return {
-						text: transcriptionText.trim(),
-						language: options.language,
-					};
-				}
+			}
+			// Try to parse JSON response
+			try {
+				const jsonResponse = JSON.parse(transcriptionText);
+				return {
+					text: jsonResponse.text || transcriptionText,
+					duration: jsonResponse.duration,
+					language: jsonResponse.language || options.language,
+					segments: jsonResponse.segments,
+					metadata: jsonResponse.metadata,
+				};
+			} catch {
+				// Fallback if JSON parsing fails
+				return {
+					text: transcriptionText.trim(),
+					language: options.language,
+				};
 			}
 		} catch (error) {
 			console.error("Gemini transcription error:", error);
@@ -190,15 +189,14 @@ export class TranscriptionService {
 		if (options.format === "text") {
 			const text = await response.text();
 			return { text: text.trim(), language: options.language };
-		} else {
-			const jsonResponse = await response.json();
-			return {
-				text: jsonResponse.text,
-				duration: jsonResponse.duration,
-				language: jsonResponse.language || options.language,
-				segments: jsonResponse.segments,
-			};
 		}
+		const jsonResponse = await response.json();
+		return {
+			text: jsonResponse.text,
+			duration: jsonResponse.duration,
+			language: jsonResponse.language || options.language,
+			segments: jsonResponse.segments,
+		};
 	}
 
 	/**

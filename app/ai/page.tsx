@@ -6,11 +6,11 @@
 
 "use client";
 
+import { Brain, Code, DollarSign, RefreshCw, Shield, Zap } from "lucide-react";
 import { AIChatPanel } from "@/components/ai/ai-chat-panel";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Code, Zap, Shield, RefreshCw, DollarSign, Brain } from "lucide-react";
 
 export default function AIPage() {
 	return (

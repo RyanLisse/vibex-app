@@ -4,8 +4,8 @@
  * React hook for easy integration with the unified AI system
  */
 
-import { useState, useCallback, useRef } from "react";
-import { Message } from "@/lib/ai";
+import { useCallback, useRef, useState } from "react";
+import type { Message } from "@/lib/ai";
 
 export interface UseAIChatOptions {
 	model?: string;
@@ -104,7 +104,7 @@ export function useAIChat(options: UseAIChatOptions = {}): UseAIChatReturn {
 				const reader = response.body?.getReader();
 				const decoder = new TextDecoder();
 
-				let assistantMessage: Message = { role: "assistant", content: "" };
+				const assistantMessage: Message = { role: "assistant", content: "" };
 				let hasReceivedMetadata = false;
 
 				if (reader) {

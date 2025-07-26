@@ -4,10 +4,9 @@
  */
 
 export { GeminiRealtimeClient } from "./gemini-realtime";
-export * from "./testing/mock-language-model";
-
 // Export all provider functionality
 export * from "./providers";
+export * from "./testing/mock-language-model";
 export * from "./unified-client";
 
 // Type definitions for AI models

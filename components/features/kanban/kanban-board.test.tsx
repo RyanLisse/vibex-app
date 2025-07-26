@@ -2,10 +2,10 @@
  * @vitest-environment jsdom
  */
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { KanbanBoard } from "./kanban-board";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { KanbanColumn, Task } from "@/types/task";
+import { KanbanBoard } from "./kanban-board";
 
 // Mock the DnD Kit components
 vi.mock("@dnd-kit/core", () => ({

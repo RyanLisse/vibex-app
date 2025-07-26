@@ -1,6 +1,7 @@
 // WebSocket service for real-time updates
-import type { EnhancedTask } from "./tasks";
+
 import type { PRData } from "@/components/features/pr-integration/pr-status-card";
+import type { EnhancedTask } from "./tasks";
 
 export interface WebSocketMessage {
 	type: string;
@@ -182,7 +183,7 @@ class WebSocketService {
 
 		this.reconnectAttempts++;
 		const delay = Math.min(
-			this.config.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1),
+			this.config.reconnectInterval * 2 ** (this.reconnectAttempts - 1),
 			30000
 		);
 

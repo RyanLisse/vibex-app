@@ -1,5 +1,13 @@
-import { vi } from "vitest";
-import { MessageSchema } from "./client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	AgentSchema,
+	createLettaClient,
+	LettaAPIError,
+	LettaClient,
+	type LettaConfig,
+	LettaConfigSchema,
+	MessageSchema,
+} from "./client";
 
 // Mock fetch globally
 
@@ -28,7 +36,10 @@ describe("LettaClient", () => {
 					projectId: "project-123",
 				};
 				const parsed = LettaConfigSchema.parse(validConfig);
-				expect(parsed).toEqual(validConfig);
+				expect(parsed).toMatchObject(validConfig);
+				expect(parsed.timeout).toBe(30000);
+				expect(parsed.maxRetries).toBe(3);
+				expect(parsed.retryDelay).toBe(1000);
 			});
 
 			it("should use default baseUrl", () => {
@@ -44,16 +55,26 @@ describe("LettaClient", () => {
 			});
 		});
 
-		describe("AgentTypeSchema", () => {
-			it("should validate agent types", () => {
-				const validTypes = ["orchestrator", "brainstorm", "low-latency", "memgpt", "react"];
-				validTypes.forEach((type) => {
-					expect(() => AgentTypeSchema.parse(type)).not.toThrow();
-				});
+		describe("AgentSchema", () => {
+			it("should validate agent data", () => {
+				const validAgent = {
+					id: "agent-123",
+					name: "Test Agent",
+					description: "A test agent",
+					persona: "Helpful assistant",
+					human: "User",
+					system: "System message",
+					tools: ["web_search"],
+					memory: { key: "value" },
+					metadata: { type: "test" },
+					created_at: new Date().toISOString(),
+					last_updated_at: new Date().toISOString(),
+				};
+				expect(() => AgentSchema.parse(validAgent)).not.toThrow();
 			});
 
-			it("should reject invalid agent types", () => {
-				expect(() => AgentTypeSchema.parse("invalid-type")).toThrow();
+			it("should reject invalid agent data", () => {
+				expect(() => AgentSchema.parse({ invalid: "data" })).toThrow();
 			});
 		});
 
@@ -84,36 +105,32 @@ describe("LettaClient", () => {
 			});
 		});
 
-		describe("AgentConfigSchema", () => {
+		describe("Agent Configuration", () => {
 			it("should parse valid agent config", () => {
 				const agentConfig = {
 					id: "agent-123",
 					name: "Test Agent",
-					type: "orchestrator" as const,
-					model: "gemini-1.5-pro",
-					systemPrompt: "You are a helpful assistant",
+					description: "A helpful assistant",
+					persona: "You are a helpful assistant",
+					human: "User",
+					system: "System context",
 					tools: ["web_search"],
-					memoryBlocks: ["context"],
-					voiceEnabled: true,
-					lowLatency: false,
+					memory: { context: "value" },
+					metadata: { model: "gemini-1.5-pro", temperature: 0.7 },
+					created_at: new Date().toISOString(),
+					last_updated_at: new Date().toISOString(),
 				};
-				const parsed = AgentConfigSchema.parse(agentConfig);
-				expect(parsed).toEqual(agentConfig);
+				const parsed = AgentSchema.parse(agentConfig);
+				expect(parsed).toMatchObject(agentConfig);
 			});
 
-			it("should use defaults for optional fields", () => {
+			it("should require mandatory fields", () => {
 				const minimalConfig = {
 					id: "agent-123",
 					name: "Test Agent",
-					type: "orchestrator" as const,
-					systemPrompt: "You are helpful",
 				};
-				const parsed = AgentConfigSchema.parse(minimalConfig);
-				expect(parsed.model).toBe("gemini-1.5-pro");
-				expect(parsed.tools).toEqual([]);
-				expect(parsed.memoryBlocks).toEqual([]);
-				expect(parsed.voiceEnabled).toBe(false);
-				expect(parsed.lowLatency).toBe(false);
+				// Should throw because required fields are missing
+				expect(() => AgentSchema.parse(minimalConfig)).toThrow();
 			});
 		});
 	});
@@ -121,17 +138,19 @@ describe("LettaClient", () => {
 	describe("constructor", () => {
 		it("should create client with valid config", () => {
 			expect(client).toBeDefined();
+			expect(client).toBeInstanceOf(LettaClient);
 		});
 
 		it("should validate config on creation", () => {
 			expect(() => new LettaClient({ apiKey: "" })).toThrow();
 		});
 
-		it("should set up base headers", () => {
+		it("should store configuration", () => {
 			// Access private property for testing
-			const headers = (client as any).baseHeaders;
-			expect(headers.Authorization).toBe("Bearer test-api-key");
-			expect(headers["Content-Type"]).toBe("application/json");
+			const storedConfig = (client as any).config;
+			expect(storedConfig.apiKey).toBe("test-api-key");
+			expect(storedConfig.baseUrl).toBe("https://api.test.com");
+			expect(storedConfig.projectId).toBe("test-project");
 		});
 	});
 
@@ -143,14 +162,16 @@ describe("LettaClient", () => {
 				json: () => Promise.resolve(mockResponse),
 			});
 
-			const result = await (client as any).request("/test-endpoint");
+			const result = await (client as any).request("GET", "/test-endpoint");
 
 			expect(mockFetch).toHaveBeenCalledWith(
 				"https://api.test.com/test-endpoint",
 				expect.objectContaining({
+					method: "GET",
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-api-key",
 						"Content-Type": "application/json",
+						"X-Project-ID": "test-project",
 					}),
 				})
 			);
@@ -162,30 +183,31 @@ describe("LettaClient", () => {
 				ok: false,
 				status: 404,
 				statusText: "Not Found",
+				text: () => Promise.resolve("Not Found"),
 			});
 
-			await expect((client as any).request("/invalid-endpoint")).rejects.toThrow(
-				"Letta API error: 404 Not Found"
+			await expect((client as any).request("GET", "/invalid-endpoint")).rejects.toThrow(
+				LettaAPIError
 			);
 		});
 
-		it("should merge custom headers", async () => {
+		it("should include request body in POST requests", async () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				json: () => Promise.resolve({}),
 			});
 
-			await (client as any).request("/test", {
-				headers: { "Custom-Header": "value" },
-			});
+			const body = { data: "test" };
+			await (client as any).request("POST", "/test", body);
 
 			expect(mockFetch).toHaveBeenCalledWith(
 				expect.any(String),
 				expect.objectContaining({
+					method: "POST",
+					body: JSON.stringify(body),
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-api-key",
 						"Content-Type": "application/json",
-						"Custom-Header": "value",
 					}),
 				})
 			);
@@ -200,39 +222,28 @@ describe("LettaClient", () => {
 				json: () => Promise.resolve(mockResponse),
 			});
 
-			const agentConfig: AgentConfig = {
-				id: "",
+			const agentConfig = {
 				name: "Test Agent",
-				type: "orchestrator",
-				model: "gemini-1.5-pro",
-				systemPrompt: "You are helpful",
+				description: "A test agent",
+				persona: "You are helpful",
+				human: "User",
+				system: "System context",
 				tools: ["web_search"],
-				memoryBlocks: ["context"],
-				voiceEnabled: true,
-				lowLatency: false,
+				metadata: { type: "orchestrator" },
 			};
 
 			const result = await client.createAgent(agentConfig);
 
 			expect(result).toEqual(mockResponse);
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents",
+				"https://api.test.com/v1/agents",
 				expect.objectContaining({
 					method: "POST",
-					body: JSON.stringify({
-						name: "Test Agent",
-						agent_type: "orchestrator",
-						llm_config: {
-							model: "gemini-1.5-pro",
-							model_endpoint_type: "google",
-						},
-						system: "You are helpful",
-						tools: ["web_search"],
-						memory_blocks: ["context"],
-						metadata: {
-							voice_enabled: true,
-							low_latency: false,
-						},
+					body: JSON.stringify(agentConfig),
+					headers: expect.objectContaining({
+						Authorization: "Bearer test-api-key",
+						"Content-Type": "application/json",
+						"X-Project-ID": "test-project",
 					}),
 				})
 			);
@@ -241,16 +252,18 @@ describe("LettaClient", () => {
 
 	describe("getAgent", () => {
 		it("should get agent by ID", async () => {
-			const mockAgent: AgentConfig = {
+			const mockAgent = {
 				id: "agent-123",
 				name: "Test Agent",
-				type: "orchestrator",
-				model: "gemini-1.5-pro",
-				systemPrompt: "You are helpful",
+				description: "Test description",
+				persona: "Helper",
+				human: "User",
+				system: "System",
 				tools: [],
-				memoryBlocks: [],
-				voiceEnabled: false,
-				lowLatency: false,
+				memory: {},
+				metadata: {},
+				created_at: new Date().toISOString(),
+				last_updated_at: new Date().toISOString(),
 			};
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
@@ -261,10 +274,13 @@ describe("LettaClient", () => {
 
 			expect(result).toEqual(mockAgent);
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123",
+				"https://api.test.com/v1/agents/agent-123",
 				expect.objectContaining({
+					method: "GET",
 					headers: expect.objectContaining({
 						Authorization: "Bearer test-api-key",
+						"Content-Type": "application/json",
+						"X-Project-ID": "test-project",
 					}),
 				})
 			);
@@ -273,28 +289,32 @@ describe("LettaClient", () => {
 
 	describe("listAgents", () => {
 		it("should list all agents", async () => {
-			const mockAgents: AgentConfig[] = [
+			const mockAgents = [
 				{
 					id: "agent-1",
 					name: "Agent 1",
-					type: "orchestrator",
-					model: "gemini-1.5-pro",
-					systemPrompt: "System 1",
+					description: "First agent",
+					persona: "Helper 1",
+					human: "User",
+					system: "System 1",
 					tools: [],
-					memoryBlocks: [],
-					voiceEnabled: false,
-					lowLatency: false,
+					memory: {},
+					metadata: {},
+					created_at: new Date().toISOString(),
+					last_updated_at: new Date().toISOString(),
 				},
 				{
 					id: "agent-2",
 					name: "Agent 2",
-					type: "brainstorm",
-					model: "gemini-1.5-pro",
-					systemPrompt: "System 2",
-					tools: [],
-					memoryBlocks: [],
-					voiceEnabled: true,
-					lowLatency: true,
+					description: "Second agent",
+					persona: "Helper 2",
+					human: "User",
+					system: "System 2",
+					tools: ["search"],
+					memory: {},
+					metadata: {},
+					created_at: new Date().toISOString(),
+					last_updated_at: new Date().toISOString(),
 				},
 			];
 			mockFetch.mockResolvedValueOnce({
@@ -305,7 +325,15 @@ describe("LettaClient", () => {
 			const result = await client.listAgents();
 
 			expect(result).toEqual(mockAgents);
-			expect(mockFetch).toHaveBeenCalledWith("https://api.test.com/agents", expect.any(Object));
+			expect(mockFetch).toHaveBeenCalledWith(
+				"https://api.test.com/v1/agents",
+				expect.objectContaining({
+					method: "GET",
+					headers: expect.objectContaining({
+						Authorization: "Bearer test-api-key",
+					}),
+				})
+			);
 		});
 	});
 
@@ -319,9 +347,14 @@ describe("LettaClient", () => {
 			await client.deleteAgent("agent-123");
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123",
+				"https://api.test.com/v1/agents/agent-123",
 				expect.objectContaining({
 					method: "DELETE",
+					headers: expect.objectContaining({
+						Authorization: "Bearer test-api-key",
+						"Content-Type": "application/json",
+						"X-Project-ID": "test-project",
+					}),
 				})
 			);
 		});
@@ -329,26 +362,42 @@ describe("LettaClient", () => {
 
 	describe("sendMessage", () => {
 		it("should send regular message", async () => {
-			const mockMessage: Message = {
-				id: "msg-123",
-				role: "assistant",
-				content: "Hello back!",
-				timestamp: new Date(),
-				agentId: "agent-123",
+			const mockResponse = {
+				messages: [
+					{
+						id: "msg-123",
+						role: "assistant",
+						content: "Hello back!",
+						timestamp: new Date(),
+						agentId: "agent-123",
+					},
+				],
+				usage: {
+					completion_tokens: 10,
+					prompt_tokens: 5,
+					total_tokens: 15,
+				},
 			};
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
-				json: () => Promise.resolve(mockMessage),
+				json: () => Promise.resolve(mockResponse),
 			});
 
-			const result = await client.sendMessage("agent-123", "Hello!");
+			const result = await client.sendMessage({
+				agent_id: "agent-123",
+				message: "Hello!",
+				role: "user",
+			});
 
-			expect(result).toEqual(mockMessage);
+			expect(result).toEqual(mockResponse);
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/messages",
+				"https://api.test.com/v1/agents/agent-123/messages",
 				expect.objectContaining({
 					method: "POST",
-					body: JSON.stringify({ message: "Hello!" }),
+					body: JSON.stringify({ message: "Hello!", role: "user" }),
+					headers: expect.objectContaining({
+						Authorization: "Bearer test-api-key",
+					}),
 				})
 			);
 		});
@@ -360,11 +409,16 @@ describe("LettaClient", () => {
 				body: mockStream,
 			});
 
-			const result = await client.sendMessage("agent-123", "Hello!", true);
+			const resultPromise = client.sendMessage({
+				agent_id: "agent-123",
+				message: "Hello!",
+				stream: true,
+			});
 
-			expect(result).toBe(mockStream);
+			// For streaming, it should return a promise that resolves to a response
+			await expect(resultPromise).resolves.toBeDefined();
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/messages/stream",
+				"https://api.test.com/v1/agents/agent-123/messages",
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify({ message: "Hello!", stream: true }),
@@ -376,11 +430,16 @@ describe("LettaClient", () => {
 			mockFetch.mockResolvedValueOnce({
 				ok: false,
 				status: 500,
+				text: () => Promise.resolve("Internal Server Error"),
 			});
 
-			await expect(client.sendMessage("agent-123", "Hello!", true)).rejects.toThrow(
-				"Letta API error: 500"
-			);
+			await expect(
+				client.sendMessage({
+					agent_id: "agent-123",
+					message: "Hello!",
+					stream: true,
+				})
+			).rejects.toThrow(LettaAPIError);
 		});
 	});
 
@@ -411,8 +470,13 @@ describe("LettaClient", () => {
 
 			expect(result).toEqual(mockMessages);
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/messages?limit=50",
-				expect.any(Object)
+				"https://api.test.com/v1/agents/agent-123/messages",
+				expect.objectContaining({
+					method: "GET",
+					headers: expect.objectContaining({
+						Authorization: "Bearer test-api-key",
+					}),
+				})
 			);
 		});
 
@@ -422,149 +486,16 @@ describe("LettaClient", () => {
 				json: () => Promise.resolve({ messages: [] }),
 			});
 
-			await client.getMessages("agent-123", 10);
+			await client.getMessages("agent-123", { limit: 10 });
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/messages?limit=10",
-				expect.any(Object)
-			);
-		});
-	});
-
-	describe("createVoiceSession", () => {
-		it("should create voice session", async () => {
-			const mockSession = { sessionId: "voice-session-123" };
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockSession),
-			});
-
-			const result = await client.createVoiceSession("agent-123");
-
-			expect(result).toEqual(mockSession);
-			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/voice/sessions",
+				"https://api.test.com/v1/agents/agent-123/messages?limit=10",
 				expect.objectContaining({
-					method: "POST",
-					body: JSON.stringify({
-						voice_config: {
-							provider: "google",
-							voice_id: "en-US-Neural2-F",
-						},
+					method: "GET",
+					headers: expect.objectContaining({
+						Authorization: "Bearer test-api-key",
 					}),
 				})
-			);
-		});
-	});
-
-	describe("sendVoiceMessage", () => {
-		it("should send voice message", async () => {
-			const mockResponse = {
-				audio_response: [1, 2, 3, 4],
-				text_response: "Voice response text",
-			};
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockResponse),
-			});
-
-			const audioData = new ArrayBuffer(10);
-			const result = await client.sendVoiceMessage("agent-123", "session-123", audioData);
-
-			expect(result.textResponse).toBe("Voice response text");
-			expect(result.audioResponse).toBeInstanceOf(ArrayBuffer);
-			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/voice/messages",
-				expect.objectContaining({
-					method: "POST",
-					headers: {
-						Authorization: "Bearer test-api-key",
-					},
-					body: expect.any(FormData),
-				})
-			);
-		});
-
-		it("should throw error on voice API failure", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: false,
-				status: 400,
-			});
-
-			const audioData = new ArrayBuffer(10);
-			await expect(client.sendVoiceMessage("agent-123", "session-123", audioData)).rejects.toThrow(
-				"Voice API error: 400"
-			);
-		});
-	});
-
-	describe("sendAgentMessage", () => {
-		it("should send message between agents", async () => {
-			const mockMessage: Message = {
-				id: "msg-123",
-				role: "assistant",
-				content: "Agent communication",
-				timestamp: new Date(),
-				agentId: "agent-to-123",
-			};
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockMessage),
-			});
-
-			const result = await client.sendAgentMessage(
-				"agent-from-123",
-				"agent-to-123",
-				"Hello agent!"
-			);
-
-			expect(result).toEqual(mockMessage);
-			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-from-123/send-to/agent-to-123",
-				expect.objectContaining({
-					method: "POST",
-					body: JSON.stringify({ message: "Hello agent!" }),
-				})
-			);
-		});
-	});
-
-	describe("updateMemory", () => {
-		it("should update agent memory block", async () => {
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve({}),
-			});
-
-			await client.updateMemory("agent-123", "context", "Updated context content");
-
-			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/memory/context",
-				expect.objectContaining({
-					method: "PUT",
-					body: JSON.stringify({ content: "Updated context content" }),
-				})
-			);
-		});
-	});
-
-	describe("getMemory", () => {
-		it("should get agent memory", async () => {
-			const mockMemory = {
-				context: "Current context",
-				preferences: "User preferences",
-			};
-			mockFetch.mockResolvedValueOnce({
-				ok: true,
-				json: () => Promise.resolve(mockMemory),
-			});
-
-			const result = await client.getMemory("agent-123");
-
-			expect(result).toEqual(mockMemory);
-			expect(mockFetch).toHaveBeenCalledWith(
-				"https://api.test.com/agents/agent-123/memory",
-				expect.any(Object)
 			);
 		});
 	});

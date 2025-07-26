@@ -1,5 +1,5 @@
 // Task API integration layer
-import { z } from "zod";
+import type { z } from "zod";
 import {
 	EnhancedTaskSchema,
 	ScreenshotBugReportSchema,
