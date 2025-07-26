@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { type WASMServices, wasmServices } from "./services";
-import { createSQLiteWASMUtils, type SQLiteWASMUtils } from "./sqlite-utils";
+import { WASMServices, wasmServices } from "./services";
+import { createSQLiteWASMUtils, SQLiteWASMUtils } from "./sqlite-utils";
 import {
 	calculateFastSimilarity,
 	createOptimizedEmbedding,
@@ -16,11 +16,16 @@ import {
 
 describe("WASM Integration", () => {
 	it("should load WASM modules successfully", () => {
+		// Test if we can import the modules
+		expect(typeof wasmServices).toBe("object");
 		expect(wasmServices).toBeDefined();
-		expect(wasmServices).toBeInstanceOf(WASMServices);
+		expect(wasmServices.constructor).toBe(WASMServices);
 	});
 
 	it("should create SQLite WASM utilities", () => {
+		// Test the factory function
+		expect(typeof createSQLiteWASMUtils).toBe("function");
+
 		const utils = createSQLiteWASMUtils();
 		expect(utils).toBeDefined();
 		expect(utils).toBeInstanceOf(SQLiteWASMUtils);

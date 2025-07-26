@@ -44,8 +44,13 @@ describe("MultiAgentSystem Schemas", () => {
 			const session = {
 				id: "session-123",
 				userId: "user-456",
-				status: "active",
+				type: "chat" as const,
+				status: "active" as const,
+				activeAgents: ["agent-1", "agent-2"],
+				context: { key: "value", setting: "test" },
 				createdAt: new Date(),
+				updatedAt: new Date(),
+				lastActivity: new Date(),
 			};
 			const parsed = SessionSchema.parse(session);
 			expect(parsed).toEqual(session);

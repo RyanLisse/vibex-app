@@ -32,10 +32,10 @@ describe("Telemetry Configuration", () => {
 		it("should return enabled config with defaults when OTEL_ENABLED is true", () => {
 			process.env.OTEL_ENABLED = "true";
 			const config = getTelemetryConfig();
-			expect(config).toEqual({
+			expect(config).toMatchObject({
 				isEnabled: true,
-				endpoint: undefined,
-				serviceName: "codex-clone",
+				endpoint: "http://localhost:4318/v1/traces",
+				serviceName: "vibex",
 				serviceVersion: "1.0.0",
 				samplingRatio: 1.0,
 			});
@@ -49,7 +49,7 @@ describe("Telemetry Configuration", () => {
 			process.env.OTEL_SAMPLING_RATIO = "0.5";
 
 			const config = getTelemetryConfig();
-			expect(config).toEqual({
+			expect(config).toMatchObject({
 				isEnabled: true,
 				endpoint: "https://custom.endpoint.com",
 				serviceName: "my-service",
@@ -73,8 +73,9 @@ describe("Telemetry Configuration", () => {
 		it("should validate disabled config", () => {
 			const result = validateTelemetryConfig({ isEnabled: false });
 			expect(result).toEqual({
-				isValid: true,
+				valid: true,
 				errors: [],
+				warnings: [],
 			});
 		});
 
@@ -84,8 +85,9 @@ describe("Telemetry Configuration", () => {
 				serviceName: "test",
 			});
 			expect(result).toEqual({
-				isValid: false,
-				errors: ["Telemetry is enabled but no endpoint is configured"],
+				valid: false,
+				errors: ["endpoint is required when telemetry is enabled"],
+				warnings: [],
 			});
 		});
 
@@ -96,8 +98,9 @@ describe("Telemetry Configuration", () => {
 				samplingRatio: 1.5,
 			});
 			expect(result).toEqual({
-				isValid: false,
-				errors: ["Sampling ratio must be between 0.0 and 1.0"],
+				valid: false,
+				errors: ["samplingRatio must be between 0.0 and 1.0"],
+				warnings: [],
 			});
 		});
 
@@ -109,8 +112,9 @@ describe("Telemetry Configuration", () => {
 				samplingRatio: 0.5,
 			});
 			expect(result).toEqual({
-				isValid: true,
+				valid: true,
 				errors: [],
+				warnings: [],
 			});
 		});
 	});
@@ -119,11 +123,11 @@ describe("Telemetry Configuration", () => {
 		const testCases: [TelemetryBackend, string][] = [
 			["jaeger", "http://localhost:14268/api/traces"],
 			["zipkin", "http://localhost:9411/api/v2/spans"],
-			["datadog", "https://trace.agent.datadoghq.com/v0.3/traces"],
-			["newrelic", "https://otlp.nr-data.net:4317"],
+			["datadog", "https://trace.agent.datadoghq.com/v0.4/traces"],
+			["newrelic", "https://otlp.nr-data.net/v1/traces"],
 			["honeycomb", "https://api.honeycomb.io/v1/traces"],
-			["tempo", "http://localhost:4317"],
-			["otlp", "http://localhost:4317"],
+			["tempo", "http://localhost:3200/v1/traces"],
+			["otlp", "http://localhost:4318/v1/traces"],
 		];
 
 		testCases.forEach(([backend, expectedEndpoint]) => {

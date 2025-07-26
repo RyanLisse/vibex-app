@@ -65,8 +65,15 @@ export default defineConfig({
     watch: false,
     css: false,
     
-    // Basic reporter
-    reporter: 'basic',
+    // Updated reporter configuration
+    reporters: [
+      [
+        "default",
+        {
+          summary: false
+        }
+      ]
+    ],
     
     // Force exit
     forceRerunTriggers: [],

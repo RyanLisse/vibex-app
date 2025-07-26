@@ -141,19 +141,42 @@ export class WASMObservabilityIntegration {
 	 * Set up error tracking
 	 */
 	private setupErrorTracking(): void {
-		// Global error handler for WASM-related errors
-		window.addEventListener("error", (event) => {
-			if (event.error && event.error.message?.includes("wasm")) {
-				observability.recordError("wasm.runtime.error", event.error);
-			}
-		});
+		// Check if we're in a browser environment
+		if (typeof window !== "undefined" && window.addEventListener) {
+			// Global error handler for WASM-related errors
+			window.addEventListener("error", (event) => {
+				if (event.error && event.error.message?.includes("wasm")) {
+					observability.recordError("wasm.runtime.error", event.error);
+				}
+			});
 
-		// Unhandled promise rejection handler
-		window.addEventListener("unhandledrejection", (event) => {
-			if (event.reason && event.reason.message?.includes("wasm")) {
-				observability.recordError("wasm.promise.rejection", event.reason);
-			}
-		});
+			// Unhandled promise rejection handler
+			window.addEventListener("unhandledrejection", (event) => {
+				if (event.reason && event.reason.message?.includes("wasm")) {
+					observability.recordError("wasm.promise.rejection", event.reason);
+				}
+			});
+		} else if (typeof process !== "undefined" && process.on) {
+			// Node.js environment - use process event handlers
+			process.on("uncaughtException", (error) => {
+				if (error.message?.includes("wasm")) {
+					observability.recordError("wasm.runtime.error", error);
+				}
+			});
+
+			process.on("unhandledRejection", (reason) => {
+				if (
+					reason &&
+					typeof reason === "object" &&
+					"message" in reason &&
+					typeof reason.message === "string" &&
+					reason.message.includes("wasm")
+				) {
+					observability.recordError("wasm.promise.rejection", reason as Error);
+				}
+			});
+		}
+		// If neither environment is detected, silently skip error tracking setup
 	}
 
 	/**

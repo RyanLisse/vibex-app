@@ -394,14 +394,14 @@ describe("TDD Framework Core", () => {
 			expect(execution).toEqual(["beforeAll", "beforeEach", "test", "afterEach", "afterAll"]);
 		});
 
-		it("should reset framework state", () => {
+		it("should reset framework state", async () => {
 			framework.createTestSuite("Suite 1");
 			framework.createTestSuite("Suite 2");
 
 			framework.reset();
 
-			const results = framework.runAllSuites();
-			expect(results).resolves.toHaveLength(0);
+			const results = await framework.runAllSuites();
+			expect(results).toHaveLength(0);
 		});
 	});
 
